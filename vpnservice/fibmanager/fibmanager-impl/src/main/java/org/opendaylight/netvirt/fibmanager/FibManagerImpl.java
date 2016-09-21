@@ -123,6 +123,12 @@ public class FibManagerImpl implements IFibManager {
     }
 
     @Override
+    public void addOrUpdateL2FibEntry(DataBroker broker, String rd, String prefix, List<String> nextHopList,
+                               String vni, RouteOrigin origin, String macAddress, String gatewayMac, WriteTransaction writeConfigTxn) {
+        FibUtil.addOrUpdateL2FibEntry(broker, rd, prefix , nextHopList, vni, origin, macAddress, gatewayMac, writeConfigTxn);
+    }
+
+    @Override
     public void removeOrUpdateFibEntry(DataBroker broker, String rd, String prefix,
                                        String nextHopToRemove, WriteTransaction writeConfigTxn) {
         FibUtil.removeOrUpdateFibEntry(broker, rd, prefix, nextHopToRemove, writeConfigTxn);

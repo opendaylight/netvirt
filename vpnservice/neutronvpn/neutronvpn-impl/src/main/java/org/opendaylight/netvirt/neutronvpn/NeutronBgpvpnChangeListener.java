@@ -22,6 +22,7 @@ import org.opendaylight.controller.md.sal.common.api.data.AsyncDataBroker.DataCh
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.mdsalutil.AbstractDataChangeListener;
 import org.opendaylight.netvirt.neutronvpn.api.utils.NeutronConstants;
+import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.instances.VpnInstance;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.CreateIdPoolInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.CreateIdPoolInputBuilder;
@@ -92,7 +93,10 @@ public class NeutronBgpvpnChangeListener extends AbstractDataChangeListener<Bgpv
         if (LOG.isTraceEnabled()) {
             LOG.trace("Adding Bgpvpn : key: " + identifier + ", value=" + input);
         }
+        VpnInstance.Type vpnInstanceType = VpnInstance.Type.L2;
         if (isBgpvpnTypeL3(input.getType())) {
+            vpnInstanceType = VpnInstance.Type.L3;
+        }
             // handle route-target(s)
             List<String> importRouteTargets = new ArrayList<String>();
             List<String> exportRouteTargets = new ArrayList<String>();
@@ -136,7 +140,7 @@ public class NeutronBgpvpnChangeListener extends AbstractDataChangeListener<Bgpv
             if (rd != null) {
                 try {
                     nvpnManager.createL3Vpn(input.getUuid(), input.getName(), input.getTenantId(), rd, importRouteTargets,
-                            exportRouteTargets, router, input.getNetworks());
+                            exportRouteTargets, router, input.getNetworks(), vpnInstanceType);
                 } catch (Exception e) {
                     LOG.error("Creation of BGPVPN {} failed with error message {}. ", input.getUuid(),
                             e.getMessage(), e);
@@ -144,7 +148,6 @@ public class NeutronBgpvpnChangeListener extends AbstractDataChangeListener<Bgpv
             } else {
                 LOG.error("Create BgpVPN with id " + input.getUuid() + " failed due to missing/invalid RD value.");
             }
-        }
     }
 
     private List<String> generateNewRD(Uuid vpn) {
@@ -164,11 +167,9 @@ public class NeutronBgpvpnChangeListener extends AbstractDataChangeListener<Bgpv
         if (LOG.isTraceEnabled()) {
             LOG.trace("Removing Bgpvpn : key: " + identifier + ", value=" + input);
         }
-        if (isBgpvpnTypeL3(input.getType())) {
             nvpnManager.removeL3Vpn(input.getUuid());
             // Release RD Id in pool
             NeutronvpnUtils.releaseRDId(idManager, NeutronConstants.RD_IDPOOL_NAME, input.getUuid().toString());
-        }
     }
 
     @Override
@@ -176,7 +177,6 @@ public class NeutronBgpvpnChangeListener extends AbstractDataChangeListener<Bgpv
         if (LOG.isTraceEnabled()) {
             LOG.trace("Update Bgpvpn : key: " + identifier + ", value=" + update);
         }
-        if (isBgpvpnTypeL3(update.getType())) {
             List<Uuid> oldNetworks = original.getNetworks();
             List<Uuid> newNetworks = update.getNetworks();
             List<Uuid> oldRouters = original.getRouters();
@@ -184,7 +184,6 @@ public class NeutronBgpvpnChangeListener extends AbstractDataChangeListener<Bgpv
             Uuid vpnId = update.getUuid();
             handleNetworksUpdate(vpnId, oldNetworks, newNetworks);
             handleRoutersUpdate(vpnId, oldRouters, newRouters);
-        }
     }
 
     protected void handleNetworksUpdate(Uuid vpnId, List<Uuid> oldNetworks, List<Uuid> newNetworks) {

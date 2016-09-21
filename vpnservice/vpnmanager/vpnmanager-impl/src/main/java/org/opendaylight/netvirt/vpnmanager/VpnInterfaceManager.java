@@ -69,6 +69,7 @@ import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev14081
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.interfaces.VpnInterfaceKey;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.InterfacesState;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.PhysAddress;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.FlowCapableNode;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.FlowId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.tables.Table;
@@ -128,7 +129,12 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.vpn.instance.op.data.entry.vpn.to.dpn.list.IpAddresses;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.vpn.instance.op.data.entry.vpn.to.dpn.list.VpnInterfacesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.vpn.instance.op.data.entry.vpn.to.dpn.list.VpnInterfacesKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.Subnetmaps;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.networkmaps.NetworkMap;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.neutron.vpn.portip.port.data.VpnPortipToPort;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.subnetmaps.Subnetmap;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.subnetmaps.SubnetmapKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.networks.rev150712.networks.attributes.networks.Network;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.netvirt.inter.vpn.link.rev160311.inter.vpn.links.InterVpnLink;
 import org.opendaylight.yangtools.concepts.ListenerRegistration;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
@@ -576,7 +582,6 @@ public class VpnInterfaceManager extends AbstractDataChangeListener<VpnInterface
         // Read NextHops
         InstanceIdentifier<Adjacencies> path = identifier.augmentation(Adjacencies.class);
         Optional<Adjacencies> adjacencies = VpnUtil.read(dataBroker, LogicalDatastoreType.CONFIGURATION, path);
-
         if (adjacencies.isPresent()) {
             List<Adjacency> nextHops = adjacencies.get().getAdjacency();
             List<Adjacency> value = new ArrayList<>();
@@ -591,17 +596,23 @@ public class VpnInterfaceManager extends AbstractDataChangeListener<VpnInterface
             }
 
             List<VpnInstance> vpnsToImportRoute = getVpnsImportingMyRoute(vpnName);
-
+            VpnInstanceOpDataEntry vpnInstanceOpData = VpnUtil.getVpnInstanceOpData(dataBroker, rd);
             LOG.trace("NextHops for interface {} are {}", interfaceName, nextHops);
             for (Adjacency nextHop : nextHops) {
                 String prefix = VpnUtil.getIpPrefix(nextHop.getIpAddress());
-                long label = VpnUtil.getUniqueId(idManager, VpnConstants.VPN_IDPOOL_NAME,
-                        VpnUtil.getNextHopLabelKey((rd == null) ? vpnName
-                                : rd, prefix));
                 List<String> adjNextHop = nextHop.getNextHopIpList();
-                value.add(new AdjacencyBuilder(nextHop).setLabel(label).setNextHopIpList(
-                        (adjNextHop != null && !adjNextHop.isEmpty()) ? adjNextHop : Arrays.asList(nextHopIp))
-                        .setIpAddress(prefix).setKey(new AdjacencyKey(prefix)).build());
+                if (vpnInstanceOpData.getType().equals(VpnInstanceOpDataEntry.Type.L2)) {
+                    value.add(new AdjacencyBuilder(nextHop).setNextHopIpList(
+                            (adjNextHop != null && !adjNextHop.isEmpty()) ? adjNextHop : Arrays.asList(nextHopIp))
+                            .setIpAddress(prefix).setKey(new AdjacencyKey(prefix)).build());
+                } else {
+                    long label = VpnUtil.getUniqueId(idManager, VpnConstants.VPN_IDPOOL_NAME,
+                            VpnUtil.getNextHopLabelKey((rd == null) ? vpnName
+                                    : rd, prefix));
+                    value.add(new AdjacencyBuilder(nextHop).setLabel(label).setNextHopIpList(
+                            (adjNextHop != null && !adjNextHop.isEmpty()) ? adjNextHop : Arrays.asList(nextHopIp))
+                            .setIpAddress(prefix).setKey(new AdjacencyKey(prefix)).build());
+                }
 
                 if (nextHop.getMacAddress() != null && !nextHop.getMacAddress().isEmpty()) {
                     LOG.trace("Adding prefix {} to interface {} for vpn {}", prefix, interfaceName, vpnName);
@@ -629,27 +640,68 @@ public class VpnInterfaceManager extends AbstractDataChangeListener<VpnInterface
             long vpnId = VpnUtil.getVpnId(dataBroker, vpnName);
 
             for (Adjacency nextHop : aug.getAdjacency()) {
-                long label = nextHop.getLabel();
-                if (rd != null) {
-                    addToLabelMapper(label, dpnId, nextHop.getIpAddress(), Arrays.asList(nextHopIp), vpnId,
-                            interfaceName, null,false, rd, writeOperTxn);
-                    addPrefixToBGP(rd, nextHop.getIpAddress(), nextHopIp, label, writeConfigTxn);
-                    //TODO: ERT - check for VPNs importing my route
-                    for (VpnInstance vpn : vpnsToImportRoute) {
-                        String vpnRd = vpn.getIpv4Family().getRouteDistinguisher();
-                        if (vpnRd != null) {
-                            LOG.debug("Exporting route with rd {} prefix {} nexthop {} label {} to VPN {}", vpnRd, nextHop.getIpAddress(), nextHopIp, label, vpn);
-                            fibManager.addOrUpdateFibEntry(dataBroker, vpnRd, nextHop.getIpAddress(), Arrays.asList(nextHopIp), (int) label,
-                                    RouteOrigin.SELF_IMPORTED, writeConfigTxn);
-                        }
+                if (vpnInstanceOpData.getType().equals(VpnInstanceOpDataEntry.Type.L2)) {
+                    String vni = getVNIForInterface(interfaceName);
+                    String gatewayMac = getGatewayMac(interfaceName);
+                    if (rd != null) {
+                        addL2PrefixToBGP(rd, nextHop.getIpAddress(), nextHopIp,
+                                vni, nextHop.getMacAddress(), gatewayMac, writeConfigTxn);
+                    } else {
+                        fibManager.addOrUpdateL2FibEntry(dataBroker, rd, nextHop.getIpAddress(), Arrays.asList(nextHopIp), vni,
+                                RouteOrigin.STATIC, nextHop.getMacAddress(), gatewayMac, writeConfigTxn);
                     }
                 } else {
-                    // ### add FIB route directly
-                    fibManager.addOrUpdateFibEntry(dataBroker, vpnName, nextHop.getIpAddress(), Arrays.asList(nextHopIp),
-                            (int) label, RouteOrigin.STATIC, writeConfigTxn);
+                    long label = nextHop.getLabel();
+                    if (rd != null) {
+                        addToLabelMapper(label, dpnId, nextHop.getIpAddress(), Arrays.asList(nextHopIp), vpnId,
+                                interfaceName, null,false, rd, writeOperTxn);
+                        addPrefixToBGP(rd, nextHop.getIpAddress(), nextHopIp, label, writeConfigTxn);
+                        //TODO: ERT - check for VPNs importing my route
+                        for (VpnInstance vpn : vpnsToImportRoute) {
+                            String vpnRd = vpn.getIpv4Family().getRouteDistinguisher();
+                            if (vpnRd != null) {
+                                LOG.debug("Exporting route with rd {} prefix {} nexthop {} label {} to VPN {}", vpnRd, nextHop.getIpAddress(), nextHopIp, label, vpn);
+                                fibManager.addOrUpdateFibEntry(dataBroker, vpnRd, nextHop.getIpAddress(), Arrays.asList(nextHopIp), (int) label,
+                                        RouteOrigin.SELF_IMPORTED, writeConfigTxn);
+                            }
+                        }
+                    } else {
+                        // ### add FIB route directly
+                        fibManager.addOrUpdateFibEntry(dataBroker, vpnName, nextHop.getIpAddress(), Arrays.asList(nextHopIp),
+                                (int) label, RouteOrigin.STATIC, writeConfigTxn);
+                    }
                 }
             }
         }
+    }
+
+    private String getVNIForInterface(String interfaceName) {
+        VpnInterface vpnInterface = VpnUtil.getConfiguredVpnInterface(dataBroker, interfaceName);
+        String vni = null;
+        if (vpnInterface != null) {
+            String networkId = vpnInterface.getNetworkId();
+            Network network = VpnUtil.getNeutronNetwork(dataBroker, new Uuid(networkId));
+            vni = VpnUtil.getSegmentationIdFromNeutronNetwork(network);
+        }
+        return vni;
+    }
+
+    private String getGatewayMac(String interfaceName) {
+        String gateWayMac = null;
+        VpnInterface vpnInterface = VpnUtil.getConfiguredVpnInterface(dataBroker, interfaceName);
+        Optional<NetworkMap> optionalNetworkMap = VpnUtil.read(dataBroker, LogicalDatastoreType.CONFIGURATION,
+                VpnUtil.buildNetworkMapIdentifier(new Uuid(vpnInterface.getNetworkId())));
+        Uuid subnetId = optionalNetworkMap.get().getSubnetIdList().get(0);
+        InstanceIdentifier<Subnetmap> id = InstanceIdentifier.builder(Subnetmaps.class).child(Subnetmap.class,
+                new SubnetmapKey(subnetId)).build();
+        Subnetmap subnetMap = VpnUtil.read(dataBroker, LogicalDatastoreType.CONFIGURATION, id).get();
+        if (subnetMap.getRouterIntfMacAddress() != null) {
+            gateWayMac = subnetMap.getRouterIntfMacAddress();
+        } else {
+            //Retrieve mac from OUI
+        }
+
+        return gateWayMac;
     }
 
     private List<VpnInstance> getVpnsImportingMyRoute(final String vpnName) {
@@ -1082,6 +1134,17 @@ public class VpnInterfaceManager extends AbstractDataChangeListener<VpnInterface
         }
     }
 
+    private void addL2PrefixToBGP(String rd, String prefix, String nextHopIp, String vni, String macAddress, String gatewayMac, WriteTransaction writeConfigTxn) {
+        try {
+            LOG.info("ADD: Adding L2 Fib entry rd {} prefix {} nextHop {} vni {}", rd, prefix, nextHopIp, vni);
+            fibManager.addOrUpdateL2FibEntry(dataBroker, rd, prefix, Arrays.asList(nextHopIp), vni,
+                    RouteOrigin.STATIC, macAddress, gatewayMac, writeConfigTxn);
+            //bgpManager.advertisePrefix(rd, prefix, Arrays.asList(nextHopIp), (int)label);
+            LOG.info("ADD: Added L2 Fib entry rd {} prefix {} nextHop {} vni {}", rd, prefix, nextHopIp, vni);
+        } catch(Exception e) {
+            LOG.error("Add prefix for EVPN failed", e);
+        }
+    }
     @Override
     public void remove( InstanceIdentifier<VpnInterface> identifier, VpnInterface vpnInterface) {
         LOG.trace("Remove event - key: {}, value: {}" ,identifier, vpnInterface );

@@ -45,6 +45,8 @@ public interface IFibManager {
 
     void addOrUpdateFibEntry(DataBroker broker, String rd, String prefix, List<String> nextHopList,
                              int label, RouteOrigin origin, WriteTransaction writeConfigTxn);
+    void addOrUpdateL2FibEntry(DataBroker broker, String rd, String prefix, List<String> nextHopList,
+                             String vni, RouteOrigin origin, String macAdress, String gatewayMac, WriteTransaction writeConfigTxn);
     void removeOrUpdateFibEntry(DataBroker broker, String rd, String prefix, String nextHopToRemove, WriteTransaction writeConfigTxn);
     void removeFibEntry(DataBroker broker, String rd, String prefix, WriteTransaction writeConfigTxn);
     void addVrfTable(DataBroker broker, String rd, WriteTransaction writeConfigTxn);
