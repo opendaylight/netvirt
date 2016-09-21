@@ -50,7 +50,6 @@ import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev14081
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.VpnInstances;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.VpnInterfaces;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.instances.VpnInstance;
-import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.VpnInstances;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.instances.VpnInstanceKey;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.interfaces.VpnInterface;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.interfaces.VpnInterfaceKey;
@@ -59,12 +58,6 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.InterfaceKey;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.lockmanager.rev160413.LockManagerService;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.lockmanager.rev160413.TimeUnits;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.lockmanager.rev160413.TryLockInput;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.lockmanager.rev160413.TryLockInputBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.lockmanager.rev160413.UnlockInput;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.lockmanager.rev160413.UnlockInputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.Nodes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.Node;
@@ -140,7 +133,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.por
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.ports.attributes.ports.Port;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.rev150712.Neutron;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.RouterInterfacesMap;
 import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.data.impl.schema.tree.SchemaValidationFailedException;
@@ -273,7 +265,7 @@ public class VpnUtil {
         InstanceIdentifier<VpnInstance> id = InstanceIdentifier.builder(VpnInstances.class).child(VpnInstance.class,
                 new VpnInstanceKey(vpnInstanceName)).build();
         Optional<VpnInstance> vpnInstance = read(broker, LogicalDatastoreType.CONFIGURATION, id);
-        return (vpnInstance.isPresent()) ? vpnInstance.get() : null;
+        return vpnInstance.isPresent() ? vpnInstance.get() : null;
     }
 
     static List<VpnInstance> getAllVpnInstances(DataBroker broker) {
@@ -327,7 +319,7 @@ public class VpnUtil {
                             child(VrfEntry.class, new VrfEntryKey(ipPrefix)).build();
             Optional<VrfEntry> vrfEntry = read(broker, LogicalDatastoreType.CONFIGURATION, vrfEntryId);
             if (vrfEntry.isPresent()) {
-                return (vrfEntry.get());
+                return vrfEntry.get();
             }
         }
         return null;
@@ -643,14 +635,15 @@ public class VpnUtil {
         InstanceIdentifier<RouterInterfacesMap> id = idBuilder.build();
         Optional<RouterInterfacesMap> RouterInterfacesMap = MDSALUtil.read(broker, LogicalDatastoreType.CONFIGURATION, id);
         if (RouterInterfacesMap.isPresent()) {
-               List<org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.router.interfaces.map.RouterInterfaces> rtrInterfaces = RouterInterfacesMap.get().getRouterInterfaces();
-                  for (org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.router.interfaces.map.RouterInterfaces rtrInterface : rtrInterfaces) {
-                      List<org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.router.interfaces.map.router.interfaces.Interfaces> rtrIfc = rtrInterface.getInterfaces();
-                      for(org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.router.interfaces.map.router.interfaces.Interfaces ifc : rtrIfc)
-                       if (ifc.getInterfaceId().equals(interfaceName)) {
+              List<org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.router.interfaces.map.RouterInterfaces> rtrInterfaces = RouterInterfacesMap.get().getRouterInterfaces();
+              for (org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.router.interfaces.map.RouterInterfaces rtrInterface : rtrInterfaces) {
+                  List<org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.router.interfaces.map.router.interfaces.Interfaces> rtrIfc = rtrInterface.getInterfaces();
+                  for(org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.router.interfaces.map.router.interfaces.Interfaces ifc : rtrIfc) {
+                      if (ifc.getInterfaceId().equals(interfaceName)) {
                           return rtrInterface.getRouterId().getValue();
-                       }
+                      }
                   }
+              }
         }
         return null;
     }
@@ -926,20 +919,6 @@ public class VpnUtil {
         }
     }
 
-    /**
-     * Removes a specific interface from the VpnToDpn operative map.
-     *
-     * @param broker    dataBroker service reference
-     * @param rd        Route-distinguisher of the VPN
-     * @param dpnId     Id of the DPN where the interface is
-     * @param ifaceName interface name.
-     */
-    public static void removeIfaceFromVpnToDpnMap(DataBroker broker, String rd, BigInteger dpnId, String ifaceName) {
-        tryDelete(broker, LogicalDatastoreType.CONFIGURATION, getVpnToDpnInterfacePath(rd, dpnId, ifaceName));
-        // Note: tryDelete is a best-effort. Sometimes we want to update the VpnToDpnMap ifaces when the
-        // DPN has gone down (and the VpnToDpnMap has been removed in a different Thread)
-    }
-
     public static void removePrefixToInterfaceForVpnId(DataBroker broker, long vpnId, WriteTransaction writeTxn) {
         try {
             // Clean up PrefixToInterface Operational DS
@@ -1095,8 +1074,9 @@ public class VpnUtil {
         for (BigInteger dpId : dpnIdPool) {
             if (excludingDPNs == null || !excludingDPNs.contains(dpId)) {
                 result.add(dpId);
-                if (result.size() == numberOfDPNs)
+                if (result.size() == numberOfDPNs) {
                     break;
+                }
             }
         }
 
