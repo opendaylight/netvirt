@@ -19,6 +19,7 @@ import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.netvirt.bgpmanager.api.IBgpManager;
+import org.opendaylight.netvirt.vpnmanager.VpnOpDataSyncer.VpnOpDataType;
 import org.opendaylight.netvirt.vpnmanager.utilities.InterfaceUtils;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface.OperStatus;
@@ -62,16 +63,19 @@ public class VpnSubnetRouteHandler implements NeutronvpnListener {
     private final VpnInterfaceManager vpnInterfaceManager;
     private final IdManagerService idManager;
     private LockManagerService lockManager;
+    private final VpnOpDataSyncer vpnOpDataSyncer;
 
     public VpnSubnetRouteHandler(final DataBroker dataBroker, final SubnetOpDpnManager subnetOpDpnManager,
                                  final IBgpManager bgpManager, final VpnInterfaceManager vpnIntfManager,
-                                 final IdManagerService idManager, LockManagerService lockManagerService) {
+                                 final IdManagerService idManager, LockManagerService lockManagerService,
+                                 final VpnOpDataSyncer vpnOpDataSyncer) {
         this.dataBroker = dataBroker;
         this.subOpDpnManager = subnetOpDpnManager;
         this.bgpManager = bgpManager;
         this.vpnInterfaceManager = vpnIntfManager;
         this.idManager = idManager;
         this.lockManager = lockManagerService;
+        this.vpnOpDataSyncer = vpnOpDataSyncer;
     }
 
     @Override
@@ -90,10 +94,11 @@ public class VpnSubnetRouteHandler implements NeutronvpnListener {
         Preconditions.checkNotNull(vpnName, "VpnName cannot be null or empty!");
         Preconditions.checkNotNull(elanTag, "ElanTag cannot be null or empty!");
 
-        logger.info("onSubnetAddedToVpn: Subnet " + subnetId.getValue() + " being added to vpn");
+        logger.info("onSubnetAddedToVpn: Subnet {} being added to vpn", subnetId.getValue());
         long vpnId = VpnUtil.getVpnId(dataBroker, vpnName);
         if (vpnId == VpnConstants.INVALID_ID) {
-            vpnInterfaceManager.waitForVpnInstance(vpnName, VpnConstants.PER_VPN_INSTANCE_MAX_WAIT_TIME_IN_MILLISECONDS, vpnInterfaceManager.getvpnInstanceToIdSynchronizerMap());
+            vpnOpDataSyncer.waitForVpnDataReady(VpnOpDataType.vpnInstanceToId, vpnName,
+                                                VpnConstants.PER_VPN_INSTANCE_MAX_WAIT_TIME_IN_MILLISECONDS);
             vpnId = VpnUtil.getVpnId(dataBroker, vpnName);
             if (vpnId == VpnConstants.INVALID_ID) {
                 logger.error("onSubnetAddedToVpn: VpnInstance to VPNId mapping not yet available for VpnName {} processing subnet {} with IP {} " +
