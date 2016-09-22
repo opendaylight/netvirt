@@ -16,6 +16,7 @@ import com.google.common.util.concurrent.ListenableFuture;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Future;
 
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
@@ -47,6 +48,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.arputil.rev160406.Se
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.arputil.rev160406.SendArpRequestInputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.arputil.rev160406.interfaces.InterfaceAddress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.arputil.rev160406.interfaces.InterfaceAddressBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.OdlInterfaceRpcService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fib.rpc.rev160121.CreateFibEntryInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fib.rpc.rev160121.CreateFibEntryInputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fib.rpc.rev160121.FibRpcService;
@@ -73,11 +75,13 @@ public class VpnFloatingIpHandler implements FloatingIPHandler {
     private final FloatingIPListener floatingIPListener;
     private final IVpnManager vpnManager;
     private final IFibManager fibManager;
+    private final OdlInterfaceRpcService ifaceMgrRpcService;
     private final OdlArputilService arpUtilService;
     private final IElanService elanService;
 
     static final BigInteger COOKIE_TUNNEL = new BigInteger("9000000", 16);
     static final String FLOWID_PREFIX = "NAT.";
+    ConcurrentHashMap<String, String> floatingIpToFixedPortMap = new ConcurrentHashMap<String, String>();
 
     public VpnFloatingIpHandler(final DataBroker dataBroker, final IMdsalApiManager mdsalManager,
                                 final VpnRpcService vpnService,
@@ -86,6 +90,7 @@ public class VpnFloatingIpHandler implements FloatingIPHandler {
                                 final FloatingIPListener floatingIPListener,
                                 final IFibManager fibManager,
                                 final OdlArputilService arputilService,
+                                final OdlInterfaceRpcService ifaceMgrRpcService,
                                 final IVpnManager vpnManager,
                                 final IElanService elanService) {
         this.dataBroker = dataBroker;
@@ -96,6 +101,7 @@ public class VpnFloatingIpHandler implements FloatingIPHandler {
         this.floatingIPListener = floatingIPListener;
         this.fibManager = fibManager;
         this.arpUtilService = arputilService;
+        this.ifaceMgrRpcService = ifaceMgrRpcService;
         this.vpnManager = vpnManager;
         this.elanService = elanService;
     }
@@ -150,8 +156,11 @@ public class VpnFloatingIpHandler implements FloatingIPHandler {
                     WriteTransaction writeTx = dataBroker.newWriteOnlyTransaction();
                     IpAddress externalIpAddress = new IpAddress(new Ipv4Address(externalIp));
                     Port neutronPort = NatUtil.getNeutronPortForFloatingIp(dataBroker, externalIpAddress);
-                    if (neutronPort != null && neutronPort.getMacAddress() != null) {
-                        vpnManager.setupSubnetMacIntoVpnInstance(vpnName, neutronPort.getMacAddress().getValue(), writeTx, NwConstants.ADD_FLOW);
+                    LOG.debug("Add Floating Ip {} , found associated to fixed port {}", externalIp, interfaceName);
+                    if (neutronPort != null && neutronPort.getMacAddress() != null &&
+                            (dpnId != BigInteger.ZERO)) {
+                        vpnManager.setupSubnetMacIntoVpnInstance(vpnName, neutronPort.getMacAddress().getValue(),
+                                dpnId, writeTx, NwConstants.ADD_FLOW);
                     }
                     writeTx.submit();
                     return JdkFutureAdapters.listenInPoolThread(future);
@@ -199,8 +208,11 @@ public class VpnFloatingIpHandler implements FloatingIPHandler {
         WriteTransaction writeTx = dataBroker.newWriteOnlyTransaction();
         IpAddress externalIpAddress = new IpAddress(new Ipv4Address(externalIp));
         Port neutronPort = NatUtil.getNeutronPortForFloatingIp(dataBroker, externalIpAddress);
-        if (neutronPort != null && neutronPort.getMacAddress() != null) {
-            vpnManager.setupSubnetMacIntoVpnInstance(vpnName, neutronPort.getMacAddress().getValue(), writeTx, NwConstants.DEL_FLOW);
+        LOG.debug("Removing FloatingIp {}", externalIp);
+        if (neutronPort != null && neutronPort.getMacAddress() != null &&
+                (dpnId != BigInteger.ZERO)) {
+            vpnManager.setupSubnetMacIntoVpnInstance(vpnName, neutronPort.getMacAddress().getValue(),
+                    dpnId, writeTx, NwConstants.DEL_FLOW);
         }
         writeTx.submit();
         //Remove Prefix from BGP
