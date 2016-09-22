@@ -47,6 +47,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.arputil.rev160406.Se
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.arputil.rev160406.SendArpRequestInputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.arputil.rev160406.interfaces.InterfaceAddress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.arputil.rev160406.interfaces.InterfaceAddressBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.OdlInterfaceRpcService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fib.rpc.rev160121.CreateFibEntryInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fib.rpc.rev160121.CreateFibEntryInputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fib.rpc.rev160121.FibRpcService;
@@ -73,6 +74,7 @@ public class VpnFloatingIpHandler implements FloatingIPHandler {
     private final FloatingIPListener floatingIPListener;
     private final IVpnManager vpnManager;
     private final IFibManager fibManager;
+    private final OdlInterfaceRpcService ifaceMgrRpcService;
     private final OdlArputilService arpUtilService;
     private final IElanService elanService;
 
@@ -86,6 +88,7 @@ public class VpnFloatingIpHandler implements FloatingIPHandler {
                                 final FloatingIPListener floatingIPListener,
                                 final IFibManager fibManager,
                                 final OdlArputilService arputilService,
+                                final OdlInterfaceRpcService ifaceMgrRpcService,
                                 final IVpnManager vpnManager,
                                 final IElanService elanService) {
         this.dataBroker = dataBroker;
@@ -96,6 +99,7 @@ public class VpnFloatingIpHandler implements FloatingIPHandler {
         this.floatingIPListener = floatingIPListener;
         this.fibManager = fibManager;
         this.arpUtilService = arputilService;
+        this.ifaceMgrRpcService = ifaceMgrRpcService;
         this.vpnManager = vpnManager;
         this.elanService = elanService;
     }
@@ -150,8 +154,18 @@ public class VpnFloatingIpHandler implements FloatingIPHandler {
                     WriteTransaction writeTx = dataBroker.newWriteOnlyTransaction();
                     IpAddress externalIpAddress = new IpAddress(new Ipv4Address(externalIp));
                     Port neutronPort = NatUtil.getNeutronPortForFloatingIp(dataBroker, externalIpAddress);
-                    if (neutronPort != null && neutronPort.getMacAddress() != null) {
-                        vpnManager.setupSubnetMacIntoVpnInstance(vpnName, neutronPort.getMacAddress().getValue(), writeTx, NwConstants.ADD_FLOW);
+                    BigInteger intfDpnId = BigInteger.ZERO;
+                    try {
+                        intfDpnId = NatUtil.getDpnForInterface(ifaceMgrRpcService,
+                                neutronPort.getUuid().getValue());
+                    } catch (Exception e){
+                        LOG.error("Unable to retrieve dpnId for floatingip interface {}. Process floatingip interface add fail with exception {}.",
+                                neutronPort.getUuid().getValue(), e);
+                    }
+                    if (neutronPort != null && neutronPort.getMacAddress() != null &&
+                            (intfDpnId != BigInteger.ZERO)) {
+                        vpnManager.setupSubnetMacIntoVpnInstance(vpnName, neutronPort.getMacAddress().getValue(),
+                                intfDpnId, writeTx, NwConstants.ADD_FLOW);
                     }
                     writeTx.submit();
                     return JdkFutureAdapters.listenInPoolThread(future);
@@ -199,8 +213,18 @@ public class VpnFloatingIpHandler implements FloatingIPHandler {
         WriteTransaction writeTx = dataBroker.newWriteOnlyTransaction();
         IpAddress externalIpAddress = new IpAddress(new Ipv4Address(externalIp));
         Port neutronPort = NatUtil.getNeutronPortForFloatingIp(dataBroker, externalIpAddress);
-        if (neutronPort != null && neutronPort.getMacAddress() != null) {
-            vpnManager.setupSubnetMacIntoVpnInstance(vpnName, neutronPort.getMacAddress().getValue(), writeTx, NwConstants.DEL_FLOW);
+        BigInteger intfDpnId = BigInteger.ZERO;
+        try {
+            intfDpnId = NatUtil.getDpnForInterface(ifaceMgrRpcService,
+                    neutronPort.getUuid().getValue());
+        } catch (Exception e){
+            LOG.error("Unable to retrieve dpnId for floatingip interface {}. Process floatingip interface add fail with exception {}.",
+                    neutronPort.getUuid().getValue(), e);
+        }
+        if (neutronPort != null && neutronPort.getMacAddress() != null &&
+                (intfDpnId != BigInteger.ZERO)) {
+            vpnManager.setupSubnetMacIntoVpnInstance(vpnName, neutronPort.getMacAddress().getValue(),
+                    intfDpnId, writeTx, NwConstants.DEL_FLOW);
         }
         writeTx.submit();
         //Remove Prefix from BGP
