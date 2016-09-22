@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "7a6b29fe_9b4d139d",
+        "filename": "vpnservice/cloud-servicechain/cloud-servicechain-api/src/main/yang/cloud-servicechain-state.yang",
+        "patchSetId": 1
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 6584
+      },
+      "writtenOn": "2016-09-22T11:55:12Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7a6b29fe_38b84510",
+      "range": {
+        "startLine": 20,
+        "startChar": 62,
+        "endLine": 20,
+        "endChar": 85
+      },
+      "revId": "1359d485198ca0e0aeb1bd1807ca351164310fc2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7a6b29fe_783d9d8e",
         "filename": "vpnservice/cloud-servicechain/cloud-servicechain-impl/src/main/java/org/opendaylight/netvirt/cloudservicechain/utils/ElanServiceChainUtils.java",
         "patchSetId": 1
@@ -36,6 +60,30 @@
       "writtenOn": "2016-09-22T08:03:53Z",
       "side": 1,
       "message": "Same comment as the one related with the description after yang model change. ElanInstanceName shouldn\u0027t be removed from here?",
+      "range": {
+        "startLine": 249,
+        "startChar": 7,
+        "endLine": 249,
+        "endChar": 76
+      },
+      "revId": "1359d485198ca0e0aeb1bd1807ca351164310fc2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_7b50f731",
+        "filename": "vpnservice/cloud-servicechain/cloud-servicechain-impl/src/main/java/org/opendaylight/netvirt/cloudservicechain/utils/ElanServiceChainUtils.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 249,
+      "author": {
+        "id": 6584
+      },
+      "writtenOn": "2016-09-22T11:55:12Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7a6b29fe_783d9d8e",
       "range": {
         "startLine": 249,
         "startChar": 7,
