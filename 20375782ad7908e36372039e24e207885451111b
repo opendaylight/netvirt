@@ -1,0 +1,174 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7a6b29fe_fb79a72f",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/ArpMonitorEventListener.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-09-22T12:17:30Z",
+      "side": 1,
+      "message": "associated spell check.\n\na space between monitor Id and {} would be good.",
+      "revId": "20375782ad7908e36372039e24e207885451111b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_fba08791",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/ArpMonitorStartTask.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 44,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-09-22T12:17:30Z",
+      "side": 1,
+      "message": "you can return NULL here .. as futures is not used at all.",
+      "revId": "20375782ad7908e36372039e24e207885451111b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_2616624c",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/ArpMonitoringHandler.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 90,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-09-22T12:17:30Z",
+      "side": 1,
+      "message": "This whole logic is best driven by a listener that is based on SubnetMap instead of NeutronVpnPortIpToPort.\n\nAdding too much semantics with NeutronVpnPortIpToPort will make that a \"pauper of all \".\n\nNeutronVpnPortIpToPort is a static DS that should be used for ARP Responding and learned MIP Management only.",
+      "revId": "20375782ad7908e36372039e24e207885451111b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_fbf52783",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/ArpMonitoringHandler.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 99,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-09-22T12:17:30Z",
+      "side": 1,
+      "message": "may be you can state:\n\n\u0027Error in handling update to vpnPortIpToPort for vpnName {} and IP Address {} \u0027",
+      "revId": "20375782ad7908e36372039e24e207885451111b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_0611a651",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/ArpMonitoringHandler.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 125,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-09-22T12:17:30Z",
+      "side": 1,
+      "message": "The comment above for update() of subnetIp applies here as well!",
+      "revId": "20375782ad7908e36372039e24e207885451111b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_46171e45",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/ArpMonitoringHandler.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 151,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-09-22T12:17:30Z",
+      "side": 1,
+      "message": "Ditto here as per comment in update() for subnetIp case...",
+      "revId": "20375782ad7908e36372039e24e207885451111b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_a685525b",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnUtil.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 1315,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-09-22T12:17:30Z",
+      "side": 1,
+      "message": "A port can belong to multiple subnets.\n\nDirectly fetching the first fixed ip and then getting a subnet gateway ip from that does not guarantee that subnet is also the VPN Gateway.",
+      "revId": "20375782ad7908e36372039e24e207885451111b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_e67bca78",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnUtil.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 1333,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-09-22T12:17:30Z",
+      "side": 1,
+      "message": "For an external VPN, the gateway mac address can still be a router mac address..\n\nLooks like that case is not covered here !",
+      "revId": "20375782ad7908e36372039e24e207885451111b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_06940689",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnUtil.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 1336,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-09-22T12:17:30Z",
+      "side": 1,
+      "message": "You can first check if vpnTargetIpToPort exists first..\n\nIf it does not exist, then you can go and use InterfaceUtils.getMacAddressForInterface().",
+      "revId": "20375782ad7908e36372039e24e207885451111b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_668fba75",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnUtil.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 1339,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-09-22T12:17:30Z",
+      "side": 1,
+      "message": "This is more reliable way to get the gatewayMac.",
+      "revId": "20375782ad7908e36372039e24e207885451111b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
