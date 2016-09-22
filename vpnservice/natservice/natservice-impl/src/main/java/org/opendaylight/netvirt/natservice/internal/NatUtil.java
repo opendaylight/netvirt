@@ -247,6 +247,26 @@ public class NatUtil {
             }
     */
 
+    static String getNeutronFixedPortForFloatingIp(DataBroker broker, String routerId, String externalIp) {
+        InstanceIdentifier<RouterPorts> routerPortsId = NatUtil.getRouterPortsId(routerId);
+        Optional<RouterPorts> optRouterPorts = read(broker, LogicalDatastoreType.CONFIGURATION, routerPortsId);
+        if (!optRouterPorts.isPresent()) {
+            LOG.debug("Could not read Router Ports data object with id: {}", routerId);
+            return null;
+        }
+        RouterPorts routerPorts = optRouterPorts.get();
+        List<Ports> interfaces = routerPorts.getPorts();
+        for (Ports port : interfaces) {
+            List<IpMapping> ipMapping = port.getIpMapping();
+            for (IpMapping ipMap : ipMapping) {
+                if (externalIp.equals(ipMap.getExternalIp())) {
+                    return port.getPortName();
+                }
+            }
+        }
+        return null;
+    }
+
     static InstanceIdentifier<org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.to.vpn.id.VpnInstance>
     getVpnInstanceToVpnIdIdentifier(String vpnName) {
         return InstanceIdentifier.builder(VpnInstanceToVpnId.class)

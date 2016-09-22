@@ -127,7 +127,10 @@ public class VpnManagerImpl implements IVpnManager {
     }
 
     @Override
-    public void setupSubnetMacIntoVpnInstance(String vpnName, String srcMacAddress, WriteTransaction writeTx, int addOrRemove) {
-        VpnUtil.setupSubnetMacIntoVpnInstance(dataBroker, mdsalManager, vpnName, srcMacAddress, writeTx, addOrRemove);
+    public void setupSubnetMacIntoVpnInstance(String vpnName, String srcMacAddress,
+                                              BigInteger dpnId, WriteTransaction writeTx,
+                                              int addOrRemove) {
+        VpnUtil.setupSubnetMacIntoVpnInstance(dataBroker, mdsalManager, vpnName, srcMacAddress,
+                dpnId, writeTx, addOrRemove);
     }
 }
