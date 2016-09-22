@@ -40,5 +40,5 @@ public interface IVpnManager {
      */
     List<BigInteger> getDpnsOnVpn(String vpnInstanceName);
     void setupSubnetMacIntoVpnInstance(String vpnName, String srcMacAddress,
-            WriteTransaction writeTx, int addOrRemove);
+            BigInteger dpnId, WriteTransaction writeTx, int addOrRemove);
 }

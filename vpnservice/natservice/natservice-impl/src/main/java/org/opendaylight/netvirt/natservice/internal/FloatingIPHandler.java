@@ -16,7 +16,6 @@ public interface FloatingIPHandler {
     void onAddFloatingIp(BigInteger dpnId, String routerId, Uuid networkId, String interfaceName, String externalIp,
                          String internalIp);
 
-    void onRemoveFloatingIp(BigInteger dpnId, String routerId, Uuid networkId, String externalIp, String internalIp,
-                            long label);
+    void onRemoveFloatingIp(BigInteger dpnId, String routerId, Uuid networkId, String externalIp, String internalIp, long label);
 
 }

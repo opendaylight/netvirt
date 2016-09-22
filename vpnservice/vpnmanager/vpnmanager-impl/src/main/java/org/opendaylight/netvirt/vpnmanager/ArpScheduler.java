@@ -31,6 +31,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.lang.Thread.UncaughtExceptionHandler;
+import java.math.BigInteger;
 import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -153,9 +154,9 @@ public class ArpScheduler extends AsyncDataTreeChangeListenerBase<VpnPortipToPor
             } else if (dataObjectModificationAfter.isSubnetIp() && !oldMacAddress.equalsIgnoreCase(newMacAddress)) {
                 WriteTransaction writeTx = dataBroker.newWriteOnlyTransaction();
                 VpnUtil.setupSubnetMacIntoVpnInstance(dataBroker, mdsalManager, vpnName,
-                        oldMacAddress, writeTx, NwConstants.DEL_FLOW);
+                        oldMacAddress, BigInteger.ZERO /* On all DPNs */, writeTx, NwConstants.DEL_FLOW);
                 VpnUtil.setupSubnetMacIntoVpnInstance(dataBroker, mdsalManager, vpnName,
-                        newMacAddress, writeTx, NwConstants.ADD_FLOW);
+                        newMacAddress, BigInteger.ZERO /* on all DPNs */, writeTx, NwConstants.ADD_FLOW);
                 writeTx.submit();
             }
         } catch (Exception e) {
@@ -181,7 +182,7 @@ public class ArpScheduler extends AsyncDataTreeChangeListenerBase<VpnPortipToPor
             if (value.isSubnetIp()) {
                 WriteTransaction writeTx = dataBroker.newWriteOnlyTransaction();
                 VpnUtil.setupSubnetMacIntoVpnInstance(dataBroker, mdsalManager, vpnName,
-                        macAddress, writeTx, NwConstants.ADD_FLOW);
+                        macAddress, BigInteger.ZERO /* On all DPNs */, writeTx, NwConstants.ADD_FLOW);
                 writeTx.submit();
             }
         }
@@ -207,7 +208,7 @@ public class ArpScheduler extends AsyncDataTreeChangeListenerBase<VpnPortipToPor
             if (value.isSubnetIp()) {
                 WriteTransaction writeTx = dataBroker.newWriteOnlyTransaction();
                 VpnUtil.setupSubnetMacIntoVpnInstance(dataBroker, mdsalManager, vpnName,
-                        macAddress, writeTx, NwConstants.DEL_FLOW);
+                        macAddress, BigInteger.ZERO /* On all DPNs */, writeTx, NwConstants.DEL_FLOW);
                 writeTx.submit();
             }
         } catch (Exception e) {
