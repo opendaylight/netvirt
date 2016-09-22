@@ -150,8 +150,10 @@ public class VpnFloatingIpHandler implements FloatingIPHandler {
                     WriteTransaction writeTx = dataBroker.newWriteOnlyTransaction();
                     IpAddress externalIpAddress = new IpAddress(new Ipv4Address(externalIp));
                     Port neutronPort = NatUtil.getNeutronPortForFloatingIp(dataBroker, externalIpAddress);
+                    LOG.debug("Add Floating Ip {} , found associated to fixed port {}", externalIp, interfaceName);
                     if (neutronPort != null && neutronPort.getMacAddress() != null) {
-                        vpnManager.setupSubnetMacIntoVpnInstance(vpnName, neutronPort.getMacAddress().getValue(), writeTx, NwConstants.ADD_FLOW);
+                        vpnManager.setupSubnetMacIntoVpnInstance(vpnName, neutronPort.getMacAddress().getValue(),
+                                dpnId, writeTx, NwConstants.ADD_FLOW);
                     }
                     writeTx.submit();
                     return JdkFutureAdapters.listenInPoolThread(future);
@@ -199,8 +201,10 @@ public class VpnFloatingIpHandler implements FloatingIPHandler {
         WriteTransaction writeTx = dataBroker.newWriteOnlyTransaction();
         IpAddress externalIpAddress = new IpAddress(new Ipv4Address(externalIp));
         Port neutronPort = NatUtil.getNeutronPortForFloatingIp(dataBroker, externalIpAddress);
+        LOG.debug("Removing FloatingIp {}", externalIp);
         if (neutronPort != null && neutronPort.getMacAddress() != null) {
-            vpnManager.setupSubnetMacIntoVpnInstance(vpnName, neutronPort.getMacAddress().getValue(), writeTx, NwConstants.DEL_FLOW);
+            vpnManager.setupSubnetMacIntoVpnInstance(vpnName, neutronPort.getMacAddress().getValue(),
+                    dpnId, writeTx, NwConstants.DEL_FLOW);
         }
         writeTx.submit();
         //Remove Prefix from BGP
