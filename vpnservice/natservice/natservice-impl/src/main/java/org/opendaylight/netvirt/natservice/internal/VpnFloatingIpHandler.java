@@ -16,6 +16,7 @@ import com.google.common.util.concurrent.ListenableFuture;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Future;
 
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
@@ -47,6 +48,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.arputil.rev160406.Se
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.arputil.rev160406.SendArpRequestInputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.arputil.rev160406.interfaces.InterfaceAddress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.arputil.rev160406.interfaces.InterfaceAddressBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.OdlInterfaceRpcService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fib.rpc.rev160121.CreateFibEntryInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fib.rpc.rev160121.CreateFibEntryInputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fib.rpc.rev160121.FibRpcService;
@@ -73,11 +75,13 @@ public class VpnFloatingIpHandler implements FloatingIPHandler {
     private final FloatingIPListener floatingIPListener;
     private final IVpnManager vpnManager;
     private final IFibManager fibManager;
+    private final OdlInterfaceRpcService ifaceMgrRpcService;
     private final OdlArputilService arpUtilService;
     private final IElanService elanService;
 
     static final BigInteger COOKIE_TUNNEL = new BigInteger("9000000", 16);
     static final String FLOWID_PREFIX = "NAT.";
+    ConcurrentHashMap<String, String> floatingIpToFixedPortMap = new ConcurrentHashMap<String, String>();
 
     public VpnFloatingIpHandler(final DataBroker dataBroker, final IMdsalApiManager mdsalManager,
                                 final VpnRpcService vpnService,
@@ -86,6 +90,7 @@ public class VpnFloatingIpHandler implements FloatingIPHandler {
                                 final FloatingIPListener floatingIPListener,
                                 final IFibManager fibManager,
                                 final OdlArputilService arputilService,
+                                final OdlInterfaceRpcService ifaceMgrRpcService,
                                 final IVpnManager vpnManager,
                                 final IElanService elanService) {
         this.dataBroker = dataBroker;
@@ -96,6 +101,7 @@ public class VpnFloatingIpHandler implements FloatingIPHandler {
         this.floatingIPListener = floatingIPListener;
         this.fibManager = fibManager;
         this.arpUtilService = arputilService;
+        this.ifaceMgrRpcService = ifaceMgrRpcService;
         this.vpnManager = vpnManager;
         this.elanService = elanService;
     }
@@ -150,8 +156,23 @@ public class VpnFloatingIpHandler implements FloatingIPHandler {
                     WriteTransaction writeTx = dataBroker.newWriteOnlyTransaction();
                     IpAddress externalIpAddress = new IpAddress(new Ipv4Address(externalIp));
                     Port neutronPort = NatUtil.getNeutronPortForFloatingIp(dataBroker, externalIpAddress);
-                    if (neutronPort != null && neutronPort.getMacAddress() != null) {
-                        vpnManager.setupSubnetMacIntoVpnInstance(vpnName, neutronPort.getMacAddress().getValue(), writeTx, NwConstants.ADD_FLOW);
+                    String fixedPortName = NatUtil.getNeutronFixedPortForFloatingIp(dataBroker, routerId, externalIp);
+                    if (fixedPortName != null) {
+                        LOG.debug("ADD FLOATING IP : Found the fixed port name as {}, for Floating IP {}", fixedPortName, externalIp);
+                        BigInteger intfDpnId = BigInteger.ZERO;
+                        try {
+                            intfDpnId = NatUtil.getDpnForInterface(ifaceMgrRpcService,
+                                    fixedPortName);
+                        } catch (Exception e) {
+                            LOG.error("Unable to retrieve dpnId for fixedip interface {}. Process floatingip interface add fail with exception {}.",
+                                    fixedPortName, e);
+                        }
+                        if (neutronPort != null && neutronPort.getMacAddress() != null &&
+                                (intfDpnId != BigInteger.ZERO)) {
+                            floatingIpToFixedPortMap.put((routerId + externalIp), (fixedPortName + "$" + intfDpnId.toString()));
+                            vpnManager.setupSubnetMacIntoVpnInstance(vpnName, neutronPort.getMacAddress().getValue(),
+                                    intfDpnId, writeTx, NwConstants.ADD_FLOW);
+                        }
                     }
                     writeTx.submit();
                     return JdkFutureAdapters.listenInPoolThread(future);
@@ -199,8 +220,18 @@ public class VpnFloatingIpHandler implements FloatingIPHandler {
         WriteTransaction writeTx = dataBroker.newWriteOnlyTransaction();
         IpAddress externalIpAddress = new IpAddress(new Ipv4Address(externalIp));
         Port neutronPort = NatUtil.getNeutronPortForFloatingIp(dataBroker, externalIpAddress);
-        if (neutronPort != null && neutronPort.getMacAddress() != null) {
-            vpnManager.setupSubnetMacIntoVpnInstance(vpnName, neutronPort.getMacAddress().getValue(), writeTx, NwConstants.DEL_FLOW);
+        String fixedPortNameDpnId = floatingIpToFixedPortMap.get(routerId + externalIp);
+        if (fixedPortNameDpnId != null) {
+            String[] splitResult = fixedPortNameDpnId.split("$");
+            String fixedPortName = splitResult[0];
+            BigInteger intfDpnId = new BigInteger(splitResult[1]);
+            LOG.debug("REMOVE FLOATING IP : Found the fixed port name as {}, for Floating IP {}", fixedPortName, externalIp);
+            if (neutronPort != null && neutronPort.getMacAddress() != null &&
+                    (intfDpnId != BigInteger.ZERO)) {
+                vpnManager.setupSubnetMacIntoVpnInstance(vpnName, neutronPort.getMacAddress().getValue(),
+                        intfDpnId, writeTx, NwConstants.DEL_FLOW);
+            }
+            floatingIpToFixedPortMap.remove(routerId+externalIp);
         }
         writeTx.submit();
         //Remove Prefix from BGP
