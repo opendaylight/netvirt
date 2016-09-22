@@ -1244,14 +1244,19 @@ public class VpnUtil {
     }
 
     static void setupSubnetMacIntoVpnInstance(DataBroker dataBroker, IMdsalApiManager mdsalManager,
-            String vpnName, String srcMacAddress, WriteTransaction writeTx, int addOrRemove) {
+            String vpnName, String srcMacAddress, BigInteger dpnId, WriteTransaction writeTx, int addOrRemove) {
         long vpnId = getVpnId(dataBroker, vpnName);
-        List<BigInteger> dpIds = getDpnsOnVpn(dataBroker, vpnName);
-        if (dpIds == null || dpIds.isEmpty()) {
-            return;
-        }
-        for (BigInteger dpId: dpIds) {
-            addGwMacIntoTx(mdsalManager, srcMacAddress, writeTx, addOrRemove, vpnId, dpId);
+        if (dpnId.equals(BigInteger.ZERO)) {
+            /* Apply the MAC on all DPNs in a VPN */
+            List<BigInteger> dpIds = getDpnsOnVpn(dataBroker, vpnName);
+            if (dpIds == null || dpIds.isEmpty()) {
+                return;
+            }
+            for (BigInteger dpId : dpIds) {
+                addGwMacIntoTx(mdsalManager, srcMacAddress, writeTx, addOrRemove, vpnId, dpId);
+            }
+        } else {
+            addGwMacIntoTx(mdsalManager, srcMacAddress, writeTx, addOrRemove, vpnId, dpnId);
         }
     }
 
