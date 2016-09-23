@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "7a6b29fe_0787e0b5",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/AlivenessMonitorUtils.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 6328
+      },
+      "writtenOn": "2016-09-23T09:08:48Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7a6b29fe_752dcdfd",
+      "revId": "a333e4d8a66a839e7f1c1915702b4b910fbc196e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7a6b29fe_d53dc12c",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/AlivenessMonitorUtils.java",
         "patchSetId": 1
@@ -30,6 +48,24 @@
       "writtenOn": "2016-09-12T03:54:22Z",
       "side": 1,
       "message": "This monitor profile can be created (or) monitor profile id is retrieved at the time controller bring up. It avoid unnecessary invocation of rpc\u0027s for every monitor start.",
+      "revId": "a333e4d8a66a839e7f1c1915702b4b910fbc196e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_278c9cd9",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/AlivenessMonitorUtils.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 60,
+      "author": {
+        "id": 6328
+      },
+      "writtenOn": "2016-09-23T09:08:48Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7a6b29fe_d53dc12c",
       "revId": "a333e4d8a66a839e7f1c1915702b4b910fbc196e",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -59,6 +95,30 @@
     },
     {
       "key": {
+        "uuid": "7a6b29fe_51709e71",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/AlivenessMonitorUtils.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 69,
+      "author": {
+        "id": 6328
+      },
+      "writtenOn": "2016-09-23T09:08:48Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7a6b29fe_5519b1d5",
+      "range": {
+        "startLine": 69,
+        "startChar": 61,
+        "endLine": 69,
+        "endChar": 62
+      },
+      "revId": "a333e4d8a66a839e7f1c1915702b4b910fbc196e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7a6b29fe_3547d5bd",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/AlivenessMonitorUtils.java",
         "patchSetId": 1
@@ -70,6 +130,24 @@
       "writtenOn": "2016-09-12T03:54:22Z",
       "side": 1,
       "message": "you don\u0027t have to use fully qualified name for Interface. remove this entire path.\nAnd use getSourceEndPointType(...) as the method name.",
+      "revId": "a333e4d8a66a839e7f1c1915702b4b910fbc196e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_b16bf283",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/AlivenessMonitorUtils.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 90,
+      "author": {
+        "id": 6328
+      },
+      "writtenOn": "2016-09-23T09:08:48Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7a6b29fe_3547d5bd",
       "revId": "a333e4d8a66a839e7f1c1915702b4b910fbc196e",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -93,6 +171,24 @@
     },
     {
       "key": {
+        "uuid": "7a6b29fe_9166b6b9",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/AlivenessMonitorUtils.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 103,
+      "author": {
+        "id": 6328
+      },
+      "writtenOn": "2016-09-23T09:08:48Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7a6b29fe_950fc987",
+      "revId": "a333e4d8a66a839e7f1c1915702b4b910fbc196e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7a6b29fe_f5271d10",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/AlivenessMonitorUtils.java",
         "patchSetId": 1
@@ -104,6 +200,24 @@
       "writtenOn": "2016-09-12T03:54:22Z",
       "side": 1,
       "message": "if we are not able to retrieve monitorProfileId, then log the error just return absent and skip the monitor start.",
+      "revId": "a333e4d8a66a839e7f1c1915702b4b910fbc196e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_f108cadb",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/AlivenessMonitorUtils.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 104,
+      "author": {
+        "id": 6328
+      },
+      "writtenOn": "2016-09-23T09:08:48Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7a6b29fe_f5271d10",
       "revId": "a333e4d8a66a839e7f1c1915702b4b910fbc196e",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -127,6 +241,24 @@
     },
     {
       "key": {
+        "uuid": "7a6b29fe_11158648",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/AlivenessMonitorUtils.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 133,
+      "author": {
+        "id": 6328
+      },
+      "writtenOn": "2016-09-23T09:08:48Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7a6b29fe_b50ac576",
+      "revId": "a333e4d8a66a839e7f1c1915702b4b910fbc196e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7a6b29fe_154459b5",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/AlivenessMonitorUtils.java",
         "patchSetId": 1
@@ -138,6 +270,24 @@
       "writtenOn": "2016-09-12T03:54:22Z",
       "side": 1,
       "message": "change the method name to getMacEntryFromMonitorId(..)",
+      "revId": "a333e4d8a66a839e7f1c1915702b4b910fbc196e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_d10b0ed4",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/AlivenessMonitorUtils.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 141,
+      "author": {
+        "id": 6328
+      },
+      "writtenOn": "2016-09-23T09:08:48Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7a6b29fe_154459b5",
       "revId": "a333e4d8a66a839e7f1c1915702b4b910fbc196e",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -161,6 +311,24 @@
     },
     {
       "key": {
+        "uuid": "7a6b29fe_310fe2e2",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/AlivenessMonitorUtils.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 146,
+      "author": {
+        "id": 6328
+      },
+      "writtenOn": "2016-09-23T09:08:48Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7a6b29fe_7514ad9f",
+      "revId": "a333e4d8a66a839e7f1c1915702b4b910fbc196e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7a6b29fe_b58125c5",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/ArpAddCacheTask.java",
         "patchSetId": 1
@@ -172,6 +340,24 @@
       "writtenOn": "2016-09-12T03:54:22Z",
       "side": 1,
       "message": "change the class name to ArpMonitorStartTask",
+      "revId": "a333e4d8a66a839e7f1c1915702b4b910fbc196e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_1112a608",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/ArpAddCacheTask.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 6328
+      },
+      "writtenOn": "2016-09-23T09:08:48Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7a6b29fe_b58125c5",
       "revId": "a333e4d8a66a839e7f1c1915702b4b910fbc196e",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -195,6 +381,24 @@
     },
     {
       "key": {
+        "uuid": "7a6b29fe_71fcbab8",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/ArpAddCacheTask.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 6328
+      },
+      "writtenOn": "2016-09-23T09:08:48Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7a6b29fe_95d4e9bd",
+      "revId": "a333e4d8a66a839e7f1c1915702b4b910fbc196e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7a6b29fe_9586a9d9",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/ArpCacheListener.java",
         "patchSetId": 1
@@ -206,6 +410,24 @@
       "writtenOn": "2016-09-12T03:54:22Z",
       "side": 1,
       "message": "change the class name to ArpMonitorEventListener",
+      "revId": "a333e4d8a66a839e7f1c1915702b4b910fbc196e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_51f7fed2",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/ArpCacheListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 6328
+      },
+      "writtenOn": "2016-09-23T09:08:48Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7a6b29fe_9586a9d9",
       "revId": "a333e4d8a66a839e7f1c1915702b4b910fbc196e",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -229,6 +451,24 @@
     },
     {
       "key": {
+        "uuid": "7a6b29fe_b102d2b1",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/ArpCacheListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 6328
+      },
+      "writtenOn": "2016-09-23T09:08:48Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7a6b29fe_f56efd2d",
+      "revId": "a333e4d8a66a839e7f1c1915702b4b910fbc196e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7a6b29fe_d56b011c",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/ArpCacheListener.java",
         "patchSetId": 1
@@ -240,6 +480,24 @@
       "writtenOn": "2016-09-12T03:54:22Z",
       "side": 1,
       "message": "if macEntry is not present, just return it.",
+      "revId": "a333e4d8a66a839e7f1c1915702b4b910fbc196e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_91fd16b4",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/ArpCacheListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 36,
+      "author": {
+        "id": 6328
+      },
+      "writtenOn": "2016-09-23T09:08:48Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7a6b29fe_d56b011c",
       "revId": "a333e4d8a66a839e7f1c1915702b4b910fbc196e",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -263,6 +521,24 @@
     },
     {
       "key": {
+        "uuid": "7a6b29fe_f12f2a3d",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/ArpCacheListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 6328
+      },
+      "writtenOn": "2016-09-23T09:08:48Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7a6b29fe_d552e165",
+      "revId": "a333e4d8a66a839e7f1c1915702b4b910fbc196e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7a6b29fe_357515fa",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/ArpRemoveCacheTask.java",
         "patchSetId": 1
@@ -274,6 +550,24 @@
       "writtenOn": "2016-09-12T03:54:22Z",
       "side": 1,
       "message": "change the class name to ArpMonitorStopTask",
+      "revId": "a333e4d8a66a839e7f1c1915702b4b910fbc196e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_d132eea5",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/ArpRemoveCacheTask.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 6328
+      },
+      "writtenOn": "2016-09-23T09:08:48Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7a6b29fe_357515fa",
       "revId": "a333e4d8a66a839e7f1c1915702b4b910fbc196e",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -297,6 +591,24 @@
     },
     {
       "key": {
+        "uuid": "7a6b29fe_11290637",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/ArpRemoveCacheTask.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 6328
+      },
+      "writtenOn": "2016-09-23T09:08:48Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7a6b29fe_15729910",
+      "revId": "a333e4d8a66a839e7f1c1915702b4b910fbc196e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7a6b29fe_55ced12e",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/ArpRemoveCacheTask.java",
         "patchSetId": 1
@@ -308,6 +620,24 @@
       "writtenOn": "2016-09-12T03:54:22Z",
       "side": 1,
       "message": "Instead of have ipAddress, vpnName, interfaceName, you can simply have macEntry as instance variable.",
+      "revId": "a333e4d8a66a839e7f1c1915702b4b910fbc196e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_3126c268",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/ArpRemoveCacheTask.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 6328
+      },
+      "writtenOn": "2016-09-23T09:08:48Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7a6b29fe_55ced12e",
       "revId": "a333e4d8a66a839e7f1c1915702b4b910fbc196e",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -365,6 +695,24 @@
     },
     {
       "key": {
+        "uuid": "7a6b29fe_71231a56",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/ArpRemoveCacheTask.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 75,
+      "author": {
+        "id": 6328
+      },
+      "writtenOn": "2016-09-23T09:08:48Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7a6b29fe_b558058b",
+      "revId": "a333e4d8a66a839e7f1c1915702b4b910fbc196e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7a6b29fe_955d097c",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/ArpScheduler.java",
         "patchSetId": 1
@@ -376,6 +724,24 @@
       "writtenOn": "2016-09-12T03:54:22Z",
       "side": 1,
       "message": "change the class name to ArpMonitoringHandler",
+      "revId": "a333e4d8a66a839e7f1c1915702b4b910fbc196e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_511ede0c",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/ArpScheduler.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 6328
+      },
+      "writtenOn": "2016-09-23T09:08:48Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7a6b29fe_955d097c",
       "revId": "a333e4d8a66a839e7f1c1915702b4b910fbc196e",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -399,6 +765,24 @@
     },
     {
       "key": {
+        "uuid": "7a6b29fe_b1193224",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/ArpScheduler.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 6328
+      },
+      "writtenOn": "2016-09-23T09:08:48Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7a6b29fe_1549f9b6",
+      "revId": "a333e4d8a66a839e7f1c1915702b4b910fbc196e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7a6b29fe_f5555d50",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/ArpScheduler.java",
         "patchSetId": 1
@@ -410,6 +794,24 @@
       "writtenOn": "2016-09-12T03:54:22Z",
       "side": 1,
       "message": "why can\u0027t you do stopMonitoring logic in the ArpRemoveCacheTask ?",
+      "revId": "a333e4d8a66a839e7f1c1915702b4b910fbc196e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_9114f6e9",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/ArpScheduler.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 94,
+      "author": {
+        "id": 6328
+      },
+      "writtenOn": "2016-09-23T09:08:48Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7a6b29fe_f5555d50",
       "revId": "a333e4d8a66a839e7f1c1915702b4b910fbc196e",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -433,6 +835,24 @@
     },
     {
       "key": {
+        "uuid": "7a6b29fe_d1d94e58",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnUtil.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 1189,
+      "author": {
+        "id": 6328
+      },
+      "writtenOn": "2016-09-23T09:08:48Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7a6b29fe_35d99522",
+      "revId": "a333e4d8a66a839e7f1c1915702b4b910fbc196e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7a6b29fe_550b718d",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnUtil.java",
         "patchSetId": 1
@@ -444,6 +864,24 @@
       "writtenOn": "2016-09-12T03:54:22Z",
       "side": 1,
       "message": "make sure when portOptional and subnet is not present, optional\u0027s absent is returned.",
+      "revId": "a333e4d8a66a839e7f1c1915702b4b910fbc196e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_71eafadb",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnUtil.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 1197,
+      "author": {
+        "id": 6328
+      },
+      "writtenOn": "2016-09-23T09:08:48Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7a6b29fe_550b718d",
       "revId": "a333e4d8a66a839e7f1c1915702b4b910fbc196e",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -484,6 +922,24 @@
     },
     {
       "key": {
+        "uuid": "7a6b29fe_f1d60a27",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnUtil.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 1213,
+      "author": {
+        "id": 6328
+      },
+      "writtenOn": "2016-09-23T09:08:48Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7a6b29fe_d5f6618e",
+      "revId": "a333e4d8a66a839e7f1c1915702b4b910fbc196e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7a6b29fe_354cf5c7",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnUtil.java",
         "patchSetId": 1
@@ -495,6 +951,30 @@
       "writtenOn": "2016-09-12T03:54:22Z",
       "side": 1,
       "message": "use Optional\u003cString\u003e as return type.",
+      "range": {
+        "startLine": 1214,
+        "startChar": 13,
+        "endLine": 1214,
+        "endChar": 17
+      },
+      "revId": "a333e4d8a66a839e7f1c1915702b4b910fbc196e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_31dd2243",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnUtil.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 1214,
+      "author": {
+        "id": 6328
+      },
+      "writtenOn": "2016-09-23T09:08:48Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7a6b29fe_354cf5c7",
       "range": {
         "startLine": 1214,
         "startChar": 13,
