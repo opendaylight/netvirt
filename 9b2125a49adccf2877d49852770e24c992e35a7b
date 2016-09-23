@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "7a6b29fe_a74d4c9c",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/VpnFloatingIpHandler.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 153,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-09-23T07:41:32Z",
+      "side": 1,
+      "message": "In ExtenalNetworkListener.associateExternalNetworksWIthVpn():\n\nIf more than one router has gateway set to that one external netowrk, then for each router they go through the list of ports on that router for that external netowrk..  This list of ports will include the gateway port as well as floatingip port. For gateway port, there won\u0027t be any DPN however for floatingip port the correct DPN will be found and that portname (which is the VM portname) is being used further.\n\nSo this is handled correctly.",
+      "parentUuid": "7a6b29fe_87c2d0e6",
+      "revId": "9b2125a49adccf2877d49852770e24c992e35a7b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7a6b29fe_e7b5847e",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnUtil.java",
         "patchSetId": 6
@@ -30,6 +48,24 @@
       "writtenOn": "2016-09-23T07:26:32Z",
       "side": 1,
       "message": "use equals to compare BigInteger values.",
+      "revId": "9b2125a49adccf2877d49852770e24c992e35a7b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_87501033",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnUtil.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 1249,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-09-23T07:41:32Z",
+      "side": 1,
+      "message": "good catch! Done ..",
+      "parentUuid": "7a6b29fe_e7b5847e",
       "revId": "9b2125a49adccf2877d49852770e24c992e35a7b",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
