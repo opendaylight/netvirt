@@ -13,18 +13,21 @@ import com.google.common.util.concurrent.CheckedFuture;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
+
 import java.math.BigInteger;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.LinkedBlockingQueue;
+
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.DataChangeListener;
 import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
@@ -723,24 +726,6 @@ public class VrfEntryListener extends AbstractDataChangeListener<VrfEntry> imple
         }
 
         return result;
-    }
-
-    private void makeSubnetRouteTableMissFlow(BigInteger dpnId, int addOrRemove) {
-        final BigInteger COOKIE_TABLE_MISS = new BigInteger("8000004", 16);
-        List<ActionInfo> actionsInfos = new ArrayList<ActionInfo>();
-        List<InstructionInfo> instructions = new ArrayList<InstructionInfo>();
-        actionsInfos.add(new ActionInfo(ActionType.punt_to_controller, new String[]{}));
-        instructions.add(new InstructionInfo(InstructionType.apply_actions, actionsInfos));
-        List<MatchInfo> matches = new ArrayList<MatchInfo>();
-        String flowRef = getTableMissFlowRef(dpnId, NwConstants.L3_SUBNET_ROUTE_TABLE, NwConstants.TABLE_MISS_FLOW);
-        FlowEntity flowEntity = MDSALUtil.buildFlowEntity(dpnId, NwConstants.L3_SUBNET_ROUTE_TABLE, flowRef,
-                NwConstants.TABLE_MISS_PRIORITY, "Subnet Route Table Miss", 0, 0, COOKIE_TABLE_MISS, matches, instructions);
-
-        if (addOrRemove == NwConstants.ADD_FLOW) {
-            mdsalManager.installFlow(flowEntity);
-        } else {
-            mdsalManager.removeFlow(flowEntity);
-        }
     }
 
     private List<BigInteger> createLocalFibEntry(Long vpnId, String rd, VrfEntry vrfEntry) {
@@ -1996,55 +1981,6 @@ public class VrfEntryListener extends AbstractDataChangeListener<VrfEntry> imple
         return vpnInstanceOpData.isPresent() ? vpnInstanceOpData.get() : null;
     }
 
-    public void processNodeAdd(BigInteger dpnId) {
-        LOG.debug("Received notification to install TableMiss entries for dpn {} ", dpnId);
-        makeTableMissFlow(dpnId, NwConstants.ADD_FLOW);
-        makeL3IntfTblMissFlow(dpnId, NwConstants.ADD_FLOW);
-        makeSubnetRouteTableMissFlow(dpnId, NwConstants.ADD_FLOW);
-        createTableMissForVpnGwFlow(dpnId);
-    }
-
-    private void createTableMissForVpnGwFlow(BigInteger dpnId) {
-        List<MatchInfo> matches = new ArrayList<MatchInfo>();
-        List<InstructionInfo> instructions = new ArrayList<InstructionInfo>();
-        instructions.add(new InstructionInfo(InstructionType.goto_table, new long[] { NwConstants.L3_INTERFACE_TABLE }));
-        FlowEntity flowEntityMissforGw = MDSALUtil.buildFlowEntity(dpnId, NwConstants.L3_GW_MAC_TABLE,
-                getTableMissFlowRef(dpnId, NwConstants.L3_GW_MAC_TABLE, NwConstants.TABLE_MISS_FLOW),
-                NwConstants.TABLE_MISS_PRIORITY, "L3 Gw Mac Table Miss", 0, 0, new BigInteger("1080000", 16), matches, instructions);
-        if (LOG.isTraceEnabled()) {
-            LOG.trace("Invoking MDSAL to install L3 Gw Mac Table Miss Entry");
-        }
-        mdsalManager.installFlow(flowEntityMissforGw);
-   }
-
-    private void makeTableMissFlow(BigInteger dpnId, int addOrRemove) {
-        final BigInteger COOKIE_TABLE_MISS = new BigInteger("1030000", 16);
-        // Instruction to goto L3 InterfaceTable
-        List<InstructionInfo> instructions = new ArrayList<InstructionInfo>();
-        instructions.add(new InstructionInfo(InstructionType.goto_table, new long[] { NwConstants.L3_INTERFACE_TABLE }));
-        List<MatchInfo> matches = new ArrayList<MatchInfo>();
-        FlowEntity flowEntityLfib = MDSALUtil.buildFlowEntity(dpnId, NwConstants.L3_LFIB_TABLE,
-                getTableMissFlowRef(dpnId, NwConstants.L3_LFIB_TABLE, NwConstants.TABLE_MISS_FLOW),
-                NwConstants.TABLE_MISS_PRIORITY, "Table Miss", 0, 0, COOKIE_TABLE_MISS, matches, instructions);
-
-        FlowEntity flowEntityFib = MDSALUtil.buildFlowEntity(dpnId,NwConstants.L3_FIB_TABLE,
-                getTableMissFlowRef(dpnId, NwConstants.L3_FIB_TABLE,
-                        NwConstants.TABLE_MISS_FLOW),
-                NwConstants.TABLE_MISS_PRIORITY, "FIB Table Miss Flow",
-                0, 0, COOKIE_VM_FIB_TABLE,
-                matches, instructions);
-
-        if (addOrRemove == NwConstants.ADD_FLOW) {
-            LOG.debug("Invoking MDSAL to install Table Miss Entries");
-            mdsalManager.installFlow(flowEntityLfib);
-            mdsalManager.installFlow(flowEntityFib);
-        } else {
-            mdsalManager.removeFlow(flowEntityLfib);
-            mdsalManager.removeFlow(flowEntityFib);
-
-        }
-    }
-
     private String getTableMissFlowRef(BigInteger dpnId, short tableId, int tableMiss) {
         return new StringBuffer().append(FLOWID_PREFIX).append(dpnId).append(NwConstants.FLOWID_SEPARATOR)
                 .append(tableId).append(NwConstants.FLOWID_SEPARATOR).append(tableMiss)
@@ -2106,29 +2042,6 @@ public class VrfEntryListener extends AbstractDataChangeListener<VrfEntry> imple
         return result;
     }
 
-    private void makeL3IntfTblMissFlow(BigInteger dpnId, int addOrRemove) {
-        List<InstructionInfo> instructions = new ArrayList<InstructionInfo>();
-        List<MatchInfo> matches = new ArrayList<MatchInfo>();
-        final BigInteger COOKIE_TABLE_MISS = new BigInteger("1030000", 16);
-        // Instruction to goto L3 InterfaceTable
-
-        List <ActionInfo> actionsInfos = new ArrayList <ActionInfo> ();
-        actionsInfos.add(new ActionInfo(ActionType.nx_resubmit, new String[]{
-                Short.toString(NwConstants.LPORT_DISPATCHER_TABLE)}));
-        instructions.add(new InstructionInfo(InstructionType.apply_actions, actionsInfos));
-        //instructions.add(new InstructionInfo(InstructionType.goto_table, new long[] { NwConstants.LPORT_DISPATCHER_TABLE }));
-
-        FlowEntity flowEntityL3Intf = MDSALUtil.buildFlowEntity(dpnId, NwConstants.L3_INTERFACE_TABLE,
-                getTableMissFlowRef(dpnId, NwConstants.L3_INTERFACE_TABLE, NwConstants.TABLE_MISS_FLOW),
-                NwConstants.TABLE_MISS_PRIORITY, "L3 Interface Table Miss", 0, 0, COOKIE_TABLE_MISS,
-                matches, instructions);
-        if (addOrRemove == NwConstants.ADD_FLOW) {
-            LOG.debug("Invoking MDSAL to install L3 interface Table Miss Entries");
-            mdsalManager.installFlow(flowEntityL3Intf);
-        } else {
-            mdsalManager.removeFlow(flowEntityL3Intf);
-        }
-    }
 
     private VrfEntry getVrfEntry(DataBroker broker, String rd, String ipPrefix) {
         InstanceIdentifier<VrfEntry> vrfEntryId =
