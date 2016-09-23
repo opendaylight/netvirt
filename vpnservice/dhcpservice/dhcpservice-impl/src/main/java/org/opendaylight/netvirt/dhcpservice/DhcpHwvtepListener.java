@@ -14,7 +14,7 @@ import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.DataChangeListener;
 import org.opendaylight.controller.md.sal.common.api.data.AsyncDataBroker.DataChangeScope;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.genius.mdsalutil.AbstractDataChangeListener;
+import org.opendaylight.genius.mdsalutil.HwvtepAbstractDataTreeChangeListener;
 import org.opendaylight.genius.utils.hwvtep.HwvtepSouthboundConstants;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.HwvtepGlobalAugmentation;
@@ -28,7 +28,7 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class DhcpHwvtepListener extends AbstractDataChangeListener<Node> implements AutoCloseable {
+public class DhcpHwvtepListener extends HwvtepAbstractDataTreeChangeListener<Node,DhcpHwvtepListener> implements AutoCloseable {
 
     private static final Logger logger = LoggerFactory.getLogger(DhcpHwvtepListener.class);
     private DhcpExternalTunnelManager dhcpExternalTunnelManager;
@@ -36,25 +36,20 @@ public class DhcpHwvtepListener extends AbstractDataChangeListener<Node> impleme
     private DataBroker dataBroker;
 
     public DhcpHwvtepListener(DataBroker dataBroker, DhcpExternalTunnelManager dhcpManager) {
-        super(Node.class);
+        super(Node.class,DhcpHwvtepListener.class);
         this.dhcpExternalTunnelManager = dhcpManager;
         this.dataBroker = dataBroker;
-        registerListener();
+        registerListener(LogicalDatastoreType.OPERATIONAL,this.dataBroker);
     }
 
-    private void registerListener() {
-        try {
-            listenerRegistration = dataBroker.registerDataChangeListener(LogicalDatastoreType.OPERATIONAL,
-                    getWildCardPath(), DhcpHwvtepListener.this, DataChangeScope.SUBTREE);
-        } catch (final Exception e) {
-            logger.error("DhcpHwvtepListener DataChange listener registration fail!", e);
-            throw new IllegalStateException("DhcpHwvtepListener registration Listener failed.", e);
-        }
-    }
-
-    private InstanceIdentifier<Node> getWildCardPath() {
+    protected InstanceIdentifier<Node> getWildCardPath() {
         return InstanceIdentifier.create(NetworkTopology.class)
                 .child(Topology.class, new TopologyKey(HwvtepSouthboundConstants.HWVTEP_TOPOLOGY_ID)).child(Node.class);
+    }
+
+    @Override
+    protected DhcpHwvtepListener getDataTreeChangeListener() {
+        return DhcpHwvtepListener.this;
     }
 
     @Override
@@ -71,7 +66,7 @@ public class DhcpHwvtepListener extends AbstractDataChangeListener<Node> impleme
     }
 
     @Override
-    protected void remove(InstanceIdentifier<Node> identifier,
+    protected void removed(InstanceIdentifier<Node> identifier,
             Node del) {
         logger.trace("Received Hwvtep remove DCN {}", del);
         HwvtepGlobalAugmentation hwvtepNode = del.getAugmentation(HwvtepGlobalAugmentation.class);
@@ -92,12 +87,12 @@ public class DhcpHwvtepListener extends AbstractDataChangeListener<Node> impleme
     }
 
     @Override
-    protected void update(InstanceIdentifier<Node> identifier,
+    protected void updated(InstanceIdentifier<Node> identifier,
             Node original, Node update) {
     }
 
     @Override
-    protected void add(InstanceIdentifier<Node> identifier,
+    protected void added(InstanceIdentifier<Node> identifier,
             Node add) {
     }
 
