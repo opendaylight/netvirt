@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7a6b29fe_87c2d0e6",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/VpnFloatingIpHandler.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 153,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2016-09-23T07:26:32Z",
+      "side": 1,
+      "message": "Vivek/Yugandar, can you confirm onAddFloatingIp is called with dpnId on which VM is connected ? Because this method is invoked from ExternalNetworksChangeListener#associateExternalNetworkWithVPN \u003e createNATFlowEntries \u003e onAddFloatingIp with all port\u0027s dpIds.",
+      "revId": "9b2125a49adccf2877d49852770e24c992e35a7b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_e7b5847e",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnUtil.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 1249,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2016-09-23T07:26:32Z",
+      "side": 1,
+      "message": "use equals to compare BigInteger values.",
+      "revId": "9b2125a49adccf2877d49852770e24c992e35a7b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
