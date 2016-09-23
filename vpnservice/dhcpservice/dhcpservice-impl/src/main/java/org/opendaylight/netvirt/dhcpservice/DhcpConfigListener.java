@@ -7,22 +7,19 @@
  */
 package org.opendaylight.netvirt.dhcpservice;
 
-import org.opendaylight.controller.md.sal.binding.api.ClusteredDataChangeListener;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.binding.api.DataChangeListener;
 import org.opendaylight.controller.md.sal.common.api.data.AsyncDataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.AsyncDataBroker.DataChangeScope;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.genius.datastoreutils.AsyncClusteredDataChangeListenerBase;
+import org.opendaylight.genius.datastoreutils.AsyncClusteredDataTreeChangeListenerBase;
 import org.opendaylight.netvirt.dhcpservice.api.DHCPMConstants;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.DhcpConfig;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.dhcp.config.Configs;
-import org.opendaylight.yangtools.concepts.ListenerRegistration;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class DhcpConfigListener extends AsyncClusteredDataChangeListenerBase<DhcpConfig, DhcpConfigListener> implements AutoCloseable {
+public class DhcpConfigListener extends AsyncClusteredDataTreeChangeListenerBase<DhcpConfig, DhcpConfigListener> implements AutoCloseable {
 
     private static final Logger LOG = LoggerFactory.getLogger(DhcpConfigListener.class);
 
@@ -86,12 +83,7 @@ public class DhcpConfigListener extends AsyncClusteredDataChangeListenerBase<Dhc
     }
 
     @Override
-    protected ClusteredDataChangeListener getDataChangeListener() {
+    protected DhcpConfigListener getDataTreeChangeListener() {
         return DhcpConfigListener.this;
-    }
-
-    @Override
-    protected DataChangeScope getDataChangeScope() {
-        return AsyncDataBroker.DataChangeScope.BASE;
     }
 }
