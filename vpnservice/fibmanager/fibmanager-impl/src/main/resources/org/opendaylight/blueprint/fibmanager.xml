@@ -51,10 +51,4 @@
   <service ref="fibRpcServiceImpl"
            interface="org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fib.rpc.rev160121.FibRpcService" />
 
-  <bean id="fibNodeCapableListener"
-        class="org.opendaylight.netvirt.fibmanager.FibNodeCapableListener"
-        init-method="start" destroy-method="close">
-    <argument ref="dataBroker" />
-    <argument ref="vfrEntryListener" />
-  </bean>
 </blueprint>
