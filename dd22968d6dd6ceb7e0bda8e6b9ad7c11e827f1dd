@@ -36,6 +36,24 @@
     },
     {
       "key": {
+        "uuid": "7a6b29fe_fa6416ba",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/AlivenessMonitorUtils.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 64,
+      "author": {
+        "id": 6328
+      },
+      "writtenOn": "2016-09-23T09:08:48Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7a6b29fe_58f39a09",
+      "revId": "dd22968d6dd6ceb7e0bda8e6b9ad7c11e827f1dd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7a6b29fe_18eda226",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/AlivenessMonitorUtils.java",
         "patchSetId": 3
@@ -47,6 +65,24 @@
       "writtenOn": "2016-09-16T05:38:40Z",
       "side": 1,
       "message": "Don\u0027t you need to check for profileId \u003d\u003d null also ?",
+      "revId": "dd22968d6dd6ceb7e0bda8e6b9ad7c11e827f1dd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_5a58aaf9",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/AlivenessMonitorUtils.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 72,
+      "author": {
+        "id": 6328
+      },
+      "writtenOn": "2016-09-23T09:08:48Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7a6b29fe_18eda226",
       "revId": "dd22968d6dd6ceb7e0bda8e6b9ad7c11e827f1dd",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -70,6 +106,24 @@
     },
     {
       "key": {
+        "uuid": "7a6b29fe_3a5b2ef7",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/AlivenessMonitorUtils.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 76,
+      "author": {
+        "id": 6328
+      },
+      "writtenOn": "2016-09-23T09:08:48Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7a6b29fe_38f69ef9",
+      "revId": "dd22968d6dd6ceb7e0bda8e6b9ad7c11e827f1dd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7a6b29fe_98e0922a",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/AlivenessMonitorUtils.java",
         "patchSetId": 3
@@ -81,6 +135,24 @@
       "writtenOn": "2016-09-16T05:38:40Z",
       "side": 1,
       "message": "Nit: no space after ,",
+      "revId": "dd22968d6dd6ceb7e0bda8e6b9ad7c11e827f1dd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_9a752266",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/AlivenessMonitorUtils.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 88,
+      "author": {
+        "id": 6328
+      },
+      "writtenOn": "2016-09-23T09:08:48Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7a6b29fe_98e0922a",
       "revId": "dd22968d6dd6ceb7e0bda8e6b9ad7c11e827f1dd",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -104,6 +176,24 @@
     },
     {
       "key": {
+        "uuid": "7a6b29fe_7a700672",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/AlivenessMonitorUtils.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 99,
+      "author": {
+        "id": 6328
+      },
+      "writtenOn": "2016-09-23T09:08:48Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7a6b29fe_78dbf67b",
+      "revId": "dd22968d6dd6ceb7e0bda8e6b9ad7c11e827f1dd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7a6b29fe_f8d6e64d",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/AlivenessMonitorUtils.java",
         "patchSetId": 3
@@ -115,6 +205,24 @@
       "writtenOn": "2016-09-16T05:38:40Z",
       "side": 1,
       "message": "you can use parallelStream, map, filter and findFirst methods of java 8 to find monitorId for the given macEntry. It gives good performance.",
+      "revId": "dd22968d6dd6ceb7e0bda8e6b9ad7c11e827f1dd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_ba661eb9",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/AlivenessMonitorUtils.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 181,
+      "author": {
+        "id": 6328
+      },
+      "writtenOn": "2016-09-23T09:08:48Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7a6b29fe_f8d6e64d",
       "revId": "dd22968d6dd6ceb7e0bda8e6b9ad7c11e827f1dd",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -138,6 +246,24 @@
     },
     {
       "key": {
+        "uuid": "7a6b29fe_1a0912de",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/ArpMonitorEventListener.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 6328
+      },
+      "writtenOn": "2016-09-23T09:08:48Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7a6b29fe_38cdfeb7",
+      "revId": "dd22968d6dd6ceb7e0bda8e6b9ad7c11e827f1dd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7a6b29fe_98c7f295",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/ArpMonitorEventListener.java",
         "patchSetId": 3
@@ -149,6 +275,24 @@
       "writtenOn": "2016-09-16T05:38:40Z",
       "side": 1,
       "message": "Nit: no space after ,\nhave it corrected in all class files.",
+      "revId": "dd22968d6dd6ceb7e0bda8e6b9ad7c11e827f1dd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_3a120e09",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/ArpMonitorEventListener.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 47,
+      "author": {
+        "id": 6328
+      },
+      "writtenOn": "2016-09-23T09:08:48Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7a6b29fe_98c7f295",
       "revId": "dd22968d6dd6ceb7e0bda8e6b9ad7c11e827f1dd",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -172,6 +316,24 @@
     },
     {
       "key": {
+        "uuid": "7a6b29fe_9afc02ba",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/ArpMonitorStartTask.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 6328
+      },
+      "writtenOn": "2016-09-23T09:08:48Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7a6b29fe_d8bdea03",
+      "revId": "dd22968d6dd6ceb7e0bda8e6b9ad7c11e827f1dd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7a6b29fe_183be29d",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/ArpMonitoringHandler.java",
         "patchSetId": 3
@@ -183,6 +345,24 @@
       "writtenOn": "2016-09-16T05:38:40Z",
       "side": 1,
       "message": "change the variable name to arpMonitorProfileId.",
+      "revId": "dd22968d6dd6ceb7e0bda8e6b9ad7c11e827f1dd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_da02fab2",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/ArpMonitoringHandler.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 6328
+      },
+      "writtenOn": "2016-09-23T09:08:48Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7a6b29fe_183be29d",
       "revId": "dd22968d6dd6ceb7e0bda8e6b9ad7c11e827f1dd",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -206,6 +386,24 @@
     },
     {
       "key": {
+        "uuid": "7a6b29fe_7af766d3",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/ArpMonitoringHandler.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 49,
+      "author": {
+        "id": 6328
+      },
+      "writtenOn": "2016-09-23T09:08:48Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7a6b29fe_b8b8ee11",
+      "revId": "dd22968d6dd6ceb7e0bda8e6b9ad7c11e827f1dd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7a6b29fe_d854cacb",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/MacEntry.java",
         "patchSetId": 3
@@ -217,6 +415,24 @@
       "writtenOn": "2016-09-16T05:38:40Z",
       "side": 1,
       "message": "use next line if line\u0027s column length is too long (not beyond 100)",
+      "revId": "dd22968d6dd6ceb7e0bda8e6b9ad7c11e827f1dd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_fa3256a5",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/MacEntry.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 6328
+      },
+      "writtenOn": "2016-09-23T09:08:48Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7a6b29fe_d854cacb",
       "revId": "dd22968d6dd6ceb7e0bda8e6b9ad7c11e827f1dd",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -240,6 +456,24 @@
     },
     {
       "key": {
+        "uuid": "7a6b29fe_5a26ea68",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnUtil.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 1291,
+      "author": {
+        "id": 6328
+      },
+      "writtenOn": "2016-09-23T09:08:48Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7a6b29fe_f86426ba",
+      "revId": "dd22968d6dd6ceb7e0bda8e6b9ad7c11e827f1dd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7a6b29fe_385b3ef7",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnUtil.java",
         "patchSetId": 3
@@ -257,6 +491,24 @@
     },
     {
       "key": {
+        "uuid": "7a6b29fe_9a236255",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnUtil.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 1298,
+      "author": {
+        "id": 6328
+      },
+      "writtenOn": "2016-09-23T09:08:48Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7a6b29fe_385b3ef7",
+      "revId": "dd22968d6dd6ceb7e0bda8e6b9ad7c11e827f1dd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7a6b29fe_b8146ee9",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnUtil.java",
         "patchSetId": 3
@@ -268,6 +520,24 @@
       "writtenOn": "2016-09-16T05:38:40Z",
       "side": 1,
       "message": "just use InterfaceUtils.getMacAddressForInterface(dataBroker, interfaceName); to get OF port Mac address.",
+      "revId": "dd22968d6dd6ceb7e0bda8e6b9ad7c11e827f1dd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_da195a23",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnUtil.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 1325,
+      "author": {
+        "id": 6328
+      },
+      "writtenOn": "2016-09-23T09:08:48Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7a6b29fe_b8146ee9",
       "revId": "dd22968d6dd6ceb7e0bda8e6b9ad7c11e827f1dd",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -302,6 +572,24 @@
       "writtenOn": "2016-09-16T05:38:40Z",
       "side": 1,
       "message": "this method can be removed",
+      "revId": "dd22968d6dd6ceb7e0bda8e6b9ad7c11e827f1dd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_ba145ee9",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnUtil.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 1357,
+      "author": {
+        "id": 6328
+      },
+      "writtenOn": "2016-09-23T09:08:48Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7a6b29fe_d8f04acb",
       "revId": "dd22968d6dd6ceb7e0bda8e6b9ad7c11e827f1dd",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
