@@ -1,0 +1,72 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7a6b29fe_39c32439",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/ArpMonitorStartTask.java",
+        "patchSetId": 10
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-09-23T10:05:03Z",
+      "side": 1,
+      "message": "Should ARP Monitoring be done for all ports?  Shouldn\u0027t it be applicable only for MIP hosted ports?",
+      "revId": "06e98724c9bfc46ba47dbab3235bd7cea52ba80a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_59bc20bb",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/ArpMonitoringHandler.java",
+        "patchSetId": 10
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-09-23T10:05:03Z",
+      "side": 1,
+      "message": "Can we please create a new yang:\n\nVpnMipToPort and have this Monitoring Handler listen only to that.\n\nThe existing NeutronVpnPortIpToPort will have to be made as Configurational DS from the current Operational DS.  It should reflect only configuration as mixing that will Non-Neutron MIP handling affects modularity and robustness!\n\nThis class ArpMonitoringHandler will now listen only on VpnMipToPort instead of NeutronVpnPortIpToPort. VpnMipToPort will always contain only Non-Neutron MIP information.",
+      "revId": "06e98724c9bfc46ba47dbab3235bd7cea52ba80a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_79b91ccb",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/ArpMonitoringHandler.java",
+        "patchSetId": 10
+      },
+      "lineNbr": 97,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-09-23T10:05:03Z",
+      "side": 1,
+      "message": "A subnetgatewaymac cannot be updated.. It can only be removed and added.\n\nSo the else if condition here should be removed.",
+      "revId": "06e98724c9bfc46ba47dbab3235bd7cea52ba80a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_39acc48b",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/ArpMonitoringHandler.java",
+        "patchSetId": 10
+      },
+      "lineNbr": 151,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-09-23T10:05:03Z",
+      "side": 1,
+      "message": "As I suggested in the previous review, please use a subnetmap based DTCN is best for managing addition/removal of subnetMacIntoVpnInstance.\n\nYou can create this DTCN in NeutronVpn project.  For more details please talk to Abhinav as he can quickly help you out.",
+      "revId": "06e98724c9bfc46ba47dbab3235bd7cea52ba80a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
