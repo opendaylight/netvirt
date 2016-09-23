@@ -7,7 +7,6 @@
  */
 package org.opendaylight.netvirt.dhcpservice;
 
-import com.google.common.base.Optional;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.math.BigInteger;
@@ -18,6 +17,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
+
 import org.apache.commons.net.util.SubnetUtils;
 import org.apache.commons.net.util.SubnetUtils.SubnetInfo;
 import org.opendaylight.controller.liblldp.EtherTypes;

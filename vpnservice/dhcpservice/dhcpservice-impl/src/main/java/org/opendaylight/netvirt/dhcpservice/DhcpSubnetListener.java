@@ -12,14 +12,11 @@ import java.math.BigInteger;
 import java.util.Iterator;
 import java.util.List;
 
-import org.opendaylight.controller.md.sal.binding.api.ClusteredDataChangeListener;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
-import org.opendaylight.controller.md.sal.common.api.data.AsyncDataBroker;
-import org.opendaylight.controller.md.sal.common.api.data.AsyncDataChangeEvent;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.genius.datastoreutils.AsyncClusteredDataChangeListenerBase;
+import org.opendaylight.genius.datastoreutils.AsyncClusteredDataTreeChangeListenerBase;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.InterfacesState;
@@ -34,14 +31,13 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.por
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.rev150712.Neutron;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.subnets.rev150712.subnets.attributes.Subnets;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.subnets.rev150712.subnets.attributes.subnets.Subnet;
-import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Optional;
 
-public class DhcpSubnetListener extends AsyncClusteredDataChangeListenerBase<Subnet, DhcpSubnetListener>
+public class DhcpSubnetListener extends AsyncClusteredDataTreeChangeListenerBase<Subnet, DhcpSubnetListener>
         implements AutoCloseable {
     private DataBroker dataBroker;
     private DhcpManager dhcpManager;
@@ -57,6 +53,10 @@ public class DhcpSubnetListener extends AsyncClusteredDataChangeListenerBase<Sub
         this.dhcpExternalTunnelManager = dhcpExternalTunnelManager;
     }
 
+    public void init() {
+        registerListener(LogicalDatastoreType.CONFIGURATION, dataBroker);
+    }
+
     @Override
     protected void add(InstanceIdentifier<Subnet> identifier, Subnet add) {
 
@@ -68,23 +68,8 @@ public class DhcpSubnetListener extends AsyncClusteredDataChangeListenerBase<Sub
     }
 
     @Override
-    public void onDataChanged(AsyncDataChangeEvent<InstanceIdentifier<?>, DataObject> changeEvent) {
-        super.onDataChanged(changeEvent);
-    }
-
-    @Override
     protected InstanceIdentifier<Subnet> getWildCardPath() {
         return InstanceIdentifier.create(Neutron.class).child(Subnets.class).child(Subnet.class);
-    }
-
-    @Override
-    protected AsyncDataBroker.DataChangeScope getDataChangeScope() {
-        return AsyncDataBroker.DataChangeScope.SUBTREE;
-    }
-
-    @Override
-    protected ClusteredDataChangeListener getDataChangeListener() {
-        return DhcpSubnetListener.this;
     }
 
     @Override
@@ -275,6 +260,12 @@ public class DhcpSubnetListener extends AsyncClusteredDataChangeListenerBase<Sub
 
     @Override
     public void close() throws Exception {
+        super.close();
+        LOG.info("DhcpSubnetListener Closed");
+    }
 
+    @Override
+    protected DhcpSubnetListener getDataTreeChangeListener() {
+        return DhcpSubnetListener.this;
     }
 }

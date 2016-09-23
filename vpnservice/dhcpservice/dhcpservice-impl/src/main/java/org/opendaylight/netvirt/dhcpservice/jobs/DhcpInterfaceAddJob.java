@@ -68,8 +68,6 @@ public class DhcpInterfaceAddJob implements Callable<List<ListenableFuture<Void>
                 List<BigInteger> dpns = DhcpServiceUtils.getListOfDpns(dataBroker);
                 if (dpns.contains(dpnId)) {
                     dhcpExternalTunnelManager.handleTunnelStateUp(tunnelIp, dpnId, futures);
-                    // Add this when bind on tunnel is ready
-                    //dhcpManager.bindDhcpService(interfaceName, NwConstants.DHCP_TABLE_EXTERNAL_TUNNEL);
                 }
                 return futures;
             }
@@ -85,11 +83,11 @@ public class DhcpInterfaceAddJob implements Callable<List<ListenableFuture<Void>
         return futures;
     }
 
-    private void installDhcpEntries(String interfaceName, BigInteger dpId, List<ListenableFuture<Void>> futures ) {
+    private void installDhcpEntries(String interfaceName, BigInteger dpId, List<ListenableFuture<Void>> futures) {
         String vmMacAddress = getAndUpdateVmMacAddress(interfaceName);
         WriteTransaction flowTx = dataBroker.newWriteOnlyTransaction();
         WriteTransaction bindServiceTx = dataBroker.newWriteOnlyTransaction();
-        dhcpManager.bindDhcpService(interfaceName, NwConstants.DHCP_TABLE, bindServiceTx);
+        DhcpServiceUtils.bindDhcpService(interfaceName, NwConstants.DHCP_TABLE, bindServiceTx);
         dhcpManager.installDhcpEntries(dpId, vmMacAddress, flowTx);
         futures.add(bindServiceTx.submit());
         futures.add(flowTx.submit());
