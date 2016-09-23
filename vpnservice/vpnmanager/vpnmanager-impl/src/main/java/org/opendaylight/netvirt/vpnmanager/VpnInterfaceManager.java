@@ -541,12 +541,7 @@ public class VpnInterfaceManager extends AbstractDataChangeListener<VpnInterface
                         return futures;
                     }
                 });
-        makeArpFlow(dpId, ServiceIndex.getIndex(NwConstants.L3VPN_SERVICE_NAME, NwConstants.L3VPN_SERVICE_INDEX), lPortTag, vpnInterfaceName,
-                vpnId, ArpReplyOrRequest.REQUEST, NwConstants.ADD_FLOW, writeInvTxn);
         setupGwMacIfExternalVpn(dpId, vpnInterfaceName, vpnId, writeInvTxn, NwConstants.ADD_FLOW);
-        makeArpFlow(dpId, ServiceIndex.getIndex(NwConstants.L3VPN_SERVICE_NAME, NwConstants.L3VPN_SERVICE_INDEX), lPortTag, vpnInterfaceName,
-                vpnId, ArpReplyOrRequest.REPLY, NwConstants.ADD_FLOW, writeInvTxn);
-
     }
 
     private void setupGwMacIfExternalVpn(BigInteger dpnId, String interfaceName, long vpnId,
@@ -790,66 +785,6 @@ public class VpnInterfaceManager extends AbstractDataChangeListener<VpnInterface
             }
         }
         return exportRts;
-    }
-
-    private void makeArpFlow(BigInteger dpId,short sIndex, int lPortTag, String vpnInterfaceName,
-                             long vpnId, ArpReplyOrRequest replyOrRequest, int addOrRemoveFlow,
-                             WriteTransaction writeConfigTxn){
-        List<MatchInfo> matches = new ArrayList<MatchInfo>();
-        BigInteger metadata = MetaDataUtil.getMetaDataForLPortDispatcher(lPortTag, ++sIndex, MetaDataUtil.getVpnIdMetadata(vpnId));
-        BigInteger metadataMask = MetaDataUtil.getMetaDataMaskForLPortDispatcher(MetaDataUtil.METADATA_MASK_SERVICE_INDEX,
-                MetaDataUtil.METADATA_MASK_LPORT_TAG, MetaDataUtil.METADATA_MASK_VRFID);
-
-        // Matching Arp reply flows
-        matches.add(new MatchInfo(MatchFieldType.eth_type, new long[] { NwConstants.ETHTYPE_ARP }));
-        matches.add(new MatchInfo(MatchFieldType.metadata, new BigInteger[] {
-                metadata, metadataMask }));
-
-        matches.add(new MatchInfo(MatchFieldType.arp_op, new long[] { replyOrRequest.getArpOperation() }));
-
-        // Instruction to punt to controller
-        List<InstructionInfo> instructions = new ArrayList<InstructionInfo>();
-        List<ActionInfo> actionsInfos = new ArrayList<ActionInfo>();
-        actionsInfos.add(new ActionInfo(ActionType.punt_to_controller, new String[] {}));
-        actionsInfos.add(new ActionInfo(ActionType.nx_resubmit, new String[]{
-                Short.toString(NwConstants.LPORT_DISPATCHER_TABLE)}));
-
-        instructions.add(new InstructionInfo(InstructionType.apply_actions, actionsInfos));
-
-        // Install the flow entry in L3_INTERFACE_TABLE
-        String flowRef = VpnUtil.getFlowRef(dpId, NwConstants.L3_INTERFACE_TABLE,
-                NwConstants.ETHTYPE_ARP, lPortTag, replyOrRequest.getArpOperation());
-        FlowEntity flowEntity;
-        flowEntity = MDSALUtil.buildFlowEntity(dpId, NwConstants.L3_INTERFACE_TABLE, flowRef,
-                NwConstants.DEFAULT_ARP_FLOW_PRIORITY, replyOrRequest.getName(), 0, 0,
-                VpnUtil.getCookieArpFlow(lPortTag), matches, instructions);
-
-        Flow flow = flowEntity.getFlowBuilder().build();
-        String flowId = flowEntity.getFlowId();
-        FlowKey flowKey = new FlowKey( new FlowId(flowId));
-        Node nodeDpn = VpnUtil.buildDpnNode(dpId);
-
-        InstanceIdentifier<Flow> flowInstanceId = InstanceIdentifier.builder(Nodes.class)
-                .child(Node.class, nodeDpn.getKey()).augmentation(FlowCapableNode.class)
-                .child(Table.class, new TableKey(flow.getTableId())).child(Flow.class, flowKey).build();
-
-        if (writeConfigTxn != null) {
-            if (addOrRemoveFlow == NwConstants.ADD_FLOW) {
-                LOG.debug("Creating ARP Flow for interface {}", vpnInterfaceName);
-                writeConfigTxn.put(LogicalDatastoreType.CONFIGURATION, flowInstanceId, flow, true);
-            } else {
-                LOG.debug("Deleting ARP Flow for interface {}", vpnInterfaceName);
-                writeConfigTxn.delete(LogicalDatastoreType.CONFIGURATION, flowInstanceId);
-            }
-        } else {
-            if (addOrRemoveFlow == NwConstants.ADD_FLOW) {
-                LOG.debug("Creating ARP Flow for interface {}",vpnInterfaceName);
-                mdsalManager.installFlow(flowEntity);
-            } else {
-                LOG.debug("Deleting ARP Flow for interface {}",vpnInterfaceName);
-                mdsalManager.removeFlow(flowEntity);
-            }
-        }
     }
 
     private String getRouteDistinguisher(String vpnName) {
@@ -1280,10 +1215,6 @@ public class VpnInterfaceManager extends AbstractDataChangeListener<VpnInterface
         }
         long vpnId = VpnUtil.getVpnId(dataBroker, vpnInstanceName);
         setupGwMacIfExternalVpn(dpId, vpnInterfaceName, vpnId, writeConfigTxn, NwConstants.DEL_FLOW);
-        makeArpFlow(dpId, l3vpn_service_index, lPortTag, vpnInterfaceName,
-                vpnId, ArpReplyOrRequest.REQUEST, NwConstants.DEL_FLOW, writeInvTxn);
-        makeArpFlow(dpId, l3vpn_service_index, lPortTag, vpnInterfaceName,
-                vpnId, ArpReplyOrRequest.REPLY, NwConstants.DEL_FLOW, writeInvTxn);
     }
 
 
