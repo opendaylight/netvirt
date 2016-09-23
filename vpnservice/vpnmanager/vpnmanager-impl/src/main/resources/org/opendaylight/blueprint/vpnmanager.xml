@@ -204,4 +204,12 @@
     <argument ref="dataBroker" />
     <argument ref="vpnInterfaceManager" />
   </bean>
+
+  <bean id="VpnNodeListener"
+        class="org.opendaylight.netvirt.vpnmanager.VpnNodeListener"
+        init-method="start" destroy-method="close">
+    <argument ref="dataBroker" />
+    <argument ref="mdsalUtils" />
+  </bean>
+
 </blueprint>
