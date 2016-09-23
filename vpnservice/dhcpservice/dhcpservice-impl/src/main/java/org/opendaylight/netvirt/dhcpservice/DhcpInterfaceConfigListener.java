@@ -9,59 +9,36 @@
 package org.opendaylight.netvirt.dhcpservice;
 
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.binding.api.DataChangeListener;
-import org.opendaylight.controller.md.sal.common.api.data.AsyncDataBroker.DataChangeScope;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
 import org.opendaylight.genius.datastoreutils.DataStoreJobCoordinator;
-import org.opendaylight.genius.mdsalutil.AbstractDataChangeListener;
 import org.opendaylight.netvirt.dhcpservice.api.DHCPMConstants;
 import org.opendaylight.netvirt.dhcpservice.jobs.DhcpInterfaceConfigRemoveJob;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.Interfaces;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface;
-import org.opendaylight.yangtools.concepts.ListenerRegistration;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class DhcpInterfaceConfigListener extends AbstractDataChangeListener<Interface> implements AutoCloseable {
+public class DhcpInterfaceConfigListener extends AsyncDataTreeChangeListenerBase<Interface, DhcpInterfaceConfigListener> implements AutoCloseable {
 
     private static final Logger logger = LoggerFactory.getLogger(DhcpInterfaceConfigListener.class);
 
-    private ListenerRegistration<DataChangeListener> listenerRegistration;
     private final DataBroker dataBroker;
     private final DhcpExternalTunnelManager dhcpExternalTunnelManager;
     private DataStoreJobCoordinator dataStoreJobCoordinator;
 
     public DhcpInterfaceConfigListener(DataBroker dataBroker, DhcpExternalTunnelManager dhcpExternalTunnelManager) {
-        super(Interface.class);
+        super(Interface.class, DhcpInterfaceConfigListener.class);
         this.dataBroker = dataBroker;
         this.dhcpExternalTunnelManager = dhcpExternalTunnelManager;
-    }
-
-    public void init() {
-        registerListener();
+        registerListener(LogicalDatastoreType.CONFIGURATION, dataBroker);
         dataStoreJobCoordinator = DataStoreJobCoordinator.getInstance();
-    }
-
-    private void registerListener() {
-        try {
-            listenerRegistration = dataBroker.registerDataChangeListener(LogicalDatastoreType.CONFIGURATION,
-                    getWildCardPath(), DhcpInterfaceConfigListener.this, DataChangeScope.SUBTREE);
-        } catch (final Exception e) {
-            logger.error("DhcpInterfaceEventListener DataChange listener registration fail!", e);
-            throw new IllegalStateException("DhcpInterfaceEventListener registration Listener failed.", e);
-        }
-    }
-
-    private InstanceIdentifier<Interface> getWildCardPath() {
-        return InstanceIdentifier.create(Interfaces.class).child(Interface.class);
     }
 
     @Override
     public void close() throws Exception {
-        if (listenerRegistration != null) {
-            listenerRegistration.close();
-        }
+        super.close();
         logger.info("DhcpInterfaceConfigListener Closed");
     }
 
@@ -78,6 +55,15 @@ public class DhcpInterfaceConfigListener extends AbstractDataChangeListener<Inte
 
     @Override
     protected void add(InstanceIdentifier<Interface> identifier, Interface add) {
-        // Handled in add() DhcpInterfaceEventListener
+    }
+
+    @Override
+    protected InstanceIdentifier<Interface> getWildCardPath() {
+        return InstanceIdentifier.create(Interfaces.class).child(Interface.class);
+    }
+
+    @Override
+    protected DhcpInterfaceConfigListener getDataTreeChangeListener() {
+        return DhcpInterfaceConfigListener.this;
     }
 }

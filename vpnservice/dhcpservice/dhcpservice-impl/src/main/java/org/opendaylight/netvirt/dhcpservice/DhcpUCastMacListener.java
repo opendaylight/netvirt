@@ -7,15 +7,13 @@
  */
 package org.opendaylight.netvirt.dhcpservice;
 
-import com.google.common.base.Optional;
 import java.math.BigInteger;
+
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
-import org.opendaylight.controller.md.sal.binding.api.ClusteredDataChangeListener;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.common.api.data.AsyncDataBroker.DataChangeScope;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.genius.datastoreutils.AsyncClusteredDataChangeListenerBase;
+import org.opendaylight.genius.datastoreutils.AsyncClusteredDataTreeChangeListenerBase;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.netvirt.dhcpservice.api.DHCPMConstants;
 import org.opendaylight.netvirt.elanmanager.utils.ElanL2GwCacheUtils;
@@ -30,13 +28,13 @@ import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.NodeId;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.Topology;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Node;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.subnets.rev150712.subnets.attributes.subnets.Subnet;
-import org.opendaylight.yangtools.concepts.ListenerRegistration;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class DhcpUCastMacListener extends AsyncClusteredDataChangeListenerBase<LocalUcastMacs, DhcpUCastMacListener> implements AutoCloseable {
+import com.google.common.base.Optional;
+
+public class DhcpUCastMacListener extends AsyncClusteredDataTreeChangeListenerBase<LocalUcastMacs, DhcpUCastMacListener> implements AutoCloseable {
 
     private static final Logger logger = LoggerFactory.getLogger(DhcpUCastMacListener.class);
 
@@ -137,16 +135,6 @@ public class DhcpUCastMacListener extends AsyncClusteredDataChangeListenerBase<L
         dhcpExternalTunnelManager.installDhcpFlowsForVms(tunnelIp, elanInstanceName, DhcpServiceUtils.getListOfDpns(broker), designatedDpnId, macAddress);
     }
 
-    @Override
-    protected ClusteredDataChangeListener getDataChangeListener() {
-        return DhcpUCastMacListener.this;
-    }
-
-    @Override
-    protected DataChangeScope getDataChangeScope() {
-        return DataChangeScope.SUBTREE;
-    }
-
     private LogicalSwitches getLogicalSwitches(LocalUcastMacs ucastMacs) {
         LogicalSwitches logicalSwitch = null;
         InstanceIdentifier<LogicalSwitches> logicalSwitchRef = (InstanceIdentifier<LogicalSwitches>)
@@ -157,5 +145,10 @@ public class DhcpUCastMacListener extends AsyncClusteredDataChangeListenerBase<L
             logicalSwitch = logicalSwitchOptional.get();
         }
         return logicalSwitch;
+    }
+
+    @Override
+    protected DhcpUCastMacListener getDataTreeChangeListener() {
+        return DhcpUCastMacListener.this;
     }
 }
