@@ -13,18 +13,21 @@ import com.google.common.util.concurrent.CheckedFuture;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
+
 import java.math.BigInteger;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.LinkedBlockingQueue;
+
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.DataChangeListener;
 import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
@@ -119,6 +122,7 @@ import org.slf4j.LoggerFactory;
 public class VrfEntryListener extends AbstractDataChangeListener<VrfEntry> implements AutoCloseable, ResourceHandler {
     private static final Logger LOG = LoggerFactory.getLogger(VrfEntryListener.class);
     private static final String FLOWID_PREFIX = "L3.";
+    private static final String FLOWID_PREFIX_FOR_ARP = "L3.GW_MAC_TABLE.ARP.";
     private ListenerRegistration<DataChangeListener> listenerRegistration;
     private final DataBroker dataBroker;
     private final IMdsalApiManager mdsalManager;
@@ -2002,14 +2006,16 @@ public class VrfEntryListener extends AbstractDataChangeListener<VrfEntry> imple
         makeL3IntfTblMissFlow(dpnId, NwConstants.ADD_FLOW);
         makeSubnetRouteTableMissFlow(dpnId, NwConstants.ADD_FLOW);
         createTableMissForVpnGwFlow(dpnId);
+        createArpRequestMatchFlowForGwMacTable(dpnId);
+        createArpResponseMatchFlowForGwMacTable(dpnId);
     }
 
-    private void createTableMissForVpnGwFlow(BigInteger dpnId) {
+    private void createTableMissForVpnGwFlow(BigInteger dpId) {
         List<MatchInfo> matches = new ArrayList<MatchInfo>();
-        List<InstructionInfo> instructions = new ArrayList<InstructionInfo>();
-        instructions.add(new InstructionInfo(InstructionType.goto_table, new long[] { NwConstants.L3_INTERFACE_TABLE }));
-        FlowEntity flowEntityMissforGw = MDSALUtil.buildFlowEntity(dpnId, NwConstants.L3_GW_MAC_TABLE,
-                getTableMissFlowRef(dpnId, NwConstants.L3_GW_MAC_TABLE, NwConstants.TABLE_MISS_FLOW),
+        List<ActionInfo> actionsInfos = Collections.singletonList(new ActionInfo(ActionType.nx_resubmit, new String[] { Integer.toString(NwConstants.LPORT_DISPATCHER_TABLE) }));
+        List<InstructionInfo> instructions = Collections.singletonList(new InstructionInfo(InstructionType.apply_actions, actionsInfos));
+        FlowEntity flowEntityMissforGw = MDSALUtil.buildFlowEntity(dpId, NwConstants.L3_GW_MAC_TABLE,
+                getTableMissFlowRef(dpId, NwConstants.L3_GW_MAC_TABLE, NwConstants.TABLE_MISS_FLOW),
                 NwConstants.TABLE_MISS_PRIORITY, "L3 Gw Mac Table Miss", 0, 0, new BigInteger("1080000", 16), matches, instructions);
         if (LOG.isTraceEnabled()) {
             LOG.trace("Invoking MDSAL to install L3 Gw Mac Table Miss Entry");
@@ -2017,37 +2023,63 @@ public class VrfEntryListener extends AbstractDataChangeListener<VrfEntry> imple
         mdsalManager.installFlow(flowEntityMissforGw);
    }
 
+    private void createArpRequestMatchFlowForGwMacTable(BigInteger dpId) {
+        List<MatchInfo> matches = new ArrayList<MatchInfo>();
+        matches.add(new MatchInfo(MatchFieldType.eth_type, new long[] { NwConstants.ETHTYPE_ARP }));
+        matches.add(new MatchInfo(MatchFieldType.arp_op, new long[] {NwConstants.ARP_REQUEST}));
+        List<ActionInfo> actionsInfos = new ArrayList<>();
+        actionsInfos.add(new ActionInfo(ActionType.punt_to_controller, new String[] {}));
+        actionsInfos.add(new ActionInfo(ActionType.nx_resubmit, new String[] { Integer.toString(NwConstants.LPORT_DISPATCHER_TABLE) }));
+        //TODO: Add actionInfo to point to ARP responder table
+        List<InstructionInfo> instructions = Collections.singletonList(new InstructionInfo(InstructionType.apply_actions, actionsInfos));
+        FlowEntity flowEntity = MDSALUtil.buildFlowEntity(dpId, NwConstants.L3_GW_MAC_TABLE,
+                getFlowRefForArpFlows(dpId, NwConstants.L3_GW_MAC_TABLE, NwConstants.ARP_REQUEST),
+                NwConstants.DEFAULT_ARP_FLOW_PRIORITY, "L3GwMac Arp Rquest", 0, 0, new BigInteger("1080000", 16), matches, instructions);
+        LOG.trace("Invoking MDSAL to install L3 Gw Mac Arp Rquest Match Flow");
+        mdsalManager.installFlow(flowEntity);
+   }
+
+    private void createArpResponseMatchFlowForGwMacTable(BigInteger dpId) {
+        List<MatchInfo> matches = new ArrayList<MatchInfo>();
+        matches.add(new MatchInfo(MatchFieldType.eth_type, new long[] { NwConstants.ETHTYPE_ARP }));
+        matches.add(new MatchInfo(MatchFieldType.arp_op, new long[] {NwConstants.ARP_REPLY}));
+        List<ActionInfo> actionsInfos = new ArrayList<>();
+        actionsInfos.add(new ActionInfo(ActionType.punt_to_controller, new String[] {}));
+        actionsInfos.add(new ActionInfo(ActionType.nx_resubmit, new String[] { Integer.toString(NwConstants.LPORT_DISPATCHER_TABLE) }));
+        List<InstructionInfo> instructions = Collections.singletonList(new InstructionInfo(InstructionType.apply_actions, actionsInfos));
+        FlowEntity flowEntity = MDSALUtil.buildFlowEntity(dpId, NwConstants.L3_GW_MAC_TABLE,
+                getFlowRefForArpFlows(dpId, NwConstants.L3_GW_MAC_TABLE, NwConstants.ARP_REPLY),
+                NwConstants.DEFAULT_ARP_FLOW_PRIORITY, "L3GwMac Arp Reply", 0, 0, new BigInteger("1080000", 16), matches, instructions);
+        LOG.trace("Invoking MDSAL to install L3 Gw Mac Arp Reply Match Flow");
+        mdsalManager.installFlow(flowEntity);
+   }
+
     private void makeTableMissFlow(BigInteger dpnId, int addOrRemove) {
         final BigInteger COOKIE_TABLE_MISS = new BigInteger("1030000", 16);
         // Instruction to goto L3 InterfaceTable
-        List<InstructionInfo> instructions = new ArrayList<InstructionInfo>();
-        instructions.add(new InstructionInfo(InstructionType.goto_table, new long[] { NwConstants.L3_INTERFACE_TABLE }));
+        List<InstructionInfo> instructions = Collections.singletonList(new InstructionInfo(InstructionType.goto_table, new long[] { NwConstants.L3_INTERFACE_TABLE }));
         List<MatchInfo> matches = new ArrayList<MatchInfo>();
         FlowEntity flowEntityLfib = MDSALUtil.buildFlowEntity(dpnId, NwConstants.L3_LFIB_TABLE,
                 getTableMissFlowRef(dpnId, NwConstants.L3_LFIB_TABLE, NwConstants.TABLE_MISS_FLOW),
                 NwConstants.TABLE_MISS_PRIORITY, "Table Miss", 0, 0, COOKIE_TABLE_MISS, matches, instructions);
 
-        FlowEntity flowEntityFib = MDSALUtil.buildFlowEntity(dpnId,NwConstants.L3_FIB_TABLE,
-                getTableMissFlowRef(dpnId, NwConstants.L3_FIB_TABLE,
-                        NwConstants.TABLE_MISS_FLOW),
-                NwConstants.TABLE_MISS_PRIORITY, "FIB Table Miss Flow",
-                0, 0, COOKIE_VM_FIB_TABLE,
-                matches, instructions);
-
         if (addOrRemove == NwConstants.ADD_FLOW) {
-            LOG.debug("Invoking MDSAL to install Table Miss Entries");
+            LOG.debug("Invoking MDSAL to install Table Miss Entry");
             mdsalManager.installFlow(flowEntityLfib);
-            mdsalManager.installFlow(flowEntityFib);
         } else {
             mdsalManager.removeFlow(flowEntityLfib);
-            mdsalManager.removeFlow(flowEntityFib);
-
         }
     }
 
     private String getTableMissFlowRef(BigInteger dpnId, short tableId, int tableMiss) {
         return new StringBuffer().append(FLOWID_PREFIX).append(dpnId).append(NwConstants.FLOWID_SEPARATOR)
                 .append(tableId).append(NwConstants.FLOWID_SEPARATOR).append(tableMiss)
+                .append(FLOWID_PREFIX).toString();
+    }
+
+    private String getFlowRefForArpFlows(BigInteger dpnId, short tableId, int arpRequestOrReply) {
+        return new StringBuffer().append(FLOWID_PREFIX_FOR_ARP).append(dpnId).append(NwConstants.FLOWID_SEPARATOR)
+                .append(tableId).append(NwConstants.FLOWID_SEPARATOR).append(arpRequestOrReply)
                 .append(FLOWID_PREFIX).toString();
     }
 
