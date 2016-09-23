@@ -13,7 +13,7 @@ import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.genius.datastoreutils.AsyncClusteredDataTreeChangeListenerBase;
+import org.opendaylight.genius.datastoreutils.hwvtep.HwvtepClusteredDataTreeChangeListener;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.netvirt.dhcpservice.api.DHCPMConstants;
 import org.opendaylight.netvirt.elanmanager.utils.ElanL2GwCacheUtils;
@@ -32,9 +32,8 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.base.Optional;
-
-public class DhcpUCastMacListener extends AsyncClusteredDataTreeChangeListenerBase<LocalUcastMacs, DhcpUCastMacListener> implements AutoCloseable {
+public class DhcpUCastMacListener
+        extends HwvtepClusteredDataTreeChangeListener<LocalUcastMacs, DhcpUCastMacListener> implements AutoCloseable {
 
     private static final Logger logger = LoggerFactory.getLogger(DhcpUCastMacListener.class);
 
@@ -66,7 +65,7 @@ public class DhcpUCastMacListener extends AsyncClusteredDataTreeChangeListenerBa
     }
 
     @Override
-    protected void remove(InstanceIdentifier<LocalUcastMacs> identifier,
+    protected void removed(InstanceIdentifier<LocalUcastMacs> identifier,
             LocalUcastMacs del) {
         // Flow removal for table 18 is handled in Neutron Port delete.
         //remove the new CR-DHCP
@@ -88,14 +87,14 @@ public class DhcpUCastMacListener extends AsyncClusteredDataTreeChangeListenerBa
     }
 
     @Override
-    protected void update(InstanceIdentifier<LocalUcastMacs> identifier,
+    protected void updated(InstanceIdentifier<LocalUcastMacs> identifier,
             LocalUcastMacs original, LocalUcastMacs update) {
         // TODO Auto-generated method stub
 
     }
 
     @Override
-    protected void add(InstanceIdentifier<LocalUcastMacs> identifier,
+    protected void added(InstanceIdentifier<LocalUcastMacs> identifier,
             LocalUcastMacs add) {
         NodeId torNodeId = identifier.firstKeyOf(Node.class).getNodeId();
         InstanceIdentifier<LogicalSwitches> logicalSwitchRef = (InstanceIdentifier<LogicalSwitches>) add.getLogicalSwitchRef().getValue();
@@ -133,6 +132,11 @@ public class DhcpUCastMacListener extends AsyncClusteredDataTreeChangeListenerBa
             return;
         }
         dhcpExternalTunnelManager.installDhcpFlowsForVms(tunnelIp, elanInstanceName, DhcpServiceUtils.getListOfDpns(broker), designatedDpnId, macAddress);
+    }
+
+    @Override
+    protected DhcpUCastMacListener getDataTreeChangeListener() {
+        return DhcpUCastMacListener.this;
     }
 
     private LogicalSwitches getLogicalSwitches(LocalUcastMacs ucastMacs) {

@@ -13,7 +13,7 @@ import java.util.concurrent.ConcurrentMap;
 
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
+import org.opendaylight.genius.mdsalutil.HwvtepAbstractDataTreeChangeListener;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.utils.hwvtep.HwvtepSouthboundConstants;
 import org.opendaylight.netvirt.dhcpservice.api.DHCPMConstants;
@@ -34,7 +34,7 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Optional;
 
-public class DhcpLogicalSwitchListener extends AsyncDataTreeChangeListenerBase<LogicalSwitches, DhcpLogicalSwitchListener> implements AutoCloseable {
+public class DhcpLogicalSwitchListener extends HwvtepAbstractDataTreeChangeListener<LogicalSwitches,DhcpLogicalSwitchListener> implements AutoCloseable {
 
     private static final Logger logger = LoggerFactory.getLogger(DhcpLogicalSwitchListener.class);
 
@@ -43,13 +43,25 @@ public class DhcpLogicalSwitchListener extends AsyncDataTreeChangeListenerBase<L
     private final DhcpExternalTunnelManager dhcpExternalTunnelManager;
 
     public DhcpLogicalSwitchListener(DhcpExternalTunnelManager dhcpManager, DataBroker dataBroker) {
-        super(LogicalSwitches.class, DhcpLogicalSwitchListener.class);
+        super(LogicalSwitches.class,DhcpLogicalSwitchListener.class);
         this.dhcpExternalTunnelManager = dhcpManager;
         this.dataBroker = dataBroker;
     }
 
     public void init() {
-        registerListener(LogicalDatastoreType.OPERATIONAL, dataBroker);
+        registerListener(LogicalDatastoreType.OPERATIONAL,this.dataBroker);
+    }
+
+    protected InstanceIdentifier<LogicalSwitches> getWildCardPath() {
+        return InstanceIdentifier.create(NetworkTopology.class)
+                .child(Topology.class, new TopologyKey(HwvtepSouthboundConstants.HWVTEP_TOPOLOGY_ID))
+                .child(Node.class).augmentation(HwvtepGlobalAugmentation.class)
+                .child(LogicalSwitches.class);
+    }
+
+    @Override
+    protected DhcpLogicalSwitchListener getDataTreeChangeListener() {
+        return DhcpLogicalSwitchListener.this;
     }
 
     @Override
@@ -59,7 +71,7 @@ public class DhcpLogicalSwitchListener extends AsyncDataTreeChangeListenerBase<L
     }
 
     @Override
-    protected void remove(InstanceIdentifier<LogicalSwitches> identifier,
+    protected void removed(InstanceIdentifier<LogicalSwitches> identifier,
             LogicalSwitches del) {
         logger.trace("Received LogicalSwitch remove DCN");
         String elanInstanceName = del.getHwvtepNodeName().getValue();
@@ -100,13 +112,13 @@ public class DhcpLogicalSwitchListener extends AsyncDataTreeChangeListenerBase<L
     }
 
     @Override
-    protected void update(InstanceIdentifier<LogicalSwitches> identifier,
+    protected void updated(InstanceIdentifier<LogicalSwitches> identifier,
             LogicalSwitches original, LogicalSwitches update) {
         logger.trace("Received LogicalSwitch update DCN");
     }
 
     @Override
-    protected void add(InstanceIdentifier<LogicalSwitches> identifier,
+    protected void added(InstanceIdentifier<LogicalSwitches> identifier,
             LogicalSwitches add) {
         logger.trace("Received LogicalSwitch add DCN");
         String elanInstanceName = add.getHwvtepNodeName().getValue();

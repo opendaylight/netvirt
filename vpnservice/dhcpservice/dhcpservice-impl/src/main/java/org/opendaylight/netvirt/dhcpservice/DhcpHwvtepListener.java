@@ -12,7 +12,7 @@ import java.util.List;
 
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
+import org.opendaylight.genius.mdsalutil.HwvtepAbstractDataTreeChangeListener;
 import org.opendaylight.genius.utils.hwvtep.HwvtepSouthboundConstants;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.HwvtepGlobalAugmentation;
@@ -25,20 +25,27 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class DhcpHwvtepListener extends AsyncDataTreeChangeListenerBase<Node, DhcpHwvtepListener> implements AutoCloseable {
+public class DhcpHwvtepListener extends HwvtepAbstractDataTreeChangeListener<Node,DhcpHwvtepListener> implements AutoCloseable {
 
     private static final Logger logger = LoggerFactory.getLogger(DhcpHwvtepListener.class);
     private DhcpExternalTunnelManager dhcpExternalTunnelManager;
     private DataBroker dataBroker;
 
     public DhcpHwvtepListener(DataBroker dataBroker, DhcpExternalTunnelManager dhcpManager) {
-        super(Node.class, DhcpHwvtepListener.class);
+        super(Node.class,DhcpHwvtepListener.class);
         this.dhcpExternalTunnelManager = dhcpManager;
         this.dataBroker = dataBroker;
+        registerListener(LogicalDatastoreType.OPERATIONAL,this.dataBroker);
     }
 
-    public void init() {
-        registerListener(LogicalDatastoreType.OPERATIONAL, dataBroker);
+    protected InstanceIdentifier<Node> getWildCardPath() {
+        return InstanceIdentifier.create(NetworkTopology.class)
+                .child(Topology.class, new TopologyKey(HwvtepSouthboundConstants.HWVTEP_TOPOLOGY_ID)).child(Node.class);
+    }
+
+    @Override
+    protected DhcpHwvtepListener getDataTreeChangeListener() {
+        return DhcpHwvtepListener.this;
     }
 
     @Override
@@ -48,7 +55,7 @@ public class DhcpHwvtepListener extends AsyncDataTreeChangeListenerBase<Node, Dh
     }
 
     @Override
-    protected void remove(InstanceIdentifier<Node> identifier,
+    protected void removed(InstanceIdentifier<Node> identifier,
             Node del) {
         logger.trace("Received Hwvtep remove DCN {}", del);
         HwvtepGlobalAugmentation hwvtepNode = del.getAugmentation(HwvtepGlobalAugmentation.class);
@@ -69,12 +76,12 @@ public class DhcpHwvtepListener extends AsyncDataTreeChangeListenerBase<Node, Dh
     }
 
     @Override
-    protected void update(InstanceIdentifier<Node> identifier,
+    protected void updated(InstanceIdentifier<Node> identifier,
             Node original, Node update) {
     }
 
     @Override
-    protected void add(InstanceIdentifier<Node> identifier,
+    protected void added(InstanceIdentifier<Node> identifier,
             Node add) {
     }
 

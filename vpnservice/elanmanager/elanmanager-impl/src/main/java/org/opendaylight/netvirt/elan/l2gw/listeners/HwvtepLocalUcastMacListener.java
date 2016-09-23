@@ -12,7 +12,7 @@ import org.opendaylight.controller.md.sal.binding.api.ClusteredDataChangeListene
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.AsyncDataBroker.DataChangeScope;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.genius.datastoreutils.AsyncClusteredDataChangeListenerBase;
+import org.opendaylight.genius.datastoreutils.hwvtep.HwvtepClusteredDataTreeChangeListener;
 import org.opendaylight.genius.utils.hwvtep.HwvtepUtils;
 import org.opendaylight.netvirt.elan.l2gw.utils.ElanL2GatewayUtils;
 import org.opendaylight.netvirt.elan.utils.ElanUtils;
@@ -35,7 +35,7 @@ import org.slf4j.LoggerFactory;
  * belongs.
  */
 public class HwvtepLocalUcastMacListener extends
-        AsyncClusteredDataChangeListenerBase<LocalUcastMacs, HwvtepLocalUcastMacListener> implements AutoCloseable {
+        HwvtepClusteredDataTreeChangeListener<LocalUcastMacs, HwvtepLocalUcastMacListener> implements AutoCloseable {
 
     private static final Logger LOG = LoggerFactory.getLogger(HwvtepLocalUcastMacListener.class);
 
@@ -54,7 +54,7 @@ public class HwvtepLocalUcastMacListener extends
     }
 
     @Override
-    protected void remove(InstanceIdentifier<LocalUcastMacs> identifier, LocalUcastMacs macRemoved) {
+    protected void removed(InstanceIdentifier<LocalUcastMacs> identifier, LocalUcastMacs macRemoved) {
         String hwvtepNodeId = identifier.firstKeyOf(Node.class).getNodeId().getValue();
         String macAddress = macRemoved.getMacEntryKey().getValue();
 
@@ -81,14 +81,14 @@ public class HwvtepLocalUcastMacListener extends
     }
 
     @Override
-    protected void update(InstanceIdentifier<LocalUcastMacs> identifier, LocalUcastMacs original,
+    protected void updated(InstanceIdentifier<LocalUcastMacs> identifier, LocalUcastMacs original,
             LocalUcastMacs update) {
         // TODO (eperefr) what can change here?
 
     }
 
     @Override
-    protected void add(InstanceIdentifier<LocalUcastMacs> identifier, LocalUcastMacs macAdded) {
+    protected void added(InstanceIdentifier<LocalUcastMacs> identifier, LocalUcastMacs macAdded) {
         String hwvtepNodeId = identifier.firstKeyOf(Node.class).getNodeId().getValue();
         String macAddress = macAdded.getMacEntryKey().getValue();
 
@@ -119,12 +119,8 @@ public class HwvtepLocalUcastMacListener extends
     }
 
     @Override
-    protected ClusteredDataChangeListener getDataChangeListener() {
+    protected HwvtepLocalUcastMacListener getDataTreeChangeListener() {
         return HwvtepLocalUcastMacListener.this;
     }
 
-    @Override
-    protected DataChangeScope getDataChangeScope() {
-        return DataChangeScope.BASE;
-    }
 }
