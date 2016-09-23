@@ -9,15 +9,12 @@ package org.opendaylight.netvirt.dhcpservice;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.mdsalutil.ActionInfo;
 import org.opendaylight.genius.mdsalutil.ActionType;
-import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.opendaylight.genius.mdsalutil.FlowEntity;
 import org.opendaylight.genius.mdsalutil.InstructionInfo;
 import org.opendaylight.genius.mdsalutil.InstructionType;
@@ -25,23 +22,10 @@ import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.mdsalutil.MatchInfo;
 import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
-import org.opendaylight.genius.utils.ServiceIndex;
 import org.opendaylight.netvirt.dhcpservice.api.DHCPMConstants;
 import org.opendaylight.netvirt.neutronvpn.interfaces.INeutronVpnManager;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.instruction.list.Instruction;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.servicebinding.rev160406.ServiceBindings;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.servicebinding.rev160406.ServiceModeIngress;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.servicebinding.rev160406.ServiceTypeFlowBased;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.servicebinding.rev160406.StypeOpenflow;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.servicebinding.rev160406.StypeOpenflowBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.servicebinding.rev160406.service.bindings.ServicesInfo;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.servicebinding.rev160406.service.bindings.ServicesInfoKey;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.servicebinding.rev160406.service.bindings.services.info.BoundServices;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.servicebinding.rev160406.service.bindings.services.info.BoundServicesBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.servicebinding.rev160406.service.bindings.services.info.BoundServicesKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.ports.attributes.ports.Port;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.subnets.rev150712.subnets.attributes.subnets.Subnet;
-import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.dhcpservice.config.rev150710.DhcpserviceConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -59,9 +43,6 @@ public class DhcpManager {
     private String dhcpOptDefDomainName;
     private DhcpInterfaceEventListener dhcpInterfaceEventListener;
     private DhcpInterfaceConfigListener dhcpInterfaceConfigListener;
-
-    // cache used to maintain DpnId and physical address for each interface.
-    private static HashMap<String, ImmutablePair<BigInteger, String>> interfaceToDpnIdMacAddress = new HashMap<>();
 
     public DhcpManager(final IMdsalApiManager mdsalApiManager,
             final INeutronVpnManager neutronVpnManager,
@@ -179,39 +160,5 @@ public class DhcpManager {
                 DHCPMConstants.COOKIE_DHCP_BASE, matches, instructions);
         DhcpServiceCounters.install_dhcp_table_miss_flow_for_external_table.inc();
         mdsalUtil.installFlow(flowEntity);
-    }
-
-    public void bindDhcpService(String interfaceName, short tableId, WriteTransaction tx) {
-        int instructionKey = 0;
-        List<Instruction> instructions = new ArrayList<>();
-        instructions.add(MDSALUtil.buildAndGetGotoTableInstruction(tableId, ++instructionKey));
-        short serviceIndex = ServiceIndex.getIndex(NwConstants.DHCP_SERVICE_NAME, NwConstants.DHCP_SERVICE_INDEX);
-        BoundServices
-                serviceInfo =
-                getBoundServices(String.format("%s.%s", "dhcp", interfaceName),
-                        serviceIndex, DHCPMConstants.DEFAULT_FLOW_PRIORITY,
-                        DHCPMConstants.COOKIE_VM_INGRESS_TABLE, instructions);
-        tx.put(LogicalDatastoreType.CONFIGURATION,
-                buildServiceId(interfaceName, serviceIndex), serviceInfo, true);
-    }
-
-    private InstanceIdentifier<BoundServices> buildServiceId(String interfaceName,
-                                              short dhcpServicePriority) {
-        return InstanceIdentifier.builder(ServiceBindings.class).child(ServicesInfo.class, new ServicesInfoKey(interfaceName, ServiceModeIngress.class))
-                .child(BoundServices.class, new BoundServicesKey(dhcpServicePriority)).build();
-    }
-
-    public BoundServices getBoundServices(String serviceName, short servicePriority, int flowPriority,
-                                          BigInteger cookie, List<Instruction> instructions) {
-        StypeOpenflowBuilder augBuilder = new StypeOpenflowBuilder().setFlowCookie(cookie).setFlowPriority(flowPriority).setInstruction(instructions);
-        return new BoundServicesBuilder().setKey(new BoundServicesKey(servicePriority))
-                .setServiceName(serviceName).setServicePriority(servicePriority)
-                .setServiceType(ServiceTypeFlowBased.class).addAugmentation(StypeOpenflow.class, augBuilder.build()).build();
-    }
-
-    public void unbindDhcpService(String interfaceName, WriteTransaction tx) {
-        short serviceIndex = ServiceIndex.getIndex(NwConstants.DHCP_SERVICE_NAME, NwConstants.DHCP_SERVICE_INDEX);
-        tx.delete(LogicalDatastoreType.CONFIGURATION,
-                buildServiceId(interfaceName, serviceIndex));
     }
 }

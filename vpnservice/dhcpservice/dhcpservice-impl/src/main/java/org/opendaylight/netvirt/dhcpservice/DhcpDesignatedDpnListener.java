@@ -9,22 +9,18 @@ package org.opendaylight.netvirt.dhcpservice;
 
 import java.math.BigInteger;
 import java.util.List;
-import org.opendaylight.controller.md.sal.binding.api.ClusteredDataChangeListener;
+
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.binding.api.DataChangeListener;
-import org.opendaylight.controller.md.sal.common.api.data.AsyncDataBroker;
-import org.opendaylight.controller.md.sal.common.api.data.AsyncDataBroker.DataChangeScope;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.genius.datastoreutils.AsyncClusteredDataChangeListenerBase;
+import org.opendaylight.genius.datastoreutils.AsyncClusteredDataTreeChangeListenerBase;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.dhcp.rev160428.DesignatedSwitchesForExternalTunnels;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.dhcp.rev160428.designated.switches._for.external.tunnels.DesignatedSwitchForTunnel;
-import org.opendaylight.yangtools.concepts.ListenerRegistration;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class DhcpDesignatedDpnListener extends AsyncClusteredDataChangeListenerBase<DesignatedSwitchForTunnel, DhcpDesignatedDpnListener> implements AutoCloseable {
+public class DhcpDesignatedDpnListener extends AsyncClusteredDataTreeChangeListenerBase<DesignatedSwitchForTunnel, DhcpDesignatedDpnListener> implements AutoCloseable {
 
     private static final Logger LOG = LoggerFactory.getLogger(DhcpDesignatedDpnListener.class);
 
@@ -85,12 +81,7 @@ public class DhcpDesignatedDpnListener extends AsyncClusteredDataChangeListenerB
     }
 
     @Override
-    protected ClusteredDataChangeListener getDataChangeListener() {
+    protected DhcpDesignatedDpnListener getDataTreeChangeListener() {
         return DhcpDesignatedDpnListener.this;
-    }
-
-    @Override
-    protected DataChangeScope getDataChangeScope() {
-        return AsyncDataBroker.DataChangeScope.SUBTREE;
     }
 }

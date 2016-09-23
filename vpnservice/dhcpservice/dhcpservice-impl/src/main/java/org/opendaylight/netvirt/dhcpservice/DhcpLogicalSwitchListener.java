@@ -10,11 +10,10 @@ package org.opendaylight.netvirt.dhcpservice;
 import java.math.BigInteger;
 import java.util.List;
 import java.util.concurrent.ConcurrentMap;
+
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.binding.api.DataChangeListener;
-import org.opendaylight.controller.md.sal.common.api.data.AsyncDataBroker.DataChangeScope;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.genius.mdsalutil.AbstractDataChangeListener;
+import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.utils.hwvtep.HwvtepSouthboundConstants;
 import org.opendaylight.netvirt.dhcpservice.api.DHCPMConstants;
@@ -29,54 +28,33 @@ import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.TopologyKey;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Node;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.NodeKey;
-import org.opendaylight.yangtools.concepts.ListenerRegistration;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Optional;
 
-public class DhcpLogicalSwitchListener extends AbstractDataChangeListener<LogicalSwitches> implements AutoCloseable {
+public class DhcpLogicalSwitchListener extends AsyncDataTreeChangeListenerBase<LogicalSwitches, DhcpLogicalSwitchListener> implements AutoCloseable {
 
     private static final Logger logger = LoggerFactory.getLogger(DhcpLogicalSwitchListener.class);
 
-    private ListenerRegistration<DataChangeListener> listenerRegistration;
 
     private final DataBroker dataBroker;
     private final DhcpExternalTunnelManager dhcpExternalTunnelManager;
 
     public DhcpLogicalSwitchListener(DhcpExternalTunnelManager dhcpManager, DataBroker dataBroker) {
-        super(LogicalSwitches.class);
+        super(LogicalSwitches.class, DhcpLogicalSwitchListener.class);
         this.dhcpExternalTunnelManager = dhcpManager;
         this.dataBroker = dataBroker;
     }
 
     public void init() {
-        registerListener();
-    }
-
-    private void registerListener() {
-        try {
-            listenerRegistration = dataBroker.registerDataChangeListener(LogicalDatastoreType.OPERATIONAL,
-                    getWildCardPath(), DhcpLogicalSwitchListener.this, DataChangeScope.SUBTREE);
-        } catch (final Exception e) {
-            logger.error("DhcpLogicalSwitchListener DataChange listener registration fail!", e);
-            throw new IllegalStateException("DhcpLogicalSwitchListener registration Listener failed.", e);
-        }
-    }
-
-    private InstanceIdentifier<LogicalSwitches> getWildCardPath() {
-        return InstanceIdentifier.create(NetworkTopology.class)
-                .child(Topology.class, new TopologyKey(HwvtepSouthboundConstants.HWVTEP_TOPOLOGY_ID))
-                .child(Node.class).augmentation(HwvtepGlobalAugmentation.class)
-                .child(LogicalSwitches.class);
+        registerListener(LogicalDatastoreType.OPERATIONAL, dataBroker);
     }
 
     @Override
     public void close() throws Exception {
-        if (listenerRegistration != null) {
-            listenerRegistration.close();
-        }
+        super.close();
         logger.info("DhcpLogicalSwitchListener Closed");
     }
 
@@ -167,5 +145,18 @@ public class DhcpLogicalSwitchListener extends AbstractDataChangeListener<Logica
             logger.info("Unable to designate a DPN");
             return;
         }
+    }
+
+    @Override
+    protected InstanceIdentifier<LogicalSwitches> getWildCardPath() {
+        return InstanceIdentifier.create(NetworkTopology.class)
+                .child(Topology.class, new TopologyKey(HwvtepSouthboundConstants.HWVTEP_TOPOLOGY_ID))
+                .child(Node.class).augmentation(HwvtepGlobalAugmentation.class)
+                .child(LogicalSwitches.class);
+    }
+
+    @Override
+    protected DhcpLogicalSwitchListener getDataTreeChangeListener() {
+        return DhcpLogicalSwitchListener.this;
     }
 }

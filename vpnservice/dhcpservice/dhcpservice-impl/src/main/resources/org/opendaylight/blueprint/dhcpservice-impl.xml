@@ -93,4 +93,18 @@
     <argument ref="dhcpExternalTunnelManager" />
     <argument ref="dataBroker" />
   </bean>
+
+  <bean id="dhcpSubnetListener" class="org.opendaylight.netvirt.dhcpservice.DhcpSubnetListener"
+    init-method="init" destroy-method="close">
+    <argument ref="dhcpManager" />
+    <argument ref="dhcpExternalTunnelManager" />
+    <argument ref="dataBroker" />
+  </bean>
+
+  <bean id="dhcpHwvtepListener" class="org.opendaylight.netvirt.dhcpservice.DhcpHwvtepListener"
+    init-method="init" destroy-method="close">
+    <argument ref="dataBroker" />
+    <argument ref="dhcpExternalTunnelManager" />
+  </bean>
+
 </blueprint>

@@ -9,24 +9,20 @@ package org.opendaylight.netvirt.dhcpservice;
 
 import java.math.BigInteger;
 import java.util.List;
-import org.opendaylight.controller.md.sal.binding.api.ClusteredDataChangeListener;
+
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.binding.api.DataChangeListener;
-import org.opendaylight.controller.md.sal.common.api.data.AsyncDataBroker;
-import org.opendaylight.controller.md.sal.common.api.data.AsyncDataBroker.DataChangeScope;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.genius.datastoreutils.AsyncClusteredDataChangeListenerBase;
+import org.opendaylight.genius.datastoreutils.AsyncClusteredDataTreeChangeListenerBase;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.binding.rev150712.PortBindingExtension;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.ports.attributes.Ports;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.ports.attributes.ports.Port;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.rev150712.Neutron;
-import org.opendaylight.yangtools.concepts.ListenerRegistration;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class DhcpNeutronPortListener extends AsyncClusteredDataChangeListenerBase<Port, DhcpNeutronPortListener> implements AutoCloseable {
+public class DhcpNeutronPortListener extends AsyncClusteredDataTreeChangeListenerBase<Port, DhcpNeutronPortListener> implements AutoCloseable {
 
     private static final Logger LOG = LoggerFactory.getLogger(DhcpNeutronPortListener.class);
 
@@ -100,16 +96,6 @@ public class DhcpNeutronPortListener extends AsyncClusteredDataChangeListenerBas
         addPort(add);
     }
 
-    @Override
-    protected ClusteredDataChangeListener getDataChangeListener() {
-        return DhcpNeutronPortListener.this;
-    }
-
-    @Override
-    protected DataChangeScope getDataChangeScope() {
-        return AsyncDataBroker.DataChangeScope.SUBTREE;
-    }
-
     private void removePort(Port port) {
         String macAddress = getMacAddress(port);
         Uuid networkId = port.getNetworkId();
@@ -146,5 +132,10 @@ public class DhcpNeutronPortListener extends AsyncClusteredDataChangeListenerBas
         }
         String vnicType = portBinding.getVnicType().trim().toLowerCase();
         return (vnicType.equals("direct") || vnicType.equals("macvtap"));
+    }
+
+    @Override
+    protected DhcpNeutronPortListener getDataTreeChangeListener() {
+        return DhcpNeutronPortListener.this;
     }
 }

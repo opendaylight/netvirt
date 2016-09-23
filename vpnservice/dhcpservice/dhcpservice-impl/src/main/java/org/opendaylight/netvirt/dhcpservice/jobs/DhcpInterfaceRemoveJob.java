@@ -87,7 +87,7 @@ public class DhcpInterfaceRemoveJob implements Callable<List<ListenableFuture<Vo
         String vmMacAddress = getAndRemoveVmMacAddress(interfaceName);
         WriteTransaction flowTx = dataBroker.newWriteOnlyTransaction();
         WriteTransaction unbindTx = dataBroker.newWriteOnlyTransaction();
-        dhcpManager.unbindDhcpService(interfaceName, unbindTx);
+        DhcpServiceUtils.unbindDhcpService(interfaceName, unbindTx);
         dhcpManager.unInstallDhcpEntries(dpId, vmMacAddress, flowTx);
         futures.add(flowTx.submit());
         futures.add(unbindTx.submit());

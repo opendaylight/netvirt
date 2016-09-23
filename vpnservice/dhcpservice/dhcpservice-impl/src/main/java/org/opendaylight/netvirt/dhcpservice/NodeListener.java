@@ -9,26 +9,22 @@ package org.opendaylight.netvirt.dhcpservice;
 
 import java.math.BigInteger;
 import java.util.List;
+
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.binding.api.DataChangeListener;
-import org.opendaylight.controller.md.sal.common.api.data.AsyncDataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.genius.mdsalutil.AbstractDataChangeListener;
+import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.netvirt.dhcpservice.api.DHCPMConstants;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.Nodes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.Node;
-import org.opendaylight.yangtools.concepts.ListenerRegistration;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class NodeListener extends AbstractDataChangeListener<Node> implements AutoCloseable {
+public class NodeListener extends AsyncDataTreeChangeListenerBase<Node, NodeListener> implements AutoCloseable {
 
     private static final Logger LOG = LoggerFactory.getLogger(NodeListener.class);
-
-    private ListenerRegistration<DataChangeListener> listenerRegistration;
 
     private final DataBroker broker;
     private final DhcpManager dhcpManager;
@@ -36,28 +32,14 @@ public class NodeListener extends AbstractDataChangeListener<Node> implements Au
 
     public NodeListener(final DataBroker db, final DhcpManager dhcpMgr,
             final DhcpExternalTunnelManager dhcpExternalTunnelManager) {
-        super(Node.class);
+        super(Node.class, NodeListener.class);
         this.broker = db;
         this.dhcpManager = dhcpMgr;
         this.dhcpExternalTunnelManager = dhcpExternalTunnelManager;
     }
 
     public void init() {
-        registerListener(broker);
-    }
-
-    private void registerListener(final DataBroker db) {
-        try {
-            listenerRegistration = db.registerDataChangeListener(LogicalDatastoreType.OPERATIONAL,
-            getWildCardPath(), NodeListener.this, AsyncDataBroker.DataChangeScope.SUBTREE);
-        } catch (final Exception e) {
-            LOG.error("NodeListener: DataChange listener registration fail!", e);
-            throw new IllegalStateException("NodeListener: registration Listener failed.", e);
-        }
-    }
-
-    private InstanceIdentifier<Node> getWildCardPath() {
-        return InstanceIdentifier.create(Nodes.class).child(Node.class);
+        registerListener(LogicalDatastoreType.OPERATIONAL, broker);
     }
 
     @Override
@@ -90,9 +72,17 @@ public class NodeListener extends AbstractDataChangeListener<Node> implements Au
 
     @Override
     public void close() throws Exception {
-        if (listenerRegistration != null) {
-            listenerRegistration.close();
-        }
+        super.close();
         LOG.debug("Node Listener Closed");
+    }
+
+    @Override
+    protected InstanceIdentifier<Node> getWildCardPath() {
+        return InstanceIdentifier.create(Nodes.class).child(Node.class);
+    }
+
+    @Override
+    protected NodeListener getDataTreeChangeListener() {
+        return NodeListener.this;
     }
 }
