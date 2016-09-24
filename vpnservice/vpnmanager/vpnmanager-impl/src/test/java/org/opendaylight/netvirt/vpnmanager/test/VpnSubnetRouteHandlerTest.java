@@ -181,6 +181,7 @@ public class VpnSubnetRouteHandlerTest {
     @Mock IdManagerService idManager;
     @Mock LockManagerService lockManager;
     @Mock SubnetOpDpnManager subnetOpDpnManager;
+    @Mock LockManagerService lockManagerService;
 
     VpnSubnetRouteHandler vpnSubnetRouteHandler;
 
@@ -208,7 +209,7 @@ public class VpnSubnetRouteHandlerTest {
         setupMocks();
 
         vpnSubnetRouteHandler = new VpnSubnetRouteHandler(dataBroker, subnetOpDpnManager, bgpManager,
-                vpnInterfaceManager, idManager, lockManager);
+                vpnInterfaceManager, idManager, lockManagerService);
         Future<RpcResult<AllocateIdOutput>> idOutputOptional =
                 RpcResultBuilder.success(allocateIdOutput).buildFuture();
 
