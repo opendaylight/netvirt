@@ -370,6 +370,10 @@ public class VpnInstanceListener extends AbstractDataChangeListener<VpnInstance>
         String vpnInstanceName = value.getVpnInstanceName();
 
         long vpnId = VpnUtil.getUniqueId(idManager, VpnConstants.VPN_IDPOOL_NAME, vpnInstanceName);
+        if (vpnId == 0) {
+            LOG.error("Unable to fetch label from Id Manager. Bailing out of adding operational data for Vpn Instance {}", value.getVpnInstanceName());
+            return;
+        }
         LOG.trace("VPN instance to ID generated.");
         org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.to.vpn.id.VpnInstance
                 vpnInstanceToVpnId = VpnUtil.getVpnInstanceToVpnId(vpnInstanceName, vpnId, (rd != null) ? rd
