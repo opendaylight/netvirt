@@ -224,6 +224,7 @@ public class VpnSubnetRouteHandler implements NeutronvpnListener {
         } catch (Exception e) {
             logger.error("Unable to handle subnet {} added to vpn {} {}", subnetIp, vpnName, e);
         }
+
     }
 
     @Override

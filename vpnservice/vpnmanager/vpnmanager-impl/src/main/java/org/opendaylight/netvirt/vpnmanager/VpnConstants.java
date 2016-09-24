@@ -22,8 +22,9 @@ public class VpnConstants {
     public static final String FLOWID_PREFIX = "L3.";
     public static final long MIN_WAIT_TIME_IN_MILLISECONDS = 10000;
     public static final long MAX_WAIT_TIME_IN_MILLISECONDS = 180000;
-    public static final long PER_INTERFACE_MAX_WAIT_TIME_IN_MILLISECONDS = 20000;
+    public static final long PER_INTERFACE_MAX_WAIT_TIME_IN_MILLISECONDS = 50000;
     public static final int ELAN_GID_MIN = 200000;
+    public static final int INVALID_LABEL = 0;
 
     // An IdPool for Pseudo LPort tags, that is, lportTags that are no related to an interface.
     // These lportTags must be higher than 170000 to avoid collision with interface LportTags and
