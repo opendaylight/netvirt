@@ -1,0 +1,106 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7a6b29fe_0d6b7eb7",
+        "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/api/EgressAclProvider.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 67,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2016-09-24T00:29:45Z",
+      "side": 1,
+      "message": "line too long",
+      "revId": "4f8dbc82f29e7cd4e45703aa06118ecb5b8ac910",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_ed6562e1",
+        "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/api/EgressAclProvider.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 82,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2016-09-24T00:29:45Z",
+      "side": 1,
+      "message": "- line too long\n- the \u0027write\u0027 parameter can be removed because it is always \u0027false\u0027",
+      "revId": "4f8dbc82f29e7cd4e45703aa06118ecb5b8ac910",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_ad708aa4",
+        "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/api/EgressAclProvider.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 93,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2016-09-24T00:29:45Z",
+      "side": 1,
+      "message": "Method name convention, upper case first letter for each word: programGatewayMacAddrRules",
+      "revId": "4f8dbc82f29e7cd4e45703aa06118ecb5b8ac910",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_2d5c7a18",
+        "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/api/IngressAclProvider.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 74,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2016-09-24T00:29:45Z",
+      "side": 1,
+      "message": "can be changed to srcMac? please check other places too",
+      "revId": "4f8dbc82f29e7cd4e45703aa06118ecb5b8ac910",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_4d61f6d1",
+        "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/api/IngressAclProvider.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 79,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2016-09-24T00:29:45Z",
+      "side": 1,
+      "message": "the \u0027write\u0027 parameter can be removed because it is always \u0027false\u0027",
+      "revId": "4f8dbc82f29e7cd4e45703aa06118ecb5b8ac910",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_ed3e02b7",
+        "filename": "openstack/utils/mdsal-openflow/src/main/java/org/opendaylight/netvirt/utils/mdsal/openflow/MatchUtils.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 298,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2016-09-24T00:29:45Z",
+      "side": 1,
+      "message": "please check indentation",
+      "revId": "4f8dbc82f29e7cd4e45703aa06118ecb5b8ac910",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
