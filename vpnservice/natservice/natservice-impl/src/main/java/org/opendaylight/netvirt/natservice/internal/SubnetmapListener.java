@@ -41,21 +41,21 @@ public class SubnetmapListener extends AsyncDataTreeChangeListenerBase<Subnetmap
     protected void remove(InstanceIdentifier<Subnetmap> identifier, Subnetmap subnetmap) {
         LOG.trace("SubnetmapListener remove subnetmap method - key: " + identifier + ", value" + subnetmap);
         NatServiceCounters.subnetmap_remove.inc();
-        externalNetworkGroupInstaller.removeExtNetGroupEntires(subnetmap);
+        externalNetworkGroupInstaller.removeExtNetGroupEntries(subnetmap);
     }
 
     @Override
     protected void update(InstanceIdentifier<Subnetmap> identifier, Subnetmap subnetmapBefore, Subnetmap subnetmapAfter) {
         LOG.trace("SubnetmapListener update subnetmap method - key: " + identifier + ", original=" + subnetmapBefore + ", update=" + subnetmapAfter);
         NatServiceCounters.subnetmap_update.inc();
-        externalNetworkGroupInstaller.installExtNetGroupEntires(subnetmapAfter);
+        externalNetworkGroupInstaller.installExtNetGroupEntries(subnetmapAfter);
     }
 
     @Override
     protected void add(InstanceIdentifier<Subnetmap> identifier, Subnetmap subnetmap) {
         LOG.trace("SubnetmapListener add subnetmap method - key: " + identifier + ", value=" + subnetmap);
         NatServiceCounters.subnetmap_add.inc();
-        externalNetworkGroupInstaller.installExtNetGroupEntires(subnetmap);
+        externalNetworkGroupInstaller.installExtNetGroupEntries(subnetmap);
     }
 
     @Override
