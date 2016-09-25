@@ -71,6 +71,23 @@
     },
     {
       "key": {
+        "uuid": "7a6b29fe_6dcdd230",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/ArpMonitoringHandler.java",
+        "patchSetId": 10
+      },
+      "lineNbr": 109,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2016-09-25T20:06:48Z",
+      "side": 1,
+      "message": "I was hoping we would be able to use this feature to resolve  mac addresses of external devices e.g. ext. gw by adding VpnPortipToPort where macAddress is not set.\nWas this supposed to be part of this feature? If it does than this line needs to be protected against NPE",
+      "revId": "06e98724c9bfc46ba47dbab3235bd7cea52ba80a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7a6b29fe_39acc48b",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/ArpMonitoringHandler.java",
         "patchSetId": 10
