@@ -52,7 +52,7 @@ public class ExternalNetworkGroupInstaller {
         this.interfaceManager = interfaceManager;
     }
 
-    public void installExtNetGroupEntires(Subnetmap subnetMap) {
+    public void installExtNetGroupEntries(Subnetmap subnetMap) {
         if (subnetMap == null) {
             LOG.trace("Subnetmap is null");
             return;
@@ -74,10 +74,6 @@ public class ExternalNetworkGroupInstaller {
         installExtNetGroupEntries(subnetMap, macAddress);
     }
 
-    public void removeExtNetGroupEntires(Subnetmap subnetMap) {
-        removeExtNetGroupEntries(subnetMap);
-    }
-
     public void installExtNetGroupEntries(Uuid subnetId, String macAddress) {
         Subnetmap subnetMap = NatUtil.getSubnetMap(broker, subnetId);
         if (NatUtil.isIPv6Subnet(subnetMap.getSubnetIp())) {
@@ -85,6 +81,23 @@ public class ExternalNetworkGroupInstaller {
             return;
         }
         installExtNetGroupEntries(subnetMap, macAddress);
+    }
+
+    public void installExtNetGroupEntries(Uuid networkId, BigInteger dpnId) {
+        if (networkId == null) {
+            return;
+        }
+
+        List<Uuid> subnetIds = NatUtil.getSubnetIdsFromNetworkId(broker, networkId);
+        if (subnetIds == null || subnetIds.isEmpty()) {
+            LOG.trace("No subnet ids associated network id {}", networkId.getValue());
+            return;
+        }
+
+        for (Uuid subnetId : subnetIds) {
+            String macAddress = NatUtil.getSubnetGwMac(broker, subnetId, networkId.getValue());
+            installExtNetGroupEntry(networkId, subnetId, dpnId, macAddress);
+        }
     }
 
     private void installExtNetGroupEntries(Subnetmap subnetMap, String macAddress) {
@@ -111,14 +124,32 @@ public class ExternalNetworkGroupInstaller {
         LOG.info("Installing ext-net group {} entry for subnet {} with macAddress {} (extInterfaces: {})",
                  groupId, subnetName, macAddress, Arrays.toString(extInterfaces.toArray()));
         for (String extInterface : extInterfaces) {
-            GroupEntity groupEntity = buildExtNetGroupEntity(macAddress, subnetName, groupId, extInterface);
-            if (groupEntity != null) {
-                mdsalManager.syncInstallGroup(groupEntity, FIXED_DELAY_IN_MILLISECONDS);
-            }
+            installExtNetGroupEntry(groupId, subnetName, extInterface, macAddress);
         }
     }
 
-    private void removeExtNetGroupEntries(Subnetmap subnetMap) {
+    private void installExtNetGroupEntry(Uuid networkId, Uuid subnetId, BigInteger dpnId, String macAddress) {
+        String subnetName = subnetId.getValue();
+        String extInterface = elanService.getExternalElanInterface(networkId.getValue(), dpnId);
+        if (extInterface == null) {
+            LOG.trace("No external ELAN interface attached to subnet {} DPN id {}", subnetName, dpnId);
+            return;
+        }
+
+        long groupId = NatUtil.createGroupId(NatUtil.getGroupIdKey(subnetName), idManager);
+        LOG.info("Installing ext-net group {} entry for subnet {} with macAddress {} (extInterface: {})", groupId,
+                subnetName, macAddress, extInterface);
+        installExtNetGroupEntry(groupId, subnetName, extInterface, macAddress);
+    }
+
+    private void installExtNetGroupEntry(long groupId, String subnetName, String extInterface, String macAddress) {
+        GroupEntity groupEntity = buildExtNetGroupEntity(macAddress, subnetName, groupId, extInterface);
+        if (groupEntity != null) {
+            mdsalManager.syncInstallGroup(groupEntity, FIXED_DELAY_IN_MILLISECONDS);
+        }
+    }
+
+    public void removeExtNetGroupEntries(Subnetmap subnetMap) {
         if (subnetMap == null) {
             return;
         }
