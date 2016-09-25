@@ -204,6 +204,7 @@
     <argument ref="sNATDefaultRouteProgrammer" />
     <argument ref="naptSwitchHA" />
     <argument ref="idManagerService" />
+    <argument ref="externalNetworkGroupInstaller" />
   </bean>
 
   <bean id="routerToVpnListener"
