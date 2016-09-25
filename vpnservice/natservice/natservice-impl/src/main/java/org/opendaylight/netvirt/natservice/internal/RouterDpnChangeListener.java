@@ -41,17 +41,20 @@ public class RouterDpnChangeListener extends AbstractDataChangeListener<DpnVpnin
     private final SNATDefaultRouteProgrammer snatDefaultRouteProgrammer;
     private final NaptSwitchHA naptSwitchHA;
     private final IdManagerService idManager;
+    private final ExternalNetworkGroupInstaller extNetGroupInstaller;
 
     public RouterDpnChangeListener(final DataBroker dataBroker, final IMdsalApiManager mdsalManager,
                                    final SNATDefaultRouteProgrammer snatDefaultRouteProgrammer,
                                    final NaptSwitchHA naptSwitchHA,
-                                   final IdManagerService idManager) {
+                                   final IdManagerService idManager,
+                                   final ExternalNetworkGroupInstaller extNetGroupInstaller) {
         super(DpnVpninterfacesList.class);
         this.dataBroker = dataBroker;
         this.mdsalManager = mdsalManager;
         this.snatDefaultRouteProgrammer = snatDefaultRouteProgrammer;
         this.naptSwitchHA = naptSwitchHA;
         this.idManager = idManager;
+        this.extNetGroupInstaller = extNetGroupInstaller;
     }
 
     public void init() {
@@ -115,6 +118,7 @@ public class RouterDpnChangeListener extends AbstractDataChangeListener<DpnVpnin
                     LOG.debug("Installing default route in FIB on dpn {} for routerId {} with vpnId {}...", dpnId,routerId,vpnId);
                     snatDefaultRouteProgrammer.installDefNATRouteInDPN(dpnId, vpnId, routId);
                 }
+                extNetGroupInstaller.installExtNetGroupEntries(networkId, dpnId);
 
                 if (routerData.get().isEnableSnat()) {
                     LOG.info("SNAT enabled for router {}", routerId);
