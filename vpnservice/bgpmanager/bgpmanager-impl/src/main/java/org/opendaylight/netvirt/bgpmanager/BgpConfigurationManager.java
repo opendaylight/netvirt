@@ -1102,6 +1102,12 @@ public class BgpConfigurationManager {
             if (ignoreClusterDcnEventForFollower()) {
                 return;
             }
+            if(oldval.equals(newval)){
+                //Update: OLD and New values are same, no need to trigger remove/add.
+                LOG.debug("received Updated for the same OLD and New values. RD: {}, Prefix: {}, Label: {}, NH: {}",
+                        oldval.getRd(), oldval.getPrefixLen(), oldval.getLabel(), oldval.getNexthop());
+                return;
+            }
             LOG.debug("received update networks config val {}", newval.getPrefixLen());
             remove(iid, oldval);
             timer.schedule(new TimerTask() {
