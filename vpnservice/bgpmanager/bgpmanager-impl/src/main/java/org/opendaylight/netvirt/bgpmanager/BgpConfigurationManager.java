@@ -96,6 +96,8 @@ import org.opendaylight.genius.utils.batching.DefaultBatchHandler;
 import org.osgi.framework.BundleContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import java.util.concurrent.atomic.AtomicInteger;
+import org.opendaylight.yangtools.yang.binding.DataObject;
 
 public class BgpConfigurationManager {
     private static final Logger LOG = LoggerFactory.getLogger(BgpConfigurationManager.class);
@@ -129,6 +131,8 @@ public class BgpConfigurationManager {
     private long CfgReplayStartTime = 0;
     private long CfgReplayEndTime = 0;
     private long StaleCleanupTime = 0;
+    private static final int dsRetryCoount = 100; //100 retries, each after waitTimeBetweenEachTryMillis seconds
+    private static final long waitTimeBetweenEachTryMillis = 1000L; //one second sleep after every retry
 
     public String getBgpSdncMipIp() { return readThriftIpForCommunication(BGP_SDNC_MIP);}
     public long getStaleCleanupTime() {
@@ -1584,16 +1588,30 @@ public class BgpConfigurationManager {
     }
 
     public static Bgp getConfig() {
-        //TODO cleanup this cache code
-        try {
-            Optional<Bgp> optional = BgpUtil.read(dataBroker,
-                    LogicalDatastoreType.CONFIGURATION, InstanceIdentifier.create(Bgp.class));
-            return optional.get();
-        } catch (Exception e) {
-            //LOG.error("failed to get bgp config",e);
-        }
-        return null;
-    }
+        AtomicInteger bgpDSretryCount = new AtomicInteger(dsRetryCoount);
+        while (0  != bgpDSretryCount.decrementAndGet()) {
+            try {
+                Optional<Bgp> optional = BgpUtil.read(dataBroker,
+                                         LogicalDatastoreType.CONFIGURATION, InstanceIdentifier.create(Bgp.class));
+                if (optional.isPresent()) {
+                    return optional.get();
+                } else {
+                    return null;
+                }
+            } catch (Exception e) {
+                //Config DS may not be up, so sleep for 1 second and retry
+                LOG.debug("failed to get bgp config, may be DS is yet in consistent state(?)", e);
+                try {
+                    Thread.sleep(waitTimeBetweenEachTryMillis);
+                }catch (Exception timerEx){
+                    LOG.debug("waitTimeBetweenEachTryMillis, Timer got interrupted while waiting for" +
+                            "config DS availability", timerEx);
+                }
+            }
+         }
+         LOG.error("failed to get bgp config");
+         return null;
+     }
 
     public synchronized void replay() {
         synchronized (bgpConfigurationManager) {
