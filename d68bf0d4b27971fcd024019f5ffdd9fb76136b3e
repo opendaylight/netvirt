@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7a6b29fe_23e1292a",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 5
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-09-26T13:39:43Z",
+      "side": 1,
+      "message": "This commit message has some scope for improvement :)\n\n\"This review brings in data model enhancements in NeutronVPN and VPNEngine to support BGP Ethernet VPN feature in OpenDaylight.  This is the first in a series of reviews that will all have \u0027EVPN-RT5\u0027 as the topic.\n\nSpecific things this review brings in are:\n\na. \u003ctalk about type of vpn here\u003e\na. \u003ctalk about network-id here\u003e\nb. \u003ctalk about vrfentry here\u003e\n\nMore comments to follow on the code !",
+      "revId": "d68bf0d4b27971fcd024019f5ffdd9fb76136b3e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
