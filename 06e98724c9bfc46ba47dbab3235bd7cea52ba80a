@@ -88,6 +88,24 @@
     },
     {
       "key": {
+        "uuid": "7a6b29fe_8d34aefc",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/ArpMonitoringHandler.java",
+        "patchSetId": 10
+      },
+      "lineNbr": 109,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2016-09-26T04:49:05Z",
+      "side": 1,
+      "message": "No, this is not used to resolve mac address of external devices. Once  MAC is learned for external devices, then it does liveness check using ARP. So let us add null check for mac address and ignore the add DCN if mac address is null.",
+      "parentUuid": "7a6b29fe_6dcdd230",
+      "revId": "06e98724c9bfc46ba47dbab3235bd7cea52ba80a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7a6b29fe_39acc48b",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/ArpMonitoringHandler.java",
         "patchSetId": 10
