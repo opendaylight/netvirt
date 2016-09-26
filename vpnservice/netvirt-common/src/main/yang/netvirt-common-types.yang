@@ -1,0 +1,150 @@
+module netvirt-common-types {
+
+  yang-version "1";
+
+  // namespace
+  namespace "urn:ericsson:params:xml:ns:yang:netvirt-common-types";
+
+  prefix "netvirtcommontypes";
+
+
+  // meta
+  organization
+    "Ericsson Bangalore";
+
+  contact
+    "Ericsson Bangalore";
+
+  description
+    "Yang file for defining commonly used types across modules
+    with vpnservice module";
+
+  revision "2016-09-01" {}
+
+
+
+
+  typedef layer_type
+  {
+         description
+                   "This value represents the layer to which
+                   a VRF entry belongs to in IP protocol.";
+
+         type enumeration
+         {
+           enum LAYER_2
+           {
+             value "1";
+             description "VRF belongs to Layer 2 of IP Protocol.";
+           }
+
+           enum LAYER_3
+           {
+             value "2";
+             description "VRF belongs to Layer 3 of IP Protocol.";
+           }
+         }
+    }
+
+
+    typedef encap_type
+    {
+        description
+           "Encapsulation types supported as per
+           RFC 5512 - The BGP Encapsulation Subsequent
+           Address Family Identifier (SAFI) and the
+           BGP Tunnel Encapsulation Attribute";
+
+        type enumeration
+        {
+            enum L2TPV3_OVER_IP
+            {
+              value "1";
+              description "L2TPV3_OVER_IP";
+            }
+
+            enum GRE
+            {
+              value "2";
+              description "GRE";
+            }
+
+            enum IP_IN_IP
+            {
+              value "7";
+              description "IP_IN_IP";
+            }
+
+            enum VXLAN
+            {
+              value "8";
+              description "VXLAN";
+            }
+
+            enum MPLS
+            {
+              value "10";
+              description "MPLS";
+            }
+        }
+    }
+
+
+    typedef protocol_type
+    {
+        description
+                "protocol type - used to know which route type is referred to";
+
+        type enumeration
+        {
+            enum PROTOCOL_LU
+            {
+              value "1";
+              description "PROTOCOL_LU";
+            }
+
+            enum PROTOCOL_L3VPN
+            {
+              value "2";
+              description "PROTOCOL_L3VPN";
+            }
+
+            enum PROTOCOL_EVPN
+            {
+              value "3";
+              description "PROTOCOL_EVPN";
+            }
+
+            enum PROTOCOL_ANY
+            {
+              value "4";
+              description "PROTOCOL_ANY";
+            }
+        }
+    }
+
+
+    leaf type {
+
+       description
+       "The type of the VPN Instance.
+       L3 indicates it is an L3VPN.
+       L2 indicates it is EVPN";
+
+       type enumeration {
+
+         enum l3 {
+           value "0";
+           description “L3VPN";
+         }
+
+         enum l2 {
+           value "1";
+           description "EVPN";
+         }
+       }
+
+       default "l3";
+    }
+
+}

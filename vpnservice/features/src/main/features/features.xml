@@ -35,6 +35,7 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
     <bundle>mvn:org.opendaylight.controller/liblldp/{{VERSION}}</bundle>
     <bundle>mvn:org.opendaylight.neutron/model/{{VERSION}}</bundle>
     <bundle>mvn:org.opendaylight.netvirt/model-bgp/{{VERSION}}</bundle>
+    <bundle>mvn:org.opendaylight.netvirt/netvirt-common/{{VERSION}}</bundle>
     <bundle>mvn:org.opendaylight.netvirt/vpnmanager-api/{{VERSION}}</bundle>
     <bundle>mvn:org.opendaylight.netvirt/fibmanager-api/{{VERSION}}</bundle>
     <bundle>mvn:org.opendaylight.netvirt/neutronvpn-api/{{VERSION}}</bundle>
