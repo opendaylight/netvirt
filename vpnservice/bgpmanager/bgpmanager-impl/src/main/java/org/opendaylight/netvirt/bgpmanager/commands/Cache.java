@@ -132,7 +132,9 @@ public class Cache extends OsgiCommandSupport {
             Boolean afb = a.isAnnounceFbit();
             String rid = (routerId == null) ? "<n/a>" : routerId.getValue();
             int s = (spt == null) ? 0 : spt.intValue();
-            String bit = (afb == null) ? "OFF" : (afb.booleanValue() ? "ON" : "OFF");
+            //F-bit is always set to ON (hardcoded), in SDN even though the controller is down
+            //forwarding state shall be retained.
+            String bit = "ON";
 
             GracefulRestart g = config.getGracefulRestart();
             if (g != null) {
@@ -140,7 +142,7 @@ public class Cache extends OsgiCommandSupport {
             }
             ps.printf("\nBGP Router\n");
             ps.printf("\t%-15s  %d\n\t%-15s  %s\n\t%-15s  %d\n\t%-15s  %s\n",
-                      ASSTR, asNum, RISTR, rid, SPSTR, s, FBSTR, bit);
+                      ASSTR, asNum, RISTR, rid, SPSTR, (s!=0?s:"default"), FBSTR, bit);
         }
 
         Logging l = config.getLogging();
