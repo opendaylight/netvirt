@@ -193,6 +193,11 @@ and is available at http://www.eclipse.org/legal/epl-v10.html INTERNAL
     </dependency>
     <dependency>
       <groupId>${project.groupId}</groupId>
+      <artifactId>netvirt-common</artifactId>
+      <version>${vpnservices.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>${project.groupId}</groupId>
       <artifactId>model-bgp</artifactId>
       <version>2013.07.15.10-SNAPSHOT</version>
     </dependency>
