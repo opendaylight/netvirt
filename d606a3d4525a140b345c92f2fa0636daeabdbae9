@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7a6b29fe_63a161f7",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 11
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-09-26T13:28:33Z",
+      "side": 1,
+      "message": "From next time around, please give concise and more useful commit messages particularly for changes as large as 500+ Lines.",
+      "revId": "d606a3d4525a140b345c92f2fa0636daeabdbae9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
