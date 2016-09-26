@@ -446,7 +446,7 @@ public class BgpConfigurationManager {
                 Boolean afb = val.isAnnounceFbit();
                 String rid = (routerId == null) ? "" : routerId.getValue();
                 int stalepathTime = (int) getStalePathtime(RESTART_DEFAULT_GR, val);
-                boolean announceFbit = (afb == null) ? false : afb.booleanValue();
+                boolean announceFbit = true;
                 try {
                     br.startBgp(asNum, rid, stalepathTime, announceFbit);
                     if (getBgpCounters() == null) {
@@ -1626,7 +1626,7 @@ public class BgpConfigurationManager {
             Boolean afb = a.isAnnounceFbit();
             String rid = (routerId == null) ? "" : routerId.getValue();
             int stalepathTime = (int) getStalePathtime(0, config.getAsId());
-            boolean announceFbit = (afb == null) ? false : afb.booleanValue();
+            boolean announceFbit = true;
             try {
                 br.startBgp(asNum, rid, stalepathTime, announceFbit);
             } catch (BgpRouterException bre) {
