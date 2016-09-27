@@ -22,6 +22,7 @@
     <argument ref="nexthopManager" />
     <argument ref="vfrEntryListener" />
     <argument ref="blueprintBundleContext" />
+    <argument ref="fibManager" />
   </bean>
   <service ref="fibManagerImpl"
            interface="org.opendaylight.netvirt.fibmanager.api.IFibManager" />
