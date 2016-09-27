@@ -1,0 +1,159 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7a6b29fe_26ac948b",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 1397,
+      "author": {
+        "id": 5350
+      },
+      "writtenOn": "2016-09-27T16:12:01Z",
+      "side": 1,
+      "message": "this piece of code is almost the same as the one above except for the trace and the DEL_FLOW/ADD_FLOW. It looks like a good idea to factor it out to a common method",
+      "range": {
+        "startLine": 1383,
+        "startChar": 1,
+        "endLine": 1397,
+        "endChar": 19
+      },
+      "revId": "093224a82a989c8d7d9aaa817b26d4e48d3e5b54",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_06a7d8a7",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 1904,
+      "author": {
+        "id": 5350
+      },
+      "writtenOn": "2016-09-27T16:12:01Z",
+      "side": 1,
+      "message": "same as above",
+      "revId": "093224a82a989c8d7d9aaa817b26d4e48d3e5b54",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_e6cc5c6c",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 2217,
+      "author": {
+        "id": 5350
+      },
+      "writtenOn": "2016-09-27T16:12:01Z",
+      "side": 1,
+      "message": "why not using the placeholder for this too?",
+      "range": {
+        "startLine": 2217,
+        "startChar": 18,
+        "endLine": 2217,
+        "endChar": 30
+      },
+      "revId": "093224a82a989c8d7d9aaa817b26d4e48d3e5b54",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_a6fd4470",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 2225,
+      "author": {
+        "id": 5350
+      },
+      "writtenOn": "2016-09-27T16:12:01Z",
+      "side": 1,
+      "message": "Isnt there a constant for this?",
+      "range": {
+        "startLine": 2225,
+        "startChar": 79,
+        "endLine": 2225,
+        "endChar": 80
+      },
+      "revId": "093224a82a989c8d7d9aaa817b26d4e48d3e5b54",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_06d518e4",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 2245,
+      "author": {
+        "id": 5350
+      },
+      "writtenOn": "2016-09-27T16:12:01Z",
+      "side": 1,
+      "message": "I dont know the rationale behind this change, but it looks like this is installing a flow in 21 that resubmits the packet to 21 again. Is that right?",
+      "range": {
+        "startLine": 2245,
+        "startChar": 58,
+        "endLine": 2245,
+        "endChar": 70
+      },
+      "revId": "093224a82a989c8d7d9aaa817b26d4e48d3e5b54",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_c6c7a043",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 2245,
+      "author": {
+        "id": 5350
+      },
+      "writtenOn": "2016-09-27T16:12:01Z",
+      "side": 1,
+      "message": "why not just \"0\" as above?",
+      "range": {
+        "startLine": 2245,
+        "startChar": 73,
+        "endLine": 2245,
+        "endChar": 92
+      },
+      "revId": "093224a82a989c8d7d9aaa817b26d4e48d3e5b54",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_86000867",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 1186,
+      "author": {
+        "id": 5350
+      },
+      "writtenOn": "2016-09-27T16:12:01Z",
+      "side": 1,
+      "message": ", false /* not a router iface */)",
+      "range": {
+        "startLine": 1186,
+        "startChar": 92,
+        "endLine": 1186,
+        "endChar": 97
+      },
+      "revId": "093224a82a989c8d7d9aaa817b26d4e48d3e5b54",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
