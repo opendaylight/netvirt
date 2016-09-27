@@ -7,33 +7,51 @@
  */
 package org.opendaylight.netvirt.aclservice.tests
 
-import org.opendaylight.controller.md.sal.binding.api.DataBroker
-import org.opendaylight.genius.mdsalutil.MDSALUtil
+import java.util.List
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.Interfaces
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.InterfaceBuilder
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.InterfaceKey
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.InterfaceAcl
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.InterfaceAclBuilder
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.interfaces._interface.AllowedAddressPairs
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier
 
-import static extension org.opendaylight.netvirt.aclservice.tests.infra.BuilderExtensions.operator_doubleGreaterThan
 import static org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType.CONFIGURATION
 
-class InterfaceBuilderHelper {
+import static extension org.opendaylight.netvirt.aclservice.tests.infra.BuilderExtensions.operator_doubleGreaterThan
+import org.immutables.value.Value.Immutable
+import org.immutables.value.Value
+import org.opendaylight.netvirt.aclservice.tests.infra.DataTreeIdentifierDataObjectPairBuilder
 
-    def static putNewInterface(DataBroker dataBroker, String interfaceName, boolean portSecurity) {
-        val id = InstanceIdentifier.builder(Interfaces)
+@Immutable
+@Value.Style(stagedBuilder=true)
+abstract class IdentifiedInterfaceWithAclBuilder implements DataTreeIdentifierDataObjectPairBuilder<Interface> {
+
+    def abstract String interfaceName()
+    def abstract Boolean portSecurity()
+    def abstract List<Uuid> newSecurityGroups()
+    def abstract List<AllowedAddressPairs> ifAllowedAddressPairs()
+
+    override type() {
+        CONFIGURATION
+    }
+
+    override identifier() {
+        InstanceIdentifier.builder(Interfaces)
                     .child(Interface, new InterfaceKey(interfaceName)).build
-        val interface = new InterfaceBuilder >> [
+    }
+
+    override dataObject() {
+        new InterfaceBuilder >> [
             addAugmentation(InterfaceAcl, new InterfaceAclBuilder >> [
                 portSecurityEnabled = portSecurity
-                securityGroups = #[]
-                allowedAddressPairs = #[]
+                securityGroups = newSecurityGroups
+                allowedAddressPairs = ifAllowedAddressPairs
             ])
             name = interfaceName
         ]
-        MDSALUtil.syncWrite(dataBroker, CONFIGURATION, id, interface);
     }
 
 }
