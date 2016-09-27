@@ -192,6 +192,7 @@
     <argument ref="mdsalUtils" />
     <argument ref="bgpmanager" />
     <argument ref="notificationPublishService" />
+    <argument ref="fibManager" />
   </bean>
 
   <bean id="interVpnLinkNodeListener"
