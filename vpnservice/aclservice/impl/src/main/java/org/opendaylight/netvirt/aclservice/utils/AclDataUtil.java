@@ -21,8 +21,8 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.
 @Singleton
 public class AclDataUtil {
 
-    private Map<Uuid, List<AclInterface>> aclInterfaceMap = new ConcurrentHashMap<>();
-    private Map<Uuid, List<Uuid>> remoteAclIdMap = new ConcurrentHashMap<>();
+    private final Map<Uuid, List<AclInterface>> aclInterfaceMap = new ConcurrentHashMap<>();
+    private final Map<Uuid, List<Uuid>> remoteAclIdMap = new ConcurrentHashMap<>();
 
     public synchronized void addAclInterfaceMap(List<Uuid> aclList, AclInterface port) {
         for (Uuid acl : aclList) {
@@ -86,5 +86,4 @@ public class AclDataUtil {
     public List<Uuid> getRemoteAcl(Uuid remoteAclId) {
         return remoteAclIdMap.get(remoteAclId);
     }
-
 }
