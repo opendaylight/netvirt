@@ -24,6 +24,11 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
   <dependencies>
     <dependency>
       <groupId>${project.groupId}</groupId>
+      <artifactId>utils.mdsal-openflow</artifactId>
+      <version>${utils.mdsal.openflow.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>${project.groupId}</groupId>
       <artifactId>vpnmanager-api</artifactId>
       <version>${vpnservices.version}</version>
     </dependency>
