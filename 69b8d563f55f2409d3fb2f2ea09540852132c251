@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7a6b29fe_a09ecc04",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/intervpnlink/InterVpnLinkListener.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 332,
+      "author": {
+        "id": 5350
+      },
+      "writtenOn": "2016-09-27T10:09:43Z",
+      "side": 1,
+      "message": "an Endpoint not having a State is an abnormal situation, so you should print a trace. I\u0027d say INFO level at least.",
+      "revId": "69b8d563f55f2409d3fb2f2ea09540852132c251",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_80a11048",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/intervpnlink/InterVpnLinkListener.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 339,
+      "author": {
+        "id": 5350
+      },
+      "writtenOn": "2016-09-27T10:09:43Z",
+      "side": 1,
+      "message": "same as above",
+      "revId": "69b8d563f55f2409d3fb2f2ea09540852132c251",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
