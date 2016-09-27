@@ -203,4 +203,10 @@
     <argument ref="dataBroker" />
     <argument ref="vpnInterfaceManager" />
   </bean>
+
+  <bean id="defaultFlowInstaller" class="org.opendaylight.netvirt.vpnmanager.arp.responder.ArpDefaultFlowInstaller">
+  	<argument ref="dataBroker" />
+  	<argument ref="mdsalUtils" />
+  </bean>
+
 </blueprint>
