@@ -18,6 +18,7 @@ import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncClusteredDataTreeChangeListenerBase;
 import org.opendaylight.genius.mdsalutil.ActionInfo;
 import org.opendaylight.genius.mdsalutil.ActionType;
+import org.opendaylight.genius.mdsalutil.BucketInfo;
 import org.opendaylight.genius.mdsalutil.FlowEntity;
 import org.opendaylight.genius.mdsalutil.InstructionInfo;
 import org.opendaylight.genius.mdsalutil.InstructionType;
@@ -26,6 +27,8 @@ import org.opendaylight.genius.mdsalutil.MatchFieldType;
 import org.opendaylight.genius.mdsalutil.MatchInfo;
 import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
+import org.opendaylight.netvirt.vpnmanager.arp.responder.ArpResponderConstant;
+import org.opendaylight.netvirt.vpnmanager.arp.responder.ArpResponderUtil;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.Nodes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.Node;
@@ -167,17 +170,23 @@ public class VpnNodeListener extends AsyncClusteredDataTreeChangeListenerBase<No
                 NwConstants.TABLE_MISS_PRIORITY, "L3 Gw Mac Table Miss", 0, 0, new BigInteger("1080000", 16), matches, instructions);
         LOG.trace("Invoking MDSAL to install L3 Gw Mac Table Miss Entry");
         mdsalManager.addFlowToTx(flowEntityMissforGw, writeFlowTx);
+        mdsalManager.addFlowToTx(ArpResponderUtil.getTableMissFlow(dpId), writeFlowTx);
    }
 
     private void createArpRequestMatchFlowForGwMacTable(WriteTransaction writeFlowTx, BigInteger dpId) {
+
+        final List<BucketInfo> buckets = ArpResponderUtil.getDefaultBucketInfos(
+                NwConstants.LPORT_DISPATCHER_TABLE,
+                NwConstants.ARP_RESPONDER_TABLE);
+        ArpResponderUtil.installGroup(mdsalManager, dpId,
+                ArpResponderConstant.Group.ID.value(),
+                ArpResponderConstant.GROUP_FLOW_NAME.value(), buckets);
+        
         List<MatchInfo> matches = new ArrayList<MatchInfo>();
         matches.add(new MatchInfo(MatchFieldType.eth_type, new long[] { NwConstants.ETHTYPE_ARP }));
         matches.add(new MatchInfo(MatchFieldType.arp_op, new long[] {NwConstants.ARP_REQUEST}));
-        List<ActionInfo> actionsInfos = new ArrayList<>();
-        actionsInfos.add(new ActionInfo(ActionType.punt_to_controller, new String[] {}));
-        actionsInfos.add(new ActionInfo(ActionType.nx_resubmit, new String[] { Integer.toString(NwConstants.LPORT_DISPATCHER_TABLE) }));
-        //TODO: Add actionInfo to point to ARP responder table
-        List<InstructionInfo> instructions = Collections.singletonList(new InstructionInfo(InstructionType.apply_actions, actionsInfos));
+        final List<ActionInfo> actionInfos = Collections.singletonList(new ActionInfo(ActionType.group, new String[] { String.valueOf(ArpResponderConstant.Group.ID.value())}));
+        final List<InstructionInfo> instructions = Collections.singletonList(new InstructionInfo(InstructionType.apply_actions, actionInfos));
         FlowEntity flowEntity = MDSALUtil.buildFlowEntity(dpId, NwConstants.L3_GW_MAC_TABLE,
                 getFlowRefForArpFlows(dpId, NwConstants.L3_GW_MAC_TABLE, NwConstants.ARP_REQUEST),
                 NwConstants.DEFAULT_ARP_FLOW_PRIORITY, "L3GwMac Arp Rquest", 0, 0, new BigInteger("1080000", 16), matches, instructions);
