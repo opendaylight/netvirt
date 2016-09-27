@@ -306,6 +306,19 @@ public class VpnUtil {
         return rd;
     }
 
+    static List<Adjacency> getAdjacenciesForVpnInterfaceFromOper(DataBroker broker, String intfName) {
+        final InstanceIdentifier<VpnInterface> identifier = getVpnInterfaceIdentifier(intfName);
+        InstanceIdentifier<Adjacencies> path = identifier.augmentation(Adjacencies.class);
+        Optional<Adjacencies> adjacencies = VpnUtil.read(broker, LogicalDatastoreType.OPERATIONAL, path);
+
+        if (adjacencies.isPresent()) {
+            List<Adjacency> nextHops = adjacencies.get().getAdjacency();
+            return nextHops;
+        }
+        return null;
+    }
+
+
     static VrfEntry getVrfEntry(DataBroker broker, String rd, String ipPrefix) {
 
         VrfTables vrfTable = getVrfTable(broker, rd);

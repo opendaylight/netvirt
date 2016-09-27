@@ -169,6 +169,7 @@ module neutronvpn {
             leaf port-fixedip { type string;}
             leaf port-name { type string;}
             leaf mac-address { type string;}
+            leaf subnet-id {type yang:uuid;}
             leaf subnet-ip { type boolean;}
             leaf config { type boolean;}
             leaf learnt { type boolean; }

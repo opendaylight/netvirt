@@ -777,10 +777,10 @@ public class NeutronvpnUtils {
     }
 
     protected static void createVpnPortFixedIpToPort(DataBroker broker, String vpnName, String fixedIp, String
-            portName, String macAddress, boolean isSubnetIp, boolean isConfig, boolean isLearnt) {
+            portName, String macAddress, Uuid subnetId, boolean isSubnetIp, boolean isConfig, boolean isLearnt) {
         InstanceIdentifier<VpnPortipToPort> id = NeutronvpnUtils.buildVpnPortipToPortIdentifier(vpnName, fixedIp);
         VpnPortipToPortBuilder builder = new VpnPortipToPortBuilder().setKey(new VpnPortipToPortKey(fixedIp, vpnName)
-        ).setVpnName(vpnName).setPortFixedip(fixedIp).setPortName(portName).setMacAddress(macAddress).setSubnetIp
+        ).setVpnName(vpnName).setPortFixedip(fixedIp).setPortName(portName).setMacAddress(macAddress).setSubnetId(subnetId).setSubnetIp
                 (isSubnetIp).setConfig(isConfig).setLearnt(isLearnt);
         try {
             synchronized ((vpnName + fixedIp).intern()) {

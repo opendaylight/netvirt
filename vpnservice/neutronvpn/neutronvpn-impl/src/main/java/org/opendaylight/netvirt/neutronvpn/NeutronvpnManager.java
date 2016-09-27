@@ -659,9 +659,10 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
                 }
             }
             String ipValue = ip.getIpAddress().getIpv4Address().getValue();
+            final Uuid subnetId = port.getFixedIps().get(0).getSubnetId();
             NeutronvpnUtils.createVpnPortFixedIpToPort(dataBroker, vpnId.getValue(), ipValue, infName, port
                     .getMacAddress()
-                    .getValue(), false, true, false);
+                    .getValue(), subnetId, false, true, false);
         }
         // create vpn-interface on this neutron port
         Adjacencies adjs = new AdjacenciesBuilder().setAdjacency(adjList).build();
@@ -696,11 +697,12 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
                 LOG.debug("Deleting vpn interface {}", infName);
                 MDSALUtil.syncDelete(dataBroker, LogicalDatastoreType.CONFIGURATION, vpnIfIdentifier);
 
-                List<FixedIps> ips = port.getFixedIps();
+                // ARP Responder change, delaying removal of VPN Port Fixed IP, it will be removed once VPN Interfaces removed from Operation DS
+                /*List<FixedIps> ips = port.getFixedIps();
                 for (FixedIps ip : ips) {
                     String ipValue = ip.getIpAddress().getIpv4Address().getValue();
                     NeutronvpnUtils.removeVpnPortFixedIpToPort(dataBroker, vpnId.getValue(), ipValue);
-                }
+                }*/
             } catch (Exception ex) {
                 LOG.error("Deletion of vpninterface {} failed due to {}", infName, ex);
             } finally {
@@ -758,8 +760,9 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
                     if (oldVpnId != null) {
                         NeutronvpnUtils.removeVpnPortFixedIpToPort(dataBroker, oldVpnId.getValue(), ipValue);
                     }
+                    final Uuid subnetId = port.getFixedIps().get(0).getSubnetId();
                     NeutronvpnUtils.createVpnPortFixedIpToPort(dataBroker, vpnId.getValue(), ipValue, port.getUuid()
-                            .getValue(), port.getMacAddress().getValue(), false, true, false);
+                            .getValue(), port.getMacAddress().getValue(), subnetId, false, true, false);
                 }
             } else {
                 LOG.error("VPN Interface {} not found", infName);
@@ -1209,7 +1212,7 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
                     NeutronvpnUtils.removeVpnPortFixedIpToPort(dataBroker, oldVpnId.getValue(), ipValue);
                 }
                 NeutronvpnUtils.createVpnPortFixedIpToPort(dataBroker, vpnId.getValue(), ipValue, sn
-                        .getRouterInterfaceName().getValue(), sn.getRouterIntfMacAddress(), true, true, false);
+                        .getRouterInterfaceName().getValue(), sn.getRouterIntfMacAddress(), sn.getId(), true, true, false);
             }
         }
         sn = updateSubnetNode(subnet, null, null, null, null, vpnId);
