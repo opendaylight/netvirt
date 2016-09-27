@@ -7,18 +7,6 @@
  */
 package org.opendaylight.netvirt.vpnmanager;
 
-import com.google.common.base.Function;
-import com.google.common.base.Optional;
-import com.google.common.base.Preconditions;
-import com.google.common.base.Predicate;
-import com.google.common.base.Predicates;
-import com.google.common.collect.FluentIterable;
-import com.google.common.collect.Iterators;
-import com.google.common.util.concurrent.CheckedFuture;
-import com.google.common.util.concurrent.FutureCallback;
-import com.google.common.util.concurrent.Futures;
-import com.google.common.util.concurrent.JdkFutureAdapters;
-import com.google.common.util.concurrent.ListenableFuture;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -31,6 +19,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.DataChangeListener;
 import org.opendaylight.controller.md.sal.binding.api.NotificationPublishService;
@@ -49,12 +38,15 @@ import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.mdsalutil.MatchFieldType;
 import org.opendaylight.genius.mdsalutil.MatchInfo;
 import org.opendaylight.genius.mdsalutil.MetaDataUtil;
+import org.opendaylight.genius.mdsalutil.NWUtil;
 import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.genius.utils.ServiceIndex;
 import org.opendaylight.netvirt.bgpmanager.api.IBgpManager;
 import org.opendaylight.netvirt.fibmanager.api.IFibManager;
 import org.opendaylight.netvirt.fibmanager.api.RouteOrigin;
+import org.opendaylight.netvirt.vpnmanager.arp.responder.ArpResponderConstant;
+import org.opendaylight.netvirt.vpnmanager.arp.responder.ArpResponderUtil;
 import org.opendaylight.netvirt.vpnmanager.intervpnlink.InterVpnLinkUtil;
 import org.opendaylight.netvirt.vpnmanager.utilities.InterfaceUtils;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.VpnAfConfig;
@@ -65,10 +57,11 @@ import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev14081
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.instances.VpnInstance;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.instances.VpnInstanceKey;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.interfaces.VpnInterface;
-import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.interfaces.VpnInterfaceBuilder;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.interfaces.VpnInterfaceKey;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.InterfacesState;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.MacAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.PhysAddress;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.FlowCapableNode;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.FlowId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.tables.Table;
@@ -80,13 +73,14 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.arputil.rev160406.Od
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.arputil.rev160406.SendArpResponseInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.arputil.rev160406.SendArpResponseInputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.IdManagerService;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.GetPortFromInterfaceInputBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.GetPortFromInterfaceOutput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.OdlInterfaceRpcService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.servicebinding.rev160406.service.bindings.services.info.BoundServices;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeId;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeConnectorRef;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.Nodes;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.node.NodeConnector;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.Node;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.NodeBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.NodeKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.FibEntries;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.LabelRouteMap;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.SubnetRoute;
@@ -129,6 +123,10 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.vpn.instance.op.data.entry.vpn.to.dpn.list.VpnInterfacesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.vpn.instance.op.data.entry.vpn.to.dpn.list.VpnInterfacesKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.neutron.vpn.portip.port.data.VpnPortipToPort;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.rev150712.Neutron;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.subnets.rev150712.subnets.attributes.Subnets;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.subnets.rev150712.subnets.attributes.subnets.Subnet;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.subnets.rev150712.subnets.attributes.subnets.SubnetKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.netvirt.inter.vpn.link.rev160311.inter.vpn.links.InterVpnLink;
 import org.opendaylight.yangtools.concepts.ListenerRegistration;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
@@ -137,6 +135,19 @@ import org.opendaylight.yangtools.yang.common.RpcError;
 import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.google.common.base.Function;
+import com.google.common.base.Optional;
+import com.google.common.base.Preconditions;
+import com.google.common.base.Predicate;
+import com.google.common.base.Predicates;
+import com.google.common.collect.FluentIterable;
+import com.google.common.collect.Iterators;
+import com.google.common.util.concurrent.CheckedFuture;
+import com.google.common.util.concurrent.FutureCallback;
+import com.google.common.util.concurrent.Futures;
+import com.google.common.util.concurrent.JdkFutureAdapters;
+import com.google.common.util.concurrent.ListenableFuture;
 
 public class VpnInterfaceManager extends AbstractDataChangeListener<VpnInterface> implements AutoCloseable {
     private static final Logger LOG = LoggerFactory.getLogger(VpnInterfaceManager.class);
@@ -258,12 +269,12 @@ public class VpnInterfaceManager extends AbstractDataChangeListener<VpnInterface
                     // If so, we have to process ADD, as this might be a DPN Restart with Remove and Add triggered
                     // back to back
                     // However, if the primary VRF Entry for this VPNInterface exists, please continue bailing out !
-                    List<Adjacency> adjs = VpnUtil.getAdjacenciesForVpnInterfaceFromConfig(dataBroker, interfaceName);
-                    if (adjs == null) {
+                    final Optional<List<Adjacency>> adjs = VpnUtil.getAdjacenciesForVpnInterfaceFromConfig(dataBroker, interfaceName);
+                    if (!adjs.isPresent()) {
                         LOG.info("VPN Interface {} addition failed as adjacencies for this vpn interface could not be obtained", interfaceName);
                         return;
                     }
-                    for (Adjacency adj : adjs) {
+                    for (Adjacency adj : adjs.get()) {
                         if (adj.getMacAddress() != null && !adj.getMacAddress().isEmpty()) {
                             primaryInterfaceIp = adj.getIpAddress();
                             break;
@@ -293,6 +304,7 @@ public class VpnInterfaceManager extends AbstractDataChangeListener<VpnInterface
                 updateVpnToDpnMapping(dpId, vpnName, interfaceName, true /* add */);
                 bindService(dpId, vpnName, interfaceName, lPortTag, writeConfigTxn, writeInvTxn);
                 processVpnInterfaceAdjacencies(dpId, vpnName, interfaceName, writeConfigTxn, writeOperTxn);
+                makeArpResponderFlow(dpId, lPortTag, vpnName, vpnId, interfaceName);
                 return;
             }
 
@@ -810,10 +822,13 @@ public class VpnInterfaceManager extends AbstractDataChangeListener<VpnInterface
         // Instruction to punt to controller
         List<InstructionInfo> instructions = new ArrayList<InstructionInfo>();
         List<ActionInfo> actionsInfos = new ArrayList<ActionInfo>();
-        actionsInfos.add(new ActionInfo(ActionType.punt_to_controller, new String[] {}));
-        actionsInfos.add(new ActionInfo(ActionType.nx_resubmit, new String[]{
-                Short.toString(NwConstants.LPORT_DISPATCHER_TABLE)}));
-
+        if(replyOrRequest == ArpReplyOrRequest.REQUEST){
+            actionsInfos.add(new ActionInfo(ActionType.group, new String[] { String.valueOf(ArpResponderConstant.Group.ID.value())}));
+        }else {
+            actionsInfos.add(new ActionInfo(ActionType.punt_to_controller, new String[]{}));
+            actionsInfos.add(new ActionInfo(ActionType.nx_resubmit, new String[]{
+                    Short.toString(NwConstants.LPORT_DISPATCHER_TABLE)}));
+        }
         instructions.add(new InstructionInfo(InstructionType.apply_actions, actionsInfos));
 
         // Install the flow entry in L3_INTERFACE_TABLE
@@ -1153,6 +1168,21 @@ public class VpnInterfaceManager extends AbstractDataChangeListener<VpnInterface
             }else{
                 final String vpnName = vpnInterface.getVpnInstanceName();
                 if(!vpnInterface.isScheduledForRemove()){
+                    Optional<List<Adjacency>> adj = VpnUtil.getAdjacenciesForVpnInterfaceFromOper(dataBroker, vpnInterface.getName());
+                    LOG.trace("Getting VPN Interface Adj for removal {}",adj);
+                    if (adj.isPresent()) {
+                        for (Adjacency adjacency : adj.get()) {
+                            if (adjacency.getMacAddress() != null) {
+                                //String ipPrefix = adjacency.getIpAddress().split("/")[0];
+                                Uuid subnetUuid = adjacency.getSubnetId();
+                                //String gwIp = getVpnSubnetGatewayIp(vpnName, ipPrefix);
+                                String gwIp = getVpnSubnetGatewayIp(subnetUuid);
+                                LOG.trace("VPNInterface adjacency Gsteway IP {} for ARP Responder removal",gwIp);
+                                final String flowId = ArpResponderUtil.getFlowID(lPortTag, gwIp);
+                                ArpResponderUtil.removeFlow(mdsalManager, dpId, flowId);
+                            }
+                        }
+                    }
                     VpnUtil.scheduleVpnInterfaceForRemoval(dataBroker, interfaceName, dpId, vpnName, Boolean.TRUE, writeOperTxn);
                     removeAdjacenciesFromVpn(dpId, interfaceName, vpnInterface.getVpnInstanceName(), writeConfigTxn);
                     LOG.info("Unbinding vpn service from interface {} ", interfaceName);
@@ -1779,6 +1809,55 @@ public class VpnInterfaceManager extends AbstractDataChangeListener<VpnInterface
                 }
             }
         }
+    }
+    
+    private void makeArpResponderFlow(BigInteger dpId, int lPortTag, String vpnName, long vpnId, String ifName){
+        LOG.trace("Creating the ARP Responder flow for VPN Interface {}",ifName);
+        Optional<List<Adjacency>> adj = VpnUtil.getAdjacenciesForVpnInterfaceFromConfig(dataBroker, ifName);
+        if (adj.isPresent()) {
+            for (Adjacency adjacency : adj.get()) {
+                if (adjacency.getMacAddress() != null) {
+                    String ipPrefix = adjacency.getIpAddress().split("/")[0];
+                    Uuid subnetId = adjacency.getSubnetId();
+                    //final String gwIp = getVpnSubnetGatewayIp(vpnName,ipPrefix);
+                    final String gwIp = getVpnSubnetGatewayIp(subnetId);
+                    LOG.trace("VPN Interface Adjacency Subnet Gateway IP {}",gwIp);
+                    String gwMac = null;
+                    VpnPortipToPort gwPort = VpnUtil.getNeutronPortFromVpnPortFixedIp(dataBroker, vpnName, gwIp);
+                    //Check if a router gateway interface is available for the subnet gw
+                    if (gwPort != null && gwPort.isSubnetIp()) {
+                        gwMac = gwPort.getMacAddress();
+                        LOG.trace("VPN Interface Subnet Gateway MAC {} to be used for ARPResponder.",gwMac);
+                    }
+                    if (gwMac == null){  // No gateway interface so use connected interface MAC
+                            gwMac = InterfaceUtils.getMacAddressForInterface(dataBroker, ifName).get();
+                            LOG.trace("VPN Interface Connected MAC {} to be used for ARPResponder", gwMac);
+                    }
+                    final String flowId = ArpResponderUtil.getFlowID(lPortTag, gwIp);
+                    final MacAddress mm=new MacAddress(gwMac);
+                    ArpResponderUtil.installFlow(mdsalManager, dpId, flowId, flowId, NwConstants.DEFAULT_ARP_FLOW_PRIORITY,
+                            ArpResponderUtil.generateCookie(lPortTag, gwIp), ArpResponderUtil.getMatchCriteria(lPortTag, vpnId, gwIp),
+                            ArpResponderUtil.getActions(ifaceMgrRpcService, ifName,  gwIp, mm));
+                    LOG.trace("Installed the ARP Responder flow for VPN Interface {}",ifName);
+                }
+            }
+        }
+    }
+
+    private String getVpnSubnetGatewayIp(final Uuid subnetUuid) {
+        //VpnPortipToPort vpnPortipToPort = VpnUtil.getNeutronPortFromVpnPortFixedIp(dataBroker, vpnName, interfaceIp);
+        String gwIpAddress = null;
+        final SubnetKey subnetkey = new SubnetKey(subnetUuid);
+        final InstanceIdentifier<Subnet> subnetidentifier = InstanceIdentifier.create(Neutron.class)
+                .child(Subnets.class)
+                .child(Subnet.class, subnetkey);
+        Optional<Subnet> subnet = VpnUtil.read(dataBroker, LogicalDatastoreType.CONFIGURATION, subnetidentifier);
+        if (subnet.isPresent()) {
+            LOG.trace("Obtained subnet {} for vpn interface", subnet.get().getUuid().getValue());
+            gwIpAddress = subnet.get().getGatewayIp().getIpv4Address().getValue();
+            return gwIpAddress;
+        }
+        return gwIpAddress;
     }
 
     void notifyTaskIfRequired(String intfName) {

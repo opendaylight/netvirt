@@ -306,6 +306,21 @@ public class VpnUtil {
         return rd;
     }
 
+    static Optional<List<Adjacency>> getAdjacenciesForVpnInterfaceFromOper(DataBroker broker, String intfName) {
+        final InstanceIdentifier<VpnInterface> identifier = getVpnInterfaceIdentifier(intfName);
+        InstanceIdentifier<Adjacencies> path = identifier.augmentation(Adjacencies.class);
+        Optional<Adjacencies> adjacencies = VpnUtil.read(broker, LogicalDatastoreType.OPERATIONAL, path);
+        Optional<List<Adjacency>> nextHops = Optional.absent();
+        if (adjacencies.isPresent()) {
+            List<Adjacency> nxtHops = adjacencies.get().getAdjacency();
+            if (nxtHops != null && !nxtHops.isEmpty()){
+                nextHops= Optional.of(nxtHops);
+            }
+        }
+        return nextHops;
+    }
+
+
     static VrfEntry getVrfEntry(DataBroker broker, String rd, String ipPrefix) {
 
         VrfTables vrfTable = getVrfTable(broker, rd);
@@ -322,16 +337,18 @@ public class VpnUtil {
         return null;
     }
 
-    static List<Adjacency> getAdjacenciesForVpnInterfaceFromConfig(DataBroker broker, String intfName) {
+    static Optional<List<Adjacency>> getAdjacenciesForVpnInterfaceFromConfig(DataBroker broker, String intfName) {
         final InstanceIdentifier<VpnInterface> identifier = getVpnInterfaceIdentifier(intfName);
         InstanceIdentifier<Adjacencies> path = identifier.augmentation(Adjacencies.class);
         Optional<Adjacencies> adjacencies = VpnUtil.read(broker, LogicalDatastoreType.CONFIGURATION, path);
-
+        Optional<List<Adjacency>> nextHops = Optional.absent();
         if (adjacencies.isPresent()) {
-            List<Adjacency> nextHops = adjacencies.get().getAdjacency();
-            return nextHops;
+            List<Adjacency> nxtHops = adjacencies.get().getAdjacency();
+            if (nxtHops != null && !nxtHops.isEmpty()){
+                nextHops= Optional.of(nxtHops);
+            }
         }
-        return null;
+        return nextHops;
     }
 
     static Extraroute getVpnToExtraroute(String ipPrefix, List<String> nextHopList) {
