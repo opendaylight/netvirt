@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "7a6b29fe_83e91ab9",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 3
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 5350
+      },
+      "writtenOn": "2016-09-27T12:10:59Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7a6b29fe_a356d603",
+      "revId": "f5e5c4780b758fb2ffe5bade4fc73b02ce8d0eb8",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7a6b29fe_63503e0b",
         "filename": "/COMMIT_MSG",
         "patchSetId": 3
@@ -30,6 +48,24 @@
       "writtenOn": "2016-09-27T10:52:01Z",
       "side": 1,
       "message": "Please add SELFIMPORTED here :\n\nSELFIMPORTED - Indicates this Route is replayed route on a new BGP VPN, which is importing RT from another BGPVPN which originally owns this route.",
+      "revId": "f5e5c4780b758fb2ffe5bade4fc73b02ce8d0eb8",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_e3d3ae01",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 3
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 5350
+      },
+      "writtenOn": "2016-09-27T12:10:59Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7a6b29fe_63503e0b",
       "revId": "f5e5c4780b758fb2ffe5bade4fc73b02ce8d0eb8",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -64,6 +100,24 @@
       "writtenOn": "2016-09-27T10:48:55Z",
       "side": 1,
       "message": "I believe an extra route should be considered \u0027STATIC\u0027 instead of LOCAL.",
+      "revId": "f5e5c4780b758fb2ffe5bade4fc73b02ce8d0eb8",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_234ac654",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 1495,
+      "author": {
+        "id": 5350
+      },
+      "writtenOn": "2016-09-27T12:10:59Z",
+      "side": 1,
+      "message": "I don\u0027t exactly know what an \"extra route\" is, but only those routes that an operator has provisioned via Neutron Router modification must be considered as STATIC",
+      "parentUuid": "7a6b29fe_8014704d",
       "revId": "f5e5c4780b758fb2ffe5bade4fc73b02ce8d0eb8",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -115,6 +169,24 @@
       "writtenOn": "2016-09-27T10:48:55Z",
       "side": 1,
       "message": "here you have considered the STATIC correctly !",
+      "revId": "f5e5c4780b758fb2ffe5bade4fc73b02ce8d0eb8",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_437a6288",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnRpcServiceImpl.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 190,
+      "author": {
+        "id": 5350
+      },
+      "writtenOn": "2016-09-27T12:10:59Z",
+      "side": 1,
+      "message": "this should be the only case where a route should be considered as STATIC",
+      "parentUuid": "7a6b29fe_8322baa0",
       "revId": "f5e5c4780b758fb2ffe5bade4fc73b02ce8d0eb8",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false

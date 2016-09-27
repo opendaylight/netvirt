@@ -16,6 +16,24 @@
       "revId": "3754686eba6045589371ad429eaa1dec80e7b2e6",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_e343ae3f",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 1126,
+      "author": {
+        "id": 5350
+      },
+      "writtenOn": "2016-09-27T12:10:59Z",
+      "side": 0,
+      "message": "No, they are not important, but since 1.7 this is considered as redundant. \nEclipse performed all these changes automatically. I can withdraw them if it is inconvenient",
+      "parentUuid": "7a6b29fe_6302fe0a",
+      "revId": "3754686eba6045589371ad429eaa1dec80e7b2e6",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
