@@ -160,6 +160,24 @@
     },
     {
       "key": {
+        "uuid": "7a6b29fe_061a38c5",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 1495,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-09-27T16:46:58Z",
+      "side": 1,
+      "message": "Thanks a lot for the trials and explanation.  Appreciate it !\n\nI believe some bug exists and a fix for that is not yet upstreamed :).\n\nThis is because addNewAdjForVpnInterfvace() should only be invoked for VPN Swap cases and not for normal VPNInterfaceUp (or) VpnInterfaceAdd Lifecycle..\n\nI will analyze this a bit more tomorrow and get back.",
+      "parentUuid": "7a6b29fe_63631e42",
+      "revId": "f5e5c4780b758fb2ffe5bade4fc73b02ce8d0eb8",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7a6b29fe_a3089628",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
         "patchSetId": 3
