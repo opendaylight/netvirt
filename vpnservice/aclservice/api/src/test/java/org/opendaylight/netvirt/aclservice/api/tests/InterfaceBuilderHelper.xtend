@@ -19,17 +19,23 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier
 
 import static extension org.opendaylight.netvirt.aclservice.api.tests.BuilderExtensions.operator_doubleGreaterThan
 import static org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType.CONFIGURATION
+import java.util.List
+import java.util.UUID
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.interfaces._interface.AllowedAddressPairs
 
 class InterfaceBuilderHelper {
 
-    def static putNewInterface(DataBroker dataBroker, String interfaceName, boolean portSecurity) {
+    def static putNewInterface(DataBroker dataBroker, String interfaceName,
+            boolean portSecurity, List<Uuid> newSecurityGroups, List<AllowedAddressPairs> ifAllowedAddressPairs
+    ) {
         val id = InstanceIdentifier.builder(Interfaces)
                     .child(Interface, new InterfaceKey(interfaceName)).build
         val interface = new InterfaceBuilder >> [
             addAugmentation(InterfaceAcl, new InterfaceAclBuilder >> [
                 portSecurityEnabled = portSecurity
-                securityGroups = #[]
-                allowedAddressPairs = #[]
+                securityGroups = newSecurityGroups
+                allowedAddressPairs = ifAllowedAddressPairs
             ])
             name = interfaceName
         ]
