@@ -12,9 +12,11 @@ import static org.mockito.Mockito.mock;
 import com.google.inject.AbstractModule;
 import org.mockito.Mockito;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
+import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.binding.test.DataBrokerTestModule;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.genius.mdsalutil.interfaces.testutils.TestIMdsalApiManager;
+import org.opendaylight.netvirt.aclservice.tests.infra.SynchronousEachOperationNewWriteTransaction;
 import org.opendaylight.netvirt.aclservice.utils.AclClusterUtil;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.config.rev160806.AclserviceConfig;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.config.rev160806.AclserviceConfig.SecurityGroupMode;
@@ -28,8 +30,6 @@ public class AclServiceTestModule extends AbstractModule {
 
     @Override
     protected void configure() {
-        install(new AclServiceModule());
-
         bind(DataBroker.class).toInstance(DataBrokerTestModule.dataBroker());
         bind(AclserviceConfig.class).toInstance(aclServiceConfig());
 
@@ -38,6 +38,10 @@ public class AclServiceTestModule extends AbstractModule {
         TestIMdsalApiManager singleton = TestIMdsalApiManager.newInstance();
         bind(IMdsalApiManager.class).toInstance(singleton);
         bind(TestIMdsalApiManager.class).toInstance(singleton);
+
+        // bind(WriteableDataStore.class).to(SynchronousSingleTransactionWriteableDataStore.class);
+        // TODO Provider<> how to??
+        bind(WriteTransaction.class).to(SynchronousEachOperationNewWriteTransaction.class);
     }
 
     private AclserviceConfig aclServiceConfig() {

@@ -20,6 +20,7 @@ import static org.opendaylight.controller.md.sal.common.api.data.LogicalDatastor
 import org.opendaylight.genius.mdsalutil.MDSALUtil
 
 class StateInterfaceBuilderHelper {
+    // TODO make this like IdentifiedInterfaceWithAclBuilder
 
     def static putNewStateInterface(DataBroker dataBroker, String interfaceName, String mac) {
         val id = InstanceIdentifier.builder(InterfacesState)
