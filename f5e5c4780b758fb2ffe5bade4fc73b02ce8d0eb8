@@ -124,6 +124,24 @@
     },
     {
       "key": {
+        "uuid": "7a6b29fe_83375a4c",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 1495,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-09-27T12:27:50Z",
+      "side": 1,
+      "message": "I meant the same.. Now please educate me why you pinned LOCAL here?",
+      "parentUuid": "7a6b29fe_234ac654",
+      "revId": "f5e5c4780b758fb2ffe5bade4fc73b02ce8d0eb8",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7a6b29fe_a3089628",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
         "patchSetId": 3
