@@ -18,6 +18,7 @@ module odl-l3vpn {
             leaf ip_address {type string;}
             leaf label { type uint32; config "false"; } /* optional */
             leaf mac_address {type string;} /* optional */
+            leaf subnet_id {type yang:uuid;} /* optional */
         }
     }
 
