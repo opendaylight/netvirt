@@ -7,18 +7,6 @@
  */
 package org.opendaylight.netvirt.vpnmanager;
 
-import com.google.common.base.Function;
-import com.google.common.base.Optional;
-import com.google.common.base.Preconditions;
-import com.google.common.base.Predicate;
-import com.google.common.base.Predicates;
-import com.google.common.collect.FluentIterable;
-import com.google.common.collect.Iterators;
-import com.google.common.util.concurrent.CheckedFuture;
-import com.google.common.util.concurrent.FutureCallback;
-import com.google.common.util.concurrent.Futures;
-import com.google.common.util.concurrent.JdkFutureAdapters;
-import com.google.common.util.concurrent.ListenableFuture;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -31,21 +19,16 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
 import org.opendaylight.controller.md.sal.binding.api.NotificationPublishService;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
+import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
 import org.opendaylight.genius.datastoreutils.DataStoreJobCoordinator;
-import org.opendaylight.genius.mdsalutil.ActionInfo;
-import org.opendaylight.genius.mdsalutil.ActionType;
 import org.opendaylight.genius.mdsalutil.FlowEntity;
-import org.opendaylight.genius.mdsalutil.InstructionInfo;
-import org.opendaylight.genius.mdsalutil.InstructionType;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
-import org.opendaylight.genius.mdsalutil.MatchFieldType;
-import org.opendaylight.genius.mdsalutil.MatchInfo;
 import org.opendaylight.genius.mdsalutil.MetaDataUtil;
 import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
@@ -53,6 +36,7 @@ import org.opendaylight.genius.utils.ServiceIndex;
 import org.opendaylight.netvirt.bgpmanager.api.IBgpManager;
 import org.opendaylight.netvirt.fibmanager.api.IFibManager;
 import org.opendaylight.netvirt.fibmanager.api.RouteOrigin;
+import org.opendaylight.netvirt.vpnmanager.arp.responder.ArpResponderUtil;
 import org.opendaylight.netvirt.vpnmanager.intervpnlink.InterVpnLinkUtil;
 import org.opendaylight.netvirt.vpnmanager.utilities.InterfaceUtils;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.VpnAfConfig;
@@ -65,13 +49,9 @@ import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev14081
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.interfaces.VpnInterface;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.interfaces.VpnInterfaceKey;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.InterfacesState;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.MacAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.PhysAddress;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.FlowCapableNode;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.FlowId;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.tables.Table;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.tables.TableKey;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.tables.table.Flow;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.tables.table.FlowKey;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.instruction.list.Instruction;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.arputil.rev160406.OdlArputilService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.arputil.rev160406.SendArpResponseInput;
@@ -79,11 +59,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.arputil.rev160406.Se
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.IdManagerService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.OdlInterfaceRpcService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.servicebinding.rev160406.service.bindings.services.info.BoundServices;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeId;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.Nodes;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.Node;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.NodeBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.NodeKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.FibEntries;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.LabelRouteMap;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.SubnetRoute;
@@ -126,14 +101,30 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.vpn.instance.op.data.entry.vpn.to.dpn.list.VpnInterfacesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.vpn.instance.op.data.entry.vpn.to.dpn.list.VpnInterfacesKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.neutron.vpn.portip.port.data.VpnPortipToPort;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.rev150712.Neutron;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.subnets.rev150712.subnets.attributes.Subnets;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.subnets.rev150712.subnets.attributes.subnets.Subnet;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.subnets.rev150712.subnets.attributes.subnets.SubnetKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.netvirt.inter.vpn.link.rev160311.inter.vpn.links.InterVpnLink;
-import org.opendaylight.yangtools.concepts.ListenerRegistration;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier.InstanceIdentifierBuilder;
 import org.opendaylight.yangtools.yang.common.RpcError;
 import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.google.common.base.Function;
+import com.google.common.base.Optional;
+import com.google.common.base.Preconditions;
+import com.google.common.base.Predicate;
+import com.google.common.base.Predicates;
+import com.google.common.collect.FluentIterable;
+import com.google.common.collect.Iterators;
+import com.google.common.util.concurrent.CheckedFuture;
+import com.google.common.util.concurrent.FutureCallback;
+import com.google.common.util.concurrent.Futures;
+import com.google.common.util.concurrent.JdkFutureAdapters;
+import com.google.common.util.concurrent.ListenableFuture;
 
 public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInterface, VpnInterfaceManager>
         implements AutoCloseable {
@@ -324,7 +315,7 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                 // Add the VPNInterface and quit
                 updateVpnToDpnMapping(dpId, vpnName, interfaceName, true /* add */);
                 bindService(dpId, vpnName, interfaceName, lPortTag, writeConfigTxn, writeInvTxn);
-                processVpnInterfaceAdjacencies(dpId, vpnName, interfaceName, writeConfigTxn, writeOperTxn);
+                processVpnInterfaceAdjacencies(dpId, lPortTag, vpnName, interfaceName, writeConfigTxn, writeOperTxn);
                 return;
             }
 
@@ -352,7 +343,7 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
             // VPNInterface got removed, proceed with Add
             updateVpnToDpnMapping(dpId, vpnName, interfaceName, true /* add */);
             bindService(dpId, vpnName, interfaceName, lPortTag, writeConfigTxn, writeInvTxn);
-            processVpnInterfaceAdjacencies(dpId, vpnName, interfaceName, writeConfigTxn, writeOperTxn);
+            processVpnInterfaceAdjacencies(dpId, lPortTag, vpnName, interfaceName, writeConfigTxn, writeOperTxn);
         } else {
             // Interface is retained in the DPN, but its Link Up.
             // Advertise prefixes again for this interface to BGP
@@ -597,7 +588,7 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
         }
     }
 
-    protected void processVpnInterfaceAdjacencies(BigInteger dpnId, String vpnName, String interfaceName,
+    protected void processVpnInterfaceAdjacencies(BigInteger dpnId, final int lPortTag, String vpnName, String interfaceName,
                                                 WriteTransaction writeConfigTxn,
                                                 WriteTransaction writeOperTxn) {
         InstanceIdentifier<VpnInterface> identifier = VpnUtil.getVpnInterfaceIdentifier(interfaceName);
@@ -642,6 +633,8 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                             VpnUtil.getPrefixToInterfaceIdentifier(
                                     VpnUtil.getVpnId(dataBroker, vpnName), prefix),
                             VpnUtil.getPrefixToInterface(dpnId, interfaceName, prefix), true);
+                    final Uuid subnetId = nextHop.getSubnetId();
+                    makeArpResponderFlow(dpnId, lPortTag, vpnName, interfaceName, subnetId);
                 } else {
                     //Extra route adjacency
                     LOG.trace("Adding prefix {} and nexthopList {} as extra-route for vpn", nextHop.getIpAddress(), nextHop.getNextHopIpList(), vpnName);
@@ -1121,7 +1114,7 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                 final String vpnName = vpnInterface.getVpnInstanceName();
                 if(!vpnInterface.isScheduledForRemove()){
                     VpnUtil.scheduleVpnInterfaceForRemoval(dataBroker, interfaceName, dpId, vpnName, Boolean.TRUE, writeOperTxn);
-                    removeAdjacenciesFromVpn(dpId, interfaceName, vpnInterface.getVpnInstanceName(), writeConfigTxn);
+                    removeAdjacenciesFromVpn(dpId, lPortTag, interfaceName, vpnInterface.getVpnInstanceName(), writeConfigTxn);
                     LOG.info("Unbinding vpn service from interface {} ", interfaceName);
                     unbindService(dpId, vpnName, interfaceName, lPortTag, isInterfaceStateDown, isConfigRemoval, writeConfigTxn, writeInvTxn);
                 }else{
@@ -1160,7 +1153,7 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
         }
     }
 
-    private void removeAdjacenciesFromVpn(final BigInteger dpnId, final String interfaceName, final String vpnName,
+    private void removeAdjacenciesFromVpn(final BigInteger dpnId, final int lPortTag, final String interfaceName, final String vpnName,
                                           WriteTransaction writeConfigTxn) {
         //Read NextHops
         InstanceIdentifier<VpnInterface> identifier = VpnUtil.getVpnInterfaceIdentifier(interfaceName);
@@ -1189,6 +1182,7 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                     } else {
                         // This is a primary adjacency
                         nhList = nextHop.getNextHopIpList();
+                        removeArpResonderFlow(nextHop, lPortTag, dpnId);
                     }
                     if (rd.equals(vpnName)) {
                         //this is an internal vpn - the rd is assigned to the vpn instance name;
@@ -1753,6 +1747,55 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                 }
             }
         }
+    }
+
+    private void makeArpResponderFlow(BigInteger dpId, int lPortTag, String vpnName, String ifName, Uuid subnetId){
+        LOG.trace("Creating the ARP Responder flow for VPN Interface {}",ifName);
+        final String gwIp = getVpnSubnetGatewayIp(subnetId);
+        LOG.trace("VPN Interface Adjacency Subnet Gateway IP {}", gwIp);
+        String subNetGwMac = null;
+        VpnPortipToPort gwPort = VpnUtil.getNeutronPortFromVpnPortFixedIp(dataBroker, vpnName, gwIp);
+        //Check if a router gateway interface is available for the subnet gw
+        if (gwPort != null && gwPort.isSubnetIp()) {
+            subNetGwMac = gwPort.getMacAddress();
+            LOG.trace("VPN Interface Subnet Gateway MAC {} to be used for ARPResponder.",subNetGwMac);
+        }
+        if (subNetGwMac == null){  // No gateway interface so use connected interface MAC
+                subNetGwMac = InterfaceUtils.getMacAddressForInterface(dataBroker, ifName).get();
+                LOG.trace("VPN Interface Connected MAC {} to be used for ARPResponder", subNetGwMac);
+        }
+        final String flowId = ArpResponderUtil.getFlowID(lPortTag, gwIp);
+        final MacAddress mm = new MacAddress(subNetGwMac);
+        long vpnId = VpnUtil.getVpnId(dataBroker, vpnName);
+        ArpResponderUtil.installFlow(mdsalManager, dpId, flowId, flowId, NwConstants.DEFAULT_ARP_FLOW_PRIORITY,
+                ArpResponderUtil.generateCookie(lPortTag, gwIp), ArpResponderUtil.getMatchCriteria(lPortTag, vpnId, gwIp),
+                ArpResponderUtil.getActions(ifaceMgrRpcService, ifName, gwIp, mm));
+        LOG.trace("Installed the ARP Responder flow for VPN Interface {}", ifName);
+    }
+
+    private void removeArpResonderFlow(final Adjacency adjacency, final int lPortTag, final BigInteger dpId){
+
+        final Uuid subnetUuid = adjacency.getSubnetId();
+        final String gwIp = getVpnSubnetGatewayIp(subnetUuid);
+        LOG.trace("VPNInterface adjacency Gsteway IP {} for ARP Responder removal",gwIp);
+        final String flowId = ArpResponderUtil.getFlowID(lPortTag, gwIp);
+        ArpResponderUtil.removeFlow(mdsalManager, dpId, flowId);
+    }
+
+    private String getVpnSubnetGatewayIp(final Uuid subnetUuid) {
+        //VpnPortipToPort vpnPortipToPort = VpnUtil.getNeutronPortFromVpnPortFixedIp(dataBroker, vpnName, interfaceIp);
+        String gwIpAddress = null;
+        final SubnetKey subnetkey = new SubnetKey(subnetUuid);
+        final InstanceIdentifier<Subnet> subnetidentifier = InstanceIdentifier.create(Neutron.class)
+                .child(Subnets.class)
+                .child(Subnet.class, subnetkey);
+        final Optional<Subnet> subnet = VpnUtil.read(dataBroker, LogicalDatastoreType.CONFIGURATION, subnetidentifier);
+        if (subnet.isPresent()) {
+            LOG.trace("Obtained subnet {} for vpn interface", subnet.get().getUuid().getValue());
+            gwIpAddress = subnet.get().getGatewayIp().getIpv4Address().getValue();
+            return gwIpAddress;
+        }
+        return gwIpAddress;
     }
 
     //TODO(vivek) This waiting business to be removed in carbon
