@@ -89,4 +89,10 @@ public final class AclDataUtil {
         return remoteAclIdMap.get(remoteAclId);
     }
 
+    // ONLY FOR USE BY TESTS
+    // TODO clean up code to not use static anymore, and remove this!!
+    public static void clearCaches() {
+        aclInterfaceMap.clear();
+        remoteAclIdMap.clear();
+    }
 }
