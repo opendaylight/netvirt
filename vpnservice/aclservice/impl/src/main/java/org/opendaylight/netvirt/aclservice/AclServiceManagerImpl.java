@@ -25,9 +25,6 @@ public class AclServiceManagerImpl implements AclServiceManager {
 
     private final List<AclServiceListener> aclServiceListeners = new ArrayList<>();
 
-    /**
-     * Initialize the ACL service listener list.
-     */
     @Inject
     public AclServiceManagerImpl(final AclServiceImplFactory factory) {
         addAclServiceListner(factory.createIngressAclServiceImpl());
