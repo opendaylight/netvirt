@@ -1,0 +1,89 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7a6b29fe_202e3ca5",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 670,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-09-27T10:48:55Z",
+      "side": 1,
+      "message": "Like this shortcut :)",
+      "revId": "f5e5c4780b758fb2ffe5bade4fc73b02ce8d0eb8",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_8014704d",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 1495,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-09-27T10:48:55Z",
+      "side": 1,
+      "message": "I believe an extra route should be considered \u0027STATIC\u0027 instead of LOCAL.",
+      "revId": "f5e5c4780b758fb2ffe5bade4fc73b02ce8d0eb8",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_a3089628",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 1543,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-09-27T10:48:55Z",
+      "side": 1,
+      "message": "Does extraroute need an origin input at all?  Should this not be always \u0027STATIC\u0027.",
+      "revId": "f5e5c4780b758fb2ffe5bade4fc73b02ce8d0eb8",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_c3103250",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnManagerImpl.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 100,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-09-27T10:48:55Z",
+      "side": 1,
+      "message": "Comment in vpnInterfacemanager.java applies here as well.",
+      "revId": "f5e5c4780b758fb2ffe5bade4fc73b02ce8d0eb8",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_8322baa0",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnRpcServiceImpl.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 190,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-09-27T10:48:55Z",
+      "side": 1,
+      "message": "here you have considered the STATIC correctly !",
+      "revId": "f5e5c4780b758fb2ffe5bade4fc73b02ce8d0eb8",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
