@@ -142,6 +142,24 @@
     },
     {
       "key": {
+        "uuid": "7a6b29fe_63631e42",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 1495,
+      "author": {
+        "id": 5350
+      },
+      "writtenOn": "2016-09-27T12:44:41Z",
+      "side": 1,
+      "message": "well, truth is that I\u0027m not sure. \nAll this code is fired by a VpnInterface UP event, so our guess this should be where the \u0027LOCAL\u0027 applies. In our tests, the fib-show command shows that we were guessing right, though we are not sure we have tested all kind of routes there are. \n\nopendaylight-user@root\u003efib-show\n   RD       Prefix                NextHop               Label    Origin\n-------------------------------------------------------------------\n   42962... 10.4.4.1/32           192.168.101.35        70005    l\n   42962... 10.4.4.2/32           192.168.101.40        70006    l\n   42962... 10.3.3.2/32           192.168.101.40        70007    l\n   42962... 10.3.3.1/32           192.168.101.35        70008    l\n   200:2    172.20.20.0/24        192.168.101.25        70011    c\n   200:2    172.20.20.30/32       192.168.101.25        70012    l\n   200:2    172.20.20.31/32       192.168.101.40        70013    l\n   100:1    0.0.0.0/0             5.5.5.5               70003    s\n\n\nIf you know some special condition where LOCAL doesnt apply, we\u0027ll be glad to test it.",
+      "parentUuid": "7a6b29fe_83375a4c",
+      "revId": "f5e5c4780b758fb2ffe5bade4fc73b02ce8d0eb8",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7a6b29fe_a3089628",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
         "patchSetId": 3
