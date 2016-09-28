@@ -14,13 +14,13 @@ import org.apache.karaf.shell.console.OsgiCommandSupport;
 import org.opendaylight.controller.sal.binding.api.RpcProviderRegistry;
 import org.opendaylight.netvirt.neutronvpn.interfaces.INeutronVpnManager;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.CreateL3VPNInputBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.CreateL3VPNOutput;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.DeleteL3VPNInputBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.DeleteL3VPNOutput;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.CreateVPNInputBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.CreateVPNOutput;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.DeleteVPNInputBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.DeleteVPNOutput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.NeutronvpnService;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.createl3vpn.input.L3vpn;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.createl3vpn.input.L3vpnBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.createvpn.input.Vpn;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.createvpn.input.VpnBuilder;
 import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -147,14 +147,14 @@ public class ConfigureL3VpnCommand extends OsgiCommandSupport {
                 tuuid = new Uuid(tid);
             }
 
-            List<L3vpn> l3vpns = new ArrayList<>();
-            L3vpn l3vpn = new L3vpnBuilder().setId(vuuid).setName(name).setRouteDistinguisher(rdList).setImportRT
+            List<Vpn> l3vpns = new ArrayList<>();
+            Vpn l3vpn = new VpnBuilder().setId(vuuid).setName(name).setRouteDistinguisher(rdList).setImportRT
                     (irtList)
                     .setExportRT(ertList).setTenantId(tuuid).build();
             l3vpns.add(l3vpn);
-            Future<RpcResult<CreateL3VPNOutput>> result =
-                    neutronvpnService.createL3VPN(new CreateL3VPNInputBuilder().setL3vpn(l3vpns).build());
-            RpcResult<CreateL3VPNOutput> rpcResult = result.get();
+            Future<RpcResult<CreateVPNOutput>> result =
+                    neutronvpnService.createVPN(new CreateVPNInputBuilder().setVpn(l3vpns).build());
+            RpcResult<CreateVPNOutput> rpcResult = result.get();
             if (rpcResult.isSuccessful()) {
                 session.getConsole().println("L3VPN created successfully");
                 Logger.trace("createl3vpn: {}", result);
@@ -211,9 +211,9 @@ public class ConfigureL3VpnCommand extends OsgiCommandSupport {
             List<Uuid> vpnIdList = new ArrayList<>();
             vpnIdList.add(vpnid);
 
-            Future<RpcResult<DeleteL3VPNOutput>> result =
-                    neutronvpnService.deleteL3VPN(new DeleteL3VPNInputBuilder().setId(vpnIdList).build());
-            RpcResult<DeleteL3VPNOutput> rpcResult = result.get();
+            Future<RpcResult<DeleteVPNOutput>> result =
+                    neutronvpnService.deleteVPN(new DeleteVPNInputBuilder().setId(vpnIdList).build());
+            RpcResult<DeleteVPNOutput> rpcResult = result.get();
             if (rpcResult.isSuccessful()) {
                 session.getConsole().println("L3VPN deleted successfully");
                 Logger.trace("deletel3vpn: {}", result);
