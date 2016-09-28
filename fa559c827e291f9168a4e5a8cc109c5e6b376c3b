@@ -1,0 +1,174 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7a6b29fe_29bd8702",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 825,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2016-09-28T07:15:12Z",
+      "side": 1,
+      "message": "We should not use table 80 any more. As part of GWMAC check table (19) itself, arp requests have to be sent to ARP responder so that it can respond for GW IP addresses.\nPlease have look at https://git.opendaylight.org/gerrit/#/c/46109/.\nYou can see TODO: in VrfEntryListener#createArpRequestMatchFlowForGwMacTable",
+      "revId": "fa559c827e291f9168a4e5a8cc109c5e6b376c3b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_09b88b0f",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 826,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2016-09-28T07:15:12Z",
+      "side": 1,
+      "message": "what is the purpose of having group ? It can be avoided.",
+      "revId": "fa559c827e291f9168a4e5a8cc109c5e6b376c3b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_493d638e",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 1839,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2016-09-28T07:15:12Z",
+      "side": 1,
+      "message": "Nit: provide space after ,",
+      "revId": "fa559c827e291f9168a4e5a8cc109c5e6b376c3b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_a9407707",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 1850,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2016-09-28T07:15:12Z",
+      "side": 1,
+      "message": "use InterfaceUtils#getMacAddressForInterface to get MAC address of the OF port.",
+      "revId": "fa559c827e291f9168a4e5a8cc109c5e6b376c3b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_e94d4f3f",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnUtil.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 309,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2016-09-28T07:15:12Z",
+      "side": 1,
+      "message": "use Optional\u003cList\u003cAdjacency\u003e\u003e as the return type",
+      "revId": "fa559c827e291f9168a4e5a8cc109c5e6b376c3b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_0966cbba",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/arp/responder/ArpActionField.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2016-09-28T07:15:12Z",
+      "side": 1,
+      "message": "Can we move this class to Genius\u0027s MDSALUtil ? so that it can reused by other modules.",
+      "revId": "fa559c827e291f9168a4e5a8cc109c5e6b376c3b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_89113b06",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/arp/responder/ArpDefaultFlowInstaller.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 123,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2016-09-28T07:15:12Z",
+      "side": 1,
+      "message": "This group may not be required when we have flow entry in GWMAC check table.",
+      "revId": "fa559c827e291f9168a4e5a8cc109c5e6b376c3b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_e9fb8fbe",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/arp/responder/ArpDefaultFlowInstaller.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 126,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2016-09-28T07:15:12Z",
+      "side": 1,
+      "message": "To install only this drop rule, Let us have only one class which listens to Node DCN to program it along with other L3VPN table miss entries. Manu is working on it to have a new class for it.",
+      "revId": "fa559c827e291f9168a4e5a8cc109c5e6b376c3b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_493283a7",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/arp/responder/ArpResponderUtil.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 402,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2016-09-28T07:15:12Z",
+      "side": 1,
+      "message": "why do meed all these conversions ? You can simply return rpcResult.getResult().getAction() since it is also List\u003cAction\u003e.",
+      "revId": "fa559c827e291f9168a4e5a8cc109c5e6b376c3b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_a925175d",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/resources/org/opendaylight/blueprint/vpnmanager.xml",
+        "patchSetId": 2
+      },
+      "lineNbr": 208,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2016-09-28T07:15:12Z",
+      "side": 1,
+      "message": "Nit: remove tabs",
+      "revId": "fa559c827e291f9168a4e5a8cc109c5e6b376c3b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
