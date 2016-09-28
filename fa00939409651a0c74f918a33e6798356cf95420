@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7a6b29fe_29daa716",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/VpnFloatingIpHandler.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 155,
+      "author": {
+        "id": 6177
+      },
+      "writtenOn": "2016-09-28T09:14:45Z",
+      "side": 1,
+      "message": "I couldn\u0027t find a flow where this function should be called with DpnId which is ZERO. If this is true, I think an ERROR/WARN is appropriate.",
+      "revId": "fa00939409651a0c74f918a33e6798356cf95420",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
