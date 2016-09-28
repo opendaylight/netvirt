@@ -13,6 +13,7 @@ import java.util.List;
 
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
+import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
 import org.opendaylight.genius.mdsalutil.ActionInfo;
 import org.opendaylight.genius.mdsalutil.ActionType;
 import org.opendaylight.genius.mdsalutil.FlowEntity;
@@ -38,6 +39,7 @@ public class DhcpManager {
     private final DhcpserviceConfig config;
     private final DataBroker broker;
     private final DhcpExternalTunnelManager dhcpExternalTunnelManager;
+    private final IInterfaceManager interfaceManager;
 
     private int dhcpOptLeaseTime = 0;
     private String dhcpOptDefDomainName;
@@ -47,19 +49,20 @@ public class DhcpManager {
     public DhcpManager(final IMdsalApiManager mdsalApiManager,
             final INeutronVpnManager neutronVpnManager,
             DhcpserviceConfig config, final DataBroker dataBroker,
-            final DhcpExternalTunnelManager dhcpExternalTunnelManager) {
+            final DhcpExternalTunnelManager dhcpExternalTunnelManager, final IInterfaceManager interfaceManager) {
         this.mdsalUtil = mdsalApiManager;
         this.neutronVpnService = neutronVpnManager;
         this.config = config;
         this.broker = dataBroker;
         this.dhcpExternalTunnelManager = dhcpExternalTunnelManager;
+        this.interfaceManager = interfaceManager;
 
         configureLeaseDuration(DHCPMConstants.DEFAULT_LEASE_TIME);
     }
 
     public void init() {
         if (config.isControllerDhcpEnabled()) {
-            dhcpInterfaceEventListener = new DhcpInterfaceEventListener(this, broker, dhcpExternalTunnelManager);
+            dhcpInterfaceEventListener = new DhcpInterfaceEventListener(this, broker, dhcpExternalTunnelManager, interfaceManager);
             dhcpInterfaceConfigListener = new DhcpInterfaceConfigListener(broker, dhcpExternalTunnelManager);
             logger.info("DHCP Service initialized");
         }
@@ -110,7 +113,9 @@ public class DhcpManager {
             try {
                 return neutronVpnService.getNeutronSubnet(nPort.getFixedIps().get(0).getSubnetId());
             } catch (Exception e) {
-                logger.warn("Failed to get Neutron Subnet from Port: {}", e);
+                if (logger.isWarnEnabled()) {
+                    logger.warn("Failed to get Neutron Subnet from Port: {}", e);
+                }
             }
         }
         return null;
@@ -122,7 +127,9 @@ public class DhcpManager {
         } catch (IllegalArgumentException e) {
             return null;
         } catch (Exception ex) {
-            logger.trace("In getNeutronPort interface name passed {} exception message {}.", name, ex.getMessage());
+            if (logger.isWarnEnabled()) {
+                logger.warn("In getNeutronPort interface name passed {} exception message {}.", name, ex.getMessage());
+            }
             return null;
         }
     }
