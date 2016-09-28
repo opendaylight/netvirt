@@ -110,7 +110,9 @@ public class DhcpUCastMacListener extends AsyncClusteredDataTreeChangeListenerBa
         BigInteger vni = new BigInteger(logicalSwitch.getTunnelKey());
         Port port = dhcpExternalTunnelManager.readVniMacToPortCache(vni, macAddress);
         if (port == null) {
-            logger.trace("No neutron port created for macAddress {}, tunnelKey {}", macAddress, vni);
+            if (logger.isTraceEnabled()) {
+                logger.trace("No neutron port created for macAddress {}, tunnelKey {}", macAddress, vni);
+            }
             return;
         }
         L2GatewayDevice device = ElanL2GwCacheUtils.getL2GatewayDeviceFromCache(elanInstanceName, torNodeId.getValue());
@@ -128,7 +130,9 @@ public class DhcpUCastMacListener extends AsyncClusteredDataTreeChangeListenerBa
         }
         BigInteger designatedDpnId = dhcpExternalTunnelManager.readDesignatedSwitchesForExternalTunnel(tunnelIp, elanInstanceName);
         if (designatedDpnId == null || designatedDpnId.equals(DHCPMConstants.INVALID_DPID)) {
-            logger.trace("Unable to install flows for macAddress {}. TunnelIp {}, elanInstanceName {}, designatedDpn {} ", macAddress, tunnelIp, elanInstanceName, designatedDpnId);
+            if (logger.isTraceEnabled()) {
+                logger.trace("Unable to install flows for macAddress {}. TunnelIp {}, elanInstanceName {}, designatedDpn {} ", macAddress, tunnelIp, elanInstanceName, designatedDpnId);
+            }
             dhcpExternalTunnelManager.updateLocalCache(tunnelIp, elanInstanceName, macAddress);
             return;
         }

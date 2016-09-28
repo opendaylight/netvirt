@@ -15,6 +15,7 @@ import java.util.concurrent.Callable;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
 import org.opendaylight.genius.mdsalutil.MDSALDataStoreUtils;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.netvirt.dhcpservice.DhcpExternalTunnelManager;
@@ -41,6 +42,7 @@ public class DhcpInterfaceRemoveJob implements Callable<List<ListenableFuture<Vo
     DataBroker dataBroker;
     String interfaceName;
     BigInteger dpnId;
+    IInterfaceManager interfaceManager;
     private static final FutureCallback<Void> DEFAULT_CALLBACK = new FutureCallback<Void>() {
         @Override
         public void onSuccess(Void result) {
@@ -54,20 +56,21 @@ public class DhcpInterfaceRemoveJob implements Callable<List<ListenableFuture<Vo
     };
 
     public DhcpInterfaceRemoveJob(DhcpManager dhcpManager, DhcpExternalTunnelManager dhcpExternalTunnelManager, DataBroker dataBroker,
-            String interfaceName, BigInteger dpnId) {
+            String interfaceName, BigInteger dpnId, IInterfaceManager interfaceManager) {
         super();
         this.dhcpManager = dhcpManager;
         this.dhcpExternalTunnelManager = dhcpExternalTunnelManager;
         this.dataBroker = dataBroker;
         this.interfaceName = interfaceName;
         this.dpnId = dpnId;
+        this.interfaceManager = interfaceManager;
     }
 
     @Override
     public List<ListenableFuture<Void>> call() throws Exception {
         List<ListenableFuture<Void>> futures = new ArrayList<>();
         org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface iface =
-                DhcpServiceUtils.getInterfaceFromConfigDS(interfaceName, dataBroker);
+                interfaceManager.getInterfaceInfoFromConfigDataStore(interfaceName);
         if (iface != null) {
             IfTunnel tunnelInterface = iface.getAugmentation(IfTunnel.class);
             if (tunnelInterface != null && !tunnelInterface.isInternal()) {
@@ -98,11 +101,15 @@ public class DhcpInterfaceRemoveJob implements Callable<List<ListenableFuture<Vo
         Optional<InterfaceNameMacAddress> existingEntry = MDSALUtil.read(dataBroker, LogicalDatastoreType.OPERATIONAL, instanceIdentifier);
         if (existingEntry.isPresent()) {
             String vmMacAddress = existingEntry.get().getMacAddress();
-            LOG.trace("Entry for interface found in InterfaceNameVmMacAddress map {}, {}", interfaceName, vmMacAddress);
+            if (LOG.isTraceEnabled()) {
+                LOG.trace("Entry for interface found in InterfaceNameVmMacAddress map {}, {}", interfaceName, vmMacAddress);
+            }
             MDSALDataStoreUtils.asyncRemove(dataBroker, LogicalDatastoreType.OPERATIONAL, instanceIdentifier, DEFAULT_CALLBACK);
             return vmMacAddress;
         }
-        LOG.trace("Entry for interface {} missing in InterfaceNameVmMacAddress map", interfaceName);
+        if (LOG.isTraceEnabled()) {
+            LOG.trace("Entry for interface {} missing in InterfaceNameVmMacAddress map", interfaceName);
+        }
         return null;
     }
 }
