@@ -1329,7 +1329,7 @@ public class VpnInterfaceManager extends AbstractDataChangeListener<VpnInterface
                     oldAdjsList.remove(adj);
                 } else {
                     // add new adjacency - right now only extra route will hit this path
-                    addNewAdjToVpnInterface(identifier, adj, dpnId);
+                    addNewAdjToVpnInterface(identifier, adj);
                 }
             }
             for (Adjacency adj : oldAdjsList) {
@@ -1493,7 +1493,7 @@ public class VpnInterfaceManager extends AbstractDataChangeListener<VpnInterface
         }
     }
 
-    protected void addNewAdjToVpnInterface(InstanceIdentifier<VpnInterface> identifier, Adjacency adj, BigInteger dpnId) {
+    protected void addNewAdjToVpnInterface(InstanceIdentifier<VpnInterface> identifier, Adjacency adj) {
 
         Optional<VpnInterface> optVpnInterface = VpnUtil.read(dataBroker, LogicalDatastoreType.OPERATIONAL, identifier);
 
@@ -1517,15 +1517,27 @@ public class VpnInterfaceManager extends AbstractDataChangeListener<VpnInterface
             }
 
             adjacencies.add(new AdjacencyBuilder(adj).setLabel(label).setNextHopIpList(adj.getNextHopIpList())
-                    .setIpAddress(prefix).setKey(new AdjacencyKey(prefix)).build());
-
+                    .setIpAddress(prefix).setMacAddress(adj.getMacAddress()).setKey(new AdjacencyKey(prefix)).build());
+            
             Adjacencies aug = VpnUtil.getVpnInterfaceAugmentation(adjacencies);
-            VpnInterface newVpnIntf = VpnUtil.getVpnInterface(currVpnIntf.getName(), currVpnIntf.getVpnInstanceName(), aug, dpnId, currVpnIntf.isScheduledForRemove());
+            VpnInterface newVpnIntf = VpnUtil.getVpnInterface(currVpnIntf.getName(), currVpnIntf.getVpnInstanceName(), aug, currVpnIntf.getDpnId(), currVpnIntf.isScheduledForRemove());
 
             VpnUtil.syncUpdate(dataBroker, LogicalDatastoreType.OPERATIONAL, identifier, newVpnIntf);
-            for (String nh : adj.getNextHopIpList()) {
-                addExtraRoute(adj.getIpAddress(), nh, rd, currVpnIntf.getVpnInstanceName(), (int) label,
-                        currVpnIntf.getName());
+            
+            if (adj.getMacAddress() != null && !adj.getMacAddress().isEmpty()) {
+                LOG.trace("Adding prefix {} to interface {} for vpn {}", prefix, currVpnIntf.getName(), currVpnIntf.getVpnInstanceName());
+                VpnUtil.syncUpdate( dataBroker,
+                        LogicalDatastoreType.OPERATIONAL,
+                        VpnUtil.getPrefixToInterfaceIdentifier(
+                                VpnUtil.getVpnId(dataBroker, currVpnIntf.getVpnInstanceName()), prefix),
+                        VpnUtil.getPrefixToInterface(currVpnIntf.getDpnId(), currVpnIntf.getName(), prefix));
+            }
+                      
+            if (adj.getNextHopIpList() != null) {
+                for (String nh : adj.getNextHopIpList()) {
+                    addExtraRoute(adj.getIpAddress(), nh, rd, currVpnIntf.getVpnInstanceName(), (int) label,
+                            currVpnIntf.getName());
+                }
             }
         }
     }
@@ -1558,9 +1570,11 @@ public class VpnInterfaceManager extends AbstractDataChangeListener<VpnInterface
 
                             VpnUtil.syncUpdate(dataBroker, LogicalDatastoreType.OPERATIONAL, identifier, newVpnIntf);
 
-                            for (String nh : adj.getNextHopIpList()) {
-                                delExtraRoute(adj.getIpAddress(), nh, rd, currVpnIntf.getVpnInstanceName(),
-                                        currVpnIntf.getName());
+                            if (adj.getNextHopIpList() != null) {
+                                for (String nh : adj.getNextHopIpList()) {
+                                    delExtraRoute(adj.getIpAddress(), nh, rd, currVpnIntf.getVpnInstanceName(),
+                                            currVpnIntf.getName());
+                                }
                             }
                             break;
                         }
@@ -1628,7 +1642,7 @@ public class VpnInterfaceManager extends AbstractDataChangeListener<VpnInterface
             }
         }
     }
-
+ 
     protected void delExtraRoute(String destination, String nextHop, String rd, String routerID, String intfName) {
         if (intfName != null && !intfName.isEmpty()) {
             BigInteger dpnId = InterfaceUtils.getDpnForInterface(ifaceMgrRpcService, intfName);

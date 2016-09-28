@@ -751,7 +751,7 @@ public class VrfEntryListener extends AbstractDataChangeListener<VrfEntry> imple
         if (localNextHopInfo == null) {
             //Is this fib route an extra route? If yes, get the nexthop which would be an adjacency in the vpn
             Extraroute extraRoute = getVpnToExtraroute(rd, vrfEntry.getDestPrefix());
-            if (extraRoute != null) {
+            if (extraRoute != null && extraRoute.getNexthopIpList() != null) {
                 for (String nextHopIp : extraRoute.getNexthopIpList()) {
                     LOG.debug("NextHop IP for destination {} is {}", vrfEntry.getDestPrefix(), nextHopIp);
                     if (nextHopIp != null) {
@@ -1963,8 +1963,10 @@ public class VrfEntryListener extends AbstractDataChangeListener<VrfEntry> imple
                     prefixIpList = Arrays.asList(vrfEntry.getDestPrefix());
                 } else {
                     prefixIpList = new ArrayList<>();
-                    for (String extraRouteIp : extra_route.getNexthopIpList()) {
-                        prefixIpList.add(extraRouteIp + "/32");
+                    if (extra_route.getNexthopIpList() != null) {
+                        for (String extraRouteIp : extra_route.getNexthopIpList()) {
+                            prefixIpList.add(extraRouteIp + "/32");
+                        }
                     }
                 }
             } else {
