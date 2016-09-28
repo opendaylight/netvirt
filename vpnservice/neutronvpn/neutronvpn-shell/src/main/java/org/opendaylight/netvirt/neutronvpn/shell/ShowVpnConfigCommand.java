@@ -14,7 +14,7 @@ import org.apache.karaf.shell.console.OsgiCommandSupport;
 import org.opendaylight.netvirt.neutronvpn.interfaces.INeutronVpnManager;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 
-@Command(scope = "vpnservice", name = "l3vpn-config-show", description = "Displays Neutron L3VPN configuration")
+@Command(scope = "vpnservice", name = "vpn-config-show", description = "Displays Neutron L3VPN configuration")
 public class ShowVpnConfigCommand extends OsgiCommandSupport {
 
     @Option(name = "-vid", aliases = {"--vpnid"}, description = "VPN ID", required = false, multiValued = false)
