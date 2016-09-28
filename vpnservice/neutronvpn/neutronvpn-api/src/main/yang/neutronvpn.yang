@@ -84,7 +84,7 @@ module neutronvpn {
         }
     }
 
-    grouping l3vpn-instance{
+    grouping vpn-instance{
 
         leaf id {
             mandatory "true";
@@ -132,6 +132,30 @@ module neutronvpn {
           type    yang:uuid;
           description "UUID representing the network ";
         }
+
+        leaf type {
+           description
+              "The type of the VPN Instance.
+               L3 indicates it is an L3VPN.
+               L2 indicates it is EVPN";
+
+           type enumeration {
+              enum l3 {
+                 value "0";
+                 description “L3VPN";
+              }
+              enum l2 {
+                 value "1";
+                 description "EVPN";
+              }
+           }
+           default "l3";
+        }
+        leaf l3vni {
+           type uint32;
+           mandatory false;
+        }
+
     }
 
     container vpnMaps {
@@ -202,10 +226,10 @@ module neutronvpn {
     }
 
     rpc createL3VPN{
-        description "Create one or more L3 VPN";
+        description "Create one or more L3VPN";
         input {
             list l3vpn {
-                uses l3vpn-instance;
+                uses vpn-instance;
             }
         }
         output {
@@ -316,7 +340,7 @@ module neutronvpn {
         }
         output {
             list l3vpn-instances {
-                uses l3vpn-instance;
+                uses vpn-instance;
             }
         }
     }

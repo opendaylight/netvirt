@@ -19,8 +19,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev15060
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.DeleteL3VPNInputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.DeleteL3VPNOutput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.NeutronvpnService;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.createl3vpn.input.L3vpn;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.createl3vpn.input.L3vpnBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.createl3vpn.input.Vpn;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.createl3vpn.input.VpnBuilder;
 import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -147,13 +147,13 @@ public class ConfigureL3VpnCommand extends OsgiCommandSupport {
                 tuuid = new Uuid(tid);
             }
 
-            List<L3vpn> l3vpns = new ArrayList<>();
-            L3vpn l3vpn = new L3vpnBuilder().setId(vuuid).setName(name).setRouteDistinguisher(rdList).setImportRT
+            List<Vpn> l3vpns = new ArrayList<>();
+            Vpn l3vpn = new VpnBuilder().setId(vuuid).setName(name).setRouteDistinguisher(rdList).setImportRT
                     (irtList)
                     .setExportRT(ertList).setTenantId(tuuid).build();
             l3vpns.add(l3vpn);
             Future<RpcResult<CreateL3VPNOutput>> result =
-                    neutronvpnService.createL3VPN(new CreateL3VPNInputBuilder().setL3vpn(l3vpns).build());
+                    neutronvpnService.createL3VPN(new CreateL3VPNInputBuilder().setVpn(l3vpns).build());
             RpcResult<CreateL3VPNOutput> rpcResult = result.get();
             if (rpcResult.isSuccessful()) {
                 session.getConsole().println("L3VPN created successfully");
