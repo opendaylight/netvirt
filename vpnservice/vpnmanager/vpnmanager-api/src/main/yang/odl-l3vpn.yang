@@ -162,25 +162,46 @@ module odl-l3vpn {
                    leaf ip-address { type string; }
                }
                leaf dpn-state {
-           	        description
-           	        "This flag indicates the state of the DPN.
-           	        Active state indicates atleast one vpn interface present on that DPN for the vpn.
-           	        Inactive state indicates no vpn interface present on that DPN for this vpn.";
+                  description
+                  "This flag indicates the state of the DPN.
+                   Active state indicates atleast one vpn interface present on that DPN for the vpn.
+                   Inactive state indicates no vpn interface present on that DPN for this vpn.";
 
-                    type enumeration {
-                         enum active {
-                            value "0";
-                            description
-           	                "Active state";
-           	             }
-           	             enum inactive {
-           	                 value "1";
-           	                 description
-           	                 "Inactive state";
-           	             }
-           	        }
-           	        default "active";
-           	   }
+                  type enumeration {
+                     enum active {
+                        value "0";
+                        description
+                        "Active state";
+                     }
+                     enum inactive {
+                        value "1";
+                        description
+                        "Inactive state";
+                     }
+                  }
+                  default "active";
+               }
+           }
+           leaf type {
+              description
+                 "The type of the VPN Instance.
+                  ipvpn indicates it is an L3VPN.
+                  evpn indicates it is an EVPN";
+
+              type enumeration {
+                 enum ipvpn {
+                    value "0";
+                    description “L3VPN";
+                 }
+                 enum evpn{
+                    value "1";
+                    description "EVPN";
+                 }
+              }
+              default "ipvpn";
+           }
+           leaf l3vni {
+              type uint32;
            }
            container vpnTargets {
               description
