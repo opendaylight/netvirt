@@ -16,6 +16,24 @@
       "revId": "fa00939409651a0c74f918a33e6798356cf95420",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_c974d3d0",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/VpnFloatingIpHandler.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 155,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-09-28T10:38:32Z",
+      "side": 1,
+      "message": "You are right :)\n\nThis additional condition is a tailgate from previous patchsets.. Let me remove it in the next PS ..\n\nIf dpnId happens to be zero, check should be ensured by the caller and not here !",
+      "parentUuid": "7a6b29fe_29daa716",
+      "revId": "fa00939409651a0c74f918a33e6798356cf95420",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
