@@ -79,6 +79,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.por
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.ports.attributes.ports.PortKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.portsecurity.rev150712.PortSecurityExtension;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.provider.ext.rev150712.NetworkProviderExtension;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.provider.ext.rev150712.neutron.networks.network.Segments;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.qos.rev160613.qos.attributes.qos.policies.QosPolicy;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.rev150712.Neutron;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.subnets.rev150712.subnets.attributes.Subnets;
@@ -1110,5 +1111,50 @@ public class NeutronvpnUtils {
             ret[i] = Integer.valueOf(octets[i], 16).byteValue();
         }
         return ret;
+    }
+
+    protected static long getVniForNetwork(DataBroker dataBroker, Uuid networkId) {
+        long vni= 0;
+        Network network = getNeutronNetwork(dataBroker, networkId);
+        String segmentationId = getSegmentationIdFromNeutronNetwork(network);
+        if (segmentationId != null) {
+            vni = Long.valueOf(segmentationId);
+        }
+        return vni;
+    }
+
+    protected static String getSegmentationIdFromNeutronNetwork(Network network) {
+        String segmentationId = null;
+        NetworkProviderExtension providerExtension = network.getAugmentation(NetworkProviderExtension.class);
+        if (providerExtension != null) {
+            segmentationId = getSegmentationIdFromNeutronNetwork(network, NetworkTypeVxlan.class);
+        }
+
+        return segmentationId;
+    }
+
+    protected static <T extends NetworkTypeBase> String getSegmentationIdFromNeutronNetwork(Network network,
+                                                                                         Class<T> networkType) {
+        String segmentationId = null;
+        NetworkProviderExtension providerExtension = network.getAugmentation(NetworkProviderExtension.class);
+        if (providerExtension != null) {
+            segmentationId = providerExtension.getSegmentationId();
+            if (segmentationId == null) {
+                List<Segments> providerSegments = providerExtension.getSegments();
+                    for (Segments providerSegment: providerSegments) {
+                        if (isNetworkSegmentType(providerSegment, networkType)) {
+                            segmentationId = providerSegment.getSegmentationId();
+                            break;
+                        }
+                    }
+            }
+        }
+        return segmentationId;
+    }
+
+    protected static <T extends NetworkTypeBase> boolean isNetworkSegmentType(Segments providerSegment,
+                                                                    Class<T> expectedNetworkType) {
+        Class<? extends NetworkTypeBase> networkType = providerSegment.getNetworkType();
+        return (networkType != null && networkType.isAssignableFrom(expectedNetworkType));
     }
 }
