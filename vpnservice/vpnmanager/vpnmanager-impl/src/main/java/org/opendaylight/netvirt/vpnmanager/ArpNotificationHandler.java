@@ -9,6 +9,7 @@ package org.opendaylight.netvirt.vpnmanager;
 
 import com.google.common.base.Optional;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
+import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.mdsalutil.MetaDataUtil;
 import org.opendaylight.netvirt.elanmanager.api.IElanService;
@@ -52,6 +53,7 @@ import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.JdkFutureAdapters;
 import java.util.concurrent.Future;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import org.slf4j.Logger;
@@ -143,7 +145,7 @@ public class ArpNotificationHandler implements OdlArputilListener {
                 } else {
                     synchronized ((vpnName + ipToQuery).intern()) {
                         VpnUtil.createVpnPortFixedIpToPort(dataBroker, vpnName, ipToQuery, srcInterface, srcMac.getValue(), false, false, true);
-                        addMipAdjacency(vpnName, srcInterface, srcIP);
+                        addMipAdjacency(vpnName, srcInterface, srcIP, null);
                     }
                 }
                 String targetIpToQuery = notification.getDstIpaddress().getIpv4Address().getValue();
@@ -261,7 +263,7 @@ public class ArpNotificationHandler implements OdlArputilListener {
                 } else {
                     synchronized ((vpnName + ipToQuery).intern()) {
                         VpnUtil.createVpnPortFixedIpToPort(dataBroker, vpnName, ipToQuery, srcInterface, srcMac.getValue(), false, false, true);
-                        addMipAdjacency(vpnName, srcInterface, srcIP);
+                        addMipAdjacency(vpnName, srcInterface, srcIP, srcMac.getValue());
                     }
                 }
             }
@@ -321,7 +323,7 @@ public class ArpNotificationHandler implements OdlArputilListener {
         });
     }
 
-    private void addMipAdjacency(String vpnName, String vpnInterface, IpAddress prefix){
+    private void addMipAdjacency(String vpnName, String vpnInterface, IpAddress prefix, String newIntMac){
 
         LOG.trace("Adding {} adjacency to VPN Interface {} ",prefix,vpnInterface);
         InstanceIdentifier<VpnInterface> vpnIfId = VpnUtil.getVpnInterfaceIdentifier(vpnInterface);
@@ -330,6 +332,7 @@ public class ArpNotificationHandler implements OdlArputilListener {
             Optional<Adjacencies> adjacencies = VpnUtil.read(dataBroker, LogicalDatastoreType.CONFIGURATION, path);
             String nextHopIpAddr = null;
             String nextHopMacAddress = null;
+            String nextHopIp  = null;
             String ip = prefix.getIpv4Address().getValue();
             if (adjacencies.isPresent()) {
                 List<Adjacency> adjacencyList = adjacencies.get().getAdjacency();
@@ -341,13 +344,17 @@ public class ArpNotificationHandler implements OdlArputilListener {
                         break;
                     }
                 }
-                if (nextHopMacAddress != null && ip != null) {
+                if (nextHopMacAddress != null || newIntMac != null) {
                     String rd = VpnUtil.getVpnRd(dataBroker, vpnName);
                     long label =
                             VpnUtil.getUniqueId(idManager, VpnConstants.VPN_IDPOOL_NAME,
                                     VpnUtil.getNextHopLabelKey((rd != null) ? rd : vpnName, ip));
-                    String nextHopIp = nextHopIpAddr.split("/")[0];
-                    Adjacency newAdj = new AdjacencyBuilder().setIpAddress(ip).setKey
+                    if (nextHopIpAddr != null) {
+                        nextHopIp = nextHopIpAddr.split("/")[0];
+                    } else {
+                        nextHopIp = ip.split("/")[0];
+                    }
+                    Adjacency newAdj = new AdjacencyBuilder().setIpAddress(ip).setMacAddress(newIntMac).setKey
                             (new AdjacencyKey(ip)).setNextHopIpList(Arrays.asList(nextHopIp)).build();
                     adjacencyList.add(newAdj);
                     Adjacencies aug = VpnUtil.getVpnInterfaceAugmentation(adjacencyList);
@@ -356,12 +363,11 @@ public class ArpNotificationHandler implements OdlArputilListener {
                             .build();
                     VpnUtil.syncUpdate(dataBroker, LogicalDatastoreType.CONFIGURATION, vpnIfId, newVpnIntf);
                     LOG.debug(" Successfully stored subnetroute Adjacency into VpnInterface {}", vpnInterface);
-                }
+                } 
             }
         }
-
     }
-
+    
     private void removeMipAdjacency(String vpnName, String vpnInterface, IpAddress prefix) {
         String ip = VpnUtil.getIpPrefix(prefix.getIpv4Address().getValue());
         LOG.trace("Removing {} adjacency from Old VPN Interface {} ", ip,vpnInterface);
