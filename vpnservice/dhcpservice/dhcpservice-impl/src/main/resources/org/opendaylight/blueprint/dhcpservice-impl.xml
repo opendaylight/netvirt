@@ -36,6 +36,7 @@
     <argument ref="dhcpServiceConfig" />
     <argument ref="dataBroker" />
     <argument ref="dhcpExternalTunnelManager" />
+    <argument ref="interfaceManager"/>
   </bean>
 
   <bean id="dhcpExternalTunnelManager" class="org.opendaylight.netvirt.dhcpservice.DhcpExternalTunnelManager"
@@ -44,10 +45,10 @@
     <argument ref="mdsalUtils" />
     <argument ref="itmRpcService" />
     <argument ref="entityOwnershipService" />
+    <argument ref="interfaceManager"/>
   </bean>
 
   <bean id="dhcpPktHandler" class="org.opendaylight.netvirt.dhcpservice.DhcpPktHandler">
-    <argument ref="dataBroker" />
     <argument ref="dhcpManager" />
     <argument ref="dhcpExternalTunnelManager" />
     <argument ref="odlInterfaceRpcService" />
