@@ -84,7 +84,7 @@ module neutronvpn {
         }
     }
 
-    grouping l3vpn-instance{
+    grouping vpn-instance{
 
         leaf id {
             mandatory "true";
@@ -132,6 +132,26 @@ module neutronvpn {
           type    yang:uuid;
           description "UUID representing the network ";
         }
+
+        leaf type {
+           description
+              "The type of the VPN Instance.
+               L3 indicates it is an L3VPN.
+               L2 indicates it is EVPN";
+
+           type enumeration {
+              enum l3 {
+                 value "0";
+                 description “L3VPN";
+              }
+              enum l2 {
+                 value "1";
+                 description "EVPN";
+              }
+           }
+           default "l3";
+        }
+
     }
 
     container vpnMaps {
@@ -201,11 +221,11 @@ module neutronvpn {
         }
     }
 
-    rpc createL3VPN{
-        description "Create one or more L3 VPN";
+    rpc createVPN{
+        description "Create one or more VPN";
         input {
-            list l3vpn {
-                uses l3vpn-instance;
+            list vpn {
+                uses vpn-instance;
             }
         }
         output {
@@ -290,7 +310,7 @@ module neutronvpn {
         }
     }
 
-    rpc deleteL3VPN{
+    rpc deleteVPN{
         description "delete VPNs for specified Id list";
         input {
             leaf-list id {
@@ -301,12 +321,12 @@ module neutronvpn {
         output {
             leaf-list response {
                 type    string;
-                description "Status response for deleteL3VPN RPC";
+                description "Status response for deleteVPN RPC";
             }
         }
     }
 
-    rpc getL3VPN{
+    rpc getVPN{
         description "returns VPN configuration";
         input {
             leaf id {
@@ -315,8 +335,8 @@ module neutronvpn {
             }
         }
         output {
-            list l3vpn-instances {
-                uses l3vpn-instance;
+            list vpn-instances {
+                uses vpn-instance;
             }
         }
     }
