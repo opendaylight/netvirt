@@ -84,7 +84,7 @@ module neutronvpn {
         }
     }
 
-    grouping l3vpn-instance{
+    grouping vpn-instance{
 
         leaf id {
             mandatory "true";
@@ -207,7 +207,7 @@ module neutronvpn {
         description "Create one or more L3VPN(s)";
         input {
             list l3vpn {
-                uses l3vpn-instance;
+                uses vpn-instance;
             }
         }
         output {
@@ -318,7 +318,7 @@ module neutronvpn {
         }
         output {
             list l3vpn-instances {
-                uses l3vpn-instance;
+                uses vpn-instance;
             }
         }
     }
