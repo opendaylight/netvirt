@@ -107,7 +107,7 @@ public class NeutronNetworkChangeListener extends AsyncDataTreeChangeListenerBas
         if (NeutronvpnUtils.getIsExternal(input)) {
             if (NeutronvpnUtils.isFlatOrVlanNetwork(input)) {
                 nvpnManager.removeExternalVpnInterfaces(input.getUuid());
-                nvpnManager.removeL3Vpn(input.getUuid());
+                nvpnManager.removeVpn(input.getUuid());
             }
             nvpnNatManager.removeExternalNetwork(input);
         }
