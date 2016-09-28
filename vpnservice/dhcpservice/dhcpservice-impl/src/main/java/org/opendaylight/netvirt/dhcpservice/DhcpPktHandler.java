@@ -64,7 +64,6 @@ public class DhcpPktHandler implements PacketProcessingListener {
 
     private static final Logger LOG = LoggerFactory.getLogger(DhcpPktHandler.class);
 
-    private final DataBroker dataBroker;
     private final DhcpManager dhcpMgr;
     private final OdlInterfaceRpcService interfaceManagerRpc;
     private final PacketProcessingService pktService;
@@ -74,8 +73,7 @@ public class DhcpPktHandler implements PacketProcessingListener {
 
     private boolean computeUdpChecksum = true;
 
-    public DhcpPktHandler(final DataBroker broker,
-                          final DhcpManager dhcpManager,
+    public DhcpPktHandler(final DhcpManager dhcpManager,
                           final DhcpExternalTunnelManager dhcpExternalTunnelManager,
                           final OdlInterfaceRpcService interfaceManagerRpc,
                           final PacketProcessingService pktService,
@@ -84,7 +82,6 @@ public class DhcpPktHandler implements PacketProcessingListener {
         this.interfaceManagerRpc = interfaceManagerRpc;
         this.pktService = pktService;
         this.dhcpExternalTunnelManager = dhcpExternalTunnelManager;
-        this.dataBroker = broker;
         this.dhcpMgr = dhcpManager;
         this.interfaceManager = interfaceManager;
         this.config = config;
@@ -106,15 +103,19 @@ public class DhcpPktHandler implements PacketProcessingListener {
                 ethPkt.deserialize(inPayload, 0, inPayload.length * NetUtils.NumBitsInAByte);
             } catch (Exception e) {
                 LOG.warn("Failed to decode DHCP Packet {}", e);
-                LOG.trace("Received packet {}", packet);
+                if (LOG.isTraceEnabled()) {
+                    LOG.trace("Received packet {}", packet);
+                }
                 return;
             }
             try {
                 DHCP pktIn;
                 pktIn = getDhcpPktIn(ethPkt);
                 if (pktIn != null) {
-                    LOG.trace("DHCPPkt received: {}", pktIn);
-                    LOG.trace("Received Packet: {}", packet);
+                    if (LOG.isTraceEnabled()) {
+                        LOG.trace("DHCPPkt received: {}", pktIn);
+                        LOG.trace("Received Packet: {}", packet);
+                    }
                     BigInteger metadata = packet.getMatch().getMetadata().getMetadata();
                     long portTag = MetaDataUtil.getLportFromMetadata(metadata).intValue();
                     String macAddress = DHCPUtils.byteArrayToString(ethPkt.getSourceMACAddress());
@@ -131,27 +132,36 @@ public class DhcpPktHandler implements PacketProcessingListener {
                 }
             } catch (Exception e) {
                 LOG.warn("Failed to get DHCP Reply");
-                LOG.trace("Reason for failure {}", e);
+                if (LOG.isTraceEnabled()) {
+                    LOG.trace("Reason for failure {}", e);
+                }
             }
         }
     }
 
     private void sendPacketOut(byte[] pktOut, BigInteger dpnId, String interfaceName, BigInteger tunnelId) {
-        LOG.trace("Sending packet out DpId {}, portId {}, vlanId {}, interfaceName {}", dpnId, interfaceName);
         List<Action> action = getEgressAction(interfaceName, tunnelId);
         TransmitPacketInput output = MDSALUtil.getPacketOut(action, pktOut, dpnId);
-        LOG.trace("Transmitting packet: {}",output);
+        if (LOG.isTraceEnabled()) {
+            LOG.trace("Transmitting packet: {}",output);
+        }
         this.pktService.transmitPacket(output);
     }
 
     private DHCP handleDhcpPacket(DHCP dhcpPkt, String interfaceName, String macAddress, BigInteger tunnelId) {
-        LOG.debug("DHCP pkt rcvd {}", dhcpPkt);
+        if (LOG.isTraceEnabled()) {
+            LOG.trace("DHCP pkt rcvd {}", dhcpPkt);
+        }
         byte msgType = dhcpPkt.getMsgType();
         if (msgType == DHCPConstants.MSG_DECLINE) {
-            LOG.debug("DHCPDECLINE received");
+            if (LOG.isTraceEnabled()) {
+                LOG.trace("DHCPDECLINE received");
+            }
             return null;
         } else if (msgType == DHCPConstants.MSG_RELEASE) {
-            LOG.debug("DHCPRELEASE received");
+            if (LOG.isTraceEnabled()) {
+                LOG.trace("DHCPRELEASE received");
+            }
             return null;
         }
         Port nPort;
@@ -162,7 +172,9 @@ public class DhcpPktHandler implements PacketProcessingListener {
         }
         Subnet nSubnet = getNeutronSubnet(nPort);
         DhcpInfo dhcpInfo = getDhcpInfo(nPort, nSubnet);
-        LOG.trace("NeutronPort: {} \n NeutronSubnet: {}, dhcpInfo{}",nPort, nSubnet, dhcpInfo);
+        if (LOG.isTraceEnabled()) {
+            LOG.trace("NeutronPort: {} \n NeutronSubnet: {}, dhcpInfo{}",nPort, nSubnet, dhcpInfo);
+        }
         DHCP reply = null;
         if (dhcpInfo != null) {
             if (msgType == DHCPConstants.MSG_DISCOVER) {
@@ -208,14 +220,18 @@ public class DhcpPktHandler implements PacketProcessingListener {
                 UDP udpPkt = (UDP) ipPkt.getPayload();
                 if ((udpPkt.getSourcePort() == DHCPMConstants.dhcpClientPort)
                         && (udpPkt.getDestinationPort() == DHCPMConstants.dhcpServerPort)) {
-                    LOG.trace("Matched dhcpClientPort and dhcpServerPort");
+                    if (LOG.isTraceEnabled()) {
+                        LOG.trace("Matched dhcpClientPort and dhcpServerPort");
+                    }
                     byte[] rawDhcpPayload = udpPkt.getRawPayload();
                     DHCP reply = new DHCP();
                     try {
                         reply.deserialize(rawDhcpPayload, 0, rawDhcpPayload.length);
                     } catch (PacketException e) {
                         LOG.warn("Failed to deserialize DHCP pkt");
-                        LOG.trace("Reason for failure {}", e);
+                        if (LOG.isTraceEnabled()) {
+                            LOG.trace("Reason for failure {}", e);
+                        }
                         return null;
                     }
                     return reply;
@@ -295,7 +311,9 @@ public class DhcpPktHandler implements PacketProcessingListener {
              */
             return null;
         }
-        LOG.debug("Sending DHCP Pkt {}", reply);
+        if (LOG.isTraceEnabled()) {
+            LOG.trace("Sending DHCP Pkt {}", reply);
+        }
         // create UDP pkt
         UDP udpPkt = new UDP();
         byte[] rawPkt;
@@ -473,7 +491,9 @@ public class DhcpPktHandler implements PacketProcessingListener {
                 setOptionClasslessRoute(reply, dhcpInfo);
                 break;
             default:
-                LOG.debug("DHCP Option code {} not supported yet", paramList[i]);
+                if (LOG.isTraceEnabled()) {
+                    LOG.trace("DHCP Option code {} not supported yet", paramList[i]);
+                }
                 break;
             }
         }
@@ -498,7 +518,9 @@ public class DhcpPktHandler implements PacketProcessingListener {
             try {
                 result.write(convertToClasslessRouteOption(dest, router));
             } catch (IOException | NullPointerException e) {
-                LOG.debug("Exception {}",e.getMessage());
+                if (LOG.isTraceEnabled()) {
+                    LOG.trace("Exception {}",e.getMessage());
+                }
             }
         }
         if (result.size() > 0) {
@@ -555,7 +577,9 @@ public class DhcpPktHandler implements PacketProcessingListener {
         } catch (InterruptedException | ExecutionException e) {
             LOG.error("Error while retrieving the interfaceName from tag using getInterfaceFromIfIndex RPC");
         }
-        LOG.trace("Returning interfaceName {} for tag {} form getInterfaceNameFromTag", interfaceName, portTag);
+        if (LOG.isTraceEnabled()) {
+            LOG.trace("Returning interfaceName {} for tag {} form getInterfaceNameFromTag", interfaceName, portTag);
+        }
         return interfaceName;
     }
 

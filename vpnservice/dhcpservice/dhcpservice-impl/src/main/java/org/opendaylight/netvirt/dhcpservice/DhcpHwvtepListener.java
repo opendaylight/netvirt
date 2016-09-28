@@ -50,15 +50,21 @@ public class DhcpHwvtepListener extends AsyncDataTreeChangeListenerBase<Node, Dh
     @Override
     protected void remove(InstanceIdentifier<Node> identifier,
             Node del) {
-        logger.trace("Received Hwvtep remove DCN {}", del);
+        if (logger.isTraceEnabled()) {
+            logger.trace("Received Hwvtep remove DCN {}", del);
+        }
         HwvtepGlobalAugmentation hwvtepNode = del.getAugmentation(HwvtepGlobalAugmentation.class);
         if (hwvtepNode == null) {
-            logger.trace("LogicalSwitch is not present");
+            if (logger.isTraceEnabled()) {
+                logger.trace("LogicalSwitch is not present");
+            }
             return;
         }
         List<LogicalSwitches> logicalSwitches = hwvtepNode.getLogicalSwitches();
         if (logicalSwitches == null || logicalSwitches.isEmpty()) {
-            logger.trace("LogicalSwitch is not added");
+            if (logger.isTraceEnabled()) {
+                logger.trace("LogicalSwitch is not added");
+            }
             return;
         }
         for (LogicalSwitches logicalSwitch : logicalSwitches) {
@@ -82,7 +88,9 @@ public class DhcpHwvtepListener extends AsyncDataTreeChangeListenerBase<Node, Dh
         BigInteger designatedDpnId;
         designatedDpnId = dhcpExternalTunnelManager.readDesignatedSwitchesForExternalTunnel(tunnelIp, elanInstanceName);
         if (designatedDpnId == null) {
-            logger.info("Could not find designated DPN ID elanInstanceName {}, tunnelIp {}", elanInstanceName, tunnelIp);
+            if (logger.isInfoEnabled()) {
+                logger.info("Could not find designated DPN ID elanInstanceName {}, tunnelIp {}", elanInstanceName, tunnelIp);
+            }
             return;
         }
         dhcpExternalTunnelManager.removeDesignatedSwitchForExternalTunnel(designatedDpnId, tunnelIp, elanInstanceName);
@@ -99,4 +107,3 @@ public class DhcpHwvtepListener extends AsyncDataTreeChangeListenerBase<Node, Dh
         return DhcpHwvtepListener.this;
     }
 }
-

@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.concurrent.Callable;
 
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
+import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
 import org.opendaylight.netvirt.dhcpservice.DhcpExternalTunnelManager;
 import org.opendaylight.netvirt.dhcpservice.DhcpManager;
 import org.opendaylight.netvirt.dhcpservice.DhcpServiceUtils;
@@ -34,9 +35,10 @@ public class DhcpInterfaceUpdateJob implements Callable<List<ListenableFuture<Vo
     String interfaceName;
     BigInteger dpnId;
     OperStatus operStatus;
+    IInterfaceManager interfaceManager;
 
     public DhcpInterfaceUpdateJob(DhcpManager dhcpManager, DhcpExternalTunnelManager dhcpExternalTunnelManager, DataBroker dataBroker,
-            String interfaceName, BigInteger dpnId, OperStatus operStatus) {
+            String interfaceName, BigInteger dpnId, OperStatus operStatus, IInterfaceManager interfaceManager) {
         super();
         this.dhcpManager = dhcpManager;
         this.dhcpExternalTunnelManager = dhcpExternalTunnelManager;
@@ -44,15 +46,18 @@ public class DhcpInterfaceUpdateJob implements Callable<List<ListenableFuture<Vo
         this.interfaceName = interfaceName;
         this.dpnId = dpnId;
         this.operStatus = operStatus;
+        this.interfaceManager = interfaceManager;
     }
 
     @Override
     public List<ListenableFuture<Void>> call() throws Exception {
         List<ListenableFuture<Void>> futures = new ArrayList<>();
         org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface iface =
-                DhcpServiceUtils.getInterfaceFromConfigDS(interfaceName, dataBroker);
+                interfaceManager.getInterfaceInfoFromConfigDataStore(interfaceName);
         if (iface == null) {
-            LOG.trace("Interface {} is not present in the config DS", interfaceName);
+            if (LOG.isTraceEnabled()) {
+                LOG.trace("Interface {} is not present in the config DS", interfaceName);
+            }
             return futures;
         }
         if (Tunnel.class.equals(iface.getType())) {
