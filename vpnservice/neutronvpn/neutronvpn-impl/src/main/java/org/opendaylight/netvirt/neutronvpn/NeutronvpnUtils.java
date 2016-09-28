@@ -79,6 +79,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.por
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.ports.attributes.ports.PortKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.portsecurity.rev150712.PortSecurityExtension;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.provider.ext.rev150712.NetworkProviderExtension;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.provider.ext.rev150712.neutron.networks.network.Segments;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.qos.rev160613.qos.attributes.qos.policies.QosPolicy;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.rev150712.Neutron;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.subnets.rev150712.subnets.attributes.Subnets;
@@ -1092,5 +1093,22 @@ public class NeutronvpnUtils {
             ret[i] = Integer.valueOf(octets[i], 16).byteValue();
         }
         return ret;
+    }
+
+    protected static int getUniqueId(IdManagerService idManager, String poolName, String idKey) {
+        AllocateIdInput getIdInput = new AllocateIdInputBuilder().setPoolName(poolName).setIdKey(idKey).build();
+
+        try {
+            Future<RpcResult<AllocateIdOutput>> result = idManager.allocateId(getIdInput);
+            RpcResult<AllocateIdOutput> rpcResult = result.get();
+            if (rpcResult.isSuccessful()) {
+                return rpcResult.getResult().getIdValue().intValue();
+            } else {
+                logger.warn("RPC Call to Get Unique Id returned with Errors {}", rpcResult.getErrors());
+            }
+        } catch (InterruptedException | ExecutionException e) {
+            logger.warn("Exception when getting Unique Id", e);
+        }
+        return 0;
     }
 }
