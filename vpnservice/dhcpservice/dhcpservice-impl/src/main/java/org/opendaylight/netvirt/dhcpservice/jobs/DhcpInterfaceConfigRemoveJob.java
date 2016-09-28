@@ -45,7 +45,9 @@ public class DhcpInterfaceConfigRemoveJob implements Callable<List<ListenableFut
             IpAddress tunnelIp = tunnelInterface.getTunnelDestination();
             ParentRefs interfce = iface.getAugmentation(ParentRefs.class);
             if (interfce != null) {
-                LOG.trace("Calling handleTunnelStateDown for tunnelIp {} and interface {}", tunnelIp, iface.getName());
+                if (LOG.isTraceEnabled()) {
+                    LOG.trace("Calling handleTunnelStateDown for tunnelIp {} and interface {}", tunnelIp, iface.getName());
+                }
                 dhcpExternalTunnelManager.handleTunnelStateDown(tunnelIp, interfce.getDatapathNodeIdentifier(), futures);
             }
         }
