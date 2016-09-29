@@ -419,11 +419,12 @@ public class VpnInstanceListener extends AsyncDataTreeChangeListenerBase<VpnInst
         } catch (Exception e) {
             LOG.error(e.getMessage());
         }
-
+        VpnInstanceOpDataEntryBuilder builder =
+                new VpnInstanceOpDataEntryBuilder().setVpnId(vpnId)
+                        .setVpnInstanceName(vpnInstanceName);
+        setVpnInstanceType(value.getType(), builder);
         if (rd == null) {
-            VpnInstanceOpDataEntryBuilder builder =
-                    new VpnInstanceOpDataEntryBuilder().setVrfId(vpnInstanceName).setVpnId(vpnId)
-                            .setVpnInstanceName(vpnInstanceName);
+            builder.setVrfId(vpnInstanceName);
             if (writeOperTxn != null) {
                 writeOperTxn.merge(LogicalDatastoreType.OPERATIONAL,
                         VpnUtil.getVpnInstanceOpDataIdentifier(vpnInstanceName),
@@ -434,8 +435,7 @@ public class VpnInstanceListener extends AsyncDataTreeChangeListenerBase<VpnInst
                          builder.build(), TransactionUtil.DEFAULT_CALLBACK);
             }
         } else {
-            VpnInstanceOpDataEntryBuilder builder = new VpnInstanceOpDataEntryBuilder()
-                    .setVrfId(rd).setVpnId(vpnId).setVpnInstanceName(vpnInstanceName);
+            builder.setVrfId(rd);
 
             List<org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.vpn.instance.op.data.entry.vpntargets.VpnTarget> opVpnTargetList = new ArrayList<>();
             VpnTargets vpnTargets = config.getVpnTargets();
@@ -463,6 +463,14 @@ public class VpnInstanceListener extends AsyncDataTreeChangeListenerBase<VpnInst
                         VpnUtil.getVpnInstanceOpDataIdentifier(rd),
                         builder.build(), TransactionUtil.DEFAULT_CALLBACK);
             }
+        }
+    }
+
+    private void setVpnInstanceType(VpnInstance.Type type, VpnInstanceOpDataEntryBuilder builder) {
+        if (type.equals(VpnInstance.Type.L2)) {
+            builder.setType(VpnInstanceOpDataEntry.Type.L2);
+        } else {
+            builder.setType(VpnInstanceOpDataEntry.Type.L3);
         }
     }
 
