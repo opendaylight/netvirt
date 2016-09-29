@@ -49,6 +49,18 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
             </action>
         </command>
 
+        <command>
+            <action class="org.opendaylight.netvirt.neutronvpn.shell.ShowNeutronVpnPort">
+                <property name="dataBroker" ref="dataBrokerRef"/>
+            </action>
+        </command>
+
+        <command>
+            <action class="org.opendaylight.netvirt.neutronvpn.shell.ShowSubnet">
+                <property name="dataBroker" ref="dataBrokerRef"/>
+            </action>
+        </command>
+
     </command-bundle>
 
 </blueprint>
