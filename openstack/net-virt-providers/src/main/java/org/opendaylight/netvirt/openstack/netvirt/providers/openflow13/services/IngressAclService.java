@@ -236,6 +236,8 @@ public class IngressAclService extends AbstractServiceInstance implements Ingres
             addTcpSynFlagMatchIpv6Drop(dpid, segmentationId, attachMac, write,
                 Constants.PROTO_TCP_SYN_MATCH_PRIORITY_DROP);
         }
+        // add rule to drop icmp packets from the vm
+        addIcmpDropRule(dpid, segmentationId, attachMac, write, Constants.PROTO_ICMP_DROP_PRIORITY);
         programArpRule(dpid, segmentationId, localPort, attachMac, write);
     }
 
@@ -257,6 +259,18 @@ public class IngressAclService extends AbstractServiceInstance implements Ingres
         MatchBuilder matchBuilder = new MatchBuilder();
         matchBuilder = MatchUtils.createV6EtherMatchWithType(matchBuilder,null,dstMac);
         matchBuilder = MatchUtils.addTcpSynMatch(matchBuilder);
+        FlowBuilder flowBuilder = FlowUtils.createFlowBuilder(flowId, priority, matchBuilder, getTable());
+        addPipelineInstruction(flowBuilder, null, true);
+        NodeBuilder nodeBuilder = FlowUtils.createNodeBuilder(dpidLong);
+        syncFlow(flowBuilder, nodeBuilder, write);
+    }
+
+    private void addIcmpDropRule(Long dpidLong, String segmentationId, String dstMac,
+                                 boolean write, Integer priority) {
+        String flowId = "Ingress_ICMP_" + segmentationId + "_" + dstMac + "_DROP";
+        MatchBuilder matchBuilder = new MatchBuilder();
+        matchBuilder = MatchUtils.addIcmpMatch(matchBuilder);
+        matchBuilder = MatchUtils.createV4EtherMatchWithType(matchBuilder, null, dstMac, MatchUtils.ETHERTYPE_IPV4);
         FlowBuilder flowBuilder = FlowUtils.createFlowBuilder(flowId, priority, matchBuilder, getTable());
         addPipelineInstruction(flowBuilder, null, true);
         NodeBuilder nodeBuilder = FlowUtils.createNodeBuilder(dpidLong);

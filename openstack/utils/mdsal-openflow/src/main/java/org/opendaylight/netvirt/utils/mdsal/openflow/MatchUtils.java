@@ -625,6 +625,21 @@ public class MatchUtils {
     }
 
     /**
+     * Adds icmp match to the matchbuilder.
+     *
+     * @param matchBuilder the match builder
+     * @return matchBuilder match builder
+     */
+    public static MatchBuilder addIcmpMatch(MatchBuilder matchBuilder) {
+
+        // TCP Protocol Match
+        IpMatchBuilder ipMatch = new IpMatchBuilder(); // ipv4 version
+        ipMatch.setIpProtocol(ICMP_SHORT);
+        matchBuilder.setIpMatch(ipMatch.build());
+        return matchBuilder;
+    }
+
+    /**
      * Create dmac tcp port with flag match.
      *
      * @param matchBuilder the match builder

@@ -241,6 +241,8 @@ public class EgressAclService extends AbstractServiceInstance implements EgressA
         egressAclDhcpv6AllowClientTrafficFromVm(dpid, write, localPort,
                                                 Constants.PROTO_DHCP_CLIENT_TRAFFIC_MATCH_PRIORITY);
         programArpRule(dpid, segmentationId, localPort, attachedMac, write);
+        // add rule to drop icmp packets from the vm
+        addIcmpDropRule(dpid, segmentationId, attachedMac, write, Constants.PROTO_ICMP_DROP_PRIORITY);
         if (securityServicesManager.isConntrackEnabled()) {
             programEgressAclFixedConntrackRule(dpid, segmentationId, localPort, attachedMac, write);
         } else {
@@ -291,6 +293,18 @@ public class EgressAclService extends AbstractServiceInstance implements EgressA
         addPipelineInstruction(flowBuilder, null, false);
         NodeBuilder nodeBuilder = FlowUtils.createNodeBuilder(dpid);
         syncFlow(flowBuilder ,nodeBuilder, write);
+    }
+
+    private void addIcmpDropRule(Long dpidLong, String segmentationId, String srcMac,
+                             boolean write, Integer priority) {
+        String flowName = "Egress_ICMP_" + segmentationId + "_" + srcMac + "_DROP";
+        MatchBuilder matchBuilder = new MatchBuilder();
+        matchBuilder = MatchUtils.addIcmpMatch(matchBuilder);
+        matchBuilder = MatchUtils.createV4EtherMatchWithType(matchBuilder, srcMac, null, MatchUtils.ETHERTYPE_IPV4);
+        FlowBuilder flowBuilder = FlowUtils.createFlowBuilder(flowName, priority, matchBuilder, getTable());
+        addPipelineInstruction(flowBuilder, null, true);
+        NodeBuilder nodeBuilder = FlowUtils.createNodeBuilder(dpidLong);
+        syncFlow(flowBuilder, nodeBuilder, write);
     }
 
     private void programEgressAclFixedConntrackRule(Long dpid,
