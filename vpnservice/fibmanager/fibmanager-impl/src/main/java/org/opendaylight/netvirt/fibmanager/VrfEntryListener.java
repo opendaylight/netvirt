@@ -1764,8 +1764,8 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
                         RouterInterface routerInt = vrfEntry.getAugmentation(RouterInterface.class);
                         if (routerInt != null) {
                             LOG.trace( "Router augmented vrfentry found rd:{}, uuid:{}, ip:{}, mac:{}",
-                                    rd, routerInt.getUuid(), routerInt.getIpAddress(), routerInt.getMacAddress());
-                            installRouterFibEntry(vrfEntry, dpnId, vpnId, routerInt.getUuid(), routerInt.getIpAddress(),
+                                    rd, routerInt.getUuid(), vrfEntry.getDestPrefix(), routerInt.getMacAddress());
+                            installRouterFibEntry(vrfEntry, dpnId, vpnId, routerInt.getUuid(), vrfEntry.getDestPrefix(),
                                     new MacAddress(routerInt.getMacAddress()), NwConstants.ADD_FLOW);
                             continue;
                         }
@@ -1950,8 +1950,8 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
                                     RouterInterface routerInt = vrfEntry.getAugmentation(RouterInterface.class);
                                     if (routerInt != null) {
                                         LOG.trace("Router augmented vrfentry found for rd:{}, uuid:{}, ip:{}, mac:{}",
-                                                rd, routerInt.getUuid(), routerInt.getIpAddress(), routerInt.getMacAddress());
-                                        installRouterFibEntry(vrfEntry, dpnId, vpnId, routerInt.getUuid(), routerInt.getIpAddress(),
+                                                rd, routerInt.getUuid(), vrfEntry.getDestPrefix(), routerInt.getMacAddress());
+                                        installRouterFibEntry(vrfEntry, dpnId, vpnId, routerInt.getUuid(), vrfEntry.getDestPrefix(),
                                                 new MacAddress(routerInt.getMacAddress()), NwConstants.DEL_FLOW);
                                         continue;
                                     }
@@ -2219,7 +2219,7 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
         if (routerInt != null && vpnToDpnList != null) {
             String routerId = routerInt.getUuid();
             String macAddress = routerInt.getMacAddress();
-            String ipValue = routerInt.getIpAddress();
+            String ipValue = vrfEntry.getDestPrefix();
             LOG.trace("createFibEntries - Router augmented vrfentry found for for router uuid:{}, ip:{}, mac:{}",
                     routerId, ipValue, macAddress);
             for (VpnToDpnList vpnDpn : vpnToDpnList) {

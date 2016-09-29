@@ -9,11 +9,11 @@
 package org.opendaylight.netvirt.fibmanager.api;
 
 import com.google.common.util.concurrent.FutureCallback;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import java.math.BigInteger;
 import java.util.List;
-
+import org.opendaylight.controller.md.sal.binding.api.DataBroker;
+import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.VrfEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.RouterInterface;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.VrfEntry;
 
@@ -49,10 +49,11 @@ public interface IFibManager {
                                 String destPrefix,
                                 String destTepIp);
 
-    void addOrUpdateFibEntry(DataBroker broker, String rd, String prefix, List<String> nextHopList,
-                             int label, RouteOrigin origin, WriteTransaction writeConfigTxn);
+    void addOrUpdateFibEntry(DataBroker broker, String rd, String macAddress, String prefix, List<String> nextHopList,
+                             VrfEntry.EncapType encapType, int label, long l3vni, String gatewayMacAddress,
+                             RouteOrigin origin, WriteTransaction writeConfigTxn);
     void addFibEntryForRouterInterface(DataBroker broker, String rd, String prefix,
-                                        RouterInterface routerInterface, long label, WriteTransaction writeConfigTxn);
+                                       RouterInterface routerInterface, long label, WriteTransaction writeConfigTxn);
     void removeOrUpdateFibEntry(DataBroker broker, String rd, String prefix, String nextHopToRemove, WriteTransaction writeConfigTxn);
     void removeFibEntry(DataBroker broker, String rd, String prefix, WriteTransaction writeConfigTxn);
     void updateFibEntry(DataBroker broker, String rd, String prefix , List<String> nextHopList, WriteTransaction writeConfigTxn);
