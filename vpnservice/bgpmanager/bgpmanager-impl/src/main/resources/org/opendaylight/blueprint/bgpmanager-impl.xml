@@ -17,6 +17,10 @@
   <bean id="fibDSWriter" class="org.opendaylight.netvirt.bgpmanager.FibDSWriter">
     <argument ref="dataBroker" />
   </bean>
+  
+  <bean id="bgpCommands" class="org.opendaylight.netvirt.bgpmanager.commands.Commands">
+    <argument ref="bgpManager" />
+  </bean>
 
   <bean id="bgpManager" class="org.opendaylight.netvirt.bgpmanager.BgpManager"
         init-method="init" destroy-method="close">
