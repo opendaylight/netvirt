@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "7a6b29fe_e7b7331f",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 825,
+      "author": {
+        "id": 6550
+      },
+      "writtenOn": "2016-09-29T16:45:15Z",
+      "side": 1,
+      "message": "In Next Patch set, that is PS5 we will remove these changes, and once Manu commits changes, over his changes we shall point the flow to 81 table",
+      "parentUuid": "7a6b29fe_29bd8702",
+      "revId": "fa559c827e291f9168a4e5a8cc109c5e6b376c3b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7a6b29fe_09b88b0f",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
         "patchSetId": 2
@@ -30,6 +48,24 @@
       "writtenOn": "2016-09-28T07:15:12Z",
       "side": 1,
       "message": "what is the purpose of having group ? It can be avoided.",
+      "revId": "fa559c827e291f9168a4e5a8cc109c5e6b376c3b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_273dab8f",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 826,
+      "author": {
+        "id": 6550
+      },
+      "writtenOn": "2016-09-29T16:45:15Z",
+      "side": 1,
+      "message": "Will be removed as confirmed in mail, will be removed in next patch set",
+      "parentUuid": "7a6b29fe_09b88b0f",
       "revId": "fa559c827e291f9168a4e5a8cc109c5e6b376c3b",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -53,6 +89,24 @@
     },
     {
       "key": {
+        "uuid": "7a6b29fe_8740ff07",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 1839,
+      "author": {
+        "id": 6550
+      },
+      "writtenOn": "2016-09-29T16:45:15Z",
+      "side": 1,
+      "message": "Added space",
+      "parentUuid": "7a6b29fe_493d638e",
+      "revId": "fa559c827e291f9168a4e5a8cc109c5e6b376c3b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7a6b29fe_a9407707",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
         "patchSetId": 2
@@ -64,6 +118,24 @@
       "writtenOn": "2016-09-28T07:15:12Z",
       "side": 1,
       "message": "use InterfaceUtils#getMacAddressForInterface to get MAC address of the OF port.",
+      "revId": "fa559c827e291f9168a4e5a8cc109c5e6b376c3b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_67432313",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 1850,
+      "author": {
+        "id": 6550
+      },
+      "writtenOn": "2016-09-29T16:45:15Z",
+      "side": 1,
+      "message": "Thank you, we could avoid a new method itself.",
+      "parentUuid": "7a6b29fe_a9407707",
       "revId": "fa559c827e291f9168a4e5a8cc109c5e6b376c3b",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -87,6 +159,24 @@
     },
     {
       "key": {
+        "uuid": "7a6b29fe_c74dd73f",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnUtil.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 309,
+      "author": {
+        "id": 6550
+      },
+      "writtenOn": "2016-09-29T16:45:15Z",
+      "side": 1,
+      "message": "Implemented",
+      "parentUuid": "7a6b29fe_e94d4f3f",
+      "revId": "fa559c827e291f9168a4e5a8cc109c5e6b376c3b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7a6b29fe_0966cbba",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/arp/responder/ArpActionField.java",
         "patchSetId": 2
@@ -98,6 +188,24 @@
       "writtenOn": "2016-09-28T07:15:12Z",
       "side": 1,
       "message": "Can we move this class to Genius\u0027s MDSALUtil ? so that it can reused by other modules.",
+      "revId": "fa559c827e291f9168a4e5a8cc109c5e6b376c3b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_87575fc9",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/arp/responder/ArpActionField.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 6550
+      },
+      "writtenOn": "2016-09-29T16:45:15Z",
+      "side": 1,
+      "message": "We initially thought same and implemented the nxReg,nxLoad everything in this class, However we noticed that in utils.mdsal-openflow module of netvirt we found that ActionUtils.java does samething. To avoid duplicate code we removed nicira specific code and added wrapper around ActionUtils.java. If you see the changed files most of pom.xml and features.xml are to include ActionUtils.java. If add to MDSALUtils, we can revert to our initial implementation. Please let me know your view on this.",
+      "parentUuid": "7a6b29fe_0966cbba",
       "revId": "fa559c827e291f9168a4e5a8cc109c5e6b376c3b",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -121,6 +229,24 @@
     },
     {
       "key": {
+        "uuid": "7a6b29fe_e74e1337",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/arp/responder/ArpDefaultFlowInstaller.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 123,
+      "author": {
+        "id": 6550
+      },
+      "writtenOn": "2016-09-29T16:45:15Z",
+      "side": 1,
+      "message": "This file will be removed.",
+      "parentUuid": "7a6b29fe_89113b06",
+      "revId": "fa559c827e291f9168a4e5a8cc109c5e6b376c3b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7a6b29fe_e9fb8fbe",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/arp/responder/ArpDefaultFlowInstaller.java",
         "patchSetId": 2
@@ -132,6 +258,24 @@
       "writtenOn": "2016-09-28T07:15:12Z",
       "side": 1,
       "message": "To install only this drop rule, Let us have only one class which listens to Node DCN to program it along with other L3VPN table miss entries. Manu is working on it to have a new class for it.",
+      "revId": "fa559c827e291f9168a4e5a8cc109c5e6b376c3b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_4761c7a7",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/arp/responder/ArpDefaultFlowInstaller.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 126,
+      "author": {
+        "id": 6550
+      },
+      "writtenOn": "2016-09-29T16:45:15Z",
+      "side": 1,
+      "message": "This file will be removed",
+      "parentUuid": "7a6b29fe_e9fb8fbe",
       "revId": "fa559c827e291f9168a4e5a8cc109c5e6b376c3b",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -155,6 +299,24 @@
     },
     {
       "key": {
+        "uuid": "7a6b29fe_0754efc7",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/arp/responder/ArpResponderUtil.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 402,
+      "author": {
+        "id": 6550
+      },
+      "writtenOn": "2016-09-29T16:45:15Z",
+      "side": 1,
+      "message": "Reading as it is, however since we need to add actions at the end using actionbuilder adding actions key.\n\nAnd also we are using NXM_OF_INPORT, for timing being until, in_port on table\u003d0 is put back.",
+      "parentUuid": "7a6b29fe_493283a7",
+      "revId": "fa559c827e291f9168a4e5a8cc109c5e6b376c3b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7a6b29fe_a925175d",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/resources/org/opendaylight/blueprint/vpnmanager.xml",
         "patchSetId": 2
@@ -166,6 +328,24 @@
       "writtenOn": "2016-09-28T07:15:12Z",
       "side": 1,
       "message": "Nit: remove tabs",
+      "revId": "fa559c827e291f9168a4e5a8cc109c5e6b376c3b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_a7489b2d",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/resources/org/opendaylight/blueprint/vpnmanager.xml",
+        "patchSetId": 2
+      },
+      "lineNbr": 208,
+      "author": {
+        "id": 6550
+      },
+      "writtenOn": "2016-09-29T16:45:15Z",
+      "side": 1,
+      "message": "This changes will be reverted back, in next Patch Set",
+      "parentUuid": "7a6b29fe_a925175d",
       "revId": "fa559c827e291f9168a4e5a8cc109c5e6b376c3b",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
