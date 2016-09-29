@@ -1287,8 +1287,8 @@ public class VpnUtil {
         VpnInstanceOpDataEntry vpnInstanceOpData = VpnUtil.getVpnInstanceOpDataFromCache(broker, rd);
         if (vpnInstanceOpData != null) {
             List<VpnToDpnList> dpnToVpns = vpnInstanceOpData.getVpnToDpnList();
-            if (dpnToVpns!= null) {
-                for (VpnToDpnList dpn :dpnToVpns) {
+            if (dpnToVpns != null) {
+                for (VpnToDpnList dpn : dpnToVpns) {
                     if (dpn.getDpnId().equals(dpnId)) {
                         if (dpn.getVpnInterfaces().contains(vpnInterface.getName())) {
                             return true;
@@ -1367,6 +1367,15 @@ public class VpnUtil {
     public static BigInteger getPrimarySwitchForRouter(DataBroker dataBroker, String routerName) {
         RouterToNaptSwitch routerToNaptSwitch = getRouterToNaptSwitch(dataBroker, routerName);
         return routerToNaptSwitch != null ? routerToNaptSwitch.getPrimarySwitchId() : null;
+    }
+
+    static boolean isL3VpnOverVxLan(Long l3Vni) {
+        return (l3Vni != null && l3Vni != 0);
+    }
+
+    static   String getGatewayMac(String interfaceName) {
+        //OUI based MAC creation and use
+        return VpnConstants.DEFAULT_GATEWAY_MAC_ADDRESS;
     }
 
 }
