@@ -463,8 +463,10 @@ public class FibUtil {
             throw new RuntimeException(e.getMessage());
         }
     }
-    public static void addOrUpdateFibEntry(DataBroker broker, String rd, String prefix, List<String> nextHopList,
-                                           int label, RouteOrigin origin, WriteTransaction writeConfigTxn) {
+    public static void addOrUpdateFibEntry(DataBroker broker, String rd, String macAddress, String prefix, List<String> nextHopList,
+                                           VrfEntry.EncapType encapType, int label, long evi, String gatewayMacAddress,
+                                           RouteOrigin origin, WriteTransaction writeConfigTxn) {
+
         if (rd == null || rd.isEmpty() ) {
             LOG.error("Prefix {} not associated with vpn", prefix);
             return;
@@ -488,13 +490,14 @@ public class FibUtil {
             Optional<VrfEntry> entry = MDSALUtil.read(broker, LogicalDatastoreType.CONFIGURATION, vrfEntryId);
 
             if (! entry.isPresent()) {
-                VrfEntry vrfEntry = new VrfEntryBuilder().setDestPrefix(prefix).setNextHopAddressList(nextHopList)
-                        .setLabel((long)label).setOrigin(origin.getValue()).build();
+                VrfEntryBuilder vrfEntryBuilder = new VrfEntryBuilder().setDestPrefix(prefix).setNextHopAddressList(nextHopList)
+                        .setOrigin(origin.getValue());
+                buildVpnEncapSpecificInfo(vrfEntryBuilder, encapType, (long)label, evi, macAddress, gatewayMacAddress);
 
                 if (writeConfigTxn != null) {
-                    writeConfigTxn.merge(LogicalDatastoreType.CONFIGURATION, vrfEntryId, vrfEntry, true);
+                    writeConfigTxn.merge(LogicalDatastoreType.CONFIGURATION, vrfEntryId, vrfEntryBuilder.build(), true);
                 } else {
-                    MDSALUtil.syncWrite(broker, LogicalDatastoreType.CONFIGURATION, vrfEntryId, vrfEntry);
+                    MDSALUtil.syncWrite(broker, LogicalDatastoreType.CONFIGURATION, vrfEntryId, vrfEntryBuilder.build());
                 }
             } else { // Found in MDSAL database
                 List<String> nh = entry.get().getNextHopAddressList();
@@ -503,18 +506,28 @@ public class FibUtil {
                         nh.add(nextHop);
                     }
                 }
-                VrfEntry vrfEntry = new VrfEntryBuilder().setDestPrefix(prefix).setNextHopAddressList(nh)
-                        .setLabel((long) label).setOrigin(origin.getValue()).build();
-
+                VrfEntryBuilder vrfEntryBuilder = new VrfEntryBuilder().setDestPrefix(prefix).setNextHopAddressList(nh)
+                        .setLabel((long) label).setOrigin(origin.getValue());
+                buildVpnEncapSpecificInfo(vrfEntryBuilder, encapType, (long)label, evi, macAddress, gatewayMacAddress);
                 if (writeConfigTxn != null) {
-                    writeConfigTxn.merge(LogicalDatastoreType.CONFIGURATION, vrfEntryId, vrfEntry, true);
+                    writeConfigTxn.merge(LogicalDatastoreType.CONFIGURATION, vrfEntryId, vrfEntryBuilder.build(), true);
                 } else {
-                    MDSALUtil.syncUpdate(broker, LogicalDatastoreType.CONFIGURATION, vrfEntryId, vrfEntry);
+                    MDSALUtil.syncUpdate(broker, LogicalDatastoreType.CONFIGURATION, vrfEntryId, vrfEntryBuilder.build());
                 }
             }
         } catch (Exception e) {
             LOG.error("addFibEntryToDS: error ", e);
         }
+    }
+
+    private static void buildVpnEncapSpecificInfo(VrfEntryBuilder builder, VrfEntry.EncapType encapType, long label,
+                                                 long evi, String macAddress, String gatewayMac) {
+        if (encapType.equals(VrfEntry.EncapType.Mplsgre)) {
+            builder.setLabel(label);
+        } else {
+            builder.setEvi(evi).setMacAddress(macAddress).setGatewayMacAddress(gatewayMac);
+        }
+        builder.setEncapType(encapType);
     }
 
     public static void removeFibEntry(DataBroker broker, String rd, String prefix, WriteTransaction writeConfigTxn) {

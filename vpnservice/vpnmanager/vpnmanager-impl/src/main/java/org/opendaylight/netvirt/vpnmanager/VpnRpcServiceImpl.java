@@ -16,6 +16,7 @@ import org.opendaylight.netvirt.fibmanager.api.RouteOrigin;
 import org.opendaylight.netvirt.vpnmanager.intervpnlink.InterVpnLinkUtil;
 import org.opendaylight.netvirt.vpnmanager.utilities.InterfaceUtils;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.IdManagerService;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.VrfEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.vpn.rpc.rev160201.AddStaticRouteInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.vpn.rpc.rev160201.AddStaticRouteOutputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.vpn.rpc.rev160201.AddStaticRouteOutput;
@@ -163,8 +164,8 @@ public class VpnRpcServiceImpl implements VpnRpcService {
             // A static route pointing to an InterVpnLink endpoint: write the VrfEntry and inform DC-GW
             LOG.debug("addStaticRoute: Writing FibEntry to DS:  vpnRd={}, prefix={}, label={}, nexthop={} (interVpnLink)",
                     vpnRd, destination, label, nexthop);
-            fibManager.addOrUpdateFibEntry(dataBroker, vpnRd, destination, Arrays.asList(nexthop), label.intValue(),
-                    RouteOrigin.STATIC, null);
+            fibManager.addOrUpdateFibEntry(dataBroker, vpnRd, null /*macAddress*/, destination, Arrays.asList(nexthop), VrfEntry.EncapType.Mplsgre, label.intValue(),
+                    0 /*evi*/, null /*gatewayMacAddress*/, RouteOrigin.STATIC, null /*writeTxn*/);
 
             // The nexthop list to advertise to BGP contains the list of IPs of those DPNs where the
             // endpoint has been instantiated
