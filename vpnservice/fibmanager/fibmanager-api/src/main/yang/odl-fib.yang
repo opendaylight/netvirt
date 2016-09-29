@@ -40,7 +40,7 @@ module odl-fib {
                   "This flag indicates how to interpret the existing label field.
                    A value of mplsgre indicates that the label will continue to be considered as an MPLS Label.
                    A value of vxlan indicates that vni should be used to advertise to bgp";
-
+                   
                type enumeration {
                   enum mplsgre {
                      value "0";
@@ -79,8 +79,6 @@ module odl-fib {
     augment "/odl-fib:fibEntries/odl-fib:vrfTables/odl-fib:vrfEntry" {
         ext:augment-identifier "routerInterface";
         leaf uuid {type string;}
-        leaf mac-address {type string;}
-        leaf ip-address {type string;}
     }
 
     container fibEntries {
