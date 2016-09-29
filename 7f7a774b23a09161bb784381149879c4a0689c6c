@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "7a6b29fe_8fd01bca",
+        "filename": "openstack/net-virt-providers/src/main/java/org/opendaylight/netvirt/openstack/netvirt/providers/openflow13/services/OutboundNatService.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 4018
+      },
+      "writtenOn": "2016-09-29T06:39:03Z",
+      "side": 1,
+      "message": "We are using L2ForwardService to write L2 related flows and OutboundNATService to write L3 related flows.",
+      "parentUuid": "7a6b29fe_12527d34",
+      "revId": "7f7a774b23a09161bb784381149879c4a0689c6c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7a6b29fe_124f1d35",
         "filename": "openstack/net-virt-providers/src/main/java/org/opendaylight/netvirt/openstack/netvirt/providers/openflow13/services/OutboundNatService.java",
         "patchSetId": 11
@@ -30,6 +48,24 @@
       "writtenOn": "2016-09-24T00:05:10Z",
       "side": 1,
       "message": "- Please add some descriptions about the the new flow.\n- please mention that the below flow is an example of the new added flow \n- Please address above comments for all new methods",
+      "revId": "7f7a774b23a09161bb784381149879c4a0689c6c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_0f4d2bc4",
+        "filename": "openstack/net-virt-providers/src/main/java/org/opendaylight/netvirt/openstack/netvirt/providers/openflow13/services/OutboundNatService.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 203,
+      "author": {
+        "id": 4018
+      },
+      "writtenOn": "2016-09-29T06:39:03Z",
+      "side": 1,
+      "message": "Thanks for your comments. Yes we added additional comments.",
+      "parentUuid": "7a6b29fe_124f1d35",
       "revId": "7f7a774b23a09161bb784381149879c4a0689c6c",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -53,6 +89,24 @@
     },
     {
       "key": {
+        "uuid": "7a6b29fe_ef470fa1",
+        "filename": "openstack/net-virt-providers/src/main/java/org/opendaylight/netvirt/openstack/netvirt/providers/openflow13/services/OutboundNatService.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 207,
+      "author": {
+        "id": 4018
+      },
+      "writtenOn": "2016-09-29T06:39:03Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7a6b29fe_f2742169",
+      "revId": "7f7a774b23a09161bb784381149879c4a0689c6c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7a6b29fe_92b68df7",
         "filename": "openstack/net-virt-providers/src/main/java/org/opendaylight/netvirt/openstack/netvirt/providers/openflow13/services/OutboundNatService.java",
         "patchSetId": 11
@@ -64,6 +118,24 @@
       "writtenOn": "2016-09-24T00:05:10Z",
       "side": 1,
       "message": "why \u0027OutboundNATVLAN_\u0027?",
+      "revId": "7f7a774b23a09161bb784381149879c4a0689c6c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_4fca831b",
+        "filename": "openstack/net-virt-providers/src/main/java/org/opendaylight/netvirt/openstack/netvirt/providers/openflow13/services/OutboundNatService.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 218,
+      "author": {
+        "id": 4018
+      },
+      "writtenOn": "2016-09-29T06:39:03Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7a6b29fe_92b68df7",
       "revId": "7f7a774b23a09161bb784381149879c4a0689c6c",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -87,6 +159,24 @@
     },
     {
       "key": {
+        "uuid": "7a6b29fe_2fcd8731",
+        "filename": "openstack/net-virt-providers/src/main/java/org/opendaylight/netvirt/openstack/netvirt/providers/openflow13/services/OutboundNatService.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 239,
+      "author": {
+        "id": 4018
+      },
+      "writtenOn": "2016-09-29T06:39:03Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7a6b29fe_92b84d76",
+      "revId": "7f7a774b23a09161bb784381149879c4a0689c6c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7a6b29fe_923deddf",
         "filename": "openstack/net-virt-providers/src/main/java/org/opendaylight/netvirt/openstack/netvirt/providers/openflow13/services/OutboundNatService.java",
         "patchSetId": 11
@@ -98,6 +188,24 @@
       "writtenOn": "2016-09-24T00:05:10Z",
       "side": 1,
       "message": "Sorry if it is dumb question - Flow name are same as above?\nSame question for line 315",
+      "revId": "7f7a774b23a09161bb784381149879c4a0689c6c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_6fd3ffd4",
+        "filename": "openstack/net-virt-providers/src/main/java/org/opendaylight/netvirt/openstack/netvirt/providers/openflow13/services/OutboundNatService.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 263,
+      "author": {
+        "id": 4018
+      },
+      "writtenOn": "2016-09-29T06:39:03Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7a6b29fe_923deddf",
       "revId": "7f7a774b23a09161bb784381149879c4a0689c6c",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -121,6 +229,24 @@
     },
     {
       "key": {
+        "uuid": "7a6b29fe_cfddf3e1",
+        "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/ConfigActivator.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 214,
+      "author": {
+        "id": 4018
+      },
+      "writtenOn": "2016-09-29T06:39:03Z",
+      "side": 1,
+      "message": "VLANProviderUtil class needs some global references such as ConfigurationService, NodeCacheManager, OutboundNatProvider and Southbound. These global variables will be initialized only if we register this class as service. \n\nIf we define this Util class as POJO, We have to set all the global references through setters and getters or using parametrized constructor. Not all the global instances that are needed by the VLANProviderUtil are available in the caller class SouthboundHandler. So, We declare this class as service instead of POJO class.",
+      "parentUuid": "7a6b29fe_128d5dd3",
+      "revId": "7f7a774b23a09161bb784381149879c4a0689c6c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7a6b29fe_721bf180",
         "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/SouthboundHandler.java",
         "patchSetId": 11
@@ -138,6 +264,24 @@
     },
     {
       "key": {
+        "uuid": "7a6b29fe_afd877ef",
+        "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/SouthboundHandler.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 4018
+      },
+      "writtenOn": "2016-09-29T06:39:03Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7a6b29fe_721bf180",
+      "revId": "7f7a774b23a09161bb784381149879c4a0689c6c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7a6b29fe_9214cd4d",
         "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/SouthboundHandler.java",
         "patchSetId": 11
@@ -149,6 +293,24 @@
       "writtenOn": "2016-09-24T00:05:10Z",
       "side": 1,
       "message": "Please remove",
+      "revId": "7f7a774b23a09161bb784381149879c4a0689c6c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_0fe40baa",
+        "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/SouthboundHandler.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 4018
+      },
+      "writtenOn": "2016-09-29T06:39:03Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7a6b29fe_9214cd4d",
       "revId": "7f7a774b23a09161bb784381149879c4a0689c6c",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -189,6 +351,24 @@
     },
     {
       "key": {
+        "uuid": "7a6b29fe_efdeefd8",
+        "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/SouthboundHandler.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 354,
+      "author": {
+        "id": 4018
+      },
+      "writtenOn": "2016-09-29T06:39:03Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7a6b29fe_6d05d20f",
+      "revId": "7f7a774b23a09161bb784381149879c4a0689c6c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7a6b29fe_0d16de4b",
         "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/VLANProviderUtil.java",
         "patchSetId": 11
@@ -223,6 +403,24 @@
     },
     {
       "key": {
+        "uuid": "7a6b29fe_4ff1e369",
+        "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/VLANProviderUtil.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 53,
+      "author": {
+        "id": 4018
+      },
+      "writtenOn": "2016-09-29T06:39:03Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7a6b29fe_f22701c8",
+      "revId": "7f7a774b23a09161bb784381149879c4a0689c6c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7a6b29fe_ed10c24f",
         "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/api/ConfigurationService.java",
         "patchSetId": 11
@@ -234,6 +432,24 @@
       "writtenOn": "2016-09-24T00:05:10Z",
       "side": 1,
       "message": "The description is not correct",
+      "revId": "7f7a774b23a09161bb784381149879c4a0689c6c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_2ff46759",
+        "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/api/ConfigurationService.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 74,
+      "author": {
+        "id": 4018
+      },
+      "writtenOn": "2016-09-29T06:39:03Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7a6b29fe_ed10c24f",
       "revId": "7f7a774b23a09161bb784381149879c4a0689c6c",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -257,6 +473,24 @@
     },
     {
       "key": {
+        "uuid": "7a6b29fe_8fe77bab",
+        "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/api/OutboundNatProvider.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 30,
+      "author": {
+        "id": 4018
+      },
+      "writtenOn": "2016-09-29T06:39:03Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7a6b29fe_f298a1c1",
+      "revId": "7f7a774b23a09161bb784381149879c4a0689c6c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7a6b29fe_8d502e0c",
         "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/impl/BridgeConfigurationManagerImpl.java",
         "patchSetId": 11
@@ -268,6 +502,24 @@
       "writtenOn": "2016-09-24T00:05:10Z",
       "side": 1,
       "message": "log WARN instead",
+      "revId": "7f7a774b23a09161bb784381149879c4a0689c6c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_6feadf74",
+        "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/impl/BridgeConfigurationManagerImpl.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 185,
+      "author": {
+        "id": 4018
+      },
+      "writtenOn": "2016-09-29T06:39:03Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7a6b29fe_8d502e0c",
       "revId": "7f7a774b23a09161bb784381149879c4a0689c6c",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -297,6 +549,30 @@
     },
     {
       "key": {
+        "uuid": "7a6b29fe_cf04d34b",
+        "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/impl/BridgeConfigurationManagerImpl.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 189,
+      "author": {
+        "id": 4018
+      },
+      "writtenOn": "2016-09-29T06:39:03Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7a6b29fe_4d33b6f5",
+      "range": {
+        "startLine": 189,
+        "startChar": 21,
+        "endLine": 189,
+        "endChar": 33
+      },
+      "revId": "7f7a774b23a09161bb784381149879c4a0689c6c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7a6b29fe_6d531217",
         "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/impl/BridgeConfigurationManagerImpl.java",
         "patchSetId": 11
@@ -308,6 +584,24 @@
       "writtenOn": "2016-09-24T00:05:10Z",
       "side": 1,
       "message": "log WARN",
+      "revId": "7f7a774b23a09161bb784381149879c4a0689c6c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_afffd732",
+        "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/impl/BridgeConfigurationManagerImpl.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 192,
+      "author": {
+        "id": 4018
+      },
+      "writtenOn": "2016-09-29T06:39:03Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7a6b29fe_6d531217",
       "revId": "7f7a774b23a09161bb784381149879c4a0689c6c",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -331,6 +625,24 @@
     },
     {
       "key": {
+        "uuid": "7a6b29fe_0ffb6b47",
+        "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/impl/BridgeConfigurationManagerImpl.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 322,
+      "author": {
+        "id": 4018
+      },
+      "writtenOn": "2016-09-29T06:39:03Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7a6b29fe_ad224aa0",
+      "revId": "7f7a774b23a09161bb784381149879c4a0689c6c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7a6b29fe_0d3d3ec4",
         "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/impl/BridgeConfigurationManagerImpl.java",
         "patchSetId": 11
@@ -342,6 +654,24 @@
       "writtenOn": "2016-09-24T00:05:10Z",
       "side": 1,
       "message": "Sorry I don\u0027t understand this changes",
+      "revId": "7f7a774b23a09161bb784381149879c4a0689c6c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_eff54f51",
+        "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/impl/BridgeConfigurationManagerImpl.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 326,
+      "author": {
+        "id": 4018
+      },
+      "writtenOn": "2016-09-29T06:39:03Z",
+      "side": 1,
+      "message": "This check is related to multiple external network configuration. and if this check is not available, then it will return default bridge configuration.",
+      "parentUuid": "7a6b29fe_0d3d3ec4",
       "revId": "7f7a774b23a09161bb784381149879c4a0689c6c",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -382,6 +712,24 @@
     },
     {
       "key": {
+        "uuid": "7a6b29fe_0f924bf5",
+        "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/impl/BridgeConfigurationManagerImpl.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 719,
+      "author": {
+        "id": 4018
+      },
+      "writtenOn": "2016-09-29T06:39:03Z",
+      "side": 1,
+      "message": "No. Here reading specific to external interface configuration from Open_vSwitch.\nlike anyone of bridge_mappings or provider_mappings.",
+      "parentUuid": "7a6b29fe_6d2cb299",
+      "revId": "7f7a774b23a09161bb784381149879c4a0689c6c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7a6b29fe_8d294e8c",
         "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/impl/BridgeConfigurationManagerImpl.java",
         "patchSetId": 11
@@ -399,6 +747,24 @@
     },
     {
       "key": {
+        "uuid": "7a6b29fe_ef8c2fd9",
+        "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/impl/BridgeConfigurationManagerImpl.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 721,
+      "author": {
+        "id": 4018
+      },
+      "writtenOn": "2016-09-29T06:39:03Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7a6b29fe_8d294e8c",
+      "revId": "7f7a774b23a09161bb784381149879c4a0689c6c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7a6b29fe_b2af497c",
         "filename": "openstack/utils/mdsal-openflow/src/main/java/org/opendaylight/netvirt/utils/mdsal/openflow/InstructionUtils.java",
         "patchSetId": 11
@@ -410,6 +776,24 @@
       "writtenOn": "2016-09-24T00:05:10Z",
       "side": 1,
       "message": "- please mention the create NORMAL instruction as well.\n- is there any extra action beside setting vlanid such as vlan matching?",
+      "revId": "7f7a774b23a09161bb784381149879c4a0689c6c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_efa38f40",
+        "filename": "openstack/utils/mdsal-openflow/src/main/java/org/opendaylight/netvirt/utils/mdsal/openflow/InstructionUtils.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 407,
+      "author": {
+        "id": 4018
+      },
+      "writtenOn": "2016-09-29T06:39:03Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7a6b29fe_b2af497c",
       "revId": "7f7a774b23a09161bb784381149879c4a0689c6c",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
