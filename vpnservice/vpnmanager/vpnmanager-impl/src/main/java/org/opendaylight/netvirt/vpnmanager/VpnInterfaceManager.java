@@ -66,6 +66,7 @@ import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev14081
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.interfaces.VpnInterfaceKey;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.InterfacesState;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.PhysAddress;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.FlowCapableNode;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.FlowId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.tables.Table;
@@ -126,7 +127,12 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.vpn.instance.op.data.entry.vpn.to.dpn.list.IpAddresses;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.vpn.instance.op.data.entry.vpn.to.dpn.list.VpnInterfacesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.vpn.instance.op.data.entry.vpn.to.dpn.list.VpnInterfacesKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.Subnetmaps;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.networkmaps.NetworkMap;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.neutron.vpn.portip.port.data.VpnPortipToPort;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.subnetmaps.Subnetmap;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.subnetmaps.SubnetmapKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.networks.rev150712.networks.attributes.networks.Network;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.netvirt.inter.vpn.link.rev160311.inter.vpn.links.InterVpnLink;
 import org.opendaylight.yangtools.concepts.ListenerRegistration;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
@@ -566,7 +572,6 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
         // Read NextHops
         InstanceIdentifier<Adjacencies> path = identifier.augmentation(Adjacencies.class);
         Optional<Adjacencies> adjacencies = VpnUtil.read(dataBroker, LogicalDatastoreType.CONFIGURATION, path);
-
         if (adjacencies.isPresent()) {
             List<Adjacency> nextHops = adjacencies.get().getAdjacency();
             List<Adjacency> value = new ArrayList<>();
@@ -581,7 +586,18 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
             }
 
             List<VpnInstanceOpDataEntry> vpnsToImportRoute = getVpnsImportingMyRoute(vpnName);
-
+            VpnInstanceOpDataEntry vpnInstanceOpData = VpnUtil.getVpnInstanceOpData(dataBroker, rd);
+            long evi = 0;
+            String gatewayMac = null;
+            VrfEntry.EncapType encapType = null;
+            if (vpnInstanceOpData.getType().equals(VpnInstanceOpDataEntry.Type.L2)) {
+                encapType = VrfEntry.EncapType.Vxlan;
+                VpnInstance vpnInstance = VpnUtil.getVpnInstance(dataBroker, vpnName);
+                evi = vpnInstance.getEvi();
+                gatewayMac = getGatewayMac(interfaceName);
+            } else {
+                encapType = VrfEntry.EncapType.Mplsgre;
+            }
             LOG.trace("NextHops for interface {} are {}", interfaceName, nextHops);
             for (Adjacency nextHop : nextHops) {
                 String prefix = VpnUtil.getIpPrefix(nextHop.getIpAddress());
@@ -593,9 +609,18 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                     return;
                 }
                 List<String> adjNextHop = nextHop.getNextHopIpList();
-                value.add(new AdjacencyBuilder(nextHop).setLabel(label).setNextHopIpList(
-                        (adjNextHop != null && !adjNextHop.isEmpty()) ? adjNextHop : Arrays.asList(nextHopIp))
-                        .setIpAddress(prefix).setKey(new AdjacencyKey(prefix)).build());
+                if (vpnInstanceOpData.getType().equals(VpnInstanceOpDataEntry.Type.L2)) {
+                    value.add(new AdjacencyBuilder(nextHop).setNextHopIpList(
+                            (adjNextHop != null && !adjNextHop.isEmpty()) ? adjNextHop : Arrays.asList(nextHopIp))
+                            .setIpAddress(prefix).setKey(new AdjacencyKey(prefix)).build());
+                } else {
+                    long label = VpnUtil.getUniqueId(idManager, VpnConstants.VPN_IDPOOL_NAME,
+                            VpnUtil.getNextHopLabelKey((rd == null) ? vpnName
+                                    : rd, prefix));
+                    value.add(new AdjacencyBuilder(nextHop).setLabel(label).setNextHopIpList(
+                            (adjNextHop != null && !adjNextHop.isEmpty()) ? adjNextHop : Arrays.asList(nextHopIp))
+                            .setIpAddress(prefix).setKey(new AdjacencyKey(prefix)).build());
+                }
 
                 if (nextHop.getMacAddress() != null && !nextHop.getMacAddress().isEmpty()) {
                     LOG.trace("Adding prefix {} to interface {} for vpn {}", prefix, interfaceName, vpnName);
@@ -623,27 +648,43 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
             long vpnId = VpnUtil.getVpnId(dataBroker, vpnName);
 
             for (Adjacency nextHop : aug.getAdjacency()) {
-                long label = nextHop.getLabel();
-                if (rd != null) {
-                    addToLabelMapper(label, dpnId, nextHop.getIpAddress(), Arrays.asList(nextHopIp), vpnId,
-                            interfaceName, null,false, rd, writeOperTxn);
-                    addPrefixToBGP(rd, nextHop.getIpAddress(), nextHopIp, label, writeConfigTxn);
-                    //TODO: ERT - check for VPNs importing my route
-                    for (VpnInstanceOpDataEntry vpn : vpnsToImportRoute) {
-                        String vpnRd = vpn.getVrfId();
-                        if (vpnRd != null) {
-                            LOG.debug("Exporting route with rd {} prefix {} nexthop {} label {} to VPN {}", vpnRd, nextHop.getIpAddress(), nextHopIp, label, vpn);
-                            fibManager.addOrUpdateFibEntry(dataBroker, vpnRd, nextHop.getIpAddress(), Arrays.asList(nextHopIp), (int) label,
-                                    RouteOrigin.SELF_IMPORTED, writeConfigTxn);
-                        }
+                if (vpnInstanceOpData.getType().equals(VpnInstanceOpDataEntry.Type.L2)) {
+                    if (rd != null) {
+                        addPrefixToBGP(rd, nextHop.getIpAddress(), nextHopIp, encapType, 0,
+                                Long.valueOf(evi), nextHop.getMacAddress(), gatewayMac, writeConfigTxn);
+                    } else {
+                        LOG.error("Internal VPN of Type L2 is not supported. Aborting...");
+                        return;
                     }
                 } else {
-                    // ### add FIB route directly
-                    fibManager.addOrUpdateFibEntry(dataBroker, vpnName, nextHop.getIpAddress(), Arrays.asList(nextHopIp),
-                            (int) label, RouteOrigin.STATIC, writeConfigTxn);
+                    long label = nextHop.getLabel();
+                    if (rd != null) {
+                        addToLabelMapper(label, dpnId, nextHop.getIpAddress(), Arrays.asList(nextHopIp), vpnId,
+                                interfaceName, null,false, rd, writeOperTxn);
+                        addPrefixToBGP(rd, nextHop.getIpAddress(), nextHopIp, encapType, label,
+                                0, null, null, writeConfigTxn);
+                        //TODO: ERT - check for VPNs importing my route
+                        for (VpnInstanceOpDataEntry vpn : vpnsToImportRoute) {
+                            String vpnRd = vpn.getVrfId();
+                            if (vpnRd != null) {
+                                LOG.debug("Exporting route with rd {} prefix {} nexthop {} label {} to VPN {}", vpnRd, nextHop.getIpAddress(), nextHopIp, label, vpn);
+                                fibManager.addOrUpdateFibEntry(dataBroker, vpnRd, null /*macAddress*/, nextHop.getIpAddress(), Arrays.asList(nextHopIp), encapType,
+                                        (int) label, 0 /*evi*/, null /*gatewayMacAddress*/, RouteOrigin.SELF_IMPORTED, writeConfigTxn);
+                            }
+                        }
+                    } else {
+                        // ### add FIB route directly
+                        fibManager.addOrUpdateFibEntry(dataBroker, vpnName, null /*macAddress*/, nextHop.getIpAddress(), Arrays.asList(nextHopIp), encapType,
+                                (int) label, 0 /*evi*/, null /*gatewayMacAddress*/, RouteOrigin.STATIC, writeConfigTxn);
+                    }
                 }
             }
         }
+    }
+
+    private String getGatewayMac(String interfaceName) {
+        //OUI based MAC creation and use
+        return VpnConstants.DEFAULT_GATEWAY_MAC_ADDRESS;
     }
 
     private List<VpnInstanceOpDataEntry> getVpnsImportingMyRoute(final String vpnName) {
@@ -985,8 +1026,8 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                                 importSubnetRouteForNewVpn(vpnRd, prefix, nh, (int)label, route, writeConfigTxn);
                             } else {
                                 LOG.info("Importing fib entry rd {} prefix {} nexthop {} label {} to vpn {}", vpnRd, prefix, nh, label, vpn.getVpnInstanceName());
-                                fibManager.addOrUpdateFibEntry(dataBroker, vpnRd, prefix, Arrays.asList(nh), (int)label,
-                                        RouteOrigin.SELF_IMPORTED, writeConfigTxn);
+                                fibManager.addOrUpdateFibEntry(dataBroker, vpnRd, null /*macAddress*/, prefix, Arrays.asList(nh), VrfEntry.EncapType.Mplsgre,
+                                        (int)label, 0 /*evi*/, null /*gatewayMacAddress*/, RouteOrigin.SELF_IMPORTED, writeConfigTxn);
                             }
                         }
                     } catch (Exception e) {
@@ -1000,11 +1041,15 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
         }
     }
 
-    private void addPrefixToBGP(String rd, String prefix, String nextHopIp, long label, WriteTransaction writeConfigTxn) {
+    private void addPrefixToBGP(String rd, String prefix, String nextHopIp, VrfEntry.EncapType encapType, long label, long evi,
+                                String macAddress, String gatewayMac, WriteTransaction writeConfigTxn) {
         try {
             LOG.info("ADD: Adding Fib entry rd {} prefix {} nextHop {} label {}", rd, prefix, nextHopIp, label);
-            fibManager.addOrUpdateFibEntry(dataBroker, rd, prefix, Arrays.asList(nextHopIp), (int)label, RouteOrigin.STATIC, writeConfigTxn);
-            bgpManager.advertisePrefix(rd, prefix, Arrays.asList(nextHopIp), (int)label);
+            fibManager.addOrUpdateFibEntry(dataBroker, rd, macAddress, prefix, Arrays.asList(nextHopIp), encapType, (int)label,
+                                            evi, gatewayMac, RouteOrigin.STATIC, writeConfigTxn);
+            if (encapType.equals(VrfEntry.EncapType.Mplsgre)) {
+                bgpManager.advertisePrefix(rd, prefix, Arrays.asList(nextHopIp), (int)label);
+            }
             LOG.info("ADD: Added Fib entry rd {} prefix {} nextHop {} label {}", rd, prefix, nextHopIp, label);
         } catch(Exception e) {
             LOG.error("Add prefix failed", e);
@@ -1567,10 +1612,12 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
             InterVpnLinkUtil.leakRoute(dataBroker, bgpManager, interVpnLink, srcVpnUuid, dstVpnUuid, destination, newLabel);
         } else {
             if (rd != null) {
-                addPrefixToBGP(rd, destination, nextHop, label, null);
+                addPrefixToBGP(rd, destination, nextHop, VrfEntry.EncapType.Mplsgre, label,
+                        0 /*evi*/, null /*macAddress*/, null /*gatewayMacAddress*/, null /*writeTxn*/);
             } else {
                 // ### add FIB route directly
-                fibManager.addOrUpdateFibEntry(dataBroker, routerID, destination, Arrays.asList(nextHop), label, RouteOrigin.STATIC, null);
+                fibManager.addOrUpdateFibEntry(dataBroker, routerID, null /*macAddress*/, destination, Arrays.asList(nextHop),
+                        VrfEntry.EncapType.Mplsgre, label, 0 /*evi*/, null /*gatewayMacAddress*/, RouteOrigin.STATIC, null /*writeTxn*/);
             }
         }
     }
