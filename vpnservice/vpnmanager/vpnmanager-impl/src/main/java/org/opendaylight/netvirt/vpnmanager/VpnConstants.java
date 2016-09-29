@@ -50,4 +50,5 @@ public class VpnConstants {
         DCGWPresentStatus(int id) { this.status = id; }
         public int getValue() { return status; }
     }
+    public static final String DEFAULT_GATEWAY_MAC_ADDRESS = "00:80:37:00:00:01";
 }
