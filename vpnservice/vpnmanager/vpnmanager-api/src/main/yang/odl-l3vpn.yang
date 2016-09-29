@@ -342,4 +342,16 @@ module odl-l3vpn {
             leaf router-name { type string; }
         }
     }
+
+    container vpn-vipip-port-data {
+        config false;
+        list vpn-vipip-to-port {
+            key "vpn-name port-fixedip";
+            leaf vpn-name { type string; }
+            leaf port-fixedip { type string; }
+            leaf port-name { type string; }
+            leaf mac-address { type string; }
+           }
+        }
+
 }

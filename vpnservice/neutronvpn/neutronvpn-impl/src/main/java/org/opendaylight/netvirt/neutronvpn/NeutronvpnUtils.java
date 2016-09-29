@@ -243,7 +243,7 @@ public class NeutronvpnUtils {
 
     protected static String getNeutronPortNameFromVpnPortFixedIp(DataBroker broker, String vpnName, String fixedIp) {
         InstanceIdentifier id = buildVpnPortipToPortIdentifier(vpnName, fixedIp);
-        Optional<VpnPortipToPort> vpnPortipToPortData = read(broker, LogicalDatastoreType.OPERATIONAL, id);
+        Optional<VpnPortipToPort> vpnPortipToPortData = read(broker, LogicalDatastoreType.CONFIGURATION, id);
         if (vpnPortipToPortData.isPresent()) {
             return vpnPortipToPortData.get().getPortName();
         }
@@ -784,7 +784,7 @@ public class NeutronvpnUtils {
                 (isSubnetIp).setConfig(isConfig).setLearnt(isLearnt);
         try {
             synchronized ((vpnName + fixedIp).intern()) {
-                MDSALUtil.syncWrite(broker, LogicalDatastoreType.OPERATIONAL, id, builder.build());
+                MDSALUtil.syncWrite(broker, LogicalDatastoreType.CONFIGURATION, id, builder.build());
             }
             logger.trace("Neutron port with fixedIp: {}, vpn {}, interface {}, mac {}, isSubnetIp {} added to " +
                     "VpnPortipToPort DS", fixedIp, vpnName, portName, macAddress, isSubnetIp);
@@ -798,7 +798,7 @@ public class NeutronvpnUtils {
         InstanceIdentifier<VpnPortipToPort> id = NeutronvpnUtils.buildVpnPortipToPortIdentifier(vpnName, fixedIp);
         try {
             synchronized ((vpnName + fixedIp).intern()) {
-                MDSALUtil.syncDelete(broker, LogicalDatastoreType.OPERATIONAL, id);
+                MDSALUtil.syncDelete(broker, LogicalDatastoreType.CONFIGURATION, id);
             }
             logger.trace("Neutron router port with fixedIp: {}, vpn {} removed from VpnPortipToPort DS", fixedIp,
                     vpnName);

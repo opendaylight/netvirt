@@ -19,6 +19,8 @@
   <reference id="neutronVpnService"
              interface="org.opendaylight.netvirt.neutronvpn.interfaces.INeutronVpnManager"
              availability="optional" />
+  <reference id="entityOwnershipService"
+             interface="org.opendaylight.controller.md.sal.common.api.clustering.EntityOwnershipService" />
 
   <odl:rpc-service id="idManagerService"
                    interface="org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.IdManagerService" />
@@ -93,6 +95,14 @@
     <argument ref="mdsalUtils" />
     <argument ref="alivenessManager" />
     <argument ref="neutronVpnService" />
+    <argument ref="entityOwnershipService" />
+  </bean>
+
+  <bean id="subnetMacHandler"
+        class="org.opendaylight.netvirt.vpnmanager.SubnetMacHandler"
+        init-method="start" destroy-method="close">
+    <argument ref="dataBroker" />
+    <argument ref="mdsalUtils" />
   </bean>
 
   <bean id="subnetRoutePacketInHandler"

@@ -23,6 +23,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.arputil.rev160406.Ma
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.arputil.rev160406.OdlArputilListener;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.OdlInterfaceRpcService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.id.to.vpn.instance.VpnIds;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.vipip.port.data.VpnVipipToPort;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.neutron.vpn.portip.port.data.VpnPortipToPort;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.ports.attributes.Ports;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.ports.attributes.ports.Port;
@@ -109,35 +110,33 @@ public class ArpNotificationHandler implements OdlArputilListener {
                 LOG.trace("ArpRequest being processed for Source IP {}", ipToQuery);
                 VpnIds vpnIds = vpnIdsOptional.get();
                 VpnPortipToPort vpnPortipToPort = VpnUtil.getNeutronPortFromVpnPortFixedIp(dataBroker, vpnIds.getVpnInstanceName(), ipToQuery);
-                if (vpnPortipToPort != null) {
-                    String oldPortName = vpnPortipToPort.getPortName();
-                    String oldMac = vpnPortipToPort.getMacAddress();
-                    if (!oldMac.equalsIgnoreCase(srcMac.getValue())) {
-                        //MAC has changed for requested IP
-                        LOG.trace("ARP request Source IP/MAC data etmodified for IP {} with MAC {} and Port {}",
-                                ipToQuery, srcMac, srcInterface);
-                        if (!vpnPortipToPort.isConfig()) {
+                if(vpnPortipToPort == null) {
+                    VpnVipipToPort vpnVipipToPort = VpnUtil.getNeutronPortFromVpnVipFixedIp(dataBroker, vpnIds.getVpnInstanceName(), ipToQuery);
+                    if (vpnVipipToPort != null) {
+                        String oldPortName = vpnVipipToPort.getPortName();
+                        String oldMac = vpnVipipToPort.getMacAddress();
+                        if (!oldMac.equalsIgnoreCase(srcMac.getValue())) {
+                            //MAC has changed for requested IP
+                            LOG.trace("ARP request Source IP/MAC data etmodified for IP {} with MAC {} and Port {}",
+                                    ipToQuery, srcMac, srcInterface);
+
                             synchronized ((vpnName + ipToQuery).intern()) {
                                 removeMipAdjacency(vpnName, oldPortName, srcIP);
-                                VpnUtil.removeVpnPortFixedIpToPort(dataBroker, vpnName, ipToQuery);
+                                VpnUtil.removeVpnVipFixedIpToPort(dataBroker, vpnName, ipToQuery);
                             }
                             try {
                                 Thread.sleep(2000);
                             } catch (Exception e) {
                             }
-                        } else {
-                            //MAC mismatch for a Neutron learned IP
-                            LOG.warn("MAC Address mismatach for Interface {} having a Mac  {},  IP {} and Arp learnt Mac {}",
-                                    oldPortName, oldMac, ipToQuery, srcMac.getValue());
-                            return;
+                        }
+                    } else {
+                        synchronized ((vpnName + ipToQuery).intern()) {
+                            VpnUtil.createVpnVipFixedIpToPort(dataBroker, vpnName, ipToQuery, srcInterface, srcMac.getValue());
+                            addMipAdjacency(vpnName, srcInterface, srcIP);
                         }
                     }
-                } else {
-                    synchronized ((vpnName + ipToQuery).intern()) {
-                        VpnUtil.createVpnPortFixedIpToPort(dataBroker, vpnName, ipToQuery, srcInterface, srcMac.getValue(), false, false, true);
-                        addMipAdjacency(vpnName, srcInterface, srcIP);
-                    }
                 }
+
                 String targetIpToQuery = notification.getDstIpaddress().getIpv4Address().getValue();
                 VpnPortipToPort vpnTargetIpToPort = VpnUtil.getNeutronPortFromVpnPortFixedIp(dataBroker,
                         vpnIds.getVpnInstanceName(), targetIpToQuery);
@@ -147,7 +146,7 @@ public class ArpNotificationHandler implements OdlArputilListener {
                             vpnTargetIpToPort);
                     return;
                 }
-                if (vpnTargetIpToPort != null && vpnTargetIpToPort.isSubnetIp()) { // handle router interfaces ARP
+                if (vpnTargetIpToPort != null) { // handle router interfaces ARP
                     handleArpRequestForSubnetIp(srcInterface, srcIP, srcMac, targetIP, vpnTargetIpToPort);
                     return;
                 }
@@ -227,33 +226,32 @@ public class ArpNotificationHandler implements OdlArputilListener {
                 VpnIds vpnIds = vpnIdsOptional.get();
                 VpnPortipToPort vpnPortipToPort = VpnUtil.getNeutronPortFromVpnPortFixedIp(dataBroker, vpnIds
                         .getVpnInstanceName(), ipToQuery);
-                if (vpnPortipToPort != null) {
-                    String oldMac = vpnPortipToPort.getMacAddress();
-                    String oldPortName = vpnPortipToPort.getPortName();
-                    if (!oldMac.equalsIgnoreCase(srcMac.getValue())) {
-                        //MAC has changed for requested IP
-                        LOG.trace("ARP response Source IP/MAC data modified for IP {} with MAC {} and Port {}",
-                                ipToQuery, srcMac, srcInterface);
-                        if (!vpnPortipToPort.isConfig()) {
+                if (vpnPortipToPort == null) {
+                    VpnVipipToPort vpnVipipToPort = VpnUtil.getNeutronPortFromVpnVipFixedIp(dataBroker, vpnIds.getVpnInstanceName(), ipToQuery);
+                    if (vpnVipipToPort != null) {
+                        String oldMac = vpnVipipToPort.getMacAddress();
+                        String oldPortName = vpnVipipToPort.getPortName();
+                        if (!oldMac.equalsIgnoreCase(srcMac.getValue())) {
+                            //MAC has changed for requested IP
+                            LOG.trace("ARP response Source IP/MAC data modified for IP {} with MAC {} and Port {}",
+                                    ipToQuery, srcMac, srcInterface);
+
                             synchronized ((vpnName + ipToQuery).intern()) {
                                 removeMipAdjacency(vpnName, oldPortName, srcIP);
-                                VpnUtil.removeVpnPortFixedIpToPort(dataBroker, vpnName, ipToQuery);
+                                VpnUtil.removeVpnVipFixedIpToPort(dataBroker, vpnName, ipToQuery);
                             }
                             try {
                                 Thread.sleep(2000);
                             } catch (Exception e) {
                             }
-                        } else {
-                            //MAC mismatch for a Neutron learned IP set learnt back to false
-                            LOG.warn("MAC Address mismatch for Interface {} having a Mac  {} , IP {} and Arp learnt Mac {}",
-                                    srcInterface, oldMac, ipToQuery, srcMac.getValue());
+                        }
+                    } else {
+                        synchronized ((vpnName + ipToQuery).intern()) {
+                            VpnUtil.createVpnVipFixedIpToPort(dataBroker, vpnName, ipToQuery, srcInterface, srcMac.getValue());
+                            addMipAdjacency(vpnName, srcInterface, srcIP);
                         }
                     }
-                } else {
-                    synchronized ((vpnName + ipToQuery).intern()) {
-                        VpnUtil.createVpnPortFixedIpToPort(dataBroker, vpnName, ipToQuery, srcInterface, srcMac.getValue(), false, false, true);
-                        addMipAdjacency(vpnName, srcInterface, srcIP);
-                    }
+
                 }
             }
         }
