@@ -178,7 +178,7 @@ public class BgpConfigurationManager {
 
     // to have stale FIB map (RD, Prefix)
     //  number of seconds wait for route sync-up between ODL and BGP.
-    private static final int BGP_RESTART_ROUTE_SYNC_SEC = 360;
+    private static final int BGP_RESTART_ROUTE_SYNC_SEC = 600;
 
     static String odlThriftIp = "127.0.0.1";
     static String bgpThriftIp = "127.0.0.1";
@@ -1980,8 +1980,8 @@ public class BgpConfigurationManager {
                                 }
                                 try {
                                     totalCleared++;
-                                    LOG.error("BGP: RouteCleanup deletePrefix called but not executed rd:{}, prefix{}" + rd.toString() + prefix);
-                                    // fibDSWriter.removeFibEntryFromDS(rd, prefix);
+                                    LOG.debug("BGP: RouteCleanup deletePrefix called for : rd:{}, prefix{}" + rd.toString() + prefix);
+                                    fibDSWriter.removeFibEntryFromDS(rd, prefix);
                                 } catch (Exception e) {
                                     LOG.error("BGP: RouteCleanup deletePrefix failed rd:{}, prefix{}" + rd.toString() + prefix);
                                 }
@@ -2033,6 +2033,10 @@ public class BgpConfigurationManager {
                 for (VrfTables vrfTable : stale_vrfTables) {
                     Map<String, String> stale_fib_ent_map = new HashMap<>();
                     for (VrfEntry vrfEntry : vrfTable.getVrfEntry()) {
+                        if (RouteOrigin.value(vrfEntry.getOrigin()) != RouteOrigin.BGP) {
+                            //Stale marking and cleanup is only meant for the routes learned through BGP.
+                            continue;
+                        }
                         if (Thread.interrupted()) {
                             break;
                         }
