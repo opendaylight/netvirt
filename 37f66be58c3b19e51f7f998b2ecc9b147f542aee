@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7a6b29fe_4a08aed9",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/FibManagerImpl.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 5350
+      },
+      "writtenOn": "2016-09-30T08:49:26Z",
+      "side": 1,
+      "message": "no need for this \u0027fibManager\u0027\nFibManagerImpl is already the \u0027IFibManager\u0027, and the vrfEntryListener is the one that does the hard work.",
+      "range": {
+        "startLine": 29,
+        "startChar": 30,
+        "endLine": 29,
+        "endChar": 40
+      },
+      "revId": "37f66be58c3b19e51f7f998b2ecc9b147f542aee",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_0a6b5685",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/FibManagerImpl.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 161,
+      "author": {
+        "id": 5350
+      },
+      "writtenOn": "2016-09-30T08:49:26Z",
+      "side": 1,
+      "message": "I guess you meant \u0027vrfEntryListener\u0027",
+      "range": {
+        "startLine": 161,
+        "startChar": 8,
+        "endLine": 161,
+        "endChar": 18
+      },
+      "revId": "37f66be58c3b19e51f7f998b2ecc9b147f542aee",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_aa6fc290",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/resources/org/opendaylight/blueprint/fibmanager.xml",
+        "patchSetId": 1
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 5350
+      },
+      "writtenOn": "2016-09-30T08:49:26Z",
+      "side": 1,
+      "message": "no need for this. fibManagerImpl is already an IFibManager",
+      "range": {
+        "startLine": 25,
+        "startChar": 19,
+        "endLine": 25,
+        "endChar": 29
+      },
+      "revId": "37f66be58c3b19e51f7f998b2ecc9b147f542aee",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
