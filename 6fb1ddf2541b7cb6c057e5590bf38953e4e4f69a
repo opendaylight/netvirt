@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7a6b29fe_bd226e4f",
+        "filename": "openstack/net-virt-providers/src/main/java/org/opendaylight/netvirt/openstack/netvirt/providers/openflow13/services/OutboundNatService.java",
+        "patchSetId": 12
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2016-10-01T01:24:07Z",
+      "side": 1,
+      "message": "Hi Vinoth, the purpose of new methods might be l3 related. However it seems to me that the field match and the action of the flows are at L2 level, such push/pop VLAN, matching on mac address,..\n\nTo my opinion the flows that are related to L3 should deal with IP addresses and such.",
+      "revId": "6fb1ddf2541b7cb6c057e5590bf38953e4e4f69a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_9d1df211",
+        "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/ConfigActivator.java",
+        "patchSetId": 12
+      },
+      "lineNbr": 213,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2016-10-01T01:24:07Z",
+      "side": 1,
+      "message": "Vinoth: \"VLANProviderUtil class needs some global references such as ConfigurationService, NodeCacheManager, OutboundNatProvider and Southbound. These global variables will be initialized only if we register this class as service..\"\n\nVinh: if we make this into an util class that is used only by SouthboundHandler, when it is called all the above service should be available. Please see class org.opendaylight.netvirt.utils.neutron.utils.NeutronUtils\n\nfor how it gets service references",
+      "revId": "6fb1ddf2541b7cb6c057e5590bf38953e4e4f69a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_fd18661f",
+        "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/SouthboundHandler.java",
+        "patchSetId": 12
+      },
+      "lineNbr": 350,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2016-10-01T01:24:07Z",
+      "side": 1,
+      "message": "method name should begin with vert describe action, ie\n\"programVlanNetworkFlowProvider\"",
+      "revId": "6fb1ddf2541b7cb6c057e5590bf38953e4e4f69a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
