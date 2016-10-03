@@ -35,7 +35,7 @@ public interface IBgpManager {
      *
      * @param rd
      * @param prefix
-     * @param nextHop
+     * @param nextHopList
      * @param vpnLabel
      */
     public void addPrefix(String rd, String prefix, List<String> nextHopList, int vpnLabel, RouteOrigin origin) throws Exception;
@@ -81,7 +81,7 @@ public interface IBgpManager {
      *
      * @param rd
      * @param prefix
-     * @param nextHopList
+     * @param nextHop
      * @param vpnLabel
      */
     public void advertisePrefix(String rd, String prefix, String nextHop, int vpnLabel) throws Exception;
