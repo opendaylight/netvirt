@@ -193,7 +193,6 @@ public class VpnServiceChainUtils {
         return vpnVrfEntries;
     }
 
-    
     /**
      * Installs/removes a flow in LPortDispatcher table that is in charge of
      * handling packets that falls back from SCF Pipeline to L3Vpn.
