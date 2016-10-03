@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7a6b29fe_2cbd8ad8",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 12
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-10-03T18:28:17Z",
+      "side": 1,
+      "message": "We should attempt to describe this feature here better.\n\nFor more explanation, please see the other review where I have provided the description about this feature:\n\nhttps://git.opendaylight.org/gerrit/#/c/46295/\n\nAlso a link to a living google doc (or) wiki page will help.",
+      "revId": "41f0ca24cf381f4557a4b890de98fb506cc7d54a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
