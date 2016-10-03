@@ -1,0 +1,293 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7a6b29fe_ac223a4f",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 2
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-10-03T18:25:06Z",
+      "side": 1,
+      "message": "Create a new VPNVipToPort Datastore which will contain non-neutron IP addresses.  This Datastore will be of OPERATIONAL type. \nIt will be constructed as part of ARP/GARP requests and ARP response discoveries by the controller.",
+      "revId": "858504c789fdaa6df88bf27e2e99c781e3103a55",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_8c1dbe11",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 2
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-10-03T18:25:06Z",
+      "side": 1,
+      "message": "The existing NeutronVpnPortIpToPort will be changed as a pure Config only Datastore as it will store all Neutron Port (Floating IP including) and their IP and MAC Addresses.  This datastore will continue to be used for lookup during ARP resolution and SubnetRoute handling.",
+      "revId": "858504c789fdaa6df88bf27e2e99c781e3103a55",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_2cd62a28",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 2
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-10-03T18:25:06Z",
+      "side": 1,
+      "message": "Please quote:\n\nThe feature which initiates periodic ARP-based location discovery of non-neutron IPs from the controller brought in via the earlier review here:\n\n\u003cquote the review link here\u003e\n\nNow the above feature will be using only the new VPNVipToPort that carries only Non-Neutron IPs as in this current review.",
+      "revId": "858504c789fdaa6df88bf27e2e99c781e3103a55",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_acfb5abf",
+        "filename": "vpnservice/vpnmanager/vpnmanager-api/src/main/yang/odl-l3vpn.yang",
+        "patchSetId": 2
+      },
+      "lineNbr": 172,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-10-03T18:25:06Z",
+      "side": 1,
+      "message": "fix these tabs please !",
+      "revId": "858504c789fdaa6df88bf27e2e99c781e3103a55",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_ec01d2af",
+        "filename": "vpnservice/vpnmanager/vpnmanager-api/src/main/yang/odl-l3vpn.yang",
+        "patchSetId": 2
+      },
+      "lineNbr": 345,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-10-03T18:25:06Z",
+      "side": 1,
+      "message": "where is the yang holding the original neutronvpnportiptoport?\n\nIn that yang please make \u0027config true;\u0027",
+      "revId": "858504c789fdaa6df88bf27e2e99c781e3103a55",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_f691a3f1",
+        "filename": "vpnservice/vpnmanager/vpnmanager-api/src/main/yang/odl-l3vpn.yang",
+        "patchSetId": 2
+      },
+      "lineNbr": 346,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-10-03T18:25:06Z",
+      "side": 1,
+      "message": "vpn-vip-to-port-data",
+      "revId": "858504c789fdaa6df88bf27e2e99c781e3103a55",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_4c11e602",
+        "filename": "vpnservice/vpnmanager/vpnmanager-api/src/main/yang/odl-l3vpn.yang",
+        "patchSetId": 2
+      },
+      "lineNbr": 348,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-10-03T18:25:06Z",
+      "side": 1,
+      "message": "vpn-vip-to-port",
+      "revId": "858504c789fdaa6df88bf27e2e99c781e3103a55",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_d68c67d9",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/ArpMonitoringHandler.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 72,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-10-03T18:25:06Z",
+      "side": 1,
+      "message": "Please tell what failed and why here with some context infomration..",
+      "revId": "858504c789fdaa6df88bf27e2e99c781e3103a55",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_36bf9b62",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/ArpMonitoringHandler.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 97,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-10-03T18:25:06Z",
+      "side": 1,
+      "message": "Fix this warning message.",
+      "revId": "858504c789fdaa6df88bf27e2e99c781e3103a55",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_76b5937c",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/ArpMonitoringHandler.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 103,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-10-03T18:25:06Z",
+      "side": 1,
+      "message": "fix error here.",
+      "revId": "858504c789fdaa6df88bf27e2e99c781e3103a55",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_cce05628",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/ArpNotificationHandler.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 113,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-10-03T18:25:06Z",
+      "side": 1,
+      "message": "use spaced around () like the if ( )",
+      "revId": "858504c789fdaa6df88bf27e2e99c781e3103a55",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_ac6a3ab0",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/ArpNotificationHandler.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 120,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-10-03T18:25:06Z",
+      "side": 1,
+      "message": "spell check \u0027etmodified\u0027",
+      "revId": "858504c789fdaa6df88bf27e2e99c781e3103a55",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_0cd6ce4e",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/ArpNotificationHandler.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 130,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-10-03T18:25:06Z",
+      "side": 1,
+      "message": "can you please check with Achuth, why this sleep is required in the datapath?",
+      "revId": "858504c789fdaa6df88bf27e2e99c781e3103a55",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_8cc13e82",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/ArpNotificationHandler.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 149,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-10-03T18:25:06Z",
+      "side": 1,
+      "message": "you should retain the check vpnTargetIpToPort.isSubnetIp() here..",
+      "revId": "858504c789fdaa6df88bf27e2e99c781e3103a55",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_ec5392df",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/ArpNotificationHandler.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 176,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-10-03T18:25:06Z",
+      "side": 1,
+      "message": "ANother if () required here to see if the target IP is for a VIPPort, if so , we should return without servicing anyTHING.\n\nOtherwise we should continue as below.",
+      "revId": "858504c789fdaa6df88bf27e2e99c781e3103a55",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_0c0b6ed6",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/ArpNotificationHandler.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 246,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-10-03T18:25:06Z",
+      "side": 1,
+      "message": "ditto comment as earlier, in arprequest handling.",
+      "revId": "858504c789fdaa6df88bf27e2e99c781e3103a55",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_ac74fa67",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/ArpNotificationHandler.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 262,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-10-03T18:25:06Z",
+      "side": 1,
+      "message": "Since floatingip-port-mac is neutron configured, instead of getNeutronPortForFloatingIP, we can use getNeutronVpnPortIpToPort() and that will return non-null for floatingip.\n\nThat value can be reused to send response in Line 276.",
+      "revId": "858504c789fdaa6df88bf27e2e99c781e3103a55",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
