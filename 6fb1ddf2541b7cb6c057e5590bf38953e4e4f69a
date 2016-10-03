@@ -36,6 +36,24 @@
     },
     {
       "key": {
+        "uuid": "7a6b29fe_7643d36b",
+        "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/ConfigActivator.java",
+        "patchSetId": 12
+      },
+      "lineNbr": 213,
+      "author": {
+        "id": 4018
+      },
+      "writtenOn": "2016-10-03T15:08:46Z",
+      "side": 1,
+      "message": "Hi Vinh, we tried this way but the global instance getting as NULL value. so we have followed existing behaviour.",
+      "parentUuid": "7a6b29fe_9d1df211",
+      "revId": "6fb1ddf2541b7cb6c057e5590bf38953e4e4f69a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7a6b29fe_fd18661f",
         "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/SouthboundHandler.java",
         "patchSetId": 12
@@ -47,6 +65,24 @@
       "writtenOn": "2016-10-01T01:24:07Z",
       "side": 1,
       "message": "method name should begin with vert describe action, ie\n\"programVlanNetworkFlowProvider\"",
+      "revId": "6fb1ddf2541b7cb6c057e5590bf38953e4e4f69a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_566fb7fb",
+        "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/SouthboundHandler.java",
+        "patchSetId": 12
+      },
+      "lineNbr": 350,
+      "author": {
+        "id": 4018
+      },
+      "writtenOn": "2016-10-03T15:08:46Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7a6b29fe_fd18661f",
       "revId": "6fb1ddf2541b7cb6c057e5590bf38953e4e4f69a",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
