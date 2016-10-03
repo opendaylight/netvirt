@@ -1832,10 +1832,10 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
         Uuid vpnId = input.getVpnId();
         Uuid routerId = input.getRouterId();
         try {
-            if (routerId != null && vpnId != null) {
-                Router rtr = NeutronvpnUtils.getNeutronRouter(dataBroker, routerId);
-                VpnMap vpnMap = NeutronvpnUtils.getVpnMap(dataBroker, vpnId);
-                if (rtr != null && vpnMap != null) {
+            VpnMap vpnMap = NeutronvpnUtils.getVpnMap(dataBroker, vpnId);
+            Router rtr = NeutronvpnUtils.getNeutronRouter(dataBroker, routerId);
+            if (vpnMap != null) {
+                if (rtr != null) {
                     Uuid extVpnId = NeutronvpnUtils.getVpnForRouter(dataBroker, routerId, true);
                     if (vpnMap.getRouterId() != null) {
                         returnMsg.append("vpn ").append(vpnId.getValue()).append(" already associated to router ")
