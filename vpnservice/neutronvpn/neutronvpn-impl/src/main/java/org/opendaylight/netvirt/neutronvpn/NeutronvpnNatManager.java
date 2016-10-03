@@ -145,7 +145,7 @@ public class NeutronvpnNatManager implements AutoCloseable {
     private boolean snatSettingChanged(Router orig, Router update) {
         ExternalGatewayInfo orig_ext_gw = null;
         ExternalGatewayInfo new_ext_gw = null;
-        if (orig.getExternalGatewayInfo() != null) {
+        if (orig != null && orig.getExternalGatewayInfo() != null) {
             orig_ext_gw = orig.getExternalGatewayInfo();
         }
 
@@ -165,7 +165,7 @@ public class NeutronvpnNatManager implements AutoCloseable {
     private boolean externalFixedIpsChanged(Router orig, Router update) {
         ExternalGatewayInfo orig_ext_gw = null;
         ExternalGatewayInfo new_ext_gw = null;
-        if (orig.getExternalGatewayInfo() != null) {
+        if (orig != null && orig.getExternalGatewayInfo() != null) {
             orig_ext_gw = orig.getExternalGatewayInfo();
         }
 
