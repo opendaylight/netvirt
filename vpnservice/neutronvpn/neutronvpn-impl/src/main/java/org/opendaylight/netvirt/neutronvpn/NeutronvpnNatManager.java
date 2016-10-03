@@ -153,12 +153,19 @@ public class NeutronvpnNatManager implements AutoCloseable {
             new_ext_gw = update.getExternalGatewayInfo();
         }
 
-        if ((orig_ext_gw != null) && (new_ext_gw != null)) {
-            if (orig_ext_gw.isEnableSnat() != new_ext_gw.isEnableSnat()) {
+        if ((orig_ext_gw == null)) {
+            if (new_ext_gw != null && new_ext_gw.isEnableSnat() == Boolean.TRUE) {
+                return true;
+            }
+        } else if (orig_ext_gw.isEnableSnat()) {
+            if (new_ext_gw == null) {
+                if (orig_ext_gw.isEnableSnat() == Boolean.TRUE) {
+                    return true;
+                }
+            } else if (orig_ext_gw.isEnableSnat() != new_ext_gw.isEnableSnat()) {
                 return true;
             }
         }
-
         return false;
     }
 
@@ -173,26 +180,38 @@ public class NeutronvpnNatManager implements AutoCloseable {
             new_ext_gw = update.getExternalGatewayInfo();
         }
 
-        if ((orig_ext_gw != null) && (new_ext_gw != null)) {
-            List<ExternalFixedIps> orig_ext_fixed_ips = orig_ext_gw.getExternalFixedIps();
-            HashSet<String> orig_fixed_ip_set = new HashSet<String>();
-            for (ExternalFixedIps fixed_ip: orig_ext_fixed_ips) {
-                orig_fixed_ip_set.add(fixed_ip.getIpAddress().getIpv4Address().getValue());
-            }
-            HashSet<String> upd_fixed_ip_set = new HashSet<String>();
-            List<ExternalFixedIps> new_ext_fixed_ips = new_ext_gw.getExternalFixedIps();
-            for (ExternalFixedIps fixed_ip: new_ext_fixed_ips) {
-                upd_fixed_ip_set.add(fixed_ip.getIpAddress().getIpv4Address().getValue());
-            }
-
-            if (!orig_fixed_ip_set.equals(upd_fixed_ip_set)) {
-                // External Subnets have changed
+        if ((orig_ext_gw == null)) {
+            if (new_ext_gw != null && new_ext_gw.getExternalFixedIps() != null && !new_ext_gw.getExternalFixedIps()
+                    .isEmpty()) {
                 return true;
             }
+        } else if (orig_ext_gw.getExternalFixedIps() != null && !orig_ext_gw.getExternalFixedIps().isEmpty()) {
+            if (new_ext_gw == null) {
+                return true;
+            } else if (new_ext_gw.getExternalFixedIps() != null) {
+                if (!new_ext_gw.getExternalFixedIps().isEmpty()) {
+                    List<ExternalFixedIps> orig_ext_fixed_ips = orig_ext_gw.getExternalFixedIps();
+                    HashSet<String> orig_fixed_ip_set = new HashSet<String>();
+                    for (ExternalFixedIps fixed_ip: orig_ext_fixed_ips) {
+                        orig_fixed_ip_set.add(fixed_ip.getIpAddress().getIpv4Address().getValue());
+                    }
+                    List<ExternalFixedIps> new_ext_fixed_ips = new_ext_gw.getExternalFixedIps();
+                    HashSet<String> upd_fixed_ip_set = new HashSet<String>();
+                    for (ExternalFixedIps fixed_ip: new_ext_fixed_ips) {
+                        upd_fixed_ip_set.add(fixed_ip.getIpAddress().getIpv4Address().getValue());
+                    }
+
+                    if (!orig_fixed_ip_set.equals(upd_fixed_ip_set)) {
+                        // External Subnets have changed
+                        return true;
+                    }
+                }
+                return true;
+            }
+            return true;
         }
         return false;
     }
-
 
     public void addExternalNetwork(Network net) {
         Uuid extNetId = net.getUuid();
