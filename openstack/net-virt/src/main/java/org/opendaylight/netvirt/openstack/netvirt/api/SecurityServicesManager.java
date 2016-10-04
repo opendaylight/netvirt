@@ -11,7 +11,6 @@ package org.opendaylight.netvirt.openstack.netvirt.api;
 import org.opendaylight.netvirt.openstack.netvirt.translator.NeutronPort;
 import org.opendaylight.netvirt.openstack.netvirt.translator.NeutronSecurityGroup;
 import org.opendaylight.netvirt.openstack.netvirt.translator.NeutronSecurityRule;
-import org.opendaylight.netvirt.openstack.netvirt.translator.NeutronSubnet;
 import org.opendaylight.netvirt.openstack.netvirt.translator.Neutron_IPs;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.rev150105.OvsdbTerminationPointAugmentation;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Node;
@@ -130,19 +129,4 @@ public interface SecurityServicesManager {
      * @return  whether it is a compute port or not
      */
     boolean isPortSecurityEnabled(OvsdbTerminationPointAugmentation intf);
-
-    /**
-     * Get the Neutron Subnet.
-     *
-     * @param intf the port
-     * @return  neutron subnet
-     */
-    NeutronSubnet getSubnet(OvsdbTerminationPointAugmentation intf);
-    /**
-     * Get the GatewayMac Address.
-     *
-     * @param neutronSubnet in the neutron subnet
-     * @return  string
-     */
-    String getGatewayMacAddr(NeutronSubnet neutronSubnet);
 }
