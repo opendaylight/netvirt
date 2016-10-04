@@ -53,6 +53,24 @@
     },
     {
       "key": {
+        "uuid": "7a6b29fe_fce50139",
+        "filename": "openstack/net-virt-providers/src/main/java/org/opendaylight/netvirt/openstack/netvirt/providers/openflow13/OF13Provider.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 1558,
+      "author": {
+        "id": 6649
+      },
+      "writtenOn": "2016-10-04T07:21:07Z",
+      "side": 1,
+      "message": "Even if the tunnel ID isn\u0027t set, it doesn\u0027t influence behavior. \nBut when a network is made, a flow to the tunnel ID is inserted. \nI think it\u0027s better to set the tunnel ID like other flows and make it one group.",
+      "parentUuid": "7a6b29fe_7d25765a",
+      "revId": "e86c714f1e085f2b2e0d2e6c5c49b0c157f35ae7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7a6b29fe_9df692d5",
         "filename": "openstack/net-virt-providers/src/main/java/org/opendaylight/netvirt/openstack/netvirt/providers/openflow13/services/L2ForwardingService.java",
         "patchSetId": 5
@@ -64,6 +82,24 @@
       "writtenOn": "2016-10-01T00:50:38Z",
       "side": 1,
       "message": "Do we set TunnelID here?",
+      "revId": "e86c714f1e085f2b2e0d2e6c5c49b0c157f35ae7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_dce2c52e",
+        "filename": "openstack/net-virt-providers/src/main/java/org/opendaylight/netvirt/openstack/netvirt/providers/openflow13/services/L2ForwardingService.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 649,
+      "author": {
+        "id": 6649
+      },
+      "writtenOn": "2016-10-04T07:21:07Z",
+      "side": 1,
+      "message": "Even if the tunnel ID isn\u0027t set, it doesn\u0027t influence behavior. \nBut when a network is made, a flow to the tunnel ID is inserted. \nI think it\u0027s better to set the tunnel ID like other flows and make it one group.",
+      "parentUuid": "7a6b29fe_9df692d5",
       "revId": "e86c714f1e085f2b2e0d2e6c5c49b0c157f35ae7",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
