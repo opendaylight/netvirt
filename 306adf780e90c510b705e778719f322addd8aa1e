@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7a6b29fe_f0e2402e",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/intervpnlink/InterVpnLinkListener.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 247,
+      "author": {
+        "id": 5366
+      },
+      "writtenOn": "2016-10-04T16:24:12Z",
+      "side": 1,
+      "message": "Maybe its better to have an else statement which executes the call to leakRoute method instead of having a continue statement",
+      "range": {
+        "startLine": 247,
+        "startChar": 16,
+        "endLine": 247,
+        "endChar": 24
+      },
+      "revId": "306adf780e90c510b705e778719f322addd8aa1e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
