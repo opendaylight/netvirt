@@ -288,22 +288,6 @@ public class MatchUtils {
     }
 
     /**
-     * Match ICMP DHCP
-     *
-     * @param matchBuilder MatchBuilder Object
-     * @return matchBuilder Map MatchBuilder Object with a match
-     */
-    public static MatchBuilder createICMPDhcpAllow(MatchBuilder matchBuilder) {
-
-    // Build the IPv4 Match required per OVS Syntax
-    IpMatchBuilder ipmatch = new IpMatchBuilder();
-    ipmatch.setIpProtocol(ICMP_SHORT);
-    matchBuilder.setIpMatch(ipmatch.build());
-
-    return matchBuilder;
-    }
-
-    /**
      * Match ICMPv6 code and type
      *
      * @param matchBuilder MatchBuilder Object

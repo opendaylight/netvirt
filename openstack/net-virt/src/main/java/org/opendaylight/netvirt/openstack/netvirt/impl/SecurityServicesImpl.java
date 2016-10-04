@@ -458,11 +458,10 @@ public class SecurityServicesImpl implements ConfigInterface, SecurityServicesMa
         NeutronPort dhcpPort = this.getDhcpServerPort(intf);
         List<Neutron_IPs> srcAddressList = null;
         srcAddressList = this.getIpAddressList(intf);
-        NeutronSubnet neutronSubnet = getSubnet(intf);
         ingressAclProvider.programFixedSecurityGroup(dpid, segmentationId,
-            dhcpPort.getMacAddress(), localPort, attachedMac, write, neutronSubnet);
+            dhcpPort.getMacAddress(), localPort, attachedMac, write);
         egressAclProvider.programFixedSecurityGroup(dpid, segmentationId,
-            attachedMac, dhcpPort.getMacAddress(), localPort, srcAddressList, write, neutronSubnet);
+            attachedMac, localPort, srcAddressList, write);
 
     }
 
@@ -502,13 +501,11 @@ public class SecurityServicesImpl implements ConfigInterface, SecurityServicesMa
                 LOG.debug("syncSecurityGroup: No neutronPortId seen in {}", intf);
                 return;
             }
-            NeutronSubnet neutronSubnet = getSubnet(intf);
             for (NeutronSecurityGroup securityGroupInPort:securityGroupList) {
-                NeutronPort dhcpPort = this.getDhcpServerPort(intf);
                 ingressAclProvider.programPortSecurityGroup(dpid, segmentationId, attachedMac, localPort,
-                                                          securityGroupInPort, neutronPortId, dhcpPort.getMacAddress(), neutronSubnet, write);
+                                                          securityGroupInPort, neutronPortId, write);
                 egressAclProvider.programPortSecurityGroup(dpid, segmentationId, attachedMac, localPort,
-                                                         securityGroupInPort, neutronPortId, dhcpPort.getMacAddress(), neutronSubnet, write);
+                                                         securityGroupInPort, neutronPortId, write);
             }
         }
     }
@@ -543,15 +540,13 @@ public class SecurityServicesImpl implements ConfigInterface, SecurityServicesMa
             if (dpid == 0L) {
                 return;
             }
-            NeutronSubnet neutronSubnet = getSubnet(intf);
             if (NeutronSecurityRule.ETHERTYPE_IPV4.equals(securityRule.getSecurityRuleEthertype())) {
-                NeutronPort dhcpPort = this.getDhcpServerPort(intf);
                 if (NeutronSecurityRule.DIRECTION_INGRESS.equals(securityRule.getSecurityRuleDirection())) {
                     ingressAclProvider.programPortSecurityRule(dpid, segmentationId, attachedMac, localPort,
-                            securityRule, vmIp, dhcpPort.getMacAddress(), neutronSubnet, write);
+                            securityRule, vmIp, write);
                 } else if (NeutronSecurityRule.DIRECTION_EGRESS.equals(securityRule.getSecurityRuleDirection())) {
                     egressAclProvider.programPortSecurityRule(dpid, segmentationId, attachedMac, localPort,
-                            securityRule, vmIp, dhcpPort.getMacAddress(), neutronSubnet, write);
+                            securityRule, vmIp, write);
                 }
             }
         }
@@ -665,72 +660,5 @@ public class SecurityServicesImpl implements ConfigInterface, SecurityServicesMa
     @Override
     public boolean isConntrackEnabled() {
         return isConntrackEnabled;
-    }
-
-    /**
-     * Get the Neutron Subnet.
-     *
-     * @param intf the port
-     * @return  neutron subnet
-     */
-    @Override
-    public NeutronSubnet getSubnet(OvsdbTerminationPointAugmentation intf) {
-        NeutronPort neutronPort = null;
-        String neutronPortId = southbound.getInterfaceExternalIdsValue(intf,
-                Constants.EXTERNAL_ID_INTERFACE_ID);
-        if (neutronPortCache == null) {
-            LOG.error("neutron port is null");
-            return null;
-        }
-        neutronPort = neutronPortCache.getPort(neutronPortId);
-        if (neutronPort == null) {
-            neutronPort = neutronL3Adapter.getPortFromCleanupCache(neutronPortId);
-                if (neutronPort == null) {
-                    LOG.error("getSubnet: neutron port of {} is not found", neutronPortId);
-                    return null;
-                }
-            LOG.info("getSubnet: neutron port of {} got from cleanupcache", neutronPortId);
-
-        }
-        List<Neutron_IPs> fixedIps = neutronPort.getFixedIPs();
-        if (null == fixedIps || 0 == fixedIps.size() ) {
-           LOG.error("getSubnet: No fixed ip is assigned");
-           return null;
-        }
-        String subnetUuid = fixedIps.iterator().next().getSubnetUUID();
-        NeutronSubnet neutronSubnet = neutronSubnetCache.getSubnet(subnetUuid);
-        return neutronSubnet;
-    }
-
-    @Override
-    public String getGatewayMacAddr(NeutronSubnet neutronSubnet){
-        if (neutronPortCache == null) {
-            LOG.error("getGatewayMacAddr: neutron port is null");
-            return null;
-        }
-        if (neutronSubnet == null) {
-            LOG.warn("getGatewayMacAddr: neutron subnet is null");
-        }
-        List<NeutronPort> allPorts = neutronPortCache.getAllPorts();
-        String OWNER_ROUTER_INTERFACE = "network:router_interface";
-        if (allPorts != null) {
-            for (NeutronPort port : allPorts) {
-                if (port.getDeviceOwner().equalsIgnoreCase(OWNER_ROUTER_INTERFACE)) {
-                    List<Neutron_IPs> fixedIps = port.getFixedIPs();
-                    if ( fixedIps != null || fixedIps.size() != 0){
-                        for (Neutron_IPs ips : fixedIps) {
-                            String routerSubnetUuid = ips.getSubnetUUID();
-                            NeutronSubnet routerSubnet = neutronSubnetCache.getSubnet(routerSubnetUuid);
-                            if (routerSubnet != null && neutronSubnet != null) {
-                                if (routerSubnet.getSubnetUUID().equals(neutronSubnet.getSubnetUUID())) {
-                                    return port.getMacAddress();
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
-        return null;
     }
 }

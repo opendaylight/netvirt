@@ -37,7 +37,6 @@ import org.opendaylight.netvirt.openstack.netvirt.providers.openflow13.PipelineO
 import org.opendaylight.netvirt.openstack.netvirt.providers.openflow13.Service;
 import org.opendaylight.netvirt.openstack.netvirt.translator.NeutronSecurityGroup;
 import org.opendaylight.netvirt.openstack.netvirt.translator.NeutronSecurityRule;
-import org.opendaylight.netvirt.openstack.netvirt.translator.NeutronSubnet;
 import org.opendaylight.netvirt.openstack.netvirt.translator.Neutron_IPs;
 import org.opendaylight.netvirt.openstack.netvirt.api.SecurityGroupCacheManger;
 import org.opendaylight.netvirt.openstack.netvirt.translator.crud.INeutronSecurityRuleCRUD;
@@ -75,7 +74,6 @@ public class IngressAclServiceTest {
 
     @Mock private NeutronSecurityGroup securityGroup;
     @Mock private NeutronSecurityRule portSecurityRule;
-    @Mock private NeutronSubnet neutronSubnet;
     @Mock private NeutronSecurityGroup securityGroupIpv6;
     @Mock private NeutronSecurityRule portSecurityIpv6Rule;
     @Mock private SecurityServicesManager securityServices;
@@ -176,7 +174,7 @@ public class IngressAclServiceTest {
     /**
      * Test method {@link EgressAclService#programPortSecurityGroup(java.lang.Long, java.lang.String,
      * java.lang.String, long, NeutronSecurityGroup,
-     * java.lang.String, java.lang.String, NeutronSubnet, boolean)} when portSecurityRule is incomplete
+     * java.lang.String, boolean)} when portSecurityRule is incomplete
      */
     @Test
     public void testProgramPortSecurityGroupWithIncompleteRule() throws Exception {
@@ -207,7 +205,7 @@ public class IngressAclServiceTest {
         when(neutronSecurityRuleCache.getAllNeutronSecurityRules()).thenReturn(portSecurityList);
 
         ingressAclServiceSpy.programPortSecurityGroup(
-                Long.valueOf(1554), "2", MAC_ADDRESS, 124, localSecurityGroup, PORT_UUID, DHCP_MAC_ADDRESS, neutronSubnet, false);
+                Long.valueOf(1554), "2", MAC_ADDRESS, 124, localSecurityGroup, PORT_UUID, false);
     }
 
     /**
@@ -220,7 +218,7 @@ public class IngressAclServiceTest {
         when(portSecurityRule.getSecurityRulePortMin()).thenReturn(null);
         when(portSecurityRule.getSecurityRuleRemoteIpPrefix()).thenReturn(null);
 
-        ingressAclServiceSpy.programPortSecurityGroup(Long.valueOf(1554), "2", MAC_ADDRESS, 124, securityGroup,PORT_UUID,DHCP_MAC_ADDRESS, neutronSubnet, true);
+        ingressAclServiceSpy.programPortSecurityGroup(Long.valueOf(1554), "2", MAC_ADDRESS, 124, securityGroup,PORT_UUID,true);
 
         verify(writeTransaction, times(1)).put(any(LogicalDatastoreType.class), any(InstanceIdentifier.class), any(Node.class), eq(true));
         verify(writeTransaction, times(1)).submit();
@@ -237,7 +235,7 @@ public class IngressAclServiceTest {
         when(portSecurityIpv6Rule.getSecurityRulePortMin()).thenReturn(null);
         when(portSecurityIpv6Rule.getSecurityRuleRemoteIpPrefix()).thenReturn(null);
 
-        ingressAclServiceSpy.programPortSecurityGroup(Long.valueOf(1554), "2", MAC_ADDRESS, 124, securityGroupIpv6, PORT_UUID, DHCP_MAC_ADDRESS, neutronSubnet, true);
+        ingressAclServiceSpy.programPortSecurityGroup(Long.valueOf(1554), "2", MAC_ADDRESS, 124, securityGroupIpv6, PORT_UUID, true);
 
         verify(writeTransaction, times(1)).put(any(LogicalDatastoreType.class), any(InstanceIdentifier.class), any(Node.class), eq(true));
         verify(writeTransaction, times(1)).submit();
@@ -254,7 +252,7 @@ public class IngressAclServiceTest {
         when(portSecurityRule.getSecurityRulePortMin()).thenReturn(null);
         when(portSecurityRule.getSecurityRuleRemoteIpPrefix()).thenReturn(null);
 
-        ingressAclServiceSpy.programPortSecurityGroup(Long.valueOf(1554), "2", MAC_ADDRESS, 124, securityGroup, PORT_UUID, DHCP_MAC_ADDRESS, neutronSubnet, false);
+        ingressAclServiceSpy.programPortSecurityGroup(Long.valueOf(1554), "2", MAC_ADDRESS, 124, securityGroup,PORT_UUID,false);
 
         verify(writeTransaction, times(1)).delete(any(LogicalDatastoreType.class), any(InstanceIdentifier.class));
         verify(writeTransaction, times(1)).submit();
@@ -271,7 +269,7 @@ public class IngressAclServiceTest {
         when(portSecurityIpv6Rule.getSecurityRulePortMin()).thenReturn(null);
         when(portSecurityIpv6Rule.getSecurityRuleRemoteIpPrefix()).thenReturn(null);
 
-        ingressAclServiceSpy.programPortSecurityGroup(Long.valueOf(1554), "2", MAC_ADDRESS, 124, securityGroupIpv6, PORT_UUID, DHCP_MAC_ADDRESS, neutronSubnet, false);
+        ingressAclServiceSpy.programPortSecurityGroup(Long.valueOf(1554), "2", MAC_ADDRESS, 124, securityGroupIpv6, PORT_UUID, false);
 
         verify(writeTransaction, times(1)).delete(any(LogicalDatastoreType.class), any(InstanceIdentifier.class));
         verify(writeTransaction, times(1)).submit();
@@ -291,7 +289,7 @@ public class IngressAclServiceTest {
                                              any(NodeBuilder.class));
 
         ingressAclServiceSpy.programPortSecurityGroup(DP_ID_LONG, SEGMENT_ID, MAC_ADDRESS, LOCAL_PORT, securityGroup,
-                                                      PORT_UUID, DHCP_MAC_ADDRESS, neutronSubnet, true);
+                                                      PORT_UUID, true);
 
         Match match = flowBuilder.getMatch();
         EthernetMatch ethMatch = match.getEthernetMatch();
@@ -319,7 +317,7 @@ public class IngressAclServiceTest {
                 any(NodeBuilder.class));
 
         ingressAclServiceSpy.programPortSecurityGroup(DP_ID_LONG, SEGMENT_ID, MAC_ADDRESS, LOCAL_PORT, securityGroupIpv6,
-                PORT_UUID, DHCP_MAC_ADDRESS, neutronSubnet, true);
+                PORT_UUID, true);
 
         Match match = flowBuilder.getMatch();
         EthernetMatch ethMatch = match.getEthernetMatch();
@@ -347,7 +345,7 @@ public class IngressAclServiceTest {
                                              any(NodeBuilder.class));
 
         ingressAclServiceSpy.programPortSecurityGroup(DP_ID_LONG, SEGMENT_ID, MAC_ADDRESS, LOCAL_PORT, securityGroup,
-                                                      PORT_UUID, DHCP_MAC_ADDRESS, neutronSubnet, false);
+                                                      PORT_UUID, false);
 
         Match match = flowBuilder.getMatch();
         EthernetMatch ethMatch = match.getEthernetMatch();
@@ -375,7 +373,7 @@ public class IngressAclServiceTest {
                 any(NodeBuilder.class));
 
         ingressAclServiceSpy.programPortSecurityGroup(DP_ID_LONG, SEGMENT_ID, MAC_ADDRESS, LOCAL_PORT, securityGroupIpv6,
-                PORT_UUID, DHCP_MAC_ADDRESS, neutronSubnet, false);
+                PORT_UUID, false);
 
         Match match = flowBuilder.getMatch();
         EthernetMatch ethMatch = match.getEthernetMatch();
@@ -403,7 +401,7 @@ public class IngressAclServiceTest {
         PowerMockito.doAnswer(answer()).when(ingressAclServiceSpy, "writeFlow", any(FlowBuilder.class),
                                              any(NodeBuilder.class));
         ingressAclServiceSpy.programPortSecurityGroup(DP_ID_LONG, SEGMENT_ID, MAC_ADDRESS, LOCAL_PORT, securityGroup,
-                                                      PORT_UUID, DHCP_MAC_ADDRESS, neutronSubnet, true);
+                                                      PORT_UUID, true);
 
         Match match = flowBuilder.getMatch();
         EthernetMatch ethMatch = match.getEthernetMatch();
@@ -439,7 +437,7 @@ public class IngressAclServiceTest {
         PowerMockito.doAnswer(answer()).when(ingressAclServiceSpy, "writeFlow", any(FlowBuilder.class),
                 any(NodeBuilder.class));
         ingressAclServiceSpy.programPortSecurityGroup(DP_ID_LONG, SEGMENT_ID, MAC_ADDRESS, LOCAL_PORT, securityGroupIpv6,
-                PORT_UUID, DHCP_MAC_ADDRESS, neutronSubnet, true);
+                PORT_UUID, true);
 
         Match match = flowBuilder.getMatch();
         EthernetMatch ethMatch = match.getEthernetMatch();
@@ -476,7 +474,7 @@ public class IngressAclServiceTest {
                                              any(NodeBuilder.class));
 
         ingressAclServiceSpy.programPortSecurityGroup(DP_ID_LONG, SEGMENT_ID, MAC_ADDRESS, LOCAL_PORT, securityGroup,
-                                                      PORT_UUID, DHCP_MAC_ADDRESS, neutronSubnet, false);
+                                                      PORT_UUID, false);
 
         Match match = flowBuilder.getMatch();
         EthernetMatch ethMatch = match.getEthernetMatch();
@@ -514,7 +512,7 @@ public class IngressAclServiceTest {
                 any(NodeBuilder.class));
 
         ingressAclServiceSpy.programPortSecurityGroup(DP_ID_LONG, SEGMENT_ID, MAC_ADDRESS, LOCAL_PORT, securityGroupIpv6,
-                PORT_UUID, DHCP_MAC_ADDRESS, neutronSubnet, false);
+                PORT_UUID, false);
 
         Match match = flowBuilder.getMatch();
         EthernetMatch ethMatch = match.getEthernetMatch();
@@ -550,7 +548,7 @@ public class IngressAclServiceTest {
                                              any(NodeBuilder.class));
 
         ingressAclServiceSpy.programPortSecurityGroup(DP_ID_LONG, SEGMENT_ID, MAC_ADDRESS, LOCAL_PORT, securityGroup,
-                                                      PORT_UUID, DHCP_MAC_ADDRESS, neutronSubnet, true);
+                                                      PORT_UUID, true);
 
         Match match = flowBuilder.getMatch();
         EthernetMatch ethMatch = match.getEthernetMatch();
@@ -575,7 +573,7 @@ public class IngressAclServiceTest {
                 any(NodeBuilder.class));
 
         ingressAclServiceSpy.programPortSecurityGroup(DP_ID_LONG, SEGMENT_ID, MAC_ADDRESS, LOCAL_PORT, securityGroupIpv6,
-                PORT_UUID, DHCP_MAC_ADDRESS, neutronSubnet, true);
+                PORT_UUID, true);
 
         Match match = flowBuilder.getMatch();
         EthernetMatch ethMatch = match.getEthernetMatch();
@@ -600,7 +598,7 @@ public class IngressAclServiceTest {
                                              any(NodeBuilder.class));
 
         ingressAclServiceSpy.programPortSecurityGroup(DP_ID_LONG, SEGMENT_ID, MAC_ADDRESS, LOCAL_PORT, securityGroup,
-                                                      PORT_UUID, DHCP_MAC_ADDRESS, neutronSubnet, false);
+                                                      PORT_UUID, false);
 
         Match match = flowBuilder.getMatch();
         EthernetMatch ethMatch = match.getEthernetMatch();
@@ -625,7 +623,7 @@ public class IngressAclServiceTest {
                 any(NodeBuilder.class));
 
         ingressAclServiceSpy.programPortSecurityGroup(DP_ID_LONG, SEGMENT_ID, MAC_ADDRESS, LOCAL_PORT, securityGroupIpv6,
-                PORT_UUID, DHCP_MAC_ADDRESS, neutronSubnet, false);
+                PORT_UUID, false);
 
         Match match = flowBuilder.getMatch();
         EthernetMatch ethMatch = match.getEthernetMatch();
@@ -649,7 +647,7 @@ public class IngressAclServiceTest {
         PowerMockito.doAnswer(answer()).when(ingressAclServiceSpy, "writeFlow", any(FlowBuilder.class),
                                              any(NodeBuilder.class));
         ingressAclServiceSpy.programPortSecurityGroup(DP_ID_LONG, SEGMENT_ID, MAC_ADDRESS, LOCAL_PORT, securityGroup,
-                                                      PORT_UUID, DHCP_MAC_ADDRESS, neutronSubnet, true);
+                                                      PORT_UUID, true);
 
         Match match = flowBuilder.getMatch();
         EthernetMatch ethMatch = match.getEthernetMatch();
@@ -681,7 +679,7 @@ public class IngressAclServiceTest {
         PowerMockito.doAnswer(answer()).when(ingressAclServiceSpy, "writeFlow", any(FlowBuilder.class),
                 any(NodeBuilder.class));
         ingressAclServiceSpy.programPortSecurityGroup(DP_ID_LONG, SEGMENT_ID, MAC_ADDRESS, LOCAL_PORT, securityGroupIpv6,
-                PORT_UUID, DHCP_MAC_ADDRESS, neutronSubnet, true);
+                PORT_UUID, true);
 
         Match match = flowBuilder.getMatch();
         EthernetMatch ethMatch = match.getEthernetMatch();
@@ -714,7 +712,7 @@ public class IngressAclServiceTest {
                                              any(NodeBuilder.class));
 
         ingressAclServiceSpy.programPortSecurityGroup(DP_ID_LONG, SEGMENT_ID, MAC_ADDRESS, LOCAL_PORT, securityGroup,
-                                                      PORT_UUID, DHCP_MAC_ADDRESS, neutronSubnet, false);
+                                                      PORT_UUID, false);
 
         Match match = flowBuilder.getMatch();
         EthernetMatch ethMatch = match.getEthernetMatch();
@@ -748,7 +746,7 @@ public class IngressAclServiceTest {
                 any(NodeBuilder.class));
 
         ingressAclServiceSpy.programPortSecurityGroup(DP_ID_LONG, SEGMENT_ID, MAC_ADDRESS, LOCAL_PORT, securityGroupIpv6,
-                PORT_UUID, DHCP_MAC_ADDRESS, neutronSubnet, false);
+                PORT_UUID, false);
 
         Match match = flowBuilder.getMatch();
         EthernetMatch ethMatch = match.getEthernetMatch();
@@ -782,7 +780,7 @@ public class IngressAclServiceTest {
                                              any(NodeBuilder.class));
 
         ingressAclServiceSpy.programPortSecurityGroup(DP_ID_LONG, SEGMENT_ID, MAC_ADDRESS, LOCAL_PORT, securityGroup,
-                                                       PORT_UUID, DHCP_MAC_ADDRESS, neutronSubnet, true);
+                                                      PORT_UUID, true);
 
         Match match = flowBuilder.getMatch();
         EthernetMatch ethMatch = match.getEthernetMatch();
@@ -810,7 +808,7 @@ public class IngressAclServiceTest {
                 any(NodeBuilder.class));
 
         ingressAclServiceSpy.programPortSecurityGroup(DP_ID_LONG, SEGMENT_ID, MAC_ADDRESS, LOCAL_PORT, securityGroupIpv6,
-                PORT_UUID, DHCP_MAC_ADDRESS, neutronSubnet, true);
+                PORT_UUID, true);
 
         Match match = flowBuilder.getMatch();
         EthernetMatch ethMatch = match.getEthernetMatch();
@@ -838,7 +836,7 @@ public class IngressAclServiceTest {
                                              any(NodeBuilder.class));
 
         ingressAclServiceSpy.programPortSecurityGroup(DP_ID_LONG, SEGMENT_ID, MAC_ADDRESS, LOCAL_PORT, securityGroup,
-                                                      PORT_UUID, DHCP_MAC_ADDRESS, neutronSubnet, false);
+                                                      PORT_UUID, false);
 
         Match match = flowBuilder.getMatch();
         EthernetMatch ethMatch = match.getEthernetMatch();
@@ -866,7 +864,7 @@ public class IngressAclServiceTest {
                 any(NodeBuilder.class));
 
         ingressAclServiceSpy.programPortSecurityGroup(DP_ID_LONG, SEGMENT_ID, MAC_ADDRESS, LOCAL_PORT, securityGroupIpv6,
-                PORT_UUID, DHCP_MAC_ADDRESS, neutronSubnet, false);
+                PORT_UUID, false);
 
         Match match = flowBuilder.getMatch();
         EthernetMatch ethMatch = match.getEthernetMatch();
@@ -894,7 +892,7 @@ public class IngressAclServiceTest {
         PowerMockito.doAnswer(answer()).when(ingressAclServiceSpy, "writeFlow", any(FlowBuilder.class),
                                              any(NodeBuilder.class));
         ingressAclServiceSpy.programPortSecurityGroup(DP_ID_LONG, SEGMENT_ID, MAC_ADDRESS, LOCAL_PORT, securityGroup,
-                                                      PORT_UUID, DHCP_MAC_ADDRESS, neutronSubnet, true);
+                                                      PORT_UUID, true);
 
         Match match = flowBuilder.getMatch();
         EthernetMatch ethMatch = match.getEthernetMatch();
@@ -930,7 +928,7 @@ public class IngressAclServiceTest {
         PowerMockito.doAnswer(answer()).when(ingressAclServiceSpy, "writeFlow", any(FlowBuilder.class),
                 any(NodeBuilder.class));
         ingressAclServiceSpy.programPortSecurityGroup(DP_ID_LONG, SEGMENT_ID, MAC_ADDRESS, LOCAL_PORT, securityGroupIpv6,
-                PORT_UUID, DHCP_MAC_ADDRESS, neutronSubnet, true);
+                PORT_UUID, true);
 
         Match match = flowBuilder.getMatch();
         EthernetMatch ethMatch = match.getEthernetMatch();
@@ -966,7 +964,7 @@ public class IngressAclServiceTest {
         PowerMockito.doAnswer(answer()).when(ingressAclServiceSpy, "removeFlow", any(FlowBuilder.class),
                                              any(NodeBuilder.class));
         ingressAclServiceSpy.programPortSecurityGroup(DP_ID_LONG, SEGMENT_ID, MAC_ADDRESS, LOCAL_PORT, securityGroup,
-                                                      PORT_UUID, DHCP_MAC_ADDRESS, neutronSubnet, false);
+                                                      PORT_UUID, false);
 
         Match match = flowBuilder.getMatch();
         EthernetMatch ethMatch = match.getEthernetMatch();
@@ -1002,7 +1000,7 @@ public class IngressAclServiceTest {
         PowerMockito.doAnswer(answer()).when(ingressAclServiceSpy, "removeFlow", any(FlowBuilder.class),
                 any(NodeBuilder.class));
         ingressAclServiceSpy.programPortSecurityGroup(DP_ID_LONG, SEGMENT_ID, MAC_ADDRESS, LOCAL_PORT, securityGroupIpv6,
-                PORT_UUID, DHCP_MAC_ADDRESS, neutronSubnet, false);
+                PORT_UUID, false);
 
         Match match = flowBuilder.getMatch();
         EthernetMatch ethMatch = match.getEthernetMatch();
@@ -1038,7 +1036,7 @@ public class IngressAclServiceTest {
                                              any(NodeBuilder.class));
 
         ingressAclServiceSpy.programPortSecurityGroup(DP_ID_LONG, SEGMENT_ID, MAC_ADDRESS, LOCAL_PORT, securityGroup,
-                                                      PORT_UUID, DHCP_MAC_ADDRESS, neutronSubnet, true);
+                                                      PORT_UUID, true);
 
         Match match = flowBuilder.getMatch();
         EthernetMatch ethMatch = match.getEthernetMatch();
@@ -1063,7 +1061,7 @@ public class IngressAclServiceTest {
                 any(NodeBuilder.class));
 
         ingressAclServiceSpy.programPortSecurityGroup(DP_ID_LONG, SEGMENT_ID, MAC_ADDRESS, LOCAL_PORT, securityGroupIpv6,
-                PORT_UUID, DHCP_MAC_ADDRESS, neutronSubnet, true);
+                PORT_UUID, true);
 
         Match match = flowBuilder.getMatch();
         EthernetMatch ethMatch = match.getEthernetMatch();
@@ -1088,7 +1086,7 @@ public class IngressAclServiceTest {
                                              any(NodeBuilder.class));
 
         ingressAclServiceSpy.programPortSecurityGroup(DP_ID_LONG, SEGMENT_ID, MAC_ADDRESS, LOCAL_PORT, securityGroup,
-                                                      PORT_UUID, DHCP_MAC_ADDRESS, neutronSubnet, false);
+                                                      PORT_UUID, false);
 
         Match match = flowBuilder.getMatch();
         EthernetMatch ethMatch = match.getEthernetMatch();
@@ -1113,7 +1111,7 @@ public class IngressAclServiceTest {
                 any(NodeBuilder.class));
 
         ingressAclServiceSpy.programPortSecurityGroup(DP_ID_LONG, SEGMENT_ID, MAC_ADDRESS, LOCAL_PORT, securityGroupIpv6,
-                PORT_UUID, DHCP_MAC_ADDRESS, neutronSubnet, false);
+                PORT_UUID, false);
 
         Match match = flowBuilder.getMatch();
         EthernetMatch ethMatch = match.getEthernetMatch();
@@ -1138,7 +1136,7 @@ public class IngressAclServiceTest {
         PowerMockito.doAnswer(answer()).when(ingressAclServiceSpy, "writeFlow", any(FlowBuilder.class),
                                              any(NodeBuilder.class));
         ingressAclServiceSpy.programPortSecurityGroup(DP_ID_LONG, SEGMENT_ID, MAC_ADDRESS, LOCAL_PORT, securityGroup,
-                                                      PORT_UUID, DHCP_MAC_ADDRESS, neutronSubnet, true);
+                                                      PORT_UUID, true);
 
         Match match = flowBuilder.getMatch();
         EthernetMatch ethMatch = match.getEthernetMatch();
@@ -1171,7 +1169,7 @@ public class IngressAclServiceTest {
         PowerMockito.doAnswer(answer()).when(ingressAclServiceSpy, "writeFlow", any(FlowBuilder.class),
                 any(NodeBuilder.class));
         ingressAclServiceSpy.programPortSecurityGroup(DP_ID_LONG, SEGMENT_ID, MAC_ADDRESS, LOCAL_PORT, securityGroupIpv6,
-                PORT_UUID, DHCP_MAC_ADDRESS, neutronSubnet, true);
+                PORT_UUID, true);
 
         Match match = flowBuilder.getMatch();
         EthernetMatch ethMatch = match.getEthernetMatch();
@@ -1204,7 +1202,7 @@ public class IngressAclServiceTest {
         PowerMockito.doAnswer(answer()).when(ingressAclServiceSpy, "removeFlow", any(FlowBuilder.class),
                                              any(NodeBuilder.class));
         ingressAclServiceSpy.programPortSecurityGroup(DP_ID_LONG, SEGMENT_ID, MAC_ADDRESS, LOCAL_PORT, securityGroup,
-                                                      PORT_UUID, DHCP_MAC_ADDRESS, neutronSubnet, false);
+                                                      PORT_UUID, false);
 
         Match match = flowBuilder.getMatch();
         EthernetMatch ethMatch = match.getEthernetMatch();
@@ -1237,7 +1235,7 @@ public class IngressAclServiceTest {
         PowerMockito.doAnswer(answer()).when(ingressAclServiceSpy, "removeFlow", any(FlowBuilder.class),
                 any(NodeBuilder.class));
         ingressAclServiceSpy.programPortSecurityGroup(DP_ID_LONG, SEGMENT_ID, MAC_ADDRESS, LOCAL_PORT, securityGroupIpv6,
-                PORT_UUID, DHCP_MAC_ADDRESS, neutronSubnet, false);
+                PORT_UUID, false);
 
         Match match = flowBuilder.getMatch();
         EthernetMatch ethMatch = match.getEthernetMatch();
@@ -1270,7 +1268,7 @@ public class IngressAclServiceTest {
         PowerMockito.doAnswer(answer()).when(ingressAclServiceSpy, "writeFlow", any(FlowBuilder.class),
                                              any(NodeBuilder.class));
         ingressAclServiceSpy.programPortSecurityGroup(DP_ID_LONG, SEGMENT_ID,
-                                                    MAC_ADDRESS, LOCAL_PORT, securityGroup, PORT_UUID, DHCP_MAC_ADDRESS, neutronSubnet, true);
+                                                    MAC_ADDRESS, LOCAL_PORT, securityGroup, PORT_UUID, true);
         Match match = flowBuilder.getMatch();
         Icmpv4Match icmpv4Match = match.getIcmpv4Match();
         Assert.assertEquals(10, icmpv4Match.getIcmpv4Type().shortValue());
@@ -1298,7 +1296,7 @@ public class IngressAclServiceTest {
         PowerMockito.doAnswer(answer()).when(ingressAclServiceSpy, "writeFlow", any(FlowBuilder.class),
                 any(NodeBuilder.class));
         ingressAclServiceSpy.programPortSecurityGroup(DP_ID_LONG, SEGMENT_ID,
-                MAC_ADDRESS, LOCAL_PORT, securityGroupIpv6, PORT_UUID, DHCP_MAC_ADDRESS, neutronSubnet, true);
+                MAC_ADDRESS, LOCAL_PORT, securityGroupIpv6, PORT_UUID, true);
 
         Match match = flowBuilder.getMatch();
         Icmpv6Match icmpv6Match = match.getIcmpv6Match();
@@ -1327,7 +1325,7 @@ public class IngressAclServiceTest {
                                              any(NodeBuilder.class));
 
         ingressAclServiceSpy.programPortSecurityGroup(DP_ID_LONG, SEGMENT_ID,
-                                                    MAC_ADDRESS, LOCAL_PORT, securityGroup, PORT_UUID, DHCP_MAC_ADDRESS, neutronSubnet, false);
+                                                    MAC_ADDRESS, LOCAL_PORT, securityGroup, PORT_UUID, false);
         Match match = flowBuilder.getMatch();
         Icmpv4Match icmpv4Match = match.getIcmpv4Match();
         Assert.assertEquals(20, icmpv4Match.getIcmpv4Type().shortValue());
@@ -1355,7 +1353,7 @@ public class IngressAclServiceTest {
                 any(NodeBuilder.class));
 
         ingressAclServiceSpy.programPortSecurityGroup(DP_ID_LONG, SEGMENT_ID,
-                MAC_ADDRESS, LOCAL_PORT, securityGroupIpv6, PORT_UUID, DHCP_MAC_ADDRESS, neutronSubnet, false);
+                MAC_ADDRESS, LOCAL_PORT, securityGroupIpv6, PORT_UUID, false);
         Match match = flowBuilder.getMatch();
         Icmpv6Match icmpv6Match = match.getIcmpv6Match();
         Assert.assertEquals(20, icmpv6Match.getIcmpv6Type().shortValue());
@@ -1383,7 +1381,7 @@ public class IngressAclServiceTest {
                                              any(NodeBuilder.class));
 
         ingressAclServiceSpy.programPortSecurityGroup(DP_ID_LONG, SEGMENT_ID,
-                                                    MAC_ADDRESS, LOCAL_PORT, securityGroup, PORT_UUID, DHCP_MAC_ADDRESS, neutronSubnet, true);
+                                                    MAC_ADDRESS, LOCAL_PORT, securityGroup, PORT_UUID, true);
         Match match = flowBuilder.getMatch();
         Icmpv4Match icmpv4Match =match.getIcmpv4Match();
         Assert.assertEquals(30, icmpv4Match.getIcmpv4Type().shortValue());
@@ -1418,7 +1416,7 @@ public class IngressAclServiceTest {
                 any(NodeBuilder.class));
 
         ingressAclServiceSpy.programPortSecurityGroup(DP_ID_LONG, SEGMENT_ID,
-                MAC_ADDRESS, LOCAL_PORT, securityGroupIpv6, PORT_UUID, DHCP_MAC_ADDRESS, neutronSubnet, true);
+                MAC_ADDRESS, LOCAL_PORT, securityGroupIpv6, PORT_UUID, true);
         Match match = flowBuilder.getMatch();
         Icmpv6Match icmpv6Match =match.getIcmpv6Match();
         Assert.assertEquals(30, icmpv6Match.getIcmpv6Type().shortValue());
@@ -1454,7 +1452,7 @@ public class IngressAclServiceTest {
         .when(ingressAclServiceSpy, "removeFlow", any(FlowBuilder.class), any(NodeBuilder.class));
 
         ingressAclServiceSpy.programPortSecurityGroup(DP_ID_LONG, SEGMENT_ID,
-                                                    MAC_ADDRESS, LOCAL_PORT, securityGroup, PORT_UUID, DHCP_MAC_ADDRESS, neutronSubnet, false);
+                                                    MAC_ADDRESS, LOCAL_PORT, securityGroup, PORT_UUID, false);
         Match match = flowBuilder.getMatch();
         Icmpv4Match icmpv4Match = match.getIcmpv4Match();
         Assert.assertEquals(40, icmpv4Match.getIcmpv4Type().shortValue());
@@ -1489,7 +1487,7 @@ public class IngressAclServiceTest {
                 .when(ingressAclServiceSpy, "removeFlow", any(FlowBuilder.class), any(NodeBuilder.class));
 
         ingressAclServiceSpy.programPortSecurityGroup(DP_ID_LONG, SEGMENT_ID,
-                MAC_ADDRESS, LOCAL_PORT, securityGroupIpv6, PORT_UUID, DHCP_MAC_ADDRESS, neutronSubnet, false);
+                MAC_ADDRESS, LOCAL_PORT, securityGroupIpv6, PORT_UUID, false);
         Match match = flowBuilder.getMatch();
         Icmpv6Match icmpv6Match = match.getIcmpv6Match();
         Assert.assertEquals(40, icmpv6Match.getIcmpv6Type().shortValue());
@@ -1518,7 +1516,7 @@ public class IngressAclServiceTest {
     public void testProgramPortSecurityACLRuleInvalidEther() throws Exception {
         when(portSecurityRule.getSecurityRuleEthertype()).thenReturn("IP");
 
-        ingressAclServiceSpy.programPortSecurityGroup(Long.valueOf(1554), "2", MAC_ADDRESS, 124, securityGroup,PORT_UUID, DHCP_MAC_ADDRESS, neutronSubnet, false);
+        ingressAclServiceSpy.programPortSecurityGroup(Long.valueOf(1554), "2", MAC_ADDRESS, 124, securityGroup,PORT_UUID,false);
 
         verify(writeTransaction, times(0)).delete(any(LogicalDatastoreType.class), any(InstanceIdentifier.class));
         verify(writeTransaction, times(0)).submit();
@@ -1532,7 +1530,7 @@ public class IngressAclServiceTest {
     public void testProgramPortSecurityACLRuleInvalidDirection() throws Exception {
         when(portSecurityRule.getSecurityRuleDirection()).thenReturn("edgress");
 
-        ingressAclServiceSpy.programPortSecurityGroup(Long.valueOf(1554), "2", MAC_ADDRESS, 124, securityGroup,PORT_UUID, DHCP_MAC_ADDRESS, neutronSubnet, false);
+        ingressAclServiceSpy.programPortSecurityGroup(Long.valueOf(1554), "2", MAC_ADDRESS, 124, securityGroup,PORT_UUID,false);
 
         verify(writeTransaction, times(0)).delete(any(LogicalDatastoreType.class), any(InstanceIdentifier.class));
         verify(writeTransaction, times(0)).submit();
@@ -1546,7 +1544,7 @@ public class IngressAclServiceTest {
     public void testProgramFixedSecurityACLAdd2() throws Exception {
         when(securityServices.isConntrackEnabled()).thenReturn(false);
 
-        ingressAclServiceSpy.programFixedSecurityGroup(Long.valueOf(1554), "2", DHCP_MAC_ADDRESS, 1, MAC_ADDRESS, true, neutronSubnet);
+        ingressAclServiceSpy.programFixedSecurityGroup(Long.valueOf(1554), "2", DHCP_MAC_ADDRESS, 1, MAC_ADDRESS, true);
 
         verify(writeTransaction, times(3)).put(any(LogicalDatastoreType.class), any(InstanceIdentifier.class), any(Node.class), eq(true));
         verify(writeTransaction, times(3)).submit();
@@ -1559,7 +1557,7 @@ public class IngressAclServiceTest {
     public void testProgramFixedSecurityACLRemove2() throws Exception {
         when(securityServices.isConntrackEnabled()).thenReturn(false);
 
-        ingressAclServiceSpy.programFixedSecurityGroup(Long.valueOf(1554), "2", DHCP_MAC_ADDRESS, 1, MAC_ADDRESS, false, neutronSubnet);
+        ingressAclServiceSpy.programFixedSecurityGroup(Long.valueOf(1554), "2", DHCP_MAC_ADDRESS, 1, MAC_ADDRESS, false);
 
         verify(writeTransaction, times(3)).delete(any(LogicalDatastoreType.class), any(InstanceIdentifier.class));
         verify(writeTransaction, times(3)).submit();
@@ -1572,7 +1570,7 @@ public class IngressAclServiceTest {
     public void testProgramFixedSecurityACLAdd4() throws Exception {
         when(securityServices.isConntrackEnabled()).thenReturn(true);
 
-        ingressAclServiceSpy.programFixedSecurityGroup(Long.valueOf(1554), "2", DHCP_MAC_ADDRESS, 1, MAC_ADDRESS, true, neutronSubnet);
+        ingressAclServiceSpy.programFixedSecurityGroup(Long.valueOf(1554), "2", DHCP_MAC_ADDRESS, 1, MAC_ADDRESS, true);
 
         verify(writeTransaction, times(8)).put(any(LogicalDatastoreType.class), any(InstanceIdentifier.class), any(Node.class), eq(true));
         verify(writeTransaction, times(8)).submit();
@@ -1585,7 +1583,7 @@ public class IngressAclServiceTest {
     public void testProgramFixedSecurityACLRemove4() throws Exception {
         when(securityServices.isConntrackEnabled()).thenReturn(true);
 
-        ingressAclServiceSpy.programFixedSecurityGroup(Long.valueOf(1554), "2", DHCP_MAC_ADDRESS, 1, MAC_ADDRESS, false, neutronSubnet);
+        ingressAclServiceSpy.programFixedSecurityGroup(Long.valueOf(1554), "2", DHCP_MAC_ADDRESS, 1, MAC_ADDRESS, false);
 
         verify(writeTransaction, times(8)).delete(any(LogicalDatastoreType.class), any(InstanceIdentifier.class));
         verify(writeTransaction, times(8)).submit();
