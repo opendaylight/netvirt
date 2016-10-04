@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "7a6b29fe_05acdc8b",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnUtil.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 1300,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-10-04T14:57:50Z",
+      "side": 1,
+      "message": "Suraj, please fix this..",
+      "parentUuid": "7a6b29fe_00522034",
+      "range": {
+        "startLine": 1300,
+        "startChar": 16,
+        "endLine": 1300,
+        "endChar": 43
+      },
+      "revId": "1d03227b91761cf35278fea5ef41e996310dda86",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7a6b29fe_401ed870",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnUtil.java",
         "patchSetId": 2
@@ -71,6 +95,30 @@
     },
     {
       "key": {
+        "uuid": "7a6b29fe_8598ec6b",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/intervpnlink/InterVpnLinkListener.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 253,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-10-04T14:57:50Z",
+      "side": 1,
+      "message": "Suraj, can you please make this change..",
+      "parentUuid": "7a6b29fe_c0094832",
+      "range": {
+        "startLine": 253,
+        "startChar": 25,
+        "endLine": 253,
+        "endChar": 26
+      },
+      "revId": "1d03227b91761cf35278fea5ef41e996310dda86",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7a6b29fe_830bda22",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/resources/org/opendaylight/blueprint/vpnmanager.xml",
         "patchSetId": 2
@@ -82,6 +130,30 @@
       "writtenOn": "2016-09-27T10:46:28Z",
       "side": 1,
       "message": "I thought that the usage of LockManagerService was being discouraged. Isn\u0027t that valid anymore?",
+      "range": {
+        "startLine": 123,
+        "startChar": 19,
+        "endLine": 123,
+        "endChar": 37
+      },
+      "revId": "1d03227b91761cf35278fea5ef41e996310dda86",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_e571e045",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/resources/org/opendaylight/blueprint/vpnmanager.xml",
+        "patchSetId": 2
+      },
+      "lineNbr": 123,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-10-04T14:57:50Z",
+      "side": 1,
+      "message": "This will have to be removed in a subsequent patch..\n\nThe subnetroute engine to be revamped to avoid using lockmanager in a subsequent patch.",
+      "parentUuid": "7a6b29fe_830bda22",
       "range": {
         "startLine": 123,
         "startChar": 19,
