@@ -1,0 +1,8 @@
+Code-Review+1: Kiran N Upadhyaya <kiran.n.upadhyaya@ericsson.com>
+Verified+1: jenkins-releng <jenkins-releng@opendaylight.org>
+Code-Review+2: Vishal Thapar <vishal.thapar@ericsson.com>
+Submitted-by: Vishal Thapar <vishal.thapar@ericsson.com>
+Submitted-at: Tue, 04 Oct 2016 11:43:06 +0000
+Reviewed-on: https://git.opendaylight.org/gerrit/46458
+Project: netvirt
+Branch: refs/heads/stable/boron
