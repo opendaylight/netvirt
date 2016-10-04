@@ -87,6 +87,24 @@
     },
     {
       "key": {
+        "uuid": "7a6b29fe_4be8a516",
+        "filename": "vpnservice/vpnmanager/vpnmanager-api/src/main/yang/odl-l3vpn.yang",
+        "patchSetId": 2
+      },
+      "lineNbr": 345,
+      "author": {
+        "id": 6321
+      },
+      "writtenOn": "2016-10-04T19:29:29Z",
+      "side": 1,
+      "message": "Existing model in Neutronvpn.yang will need to have both isConfig/isLearnt fields removed since it is now being purely used only to hold config data",
+      "parentUuid": "7a6b29fe_ec01d2af",
+      "revId": "858504c789fdaa6df88bf27e2e99c781e3103a55",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7a6b29fe_f691a3f1",
         "filename": "vpnservice/vpnmanager/vpnmanager-api/src/main/yang/odl-l3vpn.yang",
         "patchSetId": 2
@@ -234,6 +252,24 @@
       "writtenOn": "2016-10-03T18:25:06Z",
       "side": 1,
       "message": "you should retain the check vpnTargetIpToPort.isSubnetIp() here..",
+      "revId": "858504c789fdaa6df88bf27e2e99c781e3103a55",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_6bce41b6",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/ArpNotificationHandler.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 149,
+      "author": {
+        "id": 6321
+      },
+      "writtenOn": "2016-10-04T19:29:29Z",
+      "side": 1,
+      "message": "How is the Subnet gateway IP request for direct network association to VPN taken care of now ? We do not have the isSubnetIp condition being satisfied for that case.",
+      "parentUuid": "7a6b29fe_8cc13e82",
       "revId": "858504c789fdaa6df88bf27e2e99c781e3103a55",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
