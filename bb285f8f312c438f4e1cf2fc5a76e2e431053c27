@@ -33,6 +33,75 @@
       "revId": "bb285f8f312c438f4e1cf2fc5a76e2e431053c27",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_a0fd1371",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 651,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-10-05T10:11:44Z",
+      "side": 1,
+      "message": "You should put the subnetId that corresponds to that fixed ip here and not the 0th subnet.",
+      "parentUuid": "7a6b29fe_00d7a7ee",
+      "revId": "bb285f8f312c438f4e1cf2fc5a76e2e431053c27",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_8002976d",
+        "filename": "vpnservice/vpnmanager/vpnmanager-api/src/main/yang/odl-l3vpn.yang",
+        "patchSetId": 5
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-10-05T10:11:44Z",
+      "side": 1,
+      "message": "can we use \"mandatory false\" within the yang, instead of comments with /* optional */ for all the above 3 fields.",
+      "revId": "bb285f8f312c438f4e1cf2fc5a76e2e431053c27",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_e03d4b2e",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 307,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-10-05T10:11:44Z",
+      "side": 1,
+      "message": "This is not the right area to invoek methods for setting ARP responder flows, becuase ARP responder flows need to be done with L3 information.",
+      "revId": "bb285f8f312c438f4e1cf2fc5a76e2e431053c27",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_c0212ffe",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 1813,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-10-05T10:11:44Z",
+      "side": 1,
+      "message": "Adjacency processing happens within processVpnInterfaceAdjacencies().\n\nSo I kindly request you to invoke this method from witin processVpnInterfaceAdjacencies..\n\nMake this method handle only one arpresponder flow and invoke it from the big loop within processVPnINTERFACEADJACENCIES.",
+      "revId": "bb285f8f312c438f4e1cf2fc5a76e2e431053c27",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
