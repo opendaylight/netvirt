@@ -1006,13 +1006,7 @@ public class ElanL2GatewayUtils {
 
     public static Interface getInterfaceFromConfigDS(InterfaceKey interfaceKey, DataBroker dataBroker) {
         InstanceIdentifier<Interface> interfaceId = getInterfaceIdentifier(interfaceKey);
-        Optional<Interface> interfaceOptional = IfmUtil.read(LogicalDatastoreType.CONFIGURATION, interfaceId,
-                dataBroker);
-        if (!interfaceOptional.isPresent()) {
-            return null;
-        }
-
-        return interfaceOptional.get();
+        return IfmUtil.read(LogicalDatastoreType.CONFIGURATION, interfaceId, dataBroker).orNull();
     }
 
     /**

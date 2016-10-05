@@ -7,7 +7,6 @@
  */
 package org.opendaylight.netvirt.elan.internal;
 
-import com.google.common.base.Optional;
 import com.google.common.base.Splitter;
 import com.google.common.base.Strings;
 
@@ -139,9 +138,9 @@ public class ElanBridgeManager {
     }
 
     private void prepareIntegrationBridge(Node ovsdbNode, Node brIntNode) {
-        Optional<Map<String, String>> providerMappings = getOpenvswitchOtherConfigMap(ovsdbNode, PROVIDER_MAPPINGS_KEY);
+        Map<String, String> providerMappings = getOpenvswitchOtherConfigMap(ovsdbNode, PROVIDER_MAPPINGS_KEY);
 
-        for (String value : providerMappings.or(Collections.emptyMap()).values()) {
+        for (String value : providerMappings.values()) {
             if (southboundUtils.extractTerminationPointAugmentation(brIntNode, value) != null) {
                 LOG.debug("prepareIntegrationBridge: port {} already exists on {}", value, INTEGRATION_BRIDGE);
                 continue;
@@ -243,7 +242,7 @@ public class ElanBridgeManager {
      * @param key key to extract from other-config
      * @return Optional of key-value Map
      */
-    public Optional<Map<String, String>> getOpenvswitchOtherConfigMap(Node node, String key) {
+    public Map<String, String> getOpenvswitchOtherConfigMap(Node node, String key) {
         String providerMappings = southboundUtils.getOpenvswitchOtherConfig(node, key);
         return extractMultiKeyValueToMap(providerMappings);
     }
@@ -255,13 +254,13 @@ public class ElanBridgeManager {
      * @return physical network name
      */
     public String getProviderMappingValue(Node node, String physicalNetworkName) {
-        Optional<Map<String, String>> providerMappings = getOpenvswitchOtherConfigMap(node, PROVIDER_MAPPINGS_KEY);
-        if (!providerMappings.isPresent()) {
+        Map<String, String> providerMappings = getOpenvswitchOtherConfigMap(node, PROVIDER_MAPPINGS_KEY);
+        String providerMappingValue = providerMappings.get(physicalNetworkName);
+        if (providerMappingValue == null) {
             LOG.trace("Physical network {} not found in {}", physicalNetworkName, PROVIDER_MAPPINGS_KEY);
-            return null;
         }
 
-        return providerMappings.get().get(physicalNetworkName);
+        return providerMappingValue;
     }
 
     /**
@@ -380,21 +379,21 @@ public class ElanBridgeManager {
         return stringBuilder.toString();
     }
 
-    private static Optional<Map<String, String>> extractMultiKeyValueToMap(String multiKeyValueStr) {
+    private static Map<String, String> extractMultiKeyValueToMap(String multiKeyValueStr) {
         if (Strings.isNullOrEmpty(multiKeyValueStr)) {
-            return Optional.absent();
+            return Collections.emptyMap();
         }
 
         Map<String, String> valueMap = new HashMap<>();
         Splitter splitter = Splitter.on(",");
         for (String keyValue : splitter.split(multiKeyValueStr)) {
             String[] split = keyValue.split(":", 2);
-            if (split != null && split.length == 2) {
+            if (split.length == 2) {
                 valueMap.put(split[0], split[1]);
             }
         }
 
-        return Optional.of(valueMap);
+        return valueMap;
     }
 
     public Node getBridgeNode(BigInteger dpId) {

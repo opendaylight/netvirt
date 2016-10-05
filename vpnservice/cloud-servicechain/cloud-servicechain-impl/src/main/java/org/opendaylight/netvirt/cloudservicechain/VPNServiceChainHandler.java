@@ -8,7 +8,6 @@
 
 package org.opendaylight.netvirt.cloudservicechain;
 
-import com.google.common.base.Optional;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -73,12 +72,7 @@ public class VPNServiceChainHandler implements AutoCloseable {
     protected VpnInstanceOpDataEntry getVpnInstance(String rd) {
         InstanceIdentifier<VpnInstanceOpDataEntry> id = InstanceIdentifier.create(VpnInstanceOpData.class)
                 .child(VpnInstanceOpDataEntry.class, new VpnInstanceOpDataEntryKey(rd));
-        Optional<VpnInstanceOpDataEntry> vpnInstanceOpData = MDSALUtil.read(broker, LogicalDatastoreType.OPERATIONAL,
-                                                                            id);
-        if (vpnInstanceOpData.isPresent()) {
-            return vpnInstanceOpData.get();
-        }
-        return null;
+        return MDSALUtil.read(broker, LogicalDatastoreType.OPERATIONAL, id).orNull();
     }
 
     /**

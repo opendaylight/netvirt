@@ -167,13 +167,7 @@ public class VpnServiceChainUtils {
     public static String getVpnRd(DataBroker broker, String vpnName) {
 
         InstanceIdentifier<VpnInstance> id = getVpnInstanceToVpnIdIdentifier(vpnName);
-        Optional<VpnInstance> vpnInstance = MDSALUtil.read(broker, LogicalDatastoreType.CONFIGURATION, id);
-
-        String rd = null;
-        if (vpnInstance.isPresent()) {
-            rd = vpnInstance.get().getVrfId();
-        }
-        return rd;
+        return MDSALUtil.read(broker, LogicalDatastoreType.CONFIGURATION, id).transform(VpnInstance::getVrfId).orNull();
     }
 
     /**
@@ -186,8 +180,8 @@ public class VpnServiceChainUtils {
     public static List<VrfEntry> getAllVrfEntries(DataBroker broker, String rd) {
         InstanceIdentifier<VrfTables> vpnVrfTables =
             InstanceIdentifier.builder(FibEntries.class).child(VrfTables.class, new VrfTablesKey(rd)).build();
-        Optional<VrfTables> vrfTable = MDSALUtil.read(broker, LogicalDatastoreType.CONFIGURATION, vpnVrfTables);
-        return vrfTable.isPresent() ? vrfTable.get().getVrfEntry() : new ArrayList<>();
+        return MDSALUtil.read(broker, LogicalDatastoreType.CONFIGURATION, vpnVrfTables).transform(
+                VrfTables::getVrfEntry).or(new ArrayList<>());
     }
 
     /**
@@ -395,10 +389,8 @@ public class VpnServiceChainUtils {
 
     public static Optional<Long> getVpnPseudoLportTag(DataBroker broker, String rd) {
         InstanceIdentifier<VpnToPseudoPortData> path = getVpnToPseudoPortTagIid(rd);
-        Optional<VpnToPseudoPortData> lportTagOpc = MDSALUtil.read(broker, LogicalDatastoreType.CONFIGURATION, path);
-
-        return lportTagOpc.isPresent() ? Optional.fromNullable(lportTagOpc.get().getVpnLportTag())
-                                       : Optional.<Long>absent();
+        return MDSALUtil.read(broker, LogicalDatastoreType.CONFIGURATION, path).transform(
+                VpnToPseudoPortData::getVpnLportTag);
     }
 
     /**
