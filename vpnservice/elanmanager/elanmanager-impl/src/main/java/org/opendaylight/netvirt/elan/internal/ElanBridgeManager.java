@@ -380,21 +380,21 @@ public class ElanBridgeManager {
         return stringBuilder.toString();
     }
 
-    private static Optional<Map<String, String>> extractMultiKeyValueToMap(String multiKeyValueStr) {
+    private static Map<String, String> extractMultiKeyValueToMap(String multiKeyValueStr) {
         if (Strings.isNullOrEmpty(multiKeyValueStr)) {
-            return Optional.absent();
+            return Collections.emptyMap();
         }
 
         Map<String, String> valueMap = new HashMap<>();
         Splitter splitter = Splitter.on(",");
         for (String keyValue : splitter.split(multiKeyValueStr)) {
             String[] split = keyValue.split(":", 2);
-            if (split != null && split.length == 2) {
+            if (split.length == 2) {
                 valueMap.put(split[0], split[1]);
             }
         }
 
-        return Optional.of(valueMap);
+        return valueMap;
     }
 
     public Node getBridgeNode(BigInteger dpId) {

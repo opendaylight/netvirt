@@ -425,15 +425,10 @@ public class ElanServiceProvider implements IElanService {
 
     @Override
     public List<ElanInstance> getElanInstances() {
-        List<ElanInstance> elanList = new ArrayList<>();
         InstanceIdentifier<ElanInstances> elanInstancesIdentifier = InstanceIdentifier.builder(ElanInstances.class)
                 .build();
-        Optional<ElanInstances> elansOptional = elanUtils.read(broker, LogicalDatastoreType.CONFIGURATION,
-                elanInstancesIdentifier);
-        if (elansOptional.isPresent()) {
-            elanList.addAll(elansOptional.get().getElanInstance());
-        }
-        return elanList;
+        return elanUtils.read(broker, LogicalDatastoreType.CONFIGURATION, elanInstancesIdentifier).transform(
+                ElanInstances::getElanInstance).or(Collections.emptyList());
     }
 
     @Override
