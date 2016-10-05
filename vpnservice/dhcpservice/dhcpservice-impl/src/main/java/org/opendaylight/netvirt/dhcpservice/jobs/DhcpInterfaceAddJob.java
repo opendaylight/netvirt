@@ -74,9 +74,7 @@ public class DhcpInterfaceAddJob implements Callable<List<ListenableFuture<Void>
     @Override
     public List<ListenableFuture<Void>> call() throws Exception {
         List<ListenableFuture<Void>> futures = new ArrayList<>();
-        if (LOG.isTraceEnabled()) {
-            LOG.trace("Received add DCN for interface {}, dpid {}", interfaceName, dpnId);
-        }
+        LOG.trace("Received add DCN for interface {}, dpid {}", interfaceName, dpnId);
         org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface iface =
                 interfaceManager.getInterfaceInfoFromConfigDataStore(interfaceName);
         if (iface != null) {
@@ -94,9 +92,7 @@ public class DhcpInterfaceAddJob implements Callable<List<ListenableFuture<Void>
             Port port = dhcpManager.getNeutronPort(interfaceName);
             Subnet subnet = dhcpManager.getNeutronSubnet(port);
             if (null != subnet && subnet.isEnableDhcp()) {
-                if (LOG.isInfoEnabled()) {
-                    LOG.info("DhcpInterfaceEventListener add isEnableDhcp" + subnet.isEnableDhcp());
-                }
+                LOG.info("DhcpInterfaceEventListener add isEnableDhcp" + subnet.isEnableDhcp());
                 installDhcpEntries(interfaceName, dpnId, futures);
             }
         }
@@ -117,16 +113,12 @@ public class DhcpInterfaceAddJob implements Callable<List<ListenableFuture<Void>
         InstanceIdentifier<InterfaceNameMacAddress> instanceIdentifier = InstanceIdentifier.builder(InterfaceNameMacAddresses.class).child(InterfaceNameMacAddress.class, new InterfaceNameMacAddressKey(interfaceName)).build();
         Optional<InterfaceNameMacAddress> existingEntry = MDSALUtil.read(dataBroker, LogicalDatastoreType.OPERATIONAL, instanceIdentifier);
         if (!existingEntry.isPresent()) {
-            if (LOG.isTraceEnabled()) {
-                LOG.trace("Entry for interface {} missing in InterfaceNameVmMacAddress map", interfaceName);
-            }
+            LOG.trace("Entry for interface {} missing in InterfaceNameVmMacAddress map", interfaceName);
             String vmMacAddress = getNeutronMacAddress(interfaceName);
             if (vmMacAddress==null || vmMacAddress.isEmpty()) {
                 return null;
             }
-            if (LOG.isTraceEnabled()) {
-                LOG.trace("Updating InterfaceNameVmMacAddress map with {}, {}", interfaceName,vmMacAddress);
-            }
+            LOG.trace("Updating InterfaceNameVmMacAddress map with {}, {}", interfaceName,vmMacAddress);
             InterfaceNameMacAddress interfaceNameMacAddress = new InterfaceNameMacAddressBuilder().setKey(new InterfaceNameMacAddressKey(interfaceName)).setInterfaceName(interfaceName).setMacAddress(vmMacAddress).build();
             MDSALDataStoreUtils.asyncUpdate(dataBroker, LogicalDatastoreType.OPERATIONAL, instanceIdentifier, interfaceNameMacAddress, DEFAULT_CALLBACK);
             return vmMacAddress;
@@ -137,9 +129,7 @@ public class DhcpInterfaceAddJob implements Callable<List<ListenableFuture<Void>
     private String getNeutronMacAddress(String interfaceName) {
         Port port = dhcpManager.getNeutronPort(interfaceName);
         if (port!=null) {
-            if (LOG.isTraceEnabled()) {
-                LOG.trace("Port found in neutron. Interface Name {}, port {}", interfaceName, port);
-            }
+            LOG.trace("Port found in neutron. Interface Name {}, port {}", interfaceName, port);
             return port.getMacAddress().getValue();
         }
         return null;

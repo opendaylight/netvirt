@@ -36,7 +36,7 @@ import com.google.common.base.Optional;
 
 public class DhcpUCastMacListener extends AsyncClusteredDataTreeChangeListenerBase<LocalUcastMacs, DhcpUCastMacListener> implements AutoCloseable {
 
-    private static final Logger logger = LoggerFactory.getLogger(DhcpUCastMacListener.class);
+    private static final Logger LOG = LoggerFactory.getLogger(DhcpUCastMacListener.class);
 
     private final DhcpExternalTunnelManager dhcpExternalTunnelManager;
     private DhcpManager dhcpManager;
@@ -62,7 +62,7 @@ public class DhcpUCastMacListener extends AsyncClusteredDataTreeChangeListenerBa
     @Override
     public void close() throws Exception {
         super.close();
-        logger.info("DhcpUCastMacListener Closed");
+        LOG.info("DhcpUCastMacListener Closed");
     }
 
     @Override
@@ -73,13 +73,13 @@ public class DhcpUCastMacListener extends AsyncClusteredDataTreeChangeListenerBa
         NodeId torNodeId = identifier.firstKeyOf(Node.class).getNodeId();
         LogicalSwitches logicalSwitch = getLogicalSwitches(del);
         if (null == logicalSwitch) {
-            logger.error("DhcpUCastMacListener remove :Logical Switch ref doesn't have data {}", logicalSwitch);
+            LOG.error("DhcpUCastMacListener remove :Logical Switch ref doesn't have data {}", logicalSwitch);
             return;
         }
         String elanInstanceName = logicalSwitch.getHwvtepNodeName().getValue();
         L2GatewayDevice device = ElanL2GwCacheUtils.getL2GatewayDeviceFromCache(elanInstanceName, torNodeId.getValue());
         if (device == null) {
-            logger.error("Logical Switch Device with name {} is not present in L2GWCONN cache", elanInstanceName);
+            LOG.error("Logical Switch Device with name {} is not present in L2GWCONN cache", elanInstanceName);
             return;
         }
         IpAddress tunnelIp = device.getTunnelIp();
@@ -101,7 +101,7 @@ public class DhcpUCastMacListener extends AsyncClusteredDataTreeChangeListenerBa
         InstanceIdentifier<LogicalSwitches> logicalSwitchRef = (InstanceIdentifier<LogicalSwitches>) add.getLogicalSwitchRef().getValue();
         Optional<LogicalSwitches> logicalSwitchOptional = MDSALUtil.read(broker, LogicalDatastoreType.OPERATIONAL, logicalSwitchRef);
         if ( !logicalSwitchOptional.isPresent() ) {
-            logger.error("Logical Switch ref doesn't have data {}", logicalSwitchRef);
+            LOG.error("Logical Switch ref doesn't have data {}", logicalSwitchRef);
             return;
         }
         LogicalSwitches logicalSwitch = logicalSwitchOptional.get();
@@ -110,29 +110,25 @@ public class DhcpUCastMacListener extends AsyncClusteredDataTreeChangeListenerBa
         BigInteger vni = new BigInteger(logicalSwitch.getTunnelKey());
         Port port = dhcpExternalTunnelManager.readVniMacToPortCache(vni, macAddress);
         if (port == null) {
-            if (logger.isTraceEnabled()) {
-                logger.trace("No neutron port created for macAddress {}, tunnelKey {}", macAddress, vni);
-            }
+            LOG.trace("No neutron port created for macAddress {}, tunnelKey {}", macAddress, vni);
             return;
         }
         L2GatewayDevice device = ElanL2GwCacheUtils.getL2GatewayDeviceFromCache(elanInstanceName, torNodeId.getValue());
         if (device == null) {
-            logger.error("Logical Switch Device with name {} is not present in L2GWCONN cache", elanInstanceName);
+            LOG.error("Logical Switch Device with name {} is not present in L2GWCONN cache", elanInstanceName);
             return;
         }
         IpAddress tunnelIp = device.getTunnelIp();
         Subnet subnet = dhcpManager.getNeutronSubnet(port);
         if (null != subnet && !subnet.isEnableDhcp()) {
             dhcpExternalTunnelManager.updateExistingVMTunnelIPCache(tunnelIp, elanInstanceName, macAddress);
-            logger.warn("DhcpUCastMacListener add: flag for the subnetId "+subnet.getUuid()+ " is False so Table 18 " +
+            LOG.warn("DhcpUCastMacListener add: flag for the subnetId "+subnet.getUuid()+ " is False so Table 18 " +
                     "entries are not added" );
             return;
         }
         BigInteger designatedDpnId = dhcpExternalTunnelManager.readDesignatedSwitchesForExternalTunnel(tunnelIp, elanInstanceName);
         if (designatedDpnId == null || designatedDpnId.equals(DHCPMConstants.INVALID_DPID)) {
-            if (logger.isTraceEnabled()) {
-                logger.trace("Unable to install flows for macAddress {}. TunnelIp {}, elanInstanceName {}, designatedDpn {} ", macAddress, tunnelIp, elanInstanceName, designatedDpnId);
-            }
+            LOG.trace("Unable to install flows for macAddress {}. TunnelIp {}, elanInstanceName {}, designatedDpn {} ", macAddress, tunnelIp, elanInstanceName, designatedDpnId);
             dhcpExternalTunnelManager.updateLocalCache(tunnelIp, elanInstanceName, macAddress);
             return;
         }

@@ -8,6 +8,7 @@
 
 package org.opendaylight.netvirt.openstack.netvirt.impl;
 
+import java.util.stream.Collectors;
 import org.opendaylight.netvirt.openstack.netvirt.NetworkHandler;
 import org.opendaylight.netvirt.openstack.netvirt.api.OvsdbTables;
 import org.opendaylight.netvirt.openstack.netvirt.translator.NeutronNetwork;
@@ -622,11 +623,8 @@ public class BridgeConfigurationManagerImpl implements BridgeConfigurationManage
         if (controllersStr.isEmpty()) {
             LOG.warn("Failed to determine OpenFlow controller ip address");
         } else if (LOG.isDebugEnabled()) {
-            controllerIpStr = "";
-            for (String currControllerIpStr : controllersStr) {
-                controllerIpStr += " " + currControllerIpStr;
-            }
-            LOG.debug("Found {} OpenFlow Controller(s) :{}", controllersStr.size(), controllerIpStr);
+            LOG.debug("Found {} OpenFlow Controller(s): {}", controllersStr.size(),
+                    controllersStr.stream().collect(Collectors.joining(" ")));
         }
 
         return controllersStr;

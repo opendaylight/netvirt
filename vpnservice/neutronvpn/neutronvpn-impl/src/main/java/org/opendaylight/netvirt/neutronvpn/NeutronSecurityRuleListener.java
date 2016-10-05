@@ -79,9 +79,7 @@ public class NeutronSecurityRuleListener
 
     @Override
     protected void add(InstanceIdentifier<SecurityRule> instanceIdentifier, SecurityRule securityRule) {
-        if (LOG.isTraceEnabled()) {
-            LOG.trace("added securityRule: {}", securityRule);
-        }
+        LOG.trace("added securityRule: {}", securityRule);
         try {
             Ace ace = toAceBuilder(securityRule).build();
             InstanceIdentifier<Ace> identifier = getAceInstanceIdentifier(securityRule);
@@ -206,9 +204,7 @@ public class NeutronSecurityRuleListener
 
     @Override
     protected void remove(InstanceIdentifier<SecurityRule> instanceIdentifier, SecurityRule securityRule) {
-        if (LOG.isTraceEnabled()) {
-            LOG.trace("removed securityRule: {}", securityRule);
-        }
+        LOG.trace("removed securityRule: {}", securityRule);
         try {
             InstanceIdentifier<Ace> identifier = getAceInstanceIdentifier(securityRule);
             MDSALUtil.syncDelete(dataBroker, LogicalDatastoreType.CONFIGURATION, identifier);

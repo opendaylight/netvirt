@@ -56,9 +56,7 @@ public class BgpCounters extends TimerTask {
     @Override
     public void run () {
         try {
-            if (LOGGER.isDebugEnabled()) {
-                LOGGER.debug("Fetching counters from BGP at " + new Date());
-            }
+            LOGGER.debug("Fetching counters from BGP");
             resetCounters();
             fetchCmdOutputs("cmd_ip_bgp_summary.txt","show ip bgp summary");
             fetchCmdOutputs("cmd_bgp_ipv4_unicast_statistics.txt", "show bgp ipv4 unicast statistics");
@@ -83,19 +81,15 @@ public class BgpCounters extends TimerTask {
                 }
             }
             bgpStatsBroadcaster.setBgpCountersMap(countersMap);
-            if (LOGGER.isDebugEnabled()) {
-                LOGGER.debug("Finished updating the counters from BGP at " + new Date());
-            }
+            LOGGER.debug("Finished updating the counters from BGP");
         } catch (Exception e) {
             LOGGER.error("Failed to publish bgp counters ", e);
         }
     }
 
     public void dumpCounters () {
-        Iterator<Map.Entry<String, String>> entries = countersMap.entrySet().iterator();
-        while (entries.hasNext()) {
-            Map.Entry<String, String> entry = entries.next();
-            LOGGER.debug(entry.getKey() + ", Value = " + entry.getValue());
+        for (Map.Entry<String, String> entry : countersMap.entrySet()) {
+            LOGGER.debug("{}, Value = {}", entry.getKey(), entry.getValue());
         }
     }
 

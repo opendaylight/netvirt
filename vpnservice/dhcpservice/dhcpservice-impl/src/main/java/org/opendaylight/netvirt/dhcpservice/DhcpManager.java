@@ -113,9 +113,7 @@ public class DhcpManager {
             try {
                 return neutronVpnService.getNeutronSubnet(nPort.getFixedIps().get(0).getSubnetId());
             } catch (Exception e) {
-                if (logger.isWarnEnabled()) {
-                    logger.warn("Failed to get Neutron Subnet from Port: {}", e);
-                }
+                logger.warn("Failed to get Neutron Subnet from Port: {}", e);
             }
         }
         return null;
@@ -127,9 +125,7 @@ public class DhcpManager {
         } catch (IllegalArgumentException e) {
             return null;
         } catch (Exception ex) {
-            if (logger.isWarnEnabled()) {
-                logger.warn("In getNeutronPort interface name passed {} exception message {}.", name, ex.getMessage());
-            }
+            logger.warn("In getNeutronPort interface name passed {} exception message {}.", name, ex.getMessage());
             return null;
         }
     }

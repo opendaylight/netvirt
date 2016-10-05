@@ -98,10 +98,8 @@ public class AssociateHwvtepToElanJob implements Callable<List<ListenableFuture<
                 elanInstance.getElanInstanceName());
         String segmentationId = elanInstance.getSegmentationId().toString();
 
-        if (LOG.isTraceEnabled()) {
-            LOG.trace("logical switch {} is created on {} with VNI {}", logicalSwitchName,
-                    l2GatewayDevice.getHwvtepNodeId(), segmentationId);
-        }
+        LOG.trace("logical switch {} is created on {} with VNI {}", logicalSwitchName,
+                l2GatewayDevice.getHwvtepNodeId(), segmentationId);
         NodeId hwvtepNodeId = new NodeId(l2GatewayDevice.getHwvtepNodeId());
         InstanceIdentifier<LogicalSwitches> path = HwvtepSouthboundUtils
                 .createLogicalSwitchesInstanceIdentifier(hwvtepNodeId, new HwvtepNodeName(logicalSwitchName));
@@ -115,9 +113,7 @@ public class AssociateHwvtepToElanJob implements Callable<List<ListenableFuture<
                 // Listener will be closed after all configuration completed
                 // on hwvtep by
                 // listener itself
-                if (LOG.isTraceEnabled()) {
-                    LOG.trace("Successful in initiating logical switch {} creation", logicalSwitchName);
-                }
+                LOG.trace("Successful in initiating logical switch {} creation", logicalSwitchName);
             }
 
             @Override

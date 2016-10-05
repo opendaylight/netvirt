@@ -46,9 +46,7 @@ public class FibDSWriter {
                 logger.error("nextHop list contains null element");
                 return;
             }
-            if (logger.isDebugEnabled()) {
-                logger.debug("Created vrfEntry for {} nexthop {} label {}", prefix, nextHop, label);
-            }
+            logger.debug("Created vrfEntry for {} nexthop {} label {}", prefix, nextHop, label);
 
         }
 

@@ -36,7 +36,7 @@ import com.google.common.base.Optional;
 
 public class DhcpLogicalSwitchListener extends AsyncDataTreeChangeListenerBase<LogicalSwitches, DhcpLogicalSwitchListener> implements AutoCloseable {
 
-    private static final Logger logger = LoggerFactory.getLogger(DhcpLogicalSwitchListener.class);
+    private static final Logger LOG = LoggerFactory.getLogger(DhcpLogicalSwitchListener.class);
 
     private final DataBroker dataBroker;
     private final DhcpExternalTunnelManager dhcpExternalTunnelManager;
@@ -54,15 +54,13 @@ public class DhcpLogicalSwitchListener extends AsyncDataTreeChangeListenerBase<L
     @Override
     public void close() throws Exception {
         super.close();
-        logger.info("DhcpLogicalSwitchListener Closed");
+        LOG.info("DhcpLogicalSwitchListener Closed");
     }
 
     @Override
     protected void remove(InstanceIdentifier<LogicalSwitches> identifier,
             LogicalSwitches del) {
-        if (logger.isTraceEnabled()) {
-            logger.trace("Received LogicalSwitch remove DCN");
-        }
+        LOG.trace("Received LogicalSwitch remove DCN");
         String elanInstanceName = del.getHwvtepNodeName().getValue();
         ConcurrentMap<String, L2GatewayDevice> devices = L2GatewayCacheUtils.getCache();
         String nodeId = identifier.firstKeyOf(Node.class).getNodeId().getValue();
@@ -75,20 +73,14 @@ public class DhcpLogicalSwitchListener extends AsyncDataTreeChangeListenerBase<L
         }
         IpAddress tunnelIp;
         if (targetDevice != null) {
-            if (logger.isTraceEnabled()) {
-                logger.trace("Logical Switch Device with name {} is found in L2GW cache", elanInstanceName);
-            }
+            LOG.trace("Logical Switch Device with name {} is found in L2GW cache", elanInstanceName);
             tunnelIp = targetDevice.getTunnelIp();
         } else {
-            if (logger.isTraceEnabled()) {
-                logger.trace("Logical Switch Device with name {} is not present in L2GW cache", elanInstanceName);
-            }
+            LOG.trace("Logical Switch Device with name {} is not present in L2GW cache", elanInstanceName);
             tunnelIp = getTunnelIp(nodeId);
         }
         if (tunnelIp == null) {
-            if (logger.isTraceEnabled()) {
-                logger.trace("tunnelIp is not found");
-            }
+            LOG.trace("tunnelIp is not found");
             return;
         }
         handleLogicalSwitchRemove(elanInstanceName, tunnelIp);
@@ -100,9 +92,7 @@ public class DhcpLogicalSwitchListener extends AsyncDataTreeChangeListenerBase<L
                 .child(Topology.class, new TopologyKey(HwvtepSouthboundConstants.HWVTEP_TOPOLOGY_ID)).child(Node.class, nodeKey).augmentation(HwvtepGlobalAugmentation.class);
         Optional<HwvtepGlobalAugmentation> hwvtepNode = MDSALUtil.read(dataBroker, LogicalDatastoreType.OPERATIONAL, nodeIdentifier);
         if (!hwvtepNode.isPresent()) {
-            if (logger.isTraceEnabled()) {
-                logger.trace("Hwvtep node not found!");
-            }
+            LOG.trace("Hwvtep node not found!");
             return null;
         }
         return hwvtepNode.get().getConnectionInfo().getRemoteIp();
@@ -111,17 +101,13 @@ public class DhcpLogicalSwitchListener extends AsyncDataTreeChangeListenerBase<L
     @Override
     protected void update(InstanceIdentifier<LogicalSwitches> identifier,
             LogicalSwitches original, LogicalSwitches update) {
-        if (logger.isTraceEnabled()) {
-            logger.trace("Received LogicalSwitch update DCN");
-        }
+        LOG.trace("Received LogicalSwitch update DCN");
     }
 
     @Override
     protected void add(InstanceIdentifier<LogicalSwitches> identifier,
             LogicalSwitches add) {
-        if (logger.isTraceEnabled()) {
-            logger.trace("Received LogicalSwitch add DCN");
-        }
+        LOG.trace("Received LogicalSwitch add DCN");
         String elanInstanceName = add.getHwvtepNodeName().getValue();
         ConcurrentMap<String, L2GatewayDevice> devices  = L2GatewayCacheUtils.getCache();
         String nodeId = identifier.firstKeyOf(Node.class).getNodeId().getValue();
@@ -133,7 +119,7 @@ public class DhcpLogicalSwitchListener extends AsyncDataTreeChangeListenerBase<L
             }
         }
         if (targetDevice == null) {
-            logger.error("Logical Switch Device with name {} is not present in L2GW cache", elanInstanceName);
+            LOG.error("Logical Switch Device with name {} is not present in L2GW cache", elanInstanceName);
             return;
         }
         IpAddress tunnelIp = targetDevice.getTunnelIp();
@@ -144,9 +130,7 @@ public class DhcpLogicalSwitchListener extends AsyncDataTreeChangeListenerBase<L
         BigInteger designatedDpnId;
         designatedDpnId = dhcpExternalTunnelManager.readDesignatedSwitchesForExternalTunnel(tunnelIp, elanInstanceName);
         if (designatedDpnId == null) {
-            if (logger.isInfoEnabled()) {
-                logger.info("Could not find designated DPN ID elanInstanceName {}, tunnelIp {}", elanInstanceName, tunnelIp);
-            }
+            LOG.info("Could not find designated DPN ID elanInstanceName {}, tunnelIp {}", elanInstanceName, tunnelIp);
             return;
         }
         dhcpExternalTunnelManager.removeDesignatedSwitchForExternalTunnel(designatedDpnId, tunnelIp, elanInstanceName);
@@ -157,9 +141,7 @@ public class DhcpLogicalSwitchListener extends AsyncDataTreeChangeListenerBase<L
         BigInteger designatedDpnId;
         designatedDpnId = dhcpExternalTunnelManager.designateDpnId(tunnelIp, elanInstanceName, dpns);
         if (designatedDpnId == null || designatedDpnId.equals(DHCPMConstants.INVALID_DPID)) {
-            if (logger.isInfoEnabled()) {
-                logger.info("Unable to designate a DPN");
-            }
+            LOG.info("Unable to designate a DPN");
             return;
         }
     }

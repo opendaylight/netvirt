@@ -30,7 +30,7 @@ import org.slf4j.LoggerFactory;
 
 public class DhcpInterfaceEventListener extends AsyncDataTreeChangeListenerBase<Interface, DhcpInterfaceEventListener> implements AutoCloseable {
 
-    private static final Logger logger = LoggerFactory.getLogger(DhcpInterfaceEventListener.class);
+    private static final Logger LOG = LoggerFactory.getLogger(DhcpInterfaceEventListener.class);
 
     private final DataBroker dataBroker;
     private final DhcpManager dhcpManager;
@@ -51,7 +51,7 @@ public class DhcpInterfaceEventListener extends AsyncDataTreeChangeListenerBase<
     @Override
     public void close() throws Exception {
         super.close();
-        logger.info("Interface Manager Closed");
+        LOG.info("Interface Manager Closed");
     }
 
     @Override
@@ -71,22 +71,16 @@ public class DhcpInterfaceEventListener extends AsyncDataTreeChangeListenerBase<
     protected void update(InstanceIdentifier<Interface> identifier,
             Interface original, Interface update) {
         if (update.getType() == null) {
-            if (logger.isTraceEnabled()) {
-                logger.trace("Interface type for interface {} is null", update);
-            }
+            LOG.trace("Interface type for interface {} is null", update);
             return;
         }
         if ((original.getOperStatus().getIntValue() ^ update.getOperStatus().getIntValue()) == 0) {
-            if (logger.isTraceEnabled()) {
-                logger.trace("Interface operstatus {} is same", update.getOperStatus());
-            }
+            LOG.trace("Interface operstatus {} is same", update.getOperStatus());
             return;
         }
 
         if (original.getOperStatus().equals(OperStatus.Unknown) || update.getOperStatus().equals(OperStatus.Unknown)) {
-            if (logger.isTraceEnabled()) {
-                logger.trace("New/old interface state is unknown not handling");
-            }
+            LOG.trace("New/old interface state is unknown not handling");
             return;
         }
 
