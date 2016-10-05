@@ -64,6 +64,12 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
     </dependency>
 
     <dependency>
+      <groupId>org.opendaylight.netvirt</groupId>
+      <artifactId>vpnservice-utils</artifactId>
+      <version>${vpnservices.version}</version>
+    </dependency>
+
+    <dependency>
       <groupId>org.opendaylight.controller</groupId>
       <artifactId>sal-binding-broker-impl</artifactId>
       <scope>test</scope>
