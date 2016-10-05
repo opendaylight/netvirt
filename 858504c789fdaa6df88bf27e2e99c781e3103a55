@@ -190,6 +190,23 @@
     },
     {
       "key": {
+        "uuid": "7a6b29fe_fde05898",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/ArpNotificationHandler.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 112,
+      "author": {
+        "id": 6321
+      },
+      "writtenOn": "2016-10-05T06:46:33Z",
+      "side": 1,
+      "message": "I believe, for MIP migration this condition will fail and the old MIP adjacency will not be removed from existing VPN interface , since MIPs are being stored now directly into VpnVipPortIp and will not be avaialble in VpnPortIpData model.",
+      "revId": "858504c789fdaa6df88bf27e2e99c781e3103a55",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7a6b29fe_cce05628",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/ArpNotificationHandler.java",
         "patchSetId": 2
