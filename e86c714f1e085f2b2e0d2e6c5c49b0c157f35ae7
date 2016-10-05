@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "7a6b29fe_3d2f70f8",
+        "filename": "openstack/net-virt-providers/src/main/java/org/opendaylight/netvirt/openstack/netvirt/providers/openflow13/OF13Provider.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 1226,
+      "author": {
+        "id": 6649
+      },
+      "writtenOn": "2016-10-05T04:57:16Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7a6b29fe_fd0186af",
+      "revId": "e86c714f1e085f2b2e0d2e6c5c49b0c157f35ae7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7a6b29fe_1d3282a6",
         "filename": "openstack/net-virt-providers/src/main/java/org/opendaylight/netvirt/openstack/netvirt/providers/openflow13/OF13Provider.java",
         "patchSetId": 5
@@ -30,6 +48,24 @@
       "writtenOn": "2016-10-01T00:50:38Z",
       "side": 1,
       "message": "Please update the comment:\n\"If network is not present in src node AND REMOTE MAC LEARNING IS not enabled..\"\n\nAlso provide some explanation why we don\u0027t remove Tunnel rules in when remote MAC learning is not enabled.",
+      "revId": "e86c714f1e085f2b2e0d2e6c5c49b0c157f35ae7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_9d34c44b",
+        "filename": "openstack/net-virt-providers/src/main/java/org/opendaylight/netvirt/openstack/netvirt/providers/openflow13/OF13Provider.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 1316,
+      "author": {
+        "id": 6649
+      },
+      "writtenOn": "2016-10-05T04:57:16Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7a6b29fe_1d3282a6",
       "revId": "e86c714f1e085f2b2e0d2e6c5c49b0c157f35ae7",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
