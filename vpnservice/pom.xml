@@ -20,8 +20,8 @@ and is available at http://www.eclipse.org/legal/epl-v10.html INTERNAL
     <module>commons/binding-parent</module>
     <module>commons/config-parent</module>
     <module>commons/it-parent</module>
-    <module>netvirt-common</module>
     <module>model-bgp</module>
+    <module>netvirt-common</module>
     <module>vpnmanager</module>
     <module>elanmanager</module>
     <module>fibmanager</module>
