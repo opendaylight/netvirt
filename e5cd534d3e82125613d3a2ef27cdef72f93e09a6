@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "7a6b29fe_e01eeb0c",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 591,
+      "author": {
+        "id": 5263
+      },
+      "writtenOn": "2016-10-05T08:57:24Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7a6b29fe_60813b4d",
+      "range": {
+        "startLine": 591,
+        "startChar": 28,
+        "endLine": 591,
+        "endChar": 30
+      },
+      "revId": "e5cd534d3e82125613d3a2ef27cdef72f93e09a6",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7a6b29fe_403b5f9c",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnUtil.java",
         "patchSetId": 5
@@ -36,6 +60,24 @@
       "writtenOn": "2016-10-05T08:36:50Z",
       "side": 1,
       "message": "sorry Suraj, I didn\u0027t mean like this. This way you are creating an object even when not needed (which will probably be most of the times). \nIt\u0027s better to create the object inside the blocks where it is needed.\n\nAnyway, this has lead me to think that it could be a good idea to have some Constants file with all the error messages. It makes developing a bit more complicated but it really helps out cataloguing all abnormal situations (very good thing for documentation and for stating product limitations)",
+      "revId": "e5cd534d3e82125613d3a2ef27cdef72f93e09a6",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_80861712",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnUtil.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 1312,
+      "author": {
+        "id": 5263
+      },
+      "writtenOn": "2016-10-05T08:57:24Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7a6b29fe_403b5f9c",
       "revId": "e5cd534d3e82125613d3a2ef27cdef72f93e09a6",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -65,6 +107,30 @@
     },
     {
       "key": {
+        "uuid": "7a6b29fe_408cff35",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnUtil.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 1317,
+      "author": {
+        "id": 5263
+      },
+      "writtenOn": "2016-10-05T08:57:24Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7a6b29fe_60e81b17",
+      "range": {
+        "startLine": 1317,
+        "startChar": 16,
+        "endLine": 1317,
+        "endChar": 83
+      },
+      "revId": "e5cd534d3e82125613d3a2ef27cdef72f93e09a6",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7a6b29fe_a0f23304",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnUtil.java",
         "patchSetId": 5
@@ -76,6 +142,30 @@
       "writtenOn": "2016-10-05T08:36:50Z",
       "side": 1,
       "message": "I meant something like this \n \n String errMsg \u003d \"Unable to getLock for subnet \" + subnetId;\n LOG.error(errMsg);\n throw new RuntimeException(errMsg, e.getCause());",
+      "range": {
+        "startLine": 1320,
+        "startChar": 12,
+        "endLine": 1321,
+        "endChar": 93
+      },
+      "revId": "e5cd534d3e82125613d3a2ef27cdef72f93e09a6",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_a08193fd",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnUtil.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 1321,
+      "author": {
+        "id": 5263
+      },
+      "writtenOn": "2016-10-05T08:57:24Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7a6b29fe_a0f23304",
       "range": {
         "startLine": 1320,
         "startChar": 12,
