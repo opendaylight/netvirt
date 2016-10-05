@@ -285,10 +285,12 @@ public class NeutronPortChangeListener extends AsyncDataTreeChangeListenerBase<P
                         if (vpnId == null) {
                             vpnId = routerId;
                         }
-                        nvpnManager.addSubnetToVpn(vpnId, portIP.getSubnetId());
+                        // NOTE:  Please donot change the order of calls to updateSubnetNodeWithFixedIPs
+                        // and addSubnetToVpn here
                         String ipValue = portIP.getIpAddress().getIpv4Address().getValue();
                         nvpnManager.updateSubnetNodeWithFixedIps(portIP.getSubnetId(), routerId,
                                 routerPort.getUuid(), ipValue, routerPort.getMacAddress().getValue());
+                        nvpnManager.addSubnetToVpn(vpnId, portIP.getSubnetId());
                         nvpnNatManager.handleSubnetsForExternalRouter(routerId, dataBroker);
                         PhysAddress mac = new PhysAddress(routerPort.getMacAddress().getValue());
                         LOG.trace("NeutronPortChangeListener Add Subnet Gateway IP {} MAC {} Interface {} VPN {}",
@@ -322,6 +324,8 @@ public class NeutronPortChangeListener extends AsyncDataTreeChangeListenerBase<P
                     if(vpnId == null) {
                         vpnId = routerId;
                     }
+                    // NOTE:  Please donot change the order of calls to removeSubnetFromVpn and
+                    // and updateSubnetNodeWithFixedIPs
                     nvpnManager.removeSubnetFromVpn(vpnId, portIP.getSubnetId());
                     nvpnManager.updateSubnetNodeWithFixedIps(portIP.getSubnetId(), null,
                             null, null, null);
