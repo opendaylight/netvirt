@@ -11,13 +11,15 @@ import java.util.Map;
 import java.util.HashMap;
 import org.apache.thrift.TEnum;
 
-public enum af_afi implements org.apache.thrift.TEnum {
-  AFI_IP(1),
-  AFI_L2VPN(3);
+public enum protocol_type implements org.apache.thrift.TEnum {
+  PROTOCOL_LU(1),
+  PROTOCOL_L3VPN(2),
+  PROTOCOL_EVPN(3),
+  PROTOCOL_ANY(4);
 
   private final int value;
 
-  private af_afi(int value) {
+  private protocol_type(int value) {
     this.value = value;
   }
 
@@ -32,12 +34,16 @@ public enum af_afi implements org.apache.thrift.TEnum {
    * Find a the enum type by its integer value, as defined in the Thrift IDL.
    * @return null if the value is not found.
    */
-  public static af_afi findByValue(int value) { 
+  public static protocol_type findByValue(int value) { 
     switch (value) {
       case 1:
-        return AFI_IP;
+        return PROTOCOL_LU;
+      case 2:
+        return PROTOCOL_L3VPN;
       case 3:
-        return AFI_L2VPN;
+        return PROTOCOL_EVPN;
+      case 4:
+        return PROTOCOL_ANY;
       default:
         return null;
     }
