@@ -11,13 +11,13 @@ import java.util.Map;
 import java.util.HashMap;
 import org.apache.thrift.TEnum;
 
-public enum af_afi implements org.apache.thrift.TEnum {
-  AFI_IP(1),
-  AFI_L2VPN(3);
+public enum layer_type implements org.apache.thrift.TEnum {
+  LAYER_2(1),
+  LAYER_3(2);
 
   private final int value;
 
-  private af_afi(int value) {
+  private layer_type(int value) {
     this.value = value;
   }
 
@@ -32,12 +32,12 @@ public enum af_afi implements org.apache.thrift.TEnum {
    * Find a the enum type by its integer value, as defined in the Thrift IDL.
    * @return null if the value is not found.
    */
-  public static af_afi findByValue(int value) { 
+  public static layer_type findByValue(int value) { 
     switch (value) {
       case 1:
-        return AFI_IP;
-      case 3:
-        return AFI_L2VPN;
+        return LAYER_2;
+      case 2:
+        return LAYER_3;
       default:
         return null;
     }

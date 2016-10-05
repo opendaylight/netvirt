@@ -10,6 +10,8 @@ module ebgp {
   // import some basic inet types
   import ietf-inet-types { prefix inet; revision-date "2013-07-15"; }
 
+  import netvirt-common-types { prefix netvirtcommontypes; revision-date "2016-09-01"; }
+
   // meta
   organization
     "Ericsson Bangalore";
@@ -118,7 +120,9 @@ module ebgp {
     } //addr-families
   } // neighbhors
 
+
   list networks {
+
     key "rd prefix-len";
     leaf rd {
       type string;
@@ -134,10 +138,38 @@ module ebgp {
       type uint32;
       mandatory "false";
     }
+    leaf protocolType{
+      type netvirtcommontypes:protocol_type;
+      mandatory "true";
+    }
+    leaf ethtag {
+      type uint32;
+      mandatory "false";
+    }
+    leaf esi {
+      type string;
+      mandatory "false";
+    }
+    leaf macaddress {
+      type string;
+      mandatory "true";
+    }
+    leaf encapType {
+      type netvirtcommontypes:encap_type;
+      mandatory "false";
+    }
+    leaf routermac {
+      type string;
+      mandatory "false";
+    }
   } // networks
 
   list vrfs {
     key "rd";
+    leaf layerType {
+      type netvirtcommontypes:layer_type;
+      mandatory "true";
+    }
     leaf rd {
       type string;
     }
