@@ -50,13 +50,13 @@ public class DpnInVpnChangeListener implements OdlL3vpnListener {
     }
 
     private void setupSubnetGwMacEntriesOnDpn(String vpnName, BigInteger dpId, int addOrRemove) {
-        Optional<List<String>> macAddressesOptional = VpnUtil.getAllSubnetGatewayMacAddressesforVpn(dataBroker, vpnName);
-        if (!macAddressesOptional.isPresent()) {
+        List<String> macAddresses = VpnUtil.getAllSubnetGatewayMacAddressesforVpn(dataBroker, vpnName);
+        if (macAddresses.isEmpty()) {
             return;
         }
         long vpnId = VpnUtil.getVpnId(dataBroker, vpnName);
         WriteTransaction writeTx = dataBroker.newWriteOnlyTransaction();
-        for (String gwMacAddress: macAddressesOptional.get()) {
+        for (String gwMacAddress: macAddresses) {
             VpnUtil.addGwMacIntoTx(mdsalManager, gwMacAddress, writeTx, addOrRemove, vpnId, dpId);
         }
         writeTx.submit();
