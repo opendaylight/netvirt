@@ -278,12 +278,13 @@ public class VpnSubnetRouteHandler implements NeutronvpnListener {
                 String rd = subOpBuilder.getVrfId();
                 String subnetIp = subOpBuilder.getSubnetCidr();
                 String vpnName = subOpBuilder.getVpnName();
+                BigInteger nhDpnId = subOpBuilder.getNhDpnId();
                 MDSALUtil.syncDelete(dataBroker, LogicalDatastoreType.OPERATIONAL, subOpIdentifier);
                 logger.info("onSubnetDeletedFromVpn: Removed subnetopdataentry for subnet {} successfully from Datastore", subnetId.getValue());
                 try {
                     //Withdraw the routes for all the interfaces on this subnet
                     //Remove subnet route entry from FIB
-                    deleteSubnetRouteFromFib(rd, subnetIp, vpnName);
+                    deleteSubnetRouteFromFib(rd, subnetIp, vpnName, nhDpnId);
                     withdrawSubnetRoutefromBgp(rd, subnetIp);
                 } catch (Exception ex) {
                     logger.error("onSubnetAddedToVpn: Withdrawing routes from BGP for subnet " +
@@ -476,7 +477,7 @@ public class VpnSubnetRouteHandler implements NeutronvpnListener {
                             subOpBuilder.setNhDpnId(null);
                             try {
                                 // withdraw route from BGP
-                                deleteSubnetRouteFromFib(rd, subnetIp, vpnName);
+                                deleteSubnetRouteFromFib(rd, subnetIp, vpnName, nhDpnId);
                                 withdrawSubnetRoutefromBgp(rd, subnetIp);
                                 subOpBuilder.setRouteAdvState(TaskState.Na);
                             } catch (Exception ex) {
@@ -648,7 +649,7 @@ public class VpnSubnetRouteHandler implements NeutronvpnListener {
                             subOpBuilder.setNhDpnId(null);
                             try {
                                 // Withdraw route from BGP for this subnet
-                                deleteSubnetRouteFromFib(rd, subnetIp, vpnName);
+                                deleteSubnetRouteFromFib(rd, subnetIp, vpnName, nhDpnId);
                                 withdrawSubnetRoutefromBgp(rd, subnetIp);
                                 subOpBuilder.setRouteAdvState(TaskState.Na);
                             } catch (Exception ex) {
@@ -721,7 +722,8 @@ public class VpnSubnetRouteHandler implements NeutronvpnListener {
         return label;
     }
 
-    private void deleteSubnetRouteFromFib(String rd, String subnetIp, String vpnName) {
+    private void deleteSubnetRouteFromFib(String rd, String subnetIp, String vpnName,
+                                          BigInteger nhDpnId) {
         Preconditions.checkNotNull(rd, "RouteDistinguisher cannot be null or empty!");
         Preconditions.checkNotNull(subnetIp, "SubnetRouteIp cannot be null or empty!");
         vpnInterfaceManager.deleteSubnetRouteFibEntryFromDS(rd, subnetIp, vpnName);
