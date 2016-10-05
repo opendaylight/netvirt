@@ -136,7 +136,6 @@ public class AlivenessMonitorUtils {
 
     public static Optional<Long> createMonitorProfile(AlivenessMonitorService alivenessMonitor,
             MonitorProfileCreateInput monitorProfileCreateInput) {
-        Optional <Long> monitorProfileOptional = Optional.absent();
         try {
             Future<RpcResult<MonitorProfileCreateOutput>> result = alivenessMonitor.monitorProfileCreate(monitorProfileCreateInput);
             RpcResult<MonitorProfileCreateOutput> rpcResult = result.get();
@@ -163,7 +162,7 @@ public class AlivenessMonitorUtils {
         } catch (InterruptedException | ExecutionException e) {
             LOG.warn("Exception when allocating profile Id", e);
         }
-        return monitorProfileOptional;
+        return Optional.absent();
     }
 
     private static MonitorProfileGetInput buildMonitorGetProfile(long monitorInterval,

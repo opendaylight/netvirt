@@ -8,7 +8,6 @@
 
 package org.opendaylight.netvirt.elan.l2gw.utils;
 
-import com.google.common.base.Optional;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -69,31 +68,20 @@ public class L2GatewayConnectionUtils {
         LOG.debug("getNeutronL2gateway for {}", l2GatewayId.getValue());
         InstanceIdentifier<L2gateway> inst = InstanceIdentifier.create(Neutron.class).child(L2gateways.class)
                 .child(L2gateway.class, new L2gatewayKey(l2GatewayId));
-        Optional<L2gateway> l2Gateway = MDSALUtil.read(broker, LogicalDatastoreType.CONFIGURATION, inst);
-        if (l2Gateway.isPresent()) {
-            return l2Gateway.get();
-        }
-        return null;
+        return MDSALUtil.read(broker, LogicalDatastoreType.CONFIGURATION, inst).orNull();
     }
 
     public static List<L2gateway> getL2gatewayList(DataBroker broker) {
         InstanceIdentifier<L2gateways> inst = InstanceIdentifier.create(Neutron.class).child(L2gateways.class);
-        Optional<L2gateways> l2gateways = MDSALUtil.read(broker, LogicalDatastoreType.CONFIGURATION, inst);
-
-        if (l2gateways.isPresent()) {
-            return l2gateways.get().getL2gateway();
-        }
-        return null;
+        return MDSALUtil.read(broker, LogicalDatastoreType.CONFIGURATION, inst).transform(
+                L2gateways::getL2gateway).orNull();
     }
 
     public static List<L2gatewayConnection> getAllL2gatewayConnections(DataBroker broker) {
         InstanceIdentifier<L2gatewayConnections> inst = InstanceIdentifier.create(Neutron.class)
                 .child(L2gatewayConnections.class);
-        Optional<L2gatewayConnections> l2GwConns = MDSALUtil.read(broker, LogicalDatastoreType.CONFIGURATION, inst);
-        if (l2GwConns.isPresent()) {
-            return l2GwConns.get().getL2gatewayConnection();
-        }
-        return null;
+        return MDSALUtil.read(broker, LogicalDatastoreType.CONFIGURATION, inst).transform(
+                L2gatewayConnections::getL2gatewayConnection).orNull();
     }
 
     /**
