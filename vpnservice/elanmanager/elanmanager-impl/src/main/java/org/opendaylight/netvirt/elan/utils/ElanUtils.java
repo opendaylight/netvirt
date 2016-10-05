@@ -336,12 +336,7 @@ public class ElanUtils {
             return elanObj;
         }
         InstanceIdentifier<ElanInstance> elanIdentifierId = getElanInstanceConfigurationDataPath(elanInstanceName);
-        Optional<ElanInstance> elanInstance = MDSALUtil.read(broker, LogicalDatastoreType.CONFIGURATION,
-                elanIdentifierId);
-        if (elanInstance.isPresent()) {
-            return elanInstance.get();
-        }
-        return null;
+        return MDSALUtil.read(broker, LogicalDatastoreType.CONFIGURATION, elanIdentifierId).orNull();
     }
 
     public static InstanceIdentifier<ElanInstance> getElanInstanceConfigurationDataPath(String elanInstanceName) {
@@ -356,12 +351,7 @@ public class ElanUtils {
             return elanInterfaceObj;
         }
         InstanceIdentifier<ElanInterface> elanInterfaceId = getElanInterfaceConfigurationDataPathId(elanInterfaceName);
-        Optional<ElanInterface> existingElanInterface = MDSALUtil.read(broker,
-                LogicalDatastoreType.CONFIGURATION, elanInterfaceId);
-        if (existingElanInterface.isPresent()) {
-            return existingElanInterface.get();
-        }
-        return null;
+        return MDSALUtil.read(broker, LogicalDatastoreType.CONFIGURATION, elanInterfaceId).orNull();
     }
 
     public static EtreeInterface getEtreeInterfaceByElanInterfaceName(DataBroker broker, String elanInterfaceName) {
@@ -377,12 +367,7 @@ public class ElanUtils {
     // elan-state Operational container
     public static Elan getElanByName(DataBroker broker, String elanInstanceName) {
         InstanceIdentifier<Elan> elanIdentifier = getElanInstanceOperationalDataPath(elanInstanceName);
-        Optional<Elan> elanInstance = MDSALUtil.read(broker, LogicalDatastoreType.OPERATIONAL,
-                elanIdentifier);
-        if (elanInstance.isPresent()) {
-            return elanInstance.get();
-        }
-        return null;
+        return MDSALUtil.read(broker, LogicalDatastoreType.OPERATIONAL, elanIdentifier).orNull();
     }
 
     public static InstanceIdentifier<Elan> getElanInstanceOperationalDataPath(String elanInstanceName) {
@@ -393,21 +378,13 @@ public class ElanUtils {
     public MacEntry getInterfaceMacEntriesOperationalDataPath(String interfaceName, PhysAddress physAddress) {
         InstanceIdentifier<MacEntry> existingMacEntryId = getInterfaceMacEntriesIdentifierOperationalDataPath(
                 interfaceName, physAddress);
-        Optional<MacEntry> existingInterfaceMacEntry = read(broker,
-                LogicalDatastoreType.OPERATIONAL, existingMacEntryId);
-        if (existingInterfaceMacEntry.isPresent()) {
-            return existingInterfaceMacEntry.get();
-        }
-        return null;
+        return read(broker, LogicalDatastoreType.OPERATIONAL, existingMacEntryId).orNull();
     }
 
     public MacEntry getInterfaceMacEntriesOperationalDataPathFromId(InstanceIdentifier identifier) {
         Optional<MacEntry> existingInterfaceMacEntry = read(broker,
                 LogicalDatastoreType.OPERATIONAL, identifier);
-        if (existingInterfaceMacEntry.isPresent()) {
-            return existingInterfaceMacEntry.get();
-        }
-        return null;
+        return existingInterfaceMacEntry.orNull();
     }
 
     public static InstanceIdentifier<MacEntry> getInterfaceMacEntriesIdentifierOperationalDataPath(String interfaceName,
@@ -421,21 +398,13 @@ public class ElanUtils {
     // elan-forwarding-tables Operational container
     public MacEntry getMacTableByElanName(String elanName, PhysAddress physAddress) {
         InstanceIdentifier<MacEntry> macId = getMacEntryOperationalDataPath(elanName, physAddress);
-        Optional<MacEntry> existingElanMacEntry = read(broker,
-                LogicalDatastoreType.OPERATIONAL, macId);
-        if (existingElanMacEntry.isPresent()) {
-            return existingElanMacEntry.get();
-        }
-        return null;
+        return read(broker, LogicalDatastoreType.OPERATIONAL, macId).orNull();
     }
 
     public MacEntry getMacEntryFromElanMacId(InstanceIdentifier identifier) {
         Optional<MacEntry> existingInterfaceMacEntry = read(broker,
                 LogicalDatastoreType.OPERATIONAL, identifier);
-        if (existingInterfaceMacEntry.isPresent()) {
-            return existingInterfaceMacEntry.get();
-        }
-        return null;
+        return existingInterfaceMacEntry.orNull();
     }
 
     public static InstanceIdentifier<MacEntry> getMacEntryOperationalDataPath(String elanName,
@@ -453,12 +422,7 @@ public class ElanUtils {
     public ElanInterfaceMac getElanInterfaceMacByInterfaceName(String interfaceName) {
         InstanceIdentifier<ElanInterfaceMac> elanInterfaceId = getElanInterfaceMacEntriesOperationalDataPath(
                 interfaceName);
-        Optional<ElanInterfaceMac> existingElanInterface = read(broker,
-                LogicalDatastoreType.OPERATIONAL, elanInterfaceId);
-        if (existingElanInterface.isPresent()) {
-            return existingElanInterface.get();
-        }
-        return null;
+        return read(broker, LogicalDatastoreType.OPERATIONAL, elanInterfaceId).orNull();
     }
 
     /**
@@ -499,12 +463,7 @@ public class ElanUtils {
     public DpnInterfaces getElanInterfaceInfoByElanDpn(String elanInstanceName, BigInteger dpId) {
         InstanceIdentifier<DpnInterfaces> elanDpnInterfacesId = getElanDpnInterfaceOperationalDataPath(elanInstanceName,
                 dpId);
-        Optional<DpnInterfaces> elanDpnInterfaces = read(broker,
-                LogicalDatastoreType.OPERATIONAL, elanDpnInterfacesId);
-        if (elanDpnInterfaces.isPresent()) {
-            return elanDpnInterfaces.get();
-        }
-        return null;
+        return read(broker, LogicalDatastoreType.OPERATIONAL, elanDpnInterfacesId).orNull();
     }
 
     /**
@@ -530,10 +489,7 @@ public class ElanUtils {
         InstanceIdentifier<ElanTagName> elanId = getElanInfoEntriesOperationalDataPath(elanTag);
         Optional<ElanTagName> existingElanInfo = read(broker,
                 LogicalDatastoreType.OPERATIONAL, elanId);
-        if (existingElanInfo.isPresent()) {
-            return existingElanInfo.get();
-        }
-        return null;
+        return existingElanInfo.orNull();
     }
 
     public EtreeLeafTagName getEtreeLeafTagByElanTag(long elanTag) {
@@ -542,8 +498,7 @@ public class ElanUtils {
                 LogicalDatastoreType.OPERATIONAL, elanId);
         if (existingElanInfo.isPresent()) {
             ElanTagName elanTagName = existingElanInfo.get();
-            EtreeLeafTagName etreeAugmentation = elanTagName.getAugmentation(EtreeLeafTagName.class);
-            return etreeAugmentation;
+            return elanTagName.getAugmentation(EtreeLeafTagName.class);
         }
         return null;
     }
@@ -571,23 +526,13 @@ public class ElanUtils {
 
     public ElanDpnInterfacesList getElanDpnInterfacesList(String elanName) {
         InstanceIdentifier<ElanDpnInterfacesList> elanDpnInterfaceId = getElanDpnOperationDataPath(elanName);
-        Optional<ElanDpnInterfacesList> existingElanDpnInterfaces = read(broker,
-                LogicalDatastoreType.OPERATIONAL, elanDpnInterfaceId);
-        if (existingElanDpnInterfaces.isPresent()) {
-            return existingElanDpnInterfaces.get();
-        }
-        return null;
+        return read(broker, LogicalDatastoreType.OPERATIONAL, elanDpnInterfaceId).orNull();
     }
 
     public ElanDpnInterfaces getElanDpnInterfacesList() {
         InstanceIdentifier<ElanDpnInterfaces> elanDpnInterfaceId = InstanceIdentifier.builder(ElanDpnInterfaces.class)
                 .build();
-        Optional<ElanDpnInterfaces> existingElanDpnInterfaces = read(broker,
-                LogicalDatastoreType.OPERATIONAL, elanDpnInterfaceId);
-        if (existingElanDpnInterfaces.isPresent()) {
-            return existingElanDpnInterfaces.get();
-        }
-        return null;
+        return read(broker, LogicalDatastoreType.OPERATIONAL, elanDpnInterfaceId).orNull();
     }
 
     /**
@@ -626,32 +571,25 @@ public class ElanUtils {
      * @return true if dpId is already present, otherwise return false
      */
     public boolean isDpnAlreadyPresentInElanInstance(BigInteger dpId, String elanInstanceName) {
-        boolean isDpIdPresent = false;
         InstanceIdentifier<ElanDpnInterfacesList> elanDpnInterfaceId = getElanDpnOperationDataPath(elanInstanceName);
         Optional<ElanDpnInterfacesList> existingElanDpnInterfaces = read(broker,
                 LogicalDatastoreType.OPERATIONAL, elanDpnInterfaceId);
         if (!existingElanDpnInterfaces.isPresent()) {
-            return isDpIdPresent;
+            return false;
         }
         List<DpnInterfaces> dpnInterfaces = existingElanDpnInterfaces.get().getDpnInterfaces();
         for (DpnInterfaces dpnInterface : dpnInterfaces) {
             if (dpnInterface.getDpId().equals(dpId)) {
-                isDpIdPresent = true;
-                break;
+                return true;
             }
         }
-        return isDpIdPresent;
+        return false;
     }
 
     public ElanForwardingTables getElanForwardingList() {
         InstanceIdentifier<ElanForwardingTables> elanForwardingTableId = InstanceIdentifier
                 .builder(ElanForwardingTables.class).build();
-        Optional<ElanForwardingTables> existingElanForwardingList = read(broker,
-                LogicalDatastoreType.OPERATIONAL, elanForwardingTableId);
-        if (existingElanForwardingList.isPresent()) {
-            return existingElanForwardingList.get();
-        }
-        return null;
+        return read(broker, LogicalDatastoreType.OPERATIONAL, elanForwardingTableId).orNull();
     }
 
     /**
@@ -663,12 +601,7 @@ public class ElanUtils {
      */
     public MacTable getElanMacTable(String elanName) {
         InstanceIdentifier<MacTable> elanMacTableId = getElanMacTableOperationalDataPath(elanName);
-        Optional<MacTable> existingElanMacTable = read(broker,
-                LogicalDatastoreType.OPERATIONAL, elanMacTableId);
-        if (existingElanMacTable.isPresent()) {
-            return existingElanMacTable.get();
-        }
-        return null;
+        return read(broker, LogicalDatastoreType.OPERATIONAL, elanMacTableId).orNull();
     }
 
     public static long getElanLocalBCGId(long elanTag) {
@@ -1351,8 +1284,7 @@ public class ElanUtils {
 
         InstanceIdentifier<Node> node = InstanceIdentifier.builder(Nodes.class).child(Node.class, new NodeKey(nodeId))
                 .build();
-        Optional<Node> nodePresent = read(broker, LogicalDatastoreType.OPERATIONAL, node);
-        return nodePresent.isPresent();
+        return read(broker, LogicalDatastoreType.OPERATIONAL, node).isPresent();
     }
 
     public static ServicesInfo getServiceInfo(String elanInstanceName, long elanTag, String interfaceName) {
@@ -1579,12 +1511,7 @@ public class ElanUtils {
     public static TunnelList buildInternalTunnel(DataBroker broker) {
         InstanceIdentifier<TunnelList> tunnelListInstanceIdentifier = InstanceIdentifier.builder(TunnelList.class)
                 .build();
-        Optional<TunnelList> tunnelList = MDSALUtil.read(broker, LogicalDatastoreType.CONFIGURATION,
-                tunnelListInstanceIdentifier);
-        if (tunnelList.isPresent()) {
-            return tunnelList.get();
-        }
-        return null;
+        return MDSALUtil.read(broker, LogicalDatastoreType.CONFIGURATION, tunnelListInstanceIdentifier).orNull();
     }
 
     /**
@@ -1600,15 +1527,10 @@ public class ElanUtils {
      */
     public ExternalTunnel getExternalTunnel(String sourceDevice, String destinationDevice,
             LogicalDatastoreType datastoreType) {
-        ExternalTunnel externalTunnel = null;
         Class<? extends TunnelTypeBase> tunType = TunnelTypeVxlan.class;
         InstanceIdentifier<ExternalTunnel> iid = InstanceIdentifier.builder(ExternalTunnelList.class)
                 .child(ExternalTunnel.class, new ExternalTunnelKey(destinationDevice, sourceDevice, tunType)).build();
-        Optional<ExternalTunnel> tunnelList = read(broker, datastoreType, iid);
-        if (tunnelList.isPresent()) {
-            externalTunnel = tunnelList.get();
-        }
-        return externalTunnel;
+        return read(broker, datastoreType, iid).orNull();
     }
 
     /**
@@ -1640,16 +1562,9 @@ public class ElanUtils {
      * @return the all external tunnels
      */
     public List<ExternalTunnel> getAllExternalTunnels(LogicalDatastoreType datastoreType) {
-        List<ExternalTunnel> result = null;
         InstanceIdentifier<ExternalTunnelList> iid = InstanceIdentifier.builder(ExternalTunnelList.class).build();
-        Optional<ExternalTunnelList> tunnelList = read(broker, datastoreType, iid);
-        if (tunnelList.isPresent()) {
-            result = tunnelList.get().getExternalTunnel();
-        }
-        if (result == null) {
-            result = Collections.emptyList();
-        }
-        return result;
+        return read(broker, datastoreType, iid).transform(ExternalTunnelList::getExternalTunnel).or(
+                Collections.emptyList());
     }
 
     /**
@@ -2046,13 +1961,7 @@ public class ElanUtils {
         InstanceIdentifier<org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang
             .ietf.interfaces.rev140508.interfaces.state.Interface> ifStateId = createInterfaceStateInstanceIdentifier(
                 interfaceName);
-        Optional<org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang
-            .ietf.interfaces.rev140508.interfaces.state.Interface> ifStateOptional = MDSALUtil
-                .read(dataBroker, LogicalDatastoreType.OPERATIONAL, ifStateId);
-        if (ifStateOptional.isPresent()) {
-            return ifStateOptional.get();
-        }
-        return null;
+        return MDSALUtil.read(dataBroker, LogicalDatastoreType.OPERATIONAL, ifStateId).orNull();
     }
 
     /**
@@ -2069,13 +1978,7 @@ public class ElanUtils {
             String interfaceName, DataBroker dataBroker) {
         InstanceIdentifier<org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang
             .ietf.interfaces.rev140508.interfaces.Interface> ifaceId = createInterfaceInstanceIdentifier(interfaceName);
-        Optional<org.opendaylight.yang.gen.v1.urn
-            .ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface> iface = MDSALUtil
-                .read(dataBroker, LogicalDatastoreType.CONFIGURATION, ifaceId);
-        if (iface.isPresent()) {
-            return iface.get();
-        }
-        return null;
+        return MDSALUtil.read(dataBroker, LogicalDatastoreType.CONFIGURATION, ifaceId).orNull();
     }
 
     /**

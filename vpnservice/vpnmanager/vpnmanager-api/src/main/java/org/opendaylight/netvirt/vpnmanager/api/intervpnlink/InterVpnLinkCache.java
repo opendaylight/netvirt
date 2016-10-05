@@ -261,7 +261,7 @@ public class InterVpnLinkCache {
         ConcurrentHashMap<String, InterVpnLinkDataComposite> cache =
             (ConcurrentHashMap<String, InterVpnLinkDataComposite>) CacheUtil.getCache(IVPNLINK_NAME_2_IVPNLINK_CACHE_NAME);
         InterVpnLinkDataComposite iVpnLink = cache.get(iVpnLinkName);
-        return (iVpnLink == null) ? Optional.<InterVpnLinkDataComposite>absent() : Optional.of(iVpnLink);
+        return Optional.fromNullable(iVpnLink);
     }
 
     public static Optional<InterVpnLinkDataComposite> getInterVpnLinkByEndpoint(String endpointIp) {
@@ -270,14 +270,14 @@ public class InterVpnLinkCache {
             (ConcurrentHashMap<String, InterVpnLinkDataComposite>) CacheUtil.getCache(ENDPOINT_2_IVPNLINK_CACHE_NAME);
         InterVpnLinkDataComposite iVpnLink = cache.get(endpointIp);
         LOG.trace("_XX IP {} is configured for InterVpnLink {}", endpointIp, iVpnLink);
-        return (iVpnLink == null) ? Optional.<InterVpnLinkDataComposite>absent() : Optional.of(iVpnLink);
+        return Optional.fromNullable(iVpnLink);
     }
 
     public static Optional<InterVpnLinkDataComposite> getInterVpnLinkByVpnId(String vpnId) {
         ConcurrentHashMap<String, InterVpnLinkDataComposite> cache2 =
             (ConcurrentHashMap<String, InterVpnLinkDataComposite>) CacheUtil.getCache(UUID_2_IVPNLINK_CACHE_NAME);
         InterVpnLinkDataComposite iVpnLink = cache2.get(vpnId);
-        return (iVpnLink == null) ? Optional.<InterVpnLinkDataComposite>absent() : Optional.of(iVpnLink);
+        return Optional.fromNullable(iVpnLink);
     }
 
 }
