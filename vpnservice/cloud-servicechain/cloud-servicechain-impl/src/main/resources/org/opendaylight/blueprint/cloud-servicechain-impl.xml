@@ -42,6 +42,7 @@
     <bean id="vpnToDpnListener" class="org.opendaylight.netvirt.cloudservicechain.listeners.VpnToDpnListener">
         <argument ref="dataBroker" />
         <argument ref="mdsalManager" />
+        <argument ref="vpnServiceChainHandler" />
     </bean>
     <odl:notification-listener ref="vpnToDpnListener" />
 

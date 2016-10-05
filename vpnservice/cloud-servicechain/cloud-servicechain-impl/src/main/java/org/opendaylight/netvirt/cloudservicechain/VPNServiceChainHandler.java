@@ -15,9 +15,11 @@ import java.util.List;
 
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.genius.datastoreutils.DataStoreJobCoordinator;
 import org.opendaylight.genius.mdsalutil.MDSALDataStoreUtils;
 import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
+import org.opendaylight.netvirt.cloudservicechain.jobs.ModifyVpnPseudoPortDataTask;
 import org.opendaylight.netvirt.cloudservicechain.utils.VpnServiceChainUtils;
 import org.opendaylight.genius.mdsalutil.NWUtil;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.VpnAfConfig;
@@ -96,25 +98,6 @@ public class VPNServiceChainHandler implements AutoCloseable {
     }
 
     /**
-     * Returns the list of VrfEntries that belong to a VPN
-     *
-     * @param rd route distinguisher of the VPN
-     * @return the list of {@code VrfEntry}
-     */
-    private List<VrfEntry> getVrfEntries(String rd) {
-        try {
-            InstanceIdentifier<VrfTables> id = VpnServiceChainUtils.buildVrfId(rd);
-            Optional<VrfTables> vrfTable = MDSALDataStoreUtils.read(broker, LogicalDatastoreType.CONFIGURATION, id);
-            if (vrfTable.isPresent()) {
-                return vrfTable.get().getVrfEntry();
-            }
-        } catch (Exception e) {
-            LOG.error("Exception: getVrfEntries", e);
-        }
-        return null;
-    }
-
-    /**
      * Programs the necessary flows in LFIB and LPortDispatcher table so that the packets coming from a
      * given VPN are delivered to a given ServiceChain Pipeline
      *
@@ -132,8 +115,8 @@ public class VPNServiceChainHandler implements AutoCloseable {
         //     - Match: cgnatLabel   Instr: lportTag=vpnPseudoPortTag + SI=SCF  +  GOTO 17
         //   LportDisp:
         //     - Match: vpnPseudoPortTag + SI==SCF   Instr:  scfTag  +  GOTO 70
-        LOG.info("L3VPN: programSCFinVPNPipeline ({}) : Parameters VpnName:{} tableId:{} scftag:{}  lportTag:{}",
-                 (addOrRemove == NwConstants.ADD_FLOW) ? "Creation" : "Removal", vpnName, tableId, scfTag, lportTag);
+        LOG.info("programVpnToScfPipeline ({}) : Parameters VpnName:{} tableId:{} scftag:{}  lportTag:{}",
+                 addOrRemove == NwConstants.ADD_FLOW ? "Creation" : "Removal", vpnName, tableId, scfTag, lportTag);
         VpnInstanceOpDataEntry vpnInstance = null;
         try {
             String rd = getRouteDistinguisher(vpnName);
@@ -148,17 +131,17 @@ public class VPNServiceChainHandler implements AutoCloseable {
 
             // Find out the set of DPNs for the given VPN ID
             Collection<VpnToDpnList> vpnToDpnList = vpnInstance.getVpnToDpnList();
-            List<VrfEntry> vrfEntries = getVrfEntries(rd);
+            List<VrfEntry> vrfEntries = VpnServiceChainUtils.getAllVrfEntries(broker, rd);
             if (vrfEntries != null) {
-                VpnServiceChainUtils.updateVpnToLportTagMap(broker, rd, lportTag, addOrRemove);
+                ModifyVpnPseudoPortDataTask updateVpnToPseudoPortTask =
+                    new ModifyVpnPseudoPortDataTask(broker, rd, lportTag, tableId, (int) scfTag,
+                                                    ModifyVpnPseudoPortDataTask.Op.ADD);
+                DataStoreJobCoordinator.getInstance().enqueueJob(updateVpnToPseudoPortTask.getDsJobCoordinatorKey(),
+                                                                 updateVpnToPseudoPortTask);
 
                 for (VpnToDpnList dpnInVpn : vpnToDpnList) {
                     BigInteger dpnId = dpnInVpn.getDpnId();
-                    VpnServiceChainUtils.programLFibEntriesForSCF(mdsalManager, dpnId, vrfEntries, lportTag,
-                                                                  addOrRemove);
-
-                    VpnServiceChainUtils.programLPortDispatcherFlowForVpnToScf(mdsalManager, dpnId, lportTag, scfTag,
-                                                                               tableId, addOrRemove);
+                    programVpnToScfPipelineOnDpn(dpnId, vrfEntries, tableId, (int) scfTag, lportTag, addOrRemove);
                 }
             }
         } catch (Exception ex) {
@@ -166,6 +149,14 @@ public class VPNServiceChainHandler implements AutoCloseable {
         }
     }
 
+    public void programVpnToScfPipelineOnDpn(BigInteger dpnId, List<VrfEntry> vpnVrfEntries, short tableIdToGoTo,
+                                             int scfTag, int lportTag, int addOrRemove) {
+        VpnServiceChainUtils.programLFibEntriesForSCF(mdsalManager, dpnId, vpnVrfEntries, lportTag,
+                                                      addOrRemove);
+
+        VpnServiceChainUtils.programLPortDispatcherFlowForVpnToScf(mdsalManager, dpnId, lportTag, scfTag,
+                                                                   tableIdToGoTo, addOrRemove);
+    }
 
     /**
      * Get fake VPNPseudoPort interface name
@@ -227,12 +218,12 @@ public class VPNServiceChainHandler implements AutoCloseable {
             if (vpnInstance != null) {
 
                 if ( addOrRemove == NwConstants.ADD_FLOW
-                        || (addOrRemove == NwConstants.DEL_FLOW && isLastServiceChain) ) {
+                        || addOrRemove == NwConstants.DEL_FLOW && isLastServiceChain ) {
 
                     Long vpnId = vpnInstance.getVpnId();
                     List<VpnToDpnList> vpnToDpnList = vpnInstance.getVpnToDpnList();
                     if ( vpnToDpnList != null ) {
-                        List<BigInteger> dpns = new ArrayList<BigInteger>();
+                        List<BigInteger> dpns = new ArrayList<>();
                         for (VpnToDpnList dpnInVpn : vpnToDpnList ) {
                             dpns.add(dpnInVpn.getDpnId());
                         }
@@ -306,7 +297,12 @@ public class VPNServiceChainHandler implements AutoCloseable {
             mdsalManager.removeFlow(dpnId, scfToVpnFlow);
         }
 
-        VpnServiceChainUtils.updateVpnToLportTagMap(broker, rd, vpnPseudoLportTag, NwConstants.DEL_FLOW);
+        ModifyVpnPseudoPortDataTask removeVpnPseudoPortDataTask =
+            new ModifyVpnPseudoPortDataTask(broker, rd, 0 /*Ignored in removals*/, (short) 0 /*Ignored*/,
+                                            0 /*Ignored*/,
+                                            ModifyVpnPseudoPortDataTask.Op.REMOVE);
+        DataStoreJobCoordinator.getInstance().enqueueJob(removeVpnPseudoPortDataTask.getDsJobCoordinatorKey(),
+                                                         removeVpnPseudoPortDataTask);
     }
 
 }

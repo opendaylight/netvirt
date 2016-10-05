@@ -120,20 +120,6 @@ module odl-l3vpn {
            }
     }
 
-    container vpn-to-pseudo-port-tag-data {
-        description "Makes a correspondence between VRFs and their corresponding VpnPseudoPort";
-        list vpn-to-pseudo-port-tag {
-            key vrf-id;
-            leaf vrf-id {
-                type string;
-            }
-            leaf lport-tag {
-                description "Vpn Pseudo Logical Port Tag";
-                type uint32;
-            }
-        }
-    }
-
     container vpn-instance-op-data {
         config false;
         list vpn-instance-op-data-entry {

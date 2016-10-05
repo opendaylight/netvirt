@@ -11,22 +11,27 @@ import org.opendaylight.genius.utils.cache.CacheUtil;
 
 import java.util.concurrent.ConcurrentHashMap;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  * Manages a per-blade cache, which is feeded by a clustered data change
  * listener.
  *
  */
 public class VpnPseudoPortCache {
+    public static final Logger LOG = LoggerFactory.getLogger(VpnPseudoPortCache.class);
     public static final String VPNPSEUDOPORT_CACHE_NAME = "VrfToVpnPseudoPortCache";
 
     static {
         CacheUtil.createCache(VPNPSEUDOPORT_CACHE_NAME);
     }
 
-    public static void addVpnPseudoPortToCache(String vrfId, int vpnPseudoLportTag) {
+    public static void addVpnPseudoPortToCache(String vrfId, long vpnPseudoLportTag) {
+        LOG.debug("Adding vpn {} and vpnPseudoLportTag {} to VpnPseudoPortCache", vrfId, vpnPseudoLportTag);
         ConcurrentHashMap<String, Long> cache =
             (ConcurrentHashMap<String, Long>) CacheUtil.getCache(VPNPSEUDOPORT_CACHE_NAME);
-        cache.put(vrfId, Long.valueOf(vpnPseudoLportTag));
+        cache.put(vrfId, vpnPseudoLportTag);
     }
 
     public static Long getVpnPseudoPortTagFromCache(String vrfId) {
@@ -36,6 +41,7 @@ public class VpnPseudoPortCache {
     }
 
     public static void removeVpnPseudoPortFromCache(String vrfId) {
+        LOG.debug("Removing vpn {} from VpnPseudoPortCache", vrfId);
         ConcurrentHashMap<String, Long> cache =
             (ConcurrentHashMap<String, Long>) CacheUtil.getCache(VPNPSEUDOPORT_CACHE_NAME);
         cache.remove(vrfId);
