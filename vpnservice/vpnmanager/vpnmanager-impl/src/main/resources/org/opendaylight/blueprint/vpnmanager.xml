@@ -21,8 +21,6 @@
                    interface="org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.IdManagerService" />
   <odl:rpc-service id="itmRpcService"
                    interface="org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rpcs.rev160406.ItmRpcService" />
-  <odl:rpc-service id="lockManagerService"
-                   interface="org.opendaylight.yang.gen.v1.urn.opendaylight.genius.lockmanager.rev160413.LockManagerService" />
   <odl:rpc-service id="odlInterfaceRpcService"
                    interface="org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.OdlInterfaceRpcService" />
   <odl:rpc-service id="odlArputilService"
