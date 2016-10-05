@@ -7,7 +7,6 @@
  */
 package org.opendaylight.netvirt.vpnmanager;
 
-import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 
 import org.opendaylight.controller.md.sal.binding.api.DataChangeListener;
@@ -45,16 +44,16 @@ public abstract class AbstractDataChangeListener<T extends DataObject> implement
 
         /* All DataObjects for create */
         final Map<InstanceIdentifier<?>, DataObject> createdData = changeEvent.getCreatedData() != null
-                ? changeEvent.getCreatedData() : Collections.<InstanceIdentifier<?>, DataObject>emptyMap();
+                ? changeEvent.getCreatedData() : Collections.emptyMap();
         /* All DataObjects for remove */
         final Set<InstanceIdentifier<?>> removeData = changeEvent.getRemovedPaths() != null
-                ? changeEvent.getRemovedPaths() : Collections.<InstanceIdentifier<?>>emptySet();
+                ? changeEvent.getRemovedPaths() : Collections.emptySet();
         /* All DataObjects for updates */
         final Map<InstanceIdentifier<?>, DataObject> updateData = changeEvent.getUpdatedData() != null
-                ? changeEvent.getUpdatedData() : Collections.<InstanceIdentifier<?>, DataObject>emptyMap();
+                ? changeEvent.getUpdatedData() : Collections.emptyMap();
         /* All Original DataObjects */
         final Map<InstanceIdentifier<?>, DataObject> originalData = changeEvent.getOriginalData() != null
-                ? changeEvent.getOriginalData() : Collections.<InstanceIdentifier<?>, DataObject>emptyMap();
+                ? changeEvent.getOriginalData() : Collections.emptyMap();
 
         this.createData(createdData);
         this.updateData(updateData, originalData);
@@ -67,14 +66,12 @@ public abstract class AbstractDataChangeListener<T extends DataObject> implement
 
     @SuppressWarnings("unchecked")
     private void createData(final Map<InstanceIdentifier<?>, DataObject> createdData) {
-        final Set<InstanceIdentifier<?>> keys = createdData.keySet() != null
-                ? createdData.keySet() : Collections.<InstanceIdentifier<?>>emptySet();
-        for (InstanceIdentifier<?> key : keys) {
+        for (InstanceIdentifier<?> key : createdData.keySet()) {
             if (clazz.equals(key.getTargetType())) {
                 InstanceIdentifier<T> createKeyIdent = key.firstIdentifierOf(clazz);
-                final Optional<DataObject> value = Optional.of(createdData.get(key));
-                if (value.isPresent()) {
-                    this.add(createKeyIdent, (T)value.get());
+                DataObject value = createdData.get(key);
+                if (value != null) {
+                    add(createKeyIdent, (T) value);
                 }
             }
         }
@@ -83,16 +80,13 @@ public abstract class AbstractDataChangeListener<T extends DataObject> implement
     @SuppressWarnings("unchecked")
     private void updateData(final Map<InstanceIdentifier<?>, DataObject> updateData,
             final Map<InstanceIdentifier<?>, DataObject> originalData) {
-
-        final Set<InstanceIdentifier<?>> keys = updateData.keySet() != null
-                ? updateData.keySet() : Collections.<InstanceIdentifier<?>>emptySet();
-        for (InstanceIdentifier<?> key : keys) {
+        for (InstanceIdentifier<?> key : updateData.keySet()) {
             if (clazz.equals(key.getTargetType())) {
                 InstanceIdentifier<T> updateKeyIdent = key.firstIdentifierOf(clazz);
-                final Optional<DataObject> value = Optional.of(updateData.get(key));
-                final Optional<DataObject> original = Optional.of(originalData.get(key));
-                if (value.isPresent() && original.isPresent()) {
-                    this.update(updateKeyIdent, (T)original.get(), (T)value.get());
+                DataObject value = updateData.get(key);
+                DataObject original = originalData.get(key);
+                if (value != null && original != null) {
+                    update(updateKeyIdent, (T) original, (T) value);
                 }
             }
         }

@@ -9,6 +9,10 @@ package org.opendaylight.netvirt.vpnmanager.intervpnlink;
 
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
+import java.math.BigInteger;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
@@ -37,9 +41,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.netvirt.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.netvirt.inter.vpn.link.rev160311.InterVpnLinks;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.netvirt.inter.vpn.link.rev160311.inter.vpn.link.states.InterVpnLinkState;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.netvirt.inter.vpn.link.rev160311.inter.vpn.link.states.InterVpnLinkStateBuilder;
-
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.netvirt.inter.vpn.link.rev160311.inter.vpn
-        .link.states.InterVpnLinkStateKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.netvirt.inter.vpn.link.rev160311.inter.vpn.link.states.InterVpnLinkStateKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.netvirt.inter.vpn.link.rev160311.inter.vpn.link.states.inter.vpn.link.state.FirstEndpointState;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.netvirt.inter.vpn.link.rev160311.inter.vpn.link.states.inter.vpn.link.state.SecondEndpointState;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.netvirt.inter.vpn.link.rev160311.inter.vpn.links.InterVpnLink;
@@ -47,11 +49,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.netvirt.
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.math.BigInteger;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 
 /**
  * This class contains methods to be used as utilities related with inter-vpn-link.
@@ -294,15 +291,15 @@ public class InterVpnLinkUtil {
      * @param endpointIp IP to serch for.
      * @return the InterVpnLink or null if no InterVpnLink can be found
      */
-    public static Optional<InterVpnLink> getInterVpnLinkByEndpointIp(DataBroker broker, String endpointIp) {
+    public static java.util.Optional<InterVpnLink> getInterVpnLinkByEndpointIp(DataBroker broker, String endpointIp) {
         List<InterVpnLink> allInterVpnLinks = InterVpnLinkUtil.getAllInterVpnLinks(broker);
         for (InterVpnLink interVpnLink : allInterVpnLinks) {
             if (interVpnLink.getFirstEndpoint().getIpAddress().getValue().equals(endpointIp)
                     || interVpnLink.getSecondEndpoint().getIpAddress().getValue().equals(endpointIp)) {
-                return Optional.of(interVpnLink);
+                return java.util.Optional.of(interVpnLink);
             }
         }
-        return Optional.absent();
+        return java.util.Optional.empty();
     }
 
 
@@ -373,7 +370,7 @@ public class InterVpnLinkUtil {
      * @return the list of DPN Ids
      */
     public static List<BigInteger> getVpnLinkEndpointDPNsByIp(DataBroker broker, String endpointIp) {
-        Optional<InterVpnLink> optIVpnLink = getInterVpnLinkByEndpointIp(broker, endpointIp);
+        java.util.Optional<InterVpnLink> optIVpnLink = getInterVpnLinkByEndpointIp(broker, endpointIp);
         if ( optIVpnLink.isPresent() ) {
             InterVpnLink iVpnLink = optIVpnLink.get();
             boolean isFirstEndpoint = iVpnLink.getFirstEndpoint().getIpAddress().getValue().equals(endpointIp);
