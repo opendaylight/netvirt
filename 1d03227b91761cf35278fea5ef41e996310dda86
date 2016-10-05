@@ -49,6 +49,30 @@
     },
     {
       "key": {
+        "uuid": "7a6b29fe_bd59c05d",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnUtil.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 1300,
+      "author": {
+        "id": 5263
+      },
+      "writtenOn": "2016-10-05T07:25:51Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7a6b29fe_00522034",
+      "range": {
+        "startLine": 1300,
+        "startChar": 16,
+        "endLine": 1300,
+        "endChar": 43
+      },
+      "revId": "1d03227b91761cf35278fea5ef41e996310dda86",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7a6b29fe_401ed870",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnUtil.java",
         "patchSetId": 2
@@ -60,6 +84,30 @@
       "writtenOn": "2016-09-27T10:46:28Z",
       "side": 1,
       "message": "you are building the same String twice. Why not do it just one time and use it for the LOG and the RuntimeException?",
+      "range": {
+        "startLine": 1308,
+        "startChar": 54,
+        "endLine": 1308,
+        "endChar": 82
+      },
+      "revId": "1d03227b91761cf35278fea5ef41e996310dda86",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_1d571428",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnUtil.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 1308,
+      "author": {
+        "id": 5263
+      },
+      "writtenOn": "2016-10-05T07:25:51Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7a6b29fe_401ed870",
       "range": {
         "startLine": 1308,
         "startChar": 54,
@@ -106,6 +154,30 @@
       "writtenOn": "2016-10-04T14:57:50Z",
       "side": 1,
       "message": "Suraj, can you please make this change..",
+      "parentUuid": "7a6b29fe_c0094832",
+      "range": {
+        "startLine": 253,
+        "startChar": 25,
+        "endLine": 253,
+        "endChar": 26
+      },
+      "revId": "1d03227b91761cf35278fea5ef41e996310dda86",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_dd5c7c4f",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/intervpnlink/InterVpnLinkListener.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 253,
+      "author": {
+        "id": 5263
+      },
+      "writtenOn": "2016-10-05T07:25:51Z",
+      "side": 1,
+      "message": "Done",
       "parentUuid": "7a6b29fe_c0094832",
       "range": {
         "startLine": 253,
