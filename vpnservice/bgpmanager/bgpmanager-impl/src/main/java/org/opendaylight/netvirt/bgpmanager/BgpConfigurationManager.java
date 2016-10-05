@@ -1591,13 +1591,8 @@ public class BgpConfigurationManager {
         AtomicInteger bgpDSretryCount = new AtomicInteger(dsRetryCoount);
         while (0  != bgpDSretryCount.decrementAndGet()) {
             try {
-                Optional<Bgp> optional = BgpUtil.read(dataBroker,
-                                         LogicalDatastoreType.CONFIGURATION, InstanceIdentifier.create(Bgp.class));
-                if (optional.isPresent()) {
-                    return optional.get();
-                } else {
-                    return null;
-                }
+                return BgpUtil.read(dataBroker, LogicalDatastoreType.CONFIGURATION,
+                        InstanceIdentifier.create(Bgp.class)).orNull();
             } catch (Exception e) {
                 //Config DS may not be up, so sleep for 1 second and retry
                 LOG.debug("failed to get bgp config, may be DS is yet in consistent state(?)", e);

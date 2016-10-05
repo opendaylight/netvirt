@@ -83,8 +83,8 @@ public class ElanServiceChainHandler {
             return;
         }
 
-        Optional<Collection<BigInteger>> elanDpnsOpc = ElanServiceChainUtils.getElanDpnsByName(broker, elanName);
-        if ( !elanDpnsOpc.isPresent() ) {
+        Collection<BigInteger> elanDpnsOpc = ElanServiceChainUtils.getElanDpnsByName(broker, elanName);
+        if (elanDpnsOpc.isEmpty()) {
             logger.debug("Could not find any DPN related to Elan {}", elanName);
             return;
         }
@@ -104,7 +104,7 @@ public class ElanServiceChainHandler {
         //    Program LPortDispatcher to Scf
         //    Program LPortDispatcher from Scf
         //    Program ExtTunnelTable.
-        for (BigInteger dpnId : elanDpnsOpc.get()) {
+        for (BigInteger dpnId : elanDpnsOpc) {
             ElanServiceChainUtils.programLPortDispatcherToScf(mdsalManager, dpnId, elanTag, elanLportTag, tableId,
                                                               scfTag, addOrRemove);
             ElanServiceChainUtils.programLPortDispatcherFromScf(mdsalManager, dpnId, elanLportTag, elanTag,
