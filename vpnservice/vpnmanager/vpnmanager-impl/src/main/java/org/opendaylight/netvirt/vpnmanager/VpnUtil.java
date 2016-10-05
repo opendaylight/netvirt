@@ -1227,8 +1227,7 @@ public class VpnUtil {
         return routerInstanceIndentifier;
     }
 
-    static Optional<List<String>> getAllSubnetGatewayMacAddressesforVpn(DataBroker broker, String vpnName) {
-        Optional<List<String>> macAddressesOptional = Optional.absent();
+    static List<String> getAllSubnetGatewayMacAddressesforVpn(DataBroker broker, String vpnName) {
         List<String> macAddresses = new ArrayList<>();
         Optional<Subnetmaps> subnetMapsData = read(broker, LogicalDatastoreType.CONFIGURATION, buildSubnetMapsWildCardPath());
         if (subnetMapsData.isPresent()) {
@@ -1243,11 +1242,8 @@ public class VpnUtil {
                     }
                 }
             }
-            if (!macAddresses.isEmpty()) {
-                return Optional.of(macAddresses);
-            }
         }
-        return macAddressesOptional;
+        return macAddresses;
     }
 
     static InstanceIdentifier<Subnetmaps> buildSubnetMapsWildCardPath() {
