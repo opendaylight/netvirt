@@ -11,9 +11,9 @@ import com.google.common.base.Optional;
 import java.math.BigInteger;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.HashSet;
+import java.util.Collections;
 import java.util.List;
-
+import java.util.stream.Collectors;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
@@ -40,10 +40,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.instances.ElanInstance;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.instances.ElanInstanceKey;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 
 public class ElanServiceChainUtils {
 
@@ -59,7 +57,7 @@ public class ElanServiceChainUtils {
         return MDSALUtil.read(broker, LogicalDatastoreType.CONFIGURATION, getElanInstanceConfigDataPath(elanName));
     }
 
-    public static Optional<Collection<BigInteger>> getElanDpnsByName(DataBroker broker, String elanInstanceName) {
+    public static Collection<BigInteger> getElanDpnsByName(DataBroker broker, String elanInstanceName) {
         InstanceIdentifier<ElanDpnInterfacesList> elanDpnIfacesIid =
                 InstanceIdentifier.builder(ElanDpnInterfaces.class)
                                   .child(ElanDpnInterfacesList.class,new ElanDpnInterfacesListKey(elanInstanceName))
@@ -68,16 +66,11 @@ public class ElanServiceChainUtils {
                 MDSALUtil.read(broker, LogicalDatastoreType.OPERATIONAL, elanDpnIfacesIid);
         if (!elanDpnIfacesOpc.isPresent()) {
             LOG.warn("Could not find and DpnInterface for elan {}", elanInstanceName);
-            return Optional.<Collection<BigInteger>>absent();
+            return Collections.emptySet();
         }
 
-        Collection<BigInteger> dpns = new HashSet<>();
-        List<DpnInterfaces> elanDpnIfaces = elanDpnIfacesOpc.get().getDpnInterfaces();
-        for ( DpnInterfaces dpnIf : elanDpnIfaces) {
-            dpns.add(dpnIf.getDpId());
-        }
-
-        return Optional.of(dpns);
+        return elanDpnIfacesOpc.get().getDpnInterfaces().stream().map(DpnInterfaces::getDpId).collect(
+                Collectors.toSet());
     }
 
     public static BigInteger getElanMetadataLabel(long elanTag) {

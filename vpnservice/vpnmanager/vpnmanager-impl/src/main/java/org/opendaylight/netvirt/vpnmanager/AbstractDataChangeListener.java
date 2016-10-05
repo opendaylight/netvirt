@@ -64,13 +64,11 @@ public abstract class AbstractDataChangeListener<T extends DataObject> implement
 
     @SuppressWarnings("unchecked")
     private void createData(final Map<InstanceIdentifier<?>, DataObject> createdData) {
-        for (InstanceIdentifier<?> key : createdData.keySet()) {
-            if (clazz.equals(key.getTargetType())) {
-                InstanceIdentifier<T> createKeyIdent = key.firstIdentifierOf(clazz);
-                DataObject value = createdData.get(key);
-                if (value != null) {
-                    add(createKeyIdent, (T) value);
-                }
+        for (Map.Entry<InstanceIdentifier<?>, DataObject> entry : createdData.entrySet()) {
+            InstanceIdentifier<?> key = entry.getKey();
+            DataObject value = entry.getValue();
+            if (value != null) {
+                this.add(key.firstIdentifierOf(clazz), (T) value);
             }
         }
     }
@@ -78,13 +76,14 @@ public abstract class AbstractDataChangeListener<T extends DataObject> implement
     @SuppressWarnings("unchecked")
     private void updateData(final Map<InstanceIdentifier<?>, DataObject> updateData,
             final Map<InstanceIdentifier<?>, DataObject> originalData) {
-        for (InstanceIdentifier<?> key : updateData.keySet()) {
+        for (Map.Entry<InstanceIdentifier<?>, DataObject> entry : updateData.entrySet()) {
+            InstanceIdentifier<?> key = entry.getKey();
             if (clazz.equals(key.getTargetType())) {
                 InstanceIdentifier<T> updateKeyIdent = key.firstIdentifierOf(clazz);
-                DataObject value = updateData.get(key);
-                DataObject original = originalData.get(key);
+                final DataObject value = entry.getValue();
+                final DataObject original = originalData.get(key);
                 if (value != null && original != null) {
-                    update(updateKeyIdent, (T) original, (T) value);
+                    this.update(updateKeyIdent, (T) original, (T) value);
                 }
             }
         }

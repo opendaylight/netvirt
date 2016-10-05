@@ -7,7 +7,6 @@
  */
 package org.opendaylight.netvirt.elan.l2gw.utils;
 
-import com.google.common.base.Optional;
 import com.google.common.collect.Lists;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
@@ -397,12 +396,7 @@ public class ElanL2GatewayMulticastUtils {
                 .builder(DesignatedSwitchesForExternalTunnels.class)
                 .child(DesignatedSwitchForTunnel.class, new DesignatedSwitchForTunnelKey(elanInstanceName, tunnelIp))
                 .build();
-        Optional<DesignatedSwitchForTunnel> designatedSwitchForTunnelOptional = MDSALUtil.read(broker,
-                LogicalDatastoreType.CONFIGURATION, instanceIdentifier);
-        if (designatedSwitchForTunnelOptional.isPresent()) {
-            return designatedSwitchForTunnelOptional.get();
-        }
-        return null;
+        return MDSALUtil.read(broker, LogicalDatastoreType.CONFIGURATION, instanceIdentifier).orNull();
     }
 
 }
