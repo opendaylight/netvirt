@@ -11,6 +11,7 @@ package org.opendaylight.netvirt.elan.internal;
 import com.google.common.base.Optional;
 import com.google.common.util.concurrent.ListenableFuture;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
@@ -146,23 +147,13 @@ public class ElanInstanceManager extends AsyncDataTreeChangeListenerBase<ElanIns
 
     public ElanInstance getElanInstanceByName(String elanInstanceName) {
         InstanceIdentifier<ElanInstance> elanIdentifierId = getElanInstanceConfigurationDataPath(elanInstanceName);
-        Optional<ElanInstance> elanInstance = MDSALUtil.read(broker,
-                LogicalDatastoreType.CONFIGURATION, elanIdentifierId);
-        if (elanInstance.isPresent()) {
-            return elanInstance.get();
-        }
-        return null;
+        return MDSALUtil.read(broker, LogicalDatastoreType.CONFIGURATION, elanIdentifierId).orNull();
     }
 
     public List<DpnInterfaces> getElanDPNByName(String elanInstanceName) {
         InstanceIdentifier<ElanDpnInterfacesList> elanIdentifier = getElanDpnOperationDataPath(elanInstanceName);
-        Optional<ElanDpnInterfacesList> elanInstance = MDSALUtil.read(broker,
-                LogicalDatastoreType.OPERATIONAL, elanIdentifier);
-        if (elanInstance.isPresent()) {
-            ElanDpnInterfacesList elanDPNs = elanInstance.get();
-            return elanDPNs.getDpnInterfaces();
-        }
-        return null;
+        return MDSALUtil.read(broker, LogicalDatastoreType.OPERATIONAL, elanIdentifier).transform(
+                ElanDpnInterfacesList::getDpnInterfaces).or(Collections.emptyList());
     }
 
     private InstanceIdentifier<ElanDpnInterfacesList> getElanDpnOperationDataPath(String elanInstanceName) {
