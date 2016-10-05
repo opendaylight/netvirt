@@ -14,11 +14,19 @@ import java.util.List;
 
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.genius.mdsalutil.MatchFieldType;
+import org.opendaylight.genius.mdsalutil.MatchInfo;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.mdsalutil.MetaDataUtil;
 import org.opendaylight.genius.mdsalutil.NwConstants;
+import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.genius.itm.globals.ITMConstants;
+import org.opendaylight.genius.utils.ServiceIndex;
 import org.opendaylight.netvirt.cloudservicechain.CloudServiceChainConstants;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.FlowId;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.tables.table.Flow;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.tables.table.FlowBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.instruction.list.Instruction;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.cloud.servicechain.state.rev170511.ElanServiceChainState;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.cloud.servicechain.state.rev170511.elan.to.pseudo.port.data.list.ElanToPseudoPortData;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.cloud.servicechain.state.rev170511.elan.to.pseudo.port.data.list.ElanToPseudoPortDataBuilder;
@@ -31,14 +39,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.instances.ElanInstance;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.instances.ElanInstanceKey;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.FlowId;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.tables.table.Flow;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.tables.table.FlowBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.instruction.list.Instruction;
-import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
-import org.opendaylight.genius.utils.ServiceIndex;
-import org.opendaylight.genius.mdsalutil.MatchFieldType;
-import org.opendaylight.genius.mdsalutil.MatchInfo;
 import java.util.Arrays;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -71,7 +71,7 @@ public class ElanServiceChainUtils {
             return Optional.<Collection<BigInteger>>absent();
         }
 
-        Collection<BigInteger> dpns = new HashSet<BigInteger>();
+        Collection<BigInteger> dpns = new HashSet<>();
         List<DpnInterfaces> elanDpnIfaces = elanDpnIfacesOpc.get().getDpnInterfaces();
         for ( DpnInterfaces dpnIf : elanDpnIfaces) {
             dpns.add(dpnIf.getDpId());
@@ -81,7 +81,7 @@ public class ElanServiceChainUtils {
     }
 
     public static BigInteger getElanMetadataLabel(long elanTag) {
-        return (BigInteger.valueOf(elanTag)).shiftLeft(24);
+        return BigInteger.valueOf(elanTag).shiftLeft(24);
     }
 
     /**
@@ -220,7 +220,7 @@ public class ElanServiceChainUtils {
      */
     public static List<Instruction> buildSetLportTagAndGotoLportDispInstructions(int lportTag) {
         int instructionKey = 0;
-        BigInteger metadata = MetaDataUtil.getMetaDataForLPortDispatcher((int) lportTag,
+        BigInteger metadata = MetaDataUtil.getMetaDataForLPortDispatcher(lportTag,
                 ServiceIndex.getIndex(NwConstants.SCF_SERVICE_NAME, NwConstants.SCF_SERVICE_INDEX));
         List<Instruction> result =
                 Arrays.asList(MDSALUtil.buildAndGetWriteMetadaInstruction(metadata,
@@ -285,11 +285,7 @@ public class ElanServiceChainUtils {
                 .child(ElanInstance.class, new ElanInstanceKey(elanInstanceName))
                 .augmentation(ElanServiceChainState.class).build();
         Optional<ElanServiceChainState> elanServiceChainStateOpc =
-                MDSALUtil.read(broker,LogicalDatastoreType.OPERATIONAL,path);
-        if (!elanServiceChainStateOpc.isPresent()) {
-            logger.warn("Could not find ServiceChainState for elan {}", elanInstanceName);
-            return Optional.absent();
-        }
+            MDSALUtil.read(broker,LogicalDatastoreType.OPERATIONAL,path);
 
         return elanServiceChainStateOpc;
 

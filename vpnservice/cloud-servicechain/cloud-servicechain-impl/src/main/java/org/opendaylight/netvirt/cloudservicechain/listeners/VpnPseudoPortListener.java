@@ -12,11 +12,11 @@ import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.DataChangeListener;
 import org.opendaylight.controller.md.sal.common.api.data.AsyncDataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.controller.md.sal.common.api.data.AsyncDataBroker.DataChangeScope;
 import org.opendaylight.genius.datastoreutils.AsyncClusteredDataChangeListenerBase;
 import org.opendaylight.netvirt.cloudservicechain.utils.VpnPseudoPortCache;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.VpnToPseudoPortTagData;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.to.pseudo.port.tag.data.VpnToPseudoPortTag;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.cloud.servicechain.state.rev170511.VpnToPseudoPortList;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.cloud.servicechain.state.rev170511.vpn.to.pseudo.port.list.VpnToPseudoPortData;
+import org.opendaylight.controller.md.sal.common.api.data.AsyncDataBroker.DataChangeScope;
 import org.opendaylight.yangtools.concepts.ListenerRegistration;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
@@ -28,46 +28,60 @@ import org.slf4j.LoggerFactory;
  *
  */
 public class VpnPseudoPortListener
-    extends AsyncClusteredDataChangeListenerBase<VpnToPseudoPortTag, VpnPseudoPortListener> {
+    extends AsyncClusteredDataChangeListenerBase<VpnToPseudoPortData, VpnPseudoPortListener>
+    implements AutoCloseable {
 
-    private static final Logger logger = LoggerFactory.getLogger(VpnPseudoPortListener.class);
+    private ListenerRegistration<DataChangeListener> listenerRegistration;
 
-    private final DataBroker broker;
+    private static final Logger LOG = LoggerFactory.getLogger(VpnPseudoPortListener.class);
 
     public VpnPseudoPortListener(final DataBroker broker) {
-        super(VpnToPseudoPortTag.class, VpnPseudoPortListener.class);
-        this.broker = broker;
-    }
+        super(VpnToPseudoPortData.class, VpnPseudoPortListener.class);
 
-    public void init() {
-        registerListener(LogicalDatastoreType.OPERATIONAL, broker);
-    }
-
-    @Override
-    public void close() throws Exception {
-        super.close();
-        logger.info("VpnPseudoPort listener Closed");
+        try {
+            listenerRegistration = broker.registerDataChangeListener(LogicalDatastoreType.OPERATIONAL,
+                                                                     getWildCardPath(), this,
+                                                                     AsyncDataBroker.DataChangeScope.BASE);
+        } catch (final Exception e) {
+            LOG.error("VpnPseudoPort DataChange listener registration fail!", e);
+        }
     }
 
     @Override
-    protected void remove(InstanceIdentifier<VpnToPseudoPortTag> identifier, VpnToPseudoPortTag del) {
+    public void close() {
+        if (listenerRegistration != null) {
+            try {
+                listenerRegistration.close();
+            } catch (final Exception e) {
+                LOG.error("Error when cleaning up DataChangeListener.", e);
+            }
+            listenerRegistration = null;
+        }
+        LOG.info("VpnPseudoPort listener Closed");
+    }
+
+    @Override
+    protected void remove(InstanceIdentifier<VpnToPseudoPortData> identifier, VpnToPseudoPortData del) {
+        LOG.trace("Reacting to VpnToPseudoPortData removal: iid={}", identifier);
         VpnPseudoPortCache.removeVpnPseudoPortFromCache(del.getVrfId());
     }
 
     @Override
-    protected void update(InstanceIdentifier<VpnToPseudoPortTag> identifier, VpnToPseudoPortTag original,
-                          VpnToPseudoPortTag update) {
-        VpnPseudoPortCache.addVpnPseudoPortToCache(update.getVrfId(), update.getLportTag().intValue());
+    protected void update(InstanceIdentifier<VpnToPseudoPortData> identifier, VpnToPseudoPortData original,
+                          VpnToPseudoPortData update) {
+        VpnPseudoPortCache.addVpnPseudoPortToCache(update.getVrfId(), update.getVpnLportTag());
     }
 
     @Override
-    protected void add(InstanceIdentifier<VpnToPseudoPortTag> identifier, VpnToPseudoPortTag add) {
-        VpnPseudoPortCache.addVpnPseudoPortToCache(add.getVrfId(), add.getLportTag().intValue());
+    protected void add(InstanceIdentifier<VpnToPseudoPortData> identifier, VpnToPseudoPortData add) {
+        LOG.trace("Reacting to VpnToPseudoPortData creation:  vrf={}  vpnPseudoLportTag={}  scfTag={}  scfTable={}.",
+                  add.getVrfId(), add.getVpnLportTag(), add.getScfTag(), add.getScfTableId());
+        VpnPseudoPortCache.addVpnPseudoPortToCache(add.getVrfId(), add.getVpnLportTag());
     }
 
     @Override
-    protected InstanceIdentifier<VpnToPseudoPortTag> getWildCardPath() {
-        return InstanceIdentifier.builder(VpnToPseudoPortTagData.class).child(VpnToPseudoPortTag.class).build();
+    protected InstanceIdentifier<VpnToPseudoPortData> getWildCardPath() {
+        return InstanceIdentifier.builder(VpnToPseudoPortList.class).child(VpnToPseudoPortData.class).build();
     }
 
     @Override
