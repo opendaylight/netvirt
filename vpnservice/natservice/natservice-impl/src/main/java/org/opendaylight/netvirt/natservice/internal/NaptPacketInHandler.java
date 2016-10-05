@@ -43,9 +43,7 @@ public class NaptPacketInHandler implements PacketProcessingListener {
 
         Short tableId = packetReceived.getTableId().getValue();
 
-        if (LOG.isTraceEnabled()) {
-            LOG.trace("packet: {}, tableId {}", packetReceived, tableId);
-        }
+        LOG.trace("packet: {}, tableId {}", packetReceived, tableId);
 
         if (tableId == NwConstants.OUTBOUND_NAPT_TABLE) {
             LOG.debug("NAT Service : NAPTPacketInHandler Packet for Outbound NAPT Table");

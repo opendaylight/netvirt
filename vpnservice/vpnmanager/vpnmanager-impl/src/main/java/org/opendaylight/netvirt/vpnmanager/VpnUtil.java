@@ -1328,13 +1328,9 @@ public class VpnUtil {
         Future<RpcResult<Void>> result = lockManager.unlock(input);
         try {
             if ((result != null) && (result.get().isSuccessful())) {
-                if (LOG.isDebugEnabled()) {
-                    LOG.debug("Unlocked {}", subnetId);
-                }
+                LOG.debug("Unlocked {}", subnetId);
             } else {
-                if (LOG.isDebugEnabled()) {
-                    LOG.debug("Unable to unlock subnet {}", subnetId);
-                }
+                LOG.debug("Unable to unlock subnet {}", subnetId);
             }
         } catch (InterruptedException | ExecutionException e) {
             LOG.error("Unable to unlock subnet {}", subnetId);

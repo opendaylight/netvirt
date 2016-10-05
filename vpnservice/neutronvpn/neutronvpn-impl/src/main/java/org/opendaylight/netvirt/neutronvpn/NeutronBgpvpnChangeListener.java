@@ -9,7 +9,7 @@ package org.opendaylight.netvirt.neutronvpn;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -82,9 +82,7 @@ public class NeutronBgpvpnChangeListener extends AsyncDataTreeChangeListenerBase
 
     @Override
     protected void add(InstanceIdentifier<Bgpvpn> identifier, Bgpvpn input) {
-        if (LOG.isTraceEnabled()) {
-            LOG.trace("Adding Bgpvpn : key: " + identifier + ", value=" + input);
-        }
+        LOG.trace("Adding Bgpvpn : key: {}, value={}", identifier, input);
         if (isBgpvpnTypeL3(input.getType())) {
             // handle route-target(s)
             List<String> importRouteTargets = new ArrayList<String>();
@@ -141,22 +139,20 @@ public class NeutronBgpvpnChangeListener extends AsyncDataTreeChangeListenerBase
     }
 
     private List<String> generateNewRD(Uuid vpn) {
-        List<String> rd = null;
         if (adminRDValue != null) {
             Integer rdId = NeutronvpnUtils.getUniqueRDId(idManager, NeutronConstants.RD_IDPOOL_NAME, vpn.toString());
             if (rdId != null) {
-                rd = new ArrayList<>(Arrays.asList(adminRDValue + ":" + rdId));
+                String rd = adminRDValue + ":" + rdId;
+                LOG.debug("Generated RD {} for L3VPN {}", rd, vpn);
+                return Collections.singletonList(rd);
             }
-            LOG.debug("Generated RD " + rd.get(0) + " for L3VPN " + vpn);
         }
-        return rd;
+        return Collections.emptyList();
     }
 
     @Override
     protected void remove(InstanceIdentifier<Bgpvpn> identifier, Bgpvpn input) {
-        if (LOG.isTraceEnabled()) {
-            LOG.trace("Removing Bgpvpn : key: " + identifier + ", value=" + input);
-        }
+        LOG.trace("Removing Bgpvpn : key: {}, value={}", identifier, input);
         if (isBgpvpnTypeL3(input.getType())) {
             nvpnManager.removeL3Vpn(input.getUuid());
             // Release RD Id in pool
@@ -166,9 +162,7 @@ public class NeutronBgpvpnChangeListener extends AsyncDataTreeChangeListenerBase
 
     @Override
     protected void update(InstanceIdentifier<Bgpvpn> identifier, Bgpvpn original, Bgpvpn update) {
-        if (LOG.isTraceEnabled()) {
-            LOG.trace("Update Bgpvpn : key: " + identifier + ", value=" + update);
-        }
+        LOG.trace("Update Bgpvpn : key: {}, value={}", identifier, update);
         if (isBgpvpnTypeL3(update.getType())) {
             List<Uuid> oldNetworks = original.getNetworks();
             List<Uuid> newNetworks = update.getNetworks();
@@ -186,7 +180,7 @@ public class NeutronBgpvpnChangeListener extends AsyncDataTreeChangeListenerBase
                 if (oldNetworks != newNetworks) {
                     Iterator<Uuid> iter = newNetworks.iterator();
                     while (iter.hasNext()) {
-                        Object net = iter.next();
+                        Uuid net = iter.next();
                         if (oldNetworks.contains(net)) {
                             oldNetworks.remove(net);
                             iter.remove();

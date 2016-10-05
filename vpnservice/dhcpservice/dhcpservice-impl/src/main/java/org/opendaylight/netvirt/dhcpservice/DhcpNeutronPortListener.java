@@ -52,9 +52,7 @@ public class DhcpNeutronPortListener extends AsyncClusteredDataTreeChangeListene
 
     @Override
     protected void remove(InstanceIdentifier<Port> identifier, Port del) {
-        if (LOG.isTraceEnabled()) {
-            LOG.trace("Port removed: {}", del);
-        }
+        LOG.trace("Port removed: {}", del);
         if(isVnicTypeDirectOrMacVtap(del)) {
             removePort(del);
         }
@@ -62,25 +60,17 @@ public class DhcpNeutronPortListener extends AsyncClusteredDataTreeChangeListene
 
     @Override
     protected void update(InstanceIdentifier<Port> identifier, Port original, Port update) {
-        if (LOG.isTraceEnabled()) {
-            LOG.trace("Port changed to {}", update);
-        }
+        LOG.trace("Port changed to {}", update);
         if (!isVnicTypeDirectOrMacVtap(update)) {
-            if (LOG.isTraceEnabled()) {
-                LOG.trace("Port updated is normal {}", update.getUuid());
-            }
+            LOG.trace("Port updated is normal {}", update.getUuid());
             if (isVnicTypeDirectOrMacVtap(original)) {
-                if (LOG.isTraceEnabled()) {
-                    LOG.trace("Original Port was direct/macvtap {} so removing flows and cache entry if any", update.getUuid());
-                }
+                LOG.trace("Original Port was direct/macvtap {} so removing flows and cache entry if any", update.getUuid());
                 removePort(original);
             }
             return;
         }
         if (!isVnicTypeDirectOrMacVtap((original))) {
-            if (LOG.isTraceEnabled()) {
-                LOG.trace("Original port was normal and updated is direct. Calling addPort()");
-            }
+            LOG.trace("Original port was normal and updated is direct. Calling addPort()");
             addPort(update);
             return;
         }
@@ -89,9 +79,7 @@ public class DhcpNeutronPortListener extends AsyncClusteredDataTreeChangeListene
         String segmentationIdOriginal = DhcpServiceUtils.getSegmentationId(original.getNetworkId(), broker);
         String segmentationIdUpdated = DhcpServiceUtils.getSegmentationId(update.getNetworkId(), broker);
         if (macOriginal != null && !macOriginal.equalsIgnoreCase(macUpdated) && segmentationIdOriginal !=null && !segmentationIdOriginal.equalsIgnoreCase(segmentationIdUpdated)) {
-            if (LOG.isTraceEnabled()) {
-                LOG.trace("Mac/segment id has changed");
-            }
+            LOG.trace("Mac/segment id has changed");
             dhcpExternalTunnelManager.removeVniMacToPortCache(new BigInteger(segmentationIdOriginal), macOriginal);
             dhcpExternalTunnelManager.updateVniMacToPortCache(new BigInteger(segmentationIdUpdated), macUpdated, update);
         }
@@ -99,9 +87,7 @@ public class DhcpNeutronPortListener extends AsyncClusteredDataTreeChangeListene
 
     @Override
     protected void add(InstanceIdentifier<Port> identifier, Port add) {
-        if (LOG.isTraceEnabled()) {
-            LOG.trace("Port added {}", add);
-        }
+        LOG.trace("Port added {}", add);
         if(!isVnicTypeDirectOrMacVtap(add)) {
             return;
         }
@@ -125,17 +111,14 @@ public class DhcpNeutronPortListener extends AsyncClusteredDataTreeChangeListene
         Uuid networkId = port.getNetworkId();
         String segmentationId = DhcpServiceUtils.getSegmentationId(networkId, broker);
         if (segmentationId == null) {
-            if (LOG.isTraceEnabled()) {
-                LOG.trace("segmentation id is null");
-            }
+            LOG.trace("segmentation id is null");
             return;
         }
         dhcpExternalTunnelManager.updateVniMacToPortCache(new BigInteger(segmentationId), macAddress, port);
     }
 
     private String getMacAddress(Port port) {
-        String macAddress = port.getMacAddress().getValue();
-        return macAddress;
+        return port.getMacAddress().getValue();
     }
 
     private boolean isVnicTypeDirectOrMacVtap(Port port) {

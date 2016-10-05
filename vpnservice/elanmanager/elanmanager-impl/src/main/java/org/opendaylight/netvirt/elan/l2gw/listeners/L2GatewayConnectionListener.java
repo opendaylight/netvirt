@@ -63,9 +63,7 @@ public class L2GatewayConnectionListener extends AsyncClusteredDataChangeListene
 
     @Override
     protected void add(final InstanceIdentifier<L2gatewayConnection> identifier, final L2gatewayConnection input) {
-        if (LOG.isTraceEnabled()) {
-            LOG.trace("Adding L2gatewayConnection: {}", input);
-        }
+        LOG.trace("Adding L2gatewayConnection: {}", input);
 
         // Get associated L2GwId from 'input'
         // Create logical switch in each of the L2GwDevices part of L2Gw
@@ -76,9 +74,7 @@ public class L2GatewayConnectionListener extends AsyncClusteredDataChangeListene
 
     @Override
     protected void remove(InstanceIdentifier<L2gatewayConnection> identifier, L2gatewayConnection input) {
-        if (LOG.isTraceEnabled()) {
-            LOG.trace("Removing L2gatewayConnection: {}", input);
-        }
+        LOG.trace("Removing L2gatewayConnection: {}", input);
 
         l2GatewayConnectionUtils.deleteL2GatewayConnection(input);
     }
@@ -86,9 +82,7 @@ public class L2GatewayConnectionListener extends AsyncClusteredDataChangeListene
     @Override
     protected void update(InstanceIdentifier<L2gatewayConnection> identifier, L2gatewayConnection original,
             L2gatewayConnection update) {
-        if (LOG.isTraceEnabled()) {
-            LOG.trace("Updating L2gatewayConnection : original value={}, updated value={}", original, update);
-        }
+        LOG.trace("Updating L2gatewayConnection : original value={}, updated value={}", original, update);
     }
 
     @Override

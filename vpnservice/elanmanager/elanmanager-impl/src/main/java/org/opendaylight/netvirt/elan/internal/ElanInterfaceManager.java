@@ -1583,10 +1583,8 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
             String destDevice = externalTunnel.getSourceDevice();
             ExternalTunnel otherEndPointExtTunnel = elanUtils.getExternalTunnel(srcDevice, destDevice,
                     LogicalDatastoreType.CONFIGURATION);
-            if (LOG.isTraceEnabled()) {
-                LOG.trace("Validating external tunnel state: src tunnel {}, dest tunnel {}", externalTunnel,
-                        otherEndPointExtTunnel);
-            }
+            LOG.trace("Validating external tunnel state: src tunnel {}, dest tunnel {}", externalTunnel,
+                    otherEndPointExtTunnel);
             if (otherEndPointExtTunnel != null) {
                 boolean otherEndPointInterfaceOperational = ElanUtils.isInterfaceOperational(
                         otherEndPointExtTunnel.getTunnelInterfaceName(), broker);

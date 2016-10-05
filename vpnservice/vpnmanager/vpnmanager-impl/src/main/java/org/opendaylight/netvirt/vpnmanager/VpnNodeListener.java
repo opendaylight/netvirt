@@ -165,9 +165,7 @@ public class VpnNodeListener extends AsyncClusteredDataTreeChangeListenerBase<No
         FlowEntity flowEntityMissforGw = MDSALUtil.buildFlowEntity(dpId, NwConstants.L3_GW_MAC_TABLE,
                 getTableMissFlowRef(dpId, NwConstants.L3_GW_MAC_TABLE, NwConstants.TABLE_MISS_FLOW),
                 NwConstants.TABLE_MISS_PRIORITY, "L3 Gw Mac Table Miss", 0, 0, new BigInteger("1080000", 16), matches, instructions);
-        if (LOG.isTraceEnabled()) {
-            LOG.trace("Invoking MDSAL to install L3 Gw Mac Table Miss Entry");
-        }
+        LOG.trace("Invoking MDSAL to install L3 Gw Mac Table Miss Entry");
         mdsalManager.addFlowToTx(flowEntityMissforGw, writeFlowTx);
    }
 

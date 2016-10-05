@@ -66,9 +66,7 @@ public class NeutronNetworkChangeListener extends AsyncDataTreeChangeListenerBas
 
     @Override
     protected void add(InstanceIdentifier<Network> identifier, Network input) {
-        if (LOG.isTraceEnabled()) {
-            LOG.trace("Adding Network : key: " + identifier + ", value=" + input);
-        }
+        LOG.trace("Adding Network : key: {}, value={}", identifier, input);
         if (!NeutronvpnUtils.isNetworkTypeSupported(input)) {
             //FIXME: This should be removed when support for GRE network types is added
             LOG.error("Neutronvpn doesn't support gre network provider type for this network {}.", input);
@@ -87,9 +85,7 @@ public class NeutronNetworkChangeListener extends AsyncDataTreeChangeListenerBas
 
     @Override
     protected void remove(InstanceIdentifier<Network> identifier, Network input) {
-        if (LOG.isTraceEnabled()) {
-            LOG.trace("Removing Network : key: " + identifier + ", value=" + input);
-        }
+        LOG.trace("Removing Network : key: {}, value={}", identifier, input);
         if (!NeutronvpnUtils.isNetworkTypeSupported(input)) {
             //FIXME: This should be removed when support for GRE network types is added
             LOG.error("Neutronvpn doesn't support gre network provider type for this network {}.", input);
@@ -110,10 +106,7 @@ public class NeutronNetworkChangeListener extends AsyncDataTreeChangeListenerBas
 
     @Override
     protected void update(InstanceIdentifier<Network> identifier, Network original, Network update) {
-        if (LOG.isTraceEnabled()) {
-            LOG.trace("Updating Network : key: " + identifier + ", original value=" + original + ", update value=" +
-                    update);
-        }
+        LOG.trace("Updating Network : key: {}, original value={}, update value={}", identifier, original, update);
         NeutronvpnUtils.addToNetworkCache(update);
         String elanInstanceName = original.getUuid().getValue();
         Class<? extends SegmentTypeBase> origSegmentType = NeutronvpnUtils.getSegmentTypeFromNeutronNetwork(original);

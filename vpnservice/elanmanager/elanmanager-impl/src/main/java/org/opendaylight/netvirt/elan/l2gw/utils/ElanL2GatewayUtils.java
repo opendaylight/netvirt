@@ -610,7 +610,7 @@ public class ElanL2GatewayUtils {
         });
 
         if (LOG.isDebugEnabled()) {
-            List<String> elanMacs = lstElanMacs.stream().map(mac -> mac.getValue()).collect(Collectors.toList());
+            List<String> elanMacs = lstElanMacs.stream().map(MacAddress::getValue).collect(Collectors.toList());
             LOG.debug("Deleting elan [{}] macs from node [{}]. Deleted macs = {}", elanName, hwvtepNodeId, elanMacs);
         }
         return future;

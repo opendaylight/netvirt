@@ -96,9 +96,7 @@ public class L2GwTransportZoneListener
      */
     @Override
     protected void add(InstanceIdentifier<TransportZone> key, TransportZone tzNew) {
-        if (LOG.isTraceEnabled()) {
-            LOG.trace("Received Transport Zone Add Event: {}", tzNew);
-        }
+        LOG.trace("Received Transport Zone Add Event: {}", tzNew);
         if (tzNew.getTunnelType().equals(TunnelTypeVxlan.class)) {
             DataStoreJobCoordinator coordinator = DataStoreJobCoordinator.getInstance();
             AddL2GwDevicesToTransportZoneJob job =

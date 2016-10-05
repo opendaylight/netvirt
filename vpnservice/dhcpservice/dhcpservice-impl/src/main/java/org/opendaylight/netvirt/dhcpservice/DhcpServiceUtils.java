@@ -32,10 +32,7 @@ import org.opendaylight.genius.mdsalutil.packet.IPProtocols;
 import org.opendaylight.genius.utils.ServiceIndex;
 import org.opendaylight.netvirt.dhcpservice.api.DHCPMConstants;
 import org.opendaylight.netvirt.neutronvpn.api.utils.NeutronUtils;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.Interfaces;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.InterfacesState;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.InterfaceKey;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.instruction.list.Instruction;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.servicebinding.rev160406.ServiceBindings;
@@ -71,7 +68,7 @@ import com.google.common.util.concurrent.CheckedFuture;
 
 public class DhcpServiceUtils {
 
-    private static final Logger logger = LoggerFactory.getLogger(DhcpServiceUtils.class);
+    private static final Logger LOG = LoggerFactory.getLogger(DhcpServiceUtils.class);
 
     public static void setupDhcpFlowEntry(BigInteger dpId, short tableId, String vmMacAddress, int addOrRemove, IMdsalApiManager mdsalUtil, WriteTransaction tx) {
         if (dpId == null || dpId.equals(DHCPMConstants.INVALID_DPID) || vmMacAddress == null) {
@@ -92,18 +89,14 @@ public class DhcpServiceUtils {
                     getDhcpFlowRef(dpId, tableId, vmMacAddress),
                     DHCPMConstants.DEFAULT_DHCP_FLOW_PRIORITY, "DHCP", 0, 0,
                     DHCPMConstants.COOKIE_DHCP_BASE, matches, null);
-            if (logger.isTraceEnabled()) {
-                logger.trace("Removing DHCP Flow DpId {}, vmMacAddress {}", dpId, vmMacAddress);
-            }
+            LOG.trace("Removing DHCP Flow DpId {}, vmMacAddress {}", dpId, vmMacAddress);
             DhcpServiceCounters.remove_dhcp_flow.inc();
             mdsalUtil.removeFlowToTx(flowEntity, tx);
         } else {
             FlowEntity flowEntity = MDSALUtil.buildFlowEntity(dpId, tableId,
                     getDhcpFlowRef(dpId, tableId, vmMacAddress),DHCPMConstants.DEFAULT_DHCP_FLOW_PRIORITY, "DHCP", 0, 0,
                     DHCPMConstants.COOKIE_DHCP_BASE, matches, instructions);
-            if (logger.isTraceEnabled()) {
-                logger.trace("Installing DHCP Flow DpId {}, vmMacAddress {}", dpId, vmMacAddress);
-            }
+            LOG.trace("Installing DHCP Flow DpId {}, vmMacAddress {}", dpId, vmMacAddress);
             DhcpServiceCounters.install_dhcp_flow.inc();
             mdsalUtil.addFlowToTx(flowEntity, tx);
         }
@@ -133,18 +126,14 @@ public class DhcpServiceUtils {
                     getDhcpFlowRef(dpId, tableId, vmMacAddress),
                     DHCPMConstants.DEFAULT_DHCP_FLOW_PRIORITY, "DHCP", 0, 0,
                     DHCPMConstants.COOKIE_DHCP_BASE, matches, null);
-            if (logger.isTraceEnabled()) {
-                logger.trace("Removing DHCP Drop Flow DpId {}, vmMacAddress {}", dpId, vmMacAddress);
-            }
+            LOG.trace("Removing DHCP Drop Flow DpId {}, vmMacAddress {}", dpId, vmMacAddress);
             DhcpServiceCounters.remove_dhcp_drop_flow.inc();
             mdsalUtil.removeFlowToTx(flowEntity, tx);
         } else {
             FlowEntity flowEntity = MDSALUtil.buildFlowEntity(dpId, tableId,
                     getDhcpFlowRef(dpId, tableId, vmMacAddress),DHCPMConstants.DEFAULT_DHCP_FLOW_PRIORITY, "DHCP", 0, 0,
                     DHCPMConstants.COOKIE_DHCP_BASE, matches, instructions);
-            if (logger.isTraceEnabled()) {
-                logger.trace("Installing DHCP Drop Flow DpId {}, vmMacAddress {}", dpId, vmMacAddress);
-            }
+            LOG.trace("Installing DHCP Drop Flow DpId {}, vmMacAddress {}", dpId, vmMacAddress);
             DhcpServiceCounters.install_dhcp_drop_flow.inc();
             mdsalUtil.addFlowToTx(flowEntity, tx);
         }
@@ -230,7 +219,7 @@ public class DhcpServiceUtils {
         InstanceIdentifier<Port> portInstanceIdentifier = InstanceIdentifier.create(Neutron.class).child(Ports.class).child(Port.class);
         Optional<Port> trunkPort = MDSALUtil.read(broker, LogicalDatastoreType.CONFIGURATION, portInstanceIdentifier);
         if (!trunkPort.isPresent()) {
-            logger.warn("Trunk port {} not available for sub-port", parentRefName);
+            LOG.warn("Trunk port {} not available for sub-port", parentRefName);
             return null;
         }
         return trunkPort.get().getMacAddress().getValue();
@@ -245,7 +234,7 @@ public class DhcpServiceUtils {
         try {
             futures.get();
         } catch (InterruptedException | ExecutionException e) {
-            logger.error("Error writing to datastore tx {} error {}", tx, e.getMessage());
+            LOG.error("Error writing to datastore tx {} error {}", tx, e.getMessage());
         }
     }
 

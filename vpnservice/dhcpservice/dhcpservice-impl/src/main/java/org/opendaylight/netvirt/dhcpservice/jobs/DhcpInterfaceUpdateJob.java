@@ -55,9 +55,7 @@ public class DhcpInterfaceUpdateJob implements Callable<List<ListenableFuture<Vo
         org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface iface =
                 interfaceManager.getInterfaceInfoFromConfigDataStore(interfaceName);
         if (iface == null) {
-            if (LOG.isTraceEnabled()) {
-                LOG.trace("Interface {} is not present in the config DS", interfaceName);
-            }
+            LOG.trace("Interface {} is not present in the config DS", interfaceName);
             return futures;
         }
         if (Tunnel.class.equals(iface.getType())) {
