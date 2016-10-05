@@ -10,10 +10,7 @@ package org.opendaylight.netvirt.cloudservicechain.utils;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.LinkedList;
 import java.util.List;
-import java.util.concurrent.Executors;
-
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.mdsalutil.ActionInfo;
@@ -36,9 +33,9 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.Fl
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.tables.table.Flow;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.tables.table.FlowBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.instruction.list.Instruction;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeId;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.Nodes;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.Node;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.cloud.servicechain.state.rev170511.VpnToPseudoPortList;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.cloud.servicechain.state.rev170511.vpn.to.pseudo.port.list.VpnToPseudoPortData;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.cloud.servicechain.state.rev170511.vpn.to.pseudo.port.list.VpnToPseudoPortDataKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fib.rpc.rev160121.CleanupDpnForVpnInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fib.rpc.rev160121.CleanupDpnForVpnInputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fib.rpc.rev160121.FibRpcService;
@@ -50,7 +47,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev15033
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.VrfEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.VpnInstanceOpData;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.VpnInstanceToVpnId;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.VpnToPseudoPortTagData;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.VpnInstanceOpDataEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.VpnInstanceOpDataEntryBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.VpnInstanceOpDataEntryKey;
@@ -63,9 +59,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.vpn.instance.op.data.entry.vpn.to.dpn.list.VpnInterfacesKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.to.vpn.id.VpnInstance;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.to.vpn.id.VpnInstanceKey;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.to.pseudo.port.tag.data.VpnToPseudoPortTag;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.to.pseudo.port.tag.data.VpnToPseudoPortTagBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.to.pseudo.port.tag.data.VpnToPseudoPortTagKey;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -82,7 +75,7 @@ public class VpnServiceChainUtils {
      * @return
      */
     public static BigInteger getMetadataSCF(long scfTag) { // TODO: Move to a common place
-        return (new BigInteger("FF", 16).and(BigInteger.valueOf(scfTag))).shiftLeft(32);
+        return new BigInteger("FF", 16).and(BigInteger.valueOf(scfTag)).shiftLeft(32);
     }
 
     /**
@@ -140,6 +133,19 @@ public class VpnServiceChainUtils {
                                  .child(VpnInstance.class, new VpnInstanceKey(vpnName)).build();
     }
 
+    public static InstanceIdentifier<VpnToPseudoPortData> getVpnToPseudoPortTagIid(String rd) {
+        VpnToPseudoPortDataKey key = new VpnToPseudoPortDataKey(rd);
+        InstanceIdentifier<VpnToPseudoPortData> result = InstanceIdentifier.builder(VpnToPseudoPortList.class)
+                                                                           .child(VpnToPseudoPortData.class, key)
+                                                                           .build();
+        return result;
+    }
+
+    public static Optional<VpnToPseudoPortData> getVpnPseudoPortData(DataBroker broker, String rd) {
+        InstanceIdentifier<VpnToPseudoPortData> id = getVpnToPseudoPortTagIid(rd);
+        return MDSALDataStoreUtils.read(broker, LogicalDatastoreType.CONFIGURATION, id);
+    }
+
     /**
      *      * Retrieves the VpnId searching by VpnInstanceName
      *
@@ -188,8 +194,8 @@ public class VpnServiceChainUtils {
         InstanceIdentifier<VrfTables> vpnVrfTables =
             InstanceIdentifier.builder(FibEntries.class).child(VrfTables.class, new VrfTablesKey(rd)).build();
         Optional<VrfTables> vrfTable = MDSALUtil.read(broker, LogicalDatastoreType.CONFIGURATION, vpnVrfTables);
-        List<VrfEntry> vpnVrfEntries = ( vrfTable.isPresent() ) ? vrfTable.get().getVrfEntry()
-                                                                : new ArrayList<VrfEntry>();
+        List<VrfEntry> vpnVrfEntries = vrfTable.isPresent() ? vrfTable.get().getVrfEntry()
+                                                                : new ArrayList<>();
         return vpnVrfEntries;
     }
 
@@ -258,7 +264,7 @@ public class VpnServiceChainUtils {
      * @return the list of Matches
      */
     public static List<MatchInfo> buildMatchOnLportTagAndSI(Integer lportTag, short serviceIndex) {
-        List<MatchInfo> matches = new ArrayList<MatchInfo>();
+        List<MatchInfo> matches = new ArrayList<>();
 
         matches.add(new MatchInfo(MatchFieldType.metadata,
                 new BigInteger[] { MetaDataUtil.getMetaDataForLPortDispatcher(lportTag, serviceIndex),
@@ -274,7 +280,7 @@ public class VpnServiceChainUtils {
      * @return the list of Instructions
      */
     public static List<Instruction> buildSetVrfTagAndGotoFibInstructions(Integer vpnTag) {
-        List<Instruction> result = new ArrayList<Instruction>();
+        List<Instruction> result = new ArrayList<>();
         int instructionKey = 0;
         result.add(MDSALUtil.buildAndGetWriteMetadaInstruction(MetaDataUtil.getVpnIdMetadata(vpnTag),
                                                                MetaDataUtil.METADATA_MASK_VRFID,
@@ -344,7 +350,7 @@ public class VpnServiceChainUtils {
                 }
                 logger.debug("LFIB Entry for label={}, destination={}, nexthop={} {} successfully in dpn={}",
                              label, vrfEntry.getDestPrefix(), vrfEntry.getNextHopAddressList(),
-                             (addOrRemove == NwConstants.DEL_FLOW ) ? "removed" : "installed", dpId);
+                             addOrRemove == NwConstants.DEL_FLOW ? "removed" : "installed", dpId);
             }
         }
     }
@@ -387,7 +393,7 @@ public class VpnServiceChainUtils {
     public static FlowEntity buildLportFlowDispForVpnToScf(BigInteger dpId, int lportTag, long scfTag,
                                                            short gotoTableId) {
         List<MatchInfo> matches = buildMatchOnLportTagAndSI(lportTag, ServiceIndex.getIndex(NwConstants.SCF_SERVICE_NAME, NwConstants.SCF_SERVICE_INDEX));
-        List<InstructionInfo> instructions = new ArrayList<InstructionInfo>();
+        List<InstructionInfo> instructions = new ArrayList<>();
         instructions.add(new InstructionInfo(InstructionType.write_metadata, new BigInteger[] {
                 VpnServiceChainUtils.getMetadataSCF(scfTag), CloudServiceChainConstants.METADATA_MASK_SCF_WRITE
         }));
@@ -402,53 +408,12 @@ public class VpnServiceChainUtils {
     }
 
     public static Optional<Long> getVpnPseudoLportTag(DataBroker broker, String rd) {
-        VpnToPseudoPortTagKey key = new VpnToPseudoPortTagKey(rd);
-        InstanceIdentifier<VpnToPseudoPortTag> path = InstanceIdentifier.builder(VpnToPseudoPortTagData.class)
-                .child(VpnToPseudoPortTag.class, key)
-                .build();
-        Optional<VpnToPseudoPortTag> lPortTagOpc = MDSALUtil.read(broker, LogicalDatastoreType.CONFIGURATION, path);
+        InstanceIdentifier<VpnToPseudoPortData> path = getVpnToPseudoPortTagIid(rd);
+        Optional<VpnToPseudoPortData> lPortTagOpc = MDSALUtil.read(broker, LogicalDatastoreType.CONFIGURATION, path);
 
-        return lPortTagOpc.isPresent() ? Optional.fromNullable(lPortTagOpc.get().getLportTag())
-                : Optional.<Long>absent();
+        return lPortTagOpc.isPresent() ? Optional.fromNullable(lPortTagOpc.get().getVpnLportTag())
+                                       : Optional.<Long>absent();
     }
-
-    /**
-     * Updates the mapping between VPNs and their respective VpnPseudoLport Tags
-     *
-     * @param broker
-     * @param rd
-     * @param lportTag
-     * @param addOrRemove
-     */
-    public static void updateVpnToLportTagMap(final DataBroker broker, final String rd, final int lportTag,
-                                              final int addOrRemove) {
-        Executors.newSingleThreadExecutor().execute(new Runnable() {
-            // No need to block Thrift Thread
-            @Override
-            public void run() {
-                VpnToPseudoPortTagKey key = new VpnToPseudoPortTagKey(rd);
-                InstanceIdentifier<VpnToPseudoPortTag> path = InstanceIdentifier.builder(VpnToPseudoPortTagData.class)
-                                                                                .child(VpnToPseudoPortTag.class, key)
-                                                                                .build();
-                if ( addOrRemove == NwConstants.ADD_FLOW ) {
-                    VpnToPseudoPortTag newValue =
-                        new VpnToPseudoPortTagBuilder().setKey(key).setVrfId(rd).setLportTag((long) lportTag).build();
-                    logger.debug("Adding lportTag={} to VpnToLportTag map for VPN with rd={}", lportTag, rd);
-                    MDSALUtil.syncWrite(broker, LogicalDatastoreType.CONFIGURATION, path, newValue);
-                } else {
-                    logger.debug("Removing VpnToLportTag map entry for VPN with rd={}", rd);
-                    try {
-                        MDSALUtil.syncDelete(broker, LogicalDatastoreType.CONFIGURATION, path);
-                    } catch ( Exception e ) {
-                        // It may throw Exception if 'path' does not exist, but we dont care
-                        logger.debug("Error when removing {}", path, e);
-                    }
-                }
-
-            }
-        });
-    }
-
 
     /**
      * Creates a Flow that does the trick of moving the packets from one VPN to another VPN.
@@ -486,7 +451,7 @@ public class VpnServiceChainUtils {
         if (vpnName != null) {
             synchronized (vpnName.intern()) {
                 String routeDistinguisher = getVpnRd(broker, vpnName);
-                String rd = (routeDistinguisher == null) ? vpnName : routeDistinguisher;
+                String rd = routeDistinguisher == null ? vpnName : routeDistinguisher;
                 InstanceIdentifier<VpnToDpnList> id = getVpnToDpnListIdentifier(rd, dpnId);
                 Optional<VpnToDpnList> dpnInVpn = VpnUtil.read(broker, LogicalDatastoreType.OPERATIONAL, id);
                 VpnInterfaces vpnInterface =
@@ -508,7 +473,7 @@ public class VpnServiceChainUtils {
                                       vpnToDpnList.setVpnInterfaces(vpnInterfaces).build());
                     PopulateFibOnDpnInput populateFibInput =
                             new PopulateFibOnDpnInputBuilder().setDpid(dpnId).setVpnId(vpnId)
-                                                              .setRd((rd == null) ? vpnName : rd)
+                                                              .setRd(rd == null ? vpnName : rd)
                                                               .build();
                     fibRpcService.populateFibOnDpn(populateFibInput);
                 }
@@ -550,7 +515,7 @@ public class VpnServiceChainUtils {
                                 MDSALUtil.syncDelete(broker, LogicalDatastoreType.OPERATIONAL, id);
                                 CleanupDpnForVpnInput cleanupVpnInDpnInput =
                                     new CleanupDpnForVpnInputBuilder().setDpid(dpnId).setVpnId(vpnId)
-                                                                      .setRd((rd == null) ? vpnName : rd).build();
+                                                                      .setRd(rd == null ? vpnName : rd).build();
                                 fibRpcService.cleanupDpnForVpn(cleanupVpnInDpnInput);
                             } else {
                                 logger.debug("vpn interfaces are empty but ip addresses are present for the vpn {} in dpn {}",
