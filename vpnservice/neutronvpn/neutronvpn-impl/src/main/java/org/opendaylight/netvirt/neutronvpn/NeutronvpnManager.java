@@ -181,38 +181,42 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
                 Optional<Subnetmap> sn = NeutronvpnUtils.read(dataBroker, LogicalDatastoreType.CONFIGURATION, id);
                 if (sn.isPresent()) {
                     builder = new SubnetmapBuilder(sn.get());
-                    if (routerId != null) {
-                        builder.setRouterId(routerId);
-                    } else {
-                        builder.setRouterId(null);
-                    }
-                    if (routerInterfaceName != null) {
-                        builder.setRouterInterfaceName(routerInterfaceName);
-                    } else {
-                        builder.setRouterInterfaceName(null);
-                    }
-                    if (routerIntfMacAddress != null) {
-                        builder.setRouterIntfMacAddress(routerIntfMacAddress);
-                    } else {
-                        builder.setRouterIntfMacAddress(null);
-                    }
-                    if (fixedIp != null) {
-                        List<String> fixedIps = builder.getRouterInterfaceFixedIps();
-                        if (fixedIps == null) {
-                            fixedIps = new ArrayList<>();
-                        }
-                        fixedIps.add(fixedIp);
-                        builder.setRouterInterfaceFixedIps(fixedIps);
-                    } else {
-                        builder.setRouterInterfaceFixedIps(null);
-                    }
-                    subnetmap = builder.build();
-                    LOG.debug("Creating/Updating subnetMap node for FixedIps: {} ", subnetId.getValue());
-                    MDSALUtil.syncWrite(dataBroker, LogicalDatastoreType.CONFIGURATION, id, subnetmap);
+                    LOG.debug("WithRouterFixedIPs: Updating existing subnetmap node for subnet ID {}", subnetId.getValue());
+                } else {
+                    builder = new SubnetmapBuilder().setKey(new SubnetmapKey(subnetId)).setId(subnetId);
+                    LOG.debug("WithRouterFixedIPs: creating new subnetmap node for subnet ID {}", subnetId.getValue());
                 }
+                if (routerId != null) {
+                    builder.setRouterId(routerId);
+                } else {
+                    builder.setRouterId(null);
+                }
+                if (routerInterfaceName != null) {
+                    builder.setRouterInterfaceName(routerInterfaceName);
+                } else {
+                    builder.setRouterInterfaceName(null);
+                }
+                if (routerIntfMacAddress != null) {
+                    builder.setRouterIntfMacAddress(routerIntfMacAddress);
+                } else {
+                    builder.setRouterIntfMacAddress(null);
+                }
+                if (fixedIp != null) {
+                    List<String> fixedIps = builder.getRouterInterfaceFixedIps();
+                    if (fixedIps == null) {
+                        fixedIps = new ArrayList<>();
+                    }
+                    fixedIps.add(fixedIp);
+                    builder.setRouterInterfaceFixedIps(fixedIps);
+                } else {
+                    builder.setRouterInterfaceFixedIps(null);
+                }
+                subnetmap = builder.build();
+                LOG.debug("WithRouterFixedIPs Creating/Updating subnetMap node for Router FixedIps: {} ", subnetId.getValue());
+                MDSALUtil.syncWrite(dataBroker, LogicalDatastoreType.CONFIGURATION, id, subnetmap);
             }
         } catch (Exception e) {
-            LOG.error("Updation of subnetMap for FixedIps failed for node: {}", subnetId.getValue());
+            LOG.error("WithRouterFixedIPs: Updation of subnetMap for Router FixedIps failed for node: {}", subnetId.getValue());
         }
     }
 
@@ -1101,7 +1105,7 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
         Optional<ElanInstance> elanInstance = NeutronvpnUtils.read(dataBroker, LogicalDatastoreType.CONFIGURATION,
                 elanIdentifierId);
         long elanTag = elanInstance.get().getElanTag();
-        final Uuid routerId = NeutronvpnUtils.getVpnMap(dataBroker, vpnId).getRouterId();
+        final Uuid routerId = (sn != null) ? sn.getRouterId() : null;
         isExternalVpn = vpnId.equals(routerId) ? false : true;
         try {
             isLockAcquired = NeutronvpnUtils.lock(lockName);
@@ -1503,7 +1507,7 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
         Optional<ElanInstance> elanInstance = NeutronvpnUtils.read(dataBroker, LogicalDatastoreType.CONFIGURATION,
                 elanIdentifierId);
         long elanTag = elanInstance.get().getElanTag();
-        final Uuid routerId = NeutronvpnUtils.getVpnMap(dataBroker, vpnId).getRouterId();
+        final Uuid routerId = (sn != null) ? sn.getRouterId() : null;
         isExternalVpn = vpnId.equals(routerId) ? false : true;
         try {
             isLockAcquired = NeutronvpnUtils.lock(lockName);

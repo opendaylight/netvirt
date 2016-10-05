@@ -189,11 +189,11 @@ public class InterfaceStateChangeListener extends AsyncDataTreeChangeListenerBas
         if (update.getIfIndex() == null) {
             return;
         }
-        final int ifIndex = update.getIfIndex();
         if (update != null && (update.getType() != null)) {
             if (!update.getType().equals(Tunnel.class)) {
                 final VpnInterface vpnInterface = VpnUtil.getConfiguredVpnInterface(dataBroker, interfaceName);
                 if (vpnInterface != null) {
+                    final int ifIndex = update.getIfIndex();
                     if (update.getOperStatus().equals(Interface.OperStatus.Up)) {
                         DataStoreJobCoordinator dataStoreCoordinator = DataStoreJobCoordinator.getInstance();
                         dataStoreCoordinator.enqueueJob("VPNINTERFACE-" + interfaceName,
