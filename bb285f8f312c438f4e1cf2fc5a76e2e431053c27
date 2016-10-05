@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7a6b29fe_5c5eb577",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 5
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-10-05T09:13:31Z",
+      "side": 1,
+      "message": "You shoudl",
+      "revId": "bb285f8f312c438f4e1cf2fc5a76e2e431053c27",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_00d7a7ee",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 651,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-10-05T09:13:31Z",
+      "side": 1,
+      "message": "This is incorrect.. You are looping though fixedips of a port but fetching always 0th index subnet!",
+      "revId": "bb285f8f312c438f4e1cf2fc5a76e2e431053c27",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
