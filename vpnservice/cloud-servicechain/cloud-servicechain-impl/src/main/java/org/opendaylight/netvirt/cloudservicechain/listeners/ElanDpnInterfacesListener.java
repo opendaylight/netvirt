@@ -22,7 +22,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.dpn.interfaces.elan.dpn.interfaces.list.DpnInterfaces;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.netvirt.cloudservicechain.utils.ElanServiceChainUtils;
-import org.opendaylight.netvirt.cloudservicechain.CloudServiceChainConstants;
 import org.opendaylight.genius.mdsalutil.NwConstants;
 import java.math.BigInteger;
 import java.util.List;

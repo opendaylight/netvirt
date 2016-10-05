@@ -14,6 +14,33 @@ module cloud-service-chain-state {
             "Initial revision";
     }
 
+    container vpn-to-pseudo-port-list {
+        description "Makes a correspondence between VPNs and stateful information regarding
+                     their corresponding VpnPseudoPort";
+        list vpn-to-pseudo-port-data {
+            key vrf-id;
+            leaf vrf-id {
+                description "VPN's route distinguisher";
+                type string;
+            }
+            leaf vpn-lport-tag {
+                description "Vpn Pseudo Logical Port Tag. There is only one VpnPseudoPort per VPN";
+                type uint32;
+            }
+            leaf scf-tag {
+                description "SCF tag associated to Vlan Pseudo Logical Port Tag";
+                type uint16;
+            }
+            leaf scf-table-id {
+                description "OF-Table Id in the SCF Pipeline to send packets to, depending on wether
+                             the VpnPseudoPort has been used in Uplink or Downlink direction.
+                             There is a restriction that states that a VpnPseudoPort can only
+                             act as ingress port either in Uplink or in Downlink, but not both";
+                type uint8;
+            }
+        }
+    }
+
     grouping elan-to-pseudo-port-data-list {
         list elan-to-pseudo-port-data {
             key "elan-lport-tag scf-tag";
