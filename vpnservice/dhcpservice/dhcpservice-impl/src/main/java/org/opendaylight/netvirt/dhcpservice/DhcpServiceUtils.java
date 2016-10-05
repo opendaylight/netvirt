@@ -82,7 +82,7 @@ public class DhcpServiceUtils {
         // Punt to controller
         actionsInfos.add(new ActionInfo(ActionType.punt_to_controller,
                 new String[] {}));
-        instructions.add(new InstructionInfo(InstructionType.write_actions,
+        instructions.add(new InstructionInfo(InstructionType.apply_actions,
                 actionsInfos));
         if (addOrRemove == NwConstants.DEL_FLOW) {
             FlowEntity flowEntity = MDSALUtil.buildFlowEntity(dpId, tableId,
