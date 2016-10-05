@@ -136,15 +136,9 @@ public class DhcpUCastMacListener extends AsyncClusteredDataTreeChangeListenerBa
     }
 
     private LogicalSwitches getLogicalSwitches(LocalUcastMacs ucastMacs) {
-        LogicalSwitches logicalSwitch = null;
         InstanceIdentifier<LogicalSwitches> logicalSwitchRef = (InstanceIdentifier<LogicalSwitches>)
                                                                 ucastMacs.getLogicalSwitchRef().getValue();
-        Optional<LogicalSwitches> logicalSwitchOptional = MDSALUtil.read(broker, LogicalDatastoreType.OPERATIONAL,
-                logicalSwitchRef);
-        if (logicalSwitchOptional.isPresent()) {
-            logicalSwitch = logicalSwitchOptional.get();
-        }
-        return logicalSwitch;
+        return MDSALUtil.read(broker, LogicalDatastoreType.OPERATIONAL, logicalSwitchRef).orNull();
     }
 
     @Override

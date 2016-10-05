@@ -90,12 +90,7 @@ public class VPNServiceChainHandler implements AutoCloseable {
     protected VpnInstanceOpDataEntry getVpnInstance(String rd) {
         InstanceIdentifier<VpnInstanceOpDataEntry> id = InstanceIdentifier.create(VpnInstanceOpData.class)
                 .child(VpnInstanceOpDataEntry.class, new VpnInstanceOpDataEntryKey(rd));
-        Optional<VpnInstanceOpDataEntry> vpnInstanceOpData = MDSALDataStoreUtils.read(broker,
-                LogicalDatastoreType.OPERATIONAL, id);
-        if (vpnInstanceOpData.isPresent()) {
-            return vpnInstanceOpData.get();
-        }
-        return null;
+        return MDSALDataStoreUtils.read(broker, LogicalDatastoreType.OPERATIONAL, id).orNull();
     }
 
     /**

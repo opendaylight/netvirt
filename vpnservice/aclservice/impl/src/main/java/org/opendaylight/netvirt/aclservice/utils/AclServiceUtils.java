@@ -154,12 +154,7 @@ public class AclServiceUtils {
      * @return the acl
      */
     public static Acl getAcl(DataBroker broker, String aclKey) {
-        Optional<Acl> optAcl = read(broker,
-            LogicalDatastoreType.CONFIGURATION, getAclInstanceIdentifier(aclKey));
-        if (optAcl.isPresent()) {
-            return optAcl.get();
-        }
-        return null;
+        return read(broker, LogicalDatastoreType.CONFIGURATION, getAclInstanceIdentifier(aclKey)).orNull();
     }
 
     /** Creates the Acl instance identifier.
@@ -210,14 +205,7 @@ public class AclServiceUtils {
         .Interface getInterfaceStateFromOperDS(DataBroker dataBroker, String interfaceName) {
         InstanceIdentifier<org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508
             .interfaces.state.Interface> ifStateId = buildStateInterfaceId(interfaceName);
-        Optional<org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508
-            .interfaces.state.Interface> ifStateOptional = MDSALUtil.read(LogicalDatastoreType
-                .OPERATIONAL, ifStateId, dataBroker);
-        if (!ifStateOptional.isPresent()) {
-            return null;
-        }
-
-        return ifStateOptional.get();
+        return MDSALUtil.read(LogicalDatastoreType.OPERATIONAL, ifStateId, dataBroker).orNull();
     }
 
     /**
@@ -627,12 +615,7 @@ public class AclServiceUtils {
 
     public static ElanInterface getElanInterfaceByElanInterfaceName(String elanInterfaceName,DataBroker broker) {
         InstanceIdentifier<ElanInterface> elanInterfaceId = getElanInterfaceConfigurationDataPathId(elanInterfaceName);
-        Optional<ElanInterface> existingElanInterface = read(broker,
-                LogicalDatastoreType.CONFIGURATION, elanInterfaceId);
-        if (existingElanInterface.isPresent()) {
-            return existingElanInterface.get();
-        }
-        return null;
+        return read(broker, LogicalDatastoreType.CONFIGURATION, elanInterfaceId).orNull();
     }
 
     public static InstanceIdentifier<ElanInterface> getElanInterfaceConfigurationDataPathId(String interfaceName) {
@@ -643,12 +626,7 @@ public class AclServiceUtils {
     // elan-instances config container
     public static ElanInstance getElanInstanceByName(String elanInstanceName, DataBroker broker) {
         InstanceIdentifier<ElanInstance> elanIdentifierId = getElanInstanceConfigurationDataPath(elanInstanceName);
-        Optional<ElanInstance> elanInstance = read(broker, LogicalDatastoreType.CONFIGURATION,
-                elanIdentifierId);
-        if (elanInstance.isPresent()) {
-            return elanInstance.get();
-        }
-        return null;
+        return read(broker, LogicalDatastoreType.CONFIGURATION, elanIdentifierId).orNull();
     }
 
     public static InstanceIdentifier<ElanInstance> getElanInstanceConfigurationDataPath(String elanInstanceName) {

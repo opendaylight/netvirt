@@ -1337,11 +1337,9 @@ public class VpnUtil {
 
     static Optional<IpAddress> getGatewayIpAddressFromInterface(String srcInterface,
             INeutronVpnManager neutronVpnService, DataBroker dataBroker) {
-        Optional <IpAddress> gatewayIp = Optional.absent();
         Port port = neutronVpnService.getNeutronPort(srcInterface);
         //TODO(Gobinath): Need to fix this as assuming port will belong to only one Subnet would be incorrect"
-        gatewayIp = Optional.of(neutronVpnService.getNeutronSubnet(port.getFixedIps().get(0).getSubnetId()).getGatewayIp());
-        return gatewayIp;
+        return Optional.of(neutronVpnService.getNeutronSubnet(port.getFixedIps().get(0).getSubnetId()).getGatewayIp());
     }
 
     static Optional<String> getGWMacAddressFromInterface(MacEntry macEntry, IpAddress gatewayIp,

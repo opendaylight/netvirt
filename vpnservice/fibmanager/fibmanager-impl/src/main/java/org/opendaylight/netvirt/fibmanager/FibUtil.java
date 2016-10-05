@@ -13,7 +13,11 @@ import com.google.common.base.Preconditions;
 import com.google.common.util.concurrent.CheckedFuture;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
-
+import java.math.BigInteger;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
@@ -30,8 +34,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.ReleaseIdInputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.FibEntries;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.fibentries.VrfTables;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.fibentries.VrfTablesKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.fibentries.VrfTablesBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.fibentries.VrfTablesKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.VrfEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.VrfEntryBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.VrfEntryKey;
@@ -43,34 +47,20 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.adj
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.prefix.to._interface.vpn.ids.Prefixes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.id.to.vpn.instance.VpnIds;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.id.to.vpn.instance.VpnIdsKey;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data
-        .VpnInstanceOpDataEntry;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data
-        .VpnInstanceOpDataEntryKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.VpnInstanceOpDataEntry;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.VpnInstanceOpDataEntryKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.vpn.instance.op.data.entry.VpnToDpnList;
-
-
-
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.netvirt.inter.vpn.link.rev160311
-        .InterVpnLinkStates;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.to.vpn.id.VpnInstance;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.netvirt.inter.vpn.link.rev160311.InterVpnLinkStates;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.netvirt.inter.vpn.link.rev160311.InterVpnLinks;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.netvirt.inter.vpn.link.rev160311.inter.vpn
-        .link.states.InterVpnLinkState;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.netvirt.inter.vpn.link.rev160311.inter.vpn
-        .link.states.InterVpnLinkStateKey;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.netvirt.inter.vpn.link.rev160311.inter.vpn
-        .links.InterVpnLink;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.netvirt.inter.vpn.link.rev160311.inter.vpn.link.states.InterVpnLinkState;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.netvirt.inter.vpn.link.rev160311.inter.vpn.link.states.InterVpnLinkStateKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.netvirt.inter.vpn.link.rev160311.inter.vpn.links.InterVpnLink;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.math.BigInteger;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
 
 public class FibUtil {
     private static final Logger LOG = LoggerFactory.getLogger(FibUtil.class);
@@ -192,18 +182,8 @@ public class FibUtil {
 
     public static long getVpnId(DataBroker broker, String vpnName) {
 
-        InstanceIdentifier<org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.to.vpn.id
-                .VpnInstance> id
-                = getVpnInstanceToVpnIdIdentifier(vpnName);
-        Optional<org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.to.vpn.id
-                .VpnInstance> vpnInstance
-                = read(broker, LogicalDatastoreType.CONFIGURATION, id);
-
-        long vpnId = -1;
-        if(vpnInstance.isPresent()) {
-            vpnId = vpnInstance.get().getVpnId();
-        }
-        return vpnId;
+        InstanceIdentifier<VpnInstance> id = getVpnInstanceToVpnIdIdentifier(vpnName);
+        return read(broker, LogicalDatastoreType.CONFIGURATION, id).transform(VpnInstance::getVpnId).or(-1L);
     }
 
     /**
@@ -214,19 +194,14 @@ public class FibUtil {
      * @return
      */
     public static Optional<String> getVpnNameFromRd(DataBroker broker, String rd) {
-        Optional<VpnInstanceOpDataEntry> vpnInstanceOpData = getVpnInstanceOpData(broker, rd);
-        return Optional.fromNullable(vpnInstanceOpData.isPresent() ? vpnInstanceOpData.get().getVpnInstanceName()
-                : null);
+        return getVpnInstanceOpData(broker, rd).transform(VpnInstanceOpDataEntry::getVpnInstanceName);
     }
 
     static List<InterVpnLink> getAllInterVpnLinks(DataBroker broker) {
         InstanceIdentifier<InterVpnLinks> interVpnLinksIid = InstanceIdentifier.builder(InterVpnLinks.class).build();
 
-        Optional<InterVpnLinks> interVpnLinksOpData = MDSALUtil.read(broker, LogicalDatastoreType.CONFIGURATION,
-                                                                     interVpnLinksIid);
-
-        return interVpnLinksOpData.isPresent() ? interVpnLinksOpData.get().getInterVpnLink()
-                                               : new ArrayList<>();
+        return MDSALUtil.read(broker, LogicalDatastoreType.CONFIGURATION, interVpnLinksIid).transform(
+                InterVpnLinks::getInterVpnLink).or(new ArrayList<>());
     }
 
     /**
@@ -369,18 +344,8 @@ public class FibUtil {
      * @return
      */
     public static String getVpnRd(DataBroker broker, String vpnName) {
-        InstanceIdentifier<org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.to.vpn.id
-                .VpnInstance> id
-                = getVpnInstanceToVpnIdIdentifier(vpnName);
-        Optional<org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.to.vpn.id
-                .VpnInstance> vpnInstance
-                = read(broker, LogicalDatastoreType.CONFIGURATION, id);
-
-        String rd = null;
-        if(vpnInstance.isPresent()) {
-            rd = vpnInstance.get().getVrfId();
-        }
-        return rd;
+        InstanceIdentifier<VpnInstance> id = getVpnInstanceToVpnIdIdentifier(vpnName);
+        return read(broker, LogicalDatastoreType.CONFIGURATION, id).transform(VpnInstance::getVrfId).orNull();
     }
 
     /**
@@ -432,17 +397,8 @@ public class FibUtil {
             };
 
     public static String getVpnNameFromId(DataBroker broker, long vpnId) {
-
-        InstanceIdentifier<VpnIds> id
-                = getVpnIdToVpnInstanceIdentifier(vpnId);
-        Optional<VpnIds> vpnInstance
-                = read(broker, LogicalDatastoreType.CONFIGURATION, id);
-
-        String vpnName = null;
-        if (vpnInstance.isPresent()) {
-            vpnName = vpnInstance.get().getVpnInstanceName();
-        }
-        return vpnName;
+        InstanceIdentifier<VpnIds> id = getVpnIdToVpnInstanceIdentifier(vpnId);
+        return read(broker, LogicalDatastoreType.CONFIGURATION, id).transform(VpnIds::getVpnInstanceName).orNull();
     }
 
     static InstanceIdentifier<VpnIds>

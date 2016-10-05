@@ -190,11 +190,7 @@ public class DhcpServiceUtils {
     public static org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface getInterfaceFromOperationalDS(String interfaceName, DataBroker dataBroker) {
         org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.InterfaceKey interfaceKey = new org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.InterfaceKey(interfaceName);
         InstanceIdentifier<org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface> interfaceId = InstanceIdentifier.builder(InterfacesState.class).child(org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface.class, interfaceKey).build();
-        Optional<org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface> interfaceOptional = MDSALUtil.read(LogicalDatastoreType.OPERATIONAL, interfaceId, dataBroker);
-        if (!interfaceOptional.isPresent()) {
-            return null;
-        }
-        return interfaceOptional.get();
+        return MDSALUtil.read(LogicalDatastoreType.OPERATIONAL, interfaceId, dataBroker).orNull();
     }
 
 

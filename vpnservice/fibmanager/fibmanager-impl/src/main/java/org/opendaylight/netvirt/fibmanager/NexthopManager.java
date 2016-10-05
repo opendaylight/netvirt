@@ -290,7 +290,7 @@ public class NexthopManager implements AutoCloseable {
                                    String ifName, String ipNextHopAddress, String ipPrefixAddress) {
         Optional<Adjacency> adjacencyPrefixData =
                 read(LogicalDatastoreType.OPERATIONAL, getAdjacencyIdentifier(ifName, ipPrefixAddress));
-        String macAddress = adjacencyPrefixData.isPresent() ? adjacencyPrefixData.get().getMacAddress() : null;
+        String macAddress = adjacencyPrefixData.transform(Adjacency::getMacAddress).orNull();
         String ipAddress = (macAddress != null) ? ipPrefixAddress: ipNextHopAddress;
 
         long groupId = createNextHopPointer(getNextHopKey(vpnId, ipAddress));
@@ -307,7 +307,7 @@ public class NexthopManager implements AutoCloseable {
                 if (macAddress == null ) {
                     Optional<Adjacency> adjacencyData =
                             read(LogicalDatastoreType.OPERATIONAL, getAdjacencyIdentifier(ifName, ipAddress));
-                    macAddress = adjacencyData.isPresent() ? adjacencyData.get().getMacAddress() : null;
+                    macAddress = adjacencyData.transform(Adjacency::getMacAddress).orNull();
                 }
                 List<BucketInfo> listBucketInfo = new ArrayList<BucketInfo>();
                 List<ActionInfo> listActionInfo = new ArrayList<>();
