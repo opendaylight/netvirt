@@ -59,9 +59,7 @@ public class NeutronQosUtils {
 
     public static void handleNeutronPortQosUpdate(DataBroker db, OdlInterfaceRpcService odlInterfaceRpcService,
             Port port, Uuid qosUuid) {
-        if (LOG.isTraceEnabled()) {
-            LOG.trace("Handling Port QoS update: port: {} qos: {}", port.getUuid(), qosUuid);
-        }
+        LOG.trace("Handling Port QoS update: port: {} qos: {}", port.getUuid(), qosUuid);
 
         // handle Bandwidth Limit Rules update
         QosPolicy qosPolicy = NeutronvpnUtils.qosPolicyMap.get(qosUuid);
@@ -74,9 +72,7 @@ public class NeutronQosUtils {
 
     public static void handleNeutronPortQosRemove(DataBroker db, OdlInterfaceRpcService odlInterfaceRpcService,
             Port port, Uuid qosUuid) {
-        if (LOG.isTraceEnabled()) {
-            LOG.trace("Handling Port QoS removal: port: {} qos: {}", port.getUuid(), qosUuid);
-        }
+        LOG.trace("Handling Port QoS removal: port: {} qos: {}", port.getUuid(), qosUuid);
 
         // handle Bandwidth Limit Rules removal
         QosPolicy qosPolicy = NeutronvpnUtils.qosPolicyMap.get(qosUuid);
@@ -99,9 +95,7 @@ public class NeutronQosUtils {
 
     public static void handleNeutronNetworkQosUpdate(DataBroker db, OdlInterfaceRpcService odlInterfaceRpcService,
             Network network, Uuid qosUuid) {
-        if (LOG.isTraceEnabled()) {
-            LOG.trace("Handling Network QoS update: net: {} qos: {}", network.getUuid(), qosUuid);
-        }
+        LOG.trace("Handling Network QoS update: net: {} qos: {}", network.getUuid(), qosUuid);
         QosPolicy qosPolicy = NeutronvpnUtils.qosPolicyMap.get(qosUuid);
         if (qosPolicy == null || qosPolicy.getBandwidthLimitRules() == null
                 || qosPolicy.getBandwidthLimitRules().isEmpty()) {
@@ -127,9 +121,7 @@ public class NeutronQosUtils {
 
     public static void handleNeutronNetworkQosRemove(DataBroker db, OdlInterfaceRpcService odlInterfaceRpcService,
             Network network, Uuid qosUuid) {
-        if (LOG.isTraceEnabled()) {
-            LOG.trace("Handling Network QoS removal: net: {} qos: {}", network.getUuid(), qosUuid);
-        }
+        LOG.trace("Handling Network QoS removal: net: {} qos: {}", network.getUuid(), qosUuid);
 
         List<Uuid> subnetIds = NeutronvpnUtils.getSubnetIdsFromNetworkId(db, network.getUuid());
         if (subnetIds != null) {
@@ -153,9 +145,7 @@ public class NeutronQosUtils {
 
     public static void setPortBandwidthLimits(DataBroker db, OdlInterfaceRpcService odlInterfaceRpcService,
             Port port, BandwidthLimitRules bwLimit) {
-        if (LOG.isTraceEnabled()) {
-            LOG.trace("Setting bandwidth limits {} on Port {}", port, bwLimit);
-        }
+        LOG.trace("Setting bandwidth limits {} on Port {}", port, bwLimit);
 
         BigInteger dpId = getDpnForInterface(odlInterfaceRpcService, port.getUuid().getValue());
         if (dpId.equals(BigInteger.ZERO)) {

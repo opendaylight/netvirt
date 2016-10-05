@@ -27,7 +27,7 @@ import org.slf4j.LoggerFactory;
 
 public class DhcpHwvtepListener extends AsyncDataTreeChangeListenerBase<Node, DhcpHwvtepListener> implements AutoCloseable {
 
-    private static final Logger logger = LoggerFactory.getLogger(DhcpHwvtepListener.class);
+    private static final Logger LOG = LoggerFactory.getLogger(DhcpHwvtepListener.class);
     private DhcpExternalTunnelManager dhcpExternalTunnelManager;
     private DataBroker dataBroker;
 
@@ -44,27 +44,21 @@ public class DhcpHwvtepListener extends AsyncDataTreeChangeListenerBase<Node, Dh
     @Override
     public void close() throws Exception {
         super.close();
-        logger.info("DhcpHwvtepListener Closed");
+        LOG.info("DhcpHwvtepListener Closed");
     }
 
     @Override
     protected void remove(InstanceIdentifier<Node> identifier,
             Node del) {
-        if (logger.isTraceEnabled()) {
-            logger.trace("Received Hwvtep remove DCN {}", del);
-        }
+        LOG.trace("Received Hwvtep remove DCN {}", del);
         HwvtepGlobalAugmentation hwvtepNode = del.getAugmentation(HwvtepGlobalAugmentation.class);
         if (hwvtepNode == null) {
-            if (logger.isTraceEnabled()) {
-                logger.trace("LogicalSwitch is not present");
-            }
+            LOG.trace("LogicalSwitch is not present");
             return;
         }
         List<LogicalSwitches> logicalSwitches = hwvtepNode.getLogicalSwitches();
         if (logicalSwitches == null || logicalSwitches.isEmpty()) {
-            if (logger.isTraceEnabled()) {
-                logger.trace("LogicalSwitch is not added");
-            }
+            LOG.trace("LogicalSwitch is not added");
             return;
         }
         for (LogicalSwitches logicalSwitch : logicalSwitches) {
@@ -88,9 +82,7 @@ public class DhcpHwvtepListener extends AsyncDataTreeChangeListenerBase<Node, Dh
         BigInteger designatedDpnId;
         designatedDpnId = dhcpExternalTunnelManager.readDesignatedSwitchesForExternalTunnel(tunnelIp, elanInstanceName);
         if (designatedDpnId == null) {
-            if (logger.isInfoEnabled()) {
-                logger.info("Could not find designated DPN ID elanInstanceName {}, tunnelIp {}", elanInstanceName, tunnelIp);
-            }
+            LOG.info("Could not find designated DPN ID elanInstanceName {}, tunnelIp {}", elanInstanceName, tunnelIp);
             return;
         }
         dhcpExternalTunnelManager.removeDesignatedSwitchForExternalTunnel(designatedDpnId, tunnelIp, elanInstanceName);

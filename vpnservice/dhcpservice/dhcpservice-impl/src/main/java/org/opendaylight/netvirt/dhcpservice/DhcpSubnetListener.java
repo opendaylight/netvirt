@@ -74,10 +74,8 @@ public class DhcpSubnetListener extends AsyncClusteredDataTreeChangeListenerBase
 
     @Override
     protected void update(InstanceIdentifier<Subnet> identifier, Subnet original, Subnet update) {
-        if (LOG.isTraceEnabled()) {
-            LOG.trace("DhcpSubnetListener Update : Original dhcpstatus: " + original.isEnableDhcp() + ", " +
-                    "Updated dhcpstatus" + update.isEnableDhcp());
-        }
+        LOG.trace("DhcpSubnetListener Update : Original dhcpstatus: {}, Updated dhcpstatus {}", original.isEnableDhcp(),
+                update.isEnableDhcp());
 
         if (original.isEnableDhcp() != update.isEnableDhcp()) {
             // write api to get port list
@@ -108,21 +106,14 @@ public class DhcpSubnetListener extends AsyncClusteredDataTreeChangeListenerBase
     }
 
     private void installNeutronPortEntries(List<Uuid> portList) {
-        if (LOG.isTraceEnabled()) {
-            LOG.trace("DhcpSubnetListener installNeutronPortEntries : portList: " + portList);
-        }
-        Uuid portIntf;
-        for (Iterator<Uuid> portIter = portList.iterator(); portIter.hasNext(); ) {
-            portIntf = portIter.next();
+        LOG.trace("DhcpSubnetListener installNeutronPortEntries : portList: {}", portList);
+        for (Uuid portIntf : portList) {
             NodeConnectorId nodeConnectorId = getNodeConnectorIdForPortIntf(portIntf);
             BigInteger dpId = BigInteger.valueOf(MDSALUtil.getDpnIdFromPortName(nodeConnectorId));
             Port port = dhcpManager.getNeutronPort(portIntf.getValue());
             String vmMacAddress = port.getMacAddress().getValue();
             //check whether any changes have happened
-            if (LOG.isTraceEnabled()) {
-                LOG.trace("DhcpSubnetListener installNeutronPortEntries dpId: " + dpId + "vmMacAddress :" +
-                        vmMacAddress);
-            }
+            LOG.trace("DhcpSubnetListener installNeutronPortEntries dpId: {} vmMacAddress : {}", dpId, vmMacAddress);
             //install the entriesd
             WriteTransaction tx = dataBroker.newWriteOnlyTransaction();
             dhcpManager.installDhcpEntries(dpId, vmMacAddress, tx);
@@ -131,21 +122,15 @@ public class DhcpSubnetListener extends AsyncClusteredDataTreeChangeListenerBase
     }
 
     private void uninstallNeutronPortEntries(List<Uuid> portList) {
-        if (LOG.isTraceEnabled()) {
-            LOG.trace("DhcpSubnetListener uninstallNeutronPortEntries : portList: " + portList);
-        }
-        Uuid portIntf;
-        for (Iterator<Uuid> portIter = portList.iterator(); portIter.hasNext(); ) {
-            portIntf = portIter.next();
+        LOG.trace("DhcpSubnetListener uninstallNeutronPortEntries : portList: {}", portList);
+        for (Uuid portIntf : portList) {
             NodeConnectorId nodeConnectorId = getNodeConnectorIdForPortIntf(portIntf);
             BigInteger dpId = BigInteger.valueOf(MDSALUtil.getDpnIdFromPortName(nodeConnectorId));
             Port port = dhcpManager.getNeutronPort(portIntf.getValue());
             String vmMacAddress = port.getMacAddress().getValue();
             //check whether any changes have happened
-            if (LOG.isTraceEnabled()) {
-                LOG.trace("DhcpSubnetListener uninstallNeutronPortEntries dpId: " + dpId + "vmMacAddress :" +
-                        vmMacAddress);
-            }
+            LOG.trace("DhcpSubnetListener uninstallNeutronPortEntries dpId: {} vmMacAddress : {}",
+                    dpId, vmMacAddress);
             //install the entries
             WriteTransaction tx = dataBroker.newWriteOnlyTransaction();
             dhcpManager.unInstallDhcpEntries(dpId, vmMacAddress, tx);
@@ -154,12 +139,8 @@ public class DhcpSubnetListener extends AsyncClusteredDataTreeChangeListenerBase
     }
 
     private void installDirectPortEntries(List<Uuid> directPortList) {
-        if (LOG.isTraceEnabled()) {
-            LOG.trace("DhcpSubnetListener installDirectPortEntries : directPortList: " + directPortList);
-        }
-        Uuid portIntf;
-        for (Iterator<Uuid> directPortIter = directPortList.iterator(); directPortIter.hasNext(); ) {
-            portIntf = directPortIter.next();
+        LOG.trace("DhcpSubnetListener installDirectPortEntries : directPortList: {}", directPortList);
+        for (Uuid portIntf : directPortList) {
             Port port = dhcpManager.getNeutronPort(portIntf.getValue());
             String vmMacAddress = port.getMacAddress().getValue();
             Uuid networkId = port.getNetworkId();
@@ -172,11 +153,10 @@ public class DhcpSubnetListener extends AsyncClusteredDataTreeChangeListenerBase
             }
             BigInteger designatedDpnId = dhcpExternalTunnelManager.readDesignatedSwitchesForExternalTunnel
                     (tunnelIp, networkId.getValue());
-            if (LOG.isTraceEnabled()) {
-                LOG.trace("CR-DHCP DhcpSubnetListener update Install DIRECT vmMacAddress:" + vmMacAddress + "  " +
-                        " tunnelIp: " + tunnelIp + " designatedDpnId :" + designatedDpnId + " ListOf Dpn:" +
-                        listOfDpns.toString());
-            }
+            LOG.trace(
+                    "CR-DHCP DhcpSubnetListener update Install DIRECT vmMacAddress: {} tunnelIp: {} designatedDpnId :" +
+                            " {} ListOf Dpn:",
+                    vmMacAddress, tunnelIp, designatedDpnId, listOfDpns);
             dhcpExternalTunnelManager.installDhcpFlowsForVms(tunnelIp, networkId.getValue(), listOfDpns,
                     designatedDpnId, vmMacAddress);
 
@@ -184,29 +164,21 @@ public class DhcpSubnetListener extends AsyncClusteredDataTreeChangeListenerBase
     }
 
     private void uninstallDirectPortEntries(List<Uuid> directPortList) {
-        if (LOG.isTraceEnabled()) {
-            LOG.trace("DhcpSubnetListener uninstallDirectPortEntries : directPortList: " + directPortList);
-        }
-        Uuid portIntf;
-        for (Iterator<Uuid> directPortIter = directPortList.iterator(); directPortIter.hasNext(); ) {
-            portIntf = directPortIter.next();
+        LOG.trace("DhcpSubnetListener uninstallDirectPortEntries : directPortList: {}", directPortList);
+        for (Uuid portIntf : directPortList) {
             Port port = dhcpManager.getNeutronPort(portIntf.getValue());
             String vmMacAddress = port.getMacAddress().getValue();
             Uuid networkId = port.getNetworkId();
             List<BigInteger> listOfDpns = DhcpServiceUtils.getListOfDpns(dataBroker);
-            if (LOG.isTraceEnabled()) {
-                LOG.trace("DhcpSubnetListener uninstallDirectPortEntries  vmMacAddress:" + vmMacAddress + "  " +
-                        "networkId: " + networkId + " ListOf Dpn:" + listOfDpns.toString());
-            }
+            LOG.trace("DhcpSubnetListener uninstallDirectPortEntries  vmMacAddress: {} networkId: {} ListOf Dpn: {}",
+                    vmMacAddress, networkId, listOfDpns);
             dhcpExternalTunnelManager.unInstallDhcpFlowsForVms(networkId.getValue(), listOfDpns, vmMacAddress);
         }
     }
 
 
     private NodeConnectorId getNodeConnectorIdForPortIntf(Uuid interfaceName) {
-        if (LOG.isTraceEnabled()) {
-            LOG.trace("DhcpSubnetListener getNodeConnectorIdForPortIntf  interfaceName: " + interfaceName);
-        }
+        LOG.trace("DhcpSubnetListener getNodeConnectorIdForPortIntf  interfaceName: {}", interfaceName);
         NodeConnectorId nodeConnectorId = null;
         InstanceIdentifier.InstanceIdentifierBuilder<Interface> idBuilder =
                 InstanceIdentifier.builder(InterfacesState.class)
@@ -224,11 +196,9 @@ public class DhcpSubnetListener extends AsyncClusteredDataTreeChangeListenerBase
         if (interfaceState != null) {
             List<String> ofportIds = interfaceState.getLowerLayerIf();
             nodeConnectorId = new NodeConnectorId(ofportIds.get(0));
-        }
-        if (LOG.isTraceEnabled()) {
-            LOG.trace("DhcpSubnetListener getNodeConnectorIdForPortIntf returned nodeConnectorId :" + nodeConnectorId
-                    .getValue() +
-                    "for the interface :" + interfaceName);
+            LOG.trace(
+                    "DhcpSubnetListener getNodeConnectorIdForPortIntf returned nodeConnectorId {} for the interface {}",
+                    nodeConnectorId.getValue(), interfaceName);
         }
         return nodeConnectorId;
     }

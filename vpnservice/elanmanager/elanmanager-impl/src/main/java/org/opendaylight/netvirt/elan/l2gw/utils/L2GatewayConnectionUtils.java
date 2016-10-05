@@ -200,10 +200,8 @@ public class L2GatewayConnectionUtils {
         Uuid l2GwConnId = input.getKey().getUuid();
         List<Devices> l2Devices = l2Gateway.getDevices();
 
-        if (LOG.isTraceEnabled()) {
-            LOG.trace("Associating ELAN {} with L2Gw Conn Id {} having below L2Gw devices {}", elanName, l2GwConnId,
-                    l2Devices);
-        }
+        LOG.trace("Associating ELAN {} with L2Gw Conn Id {} having below L2Gw devices {}", elanName, l2GwConnId,
+                l2Devices);
 
         for (Devices l2Device : l2Devices) {
             String l2DeviceName = l2Device.getDeviceName();
@@ -268,9 +266,7 @@ public class L2GatewayConnectionUtils {
         }
         elanL2GwDevice.addL2GatewayId(l2GwConnId);
 
-        if (LOG.isTraceEnabled()) {
-            LOG.trace("Elan L2GwConn cache updated with below details: {}", elanL2GwDevice);
-        }
+        LOG.trace("Elan L2GwConn cache updated with below details: {}", elanL2GwDevice);
         return elanL2GwDevice;
     }
 

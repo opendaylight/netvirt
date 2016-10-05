@@ -116,16 +116,12 @@ public class NeutronQosPolicyChangeListener implements ClusteredDataTreeChangeLi
     }
 
     private void add(InstanceIdentifier<QosPolicy> identifier, QosPolicy input) {
-        if (LOG.isTraceEnabled()) {
-            LOG.trace("Adding  QosPolicy : key: " + identifier + ", value=" + input);
-        }
+        LOG.trace("Adding  QosPolicy : key: {}, value={}", identifier, input);
         NeutronvpnUtils.addToQosPolicyCache(input);
     }
 
     private void add(InstanceIdentifier<BandwidthLimitRules> identifier, BandwidthLimitRules input) {
-        if (LOG.isTraceEnabled()) {
-            LOG.trace("Adding BandwidthlimitRules : key: " + identifier + ", value=" + input);
-        }
+        LOG.trace("Adding BandwidthlimitRules : key: {}, value={}", identifier, input);
 
         Uuid qosUuid = identifier.firstKeyOf(QosPolicy.class).getUuid();
         if (NeutronvpnUtils.qosNetworksMap.get(qosUuid) != null
@@ -144,16 +140,12 @@ public class NeutronQosPolicyChangeListener implements ClusteredDataTreeChangeLi
     }
 
     private void remove(InstanceIdentifier<QosPolicy> identifier, QosPolicy input) {
-        if (LOG.isTraceEnabled()) {
-            LOG.trace("Removing QosPolicy : key: " + identifier + ", value=" + input);
-        }
+        LOG.trace("Removing QosPolicy : key: {}, value={}", identifier, input);
         NeutronvpnUtils.removeFromQosPolicyCache(input);
     }
 
     private void remove(InstanceIdentifier<BandwidthLimitRules> identifier, BandwidthLimitRules input) {
-        if (LOG.isTraceEnabled()) {
-            LOG.trace("Removing BandwidthLimitRules : key: " + identifier + ", value=" + input);
-        }
+        LOG.trace("Removing BandwidthLimitRules : key: {}, value={}", identifier, input);
 
         Uuid qosUuid = identifier.firstKeyOf(QosPolicy.class).getUuid();
         BandwidthLimitRulesBuilder bwLimitBuilder = new BandwidthLimitRulesBuilder();
@@ -176,19 +168,14 @@ public class NeutronQosPolicyChangeListener implements ClusteredDataTreeChangeLi
     }
 
     private void update(InstanceIdentifier<QosPolicy> identifier, QosPolicy original, QosPolicy update) {
-        if (LOG.isTraceEnabled()) {
-            LOG.trace("Updating QosPolicy : key: " + identifier + ", original value=" + original + ", update value="
-                    + update);
-        }
+        LOG.trace("Updating QosPolicy : key: {}, original value={}, update value={}", identifier, original, update);
         NeutronvpnUtils.addToQosPolicyCache(update);
     }
 
     private void update(InstanceIdentifier<BandwidthLimitRules> identifier, BandwidthLimitRules original,
             BandwidthLimitRules update) {
-        if (LOG.isTraceEnabled()) {
-            LOG.trace("Updating BandwidthLimitRules : key: " + identifier + ", original value=" + original
-                    + ", update value=" + update);
-        }
+        LOG.trace("Updating BandwidthLimitRules : key: {}, original value={}, update value={}", identifier, original,
+                update);
         Uuid qosUuid = identifier.firstKeyOf(QosPolicy.class).getUuid();
         if (NeutronvpnUtils.qosNetworksMap.get(qosUuid) != null
                 && !NeutronvpnUtils.qosNetworksMap.get(qosUuid).isEmpty()) {

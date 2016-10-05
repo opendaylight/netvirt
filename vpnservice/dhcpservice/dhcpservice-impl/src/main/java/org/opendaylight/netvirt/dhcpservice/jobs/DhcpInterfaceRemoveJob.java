@@ -101,15 +101,11 @@ public class DhcpInterfaceRemoveJob implements Callable<List<ListenableFuture<Vo
         Optional<InterfaceNameMacAddress> existingEntry = MDSALUtil.read(dataBroker, LogicalDatastoreType.OPERATIONAL, instanceIdentifier);
         if (existingEntry.isPresent()) {
             String vmMacAddress = existingEntry.get().getMacAddress();
-            if (LOG.isTraceEnabled()) {
-                LOG.trace("Entry for interface found in InterfaceNameVmMacAddress map {}, {}", interfaceName, vmMacAddress);
-            }
+            LOG.trace("Entry for interface found in InterfaceNameVmMacAddress map {}, {}", interfaceName, vmMacAddress);
             MDSALDataStoreUtils.asyncRemove(dataBroker, LogicalDatastoreType.OPERATIONAL, instanceIdentifier, DEFAULT_CALLBACK);
             return vmMacAddress;
         }
-        if (LOG.isTraceEnabled()) {
-            LOG.trace("Entry for interface {} missing in InterfaceNameVmMacAddress map", interfaceName);
-        }
+        LOG.trace("Entry for interface {} missing in InterfaceNameVmMacAddress map", interfaceName);
         return null;
     }
 }

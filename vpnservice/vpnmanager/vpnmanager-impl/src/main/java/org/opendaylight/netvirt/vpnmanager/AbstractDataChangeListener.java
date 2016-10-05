@@ -61,9 +61,7 @@ public abstract class AbstractDataChangeListener<T extends DataObject> implement
         this.removeData(removeData, originalData);
         
         } catch (Throwable e) {
-            if (LOG.isTraceEnabled()) {
-                LOG.trace("failed to handle dcn ", e);
-            }
+            LOG.error("failed to handle dcn ", e);
         }
     }
 

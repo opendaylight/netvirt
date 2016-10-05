@@ -37,9 +37,7 @@ public class BgpAlarms extends TimerTask {
     public void run () {
         List<Neighbors> nbrList = null;
         try {
-            if (logger.isDebugEnabled()) {
-                logger.debug("Fetching neighbor status' from BGP at " + new Date());
-            }
+            logger.debug("Fetching neighbor status' from BGP");
             resetFile("cmd_ip_bgp_vpnv4_all_summary.txt");
             neighborStatusMap.clear();
 
@@ -54,9 +52,7 @@ public class BgpAlarms extends TimerTask {
                 processNeighborStatusMap(neighborStatusMap, nbrList, neighborsRaisedAlarmStatusMap);
             }
 
-            if (logger.isDebugEnabled()) {
-                logger.debug("Finished getting the status of BGP neighbors at " + new Date());
-            }
+            logger.debug("Finished getting the status of BGP neighbors");
         } catch (Exception e) {
             logger.error("Failed to publish bgp counters ", e);
         }
@@ -70,7 +66,7 @@ public class BgpAlarms extends TimerTask {
             List<Neighbors> nbrs = bgpMgr.getConfig().getNeighbors();
             if (nbrs != null) {
                 for (Neighbors nbr: nbrs) {
-                    logger.trace(   "Clearing Neighbor DOWN alarm at the startup for Neighbor {}",
+                    logger.trace("Clearing Neighbor DOWN alarm at the startup for Neighbor {}",
                             nbr.getAddress().getValue());
                     clearBgpNbrDownAlarm(nbr.getAddress().getValue());
                     neighborsRaisedAlarmStatusMap.put(  nbr.getAddress().getValue(),

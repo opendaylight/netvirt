@@ -56,9 +56,7 @@ public class NeutronSubnetChangeListener extends AsyncDataTreeChangeListenerBase
 
     @Override
     protected void add(InstanceIdentifier<Subnet> identifier, Subnet input) {
-        if (LOG.isTraceEnabled()) {
-            LOG.trace("Adding Subnet : key: " + identifier + ", value=" + input);
-        }
+        LOG.trace("Adding Subnet : key: {}, value={}", identifier, input);
         Uuid networkId = input.getNetworkId();
         Network network = NeutronvpnUtils.getNeutronNetwork(dataBroker, networkId);
         if (network == null || !NeutronvpnUtils.isNetworkTypeSupported(network)) {
@@ -74,9 +72,7 @@ public class NeutronSubnetChangeListener extends AsyncDataTreeChangeListenerBase
 
     @Override
     protected void remove(InstanceIdentifier<Subnet> identifier, Subnet input) {
-        if (LOG.isTraceEnabled()) {
-            LOG.trace("Removing subnet : key: " + identifier + ", value=" + input);
-        }
+        LOG.trace("Removing subnet : key: {}, value={}", identifier, input);
         Uuid networkId = input.getNetworkId();
         Network network = NeutronvpnUtils.getNeutronNetwork(dataBroker, networkId);
         if (network == null || !NeutronvpnUtils.isNetworkTypeSupported(network)) {
@@ -91,10 +87,7 @@ public class NeutronSubnetChangeListener extends AsyncDataTreeChangeListenerBase
 
     @Override
     protected void update(InstanceIdentifier<Subnet> identifier, Subnet original, Subnet update) {
-        if (LOG.isTraceEnabled()) {
-            LOG.trace("Updating Subnet : key: " + identifier + ", original value=" + original + ", update value=" +
-                    update);
-        }
+        LOG.trace("Updating Subnet : key: {}, original value={}, update value={}", identifier, original, update);
         Uuid networkId = update.getNetworkId();
         Network network = NeutronvpnUtils.getNeutronNetwork(dataBroker, networkId);
         if (network == null || !NeutronvpnUtils.isNetworkTypeSupported(network)) {

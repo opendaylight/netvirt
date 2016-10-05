@@ -129,10 +129,8 @@ public class HwvtepPhysicalSwitchListener
     protected void update(InstanceIdentifier<PhysicalSwitchAugmentation> identifier,
             PhysicalSwitchAugmentation phySwitchBefore, PhysicalSwitchAugmentation phySwitchAfter) {
         NodeId nodeId = getNodeId(identifier);
-        if (LOG.isTraceEnabled()) {
-            LOG.trace("Received PhysicalSwitch Update Event for node {}: PhysicalSwitch Before: {}, "
-                    + "PhysicalSwitch After: {}", nodeId.getValue(), phySwitchBefore, phySwitchAfter);
-        }
+        LOG.trace("Received PhysicalSwitch Update Event for node {}: PhysicalSwitch Before: {}, "
+                + "PhysicalSwitch After: {}", nodeId.getValue(), phySwitchBefore, phySwitchAfter);
         String psName = phySwitchBefore.getHwvtepNodeName().getValue();
         LOG.info("Received physical switch {} update event for node {}", psName, nodeId.getValue());
 
@@ -179,10 +177,8 @@ public class HwvtepPhysicalSwitchListener
         if (tunnelIps != null) {
             for (IpAddress tunnelIpAddr : tunnelIps) {
                 if (L2GatewayConnectionUtils.isGatewayAssociatedToL2Device(l2GwDevice)) {
-                    if (LOG.isDebugEnabled()) {
-                        LOG.debug("L2Gateway {} associated for {} physical switch; creating ITM tunnels for {}",
-                                l2GwDevice.getL2GatewayIds(), psName, tunnelIpAddr);
-                    }
+                    LOG.debug("L2Gateway {} associated for {} physical switch; creating ITM tunnels for {}",
+                            l2GwDevice.getL2GatewayIds(), psName, tunnelIpAddr);
 
                     // It's a pre-provision scenario
                     // Initiate ITM tunnel creation
@@ -240,9 +236,7 @@ public class HwvtepPhysicalSwitchListener
                 l2GwDevice.addTunnelIp(tunnelIpAddr);
             }
         }
-        if (LOG.isTraceEnabled()) {
-            LOG.trace("L2Gateway cache updated with below details: {}", l2GwDevice);
-        }
+        LOG.trace("L2Gateway cache updated with below details: {}", l2GwDevice);
         return l2GwDevice;
     }
 

@@ -59,6 +59,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.rev150712.Neutron;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import sun.util.logging.resources.logging;
 
 public class NeutronPortChangeListener extends AsyncDataTreeChangeListenerBase<Port, NeutronPortChangeListener>
         implements AutoCloseable {
@@ -107,9 +108,7 @@ public class NeutronPortChangeListener extends AsyncDataTreeChangeListenerBase<P
     @Override
     protected void add(InstanceIdentifier<Port> identifier, Port input) {
         String portName = input.getUuid().getValue();
-        if (LOG.isTraceEnabled()) {
-            LOG.trace("Adding Port : key: " + identifier + ", value=" + input);
-        }
+        LOG.trace("Adding Port : key: {}, value={}", identifier, input);
         Network network = NeutronvpnUtils.getNeutronNetwork(dataBroker, input.getNetworkId());
         if (network == null || !NeutronvpnUtils.isNetworkTypeSupported(network)) {
             //FIXME: This should be removed when support for VLAN and GRE network types is added
@@ -140,9 +139,7 @@ public class NeutronPortChangeListener extends AsyncDataTreeChangeListenerBase<P
 
     @Override
     protected void remove(InstanceIdentifier<Port> identifier, Port input) {
-        if (LOG.isTraceEnabled()) {
-            LOG.trace("Removing Port : key: " + identifier + ", value=" + input);
-        }
+        LOG.trace("Removing Port : key: {}, value={}", identifier, input);
         Network network = NeutronvpnUtils.getNeutronNetwork(dataBroker, input.getNetworkId());
         if (network == null || !NeutronvpnUtils.isNetworkTypeSupported(network)) {
             //FIXME: This should be removed when support for VLAN and GRE network types is added
@@ -171,10 +168,7 @@ public class NeutronPortChangeListener extends AsyncDataTreeChangeListenerBase<P
     @Override
     protected void update(InstanceIdentifier<Port> identifier, Port original, Port update) {
         final String portName = update.getUuid().getValue();
-        if (LOG.isTraceEnabled()) {
-            LOG.trace("Updating Port : key: " + identifier + ", original value=" + original + ", update value=" +
-                    update);
-        }
+        LOG.trace("Updating Port : key: {}, original value={}, update value={}", identifier, original, update);
         Network network = NeutronvpnUtils.getNeutronNetwork(dataBroker, update.getNetworkId());
         if (network == null || !NeutronvpnUtils.isNetworkTypeSupported(network)) {
             LOG.error("neutron vpn doesn't support vlan/gre network provider type for the port {} which is part of " +
