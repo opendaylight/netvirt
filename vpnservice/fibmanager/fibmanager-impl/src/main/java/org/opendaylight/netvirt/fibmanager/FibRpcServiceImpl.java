@@ -51,6 +51,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.vpn.instance.op.data.entry.vpn.to.dpn.list.IpAddressesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.vpn.instance.op.data.entry.vpn.to.dpn.list.IpAddressesKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.vpn.instance.op.data.entry.vpn.to.dpn.list.VpnInterfaces;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.to.vpn.id.VpnInstance;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.to.vpn.id.VpnInstanceKey;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.common.RpcResult;
@@ -355,24 +357,14 @@ public class FibRpcServiceImpl implements FibRpcService {
 
     //TODO: Below Util methods to be removed once VpnUtil methods are exposed in api bundle
     public static String getVpnRd(DataBroker broker, String vpnName) {
-
-        InstanceIdentifier<org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.to.vpn.id.VpnInstance> id
-                = getVpnInstanceToVpnIdIdentifier(vpnName);
-        Optional<org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.to.vpn.id.VpnInstance> vpnInstance
-                = MDSALUtil.read(broker, LogicalDatastoreType.CONFIGURATION, id);
-
-        String rd = null;
-        if(vpnInstance.isPresent()) {
-            rd = vpnInstance.get().getVrfId();
-        }
-        return rd;
+        InstanceIdentifier<VpnInstance> id = getVpnInstanceToVpnIdIdentifier(vpnName);
+        return MDSALUtil.read(broker, LogicalDatastoreType.CONFIGURATION, id).transform(VpnInstance::getVrfId).orNull();
     }
 
-    static InstanceIdentifier<org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.to.vpn.id.VpnInstance>
+    static InstanceIdentifier<VpnInstance>
     getVpnInstanceToVpnIdIdentifier(String vpnName) {
         return InstanceIdentifier.builder(VpnInstanceToVpnId.class)
-                .child(org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.to.vpn.id.VpnInstance.class,
-                        new org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.to.vpn.id.VpnInstanceKey(vpnName)).build();
+                .child(VpnInstance.class, new VpnInstanceKey(vpnName)).build();
     }
 
 
@@ -399,17 +391,8 @@ public class FibRpcServiceImpl implements FibRpcService {
     }
 
     static long getVpnId(DataBroker broker, String vpnName) {
-
-        InstanceIdentifier<org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.to.vpn.id.VpnInstance> id
-                = getVpnInstanceToVpnIdIdentifier(vpnName);
-        Optional<org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.to.vpn.id.VpnInstance> vpnInstance
-                = MDSALUtil.read(broker, LogicalDatastoreType.CONFIGURATION, id);
-
-        long vpnId = -1;
-        if(vpnInstance.isPresent()) {
-            vpnId = vpnInstance.get().getVpnId();
-        }
-        return vpnId;
+        InstanceIdentifier<VpnInstance> id = getVpnInstanceToVpnIdIdentifier(vpnName);
+        return MDSALUtil.read(broker, LogicalDatastoreType.CONFIGURATION, id).transform(VpnInstance::getVpnId).or(-1L);
     }
 
 
