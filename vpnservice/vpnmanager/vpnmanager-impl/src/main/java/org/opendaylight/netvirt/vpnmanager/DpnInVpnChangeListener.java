@@ -7,11 +7,12 @@
  */
 package org.opendaylight.netvirt.vpnmanager;
 
+import com.google.common.base.Optional;
+import com.google.common.util.concurrent.CheckedFuture;
 import java.math.BigInteger;
 import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
-
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
@@ -28,9 +29,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.google.common.base.Optional;
-import com.google.common.util.concurrent.CheckedFuture;
 
 public class DpnInVpnChangeListener implements OdlL3vpnListener {
     private static final Logger LOG = LoggerFactory.getLogger(DpnInVpnChangeListener.class);
@@ -50,13 +48,13 @@ public class DpnInVpnChangeListener implements OdlL3vpnListener {
     }
 
     private void setupSubnetGwMacEntriesOnDpn(String vpnName, BigInteger dpId, int addOrRemove) {
-        Optional<List<String>> macAddressesOptional = VpnUtil.getAllSubnetGatewayMacAddressesforVpn(dataBroker, vpnName);
-        if (!macAddressesOptional.isPresent()) {
+        List<String> macAddresses = VpnUtil.getAllSubnetGatewayMacAddressesforVpn(dataBroker, vpnName);
+        if (macAddresses.isEmpty()) {
             return;
         }
         long vpnId = VpnUtil.getVpnId(dataBroker, vpnName);
         WriteTransaction writeTx = dataBroker.newWriteOnlyTransaction();
-        for (String gwMacAddress: macAddressesOptional.get()) {
+        for (String gwMacAddress: macAddresses) {
             VpnUtil.addGwMacIntoTx(mdsalManager, gwMacAddress, writeTx, addOrRemove, vpnId, dpId);
         }
         writeTx.submit();
