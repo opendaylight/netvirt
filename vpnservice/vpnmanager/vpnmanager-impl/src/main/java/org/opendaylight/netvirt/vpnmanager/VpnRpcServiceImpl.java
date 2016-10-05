@@ -9,6 +9,12 @@ package org.opendaylight.netvirt.vpnmanager;
 
 import com.google.common.base.Optional;
 import com.google.common.util.concurrent.SettableFuture;
+import java.math.BigInteger;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
+import java.util.concurrent.Future;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.netvirt.bgpmanager.api.IBgpManager;
 import org.opendaylight.netvirt.fibmanager.api.IFibManager;
@@ -17,8 +23,8 @@ import org.opendaylight.netvirt.vpnmanager.intervpnlink.InterVpnLinkUtil;
 import org.opendaylight.netvirt.vpnmanager.utilities.InterfaceUtils;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.IdManagerService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.vpn.rpc.rev160201.AddStaticRouteInput;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.vpn.rpc.rev160201.AddStaticRouteOutputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.vpn.rpc.rev160201.AddStaticRouteOutput;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.vpn.rpc.rev160201.AddStaticRouteOutputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.vpn.rpc.rev160201.GenerateVpnLabelInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.vpn.rpc.rev160201.GenerateVpnLabelOutput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.vpn.rpc.rev160201.GenerateVpnLabelOutputBuilder;
@@ -32,13 +38,6 @@ import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.opendaylight.yangtools.yang.common.RpcResultBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.math.BigInteger;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
-import java.util.concurrent.Future;
 
 public class VpnRpcServiceImpl implements VpnRpcService {
     private static final Logger LOG = LoggerFactory.getLogger(VpnRpcServiceImpl.class);
@@ -109,15 +108,15 @@ public class VpnRpcServiceImpl implements VpnRpcService {
         String nexthop = input.getNexthop();
         if ( destination == null || destination.isEmpty() ) {
             String message = "destination parameter is mandatory";
-            rpcErrors.add(RpcResultBuilder.newError(RpcError.ErrorType.PROTOCOL, "addStaticRoute", message));
+            rpcErrors.add(RpcResultBuilder.newError(ErrorType.PROTOCOL, "addStaticRoute", message));
         }
         if ( vpnInstanceName == null || vpnInstanceName.isEmpty() ) {
             String message = "vpnInstanceName parameter is mandatory";
-            rpcErrors.add(RpcResultBuilder.newError(RpcError.ErrorType.PROTOCOL, "addStaticRoute", message));
+            rpcErrors.add(RpcResultBuilder.newError(ErrorType.PROTOCOL, "addStaticRoute", message));
         }
         if ( nexthop == null || nexthop.isEmpty() ) {
             String message = "nexthop parameter is mandatory";
-            rpcErrors.add(RpcResultBuilder.newError(RpcError.ErrorType.PROTOCOL, "addStaticRoute", message));
+            rpcErrors.add(RpcResultBuilder.newError(ErrorType.PROTOCOL, "addStaticRoute", message));
         }
         return rpcErrors;
     }
@@ -144,7 +143,7 @@ public class VpnRpcServiceImpl implements VpnRpcService {
                                                VpnUtil.getNextHopLabelKey(vpnInstanceName, destination));
             if ( label == 0 ) {
                 String message = "Unable to retrieve a new Label for the new Route";
-                result.set(RpcResultBuilder.<AddStaticRouteOutput>failed().withError(RpcError.ErrorType.APPLICATION,
+                result.set(RpcResultBuilder.<AddStaticRouteOutput>failed().withError(ErrorType.APPLICATION,
                                                                                      message).build());
                 return result;
             }
@@ -153,7 +152,7 @@ public class VpnRpcServiceImpl implements VpnRpcService {
         String vpnRd = VpnUtil.getVpnRd(dataBroker, input.getVpnInstanceName());
         if ( vpnRd == null ) {
             String message = "Could not find Route-Distinguisher for VpnName " + vpnInstanceName;
-            result.set(RpcResultBuilder.<AddStaticRouteOutput>failed().withError(RpcError.ErrorType.APPLICATION,
+            result.set(RpcResultBuilder.<AddStaticRouteOutput>failed().withError(ErrorType.APPLICATION,
                                                                                  message).build());
             return result;
         }
@@ -202,15 +201,15 @@ public class VpnRpcServiceImpl implements VpnRpcService {
         String nexthop = input.getNexthop();
         if ( destination == null || destination.isEmpty() ) {
             String message = "destination parameter is mandatory";
-            rpcErrors.add(RpcResultBuilder.newError(RpcError.ErrorType.PROTOCOL, "removeStaticRoute", message));
+            rpcErrors.add(RpcResultBuilder.newError(ErrorType.PROTOCOL, "removeStaticRoute", message));
         }
         if ( vpnInstanceName == null || vpnInstanceName.isEmpty() ) {
             String message = "vpnInstanceName parameter is mandatory";
-            rpcErrors.add(RpcResultBuilder.newError(RpcError.ErrorType.PROTOCOL, "removeStaticRoute", message));
+            rpcErrors.add(RpcResultBuilder.newError(ErrorType.PROTOCOL, "removeStaticRoute", message));
         }
         if ( nexthop == null || nexthop.isEmpty() ) {
             String message = "nexthop parameter is mandatory";
-            rpcErrors.add(RpcResultBuilder.newError(RpcError.ErrorType.PROTOCOL, "removeStaticRoute", message));
+            rpcErrors.add(RpcResultBuilder.newError(ErrorType.PROTOCOL, "removeStaticRoute", message));
         }
         return rpcErrors;
     }
@@ -234,7 +233,7 @@ public class VpnRpcServiceImpl implements VpnRpcService {
         String vpnRd = VpnUtil.getVpnRd(dataBroker, input.getVpnInstanceName());
         if ( vpnRd == null ) {
             String message = "Could not find Route-Distinguisher for VpnName " + vpnInstanceName;
-            result.set(RpcResultBuilder.<Void>failed().withError(RpcError.ErrorType.APPLICATION, message).build());
+            result.set(RpcResultBuilder.<Void>failed().withError(ErrorType.APPLICATION, message).build());
             return result;
         }
 
