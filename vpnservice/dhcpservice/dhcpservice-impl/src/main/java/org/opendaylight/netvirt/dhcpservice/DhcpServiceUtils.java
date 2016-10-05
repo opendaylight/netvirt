@@ -201,13 +201,7 @@ public class DhcpServiceUtils {
                 .interfaces.state.Interface> interfaceId = InstanceIdentifier.builder(InterfacesState.class)
                 .child(org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508
                         .interfaces.state.Interface.class, interfaceKey).build();
-        Optional<org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces
-                .state.Interface> interfaceOptional =
-                MDSALUtil.read(LogicalDatastoreType.OPERATIONAL, interfaceId, dataBroker);
-        if (!interfaceOptional.isPresent()) {
-            return null;
-        }
-        return interfaceOptional.get();
+        return MDSALUtil.read(LogicalDatastoreType.OPERATIONAL, interfaceId, dataBroker).orNull();
     }
 
 
