@@ -12,7 +12,7 @@ public class ElanItmEventListener{
 }
 //public class ElanItmEventListener extends AbstractDataChangeListener<DataObject> implements AutoCloseable {
 //FIXME: This class is to be made functional once ITM is added
-//    private static final Logger logger = LoggerFactory.getLogger(ElanItmEventListener.class);
+//    private static final Logger LOG = LoggerFactory.getLogger(ElanItmEventListener.class);
 //    private final DataBroker broker;
 //    private ListenerRegistration<DataChangeListener> listenerRegistration;
 //    private ElanInterfaceManager elanInterfaceManager;
@@ -29,7 +29,7 @@ public class ElanItmEventListener{
 //            listenerRegistration = broker.registerDataChangeListener(LogicalDatastoreType.OPERATIONAL,
 //                    getWildCardPath(), ElanItmEventListener.this, AsyncDataBroker.DataChangeScope.SUBTREE);
 //        } catch (final Exception e) {
-//            logger.error("ITM Monitor Interfaces DataChange listener registration fail!", e);
+//            LOG.error("ITM Monitor Interfaces DataChange listener registration fail!", e);
 //            throw new IllegalStateException("ITM Monitor registration Listener failed.", e);
 //        }
 //    }
@@ -44,7 +44,7 @@ public class ElanItmEventListener{
 //            try {
 //                listenerRegistration.close();
 //            } catch (final Exception e) {
-//                logger.error("Error when cleaning up DataChangeListener.", e);
+//                LOG.error("Error when cleaning up DataChangeListener.", e);
 //            }
 //            listenerRegistration = null;
 //        }
@@ -61,11 +61,11 @@ public class ElanItmEventListener{
 //
 //        BigInteger srcDpId = update.getSourceDPN();
 //        BigInteger dstDpId = update.getDestinationDPN();
-//        logger.trace("ITM Tunnel state event changed from :{} to :{} for transportZone:{}",
+//        LOG.trace("ITM Tunnel state event changed from :{} to :{} for transportZone:{}",
 //            original.isLogicalTunnelState(), update.isLogicalTunnelState(), update.getLogicalTunnelGroupName());
 //
 //        if(update.isLogicalTunnelState()) {
-//            logger.trace("ITM Tunnel State is Up b/w srcDpn: {} and dstDpn: {}", srcDpId, dstDpId);
+//            LOG.trace("ITM Tunnel State is Up b/w srcDpn: {} and dstDpn: {}", srcDpId, dstDpId);
 //            elanInterfaceManager.handleTunnelStateEvent(srcDpId, dstDpId);
 //        }
 //    }
@@ -74,11 +74,11 @@ public class ElanItmEventListener{
 //    protected void add(InstanceIdentifier<StateTunnelList> identifier, StateTunnelList add) {
 //        BigInteger srcDpId =  add.getSourceDPN();
 //        BigInteger dstDpId = add.getDestinationDPN();
-//        logger.trace("ITM Tunnel state event:{} for transportZone:{} of {}", add.isLogicalTunnelState(),
+//        LOG.trace("ITM Tunnel state event:{} for transportZone:{} of {}", add.isLogicalTunnelState(),
 //            add.getLogicalTunnelGroupName());
 //
 //        if(add.isLogicalTunnelState()) {
-//            logger.trace("ITM Tunnel State is Up b/w srcDpn: {} and dstDpn: {}", srcDpId, dstDpId);
+//            LOG.trace("ITM Tunnel State is Up b/w srcDpn: {} and dstDpn: {}", srcDpId, dstDpId);
 //            elanInterfaceManager.handleTunnelStateEvent(srcDpId, dstDpId);
 //        }
 //    }

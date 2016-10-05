@@ -62,9 +62,7 @@ public class NeutronRouterChangeListener extends AsyncDataTreeChangeListenerBase
 
     @Override
     protected void add(InstanceIdentifier<Router> identifier, Router input) {
-        if (LOG.isTraceEnabled()) {
-            LOG.trace("Adding Router : key: " + identifier + ", value=" + input);
-        }
+        LOG.trace("Adding Router : key: {}, value={}", identifier, input);
         NeutronvpnUtils.addToRouterCache(input);
         // Create internal VPN
         nvpnManager.createL3InternalVpn(input.getUuid(), null, null, null, null, null, input.getUuid(), null);
@@ -74,9 +72,7 @@ public class NeutronRouterChangeListener extends AsyncDataTreeChangeListenerBase
 
     @Override
     protected void remove(InstanceIdentifier<Router> identifier, Router input) {
-        if (LOG.isTraceEnabled()) {
-            LOG.trace("Removing router : key: " + identifier + ", value=" + input);
-        }
+        LOG.trace("Removing router : key: {}, value={}", identifier, input);
         Uuid routerId = input.getUuid();
         //NOTE: Pass an empty routerSubnetIds list, as router interfaces
         //will be removed from VPN by invocations from NeutronPortChangeListener

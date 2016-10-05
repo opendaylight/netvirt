@@ -767,10 +767,8 @@ public class ElanUtils {
             String macAddress, IMdsalApiManager mdsalApiManager, WriteTransaction writeFlowGroupTx) {
         FlowEntity flowEntity = buildKnownSmacFlow(elanInfo, interfaceInfo, macTimeout, macAddress);
         mdsalApiManager.addFlowToTx(flowEntity, writeFlowGroupTx);
-        if (LOG.isDebugEnabled()) {
-            LOG.debug("Known Smac flow entry created for elan Name:{}, logical Interface port:{} and mac address:{}",
-                    elanInfo.getElanInstanceName(), elanInfo.getDescription(), macAddress);
-        }
+        LOG.debug("Known Smac flow entry created for elan Name:{}, logical Interface port:{} and mac address:{}",
+                elanInfo.getElanInstanceName(), elanInfo.getDescription(), macAddress);
     }
 
     public FlowEntity buildKnownSmacFlow(ElanInstance elanInfo, InterfaceInfo interfaceInfo, long macTimeout,
@@ -838,10 +836,8 @@ public class ElanUtils {
                 getTunnelIdMatchForFilterEqualsLPortTag(lportTag),
                 getInstructionsInPortForOutGroup(interfaceInfo.getInterfaceName()));
         mdsalApiManager.addFlowToTx(dpId, flow, writeFlowGroupTx);
-        if (LOG.isDebugEnabled()) {
-            LOG.debug("Terminating service table flow entry created on dpn:{} for logical Interface port:{}", dpId,
-                    interfaceInfo.getPortName());
-        }
+        LOG.debug("Terminating service table flow entry created on dpn:{} for logical Interface port:{}", dpId,
+                interfaceInfo.getPortName());
     }
 
     /**
@@ -990,10 +986,8 @@ public class ElanUtils {
                 // Check for the Remote DPN present in Inventory Manager
                 setupRemoteDmacFlow(dstDpId, dpId, interfaceInfo.getInterfaceTag(), elanTag, macAddress,
                         elanInstanceName, writeFlowTx, interfaceInfo.getInterfaceName(), elanInfo);
-                if (LOG.isDebugEnabled()) {
-                    LOG.debug("Dmac flow entry created for elan Name:{}, logical port Name:{} and mac address {} on"
-                            + " dpn:{}", elanInstanceName, interfaceInfo.getPortName(), macAddress, remoteFE.getDpId());
-                }
+                LOG.debug("Dmac flow entry created for elan Name:{}, logical port Name:{} and mac address {} on dpn:{}",
+                        elanInstanceName, interfaceInfo.getPortName(), macAddress, remoteFE.getDpId());
                 break;
             }
         }
@@ -1243,10 +1237,8 @@ public class ElanUtils {
                             MDSALUtil.buildFlow(NwConstants.ELAN_DMAC_TABLE, getKnownDynamicmacFlowRef(
                                     NwConstants.ELAN_DMAC_TABLE, dstDpId, srcdpId, macAddress, elanTag)),
                             deleteFlowGroupTx);
-            if (LOG.isDebugEnabled()) {
-                LOG.debug("Dmac flow entry deleted for elan:{}, logical interface port:{} and mac address:{} on dpn:{}",
-                        elanInstanceName, interfaceInfo.getPortName(), macAddress, dstDpId);
-            }
+            LOG.debug("Dmac flow entry deleted for elan:{}, logical interface port:{} and mac address:{} on dpn:{}",
+                    elanInstanceName, interfaceInfo.getPortName(), macAddress, dstDpId);
         }
         return isFlowsRemovedInSrcDpn;
     }
@@ -1268,10 +1260,8 @@ public class ElanUtils {
                 MDSALUtil.buildFlow(NwConstants.ELAN_DMAC_TABLE,
                         getKnownDynamicmacFlowRef(NwConstants.ELAN_DMAC_TABLE, srcdpId, ifTag, macAddress, elanTag)),
                 deleteFlowGroupTx);
-        if (LOG.isDebugEnabled()) {
-            LOG.debug("All the required flows deleted for elan:{}, logical Interface port:{} and MAC address:{} "
-                    + "on dpn:{}", elanInstanceName, interfaceInfo.getPortName(), macAddress, srcdpId);
-        }
+        LOG.debug("All the required flows deleted for elan:{}, logical Interface port:{} and MAC address:{} on dpn:{}",
+                elanInstanceName, interfaceInfo.getPortName(), macAddress, srcdpId);
     }
 
     /**
@@ -1486,9 +1476,7 @@ public class ElanUtils {
             if (output.get().isSuccessful()) {
                 GetExternalTunnelInterfaceNameOutput tunnelInterfaceNameOutput = output.get().getResult();
                 String tunnelIfaceName = tunnelInterfaceNameOutput.getInterfaceName();
-                if (LOG.isDebugEnabled()) {
-                    LOG.debug("Received tunnelInterfaceName from getTunnelInterfaceName RPC {}", tunnelIfaceName);
-                }
+                LOG.debug("Received tunnelInterfaceName from getTunnelInterfaceName RPC {}", tunnelIfaceName);
 
                 result = buildTunnelItmEgressActions(tunnelIfaceName, vni);
             }

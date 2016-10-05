@@ -72,9 +72,7 @@ public class L2GatewayListener extends AsyncClusteredDataChangeListenerBase<L2ga
 
         List<Devices> l2Devices = input.getDevices();
         for (Devices l2Device : l2Devices) {
-            if (LOG.isTraceEnabled()) {
-                LOG.trace("Adding L2gateway device: {}", l2Device);
-            }
+            LOG.trace("Adding L2gateway device: {}", l2Device);
             addL2Device(l2Device, input);
         }
     }
@@ -85,19 +83,14 @@ public class L2GatewayListener extends AsyncClusteredDataChangeListenerBase<L2ga
 
         List<Devices> l2Devices = input.getDevices();
         for (Devices l2Device : l2Devices) {
-            if (LOG.isTraceEnabled()) {
-                LOG.trace("Removing L2gateway device: {}", l2Device);
-            }
+            LOG.trace("Removing L2gateway device: {}", l2Device);
             removeL2Device(l2Device, input);
         }
     }
 
     @Override
     protected void update(InstanceIdentifier<L2gateway> identifier, L2gateway original, L2gateway update) {
-        if (LOG.isTraceEnabled()) {
-            LOG.trace("Updating L2gateway : key: " + identifier + ", original value=" + original + ", update value="
-                    + update);
-        }
+        LOG.trace("Updating L2gateway : key: {}, original value={}, update value={}", identifier, original, update);
     }
 
     private void addL2Device(Devices l2Device, L2gateway input) {

@@ -38,7 +38,7 @@ import static org.opendaylight.netvirt.dhcpservice.api.DHCPConstants.MAGIC_COOKI
 import static org.opendaylight.netvirt.dhcpservice.api.DHCPConstants.OPT_MESSAGE_TYPE;
 
 public class DHCP extends Packet {
-    protected static final Logger logger = LoggerFactory
+    protected static final Logger LOG = LoggerFactory
             .getLogger(DHCP.class);
     private static final String OP      = "Op";
     private static final String HTYPE   = "Htype";
@@ -404,11 +404,11 @@ public class DHCP extends Packet {
              */
             this.setHeaderField(hdrField, hdrFieldBytes);
 
-            if (logger.isTraceEnabled()) {
-                logger.trace("{}: {}: {} (offset {} bitsize {})",
-                        new Object[] { this.getClass().getSimpleName(), hdrField,
+            if (LOG.isTraceEnabled()) {
+                LOG.trace("{}: {}: {} (offset {} bitsize {})",
+                        this.getClass().getSimpleName(), hdrField,
                         HexEncode.bytesToHexString(hdrFieldBytes),
-                        startOffset, numBits });
+                        startOffset, numBits);
             }
         }
 
@@ -448,14 +448,14 @@ public class DHCP extends Packet {
         if (data.length > DHCP_MAX_SIZE) {
             // shouldn't have happened
             // Add exception?
-            logger.error("DHCP Packet too big");
+            LOG.error("DHCP Packet too big");
         } else if (data[data.length - 1] != (byte)255) {
             // DHCP Options not ended properly
             //throw new PacketException("Missing DHCP Option END");
-            logger.error("Missing DHCP Option END");
+            LOG.error("Missing DHCP Option END");
         }else if(data.length < DHCP_MIN_SIZE) {
             byte[] padding = new byte[DHCP_MIN_SIZE - data.length];
-            logger.debug("DHCP Pkt too small: {}, padding added {}",
+            LOG.debug("DHCP Pkt too small: {}, padding added {}",
                     data.length, padding.length);
             data = ArrayUtils.addAll(data, padding);
         }
@@ -491,7 +491,7 @@ public class DHCP extends Packet {
         // Check for MAGIC_COOKIE. This means we only support DHCP, not BOOTP
         int cookie = BitBufferHelper.getInt(fieldValues.get(MCOOKIE));
         if (cookie != MAGIC_COOKIE) {
-            logger.debug("Not DHCP packet");
+            LOG.debug("Not DHCP packet");
             // Throw exception?
         }
         // parse options into DHCPOptions

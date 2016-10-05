@@ -60,9 +60,7 @@ public class NeutronFloatingToFixedIpMappingChangeListener extends AsyncDataTree
 
     @Override
     protected void add(InstanceIdentifier<Floatingip> identifier, Floatingip input) {
-        if (LOG.isTraceEnabled()) {
-            LOG.trace("Neutron Floating IP created: key: " + identifier + ", value=" + input);
-        }
+        LOG.trace("Neutron Floating IP created: key: {}, value={}", identifier, input);
         IpAddress fixedIp = input.getFixedIpAddress();
         if (fixedIp != null) {
             addToFloatingIpInfo(input.getRouterId().getValue(), input.getFloatingNetworkId(), input.getPortId()
@@ -73,9 +71,7 @@ public class NeutronFloatingToFixedIpMappingChangeListener extends AsyncDataTree
 
     @Override
     protected void remove(InstanceIdentifier<Floatingip> identifier, Floatingip input) {
-        if (LOG.isTraceEnabled()) {
-            LOG.trace("Neutron Floating IP deleted : key: " + identifier + ", value=" + input);
-        }
+        LOG.trace("Neutron Floating IP deleted : key: {}, value={}", identifier, input);
         IpAddress fixedIp = input.getFixedIpAddress();
         if (fixedIp != null) {
             clearFromFloatingIpInfo(input.getRouterId().getValue(), input.getPortId().getValue(), fixedIp
@@ -86,10 +82,8 @@ public class NeutronFloatingToFixedIpMappingChangeListener extends AsyncDataTree
     // populate the floating to fixed ip map upon association/dissociation from fixed ip
     @Override
     protected void update(InstanceIdentifier<Floatingip> identifier, Floatingip original, Floatingip update) {
-        if (LOG.isTraceEnabled()) {
-            LOG.trace("Handling FloatingIptoFixedIp mapping : key: " + identifier + ", original value=" + original +
-                    ", update value=" + update);
-        }
+        LOG.trace("Handling FloatingIptoFixedIp mapping : key: {}, original value={}, update value={}", identifier,
+                original, update);
         IpAddress oldFixedIp = original.getFixedIpAddress();
         IpAddress newFixedIp = update.getFixedIpAddress();
 
