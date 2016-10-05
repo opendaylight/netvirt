@@ -57,10 +57,13 @@ import org.opendaylight.netvirt.bgpmanager.thrift.gen.Routes;
 import org.opendaylight.netvirt.bgpmanager.thrift.gen.Update;
 import org.opendaylight.netvirt.bgpmanager.thrift.gen.af_afi;
 import org.opendaylight.netvirt.bgpmanager.thrift.gen.af_safi;
+import org.opendaylight.netvirt.bgpmanager.thrift.gen.protocol_type;
 import org.opendaylight.netvirt.bgpmanager.thrift.gen.qbgpConstants;
 import org.opendaylight.netvirt.bgpmanager.thrift.server.BgpThriftService;
 import org.opendaylight.netvirt.fibmanager.api.RouteOrigin;
 import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.Bgp;
+import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.EncapType;
+import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.ProtocolType;
 import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.bgp.AsId;
 import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.bgp.AsIdBuilder;
 import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.bgp.ConfigServer;
@@ -1060,8 +1063,16 @@ public class BgpConfigurationManager {
                 Long label = val.getLabel();
                 int lbl = (label == null) ? qbgpConstants.LBL_NO_LABEL
                         : label.intValue();
+
+                ProtocolType protocolType = val.getProtocolType();
+                int ethernetTag = val.getEthtag().intValue();
+                String esi = val.getEsi();
+                String macaddress = val.getMacaddress();
+                EncapType encapType = val.getEncapType();
+                String routerMac = val.getRoutermac();
+
                 try {
-                    br.addPrefix(rd, pfxlen, nh, lbl);
+                    br.addPrefix(rd, pfxlen, nh, lbl, BgpUtil.convertToThriftProtocolType(protocolType), ethernetTag, esi, macaddress, BgpUtil.convertToThriftEncapType(encapType), routerMac);
                 } catch (Exception e) {
                     LOG.error(yangObj + "Add received exception: \"" + e + "\"; " + addWarn);
                 }
@@ -1156,7 +1167,7 @@ public class BgpConfigurationManager {
                     return;
                 }
                 try {
-                    br.addVrf(val.getRd(), val.getImportRts(),
+                    br.addVrf(val.getLayerType(), val.getRd(), val.getImportRts(),
                             val.getExportRts());
                 } catch (Exception e) {
                     LOG.error(yangObj + "Add received exception: \"" + e + "\"; "
@@ -1470,10 +1481,29 @@ public class BgpConfigurationManager {
                 Map<String, Map<String, String>> stale_fib_rd_map = BgpConfigurationManager.getStaledFibEntriesMap();
                 String rd = u.getRd();
                 String nexthop = u.getNexthop();
-                int label = u.getLabel();
+
+                // TODO: decide correct label here
+                int label = u.getL3label();
+
                 String prefix = u.getPrefix();
                 int plen = u.getPrefixlen();
-                onUpdatePushRoute(rd, prefix, plen, nexthop, label);
+
+
+                // TODO: protocol type will not be available in "update".
+                // use "rd" to query vrf table and obtain the protocol_type. Currently using PROTOCOL_EVPN as default
+                onUpdatePushRoute(
+                        protocol_type.PROTOCOL_EVPN,
+                        rd,
+                        prefix,
+                        plen,
+                        nexthop,
+                        u.getEthtag(),
+                        u.getEsi(),
+                        u.getMacaddress(),
+                        label,
+                        u.getRoutermac()
+                );
+
             }
         }
         try {
@@ -1492,7 +1522,18 @@ public class BgpConfigurationManager {
      *      - Update FIB Config DS with modified values.
      *      - delete from Stale Map.
      */
-    public static void onUpdatePushRoute(String rd, String prefix, int plen, String nextHop, int label) {
+
+    public static void onUpdatePushRoute(protocol_type protocolType,
+                                         String rd,
+                                         String prefix,
+                                         int plen,
+                                         String nextHop,
+                                         int ethtag,
+                                         String esi,
+                                         String macaddress,
+                                         int label,
+                                         String routermac)
+    {
         Map<String, Map<String, String>> stale_fib_rd_map = BgpConfigurationManager.getStaledFibEntriesMap();
         boolean addroute = false;
         if (!stale_fib_rd_map.isEmpty()) {
@@ -1518,6 +1559,7 @@ public class BgpConfigurationManager {
         }
         if (addroute) {
             LOG.info("ADD: Adding Fib entry rd {} prefix {} nexthop {} label {}", rd, prefix, nextHop, label);
+            // TODO: modify addFibEntryToDS signature
             fibDSWriter.addFibEntryToDS(rd, prefix + "/" + plen, Arrays.asList(nextHop), label, RouteOrigin.BGP);
             LOG.info("ADD: Added Fib entry rd {} prefix {} nexthop {} label {}", rd, prefix, nextHop, label);
         }
@@ -1697,7 +1739,7 @@ public class BgpConfigurationManager {
             if (v != null) {
                 for (Vrfs vrf : v) {
                     try {
-                        br.addVrf(vrf.getRd(), vrf.getImportRts(),
+                        br.addVrf(vrf.getLayerType(), vrf.getRd(), vrf.getImportRts(),
                                 vrf.getExportRts());
                     } catch (Exception e) {
                         LOG.error("Replay:addVrf() received exception: \"" + e + "\"");
@@ -1717,8 +1759,16 @@ public class BgpConfigurationManager {
                         //LU prefix is being deleted.
                         rd = Integer.toString(lbl);
                     }
+
+                    ProtocolType protocolType = net.getProtocolType();
+                    int ethernetTag = net.getEthtag().intValue();
+                    String esi = net.getEsi();
+                    String macaddress = net.getMacaddress();
+                    EncapType encapType = net.getEncapType();
+                    String routerMac = net.getRoutermac();
+
                     try {
-                        br.addPrefix(rd, pfxlen, nh, lbl);
+                        br.addPrefix(rd, pfxlen, nh, lbl, BgpUtil.convertToThriftProtocolType(protocolType), ethernetTag, esi, macaddress, BgpUtil.convertToThriftEncapType(encapType), routerMac);
                     } catch (Exception e) {
                         LOG.error("Replay:addPfx() received exception: \"" + e + "\"");
                     }
@@ -1854,6 +1904,7 @@ public class BgpConfigurationManager {
         }
     }
 
+    // TODO: add LayerType as arg - supports command
     public synchronized void
     addVrf(String rd, List<String> irts, List<String> erts) {
         InstanceIdentifier.InstanceIdentifierBuilder<Vrfs> iib =
