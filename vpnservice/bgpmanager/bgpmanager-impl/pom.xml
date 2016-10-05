@@ -42,6 +42,11 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
     </dependency>
     <dependency>
       <groupId>${project.groupId}</groupId>
+      <artifactId>netvirt-common</artifactId>
+      <version>${vpnservices.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>${project.groupId}</groupId>
       <artifactId>fibmanager-api</artifactId>
       <version>${vpnservices.version}</version>
     </dependency>
