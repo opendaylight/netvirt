@@ -460,9 +460,8 @@ public class ElanL2GatewayUtils {
      * @return true, if successful
      */
     private static boolean doesLocalUcastMacExistsInCache(L2GatewayDevice elanL2GwDevice, String macAddress) {
-        java.util.Optional<LocalUcastMacs> macExistsInCache = elanL2GwDevice.getUcastLocalMacs().stream()
-                .filter(mac -> mac.getMacEntryKey().getValue().equalsIgnoreCase(macAddress)).findFirst();
-        return macExistsInCache.isPresent();
+        return elanL2GwDevice.getUcastLocalMacs().stream()
+                .anyMatch(mac -> mac.getMacEntryKey().getValue().equalsIgnoreCase(macAddress));
     }
 
     /**

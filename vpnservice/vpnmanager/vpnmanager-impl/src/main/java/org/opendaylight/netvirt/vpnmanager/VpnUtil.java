@@ -8,6 +8,11 @@
 
 package org.opendaylight.netvirt.vpnmanager;
 
+import com.google.common.base.Optional;
+import com.google.common.primitives.Ints;
+import com.google.common.util.concurrent.CheckedFuture;
+import com.google.common.util.concurrent.FutureCallback;
+import com.google.common.util.concurrent.Futures;
 import java.math.BigInteger;
 import java.net.InetAddress;
 import java.util.ArrayList;
@@ -36,6 +41,9 @@ import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.genius.utils.cache.DataStoreCache;
 import org.opendaylight.netvirt.fibmanager.api.RouteOrigin;
 import org.opendaylight.genius.utils.clustering.ClusteringUtils;
+import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
+import org.opendaylight.genius.utils.cache.DataStoreCache;
+import org.opendaylight.netvirt.fibmanager.api.RouteOrigin;
 import org.opendaylight.netvirt.neutronvpn.api.utils.NeutronConstants;
 import org.opendaylight.netvirt.neutronvpn.interfaces.INeutronVpnManager;
 import org.opendaylight.netvirt.vpnmanager.utilities.InterfaceUtils;
@@ -1140,8 +1148,7 @@ public class VpnUtil {
         return routerData.isPresent() ? routerData.get() : null;
     }
 
-    static Optional<List<String>> getAllSubnetGatewayMacAddressesforVpn(DataBroker broker, String vpnName) {
-        Optional<List<String>> macAddressesOptional = Optional.absent();
+    static List<String> getAllSubnetGatewayMacAddressesforVpn(DataBroker broker, String vpnName) {
         List<String> macAddresses = new ArrayList<>();
         Optional<Subnetmaps> subnetMapsData = read(broker, LogicalDatastoreType.CONFIGURATION, buildSubnetMapsWildCardPath());
         if (subnetMapsData.isPresent()) {
@@ -1156,11 +1163,8 @@ public class VpnUtil {
                     }
                 }
             }
-            if (!macAddresses.isEmpty()) {
-                return Optional.of(macAddresses);
-            }
         }
-        return macAddressesOptional;
+        return macAddresses;
     }
 
     static InstanceIdentifier<Subnetmaps> buildSubnetMapsWildCardPath() {
