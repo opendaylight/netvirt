@@ -404,7 +404,7 @@ public class NexthopManager implements AutoCloseable {
                 tunnelIfName = getTunnelInterfaceName(remoteDpnId, org.opendaylight.yang.gen.v1.urn.ietf.params.xml
                         .ns.yang.ietf.inet.types.rev130715.IpAddressBuilder.getDefaultInstance(nextHopIp));
             } catch(Exception ex){
-                LOG.error("Error while retrieving nexthop pointer for nexthop {} : ", nextHopIp, ex.getMessage());
+                LOG.error("Error while retrieving nexthop pointer for nexthop {} : ", nextHopIp, ex);
             }
         }
         return tunnelIfName;
@@ -491,7 +491,7 @@ public class NexthopManager implements AutoCloseable {
         try {
             futures.get();
         } catch (InterruptedException | ExecutionException e) {
-            LOG.error("Error writing to datastore (path, data) : ({}, {})", path, data);
+            LOG.error("Error writing to datastore (path, data) : ({}, {})", path, data, e);
             throw new RuntimeException(e.getMessage());
         }
     }
@@ -503,7 +503,7 @@ public class NexthopManager implements AutoCloseable {
         try {
             futures.get();
         } catch (InterruptedException | ExecutionException e) {
-            LOG.error("Error deleting from datastore (path) : ({})", path);
+            LOG.error("Error deleting from datastore (path) : ({})", path, e);
             throw new RuntimeException(e.getMessage());
         }
     }
