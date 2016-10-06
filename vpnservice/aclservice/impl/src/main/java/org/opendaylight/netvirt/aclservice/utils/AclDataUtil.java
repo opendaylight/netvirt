@@ -14,19 +14,17 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-
+import javax.inject.Singleton;
 import org.opendaylight.netvirt.aclservice.api.utils.AclInterface;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 
-public final class AclDataUtil {
+@Singleton
+public class AclDataUtil {
 
-    private static Map<Uuid, List<AclInterface>> aclInterfaceMap = new ConcurrentHashMap<>();
-    private static Map<Uuid, List<Uuid>> remoteAclIdMap = new ConcurrentHashMap<>();
+    private Map<Uuid, List<AclInterface>> aclInterfaceMap = new ConcurrentHashMap<>();
+    private Map<Uuid, List<Uuid>> remoteAclIdMap = new ConcurrentHashMap<>();
 
-    private AclDataUtil() {
-    }
-
-    public static synchronized void addAclInterfaceMap(List<Uuid> aclList, AclInterface port) {
+    public synchronized void addAclInterfaceMap(List<Uuid> aclList, AclInterface port) {
         for (Uuid acl : aclList) {
             List<AclInterface> interfaceList = aclInterfaceMap.get(acl);
             if (interfaceList == null) {
@@ -39,7 +37,7 @@ public final class AclDataUtil {
         }
     }
 
-    public static synchronized void removeAclInterfaceMap(List<Uuid> aclList, AclInterface port) {
+    public synchronized void removeAclInterfaceMap(List<Uuid> aclList, AclInterface port) {
         for (Uuid acl : aclList) {
             List<AclInterface> interfaceList = aclInterfaceMap.get(acl);
             if (interfaceList != null) {
@@ -48,11 +46,11 @@ public final class AclDataUtil {
         }
     }
 
-    public static List<AclInterface> getInterfaceList(Uuid acl) {
+    public List<AclInterface> getInterfaceList(Uuid acl) {
         return aclInterfaceMap.get(acl);
     }
 
-    public static Set<AclInterface> getRemoteAclInterfaces(Uuid remoteAclId) {
+    public Set<AclInterface> getRemoteAclInterfaces(Uuid remoteAclId) {
         List<Uuid> remoteAclList = getRemoteAcl(remoteAclId);
         if (remoteAclList == null) {
             return null;
@@ -67,7 +65,7 @@ public final class AclDataUtil {
         return interfaceSet;
     }
 
-    public static synchronized void addRemoteAclId(Uuid remoteAclId, Uuid aclId) {
+    public synchronized void addRemoteAclId(Uuid remoteAclId, Uuid aclId) {
         List<Uuid> aclList = remoteAclIdMap.get(remoteAclId);
         if (aclList == null) {
             aclList = new ArrayList<>();
@@ -78,14 +76,14 @@ public final class AclDataUtil {
         }
     }
 
-    public static synchronized void removeRemoteAclId(Uuid remoteAclId, Uuid aclId) {
+    public synchronized void removeRemoteAclId(Uuid remoteAclId, Uuid aclId) {
         List<Uuid> aclList = remoteAclIdMap.get(remoteAclId);
         if (aclList != null) {
             aclList.remove(aclId);
         }
     }
 
-    public static List<Uuid> getRemoteAcl(Uuid remoteAclId) {
+    public List<Uuid> getRemoteAcl(Uuid remoteAclId) {
         return remoteAclIdMap.get(remoteAclId);
     }
 

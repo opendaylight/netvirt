@@ -34,6 +34,7 @@ import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.genius.mdsalutil.NxMatchFieldType;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.netvirt.aclservice.api.utils.AclInterface;
+import org.opendaylight.netvirt.aclservice.utils.AclDataUtil;
 import org.opendaylight.netvirt.aclservice.utils.AclServiceTestUtils;
 import org.opendaylight.netvirt.aclservice.utils.AclServiceUtils;
 import org.opendaylight.netvirt.aclservice.utils.MethodInvocationParamSaver;
@@ -61,29 +62,27 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 @RunWith(MockitoJUnitRunner.class)
 public class LearnEgressAclServiceImplTest {
 
-    private LearnEgressAclServiceImpl testedService;
+    LearnEgressAclServiceImpl testedService;
 
-    @Mock
-    DataBroker dataBroker;
-    @Mock
-    IMdsalApiManager mdsalManager;
-    @Mock
-    WriteTransaction mockWriteTx;
-    @Mock
-    ReadOnlyTransaction mockReadTx;
+    @Mock DataBroker dataBroker;
+    @Mock IMdsalApiManager mdsalManager;
+    @Mock WriteTransaction mockWriteTx;
+    @Mock ReadOnlyTransaction mockReadTx;
 
     MethodInvocationParamSaver<Void> installFlowValueSaver = null;
     MethodInvocationParamSaver<Void> removeFlowValueSaver = null;
 
     @Before
     public void setUp() {
-        testedService = new LearnEgressAclServiceImpl(dataBroker, mdsalManager);
+        AclDataUtil aclDataUtil = new AclDataUtil();
+        AclServiceUtils aclServiceUtils = new AclServiceUtils(aclDataUtil);
+        testedService = new LearnEgressAclServiceImpl(dataBroker, mdsalManager, aclDataUtil, aclServiceUtils);
         doReturn(Futures.immediateCheckedFuture(null)).when(mockWriteTx).submit();
         doReturn(mockReadTx).when(dataBroker).newReadOnlyTransaction();
         doReturn(mockWriteTx).when(dataBroker).newWriteOnlyTransaction();
-        installFlowValueSaver = new MethodInvocationParamSaver<Void>(null);
+        installFlowValueSaver = new MethodInvocationParamSaver<>(null);
         doAnswer(installFlowValueSaver).when(mdsalManager).installFlow(any(FlowEntity.class));
-        removeFlowValueSaver = new MethodInvocationParamSaver<Void>(null);
+        removeFlowValueSaver = new MethodInvocationParamSaver<>(null);
         doAnswer(installFlowValueSaver).when(mdsalManager).removeFlow(any(FlowEntity.class));
 
     }

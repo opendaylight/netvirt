@@ -27,6 +27,7 @@ import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.netvirt.aclservice.api.AclServiceManager.Action;
 import org.opendaylight.netvirt.aclservice.api.AclServiceManager.MatchCriteria;
 import org.opendaylight.netvirt.aclservice.utils.AclConstants;
+import org.opendaylight.netvirt.aclservice.utils.AclDataUtil;
 import org.opendaylight.netvirt.aclservice.utils.AclServiceUtils;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.acl.access.list.entries.Ace;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.IpPrefixOrAddress;
@@ -43,8 +44,9 @@ import org.slf4j.LoggerFactory;
  */
 public class StatefulEgressAclServiceImpl extends AbstractEgressAclServiceImpl {
 
-    public StatefulEgressAclServiceImpl(DataBroker dataBroker, IMdsalApiManager mdsalManager) {
-        super(dataBroker, mdsalManager);
+    public StatefulEgressAclServiceImpl(DataBroker dataBroker, IMdsalApiManager mdsalManager, AclDataUtil aclDataUtil,
+            AclServiceUtils aclServiceUtils) {
+        super(dataBroker, mdsalManager, aclDataUtil, aclServiceUtils);
     }
 
     private static final Logger LOG = LoggerFactory.getLogger(StatefulEgressAclServiceImpl.class);

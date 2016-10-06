@@ -42,6 +42,8 @@ public abstract class AbstractAclServiceImpl implements AclServiceListener {
     protected final IMdsalApiManager mdsalManager;
     protected final DataBroker dataBroker;
     protected final Class<? extends ServiceModeBase> serviceMode;
+    protected final AclDataUtil aclDataUtil;
+    protected final AclServiceUtils aclServiceUtils;
 
     /**
      * Initialize the member variables.
@@ -54,10 +56,12 @@ public abstract class AbstractAclServiceImpl implements AclServiceListener {
      *            the mdsal manager instance.
      */
     public AbstractAclServiceImpl(Class<? extends ServiceModeBase> serviceMode, DataBroker dataBroker,
-            IMdsalApiManager mdsalManager) {
+            IMdsalApiManager mdsalManager, AclDataUtil aclDataUtil, AclServiceUtils aclServiceUtils) {
         this.dataBroker = dataBroker;
         this.mdsalManager = mdsalManager;
         this.serviceMode = serviceMode;
+        this.aclDataUtil = aclDataUtil;
+        this.aclServiceUtils = aclServiceUtils;
     }
 
     @Override
@@ -146,7 +150,7 @@ public abstract class AbstractAclServiceImpl implements AclServiceListener {
             return;
         }
         for (Uuid remoteAclId : aclUuidList) {
-            Set<AclInterface> portSet = AclDataUtil.getRemoteAclInterfaces(remoteAclId);
+            Set<AclInterface> portSet = aclDataUtil.getRemoteAclInterfaces(remoteAclId);
             if (portSet == null) {
                 continue;
             }

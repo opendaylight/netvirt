@@ -44,14 +44,16 @@ public class AclInterfaceStateListener extends AsyncDataTreeChangeListenerBase<I
     private final AclServiceManager aclServiceManger;
     private final AclClusterUtil aclClusterUtil;
     private final DataBroker dataBroker;
+    private final AclDataUtil aclDataUtil;
 
     @Inject
     public AclInterfaceStateListener(AclServiceManager aclServiceManger, AclClusterUtil aclClusterUtil,
-            DataBroker dataBroker) {
+            DataBroker dataBroker, AclDataUtil aclDataUtil) {
         super(Interface.class, AclInterfaceStateListener.class);
         this.aclServiceManger = aclServiceManger;
         this.aclClusterUtil = aclClusterUtil;
         this.dataBroker = dataBroker;
+        this.aclDataUtil = aclDataUtil;
     }
 
     @Override
@@ -76,7 +78,7 @@ public class AclInterfaceStateListener extends AsyncDataTreeChangeListenerBase<I
             }
             List<Uuid> aclList = aclInterface.getSecurityGroups();
             if (aclList != null) {
-                AclDataUtil.removeAclInterfaceMap(aclList, aclInterface);
+                aclDataUtil.removeAclInterfaceMap(aclList, aclInterface);
             }
             AclInterfaceCacheUtil.removeAclInterfaceFromCache(interfaceId);
         }
@@ -97,7 +99,7 @@ public class AclInterfaceStateListener extends AsyncDataTreeChangeListenerBase<I
         if (isOfInterest(aclInterface)) {
             List<Uuid> aclList = aclInterface.getSecurityGroups();
             if (aclList != null) {
-                AclDataUtil.addAclInterfaceMap(aclList, aclInterface);
+                aclDataUtil.addAclInterfaceMap(aclList, aclInterface);
             }
             if (aclClusterUtil.isEntityOwner()) {
                 aclServiceManger.notify(aclInterface, null, Action.ADD);
