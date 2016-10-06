@@ -1281,7 +1281,7 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
                                 destination, nexthop, rpcResult.getErrors());
                     }
                 } catch (InterruptedException | ExecutionException e) {
-                    LOG.warn("Error happened while invoking addStaticRoute RPC: {}", e);
+                    LOG.warn("Error happened while invoking addStaticRoute RPC: ", e);
                 }
             } else {
                 // Any other case is a fault.
@@ -1358,8 +1358,9 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
                     hops = new ArrayList<>();
                     adjMap.put(destination, hops);
                 }
-                if (! hops.contains(nextHop))
+                if (! hops.contains(nextHop)) {
                     hops.add(nextHop);
+                }
             }
         }
 

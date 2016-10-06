@@ -169,10 +169,10 @@ public class ElanUtils {
     private final ElanInstanceManager elanInstanceManager;
     private final OdlInterfaceRpcService interfaceManagerRpcService;
     private final ItmRpcService itmRpcService;
-    private ElanL2GatewayUtils elanL2GatewayUtils;
-    private ElanL2GatewayMulticastUtils elanL2GatewayMulticastUtils;
-    private L2GatewayConnectionUtils l2GatewayConnectionUtils;
-    private ElanBridgeManager bridgeManager;
+    private final ElanL2GatewayUtils elanL2GatewayUtils;
+    private final ElanL2GatewayMulticastUtils elanL2GatewayMulticastUtils;
+    private final L2GatewayConnectionUtils l2GatewayConnectionUtils;
+    private final ElanBridgeManager bridgeManager;
 
     public static final FutureCallback<Void> DEFAULT_CALLBACK = new FutureCallback<Void>() {
         @Override
@@ -804,8 +804,8 @@ public class ElanUtils {
         } else { // Leaf
             EtreeInstance etreeInstance = elanInfo.getAugmentation(EtreeInstance.class);
             if (etreeInstance == null) {
-                LOG.warn("EtreeInterface " + interfaceInfo.getInterfaceName() + " is connected to a non-Etree network: "
-                        + elanInfo.getElanInstanceName());
+                LOG.warn("EtreeInterface {} is connected to a non-Etree network: {}",
+                         interfaceInfo.getInterfaceName(), elanInfo.getElanInstanceName());
                 return elanInfo.getElanTag();
             } else {
                 return etreeInstance.getEtreeLeafTagVal().getValue();
@@ -1017,8 +1017,8 @@ public class ElanUtils {
             if (etreeInterface.getEtreeInterfaceType() == EtreeInterfaceType.Root) {
                 EtreeLeafTagName etreeTagName = getEtreeLeafTagByElanTag(elanTag);
                 if (etreeTagName == null) {
-                    LOG.warn("Interface " + ifName + " seems like it belongs to Etree but etreeTagName from elanTag "
-                            + elanTag + " is null.");
+                    LOG.warn("Interface {} seems like it belongs to Etree but etreeTagName from elanTag {} is null",
+                             ifName, elanTag);
                 } else {
                     Flow flowEntity = buildLocalDmacFlowEntry(etreeTagName.getEtreeLeafTag().getValue(), dpId, ifName,
                             macAddress, displayName, ifTag);

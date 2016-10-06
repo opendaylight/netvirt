@@ -167,7 +167,7 @@ public class HwvtepRemoteMcastMacListener
             try {
                 close();
             } catch (Exception e) {
-                LOG.warn("Failed to close McastMacSwitchListener: {}", e);
+                LOG.warn("Failed to close McastMacSwitchListener", e);
             }
         }
     }

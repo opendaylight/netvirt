@@ -522,7 +522,7 @@ public class VpnInstanceListener extends AsyncDataTreeChangeListenerBase<VpnInst
 
         @Override
         public void onFailure(Throwable throwable) {
-            LOG.warn("Job: failed with exception: {}", throwable.getStackTrace());
+            LOG.warn("Job: failed with exception: ", throwable);
         }
     }
 

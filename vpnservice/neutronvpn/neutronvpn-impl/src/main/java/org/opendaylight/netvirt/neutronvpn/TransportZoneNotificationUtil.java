@@ -7,15 +7,12 @@
  */
 package org.opendaylight.netvirt.neutronvpn;
 
-import com.google.common.base.Optional;
-
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.genius.mdsalutil.MDSALDataStoreUtils;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.ovsdb.utils.mdsal.utils.MdsalUtils;
 import org.opendaylight.ovsdb.utils.southbound.utils.SouthboundUtils;
@@ -66,10 +63,10 @@ public class TransportZoneNotificationUtil {
     private static final String TUNNEL_PORT = "tunnel_port";
     private static final String LOCAL_IP = "local_ip";
     private static final String ALL_SUBNETS = "0.0.0.0/0";
-    private DataBroker dataBroker;
-    private NeutronvpnManager nvManager;
-    private MdsalUtils mdsalUtils;
-    private SouthboundUtils southBoundUtils;
+    private final DataBroker dataBroker;
+    private final NeutronvpnManager nvManager;
+    private final MdsalUtils mdsalUtils;
+    private final SouthboundUtils southBoundUtils;
     private final NeutronvpnConfig neutronvpnConfig;
 
     public TransportZoneNotificationUtil(DataBroker dbx, NeutronvpnManager nvManager) {
@@ -128,7 +125,7 @@ public class TransportZoneNotificationUtil {
                 }
 
             } catch (Exception e) {
-                LOG.warn("failed to add tunnels on interface added to subnet {} due to {}", inter, e.getMessage());
+                LOG.warn("failed to add tunnels on interface added to subnet {}. ", inter, e);
             }
         }
     }
@@ -153,8 +150,7 @@ public class TransportZoneNotificationUtil {
                 addTransportZone(zone, "router " + routerDpnList.getRouterId());
             }
         } catch (Exception e) {
-            LOG.warn("failed to add tunnels on router added of routerDpnList {} due to {}",
-                    routerDpnList, e.getMessage());
+            LOG.warn("failed to add tunnels on router added of routerDpnList {}. ", routerDpnList, e);
         }
     }
 
