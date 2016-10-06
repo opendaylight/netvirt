@@ -22,6 +22,30 @@
       "revId": "d76aedeaf70058768b7df8b2bfa889b63de3d24a",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_226bc386",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 5350
+      },
+      "writtenOn": "2016-10-06T10:21:31Z",
+      "side": 1,
+      "message": "Should we migrate it all to java8\u0027s Optional? \nIf that\u0027s the guideline, I\u0027ll be glad to start changing it wherever I see it",
+      "parentUuid": "7a6b29fe_6794ade8",
+      "range": {
+        "startLine": 13,
+        "startChar": 0,
+        "endLine": 15,
+        "endChar": 27
+      },
+      "revId": "d76aedeaf70058768b7df8b2bfa889b63de3d24a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
