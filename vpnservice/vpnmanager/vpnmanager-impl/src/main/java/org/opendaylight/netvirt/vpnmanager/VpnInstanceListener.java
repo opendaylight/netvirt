@@ -375,7 +375,7 @@ public class VpnInstanceListener extends AsyncDataTreeChangeListenerBase<VpnInst
             LOG.error("Unable to fetch label from Id Manager. Bailing out of adding operational data for Vpn Instance {}", value.getVpnInstanceName());
             return;
         }
-        LOG.trace("VPN instance to ID generated.");
+        LOG.info("VPN Id {} generated for VpnInstanceName {}", vpnId, vpnInstanceName);
         org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.to.vpn.id.VpnInstance
                 vpnInstanceToVpnId = VpnUtil.getVpnInstanceToVpnId(vpnInstanceName, vpnId, (rd != null) ? rd
                 : vpnInstanceName);
@@ -405,19 +405,18 @@ public class VpnInstanceListener extends AsyncDataTreeChangeListenerBase<VpnInst
 
         try {
             String cachedTransType = fibManager.getConfTransType();
-            LOG.trace("Value for confTransportType is " + cachedTransType);
+            LOG.info("Configured transport type for VpnName {} is {}", vpnInstanceName, cachedTransType);
             if (cachedTransType.equals("Invalid")) {
                 try {
                     fibManager.setConfTransType("L3VPN", "VXLAN");
                 } catch (Exception e) {
-                    LOG.trace("Exception caught setting the cached value for transportType");
-                    LOG.error(e.getMessage());
+                    LOG.error("Exception caught setting the L3VPN tunnel transportType ", e);
                 }
             } else {
-                LOG.trace(":cached val is neither unset/invalid. NO-op.");
+                LOG.trace("Configured tunnel transport type for L3VPN as {}", cachedTransType);
             }
         } catch (Exception e) {
-            LOG.error(e.getMessage());
+            LOG.error("Error when trying to retrieve tunnel transport type for L3VPN ", e);
         }
 
         if (rd == null) {
@@ -464,6 +463,7 @@ public class VpnInstanceListener extends AsyncDataTreeChangeListenerBase<VpnInst
                         builder.build(), TransactionUtil.DEFAULT_CALLBACK);
             }
         }
+        LOG.info("VpnInstanceOpData populated successfully for vpn {} rd {}", vpnInstanceName, rd);
     }
 
 

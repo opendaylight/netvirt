@@ -472,15 +472,7 @@ public class FibUtil {
         }
 
         Preconditions.checkNotNull(nextHopList, "NextHopList can't be null");
-
-        for ( String nextHop: nextHopList){
-            if (nextHop == null || nextHop.isEmpty()){
-                LOG.error("nextHop list contains null element");
-                return;
-            }
-        }
-
-        LOG.debug("Created vrfEntry for {} nexthop {} label {}", prefix, nextHopList, label);
+        
         try{
             InstanceIdentifier<VrfEntry> vrfEntryId =
                     InstanceIdentifier.builder(FibEntries.class)
@@ -497,6 +489,7 @@ public class FibUtil {
                 } else {
                     MDSALUtil.syncWrite(broker, LogicalDatastoreType.CONFIGURATION, vrfEntryId, vrfEntry);
                 }
+                LOG.debug("Created vrfEntry for {} nexthop {} label {}", prefix, nextHopList, label);
             } else { // Found in MDSAL database
                 List<String> nh = entry.get().getNextHopAddressList();
                 for (String nextHop : nextHopList) {
@@ -511,6 +504,7 @@ public class FibUtil {
                 } else {
                     MDSALUtil.syncUpdate(broker, LogicalDatastoreType.CONFIGURATION, vrfEntryId, vrfEntry);
                 }
+                LOG.debug("Updated vrfEntry for {} nexthop {} label {}", prefix, nh, label);
             }
         } catch (Exception e) {
             LOG.error("addFibEntryToDS: error ", e);
@@ -590,7 +584,41 @@ public class FibUtil {
         }
     }
 
+    public static void UpdateFibEntry(DataBroker broker, String rd, String prefix, List<String> nextHopList,
+                                              WriteTransaction writeConfigTxn) {
 
+        LOG.debug("Updating fib entry for prefix {} with nextHopList {} for rd {}", prefix, nextHopList, rd);
+
+        // Looking for existing prefix in MDSAL database
+        InstanceIdentifier<VrfEntry> vrfEntryId =
+                InstanceIdentifier.builder(FibEntries.class).child(VrfTables.class, new VrfTablesKey(rd))
+                        .child(VrfEntry.class, new VrfEntryKey(prefix)).build();
+        Optional<VrfEntry> entry = MDSALUtil.read(broker, LogicalDatastoreType.CONFIGURATION, vrfEntryId);
+
+        if ( entry.isPresent() ) {
+            // Update the VRF entry with nextHopList
+            VrfEntry vrfEntry =
+                    new VrfEntryBuilder(entry.get()).setDestPrefix(prefix).setNextHopAddressList(nextHopList)
+                            .setKey(new VrfEntryKey(prefix)).build();
+            if(nextHopList.isEmpty()) {
+                if (writeConfigTxn != null) {
+                    writeConfigTxn.put(LogicalDatastoreType.CONFIGURATION, vrfEntryId, vrfEntry, true);
+                } else {
+                    MDSALUtil.syncWrite(broker, LogicalDatastoreType.CONFIGURATION, vrfEntryId, vrfEntry);
+                }
+            } else {
+                if (writeConfigTxn != null) {
+                    writeConfigTxn.merge(LogicalDatastoreType.CONFIGURATION, vrfEntryId, vrfEntry, true);
+                } else {
+                    MDSALUtil.syncUpdate(broker, LogicalDatastoreType.CONFIGURATION, vrfEntryId, vrfEntry);
+                }
+            }
+            LOG.debug("Updated fib entry with nextHopList {} for rd {}", nextHopList, rd);
+        } else {
+            LOG.warn("Could not find VrfEntry for Route-Distinguisher={} and prefix={}", rd, prefix);
+        }
+    }
+	
     public static void addVrfTable(DataBroker broker, String rd, WriteTransaction writeConfigTxn) {
         LOG.debug("Adding vrf table for rd {}", rd);
         InstanceIdentifier.InstanceIdentifierBuilder<VrfTables> idBuilder =
