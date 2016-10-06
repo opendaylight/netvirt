@@ -45,9 +45,9 @@ public class HwvtepRemoteMcastMacListener
     private static final Logger LOG = LoggerFactory.getLogger(HwvtepRemoteMcastMacListener.class);
 
     /** The node id. */
-    private NodeId nodeId;
+    private final NodeId nodeId;
 
-    private List<IpAddress> expectedPhyLocatorIps;
+    private final List<IpAddress> expectedPhyLocatorIps;
 
     private final DataBroker broker;
     private final ElanUtils elanUtils;
@@ -167,7 +167,7 @@ public class HwvtepRemoteMcastMacListener
             try {
                 close();
             } catch (Exception e) {
-                LOG.warn("Failed to close McastMacSwitchListener: {}", e);
+                LOG.warn("Failed to close McastMacSwitchListener", e);
             }
         }
     }

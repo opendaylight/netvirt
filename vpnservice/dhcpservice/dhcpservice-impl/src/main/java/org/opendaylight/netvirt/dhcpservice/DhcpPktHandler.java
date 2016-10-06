@@ -23,7 +23,6 @@ import org.apache.commons.net.util.SubnetUtils.SubnetInfo;
 import org.opendaylight.controller.liblldp.EtherTypes;
 import org.opendaylight.controller.liblldp.NetUtils;
 import org.opendaylight.controller.liblldp.PacketException;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.genius.interfacemanager.globals.InterfaceInfo;
 import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
@@ -71,7 +70,7 @@ public class DhcpPktHandler implements PacketProcessingListener {
     private final IInterfaceManager interfaceManager;
     private final DhcpserviceConfig config;
 
-    private boolean computeUdpChecksum = true;
+    private final boolean computeUdpChecksum = true;
 
     public DhcpPktHandler(final DhcpManager dhcpManager,
                           final DhcpExternalTunnelManager dhcpExternalTunnelManager,
@@ -102,7 +101,7 @@ public class DhcpPktHandler implements PacketProcessingListener {
             try {
                 ethPkt.deserialize(inPayload, 0, inPayload.length * NetUtils.NumBitsInAByte);
             } catch (Exception e) {
-                LOG.warn("Failed to decode DHCP Packet {}", e);
+                LOG.warn("Failed to decode DHCP Packet.", e);
                 LOG.trace("Received packet {}", packet);
                 return;
             }
@@ -128,7 +127,7 @@ public class DhcpPktHandler implements PacketProcessingListener {
                 }
             } catch (Exception e) {
                 LOG.warn("Failed to get DHCP Reply");
-                LOG.trace("Reason for failure {}", e);
+                LOG.trace("Reason for failure.", e);
             }
         }
     }
@@ -211,7 +210,7 @@ public class DhcpPktHandler implements PacketProcessingListener {
                         reply.deserialize(rawDhcpPayload, 0, rawDhcpPayload.length);
                     } catch (PacketException e) {
                         LOG.warn("Failed to deserialize DHCP pkt");
-                        LOG.trace("Reason for failure {}", e);
+                        LOG.trace("Reason for failure", e);
                         return null;
                     }
                     return reply;
@@ -446,8 +445,8 @@ public class DhcpPktHandler implements PacketProcessingListener {
 
     private void setParameterListOptions(DHCP req, DHCP reply, DhcpInfo dhcpInfo) {
         byte[] paramList = req.getOptionBytes(DHCPConstants.OPT_PARAMETER_REQUEST_LIST);
-        for(int i = 0; i < paramList.length; i++) {
-            switch (paramList[i]) {
+        for (byte element : paramList) {
+            switch (element) {
             case DHCPConstants.OPT_SUBNET_MASK:
             case DHCPConstants.OPT_ROUTERS:
             case DHCPConstants.OPT_SERVER_IDENTIFIER:
@@ -460,16 +459,16 @@ public class DhcpPktHandler implements PacketProcessingListener {
                  * Setting these just to preserve order as
                  * specified in PARAMETER_REQUEST_LIST.
                  */
-                reply.setOptionInt(paramList[i], 0);
+                reply.setOptionInt(element, 0);
                 break;
             case DHCPConstants.OPT_DOMAIN_NAME:
-                reply.setOptionString(paramList[i], " ");
+                reply.setOptionString(element, " ");
                 break;
             case DHCPConstants.OPT_CLASSLESS_ROUTE:
                 setOptionClasslessRoute(reply, dhcpInfo);
                 break;
             default:
-                LOG.trace("DHCP Option code {} not supported yet", paramList[i]);
+                LOG.trace("DHCP Option code {} not supported yet", element);
                 break;
             }
         }

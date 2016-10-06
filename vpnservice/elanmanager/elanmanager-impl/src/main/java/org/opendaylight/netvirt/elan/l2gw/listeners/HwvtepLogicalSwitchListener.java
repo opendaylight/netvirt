@@ -42,22 +42,22 @@ public class HwvtepLogicalSwitchListener extends
     private static final Logger LOG = LoggerFactory.getLogger(HwvtepLogicalSwitchListener.class);
 
     /** The node id. */
-    private NodeId nodeId;
+    private final NodeId nodeId;
 
     /** The logical switch name. */
-    private String logicalSwitchName;
+    private final String logicalSwitchName;
 
     /** The physical device. */
-    private Devices physicalDevice;
+    private final Devices physicalDevice;
 
     /** The l2 gateway device. */
-    private L2GatewayDevice l2GatewayDevice;
+    private final L2GatewayDevice l2GatewayDevice;
 
     // The default vlan id
-    private Integer defaultVlanId;
+    private final Integer defaultVlanId;
 
     // Id of L2 Gateway connection responsible for this logical switch creation
-    private Uuid l2GwConnId;
+    private final Uuid l2GwConnId;
 
     private final DataBroker broker;
     private final ElanL2GatewayUtils elanL2GatewayUtils;
@@ -192,7 +192,7 @@ public class HwvtepLogicalSwitchListener extends
                 // TODO use https://git.opendaylight.org/gerrit/#/c/44145/ when merged, and remove @SuppressWarnings
                 close();
             } catch (Exception e) {
-                LOG.warn("Failed to close HwVTEPLogicalSwitchListener: {}", e);
+                LOG.warn("Failed to close HwVTEPLogicalSwitchListener", e);
             }
         }
     }

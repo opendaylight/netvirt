@@ -138,7 +138,7 @@ public class FibRpcServiceImpl implements FibRpcService {
         try {
             destPrefix = InetAddress.getByName(ipAddress);
         } catch (UnknownHostException e) {
-            LOG.error("UnknowHostException in removeRoute. Failed  to remove Route for ipPrefix {}", ipAddress);
+            LOG.error("UnknowHostException in removeRoute. Failed  to remove Route for ipPrefix {}", ipAddress, e);
             return;
         }
         List<MatchInfo> matches = new ArrayList<MatchInfo>();
@@ -227,7 +227,7 @@ public class FibRpcServiceImpl implements FibRpcService {
         try {
             destPrefix = InetAddress.getByName(ipAddress);
         } catch (UnknownHostException e) {
-            LOG.error("UnknowHostException in addRoute. Failed  to add Route for ipPrefix {}", ipAddress);
+            LOG.error("UnknowHostException in addRoute. Failed  to add Route for ipPrefix {}", ipAddress, e);
             return;
         }
         List<MatchInfo> matches = new ArrayList<MatchInfo>();
