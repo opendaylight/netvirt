@@ -40,11 +40,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.id.to.vpn.instance.VpnIds;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.VpnInstanceOpDataEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.VpnInstanceOpDataEntryBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.vpn.instance.op.data.entry.VpnTargetsBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.vpn.instance.op.data.entry.VpnToDpnList;
 
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.vpn.instance.op.data.entry.vpntargets.VpnTargetBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.vpn.instance.op.data.entry.vpntargets.VpnTargetKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.to.extraroute.Vpn;
 import org.opendaylight.yangtools.concepts.ListenerRegistration;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
@@ -62,8 +59,8 @@ public class VpnInstanceListener extends AsyncDataTreeChangeListenerBase<VpnInst
     private final IFibManager fibManager;
     private static final ThreadFactory threadFactory = new ThreadFactoryBuilder()
             .setNameFormat("NV-VpnMgr-%d").build();
-    private ExecutorService executorService = Executors.newSingleThreadExecutor(threadFactory);
-    private ConcurrentMap<String, Runnable> vpnOpMap = new ConcurrentHashMap<String, Runnable>();
+    private final ExecutorService executorService = Executors.newSingleThreadExecutor(threadFactory);
+    private final ConcurrentMap<String, Runnable> vpnOpMap = new ConcurrentHashMap<String, Runnable>();
 
     public VpnInstanceListener(final DataBroker dataBroker, final IBgpManager bgpManager,
                                final IdManagerService idManager,
@@ -522,7 +519,7 @@ public class VpnInstanceListener extends AsyncDataTreeChangeListenerBase<VpnInst
 
         @Override
         public void onFailure(Throwable throwable) {
-            LOG.warn("Job: failed with exception: {}", throwable.getStackTrace());
+            LOG.warn("Job: failed with exception: ", throwable);
         }
     }
 

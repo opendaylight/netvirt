@@ -396,7 +396,7 @@ public class InterVpnLinkListener extends AsyncDataTreeChangeListenerBase<InterV
 
             } catch ( Exception e ) {
                 // Whatever happens it should not stop it from trying to remove as much as possible
-                LOG.warn("Error while removing InterVpnLink {} Endpoint flows on dpn {}. Reason: {}",
+                LOG.warn("Error while removing InterVpnLink {} Endpoint flows on dpn {}. Reason: ",
                         interVpnLinkName, dpnId, e);
             }
         }
@@ -462,14 +462,14 @@ public class InterVpnLinkListener extends AsyncDataTreeChangeListenerBase<InterV
         Futures.addCallback(eventFuture, new FutureCallback<Object>() {
             @Override
             public void onFailure(Throwable error) {
-                LOG.warn("Error when sending notification about InterVpnLink creation issue. InterVpnLink name={}. Error={}",
-                            vpnLinkState.getInterVpnLinkName(), vpnLinkState, error);
+                LOG.warn("Error when sending notification about InterVpnLink creation issue. InterVpnLink name={}.",
+                         vpnLinkState.getInterVpnLinkName(), vpnLinkState, error);
             }
 
             @Override
             public void onSuccess(Object arg) {
-                LOG.trace("Error notification for InterVpnLink successfully sent. VpnLink={} error={}",
-                             vpnLinkState.getInterVpnLinkName(), vpnLinkState);
+                LOG.trace("Error notification for InterVpnLink successfully sent. VpnLinkName={} state={}",
+                          vpnLinkState.getInterVpnLinkName(), vpnLinkState);
             }
         });
     }

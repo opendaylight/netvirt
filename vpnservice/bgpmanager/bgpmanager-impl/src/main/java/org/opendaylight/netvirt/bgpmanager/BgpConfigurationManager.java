@@ -417,7 +417,7 @@ public class BgpConfigurationManager {
 
     private BgpRouter getClient(String yangObj) {
         if (bgpRouter == null) {
-            LOG.warn(yangObj + ": configuration received when BGP is inactive");
+            LOG.warn("{}: configuration received when BGP is inactive", yangObj);
         }
         return bgpRouter;
     }

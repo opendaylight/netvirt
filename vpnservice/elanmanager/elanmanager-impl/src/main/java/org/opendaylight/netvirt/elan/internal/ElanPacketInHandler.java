@@ -172,18 +172,16 @@ public class ElanPacketInHandler implements PacketProcessingListener {
     private void tryAndRemoveInvalidMacEntry(String elanName, MacEntry macEntry) {
         ElanInstance elanInfo = ElanUtils.getElanInstanceByName(broker, elanName);
         if (elanInfo == null) {
-            LOG.warn(String.format("MAC %s is been added (either statically or dynamically) for an invalid Elan %s. "
-                    + "Manual cleanup may be necessary", macEntry.getMacAddress(), elanName));
+            LOG.warn("MAC {} is been added (either statically or dynamically) for an invalid Elan {}. "
+                    + "Manual cleanup may be necessary", macEntry.getMacAddress(), elanName);
             return;
         }
 
         InterfaceInfo oldInterfaceLport = interfaceManager.getInterfaceInfo(macEntry.getInterface());
         if (oldInterfaceLport == null) {
-            LOG.warn(
-                    String.format(
-                            "MAC %s is been added (either statically or dynamically) on an invalid Logical Port %s. "
-                                    + "Manual cleanup may be necessary",
-                            macEntry.getMacAddress(), macEntry.getInterface()));
+            LOG.warn("MAC {} is been added (either statically or dynamically) on an invalid Logical Port {}. "
+                     + "Manual cleanup may be necessary",
+                     macEntry.getMacAddress(), macEntry.getInterface()));
             return;
         }
         WriteTransaction flowDeletetx = broker.newWriteOnlyTransaction();

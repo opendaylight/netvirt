@@ -192,7 +192,7 @@ public class HwvtepLogicalSwitchListener extends
                 // TODO use https://git.opendaylight.org/gerrit/#/c/44145/ when merged, and remove @SuppressWarnings
                 close();
             } catch (Exception e) {
-                LOG.warn("Failed to close HwVTEPLogicalSwitchListener: {}", e);
+                LOG.warn("Failed to close HwVTEPLogicalSwitchListener", e);
             }
         }
     }
