@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "7a6b29fe_c7b3fe08",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/ArpNotificationHandler.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 358,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-10-06T15:46:46Z",
+      "side": 1,
+      "message": "NextHop should represent either an Underlay IP Address (or) it should represent an Overlay IP Address through which the \u0027prefix\u0027 input to this method can be reached.\n\nSo NextHop cannot be same as \u0027ip\u0027 as \u0027ip\u0027 is derived from input \u0027prefix\u0027.",
+      "parentUuid": "7a6b29fe_4419ac21",
+      "revId": "b3a335121a2e99cf131da8f6c50aa137ac9d466f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7a6b29fe_a4afe093",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
         "patchSetId": 2
@@ -30,6 +48,24 @@
       "writtenOn": "2016-10-06T13:49:29Z",
       "side": 1,
       "message": "Learnet from subnet routes will not be addwd as prinary, but does require prefix",
+      "revId": "b3a335121a2e99cf131da8f6c50aa137ac9d466f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_071fb60a",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 600,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-10-06T15:46:46Z",
+      "side": 1,
+      "message": "All learned routes via subnetroute feature will be considered as extraroute and so they will be serviced in the else case !",
+      "parentUuid": "7a6b29fe_a4afe093",
       "revId": "b3a335121a2e99cf131da8f6c50aa137ac9d466f",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
