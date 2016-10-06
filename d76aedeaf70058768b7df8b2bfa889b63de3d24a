@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7a6b29fe_6794ade8",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 5350
+      },
+      "writtenOn": "2016-10-06T08:23:12Z",
+      "side": 1,
+      "message": "why is it? \nNot against it, but I\u0027d guess that we should use guava\u0027s or java8\u0027s everywhere, one or the other, but never a mix.",
+      "range": {
+        "startLine": 13,
+        "startChar": 0,
+        "endLine": 15,
+        "endChar": 27
+      },
+      "revId": "d76aedeaf70058768b7df8b2bfa889b63de3d24a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
