@@ -23,6 +23,8 @@ public class VpnConstants {
     public static final long MIN_WAIT_TIME_IN_MILLISECONDS = 10000;
     public static final long MAX_WAIT_TIME_IN_MILLISECONDS = 180000;
     public static final long PER_INTERFACE_MAX_WAIT_TIME_IN_MILLISECONDS = 50000;
+    public static final long PER_VPN_INSTANCE_MAX_WAIT_TIME_IN_MILLISECONDS = 60000;
+    public static final long PER_VPN_INSTANCE_OPDATA_MAX_WAIT_TIME_IN_MILLISECONDS = 180000;
     public static final int ELAN_GID_MIN = 200000;
     public static final int INVALID_LABEL = 0;
 

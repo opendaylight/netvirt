@@ -52,18 +52,6 @@ public class FibManagerImpl implements IFibManager {
 
     @Override
     public void cleanUpDpnForVpn(BigInteger dpnId, long vpnId, String rd,
-                                 String localNextHopIp, String remoteNextHopIp, FutureCallback<List<Void>> callback) {
-        vrfEntryListener.cleanUpDpnForVpn(dpnId, vpnId, rd, localNextHopIp, remoteNextHopIp, callback);
-    }
-
-    @Override
-    public void populateFibOnDpn(BigInteger localDpnId, long vpnId, String rd,
-                                 String localNextHopIp, String remoteNextHopIp) {
-        vrfEntryListener.populateFibOnDpn(localDpnId, vpnId, rd, localNextHopIp, remoteNextHopIp);
-    }
-
-    @Override
-    public void cleanUpDpnForVpn(BigInteger dpnId, long vpnId, String rd,
                                  FutureCallback<List<Void>> callback) {
         vrfEntryListener.cleanUpDpnForVpn(dpnId, vpnId, rd, callback);
     }
@@ -109,11 +97,13 @@ public class FibManagerImpl implements IFibManager {
     }
 
     @Override
-    public void handleRemoteRoute(boolean action, BigInteger localDpnId, BigInteger remoteDpnId,
-                                  long vpnId, String rd, String destPrefix, String localNextHopIp,
-                                  String remoteNextHopIP) {
-        vrfEntryListener.handleRemoteRoute(action, localDpnId, remoteDpnId, vpnId, rd, destPrefix,
-                localNextHopIp, remoteNextHopIP);
+    public void manageRemoteRouteOnDPN(boolean action,
+                                       BigInteger DpnId,
+                                       long vpnId,
+                                       String  rd,
+                                       String destPrefix,
+                                       String destTepIp) {
+        vrfEntryListener.manageRemoteRouteOnDPN(action, DpnId, vpnId,rd, destPrefix, destTepIp);
     }
 
     @Override
@@ -148,4 +138,45 @@ public class FibManagerImpl implements IFibManager {
     public boolean isVPNConfigured() {
         return this.vpnmanager.isVPNConfigured();
     }
+	
+	@Override
+	public void populateExternalRoutesOnDpn(BigInteger localDpnId, long vpnId,
+                               String rd, String localNextHopIp,
+                               String remoteNextHopIp) {
+		vrfEntryListener.populateExternalRoutesOnDpn(localDpnId, vpnId, rd,
+                                localNextHopIp, remoteNextHopIp);
+  }
+
+	@Override
+	public void populateInternalRoutesOnDpn(BigInteger localDpnId, long vpnId,
+                                          String rd, String localNextHopIp,
+                                          String remoteNextHopIp) {
+		vrfEntryListener.populateInternalRoutesOnDpn(localDpnId, vpnId, rd,
+            localNextHopIp, remoteNextHopIp);
+  }
+
+  @Override
+	public void cleanUpExternalRoutesOnDpn(BigInteger dpnId, long vpnId,
+                               String rd, String localNextHopIp,
+                               String remoteNextHopIp) {
+		vrfEntryListener.cleanUpExternalRoutesOnDpn(dpnId, vpnId, rd,
+                                localNextHopIp, remoteNextHopIp);
+  }
+
+	@Override
+	public void cleanUpInternalRoutesOnDpn(BigInteger dpnId, long vpnId,
+                                         String rd, String localNextHopIp,
+                                         String remoteNextHopIp) {
+		vrfEntryListener.cleanUpInternalRoutesOnDpn(dpnId, vpnId, rd,
+				localNextHopIp, remoteNextHopIp);
+	}
+
+	public void updateFibEntry(DataBroker broker, 
+							String rd, 
+							String prefix , 
+							List<String> nextHopList, 
+							WriteTransaction writeConfigTxn) {
+		FibUtil.UpdateFibEntry(broker, rd, prefix , nextHopList, writeConfigTxn);
+	}
+
 }

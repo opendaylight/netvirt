@@ -52,15 +52,6 @@
     <argument ref="notificationPublishService" />
   </bean>
 
-  <bean id="tunnelInterfaceStateListener"
-        class="org.opendaylight.netvirt.vpnmanager.TunnelInterfaceStateListener"
-        init-method="start" destroy-method="close">
-    <argument ref="dataBroker" />
-    <argument ref="bgpmanager" />
-    <argument ref="fibManager" />
-    <argument ref="itmRpcService" />
-  </bean>
-
   <bean id="interfaceStateChangeListener"
         class="org.opendaylight.netvirt.vpnmanager.InterfaceStateChangeListener"
         init-method="start" destroy-method="close">
@@ -126,6 +117,18 @@
   <service ref="vpnSubnetRouteHandler" odl:type="default"
            interface="org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.NeutronvpnListener" />
   <odl:notification-listener ref="vpnSubnetRouteHandler" />
+
+  <bean id="tunnelInterfaceStateListener"
+        class="org.opendaylight.netvirt.vpnmanager.TunnelInterfaceStateListener"
+        init-method="start" destroy-method="close">
+    <argument ref="dataBroker" />
+    <argument ref="bgpmanager" />
+    <argument ref="fibManager" />
+    <argument ref="itmRpcService" />
+    <argument ref="odlInterfaceRpcService"/>
+    <argument ref="vpnInterfaceManager" />
+    <argument ref="vpnSubnetRouteHandler" />
+  </bean>
 
   <bean id="subnetOpDpnManager" class="org.opendaylight.netvirt.vpnmanager.SubnetOpDpnManager">
     <argument ref="dataBroker" />
