@@ -23,7 +23,6 @@ import org.apache.commons.net.util.SubnetUtils.SubnetInfo;
 import org.opendaylight.controller.liblldp.EtherTypes;
 import org.opendaylight.controller.liblldp.NetUtils;
 import org.opendaylight.controller.liblldp.PacketException;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.genius.interfacemanager.globals.InterfaceInfo;
 import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
@@ -102,7 +101,7 @@ public class DhcpPktHandler implements PacketProcessingListener {
             try {
                 ethPkt.deserialize(inPayload, 0, inPayload.length * NetUtils.NumBitsInAByte);
             } catch (Exception e) {
-                LOG.warn("Failed to decode DHCP Packet {}", e);
+                LOG.warn("Failed to decode DHCP Packet.", e);
                 LOG.trace("Received packet {}", packet);
                 return;
             }
@@ -128,7 +127,7 @@ public class DhcpPktHandler implements PacketProcessingListener {
                 }
             } catch (Exception e) {
                 LOG.warn("Failed to get DHCP Reply");
-                LOG.trace("Reason for failure {}", e);
+                LOG.trace("Reason for failure.", e);
             }
         }
     }
@@ -211,7 +210,7 @@ public class DhcpPktHandler implements PacketProcessingListener {
                         reply.deserialize(rawDhcpPayload, 0, rawDhcpPayload.length);
                     } catch (PacketException e) {
                         LOG.warn("Failed to deserialize DHCP pkt");
-                        LOG.trace("Reason for failure {}", e);
+                        LOG.trace("Reason for failure", e);
                         return null;
                     }
                     return reply;

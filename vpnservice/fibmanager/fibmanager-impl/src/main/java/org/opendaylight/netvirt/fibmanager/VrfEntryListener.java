@@ -9,7 +9,6 @@ package org.opendaylight.netvirt.fibmanager;
 
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
-import com.google.common.util.concurrent.CheckedFuture;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
@@ -20,7 +19,6 @@ import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.Callable;
@@ -29,12 +27,9 @@ import java.util.concurrent.Future;
 import java.util.concurrent.LinkedBlockingQueue;
 
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.binding.api.DataChangeListener;
 import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
-import org.opendaylight.controller.md.sal.common.api.data.AsyncDataBroker.DataChangeScope;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
 import org.opendaylight.genius.datastoreutils.DataStoreJobCoordinator;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
 import org.opendaylight.genius.mdsalutil.ActionInfo;
@@ -113,7 +108,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.netvirt.inter.vpn.link.rev160311.inter.vpn.link.states.InterVpnLinkState;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.netvirt.inter.vpn.link.rev160311.inter.vpn.links.InterVpnLink;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.overlay.rev150105.TunnelTypeVxlan;
-import org.opendaylight.yangtools.concepts.ListenerRegistration;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier.InstanceIdentifierBuilder;
@@ -127,10 +121,10 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
     private final DataBroker dataBroker;
     private final IMdsalApiManager mdsalManager;
     private IVpnManager vpnmanager;
-    private NexthopManager nextHopManager;
+    private final NexthopManager nextHopManager;
     private ItmRpcService itmManager;
-    private OdlInterfaceRpcService interfaceManager;
-    private IdManagerService idManager;
+    private final OdlInterfaceRpcService interfaceManager;
+    private final IdManagerService idManager;
     private static final BigInteger COOKIE_VM_FIB_TABLE =  new BigInteger("8000003", 16);
     private static final int DEFAULT_FIB_FLOW_PRIORITY = 10;
     private static final int LFIB_INTERVPN_PRIORITY = 1;
@@ -143,7 +137,7 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
     private static Integer batchInterval;
     private static final int BATCH_SIZE = 1000;
     private static BlockingQueue<ActionableResource> vrfEntryBufferQ = new LinkedBlockingQueue<>();
-    private ResourceBatchingManager resourceBatchingManager;
+    private final ResourceBatchingManager resourceBatchingManager;
 
     public VrfEntryListener(final DataBroker dataBroker, final IMdsalApiManager mdsalApiManager,
                             final NexthopManager nexthopManager, final OdlInterfaceRpcService interfaceManager,
@@ -1055,7 +1049,7 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
             }
 
         } catch (InterruptedException | ExecutionException e) {
-            LOG.warn("Exception when getting tunnel interface Id for tunnel type {}", e);
+            LOG.warn("Exception when getting tunnel interface Id for tunnel type", e);
         }
 
         return null;
@@ -1791,8 +1785,9 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
                         WriteTransaction writeTransaction = dataBroker.newWriteOnlyTransaction();
                         VrfTablesKey vrfTablesKey = new VrfTablesKey(rd);
                         VrfEntry vrfEntry = getVrfEntry(dataBroker, rd, destPrefix);
-                        if (vrfEntry == null)
+                        if (vrfEntry == null) {
                             return futures;
+                        }
                         LOG.trace("handleRemoteRoute :: action {}, localDpnId {}, " +
                                         "remoteDpnId {} , vpnId {}, rd {}, destPfx {}",
                                 action, localDpnId, remoteDpnId, vpnId, rd, destPrefix);
