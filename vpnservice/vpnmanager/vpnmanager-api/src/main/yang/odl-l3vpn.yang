@@ -16,6 +16,12 @@ module odl-l3vpn {
             key "ip_address";
             leaf-list next-hop-ip-list { type string; }
             leaf ip_address {type string;}
+            leaf primary-adjacency {
+                type boolean;
+                default false;
+                description
+		    "Value of True indicates this is a primary adjacency";
+            }
             leaf label { type uint32; config "false"; } /* optional */
             leaf mac_address {type string;} /* optional */
         }
