@@ -258,7 +258,7 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                         return;
                     }
                     for (Adjacency adj : adjs) {
-                        if (adj.getMacAddress() != null && !adj.getMacAddress().isEmpty()) {
+                        if (adj.isPrimaryAdjacency()) {
                             primaryInterfaceIp = adj.getIpAddress();
                             break;
                         }
@@ -597,7 +597,7 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                         (adjNextHop != null && !adjNextHop.isEmpty()) ? adjNextHop : Arrays.asList(nextHopIp))
                         .setIpAddress(prefix).setKey(new AdjacencyKey(prefix)).build());
 
-                if (nextHop.getMacAddress() != null && !nextHop.getMacAddress().isEmpty()) {
+                if (nextHop.isPrimaryAdjacency()) {
                     LOG.trace("Adding prefix {} to interface {} for vpn {}", prefix, interfaceName, vpnName);
                     writeOperTxn.merge(
                             LogicalDatastoreType.OPERATIONAL,
@@ -1139,7 +1139,7 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                 LOG.trace("NextHops are " + nextHops);
                 for (Adjacency nextHop : nextHops) {
                     List<String> nhList = new ArrayList<String>();
-                    if (nextHop.getMacAddress() == null || nextHop.getMacAddress().isEmpty()) {
+                    if (nextHop.isPrimaryAdjacency()) {
                         // This is either an extra-route (or) a learned IP via subnet-route
                         String nextHopIp = InterfaceUtils.getEndpointIpAddressForDPN(dataBroker, dpnId);
                         if (nextHopIp == null || nextHopIp.isEmpty()) {
@@ -1426,6 +1426,7 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
             VpnInterface currVpnIntf = optVpnInterface.get();
             String prefix = VpnUtil.getIpPrefix(adj.getIpAddress());
             String rd = getRouteDistinguisher(currVpnIntf.getVpnInstanceName());
+
             rd = (rd != null) ? rd : currVpnIntf.getVpnInstanceName();
             InstanceIdentifier<Adjacencies> adjPath = identifier.augmentation(Adjacencies.class);
             Optional<Adjacencies> optAdjacencies = VpnUtil.read(dataBroker, LogicalDatastoreType.OPERATIONAL, adjPath);
@@ -1451,9 +1452,11 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
             VpnInterface newVpnIntf = VpnUtil.getVpnInterface(currVpnIntf.getName(), currVpnIntf.getVpnInstanceName(), aug, dpnId, currVpnIntf.isScheduledForRemove());
 
             VpnUtil.syncUpdate(dataBroker, LogicalDatastoreType.OPERATIONAL, identifier, newVpnIntf);
-            for (String nh : adj.getNextHopIpList()) {
-                addExtraRoute(adj.getIpAddress(), nh, rd, currVpnIntf.getVpnInstanceName(), (int) label,
-                        currVpnIntf.getName());
+            if (adj.getNextHopIpList() != null) {
+                for (String nh : adj.getNextHopIpList()) {
+                    addExtraRoute(adj.getIpAddress(), nh, rd, currVpnIntf.getVpnInstanceName(), (int) label,
+                            currVpnIntf.getName());
+                }
             }
         }
     }
@@ -1485,10 +1488,11 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                                     aug, dpnId, currVpnIntf.isScheduledForRemove());
 
                             VpnUtil.syncUpdate(dataBroker, LogicalDatastoreType.OPERATIONAL, identifier, newVpnIntf);
-
-                            for (String nh : adj.getNextHopIpList()) {
-                                delExtraRoute(adj.getIpAddress(), nh, rd, currVpnIntf.getVpnInstanceName(),
-                                        currVpnIntf.getName());
+                            if (adj.getNextHopIpList() != null) {
+                                for (String nh : adj.getNextHopIpList()) {
+                                    delExtraRoute(adj.getIpAddress(), nh, rd, currVpnIntf.getVpnInstanceName(),
+                                            currVpnIntf.getName());
+                                }
                             }
                             break;
                         }

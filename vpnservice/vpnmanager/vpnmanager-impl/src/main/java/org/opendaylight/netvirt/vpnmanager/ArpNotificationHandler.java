@@ -143,7 +143,7 @@ public class ArpNotificationHandler implements OdlArputilListener {
                 } else {
                     synchronized ((vpnName + ipToQuery).intern()) {
                         VpnUtil.createVpnPortFixedIpToPort(dataBroker, vpnName, ipToQuery, srcInterface, srcMac.getValue(), false, false, true);
-                        addMipAdjacency(vpnName, srcInterface, srcIP);
+                        addMipAdjacency(vpnName, srcInterface, srcIP, null);
                     }
                 }
                 String targetIpToQuery = notification.getDstIpaddress().getIpv4Address().getValue();
@@ -261,7 +261,7 @@ public class ArpNotificationHandler implements OdlArputilListener {
                 } else {
                     synchronized ((vpnName + ipToQuery).intern()) {
                         VpnUtil.createVpnPortFixedIpToPort(dataBroker, vpnName, ipToQuery, srcInterface, srcMac.getValue(), false, false, true);
-                        addMipAdjacency(vpnName, srcInterface, srcIP);
+                        addMipAdjacency(vpnName, srcInterface, srcIP, srcMac.getValue());
                     }
                 }
             }
@@ -321,7 +321,7 @@ public class ArpNotificationHandler implements OdlArputilListener {
         });
     }
 
-    private void addMipAdjacency(String vpnName, String vpnInterface, IpAddress prefix){
+    private void addMipAdjacency(String vpnName, String vpnInterface, IpAddress prefix, String mipMacAddress){
 
         LOG.trace("Adding {} adjacency to VPN Interface {} ",prefix,vpnInterface);
         InstanceIdentifier<VpnInterface> vpnIfId = VpnUtil.getVpnInterfaceIdentifier(vpnInterface);
@@ -335,13 +335,13 @@ public class ArpNotificationHandler implements OdlArputilListener {
                 List<Adjacency> adjacencyList = adjacencies.get().getAdjacency();
                 ip = VpnUtil.getIpPrefix(ip);
                 for (Adjacency adjacs : adjacencyList) {
-                    if (adjacs.getMacAddress() != null && !adjacs.getMacAddress().isEmpty()) {
+                    if (adjacs.isPrimaryAdjacency()) {
                         nextHopIpAddr = adjacs.getIpAddress();
                         nextHopMacAddress = adjacs.getMacAddress();
                         break;
                     }
                 }
-                if (nextHopMacAddress != null && ip != null) {
+                if (nextHopIpAddr != null) {
                     String rd = VpnUtil.getVpnRd(dataBroker, vpnName);
                     long label =
                             VpnUtil.getUniqueId(idManager, VpnConstants.VPN_IDPOOL_NAME,
@@ -352,9 +352,12 @@ public class ArpNotificationHandler implements OdlArputilListener {
                         return;
                     }
                     String nextHopIp = nextHopIpAddr.split("/")[0];
-                    Adjacency newAdj = new AdjacencyBuilder().setIpAddress(ip).setKey
-                            (new AdjacencyKey(ip)).setNextHopIpList(Arrays.asList(nextHopIp)).build();
-                    adjacencyList.add(newAdj);
+                    AdjacencyBuilder newAdjBuilder = new AdjacencyBuilder().setIpAddress(ip).setKey
+                            (new AdjacencyKey(ip)).setNextHopIpList(Arrays.asList(nextHopIp));
+                    if (mipMacAddress != null) {
+                        newAdjBuilder.setMacAddress(mipMacAddress);
+                    }
+                    adjacencyList.add(newAdjBuilder.build());
                     Adjacencies aug = VpnUtil.getVpnInterfaceAugmentation(adjacencyList);
                     VpnInterface newVpnIntf = new VpnInterfaceBuilder().setKey(new VpnInterfaceKey(vpnInterface)).
                             setName(vpnInterface).setVpnInstanceName(vpnName).addAugmentation(Adjacencies.class, aug)
