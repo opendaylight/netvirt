@@ -37,14 +37,16 @@ public class AclInterfaceListener extends AsyncDataTreeChangeListenerBase<Interf
     private final AclServiceManager aclServiceManager;
     private final AclClusterUtil aclClusterUtil;
     private final DataBroker dataBroker;
+    private final AclDataUtil aclDataUtil;
 
     @Inject
     public AclInterfaceListener(AclServiceManager aclServiceManager, AclClusterUtil aclClusterUtil,
-            DataBroker dataBroker) {
+            DataBroker dataBroker, AclDataUtil aclDataUtil) {
         super(Interface.class, AclInterfaceListener.class);
         this.aclServiceManager = aclServiceManager;
         this.aclClusterUtil = aclClusterUtil;
         this.dataBroker = dataBroker;
+        this.aclDataUtil = aclDataUtil;
     }
 
     @Override
@@ -86,7 +88,7 @@ public class AclInterfaceListener extends AsyncDataTreeChangeListenerBase<Interf
             List<Uuid> deletedAclList = AclServiceUtils.getUpdatedAclList(oldAclInterface.getSecurityGroups(),
                     aclInterface.getSecurityGroups());
             if (addedAclList != null && !addedAclList.isEmpty()) {
-                AclDataUtil.addAclInterfaceMap(addedAclList, aclInterface);
+                aclDataUtil.addAclInterfaceMap(addedAclList, aclInterface);
             }
             org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state
                     .Interface interfaceState = AclServiceUtils.getInterfaceStateFromOperDS(
@@ -97,7 +99,7 @@ public class AclInterfaceListener extends AsyncDataTreeChangeListenerBase<Interf
                 aclServiceManager.notify(aclInterface, oldAclInterface, AclServiceManager.Action.UPDATE);
             }
             if (deletedAclList != null && !deletedAclList.isEmpty()) {
-                AclDataUtil.removeAclInterfaceMap(deletedAclList, aclInterface);
+                aclDataUtil.removeAclInterfaceMap(deletedAclList, aclInterface);
             }
         }
     }

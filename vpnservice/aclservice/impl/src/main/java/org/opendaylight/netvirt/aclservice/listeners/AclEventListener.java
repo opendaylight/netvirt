@@ -35,16 +35,20 @@ public class AclEventListener extends AsyncDataTreeChangeListenerBase<Acl, AclEv
         ClusteredDataTreeChangeListener<Acl> {
 
     private static final Logger LOG = LoggerFactory.getLogger(AclEventListener.class);
+
     private final AclServiceManager aclServiceManager;
     private final AclClusterUtil aclClusterUtil;
     private final DataBroker dataBroker;
+    private final AclDataUtil aclDataUtil;
 
     @Inject
-    public AclEventListener(AclServiceManager aclServiceManager, AclClusterUtil aclClusterUtil, DataBroker dataBroker) {
+    public AclEventListener(AclServiceManager aclServiceManager, AclClusterUtil aclClusterUtil, DataBroker dataBroker,
+            AclDataUtil aclDataUtil) {
         super(Acl.class, AclEventListener.class);
         this.aclServiceManager = aclServiceManager;
         this.aclClusterUtil = aclClusterUtil;
         this.dataBroker = dataBroker;
+        this.aclDataUtil = aclDataUtil;
     }
 
     @Override
@@ -68,7 +72,7 @@ public class AclEventListener extends AsyncDataTreeChangeListenerBase<Acl, AclEv
 
     @Override
     protected void update(InstanceIdentifier<Acl> key, Acl aclBefore, Acl aclAfter) {
-        List<AclInterface> interfaceList = AclDataUtil.getInterfaceList(new Uuid(aclAfter.getAclName()));
+        List<AclInterface> interfaceList = aclDataUtil.getInterfaceList(new Uuid(aclAfter.getAclName()));
         // find and update added ace rules in acl
         List<Ace> addedAceRules = getChangedAceList(aclAfter, aclBefore);
         updateRemoteAclCache(addedAceRules, aclAfter.getAclName(), AclServiceManager.Action.ADD);
@@ -108,9 +112,9 @@ public class AclEventListener extends AsyncDataTreeChangeListenerBase<Acl, AclEv
             SecurityRuleAttr aceAttributes = ace.getAugmentation(SecurityRuleAttr.class);
             if (aceAttributes != null && aceAttributes.getRemoteGroupId() != null) {
                 if (action == AclServiceManager.Action.ADD) {
-                    AclDataUtil.addRemoteAclId(aceAttributes.getRemoteGroupId(), new Uuid(aclName));
+                    aclDataUtil.addRemoteAclId(aceAttributes.getRemoteGroupId(), new Uuid(aclName));
                 } else {
-                    AclDataUtil.removeRemoteAclId(aceAttributes.getRemoteGroupId(), new Uuid(aclName));
+                    aclDataUtil.removeRemoteAclId(aceAttributes.getRemoteGroupId(), new Uuid(aclName));
                 }
             }
         }

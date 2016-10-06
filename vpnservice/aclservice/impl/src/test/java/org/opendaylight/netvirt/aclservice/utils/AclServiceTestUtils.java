@@ -90,8 +90,8 @@ public class AclServiceTestUtils {
 
     public static void verifyMatchInfo(List<MatchInfoBase> flowMatches, MatchFieldType matchType, String... params) {
         Iterable<MatchInfoBase> matches = filter(flowMatches,
-                (item -> (item instanceof MatchInfo) && ((MatchInfo) item).getMatchField().equals(matchType)
-                || (item instanceof NxMatchInfo) && ((NxMatchInfo) item).getMatchField().equals(matchType)));
+            item -> item instanceof MatchInfo && ((MatchInfo) item).getMatchField().equals(matchType)
+                 || item instanceof NxMatchInfo && ((NxMatchInfo) item).getMatchField().equals(matchType));
         assertFalse(Iterables.isEmpty(matches));
         for (MatchInfoBase baseMatch : matches) {
             if (baseMatch instanceof MatchInfo) {
@@ -104,8 +104,8 @@ public class AclServiceTestUtils {
 
     public static void verifyMatchInfo(List<MatchInfoBase> flowMatches, NxMatchFieldType matchType, String... params) {
         Iterable<MatchInfoBase> matches = filter(flowMatches,
-                (item -> (item instanceof MatchInfo) && ((MatchInfo) item).getMatchField().equals(matchType)
-                || (item instanceof NxMatchInfo) && ((NxMatchInfo) item).getMatchField().equals(matchType)));
+            item -> item instanceof MatchInfo && ((MatchInfo) item).getMatchField().equals(matchType)
+                 || item instanceof NxMatchInfo && ((NxMatchInfo) item).getMatchField().equals(matchType));
         assertFalse(Iterables.isEmpty(matches));
         for (MatchInfoBase baseMatch : matches) {
             if (baseMatch instanceof MatchInfo) {
@@ -158,18 +158,18 @@ public class AclServiceTestUtils {
 
     public static void verifyMatchFieldTypeDontExist(List<MatchInfoBase> flowMatches, MatchFieldType matchType) {
         Iterable<MatchInfoBase> matches = filter(flowMatches,
-                (item -> ((MatchInfo) item).getMatchField().equals(matchType)));
+            item -> ((MatchInfo) item).getMatchField().equals(matchType));
         Assert.assertTrue("unexpected match type " + matchType.name(), Iterables.isEmpty(matches));
     }
 
     public static void verifyMatchFieldTypeDontExist(List<MatchInfoBase> flowMatches, NxMatchFieldType matchType) {
         Iterable<MatchInfoBase> matches = filter(flowMatches,
-                (item -> ((MatchInfo) item).getMatchField().equals(matchType)));
+            item -> ((MatchInfo) item).getMatchField().equals(matchType));
         Assert.assertTrue("unexpected match type " + matchType.name(), Iterables.isEmpty(matches));
     }
 
-    public static void prepareAclDataUtil(AclInterface inter, String... updatedAclNames) {
-        AclDataUtil.addAclInterfaceMap(prapreaAclIds(updatedAclNames), inter);
+    public static void prepareAclDataUtil(AclDataUtil aclDataUtil, AclInterface inter, String... updatedAclNames) {
+        aclDataUtil.addAclInterfaceMap(prapreaAclIds(updatedAclNames), inter);
     }
 
     public static Acl prepareAcl(String aclName, String... aces) {
@@ -197,19 +197,13 @@ public class AclServiceTestUtils {
         return Stream.of(names).map(name -> new Uuid(name)).collect(Collectors.toList());
     }
 
-    public static void clearStaticData(AclInterface inter, String... aclNames) {
-        AclDataUtil.removeAclInterfaceMap(prapreaAclIds(aclNames), inter);
-    }
-
     public static void verifyActionTypeExist(List<ActionInfo> flowActions, ActionType actionType) {
-        Iterable<ActionInfo> actions = filter(flowActions,
-                (item -> ((ActionInfo) item).getActionType().equals(actionType)));
+        Iterable<ActionInfo> actions = filter(flowActions, item -> item.getActionType().equals(actionType));
         assertFalse(Iterables.isEmpty(actions));
     }
 
     public static void verifyActionInfo(List<ActionInfo> flowActions, ActionType actionType, String... params) {
-        Iterable<ActionInfo> actions = filter(flowActions,
-                (item -> ((ActionInfo) item).getActionType().equals(actionType)));
+        Iterable<ActionInfo> actions = filter(flowActions, item -> item.getActionType().equals(actionType));
         assertFalse(Iterables.isEmpty(actions));
         for (ActionInfo action : actions) {
             verifyActionValues(action, params);
@@ -233,8 +227,8 @@ public class AclServiceTestUtils {
     public static void verifyLearnActionFlowModInfo(List<ActionInfo> flowActions,
             NwConstants.LearnFlowModsType type, String... params) {
         Iterable<ActionInfo> actions = filter(flowActions,
-                (item -> ((ActionInfo) item).getActionType().equals(ActionType.learn)
-                        && ((ActionInfo) item).getActionValuesMatrix()[0].equals(type.name())));
+            item -> item.getActionType().equals(ActionType.learn)
+                 && item.getActionValuesMatrix()[0].equals(type.name()));
         assertFalse(Iterables.isEmpty(actions));
         for (ActionInfo action : actions) {
             verifyActionValues(action, params);
@@ -243,11 +237,10 @@ public class AclServiceTestUtils {
 
     public static void verifyInstructionInfo(List<InstructionInfo> instructionInfoList, InstructionType type,
             String ... params) {
-        Iterable<InstructionInfo> matches = filter(instructionInfoList,
-                (item -> item.getInstructionType().equals(type)));
+        Iterable<InstructionInfo> matches = filter(instructionInfoList, item -> item.getInstructionType().equals(type));
         assertFalse(Iterables.isEmpty(matches));
         for (InstructionInfo baseMatch : matches) {
-            verifyInstructionValues((InstructionInfo) baseMatch, params);
+            verifyInstructionValues(baseMatch, params);
         }
 
     }

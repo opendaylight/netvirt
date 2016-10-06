@@ -12,6 +12,8 @@ import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.infrautils.inject.AbstractLifecycle;
+import org.opendaylight.netvirt.aclservice.utils.AclDataUtil;
+import org.opendaylight.netvirt.aclservice.utils.AclServiceUtils;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.config.rev160806.AclserviceConfig;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.config.rev160806.AclserviceConfig.SecurityGroupMode;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
@@ -24,14 +26,19 @@ public class AclServiceImplFactory extends AbstractLifecycle {
     private static final Logger LOG = LoggerFactory.getLogger(AclServiceImplFactory.class);
     //private static final String SECURITY_GROUP_MODE = "security-group-mode";
 
-    private DataBroker dataBroker;
-    private IMdsalApiManager mdsalManager;
+    private final DataBroker dataBroker;
+    private final IMdsalApiManager mdsalManager;
     private SecurityGroupMode securityGroupMode;
+    private final AclDataUtil aclDataUtil;
+    private final AclServiceUtils aclServiceUtils;
 
     @Inject
-    public AclServiceImplFactory(DataBroker dataBroker, IMdsalApiManager mdsalManager, AclserviceConfig config) {
+    public AclServiceImplFactory(DataBroker dataBroker, IMdsalApiManager mdsalManager, AclserviceConfig config,
+            AclDataUtil aclDataUtil, AclServiceUtils aclServiceUtils) {
         this.dataBroker = dataBroker;
         this.mdsalManager = mdsalManager;
+        this.aclDataUtil = aclDataUtil;
+        this.aclServiceUtils = aclServiceUtils;
         if (config != null) {
             this.securityGroupMode = config.getSecurityGroupMode();
         }
@@ -56,26 +63,26 @@ public class AclServiceImplFactory extends AbstractLifecycle {
     public AbstractIngressAclServiceImpl createIngressAclServiceImpl() {
         LOG.info("creating ingress acl service using mode {}", securityGroupMode);
         if (securityGroupMode == null || securityGroupMode == SecurityGroupMode.Stateful) {
-            return new StatefulIngressAclServiceImpl(dataBroker, mdsalManager);
+            return new StatefulIngressAclServiceImpl(dataBroker, mdsalManager, aclDataUtil, aclServiceUtils);
         } else if (securityGroupMode == SecurityGroupMode.Stateless) {
-            return new StatelessIngressAclServiceImpl(dataBroker, mdsalManager);
+            return new StatelessIngressAclServiceImpl(dataBroker, mdsalManager, aclDataUtil, aclServiceUtils);
         } else if (securityGroupMode == SecurityGroupMode.Transparent) {
-            return new TransparentIngressAclServiceImpl(dataBroker, mdsalManager);
+            return new TransparentIngressAclServiceImpl(dataBroker, mdsalManager, aclDataUtil, aclServiceUtils);
         } else {
-            return new LearnIngressAclServiceImpl(dataBroker, mdsalManager);
+            return new LearnIngressAclServiceImpl(dataBroker, mdsalManager, aclDataUtil, aclServiceUtils);
         }
     }
 
     public AbstractEgressAclServiceImpl createEgressAclServiceImpl() {
         LOG.info("creating egress acl service using mode {}", securityGroupMode);
         if (securityGroupMode == null || securityGroupMode == SecurityGroupMode.Stateful) {
-            return new StatefulEgressAclServiceImpl(dataBroker, mdsalManager);
+            return new StatefulEgressAclServiceImpl(dataBroker, mdsalManager, aclDataUtil, aclServiceUtils);
         } else if (securityGroupMode == SecurityGroupMode.Stateless) {
-            return new StatelessEgressAclServiceImpl(dataBroker, mdsalManager);
+            return new StatelessEgressAclServiceImpl(dataBroker, mdsalManager, aclDataUtil, aclServiceUtils);
         } else if (securityGroupMode == SecurityGroupMode.Transparent) {
-            return new TransparentEgressAclServiceImpl(dataBroker, mdsalManager);
+            return new TransparentEgressAclServiceImpl(dataBroker, mdsalManager, aclDataUtil, aclServiceUtils);
         } else {
-            return new LearnEgressAclServiceImpl(dataBroker, mdsalManager);
+            return new LearnEgressAclServiceImpl(dataBroker, mdsalManager, aclDataUtil, aclServiceUtils);
         }
     }
 
