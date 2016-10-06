@@ -537,7 +537,7 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
         }
     }
 
-    private void installInterVpnRouteInLFib(final String rd, final VrfEntry vrfEntry) {
+    public void installInterVpnRouteInLFib(final String rd, final VrfEntry vrfEntry) {
         // INTERVPN routes are routes in a Vpn1 that have been leaked to Vpn2. In DC-GW, this Vpn2 route is pointing
         // to a list of DPNs where Vpn2's VpnLink was instantiated. In these DPNs LFIB must be programmed so that the
         // packet is commuted from Vpn2 to Vpn1.
@@ -571,6 +571,8 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
                 Long lportTag = vpnIs1stEndpoint ? vpnLinkState.get().getSecondEndpointState().getLportTag()
                                                  : vpnLinkState.get().getFirstEndpointState().getLportTag();
 
+                LOG.trace("Installing flow in LFIB table for interVpnLink {}", interVpnLink.getName());
+
                 for ( BigInteger dpId : targetDpns ) {
                     List<ActionInfo> actionsInfos = Arrays.asList(new ActionInfo(ActionType.pop_mpls, new String[]{}));
 
@@ -583,6 +585,10 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
                                     new InstructionInfo(InstructionType.write_metadata, metadata),
                                     new InstructionInfo(InstructionType.goto_table,
                                             new long[] { NwConstants.L3_INTERFACE_TABLE }));
+
+                    LOG.debug("Installing flow: VrfEntry=[prefix={} label={} nexthop={}] dpn {} for InterVpnLink {} in LFIB",
+                              vrfEntry.getDestPrefix(), vrfEntry.getLabel(), vrfEntry.getNextHopAddressList(),
+                              dpId, interVpnLink.getName());
 
                     makeLFibTableEntry(dpId, vrfEntry.getLabel(), instructions, LFIB_INTERVPN_PRIORITY,
                             NwConstants.ADD_FLOW, null);
@@ -660,37 +666,19 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
         Flow flowEntity = MDSALUtil.buildFlowNew(NwConstants.L3_FIB_TABLE, flowRef, priority, flowRef, 0, 0,
                                                  COOKIE_VM_FIB_TABLE, matches, instructions);
 
+        LOG.trace("Installing flow in FIB table for vpn {} interVpnLink {} nextHop {} key {}" ,
+                  vpnUuid, interVpnLink.getInterVpnLinkName(), nextHop, flowRef);
+
         for ( BigInteger dpId : targetDpns ) {
+
+            LOG.debug("Installing flow: VrfEntry=[prefix={} label={} nextHop={}] dpn {} for InterVpnLink {} in FIB",
+                     vrfEntry.getDestPrefix(), vrfEntry.getLabel(), vrfEntry.getNextHopAddressList(),
+                     dpId, interVpnLink.getInterVpnLinkName());
+
             mdsalManager.installFlow(dpId, flowEntity);
         }
     }
 
-    private void removeRouteFromInterVpnLink(final InterVpnLinkDataComposite interVpnLink, final String vpnUuid,
-                                             final VrfEntry vrfEntry) {
-
-        Preconditions.checkNotNull(interVpnLink, "InterVpnLink cannot be null");
-        Preconditions.checkArgument(vrfEntry.getNextHopAddressList() != null
-                                    && vrfEntry.getNextHopAddressList().size() == 1);
-
-        String iVpnLinkName = interVpnLink.getInterVpnLinkName();
-
-        InterVpnLinkState interVpnLinkState = interVpnLink.getInterVpnLinkState();
-        if ( interVpnLinkState == null ) {
-            LOG.warn("Could not find State for InterVpnLink {}", iVpnLinkName);
-            return;
-        }
-
-        String nextHop = vrfEntry.getNextHopAddressList().get(0);
-        String flowRef = getInterVpnFibFlowRef(iVpnLinkName, vrfEntry.getDestPrefix(), nextHop);
-        FlowId flowId = new FlowId(flowRef);
-        Flow flow = new FlowBuilder().setKey(new FlowKey(flowId)).setId(flowId).setTableId(NwConstants.L3_FIB_TABLE)
-                                     .setFlowName(flowRef).build();
-
-        for ( BigInteger dpId : interVpnLink.getEndpointDpnsByVpnName(vpnUuid) ) {
-            mdsalManager.removeFlow(dpId, flow);
-        }
-
-    }
 
     private  <T extends DataObject> Optional<T> read(DataBroker broker, LogicalDatastoreType datastoreType,
                                                      InstanceIdentifier<T> path) {
@@ -1396,7 +1384,10 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
                 {
                     // This is route that points to the other endpoint of an InterVpnLink
                     // In that case, we should look for the FIB table pointing to LPortDispatcher table and remove it.
-                    removeRouteFromInterVpnLink(interVpnLink, rd, vrfEntry);
+                    removeInterVPNLinkRouteFlows(interVpnLink.getInterVpnLinkName(),
+                                                 //isVpnFirstEndPoint(iVpnLink,rd),
+                                                 interVpnLink.isFirstEndpointVpnName(rd),
+                                                 vrfEntry);
                 }
             }
         }
@@ -1608,8 +1599,9 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
         if(!wrTxPresent ){
             tx.submit();
         }
-        LOG.debug("LFIB Entry for dpID {} : label : {} instructions {} modified successfully {}",
-                dpId, label, instructions );
+
+        LOG.debug("LFIB Entry for dpID {} : label : {} instructions {} : key {} {} successfully",
+                  dpId, label, instructions, flowKey, (NwConstants.ADD_FLOW == addOrRemove) ? "ADDED" : "REMOVED");
     }
 
     private void deleteLocalAdjacency(final BigInteger dpId, final long vpnId, final String ipAddress,
@@ -2084,7 +2076,6 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
                         child(VrfEntry.class, new VrfEntryKey(ipPrefix)).build();
         return vrfEntryId;
     }
-
     protected Boolean installRouterFibEntries(final VrfEntry vrfEntry, final Collection<VpnToDpnList> vpnToDpnList,
             long vpnId, int addOrRemove) {
         RouterInterface routerInt = vrfEntry.getAugmentation(RouterInterface.class);
@@ -2155,5 +2146,57 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
         } else {
             mdsalManager.removeFlow(flowEntity);
         }
+    }
+
+    public void removeInterVPNLinkRouteFlows(final String interVpnLinkName,
+                                             final boolean isVpnFirstEndPoint,
+                                             final VrfEntry vrfEntry)
+    {
+        Preconditions.checkArgument(vrfEntry.getNextHopAddressList() != null
+                                    && vrfEntry.getNextHopAddressList().size() == 1);
+        Optional<InterVpnLinkState> interVpnLinkState = FibUtil.getInterVpnLinkState(dataBroker, interVpnLinkName);
+
+        if ( !interVpnLinkState.isPresent()) {
+            LOG.warn("Could not find State for InterVpnLink {}", interVpnLinkName);
+            return;
+        }
+
+        List<BigInteger> targetDpns =
+            isVpnFirstEndPoint ? interVpnLinkState.get().getFirstEndpointState().getDpId()
+            : interVpnLinkState.get().getSecondEndpointState().getDpId();
+
+        String nextHop = vrfEntry.getNextHopAddressList().get(0);
+
+        // delete from FIB
+        //
+        String flowRef = getInterVpnFibFlowRef(interVpnLinkName, vrfEntry.getDestPrefix(), nextHop);
+        FlowKey flowKey = new FlowKey(new FlowId(flowRef));
+        Flow flow = new FlowBuilder().setKey(flowKey).setId(new FlowId(flowRef)).setTableId(NwConstants.L3_FIB_TABLE)
+            .setFlowName(flowRef).build();
+
+        LOG.trace("Removing flow in FIB table for interVpnLink {} key {}",
+                  interVpnLinkName, flowRef);
+
+        for ( BigInteger dpId : targetDpns ) {
+            LOG.debug("Removing flow: VrfEntry=[prefix={} label={} nexthop={}] dpn {} for InterVpnLink {} in FIB",
+                      vrfEntry.getDestPrefix(), vrfEntry.getLabel(), nextHop,
+                      dpId, interVpnLinkName);
+
+            mdsalManager.removeFlow(dpId, flow);
+        }
+
+        // delete from LFIB
+        //
+        LOG.trace("Removing flow in FIB table for interVpnLink {}", interVpnLinkName);
+
+        WriteTransaction tx = dataBroker.newWriteOnlyTransaction();
+        for ( BigInteger dpId : targetDpns ) {
+            LOG.debug("Removing flow: VrfEntry=[prefix={} label={} nexthop={}] dpn {} for InterVpnLink {} in LFIB",
+                      vrfEntry.getDestPrefix(), vrfEntry.getLabel(), nextHop,
+                      dpId, interVpnLinkName);
+            makeLFibTableEntry(dpId, vrfEntry.getLabel(), null /* no instructions */,
+                               LFIB_INTERVPN_PRIORITY, NwConstants.DEL_FLOW, tx);
+        }
+        tx.submit();
     }
 }
