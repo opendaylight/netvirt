@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7a6b29fe_4419ac21",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/ArpNotificationHandler.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 358,
+      "author": {
+        "id": 6456
+      },
+      "writtenOn": "2016-10-06T13:49:29Z",
+      "side": 1,
+      "message": "nextHopList should be set to ip.split....",
+      "revId": "b3a335121a2e99cf131da8f6c50aa137ac9d466f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_a4afe093",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 600,
+      "author": {
+        "id": 6456
+      },
+      "writtenOn": "2016-10-06T13:49:29Z",
+      "side": 1,
+      "message": "Learnet from subnet routes will not be addwd as prinary, but does require prefix",
+      "revId": "b3a335121a2e99cf131da8f6c50aa137ac9d466f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
