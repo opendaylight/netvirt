@@ -105,6 +105,24 @@
     },
     {
       "key": {
+        "uuid": "7a6b29fe_672b0d34",
+        "filename": "vpnservice/vpnmanager/vpnmanager-api/src/main/yang/odl-l3vpn.yang",
+        "patchSetId": 2
+      },
+      "lineNbr": 345,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-10-06T04:38:33Z",
+      "side": 1,
+      "message": "cORRECT, please address that Gobind.",
+      "parentUuid": "7a6b29fe_4be8a516",
+      "revId": "858504c789fdaa6df88bf27e2e99c781e3103a55",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7a6b29fe_f691a3f1",
         "filename": "vpnservice/vpnmanager/vpnmanager-api/src/main/yang/odl-l3vpn.yang",
         "patchSetId": 2
@@ -207,6 +225,24 @@
     },
     {
       "key": {
+        "uuid": "7a6b29fe_c7f4a1d1",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/ArpNotificationHandler.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 112,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-10-06T04:38:33Z",
+      "side": 1,
+      "message": "Yes, that is whye another read is being done on vipportiptoport new DS at line 114.",
+      "parentUuid": "7a6b29fe_fde05898",
+      "revId": "858504c789fdaa6df88bf27e2e99c781e3103a55",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7a6b29fe_cce05628",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/ArpNotificationHandler.java",
         "patchSetId": 2
@@ -287,6 +323,24 @@
       "side": 1,
       "message": "How is the Subnet gateway IP request for direct network association to VPN taken care of now ? We do not have the isSubnetIp condition being satisfied for that case.",
       "parentUuid": "7a6b29fe_8cc13e82",
+      "revId": "858504c789fdaa6df88bf27e2e99c781e3103a55",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_07ffb9ab",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/ArpNotificationHandler.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 149,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-10-06T04:38:33Z",
+      "side": 1,
+      "message": "that is taken care by vpnIds.isExternalVpn() bunch above from line 143 to 148.",
+      "parentUuid": "7a6b29fe_6bce41b6",
       "revId": "858504c789fdaa6df88bf27e2e99c781e3103a55",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
