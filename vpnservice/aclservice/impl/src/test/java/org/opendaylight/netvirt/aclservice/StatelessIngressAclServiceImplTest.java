@@ -34,6 +34,7 @@ import org.opendaylight.genius.mdsalutil.NxMatchFieldType;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.netvirt.aclservice.api.utils.AclInterface;
 import org.opendaylight.netvirt.aclservice.utils.AclConstants;
+import org.opendaylight.netvirt.aclservice.utils.AclDataUtil;
 import org.opendaylight.netvirt.aclservice.utils.AclServiceTestUtils;
 import org.opendaylight.netvirt.aclservice.utils.AclServiceUtils;
 import org.opendaylight.netvirt.aclservice.utils.MethodInvocationParamSaver;
@@ -61,23 +62,21 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 @RunWith(MockitoJUnitRunner.class)
 public class StatelessIngressAclServiceImplTest {
 
-    private StatelessIngressAclServiceImpl testedService;
+    StatelessIngressAclServiceImpl testedService;
 
-    @Mock
-    DataBroker dataBroker;
-    @Mock
-    IMdsalApiManager mdsalManager;
-    @Mock
-    WriteTransaction mockWriteTx;
-    @Mock
-    ReadOnlyTransaction mockReadTx;
+    @Mock DataBroker dataBroker;
+    @Mock IMdsalApiManager mdsalManager;
+    @Mock WriteTransaction mockWriteTx;
+    @Mock ReadOnlyTransaction mockReadTx;
 
     MethodInvocationParamSaver<Void> installFlowValueSaver = null;
     MethodInvocationParamSaver<Void> removeFlowValueSaver = null;
 
     @Before
     public void setUp() {
-        testedService = new StatelessIngressAclServiceImpl(dataBroker, mdsalManager);
+        AclDataUtil aclDataUtil = new AclDataUtil();
+        AclServiceUtils aclServiceUtils = new AclServiceUtils(aclDataUtil);
+        testedService = new StatelessIngressAclServiceImpl(dataBroker, mdsalManager, aclDataUtil, aclServiceUtils);
         doReturn(Futures.immediateCheckedFuture(null)).when(mockWriteTx).submit();
         doReturn(mockReadTx).when(dataBroker).newReadOnlyTransaction();
         doReturn(mockWriteTx).when(dataBroker).newWriteOnlyTransaction();
