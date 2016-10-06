@@ -70,6 +70,30 @@
       "revId": "d76aedeaf70058768b7df8b2bfa889b63de3d24a",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_42999f1e",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 5350
+      },
+      "writtenOn": "2016-10-06T12:08:14Z",
+      "side": 1,
+      "message": "My preference also goes for Java 8\u0027s, but I don\u0027t think it is a good idea having a mix",
+      "parentUuid": "7a6b29fe_c2776f3a",
+      "range": {
+        "startLine": 13,
+        "startChar": 0,
+        "endLine": 15,
+        "endChar": 27
+      },
+      "revId": "d76aedeaf70058768b7df8b2bfa889b63de3d24a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
