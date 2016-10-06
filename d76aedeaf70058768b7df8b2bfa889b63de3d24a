@@ -46,6 +46,30 @@
       "revId": "d76aedeaf70058768b7df8b2bfa889b63de3d24a",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_c2776f3a",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 4540
+      },
+      "writtenOn": "2016-10-06T10:44:57Z",
+      "side": 1,
+      "message": "We can\u0027t migrate everything to Java 8 Optional, because MD-SAL is tied to Guava Optional (it\u0027s an API change). I tend to use the Java 8 variant where possible, but that\u0027s personal preference really...\n\nWe\u0027ll probably end up with a concerted migration when Guava 21 is released (that\u0027s when they\u0027ll define the Java 8 transition recommendations).",
+      "parentUuid": "7a6b29fe_226bc386",
+      "range": {
+        "startLine": 13,
+        "startChar": 0,
+        "endLine": 15,
+        "endChar": 27
+      },
+      "revId": "d76aedeaf70058768b7df8b2bfa889b63de3d24a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
