@@ -17,9 +17,6 @@ and is available at http://www.eclipse.org/legal/epl-v10.html INTERNAL
   <version>0.3.1-SNAPSHOT</version>
   <name>${project.artifactId}</name>
   <modelVersion>4.0.0</modelVersion>
-  <prerequisites>
-    <maven>3.1.1</maven>
-  </prerequisites>
   <properties>
     <mdsal.version>1.4.1-SNAPSHOT</mdsal.version>
     <openflowplugin.version>0.3.1-SNAPSHOT</openflowplugin.version>
