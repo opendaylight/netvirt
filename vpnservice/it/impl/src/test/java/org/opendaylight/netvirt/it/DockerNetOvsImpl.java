@@ -42,14 +42,25 @@ public class DockerNetOvsImpl extends AbstractNetOvs {
         if (isUserSpace) {
             addTerminationPoint(portInfo, bridgeNode, "tap");
         } else {
+            LOG.info("shague 1: adding terminationPoint");
             addTerminationPoint(portInfo, bridgeNode, "internal");
         }
-        dockerOvs.runInContainer(DEFAULT_WAIT, ovsInstance,
-                "ip", "link", "set", "dev", portInfo.name, "address", portInfo.mac);
+        LOG.info("shague 2: added terminationPoint");
+        //dockerOvs.runInContainer(DEFAULT_WAIT, ovsInstance,
+        //        "ip", "link", "set", "dev", portInfo.name, "address", portInfo.mac);
+        LOG.info("shague 3: and boom");
         portInfo.setNeutronPort(neutronPort);
         portInfoByName.put(portInfo.name, portInfo);
 
         return portInfo.name;
+    }
+
+    @Override
+    public boolean setPortMac(int ovsInstance, String portName) throws InterruptedException, IOException {
+        PortInfo portInfo = portInfoByName.get(portName);
+        dockerOvs.runInContainer(DEFAULT_WAIT, ovsInstance,
+                "ip", "link", "set", "dev", portInfo.name, "address", portInfo.mac);
+        return true;
     }
 
     @Override

@@ -101,6 +101,11 @@ public class AbstractNetOvs implements NetOvs {
     }
 
     @Override
+    public boolean setPortMac(int ovsInstance, String portName) throws InterruptedException, IOException {
+        return false;
+    }
+
+    @Override
     public String createRouterInterface(String routerName, String networkName) {
         PortInfo portInfo = new PortInfo(-1, NetvirtITConstants.GATEWAY_SUFFIX,
                 getNeutronNetwork(networkName).getIpPfx());
@@ -134,18 +139,27 @@ public class AbstractNetOvs implements NetOvs {
 
     @Override
     public void destroy() {
+        LOG.info("destroy: {}:{}", dockerOvs.getOvsdbAddress(0), dockerOvs.getOvsdbPort(0));
         for (PortInfo portInfo : portInfoByName.values()) {
+            LOG.info("destroy: {}:{} port: {}",
+                    dockerOvs.getOvsdbAddress(0), dockerOvs.getOvsdbPort(0), portInfo.id);
             deletePort(portInfo.id);
         }
         portInfoByName.clear();
 
         for (NeutronRouter neutronRouter : neutronRouterByName.values()) {
+            LOG.info("destroy: {}:{} router",
+                    dockerOvs.getOvsdbAddress(0), dockerOvs.getOvsdbPort(0), neutronRouter);
             neutronRouter.deleteRouter();
         }
         neutronRouterByName.clear();
 
         for (NeutronNetwork neutronNetwork : neutronNetworkByName.values()) {
+            LOG.info("destroy: {}:{} subnet",
+                    dockerOvs.getOvsdbAddress(0), dockerOvs.getOvsdbPort(0), neutronNetwork);
             neutronNetwork.deleteSubnet();
+            LOG.info("destroy: {}:{} network",
+                    dockerOvs.getOvsdbAddress(0), dockerOvs.getOvsdbPort(0), neutronNetwork);
             neutronNetwork.deleteNetwork();
         }
         neutronNetworkByName.clear();

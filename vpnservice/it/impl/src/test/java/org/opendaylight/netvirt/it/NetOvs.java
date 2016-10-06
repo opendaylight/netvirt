@@ -18,6 +18,8 @@ public interface NetOvs {
     String createPort(int ovsInstance, Node bridgeNode, String networkName) throws
             InterruptedException, IOException;
 
+    boolean setPortMac(int ovsInstance, String portName) throws InterruptedException, IOException;
+
     String createRouterInterface(String routerName, String networkName);
 
     PortInfo getPortInfo(String portName);

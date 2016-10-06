@@ -498,6 +498,9 @@ public class NetvirtIT extends AbstractMdsalTestBase {
                         NotifyingDataChangeListener.BIT_CREATE, tpIid, null);
         portOperationalListener.registerDataChangeListener(dataBroker);
 
+        boolean macSet = netOvs.setPortMac(ovsInstance, port);
+        LOG.info("add mac to port: {}", port);
+
         netOvs.preparePortForPing(port);
 
         portOperationalListener.waitForCreation(10000);
