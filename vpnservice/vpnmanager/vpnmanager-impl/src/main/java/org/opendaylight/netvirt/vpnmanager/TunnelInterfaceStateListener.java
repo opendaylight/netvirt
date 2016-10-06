@@ -17,7 +17,6 @@ import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.netvirt.bgpmanager.api.IBgpManager;
 import org.opendaylight.netvirt.fibmanager.api.IFibManager;
-import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.VpnAfConfig;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.VpnInstances;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.instances.VpnInstance;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.interfaces.VpnInterface;
@@ -43,8 +42,8 @@ public class TunnelInterfaceStateListener extends AsyncDataTreeChangeListenerBas
     private static final Logger LOG = LoggerFactory.getLogger(TunnelInterfaceStateListener.class);
     private final DataBroker dataBroker;
     private final IBgpManager bgpManager;
-    private IFibManager fibManager;
-    private ItmRpcService itmRpcService;
+    private final IFibManager fibManager;
+    private final ItmRpcService itmRpcService;
     protected enum UpdateRouteAction {
         ADVERTISE_ROUTE, WITHDRAW_ROUTE
     }
@@ -154,7 +153,7 @@ public class TunnelInterfaceStateListener extends AsyncDataTreeChangeListenerBas
                     dcgwPresentStatus = rpcResult.getResult().getRetVal();
                 }
             } catch (Exception e) {
-                LOG.warn("Exception {} when querying for isDcgwPresent {}, trace {}", e, destTepIp, e.getStackTrace());
+                LOG.warn("Exception {} when querying for isDcgwPresent {}.", e, destTepIp, e);
             }
         }
 

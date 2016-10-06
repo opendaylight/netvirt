@@ -66,7 +66,6 @@ import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
@@ -105,7 +104,7 @@ public class FibUtil {
         try {
             futures.get();
         } catch (InterruptedException | ExecutionException e) {
-            LOG.error("Error writing to datastore (path, data) : ({}, {})", path, data);
+            LOG.error("Error writing to datastore (path, data) : ({}, {})", path, data, e);
             throw new RuntimeException(e.getMessage());
         }
     }
@@ -451,7 +450,7 @@ public class FibUtil {
         return InstanceIdentifier.builder(VpnIdToVpnInstance.class)
                 .child(VpnIds.class, new VpnIdsKey(Long.valueOf(vpnId))).build();
     }
-    
+
     public static <T extends DataObject> void syncUpdate(DataBroker broker, LogicalDatastoreType datastoreType,
                                                          InstanceIdentifier<T> path, T data) {
         WriteTransaction tx = broker.newWriteOnlyTransaction();
@@ -460,7 +459,7 @@ public class FibUtil {
         try {
             futures.get();
         } catch (InterruptedException | ExecutionException e) {
-            LOG.error("Error writing to datastore (path, data) : ({}, {})", path, data);
+            LOG.error("Error writing to datastore (path, data) : ({}, {})", path, data, e);
             throw new RuntimeException(e.getMessage());
         }
     }
@@ -500,8 +499,9 @@ public class FibUtil {
             } else { // Found in MDSAL database
                 List<String> nh = entry.get().getNextHopAddressList();
                 for (String nextHop : nextHopList) {
-                    if (!nh.contains(nextHop))
+                    if (!nh.contains(nextHop)) {
                         nh.add(nextHop);
+                    }
                 }
                 VrfEntry vrfEntry = new VrfEntryBuilder().setDestPrefix(prefix).setNextHopAddressList(nh)
                         .setLabel((long) label).setOrigin(origin.getValue()).build();
