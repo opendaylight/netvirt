@@ -15,6 +15,8 @@ import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.genius.mdsalutil.MatchInfoBase;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.netvirt.aclservice.api.AclServiceManager.Action;
+import org.opendaylight.netvirt.aclservice.utils.AclDataUtil;
+import org.opendaylight.netvirt.aclservice.utils.AclServiceUtils;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.acl.access.list.entries.Ace;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.interfaces._interface.AllowedAddressPairs;
 import org.slf4j.Logger;
@@ -28,9 +30,9 @@ public class TransparentEgressAclServiceImpl extends AbstractEgressAclServiceImp
 
     private static final Logger LOG = LoggerFactory.getLogger(TransparentEgressAclServiceImpl.class);
 
-    public TransparentEgressAclServiceImpl(DataBroker dataBroker,
-            IMdsalApiManager mdsalManager) {
-        super(dataBroker, mdsalManager);
+    public TransparentEgressAclServiceImpl(DataBroker dataBroker, IMdsalApiManager mdsalManager,
+            AclDataUtil aclDataUtil, AclServiceUtils aclServiceUtils) {
+        super(dataBroker, mdsalManager, aclDataUtil, aclServiceUtils);
     }
 
     @Override

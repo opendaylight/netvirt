@@ -12,12 +12,10 @@ import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-import static org.opendaylight.netvirt.aclservice.utils.AclServiceTestUtils.clearStaticData;
 import static org.opendaylight.netvirt.aclservice.utils.AclServiceTestUtils.prepareAcl;
 import static org.opendaylight.netvirt.aclservice.utils.AclServiceTestUtils.prepareAclClusterUtil;
 import static org.opendaylight.netvirt.aclservice.utils.AclServiceTestUtils.prepareAclDataUtil;
 
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -26,6 +24,7 @@ import org.opendaylight.netvirt.aclservice.api.AclServiceManager;
 import org.opendaylight.netvirt.aclservice.api.AclServiceManager.Action;
 import org.opendaylight.netvirt.aclservice.api.utils.AclInterface;
 import org.opendaylight.netvirt.aclservice.utils.AclClusterUtil;
+import org.opendaylight.netvirt.aclservice.utils.AclDataUtil;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.Acl;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.acl.access.list.entries.Ace;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
@@ -34,6 +33,7 @@ public class AclEventListenerTest {
 
     private AclEventListener aclEventListener;
     private AclServiceManager aclServiceManager;
+    private AclDataUtil aclDataUtil = new AclDataUtil();
 
     private InstanceIdentifier<Acl> mockInstanceId;
     private AclInterface aclInterfaceMock;
@@ -50,7 +50,7 @@ public class AclEventListenerTest {
         aclInterfaceMock = mock(AclInterface.class);
         aclServiceManager = mock(AclServiceManager.class);
         AclClusterUtil aclClusterUtil = () -> true;
-        aclEventListener = new AclEventListener(aclServiceManager, aclClusterUtil, mock(DataBroker.class));
+        aclEventListener = new AclEventListener(aclServiceManager, aclClusterUtil, mock(DataBroker.class), aclDataUtil);
 
         aclInterfaceValueSaver = ArgumentCaptor.forClass(AclInterface.class);
         actionValueSaver = ArgumentCaptor.forClass(AclServiceManager.Action.class);
@@ -60,14 +60,9 @@ public class AclEventListenerTest {
         aclName = "00000000-0000-0000-0000-000000000001";
     }
 
-    @After
-    public void tearDown() {
-        clearStaticData(aclInterfaceMock, aclName);
-    }
-
     @Test
     public void testUpdate_singleInterface_addNewAce() {
-        prepareAclDataUtil(aclInterfaceMock, aclName);
+        prepareAclDataUtil(aclDataUtil, aclInterfaceMock, aclName);
 
         Acl previousAcl = prepareAcl(aclName, "AllowUDP");
         Acl updatedAcl = prepareAcl(aclName, "AllowICMP", "AllowUDP");
@@ -83,7 +78,7 @@ public class AclEventListenerTest {
 
     @Test
     public void testUpdate_singleInterface_removeOldAce() {
-        prepareAclDataUtil(aclInterfaceMock, aclName);
+        prepareAclDataUtil(aclDataUtil, aclInterfaceMock, aclName);
 
         Acl previousAcl = prepareAcl(aclName, "AllowICMP", "AllowUDP");
         Acl updatedAcl = prepareAcl(aclName, "AllowUDP");
@@ -99,7 +94,7 @@ public class AclEventListenerTest {
 
     @Test
     public void testUpdate_singleInterface_addNewAceAndRemoveOldAce() {
-        prepareAclDataUtil(aclInterfaceMock, aclName);
+        prepareAclDataUtil(aclDataUtil, aclInterfaceMock, aclName);
 
         Acl previousAcl = prepareAcl(aclName, "AllowICMP", "AllowUDP");
         Acl updatedAcl = prepareAcl(aclName, "AllowTCP", "AllowUDP");

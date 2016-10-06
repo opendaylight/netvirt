@@ -25,6 +25,7 @@ import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.genius.utils.ServiceIndex;
 import org.opendaylight.netvirt.aclservice.api.AclServiceManager.Action;
 import org.opendaylight.netvirt.aclservice.utils.AclConstants;
+import org.opendaylight.netvirt.aclservice.utils.AclDataUtil;
 import org.opendaylight.netvirt.aclservice.utils.AclServiceOFFlowBuilder;
 import org.opendaylight.netvirt.aclservice.utils.AclServiceUtils;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.Acl;
@@ -61,9 +62,10 @@ public abstract class AbstractIngressAclServiceImpl extends AbstractAclServiceIm
      * @param dataBroker the data broker instance.
      * @param mdsalManager the mdsal manager.
      */
-    public AbstractIngressAclServiceImpl(DataBroker dataBroker, IMdsalApiManager mdsalManager) {
+    public AbstractIngressAclServiceImpl(DataBroker dataBroker, IMdsalApiManager mdsalManager, AclDataUtil aclDataUtil,
+            AclServiceUtils aclServiceUtils) {
         // Service mode is w.rt. switch
-        super(ServiceModeEgress.class, dataBroker, mdsalManager);
+        super(ServiceModeEgress.class, dataBroker, mdsalManager, aclDataUtil, aclServiceUtils);
     }
 
     /**
@@ -117,7 +119,7 @@ public abstract class AbstractIngressAclServiceImpl extends AbstractAclServiceIm
     @Override
     protected void programGeneralFixedRules(BigInteger dpid, String dhcpMacAddress,
             List<AllowedAddressPairs> allowedAddresses, int lportTag, Action action, int addOrRemove) {
-        LOG.info("programFixedRules : {} default rules.", (action == Action.ADD) ? "adding" : "removing");
+        LOG.info("programFixedRules : {} default rules.", action == Action.ADD ? "adding" : "removing");
 
         if (action == Action.ADD || action == Action.REMOVE) {
             ingressAclDhcpAllowServerTraffic(dpid, dhcpMacAddress, lportTag, addOrRemove,
@@ -168,7 +170,7 @@ public abstract class AbstractIngressAclServiceImpl extends AbstractAclServiceIm
             if (syncAllowedAddresses != null) {
                 flowMap = AclServiceUtils.getFlowForAllowedAddresses(syncAllowedAddresses, flowMap, true);
             } else if (aceAttr.getRemoteGroupId() != null) {
-                flowMap = AclServiceUtils.getFlowForRemoteAcl(aceAttr.getRemoteGroupId(), portId, flowMap,
+                flowMap = aclServiceUtils.getFlowForRemoteAcl(aceAttr.getRemoteGroupId(), portId, flowMap,
                         true);
             }
         }
