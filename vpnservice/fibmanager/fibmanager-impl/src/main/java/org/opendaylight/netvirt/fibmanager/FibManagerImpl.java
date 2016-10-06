@@ -17,6 +17,7 @@ import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.netvirt.fibmanager.api.IFibManager;
 import org.opendaylight.netvirt.fibmanager.api.RouteOrigin;
 import org.opendaylight.netvirt.vpnmanager.api.IVpnManager;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.VrfEntry;
 import org.osgi.framework.BundleContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,6 +27,7 @@ public class FibManagerImpl implements IFibManager {
     private final NexthopManager nexthopManager;
     private final VrfEntryListener vrfEntryListener;
     private IVpnManager vpnmanager;
+
 
     public FibManagerImpl(final NexthopManager nexthopManager,
                           final VrfEntryListener vrfEntryListener,
@@ -147,5 +149,12 @@ public class FibManagerImpl implements IFibManager {
     @Override
     public boolean isVPNConfigured() {
         return this.vpnmanager.isVPNConfigured();
+    }
+
+    @Override
+    public void removeInterVPNLinkRouteFlows(final String interVpnLinkName,
+                                             final boolean isVpnFirstEndPoint,
+                                             final VrfEntry vrfEntry) {
+        vrfEntryListener.removeInterVPNLinkRouteFlows(interVpnLinkName, isVpnFirstEndPoint,vrfEntry);
     }
 }

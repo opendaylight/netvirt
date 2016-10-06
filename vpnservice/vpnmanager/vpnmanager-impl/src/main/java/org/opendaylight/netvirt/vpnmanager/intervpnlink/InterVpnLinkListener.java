@@ -17,16 +17,22 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
+import java.util.concurrent.TimeoutException;
+import java.util.Arrays;
+import java.util.concurrent.Callable;
+import java.lang.StringBuffer;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.NotificationPublishService;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.genius.datastoreutils.DataStoreJobCoordinator;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.netvirt.bgpmanager.api.IBgpManager;
 import org.opendaylight.netvirt.fibmanager.api.RouteOrigin;
+import org.opendaylight.netvirt.fibmanager.api.IFibManager;
 import org.opendaylight.netvirt.vpnmanager.VpnConstants;
 import org.opendaylight.netvirt.vpnmanager.VpnUtil;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
@@ -56,6 +62,13 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.netvirt.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.netvirt.inter.vpn.link.rev160311.inter.vpn.links.InterVpnLinkKey;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.common.RpcResult;
+
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l3.rev150712.routers.attributes.Routers;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l3.rev150712.routers.attributes.routers.Router;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l3.rev150712.l3.attributes.Routes;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l3.rev150712.routers.attributes.routers.RouterBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.rev150712.Neutron;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -67,18 +80,21 @@ public class InterVpnLinkListener extends AsyncDataTreeChangeListenerBase<InterV
     private final IdManagerService idManager;
     private final IBgpManager bgpManager;
     private final NotificationPublishService notificationsService;
+    private final IFibManager fibManager;
     private static final String NBR_OF_DPNS_PROPERTY_NAME = "vpnservice.intervpnlink.number.dpns";
     private static final long INVALID_ID = 0;
 
     public InterVpnLinkListener(final DataBroker dataBroker, final IdManagerService idManager,
                                 final IMdsalApiManager mdsalManager, final IBgpManager bgpManager,
-                                final NotificationPublishService notifService) {
+                                final NotificationPublishService notifService,
+                                final IFibManager fibManager) {
         super(InterVpnLink.class, InterVpnLinkListener.class);
         this.dataBroker = dataBroker;
         this.idManager = idManager;
         this.mdsalManager = mdsalManager;
         this.bgpManager = bgpManager;
         this.notificationsService = notifService;
+        this.fibManager = fibManager;
     }
 
     public void start() {
@@ -307,43 +323,53 @@ public class InterVpnLinkListener extends AsyncDataTreeChangeListenerBase<InterV
         // Remove entries in the LPortDispatcher table
         // Remove the corresponding entries in InterVpnLinkState
 
-        // For each endpoint, remove all routes that have been learnt by intervpnLink
+        // For each endpoint, remove all routes that have been learnt by intervpnLin1k
+
+
+
         String vpn1Uuid = del.getFirstEndpoint().getVpnUuid().getValue();
         String rd1 = VpnUtil.getVpnRdFromVpnInstanceConfig(dataBroker, vpn1Uuid);
         LOG.debug("Removing leaked routes in VPN {}  rd={}", vpn1Uuid, rd1);
         VpnUtil.removeVrfEntriesByOrigin(dataBroker, rd1, RouteOrigin.INTERVPN);
-        VpnUtil.removeVrfEntriesByNexthop(dataBroker, rd1, del.getSecondEndpoint().getIpAddress().getValue());
+        List<VrfEntry> vrfEntriesSecondEndpoint = VpnUtil.findVrfEntriesByNexthop(dataBroker, rd1, del.getSecondEndpoint().getIpAddress().getValue());
 
         String vpn2Uuid = del.getSecondEndpoint().getVpnUuid().getValue();
         String rd2 = VpnUtil.getVpnRdFromVpnInstanceConfig(dataBroker, vpn2Uuid);
         LOG.debug("Removing leaked routes in VPN {}  rd={}", vpn2Uuid, rd2);
         VpnUtil.removeVrfEntriesByOrigin(dataBroker, rd2, RouteOrigin.INTERVPN);
-        VpnUtil.removeVrfEntriesByNexthop(dataBroker, rd2, del.getFirstEndpoint().getIpAddress().getValue());
+        List<VrfEntry> vrfEntriesFirstEndpoint = VpnUtil.findVrfEntriesByNexthop(dataBroker, rd2, del.getFirstEndpoint().getIpAddress().getValue());
 
         Optional<InterVpnLinkState> optIVpnLinkState = InterVpnLinkUtil.getInterVpnLinkState(dataBroker, del.getName());
         if ( optIVpnLinkState.isPresent() ) {
             InterVpnLinkState interVpnLinkState = optIVpnLinkState.get();
-            if ( interVpnLinkState.getFirstEndpointState() != null ) {
+            boolean isVpnFirstEndPoint = true;
+            if (interVpnLinkState.getFirstEndpointState() != null) {
                 Long firstEndpointLportTag = interVpnLinkState.getFirstEndpointState().getLportTag();
-                removeVpnLinkEndpointFlows(del.getName(), rd2, vpn2Uuid,
+                removeVpnLinkEndpointFlows(del, rd2, vpn2Uuid,
                                            interVpnLinkState.getSecondEndpointState().getDpId(),
                                            firstEndpointLportTag.intValue(),
-                                           del.getFirstEndpoint().getIpAddress().getValue());
+                                           del.getFirstEndpoint().getIpAddress().getValue(),
+                                           vrfEntriesSecondEndpoint, isVpnFirstEndPoint);
             }
             else {
                 LOG.info("Could not get first endpoint state attributes for InterVpnLink {}", del.getName());
             }
-            if ( interVpnLinkState.getSecondEndpointState() != null ) {
+            isVpnFirstEndPoint = false;
+            if (interVpnLinkState.getSecondEndpointState() != null) {
                 Long secondEndpointLportTag = interVpnLinkState.getSecondEndpointState().getLportTag();
-                removeVpnLinkEndpointFlows(del.getName(), rd1, vpn1Uuid,
+                removeVpnLinkEndpointFlows(del, rd1, vpn1Uuid,
                                            interVpnLinkState.getFirstEndpointState().getDpId(),
                                            secondEndpointLportTag.intValue(),
-                                           del.getSecondEndpoint().getIpAddress().getValue());
+                                           del.getSecondEndpoint().getIpAddress().getValue(),
+                                           vrfEntriesFirstEndpoint, isVpnFirstEndPoint);
             }
             else {
                 LOG.info("Could not get second endpoint state attributes for InterVpnLink {}", del.getName());
             }
         }
+
+        VpnUtil.removeVrfEntries(dataBroker, rd1, vrfEntriesSecondEndpoint);
+        VpnUtil.removeVrfEntries(dataBroker, rd2, vrfEntriesFirstEndpoint);
 
         // Release idManager with LPortTag associated to endpoints
         LOG.debug("Releasing InterVpnLink {} endpoints LportTags", del.getName());
@@ -363,33 +389,28 @@ public class InterVpnLinkListener extends AsyncDataTreeChangeListenerBase<InterV
         VpnUtil.delete(dataBroker, LogicalDatastoreType.CONFIGURATION, interVpnLinkStateIid);
     }
 
-    private void removeVpnLinkEndpointFlows( String interVpnLinkName, String rd, String vpnUuid, List<BigInteger> dpns,
-                                             int otherEndpointLportTag, String otherEndpointIpAddr ) {
+    private void removeVpnLinkEndpointFlows(InterVpnLink del, String rd, String vpnUuid, List<BigInteger> dpns,
+                                            int otherEndpointLportTag, String otherEndpointIpAddr, List<VrfEntry> vrfEntries,
+                                            final boolean isVpnFirstEndPoint) {
+
+        String iVpnLinkName = del.getName();
         LOG.debug("Removing endpoint flows for vpn {}.  InterVpnLink={}.  OtherEndpointLportTag={}",
-                vpnUuid, interVpnLinkName, otherEndpointLportTag);
+                  vpnUuid, iVpnLinkName, otherEndpointLportTag);
         if ( dpns == null ) {
             LOG.debug("VPN {} endpoint is not instantiated in any DPN for InterVpnLink {}",
-                    vpnUuid, interVpnLinkName);
+                      vpnUuid, iVpnLinkName);
             return;
         }
 
         for ( BigInteger dpnId : dpns ) {
             try {
                 // Removing flow from LportDispatcher table
-                String flowRef = InterVpnLinkUtil.getLportDispatcherFlowRef(interVpnLinkName, otherEndpointLportTag);
+                String flowRef = InterVpnLinkUtil.getLportDispatcherFlowRef(iVpnLinkName, otherEndpointLportTag);
                 FlowKey flowKey = new FlowKey(new FlowId(flowRef));
                 Flow flow = new FlowBuilder().setKey(flowKey).setId(new FlowId(flowRef))
-                        .setTableId(NwConstants.LPORT_DISPATCHER_TABLE).setFlowName(flowRef)
-                        .build();
+                    .setTableId(NwConstants.LPORT_DISPATCHER_TABLE).setFlowName(flowRef)
+                    .build();
                 mdsalManager.removeFlow(dpnId, flow);
-
-                // Removing flow from Fib table
-                String fibFlowRef = getInterVpnFibFlowRef(dpnId, NwConstants.L3_FIB_TABLE, interVpnLinkName,
-                        otherEndpointIpAddr);
-                FlowKey fibFlowKey = new FlowKey(new FlowId(fibFlowRef));
-                Flow fibFlow = new FlowBuilder().setKey(fibFlowKey).setId(new FlowId(fibFlowRef))
-                        .setTableId(NwConstants.L3_FIB_TABLE).setFlowName(fibFlowRef).build();
-                mdsalManager.removeFlow(dpnId, fibFlow);
 
                 // Also remove the 'fake' iface from the VpnToDpn map
                 VpnUtil.removeIfaceFromVpnToDpnMap(dataBroker, rd, dpnId, getInterVpnLinkIfaceName(vpnUuid, dpnId));
@@ -397,9 +418,13 @@ public class InterVpnLinkListener extends AsyncDataTreeChangeListenerBase<InterV
             } catch ( Exception e ) {
                 // Whatever happens it should not stop it from trying to remove as much as possible
                 LOG.warn("Error while removing InterVpnLink {} Endpoint flows on dpn {}. Reason: {}",
-                        interVpnLinkName, dpnId, e);
+                         iVpnLinkName, dpnId, e);
             }
         }
+        // Removing flow from FIB and LFIB tables
+        LOG.trace("Removing flow in FIB and LFIB tables for vpn {} interVpnLink {} otherEndpointIpAddr {}",
+                  vpnUuid, iVpnLinkName, otherEndpointIpAddr);
+        cleanUpInterVPNRoutes(iVpnLinkName, vrfEntries, isVpnFirstEndPoint);
     }
 
     private void releaseVpnLinkLPortTag(String idKey) {
@@ -411,14 +436,6 @@ public class InterVpnLinkListener extends AsyncDataTreeChangeListenerBase<InterV
     @Override
     protected void update(InstanceIdentifier<InterVpnLink> identifier, InterVpnLink original, InterVpnLink update) {
      // TODO
-    }
-
-    private String getInterVpnFibFlowRef(BigInteger dpnId, short tableId, String interVpnLinkName,  String nextHop ) {
-        return new StringBuilder(64).append(VpnConstants.FLOWID_PREFIX).append(dpnId)
-                .append(NwConstants.FLOWID_SEPARATOR).append(tableId)
-                .append(NwConstants.FLOWID_SEPARATOR).append(interVpnLinkName)
-                .append(NwConstants.FLOWID_SEPARATOR).append(nextHop)
-                .toString();
     }
 
     private Long allocateVpnLinkLportTag(String idKey) {
@@ -472,5 +489,21 @@ public class InterVpnLinkListener extends AsyncDataTreeChangeListenerBase<InterV
                              vpnLinkState.getInterVpnLinkName(), vpnLinkState);
             }
         });
+    }
+
+    /**
+     * Removes all the flows from FIB/LFIB matching an endpoint from the intervpnlink
+     *
+     * @param interVpnLinkName name of the intervpnlink
+     * @param vrfEntries list of vrfs matching the first/second intervpnlink endpoints
+     * @param isVpnFirstEndPoint indicates whether vrfEntries belong to the vpn of the first endpoint
+     */
+    private void cleanUpInterVPNRoutes(final String interVpnLinkName,
+                                       List<VrfEntry> vrfEntries,
+                                       final boolean isVpnFirstEndPoint){
+
+        for (VrfEntry vrfEntry : vrfEntries) {
+            fibManager.removeInterVPNLinkRouteFlows(interVpnLinkName, isVpnFirstEndPoint, vrfEntry);
+        }
     }
 }
