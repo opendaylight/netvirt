@@ -529,20 +529,29 @@ public class VpnUtil {
         }
     }
 
-    public static void removeVrfEntriesByNexthop(DataBroker broker, String rd, String nexthop) {
+    public static List<VrfEntry> findVrfEntriesByNexthop(DataBroker broker, String rd, String nexthop) {
         InstanceIdentifier<VrfTables> vpnVrfTableIid =
                 InstanceIdentifier.builder(FibEntries.class).child(VrfTables.class, new VrfTablesKey(rd)).build();
         Optional<VrfTables> vrfTablesOpc = read(broker, LogicalDatastoreType.CONFIGURATION, vpnVrfTableIid);
+        List<VrfEntry> matches = new ArrayList<VrfEntry>();
+
         if (vrfTablesOpc.isPresent()) {
             VrfTables vrfTables = vrfTablesOpc.get();
             for (VrfEntry vrfEntry : vrfTables.getVrfEntry()) {
                 if (vrfEntry.getNextHopAddressList() != null && vrfEntry.getNextHopAddressList().contains(nexthop)) {
-                    // TODO: Removes all the VrfEntry if one of the nexthops is the specified nexthop
-                    //                should we only remove the specific nexthop, or all the VrfEnry?
-                    delete(broker, LogicalDatastoreType.CONFIGURATION, vpnVrfTableIid.child(VrfEntry.class,
-                            vrfEntry.getKey()));
+                    matches.add(vrfEntry);
                 }
             }
+        }
+        return matches;
+    }
+
+    public static void removeVrfEntries(DataBroker broker, String rd, List<VrfEntry> vrfEntries) {
+        InstanceIdentifier<VrfTables> vpnVrfTableIid =
+            InstanceIdentifier.builder(FibEntries.class).child(VrfTables.class, new VrfTablesKey(rd)).build();
+        for (VrfEntry vrfEntry : vrfEntries) {
+            delete(broker, LogicalDatastoreType.CONFIGURATION, vpnVrfTableIid.child(VrfEntry.class,
+                                                                                    vrfEntry.getKey()));
         }
     }
 
