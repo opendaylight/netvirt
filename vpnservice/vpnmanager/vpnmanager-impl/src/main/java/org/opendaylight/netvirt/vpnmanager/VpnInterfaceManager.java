@@ -79,7 +79,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.arputil.rev160406.Se
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.IdManagerService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.OdlInterfaceRpcService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.servicebinding.rev160406.service.bindings.services.info.BoundServices;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.lockmanager.rev160413.LockManagerService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.Nodes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.Node;
@@ -147,8 +146,8 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
     private final OdlArputilService arpManager;
     private final OdlInterfaceRpcService ifaceMgrRpcService;
     private final NotificationPublishService notificationPublishService;
-    private ConcurrentHashMap<String, Runnable> vpnIntfMap = new ConcurrentHashMap<String, Runnable>();
-    private ExecutorService executorService = Executors.newSingleThreadExecutor();
+    private final ConcurrentHashMap<String, Runnable> vpnIntfMap = new ConcurrentHashMap<String, Runnable>();
+    private final ExecutorService executorService = Executors.newSingleThreadExecutor();
 
     public VpnInterfaceManager(final DataBroker dataBroker,
                                final IBgpManager bgpManager,
@@ -400,7 +399,7 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
 //
 //        @Override
 //        public void onFailure(Throwable throwable) {
-//            LOG.warn("Job: failed with exception: {}", throwable.getStackTrace());
+//            LOG.warn("Job: failed with exception: ", throwable);
 //        }
 //    }
 
@@ -499,10 +498,11 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
             dpId = InterfaceUtils.getDpnForInterface(ifaceMgrRpcService, interfaceName);
         }
         if(!dpId.equals(BigInteger.ZERO)) {
-            if(add)
+            if(add) {
                 createOrUpdateVpnToDpnList(vpnId, dpId, interfaceName, vpnName);
-            else
+            } else {
                 removeOrUpdateVpnToDpnList(vpnId, dpId, interfaceName, vpnName);
+            }
         }
     }
 
@@ -766,7 +766,7 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
         }
         return rts;
     }
-    
+
     private List<String> getExportRts(VpnInstance vpnInstance) {
         List<String> exportRts = new ArrayList<>();
         VpnAfConfig vpnConfig = vpnInstance.getIpv4Family();
@@ -834,7 +834,7 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
          */
         @Override
         public void onFailure(Throwable throwable) {
-            LOG.warn("Job: failed with exception: {}", throwable.getStackTrace());
+            LOG.warn("Job: failed with exception: ", throwable);
         }
     }
 

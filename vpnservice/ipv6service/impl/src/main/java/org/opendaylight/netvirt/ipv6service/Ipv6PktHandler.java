@@ -127,7 +127,7 @@ public class Ipv6PktHandler implements AutoCloseable, PacketProcessingListener {
         private void processNeighborSolicitationRequest() {
             byte[] data = packet.getPayload();
             NeighborSolicitationPacket nsPdu = deserializeNSPacket(data);
-            Ipv6Header ipv6Header = (Ipv6Header) nsPdu;
+            Ipv6Header ipv6Header = nsPdu;
             if (ipv6Utils.validateChecksum(data, ipv6Header, nsPdu.getIcmp6Chksum()) == false) {
                 pktProccessedCounter++;
                 LOG.warn("Received Neighbor Solicitation with invalid checksum on {}. Ignoring the packet.",
@@ -218,7 +218,7 @@ public class Ipv6PktHandler implements AutoCloseable, PacketProcessingListener {
                 nsPdu.setTargetIpAddress(Ipv6Address.getDefaultInstance(
                         InetAddress.getByAddress(BitBufferHelper.getBits(data, bitOffset, 128)).getHostAddress()));
             } catch (BufferException | UnknownHostException  e) {
-                LOG.warn("Exception obtained when deserializing NS packet", e.toString());
+                LOG.warn("Exception obtained when deserializing NS packet", e);
             }
             return nsPdu.build();
         }
@@ -279,10 +279,10 @@ public class Ipv6PktHandler implements AutoCloseable, PacketProcessingListener {
         private byte[] fillNeighborAdvertisementPacket(NeighborAdvertisePacket pdu) {
             ByteBuffer buf = ByteBuffer.allocate(Ipv6Constants.ICMPV6_OFFSET + pdu.getIpv6Length());
 
-            buf.put(ipv6Utils.convertEthernetHeaderToByte((EthernetHeader)pdu), 0, 14);
-            buf.put(ipv6Utils.convertIpv6HeaderToByte((Ipv6Header)pdu), 0, 40);
+            buf.put(ipv6Utils.convertEthernetHeaderToByte(pdu), 0, 14);
+            buf.put(ipv6Utils.convertIpv6HeaderToByte(pdu), 0, 40);
             buf.put(icmp6NAPayloadtoByte(pdu), 0, pdu.getIpv6Length());
-            int checksum = ipv6Utils.calcIcmpv6Checksum(buf.array(), (Ipv6Header) pdu);
+            int checksum = ipv6Utils.calcIcmpv6Checksum(buf.array(), pdu);
             buf.putShort((Ipv6Constants.ICMPV6_OFFSET + 2), (short)checksum);
             return (buf.array());
         }
@@ -290,7 +290,7 @@ public class Ipv6PktHandler implements AutoCloseable, PacketProcessingListener {
         private void processRouterSolicitationRequest() {
             byte[] data = packet.getPayload();
             RouterSolicitationPacket rsPdu = deserializeRSPacket(data);
-            Ipv6Header ipv6Header = (Ipv6Header) rsPdu;
+            Ipv6Header ipv6Header = rsPdu;
             if (ipv6Utils.validateChecksum(data, ipv6Header, rsPdu.getIcmp6Chksum()) == false) {
                 pktProccessedCounter++;
                 LOG.warn("Received RS packet with invalid checksum on {}. Ignoring the packet.",
@@ -374,7 +374,7 @@ public class Ipv6PktHandler implements AutoCloseable, PacketProcessingListener {
                     }
                 }
             } catch (BufferException | UnknownHostException e) {
-                LOG.warn("Exception obtained when deserializing Router Solicitation packet", e.toString());
+                LOG.warn("Exception obtained when deserializing Router Solicitation packet", e);
             }
             return rsPdu.build();
         }

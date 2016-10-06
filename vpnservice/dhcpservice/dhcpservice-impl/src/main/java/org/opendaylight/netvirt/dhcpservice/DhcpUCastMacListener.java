@@ -39,7 +39,7 @@ public class DhcpUCastMacListener extends AsyncClusteredDataTreeChangeListenerBa
     private static final Logger LOG = LoggerFactory.getLogger(DhcpUCastMacListener.class);
 
     private final DhcpExternalTunnelManager dhcpExternalTunnelManager;
-    private DhcpManager dhcpManager;
+    private final DhcpManager dhcpManager;
     private final DataBroker broker;
 
     public DhcpUCastMacListener(DhcpManager dhcpManager,DhcpExternalTunnelManager dhcpExtTunnelMgr, DataBroker dataBroker) {
@@ -122,8 +122,8 @@ public class DhcpUCastMacListener extends AsyncClusteredDataTreeChangeListenerBa
         Subnet subnet = dhcpManager.getNeutronSubnet(port);
         if (null != subnet && !subnet.isEnableDhcp()) {
             dhcpExternalTunnelManager.updateExistingVMTunnelIPCache(tunnelIp, elanInstanceName, macAddress);
-            LOG.warn("DhcpUCastMacListener add: flag for the subnetId "+subnet.getUuid()+ " is False so Table 18 " +
-                    "entries are not added" );
+            LOG.warn("DhcpUCastMacListener add: flag for the subnetId {} is False so Table 18 entries are not added",
+                     subnet.getUuid());
             return;
         }
         BigInteger designatedDpnId = dhcpExternalTunnelManager.readDesignatedSwitchesForExternalTunnel(tunnelIp, elanInstanceName);
