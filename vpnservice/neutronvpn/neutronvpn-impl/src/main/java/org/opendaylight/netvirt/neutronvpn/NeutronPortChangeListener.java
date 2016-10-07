@@ -386,22 +386,30 @@ public class NeutronPortChangeListener extends AsyncDataTreeChangeListenerBase<P
                     // create vpn-interface on this neutron port
                     LOG.debug("Adding VPN Interface for port {}", portName);
                     nvpnManager.createVpnInterface(vpnId, routerId, port, wrtConfigTxn);
+                }
+                futures.add(wrtConfigTxn.submit());
+                if (vpnId != null) {
                     // send port added to subnet notification
                     // only sent when the port is part of a VPN
                     String elanInstanceName = port.getNetworkId().getValue();
                     InstanceIdentifier<ElanInstance> elanIdentifierId = InstanceIdentifier.builder(ElanInstances.class)
                             .child(ElanInstance.class, new ElanInstanceKey(elanInstanceName)).build();
-                    Optional<ElanInstance> elanInstance = NeutronvpnUtils.read(dataBroker, LogicalDatastoreType
-                            .CONFIGURATION, elanIdentifierId);
-                    long elanTag = elanInstance.get().getElanTag();
                     try {
-                        checkAndPublishPortAddNotification(subnetMap.getSubnetIp(), subnetId, port.getUuid(), elanTag);
-                        LOG.debug("Port added to subnet notification sent");
+                        Optional<ElanInstance> elanInstance = NeutronvpnUtils.read(dataBroker, LogicalDatastoreType
+                                .CONFIGURATION, elanIdentifierId);
+                        if (elanInstance.isPresent()) {
+                            long elanTag = elanInstance.get().getElanTag();
+                            checkAndPublishPortAddNotification(subnetMap.getSubnetIp(), subnetId, port.getUuid(), elanTag);
+
+                            LOG.debug("Port added to subnet notification sent for port {}", portName);
+                        } else {
+                            LOG.error("Port added to subnet notification failed for port {} because of failure in " +
+                                    "reading ELANInstance {}", portName, elanInstanceName);
+                        }
                     } catch (Exception e) {
-                        LOG.error("Port added to subnet notification failed", e);
+                        LOG.error("Port added to subnet notification failed for port {}", portName, e);
                     }
                 }
-                futures.add(wrtConfigTxn.submit());
                 return futures;
             }
         });
@@ -435,17 +443,23 @@ public class NeutronPortChangeListener extends AsyncDataTreeChangeListenerBase<P
                     // send port removed from subnet notification
                     // only sent when the port was part of a VPN
                     String elanInstanceName = port.getNetworkId().getValue();
-                    InstanceIdentifier<ElanInstance> elanIdentifierId = InstanceIdentifier.builder(ElanInstances
-                            .class).child(ElanInstance.class, new ElanInstanceKey(elanInstanceName)).build();
-                    Optional<ElanInstance> elanInstance = NeutronvpnUtils.read(dataBroker, LogicalDatastoreType
-                            .CONFIGURATION, elanIdentifierId);
-                    long elanTag = elanInstance.get().getElanTag();
+                    InstanceIdentifier<ElanInstance> elanIdentifierId = InstanceIdentifier.builder(ElanInstances.class)
+                            .child(ElanInstance.class, new ElanInstanceKey(elanInstanceName)).build();
                     try {
-                        checkAndPublishPortRemoveNotification(subnetMap.getSubnetIp(), subnetId, port.getUuid(),
-                                elanTag);
-                        LOG.debug("Port removed from subnet notification sent");
+                        Optional<ElanInstance> elanInstance = NeutronvpnUtils.read(dataBroker, LogicalDatastoreType
+                                .CONFIGURATION, elanIdentifierId);
+                        if (elanInstance.isPresent()) {
+                            long elanTag = elanInstance.get().getElanTag();
+                            checkAndPublishPortRemoveNotification(subnetMap.getSubnetIp(), subnetId, port.getUuid(),
+                                    elanTag);
+
+                            LOG.debug("Port removed from subnet notification sent for port {}", portName);
+                        } else {
+                            LOG.error("Port removed from subnet notification failed for port {} because of failure in" +
+                                    "reading ELANInstance {}", portName, elanInstanceName);
+                        }
                     } catch (Exception e) {
-                        LOG.error("Port removed from subnet notification failed", e);
+                        LOG.error("Port removed from subnet notification failed for port {}", portName, e);
                     }
                 }
                 // Remove of-port interface for this neutron port
@@ -486,39 +500,60 @@ public class NeutronPortChangeListener extends AsyncDataTreeChangeListenerBase<P
                             if (vpnIdOld != null) {
                                 // send port removed from subnet notification
                                 // only sent when the port was part of a VPN
+                                String portOriginalName = portoriginal.getUuid().getValue();
                                 String elanInstanceName = portoriginal.getNetworkId().getValue();
-                                InstanceIdentifier<ElanInstance> elanIdentifierId = InstanceIdentifier.builder(ElanInstances
-                                        .class).child(ElanInstance.class, new ElanInstanceKey(elanInstanceName)).build();
-                                Optional<ElanInstance> elanInstance = NeutronvpnUtils.read(dataBroker,
-                                        LogicalDatastoreType.CONFIGURATION, elanIdentifierId);
-                                long elanTag = elanInstance.get().getElanTag();
+                                InstanceIdentifier<ElanInstance> elanIdentifierId = InstanceIdentifier.builder
+                                        (ElanInstances.class).child(ElanInstance.class, new ElanInstanceKey
+                                        (elanInstanceName)).build();
                                 try {
-                                    checkAndPublishPortRemoveNotification(subnetMapOld.getSubnetIp(), subnetIdOr,
-                                            portoriginal.getUuid(), elanTag);
-                                    LOG.debug("Port removed from subnet notification sent");
+                                    Optional<ElanInstance> elanInstance = NeutronvpnUtils.read(dataBroker,
+                                            LogicalDatastoreType.CONFIGURATION, elanIdentifierId);
+                                    if (elanInstance.isPresent()) {
+                                        long elanTag = elanInstance.get().getElanTag();
+                                        checkAndPublishPortRemoveNotification(subnetMapOld.getSubnetIp(), subnetIdOr,
+                                                portoriginal.getUuid(), elanTag);
+
+                                        LOG.debug("Port removed from subnet notification sent for port {}",
+                                                portOriginalName);
+                                    } else {
+                                        LOG.error("Port removed from subnet notification failed for port {} because "
+                                                + "of failure in" + "reading ELANInstance {}", portOriginalName,
+                                                elanInstanceName);
+                                    }
                                 } catch (Exception e) {
-                                    LOG.error("Port removed from subnet notification failed", e);
+                                    LOG.error("Port removed from subnet notification failed for port {}",
+                                            portOriginalName, e);
                                 }
                             }
-                            Subnetmap subnetMapNew = nvpnManager.updateSubnetmapNodeWithPorts(subnetIdUp, portupdate.getUuid(),
-                                    null);
+                            Subnetmap subnetMapNew = nvpnManager.updateSubnetmapNodeWithPorts(subnetIdUp, portupdate
+                                            .getUuid(), null);
                             vpnIdNew = (subnetMapNew != null) ? subnetMapNew.getVpnId() : null;
                             if (vpnIdNew != null) {
                                 // send port added to subnet notification
                                 // only sent when the port is part of a VPN
+                                String portUpdatedName = portoriginal.getUuid().getValue();
                                 String elanInstanceName = portupdate.getNetworkId().getValue();
-                                InstanceIdentifier<ElanInstance> elanIdentifierId = InstanceIdentifier.builder(ElanInstances
-                                        .class).child(ElanInstance.class, new ElanInstanceKey(elanInstanceName)).build();
-                                Optional<ElanInstance> elanInstance = NeutronvpnUtils.read(dataBroker,
-                                        LogicalDatastoreType
-                                        .CONFIGURATION, elanIdentifierId);
-                                long elanTag = elanInstance.get().getElanTag();
+                                InstanceIdentifier<ElanInstance> elanIdentifierId = InstanceIdentifier.builder
+                                        (ElanInstances.class).child(ElanInstance.class, new ElanInstanceKey
+                                        (elanInstanceName)).build();
                                 try {
-                                    checkAndPublishPortAddNotification(subnetMapNew.getSubnetIp(), subnetIdUp, portupdate
-                                            .getUuid(), elanTag);
-                                    LOG.debug("Port added to subnet notification sent");
+                                    Optional<ElanInstance> elanInstance = NeutronvpnUtils.read(dataBroker,
+                                            LogicalDatastoreType.CONFIGURATION, elanIdentifierId);
+                                    if (elanInstance.isPresent()) {
+                                        long elanTag = elanInstance.get().getElanTag();
+                                        checkAndPublishPortAddNotification(subnetMapNew.getSubnetIp(), subnetIdUp,
+                                                portupdate.getUuid(), elanTag);
+
+                                        LOG.debug("Port added to subnet notification sent for port {}",
+                                                portUpdatedName);
+                                    } else {
+                                        LOG.error("Port added to subnet notification failed for port {} because of " +
+                                                "failure in " + "reading ELANInstance {}", portUpdatedName,
+                                                elanInstanceName);
+                                    }
                                 } catch (Exception e) {
-                                    LOG.error("Port added to subnet notification failed", e);
+                                    LOG.error("Port added to subnet notification failed for port {}",
+                                            portUpdatedName, e);
                                 }
                             }
                         }
