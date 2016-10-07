@@ -158,12 +158,14 @@ public class NeutronNetworkChangeListener extends AsyncDataTreeChangeListenerBas
         ElanInstance elanInstance = createElanInstance(elanInstanceName, segmentType, segmentationId, physicalNetworkName);
         InstanceIdentifier<ElanInstance> id = createElanInstanceIdentifier(elanInstanceName);
         MDSALUtil.syncWrite(dataBroker, LogicalDatastoreType.CONFIGURATION, id, elanInstance);
+        LOG.debug("ELANInstance {} created", elanInstanceName);
         return elanInstance;
     }
 
     private void deleteElanInstance(String elanInstanceName) {
         InstanceIdentifier<ElanInstance> id = createElanInstanceIdentifier(elanInstanceName);
         MDSALUtil.syncDelete(dataBroker, LogicalDatastoreType.CONFIGURATION, id);
+        LOG.debug("ELANInstance {} deleted", elanInstanceName);
     }
 
     private ElanInstance updateElanInstance(String elanInstanceName, Class<? extends SegmentTypeBase> segmentType,

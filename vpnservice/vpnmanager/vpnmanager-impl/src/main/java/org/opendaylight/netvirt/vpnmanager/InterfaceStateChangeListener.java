@@ -105,6 +105,7 @@ public class InterfaceStateChangeListener extends AsyncDataTreeChangeListenerBas
                                         } else {
                                             LOG.info("Unable to process add for interface {} for NAT service", interfaceName);
                                         }
+                                        LOG.error("Interface up event handled for vpn interface {}", interfaceName);
                                         List<ListenableFuture<Void>> futures = new ArrayList<ListenableFuture<Void>>();
                                         futures.add(writeOperTxn.submit());
                                         futures.add(writeConfigTxn.submit());
@@ -223,6 +224,7 @@ public class InterfaceStateChangeListener extends AsyncDataTreeChangeListenerBas
                                         WriteTransaction writeInvTxn = dataBroker.newWriteOnlyTransaction();
                                         vpnInterfaceManager.processVpnInterfaceDown(dpnId, interfaceName, ifIndex, true, false,
                                                 writeConfigTxn, writeOperTxn, writeInvTxn);
+                                        LOG.error("Interface up event handled for vpn interface {}", interfaceName);
                                         List<ListenableFuture<Void>> futures = new ArrayList<ListenableFuture<Void>>();
                                         futures.add(writeOperTxn.submit());
                                         futures.add(writeConfigTxn.submit());

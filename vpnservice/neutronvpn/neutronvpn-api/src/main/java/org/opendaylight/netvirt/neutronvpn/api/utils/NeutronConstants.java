@@ -27,5 +27,6 @@ public class NeutronConstants {
     public static final long RD_IDPOOL_START = 1L;
     public static final String RD_IDPOOL_SIZE = "65535";// 16 bit AS specific part of RD
     public static final String RD_PROPERTY_KEY = "vpnservice.admin.rdvalue";//stored in etc/custom.properties
+    public static final String ELAN_ID_POOL_NAME = "elan.ids.pool";
 
 }

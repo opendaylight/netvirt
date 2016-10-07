@@ -211,6 +211,7 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                                 WriteTransaction writeOperTxn = dataBroker.newWriteOnlyTransaction();
                                 WriteTransaction writeInvTxn = dataBroker.newWriteOnlyTransaction();
                                 processVpnInterfaceUp(dpnId, vpnInterface, ifIndex, false, writeConfigTxn, writeOperTxn, writeInvTxn);
+                                LOG.error("Interface up event handled for vpn interface {}", interfaceName);
                                 List<ListenableFuture<Void>> futures = new ArrayList<ListenableFuture<Void>>();
                                 futures.add(writeOperTxn.submit());
                                 futures.add(writeConfigTxn.submit());
@@ -562,6 +563,7 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
     protected void processVpnInterfaceAdjacencies(BigInteger dpnId, String vpnName, String interfaceName,
                                                 WriteTransaction writeConfigTxn,
                                                 WriteTransaction writeOperTxn) {
+        LOG.error("Processing adjacencies for vpn interface {}", interfaceName);
         InstanceIdentifier<VpnInterface> identifier = VpnUtil.getVpnInterfaceIdentifier(interfaceName);
         // Read NextHops
         InstanceIdentifier<Adjacencies> path = identifier.augmentation(Adjacencies.class);

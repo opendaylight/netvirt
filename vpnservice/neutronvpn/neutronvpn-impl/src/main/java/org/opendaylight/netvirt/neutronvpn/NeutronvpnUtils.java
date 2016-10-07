@@ -87,6 +87,9 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.subnets.rev150712.s
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.AllocateIdInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.AllocateIdInputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.AllocateIdOutput;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.GetExistingIdFromPoolInput;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.GetExistingIdFromPoolInputBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.GetExistingIdFromPoolOutput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.IdManagerService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.ReleaseIdInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.ReleaseIdInputBuilder;
@@ -1093,4 +1096,22 @@ public class NeutronvpnUtils {
         }
         return ret;
     }
+
+    protected static long getElanTagFromPool (IdManagerService idManager, String idKey) {
+        GetExistingIdFromPoolInput getIdInput = new GetExistingIdFromPoolInputBuilder()
+                .setPoolName(NeutronConstants.ELAN_ID_POOL_NAME).setIdKey(idKey).build();
+        try {
+            Future<RpcResult<GetExistingIdFromPoolOutput>> result = idManager.getExistingIdFromPool(getIdInput);
+            RpcResult<GetExistingIdFromPoolOutput> rpcResult = result.get();
+            if (rpcResult.isSuccessful()) {
+                return rpcResult.getResult().getIdValue().longValue();
+            } else {
+                logger.warn("RPC Call to Get Existing Id returned with Errors {}", rpcResult.getErrors());
+            }
+        } catch (InterruptedException | ExecutionException e) {
+            logger.warn("Exception when retrieving existing Id",e);
+        }
+        return 0L;
+    }
+
 }

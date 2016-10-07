@@ -58,6 +58,7 @@
     <argument ref="elanService" />
     <argument ref="neutronFloatingToFixedIpMappingChangeListener" />
     <argument ref="neutronvpnConfig" />
+    <argument ref="idManagerService" />
   </bean>
   <odl:rpc-implementation ref="neutronvpnManager" />
 
@@ -118,6 +119,7 @@
     <argument ref="neutronSubnetGwMacResolver" />
     <argument ref="odlInterfaceRpcService" />
     <argument ref="elanService" />
+    <argument ref="idManagerService" />
   </bean>
 
   <bean id="neutronSubnetGwMacResolver"
