@@ -19,27 +19,20 @@ module odl-nat {
             leaf-list router-ids { type yang:uuid; }
             leaf provider-network-type { type provider-types; }
         }
-   }
+    }
 
-   container ext-routers {
-       list routers {
-           key router-name;
-           leaf router-name { type string; }
-           leaf network-id { type yang:uuid; }
-           leaf enable-snat { type boolean; }
-           leaf-list external-ips {
+    container ext-routers {
+        list routers {
+            key router-name;
+            leaf router-name { type string; }
+            leaf network-id { type yang:uuid; }
+            leaf enable-snat { type boolean; }
+            leaf-list external-ips {
                 type string; //format - ipaddress\prefixlength
-           }
-           leaf-list subnet-ids { type yang:uuid; }
-           leaf ext_gw_mac_address { type string; }
-       }
-   }
-
-
-    grouping external-interface-info {
-        leaf internal-ip { type string; }
-        leaf external-ip { type string; }
-        leaf label { type uint32; config false; }
+            }
+            leaf-list subnet-ids { type yang:uuid; }
+            leaf ext_gw_mac_address { type string; }
+        }
     }
 
     container floating-ip-info {
@@ -51,10 +44,33 @@ module odl-nat {
             list ports {
                 key port-name;
                 leaf port-name { type string; }
-                list ip-mapping {
+                list internal-to-external-port-map {
                     key "internal-ip";
-                    uses external-interface-info;
+                    leaf internal-ip { type string; }
+                    leaf external-ip { type string; }
+                    leaf external-id { type yang:uuid; }
+                    leaf label { type uint32; config false; }
                 }
+            }
+        }
+    }
+
+    container floating-ip-port-info {
+        config true;
+        description "Stores the floating IP UUID (L3) and UUID, subnet UUID, MAC address for the corresponding
+        floating IP port (L2)";
+        list floating-ip-id-to-port-mapping {
+            key "floating-ip-id";
+            leaf floating-ip-id { type yang:uuid; }
+            leaf floating-ip-port-id { type yang:uuid; }
+            leaf floating-ip-port-subnet-id { type yang:uuid; }
+            leaf floating-ip-port-mac-address { type string; }
+            leaf floating-ip-deleted {
+                type boolean;
+                default false;
+                description
+                    "True if corresponding floating IP is deleted, indicating depopulation of this map to be
+                    processed once consumed in the deletion path";
             }
         }
     }
