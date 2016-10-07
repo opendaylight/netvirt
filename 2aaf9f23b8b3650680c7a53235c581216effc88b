@@ -16,6 +16,24 @@
       "revId": "2aaf9f23b8b3650680c7a53235c581216effc88b",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_f8db3b7b",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/TunnelInterfaceStateListener.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 156,
+      "author": {
+        "id": 5350
+      },
+      "writtenOn": "2016-10-07T08:42:04Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7a6b29fe_adece390",
+      "revId": "2aaf9f23b8b3650680c7a53235c581216effc88b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
