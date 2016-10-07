@@ -7,6 +7,7 @@
  */
 package org.opendaylight.netvirt.natservice.internal;
 
+import com.google.common.base.Optional;
 import com.google.common.util.concurrent.AsyncFunction;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
@@ -20,6 +21,7 @@ import java.util.concurrent.Future;
 
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
+import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.mdsalutil.ActionInfo;
 import org.opendaylight.genius.mdsalutil.ActionType;
 import org.opendaylight.genius.mdsalutil.InstructionInfo;
@@ -33,10 +35,8 @@ import org.opendaylight.netvirt.bgpmanager.api.IBgpManager;
 import org.opendaylight.netvirt.elanmanager.api.IElanService;
 import org.opendaylight.netvirt.fibmanager.api.IFibManager;
 import org.opendaylight.netvirt.fibmanager.api.RouteOrigin;
-import org.opendaylight.netvirt.neutronvpn.api.utils.NeutronConstants;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddressBuilder;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.PhysAddress;
 import org.opendaylight.netvirt.vpnmanager.api.IVpnManager;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
@@ -52,16 +52,20 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fib.rpc.rev160121.C
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fib.rpc.rev160121.FibRpcService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fib.rpc.rev160121.RemoveFibEntryInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fib.rpc.rev160121.RemoveFibEntryInputBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.floating.ip.info.router.ports.ports.InternalToExternalPortMap;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.floating.ip.port.info.FloatingIpIdToPortMapping;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.vpn.rpc.rev160201.GenerateVpnLabelInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.vpn.rpc.rev160201.GenerateVpnLabelInputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.vpn.rpc.rev160201.GenerateVpnLabelOutput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.vpn.rpc.rev160201.RemoveVpnLabelInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.vpn.rpc.rev160201.RemoveVpnLabelInputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.vpn.rpc.rev160201.VpnRpcService;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.ports.attributes.ports.Port;
+import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import static org.opendaylight.netvirt.natservice.internal.NatUtil.buildfloatingIpIdToPortMappingIdentifier;
 
 public class VpnFloatingIpHandler implements FloatingIPHandler {
     private static final Logger LOG = LoggerFactory.getLogger(VpnFloatingIpHandler.class);
@@ -102,8 +106,11 @@ public class VpnFloatingIpHandler implements FloatingIPHandler {
 
     @Override
     public void onAddFloatingIp(final BigInteger dpnId, final String routerId,
-                                Uuid networkId, final String interfaceName, final String externalIp,
-                                final String internalIp) {
+                                Uuid networkId, final String interfaceName, final InternalToExternalPortMap mapping) {
+        String internalIp = mapping.getInternalIp();
+        String externalIp = mapping.getExternalIp();
+        Uuid floatingIpId = mapping.getExternalId();
+        String floatingIpPortMacAddress = NatUtil.getFloatingIpPortMacFromFloatingIpId(dataBroker, floatingIpId);
         final String vpnName = NatUtil.getAssociatedVPN(dataBroker, networkId, LOG);
         if (vpnName == null) {
             LOG.info("No VPN associated with ext nw {} to handle add floating ip configuration {} in router {}",
@@ -148,12 +155,11 @@ public class VpnFloatingIpHandler implements FloatingIPHandler {
                     //Future<RpcResult<java.lang.Void>> createFibEntry(CreateFibEntryInput input);
                     Future<RpcResult<Void>> future = fibService.createFibEntry(input);
                     WriteTransaction writeTx = dataBroker.newWriteOnlyTransaction();
-                    IpAddress externalIpAddress = new IpAddress(new Ipv4Address(externalIp));
-                    Port neutronPort = NatUtil.getNeutronPortForFloatingIp(dataBroker, externalIpAddress);
                     LOG.debug("Add Floating Ip {} , found associated to fixed port {}", externalIp, interfaceName);
-                    if (neutronPort != null && neutronPort.getMacAddress() != null) {
-                        vpnManager.setupSubnetMacIntoVpnInstance(vpnName, neutronPort.getMacAddress().getValue(),
-                                dpnId, writeTx, NwConstants.ADD_FLOW);
+
+                    if (floatingIpPortMacAddress != null) {
+                        vpnManager.setupSubnetMacIntoVpnInstance(vpnName, floatingIpPortMacAddress, dpnId, writeTx,
+                                NwConstants.ADD_FLOW);
                     }
                     writeTx.submit();
                     return JdkFutureAdapters.listenInPoolThread(future);
@@ -184,14 +190,16 @@ public class VpnFloatingIpHandler implements FloatingIPHandler {
 
         // Handle GARP transmission
         final IpAddress extrenalAddress = IpAddressBuilder.getDefaultInstance(externalIp);
-        sendGarpOnInterface(dpnId, networkId,  routerId, extrenalAddress);
+        sendGarpOnInterface(dpnId, networkId, extrenalAddress, floatingIpPortMacAddress);
 
     }
 
     @Override
-    public void onRemoveFloatingIp(final BigInteger dpnId, String routerId, Uuid networkId, final String externalIp,
-                                   String internalIp, final long label) {
+    public void onRemoveFloatingIp(final BigInteger dpnId, String routerId, Uuid networkId, InternalToExternalPortMap
+            mapping, final long label) {
         final String vpnName = NatUtil.getAssociatedVPN(dataBroker, networkId, LOG);
+        String externalIp = mapping.getExternalIp();
+        Uuid floatingIpId = mapping.getExternalId();
         if (vpnName == null) {
             LOG.info("No VPN associated with ext nw {} to handle remove floating ip configuration {} in router {}",
                     networkId, externalIp, routerId);
@@ -199,13 +207,13 @@ public class VpnFloatingIpHandler implements FloatingIPHandler {
         }
         //Remove floating mac from mymac table
         WriteTransaction writeTx = dataBroker.newWriteOnlyTransaction();
-        IpAddress externalIpAddress = new IpAddress(new Ipv4Address(externalIp));
-        Port neutronPort = NatUtil.getNeutronPortForFloatingIp(dataBroker, externalIpAddress);
         LOG.debug("Removing FloatingIp {}", externalIp);
-        if (neutronPort != null && neutronPort.getMacAddress() != null) {
-            vpnManager.setupSubnetMacIntoVpnInstance(vpnName, neutronPort.getMacAddress().getValue(),
-                    dpnId, writeTx, NwConstants.DEL_FLOW);
+        String floatingIpPortMacAddress = NatUtil.getFloatingIpPortMacFromFloatingIpId(dataBroker, floatingIpId);
+        if (floatingIpPortMacAddress != null) {
+            vpnManager.setupSubnetMacIntoVpnInstance(vpnName, floatingIpPortMacAddress, dpnId, writeTx, NwConstants
+                    .DEL_FLOW);
         }
+        removeFromFloatingIpPortInfo(floatingIpId);
         writeTx.submit();
         //Remove Prefix from BGP
         String rd = NatUtil.getVpnRd(dataBroker, vpnName);
@@ -379,8 +387,8 @@ public class VpnFloatingIpHandler implements FloatingIPHandler {
         LOG.debug("LFIB Entry for dpID : {} label : {} removed successfully {}",dpnId, serviceId);
     }
 
-    private void sendGarpOnInterface(final BigInteger dpnId, Uuid networkId, final String routerId,
-            final IpAddress floatingIpAddress) {
+    private void sendGarpOnInterface(final BigInteger dpnId, Uuid networkId, final IpAddress floatingIpAddress,
+                                     String floatingIpPortMacAddress) {
         if (floatingIpAddress.getIpv4Address() == null) {
             LOG.info("Failed to send GARP for IP. recieved IPv6.");
             NatServiceCounters.garp_failed_ipv6.inc();
@@ -396,13 +404,11 @@ public class VpnFloatingIpHandler implements FloatingIPHandler {
 
         try {
             // find the external network interface name for dpn
-            Port floatingPort = NatUtil.getNeutronPortForFloatingIp(dataBroker, floatingIpAddress);
-            PhysAddress floatingPortMac = new PhysAddress(floatingPort.getMacAddress().getValue());
             List<InterfaceAddress> interfaceAddresses = new ArrayList<>();
             interfaceAddresses.add(new InterfaceAddressBuilder()
                     .setInterface(interfaceName)
                     .setIpAddress(floatingIpAddress)
-                    .setMacaddress(floatingPortMac).build());
+                    .setMacaddress(new PhysAddress(floatingIpPortMacAddress)).build());
 
             SendArpRequestInput sendArpRequestInput = new SendArpRequestInputBuilder().setIpaddress(floatingIpAddress)
                     .setInterfaceAddress(interfaceAddresses).build();
@@ -412,6 +418,22 @@ public class VpnFloatingIpHandler implements FloatingIPHandler {
             LOG.error("Failed to send GARP request for floating ip {} from interface {}",
                     floatingIpAddress.getIpv4Address().getValue(), interfaceName, e);
             NatServiceCounters.garp_failed_send.inc();
+        }
+    }
+
+    private void removeFromFloatingIpPortInfo(Uuid floatingIpId) {
+        InstanceIdentifier id = buildfloatingIpIdToPortMappingIdentifier(floatingIpId);
+        try {
+            Optional<FloatingIpIdToPortMapping> optFloatingIpIdToPortMapping = NatUtil.read(dataBroker,
+                    LogicalDatastoreType.CONFIGURATION, id);
+            if (optFloatingIpIdToPortMapping.isPresent() && optFloatingIpIdToPortMapping.get().isFloatingIpDeleted()) {
+                LOG.debug("Deleting floating IP UUID {} to Floating IP neutron port mapping from Floating " +
+                        "IP Port Info Config DS", floatingIpId.getValue());
+                MDSALUtil.syncDelete(dataBroker, LogicalDatastoreType.CONFIGURATION, id);
+            }
+        } catch (Exception e) {
+            LOG.error("Deleting floating IP UUID {} to Floating IP neutron port mapping from Floating " +
+                    "IP Port Info Config DS failed with exception {}", floatingIpId.getValue(), e);
         }
     }
 
