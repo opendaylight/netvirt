@@ -694,50 +694,54 @@ public class NeutronvpnUtils {
     }
 
     protected static boolean lock(String lockName) {
-            if (locks.get(lockName) != null) {
-                synchronized(locks) {
-                    if (locks.get(lockName) != null) {
-                        locks.get(lockName).getRight().incrementAndGet();
-                    } else {
-                        locks.putIfAbsent(lockName, new ImmutablePair<ReadWriteLock, AtomicInteger>(
-                            new ReentrantReadWriteLock(), new AtomicInteger(0)));
-                    }
+        if (locks.get(lockName) != null) {
+            synchronized (locks) {
+                if (locks.get(lockName) == null) {
+                    locks.putIfAbsent(lockName, new ImmutablePair<ReadWriteLock, AtomicInteger>(new
+                            ReentrantReadWriteLock(), new AtomicInteger(0)));
                 }
-                try {
-                    locks.get(lockName).getLeft().writeLock().tryLock(LOCK_WAIT_TIME, secUnit);
-                } catch (InterruptedException e) {
-                    locks.get(lockName).getRight().decrementAndGet();
-                    logger.error("Unable to acquire lock for  {}", lockName);
-                    throw new RuntimeException(String.format("Unable to acquire lock for %s", lockName), e.getCause());
-                }
-            } else {
-                locks.putIfAbsent(lockName, new ImmutablePair<ReadWriteLock, AtomicInteger>(new ReentrantReadWriteLock(), new AtomicInteger(0)));
                 locks.get(lockName).getRight().incrementAndGet();
-                try {
-                    locks.get(lockName).getLeft().writeLock().tryLock(LOCK_WAIT_TIME, secUnit);
-                } catch (Exception e) {
-                    locks.get(lockName).getRight().decrementAndGet();
-                    logger.error("Unable to acquire lock for  {}", lockName);
-                    throw new RuntimeException(String.format("Unable to acquire lock for %s", lockName), e.getCause());
-                }
             }
+            try {
+                if (locks.get(lockName) != null) {
+                    locks.get(lockName).getLeft().writeLock().tryLock(LOCK_WAIT_TIME, secUnit);
+                }
+            } catch (InterruptedException e) {
+                locks.get(lockName).getRight().decrementAndGet();
+                logger.error("Unable to acquire lock for  {}", lockName);
+                throw new RuntimeException(String.format("Unable to acquire lock for %s", lockName), e.getCause());
+            }
+        } else {
+            locks.putIfAbsent(lockName, new ImmutablePair<ReadWriteLock, AtomicInteger>(new ReentrantReadWriteLock(),
+                    new AtomicInteger(0)));
+            locks.get(lockName).getRight().incrementAndGet();
+            try {
+                locks.get(lockName).getLeft().writeLock().tryLock(LOCK_WAIT_TIME, secUnit);
+            } catch (Exception e) {
+                locks.get(lockName).getRight().decrementAndGet();
+                logger.error("Unable to acquire lock for  {}", lockName);
+                throw new RuntimeException(String.format("Unable to acquire lock for %s", lockName), e.getCause());
+            }
+        }
         return true;
     }
 
     protected static boolean unlock(String lockName) {
-            if (locks.get(lockName) != null) {
-                try {
-                    locks.get(lockName).getLeft().writeLock().unlock();
-                } catch (Exception e) {
-                    logger.error("Unable to un-lock ", e);
-                    return false;
-                }
-                if (0 == locks.get(lockName).getRight().decrementAndGet()) {
-                    synchronized(locks) {
+        if (locks.get(lockName) != null) {
+            try {
+                locks.get(lockName).getLeft().writeLock().unlock();
+            } catch (Exception e) {
+                logger.error("Unable to un-lock for " + lockName, e);
+                return false;
+            }
+            if (0 == locks.get(lockName).getRight().decrementAndGet()) {
+                synchronized (locks) {
+                    if (locks.get(lockName).getRight().get() == 0) {
                         locks.remove(lockName);
                     }
                 }
             }
+        }
         return true;
     }
 
