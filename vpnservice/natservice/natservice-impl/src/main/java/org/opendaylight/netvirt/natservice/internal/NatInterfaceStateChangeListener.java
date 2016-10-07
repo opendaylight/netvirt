@@ -88,20 +88,21 @@ public class NatInterfaceStateChangeListener extends AsyncDataTreeChangeListener
 
     @Override
     protected void remove(InstanceIdentifier<Interface> identifier, Interface intrf) {
+        final String interfaceName = intrf.getName();
         try {
-            final String interfaceName = intrf.getName();
-            LOG.trace("NAT Service : Received interface {} PORT DOWN or REMOVE event", intrf.getName());
+            LOG.trace("NAT Service : Received interface {} PORT DOWN or REMOVE event", interfaceName);
             if (intrf != null && intrf.getType() != null && !intrf.getType().equals(Tunnel.class)) {
                 BigInteger dpId;
-                  try {
+                try {
                     dpId = NatUtil.getDpIdFromInterface(intrf);
-                } catch (Exception e){
-                    LOG.warn("NAT Service : Unable to retrieve DPNID from Interface operational data store for Interface {}. Fetching " +
-                            "from VPN Interface op data store. ", intrf.getName(), e);
+                } catch (Exception e) {
+                    LOG.warn("NAT Service : Unable to retrieve DPNID from Interface operational data store for " +
+                            "Interface {}. Fetching from VPN Interface op data store. ", interfaceName, e);
                     InstanceIdentifier<VpnInterface> id = NatUtil.getVpnInterfaceIdentifier(interfaceName);
-                    Optional<VpnInterface> optVpnInterface = NatUtil.read(dataBroker, LogicalDatastoreType.OPERATIONAL, id);
+                    Optional<VpnInterface> optVpnInterface = NatUtil.read(dataBroker, LogicalDatastoreType
+                            .OPERATIONAL, id);
                     if (!optVpnInterface.isPresent()) {
-                        LOG.debug("NAT Service : Interface {} is not a VPN Interface, ignoring.", intrf.getName());
+                        LOG.debug("NAT Service : Interface {} is not a VPN Interface, ignoring.", interfaceName);
                         return;
                     }
                     final VpnInterface vpnInterface = optVpnInterface.get();
@@ -119,7 +120,7 @@ public class NatInterfaceStateChangeListener extends AsyncDataTreeChangeListener
                 writeOperTxn.submit();
             }
         } catch (Exception e) {
-          LOG.error("NAT Service : Exception observed in handling deletion of VPN Interface {}. ", intrf.getName(), e);
+          LOG.error("NAT Service : Exception observed in handling deletion of VPN Interface {}. ", interfaceName, e);
         }
     }
 

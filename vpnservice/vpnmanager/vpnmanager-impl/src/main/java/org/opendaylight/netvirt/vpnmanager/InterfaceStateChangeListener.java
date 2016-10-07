@@ -116,30 +116,31 @@ public class InterfaceStateChangeListener extends AsyncDataTreeChangeListenerBas
 
     @Override
     protected void remove(InstanceIdentifier<Interface> identifier, Interface intrf) {
+        final String interfaceName = intrf.getName();
         LOG.trace("Received interface {} down event", intrf);
-        LOG.info("Received interface {} remove event", intrf.getName());
+        LOG.info("Received interface {} remove event", interfaceName);
         try {
-            final String interfaceName = intrf.getName();
             LOG.info("Received port DOWN event for interface {} ", interfaceName);
             if (intrf != null && intrf.getType() != null && !intrf.getType().equals(Tunnel.class)) {
-                BigInteger dpId = BigInteger.ZERO;
+                BigInteger dpId;
                 InstanceIdentifier<VpnInterface> id = VpnUtil.getVpnInterfaceIdentifier(interfaceName);
                 Optional<VpnInterface> optVpnInterface = VpnUtil.read(dataBroker, LogicalDatastoreType.OPERATIONAL, id);
                 if (!optVpnInterface.isPresent()) {
-                    LOG.debug("Interface {} is not a vpninterface, ignoring.", intrf.getName());
+                    LOG.debug("Interface {} is not a vpninterface, ignoring.", interfaceName);
                     return;
                 }
                 final VpnInterface vpnInterface = optVpnInterface.get();
                 try {
                     dpId = InterfaceUtils.getDpIdFromInterface(intrf);
-                } catch (Exception e){
-                    LOG.error("Unable to retrieve dpnId from interface operational data store for interface {}.Fetching from vpn interface op data store. ", intrf.getName(), e);
+                } catch (Exception e) {
+                    LOG.error("Unable to retrieve dpnId from interface operational data store for interface {}" +
+                            ".Fetching from vpn interface op data store. ", interfaceName, e);
                     dpId = vpnInterface.getDpnId();
                 }
                 final BigInteger dpnId = dpId;
                 final int ifIndex = intrf.getIfIndex();
                 DataStoreJobCoordinator dataStoreCoordinator = DataStoreJobCoordinator.getInstance();
-                dataStoreCoordinator.enqueueJob("VPNINTERFACE-" + intrf.getName(),
+                dataStoreCoordinator.enqueueJob("VPNINTERFACE-" + interfaceName,
                         new Callable<List<ListenableFuture<Void>>>() {
                             @Override
                             public List<ListenableFuture<Void>> call() throws Exception {
@@ -157,7 +158,7 @@ public class InterfaceStateChangeListener extends AsyncDataTreeChangeListenerBas
                         });
             }
         } catch (Exception e) {
-            LOG.error("Exception observed in handling deletion of VPN Interface {}. ", intrf.getName(), e);
+            LOG.error("Exception observed in handling deletion of VPN Interface {}. ", interfaceName, e);
         }
     }
 
