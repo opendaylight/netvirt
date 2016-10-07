@@ -19,17 +19,14 @@ import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.interfaces.VpnInterface;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.iana._if.type.rev140508.Tunnel;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.InterfaceType;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.InterfacesState;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.neutron.router.dpns.RouterDpnList;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.neutron.router.dpns.router.dpn.list.DpnVpninterfacesList;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.FloatingIpInfo;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.NaptSwitches;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.floating.ip.info.RouterPorts;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.floating.ip.info.router.ports.Ports;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.floating.ip.info.router.ports.ports.IpMapping;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.floating.ip.info.router.ports.ports.InternalToExternalPortMap;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ProtocolTypes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.intext.ip.port.map.ip.port.mapping.intext.ip.protocol.type.ip.port.map.IpPortExternal;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.napt.switches.RouterToNaptSwitch;
@@ -353,40 +350,40 @@ public class InterfaceStateEventListener extends AbstractDataChangeListener<Inte
     private void processInterfaceAdded(String portName, String rtrId) {
         LOG.trace("Processing Interface Add Event for interface {}", portName);
         String routerId = getRouterIdForPort(dataBroker, portName);
-        List<IpMapping> ipMappingList = getIpMappingForPortName(portName, routerId);
-        if (ipMappingList == null || ipMappingList.isEmpty()) {
+        List<InternalToExternalPortMap> intExtPortMapList = getIntExtPortMapListForPortName(portName, routerId);
+        if (intExtPortMapList == null || intExtPortMapList.isEmpty()) {
             LOG.trace("Ip Mapping list is empty/null for portname {}", portName);
             return;
         }
         InstanceIdentifier<RouterPorts> pIdentifier = NatUtil.buildRouterPortsIdentifier(routerId);
-        for (IpMapping ipMapping : ipMappingList) {
-            floatingIPListener.createNATFlowEntries(portName, ipMapping, pIdentifier, routerId);
+        for (InternalToExternalPortMap intExtPortMap : intExtPortMapList) {
+            floatingIPListener.createNATFlowEntries(portName, intExtPortMap, pIdentifier, routerId);
         }
     }
 
     private void processInterfaceRemoved(String portName, String rtrId) {
         LOG.trace("Processing Interface Removed Event for interface {}", portName);
         String routerId = getRouterIdForPort(dataBroker, portName);
-        List<IpMapping> ipMappingList = getIpMappingForPortName(portName, routerId);
-        if (ipMappingList == null || ipMappingList.isEmpty()) {
+        List<InternalToExternalPortMap> intExtPortMapList = getIntExtPortMapListForPortName(portName, routerId);
+        if (intExtPortMapList == null || intExtPortMapList.isEmpty()) {
             LOG.trace("Ip Mapping list is empty/null for portName {}", portName);
             return;
         }
         InstanceIdentifier<RouterPorts> pIdentifier = NatUtil.buildRouterPortsIdentifier(routerId);
-        for (IpMapping ipMapping : ipMappingList) {
-            floatingIPListener.removeNATFlowEntries(portName, ipMapping, pIdentifier, routerId);
+        for (InternalToExternalPortMap intExtPortMap : intExtPortMapList) {
+            floatingIPListener.removeNATFlowEntries(portName, intExtPortMap, pIdentifier, routerId);
         }
     }
 
-    private List<IpMapping> getIpMappingForPortName(String portName, String routerId) {
+    private List<InternalToExternalPortMap> getIntExtPortMapListForPortName(String portName, String routerId) {
         InstanceIdentifier<Ports> portToIpMapIdentifier = NatUtil.buildPortToIpMapIdentifier(routerId, portName);
         Optional<Ports> port = NatUtil.read(dataBroker, LogicalDatastoreType.CONFIGURATION, portToIpMapIdentifier);
         if(!port.isPresent()) {
             LOG.error("NAT Service : Unable to read router port entry for router ID {} and port name {}", routerId, portName);
             return null;
         }
-        List<IpMapping> ipMappingList = port.get().getIpMapping();
-        return ipMappingList;
+        List<InternalToExternalPortMap> intExtPortMapList = port.get().getInternalToExternalPortMap();
+        return intExtPortMapList;
     }
 
     private List<String> getFixedIpsForPort (String interfname) {

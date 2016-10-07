@@ -23,9 +23,9 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev16011
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.floating.ip.info.router.ports.Ports;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.floating.ip.info.router.ports.PortsBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.floating.ip.info.router.ports.PortsKey;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.floating.ip.info.router.ports.ports.IpMapping;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.floating.ip.info.router.ports.ports.IpMappingBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.floating.ip.info.router.ports.ports.IpMappingKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.floating.ip.info.router.ports.ports.InternalToExternalPortMap;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.floating.ip.info.router.ports.ports.InternalToExternalPortMapBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.floating.ip.info.router.ports.ports.InternalToExternalPortMapKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l3.rev150712.floatingips.attributes.Floatingips;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l3.rev150712.floatingips.attributes.floatingips.Floatingip;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.rev150712.Neutron;
@@ -62,10 +62,12 @@ public class NeutronFloatingToFixedIpMappingChangeListener extends AsyncDataTree
     protected void add(InstanceIdentifier<Floatingip> identifier, Floatingip input) {
         LOG.trace("Neutron Floating IP created: key: {}, value={}", identifier, input);
         IpAddress fixedIp = input.getFixedIpAddress();
+        String floatingIp = input.getFloatingIpAddress().getIpv4Address().getValue();
         if (fixedIp != null) {
+            String floatingPortMac = NeutronvpnUtils.getFloatingPortMacForFloatingIp(dataBroker, input.getRouterId(),
+                    floatingIp);
             addToFloatingIpInfo(input.getRouterId().getValue(), input.getFloatingNetworkId(), input.getPortId()
-                    .getValue(), fixedIp.getIpv4Address().getValue(), input.getFloatingIpAddress().getIpv4Address()
-                    .getValue());
+                    .getValue(), fixedIp.getIpv4Address().getValue(), floatingIp, floatingPortMac);
         }
     }
 
@@ -86,20 +88,22 @@ public class NeutronFloatingToFixedIpMappingChangeListener extends AsyncDataTree
                 original, update);
         IpAddress oldFixedIp = original.getFixedIpAddress();
         IpAddress newFixedIp = update.getFixedIpAddress();
+        String floatingIp = update.getFloatingIpAddress().getIpv4Address().getValue();
 
         if (oldFixedIp != null && !oldFixedIp.equals(newFixedIp)) {
             clearFromFloatingIpInfo(original.getRouterId().getValue(), original.getPortId().getValue(), oldFixedIp
                     .getIpv4Address().getValue());
         }
         if (newFixedIp != null && !newFixedIp.equals(oldFixedIp)) {
+            String floatingPortMac = NeutronvpnUtils.getFloatingPortMacForFloatingIp(dataBroker, update.getRouterId(),
+                    floatingIp);
             addToFloatingIpInfo(update.getRouterId().getValue(), update.getFloatingNetworkId(), update.getPortId()
-                    .getValue(), newFixedIp.getIpv4Address().getValue(), update.getFloatingIpAddress
-                    ().getIpv4Address().getValue());
+                    .getValue(), newFixedIp.getIpv4Address().getValue(), floatingIp, floatingPortMac);
         }
     }
 
     private void addToFloatingIpInfo(String routerName, Uuid extNetworkId, String fixedNeutronPortName, String
-            fixedIpAddress, String floatingIpAddress) {
+            fixedIpAddress, String floatingIpAddress, String floatingPortMacAddress) {
         RouterPortsBuilder routerPortsBuilder;
         boolean isLockAcquired = false;
         InstanceIdentifier<RouterPorts> routerPortsIdentifier = InstanceIdentifier.builder(FloatingIpInfo.class)
@@ -137,14 +141,17 @@ public class NeutronFloatingToFixedIpMappingChangeListener extends AsyncDataTree
                             .setPortName(fixedNeutronPortName);
                 }
                 if (fixedIpAddress != null) {
-                    List<IpMapping> ipMappingList = fixedNeutronPortBuilder.getIpMapping();
-                    if (ipMappingList == null) {
-                        ipMappingList = new ArrayList<>();
+                    List<InternalToExternalPortMap> intExtPortMapList = fixedNeutronPortBuilder
+                            .getInternalToExternalPortMap();
+                    if (intExtPortMapList == null) {
+                        intExtPortMapList = new ArrayList<>();
                     }
-                    IpMapping ipMapping = new IpMappingBuilder().setKey(new IpMappingKey(fixedIpAddress))
-                            .setInternalIp(fixedIpAddress).setExternalIp(floatingIpAddress).setLabel(null).build();
-                    ipMappingList.add(ipMapping);
-                    fixedNeutronPortBuilder.setIpMapping(ipMappingList);
+                    InternalToExternalPortMap intExtPortMap = new InternalToExternalPortMapBuilder().setKey(new
+                            InternalToExternalPortMapKey(fixedIpAddress)).setInternalIp(fixedIpAddress)
+                            .setExternalIp(floatingIpAddress).setExternalMacAddress(floatingPortMacAddress).setLabel
+                                    (null).build();
+                    intExtPortMapList.add(intExtPortMap);
+                    fixedNeutronPortBuilder.setInternalToExternalPortMap(intExtPortMapList);
                 }
                 portsList.add(fixedNeutronPortBuilder.build());
                 routerPortsBuilder.setPorts(portsList);
@@ -174,14 +181,14 @@ public class NeutronFloatingToFixedIpMappingChangeListener extends AsyncDataTree
             if (optionalRouterPorts.isPresent()) {
                 RouterPorts routerPorts = optionalRouterPorts.get();
                 List<Ports> portsList = routerPorts.getPorts();
-                List<IpMapping> ipMapping = new ArrayList<>();
+                List<InternalToExternalPortMap> intExtPortMap = new ArrayList<>();
                 for (Ports ports : portsList) {
                     if (ports.getPortName().equals(fixedNeutronPortName)) {
-                        ipMapping = ports.getIpMapping();
+                        intExtPortMap = ports.getInternalToExternalPortMap();
                     }
                 }
                 InstanceIdentifier.InstanceIdentifierBuilder<Ports> portsIdentifierBuilder = null;
-                if (ipMapping.size() == 1) {
+                if (intExtPortMap.size() == 1) {
                     if (portsList.size() == 1) {
                         try {
                             // remove entire routerPorts node
@@ -215,15 +222,16 @@ public class NeutronFloatingToFixedIpMappingChangeListener extends AsyncDataTree
                         }
                     }
                 } else {
-                    InstanceIdentifier<IpMapping> ipMappingIdentifier =
-                            portsIdentifierBuilder.child(IpMapping.class, new IpMappingKey(fixedIpAddress)).build();
+                    InstanceIdentifier<InternalToExternalPortMap> intExtPortMapIdentifier =
+                            portsIdentifierBuilder.child(InternalToExternalPortMap.class, new
+                                    InternalToExternalPortMapKey(fixedIpAddress)).build();
                     try {
-                        // remove particular ipMapping
+                        // remove particular internal-to-external-port-map
                         isLockAcquired = NeutronvpnUtils.lock(fixedIpAddress);
-                        LOG.debug("removing particular ipMapping {}", ipMapping);
-                        MDSALUtil.syncDelete(dataBroker, LogicalDatastoreType.CONFIGURATION, ipMappingIdentifier);
+                        LOG.debug("removing particular internal-to-external-port-map {}", intExtPortMap);
+                        MDSALUtil.syncDelete(dataBroker, LogicalDatastoreType.CONFIGURATION, intExtPortMapIdentifier);
                     } catch (Exception e) {
-                        LOG.error("Failure in deletion of ipMapping {}", ipMapping);
+                        LOG.error("Failure in deletion of internal-to-external-port-map {}", intExtPortMap);
                     } finally {
                         if (isLockAcquired) {
                             NeutronvpnUtils.unlock(fixedIpAddress);
@@ -235,7 +243,8 @@ public class NeutronFloatingToFixedIpMappingChangeListener extends AsyncDataTree
                 LOG.error("routerPorts for router {} not found", routerName);
             }
         } catch (Exception e) {
-            LOG.error("Failed to delete ipMapping from FloatingIpInfo DS for fixed Ip {}", fixedIpAddress);
+            LOG.error("Failed to delete internal-to-external-port-map from FloatingIpInfo DS for fixed Ip {}",
+                    fixedIpAddress);
         }
     }
 
@@ -310,5 +319,4 @@ public class NeutronFloatingToFixedIpMappingChangeListener extends AsyncDataTree
             LOG.error("Failed to dissociate fixedIP from FloatingIpInfo DS for neutron port {}", fixedNeutronPortName);
         }
     }
-
 }

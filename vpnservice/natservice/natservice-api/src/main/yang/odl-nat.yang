@@ -34,13 +34,6 @@ module odl-nat {
        }
    }
 
-
-    grouping external-interface-info {
-        leaf internal-ip { type string; }
-        leaf external-ip { type string; }
-        leaf label { type uint32; config false; }
-    }
-
     container floating-ip-info {
         config true;
         list router-ports {
@@ -50,9 +43,12 @@ module odl-nat {
             list ports {
                 key port-name;
                 leaf port-name { type string; }
-                list ip-mapping {
+                list internal-to-external-port-map {
                     key "internal-ip";
-                    uses external-interface-info;
+                    leaf internal-ip { type string; }
+                    leaf external-ip { type string; }
+                    leaf external-mac-address { type string; }
+                    leaf label { type uint32; config false; }
                 }
             }
         }
