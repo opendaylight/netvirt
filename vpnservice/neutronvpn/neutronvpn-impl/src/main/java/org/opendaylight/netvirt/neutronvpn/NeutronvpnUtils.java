@@ -36,6 +36,7 @@ import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ProviderTypes;
 import org.opendaylight.netvirt.neutronvpn.api.utils.NeutronConstants;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.VpnInterfaces;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.interfaces.VpnInterface;
@@ -143,6 +144,7 @@ public class NeutronvpnUtils {
         registerSuppoprtedNetworkType(NetworkTypeFlat.class);
         registerSuppoprtedNetworkType(NetworkTypeVlan.class);
         registerSuppoprtedNetworkType(NetworkTypeVxlan.class);
+        registerSuppoprtedNetworkType(NetworkTypeGre.class);
     }
 
     private NeutronvpnUtils() {
@@ -956,6 +958,25 @@ public class NeutronvpnUtils {
     static boolean isNetworkTypeSupported(Network network) {
         NetworkProviderExtension npe = network.getAugmentation(NetworkProviderExtension.class);
         return npe != null && supportedNetworkTypes.contains(npe.getNetworkType());
+    }
+
+    static ProviderTypes getProviderNetworkType(Network network) {
+        NetworkProviderExtension npe = network.getAugmentation(NetworkProviderExtension.class);
+        if(npe != null) {
+            Class<? extends NetworkTypeBase> networkTypeBase = npe.getNetworkType();
+            if (networkTypeBase != null) {
+               if(networkTypeBase.isAssignableFrom(NetworkTypeFlat.class)) {
+                   return ProviderTypes.FLAT;
+               } else if (networkTypeBase.isAssignableFrom(NetworkTypeVlan.class)) {
+                   return ProviderTypes.VLAN;
+               } else if (networkTypeBase.isAssignableFrom(NetworkTypeVxlan.class)) {
+                   return ProviderTypes.VXLAN;
+               } else if (networkTypeBase.isAssignableFrom(NetworkTypeGre.class)) {
+                   return ProviderTypes.GRE;
+               }
+            }
+        }
+        return null;
     }
 
     static boolean isNetworkOfType(Network network, Class<? extends NetworkTypeBase> type) {
