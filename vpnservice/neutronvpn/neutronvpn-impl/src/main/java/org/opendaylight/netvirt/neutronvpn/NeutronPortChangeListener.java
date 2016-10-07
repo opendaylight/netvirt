@@ -46,6 +46,10 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.interfaces.ElanInterface;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.interfaces.ElanInterfaceBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.interfaces.ElanInterfaceKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.FloatingIpPortInfo;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.floating.ip.port.info.FloatingIpIdToPortMapping;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.floating.ip.port.info.FloatingIpIdToPortMappingBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.floating.ip.port.info.FloatingIpIdToPortMappingKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.PortAddedToSubnetBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.PortRemovedFromSubnetBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.subnetmaps.Subnetmap;
@@ -59,7 +63,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.rev150712.Neutron;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import sun.util.logging.resources.logging;
 
 public class NeutronPortChangeListener extends AsyncDataTreeChangeListenerBase<Port, NeutronPortChangeListener>
         implements AutoCloseable {
@@ -128,6 +131,12 @@ public class NeutronPortChangeListener extends AsyncDataTreeChangeListenerBase<P
             if (NeutronConstants.DEVICE_OWNER_GATEWAY_INF.equals(input.getDeviceOwner())) {
                 handleRouterGatewayUpdated(input);
             } else if (NeutronConstants.DEVICE_OWNER_FLOATING_IP.equals(input.getDeviceOwner())) {
+
+                // populate floating-ip uuid and floating-ip port attributes (uuid, mac and subnet id for the ONLY
+                // fixed IP) to be used by NAT, depopulated in NATService once mac is retrieved in the removal path
+                addToFloatingIpPortInfo(new Uuid(input.getDeviceId()), input.getUuid(), input.getFixedIps().get(0)
+                                .getSubnetId(), input.getMacAddress().getValue());
+
                 elanService.handleKnownL3DmacAddress(input.getMacAddress().getValue(), input.getNetworkId().getValue(),
                         NwConstants.ADD_FLOW);
             }
@@ -660,6 +669,27 @@ public class NeutronPortChangeListener extends AsyncDataTreeChangeListenerBase<P
                 .setName(name).setStaticMacEntries(physAddresses).setKey(new ElanInterfaceKey(name)).build();
         wrtConfigTxn.put(LogicalDatastoreType.CONFIGURATION, id, elanInterface);
         LOG.debug("Creating new ELan Interface {}", elanInterface);
+    }
+
+    private void addToFloatingIpPortInfo(Uuid floatingIpId, Uuid floatingIpPortId, Uuid floatingIpPortSubnetId, String
+                                         floatingIpPortMacAddress) {
+        InstanceIdentifier<FloatingIpIdToPortMapping> floatingIpIdToPortMappingIdentifier =
+                InstanceIdentifier.builder(FloatingIpPortInfo.class).child(FloatingIpIdToPortMapping.class,
+                        new FloatingIpIdToPortMappingKey(floatingIpId)).build();
+        try {
+            FloatingIpIdToPortMappingBuilder floatingipIdToPortMacMappingBuilder = new
+                    FloatingIpIdToPortMappingBuilder().setKey(new FloatingIpIdToPortMappingKey(floatingIpId))
+                    .setFloatingIpId(floatingIpId).setFloatingIpPortId(floatingIpPortId).setFloatingIpPortSubnetId
+                            (floatingIpPortSubnetId).setFloatingIpPortMacAddress(floatingIpPortMacAddress);
+            LOG.debug("Creating floating IP UUID {} to Floating IP neutron port {} mapping in Floating IP" +
+                            " Port Info Config DS", floatingIpId.getValue(), floatingIpPortId.getValue());
+            MDSALUtil.syncWrite(dataBroker, LogicalDatastoreType.CONFIGURATION,
+                    floatingIpIdToPortMappingIdentifier, floatingipIdToPortMacMappingBuilder.build());
+        } catch (Exception e) {
+            LOG.error("Creating floating IP UUID {} to Floating IP neutron port {} mapping in Floating IP" +
+                    " Port Info Config DS failed with exception {}", floatingIpId.getValue(), floatingIpPortId
+                    .getValue(), e);
+        }
     }
 
     private void checkAndPublishPortAddNotification(String subnetIp, Uuid subnetId, Uuid portId, Long elanTag) throws

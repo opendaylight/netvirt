@@ -17,16 +17,12 @@ import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.GetDpidFromInterfaceInput;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.GetDpidFromInterfaceInputBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.GetDpidFromInterfaceOutput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.OdlInterfaceRpcService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ExternalNetworks;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.IntextIpMap;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.floating.ip.info.RouterPorts;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.floating.ip.info.router.ports.Ports;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.floating.ip.info.router.ports.ports.IpMapping;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.intext.ip.map.IpMappingKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.floating.ip.info.router.ports.ports.InternalToExternalPortMap;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.intext.ip.map.ip.mapping.IpMap;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.NaptSwitches;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.external.networks.Networks;
@@ -35,14 +31,11 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev16011
 import org.opendaylight.yangtools.concepts.ListenerRegistration;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier.InstanceIdentifierBuilder;
-import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.math.BigInteger;
 import java.util.List;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
 
 import org.opendaylight.netvirt.bgpmanager.api.IBgpManager;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fib.rpc.rev160121.FibRpcService;
@@ -176,11 +169,11 @@ public class ExternalNetworksChangeListener
                     LOG.debug("DPN not found for {}, skip handling of ext nw {} association", portName, network.getId());
                     continue;
                 }
-                List<IpMapping> ipMapping = port.getIpMapping();
-                for(IpMapping ipMap : ipMapping) {
-                    String externalIp = ipMap.getExternalIp();
+                List<InternalToExternalPortMap> intExtPortMapList = port.getInternalToExternalPortMap();
+                for(InternalToExternalPortMap ipMap : intExtPortMapList) {
                     //remove all VPN related entries
-                    floatingIpListener.createNATFlowEntries(dpnId, portName, routerId.getValue(), network.getId(), ipMap.getInternalIp(), externalIp);
+                    floatingIpListener.createNATFlowEntries(dpnId, portName, routerId.getValue(), network.getId(),
+                            ipMap);
                 }
             }
         }
@@ -258,10 +251,11 @@ public class ExternalNetworksChangeListener
                     LOG.debug("DPN not found for {}, skip handling of ext nw {} disassociation", portName, network.getId());
                     continue;
                 }
-                List<IpMapping> ipMapping = port.getIpMapping();
-                for(IpMapping ipMap : ipMapping) {
-                    String externalIp = ipMap.getExternalIp();
-                    floatingIpListener.removeNATFlowEntries(dpnId, portName, vpnName, routerId.getValue(), network.getId(), ipMap.getInternalIp(), externalIp);
+                List<InternalToExternalPortMap> intExtPortMapList = port.getInternalToExternalPortMap();
+                for(InternalToExternalPortMap intExtPortMap : intExtPortMapList) {
+                    String externalIp = intExtPortMap.getExternalIp();
+                    floatingIpListener.removeNATFlowEntries(dpnId, portName, vpnName, routerId.getValue(), network
+                            .getId(), intExtPortMap.getInternalIp(), externalIp);
                 }
             }
         }

@@ -251,6 +251,15 @@ public class NeutronvpnUtils {
         return null;
     }
 
+    protected static String getNeutronPortMacFromVpnPortFixedIp(DataBroker broker, String vpnName, String fixedIp) {
+        InstanceIdentifier id = buildVpnPortipToPortIdentifier(vpnName, fixedIp);
+        Optional<VpnPortipToPort> vpnPortipToPortData = read(broker, LogicalDatastoreType.OPERATIONAL, id);
+        if (vpnPortipToPortData.isPresent()) {
+            return vpnPortipToPortData.get().getMacAddress();
+        }
+        return null;
+    }
+
     protected static List<Uuid> getSubnetIdsFromNetworkId(DataBroker broker, Uuid networkId) {
         InstanceIdentifier id = buildNetworkMapIdentifier(networkId);
         Optional<NetworkMap> optionalNetworkMap = read(broker, LogicalDatastoreType.CONFIGURATION, id);
