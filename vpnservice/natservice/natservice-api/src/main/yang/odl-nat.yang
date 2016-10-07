@@ -17,6 +17,7 @@ module odl-nat {
             }
             leaf vpnid { type yang:uuid; }
             leaf-list router-ids { type yang:uuid; }
+            leaf provider-network-type { type provider-types; }
         }
    }
 
@@ -75,6 +76,15 @@ module odl-nat {
         type enumeration {
               enum TCP;
               enum UDP;
+        }
+    }
+
+    typedef provider-types {
+        type enumeration {
+              enum FLAT;
+              enum VLAN;
+              enum VXLAN;
+              enum GRE;
         }
     }
 
