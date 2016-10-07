@@ -19,7 +19,8 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.OdlInterfaceRpcService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.floating.ip.info.RouterPorts;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.floating.ip.info.router.ports.Ports;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.floating.ip.info.router.ports.ports.IpMapping;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.floating.ip.info.router.ports.ports
+        .InternalToExternalPortMap;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.NeutronvpnListener;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.PortAddedToSubnet;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.PortRemovedFromSubnet;
@@ -107,14 +108,15 @@ public class RouterToVpnListener implements NeutronvpnListener {
                 continue;
             }
             portToDpnMap.put(portName, dpnId);
-            List<IpMapping> ipMapping = port.getIpMapping();
-            for(IpMapping ipMap : ipMapping) {
-                String externalIp = ipMap.getExternalIp();
+            List<InternalToExternalPortMap> intExtPortMapList = port.getInternalToExternalPortMap();
+            for(InternalToExternalPortMap intExtPortMap : intExtPortMapList) {
+                String externalIp = intExtPortMap.getExternalIp();
                 //remove all NAT related entries with routerName
-                //floatingIpListener.removeNATOnlyFlowEntries(dpnId, portName, routerName, null, ipMap.getInternalIp(), externalIp);
+                //floatingIpListener.removeNATOnlyFlowEntries(dpnId, portName, routerName, null, intExtPortMap.getInternalIp(), externalIp);
                 //Create NAT entries with VPN Id
                 LOG.debug("Updating DNAT flows with VPN metadata {} ", vpnName);
-                floatingIpListener.createNATOnlyFlowEntries(dpnId, portName, routerName, vpnName, networkId, ipMap.getInternalIp(), externalIp);
+                // TODO : pass floatingIP port MAC
+                floatingIpListener.createNATOnlyFlowEntries(dpnId, portName, routerName, vpnName, networkId, intExtPortMap.getInternalIp(), externalIp);
             }
         }
     }
@@ -136,13 +138,14 @@ public class RouterToVpnListener implements NeutronvpnListener {
                 LOG.debug("DPN not found for {}, skip handling of router {} association with vpn", portName, routerName, vpnName);
                 continue;
             }
-            List<IpMapping> ipMapping = port.getIpMapping();
-            for(IpMapping ipMap : ipMapping) {
-                String externalIp = ipMap.getExternalIp();
+            List<InternalToExternalPortMap> intExtPortMapList = port.getInternalToExternalPortMap();
+            for(InternalToExternalPortMap intExtPortMap : intExtPortMapList) {
+                String externalIp = intExtPortMap.getExternalIp();
                 //remove all NAT related entries with routerName
-                //floatingIpListener.removeNATOnlyFlowEntries(dpnId, portName, routerName, vpnName, ipMap.getInternalIp(), externalIp);
+                //floatingIpListener.removeNATOnlyFlowEntries(dpnId, portName, routerName, vpnName, intExtPortMap.getInternalIp(), externalIp);
                 //Create NAT entries with VPN Id
-                floatingIpListener.createNATOnlyFlowEntries(dpnId, portName, routerName, null, networkId, ipMap.getInternalIp(), externalIp);
+                // TODO: pass floatingIP port MAC
+                floatingIpListener.createNATOnlyFlowEntries(dpnId, portName, routerName, null, networkId, intExtPortMap.getInternalIp(), externalIp);
             }
         }
     }
