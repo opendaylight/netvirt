@@ -47,6 +47,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpc
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ExtRouters;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ExternalIpsCounter;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ExternalNetworks;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ProviderTypes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.FloatingIpInfo;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.IntextIpMap;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.IntextIpPortMap;
@@ -340,6 +341,15 @@ public class NatUtil {
         Optional<Networks> networkData = read(broker, LogicalDatastoreType.CONFIGURATION, id);
         if (networkData.isPresent()) {
             return networkData.get().getVpnid();
+        }
+        return null;
+    }
+
+    public static ProviderTypes getProviderTypefromNetworkId(DataBroker broker, Uuid networkId) {
+        InstanceIdentifier<Networks> id = buildNetworkIdentifier(networkId);
+        Optional<Networks> networkData = read(broker, LogicalDatastoreType.CONFIGURATION, id);
+        if ((networkData.isPresent()) && (networkData.get() != null)) {
+            return networkData.get().getProviderNetworkType();
         }
         return null;
     }
