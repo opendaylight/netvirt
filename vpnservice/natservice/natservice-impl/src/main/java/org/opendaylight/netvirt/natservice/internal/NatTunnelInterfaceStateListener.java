@@ -34,7 +34,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.op.rev160406.tun
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ext.routers.Routers;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.floating.ip.info.RouterPorts;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.floating.ip.info.router.ports.Ports;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.floating.ip.info.router.ports.ports.IpMapping;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.floating.ip.info.router.ports.ports.InternalToExternalPortMap;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.OdlInterfaceRpcService;
 import org.opendaylight.yangtools.yang.common.RpcResult;
@@ -635,10 +635,10 @@ public class NatTunnelInterfaceStateListener extends AsyncDataTreeChangeListener
                         tepAddedDpnId, fipCfgdDpnId, interfaceName);
                 continue;
             }
-            List<IpMapping> ipMapping = port.getIpMapping();
-            for (final IpMapping ipMap : ipMapping) {
-                final String internalIp = ipMap.getInternalIp();
-                final String externalIp = ipMap.getExternalIp();
+            List<InternalToExternalPortMap> intExtPortMapList = port.getInternalToExternalPortMap();
+            for(InternalToExternalPortMap intExtPortMap : intExtPortMapList) {
+                final String internalIp = intExtPortMap.getInternalIp();
+                final String externalIp = intExtPortMap.getExternalIp();
                 LOG.debug("NAT Service : DNAT -> Advertising the FIB route to the floating IP {} configured for the port: {}",
                         externalIp, interfaceName);
                 long label = floatingIPListener.getOperationalIpMapping(routerName, interfaceName, internalIp);
@@ -807,10 +807,10 @@ public class NatTunnelInterfaceStateListener extends AsyncDataTreeChangeListener
                         tepDeletedDpnId, fipCfgdDpnId, interfaceName);
                 continue;
             }
-            List<IpMapping> ipMapping = port.getIpMapping();
-            for(IpMapping ipMap : ipMapping) {
-                String internalIp = ipMap.getInternalIp();
-                String externalIp = ipMap.getExternalIp();
+            List<InternalToExternalPortMap> intExtPortMapList = port.getInternalToExternalPortMap();
+            for(InternalToExternalPortMap intExtPortMap : intExtPortMapList) {
+                String internalIp = intExtPortMap.getInternalIp();
+                String externalIp = intExtPortMap.getExternalIp();
                 LOG.debug("NAT Service : DNAT -> Withdrawing the FIB route to the floating IP {} configured for the port: {}",
                         externalIp, interfaceName);
                 NatUtil.removePrefixFromBGP(dataBroker, bgpManager, fibManager, rd, externalIp + "/32", LOG);
