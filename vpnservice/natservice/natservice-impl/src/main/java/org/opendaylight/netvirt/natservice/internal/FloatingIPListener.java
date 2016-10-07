@@ -37,6 +37,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev16011
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.external.networks.Networks;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.external.networks.NetworksKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ExternalNetworks;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ProviderTypes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.ports.attributes.ports.Port;
 import org.opendaylight.yangtools.concepts.ListenerRegistration;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
@@ -234,8 +235,14 @@ public class FloatingIPListener extends AbstractDataChangeListener<IpMapping> im
         return flowEntity;
     }
 
-    private FlowEntity buildSNATFlowEntity(BigInteger dpId, String internalIp, String externalIp, long vpnId) {
+    private FlowEntity buildSNATFlowEntity(BigInteger dpId, String internalIp, String externalIp, long vpnId, Uuid externalNetworkId) {
         LOG.info("Building SNAT Flow entity for ip {} ", internalIp);
+
+        ProviderTypes provType = NatUtil.getProviderTypefromNetworkId(dataBroker, externalNetworkId);
+        if (provType == null){
+            LOG.error("NAT Service : Unable to get Network Provider Type for network {}", externalNetworkId);
+            return null;
+        }
 
         List<MatchInfo> matches = new ArrayList<>();
         matches.add(new MatchInfo(MatchFieldType.metadata, new BigInteger[] {
@@ -258,12 +265,17 @@ public class FloatingIPListener extends AbstractDataChangeListener<IpMapping> im
             LOG.warn("No MAC address found for floating IP {}", externalIp);
         }
 
-        Uuid subnetId = NatUtil.getSubnetIdForFloatingIp(port, externalIpv4Address);
-        if (subnetId != null) {
-            long groupId = NatUtil.createGroupId(NatUtil.getGroupIdKey(subnetId.getValue()), idManager);
-            actionsInfo.add(new ActionInfo(ActionType.group, new String[] {String.valueOf(groupId)}));
+        if (provType != ProviderTypes.GRE){
+            Uuid subnetId = NatUtil.getSubnetIdForFloatingIp(port, externalIpv4Address);
+            if (subnetId != null) {
+                long groupId = NatUtil.createGroupId(NatUtil.getGroupIdKey(subnetId.getValue()), idManager);
+                actionsInfo.add(new ActionInfo(ActionType.group, new String[] {String.valueOf(groupId)}));
+            } else {
+                LOG.warn("No neutron Subnet found for floating IP {}", externalIp);
+            }
         } else {
-            LOG.warn("No neutron Subnet found for floating IP {}", externalIp);
+            LOG.trace("NAT Service : External Network Provider Type is {}, resubmit to FIB", provType.toString());
+            actionsInfo.add(new ActionInfo(ActionType.nx_resubmit, new String[] { Integer.toString(NwConstants.L3_FIB_TABLE) }));
         }
 
         instructions.add(new InstructionInfo(InstructionType.apply_actions, actionsInfo));
@@ -274,6 +286,7 @@ public class FloatingIPListener extends AbstractDataChangeListener<IpMapping> im
                 NwConstants.COOKIE_DNAT_TABLE, matches, instructions);
 
         return flowEntity;
+
     }
 
     private void createDNATTblEntry(BigInteger dpnId, String internalIp, String externalIp, long routerId, long vpnId, long associatedVpnId) {
@@ -292,11 +305,11 @@ public class FloatingIPListener extends AbstractDataChangeListener<IpMapping> im
         mdsalManager.removeFlow(flowEntity);
     }
 
-    private void createSNATTblEntry(BigInteger dpnId, String internalIp, String externalIp, long vpnId, long routerId, long associatedVpnId) {
+    private void createSNATTblEntry(BigInteger dpnId, String internalIp, String externalIp, long vpnId, long routerId, long associatedVpnId, Uuid externalNetworkId) {
         FlowEntity pFlowEntity = buildPreSNATFlowEntity(dpnId, internalIp, externalIp, vpnId , routerId, associatedVpnId);
         mdsalManager.installFlow(pFlowEntity);
 
-        FlowEntity flowEntity = buildSNATFlowEntity(dpnId, internalIp, externalIp, vpnId);
+        FlowEntity flowEntity = buildSNATFlowEntity(dpnId, internalIp, externalIp, vpnId, externalNetworkId);
         mdsalManager.installFlow(flowEntity);
 
     }
@@ -428,7 +441,7 @@ public class FloatingIPListener extends AbstractDataChangeListener<IpMapping> im
         createDNATTblEntry(dpnId, mapping.getInternalIp(), mapping.getExternalIp(), routerId, vpnId, associatedVpnId);
 
 
-        createSNATTblEntry(dpnId, mapping.getInternalIp(), mapping.getExternalIp(), vpnId, routerId, associatedVpnId);
+        createSNATTblEntry(dpnId, mapping.getInternalIp(), mapping.getExternalIp(), vpnId, routerId, associatedVpnId, extNwId);
 
         floatingIPHandler.onAddFloatingIp(dpnId, routerName, extNwId, interfaceName, mapping.getExternalIp(), mapping
                 .getInternalIp());
@@ -457,7 +470,7 @@ public class FloatingIPListener extends AbstractDataChangeListener<IpMapping> im
         //Create the DNAT and SNAT table entries
         createDNATTblEntry(dpnId, internalIp, externalIp, routerId, vpnId, associatedVpnId);
 
-        createSNATTblEntry(dpnId, internalIp, externalIp, vpnId, routerId, associatedVpnId);
+        createSNATTblEntry(dpnId, internalIp, externalIp, vpnId, routerId, associatedVpnId, externalNetworkId);
 
         floatingIPHandler.onAddFloatingIp(dpnId, routerName, externalNetworkId, interfaceName, externalIp, internalIp);
     }
@@ -489,7 +502,7 @@ public class FloatingIPListener extends AbstractDataChangeListener<IpMapping> im
         pFlowEntity = buildPreSNATFlowEntity(dpnId, internalIp, externalIp, vpnId , routerId, associatedVpnId);
         mdsalManager.installFlow(pFlowEntity);
 
-        flowEntity = buildSNATFlowEntity(dpnId, internalIp, externalIp, vpnId);
+        flowEntity = buildSNATFlowEntity(dpnId, internalIp, externalIp, vpnId, externalNetworkId);
         mdsalManager.installFlow(flowEntity);
 
     }
