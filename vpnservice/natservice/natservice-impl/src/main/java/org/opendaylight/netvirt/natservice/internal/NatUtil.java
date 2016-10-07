@@ -47,6 +47,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpc
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ExtRouters;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ExternalIpsCounter;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ExternalNetworks;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.FloatingIpPortInfo;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ProviderTypes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.FloatingIpInfo;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.IntextIpMap;
@@ -61,6 +62,10 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev16011
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.external.ips.counter.ExternalCounters;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.external.ips.counter.ExternalCountersKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.external.ips.counter.external.counters.ExternalIpCounter;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.floating.ip.info.router.ports.ports.InternalToExternalPortMap;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.floating.ip.info.router.ports.ports.InternalToExternalPortMapKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.floating.ip.port.info.FloatingIpIdToPortMapping;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.floating.ip.port.info.FloatingIpIdToPortMappingKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.intext.ip.map.ip.mapping.IpMap;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.intext.ip.port.map.ip.port.mapping.IntextIpProtocolType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.intext.ip.port.map.ip.port.mapping.IntextIpProtocolTypeKey;
@@ -104,16 +109,12 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.subnets.rev150712.s
 import org.opendaylight.yang.gen.v1.urn.opendaylight.openflowplugin.extension.nicira.action.rev140714.add.group.input.buckets.bucket.action.action.NxActionResubmitRpcAddGroupCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.openflowplugin.extension.nicira.action.rev140714.nodes.node.table.flow.instructions.instruction.instruction.apply.actions._case.apply.actions.action.action.NxActionRegLoadNodesNodeTableFlowApplyActionsCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.openflowplugin.extension.nicira.action.rev140714.nx.action.reg.load.grouping.NxRegLoad;
-
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.MacAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-
 import com.google.common.base.Optional;
-
 import org.opendaylight.netvirt.bgpmanager.api.IBgpManager;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.external.networks.Networks;
@@ -133,8 +134,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.op.rev160406.Dpn
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.op.rev160406.dpn.endpoints.DPNTEPsInfo;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.op.rev160406.dpn.endpoints.DPNTEPsInfoKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.op.rev160406.dpn.endpoints.dpn.teps.info.TunnelEndPoints;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.floating.ip.info.router.ports.ports.IpMapping;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.floating.ip.info.router.ports.ports.IpMappingKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.intext.ip.port.map.IpPortMapping;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.intext.ip.port.map.IpPortMappingKey;
 import org.opendaylight.yangtools.yang.common.RpcResult;
@@ -248,27 +247,12 @@ public class NatUtil {
                 .child(Ports.class, new PortsKey(portName)).build();
     }
 
-    static InstanceIdentifier<IpMapping> getIpMappingIdentifier(String routerId, String portName, String internalIp) {
+    static InstanceIdentifier<InternalToExternalPortMap> getIntExtPortMapIdentifier(String routerId, String portName,
+                                                                                    String internalIp) {
         return InstanceIdentifier.builder(FloatingIpInfo.class).child(RouterPorts.class, new RouterPortsKey(routerId))
                 .child(Ports.class, new PortsKey(portName))
-                .child(IpMapping.class, new IpMappingKey(internalIp)).build();
+                .child(InternalToExternalPortMap.class, new InternalToExternalPortMapKey(internalIp)).build();
     }
-
-    /*
-        getVpnInstanceToVpnIdIdentifier() returns the VPN instance from the below model using the VPN name as the key.
-            list vpn-instance {
-                key "vpn-instance-name"
-                leaf vpn-instance-name {
-                    type string;
-                }
-                leaf vpn-id {
-                    type uint32;
-                }
-                leaf vrf-id {
-                    type string;
-                }
-            }
-    */
 
     static InstanceIdentifier<org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.to.vpn.id.VpnInstance>
     getVpnInstanceToVpnIdIdentifier(String vpnName) {
@@ -632,17 +616,9 @@ public class NatUtil {
 
     public static BigInteger getDpIdFromInterface(org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface ifState) {
         String lowerLayerIf = ifState.getLowerLayerIf().get(0);
-        if (lowerLayerIf == null) {
-            return BigInteger.ZERO;
-        }
         NodeConnectorId nodeConnectorId = new NodeConnectorId(lowerLayerIf);
-        String dpnFromNodeConnectorId = getDpnFromNodeConnectorId(nodeConnectorId);
-        if (dpnFromNodeConnectorId == null) {
-            return BigInteger.ZERO;
-        }
-        return new BigInteger(dpnFromNodeConnectorId);
+        return new BigInteger(getDpnFromNodeConnectorId(nodeConnectorId));
     }
-
 
     /*
     container vpnMaps {
@@ -688,16 +664,6 @@ public class NatUtil {
         return null;
     }
 
-    public static String getRouterIdfromVpnId(DataBroker broker, long vpnId){
-        String vpnName = getVpnInstanceFromVpnIdentifier(broker, vpnId);
-        if (vpnName == null) {
-            LOG.trace("No VPN instance found for vpn id {}", vpnId);
-            return null;
-        }
-
-        return getRouterIdfromVpnInstance(broker, vpnName);
-    }
-
     static Uuid getVpnForRouter(DataBroker broker, String routerId) {
         InstanceIdentifier<VpnMaps> vpnMapsIdentifier = InstanceIdentifier.builder(VpnMaps.class).build();
         Optional<VpnMaps> optionalVpnMaps = read(broker, LogicalDatastoreType.CONFIGURATION,
@@ -725,27 +691,6 @@ public class NatUtil {
             return routerMapping.getVpnId();
         }
         return NatConstants.INVALID_ID;
-    }
-
-
-    public static List<VpnToDpnList> getVpnToDpnList(DataBroker dataBroker, String vrfId )
-    {
-        List<VpnToDpnList> vpnDpnList = null;
-
-        InstanceIdentifier<VpnInstanceOpDataEntry> id = InstanceIdentifier
-                .builder(VpnInstanceOpData.class)
-                .child(VpnInstanceOpDataEntry.class, new VpnInstanceOpDataEntryKey(vrfId))
-                .build();
-
-        Optional<VpnInstanceOpDataEntry> vpnInstanceOpData = read(dataBroker, LogicalDatastoreType.OPERATIONAL, id);
-
-        if(vpnInstanceOpData.isPresent())
-        {
-            VpnInstanceOpDataEntry vpnInstanceOpDataEntry = vpnInstanceOpData.get();
-            vpnDpnList = vpnInstanceOpDataEntry.getVpnToDpnList();
-        }
-
-        return vpnDpnList;
     }
 
     public static String getAssociatedVPN(DataBroker dataBroker, Uuid networkId, Logger log) {
@@ -829,14 +774,6 @@ public class NatUtil {
     public static ProtocolTypes getProtocolType(NAPTEntryEvent.Protocol protocol) {
         ProtocolTypes protocolType = ProtocolTypes.TCP.toString().equals(protocol.toString()) ? ProtocolTypes.TCP : ProtocolTypes.UDP;
         return protocolType;
-    }
-
-    public static NaptSwitches getNaptSwitch(DataBroker broker) {
-        Optional<NaptSwitches> switchesOptional = read(broker, LogicalDatastoreType.CONFIGURATION, getNaptSwitchesIdentifier());
-        if(switchesOptional.isPresent()) {
-            return switchesOptional.get();
-        }
-        return null;
     }
 
     public static InstanceIdentifier<NaptSwitches> getNaptSwitchesIdentifier() {
@@ -1419,10 +1356,6 @@ public class NatUtil {
         return listActionInfo;
     }
 
-    public static Port getNeutronPortForFloatingIp(DataBroker broker, IpAddress targetIP) {
-        return getNeutronPortForIp(broker, targetIP, NeutronConstants.DEVICE_OWNER_FLOATING_IP);
-    }
-
     public static Port getNeutronPortForRouterGetewayIp(DataBroker broker, IpAddress targetIP) {
         return getNeutronPortForIp(broker, targetIP, NeutronConstants.DEVICE_OWNER_GATEWAY_INF);
     }
@@ -1462,12 +1395,10 @@ public class NatUtil {
         return null;
     }
 
-    public static Uuid getSubnetIdForFloatingIp(Port port,
-            org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress targetIP) {
+    public static Uuid getSubnetIdForFloatingIp(Port port, IpAddress targetIP) {
         if (port == null) {
             return null;
         }
-
         for (FixedIps ip : port.getFixedIps()) {
             if (Objects.equals(ip.getIpAddress(), targetIP)) {
                 return ip.getSubnetId();
@@ -1573,6 +1504,31 @@ public class NatUtil {
     static InstanceIdentifier<RouterDpnList> getRouterId(String routerName) {
         return InstanceIdentifier.builder(NeutronRouterDpns.class)
                 .child(RouterDpnList.class, new RouterDpnListKey(routerName)).build();
+    }
+
+    protected static String getFloatingIpPortMacFromFloatingIpId(DataBroker broker, Uuid floatingIpId) {
+        InstanceIdentifier id = buildfloatingIpIdToPortMappingIdentifier(floatingIpId);
+        Optional<FloatingIpIdToPortMapping> optFloatingIpIdToPortMapping = read(broker, LogicalDatastoreType
+                        .CONFIGURATION, id);
+        if (optFloatingIpIdToPortMapping.isPresent()) {
+            return optFloatingIpIdToPortMapping.get().getFloatingIpPortMacAddress();
+        }
+        return null;
+    }
+
+    protected static Uuid getFloatingIpPortSubnetIdFromFloatingIpId(DataBroker broker, Uuid floatingIpId) {
+        InstanceIdentifier id = buildfloatingIpIdToPortMappingIdentifier(floatingIpId);
+        Optional<FloatingIpIdToPortMapping> optFloatingIpIdToPortMapping = read(broker, LogicalDatastoreType
+                .CONFIGURATION, id);
+        if (optFloatingIpIdToPortMapping.isPresent()) {
+            return optFloatingIpIdToPortMapping.get().getFloatingIpPortSubnetId();
+        }
+        return null;
+    }
+
+    static InstanceIdentifier<FloatingIpIdToPortMapping> buildfloatingIpIdToPortMappingIdentifier (Uuid floatingIpId) {
+        return InstanceIdentifier.builder(FloatingIpPortInfo.class).child(FloatingIpIdToPortMapping.class, new
+                FloatingIpIdToPortMappingKey(floatingIpId)).build();
     }
 
     static InstanceIdentifier<org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface> getInterfaceIdentifier(String interfaceName) {
