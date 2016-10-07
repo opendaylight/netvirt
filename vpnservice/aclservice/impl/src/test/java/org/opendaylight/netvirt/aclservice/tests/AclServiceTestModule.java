@@ -28,8 +28,6 @@ public class AclServiceTestModule extends AbstractModule {
 
     @Override
     protected void configure() {
-        install(new AclServiceModule());
-
         bind(DataBroker.class).toInstance(DataBrokerTestModule.dataBroker());
         bind(AclserviceConfig.class).toInstance(aclServiceConfig());
 
