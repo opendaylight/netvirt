@@ -52,6 +52,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fib.rpc.rev160121.C
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fib.rpc.rev160121.FibRpcService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fib.rpc.rev160121.RemoveFibEntryInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fib.rpc.rev160121.RemoveFibEntryInputBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.floating.ip.info.router.ports.ports.InternalToExternalPortMap;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.vpn.rpc.rev160201.GenerateVpnLabelInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.vpn.rpc.rev160201.GenerateVpnLabelInputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.vpn.rpc.rev160201.GenerateVpnLabelOutput;
@@ -103,7 +104,7 @@ public class VpnFloatingIpHandler implements FloatingIPHandler {
     @Override
     public void onAddFloatingIp(final BigInteger dpnId, final String routerId,
                                 Uuid networkId, final String interfaceName, final String externalIp,
-                                final String internalIp) {
+                                final String internalIp, final String externalMacAddress) {
         final String vpnName = NatUtil.getAssociatedVPN(dataBroker, networkId, LOG);
         if (vpnName == null) {
             LOG.info("No VPN associated with ext nw {} to handle add floating ip configuration {} in router {}",
@@ -148,13 +149,12 @@ public class VpnFloatingIpHandler implements FloatingIPHandler {
                     //Future<RpcResult<java.lang.Void>> createFibEntry(CreateFibEntryInput input);
                     Future<RpcResult<Void>> future = fibService.createFibEntry(input);
                     WriteTransaction writeTx = dataBroker.newWriteOnlyTransaction();
-                    IpAddress externalIpAddress = new IpAddress(new Ipv4Address(externalIp));
-                    Port neutronPort = NatUtil.getNeutronPortForFloatingIp(dataBroker, externalIpAddress);
-                    LOG.debug("Add Floating Ip {} , found associated to fixed port {}", externalIp, interfaceName);
-                    if (neutronPort != null && neutronPort.getMacAddress() != null) {
-                        vpnManager.setupSubnetMacIntoVpnInstance(vpnName, neutronPort.getMacAddress().getValue(),
-                                dpnId, writeTx, NwConstants.ADD_FLOW);
-                    }
+                    //IpAddress externalIpAddress = new IpAddress(new Ipv4Address(externalIp));
+                    //Port neutronPort = NatUtil.getNeutronPortForFloatingIp(dataBroker, externalIpAddress);
+                    //if (neutronPort != null && neutronPort.getMacAddress() != null) {
+                    vpnManager.setupSubnetMacIntoVpnInstance(vpnName, externalMacAddress,
+                            dpnId, writeTx, NwConstants.ADD_FLOW);
+                    //}
                     writeTx.submit();
                     return JdkFutureAdapters.listenInPoolThread(future);
                 } else {
@@ -189,31 +189,31 @@ public class VpnFloatingIpHandler implements FloatingIPHandler {
     }
 
     @Override
-    public void onRemoveFloatingIp(final BigInteger dpnId, String routerId, Uuid networkId, final String externalIp,
-                                   String internalIp, final long label) {
+    public void onRemoveFloatingIp(final BigInteger dpnId, String routerId, Uuid networkId, final InternalToExternalPortMap mapping, final long label) {
         final String vpnName = NatUtil.getAssociatedVPN(dataBroker, networkId, LOG);
         if (vpnName == null) {
             LOG.info("No VPN associated with ext nw {} to handle remove floating ip configuration {} in router {}",
-                    networkId, externalIp, routerId);
+                    networkId, mapping.getExternalIp(), routerId);
             return;
         }
         //Remove floating mac from mymac table
         WriteTransaction writeTx = dataBroker.newWriteOnlyTransaction();
-        IpAddress externalIpAddress = new IpAddress(new Ipv4Address(externalIp));
-        Port neutronPort = NatUtil.getNeutronPortForFloatingIp(dataBroker, externalIpAddress);
-        LOG.debug("Removing FloatingIp {}", externalIp);
-        if (neutronPort != null && neutronPort.getMacAddress() != null) {
-            vpnManager.setupSubnetMacIntoVpnInstance(vpnName, neutronPort.getMacAddress().getValue(),
+        //IpAddress externalIpAddress = new IpAddress(new Ipv4Address(mapping.getExternalIp()));
+        //Port neutronPort = NatUtil.getNeutronPortForFloatingIp(dataBroker, externalIpAddress);
+        LOG.debug("Removing FloatingIp {}", mapping.getExternalIp());
+        LOG.debug("Hari Removing FloatingIp macaddress {}", mapping.getExternalMacAddress());
+        //if (neutronPort != null && neutronPort.getMacAddress() != null) {
+            vpnManager.setupSubnetMacIntoVpnInstance(vpnName, mapping.getExternalMacAddress(),
                     dpnId, writeTx, NwConstants.DEL_FLOW);
-        }
+        //}
         writeTx.submit();
         //Remove Prefix from BGP
         String rd = NatUtil.getVpnRd(dataBroker, vpnName);
-        NatUtil.removePrefixFromBGP(dataBroker, bgpManager, fibManager, rd, externalIp + "/32", LOG);
+        NatUtil.removePrefixFromBGP(dataBroker, bgpManager, fibManager, rd, mapping.getExternalIp() + "/32", LOG);
 
         //Remove custom FIB routes
         //Future<RpcResult<java.lang.Void>> removeFibEntry(RemoveFibEntryInput input);
-        RemoveFibEntryInput input = new RemoveFibEntryInputBuilder().setVpnName(vpnName).setSourceDpid(dpnId).setIpAddress(externalIp + "/32").setServiceId(label).build();
+        RemoveFibEntryInput input = new RemoveFibEntryInputBuilder().setVpnName(vpnName).setSourceDpid(dpnId).setIpAddress(mapping.getExternalIp() + "/32").setServiceId(label).build();
         Future<RpcResult<Void>> future = fibService.removeFibEntry(input);
 
         ListenableFuture<RpcResult<Void>> labelFuture = Futures.transform(JdkFutureAdapters.listenInPoolThread(future), new AsyncFunction<RpcResult<Void>, RpcResult<Void>>() {
@@ -224,11 +224,11 @@ public class VpnFloatingIpHandler implements FloatingIPHandler {
                 if(result.isSuccessful()) {
                     removeTunnelTableEntry(dpnId, label);
                     removeLFibTableEntry(dpnId, label);
-                    RemoveVpnLabelInput labelInput = new RemoveVpnLabelInputBuilder().setVpnName(vpnName).setIpPrefix(externalIp).build();
+                    RemoveVpnLabelInput labelInput = new RemoveVpnLabelInputBuilder().setVpnName(vpnName).setIpPrefix(mapping.getExternalIp()).build();
                     Future<RpcResult<Void>> labelFuture = vpnService.removeVpnLabel(labelInput);
                     return JdkFutureAdapters.listenInPoolThread(labelFuture);
                 } else {
-                    String errMsg = String.format("RPC call to remove custom FIB entries on dpn %s for prefix %s Failed - %s", dpnId, externalIp, result.getErrors());
+                    String errMsg = String.format("RPC call to remove custom FIB entries on dpn %s for prefix %s Failed - %s", dpnId, mapping.getExternalIp(), result.getErrors());
                     LOG.error(errMsg);
                     return Futures.immediateFailedFuture(new RuntimeException(errMsg));
                 }
@@ -245,9 +245,9 @@ public class VpnFloatingIpHandler implements FloatingIPHandler {
             @Override
             public void onSuccess(RpcResult<Void> result) {
                 if(result.isSuccessful()) {
-                    LOG.debug("Successfully removed the label for the prefix {} from VPN {}", externalIp, vpnName);
+                    LOG.debug("Successfully removed the label for the prefix {} from VPN {}", mapping.getExternalIp(), vpnName);
                 } else {
-                    LOG.error("Error in removing the label for prefix {} from VPN {}, {}", externalIp, vpnName, result.getErrors());
+                    LOG.error("Error in removing the label for prefix {} from VPN {}, {}", mapping.getExternalIp(), vpnName, result.getErrors());
                 }
             }
         });
