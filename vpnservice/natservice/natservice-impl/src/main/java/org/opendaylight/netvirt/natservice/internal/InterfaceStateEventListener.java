@@ -19,17 +19,14 @@ import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.interfaces.VpnInterface;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.iana._if.type.rev140508.Tunnel;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.InterfaceType;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.InterfacesState;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.neutron.router.dpns.RouterDpnList;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.neutron.router.dpns.router.dpn.list.DpnVpninterfacesList;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.FloatingIpInfo;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.NaptSwitches;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.floating.ip.info.RouterPorts;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.floating.ip.info.router.ports.Ports;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.floating.ip.info.router.ports.ports.IpMapping;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.floating.ip.info.router.ports.ports.InternalToExternalPortMap;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ProtocolTypes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.intext.ip.port.map.ip.port.mapping.intext.ip.protocol.type.ip.port.map.IpPortExternal;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.napt.switches.RouterToNaptSwitch;
@@ -91,25 +88,42 @@ public class InterfaceStateEventListener extends AsyncDataTreeChangeListenerBase
 
     @Override
     protected void remove(InstanceIdentifier<Interface> identifier, Interface delintrf) {
+        final String interfaceName = delintrf.getName();
         LOG.trace("NAT Service : Interface {} removed event received", delintrf);
         try {
             if (delintrf != null) {
-                String interfaceName = delintrf.getName();
-                LOG.trace("NAT Service : Port removed event received for interface {} ", interfaceName);
-
-                BigInteger dpnId = NatUtil.getDpIdFromInterface(delintrf);
-                LOG.trace("NAT Service : PORT_REMOVE: Interface {} down in Dpn {}", interfaceName, dpnId);
-
                 String routerName = getRouterIdForPort(dataBroker, interfaceName);
                 if (routerName != null) {
-                    processInterfaceRemoved(interfaceName, routerName, dpnId);
-                    removeSnatEntriesForPort(interfaceName,routerName);
+                    LOG.trace("NAT Service : Port removed event received for interface {} ", interfaceName);
+
+                    BigInteger dpId;
+                    try {
+                        dpId = NatUtil.getDpIdFromInterface(delintrf);
+                    } catch (Exception e) {
+                        LOG.warn("NAT Service : Unable to retrieve DPNID from Interface operational data store for " +
+                                "Interface {}. Fetching from VPN Interface op data store. ", interfaceName, e);
+                        InstanceIdentifier<VpnInterface> id = NatUtil.getVpnInterfaceIdentifier(interfaceName);
+                        Optional<VpnInterface> optVpnInterface = NatUtil.read(dataBroker, LogicalDatastoreType
+                                .OPERATIONAL, id);
+                        if (!optVpnInterface.isPresent()) {
+                            LOG.debug("NAT Service : Interface {} is not a VPN Interface, ignoring.", interfaceName);
+                            return;
+                        }
+                        final VpnInterface vpnInterface = optVpnInterface.get();
+                        dpId = vpnInterface.getDpnId();
+                    }
+                    if (dpId == null || dpId.equals(BigInteger.ZERO)) {
+                        LOG.debug("NAT Service : Unable to get DPN ID for the Interface {}", interfaceName);
+                        return;
+                    }
+                    processInterfaceRemoved(interfaceName, dpId);
+                    removeSnatEntriesForPort(interfaceName, routerName);
                 } else {
                     LOG.debug("NAT Service : PORT_REMOVE: Router Id is null either Interface {} is not associated " +
-                                "to router or failed to retrieve routerId due to exception", interfaceName);
+                            "to router or failed to retrieve routerId due to exception", interfaceName);
                 }
             }
-        } catch(Exception e) {
+        } catch (Exception e) {
             LOG.error("NAT Service : Exception caught in InterfaceOperationalStateRemove : {}", e);
         }
     }
@@ -123,9 +137,6 @@ public class InterfaceStateEventListener extends AsyncDataTreeChangeListenerBase
         } else if (update.getOperStatus().equals(Interface.OperStatus.Down)) {
             try {
                 LOG.trace("NAT Service : Port DOWN event received for interface {} ", interfaceName);
-
-                BigInteger dpnId = NatUtil.getDpIdFromInterface(update);
-                LOG.trace("NAT Service : PORT_DOWN: Interface {} down in Dpn {}", interfaceName, dpnId);
 
                 String routerName = getRouterIdForPort(dataBroker, interfaceName);
                 if (routerName != null) {
@@ -149,7 +160,7 @@ public class InterfaceStateEventListener extends AsyncDataTreeChangeListenerBase
             LOG.trace("NAT Service : Port added event received for interface {} ", interfaceName);
             String routerId = getRouterIdForPort(dataBroker,interfaceName);
             if (routerId != null) {
-                processInterfaceAdded(interfaceName, routerId);
+                processInterfaceAdded(interfaceName);
             }
             if (Tunnel.class.equals(intrf.getType())) {
                 updateNaptTunnelsGroups(intrf);
@@ -161,15 +172,31 @@ public class InterfaceStateEventListener extends AsyncDataTreeChangeListenerBase
 
     private void updateNaptTunnelsGroups(Interface intrf) {
         // get tunnel's DPN
-        BigInteger tunnelDpn = NatUtil.getDpIdFromInterface(intrf);
-        if (tunnelDpn == BigInteger.ZERO) {
-            LOG.warn("Unable to obtain dpnId for tunnel interface {}, update NAPT tunnel group table failed",
-                    intrf.getName());
+        String interfaceName = intrf.getName();
+        BigInteger tunnelDpnId;
+        try {
+            tunnelDpnId = NatUtil.getDpIdFromInterface(intrf);
+        } catch (Exception e) {
+            LOG.warn("NAT Service : Unable to retrieve DPNID from Interface operational data store for " +
+                    "Interface {}. Fetching from VPN Interface op data store. ", intrf.getName(), e);
+            InstanceIdentifier<VpnInterface> id = NatUtil.getVpnInterfaceIdentifier(interfaceName);
+            Optional<VpnInterface> optVpnInterface = NatUtil.read(dataBroker, LogicalDatastoreType
+                    .OPERATIONAL, id);
+            if (!optVpnInterface.isPresent()) {
+                LOG.debug("NAT Service : Interface {} is not a VPN Interface, ignoring.", intrf.getName());
+                return;
+            }
+            final VpnInterface vpnInterface = optVpnInterface.get();
+            tunnelDpnId = vpnInterface.getDpnId();
+        }
+        if(tunnelDpnId == null || tunnelDpnId.equals(BigInteger.ZERO)){
+            LOG.debug("NAT Service : Unable to retrieve DPN ID for tunnel interface {}, update NAPT tunnel group " +
+                    "table failed", interfaceName);
             return;
         }
 
         // get tunnel DPN's routers
-        Set<RouterDpnList> allRouterDpnList = NatUtil.getAllRouterDpnList(dataBroker, tunnelDpn);
+        Set<RouterDpnList> allRouterDpnList = NatUtil.getAllRouterDpnList(dataBroker, tunnelDpnId);
 
         // for all routers in DPN
         for (RouterDpnList routerDpnList : allRouterDpnList) {
@@ -180,27 +207,26 @@ public class InterfaceStateEventListener extends AsyncDataTreeChangeListenerBase
                  BigInteger naptSwitch = NatUtil.getPrimaryNaptfromRouterId(dataBroker, dpnRouterId);
 
                  if (naptSwitch == null) {
-                     LOG.debug("NAPT switch is undefined for router id {} and dpnId {}",
-                             dpnRouterId, tunnelDpn);
+                     LOG.debug("NAPT switch is undefined for router id {} and dpnId {}", dpnRouterId, tunnelDpnId);
                      continue;
                  }
 
                  // if the interface is of a neighbor dpn (not on the NAPT switch) update the router's group table
-                 if (!tunnelDpn.equals(naptSwitch)) {
-                     List<BucketInfo> bucketInfo = naptSwitchHA.handleGroupInNeighborSwitches(tunnelDpn,
+                 if (!tunnelDpnId.equals(naptSwitch)) {
+                     List<BucketInfo> bucketInfo = naptSwitchHA.handleGroupInNeighborSwitches(tunnelDpnId,
                              routerName, naptSwitch);
                      if (bucketInfo.isEmpty()) {
                          LOG.debug("Failed to populate bucketInfo for dpnId {} routername {} naptSwitch {}",
-                                 tunnelDpn, dpnRouterId, naptSwitch);
+                                 tunnelDpnId, dpnRouterId, naptSwitch);
                          continue;
                      }
-                     naptSwitchHA.installSnatGroupEntry(tunnelDpn, bucketInfo, routerName);
+                     naptSwitchHA.installSnatGroupEntry(tunnelDpnId, bucketInfo, routerName);
                  }
              }
         }
     }
 
-    private void removeSnatEntriesForPort(String interfaceName,String routerName) {
+    private void removeSnatEntriesForPort(String interfaceName, String routerName) {
         Long routerId = NatUtil.getVpnId(dataBroker, routerName);
         if (routerId == NatConstants.INVALID_ID) {
             LOG.error("NAT Service : routerId not found for routername {}",routerName);
@@ -324,7 +350,7 @@ public class InterfaceStateEventListener extends AsyncDataTreeChangeListenerBase
         return protocollist;
     }
 
-    private BigInteger getNaptSwitchforRouter(DataBroker broker,String routerName) {
+    private BigInteger getNaptSwitchforRouter(DataBroker broker, String routerName) {
         InstanceIdentifier<RouterToNaptSwitch> rtrNaptSw = InstanceIdentifier.builder(NaptSwitches.class).child
                 (RouterToNaptSwitch.class, new RouterToNaptSwitchKey(routerName)).build();
         Optional<RouterToNaptSwitch> routerToNaptSwitchData = NatUtil.read(broker, LogicalDatastoreType.CONFIGURATION, rtrNaptSw);
@@ -345,44 +371,44 @@ public class InterfaceStateEventListener extends AsyncDataTreeChangeListenerBase
                 tableId,dpnId,routerId,ipAddress,ipPort);
     }
 
-    private void processInterfaceAdded(String portName, String rtrId) {
+    private void processInterfaceAdded(String portName) {
         LOG.trace("NAT Service : Processing Interface Add Event for interface {}", portName);
         String routerId = getRouterIdForPort(dataBroker, portName);
-        List<IpMapping> ipMappingList = getIpMappingForPortName(portName, routerId);
-        if (ipMappingList == null || ipMappingList.isEmpty()) {
-            LOG.trace("NAT Service : Ip Mapping list is empty/null for portname {}", portName);
+        List<InternalToExternalPortMap> intExtPortMapList = getIntExtPortMapListForPortName(portName, routerId);
+        if (intExtPortMapList == null || intExtPortMapList.isEmpty()) {
+            LOG.trace("Ip Mapping list is empty/null for portname {}", portName);
             return;
         }
         InstanceIdentifier<RouterPorts> pIdentifier = NatUtil.buildRouterPortsIdentifier(routerId);
-        for (IpMapping ipMapping : ipMappingList) {
-            floatingIPListener.createNATFlowEntries(portName, ipMapping, pIdentifier, routerId);
+        for (InternalToExternalPortMap intExtPortMap : intExtPortMapList) {
+            floatingIPListener.createNATFlowEntries(portName, intExtPortMap, pIdentifier, routerId);
         }
     }
 
-    private void processInterfaceRemoved(String portName, String rtrId, BigInteger dpnId) {
-        LOG.trace("NAT Service : Processing Interface Removed Event for interface {} on DPN ID {}", portName, dpnId);
+    private void processInterfaceRemoved(String portName, BigInteger dpnId) {
+        LOG.trace("NAT Service: Processing Interface Removed Event for interface {} on DPN ID {}", portName, dpnId);
         String routerId = getRouterIdForPort(dataBroker, portName);
-        List<IpMapping> ipMappingList = getIpMappingForPortName(portName, routerId);
-        if (ipMappingList == null || ipMappingList.isEmpty()) {
-            LOG.trace("NAT Service : Ip Mapping list is empty/null for portName {}", portName);
+        List<InternalToExternalPortMap> intExtPortMapList = getIntExtPortMapListForPortName(portName, routerId);
+        if (intExtPortMapList == null || intExtPortMapList.isEmpty()) {
+            LOG.trace("Ip Mapping list is empty/null for portName {}", portName);
             return;
         }
         InstanceIdentifier<RouterPorts> pIdentifier = NatUtil.buildRouterPortsIdentifier(routerId);
-        for (IpMapping ipMapping : ipMappingList) {
+        for (InternalToExternalPortMap intExtPortMap : intExtPortMapList) {
             LOG.trace("NAT Service : Removing DNAT Flow entries for dpnId {} ", dpnId);
-            floatingIPListener.removeNATFlowEntries(portName, ipMapping, pIdentifier, routerId, dpnId);
+            floatingIPListener.removeNATFlowEntries(portName, intExtPortMap, pIdentifier, routerId, dpnId);
         }
     }
 
-    private List<IpMapping> getIpMappingForPortName(String portName, String routerId) {
+    private List<InternalToExternalPortMap> getIntExtPortMapListForPortName(String portName, String routerId) {
         InstanceIdentifier<Ports> portToIpMapIdentifier = NatUtil.buildPortToIpMapIdentifier(routerId, portName);
         Optional<Ports> port = NatUtil.read(dataBroker, LogicalDatastoreType.CONFIGURATION, portToIpMapIdentifier);
         if(!port.isPresent()) {
             LOG.error("NAT Service : Unable to read router port entry for router ID {} and port name {}", routerId, portName);
             return null;
         }
-        List<IpMapping> ipMappingList = port.get().getIpMapping();
-        return ipMappingList;
+        List<InternalToExternalPortMap> intExtPortMapList = port.get().getInternalToExternalPortMap();
+        return intExtPortMapList;
     }
 
     private List<String> getFixedIpsForPort (String interfname) {
