@@ -8,6 +8,8 @@
 package org.opendaylight.netvirt.neutronvpn;
 
 import java.util.Objects;
+
+import com.google.common.base.Optional;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
@@ -165,13 +167,19 @@ public class NeutronNetworkChangeListener extends AsyncDataTreeChangeListenerBas
         String physicalNetworkName = NeutronvpnUtils.getPhysicalNetworkName(input);
         ElanInstance elanInstance = createElanInstance(elanInstanceName, segmentType, segmentationId, physicalNetworkName);
         InstanceIdentifier<ElanInstance> id = createElanInstanceIdentifier(elanInstanceName);
+        Optional<ElanInstance> existingElanInstance = MDSALUtil.read(dataBroker, LogicalDatastoreType.CONFIGURATION, id);
+        if (existingElanInstance.isPresent()) {
+            return existingElanInstance.get();
+        }
         MDSALUtil.syncWrite(dataBroker, LogicalDatastoreType.CONFIGURATION, id, elanInstance);
+        LOG.debug("ELANInstance {} created", elanInstanceName);
         return elanInstance;
     }
 
     private void deleteElanInstance(String elanInstanceName) {
         InstanceIdentifier<ElanInstance> id = createElanInstanceIdentifier(elanInstanceName);
         MDSALUtil.syncDelete(dataBroker, LogicalDatastoreType.CONFIGURATION, id);
+        LOG.debug("ELANInstance {} deleted", elanInstanceName);
     }
 
     private ElanInstance updateElanInstance(String elanInstanceName, Class<? extends SegmentTypeBase> segmentType,
