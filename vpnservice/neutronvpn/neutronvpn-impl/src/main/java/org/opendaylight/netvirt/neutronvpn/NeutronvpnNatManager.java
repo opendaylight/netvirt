@@ -29,6 +29,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev16011
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.external.networks.Networks;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.external.networks.NetworksBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.external.networks.NetworksKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ProviderTypes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l3.rev150712.routers.attributes.routers.Router;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l3.rev150712.routers.attributes.routers.router.ExternalGatewayInfo;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l3.rev150712.routers.attributes.routers.router.external_gateway_info.ExternalFixedIps;
@@ -208,10 +209,16 @@ public class NeutronvpnNatManager implements AutoCloseable {
                         " already detected to be present");
                 return;
             }
+            ProviderTypes provType = NeutronvpnUtils.getProviderNetworkType(net);
+            if (provType == null){
+                LOG.error("Unable to get Network Provider Type for network {}",net.getUuid());
+                return;
+            }
             NetworksBuilder builder = null;
             builder = new NetworksBuilder().setKey(new NetworksKey(extNetId)).setId(extNetId);
             builder.setVpnid(NeutronvpnUtils.getVpnForNetwork(dataBroker, extNetId));
             builder.setRouterIds(new ArrayList<Uuid>());
+            builder.setProviderNetworkType(provType);
 
             Networks networkss = builder.build();
             // Add Networks object to the ExternalNetworks list
@@ -257,14 +264,20 @@ public class NeutronvpnNatManager implements AutoCloseable {
         Uuid routerId = update.getUuid();
         Uuid extNetId = update.getExternalGatewayInfo().getExternalNetworkId();
 
-        // Add this router to the ExtRouters list
-        addExternalRouter(update, dataBroker);
-
-        // Create and add Networks object for this External Network to the ExternalNetworks list
-        InstanceIdentifier<Networks> netsIdentifier = InstanceIdentifier.builder(ExternalNetworks.class).
-                child(Networks.class, new NetworksKey(extNetId)).build();
-
         try {
+            Network input = NeutronvpnUtils.getNeutronNetwork(dataBroker, extNetId);
+            ProviderTypes providerNwType = NeutronvpnUtils.getProviderNetworkType(input);
+            if(providerNwType == null){
+                LOG.error("Unable to get Network Provider Type for network {} and uuid {}", input.getName(), input.getUuid());
+                return;
+            }
+            // Add this router to the ExtRouters list
+            addExternalRouter(update, dataBroker);
+
+            // Create and add Networks object for this External Network to the ExternalNetworks list
+            InstanceIdentifier<Networks> netsIdentifier = InstanceIdentifier.builder(ExternalNetworks.class).
+                    child(Networks.class, new NetworksKey(extNetId)).build();
+
             Optional<Networks> optionalNets = NeutronvpnUtils.read(dataBroker,
                     LogicalDatastoreType.CONFIGURATION,
                     netsIdentifier);
@@ -282,7 +295,9 @@ public class NeutronvpnNatManager implements AutoCloseable {
             }
             rtrList.add(routerId);
             builder.setRouterIds(rtrList);
-            builder.setVpnid(extNetId);
+            if (providerNwType != ProviderTypes.GRE) {
+                builder.setVpnid(extNetId);
+            }
 
             Networks networkss = builder.build();
             // Add Networks object to the ExternalNetworks list
@@ -403,6 +418,12 @@ public class NeutronvpnNatManager implements AutoCloseable {
         InstanceIdentifier<Routers> routersIdentifier = NeutronvpnUtils.buildExtRoutersIdentifier(routerId);
 
         try {
+            Network input = NeutronvpnUtils.getNeutronNetwork(dataBroker, extNetId);
+            ProviderTypes providerNwType = NeutronvpnUtils.getProviderNetworkType(input);
+            if(providerNwType == null){
+                LOG.error("Unable to get Network Provider Type for network {} and uuid{}", input.getName(), input.getUuid());
+                return;
+            }
             Optional<Routers> optionalRouters = NeutronvpnUtils.read(broker,
                     LogicalDatastoreType.CONFIGURATION,
                     routersIdentifier);
@@ -444,7 +465,9 @@ public class NeutronvpnNatManager implements AutoCloseable {
             MDSALUtil.syncWrite(broker, LogicalDatastoreType.CONFIGURATION, routersIdentifier, builder.build());
             LOG.trace("Wrote successfully Routers to CONFIG Datastore");
 
-            handleExternalPorts(routers, routerId);
+            if (providerNwType != ProviderTypes.GRE) {
+                handleExternalPorts(routers, routerId);
+            }
         } catch (Exception ex) {
             LOG.error("Creation of extrouters failed for router " + routerId.getValue() +
                     " failed with " + ex.getMessage());
