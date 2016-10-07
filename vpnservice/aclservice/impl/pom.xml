@@ -76,6 +76,11 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
       <artifactId>inject</artifactId>
       <version>${infrautils.version}</version>
     </dependency>
+    <dependency>
+      <groupId>org.opendaylight.infrautils</groupId>
+      <artifactId>inject.guice.testutils</artifactId>
+      <version>${infrautils.version}</version>
+    </dependency>
 
     <!-- Dependencies used only by code under src/test (<scope>test) -->
     <dependency>

@@ -12,20 +12,18 @@ import static org.opendaylight.netvirt.aclservice.tests.InterfaceBuilderHelper.p
 import static org.opendaylight.netvirt.aclservice.tests.StateInterfaceBuilderHelper.putNewStateInterface;
 import static org.opendaylight.netvirt.aclservice.tests.infra.AssertBuilderBeans.assertEqualBeans;
 
-import com.google.inject.Guice;
-import com.google.inject.Injector;
-import com.mycila.guice.ext.closeable.CloseableInjector;
 import java.util.List;
 import javax.inject.Inject;
-import org.junit.After;
-import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.genius.mdsalutil.FlowEntity;
 import org.opendaylight.genius.mdsalutil.interfaces.testutils.TestIMdsalApiManager;
-import org.opendaylight.netvirt.aclservice.api.AclServiceManager;
+import org.opendaylight.infrautils.inject.guice.testutils.GuiceRule;
 
 public class AclServiceTest {
+
+    public @Rule GuiceRule guice = new GuiceRule(AclServiceModule.class, AclServiceTestModule.class);
 
     @Inject DataBroker dataBroker;
     @Inject TestIMdsalApiManager mdsalApiManager;
@@ -54,21 +52,4 @@ public class AclServiceTest {
         assertEqualBeans(expectedFlows, flows);
     }
 
-
-    // TODO Factor this out into a.. Rule (or Runner, or superclass, but Rule is best)
-
-    private Injector injector;
-
-    @Before
-    public void setUp() {
-        injector = Guice.createInjector(new AclServiceTestModule());
-        injector.injectMembers(this);
-        injector.getInstance(AclServiceManager.class);
-    }
-
-    @After
-    public void tearDown() throws Exception {
-        // http://code.mycila.com/guice/#3-jsr-250
-        injector.getInstance(CloseableInjector.class).close();
-    }
 }
