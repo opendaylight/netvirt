@@ -24,6 +24,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.networks.rev150712.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.networks.rev150712.networks.attributes.networks.Network;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.qos.ext.rev160613.QosNetworkExtension;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.rev150712.Neutron;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ProviderTypes;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -67,19 +68,22 @@ public class NeutronNetworkChangeListener extends AsyncDataTreeChangeListenerBas
     @Override
     protected void add(InstanceIdentifier<Network> identifier, Network input) {
         LOG.trace("Adding Network : key: {}, value={}", identifier, input);
-        if (!NeutronvpnUtils.isNetworkTypeSupported(input)) {
-            //FIXME: This should be removed when support for GRE network types is added
-            LOG.error("Neutronvpn doesn't support gre network provider type for this network {}.", input);
-            return;
-        }
         NeutronvpnUtils.addToNetworkCache(input);
         // Create ELAN instance for this network
         ElanInstance elanInstance = createElanInstance(input);
         // Create ELAN interface and IETF interfaces for the physical network
         elanService.createExternalElanNetwork(elanInstance);
         if (NeutronvpnUtils.getIsExternal(input)) {
+            ProviderTypes providerNwType = NeutronvpnUtils.getProviderNetworkType(input);
+            if(providerNwType == null){
+                LOG.error("Neutron Service : Unable to get Network Provider Type");
+                return;
+            }
+            LOG.trace("Neutron Service : External Network Provider Type is {}", providerNwType);
             nvpnNatManager.addExternalNetwork(input);
-            nvpnManager.createL3InternalVpn(input.getUuid(), null, null, null, null, null, null, null);
+            if (providerNwType != ProviderTypes.GRE) {
+                nvpnManager.createL3InternalVpn(input.getUuid(), null, null, null, null, null, null, null);
+            }
         }
     }
 
