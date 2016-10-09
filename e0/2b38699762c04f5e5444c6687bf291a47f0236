@@ -1,0 +1,8 @@
+Code-Review+1: Shlomi Alfasi <shlomi.alfasi@hpe.com>
+Verified+1: jenkins-releng <jenkins-releng@opendaylight.org>
+Code-Review+2: Sam Hague <shague@redhat.com>
+Submitted-by: Sam Hague <shague@redhat.com>
+Submitted-at: Sun, 09 Oct 2016 23:43:35 +0000
+Reviewed-on: https://git.opendaylight.org/gerrit/46707
+Project: netvirt
+Branch: refs/heads/stable/boron
