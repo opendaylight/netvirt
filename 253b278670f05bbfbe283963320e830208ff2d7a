@@ -16,6 +16,24 @@
       "revId": "253b278670f05bbfbe283963320e830208ff2d7a",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_2e40c634",
+        "filename": "vpnservice/aclservice/impl/src/test/java/org/opendaylight/netvirt/aclservice/tests/AclServiceTest.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 5867
+      },
+      "writtenOn": "2016-10-10T10:21:04Z",
+      "side": 1,
+      "message": "yeah there is .. http://junit.org/junit4/javadoc/4.12/org/junit/Rule.html - weird, huh? But that\u0027s how JUnit it.",
+      "parentUuid": "7a6b29fe_ab032875",
+      "revId": "253b278670f05bbfbe283963320e830208ff2d7a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
