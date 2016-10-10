@@ -156,8 +156,7 @@ public class ToTransportZoneTest {
         
         Subnetmap subnetMap = new SubnetmapBuilder().setSubnetIp(SUBNET).build();
         
-        when(nVpnMgr.updateSubnetmapNodeWithPorts(any(Uuid.class), any(Uuid.class), any(Uuid.class)))
-                .thenReturn(subnetMap);
+        when(nVpnMgr.updateSubnetmapNodeWithPorts(any(Uuid.class), any(Uuid.class), any(Uuid.class), any(SubnetmapBuilder.class), any())).thenReturn(subnetMap);
 
         when(mockReadTx.<DataObject>read(any(LogicalDatastoreType.class), any(InstanceIdentifier.class))).
         thenReturn(Futures.immediateCheckedFuture(Optional.absent()));
