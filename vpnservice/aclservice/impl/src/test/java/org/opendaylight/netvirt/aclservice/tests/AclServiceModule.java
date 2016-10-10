@@ -7,9 +7,7 @@
  */
 package org.opendaylight.netvirt.aclservice.tests;
 
-import com.google.inject.AbstractModule;
-import com.mycila.guice.ext.closeable.CloseableModule;
-import com.mycila.guice.ext.jsr250.Jsr250Module;
+import org.opendaylight.infrautils.inject.guice.testutils.AbstractGuiceJsr250Module;
 import org.opendaylight.netvirt.aclservice.AclServiceManagerImpl;
 import org.opendaylight.netvirt.aclservice.api.AclServiceManager;
 import org.opendaylight.netvirt.aclservice.listeners.AclEventListener;
@@ -22,25 +20,15 @@ import org.opendaylight.netvirt.aclservice.listeners.AclNodeListener;
  *
  * @author Michael Vorburger
  */
-public class AclServiceModule extends AbstractModule {
+public class AclServiceModule extends AbstractGuiceJsr250Module {
 
     @Override
-    protected void configure() {
-        // This is needed so that @PostConstruct & @PreDestroy works
-        //
-        install(new CloseableModule());
-        install(new Jsr250Module());
-
-        // asEagerSingleton() is required here, because of ODL architecture:
-        // These *Listener classes MUST be "eagerly" created, and not "lazily",
-        // only if something needs them @Inject-ed (because nothing ever will;
-        // they register themselves on the DataBroker in their @PostConstruct start).
-        //
-        bind(AclServiceManager.class).to(AclServiceManagerImpl.class).asEagerSingleton();
-        bind(AclInterfaceStateListener.class).asEagerSingleton();
-        bind(AclNodeListener.class).asEagerSingleton();
-        bind(AclInterfaceListener.class).asEagerSingleton();
-        bind(AclEventListener.class).asEagerSingleton();
+    protected void configureBindings() {
+        bind(AclServiceManager.class).to(AclServiceManagerImpl.class);
+        bind(AclInterfaceStateListener.class);
+        bind(AclNodeListener.class);
+        bind(AclInterfaceListener.class);
+        bind(AclEventListener.class);
     }
 
 }
