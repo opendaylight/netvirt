@@ -550,7 +550,7 @@ public class NeutronPortChangeListener extends AsyncDataTreeChangeListenerBase<P
                 InterfaceBuilder builder = new InterfaceBuilder(portInterface).addAugmentation(InterfaceAcl.class,
                         interfaceAclBuilder.build());
                 InstanceIdentifier interfaceIdentifier = NeutronvpnUtils.buildVlanInterfaceIdentifier(interfaceName);
-                MDSALUtil.syncWrite(dataBroker, LogicalDatastoreType.CONFIGURATION, interfaceIdentifier, builder.build());
+                MDSALUtil.syncUpdate(dataBroker, LogicalDatastoreType.CONFIGURATION, interfaceIdentifier, builder.build());
             }
         } else {
             LOG.error("Interface {} is not present", interfaceName);
