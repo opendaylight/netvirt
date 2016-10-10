@@ -90,6 +90,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.IdManagerService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.ReleaseIdInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.ReleaseIdInputBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.lockmanager.rev160413.LockManagerService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.NetworkMaps;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.Subnetmaps;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.VpnMaps;
@@ -693,7 +694,8 @@ public class NeutronvpnUtils {
         return getPortNamePrefix(original) == null && getPortNamePrefix(updated) != null;
     }
 
-    protected static boolean lock(String lockName) {
+    protected static boolean lock(LockManagerService lockManager, String lockName) {
+        //synchronized (NeutronvpnUtils.class) {
             if (locks.get(lockName) != null) {
                 synchronized(locks) {
                     if (locks.get(lockName) != null) {
@@ -721,10 +723,12 @@ public class NeutronvpnUtils {
                     throw new RuntimeException(String.format("Unable to acquire lock for %s", lockName), e.getCause());
                 }
             }
+        //}
         return true;
     }
 
-    protected static boolean unlock(String lockName) {
+    protected static boolean unlock(LockManagerService lockManager, String lockName) {
+        //synchronized (NeutronvpnUtils.class) {
             if (locks.get(lockName) != null) {
                 try {
                     locks.get(lockName).getLeft().writeLock().unlock();
@@ -738,6 +742,7 @@ public class NeutronvpnUtils {
                     }
                 }
             }
+        //}
         return true;
     }
 
