@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7a6b29fe_6bf0f0c9",
+        "filename": "vpnservice/it/impl/src/test/java/org/opendaylight/netvirt/it/NetvirtIT.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 319,
+      "author": {
+        "id": 5357
+      },
+      "writtenOn": "2016-10-10T06:37:07Z",
+      "side": 0,
+      "message": "Just so I can follow, why are we removing the asserts?",
+      "revId": "11584b43acd40e1d03027953fb52d3f58045ddd5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
