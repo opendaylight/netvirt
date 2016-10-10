@@ -72,7 +72,6 @@ public class NeutronNetworkChangeListener extends AsyncDataTreeChangeListenerBas
             LOG.error("Neutronvpn doesn't support gre network provider type for this network {}.", input);
             return;
         }
-        NeutronvpnUtils.addToNetworkCache(input);
         // Create ELAN instance for this network
         ElanInstance elanInstance = createElanInstance(input);
         // Create ELAN interface and IETF interfaces for the physical network
@@ -80,6 +79,7 @@ public class NeutronNetworkChangeListener extends AsyncDataTreeChangeListenerBas
         if (NeutronvpnUtils.getIsExternal(input)) {
             nvpnNatManager.addExternalNetwork(input);
             nvpnManager.createL3InternalVpn(input.getUuid(), null, null, null, null, null, null, null);
+            NeutronvpnUtils.addToNetworkCache(input);
         }
     }
 
@@ -100,14 +100,17 @@ public class NeutronNetworkChangeListener extends AsyncDataTreeChangeListenerBas
         }
         if (NeutronvpnUtils.getIsExternal(input)) {
             nvpnNatManager.removeExternalNetwork(input);
+            NeutronvpnUtils.removeFromNetworkCache(input);
         }
-        NeutronvpnUtils.removeFromNetworkCache(input);
     }
 
     @Override
     protected void update(InstanceIdentifier<Network> identifier, Network original, Network update) {
         LOG.trace("Updating Network : key: {}, original value={}, update value={}", identifier, original, update);
-        NeutronvpnUtils.addToNetworkCache(update);
+        if (NeutronvpnUtils.getIsExternal(update)) {
+            NeutronvpnUtils.addToNetworkCache(update);
+        }
+
         String elanInstanceName = original.getUuid().getValue();
         Class<? extends SegmentTypeBase> origSegmentType = NeutronvpnUtils.getSegmentTypeFromNeutronNetwork(original);
         String origSegmentationId = NeutronUtils.getSegmentationIdFromNeutronNetwork(original);

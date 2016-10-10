@@ -63,10 +63,10 @@ public class NeutronRouterChangeListener extends AsyncDataTreeChangeListenerBase
     @Override
     protected void add(InstanceIdentifier<Router> identifier, Router input) {
         LOG.trace("Adding Router : key: {}, value={}", identifier, input);
-        NeutronvpnUtils.addToRouterCache(input);
         // Create internal VPN
         nvpnManager.createL3InternalVpn(input.getUuid(), null, null, null, null, null, input.getUuid(), null);
         nvpnNatManager.handleExternalNetworkForRouter(null, input);
+        NeutronvpnUtils.addToRouterCache(input);
         gwMacResolver.sendArpRequestsToExtGateways(input);
     }
 
@@ -78,19 +78,19 @@ public class NeutronRouterChangeListener extends AsyncDataTreeChangeListenerBase
         //will be removed from VPN by invocations from NeutronPortChangeListener
         List<Uuid> routerSubnetIds = new ArrayList<>();
         nvpnManager.handleNeutronRouterDeleted(routerId, routerSubnetIds);
+        NeutronvpnUtils.removeFromRouterCache(input);
 
         // Handle router deletion for the NAT service
         if (input.getExternalGatewayInfo() != null) {
             Uuid extNetId = input.getExternalGatewayInfo().getExternalNetworkId();
             nvpnNatManager.removeExternalNetworkFromRouter(extNetId, input);
         }
-        NeutronvpnUtils.removeFromRouterCache(input);
+
     }
 
     @Override
     protected void update(InstanceIdentifier<Router> identifier, Router original, Router update) {
         LOG.trace("Updating Router : key: {}, original value={}, update value={}", identifier, original, update);
-        NeutronvpnUtils.addToRouterCache(update);
         Uuid routerId = update.getUuid();
         NeutronvpnUtils.addToRouterCache(update);
         Uuid vpnId = NeutronvpnUtils.getVpnForRouter(dataBroker, routerId, true);
