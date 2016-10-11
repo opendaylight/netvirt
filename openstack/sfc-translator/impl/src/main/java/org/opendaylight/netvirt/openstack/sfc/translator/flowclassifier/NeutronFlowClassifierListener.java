@@ -72,8 +72,7 @@ public class NeutronFlowClassifierListener extends DelegatingDataTreeListener<Sf
      */
     @Override
     public void add(InstanceIdentifier<SfcFlowClassifier> path, SfcFlowClassifier sfcFlowClassifier) {
-        Acl aclFlowClassifier = FlowClassifierTranslator.buildAcl(sfcFlowClassifier);
-        sfcMdsalHelper.addAclFlowClassifier(aclFlowClassifier);
+        // Respective ACL classifier will be written in data store, once the chain is created.
     }
 
 }
