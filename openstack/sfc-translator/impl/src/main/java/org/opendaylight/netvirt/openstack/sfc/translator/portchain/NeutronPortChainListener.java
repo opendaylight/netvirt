@@ -274,8 +274,13 @@ public class NeutronPortChainListener extends DelegatingDataTreeListener<PortCha
                 LOG.info("Call RPC for creating RSP :{}", rpInput);
                 Future<RpcResult<CreateRenderedPathOutput>> result =  this.rspService.createRenderedPath(rpInput);
                 try {
-                    result.get();
-                    processFlowClassifiers(newPortChain, newPortChain.getFlowClassifiers(), rpInput.getName());
+                    if (result.get() != null) {
+                        CreateRenderedPathOutput output = result.get().getResult();
+                        LOG.debug("RSP name received from SFC : {}", output.getName());
+                        processFlowClassifiers(newPortChain, newPortChain.getFlowClassifiers(), output.getName());
+                    } else {
+                        LOG.error("RSP creation failed : {}", rpInput);
+                    }
                 } catch (InterruptedException | ExecutionException e) {
                     LOG.error("Error occurred during creating Rendered Service Path using RPC call", e);
                 }
