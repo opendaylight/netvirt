@@ -647,7 +647,7 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
             LOG.error("Creation of vpninterface {} failed due to {}", infName, ex);
         }
         if (routerId != null) {
-            addToNeutronRouterInterfacesMap(routerId, infName, wrtConfigTxn);
+            addToNeutronRouterInterfacesMap(routerId, infName);
         }
         if (!wrtConfigTxnPresent) {
             wrtConfigTxn.submit();
@@ -675,7 +675,7 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
             LOG.error("Deletion of vpninterface {} failed due to {}", infName, ex);
         }
         if (routerId != null) {
-            removeFromNeutronRouterInterfacesMap(routerId, infName, wrtConfigTxn);
+            removeFromNeutronRouterInterfacesMap(routerId, infName);
         }
         if (!wrtConfigTxnPresent) {
             wrtConfigTxn.submit();
@@ -1194,58 +1194,45 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
                 .child(RouterInterfaces.class, new RouterInterfacesKey(routerId)).build();
     }
 
-    protected void addToNeutronRouterInterfacesMap(Uuid routerId, String interfaceName, WriteTransaction wrtConfigTxn) {
-        Boolean wrtConfigTxnPresent = true;
-        if (wrtConfigTxn == null) {
-            wrtConfigTxnPresent = false;
-            wrtConfigTxn = dataBroker.newWriteOnlyTransaction();
-        }
-        InstanceIdentifier<RouterInterfaces> routerInterfacesId = getRouterInterfacesId(routerId);
-        Optional<RouterInterfaces> optRouterInterfaces = NeutronvpnUtils.read(dataBroker, LogicalDatastoreType
-                .CONFIGURATION, routerInterfacesId);
-        Interfaces routerInterface = new InterfacesBuilder().setKey(new InterfacesKey(interfaceName)).setInterfaceId
-                (interfaceName).build();
-        if (optRouterInterfaces.isPresent()) {
-            wrtConfigTxn.put(LogicalDatastoreType.CONFIGURATION, routerInterfacesId.child(Interfaces
-                    .class, new InterfacesKey(interfaceName)), routerInterface);
-        } else {
-            RouterInterfacesBuilder builder = new RouterInterfacesBuilder().setRouterId(routerId);
-            List<Interfaces> interfaces = new ArrayList<>();
-            interfaces.add(routerInterface);
-            wrtConfigTxn.put(LogicalDatastoreType.CONFIGURATION, routerInterfacesId, builder
-                    .setInterfaces(interfaces).build());
-        }
-        if (!wrtConfigTxnPresent) {
-            wrtConfigTxn.submit();
+    protected void addToNeutronRouterInterfacesMap(Uuid routerId, String interfaceName) {
+        synchronized (routerId.getValue().intern()) {
+            InstanceIdentifier<RouterInterfaces> routerInterfacesId = getRouterInterfacesId(routerId);
+            Optional<RouterInterfaces> optRouterInterfaces = NeutronvpnUtils.read(dataBroker, LogicalDatastoreType
+                    .CONFIGURATION, routerInterfacesId);
+            Interfaces routerInterface = new InterfacesBuilder().setKey(new InterfacesKey(interfaceName)).setInterfaceId
+                    (interfaceName).build();
+            if (optRouterInterfaces.isPresent()) {
+                MDSALUtil.syncWrite(dataBroker, LogicalDatastoreType.CONFIGURATION, routerInterfacesId.child(Interfaces
+                        .class, new InterfacesKey(interfaceName)), routerInterface);
+            } else {
+                RouterInterfacesBuilder builder = new RouterInterfacesBuilder().setRouterId(routerId);
+                List<Interfaces> interfaces = new ArrayList<>();
+                interfaces.add(routerInterface);
+                MDSALUtil.syncUpdate(dataBroker, LogicalDatastoreType.CONFIGURATION, routerInterfacesId.child(Interfaces
+                        .class, new InterfacesKey(interfaceName)), routerInterface);
+            }
         }
     }
 
-    protected void removeFromNeutronRouterInterfacesMap(Uuid routerId, String interfaceName, WriteTransaction
-            wrtConfigTxn) {
-        Boolean wrtConfigTxnPresent = true;
-        if (wrtConfigTxn == null) {
-            wrtConfigTxnPresent = false;
-            wrtConfigTxn = dataBroker.newWriteOnlyTransaction();
-        }
-        InstanceIdentifier<RouterInterfaces> routerInterfacesId = getRouterInterfacesId(routerId);
-        Optional<RouterInterfaces> optRouterInterfaces = NeutronvpnUtils.read(dataBroker, LogicalDatastoreType
-                .CONFIGURATION, routerInterfacesId);
-        Interfaces routerInterface = new InterfacesBuilder().setKey(new InterfacesKey(interfaceName)).setInterfaceId
-                (interfaceName).build();
-        if (optRouterInterfaces.isPresent()) {
-            RouterInterfaces routerInterfaces = optRouterInterfaces.get();
-            List<Interfaces> interfaces = routerInterfaces.getInterfaces();
-            if (interfaces != null && interfaces.remove(routerInterface)) {
-                if (interfaces.isEmpty()) {
-                    wrtConfigTxn.delete(LogicalDatastoreType.CONFIGURATION, routerInterfacesId);
-                } else {
-                    wrtConfigTxn.delete(LogicalDatastoreType.CONFIGURATION,
-                            routerInterfacesId.child(Interfaces.class, new InterfacesKey(interfaceName)));
+    protected void removeFromNeutronRouterInterfacesMap(Uuid routerId, String interfaceName) {
+        synchronized (routerId.getValue().intern()) {
+            InstanceIdentifier<RouterInterfaces> routerInterfacesId = getRouterInterfacesId(routerId);
+            Optional<RouterInterfaces> optRouterInterfaces = NeutronvpnUtils.read(dataBroker, LogicalDatastoreType
+                    .CONFIGURATION, routerInterfacesId);
+            Interfaces routerInterface = new InterfacesBuilder().setKey(new InterfacesKey(interfaceName)).setInterfaceId
+                    (interfaceName).build();
+            if (optRouterInterfaces.isPresent()) {
+                RouterInterfaces routerInterfaces = optRouterInterfaces.get();
+                List<Interfaces> interfaces = routerInterfaces.getInterfaces();
+                if (interfaces != null && interfaces.remove(routerInterface)) {
+                    if (interfaces.isEmpty()) {
+                        MDSALUtil.syncDelete(dataBroker, LogicalDatastoreType.CONFIGURATION, routerInterfacesId);
+                    } else {
+                        MDSALUtil.syncDelete(dataBroker, LogicalDatastoreType.CONFIGURATION,
+                                routerInterfacesId.child(Interfaces.class, new InterfacesKey(interfaceName)));
+                    }
                 }
             }
-        }
-        if (!wrtConfigTxnPresent) {
-            wrtConfigTxn.submit();
         }
     }
 
