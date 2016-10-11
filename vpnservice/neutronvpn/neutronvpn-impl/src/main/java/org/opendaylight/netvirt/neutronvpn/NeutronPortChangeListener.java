@@ -186,18 +186,44 @@ public class NeutronPortChangeListener extends AsyncDataTreeChangeListenerBase<P
             }
         }
 
-        /* check if VIF type updated as part of port binding */
-        if(NeutronvpnUtils.isPortVifTypeUpdated(original, update)) {
+        // check if VIF type updated as part of port binding
+        // check if port security enabled/disabled as part of port update
+        boolean isPortVifTypeUpdated = NeutronvpnUtils.isPortVifTypeUpdated(original, update);
+        boolean origSecurityEnabled = NeutronvpnUtils.getPortSecurityEnabled(original);
+        boolean updatedSecurityEnabled = NeutronvpnUtils.getPortSecurityEnabled(update);
+
+        if (isPortVifTypeUpdated || origSecurityEnabled || updatedSecurityEnabled) {
+            InstanceIdentifier interfaceIdentifier = NeutronvpnUtils.buildVlanInterfaceIdentifier(portName);
             final DataStoreJobCoordinator portDataStoreCoordinator = DataStoreJobCoordinator.getInstance();
             portDataStoreCoordinator.enqueueJob("PORT- " + portName, new Callable<List<ListenableFuture<Void>>>() {
                 @Override
                 public List<ListenableFuture<Void>> call() throws Exception {
                     WriteTransaction wrtConfigTxn = dataBroker.newWriteOnlyTransaction();
+                    try {
+                        Optional<Interface> optionalInf = NeutronvpnUtils.read(dataBroker, LogicalDatastoreType
+                                .CONFIGURATION, interfaceIdentifier);
+                        if (optionalInf.isPresent()) {
+                            InterfaceBuilder interfaceBuilder = new InterfaceBuilder(optionalInf.get());
+                            if (isPortVifTypeUpdated && getParentRefsBuilder(update) != null) {
+                                interfaceBuilder.addAugmentation(ParentRefs.class, getParentRefsBuilder(update).build
+                                        ());
+                            }
+                            if (origSecurityEnabled || updatedSecurityEnabled) {
+                                InterfaceAcl infAcl = handlePortSecurityUpdated(original, update,
+                                        origSecurityEnabled, updatedSecurityEnabled, interfaceBuilder).build();
+                                interfaceBuilder.addAugmentation(InterfaceAcl.class, infAcl);
+                            }
+                            LOG.info("Of-port-interface updation for port {}", portName);
+                            // Update OFPort interface for this neutron port
+                            wrtConfigTxn.put(LogicalDatastoreType.CONFIGURATION, interfaceIdentifier,
+                                    interfaceBuilder.build());
+                        } else {
+                            LOG.error("Interface {} is not present", portName);
+                        }
+                    } catch (Exception e) {
+                        LOG.error("Failed to update interface {} due to the exception {}", portName, e);
+                    }
                     List<ListenableFuture<Void>> futures = new ArrayList<>();
-
-                    LOG.info("Of-port-interface updation for port {}", portName);
-                    // Update of-port interface for this neutron port
-                    updateOfPortInterface(original, update, wrtConfigTxn);
                     futures.add(wrtConfigTxn.submit());
                     return futures;
                 }
@@ -221,7 +247,6 @@ public class NeutronPortChangeListener extends AsyncDataTreeChangeListenerBase<P
             elanService.handleKnownL3DmacAddress(update.getMacAddress().getValue(), update.getNetworkId().getValue(),
                     NwConstants.ADD_FLOW);
         }
-        handlePortSecurityUpdated(original, update);
         // check for QoS updates
         QosPortExtension updateQos = update.getAugmentation(QosPortExtension.class);
         QosPortExtension originalQos = original.getAugmentation(QosPortExtension.class);
@@ -511,50 +536,38 @@ public class NeutronPortChangeListener extends AsyncDataTreeChangeListenerBase<P
                 });
     }
 
-    private void handlePortSecurityUpdated(Port portOriginal, Port portUpdated) {
-        Boolean origSecurityEnabled = NeutronvpnUtils.getPortSecurityEnabled(portOriginal);
-        Boolean updatedSecurityEnabled = NeutronvpnUtils.getPortSecurityEnabled(portUpdated);
+    private static InterfaceAclBuilder handlePortSecurityUpdated(Port portOriginal, Port portUpdated, boolean
+            origSecurityEnabled, boolean updatedSecurityEnabled, InterfaceBuilder interfaceBuilder) {
         String interfaceName = portUpdated.getUuid().getValue();
-        Interface portInterface = NeutronvpnUtils.getOfPortInterface(dataBroker, portUpdated);
-        if (portInterface != null) {
-            InterfaceAclBuilder interfaceAclBuilder = null;
-            if (origSecurityEnabled != updatedSecurityEnabled) {
-                interfaceAclBuilder = new InterfaceAclBuilder();
-                interfaceAclBuilder.setPortSecurityEnabled(updatedSecurityEnabled);
-                if (updatedSecurityEnabled) {
-                    // Handle security group enabled
-                    NeutronvpnUtils.populateInterfaceAclBuilder(interfaceAclBuilder, portUpdated);
-                } else {
-                    // Handle security group disabled
-                    interfaceAclBuilder.setSecurityGroups(Lists.newArrayList());
-                    interfaceAclBuilder.setAllowedAddressPairs(Lists.newArrayList());
-                }
+        InterfaceAclBuilder interfaceAclBuilder = null;
+        if (origSecurityEnabled != updatedSecurityEnabled) {
+            interfaceAclBuilder = new InterfaceAclBuilder();
+            interfaceAclBuilder.setPortSecurityEnabled(updatedSecurityEnabled);
+            if (updatedSecurityEnabled) {
+                // Handle security group enabled
+                NeutronvpnUtils.populateInterfaceAclBuilder(interfaceAclBuilder, portUpdated);
             } else {
-                if (updatedSecurityEnabled) {
-                    // handle SG add/delete delta
-                    InterfaceAcl interfaceAcl = portInterface.getAugmentation(InterfaceAcl.class);
-                    interfaceAclBuilder = new InterfaceAclBuilder(interfaceAcl);
-                    interfaceAclBuilder.setSecurityGroups(
-                            NeutronvpnUtils.getUpdatedSecurityGroups(interfaceAcl.getSecurityGroups(),
-                                    portOriginal.getSecurityGroups(), portUpdated.getSecurityGroups()));
-                    List<AllowedAddressPairs> updatedAddressPairs = NeutronvpnUtils.getUpdatedAllowedAddressPairs(
-                            interfaceAcl.getAllowedAddressPairs(), portOriginal.getAllowedAddressPairs(),
-                            portUpdated.getAllowedAddressPairs());
-                    interfaceAclBuilder.setAllowedAddressPairs(NeutronvpnUtils.getAllowedAddressPairsForFixedIps(
-                            updatedAddressPairs, portOriginal.getMacAddress(), portOriginal.getFixedIps(),
-                            portUpdated.getFixedIps()));
-                }
-            }
-
-            if (interfaceAclBuilder != null) {
-                InterfaceBuilder builder = new InterfaceBuilder(portInterface).addAugmentation(InterfaceAcl.class,
-                        interfaceAclBuilder.build());
-                InstanceIdentifier interfaceIdentifier = NeutronvpnUtils.buildVlanInterfaceIdentifier(interfaceName);
-                MDSALUtil.syncWrite(dataBroker, LogicalDatastoreType.CONFIGURATION, interfaceIdentifier, builder.build());
+                // Handle security group disabled
+                interfaceAclBuilder.setSecurityGroups(Lists.newArrayList());
+                interfaceAclBuilder.setAllowedAddressPairs(Lists.newArrayList());
             }
         } else {
-            LOG.error("Interface {} is not present", interfaceName);
+            if (updatedSecurityEnabled) {
+                // handle SG add/delete delta
+                InterfaceAcl interfaceAcl = interfaceBuilder.getAugmentation(InterfaceAcl.class);
+                interfaceAclBuilder = new InterfaceAclBuilder(interfaceAcl);
+                interfaceAclBuilder.setSecurityGroups(
+                        NeutronvpnUtils.getUpdatedSecurityGroups(interfaceAcl.getSecurityGroups(),
+                                portOriginal.getSecurityGroups(), portUpdated.getSecurityGroups()));
+                List<AllowedAddressPairs> updatedAddressPairs = NeutronvpnUtils.getUpdatedAllowedAddressPairs(
+                        interfaceAcl.getAllowedAddressPairs(), portOriginal.getAllowedAddressPairs(),
+                        portUpdated.getAllowedAddressPairs());
+                interfaceAclBuilder.setAllowedAddressPairs(NeutronvpnUtils.getAllowedAddressPairsForFixedIps(
+                        updatedAddressPairs, portOriginal.getMacAddress(), portOriginal.getFixedIps(),
+                        portUpdated.getFixedIps()));
+            }
         }
+        return interfaceAclBuilder;
     }
 
     private String createOfPortInterface(Port port, WriteTransaction wrtConfigTxn) {
@@ -621,38 +634,12 @@ public class NeutronPortChangeListener extends AsyncDataTreeChangeListenerBase<P
         }
     }
 
-    private Interface updateInterface(Port original, Port update) {
+    private ParentRefsBuilder getParentRefsBuilder(Port update) {
         String parentRefName = NeutronvpnUtils.getVifPortName(update);
-        String interfaceName = original.getUuid().getValue();
-        InterfaceBuilder interfaceBuilder = new InterfaceBuilder();
-
-        if(parentRefName != null) {
-            ParentRefsBuilder parentRefsBuilder = new ParentRefsBuilder().setParentInterface(parentRefName);
-            interfaceBuilder.addAugmentation(ParentRefs.class, parentRefsBuilder.build());
+        if (parentRefName != null) {
+            return new ParentRefsBuilder().setParentInterface(parentRefName);
         }
-
-        interfaceBuilder.setName(interfaceName);
-        return interfaceBuilder.build();
-    }
-
-    private String updateOfPortInterface(Port original, Port updated, WriteTransaction wrtConfigTxn) {
-        Interface inf = updateInterface(original, updated);
-        String infName = inf.getName();
-
-        LOG.debug("Updating OFPort Interface {}", infName);
-        InstanceIdentifier interfaceIdentifier = NeutronvpnUtils.buildVlanInterfaceIdentifier(infName);
-        try {
-            Optional<Interface> optionalInf = NeutronvpnUtils.read(dataBroker, LogicalDatastoreType.CONFIGURATION,
-                    interfaceIdentifier);
-            if (optionalInf.isPresent()) {
-                wrtConfigTxn.merge(LogicalDatastoreType.CONFIGURATION, interfaceIdentifier, inf);
-            } else {
-                LOG.error("Interface {} doesn't exist", infName);
-            }
-        } catch (Exception e) {
-            LOG.error("failed to update interface {} due to the exception {} ", infName, e.getMessage());
-        }
-        return infName;
+        return null;
     }
 
     private void createElanInterface(Port port, String name, WriteTransaction wrtConfigTxn) {
