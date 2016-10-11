@@ -173,13 +173,6 @@ and is available at http://www.eclipse.org/legal/epl-v10.html INTERNAL
     </dependency>
     <dependency>
       <groupId>org.opendaylight.genius</groupId>
-      <artifactId>alivenessmonitor-impl</artifactId>
-      <version>${genius.version}</version>
-      <classifier>config</classifier>
-      <type>xml</type>
-    </dependency>
-    <dependency>
-      <groupId>org.opendaylight.genius</groupId>
       <artifactId>alivenessmonitor-api</artifactId>
       <version>${genius.version}</version>
     </dependency>
