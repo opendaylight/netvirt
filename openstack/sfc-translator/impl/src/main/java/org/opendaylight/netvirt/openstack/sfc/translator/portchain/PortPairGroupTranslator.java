@@ -57,11 +57,13 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class PortPairGroupTranslator {
     private static final Logger LOG = LoggerFactory.getLogger(PortPairGroupTranslator.class);
     private static final String OPT_FLOW_STR = "flow";
+    private static final String OPT_GPE_STR = "gpe";
     private static final String OPT_DST_PORT = "6633";
 
     private static final AtomicInteger counter = new AtomicInteger(0);
     private static final String SFF_DEFAULT_NAME = "sff";
     private static final String SFF_DPL_SUFFIX = "-dpl";
+    private static final String SFF_DPL_FIX_NAME = "vxgpe";
 
     public static ServiceFunctionForwarderBuilder buildServiceFunctionForwarder(
             PortPairGroup portPairGroup,
@@ -140,7 +142,9 @@ public class PortPairGroupTranslator {
 
         //Set management ip, same to the ovsdb  node ip
         sffBuilder.setIpMgmtAddress(sffLocator.getIp());
-        sffDplBuilder.setName(new SffDataPlaneLocatorName(sffBuilder.getName().getValue() + SFF_DPL_SUFFIX));
+
+        //TODO: DPL name should not be hardcoded. Require net-virt classifier to remove dependency on it.
+        sffDplBuilder.setName(new SffDataPlaneLocatorName(SFF_DPL_FIX_NAME));
         sffDplBuilder.setKey(new SffDataPlaneLocatorKey(sffDplBuilder.getName()));
         sffDataPlaneLocator.add(sffDplBuilder.build());
         //set SFF key
@@ -194,12 +198,7 @@ public class PortPairGroupTranslator {
         ovsOptionsBuilder.setRemoteIp(OPT_FLOW_STR);
         ovsOptionsBuilder.setDstPort(OPT_DST_PORT);
         ovsOptionsBuilder.setKey(OPT_FLOW_STR);
-        ovsOptionsBuilder.setNsp(OPT_FLOW_STR);
-        ovsOptionsBuilder.setNsi(OPT_FLOW_STR);
-        ovsOptionsBuilder.setNshc1(OPT_FLOW_STR);
-        ovsOptionsBuilder.setNshc2(OPT_FLOW_STR);
-        ovsOptionsBuilder.setNshc3(OPT_FLOW_STR);
-        ovsOptionsBuilder.setNshc4(OPT_FLOW_STR);
+        ovsOptionsBuilder.setExts(OPT_GPE_STR);
         ovsOptions.setOvsOptions(ovsOptionsBuilder.build());
         return ovsOptions;
     }
