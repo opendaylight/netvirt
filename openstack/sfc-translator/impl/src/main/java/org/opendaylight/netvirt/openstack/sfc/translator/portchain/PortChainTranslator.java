@@ -91,7 +91,6 @@ public class PortChainTranslator {
 
     public static CreateRenderedPathInput buildCreateRenderedServicePathInput(ServiceFunctionPath sfp) {
         CreateRenderedPathInputBuilder rpInputBuilder = new CreateRenderedPathInputBuilder();
-        rpInputBuilder.setName(sfp.getName().getValue());
         rpInputBuilder.setSymmetric(sfp.isSymmetric());
         rpInputBuilder.setParentServiceFunctionPath(sfp.getName().getValue());
         return rpInputBuilder.build();
