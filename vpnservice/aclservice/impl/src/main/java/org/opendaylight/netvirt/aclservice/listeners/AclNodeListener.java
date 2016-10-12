@@ -183,13 +183,7 @@ public class AclNodeListener extends AsyncDataTreeChangeListenerBase<FlowCapable
         actionsInfos.add(new ActionInfo(ActionType.drop_action, new String[] {}));
         mkInstructions.add(new InstructionInfo(InstructionType.apply_actions, actionsInfos));
 
-        FlowEntity flowEntity = MDSALUtil.buildFlowEntity(dpId, NwConstants.EGRESS_LEARN_TABLE,
-                "LEARN-" + getTableMissFlowId(NwConstants.EGRESS_LEARN_TABLE), 0,
-                "Egress Learn ACL Table Miss Flow", 0, 0,
-                AclConstants.COOKIE_ACL_BASE, mkMatches, mkInstructions);
-        mdsalManager.installFlow(flowEntity);
-
-        flowEntity = MDSALUtil.buildFlowEntity(dpId, NwConstants.EGRESS_LEARN2_TABLE,
+        FlowEntity flowEntity = MDSALUtil.buildFlowEntity(dpId, NwConstants.EGRESS_LEARN2_TABLE,
                 "LEARN-" + getTableMissFlowId(NwConstants.EGRESS_LEARN2_TABLE), 0,
                 "Egress Learn2 ACL Table Miss Flow", 0, 0,
                 AclConstants.COOKIE_ACL_BASE, mkMatches, mkInstructions);
@@ -234,13 +228,7 @@ public class AclNodeListener extends AsyncDataTreeChangeListenerBase<FlowCapable
         actionsInfos.add(new ActionInfo(ActionType.drop_action, new String[] {}));
         mkInstructions.add(new InstructionInfo(InstructionType.apply_actions, actionsInfos));
 
-        FlowEntity flowEntity = MDSALUtil.buildFlowEntity(dpId, NwConstants.INGRESS_LEARN_TABLE,
-                "LEARN-" + getTableMissFlowId(NwConstants.INGRESS_LEARN_TABLE), 0,
-                "Ingress Learn ACL Table Miss Flow", 0, 0,
-                AclConstants.COOKIE_ACL_BASE, mkMatches, mkInstructions);
-        mdsalManager.installFlow(flowEntity);
-
-        flowEntity = MDSALUtil.buildFlowEntity(dpId, NwConstants.INGRESS_LEARN2_TABLE,
+        FlowEntity flowEntity = MDSALUtil.buildFlowEntity(dpId, NwConstants.INGRESS_LEARN2_TABLE,
                 "LEARN-" + getTableMissFlowId(NwConstants.INGRESS_LEARN2_TABLE), 0,
                 "Ingress Learn2 ACL Table Miss Flow", 0, 0,
                 AclConstants.COOKIE_ACL_BASE, mkMatches, mkInstructions);
