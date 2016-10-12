@@ -41,6 +41,10 @@ public class LearnEgressAclServiceImpl extends AbstractEgressAclServiceImpl {
      *            the data broker instance.
      * @param mdsalManager
      *            the mdsal manager instance.
+     * @param aclDataUtil
+     *            the acl data util.
+     * @param aclServiceUtils
+     *            the acl service util.
      */
     public LearnEgressAclServiceImpl(DataBroker dataBroker, IMdsalApiManager mdsalManager, AclDataUtil aclDataUtil,
             AclServiceUtils aclServiceUtils) {
@@ -94,7 +98,7 @@ public class LearnEgressAclServiceImpl extends AbstractEgressAclServiceImpl {
     }
 
     private void addOtherProtocolsLearnActions(List<ActionInfo> actionsInfos) {
-        String[][] flowMod = new String[4][];
+        String[][] flowMod = new String[5][];
 
         flowMod[0] = new String[] { NwConstants.LearnFlowModsType.MATCH_FROM_VALUE.name(),
                 Integer.toString(NwConstants.ETHTYPE_IPV4),
@@ -105,24 +109,28 @@ public class LearnEgressAclServiceImpl extends AbstractEgressAclServiceImpl {
                 NwConstants.NxmOfFieldType.NXM_OF_IP_SRC.getHexType(),
                 NwConstants.NxmOfFieldType.NXM_OF_IP_SRC.getFlowModHeaderLen() };
         flowMod[2] = new String[] { NwConstants.LearnFlowModsType.MATCH_FROM_FIELD.name(),
+                NwConstants.NxmOfFieldType.NXM_OF_IP_SRC.getHexType(),
+                NwConstants.NxmOfFieldType.NXM_OF_IP_DST.getHexType(),
+                NwConstants.NxmOfFieldType.NXM_OF_IP_DST.getFlowModHeaderLen() };
+        flowMod[3] = new String[] { NwConstants.LearnFlowModsType.MATCH_FROM_FIELD.name(),
                 NwConstants.NxmOfFieldType.NXM_OF_IP_PROTO.getHexType(),
                 NwConstants.NxmOfFieldType.NXM_OF_IP_PROTO.getHexType(),
                 NwConstants.NxmOfFieldType.NXM_OF_IP_PROTO.getFlowModHeaderLen() };
-        flowMod[3] = new String[] {
+        flowMod[4] = new String[] {
                 NwConstants.LearnFlowModsType.COPY_FROM_VALUE.name(), AclConstants.LEARN_MATCH_REG_VALUE,
                 NwConstants.NxmOfFieldType.NXM_NX_REG5.getHexType(), "8" };
 
         String[] header = new String[] {
-                AclConstants.getGlobalConf(AclConstants.SECURITY_GROUP_UDP_IDLE_TO_KEY, "60"),
-                AclConstants.getGlobalConf(AclConstants.SECURITY_GROUP_UDP_HARD_TO_KEY, "60"),
+                String.valueOf(this.aclServiceUtils.getConfig().getSecurityGroupUdpIdleTimeout()),
+                String.valueOf(this.aclServiceUtils.getConfig().getSecurityGroupUdpHardTimeout()),
                 AclConstants.PROTO_MATCH_PRIORITY.toString(),
                 AclConstants.COOKIE_ACL_BASE.toString(), "0",
-                Short.toString(NwConstants.EGRESS_LEARN_TABLE), "0", "0" };
+                Short.toString(NwConstants.EGRESS_LEARN_TABLE), "0", "0"};
         actionsInfos.add(new ActionInfo(ActionType.learn, header, flowMod));
     }
 
     private void addTcpLearnActions(List<ActionInfo> actionsInfos) {
-        String[][] flowMod = new String[5][];
+        String[][] flowMod = new String[7][];
 
         flowMod[0] = new String[] { NwConstants.LearnFlowModsType.MATCH_FROM_VALUE.name(),
                 Integer.toString(NwConstants.ETHTYPE_IPV4),
@@ -140,21 +148,31 @@ public class LearnEgressAclServiceImpl extends AbstractEgressAclServiceImpl {
                 NwConstants.NxmOfFieldType.NXM_OF_TCP_DST.getHexType(),
                 NwConstants.NxmOfFieldType.NXM_OF_TCP_SRC.getHexType(),
                 NwConstants.NxmOfFieldType.NXM_OF_TCP_SRC.getFlowModHeaderLen() };
-        flowMod[4] = new String[] {
+        flowMod[4] = new String[] { NwConstants.LearnFlowModsType.MATCH_FROM_FIELD.name(),
+                NwConstants.NxmOfFieldType.NXM_OF_IP_SRC.getHexType(),
+                NwConstants.NxmOfFieldType.NXM_OF_IP_DST.getHexType(),
+                NwConstants.NxmOfFieldType.NXM_OF_IP_DST.getFlowModHeaderLen() };
+        flowMod[5] = new String[] { NwConstants.LearnFlowModsType.MATCH_FROM_FIELD.name(),
+                NwConstants.NxmOfFieldType.NXM_OF_TCP_SRC.getHexType(),
+                NwConstants.NxmOfFieldType.NXM_OF_TCP_DST.getHexType(),
+                NwConstants.NxmOfFieldType.NXM_OF_TCP_DST.getFlowModHeaderLen() };
+        flowMod[6] = new String[] {
                 NwConstants.LearnFlowModsType.COPY_FROM_VALUE.name(), AclConstants.LEARN_MATCH_REG_VALUE,
                 NwConstants.NxmOfFieldType.NXM_NX_REG5.getHexType(), "8" };
 
         String[] header = new String[] {
-                AclConstants.getGlobalConf(AclConstants.SECURITY_GROUP_UDP_IDLE_TO_KEY, "3600"),
-                AclConstants.getGlobalConf(AclConstants.SECURITY_GROUP_UDP_HARD_TO_KEY, "3600"),
+                String.valueOf(this.aclServiceUtils.getConfig().getSecurityGroupTcpIdleTimeout()),
+                String.valueOf(this.aclServiceUtils.getConfig().getSecurityGroupTcpHardTimeout()),
                 AclConstants.PROTO_MATCH_PRIORITY.toString(),
                 AclConstants.COOKIE_ACL_BASE.toString(), "0",
-                Short.toString(NwConstants.EGRESS_LEARN_TABLE), "60", "60" };
+                Short.toString(NwConstants.EGRESS_LEARN_TABLE),
+                String.valueOf(this.aclServiceUtils.getConfig().getSecurityGroupTcpFinIdleTimeout()),
+                String.valueOf(this.aclServiceUtils.getConfig().getSecurityGroupTcpFinHardTimeout())};
         actionsInfos.add(new ActionInfo(ActionType.learn, header, flowMod));
     }
 
     private void addUdpLearnActions(List<ActionInfo> actionsInfos) {
-        String[][] flowMod = new String[5][];
+        String[][] flowMod = new String[7][];
 
         flowMod[0] = new String[] { NwConstants.LearnFlowModsType.MATCH_FROM_VALUE.name(),
                 Integer.toString(NwConstants.ETHTYPE_IPV4),
@@ -171,14 +189,22 @@ public class LearnEgressAclServiceImpl extends AbstractEgressAclServiceImpl {
         flowMod[3] = new String[] { NwConstants.LearnFlowModsType.MATCH_FROM_FIELD.name(),
                 NwConstants.NxmOfFieldType.NXM_OF_UDP_DST.getHexType(),
                 NwConstants.NxmOfFieldType.NXM_OF_UDP_SRC.getHexType(),
-                NwConstants.NxmOfFieldType.NXM_OF_TCP_SRC.getFlowModHeaderLen() };
-        flowMod[4] = new String[] {
+                NwConstants.NxmOfFieldType.NXM_OF_UDP_SRC.getFlowModHeaderLen() };
+        flowMod[4] = new String[] { NwConstants.LearnFlowModsType.MATCH_FROM_FIELD.name(),
+                NwConstants.NxmOfFieldType.NXM_OF_IP_SRC.getHexType(),
+                NwConstants.NxmOfFieldType.NXM_OF_IP_DST.getHexType(),
+                NwConstants.NxmOfFieldType.NXM_OF_IP_DST.getFlowModHeaderLen() };
+        flowMod[5] = new String[] { NwConstants.LearnFlowModsType.MATCH_FROM_FIELD.name(),
+                NwConstants.NxmOfFieldType.NXM_OF_UDP_SRC.getHexType(),
+                NwConstants.NxmOfFieldType.NXM_OF_UDP_DST.getHexType(),
+                NwConstants.NxmOfFieldType.NXM_OF_UDP_DST.getFlowModHeaderLen() };
+        flowMod[6] = new String[] {
                 NwConstants.LearnFlowModsType.COPY_FROM_VALUE.name(), AclConstants.LEARN_MATCH_REG_VALUE,
                 NwConstants.NxmOfFieldType.NXM_NX_REG5.getHexType(), "8" };
 
         String[] header = new String[] {
-                AclConstants.getGlobalConf(AclConstants.SECURITY_GROUP_UDP_IDLE_TO_KEY, "60"),
-                AclConstants.getGlobalConf(AclConstants.SECURITY_GROUP_UDP_HARD_TO_KEY, "60"),
+                String.valueOf(this.aclServiceUtils.getConfig().getSecurityGroupUdpIdleTimeout()),
+                String.valueOf(this.aclServiceUtils.getConfig().getSecurityGroupUdpHardTimeout()),
                 AclConstants.PROTO_MATCH_PRIORITY.toString(),
                 AclConstants.COOKIE_ACL_BASE.toString(), "0",
                 Short.toString(NwConstants.EGRESS_LEARN_TABLE), "0", "0" };
