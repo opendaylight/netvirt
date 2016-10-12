@@ -64,6 +64,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.ser
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.servicebinding.rev160406.service.bindings.services.info.BoundServicesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.servicebinding.rev160406.service.bindings.services.info.BoundServicesKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeConnectorId;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.config.rev160806.AclserviceConfig;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.InterfaceAcl;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.IpPrefixOrAddress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.SecurityRuleAttr;
@@ -89,10 +90,13 @@ public class AclServiceUtils {
 
     private final AclDataUtil aclDataUtil;
 
+    private final AclserviceConfig config;
+
     @Inject
-    public AclServiceUtils(AclDataUtil aclDataUtil) {
+    public AclServiceUtils(AclDataUtil aclDataUtil, AclserviceConfig config) {
         super();
         this.aclDataUtil = aclDataUtil;
+        this.config = config;
     }
 
     /**
@@ -558,6 +562,10 @@ public class AclServiceUtils {
 
         }
         return updatedFlowMatchesMap;
+    }
+
+    public AclserviceConfig getConfig() {
+        return config;
     }
 
     private static boolean isIPv4Address(AllowedAddressPairs aap) {
