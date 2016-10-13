@@ -20,10 +20,7 @@ import org.opendaylight.netvirt.fibmanager.api.IFibManager;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.VpnInstances;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.instances.VpnInstance;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.interfaces.VpnInterface;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.op.rev160406.TepTypeExternal;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.op.rev160406.TepTypeHwvtep;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.op.rev160406.TepTypeInternal;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.op.rev160406.TunnelsState;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.op.rev160406.*;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.op.rev160406.tunnels_state.StateTunnelList;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rpcs.rev160406.IsDcgwPresentInputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rpcs.rev160406.IsDcgwPresentOutput;
@@ -91,12 +88,22 @@ public class TunnelInterfaceStateListener extends AsyncDataTreeChangeListenerBas
     @Override
     protected void update(InstanceIdentifier<StateTunnelList> identifier, StateTunnelList original, StateTunnelList update) {
         LOG.trace("Tunnel updation---- {}", update);
+        boolean isTunnelUp;
         LOG.trace("ITM Tunnel {} of type {} state event changed from :{} to :{}",
                 update.getTunnelInterfaceName(),
                 fibManager.getTransportTypeStr(update.getTransportType().toString()),
-                original.isTunnelState(), update.isTunnelState());
+                original.getOperState(), update.getOperState());
         //withdraw all prefixes in all vpns for this dpn
-        boolean isTunnelUp = update.isTunnelState();
+        TunnelOperStatus tunOpStatus = update.getOperState();
+        if ((tunOpStatus != TunnelOperStatus.Down) && (tunOpStatus != TunnelOperStatus.Up)) {
+            LOG.trace("Returning from unsupported tunnelOperStatus {}", tunOpStatus);
+            return;
+        }
+        if (tunOpStatus == TunnelOperStatus.Up) {
+            isTunnelUp = true;
+        } else {
+            isTunnelUp = false;
+        }
         handlePrefixesForDPNs(update, isTunnelUp ? UpdateRouteAction.ADVERTISE_ROUTE :
                 UpdateRouteAction.WITHDRAW_ROUTE);
     }
@@ -104,8 +111,18 @@ public class TunnelInterfaceStateListener extends AsyncDataTreeChangeListenerBas
     @Override
     protected void add(InstanceIdentifier<StateTunnelList> identifier, StateTunnelList add) {
         LOG.trace("Tunnel addition---- {}", add);
-
-        if (!add.isTunnelState()) {
+        boolean isTunnelState;
+        TunnelOperStatus tunOpStatus = add.getOperState();
+        if ((tunOpStatus != TunnelOperStatus.Down) && (tunOpStatus != TunnelOperStatus.Up)) {
+            LOG.trace("Returning from unsupported tunnelOperStatus {}", tunOpStatus);
+            return;
+        }
+        if (tunOpStatus == TunnelOperStatus.Up) {
+            isTunnelState = true;
+        } else {
+            isTunnelState = false;
+        }
+        if (!isTunnelState) {
             LOG.trace("Tunnel {} is not yet UP.",
                     add.getTunnelInterfaceName());
             return;
