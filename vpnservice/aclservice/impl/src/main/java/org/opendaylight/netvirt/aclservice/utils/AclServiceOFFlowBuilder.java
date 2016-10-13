@@ -172,8 +172,10 @@ public class AclServiceOFFlowBuilder {
                 List<MatchInfoBase> flowMatches = new ArrayList<>();
                 flowMatches.addAll(addSrcIpMatches(acl));
                 flowMatches.addAll(addDstIpMatches(acl));
-                flowMatches.add(new NxMatchInfo(NxMatchFieldType.nx_tcp_src_with_mask,
-                    new long[] {  port, portMaskMap.get(port) }));
+                if (portMaskMap.get(port) != AclConstants.ALL_LAYER4_PORT_MASK) {
+                    flowMatches.add(new NxMatchInfo(NxMatchFieldType.nx_tcp_src_with_mask,
+                        new long[] {  port, portMaskMap.get(port) }));
+                }
                 flowMatches.add(new MatchInfo(MatchFieldType.ip_proto,
                     new long[] { acl.getProtocol() }));
                 String flowId = "TCP_SOURCE_" + port + "_" + portMaskMap.get(port);
@@ -187,8 +189,10 @@ public class AclServiceOFFlowBuilder {
                 List<MatchInfoBase> flowMatches = new ArrayList<>();
                 flowMatches.addAll(addSrcIpMatches(acl));
                 flowMatches.addAll(addDstIpMatches(acl));
-                flowMatches.add(new NxMatchInfo(NxMatchFieldType.nx_tcp_dst_with_mask,
-                    new long[] {  port, portMaskMap.get(port) }));
+                if (portMaskMap.get(port) != AclConstants.ALL_LAYER4_PORT_MASK) {
+                    flowMatches.add(new NxMatchInfo(NxMatchFieldType.nx_tcp_dst_with_mask,
+                        new long[] {  port, portMaskMap.get(port) }));
+                }
                 flowMatches.add(new MatchInfo(MatchFieldType.ip_proto,
                     new long[] { acl.getProtocol() }));
                 String flowId = "TCP_DESTINATION_" + port + "_" + portMaskMap.get(port);
@@ -223,8 +227,10 @@ public class AclServiceOFFlowBuilder {
                 List<MatchInfoBase> flowMatches = new ArrayList<>();
                 flowMatches.addAll(addSrcIpMatches(acl));
                 flowMatches.addAll(addDstIpMatches(acl));
-                flowMatches.add(new NxMatchInfo(NxMatchFieldType.nx_udp_src_with_mask,
-                    new long[] {  port, portMaskMap.get(port) }));
+                if (portMaskMap.get(port) != AclConstants.ALL_LAYER4_PORT_MASK) {
+                    flowMatches.add(new NxMatchInfo(NxMatchFieldType.nx_udp_src_with_mask,
+                        new long[] {  port, portMaskMap.get(port) }));
+                }
                 flowMatches.add(new MatchInfo(MatchFieldType.ip_proto,
                     new long[] { acl.getProtocol() }));
                 String flowId = "UDP_SOURCE_" + port + "_" + portMaskMap.get(port);
@@ -238,8 +244,10 @@ public class AclServiceOFFlowBuilder {
                 List<MatchInfoBase> flowMatches = new ArrayList<>();
                 flowMatches.addAll(addSrcIpMatches(acl));
                 flowMatches.addAll(addDstIpMatches(acl));
-                flowMatches.add(new NxMatchInfo(NxMatchFieldType.nx_udp_dst_with_mask,
-                    new long[] {  port, portMaskMap.get(port) }));
+                if (portMaskMap.get(port) != AclConstants.ALL_LAYER4_PORT_MASK) {
+                    flowMatches.add(new NxMatchInfo(NxMatchFieldType.nx_udp_dst_with_mask,
+                        new long[] {  port, portMaskMap.get(port) }));
+                }
                 flowMatches.add(new MatchInfo(MatchFieldType.ip_proto,
                     new long[] { acl.getProtocol() }));
                 String flowId = "UDP_DESTINATION_" + port + "_" + portMaskMap.get(port);
@@ -319,7 +327,10 @@ public class AclServiceOFFlowBuilder {
         int noOfPorts = portMax - portMin + 1;
         Map<Integer,Integer> portMap = new HashMap<>();
         if (noOfPorts == 1) {
-            portMap.put(portMin, mask[15]);
+            portMap.put(portMin, mask[16]);
+            return portMap;
+        } else if (noOfPorts == AclConstants.ALL_LAYER4_PORT) {
+            portMap.put(portMin, AclConstants.ALL_LAYER4_PORT_MASK);
             return portMap;
         }
         if (noOfPorts < 0) { // TODO: replace with infrautils.counter in case of high repetitive usage
