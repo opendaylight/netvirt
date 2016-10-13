@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7a6b29fe_e3625c15",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/FloatingIPListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 6177
+      },
+      "writtenOn": "2016-10-13T08:08:28Z",
+      "side": 1,
+      "message": "Changes to this file can \u0026 should be reverted after Bug 6798 is fixed. After the fix, both UCs will have the same logic of resubmitting back to table 21.\n\nAdded the same comment to the bug.",
+      "revId": "6b67e14080a7377aee686c2d4093775bf22d37a3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_ce514710",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnNatManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 293,
+      "author": {
+        "id": 6177
+      },
+      "writtenOn": "2016-10-13T08:08:28Z",
+      "side": 1,
+      "message": "Probably need an NPE check here as well or maybe put it inside the getProviderNetworkType?\n\nAlso, I think it is neater to do the providerNwType fetching \u0026 validation in the beginning of the function, and not break the flow in the middle. (applies for the rest of the review as well)",
+      "revId": "6b67e14080a7377aee686c2d4093775bf22d37a3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
