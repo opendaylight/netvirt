@@ -33,6 +33,24 @@
       "revId": "6b67e14080a7377aee686c2d4093775bf22d37a3",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_ef735db2",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnNatManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 293,
+      "author": {
+        "id": 940
+      },
+      "writtenOn": "2016-10-13T17:00:21Z",
+      "side": 1,
+      "message": "NPE may not be required as we are always passing the argument. \nYes, did changes to move providerNwType fetching and validation as early as possible in those methods.",
+      "parentUuid": "7a6b29fe_ce514710",
+      "revId": "6b67e14080a7377aee686c2d4093775bf22d37a3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
