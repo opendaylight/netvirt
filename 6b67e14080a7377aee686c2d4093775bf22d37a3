@@ -51,6 +51,24 @@
       "revId": "6b67e14080a7377aee686c2d4093775bf22d37a3",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_af6165d5",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnNatManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 293,
+      "author": {
+        "id": 6177
+      },
+      "writtenOn": "2016-10-13T17:15:04Z",
+      "side": 1,
+      "message": "What do you mean by always passing the argument? \nWhat I meant is if getNeutronNetwork returns null you may get NPE inside getProviderNetworkType()",
+      "parentUuid": "7a6b29fe_ef735db2",
+      "revId": "6b67e14080a7377aee686c2d4093775bf22d37a3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
