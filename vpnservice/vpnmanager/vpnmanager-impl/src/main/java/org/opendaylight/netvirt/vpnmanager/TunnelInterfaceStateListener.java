@@ -24,6 +24,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.op.rev160406.Tep
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.op.rev160406.TepTypeHwvtep;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.op.rev160406.TepTypeInternal;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.op.rev160406.TunnelsState;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.op.rev160406.TunnelOperStatus;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.op.rev160406.tunnels_state.StateTunnelList;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rpcs.rev160406.IsDcgwPresentInputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rpcs.rev160406.IsDcgwPresentOutput;
@@ -94,9 +95,14 @@ public class TunnelInterfaceStateListener extends AsyncDataTreeChangeListenerBas
         LOG.trace("ITM Tunnel {} of type {} state event changed from :{} to :{}",
                 update.getTunnelInterfaceName(),
                 fibManager.getTransportTypeStr(update.getTransportType().toString()),
-                original.isTunnelState(), update.isTunnelState());
+                original.getOperState(), update.getOperState());
         //withdraw all prefixes in all vpns for this dpn
-        boolean isTunnelUp = update.isTunnelState();
+        TunnelOperStatus tunOpStatus = update.getOperState();
+        if ((tunOpStatus != TunnelOperStatus.Down) && (tunOpStatus != TunnelOperStatus.Up)) {
+            LOG.trace("Returning from unsupported tunnelOperStatus {}", tunOpStatus);
+            return;
+        }
+        boolean isTunnelUp = (tunOpStatus == TunnelOperStatus.Up);
         handlePrefixesForDPNs(update, isTunnelUp ? UpdateRouteAction.ADVERTISE_ROUTE :
                 UpdateRouteAction.WITHDRAW_ROUTE);
     }
@@ -104,8 +110,13 @@ public class TunnelInterfaceStateListener extends AsyncDataTreeChangeListenerBas
     @Override
     protected void add(InstanceIdentifier<StateTunnelList> identifier, StateTunnelList add) {
         LOG.trace("Tunnel addition---- {}", add);
-
-        if (!add.isTunnelState()) {
+        TunnelOperStatus tunOpStatus = add.getOperState();
+        if ((tunOpStatus != TunnelOperStatus.Down) && (tunOpStatus != TunnelOperStatus.Up)) {
+            LOG.trace("Returning from unsupported tunnelOperStatus {}", tunOpStatus);
+            return;
+        }
+        boolean isTunnelUp = (tunOpStatus == TunnelOperStatus.Up);
+        if (!isTunnelUp) {
             LOG.trace("Tunnel {} is not yet UP.",
                     add.getTunnelInterfaceName());
             return;
