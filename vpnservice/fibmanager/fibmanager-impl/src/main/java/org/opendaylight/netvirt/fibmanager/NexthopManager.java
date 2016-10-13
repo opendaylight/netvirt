@@ -23,6 +23,7 @@ import org.opendaylight.genius.mdsalutil.BucketInfo;
 import org.opendaylight.genius.mdsalutil.GroupEntity;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
+import org.opendaylight.netvirt.elanmanager.api.IElanService;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.VpnInterfaces;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.interfaces.VpnInterface;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.interfaces.VpnInterfaceKey;
@@ -31,9 +32,11 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.action.types.rev131112.acti
 import org.opendaylight.yang.gen.v1.urn.opendaylight.action.types.rev131112.action.action.SetFieldCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.action.types.rev131112.action.list.Action;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.group.types.rev131018.GroupTypes;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.instances.ElanInstance;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.Adjacencies;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.adjacency.list.Adjacency;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.adjacency.list.AdjacencyKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.prefix.to._interface.vpn.ids.Prefixes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rpcs.rev160406.GetInternalOrExternalInterfaceNameInputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rpcs.rev160406.GetInternalOrExternalInterfaceNameOutput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rpcs.rev160406.GetTunnelInterfaceNameInputBuilder;
@@ -50,6 +53,10 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.GetEgressActionsForInterfaceInputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.GetEgressActionsForInterfaceOutput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.OdlInterfaceRpcService;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.interfaces.ElanInterface;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.SegmentTypeBase;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.SegmentTypeFlat;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.SegmentTypeVlan;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3nexthop.rev150409.L3nexthop;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3nexthop.rev150409.l3nexthop.VpnNexthops;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3nexthop.rev150409.l3nexthop.VpnNexthopsKey;
@@ -86,6 +93,7 @@ public class NexthopManager implements AutoCloseable {
     private final OdlInterfaceRpcService interfaceManager;
     private final ItmRpcService itmManager;
     private final IdManagerService idManager;
+    private final IElanService elanService;
     private static final short LPORT_INGRESS_TABLE = 0;
     private static final short LFIB_TABLE = 20;
     private static final short FIB_TABLE = 21;
@@ -121,12 +129,14 @@ public class NexthopManager implements AutoCloseable {
                           final IMdsalApiManager mdsalApiManager,
                           final IdManagerService idManager,
                           final OdlInterfaceRpcService interfaceManager,
-                          final ItmRpcService itmManager) {
+                          final ItmRpcService itmManager,
+                          final IElanService elanService) {
         this.dataBroker = dataBroker;
         this.mdsalApiManager = mdsalApiManager;
         this.idManager = idManager;
         this.interfaceManager = interfaceManager;
         this.itmManager = itmManager;
+        this.elanService = elanService;
         waitTimeForSyncInstall = Long.getLong("wait.time.sync.install");
         if (waitTimeForSyncInstall == null) {
             waitTimeForSyncInstall = 1000L;
@@ -295,9 +305,7 @@ public class NexthopManager implements AutoCloseable {
             LOG.trace("nexthop: {} retrieved for vpnId {}, prefix {}, ifName {} on dpn {}", nexthop,
                     vpnId, ipAddress, ifName, dpnId);
             if (nexthop == null) {
-                Optional<Adjacency> adjacencyData =
-                        read(LogicalDatastoreType.OPERATIONAL, getAdjacencyIdentifier(ifName, ipAddress));
-                String macAddress = adjacencyData.isPresent() ? adjacencyData.get().getMacAddress() : null;
+                String macAddress = FibUtil.getMacAddressFromPrefix(dataBroker, ifName, ipAddress);
                 List<BucketInfo> listBucketInfo = new ArrayList<BucketInfo>();
                 List<ActionInfo> listActionInfo = new ArrayList<>();
                 // MAC re-write
@@ -393,22 +401,22 @@ public class NexthopManager implements AutoCloseable {
         return null;
     }
 
-    public String getRemoteNextHopPointer(BigInteger remoteDpnId, long vpnId, String prefixIp, String nextHopIp) {
-        String tunnelIfName = null;
+    public AdjacencyResult getRemoteNextHopPointer(BigInteger remoteDpnId, long vpnId, String prefixIp, String nextHopIp) {
+        String egressIfName = null;
         LOG.trace("getRemoteNextHopPointer: input [remoteDpnId {}, vpnId {}, prefixIp {}, nextHopIp {} ]",
                 remoteDpnId, vpnId, prefixIp, nextHopIp);
 
-        if (nextHopIp != null && !nextHopIp.isEmpty()) {
-            try{
-                // here use the config for tunnel type param
-                tunnelIfName = getTunnelInterfaceName(remoteDpnId, org.opendaylight.yang.gen.v1.urn.ietf.params.xml
-                        .ns.yang.ietf.inet.types.rev130715.IpAddressBuilder.getDefaultInstance(nextHopIp));
-            } catch(Exception ex){
-                LOG.error("Error while retrieving nexthop pointer for nexthop {} : ", nextHopIp, ex);
-            }
+        ElanInstance elanInstance = getElanInstanceForPrefix(vpnId, prefixIp);
+        boolean isOutputToTunnel = isOutputToTunnel(elanInstance);
+        if (isOutputToTunnel) {
+            egressIfName = getTunnelRemoteNextHopPointer(remoteDpnId, nextHopIp);
+        } else {
+            egressIfName = getExtPortRemoteNextHopPointer(remoteDpnId, elanInstance);
         }
-        return tunnelIfName;
+
+        return egressIfName != null ? new AdjacencyResult(egressIfName, isOutputToTunnel) : null;
     }
+
 
     public BigInteger getDpnForPrefix(long vpnId, String prefixIp) {
         VpnNexthop vpnNexthop = getVpnNexthop(vpnId, prefixIp);
@@ -615,5 +623,104 @@ public class NexthopManager implements AutoCloseable {
     @Override
     public void close() throws Exception {
         LOG.info("{} close", getClass().getSimpleName());
+    }
+
+    private String getTunnelRemoteNextHopPointer(BigInteger remoteDpnId, String nextHopIp) {
+        if (nextHopIp != null && !nextHopIp.isEmpty()) {
+            try {
+                // here use the config for tunnel type param
+                return getTunnelInterfaceName(remoteDpnId,
+                        org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddressBuilder
+                                .getDefaultInstance(nextHopIp));
+            } catch (Exception ex) {
+                LOG.error("Error while retrieving nexthop pointer for nexthop {} : ", nextHopIp, ex);
+            }
+        }
+
+        return null;
+    }
+
+    private String getExtPortRemoteNextHopPointer(BigInteger remoteDpnId, ElanInstance elanInstance) {
+        if (elanInstance == null) {
+            return null;
+        }
+
+        return elanService.getExternalElanInterface(elanInstance.getElanInstanceName(), remoteDpnId);
+    }
+
+    /**
+     * Check if traffic between computes in the same ELAN instance should be
+     * routed through tunnel interface
+     *
+     * @param elanInstance
+     * @return
+     */
+    private boolean isOutputToTunnel(ElanInstance elanInstance) {
+        if (elanInstance == null) {
+            return true;
+        }
+
+        Class<? extends SegmentTypeBase> segmentType = elanInstance.getSegmentType();
+        return !SegmentTypeFlat.class.equals(segmentType) && !SegmentTypeVlan.class.equals(segmentType);
+    }
+
+    private ElanInstance getElanInstanceForPrefix(long vpnId, String prefixIp) {
+        Prefixes prefix = FibUtil.getPrefixToInterface(dataBroker, vpnId, prefixIp);
+        if (prefix == null) {
+            LOG.warn("No prefix info was found for VPN id {} prefix {}", vpnId, prefixIp);
+            return null;
+        }
+
+        String interfaceName = prefix.getVpnInterfaceName();
+        if (interfaceName == null) {
+            LOG.debug("No VPN interface found for VPN id {} prefix {}", vpnId, prefixIp);
+            return null;
+        }
+
+        ElanInterface elanInterface = elanService.getElanInterfaceByElanInterfaceName(interfaceName);
+        if (elanInterface == null) {
+            LOG.warn("No ELAN interface found for VPN interface {} on VPN id {}", interfaceName, vpnId);
+            return null;
+        }
+
+        return elanService.getElanInstance(elanInterface.getElanInstanceName());
+    }
+
+    static class AdjacencyResult {
+        private String egressInterface;
+        private boolean isTunnelInterface;
+
+        public AdjacencyResult(String egressInterface, boolean isTunnelInterface) {
+            this.egressInterface = egressInterface;
+            this.isTunnelInterface = isTunnelInterface;
+        }
+
+        public String getEgressInterface() {
+            return egressInterface;
+        }
+
+        public boolean isTunnelInterface() {
+            return isTunnelInterface;
+        }
+
+        @Override
+        public int hashCode() {
+            final int prime = 31;
+            int result = 1;
+            result = prime * result + ((egressInterface == null) ? 0 : egressInterface.hashCode());
+            return result;
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            boolean result = false;
+            if (getClass() != obj.getClass())
+                return result;
+            else {
+                AdjacencyResult other = (AdjacencyResult) obj;
+                result = egressInterface.equals(other.egressInterface);
+            }
+            return result;
+        }
     }
 }

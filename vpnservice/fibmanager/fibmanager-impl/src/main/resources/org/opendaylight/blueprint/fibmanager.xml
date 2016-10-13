@@ -8,6 +8,8 @@
              odl:type="default" />
   <reference id="mdsalUtils"
              interface="org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager" />
+  <reference id="elanService"
+             interface="org.opendaylight.netvirt.elanmanager.api.IElanService" />
 
   <odl:rpc-service id="idManagerService"
                    interface="org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.IdManagerService" />
@@ -32,6 +34,7 @@
     <argument ref="idManagerService" />
     <argument ref="odlInterfaceRpcService" />
     <argument ref="itmRpcService" />
+    <argument ref="elanService" />
   </bean>
 
   <bean id="vfrEntryListener" class="org.opendaylight.netvirt.fibmanager.VrfEntryListener"
