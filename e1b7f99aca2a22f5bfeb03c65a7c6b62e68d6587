@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "7a6b29fe_493d31bb",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 16
+      },
+      "lineNbr": 2164,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2016-10-13T11:41:31Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7a6b29fe_ced4a749",
+      "revId": "e1b7f99aca2a22f5bfeb03c65a7c6b62e68d6587",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7a6b29fe_2eca7ba1",
         "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
         "patchSetId": 16
@@ -30,6 +48,24 @@
       "writtenOn": "2016-10-13T09:24:57Z",
       "side": 1,
       "message": "maybe it could be good to have some log here before returning",
+      "revId": "e1b7f99aca2a22f5bfeb03c65a7c6b62e68d6587",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_a94a0553",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 16
+      },
+      "lineNbr": 2166,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2016-10-13T11:41:31Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7a6b29fe_2eca7ba1",
       "revId": "e1b7f99aca2a22f5bfeb03c65a7c6b62e68d6587",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
