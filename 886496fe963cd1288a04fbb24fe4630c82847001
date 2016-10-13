@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7a6b29fe_c3080094",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronNetworkChangeListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 72,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2016-10-13T05:55:21Z",
+      "side": 0,
+      "message": "Based on Carbon DDF planning https://docs.google.com/presentation/d/1pzX_P3ORSvw8_Mn2ZdL_n0-2Y08Y5t5SJKrJoDHhqkk/edit#slide\u003did.g17229e9706_0_91 I figured GRE provider network should be added as part of carbon. Is it already supported?\nIf it does, the condition NeutronvpnUtils.isNetworkTypeSupported appears in additional methods",
+      "range": {
+        "startLine": 72,
+        "startChar": 0,
+        "endLine": 72,
+        "endChar": 12
+      },
+      "revId": "886496fe963cd1288a04fbb24fe4630c82847001",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
