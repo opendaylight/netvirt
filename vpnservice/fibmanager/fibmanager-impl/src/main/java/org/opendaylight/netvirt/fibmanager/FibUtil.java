@@ -170,6 +170,12 @@ public class FibUtil {
         return key;
     }
 
+    static Prefixes getPrefixToInterface(DataBroker broker, Long vpnId, String ipPrefix) {
+        Optional<Prefixes> localNextHopInfoData = FibUtil.read(broker, LogicalDatastoreType.OPERATIONAL,
+                getPrefixToInterfaceIdentifier(vpnId, ipPrefix));
+        return localNextHopInfoData.isPresent() ? localNextHopInfoData.get() : null;
+    }
+
     static void releaseId(IdManagerService idManager, String poolName, String idKey) {
         ReleaseIdInput idInput = new ReleaseIdInputBuilder().setPoolName(poolName).setIdKey(idKey).build();
         try {
