@@ -231,6 +231,72 @@ public class AclServiceTest {
         assertFlows(FlowEntryObjects.icmpFlows());
     }
 
+    @Test
+    public void newInterfaceWithDstPortRange() throws Exception {
+        // Given
+        setUpData();
+        Matches matches = newMatch(EthertypeV4.class, -1, -1, 333, 777,
+            null, AclConstants.IPV4_ALL_NETWORK, (short)NwConstants.IP_PROT_TCP);
+        dataBrokerUtil.put(ImmutableIdentifiedAceBuilder.builder()
+            .sgUuid(SG_UUID)
+            .newRuleName(SR_UUID_1)
+            .newMatches(matches)
+            .newDirection(DirectionEgress.class)
+            .build());
+        matches = newMatch(EthertypeV4.class, -1, -1, 2000, 2003,
+            AclConstants.IPV4_ALL_NETWORK, null, (short)NwConstants.IP_PROT_UDP);
+
+        dataBrokerUtil.put(ImmutableIdentifiedAceBuilder.builder()
+            .sgUuid(SG_UUID)
+            .newRuleName(SR_UUID_2)
+            .newMatches(matches)
+            .newDirection(DirectionIngress.class)
+            .build());
+
+
+        // When
+        putNewStateInterface(dataBroker, PORT_1, PORT_MAC_1);
+
+        // TODO Later could do work for better synchronization here..
+        Thread.sleep(500);
+
+        // Then
+        assertFlows(FlowEntryObjects.dstRangeFlows());
+    }
+
+    @Test
+    public void newInterfaceWithDstAllPorts() throws Exception {
+        // Given
+        setUpData();
+        Matches matches = newMatch(EthertypeV4.class, -1, -1, 1, 65535,
+            null, AclConstants.IPV4_ALL_NETWORK, (short)NwConstants.IP_PROT_TCP);
+        dataBrokerUtil.put(ImmutableIdentifiedAceBuilder.builder()
+            .sgUuid(SG_UUID)
+            .newRuleName(SR_UUID_1)
+            .newMatches(matches)
+            .newDirection(DirectionEgress.class)
+            .build());
+        matches = newMatch(EthertypeV4.class, -1, -1, 1, 65535,
+            AclConstants.IPV4_ALL_NETWORK, null, (short)NwConstants.IP_PROT_UDP);
+
+        dataBrokerUtil.put(ImmutableIdentifiedAceBuilder.builder()
+            .sgUuid(SG_UUID)
+            .newRuleName(SR_UUID_2)
+            .newMatches(matches)
+            .newDirection(DirectionIngress.class)
+            .build());
+
+
+        // When
+        putNewStateInterface(dataBroker, PORT_1, PORT_MAC_1);
+
+        // TODO Later could do work for better synchronization here..
+        Thread.sleep(500);
+
+        // Then
+        assertFlows(FlowEntryObjects.dstAllFlows());
+    }
+
     private void assertFlows(Iterable<FlowEntity> expectedFlows) {
         List<FlowEntity> flows = mdsalApiManager.getFlows();
         if (!Iterables.isEmpty(expectedFlows)) {

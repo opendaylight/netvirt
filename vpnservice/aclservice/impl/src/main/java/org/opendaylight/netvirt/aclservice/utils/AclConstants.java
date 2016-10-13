@@ -64,6 +64,8 @@ public final class AclConstants {
     public static final long TCP_FLAG_SYN = 1 << 1;
     public static final long TCP_FLAG_ACK = 1 << 4;
     public static final long TCP_FLAG_SYN_ACK = TCP_FLAG_SYN + TCP_FLAG_ACK;
+    public static final int ALL_LAYER4_PORT = 65535;
+    public static final int ALL_LAYER4_PORT_MASK = 0x0000;
 
     public static final int ICMPV6_TYPE_MLD_QUERY = 130;
     public static final int ICMPV6_TYPE_RS = 133;
