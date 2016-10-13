@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7a6b29fe_0faa19d4",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/LearnIngressAclServiceImpl.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 113,
+      "author": {
+        "id": 6177
+      },
+      "writtenOn": "2016-10-13T17:23:38Z",
+      "side": 1,
+      "message": "Should this be getSecurityGroupDefaultIdleTimeout()?\n\nAlso where couldn\u0027t find the configuration for udp-idle-timeout.. What am I missing?",
+      "revId": "7d26e736133d2c36d5faac00133c83586c6755c7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
