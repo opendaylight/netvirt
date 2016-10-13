@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7a6b29fe_e9dcfd1a",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 17
+      },
+      "lineNbr": 2151,
+      "author": {
+        "id": 5350
+      },
+      "writtenOn": "2016-10-13T12:48:52Z",
+      "side": 1,
+      "message": "good work with the refactoring, but there\u0027s still the issue with 2 different methods with the same name that can be a bit confusing. In fact, in this PS we have a createVpnInterface that calls the other createVpnInterface. Could we call this one with a more specific name? Maybe something like \u0027writeVpnInterfaceToDs\u0027 or \u0027persistVpnInterface\u0027 or similar.",
+      "range": {
+        "startLine": 2151,
+        "startChar": 17,
+        "endLine": 2151,
+        "endChar": 35
+      },
+      "revId": "a3ee8b234afed3a339c7beff3ebcbb3fd5655f07",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
