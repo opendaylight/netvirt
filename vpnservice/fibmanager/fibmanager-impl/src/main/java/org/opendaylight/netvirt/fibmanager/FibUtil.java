@@ -170,6 +170,18 @@ public class FibUtil {
         return key;
     }
 
+    static Prefixes getPrefixToInterface(DataBroker broker, Long vpnId, String ipPrefix) {
+        Optional<Prefixes> localNextHopInfoData = read(broker, LogicalDatastoreType.OPERATIONAL,
+                getPrefixToInterfaceIdentifier(vpnId, ipPrefix));
+        return localNextHopInfoData.isPresent() ? localNextHopInfoData.get() : null;
+    }
+
+    static String getMacAddressFromPrefix(DataBroker broker, String ifName, String ipPrefix) {
+        Optional<Adjacency> adjacencyData = read(broker, LogicalDatastoreType.OPERATIONAL,
+                getAdjacencyIdentifier(ifName, ipPrefix));
+        return adjacencyData.isPresent() ? adjacencyData.get().getMacAddress() : null;
+    }
+
     static void releaseId(IdManagerService idManager, String poolName, String idKey) {
         ReleaseIdInput idInput = new ReleaseIdInputBuilder().setPoolName(poolName).setIdKey(idKey).build();
         try {
