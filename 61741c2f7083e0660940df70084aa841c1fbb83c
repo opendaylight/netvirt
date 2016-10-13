@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "7a6b29fe_f41174b0",
+        "filename": "vpnservice/aclservice/impl/src/main/yang/aclservice-config.yang",
+        "patchSetId": 1
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 3511
+      },
+      "writtenOn": "2016-10-13T15:24:52Z",
+      "side": 1,
+      "message": "i was calculating in hex mode :(\nchanging to 18000",
+      "parentUuid": "7a6b29fe_a905e515",
+      "revId": "61741c2f7083e0660940df70084aa841c1fbb83c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7a6b29fe_8902a909",
         "filename": "vpnservice/aclservice/impl/src/main/yang/aclservice-config.yang",
         "patchSetId": 1
@@ -30,6 +48,24 @@
       "writtenOn": "2016-10-13T14:02:40Z",
       "side": 1,
       "message": "I think we should rename this to something like \u0027security-group-default-idle-timeout\u0027 or \u0027security-group-other-idle-timeout\u0027 since it represents all protocols except TCP",
+      "revId": "61741c2f7083e0660940df70084aa841c1fbb83c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_b41ffcb6",
+        "filename": "vpnservice/aclservice/impl/src/main/yang/aclservice-config.yang",
+        "patchSetId": 1
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 3511
+      },
+      "writtenOn": "2016-10-13T15:24:52Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7a6b29fe_8902a909",
       "revId": "61741c2f7083e0660940df70084aa841c1fbb83c",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
