@@ -177,7 +177,8 @@ public class VpnRpcServiceImpl implements VpnRpcService {
             try {
                 LOG.debug("addStaticRoute:advertise IVpnLink route to BGP:  vpnRd={}, prefix={}, label={}, nexthops={}",
                         vpnRd, destination, label, nexthopList);
-                bgpManager.advertisePrefix(vpnRd, destination, nexthopList, label.intValue());
+                bgpManager.advertisePrefix(vpnRd, null /*macAddress*/, destination, nexthopList,
+                        VrfEntry.EncapType.Mplsgre, label.intValue(), 0 /*evi*/, null /*gatewayMacAddress*/);
             } catch (Exception e) {
                 String errMsg = "Could not advertise route [vpn=" + vpnRd + ", prefix=" + destination + ", label="
                         + label + ", nexthops=" + nexthopList + ", ] to BGP. Reason: " + e;

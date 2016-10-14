@@ -97,6 +97,11 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
       <artifactId>utils.config</artifactId>
       <version>${vpns.ovsdb.version}</version>
     </dependency>
+    <dependency>
+      <groupId>org.opendaylight.netvirt</groupId>
+      <artifactId>netvirt-common</artifactId>
+      <version>${vpnservices.version}</version>
+    </dependency>
   </dependencies>
 
   <!--
