@@ -61,6 +61,10 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
       <artifactId>model-flow-service</artifactId>
       <version>${openflowplugin.version}</version>
     </dependency>
+    <dependency>
+      <groupId>commons-net</groupId>
+      <artifactId>commons-net</artifactId>
+    </dependency>
   </dependencies>
 
   <!--

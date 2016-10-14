@@ -28,6 +28,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.LinkedBlockingQueue;
 
+import org.apache.commons.net.util.SubnetUtils;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.DataChangeListener;
 import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
@@ -739,7 +740,17 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
             if (extraRoute != null) {
                 for (String nextHopIp : extraRoute.getNexthopIpList()) {
                     LOG.debug("NextHop IP for destination {} is {}", vrfEntry.getDestPrefix(), nextHopIp);
-                    if (nextHopIp != null) {
+                    if (nextHopIp != null) {                        
+                            localNextHopInfo = getPrefixToInterface(vpnId, nextHopIp + "/32");
+                            if ( localNextHopInfo != null) {
+                                localNextHopIP = nextHopIp + "/32";
+                            } else {
+                                localNextHopInfo = getSubnetPrefixToInterface(vpnId, localNextHopIP);
+                            }
+                            if ( localNextHopInfo != null) {
+                                BigInteger dpnId = checkCreateLocalFibEntry(localNextHopInfo, localNextHopIP, vpnId, rd, vrfEntry, vpnId);
+                                returnLocalDpnId.add(dpnId);
+                            }                        
                         localNextHopInfo = getPrefixToInterface(vpnId, nextHopIp + "/32");
                         localNextHopIP = nextHopIp + "/32";
                         BigInteger dpnId = checkCreateLocalFibEntry(localNextHopInfo, localNextHopIP, vpnId, rd, vrfEntry, vpnId);
@@ -1023,12 +1034,36 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
         return InstanceIdentifier.builder(PrefixToInterface.class)
                 .child(VpnIds.class, new VpnIdsKey(vpnId)).child(Prefixes.class, new PrefixesKey(ipPrefix)).build();
     }
-
+    
+    private InstanceIdentifier<VpnIds> getPrefixToVpnIdsIdentifier(Long vpnId) {
+        return InstanceIdentifier.builder(PrefixToInterface.class)
+                .child(VpnIds.class, new VpnIdsKey(vpnId)).build();
+    }
+ 
     private Prefixes getPrefixToInterface(Long vpnId, String ipPrefix) {
         Optional<Prefixes> localNextHopInfoData =
                 FibUtil.read(dataBroker, LogicalDatastoreType.OPERATIONAL, getPrefixToInterfaceIdentifier(vpnId, ipPrefix));
         return  localNextHopInfoData.isPresent() ? localNextHopInfoData.get() : null;
     }
+    
+    private Prefixes getSubnetPrefixToInterface(Long vpnId, String ipPrefix) {
+        Optional<VpnIds> localVpnIds =
+                FibUtil.read(dataBroker, LogicalDatastoreType.OPERATIONAL, getPrefixToVpnIdsIdentifier(vpnId));
+        if ( localVpnIds.isPresent()) {
+            for (Prefixes prefix : localVpnIds.get().getPrefixes() ) {
+                try {
+                if (new SubnetUtils(prefix.getIpAddress()).getInfo().isInRange(ipPrefix.split("/")[0])) {
+                   return  prefix;
+                }
+                } catch ( Exception e) {
+                    LOG.warn ( "Unexpected prefix format {} {}", prefix, ipPrefix );
+                }
+
+            }
+        }
+        return null;
+    }
+
 
     private InstanceIdentifier<Extraroute> getVpnToExtrarouteIdentifier(String vrfId, String ipPrefix) {
         return InstanceIdentifier.builder(VpnToExtraroute.class)
