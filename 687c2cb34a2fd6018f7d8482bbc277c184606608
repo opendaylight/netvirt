@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7a6b29fe_64a64f55",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 748,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-10-14T16:10:32Z",
+      "side": 1,
+      "message": "this won\u0027t execute at all , as always there will be a match for getPrefixToInterface() if the nexthop fetched from extraroute.nexthoplist is for a living VM.",
+      "revId": "687c2cb34a2fd6018f7d8482bbc277c184606608",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
