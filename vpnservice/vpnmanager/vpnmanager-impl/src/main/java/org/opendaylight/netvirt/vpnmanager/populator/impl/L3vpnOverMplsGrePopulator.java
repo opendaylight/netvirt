@@ -44,8 +44,8 @@ public class L3vpnOverMplsGrePopulator extends L3vpnPopulator {
         if (rd != null) {
             context.addToLabelMapper(label, dpnId, nextHop.getIpAddress(), Arrays.asList(nextHopIp), vpnId,
                     interfaceName, null,false, rd, writeOperTxn);
-            addPrefixToBGP(rd, nextHop.getIpAddress(), nextHopIp, encapType, label,
-                    0, null, null, broker, writeConfigTxn);
+            addPrefixToBGP(rd, null /*macAddress*/, nextHop.getIpAddress(), nextHopIp, encapType, label,
+                    0 /*l3vni*/, null /*gatewayMacAddress*/, broker, writeConfigTxn);
             //TODO: ERT - check for VPNs importing my route
             for (VpnInstanceOpDataEntry vpn : vpnsToImportRoute) {
                 String vpnRd = vpn.getVrfId();

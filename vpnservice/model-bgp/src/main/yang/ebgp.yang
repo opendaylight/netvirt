@@ -161,6 +161,10 @@ module ebgp {
       type string;
       mandatory "false";
     }
+    leaf l3vni {
+      type uint32;
+      mandatory "false";
+    }
   } // networks
 
   list vrfs {
