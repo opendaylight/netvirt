@@ -70,6 +70,7 @@ import org.opendaylight.netvirt.fibmanager.api.RouteOrigin;
 import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.Bgp;
 import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.BgpControlPlaneType;
 import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.EncapType;
+import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.LayerType;
 import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.bgp.AsId;
 import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.bgp.AsIdBuilder;
 import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.bgp.ConfigServer;
@@ -95,10 +96,14 @@ import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev1509
 import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.bgp.neighbors.UpdateSource;
 import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.bgp.neighbors.UpdateSourceBuilder;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
+import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.instances.VpnInstance;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.FibEntries;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.fibentries.VrfTables;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.VrfEntry;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.VrfEntryBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.VpnInstanceOpData;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.VpnInstanceOpDataEntry;
 import org.opendaylight.yangtools.concepts.ListenerRegistration;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
@@ -986,6 +991,8 @@ public class BgpConfigurationManager {
                 Long label = val.getLabel();
                 int lbl = (label == null) ? qbgpConstants.LBL_NO_LABEL
                         : label.intValue();
+                int l3vni = (val.getL3vni() == null) ? qbgpConstants.LBL_NO_LABEL
+                        :val.getL3vni().intValue();
 
                 BgpControlPlaneType protocolType = val.getBgpControlPlaneType();
                 int ethernetTag = val.getEthtag().intValue();
@@ -995,7 +1002,7 @@ public class BgpConfigurationManager {
                 String routerMac = val.getRoutermac();
 
                 try {
-                    br.addPrefix(rd, pfxlen, nh, lbl, BgpUtil.convertToThriftProtocolType(protocolType),
+                    br.addPrefix(rd, pfxlen, nh, lbl, l3vni, BgpUtil.convertToThriftProtocolType(protocolType),
                             ethernetTag, esi, macaddress, BgpUtil.convertToThriftEncapType(encapType), routerMac);
                 } catch (TException | BgpRouterException e) {
                     LOG.error("{} Add received exception; {}", YANG_OBJ, ADD_WARN, e);
@@ -1347,7 +1354,7 @@ public class BgpConfigurationManager {
         }
     }
 
-    private static void doRouteSync() {
+    private static void doRouteSync() throws InterruptedException {
         BgpSyncHandle bsh = BgpSyncHandle.getInstance();
         LOG.error("Starting BGP route sync");
         try {
@@ -1421,9 +1428,21 @@ public class BgpConfigurationManager {
                                          String esi,
                                          String macaddress,
                                          int label,
-                                         String routermac) {
+                                         String routermac) throws InterruptedException {
         Map<String, Map<String, String>> staleFibRdMap = BgpConfigurationManager.getStaledFibEntriesMap();
         boolean addroute = false;
+        long l3vni = 0L;
+        VrfEntry.EncapType encapType = VrfEntry.EncapType.Mplsgre;
+        if (protocolType.equals(protocol_type.PROTOCOL_EVPN)) {
+            encapType = VrfEntry.EncapType.Vxlan;
+            VpnInstanceOpDataEntry vpnInstanceOpDataEntry = BgpUtil.getVpnInstanceOpData(dataBroker, rd);
+            if (vpnInstanceOpDataEntry != null) {
+                l3vni = vpnInstanceOpDataEntry.getL3vni();
+            } else {
+                LOG.error("No corresponding vpn instance found for rd {}. Aborting.", rd);
+                return;
+            }
+        }
         if (!staledFibEntriesMap.isEmpty()) {
             // restart Scenario, as MAP is not empty.
             Map<String, String> map = staledFibEntriesMap.get(rd);
@@ -1447,8 +1466,9 @@ public class BgpConfigurationManager {
         }
         if (addroute) {
             LOG.info("ADD: Adding Fib entry rd {} prefix {} nexthop {} label {}", rd, prefix, nextHop, label);
-            fibDSWriter.addFibEntryToDS(rd, prefix + "/" + plen, Collections.singletonList(nextHop), label,
-                    RouteOrigin.BGP);
+            // TODO: modify addFibEntryToDS signature
+            fibDSWriter.addFibEntryToDS(rd, macaddress, prefix + "/" + plen, Collections.singletonList(nextHop),
+                    encapType, label, l3vni, routermac, RouteOrigin.BGP);
             LOG.info("ADD: Added Fib entry rd {} prefix {} nexthop {} label {}", rd, prefix, nextHop, label);
         }
     }
@@ -1539,7 +1559,7 @@ public class BgpConfigurationManager {
     }
 
     @SuppressWarnings("checkstyle:IllegalCatch")
-    public synchronized void replay() {
+    public synchronized void replay() throws InterruptedException {
         synchronized (bgpConfigurationManager) {
             String host = getConfigHost();
             int port = getConfigPort();
@@ -1631,6 +1651,7 @@ public class BgpConfigurationManager {
                     String nh = net.getNexthop().getValue();
                     Long label = net.getLabel();
                     int lbl = (label == null) ? 0 : label.intValue();
+                    int l3vni = (net.getL3vni() == null) ? 0 : net.getL3vni().intValue();
                     if (rd == null && lbl > 0) {
                         //LU prefix is being deleted.
                         rd = Integer.toString(lbl);
@@ -1644,7 +1665,7 @@ public class BgpConfigurationManager {
                     String routerMac = net.getRoutermac();
 
                     try {
-                        br.addPrefix(rd, pfxlen, nh, lbl, BgpUtil.convertToThriftProtocolType(protocolType),
+                        br.addPrefix(rd, pfxlen, nh, lbl, l3vni, BgpUtil.convertToThriftProtocolType(protocolType),
                                 ethernetTag, esi, macaddress, BgpUtil.convertToThriftEncapType(encapType), routerMac);
                     } catch (Exception e) {
                         LOG.error("Replay:addPfx() received exception", e);
@@ -1762,27 +1783,39 @@ public class BgpConfigurationManager {
         update(iid, dto);
     }
 
-    public synchronized void addPrefix(String rd, String pfx, List<String> nhList, int lbl) {
+    public synchronized void addPrefix(String rd, String macAddress, String pfx, List<String> nhList,
+              VrfEntry.EncapType encapType, int lbl, long l3vni, String gatewayMac) {
         for (String nh : nhList) {
             Ipv4Address nexthop = new Ipv4Address(nh);
             Long label = (long) lbl;
             InstanceIdentifier<Networks> iid = InstanceIdentifier.builder(Bgp.class)
                     .child(Networks.class, new NetworksKey(pfx, rd)).build();
-            Networks dto = new NetworksBuilder().setRd(rd).setPrefixLen(pfx).setNexthop(nexthop)
-                    .setLabel(label).build();
-            update(iid, dto);
+            NetworksBuilder networksBuilder = new NetworksBuilder().setRd(rd).setPrefixLen(pfx).setNexthop(nexthop)
+                                                .setLabel(label).setEthtag(BgpConstants.DEFAULT_ETH_TAG);
+            buildVpnEncapSpecificInfo(networksBuilder, encapType, label, l3vni, macAddress, gatewayMac);
+            update(iid, networksBuilder.build());
+        }
+    }
+
+    private static void buildVpnEncapSpecificInfo(NetworksBuilder builder, VrfEntry.EncapType encapType, long label,
+                                                  long l3vni, String macAddress, String gatewayMac) {
+        if (encapType.equals(VrfEntry.EncapType.Mplsgre)) {
+            builder.setLabel(label).setBgpControlPlaneType(BgpControlPlaneType.PROTOCOLL3VPN)
+                    .setEncapType(EncapType.GRE);
+        } else {
+            builder.setL3vni(l3vni).setMacaddress(macAddress).setRoutermac(gatewayMac)
+                    .setBgpControlPlaneType(BgpControlPlaneType.PROTOCOLEVPN).setEncapType(EncapType.VXLAN);
         }
     }
 
     // TODO: add LayerType as arg - supports command
-    public synchronized void addVrf(String rd, List<String> irts, List<String> erts) {
+    public synchronized void addVrf(String rd, List<String> irts, List<String> erts, LayerType layerType) {
         InstanceIdentifier.InstanceIdentifierBuilder<Vrfs> iib =
                 InstanceIdentifier.builder(Bgp.class)
                         .child(Vrfs.class, new VrfsKey(rd));
         InstanceIdentifier<Vrfs> iid = iib.build();
-        Vrfs dto = new VrfsBuilder().setRd(rd)
-                .setImportRts(irts)
-                .setExportRts(erts).build();
+        Vrfs dto = new VrfsBuilder().setRd(rd).setImportRts(irts)
+                .setExportRts(erts).setLayerType(layerType).build();
         try {
             SingleTransactionDataBroker.syncWrite(dataBroker, LogicalDatastoreType.CONFIGURATION, iid, dto);
         } catch (TransactionCommitFailedException e) {

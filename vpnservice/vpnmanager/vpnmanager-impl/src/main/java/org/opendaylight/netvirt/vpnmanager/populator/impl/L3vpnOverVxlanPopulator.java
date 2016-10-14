@@ -47,8 +47,8 @@ public class L3vpnOverVxlanPopulator extends L3vpnPopulator {
         String rd = input.getRd();
         Adjacency nextHop = input.getNextHop();
         if (rd != null) {
-            addPrefixToBGP(rd, nextHop.getIpAddress(), input.getNextHopIp(), input.getEncapType(), 0 /*label*/,
-                    Long.valueOf(input.getL3vni()), nextHop.getMacAddress(), input.getGatewayMac(),
+            addPrefixToBGP(rd, nextHop.getMacAddress(), nextHop.getIpAddress(), input.getNextHopIp(),
+                    input.getEncapType(), 0 /*label*/, Long.valueOf(input.getL3vni()), input.getGatewayMac(),
                     broker, writeConfigTxn);
         } else {
             LOG.error("Internal VPN for L3 Over VxLAN is not supported. Aborting.");

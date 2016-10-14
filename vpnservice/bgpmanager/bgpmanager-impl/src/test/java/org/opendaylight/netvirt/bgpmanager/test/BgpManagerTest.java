@@ -20,6 +20,7 @@ import org.opendaylight.controller.md.sal.binding.test.AbstractDataBrokerTest;
 import org.opendaylight.netvirt.bgpmanager.BgpUtil;
 import org.opendaylight.netvirt.bgpmanager.FibDSWriter;
 import org.opendaylight.netvirt.fibmanager.api.RouteOrigin;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.VrfEntry;
 
 @RunWith(MockitoJUnitRunner.class)
 
@@ -43,7 +44,8 @@ public class BgpManagerTest extends AbstractDataBrokerTest {
         List<String> nexthop = Collections.singletonList("100.100.100.100");
         int label = 1234;
 
-        bgpFibWriter.addFibEntryToDS(rd, prefix, nexthop, label, RouteOrigin.LOCAL);
+        bgpFibWriter.addFibEntryToDS(rd, null /*macAddress*/, prefix, nexthop,
+                VrfEntry.EncapType.Mplsgre, label, 0 /*l3vni*/, null /*gatewayMacAddress*/, RouteOrigin.LOCAL);
         //assertEquals(1, fibManager.getDataChgCount());
         assertEquals(1, 1);
     }
@@ -54,10 +56,11 @@ public class BgpManagerTest extends AbstractDataBrokerTest {
         String rd = "101";
         String prefix = "10.10.10.10/32";
         int label = 1234;
-        try {
-            bgpFibWriter.addFibEntryToDS(rd, prefix, null, label, RouteOrigin.CONNECTED);
-            assertEquals(1, 0); //The code is not launching NullPointerException
-        } catch (NullPointerException e) {
+        try{
+            bgpFibWriter.addFibEntryToDS(rd, null /*macAddress*/, prefix, null,
+                    VrfEntry.EncapType.Mplsgre, label, 0 /*l3vni*/, null /*gatewayMacAddress*/, RouteOrigin.CONNECTED);
+            assertEquals(1,0); //The code is not launching NullPointerException
+        }catch(NullPointerException e){
             //The code must launch NullPointerException
             assertEquals(1, 1);
         }

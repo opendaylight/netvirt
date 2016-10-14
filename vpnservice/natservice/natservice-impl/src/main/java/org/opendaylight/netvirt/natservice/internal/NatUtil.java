@@ -759,9 +759,10 @@ public class NatUtil {
                 return;
             }
             fibManager.addOrUpdateFibEntry(broker, rd, null /*macAddress*/, prefix,
-                    Collections.singletonList(nextHopIp), VrfEntry.EncapType.Mplsgre,
-                    (int)label, 0 /*l3vni*/, null /*gatewayMacAddress*/, origin, null /*writeTxn*/);
-            bgpManager.advertisePrefix(rd, prefix, Collections.singletonList(nextHopIp), (int) label);
+                    Collections.singletonList(nextHopIp), VrfEntry.EncapType.Mplsgre, (int)label, 0 /*l3vni*/,
+                    null /*gatewayMacAddress*/, origin, null /*writeTxn*/);
+            bgpManager.advertisePrefix(rd, null /*macAddress*/, prefix, Collections.singletonList(nextHopIp),
+                    VrfEntry.EncapType.Mplsgre, (int)label, 0 /*l3vni*/, null /*gatewayMac*/);
             LOG.info("ADD: Added Fib entry rd {} prefix {} nextHop {} label {}", rd, prefix, nextHopIp, label);
         } catch (Exception e) {
             log.error("Add prefix failed", e);
