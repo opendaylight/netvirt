@@ -130,7 +130,7 @@ public class DistributedArpService implements ConfigInterface {
                          arpProvider == null ? "skipped" : "programmed",
                          macAddress, address, dpid, segOrOfPort, action);
         } else {
-            LOG.error("programStaticRuleStage2 failed for mac:{} addr:{} dpid:{} segOrOfPort:{} action:{} status:{}",
+            LOG.warn("programStaticRuleStage2 failed for mac:{} addr:{} dpid:{} segOrOfPort:{} action:{} status:{}",
                          macAddress, address, dpid, segOrOfPort, action, status);
         }
         return status;
