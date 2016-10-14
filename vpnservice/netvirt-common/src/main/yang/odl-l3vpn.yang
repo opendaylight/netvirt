@@ -208,6 +208,9 @@ module odl-l3vpn {
               }
               default "l3";
            }
+           leaf evi {
+              type uint32;
+           }
            container vpnTargets {
               description
                 "The vpn-target command configures the export or import VPN target

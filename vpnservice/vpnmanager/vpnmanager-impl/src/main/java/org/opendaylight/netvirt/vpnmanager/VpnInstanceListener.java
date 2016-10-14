@@ -421,7 +421,7 @@ public class VpnInstanceListener extends AsyncDataTreeChangeListenerBase<VpnInst
         }
         VpnInstanceOpDataEntryBuilder builder =
                 new VpnInstanceOpDataEntryBuilder().setVpnId(vpnId)
-                        .setVpnInstanceName(vpnInstanceName);
+                        .setVpnInstanceName(vpnInstanceName).setEvi(value.getEvi());
         setVpnInstanceType(value.getType(), builder);
         if (rd == null) {
             builder.setVrfId(vpnInstanceName);
