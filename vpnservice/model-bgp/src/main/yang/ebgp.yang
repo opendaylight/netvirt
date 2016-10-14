@@ -134,6 +134,34 @@ module ebgp {
       type uint32;
       mandatory "false";
     }
+    leaf protocolType{
+      type protocol_type;
+      mandatory "true";
+    }
+    leaf ethtag {
+      type uint32;
+      mandatory "false";
+    }
+    leaf esi {
+      type string;
+      mandatory "false";
+    }
+    leaf macaddress {
+      type string;
+      mandatory "true";
+    }
+    leaf encapType {
+      type encap_type;
+      mandatory "false";
+    }
+    leaf routermac {
+      type string;
+      mandatory "false";
+    }
+    leaf l3vni {
+      type uint32;
+      mandatory "false";
+    }
   } // networks
 
   list vrfs {
