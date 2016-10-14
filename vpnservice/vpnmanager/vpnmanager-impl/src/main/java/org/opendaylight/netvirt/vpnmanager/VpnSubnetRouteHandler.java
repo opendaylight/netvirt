@@ -27,6 +27,7 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.IdManagerService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.lockmanager.rev160413.LockManagerService;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.VrfEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.PortOpData;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.SubnetOpData;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.TaskState;
@@ -941,7 +942,8 @@ public class VpnSubnetRouteHandler implements NeutronvpnListener {
             try {
                 //BGP manager will handle withdraw and advertise internally if prefix
                 //already exist
-                bgpManager.advertisePrefix(rd, subnetIp, Arrays.asList(nexthopIp), label);
+                bgpManager.advertisePrefix(rd, null /*macAddress*/, subnetIp, Arrays.asList(nexthopIp),
+                        VrfEntry.EncapType.Mplsgre, label, 0 /*l3vni*/, null /*gatewayMacAddress*/);
             } catch (Exception e) {
                 LOG.error("Fail: Subnet route not advertised for rd {} subnetIp {}", rd, subnetIp, e);
                 throw e;

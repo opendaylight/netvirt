@@ -15,6 +15,7 @@ import org.apache.karaf.shell.console.OsgiCommandSupport;
 import org.opendaylight.netvirt.bgpmanager.BgpManager;
 import org.opendaylight.netvirt.bgpmanager.thrift.gen.qbgpConstants;
 import org.opendaylight.netvirt.fibmanager.api.RouteOrigin;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.VrfEntry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -96,7 +97,8 @@ public class Network extends OsgiCommandSupport {
                     return null;
                 }
                 LOGGER.info("ADD: Adding Fib entry rd {} prefix {} nexthop {} label {}", rd, pfx, nh, label);
-                bm.addPrefix(rd, pfx, nh, label, staticOrigin);
+                bm.addPrefix(rd, null /*maAddress*/, pfx, nh,
+                        VrfEntry.EncapType.Mplsgre, label, 0 /*l3vni*/, null /*gatewayMacAddress*/, staticOrigin);
                 LOGGER.info("ADD: Added Fib entry rd {} prefix {} nexthop {} label {}", rd, pfx, nh, label);
                 break;
             case "del":

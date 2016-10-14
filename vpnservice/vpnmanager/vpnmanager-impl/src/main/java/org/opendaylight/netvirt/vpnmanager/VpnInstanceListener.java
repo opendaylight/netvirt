@@ -26,6 +26,7 @@ import org.opendaylight.genius.datastoreutils.DataStoreJobCoordinator;
 import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
 import org.opendaylight.netvirt.bgpmanager.api.IBgpManager;
 import org.opendaylight.netvirt.fibmanager.api.IFibManager;
+import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.LayerType;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.VpnAfConfig;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.VpnInstances;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.af.config.VpnTargets;
@@ -525,7 +526,8 @@ public class VpnInstanceListener extends AsyncDataTreeChangeListenerBase<VpnInst
                 return false;
             }
             try {
-                bgpManager.addVrf(rd, irtList, ertList);
+                LayerType layerType = LayerType.LAYER3;
+                bgpManager.addVrf(rd, irtList, ertList, layerType);
             } catch (Exception e) {
                 LOG.error("Exception when adding VRF to BGP", e);
                 return false;

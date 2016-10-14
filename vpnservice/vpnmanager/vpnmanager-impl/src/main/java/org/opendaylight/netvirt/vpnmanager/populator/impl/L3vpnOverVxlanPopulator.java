@@ -31,8 +31,8 @@ public class L3vpnOverVxlanPopulator extends L3vpnPopulator {
     @Override
     public void populateFib(DataBroker broker, WriteTransaction writeConfigTxn, WriteTransaction writeOperTxn) {
         if (rd != null) {
-            addPrefixToBGP(rd, nextHop.getIpAddress(), nextHopIp, encapType, 0,
-                    Long.valueOf(l3vni), nextHop.getMacAddress(), gatewayMac, broker, writeConfigTxn);
+            addPrefixToBGP(rd, nextHop.getMacAddress(), nextHop.getIpAddress(), nextHopIp, encapType, 0 /*label*/,
+                    Long.valueOf(l3vni), gatewayMac, broker, writeConfigTxn);
         } else {
             LOG.error("Internal VPN for L3 Over VxLAN is not supported. Aborting.");
             return;
