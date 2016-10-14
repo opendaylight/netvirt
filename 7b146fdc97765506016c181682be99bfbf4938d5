@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7a6b29fe_01830dcd",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/FloatingIPListener.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 241,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-10-14T04:12:40Z",
+      "side": 1,
+      "message": "can we use the neutron-api exported equivalent method here instead?\n\nPlease make sure that the remove path works correctly in your unit testing to remove the DNAT flows.. By remove path I meant, the tenant does either of this directly:\n\na. Router gateway clear\nb.  Router delete (without doing gateway clear)\n\nCheck both a and b for GRE network as well as VLAN provider network to make sure no exceptions (or) misbehaviour seen in the logs.",
+      "revId": "7b146fdc97765506016c181682be99bfbf4938d5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_e187f1d5",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/FloatingIPListener.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 272,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-10-14T04:12:40Z",
+      "side": 1,
+      "message": "Tali/ Yug,\n\nHow will this group be removed selectively?",
+      "revId": "7b146fdc97765506016c181682be99bfbf4938d5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
