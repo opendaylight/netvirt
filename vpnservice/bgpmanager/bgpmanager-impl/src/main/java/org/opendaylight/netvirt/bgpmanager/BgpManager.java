@@ -18,6 +18,7 @@ import org.opendaylight.netvirt.bgpmanager.thrift.gen.af_safi;
 import org.opendaylight.netvirt.fibmanager.api.RouteOrigin;
 import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.Bgp;
 import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.bgp.Neighbors;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.VrfEntry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -99,16 +100,22 @@ public class BgpManager implements AutoCloseable, IBgpManager {
     }
 
     @Override
-    public void addPrefix(String rd, String prefix, List<String> nextHopList, int vpnLabel, RouteOrigin origin)
+    public void addPrefix(String rd, String macAddress, String prefix, List<String> nextHopList,
+                          VrfEntry.EncapType encapType, int vpnLabel, long evi,
+                          String gatewayMac, RouteOrigin origin)
             throws Exception {
-        fibDSWriter.addFibEntryToDS(rd, prefix, nextHopList, vpnLabel, origin);
-        bcm.addPrefix(rd, prefix, nextHopList, vpnLabel);
+        fibDSWriter.addFibEntryToDS(rd, macAddress, prefix, nextHopList,
+                encapType, vpnLabel, evi, gatewayMac, origin);
+        bcm.addPrefix(rd, macAddress, prefix, nextHopList,
+                encapType, vpnLabel, evi, gatewayMac);
     }
 
     @Override
-    public void addPrefix(String rd, String prefix, String nextHop, int vpnLabel, RouteOrigin origin)
+    public void addPrefix(String rd, String macAddress, String prefix, String nextHop,
+                          VrfEntry.EncapType encapType, int vpnLabel, long evi, String gatewayMac, RouteOrigin origin)
             throws Exception {
-        addPrefix(rd, prefix, Arrays.asList(nextHop), vpnLabel, origin);
+        addPrefix(rd, macAddress, prefix, Arrays.asList(nextHop),
+                encapType, vpnLabel, evi, gatewayMac, origin);
     }
 
     @Override
@@ -118,14 +125,18 @@ public class BgpManager implements AutoCloseable, IBgpManager {
     }
 
     @Override
-    public void advertisePrefix(String rd, String prefix, List<String> nextHopList, int vpnLabel) throws Exception {
-        bcm.addPrefix(rd, prefix, nextHopList, vpnLabel);
+    public void advertisePrefix(String rd, String macAddress, String prefix, List<String> nextHopList,
+                                VrfEntry.EncapType encapType, int vpnLabel, long evi,
+                                String gatewayMac) throws Exception {
+        bcm.addPrefix(rd, macAddress, prefix, nextHopList,
+                encapType, vpnLabel, evi, gatewayMac);
     }
 
     @Override
-    public void advertisePrefix(String rd, String prefix, String nextHop, int vpnLabel) throws Exception {
+    public void advertisePrefix(String rd, String macAddress, String prefix, String nextHop,
+                                VrfEntry.EncapType encapType, int vpnLabel, long evi, String gatewayMac) throws Exception {
         LOG.info("ADVERTISE: Adding Prefix rd {} prefix {} nexthop {} label {}", rd, prefix, nextHop, vpnLabel);
-        bcm.addPrefix(rd, prefix, Arrays.asList(nextHop), vpnLabel);
+        bcm.addPrefix(rd, macAddress, prefix, Arrays.asList(nextHop), encapType, vpnLabel, evi, gatewayMac);
         LOG.info("ADVERTISE: Added Prefix rd {} prefix {} nexthop {} label {}", rd, prefix, nextHop, vpnLabel);
     }
 
