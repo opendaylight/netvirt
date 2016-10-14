@@ -1003,7 +1003,7 @@ public class NeutronL3Adapter extends AbstractHandler implements GatewayMacResol
                          l3ForwardingProvider == null ? "skipped" : "programmed",
                          macAddress, address, node.getNodeId().getValue(), actionForNode);
         } else {
-            LOG.error("ProgramL3Forwarding failed for mac:{} addr:{} node:{} action:{} status:{}",
+            LOG.warn("ProgramL3Forwarding failed for mac:{} addr:{} node:{} action:{} status:{}",
                          macAddress, address, node.getNodeId().getValue(), actionForNode, status);
         }
         return status;
