@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7a6b29fe_448873c6",
+        "filename": "vpnservice/fibmanager/fibmanager-api/src/main/yang/odl-fib.yang",
+        "patchSetId": 8
+      },
+      "lineNbr": 47,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-10-14T17:01:22Z",
+      "side": 1,
+      "message": "remove \"VrfEntry\" suffix from this augment name ..",
+      "revId": "94040559e088de5a8717eb5f46ec6a2d868481e8",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_d581cf4e",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 1677,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-10-14T17:01:22Z",
+      "side": 1,
+      "message": "is this used elsewhere?",
+      "revId": "94040559e088de5a8717eb5f46ec6a2d868481e8",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_b586d363",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 1789,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-10-14T17:01:22Z",
+      "side": 1,
+      "message": "use writeConfigTxn.put() here .",
+      "revId": "94040559e088de5a8717eb5f46ec6a2d868481e8",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
