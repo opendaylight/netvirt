@@ -278,7 +278,6 @@ public class TunnelInterfaceStateListener extends AsyncDataTreeChangeListenerBas
                             subnetList.add(subnetId);
                         }
                     }
-
                     //Populate the map for VpnId-to-Rd
                     long vpnId = VpnUtil.getVpnId(dataBroker, vpnInterface.getVpnInstanceName());
                     String rd = VpnUtil.getVpnRd(dataBroker, vpnInterface.getVpnInstanceName());
