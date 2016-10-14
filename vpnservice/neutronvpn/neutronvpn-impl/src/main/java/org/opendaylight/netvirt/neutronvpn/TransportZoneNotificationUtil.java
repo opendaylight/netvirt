@@ -108,7 +108,7 @@ public class TransportZoneNotificationUtil {
                     continue;
                 }
 
-                String subnetIp = getSubnetIPFromPort(port);
+                String subnetIp = ALL_SUBNETS;
 
                 BigInteger dpnId = getDpnIdFromInterfaceState(inter);
 
@@ -182,20 +182,6 @@ public class TransportZoneNotificationUtil {
         NodeConnectorId nodeConnectorId = new NodeConnectorId(lowerLayerIf);
         BigInteger dpId = new BigInteger(getDpnFromNodeConnectorId(nodeConnectorId));
         return dpId;
-    }
-
-
-    private String getSubnetIPFromPort(Port port) throws Exception {
-        FixedIps ip = port.getFixedIps().get(0);
-
-        if (ip == null) {
-            LOG.error("No fixed ip for port " + port.getName());
-            throw new Exception("No fixed ip for port" + port.getName());
-        }
-        Uuid subnetId = ip.getSubnetId();
-        Subnetmap subnetmap = nvManager.updateSubnetmapNodeWithPorts(subnetId, port.getUuid(), null);
-        String subnetIp = subnetmap.getSubnetIp();
-        return subnetIp;
     }
 
     /*
