@@ -49,8 +49,8 @@ public class L3vpnPopulator implements VpnPopulator {
     }
 
     @SuppressWarnings("checkstyle:IllegalCatch")
-    protected void addPrefixToBGP(String rd, String prefix, String nextHopIp, VrfEntry.EncapType encapType,
-                                  long label, long l3vni, String macAddress, String gatewayMac,
+    protected void addPrefixToBGP(String rd, String macAddress, String prefix, String nextHopIp,
+                                  VrfEntry.EncapType encapType, long label, long l3vni, String gatewayMac,
                                   DataBroker broker, WriteTransaction writeConfigTxn) {
         try {
             List<String> nextHopList = Collections.singletonList(nextHopIp);
@@ -60,13 +60,12 @@ public class L3vpnPopulator implements VpnPopulator {
                     encapType, (int)label, l3vni, gatewayMac, RouteOrigin.LOCAL, writeConfigTxn);
             LOG.info("ADD: Added Fib entry rd {} prefix {} nextHop {} label {}, l3vni {}", rd, prefix, nextHopIp,
                     label, l3vni);
-            if (encapType.equals(VrfEntry.EncapType.Mplsgre)) {
-                // Advertise the prefix to BGP only if nexthop ip is available
-                if (nextHopList != null && !nextHopList.isEmpty()) {
-                    bgpManager.advertisePrefix(rd, prefix, nextHopList, (int)label);
-                } else {
-                    LOG.warn("NextHopList is null/empty. Hence rd {} prefix {} is not advertised to BGP", rd, prefix);
-                }
+            // Advertise the prefix to BGP only if nexthop ip is available
+            if (nextHopList != null && !nextHopList.isEmpty()) {
+                bgpManager.advertisePrefix(rd, macAddress, prefix, nextHopList, encapType, (int)label,
+                        l3vni, gatewayMac);
+            } else {
+                LOG.warn("NextHopList is null/empty. Hence rd {} prefix {} is not advertised to BGP", rd, prefix);
             }
         } catch (Exception e) {
             LOG.error("Add prefix failed", e);
