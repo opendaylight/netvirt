@@ -488,7 +488,8 @@ public class InterVpnLinkUtil {
             try {
                 LOG.debug("Advertising route in VPN={} [prefix={} label={}  nexthops={}] to DC-GW",
                     dstVpnRd, newVrfEntry.getDestPrefix(), label.intValue(), nexthops);
-                bgpManager.advertisePrefix(dstVpnRd, newVrfEntry.getDestPrefix(), nexthops, label.intValue());
+                bgpManager.advertisePrefix(dstVpnRd, null /*macAddress*/, newVrfEntry.getDestPrefix(), nexthops,
+                        VrfEntry.EncapType.Mplsgre, label.intValue(), 0 /*l3vni*/, null /*gatewayMacAddress*/);
             } catch (Exception exc) {
                 LOG.error("Could not advertise prefix {} with label {} to VPN rd={}",
                     newVrfEntry.getDestPrefix(), label.intValue(), dstVpnRd);
@@ -501,7 +502,7 @@ public class InterVpnLinkUtil {
 
     public static void handleStaticRoute(InterVpnLinkDataComposite interVpnLink, String vpnName,
         String destination, String nexthop, int label,
-        DataBroker dataBroker, IFibManager fibManager, IBgpManager bgpManager) {
+        DataBroker dataBroker, IFibManager fibManager, IBgpManager bgpManager) throws Exception {
 
         LOG.debug("handleStaticRoute [vpnLink={} srcVpn={} destination={} nextHop={} label={}]",
             interVpnLink.getInterVpnLinkName(), vpnName, destination, nexthop, label);
@@ -526,7 +527,8 @@ public class InterVpnLinkUtil {
                 .collect(Collectors.toList());
         LOG.debug("advertising IVpnLink route to BGP:  vpnRd={}, prefix={}, label={}, nexthops={}",
             vpnRd, destination, label, nexthopList);
-        bgpManager.advertisePrefix(vpnRd, destination, nexthopList, label);
+        bgpManager.advertisePrefix(vpnRd, null /*macAddress*/, destination, nexthopList,
+                VrfEntry.EncapType.Mplsgre, label, 0 /*l3vni*/, null /*gatewayMacAddress*/);
 
         // TODO: Leak if static-routes-leaking flag is active
 

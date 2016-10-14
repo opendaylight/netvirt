@@ -24,7 +24,9 @@ import org.opendaylight.netvirt.bgpmanager.thrift.gen.af_afi;
 import org.opendaylight.netvirt.bgpmanager.thrift.gen.af_safi;
 import org.opendaylight.netvirt.fibmanager.api.RouteOrigin;
 import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.Bgp;
+import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.LayerType;
 import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.bgp.Neighbors;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.VrfEntry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -89,8 +91,9 @@ public class BgpManager implements AutoCloseable, IBgpManager {
     }
 
     @Override
-    public void addVrf(String rd, Collection<String> importRts, Collection<String> exportRts) {
-        bcm.addVrf(rd, new ArrayList<>(importRts), new ArrayList<>(exportRts));
+    public void addVrf(String rd, Collection<String> importRts, Collection<String> exportRts,
+                       LayerType layerType) throws Exception {
+        bcm.addVrf(rd, new ArrayList<>(importRts), new ArrayList<>(exportRts), layerType);
     }
 
     @Override
@@ -102,14 +105,21 @@ public class BgpManager implements AutoCloseable, IBgpManager {
     }
 
     @Override
-    public void addPrefix(String rd, String prefix, List<String> nextHopList, int vpnLabel, RouteOrigin origin) {
-        fibDSWriter.addFibEntryToDS(rd, prefix, nextHopList, vpnLabel, origin);
-        bcm.addPrefix(rd, prefix, nextHopList, vpnLabel);
+    public void addPrefix(String rd, String macAddress, String prefix, List<String> nextHopList,
+                          VrfEntry.EncapType encapType, int vpnLabel, long l3vni,
+                          String gatewayMac, RouteOrigin origin)
+            throws Exception {
+        fibDSWriter.addFibEntryToDS(rd, macAddress, prefix, nextHopList,
+                encapType, vpnLabel, l3vni, gatewayMac, origin);
+        bcm.addPrefix(rd, macAddress, prefix, nextHopList,
+                encapType, vpnLabel, l3vni, gatewayMac);
     }
 
     @Override
-    public void addPrefix(String rd, String prefix, String nextHop, int vpnLabel, RouteOrigin origin) {
-        addPrefix(rd, prefix, Collections.singletonList(nextHop), vpnLabel, origin);
+    public void addPrefix(String rd, String macAddress, String prefix, String nextHop, VrfEntry.EncapType encapType,
+                          int vpnLabel, long l3vni, String gatewayMac, RouteOrigin origin) throws Exception {
+        addPrefix(rd, macAddress, prefix, Collections.singletonList(nextHop), encapType, vpnLabel, l3vni,
+                gatewayMac, origin);
     }
 
     @Override
@@ -119,14 +129,20 @@ public class BgpManager implements AutoCloseable, IBgpManager {
     }
 
     @Override
-    public void advertisePrefix(String rd, String prefix, List<String> nextHopList, int vpnLabel) {
-        bcm.addPrefix(rd, prefix, nextHopList, vpnLabel);
+    public void advertisePrefix(String rd, String macAddress, String prefix, List<String> nextHopList,
+                                VrfEntry.EncapType encapType, int vpnLabel, long l3vni,
+                                String gatewayMac) throws Exception {
+        bcm.addPrefix(rd, macAddress, prefix, nextHopList,
+                encapType, vpnLabel, l3vni, gatewayMac);
     }
 
     @Override
-    public void advertisePrefix(String rd, String prefix, String nextHop, int vpnLabel) {
+    public void advertisePrefix(String rd, String macAddress, String prefix, String nextHop,
+                                VrfEntry.EncapType encapType, int vpnLabel, long l3vni,
+                                String gatewayMac) throws Exception {
         LOG.info("ADVERTISE: Adding Prefix rd {} prefix {} nexthop {} label {}", rd, prefix, nextHop, vpnLabel);
-        bcm.addPrefix(rd, prefix, Collections.singletonList(nextHop), vpnLabel);
+        bcm.addPrefix(rd, macAddress, prefix, Collections.singletonList(nextHop), encapType,
+                vpnLabel, l3vni, gatewayMac);
         LOG.info("ADVERTISE: Added Prefix rd {} prefix {} nexthop {} label {}", rd, prefix, nextHop, vpnLabel);
     }
 
