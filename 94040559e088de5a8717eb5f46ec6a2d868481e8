@@ -19,6 +19,57 @@
     },
     {
       "key": {
+        "uuid": "7a6b29fe_d55d4fee",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 2146,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-10-14T17:40:34Z",
+      "side": 1,
+      "message": "Looks like we always do an Echo Reply, regardless of the type of ICMP Request?  Would you not want to match if the ICMP Request is ECHO only?",
+      "revId": "94040559e088de5a8717eb5f46ec6a2d868481e8",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_f52a0b2b",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronPortChangeListener.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 389,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-10-14T17:40:34Z",
+      "side": 1,
+      "message": "is there a reason to pass true/false..  can the port.getDeviceOwner() will be set to DEVICE_OWNER_ROUTER_INTF which can be used to check if its a router interface or not?",
+      "revId": "94040559e088de5a8717eb5f46ec6a2d868481e8",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_55713f76",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 603,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-10-14T17:40:34Z",
+      "side": 1,
+      "message": "please retain the WriteTransaction as the last parameter.",
+      "revId": "94040559e088de5a8717eb5f46ec6a2d868481e8",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7a6b29fe_d581cf4e",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
         "patchSetId": 8
