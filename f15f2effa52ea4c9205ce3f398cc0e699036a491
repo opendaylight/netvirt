@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7a6b29fe_2169e925",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/RouterDpnChangeListener.java",
+        "patchSetId": 17
+      },
+      "lineNbr": 121,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-10-14T04:30:07Z",
+      "side": 1,
+      "message": "The groups are not used for GRE External networks use-case.\n\nSo I think we should address \"not installing\" this in Yugandhar\u0027s review here:\nhttps://git.opendaylight.org/gerrit/46681",
+      "revId": "f15f2effa52ea4c9205ce3f398cc0e699036a491",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_6173e115",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/RouterDpnChangeListener.java",
+        "patchSetId": 17
+      },
+      "lineNbr": 136,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-10-14T04:30:07Z",
+      "side": 1,
+      "message": "the ext net groups are removed from a DPN only when the external network is deleted is it?\n\nI don\u0027t see the code for removing the groups created earlier in this file here?",
+      "revId": "f15f2effa52ea4c9205ce3f398cc0e699036a491",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
