@@ -101,7 +101,7 @@ public class ToTransportZoneTest {
     
     private static final String NETWORK_ID = "12345678-1234-1234-1234-123456789012";
 
-    private static final String SUBNET = "1.1.1.0/24";
+    private static final String SUBNET = "0.0.0.0/0";
 
     private static final String OVS_IP = "10.0.0.1";
     
