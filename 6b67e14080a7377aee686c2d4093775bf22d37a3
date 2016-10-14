@@ -19,6 +19,91 @@
     },
     {
       "key": {
+        "uuid": "7a6b29fe_c178f5fa",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/FloatingIPListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 246,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-10-14T04:06:46Z",
+      "side": 1,
+      "message": "redundant!",
+      "revId": "6b67e14080a7377aee686c2d4093775bf22d37a3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_611c81c2",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NatUtil.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 355,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-10-14T04:06:46Z",
+      "side": 1,
+      "message": "looks like this method is there in NeutronvpnUtils and here too !\n\nyou may want export the method via neutron-api and use that in nat instead of duplicating this in NatUtil as NatUtil has nothing to do with exernal network provider types?",
+      "revId": "6b67e14080a7377aee686c2d4093775bf22d37a3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_8148bdcd",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnNatManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 217,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-10-14T04:06:46Z",
+      "side": 1,
+      "message": "please give spaces \"if (\"",
+      "revId": "6b67e14080a7377aee686c2d4093775bf22d37a3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_e11091aa",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnNatManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 218,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-10-14T04:06:46Z",
+      "side": 1,
+      "message": "Please print for what network-id you were not able to get the provider type..\n\nAlways make sure LOG.info and LOG.error include the necessary context.\n\nfurther why did you add \u0027Neutron service\" keyword in log ?",
+      "revId": "6b67e14080a7377aee686c2d4093775bf22d37a3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_010cad93",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnNatManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 221,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-10-14T04:06:46Z",
+      "side": 1,
+      "message": "This trace may be redundant, since provider type is visible from REST API for external_networks.",
+      "revId": "6b67e14080a7377aee686c2d4093775bf22d37a3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7a6b29fe_ce514710",
         "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnNatManager.java",
         "patchSetId": 1
@@ -66,6 +151,108 @@
       "side": 1,
       "message": "What do you mean by always passing the argument? \nWhat I meant is if getNeutronNetwork returns null you may get NPE inside getProviderNetworkType()",
       "parentUuid": "7a6b29fe_ef735db2",
+      "revId": "6b67e14080a7377aee686c2d4093775bf22d37a3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_41250509",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnNatManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 299,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-10-14T04:06:46Z",
+      "side": 1,
+      "message": "again redundant!",
+      "revId": "6b67e14080a7377aee686c2d4093775bf22d37a3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_21228901",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnNatManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 466,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-10-14T04:06:46Z",
+      "side": 1,
+      "message": "ditto comment above here !",
+      "revId": "6b67e14080a7377aee686c2d4093775bf22d37a3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_811f1db7",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnNatManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 471,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-10-14T04:06:46Z",
+      "side": 1,
+      "message": "if provider network type is GRE also, you should call handleExternalPorts() right?\n\nThis because, an external VPN might already have been created with the external network by the cloud admin, but the tenant is doing the the router gateway set later?",
+      "revId": "6b67e14080a7377aee686c2d4093775bf22d37a3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_a11699a5",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnUtils.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 973,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-10-14T04:06:46Z",
+      "side": 1,
+      "message": "please check where all isNetworkTypeSupported() is used..\nMake sure they donot break because of GRE introduction.",
+      "revId": "6b67e14080a7377aee686c2d4093775bf22d37a3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_6145a1b2",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnUtils.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 976,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-10-14T04:06:46Z",
+      "side": 1,
+      "message": "sanitize the input here for non-null, before embarking on looking at provider extension.\n\na try {} catch would not be required.",
+      "revId": "6b67e14080a7377aee686c2d4093775bf22d37a3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_c11115b1",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnUtils.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 978,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-10-14T04:06:46Z",
+      "side": 1,
+      "message": "space \"if (\"",
       "revId": "6b67e14080a7377aee686c2d4093775bf22d37a3",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
