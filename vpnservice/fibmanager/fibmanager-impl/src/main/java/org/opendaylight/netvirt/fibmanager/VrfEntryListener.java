@@ -751,10 +751,6 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
                                 BigInteger dpnId = checkCreateLocalFibEntry(localNextHopInfo, localNextHopIP, vpnId, rd, vrfEntry, vpnId);
                                 returnLocalDpnId.add(dpnId);
                             }                        
-                        localNextHopInfo = getPrefixToInterface(vpnId, nextHopIp + "/32");
-                        localNextHopIP = nextHopIp + "/32";
-                        BigInteger dpnId = checkCreateLocalFibEntry(localNextHopInfo, localNextHopIP, vpnId, rd, vrfEntry, vpnId);
-                        returnLocalDpnId.add(dpnId);
                     }
                 }
             }
