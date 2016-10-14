@@ -11,6 +11,8 @@ package org.opendaylight.netvirt.bgpmanager.api;
 import java.util.Collection;
 import java.util.List;
 import org.opendaylight.netvirt.fibmanager.api.RouteOrigin;
+import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.LayerType;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.VrfEntry;
 
 public interface IBgpManager {
 
@@ -19,8 +21,10 @@ public interface IBgpManager {
      * @param rd
      * @param importRts
      * @param exportRts
+     * @param layerType
      */
-    void addVrf(String rd, Collection<String> importRts, Collection<String> exportRts);
+    public void addVrf(String rd, Collection<String> importRts, Collection<String> exportRts, LayerType layerType) throws Exception;
+
 
     /**
      *
@@ -34,21 +38,35 @@ public interface IBgpManager {
      * and sends the BGP message
      *
      * @param rd
+     * @param macAddress
      * @param prefix
      * @param nextHopList
+     * @param encapType
      * @param vpnLabel
+     * @param l3vni
+     * @param gatewayMac
+     * @param origin
      */
-    void addPrefix(String rd, String prefix, List<String> nextHopList, int vpnLabel, RouteOrigin origin) throws Exception;
+    public void addPrefix(String rd, String macAddress, String prefix, List<String> nextHopList,
+                          VrfEntry.EncapType encapType, int vpnLabel, long l3vni, String gatewayMac,
+                          RouteOrigin origin) throws Exception;
 
     /**
      * Adds a route in a BGP neighbour. It persists the VrfEntry in Datastore and sends the BGP message
      *
      * @param rd
+     * @param macAddress
      * @param prefix
      * @param nextHop
+     * @param encapType
      * @param vpnLabel
+     * @param l3vni
+     * @param gatewayMac
+     * @param origin
      */
-    void addPrefix(String rd, String prefix, String nextHop, int vpnLabel, RouteOrigin origin) throws Exception;
+    public void addPrefix(String rd, String macAddress, String prefix, String nextHop,
+                          VrfEntry.EncapType encapType, int vpnLabel, long l3vni, String gatewayMac,
+                          RouteOrigin origin) throws Exception;
 
 
     /**
@@ -70,21 +88,33 @@ public interface IBgpManager {
      * MD-SAL
      *
      * @param rd
+     * @param macAddress
      * @param prefix
      * @param nextHopList
+     * @param encapType
      * @param vpnLabel
+     * @param l3vni
+     * @param gatewayMac
      */
-    void advertisePrefix(String rd, String prefix, List<String> nextHopList, int vpnLabel);
+    public void advertisePrefix(String rd, String macAddress, String prefix, List<String> nextHopList,
+                                VrfEntry.EncapType encapType, int vpnLabel, long l3vni,
+                                String gatewayMac) throws Exception;
 
     /**
      * Advertises a Prefix to a BGP neighbour. Only sends the BGP messages, no writing to MD-SAL
      *
      * @param rd
+     * @param macAddress
      * @param prefix
      * @param nextHop
+     * @param encapType
      * @param vpnLabel
+     * @param l3vni
+     * @param gatewayMac
      */
-    void advertisePrefix(String rd, String prefix, String nextHop, int vpnLabel);
+    public void advertisePrefix(String rd, String macAddress, String prefix, String nextHop,
+                                VrfEntry.EncapType encapType, int vpnLabel, long l3vni,
+                                String gatewayMac) throws Exception;
 
     /**
      *
