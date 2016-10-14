@@ -90,6 +90,11 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
       <groupId>io.dropwizard.metrics</groupId>
       <artifactId>metrics-graphite</artifactId>
     </dependency>
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>fibmanager-api</artifactId>
+      <version>${vpnservices.version}</version>
+    </dependency>
 
   </dependencies>
 
