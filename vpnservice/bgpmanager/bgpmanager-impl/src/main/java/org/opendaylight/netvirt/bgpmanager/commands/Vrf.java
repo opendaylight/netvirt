@@ -13,6 +13,7 @@ import org.apache.karaf.shell.commands.Command;
 import org.apache.karaf.shell.commands.Option;
 import org.apache.karaf.shell.console.OsgiCommandSupport;
 import org.opendaylight.netvirt.bgpmanager.BgpManager;
+import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.LayerType;
 
 import java.util.List;
 
@@ -62,7 +63,8 @@ public class Vrf extends OsgiCommandSupport {
                     return null;
                 }
                 // check: rd exists? rd & rt's in format?
-                bm.addVrf(rd, irts, erts);
+                LayerType layerType = LayerType.LAYER3;
+                bm.addVrf(rd, irts, erts, layerType);
                 break;
             case "del" :  
                 if (rd == null) {
