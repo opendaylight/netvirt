@@ -36,6 +36,40 @@
     },
     {
       "key": {
+        "uuid": "7a6b29fe_d5d26f33",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 2151,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-10-14T17:48:12Z",
+      "side": 1,
+      "message": "All of these actions can be a single group as all the values seem to be pretty standardized.",
+      "revId": "94040559e088de5a8717eb5f46ec6a2d868481e8",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_b5bed3d2",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronPortChangeListener.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 300,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-10-14T17:48:12Z",
+      "side": 1,
+      "message": "can\u0027t we just add the router interface port to subnetmap port-list and let addsubnettovpn and removesubnetfromvpn take care of managing the router interface port as a vpn interface?",
+      "revId": "94040559e088de5a8717eb5f46ec6a2d868481e8",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7a6b29fe_f52a0b2b",
         "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronPortChangeListener.java",
         "patchSetId": 8
