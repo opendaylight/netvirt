@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7a6b29fe_3ad0f2f6",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/LearnIngressAclServiceImpl.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 118,
+      "author": {
+        "id": 6177
+      },
+      "writtenOn": "2016-10-14T14:17:27Z",
+      "side": 1,
+      "message": "Not sure whether this is intentional or not, but those are TCP parameters in other protocols? I saw that in the Egress you used \"0\"",
+      "revId": "cb6097225c27c13cb9439bebf367992113f43dff",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_daebbeae",
+        "filename": "vpnservice/aclservice/impl/src/main/yang/aclservice-config.yang",
+        "patchSetId": 3
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 6177
+      },
+      "writtenOn": "2016-10-14T14:17:27Z",
+      "side": 1,
+      "message": "Should there be UDP configuration here?",
+      "revId": "cb6097225c27c13cb9439bebf367992113f43dff",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
