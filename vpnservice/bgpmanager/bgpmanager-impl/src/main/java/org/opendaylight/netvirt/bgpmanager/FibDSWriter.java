@@ -10,6 +10,7 @@ package org.opendaylight.netvirt.bgpmanager;
 import com.google.common.base.Preconditions;
 import java.util.List;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
+import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.netvirt.fibmanager.api.RouteOrigin;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.FibEntries;
@@ -31,9 +32,10 @@ public class FibDSWriter {
         this.dataBroker = dataBroker;
     }
 
-    public synchronized void addFibEntryToDS(String rd, String prefix, List<String> nextHopList,
-            int label, RouteOrigin origin) {
-        if (rd == null || rd.isEmpty()) {
+    public synchronized void addFibEntryToDS(String rd, String macAddress, String prefix, List<String> nextHopList,
+                                             VrfEntry.EncapType encapType, int label, long l3vni,
+                                             String gatewayMacAddress, RouteOrigin origin) {
+        if (rd == null || rd.isEmpty() ) {
             LOG.error("Prefix {} not associated with vpn", prefix);
             return;
         }
@@ -55,10 +57,20 @@ public class FibDSWriter {
                         .child(VrfTables.class, new VrfTablesKey(rd))
                         .child(VrfEntry.class, new VrfEntryKey(prefix)).build();
 
-        VrfEntry vrfEntry = new VrfEntryBuilder().setDestPrefix(prefix).setNextHopAddressList(nextHopList)
-                .setLabel((long) label).setOrigin(origin.getValue()).build();
+        VrfEntryBuilder vrfEntryBuilder = new VrfEntryBuilder().setDestPrefix(prefix)
+                .setNextHopAddressList(nextHopList).setLabel((long)label).setOrigin(origin.getValue());
+        buildVpnEncapSpecificInfo(vrfEntryBuilder, encapType, (long)label, l3vni, macAddress, gatewayMacAddress);
+        BgpUtil.write(dataBroker, LogicalDatastoreType.CONFIGURATION, vrfEntryId, vrfEntryBuilder.build());
+    }
 
-        BgpUtil.write(dataBroker, LogicalDatastoreType.CONFIGURATION, vrfEntryId, vrfEntry);
+    private static void buildVpnEncapSpecificInfo(VrfEntryBuilder builder, VrfEntry.EncapType encapType, long label,
+                                                  long l3vni, String macAddress, String gatewayMac) {
+        if (encapType.equals(VrfEntry.EncapType.Mplsgre)) {
+            builder.setLabel(label);
+        } else {
+            builder.setL3vni(l3vni).setGatewayMacAddress(gatewayMac);
+        }
+        builder.setEncapType(encapType);
     }
 
     public synchronized void removeFibEntryFromDS(String rd, String prefix) {

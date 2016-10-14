@@ -1435,6 +1435,10 @@ public class VpnUtil {
         return (l3Vni != null && l3Vni != 0);
     }
 
+    static boolean isEvpnOverVxLan(Long l2Vni) { //To be used by RT2
+        return (l2Vni != null && l2Vni != 0);
+    }
+
     static   String getGatewayMac(String interfaceName) {
         //OUI based MAC creation and use
         return VpnConstants.DEFAULT_GATEWAY_MAC_ADDRESS;

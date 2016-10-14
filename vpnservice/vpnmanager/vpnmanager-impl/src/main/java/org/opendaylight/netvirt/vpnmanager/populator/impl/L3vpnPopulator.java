@@ -8,6 +8,8 @@
 package org.opendaylight.netvirt.vpnmanager.populator.impl;
 
 import java.util.Arrays;
+import java.util.Collections;
+
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.netvirt.bgpmanager.api.IBgpManager;
@@ -37,16 +39,15 @@ public class L3vpnPopulator implements VpnPopulator {
                             WriteTransaction writeOperTxn) {}
 
     @SuppressWarnings("checkstyle:IllegalCatch")
-    protected void addPrefixToBGP(String rd, String prefix, String nextHopIp, VrfEntry.EncapType encapType,
-                                  long label, long l3vni, String macAddress, String gatewayMac,
+    protected void addPrefixToBGP(String rd, String macAddress, String prefix, String nextHopIp,
+                                  VrfEntry.EncapType encapType, long label, long l3vni, String gatewayMac,
                                   DataBroker broker, WriteTransaction writeConfigTxn) {
         try {
             LOG.info("ADD: Adding Fib entry rd {} prefix {} nextHop {} label {}", rd, prefix, nextHopIp, label);
             fibManager.addOrUpdateFibEntry(broker, rd, macAddress, prefix, Arrays.asList(nextHopIp),
                     encapType, (int)label, l3vni, gatewayMac, RouteOrigin.STATIC, writeConfigTxn);
-            if (encapType.equals(VrfEntry.EncapType.Mplsgre)) {
-                bgpManager.advertisePrefix(rd, prefix, Arrays.asList(nextHopIp), (int)label);
-            }
+            bgpManager.advertisePrefix(rd, macAddress, prefix, Collections.singletonList(nextHopIp),
+                    encapType, (int)label, l3vni, gatewayMac);
             LOG.info("ADD: Added Fib entry rd {} prefix {} nextHop {} label {}", rd, prefix, nextHopIp, label);
         } catch (Exception e) {
             LOG.error("Add prefix failed", e);
