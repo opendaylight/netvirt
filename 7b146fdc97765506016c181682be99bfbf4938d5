@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "7a6b29fe_306e5197",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/FloatingIPListener.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 241,
+      "author": {
+        "id": 940
+      },
+      "writtenOn": "2016-10-15T05:10:43Z",
+      "side": 1,
+      "message": "For delete scenarios separate review request will be uploaded shortly. There are few fixes went in.",
+      "parentUuid": "7a6b29fe_01830dcd",
+      "revId": "7b146fdc97765506016c181682be99bfbf4938d5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7a6b29fe_e187f1d5",
         "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/FloatingIPListener.java",
         "patchSetId": 2
@@ -30,6 +48,24 @@
       "writtenOn": "2016-10-14T04:12:40Z",
       "side": 1,
       "message": "Tali/ Yug,\n\nHow will this group be removed selectively?",
+      "revId": "7b146fdc97765506016c181682be99bfbf4938d5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_906be584",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/FloatingIPListener.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 272,
+      "author": {
+        "id": 940
+      },
+      "writtenOn": "2016-10-15T05:10:43Z",
+      "side": 1,
+      "message": "Tali, could you please address this.",
+      "parentUuid": "7a6b29fe_e187f1d5",
       "revId": "7b146fdc97765506016c181682be99bfbf4938d5",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
