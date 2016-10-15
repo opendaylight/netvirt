@@ -36,6 +36,24 @@
     },
     {
       "key": {
+        "uuid": "7a6b29fe_84a9eb26",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/FloatingIPListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 246,
+      "author": {
+        "id": 940
+      },
+      "writtenOn": "2016-10-15T05:10:43Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7a6b29fe_c178f5fa",
+      "revId": "6b67e14080a7377aee686c2d4093775bf22d37a3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7a6b29fe_611c81c2",
         "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NatUtil.java",
         "patchSetId": 1
@@ -47,6 +65,24 @@
       "writtenOn": "2016-10-14T04:06:46Z",
       "side": 1,
       "message": "looks like this method is there in NeutronvpnUtils and here too !\n\nyou may want export the method via neutron-api and use that in nat instead of duplicating this in NatUtil as NatUtil has nothing to do with exernal network provider types?",
+      "revId": "6b67e14080a7377aee686c2d4093775bf22d37a3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_b06261ab",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NatUtil.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 355,
+      "author": {
+        "id": 940
+      },
+      "writtenOn": "2016-10-15T05:10:43Z",
+      "side": 1,
+      "message": "There is a small difference. NatUtil is directly dipping in NAT model to retreive the provider info. Basically all external network attributes are already stored in NAT models. Now we are storing one extra attribute for provider type so that we can always refer to it whereever required within NAT.",
+      "parentUuid": "7a6b29fe_611c81c2",
       "revId": "6b67e14080a7377aee686c2d4093775bf22d37a3",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -70,6 +106,24 @@
     },
     {
       "key": {
+        "uuid": "7a6b29fe_e4d53fba",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnNatManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 217,
+      "author": {
+        "id": 940
+      },
+      "writtenOn": "2016-10-15T05:10:43Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7a6b29fe_8148bdcd",
+      "revId": "6b67e14080a7377aee686c2d4093775bf22d37a3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7a6b29fe_e11091aa",
         "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnNatManager.java",
         "patchSetId": 1
@@ -87,6 +141,24 @@
     },
     {
       "key": {
+        "uuid": "7a6b29fe_24d737c1",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnNatManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 218,
+      "author": {
+        "id": 940
+      },
+      "writtenOn": "2016-10-15T05:10:43Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7a6b29fe_e11091aa",
+      "revId": "6b67e14080a7377aee686c2d4093775bf22d37a3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7a6b29fe_010cad93",
         "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnNatManager.java",
         "patchSetId": 1
@@ -98,6 +170,24 @@
       "writtenOn": "2016-10-14T04:06:46Z",
       "side": 1,
       "message": "This trace may be redundant, since provider type is visible from REST API for external_networks.",
+      "revId": "6b67e14080a7377aee686c2d4093775bf22d37a3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_64e12f9a",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnNatManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 221,
+      "author": {
+        "id": 940
+      },
+      "writtenOn": "2016-10-15T05:10:43Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7a6b29fe_010cad93",
       "revId": "6b67e14080a7377aee686c2d4093775bf22d37a3",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -157,6 +247,24 @@
     },
     {
       "key": {
+        "uuid": "7a6b29fe_e4ec1f92",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnNatManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 293,
+      "author": {
+        "id": 940
+      },
+      "writtenOn": "2016-10-15T05:10:43Z",
+      "side": 1,
+      "message": "Done. Null check provided before proceeding.",
+      "parentUuid": "7a6b29fe_af6165d5",
+      "revId": "6b67e14080a7377aee686c2d4093775bf22d37a3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7a6b29fe_41250509",
         "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnNatManager.java",
         "patchSetId": 1
@@ -168,6 +276,24 @@
       "writtenOn": "2016-10-14T04:06:46Z",
       "side": 1,
       "message": "again redundant!",
+      "revId": "6b67e14080a7377aee686c2d4093775bf22d37a3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_64f80f4a",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnNatManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 299,
+      "author": {
+        "id": 940
+      },
+      "writtenOn": "2016-10-15T05:10:43Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7a6b29fe_41250509",
       "revId": "6b67e14080a7377aee686c2d4093775bf22d37a3",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -191,6 +317,24 @@
     },
     {
       "key": {
+        "uuid": "7a6b29fe_d05d5dee",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnNatManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 466,
+      "author": {
+        "id": 940
+      },
+      "writtenOn": "2016-10-15T05:10:43Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7a6b29fe_21228901",
+      "revId": "6b67e14080a7377aee686c2d4093775bf22d37a3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7a6b29fe_811f1db7",
         "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnNatManager.java",
         "patchSetId": 1
@@ -202,6 +346,24 @@
       "writtenOn": "2016-10-14T04:06:46Z",
       "side": 1,
       "message": "if provider network type is GRE also, you should call handleExternalPorts() right?\n\nThis because, an external VPN might already have been created with the external network by the cloud admin, but the tenant is doing the the router gateway set later?",
+      "revId": "6b67e14080a7377aee686c2d4093775bf22d37a3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_e4ba5f6d",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnNatManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 471,
+      "author": {
+        "id": 940
+      },
+      "writtenOn": "2016-10-15T05:10:43Z",
+      "side": 1,
+      "message": "This is not required as the scenario you mentioned is already handled in existing design. handleExternalPorts is recently introduced i guess.",
+      "parentUuid": "7a6b29fe_811f1db7",
       "revId": "6b67e14080a7377aee686c2d4093775bf22d37a3",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -225,6 +387,24 @@
     },
     {
       "key": {
+        "uuid": "7a6b29fe_105875f9",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnUtils.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 973,
+      "author": {
+        "id": 940
+      },
+      "writtenOn": "2016-10-15T05:10:43Z",
+      "side": 1,
+      "message": "As far as i understood it looks fine.",
+      "parentUuid": "7a6b29fe_a11699a5",
+      "revId": "6b67e14080a7377aee686c2d4093775bf22d37a3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7a6b29fe_6145a1b2",
         "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnUtils.java",
         "patchSetId": 1
@@ -242,6 +422,24 @@
     },
     {
       "key": {
+        "uuid": "7a6b29fe_f05cd9ef",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnUtils.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 976,
+      "author": {
+        "id": 940
+      },
+      "writtenOn": "2016-10-15T05:10:43Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7a6b29fe_6145a1b2",
+      "revId": "6b67e14080a7377aee686c2d4093775bf22d37a3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7a6b29fe_c11115b1",
         "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnUtils.java",
         "patchSetId": 1
@@ -253,6 +451,24 @@
       "writtenOn": "2016-10-14T04:06:46Z",
       "side": 1,
       "message": "space \"if (\"",
+      "revId": "6b67e14080a7377aee686c2d4093775bf22d37a3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_50714d76",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnUtils.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 978,
+      "author": {
+        "id": 940
+      },
+      "writtenOn": "2016-10-15T05:10:43Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7a6b29fe_c11115b1",
       "revId": "6b67e14080a7377aee686c2d4093775bf22d37a3",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
