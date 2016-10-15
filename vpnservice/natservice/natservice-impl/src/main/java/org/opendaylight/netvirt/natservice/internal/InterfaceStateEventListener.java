@@ -42,7 +42,7 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
+import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
 import com.google.common.base.Optional;
 
 import java.math.BigInteger;
@@ -51,7 +51,7 @@ import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
-public class InterfaceStateEventListener extends AbstractDataChangeListener<Interface> implements AutoCloseable {
+public class InterfaceStateEventListener extends AsyncDataTreeChangeListenerBase<Interface, InterfaceStateEventListener> implements AutoCloseable {
     private static final Logger LOG = LoggerFactory.getLogger(InterfaceStateEventListener.class);
     private ListenerRegistration<DataChangeListener> listenerRegistration;
     private final DataBroker dataBroker;
@@ -66,7 +66,7 @@ public class InterfaceStateEventListener extends AbstractDataChangeListener<Inte
                                        final NaptManager naptManager,
                                        final NeutronvpnService neutronvpnService,
                                        final NaptSwitchHA naptSwitchHA){
-        super(Interface.class);
+        super(Interface.class, InterfaceStateEventListener.class);
         this.dataBroker = dataBroker;
         this.mdsalManager = mdsalManager;
         this.floatingIPListener = floatingIPListener;
@@ -77,21 +77,41 @@ public class InterfaceStateEventListener extends AbstractDataChangeListener<Inte
 
     public void init() {
         LOG.info("{} init", getClass().getSimpleName());
-        listenerRegistration = dataBroker.registerDataChangeListener(LogicalDatastoreType.OPERATIONAL,
-                getWildCardPath(), this, AsyncDataBroker.DataChangeScope.SUBTREE);
+        registerListener(dataBroker);
     }
 
-    private InstanceIdentifier<Interface> getWildCardPath() {
+    private void registerListener(final DataBroker db) {
+        try {
+            registerListener(LogicalDatastoreType.OPERATIONAL, db);
+            //listenerRegistration = db.registerDataChangeListener(LogicalDatastoreType.OPERATIONAL,
+              //      getWildCardPath(), InterfaceStateEventListener.this, AsyncDataBroker.DataChangeScope.SUBTREE);
+        } catch (final Exception e) {
+            LOG.error("NAT Service : Interface DataChange listener registration failed", e);
+            throw new IllegalStateException("NAT Service : Nexthop Manager registration Listener failed.", e);
+        }
+    }
+
+    @Override
+    protected InstanceIdentifier<Interface> getWildCardPath() {
         return InstanceIdentifier.create(InterfacesState.class).child(Interface.class);
     }
 
     @Override
     public void close() throws Exception {
         if (listenerRegistration != null) {
-            listenerRegistration.close();
+            try {
+                listenerRegistration.close();
+            } catch (final Exception e) {
+                LOG.error("NAT Service : Error when cleaning up DataChangeListener.", e);
+            }
             listenerRegistration = null;
         }
-        LOG.info("{} close", getClass().getSimpleName());
+        LOG.info("NAT Service : Interface listener Closed");
+    }
+
+    @Override
+    protected InterfaceStateEventListener getDataTreeChangeListener() {
+        return InterfaceStateEventListener.this;
     }
 
     @Override
@@ -107,7 +127,7 @@ public class InterfaceStateEventListener extends AbstractDataChangeListener<Inte
 
                 String routerName = getRouterIdForPort(dataBroker, interfaceName);
                 if (routerName != null) {
-                    processInterfaceRemoved(interfaceName, routerName);
+                    processInterfaceRemoved(interfaceName, routerName, dpnId);
                     removeSnatEntriesForPort(interfaceName,routerName);
                 } else {
                     LOG.debug("NAT Service : PORT_REMOVE: Router Id is null either Interface {} is not associated " +
@@ -241,7 +261,7 @@ public class InterfaceStateEventListener extends AbstractDataChangeListener<Inte
                         IpPortExternal ipPortExternal = NatUtil.getExternalIpPortMap(dataBroker, routerId,
                                 internalIp, String.valueOf(portnum), proto);
                         if (ipPortExternal == null) {
-                            LOG.error("Mapping for internalIp {} with port {} is not found in router with Id {}",internalIp,portnum,routerId);
+                            LOG.error("NAT Service : Mapping for internalIp {} with port {} is not found in router with Id {}",internalIp,portnum,routerId);
                             return;
                         }
                         String externalIpAddress = ipPortExternal.getIpAddress();
@@ -310,7 +330,7 @@ public class InterfaceStateEventListener extends AbstractDataChangeListener<Inte
                                     interfaceName, routerName);
                         }
                     } else {
-                        LOG.debug("Router is not associated to vpnname {} for interface {}",vpnName,interfaceName);
+                        LOG.debug("NAT Service : Router is not associated to vpnname {} for interface {}",vpnName,interfaceName);
                     }
                 } else {
                     LOG.debug("NAT Service : vpnName not found for vpnInterface {} of port {}",vpnInterface,interfaceName);
@@ -351,11 +371,11 @@ public class InterfaceStateEventListener extends AbstractDataChangeListener<Inte
     }
 
     private void processInterfaceAdded(String portName, String rtrId) {
-        LOG.trace("Processing Interface Add Event for interface {}", portName);
+        LOG.trace("NAT Service : Processing Interface Add Event for interface {}", portName);
         String routerId = getRouterIdForPort(dataBroker, portName);
         List<IpMapping> ipMappingList = getIpMappingForPortName(portName, routerId);
         if (ipMappingList == null || ipMappingList.isEmpty()) {
-            LOG.trace("Ip Mapping list is empty/null for portname {}", portName);
+            LOG.trace("NAT Service : Ip Mapping list is empty/null for portname {}", portName);
             return;
         }
         InstanceIdentifier<RouterPorts> pIdentifier = NatUtil.buildRouterPortsIdentifier(routerId);
@@ -364,17 +384,18 @@ public class InterfaceStateEventListener extends AbstractDataChangeListener<Inte
         }
     }
 
-    private void processInterfaceRemoved(String portName, String rtrId) {
-        LOG.trace("Processing Interface Removed Event for interface {}", portName);
+    private void processInterfaceRemoved(String portName, String rtrId, BigInteger dpnId) {
+        LOG.trace("NAT Service : Processing Interface Removed Event for interface {} on DPN ID {}", portName, dpnId);
         String routerId = getRouterIdForPort(dataBroker, portName);
         List<IpMapping> ipMappingList = getIpMappingForPortName(portName, routerId);
         if (ipMappingList == null || ipMappingList.isEmpty()) {
-            LOG.trace("Ip Mapping list is empty/null for portName {}", portName);
+            LOG.trace("NAT Service : Ip Mapping list is empty/null for portName {}", portName);
             return;
         }
         InstanceIdentifier<RouterPorts> pIdentifier = NatUtil.buildRouterPortsIdentifier(routerId);
         for (IpMapping ipMapping : ipMappingList) {
-            floatingIPListener.removeNATFlowEntries(portName, ipMapping, pIdentifier, routerId);
+            LOG.trace("NAT Service : Removing DNAT Flow entries for dpnId {} ", dpnId);
+            floatingIPListener.removeNATFlowEntries(portName, ipMapping, pIdentifier, routerId, dpnId);
         }
     }
 
@@ -390,7 +411,7 @@ public class InterfaceStateEventListener extends AbstractDataChangeListener<Inte
     }
 
     private List<String> getFixedIpsForPort (String interfname) {
-        LOG.debug("getFixedIpsForPort method is called for interface {}",interfname);
+        LOG.debug("NAT Service : getFixedIpsForPort method is called for interface {}",interfname);
         try {
             Future<RpcResult<GetFixedIPsForNeutronPortOutput>> result =
                     neutronVpnService.getFixedIPsForNeutronPort(new GetFixedIPsForNeutronPortInputBuilder()

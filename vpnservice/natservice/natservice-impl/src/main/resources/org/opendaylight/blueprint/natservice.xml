@@ -182,6 +182,7 @@
     <argument ref="bgpManager" />
     <argument ref="vpnRpcService" />
     <argument ref="fibRpcService" />
+    <argument ref="fibManager" />
   </bean>
 
   <bean id="natNodeEventListener"
@@ -230,6 +231,36 @@
     <argument ref="elanService" />
     <argument ref="idManagerService" />
     <argument ref="odlInterfaceRpcService" />
+  </bean>
+
+  <bean id="natRouterInterfaceListener"
+        class="org.opendaylight.netvirt.natservice.internal.NatRouterInterfaceListener"
+        init-method="init" destroy-method="close">
+    <argument ref="dataBroker" />
+    <argument ref="odlInterfaceRpcService" />
+  </bean>
+
+  <bean id="natInterfaceStateChangeListener"
+        class="org.opendaylight.netvirt.natservice.internal.NatInterfaceStateChangeListener"
+        init-method="init" destroy-method="close">
+    <argument ref="dataBroker" />
+    <argument ref="odlInterfaceRpcService" />
+  </bean>
+
+  <bean id="natTunnelInterfaceStateListener"
+        class="org.opendaylight.netvirt.natservice.internal.NatTunnelInterfaceStateListener"
+        init-method="init" destroy-method="close">
+    <argument ref="dataBroker" />
+    <argument ref="bgpManager" />
+    <argument ref="fibManager" />
+    <argument ref="sNATDefaultRouteProgrammer" />
+    <argument ref="naptSwitchHA" />
+    <argument ref="mdsalUtils" />
+    <argument ref="idManagerService" />
+    <argument ref="externalRoutersListener" />
+    <argument ref="odlInterfaceRpcService" />
+    <argument ref="floatingIPListener" />
+    <argument ref="fibRpcService" />
   </bean>
 
 </blueprint>

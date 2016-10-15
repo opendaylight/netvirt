@@ -12,7 +12,7 @@ import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.DataChangeListener;
 import org.opendaylight.controller.md.sal.common.api.data.AsyncDataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.genius.mdsalutil.AbstractDataChangeListener;
+import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.FloatingIpInfo;
@@ -27,24 +27,44 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class RouterPortsListener extends AbstractDataChangeListener<RouterPorts> implements AutoCloseable{
+import javax.annotation.PostConstruct;
+
+public class RouterPortsListener extends AsyncDataTreeChangeListenerBase<RouterPorts, RouterPortsListener> implements AutoCloseable{
     private static final Logger LOG = LoggerFactory.getLogger(RouterPortsListener.class);
     private ListenerRegistration<DataChangeListener> listenerRegistration;
     private final DataBroker dataBroker;
 
     public RouterPortsListener (final DataBroker dataBroker) {
-        super(RouterPorts.class);
+        super(RouterPorts.class, RouterPortsListener.class);
         this.dataBroker = dataBroker;
     }
 
+    @Override
+    @PostConstruct
     public void init() {
         LOG.info("{} init", getClass().getSimpleName());
-        listenerRegistration = dataBroker.registerDataChangeListener(LogicalDatastoreType.CONFIGURATION,
-                getWildCardPath(), this, AsyncDataBroker.DataChangeScope.SUBTREE);
+        registerListener(dataBroker);
     }
 
-    private InstanceIdentifier<RouterPorts> getWildCardPath() {
+    private void registerListener(final DataBroker db) {
+        try {
+            registerListener(LogicalDatastoreType.CONFIGURATION, db);
+            //listenerRegistration = db.registerDataChangeListener(LogicalDatastoreType.OPERATIONAL,
+            //getWildCardPath(), RouterDpnChangeListener.this, AsyncDataBroker.DataChangeScope.SUBTREE);
+        } catch (final Exception e) {
+            LOG.error("RouterPorts DataChange listener registration fail!", e);
+            throw new IllegalStateException("RouterPorts Listener registration Listener failed.", e);
+        }
+    }
+
+    @Override
+    protected InstanceIdentifier<RouterPorts> getWildCardPath() {
         return InstanceIdentifier.create(FloatingIpInfo.class).child(RouterPorts.class);
+    }
+
+    @Override
+    protected RouterPortsListener getDataTreeChangeListener() {
+        return RouterPortsListener.this;
     }
 
     @Override
