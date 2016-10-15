@@ -165,13 +165,6 @@
     <argument ref="vpnInterfaceManager" />
   </bean>
 
-  <bean id="routerInterfaceListener"
-        class="org.opendaylight.netvirt.vpnmanager.RouterInterfaceListener"
-        init-method="start" destroy-method="close">
-    <argument ref="dataBroker" />
-    <argument ref="vpnInterfaceManager" />
-  </bean>
-
   <odl:rpc-implementation ref="vpnRpcServiceImpl" />
   <bean id="vpnRpcServiceImpl"
         class="org.opendaylight.netvirt.vpnmanager.VpnRpcServiceImpl">

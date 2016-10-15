@@ -24,14 +24,13 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.rou
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
+import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Callable;
 
-public class InterfaceStateChangeListener extends AsyncDataTreeChangeListenerBase<Interface,
-        InterfaceStateChangeListener> implements AutoCloseable {
+public class InterfaceStateChangeListener extends AsyncDataTreeChangeListenerBase<Interface, InterfaceStateChangeListener> implements AutoCloseable {
     private static final Logger LOG = LoggerFactory.getLogger(InterfaceStateChangeListener.class);
     private final DataBroker dataBroker;
     private final VpnInterfaceManager vpnInterfaceManager;
@@ -47,6 +46,14 @@ public class InterfaceStateChangeListener extends AsyncDataTreeChangeListenerBas
         registerListener(LogicalDatastoreType.OPERATIONAL, dataBroker);
     }
 
+    private void registerListener(final DataBroker db) {
+        try {
+            registerListener(LogicalDatastoreType.OPERATIONAL, db);
+        } catch (final Exception e) {
+            LOG.error("Interface DataChange listener registration failed", e);
+            throw new IllegalStateException("Nexthop Manager registration Listener failed.", e);
+        }
+    }
 
     @Override
     protected InstanceIdentifier<Interface> getWildCardPath() {
@@ -57,7 +64,6 @@ public class InterfaceStateChangeListener extends AsyncDataTreeChangeListenerBas
     protected InterfaceStateChangeListener getDataTreeChangeListener() {
         return InterfaceStateChangeListener.this;
     }
-
 
     @Override
     protected void add(InstanceIdentifier<Interface> identifier, Interface intrf) {
@@ -98,13 +104,6 @@ public class InterfaceStateChangeListener extends AsyncDataTreeChangeListenerBas
                                         WriteTransaction writeInvTxn = dataBroker.newWriteOnlyTransaction();
                                         vpnInterfaceManager.processVpnInterfaceUp(dpnId, vpnInterface, ifIndex, false,
                                                 writeConfigTxn, writeOperTxn, writeInvTxn);
-                                        String routerName = VpnUtil.getNeutronRouterFromInterface(dataBroker, interfaceName);
-                                        if (routerName != null) {
-                                            LOG.debug("Router Name {} ", routerName);
-                                            handleRouterInterfacesUpEvent(routerName, interfaceName, writeOperTxn);
-                                        } else {
-                                            LOG.info("Unable to process add for interface {} for NAT service", interfaceName);
-                                        }
                                         List<ListenableFuture<Void>> futures = new ArrayList<ListenableFuture<Void>>();
                                         futures.add(writeOperTxn.submit());
                                         futures.add(writeConfigTxn.submit());
@@ -157,12 +156,7 @@ public class InterfaceStateChangeListener extends AsyncDataTreeChangeListenerBas
                                 WriteTransaction writeInvTxn = dataBroker.newWriteOnlyTransaction();
                                 vpnInterfaceManager.processVpnInterfaceDown(dpnId, interfaceName, ifIndex, false, false,
                                         writeConfigTxn, writeOperTxn, writeInvTxn);
-                                RouterInterface routerInterface = VpnUtil.getConfiguredRouterInterface(dataBroker, interfaceName);
-                                if (routerInterface != null) {
-                                    handleRouterInterfacesDownEvent(routerInterface.getRouterName(), interfaceName, dpnId, writeOperTxn);
-                                }
                                 List<ListenableFuture<Void>> futures = new ArrayList<ListenableFuture<Void>>();
-                                futures.add(writeOperTxn.submit());
                                 futures.add(writeConfigTxn.submit());
                                 futures.add(writeInvTxn.submit());
                                 return futures;
@@ -235,16 +229,4 @@ public class InterfaceStateChangeListener extends AsyncDataTreeChangeListenerBas
             }
         }
     }
-
-    void handleRouterInterfacesUpEvent(String routerName, String interfaceName, WriteTransaction writeOperTxn) {
-        LOG.debug("Handling UP event for router interface {} in Router {}", interfaceName, routerName);
-        vpnInterfaceManager.addToNeutronRouterDpnsMap(routerName, interfaceName, writeOperTxn);
-    }
-
-    void handleRouterInterfacesDownEvent(String routerName, String interfaceName, BigInteger dpnId,
-                                         WriteTransaction writeOperTxn) {
-        LOG.debug("Handling DOWN event for router interface {} in Router {}", interfaceName, routerName);
-        vpnInterfaceManager.removeFromNeutronRouterDpnsMap(routerName, interfaceName, dpnId, writeOperTxn);
-    }
-
 }

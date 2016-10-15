@@ -395,6 +395,18 @@ module odl-l3vpn {
         }
     }
 
+    /* container to maintain mapping between DPN(s) and the routers */
+    container dpn-routers {
+        config false;
+        list dpn-routers-list {
+            key dpn-id;
+            leaf dpn-id { type uint64;}
+            list routers-list {
+                key router;
+                leaf router { type string;}
+            }
+        }
+    }
 
     container router-interfaces {
         list router-interface {
