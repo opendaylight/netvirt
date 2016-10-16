@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7a6b29fe_0b5a1c50",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NatUtil.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 653,
+      "author": {
+        "id": 670
+      },
+      "writtenOn": "2016-10-16T19:25:37Z",
+      "side": 1,
+      "message": "to be on the safe side - put the getRouterId() result in a variable, instead of requesting it again",
+      "revId": "8ffd4fec4c6fbd45052f34117040f9577062cf97",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
