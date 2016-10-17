@@ -34,6 +34,7 @@ import org.opendaylight.netvirt.openstack.netvirt.api.NodeCacheListener;
 import org.opendaylight.netvirt.openstack.netvirt.api.NodeCacheManager;
 import org.opendaylight.netvirt.openstack.netvirt.api.OutboundNatProvider;
 import org.opendaylight.netvirt.openstack.netvirt.api.RoutingProvider;
+import org.opendaylight.netvirt.openstack.netvirt.api.ResubmitProvider;
 import org.opendaylight.netvirt.openstack.netvirt.api.VlanResponderProvider;
 import org.opendaylight.netvirt.openstack.netvirt.providers.openflow13.AbstractServiceInstance;
 import org.opendaylight.netvirt.openstack.netvirt.providers.openflow13.OF13Provider;
@@ -54,6 +55,7 @@ import org.opendaylight.netvirt.openstack.netvirt.providers.openflow13.services.
 import org.opendaylight.netvirt.openstack.netvirt.providers.openflow13.services.OutboundNatService;
 import org.opendaylight.netvirt.openstack.netvirt.providers.openflow13.services.RoutingService;
 import org.opendaylight.netvirt.openstack.netvirt.providers.openflow13.services.VlanResponderService;
+import org.opendaylight.netvirt.openstack.netvirt.providers.openflow13.services.ResubmitService;
 import org.opendaylight.netvirt.openstack.netvirt.providers.openflow13.services.arp.GatewayMacResolverService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.service.rev130819.SalFlowService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.service.rev130709.PacketProcessingService;
@@ -120,6 +122,9 @@ public class ConfigActivator implements BundleActivator {
         registerService(context, InboundNatProvider.class.getName(),
                 inboundNatService, Service.INBOUND_NAT);
 
+        ResubmitService resubmitService = new ResubmitService();
+        registerService(context, ResubmitProvider.class.getName(),
+                resubmitService, Service.RESUBMIT_SERVICE); 
         IngressAclService ingressAclService = new IngressAclService();
         registerService(context, IngressAclProvider.class.getName(),
                 ingressAclService, Service.INGRESS_ACL);
@@ -181,6 +186,7 @@ public class ConfigActivator implements BundleActivator {
         loadBalancerService.setDependencies(context, null);
         ingressAclService.setDependencies(context, null);
         inboundNatService.setDependencies(context, null);
+        resubmitService.setDependencies(context, null);
         arpResponderService.setDependencies(context, null);
         classifierService.setDependencies(context, null);
         of13Provider.setDependencies(context, null);

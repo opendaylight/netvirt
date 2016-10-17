@@ -63,6 +63,8 @@ public class PipelineOrchestratorImpl implements ConfigInterface, NodeCacheListe
             Service.CLASSIFIER,
             Service.ARP_RESPONDER,
             Service.INBOUND_NAT,
+            Service.RESUBMIT_SERVICE,
+            Service.ACL_LEARN_SERVICE,
             Service.EGRESS_ACL,
             Service.LOAD_BALANCER,
             Service.ROUTING,

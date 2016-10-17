@@ -48,6 +48,8 @@ import org.opendaylight.netvirt.openstack.netvirt.providers.NetvirtProvidersProv
 import org.opendaylight.netvirt.utils.mdsal.openflow.FlowUtils;
 import org.opendaylight.netvirt.utils.mdsal.openflow.InstructionUtils;
 import org.opendaylight.netvirt.utils.servicehelper.ServiceHelper;
+import org.opendaylight.netvirt.openstack.netvirt.api.ResubmitProvider;
+import org.opendaylight.netvirt.openstack.netvirt.providers.openflow13.services.ResubmitService;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Uri;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.action.types.rev131112.action.action.GroupActionCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.action.types.rev131112.action.action.GroupActionCaseBuilder;
@@ -130,6 +132,7 @@ public class OF13Provider implements ConfigInterface, NetworkingProvider {
     private volatile IngressAclProvider ingressAclProvider;
     private volatile EgressAclProvider egressAclProvider;
     private volatile NodeCacheManager nodeCacheManager;
+    private volatile ResubmitProvider resubmitProvider;
     private volatile L2ForwardingLearnProvider l2ForwardingLearnProvider;
     private volatile L2ForwardingProvider l2ForwardingProvider;
 
@@ -1344,6 +1347,8 @@ public class OF13Provider implements ConfigInterface, NetworkingProvider {
 
     @Override
     public void initializeFlowRules(Node node) {
+        Long dpid = southbound.getDataPathId(node);
+        resubmitProvider.programResubmit(dpid);
         initializeFlowRules(node, configurationService.getIntegrationBridgeName());
         initializeFlowRules(node, configurationService.getExternalBridgeName());
         triggerInterfaceUpdates(node);
@@ -1351,6 +1356,9 @@ public class OF13Provider implements ConfigInterface, NetworkingProvider {
 
     private void initializeFlowRules(Node node, String bridgeName) {
         Long dpid = southbound.getDataPathId(node);
+        if (bridgeName.equals(configurationService.getIntegrationBridgeName())) {
+            resubmitProvider.programResubmit(dpid);
+        }
         String datapathId = southbound.getDatapathId(node);
         LOG.trace("initializeFlowRules: bridgeName: {}, datapathId: {} ",
                 bridgeName, datapathId);
@@ -2092,6 +2100,8 @@ public class OF13Provider implements ConfigInterface, NetworkingProvider {
                 (BridgeConfigurationManager) ServiceHelper.getGlobalInstance(BridgeConfigurationManager.class, this);
         nodeCacheManager =
                 (NodeCacheManager) ServiceHelper.getGlobalInstance(NodeCacheManager.class, this);
+        resubmitProvider =
+                (ResubmitProvider) ServiceHelper.getGlobalInstance(ResubmitProvider.class, this);
         classifierProvider =
                 (ClassifierProvider) ServiceHelper.getGlobalInstance(ClassifierProvider.class, this);
         ingressAclProvider =

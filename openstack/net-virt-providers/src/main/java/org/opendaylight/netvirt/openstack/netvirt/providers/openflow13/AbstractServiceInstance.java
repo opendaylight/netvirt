@@ -237,6 +237,10 @@ public abstract class AbstractServiceInstance {
             //LOG.trace("Bridge is not in pipeline {} ", node);
             return;
         }
+        if(getTable() == 31 || getTable() == 39)
+        {
+            return;
+        }
         MatchBuilder matchBuilder = new MatchBuilder();
         FlowBuilder flowBuilder = new FlowBuilder();
         long dpid = getDpid(node);
