@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.util.Dictionary;
 import java.util.Hashtable;
 import java.util.List;
+
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.sal.binding.api.NotificationProviderService;
 import org.opendaylight.netvirt.openstack.netvirt.api.ArpProvider;
@@ -33,6 +34,7 @@ import org.opendaylight.netvirt.openstack.netvirt.api.NetworkingProviderManager;
 import org.opendaylight.netvirt.openstack.netvirt.api.NodeCacheListener;
 import org.opendaylight.netvirt.openstack.netvirt.api.NodeCacheManager;
 import org.opendaylight.netvirt.openstack.netvirt.api.OutboundNatProvider;
+import org.opendaylight.netvirt.openstack.netvirt.api.ResubmitAclLearnProvider;
 import org.opendaylight.netvirt.openstack.netvirt.api.RoutingProvider;
 import org.opendaylight.netvirt.openstack.netvirt.api.VlanResponderProvider;
 import org.opendaylight.netvirt.openstack.netvirt.providers.openflow13.AbstractServiceInstance;
@@ -52,6 +54,7 @@ import org.opendaylight.netvirt.openstack.netvirt.providers.openflow13.services.
 import org.opendaylight.netvirt.openstack.netvirt.providers.openflow13.services.L3ForwardingService;
 import org.opendaylight.netvirt.openstack.netvirt.providers.openflow13.services.LoadBalancerService;
 import org.opendaylight.netvirt.openstack.netvirt.providers.openflow13.services.OutboundNatService;
+import org.opendaylight.netvirt.openstack.netvirt.providers.openflow13.services.ResubmitAclLearnService;
 import org.opendaylight.netvirt.openstack.netvirt.providers.openflow13.services.RoutingService;
 import org.opendaylight.netvirt.openstack.netvirt.providers.openflow13.services.VlanResponderService;
 import org.opendaylight.netvirt.openstack.netvirt.providers.openflow13.services.arp.GatewayMacResolverService;
@@ -120,6 +123,9 @@ public class ConfigActivator implements BundleActivator {
         registerService(context, InboundNatProvider.class.getName(),
                 inboundNatService, Service.INBOUND_NAT);
 
+        ResubmitAclLearnService resubmitAclLearnService = new ResubmitAclLearnService();
+        registerService(context, ResubmitAclLearnProvider.class.getName(),
+                resubmitAclLearnService, Service.RESUBMIT_ACL_SERVICE); 
         IngressAclService ingressAclService = new IngressAclService();
         registerService(context, IngressAclProvider.class.getName(),
                 ingressAclService, Service.INGRESS_ACL);
@@ -181,6 +187,7 @@ public class ConfigActivator implements BundleActivator {
         loadBalancerService.setDependencies(context, null);
         ingressAclService.setDependencies(context, null);
         inboundNatService.setDependencies(context, null);
+        resubmitAclLearnService.setDependencies(context, null);
         arpResponderService.setDependencies(context, null);
         classifierService.setDependencies(context, null);
         of13Provider.setDependencies(context, null);

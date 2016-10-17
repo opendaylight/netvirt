@@ -8,11 +8,9 @@
 
 package org.opendaylight.netvirt.openstack.netvirt.providers.openflow13;
 
-import com.google.common.base.Optional;
-import com.google.common.collect.Lists;
-import com.google.common.util.concurrent.CheckedFuture;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
+
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
@@ -44,6 +42,10 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.osgi.framework.ServiceReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.google.common.base.Optional;
+import com.google.common.collect.Lists;
+import com.google.common.util.concurrent.CheckedFuture;
 
 /**
  * Any ServiceInstance class that extends AbstractServiceInstance to be a part of the pipeline
@@ -233,8 +235,14 @@ public abstract class AbstractServiceInstance {
      * @param node on which the default pipeline flow is programmed.
      */
     protected void programDefaultPipelineRule(Node node) {
+        final int resubmitTable = 31;
+        final int AclServiceTable = 39;
         if (!isBridgeInPipeline(node)) {
             //LOG.trace("Bridge is not in pipeline {} ", node);
+            return;
+        }
+        if(getTable() == resubmitTable || getTable() == AclServiceTable)
+        {
             return;
         }
         MatchBuilder matchBuilder = new MatchBuilder();

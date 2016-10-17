@@ -8,15 +8,22 @@
 
 package org.opendaylight.netvirt.openstack.netvirt.providers.openflow13.services;
 
-import com.google.common.collect.Lists;
+import java.net.Inet4Address;
+import java.net.Inet6Address;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
-import org.opendaylight.netvirt.openstack.netvirt.providers.openflow13.AbstractServiceInstance;
-import org.opendaylight.netvirt.openstack.netvirt.providers.openflow13.Service;
 import org.opendaylight.netvirt.openstack.netvirt.api.Constants;
 import org.opendaylight.netvirt.openstack.netvirt.api.IngressAclProvider;
 import org.opendaylight.netvirt.openstack.netvirt.api.SecurityGroupCacheManger;
 import org.opendaylight.netvirt.openstack.netvirt.api.SecurityServicesManager;
 import org.opendaylight.netvirt.openstack.netvirt.providers.ConfigInterface;
+import org.opendaylight.netvirt.openstack.netvirt.providers.openflow13.AbstractServiceInstance;
+import org.opendaylight.netvirt.openstack.netvirt.providers.openflow13.Service;
 import org.opendaylight.netvirt.openstack.netvirt.translator.NeutronSecurityGroup;
 import org.opendaylight.netvirt.openstack.netvirt.translator.NeutronSecurityRule;
 import org.opendaylight.netvirt.openstack.netvirt.translator.Neutron_IPs;
@@ -35,19 +42,16 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.flow.M
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.instruction.list.Instruction;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.instruction.list.InstructionBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.instruction.list.InstructionKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.model.match.types.rev131026.match.Icmpv4MatchBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.model.match.types.rev131026.match.Icmpv6MatchBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.NodeBuilder;
+import org.opendaylight.netvirt.openstack.netvirt.api.LearnConstants;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.net.Inet4Address;
-import java.net.Inet6Address;
-import java.net.InetAddress;
-import java.net.UnknownHostException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import com.google.common.collect.Lists;
 
 public class IngressAclService extends AbstractServiceInstance implements IngressAclProvider, ConfigInterface {
     private static final Logger LOG = LoggerFactory.getLogger(IngressAclService.class);
@@ -230,13 +234,34 @@ public class IngressAclService extends AbstractServiceInstance implements Ingres
         if (securityServicesManager.isConntrackEnabled()) {
             programIngressAclFixedConntrackRule(dpid, segmentationId, attachMac, localPort, write);
         } else {
-            // add rule to drop tcp syn packets from the vm
-            addTcpSynFlagMatchIpv4Drop(dpid, segmentationId, attachMac, write,
-                                                Constants.PROTO_TCP_SYN_MATCH_PRIORITY_DROP);
-            addTcpSynFlagMatchIpv6Drop(dpid, segmentationId, attachMac, write,
-                Constants.PROTO_TCP_SYN_MATCH_PRIORITY_DROP);
+        	ingressVMDrop(dpid, segmentationId, attachMac, write,
+                    Constants.PROTO_TCP_SYN_MATCH_PRIORITY_DROP);
+        	ingressVMRegex(dpid, segmentationId, attachMac, write,
+                    Constants.PROTO_REG6_MATCH_PRIORITY);
         }
         programArpRule(dpid, segmentationId, localPort, attachMac, write);
+    }
+    private void ingressVMDrop(Long dpidLong, String segmentationId, String srcMac,
+            boolean write, Integer priority) {
+        String flowName = "Ingress_Drop_" + segmentationId + "_" + srcMac + "_DROP";
+        MatchBuilder matchBuilder = new MatchBuilder();
+        matchBuilder = MatchUtils.createV4EtherMatchWithoutType(matchBuilder,null,srcMac);
+        FlowBuilder flowBuilder = FlowUtils.createFlowBuilder(flowName, priority, matchBuilder, getTable());
+        addPipelineInstruction(flowBuilder, null, true);
+        NodeBuilder nodeBuilder = FlowUtils.createNodeBuilder(dpidLong);
+        syncFlow(flowBuilder, nodeBuilder, write);
+    }
+    private void ingressVMRegex(Long dpidLong, String segmentationId, String srcMac,
+            boolean write, Integer priority) {
+        String flowName = "Ingress_Regx_" + segmentationId + "_" + srcMac;
+        MatchBuilder matchBuilder = new MatchBuilder();
+        matchBuilder = MatchUtils.createV4EtherMatchWithoutType(matchBuilder,null,srcMac);
+        MatchUtils.addNxRegMatch(matchBuilder,
+                new MatchUtils.RegMatch(ClassifierService.REG_FIELD_6, ClassifierService.REG_VALUE_FROM_LOCAL));
+        FlowBuilder flowBuilder = FlowUtils.createFlowBuilder(flowName, priority, matchBuilder, getTable());
+        addPipelineInstruction(flowBuilder, null, false);
+        NodeBuilder nodeBuilder = FlowUtils.createNodeBuilder(dpidLong);
+        syncFlow(flowBuilder, nodeBuilder, write);
     }
 
     private void addTcpSynFlagMatchIpv4Drop(Long dpidLong, String segmentationId, String dstMac,
@@ -480,19 +505,17 @@ public class IngressAclService extends AbstractServiceInstance implements Ingres
                 MatchUtils.addLayer4MatchWithMask(matchBuilder, MatchUtils.TCP_SHORT,
                                                   0, port, portMaskMap.get(port));
                 addConntrackMatch(matchBuilder, MatchUtils.TRACKED_NEW_CT_STATE,MatchUtils.TRACKED_NEW_CT_STATE_MASK);
-                addTcpSynMatch(matchBuilder);
                 FlowBuilder flowBuilder = FlowUtils.createFlowBuilder(rangeflowId, protoPortMatchPriority,
                                                                       matchBuilder, getTable());
-                addInstructionWithConntrackCommit(flowBuilder, false);
+                addInstructionWithLearnConntrackCommit(portSecurityRule, flowBuilder, null, null);
                 syncFlow(flowBuilder ,nodeBuilder, write);
             }
         } else {
             flowId = flowId + "_Permit";
             addConntrackMatch(matchBuilder, MatchUtils.TRACKED_NEW_CT_STATE,MatchUtils.TRACKED_NEW_CT_STATE_MASK);
-            addTcpSynMatch(matchBuilder);
             FlowBuilder flowBuilder = FlowUtils.createFlowBuilder(flowId, protoPortMatchPriority,
                                                                   matchBuilder, getTable());
-            addInstructionWithConntrackCommit(flowBuilder, false);
+            addInstructionWithLearnConntrackCommit(portSecurityRule, flowBuilder, null, null);
             syncFlow(flowBuilder ,nodeBuilder, write);
         }
     }
@@ -560,9 +583,11 @@ public class IngressAclService extends AbstractServiceInstance implements Ingres
                         new Ipv6Prefix(portSecurityRule
                                        .getSecurityRuleRemoteIpPrefix()),null);
             } else {
+                if (!portSecurityRule.getSecurityRuleRemoteIpPrefix().contains("/0")) {
                 matchBuilder = MatchUtils.addRemoteIpPrefix(matchBuilder,
                         new Ipv4Prefix(portSecurityRule
                                        .getSecurityRuleRemoteIpPrefix()),null);
+                }
             }
         }
         NodeBuilder nodeBuilder = FlowUtils.createNodeBuilder(dpidLong);
@@ -578,7 +603,7 @@ public class IngressAclService extends AbstractServiceInstance implements Ingres
                 addConntrackMatch(matchBuilder, MatchUtils.TRACKED_NEW_CT_STATE,MatchUtils.TRACKED_NEW_CT_STATE_MASK);
                 FlowBuilder flowBuilder = FlowUtils.createFlowBuilder(rangeflowId, protoPortMatchPriority,
                                                                       matchBuilder, getTable());
-                addInstructionWithConntrackCommit(flowBuilder, false);
+                addInstructionWithLearnConntrackCommit(portSecurityRule, flowBuilder, null, null);
                 syncFlow(flowBuilder ,nodeBuilder, write);
             }
         } else {
@@ -586,7 +611,7 @@ public class IngressAclService extends AbstractServiceInstance implements Ingres
             addConntrackMatch(matchBuilder, MatchUtils.TRACKED_NEW_CT_STATE,MatchUtils.TRACKED_NEW_CT_STATE_MASK);
             FlowBuilder flowBuilder = FlowUtils.createFlowBuilder(flowId, protoPortMatchPriority,
                                                                   matchBuilder, getTable());
-            addInstructionWithConntrackCommit(flowBuilder, false);
+            addInstructionWithLearnConntrackCommit(portSecurityRule, flowBuilder, null, null);
             syncFlow(flowBuilder ,nodeBuilder, write);
         }
     }
@@ -622,6 +647,7 @@ public class IngressAclService extends AbstractServiceInstance implements Ingres
                                   boolean write, Integer protoPortMatchPriority) {
 
         MatchBuilder matchBuilder = new MatchBuilder();
+        boolean isIcmpAll = false;
         String flowId = "Ingress_ICMP_" + segmentationId + "_" + dstMac + "_";
         matchBuilder = MatchUtils.createV4EtherMatchWithType(matchBuilder,null,dstMac,MatchUtils.ETHERTYPE_IPV4);
 
@@ -634,6 +660,7 @@ public class IngressAclService extends AbstractServiceInstance implements Ingres
                     portSecurityRule.getSecurityRulePortMin().shortValue(),
                     portSecurityRule.getSecurityRulePortMax().shortValue());
         } else {
+            isIcmpAll = true;
             /* All ICMP Match */
             flowId = flowId + "all" + "_";
             matchBuilder = MatchUtils.createICMPv4Match(matchBuilder,MatchUtils.ALL_ICMP, MatchUtils.ALL_ICMP);
@@ -649,12 +676,29 @@ public class IngressAclService extends AbstractServiceInstance implements Ingres
                                          new Ipv4Prefix(portSecurityRule.getSecurityRuleRemoteIpPrefix()),null);
             }
         }
-        flowId = flowId + "_Permit";
-        addConntrackMatch(matchBuilder, MatchUtils.TRACKED_NEW_CT_STATE,MatchUtils.TRACKED_NEW_CT_STATE_MASK);
-        FlowBuilder flowBuilder = FlowUtils.createFlowBuilder(flowId, protoPortMatchPriority, matchBuilder, getTable());
-        addInstructionWithConntrackCommit(flowBuilder, false);
         NodeBuilder nodeBuilder = FlowUtils.createNodeBuilder(dpidLong);
-        syncFlow(flowBuilder ,nodeBuilder, write);
+        if(isIcmpAll)
+        {
+            Map<Integer, String> map = LearnConstants.ICMP_TYPE_MAP;
+            for(Map.Entry<Integer, String> entry : map.entrySet()) {
+                Icmpv4MatchBuilder icmpv4match = new Icmpv4MatchBuilder();
+                icmpv4match.setIcmpv4Type(entry.getKey().shortValue());
+                icmpv4match.setIcmpv4Code((short)0);
+                matchBuilder.setIcmpv4Match(icmpv4match.build());
+                String rangeflowId = flowId + "_" + entry.getKey() + "_" + entry.getValue();
+                addConntrackMatch(matchBuilder, MatchUtils.TRACKED_NEW_CT_STATE,MatchUtils.TRACKED_NEW_CT_STATE_MASK);
+                FlowBuilder flowBuilder = FlowUtils.createFlowBuilder(rangeflowId, protoPortMatchPriority, matchBuilder, getTable());
+                addInstructionWithLearnConntrackCommit(portSecurityRule, flowBuilder, entry.getValue(), "0");
+                syncFlow(flowBuilder ,nodeBuilder, write);
+            }
+        } else {
+            flowId = flowId + "_Permit";
+            addConntrackMatch(matchBuilder, MatchUtils.TRACKED_NEW_CT_STATE,MatchUtils.TRACKED_NEW_CT_STATE_MASK);
+            FlowBuilder flowBuilder = FlowUtils.createFlowBuilder(flowId, protoPortMatchPriority, matchBuilder, getTable());
+            addInstructionWithLearnConntrackCommit(portSecurityRule, flowBuilder, LearnConstants.ICMP_TYPE_MAP.get(portSecurityRule.getSecurityRulePortMin()),
+                    Integer.toString(portSecurityRule.getSecurityRulePortMax()));
+            syncFlow(flowBuilder ,nodeBuilder, write);
+        }
     }
 
     /**
@@ -674,6 +718,7 @@ public class IngressAclService extends AbstractServiceInstance implements Ingres
                                   boolean write, Integer protoPortMatchPriority) {
 
         MatchBuilder matchBuilder = new MatchBuilder();
+        boolean isIcmpAll = false;
         String flowId = "Ingress_ICMP_" + segmentationId + "_" + dstMac + "_";
         matchBuilder = MatchUtils.createV6EtherMatchWithType(matchBuilder,null,dstMac);
 
@@ -686,6 +731,7 @@ public class IngressAclService extends AbstractServiceInstance implements Ingres
                     portSecurityRule.getSecurityRulePortMin().shortValue(),
                     portSecurityRule.getSecurityRulePortMax().shortValue());
         } else {
+            isIcmpAll = true;
             /* All ICMP Match */
             flowId = flowId + "all" + "_";
             matchBuilder = MatchUtils.createICMPv6Match(matchBuilder,MatchUtils.ALL_ICMP, MatchUtils.ALL_ICMP);
@@ -700,12 +746,29 @@ public class IngressAclService extends AbstractServiceInstance implements Ingres
                     new Ipv6Prefix(portSecurityRule
                                    .getSecurityRuleRemoteIpPrefix()),null);
         }
-        addConntrackMatch(matchBuilder, MatchUtils.TRACKED_NEW_CT_STATE,MatchUtils.TRACKED_NEW_CT_STATE_MASK);
         NodeBuilder nodeBuilder = FlowUtils.createNodeBuilder(dpidLong);
-        flowId = flowId + "_Permit";
-        FlowBuilder flowBuilder = FlowUtils.createFlowBuilder(flowId, protoPortMatchPriority, matchBuilder, getTable());
-        addInstructionWithConntrackCommit(flowBuilder, false);
-        syncFlow(flowBuilder ,nodeBuilder, write);
+        if(isIcmpAll)
+        {
+            Map<Integer, String> map = LearnConstants.ICMP_TYPE_MAP;
+            for(Map.Entry<Integer, String> entry : map.entrySet()) {
+                Icmpv6MatchBuilder icmpv6match = new Icmpv6MatchBuilder();
+                icmpv6match.setIcmpv6Type(entry.getKey().shortValue());
+                icmpv6match.setIcmpv6Code((short)0);
+                matchBuilder.setIcmpv6Match(icmpv6match.build());
+                String rangeflowId = flowId + "_" + entry.getKey() + "_" + entry.getValue();
+                addConntrackMatch(matchBuilder, MatchUtils.TRACKED_NEW_CT_STATE,MatchUtils.TRACKED_NEW_CT_STATE_MASK);
+                FlowBuilder flowBuilder = FlowUtils.createFlowBuilder(rangeflowId, protoPortMatchPriority, matchBuilder, getTable());
+                addInstructionWithLearnConntrackCommit(portSecurityRule, flowBuilder, entry.getValue(), Integer.toString(portSecurityRule.getSecurityRulePortMax()));
+                syncFlow(flowBuilder ,nodeBuilder, write);
+            }
+        } else {
+            addConntrackMatch(matchBuilder, MatchUtils.TRACKED_NEW_CT_STATE,MatchUtils.TRACKED_NEW_CT_STATE_MASK);
+            flowId = flowId + "_Permit";
+            FlowBuilder flowBuilder = FlowUtils.createFlowBuilder(flowId, protoPortMatchPriority, matchBuilder, getTable());
+            addInstructionWithLearnConntrackCommit(portSecurityRule, flowBuilder, LearnConstants.ICMP_TYPE_MAP.get(portSecurityRule.getSecurityRulePortMin()),
+                    Integer.toString(portSecurityRule.getSecurityRulePortMax()));
+            syncFlow(flowBuilder ,nodeBuilder, write);
+        }
     }
 
     /**
@@ -760,7 +823,24 @@ public class IngressAclService extends AbstractServiceInstance implements Ingres
         if (securityServicesManager.isConntrackEnabled()) {
             MatchUtils.addCtState(matchBuilder, state, mask );
         }
-
+    }
+    private FlowBuilder addInstructionWithLearnConntrackCommit(NeutronSecurityRule portSecurityRule, FlowBuilder flowBuilder , String icmpType, String icmpCode) {
+        InstructionBuilder instructionBuilder = null;
+        if (securityServicesManager.isConntrackEnabled()) {
+            Action conntrackAction = ActionUtils.nxConntrackAction(1, 0L, 0, (short)0xff);
+            instructionBuilder = InstructionUtils
+                    .createInstructionBuilder(ActionUtils.conntrackActionBuilder(conntrackAction), 1, false);
+            return addPipelineInstruction(flowBuilder,instructionBuilder, false);
+        }
+        if (portSecurityRule.getSecurityRuleProtocol().equalsIgnoreCase(MatchUtils.TCP)) {
+            return IngressAclLearnServiceUtil.programIngressAclLearnRuleForTcp(flowBuilder,instructionBuilder);
+        } else if (portSecurityRule.getSecurityRuleProtocol().equalsIgnoreCase(MatchUtils.UDP)) {
+            return IngressAclLearnServiceUtil.programIngressAclLearnRuleForUdp(flowBuilder,instructionBuilder);
+        } else if (portSecurityRule.getSecurityRuleProtocol().equalsIgnoreCase(MatchUtils.ICMP) ||
+                portSecurityRule.getSecurityRuleProtocol().equalsIgnoreCase(MatchUtils.ICMPV6)) {
+            return IngressAclLearnServiceUtil.programIngressAclLearnRuleForIcmp(flowBuilder,instructionBuilder, icmpType, icmpCode);
+        }
+        return flowBuilder;
     }
 
     private FlowBuilder addInstructionWithConntrackCommit( FlowBuilder flowBuilder , boolean isDrop) {
