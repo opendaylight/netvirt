@@ -38,6 +38,7 @@ import org.opendaylight.netvirt.openstack.netvirt.api.L2ForwardingProvider;
 import org.opendaylight.netvirt.openstack.netvirt.api.NetworkingProvider;
 import org.opendaylight.netvirt.openstack.netvirt.api.NetworkingProviderManager;
 import org.opendaylight.netvirt.openstack.netvirt.api.NodeCacheManager;
+import org.opendaylight.netvirt.openstack.netvirt.api.ResubmitAclLearnProvider;
 import org.opendaylight.netvirt.openstack.netvirt.api.SecurityServicesManager;
 import org.opendaylight.netvirt.openstack.netvirt.api.Southbound;
 import org.opendaylight.netvirt.openstack.netvirt.api.Status;
@@ -45,6 +46,7 @@ import org.opendaylight.netvirt.openstack.netvirt.api.StatusCode;
 import org.opendaylight.netvirt.openstack.netvirt.api.TenantNetworkManager;
 import org.opendaylight.netvirt.openstack.netvirt.providers.ConfigInterface;
 import org.opendaylight.netvirt.openstack.netvirt.providers.NetvirtProvidersProvider;
+import org.opendaylight.netvirt.openstack.netvirt.providers.openflow13.services.ResubmitAclLearnService;
 import org.opendaylight.netvirt.utils.mdsal.openflow.FlowUtils;
 import org.opendaylight.netvirt.utils.mdsal.openflow.InstructionUtils;
 import org.opendaylight.netvirt.utils.servicehelper.ServiceHelper;
@@ -130,6 +132,7 @@ public class OF13Provider implements ConfigInterface, NetworkingProvider {
     private volatile IngressAclProvider ingressAclProvider;
     private volatile EgressAclProvider egressAclProvider;
     private volatile NodeCacheManager nodeCacheManager;
+    private volatile ResubmitAclLearnProvider resubmitAclLearnProvider;
     private volatile L2ForwardingLearnProvider l2ForwardingLearnProvider;
     private volatile L2ForwardingProvider l2ForwardingProvider;
 
@@ -1344,6 +1347,7 @@ public class OF13Provider implements ConfigInterface, NetworkingProvider {
 
     @Override
     public void initializeFlowRules(Node node) {
+        Long dpid = southbound.getDataPathId(node);
         initializeFlowRules(node, configurationService.getIntegrationBridgeName());
         initializeFlowRules(node, configurationService.getExternalBridgeName());
         triggerInterfaceUpdates(node);
@@ -1351,6 +1355,9 @@ public class OF13Provider implements ConfigInterface, NetworkingProvider {
 
     private void initializeFlowRules(Node node, String bridgeName) {
         Long dpid = southbound.getDataPathId(node);
+        if (bridgeName.equals(configurationService.getIntegrationBridgeName())) {
+            resubmitAclLearnProvider.programResubmit(dpid);
+        }
         String datapathId = southbound.getDatapathId(node);
         LOG.trace("initializeFlowRules: bridgeName: {}, datapathId: {} ",
                 bridgeName, datapathId);
@@ -2092,6 +2099,8 @@ public class OF13Provider implements ConfigInterface, NetworkingProvider {
                 (BridgeConfigurationManager) ServiceHelper.getGlobalInstance(BridgeConfigurationManager.class, this);
         nodeCacheManager =
                 (NodeCacheManager) ServiceHelper.getGlobalInstance(NodeCacheManager.class, this);
+        resubmitAclLearnProvider =
+                (ResubmitAclLearnProvider) ServiceHelper.getGlobalInstance(ResubmitAclLearnProvider.class, this);
         classifierProvider =
                 (ClassifierProvider) ServiceHelper.getGlobalInstance(ClassifierProvider.class, this);
         ingressAclProvider =
