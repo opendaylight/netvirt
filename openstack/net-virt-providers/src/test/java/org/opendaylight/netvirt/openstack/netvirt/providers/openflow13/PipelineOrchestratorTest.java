@@ -24,7 +24,9 @@ public class PipelineOrchestratorTest {
     public void testPipeline() {
         assertEquals(orchestrator.getNextServiceInPipeline(Service.CLASSIFIER), Service.ARP_RESPONDER);
         assertEquals(orchestrator.getNextServiceInPipeline(Service.ARP_RESPONDER), Service.INBOUND_NAT);
-        assertEquals(orchestrator.getNextServiceInPipeline(Service.INBOUND_NAT), Service.EGRESS_ACL);
+        assertEquals(orchestrator.getNextServiceInPipeline(Service.INBOUND_NAT), Service.RESUBMIT_ACL_SERVICE);
+        assertEquals(orchestrator.getNextServiceInPipeline(Service.RESUBMIT_ACL_SERVICE), Service.ACL_LEARN_SERVICE);
+        assertEquals(orchestrator.getNextServiceInPipeline(Service.ACL_LEARN_SERVICE), Service.EGRESS_ACL);
         assertEquals(orchestrator.getNextServiceInPipeline(Service.EGRESS_ACL), Service.LOAD_BALANCER);
         assertEquals(orchestrator.getNextServiceInPipeline(Service.LOAD_BALANCER), Service.ROUTING);
         assertEquals(orchestrator.getNextServiceInPipeline(Service.ROUTING), Service.L3_FORWARDING);
