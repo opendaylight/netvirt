@@ -56,6 +56,24 @@
     },
     {
       "key": {
+        "uuid": "7a6b29fe_2edd4d15",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronNetworkChangeListener.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 75,
+      "author": {
+        "id": 940
+      },
+      "writtenOn": "2016-10-17T23:13:52Z",
+      "side": 1,
+      "message": "Abhinav, even now add() always receives valid ones only. There is a validity check already at the beginning of the add method to make sure we proceed only if the type is one of VLAN, VXLAN, FLAT and GRE.",
+      "parentUuid": "7a6b29fe_66548f21",
+      "revId": "8701d0303ad7acad6293d8db6a36bfbe78f31178",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7a6b29fe_e6137f0b",
         "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronNetworkChangeListener.java",
         "patchSetId": 3
