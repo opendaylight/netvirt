@@ -16,7 +16,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadFactory;
-import com.google.common.util.concurrent.ThreadFactoryBuilder;
+
 import org.opendaylight.netvirt.openstack.netvirt.api.Action;
 import org.opendaylight.netvirt.openstack.netvirt.api.NodeCacheManager;
 import org.opendaylight.netvirt.openstack.netvirt.providers.NetvirtProvidersProvider;
@@ -32,6 +32,7 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.google.common.util.concurrent.ThreadFactoryBuilder;
 
 public class PipelineOrchestratorImpl implements ConfigInterface, NodeCacheListener, PipelineOrchestrator {
     private static final Logger LOG = LoggerFactory.getLogger(PipelineOrchestratorImpl.class);
@@ -63,6 +64,8 @@ public class PipelineOrchestratorImpl implements ConfigInterface, NodeCacheListe
             Service.CLASSIFIER,
             Service.ARP_RESPONDER,
             Service.INBOUND_NAT,
+            Service.RESUBMIT_ACL_SERVICE,
+            Service.ACL_LEARN_SERVICE,
             Service.EGRESS_ACL,
             Service.LOAD_BALANCER,
             Service.ROUTING,
