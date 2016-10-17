@@ -1,0 +1,112 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7a6b29fe_26c0d77b",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NatUtil.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 351,
+      "author": {
+        "id": 940
+      },
+      "writtenOn": "2016-10-17T10:39:25Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7a6b29fe_abcb121d",
+      "revId": "8701d0303ad7acad6293d8db6a36bfbe78f31178",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_46719376",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronNetworkChangeListener.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 72,
+      "author": {
+        "id": 940
+      },
+      "writtenOn": "2016-10-17T10:39:25Z",
+      "side": 1,
+      "message": "To get actual provider type we may end up writing an API just for tracing it properly. Instead iam choosing to mention only the network for which we are facing the issue.",
+      "parentUuid": "7a6b29fe_cb5f6e74",
+      "revId": "8701d0303ad7acad6293d8db6a36bfbe78f31178",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_a60987df",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronNetworkChangeListener.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 75,
+      "author": {
+        "id": 940
+      },
+      "writtenOn": "2016-10-17T10:39:25Z",
+      "side": 1,
+      "message": "Iam not pretty sure on ELAN behaviour. So did not move it up.",
+      "parentUuid": "7a6b29fe_0be8467b",
+      "revId": "8701d0303ad7acad6293d8db6a36bfbe78f31178",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_e6137f0b",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronNetworkChangeListener.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 83,
+      "author": {
+        "id": 940
+      },
+      "writtenOn": "2016-10-17T10:39:25Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7a6b29fe_ab64b249",
+      "revId": "8701d0303ad7acad6293d8db6a36bfbe78f31178",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_46f873c4",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronNetworkChangeListener.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 86,
+      "author": {
+        "id": 940
+      },
+      "writtenOn": "2016-10-17T10:39:25Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7a6b29fe_eb5eaa75",
+      "revId": "8701d0303ad7acad6293d8db6a36bfbe78f31178",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_66ff6fab",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnNatManager.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 214,
+      "author": {
+        "id": 940
+      },
+      "writtenOn": "2016-10-17T10:39:25Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7a6b29fe_8bfbb646",
+      "revId": "8701d0303ad7acad6293d8db6a36bfbe78f31178",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
