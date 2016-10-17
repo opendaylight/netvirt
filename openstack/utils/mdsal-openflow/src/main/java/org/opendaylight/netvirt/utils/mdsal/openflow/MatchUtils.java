@@ -1264,6 +1264,60 @@ public class MatchUtils {
         matchBuilder.setEthernetMatch(eth.build());
         return matchBuilder;
     }
+    /**
+     * Creates a ether net match with ether type set to 0x0800L.
+     * @param matchBuilder MatchBuilder Object
+     * @param srcMac The source macAddress
+     * @param dstMac The destination mac address
+     * @return matchBuilder Map Object with a match
+     */
+    public static MatchBuilder createV4EtherMatchWithLearnTCP(MatchBuilder matchBuilder,String srcMac, String dstMac, Long type, Integer dstPort)
+    {
+    	//= new PortNumber(tcpPort);
+        matchBuilder = createV4EtherMatchWithType(matchBuilder, srcMac, dstMac, type);
+        TcpMatchBuilder tcpmatch = new TcpMatchBuilder();
+        tcpmatch.setTcpDestinationPort(new PortNumber(dstPort));
+        matchBuilder.setLayer4Match(tcpmatch.build());
+        return matchBuilder;
+    }
+    /**
+     * Creates a ether net match with ether type set to 0x0800L.
+     * @param matchBuilder MatchBuilder Object
+     * @param srcMac The source macAddress
+     * @param dstMac The destination mac address
+     * @return matchBuilder Map Object with a match
+     */
+    public static MatchBuilder createV4EtherMatchWithLearnUDP(MatchBuilder matchBuilder,String srcMac, String dstMac, Long type, Integer dstPort)
+    {
+    	//= new PortNumber(tcpPort);
+        matchBuilder = createV4EtherMatchWithType(matchBuilder, srcMac, dstMac, type);
+        UdpMatchBuilder udpmatch = new UdpMatchBuilder();
+        udpmatch.setUdpDestinationPort(new PortNumber(dstPort));
+        matchBuilder.setLayer4Match(udpmatch.build());
+        return matchBuilder;
+    }
+    /**
+     * Creates a ether net match with ether type set to 0x0800L.
+     * @param matchBuilder MatchBuilder Object
+     * @param srcMac The source macAddress
+     * @param dstMac The destination mac address
+     * @return matchBuilder Map Object with a match
+     */
+    public static MatchBuilder createV4EtherMatchWithoutType(MatchBuilder matchBuilder,String srcMac, String dstMac, Long type)
+    {
+        EthernetTypeBuilder ethTypeBuilder = new EthernetTypeBuilder();
+        EthernetMatchBuilder eth = new EthernetMatchBuilder();
+        if (null != srcMac) {
+            eth.setEthernetSource(new EthernetSourceBuilder()
+            .setAddress(new MacAddress(srcMac)).build());
+        }
+        if (null != dstMac) {
+            eth.setEthernetDestination(new EthernetDestinationBuilder()
+                           .setAddress(new MacAddress(dstMac)).build());
+        }
+        matchBuilder.setEthernetMatch(eth.build());
+        return matchBuilder;
+    }
 
     /**
      * Creates a ether net match with ether type set to 0x86DDL.

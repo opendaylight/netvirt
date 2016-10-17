@@ -241,21 +241,28 @@ public class EgressAclService extends AbstractServiceInstance implements EgressA
         egressAclDhcpv6AllowClientTrafficFromVm(dpid, write, localPort,
                                                 Constants.PROTO_DHCP_CLIENT_TRAFFIC_MATCH_PRIORITY);
         programArpRule(dpid, segmentationId, localPort, attachedMac, write);
+        addDropRule(dpid, segmentationId, attachedMac, write,Constants.PROTO_TCP_SYN_MATCH_PRIORITY_DROP);
+        addRegexRule(dpid, segmentationId, attachedMac, write,Constants.PROTO_REG6_MATCH_PRIORITY);
         if (securityServicesManager.isConntrackEnabled()) {
             programEgressAclFixedConntrackRule(dpid, segmentationId, localPort, attachedMac, write);
-        } else {
-            // add rule to drop tcp syn packets from the vm
-            addTcpSynFlagMatchIpv4Drop(dpid, segmentationId, attachedMac, write,
-                                                         Constants.PROTO_TCP_SYN_MATCH_PRIORITY_DROP);
-            addTcpSynFlagMatchIpv6Drop(dpid, segmentationId, attachedMac, write,
-                Constants.PROTO_TCP_SYN_MATCH_PRIORITY_DROP);
-        }
-        // add rule to drop the DHCP server traffic originating from the vm.
+        } 
         egressAclDhcpDropServerTrafficfromVm(dpid, localPort, write,
                                              Constants.PROTO_DHCP_CLIENT_SPOOF_MATCH_PRIORITY_DROP);
         egressAclDhcpv6DropServerTrafficfromVm(dpid, localPort, write,
                                                Constants.PROTO_DHCP_CLIENT_SPOOF_MATCH_PRIORITY_DROP);
     }
+    private void addRegexRule(Long dpidLong, String segmentationId, String srcMac,
+            boolean write, Integer priority) {
+    	String flowName = "Egress_Regx_" + segmentationId + "_" + srcMac;
+		MatchBuilder matchBuilder = new MatchBuilder();
+		matchBuilder = MatchUtils.createV4EtherMatchWithoutType(matchBuilder,srcMac,null,MatchUtils.ETHERTYPE_IPV4);
+		MatchUtils.addNxRegMatch(matchBuilder,
+                new MatchUtils.RegMatch(ClassifierService.REG_FIELD_6, ClassifierService.REG_VALUE_FROM_LOCAL));
+		FlowBuilder flowBuilder = FlowUtils.createFlowBuilder(flowName, priority, matchBuilder, getTable());
+		addPipelineInstruction(flowBuilder, null, false);
+		NodeBuilder nodeBuilder = FlowUtils.createNodeBuilder(dpidLong);
+		syncFlow(flowBuilder, nodeBuilder, write);
+	}
 
     private void addTcpSynFlagMatchIpv4Drop(Long dpidLong, String segmentationId, String srcMac,
                                   boolean write, Integer priority) {
@@ -263,6 +270,16 @@ public class EgressAclService extends AbstractServiceInstance implements EgressA
         MatchBuilder matchBuilder = new MatchBuilder();
         matchBuilder = MatchUtils.createV4EtherMatchWithType(matchBuilder,srcMac,null,MatchUtils.ETHERTYPE_IPV4);
         matchBuilder = MatchUtils.addTcpSynMatch(matchBuilder);
+        FlowBuilder flowBuilder = FlowUtils.createFlowBuilder(flowName, priority, matchBuilder, getTable());
+        addPipelineInstruction(flowBuilder, null, true);
+        NodeBuilder nodeBuilder = FlowUtils.createNodeBuilder(dpidLong);
+        syncFlow(flowBuilder, nodeBuilder, write);
+    }
+    private void addDropRule(Long dpidLong, String segmentationId, String srcMac,
+            boolean write, Integer priority) {
+		String flowName = "Egress_Drop_" + segmentationId + "_" + srcMac + "_DROP";
+		MatchBuilder matchBuilder = new MatchBuilder();
+		matchBuilder = MatchUtils.createV4EtherMatchWithoutType(matchBuilder,srcMac,null,MatchUtils.ETHERTYPE_IPV4);
         FlowBuilder flowBuilder = FlowUtils.createFlowBuilder(flowName, priority, matchBuilder, getTable());
         addPipelineInstruction(flowBuilder, null, true);
         NodeBuilder nodeBuilder = FlowUtils.createNodeBuilder(dpidLong);
@@ -496,19 +513,17 @@ public class EgressAclService extends AbstractServiceInstance implements EgressA
                 MatchUtils.addLayer4MatchWithMask(matchBuilder, MatchUtils.TCP_SHORT,
                                                   0, port, portMaskMap.get(port));
                 addConntrackMatch(matchBuilder, MatchUtils.TRACKED_NEW_CT_STATE,MatchUtils.TRACKED_NEW_CT_STATE_MASK);
-                addTcpSynMatch(matchBuilder);
                 FlowBuilder flowBuilder = FlowUtils.createFlowBuilder(rangeflowId, protoPortMatchPriority,
                                                                       matchBuilder, getTable());
-                addInstructionWithConntrackCommit(flowBuilder, false);
+                addInstructionWithLearnConntrackCommit(portSecurityRule, flowBuilder, false);
                 syncFlow(flowBuilder ,nodeBuilder, write);
             }
         } else {
             flowId = flowId + "_Permit";
             addConntrackMatch(matchBuilder, MatchUtils.TRACKED_NEW_CT_STATE,MatchUtils.TRACKED_NEW_CT_STATE_MASK);
-            addTcpSynMatch(matchBuilder);
             FlowBuilder flowBuilder = FlowUtils.createFlowBuilder(flowId, protoPortMatchPriority,
                                                                   matchBuilder, getTable());
-            addInstructionWithConntrackCommit(flowBuilder, false);
+            addInstructionWithLearnConntrackCommit(portSecurityRule, flowBuilder, false);
             syncFlow(flowBuilder ,nodeBuilder, write);
         }
     }
@@ -580,7 +595,7 @@ public class EgressAclService extends AbstractServiceInstance implements EgressA
         addConntrackMatch(matchBuilder, MatchUtils.TRACKED_NEW_CT_STATE,MatchUtils.TRACKED_NEW_CT_STATE_MASK);
         NodeBuilder nodeBuilder = FlowUtils.createNodeBuilder(dpidLong);
         FlowBuilder flowBuilder = FlowUtils.createFlowBuilder(flowId, protoPortMatchPriority, matchBuilder, getTable());
-        addInstructionWithConntrackCommit(flowBuilder, false);
+        addInstructionWithLearnConntrackCommit(portSecurityRule, flowBuilder, false);
         syncFlow(flowBuilder ,nodeBuilder, write);
     }
 
@@ -630,7 +645,7 @@ public class EgressAclService extends AbstractServiceInstance implements EgressA
         addConntrackMatch(matchBuilder, MatchUtils.TRACKED_NEW_CT_STATE,MatchUtils.TRACKED_NEW_CT_STATE_MASK);
         NodeBuilder nodeBuilder = FlowUtils.createNodeBuilder(dpidLong);
         FlowBuilder flowBuilder = FlowUtils.createFlowBuilder(flowId, protoPortMatchPriority, matchBuilder, getTable());
-        addInstructionWithConntrackCommit(flowBuilder, false);
+        addInstructionWithLearnConntrackCommit(portSecurityRule, flowBuilder, false);
         syncFlow(flowBuilder ,nodeBuilder, write);
     }
 
@@ -691,9 +706,11 @@ public class EgressAclService extends AbstractServiceInstance implements EgressA
                         new Ipv6Prefix(portSecurityRule
                                        .getSecurityRuleRemoteIpPrefix()));
             } else {
+                if (!portSecurityRule.getSecurityRuleRemoteIpPrefix().contains("/0")) {
                 matchBuilder = MatchUtils.addRemoteIpPrefix(matchBuilder, null,
                         new Ipv4Prefix(portSecurityRule
                                        .getSecurityRuleRemoteIpPrefix()));
+                }
             }
         }
         NodeBuilder nodeBuilder = FlowUtils.createNodeBuilder(dpidLong);
@@ -709,7 +726,7 @@ public class EgressAclService extends AbstractServiceInstance implements EgressA
                 addConntrackMatch(matchBuilder, MatchUtils.TRACKED_NEW_CT_STATE,MatchUtils.TRACKED_NEW_CT_STATE_MASK);
                 FlowBuilder flowBuilder = FlowUtils.createFlowBuilder(rangeflowId, protoPortMatchPriority,
                                                                       matchBuilder, getTable());
-                addInstructionWithConntrackCommit(flowBuilder, false);
+                addInstructionWithLearnConntrackCommit(portSecurityRule, flowBuilder, false);
                 syncFlow(flowBuilder ,nodeBuilder, write);
             }
         } else {
@@ -717,7 +734,7 @@ public class EgressAclService extends AbstractServiceInstance implements EgressA
             addConntrackMatch(matchBuilder, MatchUtils.TRACKED_NEW_CT_STATE,MatchUtils.TRACKED_NEW_CT_STATE_MASK);
             FlowBuilder flowBuilder = FlowUtils.createFlowBuilder(flowId, protoPortMatchPriority,
                                                                   matchBuilder, getTable());
-            addInstructionWithConntrackCommit(flowBuilder, false);
+            addInstructionWithLearnConntrackCommit(portSecurityRule, flowBuilder, false);
             syncFlow(flowBuilder ,nodeBuilder, write);
         }
     }
@@ -866,6 +883,23 @@ public class EgressAclService extends AbstractServiceInstance implements EgressA
                     .createInstructionBuilder(ActionUtils.conntrackActionBuilder(conntrackAction), 1, false);
         }
         return addPipelineInstruction(flowBuilder,instructionBuilder, isDrop);
+    }
+    private FlowBuilder addInstructionWithLearnConntrackCommit(NeutronSecurityRule portSecurityRule, FlowBuilder flowBuilder , boolean isDrop) {
+        InstructionBuilder instructionBuilder = null;
+        if (securityServicesManager.isConntrackEnabled()) {
+            Action conntrackAction = ActionUtils.nxConntrackAction(1, 0L, 0, (short)0xff);
+            instructionBuilder = InstructionUtils
+                    .createInstructionBuilder(ActionUtils.conntrackActionBuilder(conntrackAction), 1, false);
+        }
+        if (portSecurityRule.getSecurityRuleProtocol().equalsIgnoreCase(MatchUtils.TCP)) {
+            return EgressAclLearnServiceUtil.programEgressAclLearnRuleForTcp(flowBuilder,instructionBuilder, isDrop);
+        } else if (portSecurityRule.getSecurityRuleProtocol().equalsIgnoreCase(MatchUtils.UDP)) {
+        	return EgressAclLearnServiceUtil.programEgressAclLearnRuleForUdp(flowBuilder,instructionBuilder, isDrop);
+        } else if (portSecurityRule.getSecurityRuleProtocol().equalsIgnoreCase(MatchUtils.ICMP) ||
+                portSecurityRule.getSecurityRuleProtocol().equalsIgnoreCase(MatchUtils.ICMPV6)){
+            return addPipelineInstruction(flowBuilder,instructionBuilder, isDrop);
+        }
+        return flowBuilder;
     }
 
     private FlowBuilder addInstructionWithConntrackRecirc( FlowBuilder flowBuilder) {

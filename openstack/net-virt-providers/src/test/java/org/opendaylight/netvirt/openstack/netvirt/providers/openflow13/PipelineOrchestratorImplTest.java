@@ -96,6 +96,12 @@ public class PipelineOrchestratorImplTest {
                 Service.INBOUND_NAT);
         assertEquals(
                 orchestrator.getNextServiceInPipeline(Service.INBOUND_NAT),
+                Service.RESUBMIT_SERVICE);
+        assertEquals(
+                orchestrator.getNextServiceInPipeline(Service.RESUBMIT_SERVICE),
+                Service.ACL_LEARN_SERVICE);
+        assertEquals(
+                orchestrator.getNextServiceInPipeline(Service.ACL_LEARN_SERVICE),
                 Service.EGRESS_ACL);
         assertEquals(orchestrator.getNextServiceInPipeline(Service.EGRESS_ACL),
                 Service.LOAD_BALANCER);

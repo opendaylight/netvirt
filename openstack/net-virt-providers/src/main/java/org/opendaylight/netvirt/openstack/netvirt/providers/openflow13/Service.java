@@ -18,6 +18,8 @@ public enum Service {
     SFC_CLASSIFIER ((short) 10, "SFC Classifier"),
     ARP_RESPONDER ((short) 20, "Distributed ARP Responder"),
     INBOUND_NAT ((short) 30, "DNAT for inbound floating-ip traffic"),
+    RESUBMIT_SERVICE ((short) 31, "Resubmit service"),
+    ACL_LEARN_SERVICE ((short) 39, "ACL Learn Service"),
     EGRESS_ACL ((short) 40, "Egress Acces-control"),
     LOAD_BALANCER ((short) 50, "Distributed LBaaS"),
     ROUTING ((short) 60, "Distributed Virtual Routing (DVR)"),

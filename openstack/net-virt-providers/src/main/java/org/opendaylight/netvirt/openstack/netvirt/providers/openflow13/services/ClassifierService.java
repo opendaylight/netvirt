@@ -37,6 +37,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.l2.types.rev130827.EtherTyp
 import org.opendaylight.yang.gen.v1.urn.opendaylight.l2.types.rev130827.VlanId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.openflowjava.nx.match.rev140421.NxmNxReg;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.openflowjava.nx.match.rev140421.NxmNxReg0;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.openflowjava.nx.match.rev140421.NxmNxReg6;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.openflowplugin.extension.nicira.action.rev140714.dst.choice.grouping.dst.choice.DstNxRegCaseBuilder;
 
 import com.google.common.collect.Lists;
@@ -47,6 +48,7 @@ public class ClassifierService extends AbstractServiceInstance implements Classi
     public final static long REG_VALUE_FROM_LOCAL = 0x1L;
     public final static long REG_VALUE_FROM_REMOTE = 0x2L;
     public static final Class<? extends NxmNxReg> REG_FIELD = NxmNxReg0.class;
+    public static final Class<? extends NxmNxReg> REG_FIELD_6 = NxmNxReg6.class;
 
     public ClassifierService() {
         super(Service.CLASSIFIER);
