@@ -1,0 +1,124 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7a6b29fe_d151dcd9",
+        "filename": "openstack/net-virt-providers/src/main/java/org/opendaylight/netvirt/openstack/netvirt/providers/ConfigActivator.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 127,
+      "author": {
+        "id": 4269
+      },
+      "writtenOn": "2016-10-18T12:57:02Z",
+      "side": 1,
+      "message": "nitpick remove tabs",
+      "range": {
+        "startLine": 127,
+        "startChar": 0,
+        "endLine": 127,
+        "endChar": 10
+      },
+      "revId": "f7a1b85a8d6eec37c4cb4f75f1c196b1f6ec2883",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_315e50ea",
+        "filename": "openstack/net-virt-providers/src/main/java/org/opendaylight/netvirt/openstack/netvirt/providers/openflow13/AbstractServiceInstance.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 242,
+      "author": {
+        "id": 4269
+      },
+      "writtenOn": "2016-10-18T12:57:02Z",
+      "side": 1,
+      "message": "tabs",
+      "range": {
+        "startLine": 242,
+        "startChar": 0,
+        "endLine": 242,
+        "endChar": 9
+      },
+      "revId": "f7a1b85a8d6eec37c4cb4f75f1c196b1f6ec2883",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_bc1cf7c2",
+        "filename": "openstack/net-virt-providers/src/main/java/org/opendaylight/netvirt/openstack/netvirt/providers/openflow13/OF13Provider.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 1359,
+      "author": {
+        "id": 4269
+      },
+      "writtenOn": "2016-10-18T12:57:02Z",
+      "side": 1,
+      "message": "Is the same done in the above method as well?",
+      "revId": "f7a1b85a8d6eec37c4cb4f75f1c196b1f6ec2883",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_116354b2",
+        "filename": "openstack/net-virt-providers/src/main/java/org/opendaylight/netvirt/openstack/netvirt/providers/openflow13/services/EgressAclLearnServiceUtil.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 79,
+      "author": {
+        "id": 4269
+      },
+      "writtenOn": "2016-10-18T12:57:02Z",
+      "side": 1,
+      "message": "nitpick remove white space",
+      "revId": "f7a1b85a8d6eec37c4cb4f75f1c196b1f6ec2883",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_9c6c9b38",
+        "filename": "openstack/net-virt-providers/src/main/java/org/opendaylight/netvirt/openstack/netvirt/providers/openflow13/services/EgressAclService.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 244,
+      "author": {
+        "id": 4269
+      },
+      "writtenOn": "2016-10-18T12:57:02Z",
+      "side": 1,
+      "message": "conntrack enabled check required here? ( in Ingress as well)",
+      "revId": "f7a1b85a8d6eec37c4cb4f75f1c196b1f6ec2883",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_bc723747",
+        "filename": "openstack/net-virt-providers/src/main/java/org/opendaylight/netvirt/openstack/netvirt/providers/openflow13/services/EgressAclService.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 894,
+      "author": {
+        "id": 4269
+      },
+      "writtenOn": "2016-10-18T12:57:02Z",
+      "side": 1,
+      "message": "Should be in the else of SecurityServicesManager.isConntrackEnabled()?\nCan be a part of egressAclUdp/TCP/ICMP methods?",
+      "range": {
+        "startLine": 894,
+        "startChar": 8,
+        "endLine": 894,
+        "endChar": 10
+      },
+      "revId": "f7a1b85a8d6eec37c4cb4f75f1c196b1f6ec2883",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
