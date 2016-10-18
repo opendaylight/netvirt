@@ -163,7 +163,7 @@ public class NodeCacheManagerImpl extends AbstractHandler implements NodeCacheMa
             if (bridgeName == null || southbound.getBridge(node, bridgeName) != null) {
                 long dpid = southbound.getDataPathId(node);
                 if (dpid != 0L) {
-                    dpids.add(Long.valueOf(dpid));
+                    dpids.add(dpid);
                 }
             }
         }

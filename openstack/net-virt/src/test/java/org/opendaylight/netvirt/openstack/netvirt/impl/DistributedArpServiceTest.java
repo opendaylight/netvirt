@@ -141,11 +141,11 @@ public class DistributedArpServiceTest {
         PowerMockito.when(distributedArpService, "programStaticRuleStage2", anyLong(), anyString(), anyString(), anyString(), any(Action.class)).thenReturn(new Status(StatusCode.SUCCESS));
 
         //Case 1: Add Action.
-        Whitebox.invokeMethod(distributedArpService, "programStaticRuleStage1", Long.valueOf(12), PORT_INT, MAC_ADDRESS, IP, Action.ADD);
+        Whitebox.invokeMethod(distributedArpService, "programStaticRuleStage1", 12L, PORT_INT, MAC_ADDRESS, IP, Action.ADD);
         PowerMockito.verifyPrivate(distributedArpService, times(1)).invoke("programStaticRuleStage2", anyLong(), anyString(), anyString(), anyString(), eq(Action.ADD));
 
         //Case 2: Delete Action.
-        Whitebox.invokeMethod(distributedArpService, "programStaticRuleStage1", Long.valueOf(12), PORT_INT, MAC_ADDRESS, IP, Action.DELETE);
+        Whitebox.invokeMethod(distributedArpService, "programStaticRuleStage1", 12L, PORT_INT, MAC_ADDRESS, IP, Action.DELETE);
         PowerMockito.verifyPrivate(distributedArpService, times(1)).invoke("programStaticRuleStage2", anyLong(), anyString(), anyString(), anyString(), eq(Action.DELETE));
     }
 
@@ -156,13 +156,15 @@ public class DistributedArpServiceTest {
     @Test
     public void testProgramStaticRuleStage2() throws Exception {
         //Case 1: StatusCode BADREQUEST.
-        assertEquals("Error, this not return the correct status code", new Status(StatusCode.BADREQUEST), Whitebox.invokeMethod(distributedArpService, "programStaticRuleStage2", Long.valueOf(45), PORT_INT, MAC_ADDRESS, MALFORM_IP, Action.ADD));
+        assertEquals("Error, this not return the correct status code", new Status(StatusCode.BADREQUEST), Whitebox.invokeMethod(distributedArpService, "programStaticRuleStage2",
+                45L, PORT_INT, MAC_ADDRESS, MALFORM_IP, Action.ADD));
         PowerMockito.mockStatic(InetAddress.class);
         InetAddress inetAddress = mock(InetAddress.class);
         PowerMockito.when(InetAddress.getByName(anyString())).thenReturn(inetAddress);
 
         //Case 2: StatusCode SUCCESS.
-        assertEquals("Error, this not return the correct status code", new Status(StatusCode.SUCCESS), Whitebox.invokeMethod(distributedArpService, "programStaticRuleStage2", Long.valueOf(45), PORT_INT, MAC_ADDRESS, IP, Action.DELETE));
+        assertEquals("Error, this not return the correct status code", new Status(StatusCode.SUCCESS), Whitebox.invokeMethod(distributedArpService, "programStaticRuleStage2",
+                45L, PORT_INT, MAC_ADDRESS, IP, Action.DELETE));
     }
 
     /**
