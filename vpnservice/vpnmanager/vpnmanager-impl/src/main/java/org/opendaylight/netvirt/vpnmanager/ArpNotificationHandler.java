@@ -141,7 +141,7 @@ public class ArpNotificationHandler implements OdlArputilListener {
                 } else {
                     synchronized ((vpnName + ipToQuery).intern()) {
                         VpnUtil.createVpnPortFixedIpToPort(dataBroker, vpnName, ipToQuery, srcInterface, srcMac.getValue(), false, false, true);
-                        addMipAdjacency(vpnName, srcInterface, srcIP, null);
+                        addMipAdjacency(vpnName, srcInterface, srcIP, srcMac.getValue());
                     }
                 }
                 String targetIpToQuery = notification.getDstIpaddress().getIpv4Address().getValue();
@@ -351,7 +351,7 @@ public class ArpNotificationHandler implements OdlArputilListener {
                     String nextHopIp = nextHopIpAddr.split("/")[0];
                     AdjacencyBuilder newAdjBuilder = new AdjacencyBuilder().setIpAddress(ip).setKey
                             (new AdjacencyKey(ip)).setNextHopIpList(Arrays.asList(nextHopIp));
-                    if (mipMacAddress != null) {
+                    if (mipMacAddress != null && !mipMacAddress.equals(nextHopMacAddress)) {
                         newAdjBuilder.setMacAddress(mipMacAddress);
                     }
                     adjacencyList.add(newAdjBuilder.build());
