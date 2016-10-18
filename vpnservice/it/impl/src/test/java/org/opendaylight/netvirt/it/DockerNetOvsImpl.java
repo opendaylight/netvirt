@@ -8,10 +8,12 @@
 package org.opendaylight.netvirt.it;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.regex.Pattern;
 import org.opendaylight.ovsdb.utils.mdsal.utils.MdsalUtils;
 import org.opendaylight.ovsdb.utils.ovsdb.it.utils.DockerOvs;
 import org.opendaylight.ovsdb.utils.southbound.utils.SouthboundUtils;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Node;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,7 +27,7 @@ public class DockerNetOvsImpl extends AbstractNetOvs {
     }
 
     @Override
-    public String createPort(int ovsInstance, Node bridgeNode, String networkName)
+    public String createPort(int ovsInstance, Node bridgeNode, String networkName ,List<Uuid> securityGroupList)
             throws InterruptedException, IOException {
         PortInfo portInfo = buildPortInfo(ovsInstance, getNeutronNetwork(networkName).getIpPfx());
 
@@ -36,7 +38,8 @@ public class DockerNetOvsImpl extends AbstractNetOvs {
         }
 
         NeutronPort neutronPort = new NeutronPort(mdsalUtils, getNetworkId(networkName), getSubnetId(networkName));
-        neutronPort.createPort(portInfo, "compute:None", null, true);
+
+        neutronPort.createPort(portInfo, "compute:None", null, true ,securityGroupList);
         // Not sure if tap really matters. ovs 2.4.0 fails anyways because group chaining
         // is only supported in 2.5.0
         if (isUserSpace) {
