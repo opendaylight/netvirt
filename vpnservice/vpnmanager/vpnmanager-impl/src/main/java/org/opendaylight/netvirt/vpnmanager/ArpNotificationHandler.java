@@ -351,7 +351,7 @@ public class ArpNotificationHandler implements OdlArputilListener {
                     String nextHopIp = nextHopIpAddr.split("/")[0];
                     AdjacencyBuilder newAdjBuilder = new AdjacencyBuilder().setIpAddress(ip).setKey
                             (new AdjacencyKey(ip)).setNextHopIpList(Arrays.asList(nextHopIp));
-                    if (mipMacAddress != null) {
+                    if (mipMacAddress != null && !mipMacAddress.equals(nextHopMacAddress)) {
                         newAdjBuilder.setMacAddress(mipMacAddress);
                     }
                     adjacencyList.add(newAdjBuilder.build());
