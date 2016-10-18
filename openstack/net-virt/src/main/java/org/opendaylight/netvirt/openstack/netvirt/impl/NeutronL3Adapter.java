@@ -58,6 +58,7 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l3.rev150712.routers.attributes.Routers;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l3.rev150712.routers.attributes.routers.Router;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.port.attributes.FixedIps;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.ports.attributes.Ports;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.ports.attributes.ports.Port;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.rev150105.OvsdbTerminationPointAugmentation;
@@ -256,13 +257,17 @@ public class NeutronL3Adapter extends AbstractHandler implements GatewayMacResol
                         if (port.getDeviceId().equals(router.getUuid().getValue()) &&
                                 port.getDeviceOwner().equals(OWNER_ROUTER_INTERFACE)) {
                             LOG.debug("L3 Cache Population : Router interface {} found.",port);
-                            networkIdToRouterMacCache.put(port.getNetworkId().getValue()
-                                    , port.getMacAddress().getValue());
-
-                            networkIdToRouterIpListCache.put(port.getNetworkId().getValue(),
-                                    NeutronIAwareUtil.convertMDSalIpToNeutronIp(port.getFixedIps()));
-                            subnetIdToRouterInterfaceCache.put(port.getFixedIps().get(0).getSubnetId().getValue(),
-                                    NeutronIAwareUtil.convertMDSalInterfaceToNeutronRouterInterface(port));
+                            for (final FixedIps fixedIps : port.getFixedIps()) {
+                                if (fixedIps.getIpAddress().getIpv4Address() != null) {
+                                    networkIdToRouterMacCache.put(port.getNetworkId().getValue(),
+                                                                  port.getMacAddress().getValue());
+                                    networkIdToRouterIpListCache.put(port.getNetworkId().getValue(),
+                                                                     NeutronIAwareUtil.convertMDSalIpToNeutronIp(port.getFixedIps()));
+                                    subnetIdToRouterInterfaceCache.put(port.getFixedIps().get(0).getSubnetId().getValue(),
+                                                                       NeutronIAwareUtil.convertMDSalInterfaceToNeutronRouterInterface(port));
+                                    break;
+                                }
+                            }
                         }
                     }
                 }else {
@@ -1030,6 +1035,10 @@ public class NeutronL3Adapter extends AbstractHandler implements GatewayMacResol
         LOG.trace("programFlowsForNeutronRouterInterface called for interface {} isDelete {}",
                      destNeutronRouterInterface, isDelete);
 
+        if (subnet != null && subnet.getIpVersion().intValue() == 6) {
+            LOG.trace("programFlowsForNeutronRouterInterface doesn't support IPv6 router interface");
+            return;
+        }
         // in delete path, mac address as well as ip address are not provided. Being so, let's find them from
         // the local cache
         if (neutronNetwork != null) {
@@ -1075,6 +1084,12 @@ public class NeutronL3Adapter extends AbstractHandler implements GatewayMacResol
                 final String ipStr = neutronIP.getIpAddress();
                 if (ipStr.isEmpty()) {
                     LOG.debug("programFlowsForNeutronRouterInterface is skipping node {} ip {}",
+                            node.getNodeId().getValue(), ipStr);
+                    continue;
+                }
+                final IpAddress ipAddress = new IpAddress(ipStr.toCharArray());
+                if (ipAddress.getIpv4Address() == null) {
+                    LOG.debug("programFlowsForNeutronRouterInterface is skipping node {} ipv6 {}",
                             node.getNodeId().getValue(), ipStr);
                     continue;
                 }
