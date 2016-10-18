@@ -786,7 +786,8 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
                 return BigInteger.ZERO;
             }
 
-            final long groupId = nextHopManager.createLocalNextHop(parentVpnId, dpnId, localNextHopInfo.getVpnInterfaceName(), localNextHopIP);
+            final long groupId = nextHopManager.createLocalNextHop(parentVpnId, dpnId,
+                    localNextHopInfo.getVpnInterfaceName(), localNextHopIP, vrfEntry.getDestPrefix());
             if (groupId == 0) {
                 LOG.error("Unable to create Group for local prefix {} on rd {} for vpninterface {} on Node {}",
                         vrfEntry.getDestPrefix(), rd, localNextHopInfo.getVpnInterfaceName(), dpnId.toString());
@@ -1011,7 +1012,7 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
                         }
                     });
             //TODO: verify below adjacency call need to be optimized (?)
-            deleteLocalAdjacency(dpnId, vpnId, localNextHopIP);
+            deleteLocalAdjacency(dpnId, vpnId, localNextHopIP, vrfEntry.getDestPrefix());
             return dpnId;
         }
         return BigInteger.ZERO;
@@ -1618,10 +1619,11 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
                 dpId, label, instructions );
     }
 
-    private void deleteLocalAdjacency(final BigInteger dpId, final long vpnId, final String ipAddress) {
+    private void deleteLocalAdjacency(final BigInteger dpId, final long vpnId, final String ipAddress,
+                                      final String ipPrefixAddress) {
         LOG.trace("deleteLocalAdjacency called with dpid {}, vpnId{}, ipAddress {}",dpId, vpnId, ipAddress);
         try {
-            nextHopManager.removeLocalNextHop(dpId, vpnId, ipAddress);
+            nextHopManager.removeLocalNextHop(dpId, vpnId, ipAddress, ipPrefixAddress);
         } catch (NullPointerException e) {
             LOG.trace("", e);
         }
