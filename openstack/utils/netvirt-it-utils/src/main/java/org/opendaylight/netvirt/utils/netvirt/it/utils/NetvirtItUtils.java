@@ -82,7 +82,7 @@ public class NetvirtItUtils {
             NxAugMatchRpcUpdateFlowOriginal.class,
             NxAugMatchRpcUpdateFlowUpdated.class};
 
-    private static Integer DEFAULT_PRIORITY = new Integer(32768);
+    private static Integer DEFAULT_PRIORITY = 32768;
 
     /**
      * Create a new NetvirtItUtils instance.
