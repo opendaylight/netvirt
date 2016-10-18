@@ -162,9 +162,9 @@ public class SfcClassifier {
         org.opendaylight.yang.gen.v1.urn.opendaylight.action.types.rev131112.action.Action pushNsh =
                 ActionUtils.nxPushNshAction();
         org.opendaylight.yang.gen.v1.urn.opendaylight.action.types.rev131112.action.Action nshMdtypeLoad =
-                ActionUtils.nxLoadNshMdtypeAction(Short.valueOf((short)0x1));
+                ActionUtils.nxLoadNshMdtypeAction((short) 0x1);
         org.opendaylight.yang.gen.v1.urn.opendaylight.action.types.rev131112.action.Action nshNpLoad =
-                ActionUtils.nxLoadNshNpAction(Short.valueOf((short)0x3));
+                ActionUtils.nxLoadNshNpAction((short) 0x3);
         org.opendaylight.yang.gen.v1.urn.opendaylight.action.types.rev131112.action.Action nshC1Load =
                 ActionUtils.nxLoadNshc1RegAction(header.getNshMetaC1());
         org.opendaylight.yang.gen.v1.urn.opendaylight.action.types.rev131112.action.Action nshC2Load =
@@ -250,7 +250,7 @@ public class SfcClassifier {
                 //MatchUtils.createDstL3IPv4Match(matchBuilder, aceIpv4.getDestinationIpv4Network());
                 MatchUtils.createIpProtocolMatch(matchBuilder, aceIp.getProtocol());
                 MatchUtils.addLayer4Match(matchBuilder, aceIp.getProtocol().intValue(), 0,
-                        aceIp.getDestinationPortRange().getLowerPort().getValue().intValue());
+                        aceIp.getDestinationPortRange().getLowerPort().getValue());
             }
         } else if (matches.getAceType() instanceof AceEth) {
             AceEth aceEth = (AceEth) matches.getAceType();
