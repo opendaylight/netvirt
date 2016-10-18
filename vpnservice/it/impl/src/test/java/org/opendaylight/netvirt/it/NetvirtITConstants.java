@@ -8,10 +8,12 @@
 package org.opendaylight.netvirt.it;
 
 import org.opendaylight.genius.mdsalutil.NwConstants;
-
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.constants.rev150712.EthertypeV4;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.constants.rev150712.EthertypeV6;
 /**
  * Constants for NetvirtIT.
  */
+
 public final class NetvirtITConstants {
     private NetvirtITConstants() {
     }
@@ -58,4 +60,12 @@ public final class NetvirtITConstants {
             return tableId;
         }
     }
+
+    public static final Class<EthertypeV4> ETHER_TYPE_V4 = EthertypeV4.class;
+    public static final Class<EthertypeV6> ETHER_TYPE_V6 = EthertypeV6.class;
+    public static final String PROTOCOL_ICMP = "icmp";
+    public static final String PROTOCOL_TCP = "tcp";
+    public static final String PROTOCOL_UDP = "udp";
+    public static final String PROTOCOL_ICMPV6 = "icmpv6";
+    public static final String PREFIX_ALL_NETWORK = "0.0.0.0/0";
 }

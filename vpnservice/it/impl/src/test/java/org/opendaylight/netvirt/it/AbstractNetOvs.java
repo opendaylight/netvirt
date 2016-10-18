@@ -10,6 +10,7 @@ package org.opendaylight.netvirt.it;
 import com.google.common.collect.Maps;
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.ovsdb.utils.mdsal.utils.MdsalUtils;
@@ -95,7 +96,7 @@ public class AbstractNetOvs implements NetOvs {
     }
 
     @Override
-    public String createPort(int ovsInstance, Node bridgeNode, String networkName)
+    public String createPort(int ovsInstance, Node bridgeNode, String networkName, List<Uuid> securityGroupList)
             throws InterruptedException, IOException {
         return null;
     }
@@ -106,7 +107,7 @@ public class AbstractNetOvs implements NetOvs {
                 getNeutronNetwork(networkName).getIpPfx());
 
         NeutronPort neutronPort = new NeutronPort(mdsalUtils, getNetworkId(networkName), getSubnetId(networkName));
-        neutronPort.createPort(portInfo, "network:router_interface", getRouterId(routerName), false);
+        neutronPort.createPort(portInfo, "network:router_interface", getRouterId(routerName), false, null);
 
         portInfoByName.put(portInfo.name, portInfo);
         return portInfo.name;

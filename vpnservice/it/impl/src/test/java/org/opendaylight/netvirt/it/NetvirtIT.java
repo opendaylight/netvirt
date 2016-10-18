@@ -29,6 +29,8 @@ import static org.ops4j.pax.exam.karaf.options.LogLevelOption.LogLevel.WARN;
 import com.google.common.collect.Maps;
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -86,6 +88,7 @@ public class NetvirtIT extends AbstractMdsalTestBase {
     @Inject @Filter(timeout = 60000)
     private static DataBroker dataBroker = null;
     private static String userSpaceEnabled;
+    private static NeutronSecurityGroupUtils neutronSecurityGroupUtils;
 
     @Override
     public MavenUrlReference getFeatureRepo() {
@@ -206,6 +209,7 @@ public class NetvirtIT extends AbstractMdsalTestBase {
         nvSouthboundUtils = new org.opendaylight.netvirt.it.SouthboundUtils(mdsalUtils);
         assertTrue("Did not find " + NETVIRT_TOPOLOGY_ID, getNetvirtTopology());
         flowITUtil = new FlowITUtil(dataBroker);
+        neutronSecurityGroupUtils = new NeutronSecurityGroupUtils(mdsalUtils);
 
         setup.set(true);
     }
@@ -315,13 +319,16 @@ public class NetvirtIT extends AbstractMdsalTestBase {
             Boolean isUserSpace = userSpaceEnabled.equals("yes");
             LOG.info("isUserSpace: {}, usingExternalDocker: {}", isUserSpace, ovs.usingExternalDocker());
             NetOvs netOvs = getNetOvs(ovs, isUserSpace);
-
-            NodeInfo nodeInfo = connectOvs(netOvs, ovs1, ovs);
-
             netOvs.createNetwork(NETWORK1_NAME, NETWORK1_SEGID, NETWORK1_IPPFX);
 
-            String port1 = addPort(netOvs, nodeInfo, ovs1, NETWORK1_NAME);
-            String port2 = addPort(netOvs, nodeInfo, ovs1, NETWORK1_NAME);
+            //Creating default SG
+            LOG.info("Installing default SG");
+            List<Uuid> sgList = new ArrayList<>();
+            sgList.add(neutronSecurityGroupUtils.createDefaultSG());
+
+            NodeInfo nodeInfo = connectOvs(netOvs, ovs1, ovs);
+            String port1 = addPort(netOvs, nodeInfo, ovs1, NETWORK1_NAME, sgList);
+            String port2 = addPort(netOvs, nodeInfo, ovs1, NETWORK1_NAME, sgList);
 
             int rc = netOvs.ping(port1, port2);
             LOG.info("Ping status rc: {}, ignored for isUserSpace: {}", rc, isUserSpace);
@@ -347,15 +354,19 @@ public class NetvirtIT extends AbstractMdsalTestBase {
             LOG.info("isUserSpace: {}, usingExternalDocker: {}", isUserSpace, ovs.usingExternalDocker());
             NetOvs netOvs = getNetOvs(ovs, isUserSpace);
 
-            NodeInfo nodeInfo = connectOvs(netOvs, ovs1, ovs);
-
             //create 2 networks
             netOvs.createNetwork(NETWORK1_NAME, NETWORK1_SEGID, NETWORK1_IPPFX);
             netOvs.createNetwork(NETWORK2_NAME, NETWORK2_SEGID, NETWORK2_IPPFX);
 
+            //Creating default SG
+            LOG.info("Installing default SG");
+            List<Uuid> sgList = new ArrayList<>();
+            sgList.add(neutronSecurityGroupUtils.createDefaultSG());
+
+            NodeInfo nodeInfo = connectOvs(netOvs, ovs1, ovs);
             //create 2 "vms" ports
-            String port1 = addPort(netOvs, nodeInfo, ovs1, NETWORK1_NAME);
-            String port2 = addPort(netOvs, nodeInfo, ovs1, NETWORK2_NAME);
+            String port1 = addPort(netOvs, nodeInfo, ovs1, NETWORK1_NAME, sgList);
+            String port2 = addPort(netOvs, nodeInfo, ovs1, NETWORK2_NAME, sgList);
 
             int rc = netOvs.ping(port1, port2);
             netOvs.logState(ovs1, "after ping without router");
@@ -390,13 +401,17 @@ public class NetvirtIT extends AbstractMdsalTestBase {
             LOG.info("isUserSpace: {}, usingExternalDocker: {}", isUserSpace, ovs.usingExternalDocker());
             NetOvs netOvs = getNetOvs(ovs, isUserSpace);
 
-            NodeInfo nodeInfo = connectOvs(netOvs, ovs1, ovs);
-            NodeInfo nodeInfo2 = connectOvs(netOvs, ovs2, ovs);
-
             netOvs.createNetwork(NETWORK1_NAME, NETWORK1_SEGID, NETWORK1_IPPFX);
 
-            String port1 = addPort(netOvs, nodeInfo, ovs1, NETWORK1_NAME);
-            String port2 = addPort(netOvs, nodeInfo2, ovs2, NETWORK1_NAME);
+            //Creating default SG
+            LOG.info("Installing default SG");
+            List<Uuid> sgList = new ArrayList<>();
+            sgList.add(neutronSecurityGroupUtils.createDefaultSG());
+
+            NodeInfo nodeInfo = connectOvs(netOvs, ovs1, ovs);
+            NodeInfo nodeInfo2 = connectOvs(netOvs, ovs2, ovs);
+            String port1 = addPort(netOvs, nodeInfo, ovs1, NETWORK1_NAME, sgList);
+            String port2 = addPort(netOvs, nodeInfo2, ovs2, NETWORK1_NAME, sgList);
 
             int rc = netOvs.ping(port1, port2);
             LOG.info("Ping status rc: {}, ignored for isUserSpace: {}", rc, isUserSpace);
@@ -426,16 +441,20 @@ public class NetvirtIT extends AbstractMdsalTestBase {
             LOG.info("isUserSpace: {}, usingExternalDocker: {}", isUserSpace, ovs.usingExternalDocker());
             NetOvs netOvs = getNetOvs(ovs, isUserSpace);
 
-            NodeInfo nodeInfo = connectOvs(netOvs, ovs1, ovs);
-            NodeInfo nodeInfo2 = connectOvs(netOvs, ovs2, ovs);
+            //Creating default SG
+            LOG.info("Installing default SG");
+            List<Uuid> sgList = new ArrayList<>();
+            sgList.add(neutronSecurityGroupUtils.createDefaultSG());
 
             //create 2 networks
             netOvs.createNetwork(NETWORK1_NAME, NETWORK1_SEGID, NETWORK1_IPPFX);
             netOvs.createNetwork(NETWORK2_NAME, NETWORK2_SEGID, NETWORK2_IPPFX);
 
+            NodeInfo nodeInfo = connectOvs(netOvs, ovs1, ovs);
+            NodeInfo nodeInfo2 = connectOvs(netOvs, ovs2, ovs);
             //create 2 "vms" ports
-            String port1 = addPort(netOvs, nodeInfo, ovs1, NETWORK1_NAME);
-            String port2 = addPort(netOvs, nodeInfo2, ovs2, NETWORK2_NAME);
+            String port1 = addPort(netOvs, nodeInfo, ovs1, NETWORK1_NAME, sgList);
+            String port2 = addPort(netOvs, nodeInfo2, ovs2, NETWORK2_NAME, sgList);
 
             int rc = netOvs.ping(port1, port2);
             netOvs.logState(ovs1, "node 1 after ping without router");
@@ -488,9 +507,10 @@ public class NetvirtIT extends AbstractMdsalTestBase {
         return nodeInfo;
     }
 
-    private String addPort(NetOvs netOvs, NodeInfo nodeInfo, int ovsInstance, String networkName) throws
+    private String addPort(NetOvs netOvs, NodeInfo nodeInfo, int ovsInstance, String networkName,
+            List<Uuid> securityGroupList) throws
             IOException, InterruptedException {
-        String port = netOvs.createPort(ovsInstance, nodeInfo.bridgeNode, networkName);
+        String port = netOvs.createPort(ovsInstance, nodeInfo.bridgeNode, networkName, securityGroupList);
         LOG.info("Created port: {}", netOvs.getPortInfo(port));
 
         InstanceIdentifier<TerminationPoint> tpIid =

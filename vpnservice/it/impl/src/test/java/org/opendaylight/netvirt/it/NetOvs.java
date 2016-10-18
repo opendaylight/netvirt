@@ -8,6 +8,9 @@
 package org.opendaylight.netvirt.it;
 
 import java.io.IOException;
+import java.util.List;
+
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Node;
 
 public interface NetOvs {
@@ -15,7 +18,7 @@ public interface NetOvs {
 
     String createRouter(String routerName);
 
-    String createPort(int ovsInstance, Node bridgeNode, String networkName) throws
+    String createPort(int ovsInstance, Node bridgeNode, String networkName, List<Uuid> securityGroupList) throws
             InterruptedException, IOException;
 
     String createRouterInterface(String routerName, String networkName);
