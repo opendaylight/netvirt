@@ -782,16 +782,11 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
         if (localNextHopInfo != null) {
             final BigInteger dpnId = localNextHopInfo.getDpnId();
             if (!isVpnPresentInDpn(rd, dpnId)) {
-                LOG.error("The vpnName with vpnId {} rd {} is not available on dpn {}", vpnId, rd, dpnId.toString());
                 return BigInteger.ZERO;
             }
 
-            final long groupId = nextHopManager.createLocalNextHop(parentVpnId, dpnId, localNextHopInfo.getVpnInterfaceName(), localNextHopIP);
-            if (groupId == 0) {
-                LOG.error("Unable to create Group for local prefix {} on rd {} for vpninterface {} on Node {}",
-                        vrfEntry.getDestPrefix(), rd, localNextHopInfo.getVpnInterfaceName(), dpnId.toString());
-                return BigInteger.ZERO;
-            }
+            final long groupId = nextHopManager.createLocalNextHop(parentVpnId, dpnId, localNextHopInfo.getVpnInterfaceName(), localNextHopIP, vrfEntry.getDestPrefix());
+
             List<ActionInfo> actionsInfos =
                     Arrays.asList(new ActionInfo(ActionType.group, new String[] { String.valueOf(groupId)}));
             final List<InstructionInfo> instructions =
@@ -949,8 +944,11 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
                 for (String nextHopIp : extra_route.getNexthopIpList()) {
                     LOG.debug("NextHop IP for destination {} is {}", vrfEntry.getDestPrefix(), nextHopIp);
                     if (nextHopIp != null) {
-                        localNextHopInfo = nextHopManager.getVpnNexthop(vpnId, nextHopIp + "/32");
-                        localNextHopIP = nextHopIp + "/32";
+                        Prefixes localNextHopPrefix = getPrefixToInterface(vpnId, nextHopIp + "/32");
+                        localNextHopIP = nextHopIp + "/32";             
+                        localNextHopInfo = nextHopManager.getVpnNexthopByInterface(vpnId, 
+                                localNextHopPrefix.getVpnInterfaceName(), vrfEntry.getDestPrefix(), localNextHopPrefix.getIpAddress());
+                        localNextHopIP = nextHopIp + "/32";                       
                         BigInteger dpnId = checkDeleteLocalFibEntry(localNextHopInfo, localNextHopIP,
                                 vpnId, rd, vrfEntry, true /*isExtraRoute*/);
                         if (!dpnId.equals(BigInteger.ZERO)) {
@@ -986,7 +984,7 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
 
         return returnLocalDpnId;
     }
-
+    
     private BigInteger checkDeleteLocalFibEntry(VpnNexthop localNextHopInfo, final String localNextHopIP,
                                                 final Long vpnId, final String rd,
                                                 final VrfEntry vrfEntry, final boolean isExtraRoute) {
@@ -1011,7 +1009,7 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
                         }
                     });
             //TODO: verify below adjacency call need to be optimized (?)
-            deleteLocalAdjacency(dpnId, vpnId, localNextHopIP);
+            deleteLocalAdjacency(dpnId, vpnId, localNextHopInfo);
             return dpnId;
         }
         return BigInteger.ZERO;
@@ -1618,10 +1616,10 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
                 dpId, label, instructions );
     }
 
-    private void deleteLocalAdjacency(final BigInteger dpId, final long vpnId, final String ipAddress) {
-        LOG.trace("deleteLocalAdjacency called with dpid {}, vpnId{}, ipAddress {}",dpId, vpnId, ipAddress);
+    private void deleteLocalAdjacency(final BigInteger dpId, final long vpnId, VpnNexthop localNextHopInfo) {
+        LOG.trace("deleteLocalAdjacency called with dpid {}, vpnId{}, HextHop {}",dpId, vpnId, localNextHopInfo);
         try {
-            nextHopManager.removeLocalNextHop(dpId, vpnId, ipAddress);
+            nextHopManager.removeLocalNextHop(dpId, vpnId, localNextHopInfo);
         } catch (NullPointerException e) {
             LOG.trace("", e);
         }
