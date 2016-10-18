@@ -394,7 +394,7 @@ public final class ActionUtils {
     public static Action nxSetNspAction(Long nsp) {
         return nxLoadRegAction(
             new DstNxNspCaseBuilder().setNxNspDst(Boolean.TRUE).build(),
-            BigInteger.valueOf(nsp.longValue()),
+            BigInteger.valueOf(nsp),
             23,
             false
         );
@@ -412,7 +412,7 @@ public final class ActionUtils {
     public static Action nxLoadNshc1RegAction(Long value) {
         return nxLoadRegAction(
             new DstNxNshc1CaseBuilder().setNxNshc1Dst(Boolean.TRUE).build(),
-            BigInteger.valueOf(value.longValue()),
+            BigInteger.valueOf(value),
             31,
             false
         );
@@ -421,7 +421,7 @@ public final class ActionUtils {
     public static Action nxLoadNshc2RegAction(Long value) {
         return nxLoadRegAction(
             new DstNxNshc2CaseBuilder().setNxNshc2Dst(Boolean.TRUE).build(),
-            BigInteger.valueOf(value.longValue()),
+            BigInteger.valueOf(value),
             31,
             false
         );
@@ -430,7 +430,7 @@ public final class ActionUtils {
     public static Action nxLoadNshc3RegAction(Long value) {
         return nxLoadRegAction(
             new DstNxNshc3CaseBuilder().setNxNshc3Dst(Boolean.TRUE).build(),
-            BigInteger.valueOf(value.longValue()),
+            BigInteger.valueOf(value),
             31,
             false
         );
@@ -439,7 +439,7 @@ public final class ActionUtils {
     public static Action nxLoadNshc4RegAction(Long value) {
         return nxLoadRegAction(
             new DstNxNshc4CaseBuilder().setNxNshc4Dst(Boolean.TRUE).build(),
-            BigInteger.valueOf(value.longValue()),
+            BigInteger.valueOf(value),
             31,
             false
         );

@@ -461,7 +461,7 @@ public class NeutronL3AdapterTest {
         MemberModifier.field(NeutronL3Adapter.class, "neutronPortToDpIdCache").set(neutronL3Adapter , neutronPortToDpIdCache);
         int temp = neutronPortToDpIdCache.size();
 
-        Whitebox.invokeMethod(neutronL3Adapter, "handleInterfaceEventAdd", "", Long.valueOf(5), mock(Uuid.class));
+        Whitebox.invokeMethod(neutronL3Adapter, "handleInterfaceEventAdd", "", 5L, mock(Uuid.class));
 
         assertEquals("Error, did not add the port", temp+1, neutronPortToDpIdCache.size());
     }
@@ -546,11 +546,11 @@ public class NeutronL3AdapterTest {
         PowerMockito.when(neutronL3Adapter, "programL3ForwardingStage2", any(Node.class), anyLong(), anyString(), anyString(), anyString(), eq(Action.DELETE)).thenReturn(new Status(StatusCode.SUCCESS));
 
 
-        Whitebox.invokeMethod(neutronL3Adapter, "programL3ForwardingStage1", node, Long.valueOf(45), SEG_ID, MAC_ADDRESS, IP, Action.ADD);
+        Whitebox.invokeMethod(neutronL3Adapter, "programL3ForwardingStage1", node, 45L, SEG_ID, MAC_ADDRESS, IP, Action.ADD);
         PowerMockito.verifyPrivate(neutronL3Adapter, times(1)).invoke("programL3ForwardingStage2", any(Node.class), anyLong(), anyString(), anyString(), anyString(), eq(Action.ADD));
 
 
-        Whitebox.invokeMethod(neutronL3Adapter, "programL3ForwardingStage1", node, Long.valueOf(45), SEG_ID, MAC_ADDRESS, IP, Action.DELETE);
+        Whitebox.invokeMethod(neutronL3Adapter, "programL3ForwardingStage1", node, 45L, SEG_ID, MAC_ADDRESS, IP, Action.DELETE);
         PowerMockito.verifyPrivate(neutronL3Adapter, times(1)).invoke("programL3ForwardingStage2", any(Node.class), anyLong(), anyString(), anyString(), anyString(), eq(Action.DELETE));
     }
 
@@ -561,13 +561,15 @@ public class NeutronL3AdapterTest {
         Node node = mock(Node.class);
         when(node.getNodeId()).thenReturn(nodeId);
 
-        assertEquals("Error, this not return the correct status code", new Status(StatusCode.BADREQUEST), Whitebox.invokeMethod(neutronL3Adapter, "programL3ForwardingStage2", node, Long.valueOf(45), SEG_ID, MAC_ADDRESS, MALFORM_IP, Action.ADD));
+        assertEquals("Error, this not return the correct status code", new Status(StatusCode.BADREQUEST), Whitebox.invokeMethod(neutronL3Adapter, "programL3ForwardingStage2", node,
+                45L, SEG_ID, MAC_ADDRESS, MALFORM_IP, Action.ADD));
 
         PowerMockito.mockStatic(InetAddress.class);
         InetAddress inetAddress = mock(InetAddress.class);
         PowerMockito.when(InetAddress.getByName(anyString())).thenReturn(inetAddress);
 
-        assertEquals("Error, this not return the correct status code", new Status(StatusCode.SUCCESS), Whitebox.invokeMethod(neutronL3Adapter, "programL3ForwardingStage2", node, Long.valueOf(45), SEG_ID, MAC_ADDRESS, IP, Action.ADD));
+        assertEquals("Error, this not return the correct status code", new Status(StatusCode.SUCCESS), Whitebox.invokeMethod(neutronL3Adapter, "programL3ForwardingStage2", node,
+                45L, SEG_ID, MAC_ADDRESS, IP, Action.ADD));
     }
 
     @Test
@@ -663,7 +665,7 @@ public class NeutronL3AdapterTest {
     public void testProgramFlowForNetworkFromExternal() throws Exception {
         MemberModifier.suppress(MemberMatcher.method(NeutronL3Adapter.class, "programRouterInterfaceStage1", Node.class, Long.class, String.class, String.class, String.class, String.class, int.class, Action.class));
 
-        Whitebox.invokeMethod(neutronL3Adapter, "programFlowForNetworkFromExternal", mock(Node.class), Long.valueOf(12), "", "", "", 4, Action.ADD);
+        Whitebox.invokeMethod(neutronL3Adapter, "programFlowForNetworkFromExternal", mock(Node.class), 12L, "", "", "", 4, Action.ADD);
 
         PowerMockito.verifyPrivate(neutronL3Adapter, times(1)).invoke("programRouterInterfaceStage1", any(Node.class), anyLong(), anyString(), anyString(), anyString(), anyString(), anyInt(), any(Action.class));
     }
@@ -704,10 +706,10 @@ public class NeutronL3AdapterTest {
         MemberModifier.suppress(MemberMatcher.method(NeutronL3Adapter.class, "programRouterInterfaceStage1", Node.class, Long.class, String.class, String.class, String.class, String.class, int.class, Action.class));
         MemberModifier.suppress(MemberMatcher.method(NeutronL3Adapter.class, "getMaskLenFromCidr", String.class));
 
-        Whitebox.invokeMethod(neutronL3Adapter, "programFlowsForNeutronRouterInterfacePair", mock(Node.class), Long.valueOf(12), srcNeutronRouterInterface, dstNeutronRouterInterface, neutronNetwork, SEG_ID, MAC_ADDRESS, IP, 4, Action.ADD, false);
+        Whitebox.invokeMethod(neutronL3Adapter, "programFlowsForNeutronRouterInterfacePair", mock(Node.class), 12L, srcNeutronRouterInterface, dstNeutronRouterInterface, neutronNetwork, SEG_ID, MAC_ADDRESS, IP, 4, Action.ADD, false);
         PowerMockito.verifyPrivate(neutronL3Adapter, times(1)).invoke("programRouterInterfaceStage1", any(Node.class), anyLong(), anyString(), anyString(), anyString(), anyString(), anyInt(), any(Action.class));
 
-        Whitebox.invokeMethod(neutronL3Adapter, "programFlowsForNeutronRouterInterfacePair", mock(Node.class), Long.valueOf(12), srcNeutronRouterInterface, dstNeutronRouterInterface, neutronNetwork, SEG_ID, MAC_ADDRESS, IP, 4, Action.ADD, true);
+        Whitebox.invokeMethod(neutronL3Adapter, "programFlowsForNeutronRouterInterfacePair", mock(Node.class), 12L, srcNeutronRouterInterface, dstNeutronRouterInterface, neutronNetwork, SEG_ID, MAC_ADDRESS, IP, 4, Action.ADD, true);
         PowerMockito.verifyPrivate(neutronL3Adapter, times(2)).invoke("programRouterInterfaceStage1", any(Node.class), anyLong(), anyString(), anyString(), anyString(), anyString(), anyInt(), any(Action.class));
         PowerMockito.verifyPrivate(neutronL3Adapter, times(1)).invoke("getMaskLenFromCidr", anyString());
         PowerMockito.verifyPrivate(neutronL3Adapter, times(4)).invoke("programFlowsForNeutronRouterInterfacePair", any(Node.class), anyLong(), any(NeutronRouter_Interface.class), any(NeutronRouter_Interface.class), any(NeutronNetwork.class), anyString(), anyString(), anyString(), anyInt(), any(Action.class), eq(false)); //3 + 1 above
@@ -726,11 +728,11 @@ public class NeutronL3AdapterTest {
         PowerMockito.when(neutronL3Adapter, "programRouterInterfaceStage2", any(Node.class), anyLong(), anyString(), anyString(), anyString(), anyString(), anyInt(), any(Action.class)).thenReturn(new Status(StatusCode.SUCCESS));
 
 
-        Whitebox.invokeMethod(neutronL3Adapter, "programRouterInterfaceStage1", node, Long.valueOf(12), SEG_ID, SEG_ID, MAC_ADDRESS, IP, 4, Action.ADD);
+        Whitebox.invokeMethod(neutronL3Adapter, "programRouterInterfaceStage1", node, 12L, SEG_ID, SEG_ID, MAC_ADDRESS, IP, 4, Action.ADD);
 
         PowerMockito.verifyPrivate(neutronL3Adapter, times(1)).invoke("programRouterInterfaceStage1", any(Node.class), anyLong(), anyString(), anyString(), anyString(), anyString(), anyInt(), eq(Action.ADD));
 
-        Whitebox.invokeMethod(neutronL3Adapter, "programRouterInterfaceStage1", node, Long.valueOf(12), SEG_ID, SEG_ID, MAC_ADDRESS, IP, 4, Action.DELETE);
+        Whitebox.invokeMethod(neutronL3Adapter, "programRouterInterfaceStage1", node, 12L, SEG_ID, SEG_ID, MAC_ADDRESS, IP, 4, Action.DELETE);
 
         PowerMockito.verifyPrivate(neutronL3Adapter, times(1)).invoke("programRouterInterfaceStage1", any(Node.class), anyLong(), anyString(), anyString(), anyString(), anyString(), anyInt(), eq(Action.DELETE));
     }
@@ -742,13 +744,15 @@ public class NeutronL3AdapterTest {
         Node node = mock(Node.class);
         when(node.getNodeId()).thenReturn(nodeId);
 
-        assertEquals("Error, this not return the correct status code", new Status(StatusCode.BADREQUEST), Whitebox.invokeMethod(neutronL3Adapter, "programRouterInterfaceStage2", node, Long.valueOf(45), SEG_ID, SEG_ID , MAC_ADDRESS, MALFORM_IP, 4, Action.ADD));
+        assertEquals("Error, this not return the correct status code", new Status(StatusCode.BADREQUEST), Whitebox.invokeMethod(neutronL3Adapter, "programRouterInterfaceStage2", node,
+                45L, SEG_ID, SEG_ID , MAC_ADDRESS, MALFORM_IP, 4, Action.ADD));
 
         PowerMockito.mockStatic(InetAddress.class);
         InetAddress inetAddress = mock(InetAddress.class);
         PowerMockito.when(InetAddress.getByName(anyString())).thenReturn(inetAddress);
 
-        assertEquals("Error, this not return the correct status code", new Status(StatusCode.SUCCESS), Whitebox.invokeMethod(neutronL3Adapter, "programRouterInterfaceStage2", node, Long.valueOf(45), SEG_ID, SEG_ID, MAC_ADDRESS, IP, 4, Action.ADD));
+        assertEquals("Error, this not return the correct status code", new Status(StatusCode.SUCCESS), Whitebox.invokeMethod(neutronL3Adapter, "programRouterInterfaceStage2", node,
+                45L, SEG_ID, SEG_ID, MAC_ADDRESS, IP, 4, Action.ADD));
 
     }
 
@@ -760,24 +764,26 @@ public class NeutronL3AdapterTest {
         PowerMockito.when(neutronL3Adapter, "programInboundIpRewriteStage2", anyLong(), anyLong(), anyString(), anyString(), anyString(), any(Action.class)).thenReturn(new Status(StatusCode.SUCCESS));
 
 
-        Whitebox.invokeMethod(neutronL3Adapter, "programInboundIpRewriteStage1", Long.valueOf(12), Long.valueOf(12), PORT_INT, MAC_ADDRESS, IP, Action.ADD);
+        Whitebox.invokeMethod(neutronL3Adapter, "programInboundIpRewriteStage1", 12L, 12L, PORT_INT, MAC_ADDRESS, IP, Action.ADD);
 
         PowerMockito.verifyPrivate(neutronL3Adapter, times(1)).invoke("programInboundIpRewriteStage2", anyLong(), anyLong(), anyString(), anyString(), anyString(), eq(Action.ADD));
 
-        Whitebox.invokeMethod(neutronL3Adapter, "programInboundIpRewriteStage1", Long.valueOf(12), Long.valueOf(12),PORT_INT, MAC_ADDRESS, IP, Action.DELETE);
+        Whitebox.invokeMethod(neutronL3Adapter, "programInboundIpRewriteStage1", 12L, 12L,PORT_INT, MAC_ADDRESS, IP, Action.DELETE);
 
         PowerMockito.verifyPrivate(neutronL3Adapter, times(1)).invoke("programInboundIpRewriteStage2", anyLong(), anyLong(), anyString(), anyString(), anyString(), eq(Action.DELETE));
     }
 
     @Test
     public void testProgramInboundIpRewriteStage2() throws Exception {
-        assertEquals("Error, this not return the correct status code", new Status(StatusCode.BADREQUEST), Whitebox.invokeMethod(neutronL3Adapter, "programInboundIpRewriteStage2", Long.valueOf(45), Long.valueOf(45), SEG_ID, MAC_ADDRESS, IP, Action.ADD));
+        assertEquals("Error, this not return the correct status code", new Status(StatusCode.BADREQUEST), Whitebox.invokeMethod(neutronL3Adapter, "programInboundIpRewriteStage2",
+                45L, 45L, SEG_ID, MAC_ADDRESS, IP, Action.ADD));
 
         PowerMockito.mockStatic(InetAddress.class);
         InetAddress inetAddress = mock(InetAddress.class);
         PowerMockito.when(InetAddress.getByName(anyString())).thenReturn(inetAddress);
 
-        assertEquals("Error, this not return the correct status code", new Status(StatusCode.SUCCESS), Whitebox.invokeMethod(neutronL3Adapter, "programInboundIpRewriteStage2", Long.valueOf(45), Long.valueOf(45), SEG_ID, MAC_ADDRESS, IP, Action.ADD));
+        assertEquals("Error, this not return the correct status code", new Status(StatusCode.SUCCESS), Whitebox.invokeMethod(neutronL3Adapter, "programInboundIpRewriteStage2",
+                45L, 45L, SEG_ID, MAC_ADDRESS, IP, Action.ADD));
     }
 
     @Test
@@ -793,11 +799,11 @@ public class NeutronL3AdapterTest {
         PowerMockito.when(neutronL3Adapter, "programIpRewriteExclusionStage2", any(Node.class), anyLong(), anyString(), anyString(), any(Action.class)).thenReturn(new Status(StatusCode.SUCCESS));
 
 
-        Whitebox.invokeMethod(neutronL3Adapter, "programIpRewriteExclusionStage1", node, Long.valueOf(12), SEG_ID, CIDR, Action.ADD);
+        Whitebox.invokeMethod(neutronL3Adapter, "programIpRewriteExclusionStage1", node, 12L, SEG_ID, CIDR, Action.ADD);
 
         PowerMockito.verifyPrivate(neutronL3Adapter, times(1)).invoke("programIpRewriteExclusionStage2", any(Node.class), anyLong(), anyString(), anyString(), eq(Action.ADD));
 
-        Whitebox.invokeMethod(neutronL3Adapter, "programIpRewriteExclusionStage1", node, Long.valueOf(12), SEG_ID, CIDR, Action.DELETE);
+        Whitebox.invokeMethod(neutronL3Adapter, "programIpRewriteExclusionStage1", node, 12L, SEG_ID, CIDR, Action.DELETE);
 
         PowerMockito.verifyPrivate(neutronL3Adapter, times(1)).invoke("programIpRewriteExclusionStage2", any(Node.class), anyLong(), anyString(), anyString(), eq(Action.DELETE));
     }
@@ -809,7 +815,8 @@ public class NeutronL3AdapterTest {
         Node node = mock(Node.class);
         when(node.getNodeId()).thenReturn(nodeId);
 
-        assertEquals("Error, this not return the correct status code", new Status(StatusCode.SUCCESS), Whitebox.invokeMethod(neutronL3Adapter, "programIpRewriteExclusionStage2", node, Long.valueOf(45), SEG_ID, CIDR, Action.ADD));
+        assertEquals("Error, this not return the correct status code", new Status(StatusCode.SUCCESS), Whitebox.invokeMethod(neutronL3Adapter, "programIpRewriteExclusionStage2", node,
+                45L, SEG_ID, CIDR, Action.ADD));
     }
 
     @SuppressWarnings("unchecked")
