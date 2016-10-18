@@ -12,6 +12,8 @@ import com.google.common.collect.Lists;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.SettableFuture;
+
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ConcurrentMap;
@@ -70,6 +72,8 @@ public class ElanL2GatewayMulticastUtils {
 
     private final ElanUtils elanUtils;
 
+    private ElanL2GatewayUtils elanL2GatewayUtils;
+
     public ElanL2GatewayMulticastUtils(DataBroker broker, ElanInstanceManager elanInstanceManager,
                                        ElanInterfaceManager elanInterfaceManager,
                                        ElanUtils elanUtils) {
@@ -77,6 +81,10 @@ public class ElanL2GatewayMulticastUtils {
         this.elanInstanceManager = elanInstanceManager;
         this.elanInterfaceManager = elanInterfaceManager;
         this.elanUtils = elanUtils;
+    }
+
+    public void setEElanL2GatewayUtils(ElanL2GatewayUtils elanL2GatewayUtils) {
+        this.elanL2GatewayUtils = elanL2GatewayUtils;
     }
 
     /**
@@ -287,8 +295,8 @@ public class ElanL2GatewayMulticastUtils {
     private List<IpAddress> getAllTepIpsOfDpns(L2GatewayDevice l2GwDevice, List<DpnInterfaces> dpns) {
         List<IpAddress> tepIps = new ArrayList<>();
         for (DpnInterfaces dpn : dpns) {
-            IpAddress internalTunnelIp = null;//elanL2GatewayUtils.getSourceDpnTepIp(dpn.getDpId(),
-                    //new NodeId(l2GwDevice.getHwvtepNodeId()));
+            IpAddress internalTunnelIp = elanL2GatewayUtils.getSourceDpnTepIp(dpn.getDpId(),
+                    new NodeId(l2GwDevice.getHwvtepNodeId()));
             if (internalTunnelIp != null) {
                 tepIps.add(internalTunnelIp);
             }
@@ -368,8 +376,8 @@ public class ElanL2GatewayMulticastUtils {
         DesignatedSwitchForTunnel desgSwitch = getDesignatedSwitchForExternalTunnel(l2GwDevice.getTunnelIp(),
                 elanInstanceName);
         if (desgSwitch != null) {
-            tepIp = null;//elanL2GatewayUtils.getSourceDpnTepIp(BigInteger.valueOf(desgSwitch.getDpId()),
-                    //new NodeId(l2GwDevice.getHwvtepNodeId()));
+            tepIp = elanL2GatewayUtils.getSourceDpnTepIp(BigInteger.valueOf(desgSwitch.getDpId()),
+                    new NodeId(l2GwDevice.getHwvtepNodeId()));
         }
         return tepIp;
     }
