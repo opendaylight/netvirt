@@ -39,7 +39,8 @@ public class NeutronPort {
         this.subnetId = subnetId;
     }
 
-    void createPort(PortInfo portInfo, String owner, String deviceId, boolean portSecurity) {
+    void createPort(PortInfo portInfo, String owner, String deviceId, boolean portSecurity,
+            List<Uuid> securityGroupList) {
         // fixed ips
         IpAddress ipv4 = new IpAddress(new Ipv4Address(portInfo.ip));
         FixedIpsBuilder fib = new FixedIpsBuilder();
@@ -68,6 +69,7 @@ public class NeutronPort {
                 .setMacAddress(new MacAddress(portInfo.mac))
                 .setNetworkId(new Uuid(networkId))
                 .setFixedIps(fixedIps)
+                .setSecurityGroups(securityGroupList)
                 .build();
 
         mdsalUtils.put(LogicalDatastoreType.CONFIGURATION, InstanceIdentifier
