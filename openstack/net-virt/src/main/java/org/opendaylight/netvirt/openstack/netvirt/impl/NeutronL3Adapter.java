@@ -256,13 +256,17 @@ public class NeutronL3Adapter extends AbstractHandler implements GatewayMacResol
                         if (port.getDeviceId().equals(router.getUuid().getValue()) &&
                                 port.getDeviceOwner().equals(OWNER_ROUTER_INTERFACE)) {
                             LOG.debug("L3 Cache Population : Router interface {} found.",port);
-                            networkIdToRouterMacCache.put(port.getNetworkId().getValue()
-                                    , port.getMacAddress().getValue());
-
-                            networkIdToRouterIpListCache.put(port.getNetworkId().getValue(),
-                                    NeutronIAwareUtil.convertMDSalIpToNeutronIp(port.getFixedIps()));
-                            subnetIdToRouterInterfaceCache.put(port.getFixedIps().get(0).getSubnetId().getValue(),
-                                    NeutronIAwareUtil.convertMDSalInterfaceToNeutronRouterInterface(port));
+                            for (final FixedIps fixedIps : port.getFixedIps()) {
+                                if (fixedIps.getIpAddress().getIpv4Address() != null) {
+                                    networkIdToRouterMacCache.put(port.getNetworkId().getValue(),
+                                                                  port.getMacAddress().getValue());
+                                    networkIdToRouterIpListCache.put(port.getNetworkId().getValue(),
+                                                                     NeutronIAwareUtil.convertMDSalIpToNeutronIp(port.getFixedIps()));
+                                    subnetIdToRouterInterfaceCache.put(port.getFixedIps().get(0).getSubnetId().getValue(),
+                                                                       NeutronIAwareUtil.convertMDSalInterfaceToNeutronRouterInterface(port));
+                                    break;
+                                }
+                            }
                         }
                     }
                 }else {
@@ -1030,6 +1034,10 @@ public class NeutronL3Adapter extends AbstractHandler implements GatewayMacResol
         LOG.trace("programFlowsForNeutronRouterInterface called for interface {} isDelete {}",
                      destNeutronRouterInterface, isDelete);
 
+        if (subnet != null && subnet.getIpVersion().intValue() == 6) {
+            LOG.trace("programFlowsForNeutronRouterInterface doesn't support IPv6 router interface");
+            return;
+        }
         // in delete path, mac address as well as ip address are not provided. Being so, let's find them from
         // the local cache
         if (neutronNetwork != null) {
@@ -1075,6 +1083,12 @@ public class NeutronL3Adapter extends AbstractHandler implements GatewayMacResol
                 final String ipStr = neutronIP.getIpAddress();
                 if (ipStr.isEmpty()) {
                     LOG.debug("programFlowsForNeutronRouterInterface is skipping node {} ip {}",
+                            node.getNodeId().getValue(), ipStr);
+                    continue;
+                }
+                final IpAddress ipAddress = new IpAddress(ipStr.toCharArray());
+                if (ipAddress.getIpv4Address() == null) {
+                    LOG.debug("programFlowsForNeutronRouterInterface is skipping node {} ipv6 {}",
                             node.getNodeId().getValue(), ipStr);
                     continue;
                 }
