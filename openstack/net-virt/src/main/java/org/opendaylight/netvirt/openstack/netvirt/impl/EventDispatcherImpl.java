@@ -42,25 +42,22 @@ public class EventDispatcherImpl implements EventDispatcher, ConfigInterface {
     }
 
     void start() {
-        eventHandler.submit(new Runnable()  {
-            @Override
-            public void run() {
-                Thread t = Thread.currentThread();
-                t.setName("EventDispatcherImpl");
-                LOG.info("EventDispatcherImpl: started {}", t.getName());
-                while (true) {
-                    AbstractEvent ev;
-                    try {
-                        ev = events.take();
-                    } catch (InterruptedException e) {
-                        LOG.info("The event handler thread was interrupted, shutting down", e);
-                        return;
-                    }
-                    try {
-                        dispatchEvent(ev);
-                    } catch (Exception e) {
-                        LOG.error("Exception in dispatching event {}", ev.toString(), e);
-                    }
+        eventHandler.submit(() -> {
+            Thread t = Thread.currentThread();
+            t.setName("EventDispatcherImpl");
+            LOG.info("EventDispatcherImpl: started {}", t.getName());
+            while (true) {
+                AbstractEvent ev;
+                try {
+                    ev = events.take();
+                } catch (InterruptedException e) {
+                    LOG.info("The event handler thread was interrupted, shutting down", e);
+                    return;
+                }
+                try {
+                    dispatchEvent(ev);
+                } catch (Exception e) {
+                    LOG.error("Exception in dispatching event {}", ev.toString(), e);
                 }
             }
         });

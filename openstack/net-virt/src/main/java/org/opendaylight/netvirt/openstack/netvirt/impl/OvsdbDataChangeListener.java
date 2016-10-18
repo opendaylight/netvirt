@@ -74,21 +74,17 @@ public class OvsdbDataChangeListener implements ClusteredDataChangeListener, Aut
     @Override
     public void onDataChanged(final AsyncDataChangeEvent<InstanceIdentifier<?>, DataObject> changes) {
 
-        executorService.submit(new Runnable(){
-
-            @Override
-            public void run() {
-                LOG.trace("onDataChanged : {}", changes);
-                processOvsdbConnections(changes);
-                processOvsdbConnectionAttributeUpdates(changes);
-                processBridgeCreation(changes);
-                processBridgeUpdate(changes);
-                processPortCreation(changes);
-                processPortUpdate(changes);
-                processPortDeletion(changes);
-                processBridgeDeletion(changes);
-                processOvsdbDisconnect(changes);
-            }
+        executorService.submit(() -> {
+            LOG.trace("onDataChanged : {}", changes);
+            processOvsdbConnections(changes);
+            processOvsdbConnectionAttributeUpdates(changes);
+            processBridgeCreation(changes);
+            processBridgeUpdate(changes);
+            processPortCreation(changes);
+            processPortUpdate(changes);
+            processPortDeletion(changes);
+            processBridgeDeletion(changes);
+            processOvsdbDisconnect(changes);
         });
     }
 
