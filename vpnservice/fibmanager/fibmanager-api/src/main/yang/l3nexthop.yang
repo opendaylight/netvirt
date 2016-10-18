@@ -12,8 +12,9 @@ module l3nexthop {
             key "vpnId";
             leaf vpnId {type uint32;}
             list vpnNexthop{
-                key  "IpAddress";
+                key  "IpAddress MacAddress";
                 leaf IpAddress {type string;}
+                leaf MacAddress {type string;}
                 leaf egressPointer {type uint32;}
                 leaf dpnId {type uint64;}
                 leaf flowrefCount {type uint16; }
