@@ -287,7 +287,12 @@ public class NexthopManager implements AutoCloseable {
     }
 
     public long createLocalNextHop(long vpnId, BigInteger dpnId,
-                                   String ifName, String ipAddress) {
+                                   String ifName, String ipNextHopAddress, String ipPrefixAddress) {
+        Optional<Adjacency> adjacencyPrefixData =
+                read(LogicalDatastoreType.OPERATIONAL, getAdjacencyIdentifier(ifName, ipPrefixAddress));
+        String macAddress = adjacencyPrefixData.isPresent() ? adjacencyPrefixData.get().getMacAddress() : null;
+        String ipAddress = (macAddress != null) ? ipPrefixAddress: ipNextHopAddress;
+       
         long groupId = createNextHopPointer(getNextHopKey(vpnId, ipAddress));
         String nextHopLockStr = new String(vpnId + ipAddress);
         synchronized (nextHopLockStr.intern()) {
@@ -295,9 +300,11 @@ public class NexthopManager implements AutoCloseable {
             LOG.trace("nexthop: {} retrieved for vpnId {}, prefix {}, ifName {} on dpn {}", nexthop,
                     vpnId, ipAddress, ifName, dpnId);
             if (nexthop == null) {
-                Optional<Adjacency> adjacencyData =
-                        read(LogicalDatastoreType.OPERATIONAL, getAdjacencyIdentifier(ifName, ipAddress));
-                String macAddress = adjacencyData.isPresent() ? adjacencyData.get().getMacAddress() : null;
+                if (macAddress == null ) {
+                    Optional<Adjacency> adjacencyData =
+                            read(LogicalDatastoreType.OPERATIONAL, getAdjacencyIdentifier(ifName, ipAddress));
+                    macAddress = adjacencyData.isPresent() ? adjacencyData.get().getMacAddress() : null;
+                }
                 List<BucketInfo> listBucketInfo = new ArrayList<BucketInfo>();
                 List<ActionInfo> listActionInfo = new ArrayList<>();
                 // MAC re-write
@@ -427,7 +434,13 @@ public class NexthopManager implements AutoCloseable {
         syncDelete(LogicalDatastoreType.OPERATIONAL, id);
     }
 
-    public void removeLocalNextHop(BigInteger dpnId, Long vpnId, String ipAddress) {
+    public void removeLocalNextHop(BigInteger dpnId, Long vpnId, String ipNextHopAddress, String ipPrefixAddress ) {
+        String ipPrefixStr = new String(vpnId + ipPrefixAddress);
+        VpnNexthop prefixNh = null;
+        synchronized (ipPrefixStr.intern()) {
+            prefixNh = getVpnNexthop(vpnId, ipPrefixAddress);
+        }
+        String ipAddress = (prefixNh != null) ? ipPrefixAddress : ipNextHopAddress;
 
         String nextHopLockStr = new String(vpnId + ipAddress);
         synchronized (nextHopLockStr.intern()) {
