@@ -16,6 +16,24 @@
       "revId": "4f337039904eda7b76c55e606581afa7a9ee902d",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_25e28303",
+        "filename": "vpnservice/aclservice/impl/src/test/java/org/opendaylight/netvirt/aclservice/tests/AclServiceTest.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 92,
+      "author": {
+        "id": 5867
+      },
+      "writtenOn": "2016-10-19T13:37:16Z",
+      "side": 1,
+      "message": "FYI: Immutables.org supports both (1) defaults https://immutables.github.io/immutable.html#default-attributes and (2) optionals https://immutables.github.io/immutable.html#optional-attributes - in this case I think an Optional would have actually been better than a default.. but there is your other point, so comment is more FYI",
+      "parentUuid": "7a6b29fe_920bdf2a",
+      "revId": "4f337039904eda7b76c55e606581afa7a9ee902d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
