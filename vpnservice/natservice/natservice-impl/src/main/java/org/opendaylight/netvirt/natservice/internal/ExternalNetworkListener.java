@@ -17,7 +17,7 @@ import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.DataChangeListener;
 import org.opendaylight.controller.md.sal.common.api.data.AsyncDataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.genius.mdsalutil.AbstractDataChangeListener;
+import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
 import org.opendaylight.genius.mdsalutil.FlowEntity;
 import org.opendaylight.genius.mdsalutil.InstructionInfo;
 import org.opendaylight.genius.mdsalutil.InstructionType;
@@ -37,53 +37,49 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class ExternalNetworkListener extends AbstractDataChangeListener<Networks> implements AutoCloseable {
+public class ExternalNetworkListener extends AsyncDataTreeChangeListenerBase<Networks, ExternalNetworkListener> implements AutoCloseable {
     private static final Logger LOG = LoggerFactory.getLogger(ExternalNetworkListener.class);
-    private ListenerRegistration<DataChangeListener> listenerRegistration;
     private final DataBroker dataBroker;
     private final IMdsalApiManager mdsalManager;
 
     public ExternalNetworkListener (final DataBroker dataBroker, final IMdsalApiManager mdsalManager) {
-        super(Networks.class);
+        super(Networks.class, ExternalNetworkListener.class);
         this.dataBroker = dataBroker;
         this.mdsalManager = mdsalManager;
     }
 
+    @Override
     public void init() {
         LOG.info("{} init", getClass().getSimpleName());
-        listenerRegistration = dataBroker.registerDataChangeListener(LogicalDatastoreType.CONFIGURATION,
-                getWildCardPath(), this, AsyncDataBroker.DataChangeScope.SUBTREE);
-    }
-
-    private InstanceIdentifier<Networks> getWildCardPath() {
-        return InstanceIdentifier.create(ExternalNetworks.class).child(Networks.class);
+        registerListener(LogicalDatastoreType.CONFIGURATION, dataBroker);
     }
 
     @Override
-    public void close() throws Exception {
-        if (listenerRegistration != null) {
-            listenerRegistration.close();
-            listenerRegistration = null;
-        }
-        LOG.info("{} close", getClass().getSimpleName());
+    protected ExternalNetworkListener getDataTreeChangeListener() {
+        return ExternalNetworkListener.this;
+    }
+
+    @Override
+    protected InstanceIdentifier<Networks> getWildCardPath() {
+        return InstanceIdentifier.create(ExternalNetworks.class).child(Networks.class);
     }
 
     @Override
     protected void add(final InstanceIdentifier<Networks> identifier,
                        final Networks nw) {
-        LOG.trace("External Network add mapping method - key: " + identifier + ", value=" + nw );
+        LOG.trace("NAT Service : External Network add mapping method - key: " + identifier + ", value=" + nw );
         processExternalNwAdd(identifier, nw);
     }
 
     @Override
     protected void remove(InstanceIdentifier<Networks> identifier, Networks nw) {
-        LOG.trace("External Network remove mapping method - key: " + identifier + ", value=" + nw );
+        LOG.trace("NAT Service : External Network remove mapping method - key: " + identifier + ", value=" + nw );
         processExternalNwDel(identifier, nw);
     }
 
     @Override
     protected void update(InstanceIdentifier<Networks> identifier, Networks original, Networks update) {
-        LOG.trace("External Network update mapping method - key: " + identifier + ", original=" + original + ", update=" + update );
+        LOG.trace("NAT Service : External Network update mapping method - key: " + identifier + ", original=" + original + ", update=" + update );
         //check if a new router has been added or an already existing router has been deleted from the external nw to router association
         List<Uuid> oldRtrs = original.getRouterIds();
         List<Uuid> newRtrs = update.getRouterIds();
@@ -111,7 +107,7 @@ public class ExternalNetworkListener extends AbstractDataChangeListener<Networks
 
     private void processExternalNwAdd(final InstanceIdentifier<Networks> identifier,
                                       final Networks network) {
-        LOG.trace("Add event - key: {}, value: {}", identifier, network);
+        LOG.trace("NAT Service : Add event - key: {}, value: {}", identifier, network);
         List<Uuid> routerList = network.getRouterIds();
 
         if(routerList == null) {
@@ -127,7 +123,7 @@ public class ExternalNetworkListener extends AbstractDataChangeListener<Networks
 
     private void processExternalNwDel(final InstanceIdentifier<Networks> identifier,
                                       final Networks network) {
-        LOG.trace("Add event - key: {}, value: {}", identifier, network);
+        LOG.trace("NAT Service : Add event - key: {}, value: {}", identifier, network);
         List<Uuid> routerList = network.getRouterIds();
 
         for(Uuid router: routerList) {
@@ -164,7 +160,7 @@ public class ExternalNetworkListener extends AbstractDataChangeListener<Networks
             defaultIP = InetAddress.getByName("0.0.0.0");
 
         } catch (UnknownHostException e) {
-            LOG.error("UnknowHostException in buildDefNATFlowEntity. Failed  to build FIB Table Flow for Default Route to NAT table ");
+            LOG.error("NAT Service : UnknowHostException in buildDefNATFlowEntity. Failed  to build FIB Table Flow for Default Route to NAT table ");
             return null;
         }
 
@@ -197,7 +193,7 @@ public class ExternalNetworkListener extends AbstractDataChangeListener<Networks
     private void installDefNATRouteInDPN(BigInteger dpnId, long vpnId) {
         FlowEntity flowEntity = buildDefNATFlowEntity(dpnId, vpnId);
         if(flowEntity == null) {
-            LOG.error("Flow entity received is NULL. Cannot proceed with installation of Default NAT flow");
+            LOG.error("NAT Service : Flow entity received is NULL. Cannot proceed with installation of Default NAT flow");
             return;
         }
         mdsalManager.installFlow(flowEntity);
@@ -206,7 +202,7 @@ public class ExternalNetworkListener extends AbstractDataChangeListener<Networks
     private void removeDefNATRouteInDPN(BigInteger dpnId, long vpnId) {
         FlowEntity flowEntity = buildDefNATFlowEntity(dpnId, vpnId);
         if(flowEntity == null) {
-            LOG.error("Flow entity received is NULL. Cannot proceed with installation of Default NAT flow");
+            LOG.error("NAT Service : Flow entity received is NULL. Cannot proceed with installation of Default NAT flow");
             return;
         }
         mdsalManager.removeFlow(flowEntity);

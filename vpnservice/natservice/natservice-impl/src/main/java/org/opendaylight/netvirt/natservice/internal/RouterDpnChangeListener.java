@@ -13,8 +13,8 @@ import java.util.HashMap;
 import java.util.List;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.DataChangeListener;
-import org.opendaylight.controller.md.sal.common.api.data.AsyncDataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
 import org.opendaylight.genius.mdsalutil.AbstractDataChangeListener;
 import org.opendaylight.genius.mdsalutil.BucketInfo;
 import org.opendaylight.genius.mdsalutil.FlowEntity;
@@ -33,7 +33,8 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class RouterDpnChangeListener extends AbstractDataChangeListener<DpnVpninterfacesList> implements AutoCloseable{
+public class RouterDpnChangeListener extends AsyncDataTreeChangeListenerBase<DpnVpninterfacesList, RouterDpnChangeListener> implements
+        AutoCloseable{
     private static final Logger LOG = LoggerFactory.getLogger(RouterDpnChangeListener.class);
     private ListenerRegistration<DataChangeListener> listenerRegistration;
     private final DataBroker dataBroker;
@@ -46,7 +47,7 @@ public class RouterDpnChangeListener extends AbstractDataChangeListener<DpnVpnin
                                    final SNATDefaultRouteProgrammer snatDefaultRouteProgrammer,
                                    final NaptSwitchHA naptSwitchHA,
                                    final IdManagerService idManager) {
-        super(DpnVpninterfacesList.class);
+        super(DpnVpninterfacesList.class, RouterDpnChangeListener.class);
         this.dataBroker = dataBroker;
         this.mdsalManager = mdsalManager;
         this.snatDefaultRouteProgrammer = snatDefaultRouteProgrammer;
@@ -54,23 +55,20 @@ public class RouterDpnChangeListener extends AbstractDataChangeListener<DpnVpnin
         this.idManager = idManager;
     }
 
+    @Override
     public void init() {
         LOG.info("{} init", getClass().getSimpleName());
-        listenerRegistration = dataBroker.registerDataChangeListener(LogicalDatastoreType.OPERATIONAL,
-                getWildCardPath(), this, AsyncDataBroker.DataChangeScope.SUBTREE);
-    }
-
-    private InstanceIdentifier<DpnVpninterfacesList> getWildCardPath() {
-        return InstanceIdentifier.create(NeutronRouterDpns.class).child(RouterDpnList.class).child(DpnVpninterfacesList.class);
+        registerListener(LogicalDatastoreType.OPERATIONAL, dataBroker);
     }
 
     @Override
-    public void close() throws Exception {
-        if (listenerRegistration != null) {
-            listenerRegistration.close();
-            listenerRegistration = null;
-        }
-        LOG.info("{} close", getClass().getSimpleName());
+    protected RouterDpnChangeListener getDataTreeChangeListener() {
+        return RouterDpnChangeListener.this;
+    }
+
+    @Override
+    protected InstanceIdentifier<DpnVpninterfacesList> getWildCardPath() {
+        return InstanceIdentifier.create(NeutronRouterDpns.class).child(RouterDpnList.class).child(DpnVpninterfacesList.class);
     }
 
     @Override
