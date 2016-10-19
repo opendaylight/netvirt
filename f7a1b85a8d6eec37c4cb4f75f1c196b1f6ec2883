@@ -130,6 +130,24 @@
     },
     {
       "key": {
+        "uuid": "7a6b29fe_435857fa",
+        "filename": "openstack/net-virt-providers/src/main/java/org/opendaylight/netvirt/openstack/netvirt/providers/openflow13/AbstractServiceInstance.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 241,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2016-10-19T16:17:33Z",
+      "side": 1,
+      "message": "I mean adding override method in the subclasses that manage table 31 and 39. For example instead this change, for table 31, adding override method in ResubmitService.java for table 31:\n\nprotected void programDefaultPipelineRule(Node node) {\n  // no default flow for Resubmit ACL Learn Service\n  return;\n}\n\nThe same for table 39 but I don\u0027t see any Service Class for the ACL_LEARN_SERVICE. Does the call getTable() ever returns value \u002739\u0027?",
+      "parentUuid": "7a6b29fe_88cd6e89",
+      "revId": "f7a1b85a8d6eec37c4cb4f75f1c196b1f6ec2883",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7a6b29fe_315e50ea",
         "filename": "openstack/net-virt-providers/src/main/java/org/opendaylight/netvirt/openstack/netvirt/providers/openflow13/AbstractServiceInstance.java",
         "patchSetId": 1
