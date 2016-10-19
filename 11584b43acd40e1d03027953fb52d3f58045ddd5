@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7a6b29fe_cf02d0b3",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 13
+      },
+      "lineNbr": 214,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-10-19T06:11:38Z",
+      "side": 0,
+      "message": "why are these changes necessary?",
+      "revId": "11584b43acd40e1d03027953fb52d3f58045ddd5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_afff94a9",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 13
+      },
+      "lineNbr": 534,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-10-19T06:11:38Z",
+      "side": 0,
+      "message": "same query here..",
+      "revId": "11584b43acd40e1d03027953fb52d3f58045ddd5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_af1674ef",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnManagerImpl.java",
+        "patchSetId": 13
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-10-19T06:11:38Z",
+      "side": 0,
+      "message": "Are these whitespace changes necessary.. Do they fix any Java8 warnings?",
+      "revId": "11584b43acd40e1d03027953fb52d3f58045ddd5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}

@@ -1,0 +1,89 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7a6b29fe_8ff8d8c5",
+        "filename": "vpnservice/fibmanager/fibmanager-api/src/main/java/org/opendaylight/netvirt/fibmanager/api/RouteOrigin.java",
+        "patchSetId": 13
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-10-19T06:11:38Z",
+      "side": 1,
+      "message": "we could have abbreviated this as \u0027iv\u0027",
+      "revId": "9e0933b1cf634f30a1194b048abe062d33938fc9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_efd7cc21",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 13
+      },
+      "lineNbr": 630,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-10-19T06:11:38Z",
+      "side": 1,
+      "message": "This is correct.",
+      "revId": "9e0933b1cf634f30a1194b048abe062d33938fc9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_4fdd2042",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 13
+      },
+      "lineNbr": 643,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-10-19T06:11:38Z",
+      "side": 1,
+      "message": "This is correct.",
+      "revId": "9e0933b1cf634f30a1194b048abe062d33938fc9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_2fe26403",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 13
+      },
+      "lineNbr": 1309,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-10-19T06:11:38Z",
+      "side": 1,
+      "message": "This is correct too!",
+      "revId": "9e0933b1cf634f30a1194b048abe062d33938fc9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_6f1c5c14",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 13
+      },
+      "lineNbr": 1420,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-10-19T06:11:38Z",
+      "side": 1,
+      "message": "For all Extra Routes prefixes configured via Openstack and also for all discovered IPs by subnetroute, we should set their orign to RouteOrigin.STATIC... \nHowever, I see we are using RouteOrigin.LOCAL here?\n\nCan you please educate why so?",
+      "revId": "9e0933b1cf634f30a1194b048abe062d33938fc9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
