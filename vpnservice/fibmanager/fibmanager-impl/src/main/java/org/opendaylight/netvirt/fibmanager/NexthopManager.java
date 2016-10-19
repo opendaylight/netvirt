@@ -158,13 +158,13 @@ public class NexthopManager implements AutoCloseable {
         return dpn;
     }
 
-    private String getNextHopKey(long vpnId, String ipAddress){
-        String nhKey = new String("nexthop." + vpnId + ipAddress);
+    private String getNextHopKey(long vpnId, String ipAddress, String macAddress){
+        String nhKey = new String("nexthop." + vpnId + ipAddress + macAddress);
         return nhKey;
     }
 
-    private String getNextHopKey(String ifName, String ipAddress){
-        String nhKey = new String("nexthop." + ifName + ipAddress);
+    private String getNextHopKey(String ifName, String ipAddress, String macAddress){
+        String nhKey = new String("nexthop." + ifName + ipAddress + macAddress);
         return nhKey;
     }
 
@@ -287,24 +287,16 @@ public class NexthopManager implements AutoCloseable {
     }
 
     public long createLocalNextHop(long vpnId, BigInteger dpnId,
-                                   String ifName, String ipNextHopAddress, String ipPrefixAddress) {
-        Optional<Adjacency> adjacencyPrefixData =
-                read(LogicalDatastoreType.OPERATIONAL, getAdjacencyIdentifier(ifName, ipPrefixAddress));
-        String macAddress = adjacencyPrefixData.isPresent() ? adjacencyPrefixData.get().getMacAddress() : null;
-        String ipAddress = (macAddress != null) ? ipPrefixAddress: ipNextHopAddress;
-       
-        long groupId = createNextHopPointer(getNextHopKey(vpnId, ipAddress));
-        String nextHopLockStr = new String(vpnId + ipAddress);
+                                   String ifName, String ipAddress, String ipPrefixAddress) {
+        String macAddress =  getMacByPrefixInterface(ifName, ipPrefixAddress, ipAddress);
+        long groupId = createNextHopPointer(getNextHopKey(vpnId, ipAddress, macAddress));
+        String nextHopLockStr = new String(vpnId + ipAddress + macAddress);
         synchronized (nextHopLockStr.intern()) {
-            VpnNexthop nexthop = getVpnNexthop(vpnId, ipAddress);
+            VpnNexthop nexthop = getVpnNexthop(vpnId, ipAddress, macAddress);
             LOG.trace("nexthop: {} retrieved for vpnId {}, prefix {}, ifName {} on dpn {}", nexthop,
                     vpnId, ipAddress, ifName, dpnId);
+                       
             if (nexthop == null) {
-                if (macAddress == null ) {
-                    Optional<Adjacency> adjacencyData =
-                            read(LogicalDatastoreType.OPERATIONAL, getAdjacencyIdentifier(ifName, ipAddress));
-                    macAddress = adjacencyData.isPresent() ? adjacencyData.get().getMacAddress() : null;
-                }
                 List<BucketInfo> listBucketInfo = new ArrayList<BucketInfo>();
                 List<ActionInfo> listActionInfo = new ArrayList<>();
                 // MAC re-write
@@ -335,21 +327,21 @@ public class NexthopManager implements AutoCloseable {
                     LOG.debug("{}", error);
                 }
                 //update MD-SAL DS
-                addVpnNexthopToDS(dpnId, vpnId, ipAddress, groupId);
+                addVpnNexthopToDS(dpnId, vpnId, ipAddress, macAddress, groupId);
 
             } else {
                 //nexthop exists already; a new flow is going to point to it, increment the flowrefCount by 1
                 int flowrefCnt = nexthop.getFlowrefCount() + 1;
-                VpnNexthop nh = new VpnNexthopBuilder().setKey(new VpnNexthopKey(ipAddress)).setFlowrefCount(flowrefCnt).build();
+                VpnNexthop nh = new VpnNexthopBuilder().setKey(new VpnNexthopKey(ipAddress, macAddress)).setFlowrefCount(flowrefCnt).build();
                 LOG.trace("Updating vpnnextHop {} for refCount {} to Operational DS", nh, flowrefCnt);
-                syncWrite(LogicalDatastoreType.OPERATIONAL, getVpnNextHopIdentifier(vpnId, ipAddress), nh, DEFAULT_CALLBACK);
+                syncWrite(LogicalDatastoreType.OPERATIONAL, getVpnNextHopIdentifier(vpnId, ipAddress, macAddress), nh, DEFAULT_CALLBACK);
 
             }
         }
         return groupId;
     }
 
-    protected void addVpnNexthopToDS(BigInteger dpnId, long vpnId, String ipPrefix, long egressPointer) {
+    protected void addVpnNexthopToDS(BigInteger dpnId, long vpnId, String ipPrefix, String macAddress, long egressPointer) {
 
         InstanceIdentifierBuilder<VpnNexthops> idBuilder = InstanceIdentifier.builder(
                 L3nexthop.class)
@@ -357,28 +349,50 @@ public class NexthopManager implements AutoCloseable {
 
         // Add nexthop to vpn node
         VpnNexthop nh = new VpnNexthopBuilder().
-                setKey(new VpnNexthopKey(ipPrefix)).
+                setKey(new VpnNexthopKey(ipPrefix, macAddress)).
                 setDpnId(dpnId).
                 setIpAddress(ipPrefix).
+                setMacAddress(macAddress).
                 setFlowrefCount(1).
                 setEgressPointer(egressPointer).build();
 
         InstanceIdentifier<VpnNexthop> id1 = idBuilder
-                .child(VpnNexthop.class, new VpnNexthopKey(ipPrefix)).build();
+                .child(VpnNexthop.class, new VpnNexthopKey(ipPrefix,macAddress)).build();
         LOG.trace("Adding vpnnextHop {} to Operational DS", nh);
         syncWrite(LogicalDatastoreType.OPERATIONAL, id1, nh, DEFAULT_CALLBACK);
 
     }
 
-    protected InstanceIdentifier<VpnNexthop> getVpnNextHopIdentifier(long vpnId, String ipAddress) {
+    protected InstanceIdentifier<VpnNexthop> getVpnNextHopIdentifier(long vpnId, String ipAddress, String macAddress) {
         InstanceIdentifier<VpnNexthop> id = InstanceIdentifier.builder(
                 L3nexthop.class)
-                .child(VpnNexthops.class, new VpnNexthopsKey(vpnId)).child(VpnNexthop.class, new VpnNexthopKey(ipAddress)).build();
+                .child(VpnNexthops.class, new VpnNexthopsKey(vpnId)).child(VpnNexthop.class, new VpnNexthopKey(ipAddress, macAddress)).build();
         return id;
     }
 
+    protected VpnNexthop getVpnNexthop(long vpnId, String ipAddress, String macAddress) {
+        // check if vpn node is there
+        InstanceIdentifierBuilder<VpnNexthops> idBuilder =
+                InstanceIdentifier.builder(L3nexthop.class).child(VpnNexthops.class,
+                        new VpnNexthopsKey(vpnId));
+        InstanceIdentifier<VpnNexthops> id = idBuilder.build();
+        Optional<VpnNexthops> vpnNexthops = read(LogicalDatastoreType.OPERATIONAL, id);
+        if (vpnNexthops.isPresent()) {
+            // get nexthops list for vpn
+            List<VpnNexthop> nexthops = vpnNexthops.get().getVpnNexthop();
+            for (VpnNexthop nexthop : nexthops) {
+                if (nexthop.getIpAddress().equals(ipAddress) && nexthop.getMacAddress().equals(macAddress)) {
+                    // return nexthop
+                    LOG.trace("VpnNextHop : {}", nexthop);
+                    return nexthop;
+                }
+            }
+            // return null if not found
+        }
+        return null;
+    }
+    
     protected VpnNexthop getVpnNexthop(long vpnId, String ipAddress) {
-
         // check if vpn node is there
         InstanceIdentifierBuilder<VpnNexthops> idBuilder =
                 InstanceIdentifier.builder(L3nexthop.class).child(VpnNexthops.class,
@@ -398,6 +412,23 @@ public class NexthopManager implements AutoCloseable {
             // return null if not found
         }
         return null;
+    }
+    
+    public VpnNexthop getVpnNexthopByInterface(Long vpnId, String ifName, String ipPrefix, String ipAddress) {
+       String macAddress = getMacByPrefixInterface(ifName, ipPrefix, ipAddress);
+       return getVpnNexthop(vpnId, ipAddress, macAddress);
+    }
+  
+    private String getMacByPrefixInterface(String ifName, String ipPrefix, String ipAddress) {
+        Optional<Adjacency> adjacencyPrefixData =
+                read(LogicalDatastoreType.OPERATIONAL, getAdjacencyIdentifier(ifName, ipPrefix));
+        String macAddress = adjacencyPrefixData.isPresent() ? adjacencyPrefixData.get().getMacAddress() : null;
+        if (macAddress == null ) {
+            Optional<Adjacency> adjacencyData =
+                    read(LogicalDatastoreType.OPERATIONAL, getAdjacencyIdentifier(ifName, ipAddress));
+            macAddress = adjacencyData.isPresent() ? adjacencyData.get().getMacAddress() : null;
+        }
+        return macAddress;
     }
 
     public String getRemoteNextHopPointer(BigInteger remoteDpnId, long vpnId, String prefixIp, String nextHopIp) {
@@ -423,28 +454,25 @@ public class NexthopManager implements AutoCloseable {
         return localDpnId;
     }
 
-    private void removeVpnNexthopFromDS(long vpnId, String ipPrefix) {
+    private void removeVpnNexthopFromDS(long vpnId, String ipPrefix, String macAddress) {
 
         InstanceIdentifierBuilder<VpnNexthop> idBuilder = InstanceIdentifier.builder(L3nexthop.class)
                 .child(VpnNexthops.class, new VpnNexthopsKey(vpnId))
-                .child(VpnNexthop.class, new VpnNexthopKey(ipPrefix));
+                .child(VpnNexthop.class, new VpnNexthopKey(ipPrefix, macAddress));
         InstanceIdentifier<VpnNexthop> id = idBuilder.build();
         // remove from DS
         LOG.trace("Removing vpn next hop from datastore : {}", id);
         syncDelete(LogicalDatastoreType.OPERATIONAL, id);
     }
 
-    public void removeLocalNextHop(BigInteger dpnId, Long vpnId, String ipNextHopAddress, String ipPrefixAddress ) {
-        String ipPrefixStr = new String(vpnId + ipPrefixAddress);
-        VpnNexthop prefixNh = null;
-        synchronized (ipPrefixStr.intern()) {
-            prefixNh = getVpnNexthop(vpnId, ipPrefixAddress);
-        }
-        String ipAddress = (prefixNh != null) ? ipPrefixAddress : ipNextHopAddress;
-
+    public void removeLocalNextHop(BigInteger dpnId, Long vpnId,  VpnNexthop localNextHop) {
+        if ( localNextHop == null)
+            return;
+        String ipAddress = localNextHop.getIpAddress();
+        String macAddress = localNextHop.getMacAddress();
         String nextHopLockStr = new String(vpnId + ipAddress);
         synchronized (nextHopLockStr.intern()) {
-            VpnNexthop nh = getVpnNexthop(vpnId, ipAddress);
+            VpnNexthop nh = getVpnNexthop(vpnId, ipAddress, macAddress);
             if (nh != null) {
                 int newFlowrefCnt = nh.getFlowrefCount() - 1;
                 if (newFlowrefCnt == 0) { //remove the group only if there are no more flows using this group
@@ -453,19 +481,19 @@ public class NexthopManager implements AutoCloseable {
                     // remove Group ...
                     mdsalApiManager.removeGroup(groupEntity);
                     //update MD-SAL DS
-                    removeVpnNexthopFromDS(vpnId, ipAddress);
+                    removeVpnNexthopFromDS(vpnId, ipAddress, macAddress);
                     //release groupId
-                    removeNextHopPointer(getNextHopKey(vpnId, ipAddress));
+                    removeNextHopPointer(getNextHopKey(vpnId, ipAddress,macAddress));
                     LOG.debug("Local Next hop {} for {} {} on dpn {} successfully deleted", nh.getEgressPointer(), vpnId, ipAddress, dpnId);
                 } else {
                     //just update the flowrefCount of the vpnNexthop
-                    VpnNexthop currNh = new VpnNexthopBuilder().setKey(new VpnNexthopKey(ipAddress)).setFlowrefCount(newFlowrefCnt).build();
+                    VpnNexthop currNh = new VpnNexthopBuilder().setKey(new VpnNexthopKey(ipAddress, macAddress)).setFlowrefCount(newFlowrefCnt).build();
                     LOG.trace("Updating vpnnextHop {} for refCount {} to Operational DS", currNh, newFlowrefCnt);
-                    syncWrite(LogicalDatastoreType.OPERATIONAL, getVpnNextHopIdentifier(vpnId, ipAddress), currNh, DEFAULT_CALLBACK);
+                    syncWrite(LogicalDatastoreType.OPERATIONAL, getVpnNextHopIdentifier(vpnId, ipAddress, macAddress), currNh, DEFAULT_CALLBACK);
                 }
             } else {
                 //throw error
-                LOG.error("Local Next hop for {} on dpn {} not deleted", ipAddress, dpnId);
+                LOG.error("Local Next hop for {} {} on dpn {} not deleted", ipAddress, macAddress, dpnId);
             }
         }
 

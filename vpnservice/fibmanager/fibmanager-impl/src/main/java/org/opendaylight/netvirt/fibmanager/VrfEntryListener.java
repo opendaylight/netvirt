@@ -944,8 +944,11 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
                 for (String nextHopIp : extra_route.getNexthopIpList()) {
                     LOG.debug("NextHop IP for destination {} is {}", vrfEntry.getDestPrefix(), nextHopIp);
                     if (nextHopIp != null) {
-                        localNextHopInfo = nextHopManager.getVpnNexthop(vpnId, nextHopIp + "/32");
-                        localNextHopIP = nextHopIp + "/32";
+                        Prefixes localNextHopPrefix = getPrefixToInterface(vpnId, nextHopIp + "/32");
+                        localNextHopIP = nextHopIp + "/32";             
+                        localNextHopInfo = nextHopManager.getVpnNexthopByInterface(vpnId, 
+                                localNextHopPrefix.getVpnInterfaceName(), vrfEntry.getDestPrefix(), localNextHopPrefix.getIpAddress());
+                        localNextHopIP = nextHopIp + "/32";                       
                         BigInteger dpnId = checkDeleteLocalFibEntry(localNextHopInfo, localNextHopIP,
                                 vpnId, rd, vrfEntry, true /*isExtraRoute*/);
                         if (!dpnId.equals(BigInteger.ZERO)) {
@@ -981,7 +984,7 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
 
         return returnLocalDpnId;
     }
-
+    
     private BigInteger checkDeleteLocalFibEntry(VpnNexthop localNextHopInfo, final String localNextHopIP,
                                                 final Long vpnId, final String rd,
                                                 final VrfEntry vrfEntry, final boolean isExtraRoute) {
@@ -1006,7 +1009,7 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
                         }
                     });
             //TODO: verify below adjacency call need to be optimized (?)
-            deleteLocalAdjacency(dpnId, vpnId, localNextHopIP, vrfEntry.getDestPrefix());
+            deleteLocalAdjacency(dpnId, vpnId, localNextHopInfo);
             return dpnId;
         }
         return BigInteger.ZERO;
@@ -1613,10 +1616,10 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
                 dpId, label, instructions );
     }
 
-    private void deleteLocalAdjacency(final BigInteger dpId, final long vpnId, final String ipAddress, final String ipPrefixAddress) {
-        LOG.trace("deleteLocalAdjacency called with dpid {}, vpnId{}, ipAddress {}",dpId, vpnId, ipAddress);
+    private void deleteLocalAdjacency(final BigInteger dpId, final long vpnId, VpnNexthop localNextHopInfo) {
+        LOG.trace("deleteLocalAdjacency called with dpid {}, vpnId{}, HextHop {}",dpId, vpnId, localNextHopInfo);
         try {
-            nextHopManager.removeLocalNextHop(dpId, vpnId, ipAddress, ipPrefixAddress);
+            nextHopManager.removeLocalNextHop(dpId, vpnId, localNextHopInfo);
         } catch (NullPointerException e) {
             LOG.trace("", e);
         }
