@@ -2,6 +2,23 @@
   "comments": [
     {
       "key": {
+        "uuid": "7a6b29fe_7dac1936",
+        "filename": "openstack/net-virt-providers/src/main/java/org/opendaylight/netvirt/openstack/netvirt/providers/ConfigActivator.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 57,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2016-10-19T01:01:54Z",
+      "side": 1,
+      "message": "Please order import alphabetically",
+      "revId": "f7a1b85a8d6eec37c4cb4f75f1c196b1f6ec2883",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7a6b29fe_d151dcd9",
         "filename": "openstack/net-virt-providers/src/main/java/org/opendaylight/netvirt/openstack/netvirt/providers/ConfigActivator.java",
         "patchSetId": 1
@@ -19,6 +36,40 @@
         "endLine": 127,
         "endChar": 10
       },
+      "revId": "f7a1b85a8d6eec37c4cb4f75f1c196b1f6ec2883",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_bda6b151",
+        "filename": "openstack/net-virt-providers/src/main/java/org/opendaylight/netvirt/openstack/netvirt/providers/openflow13/AbstractServiceInstance.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 240,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2016-10-19T01:01:54Z",
+      "side": 1,
+      "message": "Please avoid magic numbers by using meaningful constants for \u002731\u0027 and \u002739\u0027 such as Service.RESUBMIT|ACL_LEARN_SERVICE...",
+      "revId": "f7a1b85a8d6eec37c4cb4f75f1c196b1f6ec2883",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_9d7655d7",
+        "filename": "openstack/net-virt-providers/src/main/java/org/opendaylight/netvirt/openstack/netvirt/providers/openflow13/AbstractServiceInstance.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 241,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2016-10-19T01:01:54Z",
+      "side": 1,
+      "message": "Does it make sense to move this logic as override method in the subclass that getTable() \u003d\u003d 31||39 (*AclService.java)",
       "revId": "f7a1b85a8d6eec37c4cb4f75f1c196b1f6ec2883",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -48,6 +99,23 @@
     },
     {
       "key": {
+        "uuid": "7a6b29fe_7d7379e7",
+        "filename": "openstack/net-virt-providers/src/main/java/org/opendaylight/netvirt/openstack/netvirt/providers/openflow13/OF13Provider.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 51,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2016-10-19T01:01:54Z",
+      "side": 1,
+      "message": "please keep import order alphabetically",
+      "revId": "f7a1b85a8d6eec37c4cb4f75f1c196b1f6ec2883",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7a6b29fe_bc1cf7c2",
         "filename": "openstack/net-virt-providers/src/main/java/org/opendaylight/netvirt/openstack/netvirt/providers/openflow13/OF13Provider.java",
         "patchSetId": 1
@@ -59,6 +127,57 @@
       "writtenOn": "2016-10-18T12:57:02Z",
       "side": 1,
       "message": "Is the same done in the above method as well?",
+      "revId": "f7a1b85a8d6eec37c4cb4f75f1c196b1f6ec2883",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_5d44bd73",
+        "filename": "openstack/net-virt-providers/src/main/java/org/opendaylight/netvirt/openstack/netvirt/providers/openflow13/Service.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2016-10-19T01:01:54Z",
+      "side": 1,
+      "message": "Please use more meaningful variable name/description such as:\nRESUBMIT_ACL_SERVICE ((short) 31, \"Resubmit Service for Learn ACL\"),",
+      "revId": "f7a1b85a8d6eec37c4cb4f75f1c196b1f6ec2883",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_bd54f121",
+        "filename": "openstack/net-virt-providers/src/main/java/org/opendaylight/netvirt/openstack/netvirt/providers/openflow13/services/EgressAclLearnServiceUtil.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 56,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2016-10-19T01:01:54Z",
+      "side": 1,
+      "message": "Not sure that we allow wildcard for import?",
+      "revId": "f7a1b85a8d6eec37c4cb4f75f1c196b1f6ec2883",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_dd056d15",
+        "filename": "openstack/net-virt-providers/src/main/java/org/opendaylight/netvirt/openstack/netvirt/providers/openflow13/services/EgressAclLearnServiceUtil.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 71,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2016-10-19T01:01:54Z",
+      "side": 1,
+      "message": "Wrong java doc",
       "revId": "f7a1b85a8d6eec37c4cb4f75f1c196b1f6ec2883",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -82,6 +201,40 @@
     },
     {
       "key": {
+        "uuid": "7a6b29fe_bd023109",
+        "filename": "openstack/net-virt-providers/src/main/java/org/opendaylight/netvirt/openstack/netvirt/providers/openflow13/services/EgressAclLearnServiceUtil.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 173,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2016-10-19T01:01:54Z",
+      "side": 1,
+      "message": "Wrong java doc",
+      "revId": "f7a1b85a8d6eec37c4cb4f75f1c196b1f6ec2883",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_7d08992d",
+        "filename": "openstack/net-virt-providers/src/main/java/org/opendaylight/netvirt/openstack/netvirt/providers/openflow13/services/EgressAclLearnServiceUtil.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 446,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2016-10-19T01:01:54Z",
+      "side": 1,
+      "message": "magic number",
+      "revId": "f7a1b85a8d6eec37c4cb4f75f1c196b1f6ec2883",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7a6b29fe_9c6c9b38",
         "filename": "openstack/net-virt-providers/src/main/java/org/opendaylight/netvirt/openstack/netvirt/providers/openflow13/services/EgressAclService.java",
         "patchSetId": 1
@@ -93,6 +246,41 @@
       "writtenOn": "2016-10-18T12:57:02Z",
       "side": 1,
       "message": "conntrack enabled check required here? ( in Ingress as well)",
+      "revId": "f7a1b85a8d6eec37c4cb4f75f1c196b1f6ec2883",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_ef518c0f",
+        "filename": "openstack/net-virt-providers/src/main/java/org/opendaylight/netvirt/openstack/netvirt/providers/openflow13/services/EgressAclService.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 244,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2016-10-19T01:01:54Z",
+      "side": 1,
+      "message": "method name could be more clear, ie \u0027addDropRuleForWhat\u0027",
+      "parentUuid": "7a6b29fe_9c6c9b38",
+      "revId": "f7a1b85a8d6eec37c4cb4f75f1c196b1f6ec2883",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_4f57e002",
+        "filename": "openstack/net-virt-providers/src/main/java/org/opendaylight/netvirt/openstack/netvirt/providers/openflow13/services/EgressAclService.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 245,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2016-10-19T01:01:54Z",
+      "side": 1,
+      "message": "method name could be more clear, ie \u0027addregexRuleForWhat\u0027",
       "revId": "f7a1b85a8d6eec37c4cb4f75f1c196b1f6ec2883",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -116,6 +304,448 @@
         "endLine": 894,
         "endChar": 10
       },
+      "revId": "f7a1b85a8d6eec37c4cb4f75f1c196b1f6ec2883",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_0fffa802",
+        "filename": "openstack/net-virt-providers/src/main/java/org/opendaylight/netvirt/openstack/netvirt/providers/openflow13/services/IngressAclLearnServiceUtil.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 56,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2016-10-19T01:01:54Z",
+      "side": 1,
+      "message": "not sure if wildcard import are allowed",
+      "revId": "f7a1b85a8d6eec37c4cb4f75f1c196b1f6ec2883",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_ef034c0b",
+        "filename": "openstack/net-virt-providers/src/main/java/org/opendaylight/netvirt/openstack/netvirt/providers/openflow13/services/IngressAclLearnServiceUtil.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 71,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2016-10-19T01:01:54Z",
+      "side": 1,
+      "message": "Wrong java doc",
+      "revId": "f7a1b85a8d6eec37c4cb4f75f1c196b1f6ec2883",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_0f2688ba",
+        "filename": "openstack/net-virt-providers/src/main/java/org/opendaylight/netvirt/openstack/netvirt/providers/openflow13/services/IngressAclLearnServiceUtil.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 74,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2016-10-19T01:01:54Z",
+      "side": 1,
+      "message": "should be table 90? resubmit 100?",
+      "revId": "f7a1b85a8d6eec37c4cb4f75f1c196b1f6ec2883",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_2f0ee434",
+        "filename": "openstack/net-virt-providers/src/main/java/org/opendaylight/netvirt/openstack/netvirt/providers/openflow13/services/IngressAclLearnServiceUtil.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 173,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2016-10-19T01:01:54Z",
+      "side": 1,
+      "message": "wrong javadoc",
+      "revId": "f7a1b85a8d6eec37c4cb4f75f1c196b1f6ec2883",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_ef2a2c7d",
+        "filename": "openstack/net-virt-providers/src/main/java/org/opendaylight/netvirt/openstack/netvirt/providers/openflow13/services/IngressAclLearnServiceUtil.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 176,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2016-10-19T01:01:54Z",
+      "side": 1,
+      "message": "should be table 90? resubmit 100?",
+      "revId": "f7a1b85a8d6eec37c4cb4f75f1c196b1f6ec2883",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_4f09a02b",
+        "filename": "openstack/net-virt-providers/src/main/java/org/opendaylight/netvirt/openstack/netvirt/providers/openflow13/services/IngressAclLearnServiceUtil.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 276,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2016-10-19T01:01:54Z",
+      "side": 1,
+      "message": "wrong java doc",
+      "revId": "f7a1b85a8d6eec37c4cb4f75f1c196b1f6ec2883",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_4f20809b",
+        "filename": "openstack/net-virt-providers/src/main/java/org/opendaylight/netvirt/openstack/netvirt/providers/openflow13/services/IngressAclLearnServiceUtil.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 279,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2016-10-19T01:01:54Z",
+      "side": 1,
+      "message": "table 90? resubmit 100?",
+      "revId": "f7a1b85a8d6eec37c4cb4f75f1c196b1f6ec2883",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_2f2544ab",
+        "filename": "openstack/net-virt-providers/src/main/java/org/opendaylight/netvirt/openstack/netvirt/providers/openflow13/services/IngressAclService.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2016-10-19T01:01:54Z",
+      "side": 1,
+      "message": "NEC copyright",
+      "revId": "f7a1b85a8d6eec37c4cb4f75f1c196b1f6ec2883",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_af3034e9",
+        "filename": "openstack/net-virt-providers/src/main/java/org/opendaylight/netvirt/openstack/netvirt/providers/openflow13/services/IngressAclService.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 230,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2016-10-19T01:01:54Z",
+      "side": 1,
+      "message": "method name could be more clear, ie \u0027addDropRuleForWhat\u0027",
+      "revId": "f7a1b85a8d6eec37c4cb4f75f1c196b1f6ec2883",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_0f4de872",
+        "filename": "openstack/net-virt-providers/src/main/java/org/opendaylight/netvirt/openstack/netvirt/providers/openflow13/services/IngressAclService.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 232,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2016-10-19T01:01:54Z",
+      "side": 1,
+      "message": "method name could be more clear, ie \u0027addRegexRuleForWhat\u0027",
+      "revId": "f7a1b85a8d6eec37c4cb4f75f1c196b1f6ec2883",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_7d21b9b3",
+        "filename": "openstack/net-virt-providers/src/main/java/org/opendaylight/netvirt/openstack/netvirt/providers/openflow13/services/ResubmitService.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2016-10-19T01:01:54Z",
+      "side": 1,
+      "message": "please remove white space",
+      "revId": "f7a1b85a8d6eec37c4cb4f75f1c196b1f6ec2883",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_1d31a50b",
+        "filename": "openstack/net-virt-providers/src/main/java/org/opendaylight/netvirt/openstack/netvirt/providers/openflow13/services/ResubmitService.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2016-10-19T01:01:54Z",
+      "side": 1,
+      "message": "NEC copyright",
+      "revId": "f7a1b85a8d6eec37c4cb4f75f1c196b1f6ec2883",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_2f5c2425",
+        "filename": "openstack/net-virt-providers/src/main/java/org/opendaylight/netvirt/openstack/netvirt/providers/openflow13/services/ResubmitService.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 56,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2016-10-19T01:01:54Z",
+      "side": 1,
+      "message": "Change to more meaningful name such as ResubmitAclLearnService",
+      "revId": "f7a1b85a8d6eec37c4cb4f75f1c196b1f6ec2883",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_fd4e6995",
+        "filename": "openstack/net-virt-providers/src/main/java/org/opendaylight/netvirt/openstack/netvirt/providers/openflow13/services/ResubmitService.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 79,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2016-10-19T01:01:54Z",
+      "side": 1,
+      "message": "- Please avoid magic number.",
+      "revId": "f7a1b85a8d6eec37c4cb4f75f1c196b1f6ec2883",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_9d2495c7",
+        "filename": "openstack/net-virt-providers/src/main/java/org/opendaylight/netvirt/openstack/netvirt/providers/openflow13/services/ResubmitService.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 80,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2016-10-19T01:01:54Z",
+      "side": 1,
+      "message": "Please use meaningful variable name such as \u0027actionBuilder\u0027 instead of \u0027aba\u0027",
+      "revId": "f7a1b85a8d6eec37c4cb4f75f1c196b1f6ec2883",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_fd35c9f7",
+        "filename": "openstack/net-virt-providers/src/main/java/org/opendaylight/netvirt/openstack/netvirt/providers/openflow13/services/ResubmitService.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 86,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2016-10-19T01:01:54Z",
+      "side": 1,
+      "message": "Please avoid magic number",
+      "revId": "f7a1b85a8d6eec37c4cb4f75f1c196b1f6ec2883",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_3d49018c",
+        "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/api/ResubmitProvider.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2016-10-19T01:01:54Z",
+      "side": 1,
+      "message": "NEC copyright",
+      "revId": "f7a1b85a8d6eec37c4cb4f75f1c196b1f6ec2883",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_9d5db54b",
+        "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/api/ResubmitProvider.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2016-10-19T01:01:54Z",
+      "side": 1,
+      "message": "Please change the description",
+      "revId": "f7a1b85a8d6eec37c4cb4f75f1c196b1f6ec2883",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_7d5a5951",
+        "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/api/ResubmitProvider.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2016-10-19T01:01:54Z",
+      "side": 1,
+      "message": "Change name to ResubmitAclLearnProvider?",
+      "revId": "f7a1b85a8d6eec37c4cb4f75f1c196b1f6ec2883",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_dd572d25",
+        "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/api/ResubmitProvider.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2016-10-19T01:01:54Z",
+      "side": 1,
+      "message": "remove white space",
+      "revId": "f7a1b85a8d6eec37c4cb4f75f1c196b1f6ec2883",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_3d174153",
+        "filename": "openstack/utils/mdsal-openflow/src/main/java/org/opendaylight/netvirt/utils/mdsal/openflow/MatchUtils.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 1271,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2016-10-19T01:01:54Z",
+      "side": 1,
+      "message": "javadoc and parameter list don\u0027t match",
+      "revId": "f7a1b85a8d6eec37c4cb4f75f1c196b1f6ec2883",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_1d188583",
+        "filename": "openstack/utils/mdsal-openflow/src/main/java/org/opendaylight/netvirt/utils/mdsal/openflow/MatchUtils.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 1276,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2016-10-19T01:01:54Z",
+      "side": 1,
+      "message": "pls remove this line",
+      "revId": "f7a1b85a8d6eec37c4cb4f75f1c196b1f6ec2883",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_9d0bf52a",
+        "filename": "openstack/utils/mdsal-openflow/src/main/java/org/opendaylight/netvirt/utils/mdsal/openflow/MatchUtils.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 1288,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2016-10-19T01:01:54Z",
+      "side": 1,
+      "message": "javadoc and parameter list don\u0027t match",
+      "revId": "f7a1b85a8d6eec37c4cb4f75f1c196b1f6ec2883",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_fd1ca979",
+        "filename": "openstack/utils/mdsal-openflow/src/main/java/org/opendaylight/netvirt/utils/mdsal/openflow/MatchUtils.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 1292,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2016-10-19T01:01:54Z",
+      "side": 1,
+      "message": "pls remove this line",
+      "revId": "f7a1b85a8d6eec37c4cb4f75f1c196b1f6ec2883",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_6f361ce9",
+        "filename": "openstack/utils/mdsal-openflow/src/main/java/org/opendaylight/netvirt/utils/mdsal/openflow/MatchUtils.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 1300,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2016-10-19T01:01:54Z",
+      "side": 1,
+      "message": "wrong java doc",
+      "revId": "f7a1b85a8d6eec37c4cb4f75f1c196b1f6ec2883",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_cf33f0f4",
+        "filename": "openstack/utils/mdsal-openflow/src/main/java/org/opendaylight/netvirt/utils/mdsal/openflow/MatchUtils.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 1306,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2016-10-19T01:01:54Z",
+      "side": 1,
+      "message": "\u0027type\u0027 is not used",
       "revId": "f7a1b85a8d6eec37c4cb4f75f1c196b1f6ec2883",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
