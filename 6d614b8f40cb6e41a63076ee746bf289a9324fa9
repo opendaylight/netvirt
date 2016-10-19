@@ -16,6 +16,24 @@
       "revId": "6d614b8f40cb6e41a63076ee746bf289a9324fa9",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_03ddbf14",
+        "filename": "vpnservice/aclservice/impl/src/test/java/org/opendaylight/netvirt/aclservice/tests/MatchesWithAceIp.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 5867
+      },
+      "writtenOn": "2016-10-19T17:30:56Z",
+      "side": 1,
+      "message": "NOK - how do you mean? You probably mean internally here directly using SourcePortRangeBuilder \u0026 DestinationPortRangeBuilder, instead of the @Immutable interface Range, and delete that?  \n\nThat.. didn\u0027t even occur to me, BUT I\u0027m not sure that\u0027s a good idea / I like that, because: That approach would mix the \"higher-level\" \u0027source\u0027 object creation abstraction, implemented via @Immutable (which it wouldn\u0027t have to be, could be manually coded) with the \u0027target\u0027 object this class \u0027maps\u0027 to.. that seems.. wrong, to me.  \n\nIt would also mean that some of the code that\u0027s in the create() method now would got into Builder\u0027s destinationPortRange() and sourcePortRange() .. but it would have to be written in the \"YANG DataObject Binding style\" there (e.g. non-fluent, non chained setters; and also e.g. with the new PortNumber(lower) here already).  \n\nIt would make this class, or the general \"object mapping\" pattern idea which I\u0027m trying to illustrate and gently introduce here, more complex to understand.  My thinking is always having a single relatively simple create() method which turns some (non-DO) source thing into a DO target, with the code in the create() method in the \"YANG Binding style\" in one place, dealing with the YANG Builders of generally very highly nested structures due to extensive modeling of simple types, so PortNumber, not just int, augmentations, etc. will make folks used to this understand the proposed new pattern - because I anticipate in the future this can be cut/pasted from methods elsewhere, with long signature but existing similar body code - as does this very change, intended as example.  By further complicating this class with some stuff getting mapped here and others there, it would like more scary than it already does due to the Range.  This mapping classes will only be written if they are simple enough to read, maintain and write.\n\nLong story story, I see what you mean, but NaF - Not a Fan of doing it like that.  Was this more of an \"why not idea\" you had, or something you very feel strongly about and would insist we discuss further together, to make me change it after all? Just asking! ;-)",
+      "parentUuid": "7a6b29fe_c5a90f26",
+      "revId": "6d614b8f40cb6e41a63076ee746bf289a9324fa9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
