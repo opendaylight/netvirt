@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7a6b29fe_be80648c",
+        "filename": "vpnservice/it/impl/src/test/java/org/opendaylight/netvirt/it/NetOvs.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2016-10-19T21:34:10Z",
+      "side": 1,
+      "message": "no need for space here",
+      "revId": "8b9de4332679274e8cc08b791618ba01b97ed224",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_9e7da8b4",
+        "filename": "vpnservice/it/impl/src/test/java/org/opendaylight/netvirt/it/NetvirtIT.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 325,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2016-10-19T21:34:10Z",
+      "side": 1,
+      "message": "should we have a test with and without sg\u0027s? nice if we only have a single test. I guess separate tests are only needed if there is really something different in the handling between the two cases.",
+      "revId": "8b9de4332679274e8cc08b791618ba01b97ed224",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_1e49988b",
+        "filename": "vpnservice/it/impl/src/test/java/org/opendaylight/netvirt/it/NetvirtITConstants.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 64,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2016-10-19T21:34:10Z",
+      "side": 1,
+      "message": "might as well move these up to the others",
+      "revId": "8b9de4332679274e8cc08b791618ba01b97ed224",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
