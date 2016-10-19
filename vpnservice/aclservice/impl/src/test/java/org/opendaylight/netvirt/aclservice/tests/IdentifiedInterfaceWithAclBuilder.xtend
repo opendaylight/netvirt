@@ -26,7 +26,7 @@ import org.immutables.value.Value
 import org.opendaylight.netvirt.aclservice.tests.infra.DataTreeIdentifierDataObjectPairBuilder
 
 @Immutable
-@Value.Style(stagedBuilder=true)
+@Value.Style(stagedBuilder=true, depluralize = true)
 abstract class IdentifiedInterfaceWithAclBuilder implements DataTreeIdentifierDataObjectPairBuilder<Interface> {
 
     def abstract String interfaceName()
