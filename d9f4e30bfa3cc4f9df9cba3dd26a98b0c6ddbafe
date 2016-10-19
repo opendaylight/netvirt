@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "7a6b29fe_45269f69",
+        "filename": "vpnservice/aclservice/impl/src/test/java/org/opendaylight/netvirt/aclservice/tests/MatchesWithAceIp.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 5867
+      },
+      "writtenOn": "2016-10-19T13:37:16Z",
+      "side": 1,
+      "message": "No not at all, but Java is a PITA for short literals, because it doesn\u0027t auto coerce them, so you have to write protocol((short) 1) which is uglier than protocol(1)... so just to make that easy to write and more readable, I\u0027m using an int here and casting it in create().  This could, of course, lead to an overflow exception, but in this particular case I much preferred the readability over the hypothetical overflow (from a constant, in a test)",
+      "parentUuid": "7a6b29fe_124a2f83",
+      "revId": "d9f4e30bfa3cc4f9df9cba3dd26a98b0c6ddbafe",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7a6b29fe_526dc703",
         "filename": "vpnservice/aclservice/impl/src/test/java/org/opendaylight/netvirt/aclservice/tests/MatchesWithAceIp.java",
         "patchSetId": 3
@@ -30,6 +48,24 @@
       "writtenOn": "2016-10-19T11:58:32Z",
       "side": 1,
       "message": "Since destLowerPort() and destUpperPort() are only used as a range, I\u0027d prefer to have an explicit range somehow — if I were coding the builder manually, I\u0027d just have a destRange(int lower, int upper) method. Otherwise, without looking at the implementation details, a builder with separate destLowerPort() and destUpperPort() leads me to expect that I can instantiate a matcher using either one or both.",
+      "revId": "d9f4e30bfa3cc4f9df9cba3dd26a98b0c6ddbafe",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_a5e1739c",
+        "filename": "vpnservice/aclservice/impl/src/test/java/org/opendaylight/netvirt/aclservice/tests/MatchesWithAceIp.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 48,
+      "author": {
+        "id": 5867
+      },
+      "writtenOn": "2016-10-19T13:37:16Z",
+      "side": 1,
+      "message": "OK I see what you mean.. how do you like how it\u0027s now? Trouble is that takes a fair amount of hand-writing - not sure this will \"scale\" (i.e. by understood by many), but there we have how this can be done.  Also FYI https://groups.google.com/forum/#!topic/immutables/TXkXlXEcn4g",
+      "parentUuid": "7a6b29fe_526dc703",
       "revId": "d9f4e30bfa3cc4f9df9cba3dd26a98b0c6ddbafe",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
