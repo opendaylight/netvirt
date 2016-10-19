@@ -12,7 +12,7 @@ import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.DataChangeListener;
 import org.opendaylight.controller.md.sal.common.api.data.AsyncDataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.genius.mdsalutil.AbstractDataChangeListener;
+import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.Nodes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.Node;
@@ -21,24 +21,40 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class NatNodeEventListener extends AbstractDataChangeListener<Node> implements AutoCloseable {
+import java.math.BigInteger;
+
+public class NatNodeEventListener extends AsyncDataTreeChangeListenerBase<Node, NatNodeEventListener> implements
+        AutoCloseable {
     private static final Logger LOG = LoggerFactory.getLogger(NatNodeEventListener.class);
     private ListenerRegistration<DataChangeListener> listenerRegistration;
     private final DataBroker dataBroker;
 
     public NatNodeEventListener(final DataBroker dataBroker) {
-        super(Node.class);
+        super(Node.class, NatNodeEventListener.class);
         this.dataBroker = dataBroker;
     }
 
     public void init() {
         LOG.info("{} init", getClass().getSimpleName());
-        listenerRegistration = dataBroker.registerDataChangeListener(LogicalDatastoreType.OPERATIONAL,
-                getWildCardPath(), this, AsyncDataBroker.DataChangeScope.SUBTREE);
+        registerListener(dataBroker);
     }
 
-    private InstanceIdentifier<Node> getWildCardPath() {
+    private void registerListener(final DataBroker db) {
+        try {
+            registerListener(LogicalDatastoreType.OPERATIONAL, db);
+        } catch (final Exception e) {
+            LOG.error("NAT Service : NatNodeEventListener: DataChange listener registration fail!", e);
+            throw new IllegalStateException("NAT Service : NatNodeEventListener: registration Listener failed.", e);
+        }
+    }
+
+    @Override
+    protected InstanceIdentifier<Node> getWildCardPath() {
         return InstanceIdentifier.create(Nodes.class).child(Node.class);
+    }
+    @Override
+    protected NatNodeEventListener getDataTreeChangeListener() {
+        return NatNodeEventListener.this;
     }
 
     @Override
@@ -52,15 +68,15 @@ public class NatNodeEventListener extends AbstractDataChangeListener<Node> imple
 
     @Override
     protected void remove(InstanceIdentifier<Node> identifier, Node del) {
-        LOG.debug("NatNodeEventListener: Node removed received");
+        LOG.debug("NAT Service : NatNodeEventListener: Node removed received");
         NodeId nodeId = del.getId();
         String[] node =  nodeId.getValue().split(":");
         if(node.length < 2) {
-            LOG.warn("Unexpected nodeId {}", nodeId.getValue());
+            LOG.warn("NAT Service : Unexpected nodeId {}", nodeId.getValue());
             return;
         }
         BigInteger dpnId = new BigInteger(node[1]);
-        LOG.debug("NodeId removed is {}",dpnId);
+        LOG.debug("NAT Service : NodeId removed is {}",dpnId);
     }
 
     @Override
@@ -69,14 +85,14 @@ public class NatNodeEventListener extends AbstractDataChangeListener<Node> imple
 
     @Override
     protected void add(InstanceIdentifier<Node> identifier, Node add) {
-        LOG.debug("NatNodeEventListener: Node added received");
+        LOG.debug("NAT Service : NatNodeEventListener: Node added received");
         NodeId nodeId = add.getId();
         String[] node =  nodeId.getValue().split(":");
         if(node.length < 2) {
-            LOG.warn("Unexpected nodeId {}", nodeId.getValue());
+            LOG.warn("NAT Service : Unexpected nodeId {}", nodeId.getValue());
             return;
         }
         BigInteger dpnId = new BigInteger(node[1]);
-        LOG.debug("NodeId added is {}",dpnId);
+        LOG.debug("NAT Service : NodeId added is {}",dpnId);
     }
 }
