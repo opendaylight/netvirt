@@ -250,8 +250,8 @@ public class AclServiceTest {
         dataBrokerUtil.put(ImmutableIdentifiedInterfaceWithAclBuilder.builder()
             .interfaceName(portName)
             .portSecurity(true)
-            .addNewSecurityGroups(new Uuid(SG_UUID))
-            .addIfAllowedAddressPairs(allowedAddressPair).build());
+            .addNewSecurityGroup(new Uuid(SG_UUID))
+            .addIfAllowedAddressPair(allowedAddressPair).build());
 
     }
 
