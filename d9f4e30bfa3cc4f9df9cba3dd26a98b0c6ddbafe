@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7a6b29fe_124a2f83",
+        "filename": "vpnservice/aclservice/impl/src/test/java/org/opendaylight/netvirt/aclservice/tests/MatchesWithAceIp.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 4540
+      },
+      "writtenOn": "2016-10-19T11:58:32Z",
+      "side": 1,
+      "message": "Does this mean immutables.org doesn\u0027t handle short?",
+      "revId": "d9f4e30bfa3cc4f9df9cba3dd26a98b0c6ddbafe",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_526dc703",
+        "filename": "vpnservice/aclservice/impl/src/test/java/org/opendaylight/netvirt/aclservice/tests/MatchesWithAceIp.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 48,
+      "author": {
+        "id": 4540
+      },
+      "writtenOn": "2016-10-19T11:58:32Z",
+      "side": 1,
+      "message": "Since destLowerPort() and destUpperPort() are only used as a range, I\u0027d prefer to have an explicit range somehow — if I were coding the builder manually, I\u0027d just have a destRange(int lower, int upper) method. Otherwise, without looking at the implementation details, a builder with separate destLowerPort() and destUpperPort() leads me to expect that I can instantiate a matcher using either one or both.",
+      "revId": "d9f4e30bfa3cc4f9df9cba3dd26a98b0c6ddbafe",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
