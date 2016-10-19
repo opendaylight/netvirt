@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "7a6b29fe_e8786291",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 13
+      },
+      "lineNbr": 214,
+      "author": {
+        "id": 5350
+      },
+      "writtenOn": "2016-10-19T17:09:47Z",
+      "side": 0,
+      "message": "not necessary, but sonarlint does not like unnecessary code.\nI\u0027ve put the unnecessary code back",
+      "parentUuid": "7a6b29fe_cf02d0b3",
+      "revId": "11584b43acd40e1d03027953fb52d3f58045ddd5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7a6b29fe_afff94a9",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
         "patchSetId": 13

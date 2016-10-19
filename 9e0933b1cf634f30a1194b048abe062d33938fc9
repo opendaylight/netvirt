@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "7a6b29fe_683d72bb",
+        "filename": "vpnservice/fibmanager/fibmanager-api/src/main/java/org/opendaylight/netvirt/fibmanager/api/RouteOrigin.java",
+        "patchSetId": 13
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 5350
+      },
+      "writtenOn": "2016-10-19T17:09:47Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7a6b29fe_8ff8d8c5",
+      "revId": "9e0933b1cf634f30a1194b048abe062d33938fc9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7a6b29fe_efd7cc21",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
         "patchSetId": 13
@@ -81,6 +99,24 @@
       "writtenOn": "2016-10-19T06:11:38Z",
       "side": 1,
       "message": "For all Extra Routes prefixes configured via Openstack and also for all discovered IPs by subnetroute, we should set their orign to RouteOrigin.STATIC... \nHowever, I see we are using RouteOrigin.LOCAL here?\n\nCan you please educate why so?",
+      "revId": "9e0933b1cf634f30a1194b048abe062d33938fc9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_c833e6f4",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 13
+      },
+      "lineNbr": 1420,
+      "author": {
+        "id": 5350
+      },
+      "writtenOn": "2016-10-19T17:09:47Z",
+      "side": 1,
+      "message": "I already answered this 3 weeks ago, in this same change, PS3. You said you were going to study it and come back with an answer. \n\nIf not \u0027LOCAL\u0027 then what? It cannot be STATIC because only operator-configured routes can be STATIC. It cannot be CONNECTED because only subnet routes can be CONNECTED. If you want, I can analyze the prefix and decide if LOCAL or CONNECTED depending on if it\u0027s a /32 or not.",
+      "parentUuid": "7a6b29fe_6f1c5c14",
       "revId": "9e0933b1cf634f30a1194b048abe062d33938fc9",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
