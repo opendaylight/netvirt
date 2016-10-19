@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7a6b29fe_920bdf2a",
+        "filename": "vpnservice/aclservice/impl/src/test/java/org/opendaylight/netvirt/aclservice/tests/AclServiceTest.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 92,
+      "author": {
+        "id": 4540
+      },
+      "writtenOn": "2016-10-19T12:01:03Z",
+      "side": 1,
+      "message": "Is -1 the default value for ints? (I don\u0027t see it in the code, and I haven\u0027t found the relevant part of the documentation.) If so, the test would read more fluently IMO without these —\n\n    Matches matches \u003d ImmutableMatchesWithAceIp.builder()\n            .destRemoteIpPrefix(IPV4_ALL_NETWORK)\n            .build().create();\n\nIf not, an ANY constant with value -1 would be nice ;-).",
+      "revId": "4f337039904eda7b76c55e606581afa7a9ee902d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
