@@ -62,17 +62,18 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
       <version>${infrautils.version}</version>
     </dependency>
     <dependency>
-      <groupId>org.opendaylight.infrautils</groupId>
-      <artifactId>inject.guice.testutils</artifactId>
-      <version>${infrautils.version}</version>
-    </dependency>
-    <dependency>
       <groupId>com.googlecode.java-ipv6</groupId>
       <artifactId>java-ipv6</artifactId>
       <version>0.16</version>
     </dependency>
 
     <!-- Dependencies used only by code under src/test (<scope>test) -->
+    <dependency>
+      <groupId>org.opendaylight.infrautils</groupId>
+      <artifactId>inject.guice.testutils</artifactId>
+      <version>${infrautils.version}</version>
+      <scope>test</scope>
+    </dependency>
     <dependency>
       <groupId>org.opendaylight.genius</groupId>
       <artifactId>mdsalutil-api</artifactId>
@@ -89,11 +90,6 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
       <groupId>org.opendaylight.controller</groupId>
       <artifactId>sal-binding-broker-impl</artifactId>
       <type>test-jar</type>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>com.mycila.guice.extensions</groupId>
-      <artifactId>mycila-guice-jsr250</artifactId>
       <scope>test</scope>
     </dependency>
     <dependency>

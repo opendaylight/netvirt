@@ -19,6 +19,7 @@ import javax.inject.Inject;
 import org.junit.Rule;
 
 import org.junit.Test;
+import org.junit.rules.MethodRule;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
 import org.opendaylight.genius.mdsalutil.FlowEntity;
@@ -62,7 +63,7 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
 public class AclServiceTest {
 
-    public @Rule GuiceRule guice = new GuiceRule(AclServiceModule.class, AclServiceTestModule.class);
+    public @Rule MethodRule guice = new GuiceRule(AclServiceModule.class, AclServiceTestModule.class);
 
     private static final String PORT_MAC_1 = "0D:AA:D8:42:30:F3";
     private static final String PORT_MAC_2 = "0D:AA:D8:42:30:F4";
