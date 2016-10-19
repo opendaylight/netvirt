@@ -82,6 +82,7 @@ public class ExternalNetworksChangeListener
         this.fibService =fibService;
     }
 
+    @Override
     public void init() {
         LOG.info("{} init", getClass().getSimpleName());
         registerListener(LogicalDatastoreType.CONFIGURATION, dataBroker);
@@ -241,10 +242,7 @@ public class ExternalNetworksChangeListener
     private void disassociateExternalNetworkFromVPN(Networks network, String vpnName) {
         List<Uuid> routerIds = network.getRouterIds();
 
-        //long vpnId = NatUtil.getVpnId(dataBroker, vpnName);
         for(Uuid routerId : routerIds) {
-            //long router = NatUtil.getVpnId(dataBroker, routerId.getValue());
-
             InstanceIdentifier<RouterPorts> routerPortsId = NatUtil.getRouterPortsId(routerId.getValue());
             Optional<RouterPorts> optRouterPorts = MDSALUtil.read(dataBroker, LogicalDatastoreType.CONFIGURATION, routerPortsId);
             if(!optRouterPorts.isPresent()) {

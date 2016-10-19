@@ -12,7 +12,7 @@ import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.DataChangeListener;
 import org.opendaylight.controller.md.sal.common.api.data.AsyncDataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.genius.mdsalutil.AbstractDataChangeListener;
+import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
 import org.opendaylight.genius.mdsalutil.BucketInfo;
 import org.opendaylight.genius.mdsalutil.FlowEntity;
 import org.opendaylight.genius.mdsalutil.NwConstants;
@@ -42,7 +42,6 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import com.google.common.base.Optional;
 
 import java.math.BigInteger;
@@ -51,7 +50,7 @@ import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
-public class InterfaceStateEventListener extends AbstractDataChangeListener<Interface> implements AutoCloseable {
+public class InterfaceStateEventListener extends AsyncDataTreeChangeListenerBase<Interface, InterfaceStateEventListener> implements AutoCloseable {
     private static final Logger LOG = LoggerFactory.getLogger(InterfaceStateEventListener.class);
     private ListenerRegistration<DataChangeListener> listenerRegistration;
     private final DataBroker dataBroker;
@@ -66,7 +65,7 @@ public class InterfaceStateEventListener extends AbstractDataChangeListener<Inte
                                        final NaptManager naptManager,
                                        final NeutronvpnService neutronvpnService,
                                        final NaptSwitchHA naptSwitchHA){
-        super(Interface.class);
+        super(Interface.class, InterfaceStateEventListener.class);
         this.dataBroker = dataBroker;
         this.mdsalManager = mdsalManager;
         this.floatingIPListener = floatingIPListener;
@@ -77,21 +76,17 @@ public class InterfaceStateEventListener extends AbstractDataChangeListener<Inte
 
     public void init() {
         LOG.info("{} init", getClass().getSimpleName());
-        listenerRegistration = dataBroker.registerDataChangeListener(LogicalDatastoreType.OPERATIONAL,
-                getWildCardPath(), this, AsyncDataBroker.DataChangeScope.SUBTREE);
+        registerListener(LogicalDatastoreType.OPERATIONAL, dataBroker);
     }
 
-    private InstanceIdentifier<Interface> getWildCardPath() {
+    @Override
+    protected InstanceIdentifier<Interface> getWildCardPath() {
         return InstanceIdentifier.create(InterfacesState.class).child(Interface.class);
     }
 
     @Override
-    public void close() throws Exception {
-        if (listenerRegistration != null) {
-            listenerRegistration.close();
-            listenerRegistration = null;
-        }
-        LOG.info("{} close", getClass().getSimpleName());
+    protected InterfaceStateEventListener getDataTreeChangeListener() {
+        return InterfaceStateEventListener.this;
     }
 
     @Override
@@ -241,7 +236,7 @@ public class InterfaceStateEventListener extends AbstractDataChangeListener<Inte
                         IpPortExternal ipPortExternal = NatUtil.getExternalIpPortMap(dataBroker, routerId,
                                 internalIp, String.valueOf(portnum), proto);
                         if (ipPortExternal == null) {
-                            LOG.error("Mapping for internalIp {} with port {} is not found in router with Id {}",internalIp,portnum,routerId);
+                            LOG.error("NAT Service : Mapping for internalIp {} with port {} is not found in router with Id {}",internalIp,portnum,routerId);
                             return;
                         }
                         String externalIpAddress = ipPortExternal.getIpAddress();
@@ -310,7 +305,7 @@ public class InterfaceStateEventListener extends AbstractDataChangeListener<Inte
                                     interfaceName, routerName);
                         }
                     } else {
-                        LOG.debug("Router is not associated to vpnname {} for interface {}",vpnName,interfaceName);
+                        LOG.debug("NAT Service : Router is not associated to vpnname {} for interface {}",vpnName,interfaceName);
                     }
                 } else {
                     LOG.debug("NAT Service : vpnName not found for vpnInterface {} of port {}",vpnInterface,interfaceName);
@@ -351,11 +346,11 @@ public class InterfaceStateEventListener extends AbstractDataChangeListener<Inte
     }
 
     private void processInterfaceAdded(String portName, String rtrId) {
-        LOG.trace("Processing Interface Add Event for interface {}", portName);
+        LOG.trace("NAT Service : Processing Interface Add Event for interface {}", portName);
         String routerId = getRouterIdForPort(dataBroker, portName);
         List<IpMapping> ipMappingList = getIpMappingForPortName(portName, routerId);
         if (ipMappingList == null || ipMappingList.isEmpty()) {
-            LOG.trace("Ip Mapping list is empty/null for portname {}", portName);
+            LOG.trace("NAT Service : Ip Mapping list is empty/null for portname {}", portName);
             return;
         }
         InstanceIdentifier<RouterPorts> pIdentifier = NatUtil.buildRouterPortsIdentifier(routerId);
@@ -369,7 +364,7 @@ public class InterfaceStateEventListener extends AbstractDataChangeListener<Inte
         String routerId = getRouterIdForPort(dataBroker, portName);
         List<IpMapping> ipMappingList = getIpMappingForPortName(portName, routerId);
         if (ipMappingList == null || ipMappingList.isEmpty()) {
-            LOG.trace("Ip Mapping list is empty/null for portName {}", portName);
+            LOG.trace("NAT Service : Ip Mapping list is empty/null for portName {}", portName);
             return;
         }
         InstanceIdentifier<RouterPorts> pIdentifier = NatUtil.buildRouterPortsIdentifier(routerId);
@@ -390,7 +385,7 @@ public class InterfaceStateEventListener extends AbstractDataChangeListener<Inte
     }
 
     private List<String> getFixedIpsForPort (String interfname) {
-        LOG.debug("getFixedIpsForPort method is called for interface {}",interfname);
+        LOG.debug("NAT Service : getFixedIpsForPort method is called for interface {}",interfname);
         try {
             Future<RpcResult<GetFixedIPsForNeutronPortOutput>> result =
                     neutronVpnService.getFixedIPsForNeutronPort(new GetFixedIPsForNeutronPortInputBuilder()
