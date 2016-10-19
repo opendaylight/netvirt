@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "7a6b29fe_92dc7f76",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/DpnEnterExitVpnCallback.java",
+        "patchSetId": 22
+      },
+      "lineNbr": 36,
+      "author": {
+        "id": 5350
+      },
+      "writtenOn": "2016-10-19T13:20:49Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7a6b29fe_cf5490cc",
+      "revId": "c310cb449a3bdf725b491e59bd58ee621ab7a779",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7a6b29fe_af5154da",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/ModifyVpnFootprintTask.java",
         "patchSetId": 22
@@ -30,6 +48,24 @@
       "writtenOn": "2016-10-19T06:18:09Z",
       "side": 1,
       "message": "same comment as before.",
+      "revId": "c310cb449a3bdf725b491e59bd58ee621ab7a779",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_12d06f52",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/ModifyVpnFootprintTask.java",
+        "patchSetId": 22
+      },
+      "lineNbr": 61,
+      "author": {
+        "id": 5350
+      },
+      "writtenOn": "2016-10-19T13:20:49Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7a6b29fe_af5154da",
       "revId": "c310cb449a3bdf725b491e59bd58ee621ab7a779",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -53,6 +89,24 @@
     },
     {
       "key": {
+        "uuid": "7a6b29fe_32464b24",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/ModifyVpnFootprintTask.java",
+        "patchSetId": 22
+      },
+      "lineNbr": 66,
+      "author": {
+        "id": 5350
+      },
+      "writtenOn": "2016-10-19T13:20:49Z",
+      "side": 1,
+      "message": "In this case, the Optional is convenient because \"not present\" has different meaning than false. However, it is not strictly necessary, I can put it as boolean but then I\u0027ll also have to check the operation (creation/removal) before I check on them.",
+      "parentUuid": "7a6b29fe_0f05e8c1",
+      "revId": "c310cb449a3bdf725b491e59bd58ee621ab7a779",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7a6b29fe_4f5880fa",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/ModifyVpnFootprintTask.java",
         "patchSetId": 22
@@ -64,6 +118,24 @@
       "writtenOn": "2016-10-19T06:18:09Z",
       "side": 1,
       "message": "do this only if maxTimeWait is greater than 50. otherwise just do Thread.sleep with given maxTimeWait.",
+      "revId": "c310cb449a3bdf725b491e59bd58ee621ab7a779",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_b2fffba9",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/ModifyVpnFootprintTask.java",
+        "patchSetId": 22
+      },
+      "lineNbr": 133,
+      "author": {
+        "id": 5350
+      },
+      "writtenOn": "2016-10-19T13:20:49Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7a6b29fe_4f5880fa",
       "revId": "c310cb449a3bdf725b491e59bd58ee621ab7a779",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -87,6 +159,24 @@
     },
     {
       "key": {
+        "uuid": "7a6b29fe_322beb31",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/ModifyVpnFootprintTask.java",
+        "patchSetId": 22
+      },
+      "lineNbr": 261,
+      "author": {
+        "id": 5350
+      },
+      "writtenOn": "2016-10-19T13:20:49Z",
+      "side": 1,
+      "message": "It is done in line 184, as a callback when the persistance of the new footprint is finished.",
+      "parentUuid": "7a6b29fe_af683488",
+      "revId": "c310cb449a3bdf725b491e59bd58ee621ab7a779",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7a6b29fe_6ff57cca",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
         "patchSetId": 22
@@ -104,6 +194,24 @@
     },
     {
       "key": {
+        "uuid": "7a6b29fe_b2eedbb2",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 22
+      },
+      "lineNbr": 270,
+      "author": {
+        "id": 5350
+      },
+      "writtenOn": "2016-10-19T13:20:49Z",
+      "side": 1,
+      "message": "Done.\nThough to be honest, I don\u0027t know where this retry comes from nor why it is worth.",
+      "parentUuid": "7a6b29fe_6ff57cca",
+      "revId": "c310cb449a3bdf725b491e59bd58ee621ab7a779",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7a6b29fe_afedd4f1",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnOpDataSyncer.java",
         "patchSetId": 22
@@ -115,6 +223,24 @@
       "writtenOn": "2016-10-19T06:18:09Z",
       "side": 1,
       "message": "what if this method is invoked after operational data entry is created ? In that case, this method makes calling thread to wait for the period given in maxWaitMillis which is not necessary.",
+      "revId": "c310cb449a3bdf725b491e59bd58ee621ab7a779",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_4535ff44",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnOpDataSyncer.java",
+        "patchSetId": 22
+      },
+      "lineNbr": 58,
+      "author": {
+        "id": 5350
+      },
+      "writtenOn": "2016-10-19T13:20:49Z",
+      "side": 1,
+      "message": "As exposed on email, this is just refactored code.",
+      "parentUuid": "7a6b29fe_afedd4f1",
       "revId": "c310cb449a3bdf725b491e59bd58ee621ab7a779",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
