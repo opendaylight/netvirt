@@ -48,6 +48,8 @@ import org.opendaylight.netvirt.bgpmanager.api.IBgpManager;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fib.rpc.rev160121.FibRpcService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.vpn.rpc.rev160201.VpnRpcService;
 
+import javax.annotation.PostConstruct;
+
 public class ExternalNetworksChangeListener
         extends AsyncDataTreeChangeListenerBase<Networks, ExternalNetworksChangeListener> {
     private static final Logger LOG = LoggerFactory.getLogger( ExternalNetworksChangeListener.class);
@@ -82,6 +84,8 @@ public class ExternalNetworksChangeListener
         this.fibService =fibService;
     }
 
+    @Override
+    @PostConstruct
     public void init() {
         LOG.info("{} init", getClass().getSimpleName());
         registerListener(LogicalDatastoreType.CONFIGURATION, dataBroker);
