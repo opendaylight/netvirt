@@ -34,6 +34,24 @@
       "revId": "6d614b8f40cb6e41a63076ee746bf289a9324fa9",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_de4e0096",
+        "filename": "vpnservice/aclservice/impl/src/test/java/org/opendaylight/netvirt/aclservice/tests/MatchesWithAceIp.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 5867
+      },
+      "writtenOn": "2016-10-19T21:31:36Z",
+      "side": 1,
+      "message": "Furthermore, another reason for leaving this as it is: Turns out that there actually is direct support for the pattern we\u0027re after in Immutables.org!!  I\u0027ll be switching this over to that when a small bug they have is resolved (full details available in https://github.com/immutables/immutables/issues/471).  For the moment, I thus suggest to merge this as is, +1 from you?",
+      "parentUuid": "7a6b29fe_03ddbf14",
+      "revId": "6d614b8f40cb6e41a63076ee746bf289a9324fa9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
