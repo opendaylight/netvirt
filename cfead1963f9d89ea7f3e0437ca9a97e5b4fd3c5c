@@ -16,6 +16,24 @@
       "revId": "cfead1963f9d89ea7f3e0437ca9a97e5b4fd3c5c",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_e1587859",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/InterfaceStateEventListener.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 45,
+      "author": {
+        "id": 6329
+      },
+      "writtenOn": "2016-10-20T13:41:51Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7a6b29fe_812c244c",
+      "revId": "cfead1963f9d89ea7f3e0437ca9a97e5b4fd3c5c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
