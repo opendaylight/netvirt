@@ -269,6 +269,53 @@
     },
     {
       "key": {
+        "uuid": "7a6b29fe_7ec7e912",
+        "filename": "openstack/net-virt-providers/src/main/java/org/opendaylight/netvirt/openstack/netvirt/providers/openflow13/services/IngressAclLearnServiceUtil.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 93,
+      "author": {
+        "id": 4269
+      },
+      "writtenOn": "2016-10-20T11:43:55Z",
+      "side": 1,
+      "message": "Ok, I think it is not safe to match on IP as there can be overlapping ip address. But I think it is fine for this patch.\n\nBut I still guess like this there can be other issues with having common table. Since I ideally we need to reset the regex and check it again for ingress after egress.\n\nVm1 Vm2 in same compute\n1)Vm1 Egress ping  allowed Vm2 ingress ping not allowed. no rules the other way.\n2)Vm1 Egress ping adds a rule ping allowed from Vm1 ip  to Vm2 ip allowed in table 39.\n3) The first packet will get dropped in table 90.\n4)Now if we vm2 ping vm1 it will be allowed due to the learned rule thought traffic is not allowed. This issue cannot be addressed completely but can be to an extent by having two tables.\n\n\nI think it is ok to take it up in different patch if this is working for basic use cases.",
+      "parentUuid": "7a6b29fe_3e9f3161",
+      "range": {
+        "startLine": 93,
+        "startChar": 54,
+        "endLine": 93,
+        "endChar": 56
+      },
+      "revId": "9d15472e14e755565bf2277fa07db9e6232751d2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_3e20d1f6",
+        "filename": "openstack/net-virt-providers/src/main/java/org/opendaylight/netvirt/openstack/netvirt/providers/openflow13/services/IngressAclService.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 691,
+      "author": {
+        "id": 4269
+      },
+      "writtenOn": "2016-10-20T11:43:55Z",
+      "side": 1,
+      "message": "Is there a generic way to identify ICMP return type and code? \nIt is better not having it?",
+      "range": {
+        "startLine": 691,
+        "startChar": 105,
+        "endLine": 691,
+        "endChar": 106
+      },
+      "revId": "9d15472e14e755565bf2277fa07db9e6232751d2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7a6b29fe_d9673a24",
         "filename": "openstack/net-virt-providers/src/main/java/org/opendaylight/netvirt/openstack/netvirt/providers/openflow13/services/ResubmitAclLearnService.java",
         "patchSetId": 4
