@@ -37,6 +37,24 @@
     },
     {
       "key": {
+        "uuid": "7a6b29fe_3e6c519c",
+        "filename": "openstack/net-virt-providers/src/main/java/org/opendaylight/netvirt/openstack/netvirt/providers/openflow13/PipelineOrchestratorImpl.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 67,
+      "author": {
+        "id": 4269
+      },
+      "writtenOn": "2016-10-20T10:02:38Z",
+      "side": 1,
+      "message": "It is not about the default pipeline rule but the rules generated when we create fip. I am not sure about the code flow in determining the table no in NAT, if it is already verified it should be fine. I thought of it since we are now not having a offset of 10 between tables.",
+      "parentUuid": "7a6b29fe_9447474b",
+      "revId": "9d15472e14e755565bf2277fa07db9e6232751d2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7a6b29fe_79af062c",
         "filename": "openstack/net-virt-providers/src/main/java/org/opendaylight/netvirt/openstack/netvirt/providers/openflow13/services/EgressAclService.java",
         "patchSetId": 4
@@ -66,6 +84,24 @@
       "side": 1,
       "message": "For stateful implementation, goto flow will be added\n (return addPipelineInstruction(flowBuilder,instructionBuilder, false);) instead of learned flows. \n\nIf stateful implementation is disabled then learned flows will be added.",
       "parentUuid": "7a6b29fe_79af062c",
+      "revId": "9d15472e14e755565bf2277fa07db9e6232751d2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_7e0529c1",
+        "filename": "openstack/net-virt-providers/src/main/java/org/opendaylight/netvirt/openstack/netvirt/providers/openflow13/services/EgressAclService.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 939,
+      "author": {
+        "id": 4269
+      },
+      "writtenOn": "2016-10-20T10:02:38Z",
+      "side": 1,
+      "message": "Ok. This should be fine.",
+      "parentUuid": "7a6b29fe_7471cb76",
       "revId": "9d15472e14e755565bf2277fa07db9e6232751d2",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -155,6 +191,30 @@
       "side": 1,
       "message": "like new netvirt dispatcher table is not forwarding packets to specific service ingress/egress.\nin legacy netvirt pipeline all the packets goes through ingress as well as egress so we thought of having common table for learned flows before the packet reaches ACL service.\nwe tested the behaviour using CSIT cases everything is fine.\nif we follow separate tables for ingress and egress learned flows \nall the packets will be resubmit 2 times.\nfirst packets will hit table 31 resubmit(table 39,40) then the same packet will reach table 81 resubmit(table 89,90).\nis there any specific reasons to have separate tables for learned flows?",
       "parentUuid": "7a6b29fe_9954a222",
+      "range": {
+        "startLine": 93,
+        "startChar": 54,
+        "endLine": 93,
+        "endChar": 56
+      },
+      "revId": "9d15472e14e755565bf2277fa07db9e6232751d2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_9e5be5f5",
+        "filename": "openstack/net-virt-providers/src/main/java/org/opendaylight/netvirt/openstack/netvirt/providers/openflow13/services/IngressAclLearnServiceUtil.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 93,
+      "author": {
+        "id": 4269
+      },
+      "writtenOn": "2016-10-20T10:02:38Z",
+      "side": 1,
+      "message": "I guess it can create issues.\n\nOne such scenario is with the packet coming from on different n/w(L3 scenario) will have dst mac address of the router and not the vm. So table 39 will not have any successful matches. The router mac address will be repalced with vm mac only after table 70. So having the ingress learned rule in table 89 solve this.",
+      "parentUuid": "7a6b29fe_f4367bb3",
       "range": {
         "startLine": 93,
         "startChar": 54,
