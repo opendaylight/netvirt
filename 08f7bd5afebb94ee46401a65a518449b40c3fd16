@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7a6b29fe_c46d8a06",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/RouterDpnChangeListener.java",
+        "patchSetId": 18
+      },
+      "lineNbr": 121,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-10-20T15:43:40Z",
+      "side": 1,
+      "message": "when a DPN exits from a VPN, we should be removing the external network group.. That logic seems to be absent here ..\n\nCan you please clarify?",
+      "revId": "08f7bd5afebb94ee46401a65a518449b40c3fd16",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
