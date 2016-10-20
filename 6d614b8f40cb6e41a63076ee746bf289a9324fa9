@@ -52,6 +52,42 @@
       "revId": "6d614b8f40cb6e41a63076ee746bf289a9324fa9",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_74e6eb17",
+        "filename": "vpnservice/aclservice/impl/src/test/java/org/opendaylight/netvirt/aclservice/tests/MatchesWithAceIp.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 4540
+      },
+      "writtenOn": "2016-10-20T08:02:08Z",
+      "side": 1,
+      "message": "That for me is a huge argument *against* merging the patch as-is! Examples tend to be copied very quickly indeed, so if we don\u0027t want to spend ages catching up once #470 and #471 are fixed I recommend not merging this. I\u0027ll just leave a -1 though, so if another committer disagrees they can merge it ;-).",
+      "parentUuid": "7a6b29fe_de4e0096",
+      "revId": "6d614b8f40cb6e41a63076ee746bf289a9324fa9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_14e21703",
+        "filename": "vpnservice/aclservice/impl/src/test/java/org/opendaylight/netvirt/aclservice/tests/MatchesWithAceIp.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 4540
+      },
+      "writtenOn": "2016-10-20T08:02:08Z",
+      "side": 1,
+      "message": "My thinking was simply that if we need to manually code destinationPortRange() and sourcePortRange() then we might as well use existing mechanisms rather than implement new ones. I reckon that builders are go-between classes anyway so there\u0027s bound to be some mix of \"source\" and \"target\" classes, and I\u0027m not a big fan of creating ever more DTOs (even if tooling makes them easy to create).",
+      "parentUuid": "7a6b29fe_03ddbf14",
+      "revId": "6d614b8f40cb6e41a63076ee746bf289a9324fa9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
