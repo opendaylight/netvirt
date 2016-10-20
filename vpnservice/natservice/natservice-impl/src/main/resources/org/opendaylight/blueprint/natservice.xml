@@ -232,4 +232,18 @@
     <argument ref="odlInterfaceRpcService" />
   </bean>
 
+  <bean id="natRouterInterfaceListener"
+        class="org.opendaylight.netvirt.natservice.internal.NatRouterInterfaceListener"
+        init-method="init" destroy-method="close">
+    <argument ref="dataBroker" />
+    <argument ref="odlInterfaceRpcService" />
+  </bean>
+
+  <bean id="natInterfaceStateChangeListener"
+        class="org.opendaylight.netvirt.natservice.internal.NatInterfaceStateChangeListener"
+        init-method="init" destroy-method="close">
+    <argument ref="dataBroker" />
+    <argument ref="odlInterfaceRpcService" />
+  </bean>
+
 </blueprint>
