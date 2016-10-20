@@ -120,6 +120,24 @@
       "revId": "9e0933b1cf634f30a1194b048abe062d33938fc9",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_d4e1bfd1",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 13
+      },
+      "lineNbr": 1420,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-10-20T08:29:20Z",
+      "side": 1,
+      "message": "You have to distinguish here only between LOCAL and STATIC.. CONNECTED is used only for subnet-route..  \n\nsuggest if its a primary-adjacency use LOCAL. Otherwise we use STATIC.\n\nWhile you can have a \"non /32\" extra-route prefix, that alone does not sufficiently evidence it to put as CONNECTED !\n\nFurther extra-route can be configured by both the cloud operator as well as the tenant himself.",
+      "parentUuid": "7a6b29fe_c833e6f4",
+      "revId": "9e0933b1cf634f30a1194b048abe062d33938fc9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
