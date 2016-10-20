@@ -1,0 +1,78 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7a6b29fe_99a66252",
+        "filename": "openstack/net-virt-providers/src/main/java/org/opendaylight/netvirt/openstack/netvirt/providers/openflow13/PipelineOrchestratorImpl.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 67,
+      "author": {
+        "id": 4269
+      },
+      "writtenOn": "2016-10-20T06:40:29Z",
+      "side": 1,
+      "message": "Do we require a change in InboundNatService for the packets to be forwarded to this table, also a change in L2_REWRITE?",
+      "revId": "9d15472e14e755565bf2277fa07db9e6232751d2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_79af062c",
+        "filename": "openstack/net-virt-providers/src/main/java/org/opendaylight/netvirt/openstack/netvirt/providers/openflow13/services/EgressAclService.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 939,
+      "author": {
+        "id": 4269
+      },
+      "writtenOn": "2016-10-20T06:40:29Z",
+      "side": 1,
+      "message": "This rule need not be added for stateful implementation?",
+      "revId": "9d15472e14e755565bf2277fa07db9e6232751d2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_f962f614",
+        "filename": "openstack/net-virt-providers/src/main/java/org/opendaylight/netvirt/openstack/netvirt/providers/openflow13/services/IngressAclLearnServiceUtil.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 93,
+      "author": {
+        "id": 4269
+      },
+      "writtenOn": "2016-10-20T06:40:29Z",
+      "side": 1,
+      "message": "This should be table 89?",
+      "range": {
+        "startLine": 93,
+        "startChar": 54,
+        "endLine": 93,
+        "endChar": 56
+      },
+      "revId": "9d15472e14e755565bf2277fa07db9e6232751d2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_d9673a24",
+        "filename": "openstack/net-virt-providers/src/main/java/org/opendaylight/netvirt/openstack/netvirt/providers/openflow13/services/ResubmitAclLearnService.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 77,
+      "author": {
+        "id": 4269
+      },
+      "writtenOn": "2016-10-20T06:40:29Z",
+      "side": 1,
+      "message": "Similar rule required for 89 and 90",
+      "revId": "9d15472e14e755565bf2277fa07db9e6232751d2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
