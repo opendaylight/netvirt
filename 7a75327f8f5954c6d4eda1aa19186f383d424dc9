@@ -138,6 +138,24 @@
     },
     {
       "key": {
+        "uuid": "7a6b29fe_f9bb1673",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/NexthopManager.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 395,
+      "author": {
+        "id": 6456
+      },
+      "writtenOn": "2016-10-20T08:44:24Z",
+      "side": 1,
+      "message": "It\u0027s still in use in case we expect just one next hope for IP. Else we would need to read from prefix to interface and from vpn interface adj to find mac address each time.",
+      "parentUuid": "7a6b29fe_f98e7626",
+      "revId": "7a75327f8f5954c6d4eda1aa19186f383d424dc9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7a6b29fe_d9a57ab6",
         "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/NexthopManager.java",
         "patchSetId": 4
