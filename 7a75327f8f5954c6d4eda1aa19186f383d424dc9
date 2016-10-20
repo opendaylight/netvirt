@@ -1,0 +1,293 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7a6b29fe_39990e6f",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 4
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-10-20T01:56:14Z",
+      "side": 1,
+      "message": "Please make useful commit messages..\n\nSomething like:\n\"\nThis fix enables learned MAC Addresses (via ARP Responses) to be used in the NextHopGroup in the FibTable, thereby enabling such MACAddresses to be carried in packets into a VPN Interface even though such MACAddresses may be different from the primary mac address of the VPN Interface.\n\"",
+      "revId": "7a75327f8f5954c6d4eda1aa19186f383d424dc9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_b9c7de63",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/NexthopManager.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 166,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-10-20T01:56:14Z",
+      "side": 1,
+      "message": "looks this method never used..please remove it.",
+      "revId": "7a75327f8f5954c6d4eda1aa19186f383d424dc9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_99c4a260",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/NexthopManager.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 290,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-10-20T01:56:14Z",
+      "side": 1,
+      "message": "rename ipAddress parameter as localNextHopAddress\n\nand rename ipPrefixAddress as ipAddress.",
+      "revId": "7a75327f8f5954c6d4eda1aa19186f383d424dc9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_39abce8a",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/NexthopManager.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 369,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-10-20T01:56:14Z",
+      "side": 1,
+      "message": "too long line..",
+      "revId": "7a75327f8f5954c6d4eda1aa19186f383d424dc9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_19b092f3",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/NexthopManager.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 374,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-10-20T01:56:14Z",
+      "side": 1,
+      "message": "check if vpnnexthop is there.",
+      "revId": "7a75327f8f5954c6d4eda1aa19186f383d424dc9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_59916a51",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/NexthopManager.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 382,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-10-20T01:56:14Z",
+      "side": 1,
+      "message": "can you fix this implementation to directly use the instanceidentifier with all the keys by using the above getVpnNextHopIdentifier() and do a single read on Op DS, instead of looping through all the elements ?",
+      "revId": "7a75327f8f5954c6d4eda1aa19186f383d424dc9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_79942644",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/NexthopManager.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 394,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-10-20T01:56:14Z",
+      "side": 1,
+      "message": "remove tabs",
+      "revId": "7a75327f8f5954c6d4eda1aa19186f383d424dc9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_f98e7626",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/NexthopManager.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 395,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-10-20T01:56:14Z",
+      "side": 1,
+      "message": "this method is not required anymore...  please remove this..",
+      "revId": "7a75327f8f5954c6d4eda1aa19186f383d424dc9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_d9a57ab6",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/NexthopManager.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 416,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-10-20T01:56:14Z",
+      "side": 1,
+      "message": "remove tabs.",
+      "revId": "7a75327f8f5954c6d4eda1aa19186f383d424dc9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_9972e247",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/NexthopManager.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 417,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-10-20T01:56:14Z",
+      "side": 1,
+      "message": "rename ipAddress as localNextHopAddress\n\nrename ipPrefix as ipAddress.",
+      "revId": "7a75327f8f5954c6d4eda1aa19186f383d424dc9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_f9a036a7",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/NexthopManager.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 421,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-10-20T01:56:14Z",
+      "side": 1,
+      "message": "remove tabs.",
+      "revId": "7a75327f8f5954c6d4eda1aa19186f383d424dc9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_b99ebe61",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 788,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-10-20T01:56:14Z",
+      "side": 1,
+      "message": "too long line..",
+      "revId": "7a75327f8f5954c6d4eda1aa19186f383d424dc9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_b9751e34",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 947,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-10-20T01:56:14Z",
+      "side": 1,
+      "message": "please check if localNextHopPrefix is non-null.. If null, continue to for ..",
+      "revId": "7a75327f8f5954c6d4eda1aa19186f383d424dc9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_d98c5a38",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 948,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-10-20T01:56:14Z",
+      "side": 1,
+      "message": "remove unnecessary trailing space.",
+      "revId": "7a75327f8f5954c6d4eda1aa19186f383d424dc9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_d993ba4d",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 950,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-10-20T01:56:14Z",
+      "side": 1,
+      "message": "check for null return value.. If null continue on back to for {}",
+      "revId": "7a75327f8f5954c6d4eda1aa19186f383d424dc9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_3982ae00",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 951,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-10-20T01:56:14Z",
+      "side": 1,
+      "message": "why is this line required?",
+      "revId": "7a75327f8f5954c6d4eda1aa19186f383d424dc9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_797b8629",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 987,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-10-20T01:56:14Z",
+      "side": 1,
+      "message": "remove unnecessary tab.",
+      "revId": "7a75327f8f5954c6d4eda1aa19186f383d424dc9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}

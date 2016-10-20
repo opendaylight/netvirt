@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7a6b29fe_999b0272",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 790,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-10-20T01:56:14Z",
+      "side": 0,
+      "message": "Please retain this..  If group allocation fails, a value of 0 is returned and we have to check and fail the same way here..",
+      "revId": "fc91443e5f2e1ffdcf6a70dd7866995030f9f7e8",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
