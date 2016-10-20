@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7a6b29fe_7e608935",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 789,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-10-20T11:19:21Z",
+      "side": 1,
+      "message": "space after comma",
+      "revId": "455822d7685044d49ee6f50f951261512f229480",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_5e630d41",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 1622,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-10-20T11:19:21Z",
+      "side": 1,
+      "message": "space after comma",
+      "revId": "455822d7685044d49ee6f50f951261512f229480",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
