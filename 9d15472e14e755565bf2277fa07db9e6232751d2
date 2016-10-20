@@ -293,6 +293,30 @@
     },
     {
       "key": {
+        "uuid": "7a6b29fe_619e28ba",
+        "filename": "openstack/net-virt-providers/src/main/java/org/opendaylight/netvirt/openstack/netvirt/providers/openflow13/services/IngressAclLearnServiceUtil.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 93,
+      "author": {
+        "id": 4030
+      },
+      "writtenOn": "2016-10-20T12:05:10Z",
+      "side": 1,
+      "message": "Okay.. if any issue, we will change to IP to mac match later.",
+      "parentUuid": "7a6b29fe_7ec7e912",
+      "range": {
+        "startLine": 93,
+        "startChar": 54,
+        "endLine": 93,
+        "endChar": 56
+      },
+      "revId": "9d15472e14e755565bf2277fa07db9e6232751d2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7a6b29fe_3e20d1f6",
         "filename": "openstack/net-virt-providers/src/main/java/org/opendaylight/netvirt/openstack/netvirt/providers/openflow13/services/IngressAclService.java",
         "patchSetId": 4
@@ -304,6 +328,30 @@
       "writtenOn": "2016-10-20T11:43:55Z",
       "side": 1,
       "message": "Is there a generic way to identify ICMP return type and code? \nIt is better not having it?",
+      "range": {
+        "startLine": 691,
+        "startChar": 105,
+        "endLine": 691,
+        "endChar": 106
+      },
+      "revId": "9d15472e14e755565bf2277fa07db9e6232751d2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_8174249d",
+        "filename": "openstack/net-virt-providers/src/main/java/org/opendaylight/netvirt/openstack/netvirt/providers/openflow13/services/IngressAclService.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 691,
+      "author": {
+        "id": 4030
+      },
+      "writtenOn": "2016-10-20T12:05:10Z",
+      "side": 1,
+      "message": "As of now we support only  icmp code(0) and types (8, 13, 15 and 17). If any other icmp type or code supported, we will add some generic way to handle code and types.",
+      "parentUuid": "7a6b29fe_3e20d1f6",
       "range": {
         "startLine": 691,
         "startChar": 105,
