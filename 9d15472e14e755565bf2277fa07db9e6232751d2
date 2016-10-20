@@ -59,6 +59,30 @@
     },
     {
       "key": {
+        "uuid": "7a6b29fe_9954a222",
+        "filename": "openstack/net-virt-providers/src/main/java/org/opendaylight/netvirt/openstack/netvirt/providers/openflow13/services/IngressAclLearnServiceUtil.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 93,
+      "author": {
+        "id": 4269
+      },
+      "writtenOn": "2016-10-20T06:49:48Z",
+      "side": 1,
+      "message": "Sorry this should be 39 and in the Egress it should be 89 as the learned rule from IngressTable should go to Egress and viceversa.",
+      "parentUuid": "7a6b29fe_f962f614",
+      "range": {
+        "startLine": 93,
+        "startChar": 54,
+        "endLine": 93,
+        "endChar": 56
+      },
+      "revId": "9d15472e14e755565bf2277fa07db9e6232751d2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7a6b29fe_d9673a24",
         "filename": "openstack/net-virt-providers/src/main/java/org/opendaylight/netvirt/openstack/netvirt/providers/openflow13/services/ResubmitAclLearnService.java",
         "patchSetId": 4
