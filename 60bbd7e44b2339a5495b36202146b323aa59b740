@@ -1,0 +1,72 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7a6b29fe_3e6291d8",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 6
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-10-20T09:44:27Z",
+      "side": 1,
+      "message": "please use a proper commit message..\n\nFollow the community format..\n\nBug #bugid: Bug title \n\nDescription of the fix..",
+      "revId": "60bbd7e44b2339a5495b36202146b323aa59b740",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_fe95b988",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 789,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-10-20T09:44:27Z",
+      "side": 1,
+      "message": "too long line..",
+      "revId": "60bbd7e44b2339a5495b36202146b323aa59b740",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_7ee9a919",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 1621,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-10-20T09:44:27Z",
+      "side": 1,
+      "message": "too long line..",
+      "revId": "60bbd7e44b2339a5495b36202146b323aa59b740",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_fedc9976",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/ArpNotificationHandler.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 354,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-10-20T09:44:27Z",
+      "side": 1,
+      "message": "You want to learn only via ARP responses (or) you want to learn via ARP requests too?",
+      "revId": "60bbd7e44b2339a5495b36202146b323aa59b740",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
