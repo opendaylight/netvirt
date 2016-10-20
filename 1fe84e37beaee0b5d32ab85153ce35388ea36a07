@@ -1,0 +1,191 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7a6b29fe_19bb7273",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 5
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-10-20T07:08:47Z",
+      "side": 1,
+      "message": "First line should always contain\n\nBug xxxx: title description of the bug\n\u003cCR\u003e\n\u003cHere is where the commit description shoudl go\u003e",
+      "revId": "1fe84e37beaee0b5d32ab85153ce35388ea36a07",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_997dc2b4",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/NexthopManager.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 293,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-10-20T07:08:47Z",
+      "side": 1,
+      "message": "Remove the big tab in the blank line here..",
+      "revId": "1fe84e37beaee0b5d32ab85153ce35388ea36a07",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_59732ae7",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/NexthopManager.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 361,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-10-20T07:08:47Z",
+      "side": 1,
+      "message": "long line.",
+      "revId": "1fe84e37beaee0b5d32ab85153ce35388ea36a07",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_197252e5",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/NexthopManager.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 402,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-10-20T07:08:47Z",
+      "side": 1,
+      "message": "long line.",
+      "revId": "1fe84e37beaee0b5d32ab85153ce35388ea36a07",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_396d8e05",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/NexthopManager.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 407,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-10-20T07:08:47Z",
+      "side": 1,
+      "message": "use ipAddress instead of ipPrefix\n\nuse localNextHopAddress instead of ipAddress.",
+      "revId": "1fe84e37beaee0b5d32ab85153ce35388ea36a07",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_f949568f",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 789,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-10-20T07:08:47Z",
+      "side": 1,
+      "message": "remove space after comma",
+      "revId": "1fe84e37beaee0b5d32ab85153ce35388ea36a07",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_d94e1a96",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 956,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-10-20T07:08:47Z",
+      "side": 1,
+      "message": "can\u0027t determine interface for nexthop ip {} for extra-route {} , nexthopip, vrfEntry.getDestPrefix()\n\nYou can remove the second sentence \u0027Local next ho...\u0027",
+      "revId": "1fe84e37beaee0b5d32ab85153ce35388ea36a07",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_39446e73",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 960,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-10-20T07:08:47Z",
+      "side": 1,
+      "message": "traling space after comma",
+      "revId": "1fe84e37beaee0b5d32ab85153ce35388ea36a07",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_1949b28b",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 962,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-10-20T07:08:47Z",
+      "side": 1,
+      "message": "shoudn\u0027t this be \u003d\u003d null?",
+      "revId": "1fe84e37beaee0b5d32ab85153ce35388ea36a07",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_795d4648",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 963,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-10-20T07:08:47Z",
+      "side": 1,
+      "message": "can\u0027t determine localnexthopip for prefix {} vrfEntry.getDestPrefix().\n\nYou can remove the second sentence \u0027Local next ho..\u0027",
+      "revId": "1fe84e37beaee0b5d32ab85153ce35388ea36a07",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a6b29fe_540f6f2e",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 1471,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-10-20T07:08:47Z",
+      "side": 1,
+      "message": "make this as (extraRoute !\u003d null) only in the condition.",
+      "revId": "1fe84e37beaee0b5d32ab85153ce35388ea36a07",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
