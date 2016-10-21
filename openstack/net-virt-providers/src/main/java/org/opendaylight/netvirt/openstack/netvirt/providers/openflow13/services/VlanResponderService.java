@@ -47,7 +47,7 @@ public class VlanResponderService extends AbstractServiceInstance implements Vla
      * Sample flow: table=100, n_packets=1192, n_bytes=55496, priority=4,in_port=5,dl_src=fa:16:3e:74:a9:2e actions=output:3
      */
     @Override
-    public void programProviderNetworkOutput(Long dpidLong, Long ofPort, Long patchPort, String ipAddress, boolean write) {
+    public void programProviderNetworkOutput(Long dpidLong, Long ofPort, Long patchPort, String macAddress, boolean write) {
         try {
             String nodeName = OPENFLOW + dpidLong;
             NodeBuilder nodeBuilder = FlowUtils.createNodeBuilder(nodeName);
@@ -56,8 +56,7 @@ public class VlanResponderService extends AbstractServiceInstance implements Vla
             MatchBuilder matchBuilder = new MatchBuilder();
             //Match In Port
             MatchUtils.createInPortMatch(matchBuilder, dpidLong, ofPort);
-            //MatchUtils.createEthSrcMatch(matchBuilder, new MacAddress(macAddress));
-            MatchUtils.createSrcL3IPv4Match(matchBuilder, MatchUtils.iPv4PrefixFromIPv4Address(ipAddress));
+            MatchUtils.createEthSrcMatch(matchBuilder, new MacAddress(macAddress));
             flowBuilder.setMatch(matchBuilder.build());
             // Add Flow Attributes
             String flowName = "InternalBridge_output_" + dpidLong + "_" + ofPort;
