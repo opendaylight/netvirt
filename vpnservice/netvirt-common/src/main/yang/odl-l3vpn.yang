@@ -208,9 +208,16 @@ module odl-l3vpn {
               }
               default "l3";
            }
-           leaf evi {
-              type uint32;
-           }
+           leaf l3vni {
+                    description
+                           "Presence of this attribute indicates L3 forwarding using vxlan tunnel
+                           Absence indicates MPLS over GRE";
+
+                    type uint32;
+                    mandatory false;
+                 }
+
+                 
            container vpnTargets {
               description
                 "The vpn-target command configures the export or import VPN target

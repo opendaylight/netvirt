@@ -421,8 +421,8 @@ public class VpnInstanceListener extends AsyncDataTreeChangeListenerBase<VpnInst
         }
         VpnInstanceOpDataEntryBuilder builder =
                 new VpnInstanceOpDataEntryBuilder().setVpnId(vpnId)
-                        .setVpnInstanceName(vpnInstanceName).setEvi(value.getEvi());
-        setVpnInstanceType(value.getType(), builder);
+                        .setVpnInstanceName(vpnInstanceName);
+        setVpnInstanceType(value.getType(), value.getL3vni(), builder);
         if (rd == null) {
             builder.setVrfId(vpnInstanceName);
             if (writeOperTxn != null) {
@@ -466,11 +466,11 @@ public class VpnInstanceListener extends AsyncDataTreeChangeListenerBase<VpnInst
         }
     }
 
-    private void setVpnInstanceType(VpnInstance.Type type, VpnInstanceOpDataEntryBuilder builder) {
-        if (type.equals(VpnInstance.Type.L2)) {
-            builder.setType(VpnInstanceOpDataEntry.Type.L2);
+    private void setVpnInstanceType(VpnInstance.Type type, Long l3vni, VpnInstanceOpDataEntryBuilder builder) {
+        if ( l3vni != null ) {
+            builder.setType( VpnInstanceOpDataEntry.Type.L2 ).setL3vni(l3vni);
         } else {
-            builder.setType(VpnInstanceOpDataEntry.Type.L3);
+            builder.setType( VpnInstanceOpDataEntry.Type.L3 );
         }
     }
 
