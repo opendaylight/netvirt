@@ -213,12 +213,14 @@ public class NetvirtItUtils {
                 dataBroker.newReadOnlyTransaction(), LogicalDatastoreType.CONFIGURATION);
         assertNotNull("Could not read flow " + flowId + " from configuration", configFlow);
 
+        LOG.info("verifyFlowByFields: flowId:{} configFlow:{}", flowId, configFlow);
         waitForIt.close();
         Table table = FlowUtils.getTable(nodeBuilder, tableId, dataBroker.newReadOnlyTransaction(),
                                                                                     LogicalDatastoreType.OPERATIONAL);
         assertNotNull("Could not read table " + tableId + " from operational", table);
 
         List<Flow> flows = table.getFlow();
+        LOG.info("verifyFlowByFields: tableId:{} OperatioanlFlow:{}", tableId, flows);
         Assert.assertNotNull("No flows found for table", flows);
 
         for (Flow opFlow : flows) {
@@ -232,10 +234,12 @@ public class NetvirtItUtils {
     private boolean checkFlowsEqual(Flow configFlow, Flow opFlow) {
         Integer configPrio = configFlow.getPriority();
         Integer opPrio = opFlow.getPriority();
+        LOG.info("checkFlowsEqual-Priority: configPrio:{} opPrio:{}", configPrio, opPrio);
         if (!Objects.equals(configPrio == null ? DEFAULT_PRIORITY : configPrio,
                 opPrio == null ? DEFAULT_PRIORITY : opPrio)) {
             return false;
         }
+        LOG.info("checkFlowsEqual-MatchesEquals: Config:{} operational:{}", configFlow.getMatch(), opFlow.getMatch());
         return areMatchesEqual(configFlow.getMatch(), opFlow.getMatch());
     }
 
