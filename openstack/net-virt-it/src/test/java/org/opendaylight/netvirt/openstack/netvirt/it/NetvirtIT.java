@@ -118,7 +118,6 @@ public class NetvirtIT extends AbstractMdsalTestBase {
     private static final String NETVIRT_TOPOLOGY_ID = "netvirt:1";
     @Inject @Filter(timeout=60000)
     private static DataBroker dataBroker = null;
-
     @Override
     public MavenUrlReference getFeatureRepo() {
         return maven()
@@ -421,11 +420,16 @@ public class NetvirtIT extends AbstractMdsalTestBase {
 
             List<Service> staticPipeline = pipelineOrchestrator.getStaticPipeline();
             List<Service> staticPipelineFound = Lists.newArrayList();
+            String flowId;
             for (Service service : pipelineOrchestrator.getServiceRegistry().keySet()) {
                 if (staticPipeline.contains(service)) {
                     staticPipelineFound.add(service);
                 }
-                String flowId = "DEFAULT_PIPELINE_FLOW_" + pipelineOrchestrator.getTable(service);
+                if (pipelineOrchestrator.getTable(service) == Service.RESUBMIT_ACL_SERVICE.getTable()) {
+                    flowId = "ReSubmit_";
+                } else {
+                    flowId = "DEFAULT_PIPELINE_FLOW_" + pipelineOrchestrator.getTable(service);
+                }
                 nvItUtils.verifyFlowByFields(nodeInfo.datapathId, flowId, pipelineOrchestrator.getTable(service), 5000);
             }
             assertEquals("did not find all expected flows in static pipeline",
@@ -444,7 +448,6 @@ public class NetvirtIT extends AbstractMdsalTestBase {
         }
     }
 
-    @Ignore
     @Test
     @SuppressWarnings("checkstyle:IllegalCatch")
     public void testNetVirtFixedSG() throws InterruptedException {
