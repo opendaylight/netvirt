@@ -442,13 +442,13 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
 
         if (adjacencies.isPresent()) {
             VpnInstanceOpDataEntry vpnInstanceOpData = VpnUtil.getVpnInstanceOpData(dataBroker, rd);
-            long evi = 0;
+            Long l3Vni = vpnInstanceOpData.getL3vni();
             String gatewayMac = null;
             VrfEntry.EncapType encapType = null;
-            if (vpnInstanceOpData.getType().equals(VpnInstanceOpDataEntry.Type.L2)) {
+
+            if ( l3Vni != null ){
                 encapType = VrfEntry.EncapType.Vxlan;
-                evi = vpnInstanceOpData.getEvi();
-                gatewayMac = getGatewayMac(intf.getName());
+                gatewayMac = getGatewayMac( intf.getName() );
             } else {
                 encapType = VrfEntry.EncapType.Mplsgre;
             }
@@ -461,7 +461,7 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                     try {
                         LOG.info("VPN ADVERTISE: Adding Fib Entry rd {} prefix {} nexthop {} label {}", rd, nextHop.getIpAddress(), nextHopIp, label);
                         bgpManager.advertisePrefix(rd, nextHop.getMacAddress(), nextHop.getIpAddress(), nextHopIp,
-                                encapType, (int)label, evi, gatewayMac);
+                                encapType, (int)label, java.util.Optional.ofNullable(l3Vni).orElse(0L), gatewayMac);
                         LOG.info("VPN ADVERTISE: Added Fib Entry rd {} prefix {} nexthop {} label {}", rd, nextHop.getIpAddress(), nextHopIp, label);
                     } catch(Exception e) {
                         LOG.error("Failed to advertise prefix {} in vpn {} with rd {} for interface {} ",
@@ -599,16 +599,18 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
 
             List<VpnInstanceOpDataEntry> vpnsToImportRoute = getVpnsImportingMyRoute(vpnName);
             VpnInstanceOpDataEntry vpnInstanceOpData = VpnUtil.getVpnInstanceOpData(dataBroker, rd);
-            long evi = 0;
+
+            Long l3Vni = vpnInstanceOpData.getL3vni();
             String gatewayMac = null;
             VrfEntry.EncapType encapType = null;
-            if (vpnInstanceOpData.getType().equals(VpnInstanceOpDataEntry.Type.L2)) {
+
+            if ( l3Vni != null ){
                 encapType = VrfEntry.EncapType.Vxlan;
-                evi = vpnInstanceOpData.getEvi();
-                gatewayMac = getGatewayMac(interfaceName);
+                gatewayMac = getGatewayMac( interfaceName );
             } else {
                 encapType = VrfEntry.EncapType.Mplsgre;
             }
+
             LOG.trace("NextHops for interface {} are {}", interfaceName, nextHops);
             for (Adjacency nextHop : nextHops) {
                 String prefix = VpnUtil.getIpPrefix(nextHop.getIpAddress());
@@ -656,10 +658,12 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
             long vpnId = VpnUtil.getVpnId(dataBroker, vpnName);
 
             for (Adjacency nextHop : aug.getAdjacency()) {
-                if (vpnInstanceOpData.getType().equals(VpnInstanceOpDataEntry.Type.L2)) {
-                    if (rd != null) {
+
+
+                if ( vpnInstanceOpData.getL3vni() != null ) {
+                    if ( rd != null ) {
                         addPrefixToBGP(rd, nextHop.getMacAddress(), nextHop.getIpAddress(), nextHopIp, encapType, 0 /*label*/,
-                                Long.valueOf(evi), gatewayMac, writeConfigTxn);
+                                Long.valueOf(vpnInstanceOpData.getL3vni()), gatewayMac, writeConfigTxn);
                     } else {
                         LOG.error("Internal VPN of Type L2 is not supported. Aborting...");
                         return;

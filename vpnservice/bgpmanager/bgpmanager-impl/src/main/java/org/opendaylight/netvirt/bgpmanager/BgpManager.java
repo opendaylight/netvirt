@@ -101,21 +101,21 @@ public class BgpManager implements AutoCloseable, IBgpManager {
 
     @Override
     public void addPrefix(String rd, String macAddress, String prefix, List<String> nextHopList,
-                          VrfEntry.EncapType encapType, int vpnLabel, long evi,
+                          VrfEntry.EncapType encapType, int vpnLabel, long l3vni,
                           String gatewayMac, RouteOrigin origin)
             throws Exception {
         fibDSWriter.addFibEntryToDS(rd, macAddress, prefix, nextHopList,
-                encapType, vpnLabel, evi, gatewayMac, origin);
+                encapType, vpnLabel, l3vni, gatewayMac, origin);
         bcm.addPrefix(rd, macAddress, prefix, nextHopList,
-                encapType, vpnLabel, evi, gatewayMac);
+                encapType, vpnLabel, l3vni, gatewayMac);
     }
 
     @Override
     public void addPrefix(String rd, String macAddress, String prefix, String nextHop,
-                          VrfEntry.EncapType encapType, int vpnLabel, long evi, String gatewayMac, RouteOrigin origin)
+                          VrfEntry.EncapType encapType, int vpnLabel, long l3vni, String gatewayMac, RouteOrigin origin)
             throws Exception {
         addPrefix(rd, macAddress, prefix, Arrays.asList(nextHop),
-                encapType, vpnLabel, evi, gatewayMac, origin);
+                encapType, vpnLabel, l3vni, gatewayMac, origin);
     }
 
     @Override
@@ -126,17 +126,17 @@ public class BgpManager implements AutoCloseable, IBgpManager {
 
     @Override
     public void advertisePrefix(String rd, String macAddress, String prefix, List<String> nextHopList,
-                                VrfEntry.EncapType encapType, int vpnLabel, long evi,
+                                VrfEntry.EncapType encapType, int vpnLabel, long l3vni,
                                 String gatewayMac) throws Exception {
         bcm.addPrefix(rd, macAddress, prefix, nextHopList,
-                encapType, vpnLabel, evi, gatewayMac);
+                encapType, vpnLabel, l3vni, gatewayMac);
     }
 
     @Override
     public void advertisePrefix(String rd, String macAddress, String prefix, String nextHop,
-                                VrfEntry.EncapType encapType, int vpnLabel, long evi, String gatewayMac) throws Exception {
+                                VrfEntry.EncapType encapType, int vpnLabel, long l3vni, String gatewayMac) throws Exception {
         LOG.info("ADVERTISE: Adding Prefix rd {} prefix {} nexthop {} label {}", rd, prefix, nextHop, vpnLabel);
-        bcm.addPrefix(rd, macAddress, prefix, Arrays.asList(nextHop), encapType, vpnLabel, evi, gatewayMac);
+        bcm.addPrefix(rd, macAddress, prefix, Arrays.asList(nextHop), encapType, vpnLabel, l3vni, gatewayMac);
         LOG.info("ADVERTISE: Added Prefix rd {} prefix {} nexthop {} label {}", rd, prefix, nextHop, vpnLabel);
     }
 
