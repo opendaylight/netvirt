@@ -641,7 +641,6 @@ public class EgressAclService extends AbstractServiceInstance implements EgressA
                                  boolean write, Integer protoPortMatchPriority) {
 
         MatchBuilder matchBuilder = new MatchBuilder();
-        boolean isIcmpAll = false;
         String flowId = "Egress_ICMP_" + segmentationId + "_" + srcMac + "_";
         matchBuilder = MatchUtils.createV6EtherMatchWithType(matchBuilder,srcMac,null);
 
@@ -654,7 +653,6 @@ public class EgressAclService extends AbstractServiceInstance implements EgressA
                     portSecurityRule.getSecurityRulePortMin().shortValue(),
                     portSecurityRule.getSecurityRulePortMax().shortValue());
         } else {
-            isIcmpAll = true;
             /* All ICMP Match */ // We are getting from neutron NULL for both min and max
             flowId = flowId + "all" + "_" ;
             matchBuilder = MatchUtils.createICMPv6Match(matchBuilder, MatchUtils.ALL_ICMP, MatchUtils.ALL_ICMP);
@@ -668,29 +666,12 @@ public class EgressAclService extends AbstractServiceInstance implements EgressA
             matchBuilder = MatchUtils.addRemoteIpv6Prefix(matchBuilder,null,
                     new Ipv6Prefix(portSecurityRule.getSecurityRuleRemoteIpPrefix()));
         }
+        flowId = flowId + "_Permit";
+        addConntrackMatch(matchBuilder, MatchUtils.TRACKED_NEW_CT_STATE,MatchUtils.TRACKED_NEW_CT_STATE_MASK);
         NodeBuilder nodeBuilder = FlowUtils.createNodeBuilder(dpidLong);
-        if(isIcmpAll)
-        {
-            Map<Integer, String> map = LearnConstants.ICMP_TYPE_MAP;
-            for(Map.Entry<Integer, String> entry : map.entrySet()) {
-                Icmpv6MatchBuilder icmpv6match = new Icmpv6MatchBuilder();
-                icmpv6match.setIcmpv6Type(entry.getKey().shortValue());
-                icmpv6match.setIcmpv6Code((short)0);
-                matchBuilder.setIcmpv6Match(icmpv6match.build());
-                String rangeflowId = flowId + "_" + entry.getKey() + "_" + entry.getValue();
-                addConntrackMatch(matchBuilder, MatchUtils.TRACKED_NEW_CT_STATE,MatchUtils.TRACKED_NEW_CT_STATE_MASK);
-                FlowBuilder flowBuilder = FlowUtils.createFlowBuilder(rangeflowId, protoPortMatchPriority, matchBuilder, getTable());
-                addInstructionWithLearnConntrackCommit(portSecurityRule, flowBuilder, entry.getValue(), Integer.toString(portSecurityRule.getSecurityRulePortMax()));
-                syncFlow(flowBuilder ,nodeBuilder, write);
-            }
-        } else {
-            flowId = flowId + "_Permit";
-            addConntrackMatch(matchBuilder, MatchUtils.TRACKED_NEW_CT_STATE,MatchUtils.TRACKED_NEW_CT_STATE_MASK);
-            FlowBuilder flowBuilder = FlowUtils.createFlowBuilder(flowId, protoPortMatchPriority, matchBuilder, getTable());
-            addInstructionWithLearnConntrackCommit(portSecurityRule, flowBuilder, LearnConstants.ICMP_TYPE_MAP.get(portSecurityRule.getSecurityRulePortMin()),
-                    Integer.toString(portSecurityRule.getSecurityRulePortMax()));
-            syncFlow(flowBuilder ,nodeBuilder, write);
-        }
+        FlowBuilder flowBuilder = FlowUtils.createFlowBuilder(flowId, protoPortMatchPriority, matchBuilder, getTable());
+        addInstructionWithConntrackCommit(flowBuilder, false);
+        syncFlow(flowBuilder ,nodeBuilder, write);
     }
 
     /**
