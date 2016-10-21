@@ -718,7 +718,6 @@ public class IngressAclService extends AbstractServiceInstance implements Ingres
                                   boolean write, Integer protoPortMatchPriority) {
 
         MatchBuilder matchBuilder = new MatchBuilder();
-        boolean isIcmpAll = false;
         String flowId = "Ingress_ICMP_" + segmentationId + "_" + dstMac + "_";
         matchBuilder = MatchUtils.createV6EtherMatchWithType(matchBuilder,null,dstMac);
 
@@ -731,7 +730,6 @@ public class IngressAclService extends AbstractServiceInstance implements Ingres
                     portSecurityRule.getSecurityRulePortMin().shortValue(),
                     portSecurityRule.getSecurityRulePortMax().shortValue());
         } else {
-            isIcmpAll = true;
             /* All ICMP Match */
             flowId = flowId + "all" + "_";
             matchBuilder = MatchUtils.createICMPv6Match(matchBuilder,MatchUtils.ALL_ICMP, MatchUtils.ALL_ICMP);
@@ -746,29 +744,12 @@ public class IngressAclService extends AbstractServiceInstance implements Ingres
                     new Ipv6Prefix(portSecurityRule
                                    .getSecurityRuleRemoteIpPrefix()),null);
         }
+        addConntrackMatch(matchBuilder, MatchUtils.TRACKED_NEW_CT_STATE,MatchUtils.TRACKED_NEW_CT_STATE_MASK);
         NodeBuilder nodeBuilder = FlowUtils.createNodeBuilder(dpidLong);
-        if(isIcmpAll)
-        {
-            Map<Integer, String> map = LearnConstants.ICMP_TYPE_MAP;
-            for(Map.Entry<Integer, String> entry : map.entrySet()) {
-                Icmpv6MatchBuilder icmpv6match = new Icmpv6MatchBuilder();
-                icmpv6match.setIcmpv6Type(entry.getKey().shortValue());
-                icmpv6match.setIcmpv6Code((short)0);
-                matchBuilder.setIcmpv6Match(icmpv6match.build());
-                String rangeflowId = flowId + "_" + entry.getKey() + "_" + entry.getValue();
-                addConntrackMatch(matchBuilder, MatchUtils.TRACKED_NEW_CT_STATE,MatchUtils.TRACKED_NEW_CT_STATE_MASK);
-                FlowBuilder flowBuilder = FlowUtils.createFlowBuilder(rangeflowId, protoPortMatchPriority, matchBuilder, getTable());
-                addInstructionWithLearnConntrackCommit(portSecurityRule, flowBuilder, entry.getValue(), Integer.toString(portSecurityRule.getSecurityRulePortMax()));
-                syncFlow(flowBuilder ,nodeBuilder, write);
-            }
-        } else {
-            addConntrackMatch(matchBuilder, MatchUtils.TRACKED_NEW_CT_STATE,MatchUtils.TRACKED_NEW_CT_STATE_MASK);
-            flowId = flowId + "_Permit";
-            FlowBuilder flowBuilder = FlowUtils.createFlowBuilder(flowId, protoPortMatchPriority, matchBuilder, getTable());
-            addInstructionWithLearnConntrackCommit(portSecurityRule, flowBuilder, LearnConstants.ICMP_TYPE_MAP.get(portSecurityRule.getSecurityRulePortMin()),
-                    Integer.toString(portSecurityRule.getSecurityRulePortMax()));
-            syncFlow(flowBuilder ,nodeBuilder, write);
-        }
+        flowId = flowId + "_Permit";
+        FlowBuilder flowBuilder = FlowUtils.createFlowBuilder(flowId, protoPortMatchPriority, matchBuilder, getTable());
+        addInstructionWithConntrackCommit(flowBuilder, false);
+        syncFlow(flowBuilder ,nodeBuilder, write);
     }
 
     /**
@@ -836,8 +817,7 @@ public class IngressAclService extends AbstractServiceInstance implements Ingres
             return IngressAclLearnServiceUtil.programIngressAclLearnRuleForTcp(flowBuilder,instructionBuilder);
         } else if (portSecurityRule.getSecurityRuleProtocol().equalsIgnoreCase(MatchUtils.UDP)) {
             return IngressAclLearnServiceUtil.programIngressAclLearnRuleForUdp(flowBuilder,instructionBuilder);
-        } else if (portSecurityRule.getSecurityRuleProtocol().equalsIgnoreCase(MatchUtils.ICMP) ||
-                portSecurityRule.getSecurityRuleProtocol().equalsIgnoreCase(MatchUtils.ICMPV6)) {
+        } else if (portSecurityRule.getSecurityRuleProtocol().equalsIgnoreCase(MatchUtils.ICMP)) {
             return IngressAclLearnServiceUtil.programIngressAclLearnRuleForIcmp(flowBuilder,instructionBuilder, icmpType, icmpCode);
         }
         return flowBuilder;
