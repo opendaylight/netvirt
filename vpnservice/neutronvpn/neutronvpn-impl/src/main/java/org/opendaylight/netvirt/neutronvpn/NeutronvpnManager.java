@@ -393,7 +393,7 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
         }
     }
 
-    private void updateVpnInstanceNode(String vpnName, List<String> rd, List<String> irt, List<String> ert, VpnInstance.Type type, long evi) {
+    private void updateVpnInstanceNode(String vpnName, List<String> rd, List<String> irt, List<String> ert, VpnInstance.Type type, Long l3vni) {
 
         VpnInstanceBuilder builder = null;
         List<VpnTarget> vpnTargetList = new ArrayList<>();
@@ -409,8 +409,10 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
                 LOG.debug("updating existing vpninstance node");
             } else {
                 builder = new VpnInstanceBuilder().setKey(new VpnInstanceKey(vpnName)).setVpnInstanceName(vpnName).setType(type);
-                if (type.equals(VpnInstance.Type.L2)) {
-                    builder.setEvi(evi);
+                if( l3vni != null ){
+                    builder.setType(VpnInstance.Type.L2).setL3vni(l3vni);
+                }else {
+                    builder.setType(VpnInstance.Type.L3);
                 }
             }
             if (irt != null && !irt.isEmpty()) {
@@ -756,7 +758,7 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
                                     List<String> ert, Uuid router, List<Uuid> networks) {
 
         // Update VPN Instance node
-        updateVpnInstanceNode(vpn.getValue(), rd, irt, ert, VpnInstance.Type.L3, 0 /*evi*/);
+        updateVpnInstanceNode(vpn.getValue(), rd, irt, ert, VpnInstance.Type.L3, null /*l3vni*/);
 
         // Update local vpn-subnet DS
         updateVpnMaps(vpn, name, router, tenant, networks);
@@ -919,7 +921,7 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
             }
             try {
                 createVpn(vpn.getId(), vpn.getName(), vpn.getTenantId(), vpn.getRouteDistinguisher(),
-                        vpn.getImportRT(), vpn.getExportRT(), vpn.getRouterId(), vpn.getNetworkIds(), vpnInstanceType, evi);
+                        vpn.getImportRT(), vpn.getExportRT(), vpn.getRouterId(), vpn.getNetworkIds(), vpnInstanceType, vpn.getL3vni() );
             } catch (Exception ex) {
                 msg = String.format("Creation of VPN failed for VPN %s", vpn.getId().getValue());
                 LOG.error(msg, ex);
