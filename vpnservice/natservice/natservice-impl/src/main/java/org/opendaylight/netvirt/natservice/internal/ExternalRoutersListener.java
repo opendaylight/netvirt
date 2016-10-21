@@ -1380,7 +1380,7 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
         }
     }
 
-    private Long checkExternalIpLabel(long routerId, String externalIp){
+    protected Long checkExternalIpLabel(long routerId, String externalIp){
         List<IpMap> ipMaps = naptManager.getIpMapList(dataBroker, routerId);
         for(IpMap ipMap : ipMaps){
             if(ipMap.getExternalIp().equals(externalIp)){

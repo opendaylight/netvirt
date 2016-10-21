@@ -69,6 +69,7 @@ public class NatRouterInterfaceListener extends AsyncDataTreeChangeListenerBase<
         WriteTransaction writeOperTxn = dataBroker.newWriteOnlyTransaction();
         if (interfaceState!= null) {
             NatUtil.addToNeutronRouterDpnsMap(dataBroker, routerId, interfaceName, interfaceManager, writeOperTxn);
+            NatUtil.addToDpnRoutersMap(dataBroker, routerId, interfaceName, interfaceManager, writeOperTxn);
         }else{
             LOG.warn("NAT Service : Interface {} not yet operational to handle router interface add event in router {}",
                     interfaceName, routerId);
