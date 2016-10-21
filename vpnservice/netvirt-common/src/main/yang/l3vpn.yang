@@ -746,8 +746,13 @@ module l3vpn {
         default "l3";
       }
 
-      leaf evi {
+      leaf l3vni {
+         description
+                "Presence of this attribute indicates L3 forwarding using vxlan tunnel
+                Absence indicates MPLS over GRE";
+
          type uint32;
+         mandatory false;
       }
 
 
