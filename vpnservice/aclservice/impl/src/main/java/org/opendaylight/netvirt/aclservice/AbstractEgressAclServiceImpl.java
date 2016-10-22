@@ -11,7 +11,6 @@ import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.mdsalutil.ActionInfo;
@@ -25,12 +24,11 @@ import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.genius.utils.ServiceIndex;
 import org.opendaylight.netvirt.aclservice.api.AclServiceManager.Action;
+import org.opendaylight.netvirt.aclservice.infra.Optionals;
 import org.opendaylight.netvirt.aclservice.utils.AclConstants;
 import org.opendaylight.netvirt.aclservice.utils.AclDataUtil;
 import org.opendaylight.netvirt.aclservice.utils.AclServiceOFFlowBuilder;
 import org.opendaylight.netvirt.aclservice.utils.AclServiceUtils;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.Acl;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.acl.AccessListEntries;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.acl.access.list.entries.Ace;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.acl.access.list.entries.ace.Matches;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.acl.access.list.entries.ace.matches.AceType;
@@ -132,17 +130,15 @@ public abstract class AbstractEgressAclServiceImpl extends AbstractAclServiceImp
                     aclUuidList, dpId);
             return false;
         }
-        for (Uuid sgUuid :aclUuidList ) {
-            Acl acl = AclServiceUtils.getAcl(dataBroker, sgUuid.getValue());
-            if (null == acl) {
+        for (Uuid sgUuid : aclUuidList) {
+            Optionals.ifPresent(AclServiceUtils.getAcl(dataBroker, sgUuid.getValue()), acl -> {
+                String aclName = acl.getAclName();
+                for (Ace ace: acl.getAccessListEntries().getAce()) {
+                    programAceRule(dpId, lportTag, addOrRemove, aclName, ace, portId, null);
+                }
+            }).elseDo(() -> {
                 LOG.warn("The ACL is empty");
-                continue;
-            }
-            AccessListEntries accessListEntries = acl.getAccessListEntries();
-            List<Ace> aceList = accessListEntries.getAce();
-            for (Ace ace: aceList) {
-                programAceRule(dpId, lportTag, addOrRemove, acl.getAclName(), ace, portId, null);
-            }
+            });
         }
         return true;
     }

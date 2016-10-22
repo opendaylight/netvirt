@@ -119,14 +119,21 @@ public class AclInterfaceStateListener extends AsyncDataTreeChangeListenerBase<I
 
     private AclInterface updateAclInterfaceCache(Interface dataObjectModification) {
         String interfaceId = dataObjectModification.getName();
+        final AclInterface aclInterface = getAclInterfaceFromCache(interfaceId);
+        AclServiceUtils.getDpIdFromIterfaceState(dataObjectModification)
+            .ifPresent(dpId ->
+                aclInterface.setDpId(dpId));
+        aclInterface.setLPortTag(dataObjectModification.getIfIndex());
+        aclInterface.setIsMarkedForDelete(false);
+        return aclInterface;
+    }
+
+    private AclInterface getAclInterfaceFromCache(String interfaceId) {
         AclInterface aclInterface = AclInterfaceCacheUtil.getAclInterfaceFromCache(interfaceId);
         if (aclInterface == null) {
             aclInterface = new AclInterface();
             AclInterfaceCacheUtil.addAclInterfaceToCache(interfaceId, aclInterface);
         }
-        aclInterface.setDpId(AclServiceUtils.getDpIdFromIterfaceState(dataObjectModification));
-        aclInterface.setLPortTag(dataObjectModification.getIfIndex());
-        aclInterface.setIsMarkedForDelete(false);
         return aclInterface;
     }
 }

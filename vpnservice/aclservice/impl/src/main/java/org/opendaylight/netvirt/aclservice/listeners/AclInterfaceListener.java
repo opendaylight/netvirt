@@ -7,6 +7,7 @@
  */
 package org.opendaylight.netvirt.aclservice.listeners;
 
+import com.google.common.base.Optional;
 import java.util.List;
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
@@ -90,12 +91,13 @@ public class AclInterfaceListener extends AsyncDataTreeChangeListenerBase<Interf
             if (addedAclList != null && !addedAclList.isEmpty()) {
                 aclDataUtil.addAclInterfaceMap(addedAclList, aclInterface);
             }
-            org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state
-                    .Interface interfaceState = AclServiceUtils.getInterfaceStateFromOperDS(
+            Optional<org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state
+                    .Interface> optInterfaceState = AclServiceUtils.getInterfaceStateFromOperDS(
                     dataBroker, portAfter.getName());
-            if (aclClusterUtil.isEntityOwner() && interfaceState != null && interfaceState.getOperStatus()
-                    .equals(org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508
-                            .interfaces.state.Interface.OperStatus.Up)) {
+            if (aclClusterUtil.isEntityOwner() && optInterfaceState.isPresent()
+                    && optInterfaceState.get().getOperStatus().equals(
+                            org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508
+                                .interfaces.state.Interface.OperStatus.Up)) {
                 aclServiceManager.notify(aclInterface, oldAclInterface, AclServiceManager.Action.UPDATE);
             }
             if (deletedAclList != null && !deletedAclList.isEmpty()) {
