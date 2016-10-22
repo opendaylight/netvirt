@@ -22,7 +22,7 @@ import java.util.List;
 import java.util.concurrent.ConcurrentMap;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
+import org.eclipse.jdt.annotation.Nullable;
 import org.junit.Assert;
 import org.opendaylight.genius.mdsalutil.ActionInfo;
 import org.opendaylight.genius.mdsalutil.ActionType;
@@ -58,8 +58,8 @@ public class AclServiceTestUtils {
         verifyMatchInfo(srcFlowMatches, MatchFieldType.ipv4_destination, dstIpv4Net, mask);
     }
 
-    public static AceIpBuilder prepareAceIpBuilder(String srcIpv4Net, String dstIpv4Net, String lowerPort,
-            String upperPort, short protocol) {
+    public static AceIpBuilder prepareAceIpBuilder(String srcIpv4Net, String dstIpv4Net, @Nullable String lowerPort,
+            @Nullable String upperPort, short protocol) {
         AceIpBuilder builder = new AceIpBuilder();
         AceIpv4Builder v4builder = new AceIpv4Builder();
         if (srcIpv4Net != null) {

@@ -42,22 +42,21 @@ public class AclServiceOFFlowBuilder {
      * @return the map containing the flows and the respective flow id
      */
     public static Map<String, List<MatchInfoBase>> programIpFlow(Matches matches) {
-        if (matches != null) {
-            AceIp acl = (AceIp) matches.getAceType();
-            Short protocol = acl.getProtocol();
-            if (protocol == null) {
-                return programEtherFlow(acl);
-            } else if (acl.getProtocol() == NwConstants.IP_PROT_TCP) {
-                return programTcpFlow(acl);
-            } else if (acl.getProtocol() == NwConstants.IP_PROT_UDP) {
-                return programUdpFlow(acl);
-            } else if (acl.getProtocol() == NwConstants.IP_PROT_ICMP) {
-                return programIcmpFlow(acl);
-            } else if (acl.getProtocol() != -1) {
-                return programOtherProtocolFlow(acl);
-            }
+        AceIp acl = (AceIp) matches.getAceType();
+        Short protocol = acl.getProtocol();
+        if (protocol == null) {
+            return programEtherFlow(acl);
+        } else if (protocol == NwConstants.IP_PROT_TCP) {
+            return programTcpFlow(acl);
+        } else if (protocol == NwConstants.IP_PROT_UDP) {
+            return programUdpFlow(acl);
+        } else if (protocol == NwConstants.IP_PROT_ICMP) {
+            return programIcmpFlow(acl);
+        } else if (protocol != -1) {
+            return programOtherProtocolFlow(acl);
+        } else {
+            throw new RuntimeException("Unexpected protocol in Matches AceIp: " + matches);
         }
-        return null;
     }
 
     /** Converts ether  matches to flows.

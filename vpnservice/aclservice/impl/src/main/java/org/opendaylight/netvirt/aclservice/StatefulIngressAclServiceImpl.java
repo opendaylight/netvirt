@@ -26,6 +26,7 @@ import org.opendaylight.genius.mdsalutil.NxMatchInfo;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.netvirt.aclservice.api.AclServiceManager.Action;
 import org.opendaylight.netvirt.aclservice.api.AclServiceManager.MatchCriteria;
+import org.opendaylight.netvirt.aclservice.infra.Optionals;
 import org.opendaylight.netvirt.aclservice.utils.AclConstants;
 import org.opendaylight.netvirt.aclservice.utils.AclDataUtil;
 import org.opendaylight.netvirt.aclservice.utils.AclServiceUtils;
@@ -81,21 +82,23 @@ public class StatefulIngressAclServiceImpl extends AbstractIngressAclServiceImpl
     protected String syncSpecificAclFlow(BigInteger dpId, int lportTag, int addOrRemove, String aclName, Ace ace,
             String portId, Map<String, List<MatchInfoBase>> flowMap, String flowName) {
         List<MatchInfoBase> flows = flowMap.get(flowName);
-        flowName += "Ingress" + lportTag + ace.getKey().getRuleName();
+        final String newFlowName = flowName + "Ingress" + lportTag + ace.getKey().getRuleName();
         flows.add(AclServiceUtils.buildLPortTagMatch(lportTag));
         flows.add(new NxMatchInfo(NxMatchFieldType.ct_state,
                 new long[] {AclConstants.TRACKED_NEW_CT_STATE, AclConstants.TRACKED_NEW_CT_STATE_MASK}));
 
-        Long elanTag = AclServiceUtils.getElanIdFromInterface(portId, dataBroker);
-        List<ActionInfo> actionsInfos = new ArrayList<>();
-        actionsInfos.add(new ActionInfo(ActionType.nx_conntrack,
-            new String[] {"1", "0", elanTag.toString(), "255"}, 2));
-        List<InstructionInfo> instructions = getDispatcherTableResubmitInstructions(actionsInfos);
-        int priority = this.aclDataUtil.getAclFlowPriority(aclName);
-
-        syncFlow(dpId, NwConstants.EGRESS_ACL_FILTER_TABLE, flowName, priority, "ACL", 0, 0,
-                AclConstants.COOKIE_ACL_BASE, flows, instructions, addOrRemove);
-        return flowName;
+        Optionals.ifPresent(AclServiceUtils.getElanIdFromInterface(portId, dataBroker), elanTag -> {
+            List<ActionInfo> actionsInfos = new ArrayList<>();
+            actionsInfos.add(new ActionInfo(ActionType.nx_conntrack,
+                new String[] {"1", "0", elanTag.toString(), "255"}, 2));
+            List<InstructionInfo> instructions = getDispatcherTableResubmitInstructions(actionsInfos);
+            int priority = this.aclDataUtil.getAclFlowPriority(aclName);
+            syncFlow(dpId, NwConstants.EGRESS_ACL_FILTER_TABLE, newFlowName, priority, "ACL", 0, 0,
+                    AclConstants.COOKIE_ACL_BASE, flows, instructions, addOrRemove);
+        }).elseDo(() -> {
+            LOG.warn("No ElanId foud for ElanInterfaceName {}", portId);
+        });
+        return newFlowName;
     }
 
     /**
@@ -126,15 +129,18 @@ public class StatefulIngressAclServiceImpl extends AbstractIngressAclServiceImpl
             List<InstructionInfo> instructions = new ArrayList<>();
             List<ActionInfo> actionsInfos = new ArrayList<>();
 
-            Long elanTag = AclServiceUtils.getElanIdFromInterface(portId, dataBroker);
-            actionsInfos.add(new ActionInfo(ActionType.nx_conntrack,
-                    new String[] {"0", "0", elanTag.toString(), Short.toString(
-                        NwConstants.EGRESS_ACL_FILTER_TABLE)}, 2));
-            instructions.add(new InstructionInfo(InstructionType.apply_actions, actionsInfos));
-            String flowName = "Ingress_Fixed_Conntrk_" + dpId + "_" + attachMac + "_"
-                    + String.valueOf(attachIp.getValue()) + "_" + flowId;
-            syncFlow(dpId, NwConstants.EGRESS_ACL_TABLE, flowName, AclConstants.PROTO_MATCH_PRIORITY, "ACL", 0, 0,
-                    AclConstants.COOKIE_ACL_BASE, matches, instructions, addOrRemove);
+            Optionals.ifPresent(AclServiceUtils.getElanIdFromInterface(portId, dataBroker), elanTag -> {
+                actionsInfos.add(new ActionInfo(ActionType.nx_conntrack,
+                        new String[] {"0", "0", elanTag.toString(), Short.toString(
+                            NwConstants.EGRESS_ACL_FILTER_TABLE)}, 2));
+                instructions.add(new InstructionInfo(InstructionType.apply_actions, actionsInfos));
+                String flowName = "Ingress_Fixed_Conntrk_" + dpId + "_" + attachMac + "_"
+                        + String.valueOf(attachIp.getValue()) + "_" + flowId;
+                syncFlow(dpId, NwConstants.EGRESS_ACL_TABLE, flowName, AclConstants.PROTO_MATCH_PRIORITY, "ACL", 0, 0,
+                        AclConstants.COOKIE_ACL_BASE, matches, instructions, addOrRemove);
+            }).elseDo(() -> {
+                LOG.warn("No ElanId foud for ElanInterfaceName {}", portId);
+            });
         }
     }
 
