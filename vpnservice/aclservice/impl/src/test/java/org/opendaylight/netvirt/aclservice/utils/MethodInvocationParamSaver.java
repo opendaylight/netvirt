@@ -10,21 +10,21 @@ package org.opendaylight.netvirt.aclservice.utils;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-
+import org.eclipse.jdt.annotation.Nullable;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
-public class  MethodInvocationParamSaver<T> implements Answer<T> {
+public class MethodInvocationParamSaver<T> implements Answer<T> {
 
-    private List<List<Object>> invocationParams = new ArrayList<List<Object>>();
-    private T answer;
+    private final List<List<Object>> invocationParams = new ArrayList<>();
+    private final @Nullable T answer;
 
-    public MethodInvocationParamSaver(T answer) {
+    public MethodInvocationParamSaver(@Nullable T answer) {
         this.answer = answer;
     }
 
     @Override
-    public T answer(InvocationOnMock invocation) throws Throwable {
+    public @Nullable T answer(InvocationOnMock invocation) throws Throwable {
         invocationParams.add(Arrays.asList(invocation.getArguments()));
         return answer;
     }

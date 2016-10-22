@@ -66,6 +66,13 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
       <artifactId>java-ipv6</artifactId>
       <version>0.16</version>
     </dependency>
+    <dependency>
+        <groupId>org.eclipse.jdt</groupId>
+        <artifactId>org.eclipse.jdt.annotation</artifactId>
+        <!-- TODO Remove version when https://git.opendaylight.org/gerrit/#/c/47359/ is merged -->
+        <version>2.0.0</version>
+        <scope>provided</scope>
+    </dependency>
 
     <!-- Dependencies used only by code under src/test (<scope>test) -->
     <dependency>

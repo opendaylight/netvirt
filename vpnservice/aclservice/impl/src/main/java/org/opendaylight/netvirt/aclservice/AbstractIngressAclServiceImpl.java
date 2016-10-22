@@ -7,6 +7,7 @@
  */
 package org.opendaylight.netvirt.aclservice;
 
+import com.google.common.base.Optional;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
@@ -145,12 +146,12 @@ public abstract class AbstractIngressAclServiceImpl extends AbstractAclServiceIm
         }
 
         for (Uuid sgUuid :aclUuidList ) {
-            Acl acl = AclServiceUtils.getAcl(dataBroker, sgUuid.getValue());
-            if (null == acl) {
+            Optional<Acl> optionalAcl = AclServiceUtils.getAcl(dataBroker, sgUuid.getValue());
+            if (!optionalAcl.isPresent()) {
                 LOG.warn("The ACL is empty");
                 continue;
             }
-            AccessListEntries accessListEntries = acl.getAccessListEntries();
+            AccessListEntries accessListEntries = optionalAcl.get().getAccessListEntries();
             List<Ace> aceList = accessListEntries.getAce();
             for (Ace ace : aceList) {
                 programAceRule(dpId, lportTag, addOrRemove, ace, portId, null);

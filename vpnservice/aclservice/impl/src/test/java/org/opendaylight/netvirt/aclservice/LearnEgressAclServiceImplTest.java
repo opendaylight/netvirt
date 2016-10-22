@@ -86,7 +86,6 @@ public class LearnEgressAclServiceImplTest {
         doAnswer(installFlowValueSaver).when(mdsalManager).installFlow(any(FlowEntity.class));
         removeFlowValueSaver = new MethodInvocationParamSaver<>(null);
         doAnswer(installFlowValueSaver).when(mdsalManager).removeFlow(any(FlowEntity.class));
-
     }
 
     @Test

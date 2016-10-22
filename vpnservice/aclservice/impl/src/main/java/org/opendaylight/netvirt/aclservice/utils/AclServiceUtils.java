@@ -13,6 +13,7 @@ import com.googlecode.ipv6.IPv6Address;
 import com.googlecode.ipv6.IPv6NetworkMask;
 import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -21,6 +22,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import org.eclipse.jdt.annotation.Nullable;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
@@ -153,13 +155,8 @@ public class AclServiceUtils {
      * @param aclKey the acl key
      * @return the acl
      */
-    public static Acl getAcl(DataBroker broker, String aclKey) {
-        Optional<Acl> optAcl = read(broker,
-            LogicalDatastoreType.CONFIGURATION, getAclInstanceIdentifier(aclKey));
-        if (optAcl.isPresent()) {
-            return optAcl.get();
-        }
-        return null;
+    public static Optional<Acl> getAcl(DataBroker broker, String aclKey) {
+        return read(broker, LogicalDatastoreType.CONFIGURATION, getAclInstanceIdentifier(aclKey));
     }
 
     /** Creates the Acl instance identifier.
@@ -206,18 +203,11 @@ public class AclServiceUtils {
      * @param interfaceName the interface name.
      * @return the interface state.
      */
-    public static org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state
-        .Interface getInterfaceStateFromOperDS(DataBroker dataBroker, String interfaceName) {
+    public static Optional<org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508
+        .interfaces.state.Interface> getInterfaceStateFromOperDS(DataBroker dataBroker, String interfaceName) {
         InstanceIdentifier<org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508
             .interfaces.state.Interface> ifStateId = buildStateInterfaceId(interfaceName);
-        Optional<org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508
-            .interfaces.state.Interface> ifStateOptional = MDSALUtil.read(LogicalDatastoreType
-                .OPERATIONAL, ifStateId, dataBroker);
-        if (!ifStateOptional.isPresent()) {
-            return null;
-        }
-
-        return ifStateOptional.get();
+        return MDSALUtil.read(LogicalDatastoreType.OPERATIONAL, ifStateId, dataBroker);
     }
 
     /**
@@ -437,15 +427,15 @@ public class AclServiceUtils {
         return aclInPort.getAllowedAddressPairs();
     }
 
-    public static BigInteger getDpIdFromIterfaceState(org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf
-            .interfaces.rev140508.interfaces.state.Interface interfaceState) {
-        BigInteger dpId = null;
+    public static Optional<BigInteger> getDpIdFromIterfaceState(org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang
+            .ietf.interfaces.rev140508.interfaces.state.Interface interfaceState) {
         List<String> ofportIds = interfaceState.getLowerLayerIf();
         if (ofportIds != null && !ofportIds.isEmpty()) {
             NodeConnectorId nodeConnectorId = new NodeConnectorId(ofportIds.get(0));
-            dpId = BigInteger.valueOf(MDSALUtil.getDpnIdFromPortName(nodeConnectorId));
+            return Optional.of(BigInteger.valueOf(MDSALUtil.getDpnIdFromPortName(nodeConnectorId)));
+        } else {
+            return Optional.absent();
         }
-        return dpId;
     }
 
     /**
@@ -512,12 +502,14 @@ public class AclServiceUtils {
         List<Ace> remoteAclRuleList = new ArrayList<>();
         List<Uuid> aclList = port.getSecurityGroups();
         for (Uuid aclId : aclList) {
-            Acl acl = getAcl(dataBroker, aclId.getValue());
-            List<Ace> aceList = acl.getAccessListEntries().getAce();
-            for (Ace ace : aceList) {
-                Uuid tempRemoteAcl = getAccesssListAttributes(ace).getRemoteGroupId();
-                if (tempRemoteAcl != null && tempRemoteAcl.equals(remoteAcl)) {
-                    remoteAclRuleList.add(ace);
+            Optional<Acl> optionalAcl = getAcl(dataBroker, aclId.getValue());
+            if (optionalAcl.isPresent()) {
+                List<Ace> aceList = optionalAcl.get().getAccessListEntries().getAce();
+                for (Ace ace : aceList) {
+                    Uuid tempRemoteAcl = getAccesssListAttributes(ace).getRemoteGroupId();
+                    if (tempRemoteAcl != null && tempRemoteAcl.equals(remoteAcl)) {
+                        remoteAclRuleList.add(ace);
+                    }
                 }
             }
         }
@@ -530,7 +522,7 @@ public class AclServiceUtils {
                                                                                isSourceIpMacMatch) {
         List<AclInterface> interfaceList = aclDataUtil.getInterfaceList(remoteAclId);
         if (flowMatchesMap == null || interfaceList == null || interfaceList.isEmpty()) {
-            return null;
+            return Collections.emptyMap();
         }
         Map<String, List<MatchInfoBase>> updatedFlowMatchesMap = new HashMap<>();
         MatchInfoBase ipv4Match = new MatchInfo(MatchFieldType.eth_type, new long[] {NwConstants.ETHTYPE_IPV4});
@@ -616,16 +608,19 @@ public class AclServiceUtils {
         return updatedFlowMatchesMap;
     }
 
-    public static Long getElanIdFromInterface(String elanInterfaceName,DataBroker broker) {
+    public static @Nullable Long getElanIdFromInterface(String elanInterfaceName, DataBroker broker) {
         ElanInterface elanInterface = getElanInterfaceByElanInterfaceName(elanInterfaceName, broker);
         if (null != elanInterface) {
-            ElanInstance elanInfo = getElanInstanceByName(elanInterface.getElanInstanceName(), broker);
-            return elanInfo.getElanTag();
+            Optional<ElanInstance> optElanInfo = getElanInstanceByName(elanInterface.getElanInstanceName(), broker);
+            if (optElanInfo.isPresent()) {
+                return optElanInfo.get().getElanTag();
+            }
         }
         return null;
     }
 
-    public static ElanInterface getElanInterfaceByElanInterfaceName(String elanInterfaceName,DataBroker broker) {
+    public static @Nullable ElanInterface getElanInterfaceByElanInterfaceName(String elanInterfaceName,
+            DataBroker broker) {
         InstanceIdentifier<ElanInterface> elanInterfaceId = getElanInterfaceConfigurationDataPathId(elanInterfaceName);
         Optional<ElanInterface> existingElanInterface = read(broker,
                 LogicalDatastoreType.CONFIGURATION, elanInterfaceId);
@@ -641,14 +636,9 @@ public class AclServiceUtils {
     }
 
     // elan-instances config container
-    public static ElanInstance getElanInstanceByName(String elanInstanceName, DataBroker broker) {
+    public static Optional<ElanInstance> getElanInstanceByName(String elanInstanceName, DataBroker broker) {
         InstanceIdentifier<ElanInstance> elanIdentifierId = getElanInstanceConfigurationDataPath(elanInstanceName);
-        Optional<ElanInstance> elanInstance = read(broker, LogicalDatastoreType.CONFIGURATION,
-                elanIdentifierId);
-        if (elanInstance.isPresent()) {
-            return elanInstance.get();
-        }
-        return null;
+        return read(broker, LogicalDatastoreType.CONFIGURATION, elanIdentifierId);
     }
 
     public static InstanceIdentifier<ElanInstance> getElanInstanceConfigurationDataPath(String elanInstanceName) {
@@ -668,26 +658,26 @@ public class AclServiceUtils {
         return matchInfoBaseList;
     }
 
-    public static MatchInfoBase popMatchInfoByType(List<MatchInfoBase> flows, MatchFieldType type) {
-        MatchInfoBase mib = getMatchInfoByType(flows, type);
-        if (mib != null) {
-            flows.remove(mib);
+    public static Optional<MatchInfoBase> popMatchInfoByType(List<MatchInfoBase> flows, MatchFieldType type) {
+        Optional<MatchInfoBase> optionalMib = getMatchInfoByType(flows, type);
+        if (optionalMib.isPresent()) {
+            flows.remove(optionalMib.get());
         }
-        return mib;
+        return optionalMib;
     }
 
-    public static MatchInfoBase getMatchInfoByType(List<MatchInfoBase> flows, MatchFieldType type) {
+    public static Optional<MatchInfoBase> getMatchInfoByType(List<MatchInfoBase> flows, MatchFieldType type) {
         for (MatchInfoBase mib : flows) {
             if (mib instanceof MatchInfo) {
                 if (((MatchInfo)mib).getMatchField() == type) {
-                    return mib;
+                    return Optional.of(mib);
                 }
             }
         }
-        return null;
+        return Optional.absent();
     }
 
-    public static MatchInfoBase getMatchInfoByType(List<MatchInfoBase> flows, NxMatchFieldType type) {
+    public static @Nullable MatchInfoBase getMatchInfoByType(List<MatchInfoBase> flows, NxMatchFieldType type) {
         for (MatchInfoBase mib : flows) {
             if (mib instanceof NxMatchInfo) {
                 if (((NxMatchInfo)mib).getMatchField() == type) {
@@ -699,11 +689,7 @@ public class AclServiceUtils {
     }
 
     public static boolean containsMatchFieldType(List<MatchInfoBase> flows, MatchFieldType type) {
-        MatchInfoBase mib = getMatchInfoByType(flows, type);
-        if (mib != null) {
-            return true;
-        }
-        return false;
+        return getMatchInfoByType(flows, type).isPresent();
     }
 
     public static boolean containsMatchFieldType(List<MatchInfoBase> flows, NxMatchFieldType type) {

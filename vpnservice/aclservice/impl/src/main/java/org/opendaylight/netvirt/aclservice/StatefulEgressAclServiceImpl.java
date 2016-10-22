@@ -77,13 +77,16 @@ public class StatefulEgressAclServiceImpl extends AbstractEgressAclServiceImpl {
             new long[] {AclConstants.TRACKED_NEW_CT_STATE, AclConstants.TRACKED_NEW_CT_STATE_MASK}));
 
         Long elanId = AclServiceUtils.getElanIdFromInterface(portId, dataBroker);
-        List<ActionInfo> actionsInfos = new ArrayList<>();
-        actionsInfos.add(new ActionInfo(ActionType.nx_conntrack,
-            new String[] {"1", "0", elanId.toString(), "255"}, 2));
-        List<InstructionInfo> instructions = getDispatcherTableResubmitInstructions(actionsInfos);
-
-        syncFlow(dpId, NwConstants.INGRESS_ACL_FILTER_TABLE, flowName, AclConstants.PROTO_MATCH_PRIORITY,
-            "ACL", 0, 0, AclConstants.COOKIE_ACL_BASE, flows, instructions, addOrRemove);
+        if (elanId != null) {
+            List<ActionInfo> actionsInfos = new ArrayList<>();
+            actionsInfos.add(new ActionInfo(ActionType.nx_conntrack,
+                new String[] {"1", "0", elanId.toString(), "255"}, 2));
+            List<InstructionInfo> instructions = getDispatcherTableResubmitInstructions(actionsInfos);
+            syncFlow(dpId, NwConstants.INGRESS_ACL_FILTER_TABLE, flowName, AclConstants.PROTO_MATCH_PRIORITY,
+                "ACL", 0, 0, AclConstants.COOKIE_ACL_BASE, flows, instructions, addOrRemove);
+        } else {
+            LOG.warn("No ElanId foud for ElanInterfaceName {}", portId);
+        }
         return flowName;
     }
 
@@ -113,17 +116,21 @@ public class StatefulEgressAclServiceImpl extends AbstractEgressAclServiceImpl {
             matches.addAll(AclServiceUtils.buildIpMatches(attachIp, MatchCriteria.MATCH_SOURCE));
 
             Long elanTag = AclServiceUtils.getElanIdFromInterface(portId, dataBroker);
-            List<InstructionInfo> instructions = new ArrayList<>();
-            List<ActionInfo> actionsInfos = new ArrayList<>();
-            actionsInfos.add(new ActionInfo(ActionType.nx_conntrack,
-                    new String[] {"0", "0", elanTag.toString(), Short.toString(
-                        NwConstants.INGRESS_ACL_FILTER_TABLE)}, 2));
-            instructions.add(new InstructionInfo(InstructionType.apply_actions, actionsInfos));
+            if (elanTag != null) {
+                List<InstructionInfo> instructions = new ArrayList<>();
+                List<ActionInfo> actionsInfos = new ArrayList<>();
+                actionsInfos.add(new ActionInfo(ActionType.nx_conntrack,
+                        new String[] {"0", "0", elanTag.toString(), Short.toString(
+                            NwConstants.INGRESS_ACL_FILTER_TABLE)}, 2));
+                instructions.add(new InstructionInfo(InstructionType.apply_actions, actionsInfos));
 
-            String flowName = "Egress_Fixed_Conntrk_Untrk_" + dpId + "_" + attachMac + "_"
-                    + String.valueOf(attachIp.getValue()) + "_" + flowId;
-            syncFlow(dpId, NwConstants.INGRESS_ACL_TABLE, flowName, AclConstants.PROTO_MATCH_PRIORITY, "ACL", 0, 0,
-                    AclConstants.COOKIE_ACL_BASE, matches, instructions, addOrRemove);
+                String flowName = "Egress_Fixed_Conntrk_Untrk_" + dpId + "_" + attachMac + "_"
+                        + String.valueOf(attachIp.getValue()) + "_" + flowId;
+                syncFlow(dpId, NwConstants.INGRESS_ACL_TABLE, flowName, AclConstants.PROTO_MATCH_PRIORITY, "ACL", 0, 0,
+                        AclConstants.COOKIE_ACL_BASE, matches, instructions, addOrRemove);
+            } else {
+                LOG.warn("No ElanId foud for ElanInterfaceName {}", portId);
+            }
         }
     }
 
