@@ -26,6 +26,7 @@ import org.opendaylight.genius.mdsalutil.NxMatchInfo;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.netvirt.aclservice.api.AclServiceManager.Action;
 import org.opendaylight.netvirt.aclservice.api.AclServiceManager.MatchCriteria;
+import org.opendaylight.netvirt.aclservice.infra.Optionals;
 import org.opendaylight.netvirt.aclservice.utils.AclConstants;
 import org.opendaylight.netvirt.aclservice.utils.AclDataUtil;
 import org.opendaylight.netvirt.aclservice.utils.AclServiceUtils;
@@ -70,20 +71,23 @@ public class StatefulEgressAclServiceImpl extends AbstractEgressAclServiceImpl {
     protected String syncSpecificAclFlow(BigInteger dpId, int lportTag, int addOrRemove, int priority, Ace ace,
             String portId, Map<String, List<MatchInfoBase>> flowMap, String flowName) {
         List<MatchInfoBase> flows = flowMap.get(flowName);
-        flowName += "Egress" + lportTag + ace.getKey().getRuleName();
+        final String newFlowName = flowName + "Egress" + lportTag + ace.getKey().getRuleName();
         flows.add(AclServiceUtils.buildLPortTagMatch(lportTag));
         flows.add(new NxMatchInfo(NxMatchFieldType.ct_state,
             new long[] {AclConstants.TRACKED_NEW_CT_STATE, AclConstants.TRACKED_NEW_CT_STATE_MASK}));
 
-        Long elanId = AclServiceUtils.getElanIdFromInterface(portId, dataBroker);
-        List<ActionInfo> actionsInfos = new ArrayList<>();
-        actionsInfos.add(new ActionInfo(ActionType.nx_conntrack,
-            new String[] {"1", "0", elanId.toString(), "255"}, 2));
-        List<InstructionInfo> instructions = getDispatcherTableResubmitInstructions(actionsInfos);
+        Optionals.ifPresent(AclServiceUtils.getElanIdFromInterface(portId, dataBroker), elanId -> {
+            List<ActionInfo> actionsInfos = new ArrayList<>();
+            actionsInfos.add(new ActionInfo(ActionType.nx_conntrack,
+                new String[] {"1", "0", elanId.toString(), "255"}, 2));
+            List<InstructionInfo> instructions = getDispatcherTableResubmitInstructions(actionsInfos);
 
-        syncFlow(dpId, NwConstants.INGRESS_ACL_FILTER_TABLE, flowName, priority, "ACL", 0, 0,
-                AclConstants.COOKIE_ACL_BASE, flows, instructions, addOrRemove);
-        return flowName;
+            syncFlow(dpId, NwConstants.INGRESS_ACL_FILTER_TABLE, newFlowName, priority, "ACL", 0, 0,
+                    AclConstants.COOKIE_ACL_BASE, flows, instructions, addOrRemove);
+        }).elseDo(() -> {
+            LOG.warn("No ElanId found for ElanInterfaceName {}", portId);
+        });
+        return newFlowName;
     }
 
     /**
@@ -110,18 +114,20 @@ public class StatefulEgressAclServiceImpl extends AbstractEgressAclServiceImpl {
             matches.add(new MatchInfo(MatchFieldType.eth_src, new String[] {attachMac}));
             matches.addAll(AclServiceUtils.buildIpMatches(attachIp, MatchCriteria.MATCH_SOURCE));
 
-            Long elanTag = AclServiceUtils.getElanIdFromInterface(portId, dataBroker);
-            List<InstructionInfo> instructions = new ArrayList<>();
-            List<ActionInfo> actionsInfos = new ArrayList<>();
-            actionsInfos.add(new ActionInfo(ActionType.nx_conntrack,
-                    new String[] {"0", "0", elanTag.toString(), Short.toString(
-                        NwConstants.INGRESS_ACL_FILTER_TABLE)}, 2));
-            instructions.add(new InstructionInfo(InstructionType.apply_actions, actionsInfos));
-
-            String flowName = "Egress_Fixed_Conntrk_" + dpId + "_" + attachMac + "_"
-                    + String.valueOf(attachIp.getValue()) + "_" + flowId;
-            syncFlow(dpId, NwConstants.INGRESS_ACL_TABLE, flowName, AclConstants.PROTO_MATCH_PRIORITY, "ACL", 0, 0,
-                    AclConstants.COOKIE_ACL_BASE, matches, instructions, addOrRemove);
+            Optionals.ifPresent(AclServiceUtils.getElanIdFromInterface(portId, dataBroker), elanTag -> {
+                List<InstructionInfo> instructions = new ArrayList<>();
+                List<ActionInfo> actionsInfos = new ArrayList<>();
+                actionsInfos.add(new ActionInfo(ActionType.nx_conntrack,
+                        new String[] {"0", "0", elanTag.toString(), Short.toString(
+                            NwConstants.INGRESS_ACL_FILTER_TABLE)}, 2));
+                instructions.add(new InstructionInfo(InstructionType.apply_actions, actionsInfos));
+                String flowName = "Egress_Fixed_Conntrk_" + dpId + "_" + attachMac + "_"
+                        + String.valueOf(attachIp.getValue()) + "_" + flowId;
+                syncFlow(dpId, NwConstants.INGRESS_ACL_TABLE, flowName, AclConstants.PROTO_MATCH_PRIORITY, "ACL", 0, 0,
+                        AclConstants.COOKIE_ACL_BASE, matches, instructions, addOrRemove);
+            }).elseDo(() -> {
+                LOG.warn("No ElanId found for ElanInterfaceName {}", portId);
+            });
         }
     }
 
