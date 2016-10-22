@@ -9,15 +9,13 @@ package org.opendaylight.netvirt.cloudservicechain.listeners;
 
 import org.opendaylight.controller.md.sal.binding.api.ClusteredDataChangeListener;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.binding.api.DataChangeListener;
 import org.opendaylight.controller.md.sal.common.api.data.AsyncDataBroker;
+import org.opendaylight.controller.md.sal.common.api.data.AsyncDataBroker.DataChangeScope;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncClusteredDataChangeListenerBase;
 import org.opendaylight.netvirt.cloudservicechain.utils.VpnPseudoPortCache;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.cloud.servicechain.state.rev170511.VpnToPseudoPortList;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.cloud.servicechain.state.rev170511.vpn.to.pseudo.port.list.VpnToPseudoPortData;
-import org.opendaylight.controller.md.sal.common.api.data.AsyncDataBroker.DataChangeScope;
-import org.opendaylight.yangtools.concepts.ListenerRegistration;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,33 +29,16 @@ public class VpnPseudoPortListener
     extends AsyncClusteredDataChangeListenerBase<VpnToPseudoPortData, VpnPseudoPortListener>
     implements AutoCloseable {
 
-    private ListenerRegistration<DataChangeListener> listenerRegistration;
-
     private static final Logger LOG = LoggerFactory.getLogger(VpnPseudoPortListener.class);
+    private final DataBroker dataBroker;
 
-    public VpnPseudoPortListener(final DataBroker broker) {
+    public VpnPseudoPortListener(final DataBroker dataBroker) {
         super(VpnToPseudoPortData.class, VpnPseudoPortListener.class);
-
-        try {
-            listenerRegistration = broker.registerDataChangeListener(LogicalDatastoreType.OPERATIONAL,
-                                                                     getWildCardPath(), this,
-                                                                     AsyncDataBroker.DataChangeScope.BASE);
-        } catch (final Exception e) {
-            LOG.error("VpnPseudoPort DataChange listener registration fail!", e);
-        }
+        this.dataBroker = dataBroker;
     }
 
-    @Override
-    public void close() {
-        if (listenerRegistration != null) {
-            try {
-                listenerRegistration.close();
-            } catch (final Exception e) {
-                LOG.error("Error when cleaning up DataChangeListener.", e);
-            }
-            listenerRegistration = null;
-        }
-        LOG.info("VpnPseudoPort listener Closed");
+    public void init() {
+        registerListener(LogicalDatastoreType.OPERATIONAL, dataBroker);
     }
 
     @Override
