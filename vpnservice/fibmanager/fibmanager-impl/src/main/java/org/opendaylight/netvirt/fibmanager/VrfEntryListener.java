@@ -1379,6 +1379,7 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
                 return;
             }
             String routeNexthop = routeNexthoplist.get(0);
+
             Optional<InterVpnLinkDataComposite> optInterVpnLink = InterVpnLinkCache.getInterVpnLinkByVpnId(vpnUuid);
             if ( optInterVpnLink.isPresent() ) {
                 InterVpnLinkDataComposite interVpnLink = optInterVpnLink.get();
