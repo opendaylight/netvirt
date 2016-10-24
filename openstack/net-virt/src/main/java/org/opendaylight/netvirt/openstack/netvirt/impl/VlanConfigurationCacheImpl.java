@@ -8,19 +8,17 @@
 
 package org.opendaylight.netvirt.openstack.netvirt.impl;
 
-import org.opendaylight.netvirt.openstack.netvirt.api.TenantNetworkManager;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import org.opendaylight.netvirt.openstack.netvirt.ConfigInterface;
 import org.opendaylight.netvirt.openstack.netvirt.NodeConfiguration;
 import org.opendaylight.netvirt.openstack.netvirt.api.Southbound;
+import org.opendaylight.netvirt.openstack.netvirt.api.TenantNetworkManager;
 import org.opendaylight.netvirt.openstack.netvirt.api.VlanConfigurationCache;
 import org.opendaylight.netvirt.utils.servicehelper.ServiceHelper;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.rev150105.OvsdbTerminationPointAugmentation;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Node;
-
-import com.google.common.collect.Maps;
-import java.util.List;
-import java.util.Map;
-
 import org.osgi.framework.ServiceReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,7 +29,7 @@ import org.slf4j.LoggerFactory;
  */
 public class VlanConfigurationCacheImpl implements ConfigInterface, VlanConfigurationCache {
     private static final Logger LOG = LoggerFactory.getLogger(VlanConfigurationCacheImpl.class);
-    private Map<String, NodeConfiguration> configurationCache = Maps.newConcurrentMap();
+    private Map<String, NodeConfiguration> configurationCache = new ConcurrentHashMap<>();
     private volatile TenantNetworkManager tenantNetworkManager;
     private volatile Southbound southbound;
 

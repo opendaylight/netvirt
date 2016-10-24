@@ -8,13 +8,10 @@
 
 package org.opendaylight.netvirt.aclservice.utils;
 
-import static com.google.common.collect.Iterables.filter;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-
-import com.google.common.collect.Iterables;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -22,12 +19,9 @@ import java.util.List;
 import java.util.concurrent.ConcurrentMap;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
 import org.junit.Assert;
 import org.opendaylight.genius.mdsalutil.ActionInfo;
 import org.opendaylight.genius.mdsalutil.ActionType;
-import org.opendaylight.genius.mdsalutil.InstructionInfo;
-import org.opendaylight.genius.mdsalutil.InstructionType;
 import org.opendaylight.genius.mdsalutil.MatchFieldType;
 import org.opendaylight.genius.mdsalutil.MatchInfo;
 import org.opendaylight.genius.mdsalutil.MatchInfoBase;
@@ -89,10 +83,10 @@ public class AclServiceTestUtils {
     }
 
     public static void verifyMatchInfo(List<MatchInfoBase> flowMatches, MatchFieldType matchType, String... params) {
-        Iterable<MatchInfoBase> matches = filter(flowMatches,
-            item -> item instanceof MatchInfo && ((MatchInfo) item).getMatchField().equals(matchType)
-                 || item instanceof NxMatchInfo && ((NxMatchInfo) item).getMatchField().equals(matchType));
-        assertFalse(Iterables.isEmpty(matches));
+        List<MatchInfoBase> matches = flowMatches.stream().filter(
+                item -> item instanceof MatchInfo && ((MatchInfo) item).getMatchField().equals(matchType)).collect(
+                Collectors.toList());
+        assertFalse(matches.isEmpty());
         for (MatchInfoBase baseMatch : matches) {
             if (baseMatch instanceof MatchInfo) {
                 verifyMatchValues((MatchInfo)baseMatch, params);
@@ -103,10 +97,10 @@ public class AclServiceTestUtils {
     }
 
     public static void verifyMatchInfo(List<MatchInfoBase> flowMatches, NxMatchFieldType matchType, String... params) {
-        Iterable<MatchInfoBase> matches = filter(flowMatches,
-            item -> item instanceof MatchInfo && ((MatchInfo) item).getMatchField().equals(matchType)
-                 || item instanceof NxMatchInfo && ((NxMatchInfo) item).getMatchField().equals(matchType));
-        assertFalse(Iterables.isEmpty(matches));
+        List<MatchInfoBase> matches = flowMatches.stream().filter(
+                item -> item instanceof NxMatchInfo && ((NxMatchInfo) item).getMatchField().equals(matchType)).collect(
+                Collectors.toList());
+        assertFalse(matches.isEmpty());
         for (MatchInfoBase baseMatch : matches) {
             if (baseMatch instanceof MatchInfo) {
                 verifyMatchValues((MatchInfo)baseMatch, params);
@@ -157,15 +151,13 @@ public class AclServiceTestUtils {
     }
 
     public static void verifyMatchFieldTypeDontExist(List<MatchInfoBase> flowMatches, MatchFieldType matchType) {
-        Iterable<MatchInfoBase> matches = filter(flowMatches,
-            item -> ((MatchInfo) item).getMatchField().equals(matchType));
-        Assert.assertTrue("unexpected match type " + matchType.name(), Iterables.isEmpty(matches));
+        Assert.assertFalse("unexpected match type " + matchType.name(), flowMatches.stream().anyMatch(
+                item -> item instanceof MatchInfo && ((MatchInfo) item).getMatchField().equals(matchType)));
     }
 
     public static void verifyMatchFieldTypeDontExist(List<MatchInfoBase> flowMatches, NxMatchFieldType matchType) {
-        Iterable<MatchInfoBase> matches = filter(flowMatches,
-            item -> ((MatchInfo) item).getMatchField().equals(matchType));
-        Assert.assertTrue("unexpected match type " + matchType.name(), Iterables.isEmpty(matches));
+        Assert.assertFalse("unexpected match type " + matchType.name(), flowMatches.stream().anyMatch(
+                item -> item instanceof NxMatchInfo && ((NxMatchInfo) item).getMatchField().equals(matchType)));
     }
 
     public static void prepareAclDataUtil(AclDataUtil aclDataUtil, AclInterface inter, String... updatedAclNames) {
@@ -198,13 +190,13 @@ public class AclServiceTestUtils {
     }
 
     public static void verifyActionTypeExist(List<ActionInfo> flowActions, ActionType actionType) {
-        Iterable<ActionInfo> actions = filter(flowActions, item -> item.getActionType().equals(actionType));
-        assertFalse(Iterables.isEmpty(actions));
+        Assert.assertTrue(flowActions.stream().anyMatch(item -> item.getActionType().equals(actionType)));
     }
 
     public static void verifyActionInfo(List<ActionInfo> flowActions, ActionType actionType, String... params) {
-        Iterable<ActionInfo> actions = filter(flowActions, item -> item.getActionType().equals(actionType));
-        assertFalse(Iterables.isEmpty(actions));
+        List<ActionInfo> actions = flowActions.stream().filter(item -> item.getActionType().equals(actionType)).collect(
+                Collectors.toList());
+        assertFalse(actions.isEmpty());
         for (ActionInfo action : actions) {
             verifyActionValues(action, params);
         }
@@ -217,39 +209,6 @@ public class AclServiceTestUtils {
             case goto_table:
             case nx_resubmit:
                 Assert.assertArrayEquals(params, action.getActionValues());
-                break;
-            default:
-                assertTrue("match type is not supported", false);
-                break;
-        }
-    }
-
-    public static void verifyLearnActionFlowModInfo(List<ActionInfo> flowActions,
-            NwConstants.LearnFlowModsType type, String... params) {
-        Iterable<ActionInfo> actions = filter(flowActions,
-            item -> item.getActionType().equals(ActionType.learn)
-                 && item.getActionValuesMatrix()[0].equals(type.name()));
-        assertFalse(Iterables.isEmpty(actions));
-        for (ActionInfo action : actions) {
-            verifyActionValues(action, params);
-        }
-    }
-
-    public static void verifyInstructionInfo(List<InstructionInfo> instructionInfoList, InstructionType type,
-            String ... params) {
-        Iterable<InstructionInfo> matches = filter(instructionInfoList, item -> item.getInstructionType().equals(type));
-        assertFalse(Iterables.isEmpty(matches));
-        for (InstructionInfo baseMatch : matches) {
-            verifyInstructionValues(baseMatch, params);
-        }
-
-    }
-
-    private static void verifyInstructionValues(InstructionInfo inst, String[] params) {
-        switch (inst.getInstructionType()) {
-            case goto_table:
-                long[] values = Arrays.stream(params).mapToLong(l -> Long.parseLong(l)).toArray();
-                Assert.assertArrayEquals(values, inst.getInstructionValues());
                 break;
             default:
                 assertTrue("match type is not supported", false);
