@@ -8,10 +8,11 @@
 
 package org.opendaylight.netvirt.openstack.netvirt.providers.openflow13;
 
-import java.util.Collections;
+import com.google.common.collect.Lists;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -30,8 +31,6 @@ import org.osgi.framework.ServiceReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 
 public class PipelineOrchestratorImpl implements ConfigInterface, NodeCacheListener, PipelineOrchestrator {
@@ -60,6 +59,7 @@ public class PipelineOrchestratorImpl implements ConfigInterface, NodeCacheListe
         return staticPipeline;
     }
 
+    // This list is modified, it needs to be a proper ArrayList
     private List<Service> staticPipeline = Lists.newArrayList(
             Service.CLASSIFIER,
             Service.ARP_RESPONDER,
@@ -81,7 +81,7 @@ public class PipelineOrchestratorImpl implements ConfigInterface, NodeCacheListe
         return serviceRegistry;
     }
 
-    Map<Service, AbstractServiceInstance> serviceRegistry = Maps.newConcurrentMap();
+    Map<Service, AbstractServiceInstance> serviceRegistry = new ConcurrentHashMap<>();
     private volatile BlockingQueue<Node> queue;
     private ExecutorService eventHandler;
     private Southbound southbound;
