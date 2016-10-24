@@ -10,12 +10,10 @@ package org.opendaylight.netvirt.neutronvpn;
 import static org.opendaylight.netvirt.neutronvpn.NeutronvpnUtils.buildfloatingIpIdToPortMappingIdentifier;
 
 import com.google.common.base.Optional;
-import com.google.common.collect.Lists;
 import com.google.common.util.concurrent.ListenableFuture;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.concurrent.Callable;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.NotificationPublishService;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
@@ -201,38 +199,35 @@ public class NeutronPortChangeListener extends AsyncDataTreeChangeListenerBase<P
         if (isPortVifTypeUpdated || origSecurityEnabled || updatedSecurityEnabled) {
             InstanceIdentifier interfaceIdentifier = NeutronvpnUtils.buildVlanInterfaceIdentifier(portName);
             final DataStoreJobCoordinator portDataStoreCoordinator = DataStoreJobCoordinator.getInstance();
-            portDataStoreCoordinator.enqueueJob("PORT- " + portName, new Callable<List<ListenableFuture<Void>>>() {
-                @Override
-                public List<ListenableFuture<Void>> call() throws Exception {
-                    WriteTransaction wrtConfigTxn = dataBroker.newWriteOnlyTransaction();
-                    try {
-                        Optional<Interface> optionalInf = NeutronvpnUtils.read(dataBroker, LogicalDatastoreType
-                                .CONFIGURATION, interfaceIdentifier);
-                        if (optionalInf.isPresent()) {
-                            InterfaceBuilder interfaceBuilder = new InterfaceBuilder(optionalInf.get());
-                            if (isPortVifTypeUpdated && getParentRefsBuilder(update) != null) {
-                                interfaceBuilder.addAugmentation(ParentRefs.class,
-                                    getParentRefsBuilder(update).build());
-                            }
-                            if (origSecurityEnabled || updatedSecurityEnabled) {
-                                InterfaceAcl infAcl = handlePortSecurityUpdated(original, update,
-                                        origSecurityEnabled, updatedSecurityEnabled, interfaceBuilder).build();
-                                interfaceBuilder.addAugmentation(InterfaceAcl.class, infAcl);
-                            }
-                            LOG.info("Of-port-interface updation for port {}", portName);
-                            // Update OFPort interface for this neutron port
-                            wrtConfigTxn.put(LogicalDatastoreType.CONFIGURATION, interfaceIdentifier,
-                                    interfaceBuilder.build());
-                        } else {
-                            LOG.error("Interface {} is not present", portName);
+            portDataStoreCoordinator.enqueueJob("PORT- " + portName, () -> {
+                WriteTransaction wrtConfigTxn = dataBroker.newWriteOnlyTransaction();
+                try {
+                    Optional<Interface> optionalInf = NeutronvpnUtils.read(dataBroker, LogicalDatastoreType
+                            .CONFIGURATION, interfaceIdentifier);
+                    if (optionalInf.isPresent()) {
+                        InterfaceBuilder interfaceBuilder = new InterfaceBuilder(optionalInf.get());
+                        if (isPortVifTypeUpdated && getParentRefsBuilder(update) != null) {
+                            interfaceBuilder.addAugmentation(ParentRefs.class,
+                                getParentRefsBuilder(update).build());
                         }
-                    } catch (Exception e) {
-                        LOG.error("Failed to update interface {} due to the exception {}", portName, e);
+                        if (origSecurityEnabled || updatedSecurityEnabled) {
+                            InterfaceAcl infAcl = handlePortSecurityUpdated(original, update,
+                                    origSecurityEnabled, updatedSecurityEnabled, interfaceBuilder).build();
+                            interfaceBuilder.addAugmentation(InterfaceAcl.class, infAcl);
+                        }
+                        LOG.info("Of-port-interface updation for port {}", portName);
+                        // Update OFPort interface for this neutron port
+                        wrtConfigTxn.put(LogicalDatastoreType.CONFIGURATION, interfaceIdentifier,
+                                interfaceBuilder.build());
+                    } else {
+                        LOG.error("Interface {} is not present", portName);
                     }
-                    List<ListenableFuture<Void>> futures = new ArrayList<>();
-                    futures.add(wrtConfigTxn.submit());
-                    return futures;
+                } catch (Exception e) {
+                    LOG.error("Failed to update interface {} due to the exception {}", portName, e);
                 }
+                List<ListenableFuture<Void>> futures = new ArrayList<>();
+                futures.add(wrtConfigTxn.submit());
+                return futures;
             });
         }
         List<FixedIps> oldIPs = (original.getFixedIps() != null) ? original.getFixedIps() : new ArrayList<FixedIps>();
@@ -358,36 +353,33 @@ public class NeutronPortChangeListener extends AsyncDataTreeChangeListenerBase<P
         final Uuid portId = port.getUuid();
         final Uuid subnetId = port.getFixedIps().get(0).getSubnetId();
         final DataStoreJobCoordinator portDataStoreCoordinator = DataStoreJobCoordinator.getInstance();
-        portDataStoreCoordinator.enqueueJob("PORT- " + portName, new Callable<List<ListenableFuture<Void>>>() {
-            @Override
-            public List<ListenableFuture<Void>> call() throws Exception {
-                WriteTransaction wrtConfigTxn = dataBroker.newWriteOnlyTransaction();
-                List<ListenableFuture<Void>> futures = new ArrayList<>();
+        portDataStoreCoordinator.enqueueJob("PORT- " + portName, () -> {
+            WriteTransaction wrtConfigTxn = dataBroker.newWriteOnlyTransaction();
+            List<ListenableFuture<Void>> futures = new ArrayList<>();
 
-                // add direct port to subnetMaps config DS
-                if (!NeutronUtils.isPortVnicTypeNormal(port)) {
-                    nvpnManager.updateSubnetmapNodeWithPorts(subnetId, null, portId);
-                    LOG.info("Port {} is not a NORMAL VNIC Type port; OF Port interfaces are not created", portName);
-                    futures.add(wrtConfigTxn.submit());
-                    return futures;
-                }
-                LOG.info("Of-port-interface creation for port {}", portName);
-                // Create of-port interface for this neutron port
-                String portInterfaceName = createOfPortInterface(port, wrtConfigTxn);
-                LOG.debug("Creating ELAN Interface for port {}", portName);
-                createElanInterface(port, portInterfaceName, wrtConfigTxn);
-
-                Subnetmap subnetMap = nvpnManager.updateSubnetmapNodeWithPorts(subnetId, portId, null);
-                Uuid vpnId = (subnetMap != null) ? subnetMap.getVpnId() : null;
-                Uuid routerId = (subnetMap != null) ? subnetMap.getRouterId() : null;
-                if (vpnId != null) {
-                    // create vpn-interface on this neutron port
-                    LOG.debug("Adding VPN Interface for port {}", portName);
-                    nvpnManager.createVpnInterface(vpnId, routerId, port, wrtConfigTxn);
-                }
+            // add direct port to subnetMaps config DS
+            if (!NeutronUtils.isPortVnicTypeNormal(port)) {
+                nvpnManager.updateSubnetmapNodeWithPorts(subnetId, null, portId);
+                LOG.info("Port {} is not a NORMAL VNIC Type port; OF Port interfaces are not created", portName);
                 futures.add(wrtConfigTxn.submit());
                 return futures;
             }
+            LOG.info("Of-port-interface creation for port {}", portName);
+            // Create of-port interface for this neutron port
+            String portInterfaceName = createOfPortInterface(port, wrtConfigTxn);
+            LOG.debug("Creating ELAN Interface for port {}", portName);
+            createElanInterface(port, portInterfaceName, wrtConfigTxn);
+
+            Subnetmap subnetMap = nvpnManager.updateSubnetmapNodeWithPorts(subnetId, portId, null);
+            Uuid vpnId = (subnetMap != null) ? subnetMap.getVpnId() : null;
+            Uuid routerId = (subnetMap != null) ? subnetMap.getRouterId() : null;
+            if (vpnId != null) {
+                // create vpn-interface on this neutron port
+                LOG.debug("Adding VPN Interface for port {}", portName);
+                nvpnManager.createVpnInterface(vpnId, routerId, port, wrtConfigTxn);
+            }
+            futures.add(wrtConfigTxn.submit());
+            return futures;
         });
     }
 
@@ -396,36 +388,33 @@ public class NeutronPortChangeListener extends AsyncDataTreeChangeListenerBase<P
         final Uuid portId = port.getUuid();
         final Uuid subnetId = port.getFixedIps().get(0).getSubnetId();
         final DataStoreJobCoordinator portDataStoreCoordinator = DataStoreJobCoordinator.getInstance();
-        portDataStoreCoordinator.enqueueJob("PORT- " + portName, new Callable<List<ListenableFuture<Void>>>() {
-            @Override
-            public List<ListenableFuture<Void>> call() throws Exception {
-                WriteTransaction wrtConfigTxn = dataBroker.newWriteOnlyTransaction();
-                List<ListenableFuture<Void>> futures = new ArrayList<>();
+        portDataStoreCoordinator.enqueueJob("PORT- " + portName, () -> {
+            WriteTransaction wrtConfigTxn = dataBroker.newWriteOnlyTransaction();
+            List<ListenableFuture<Void>> futures = new ArrayList<>();
 
-                // remove direct port from subnetMaps config DS
-                if (!NeutronUtils.isPortVnicTypeNormal(port)) {
-                    nvpnManager.removePortsFromSubnetmapNode(subnetId, null, portId);
-                    LOG.info("Port {} is not a NORMAL VNIC Type port; OF Port interfaces are not created", portName);
-                    futures.add(wrtConfigTxn.submit());
-                    return futures;
-                }
-                Subnetmap subnetMap = nvpnManager.removePortsFromSubnetmapNode(subnetId, portId, null);
-                Uuid vpnId = (subnetMap != null) ? subnetMap.getVpnId() : null;
-                Uuid routerId = (subnetMap != null) ? subnetMap.getRouterId() : null;
-                if (vpnId != null) {
-                    // remove vpn-interface for this neutron port
-                    LOG.debug("removing VPN Interface for port {}", portName);
-                    nvpnManager.deleteVpnInterface(vpnId, routerId, port, wrtConfigTxn);
-                }
-                // Remove of-port interface for this neutron port
-                // ELAN interface is also implicitly deleted as part of this operation
-                LOG.debug("Of-port-interface removal for port {}", portName);
-                deleteOfPortInterface(port, wrtConfigTxn);
-                //dissociate fixedIP from floatingIP if associated
-                nvpnManager.dissociatefixedIPFromFloatingIP(port.getUuid().getValue());
+            // remove direct port from subnetMaps config DS
+            if (!NeutronUtils.isPortVnicTypeNormal(port)) {
+                nvpnManager.removePortsFromSubnetmapNode(subnetId, null, portId);
+                LOG.info("Port {} is not a NORMAL VNIC Type port; OF Port interfaces are not created", portName);
                 futures.add(wrtConfigTxn.submit());
                 return futures;
             }
+            Subnetmap subnetMap = nvpnManager.removePortsFromSubnetmapNode(subnetId, portId, null);
+            Uuid vpnId = (subnetMap != null) ? subnetMap.getVpnId() : null;
+            Uuid routerId = (subnetMap != null) ? subnetMap.getRouterId() : null;
+            if (vpnId != null) {
+                // remove vpn-interface for this neutron port
+                LOG.debug("removing VPN Interface for port {}", portName);
+                nvpnManager.deleteVpnInterface(vpnId, routerId, port, wrtConfigTxn);
+            }
+            // Remove of-port interface for this neutron port
+            // ELAN interface is also implicitly deleted as part of this operation
+            LOG.debug("Of-port-interface removal for port {}", portName);
+            deleteOfPortInterface(port, wrtConfigTxn);
+            //dissociate fixedIP from floatingIP if associated
+            nvpnManager.dissociatefixedIPFromFloatingIP(port.getUuid().getValue());
+            futures.add(wrtConfigTxn.submit());
+            return futures;
         });
     }
 
@@ -488,8 +477,8 @@ public class NeutronPortChangeListener extends AsyncDataTreeChangeListenerBase<P
                 NeutronvpnUtils.populateInterfaceAclBuilder(interfaceAclBuilder, portUpdated);
             } else {
                 // Handle security group disabled
-                interfaceAclBuilder.setSecurityGroups(Lists.newArrayList());
-                interfaceAclBuilder.setAllowedAddressPairs(Lists.newArrayList());
+                interfaceAclBuilder.setSecurityGroups(new ArrayList<>());
+                interfaceAclBuilder.setAllowedAddressPairs(new ArrayList<>());
             }
         } else {
             if (updatedSecurityEnabled) {

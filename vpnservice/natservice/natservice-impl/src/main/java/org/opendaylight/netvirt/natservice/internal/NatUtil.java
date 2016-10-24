@@ -9,8 +9,6 @@
 package org.opendaylight.netvirt.natservice.internal;
 
 import com.google.common.base.Optional;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import java.math.BigInteger;
@@ -19,9 +17,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
-import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
@@ -475,14 +473,11 @@ public class NatUtil {
 
         ReadOnlyTransaction tx = broker.newReadOnlyTransaction();
 
-        Optional<T> result = Optional.absent();
         try {
-            result = tx.read(datastoreType, path).get();
+            return tx.read(datastoreType, path).get();
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
-
-        return result;
     }
 
     static InstanceIdentifier<VpnInstanceOpDataEntry> getVpnInstanceOpDataIdentifier(String vrfId) {
@@ -637,12 +632,7 @@ public class NatUtil {
 
     static boolean isVpnInterfaceConfigured(DataBroker broker, String interfaceName) {
         InstanceIdentifier<VpnInterface> interfaceId = getVpnInterfaceIdentifier(interfaceName);
-        Optional<VpnInterface> configuredVpnInterface = read(broker, LogicalDatastoreType.CONFIGURATION, interfaceId);
-
-        if (configuredVpnInterface.isPresent()) {
-            return true;
-        }
-        return false;
+        return read(broker, LogicalDatastoreType.CONFIGURATION, interfaceId).isPresent();
     }
 
     static InstanceIdentifier<VpnInterface> getVpnInterfaceIdentifier(String vpnInterfaceName) {
@@ -652,12 +642,7 @@ public class NatUtil {
 
     static VpnInterface getConfiguredVpnInterface(DataBroker broker, String interfaceName) {
         InstanceIdentifier<VpnInterface> interfaceId = getVpnInterfaceIdentifier(interfaceName);
-        Optional<VpnInterface> configuredVpnInterface = read(broker, LogicalDatastoreType.CONFIGURATION, interfaceId);
-
-        if (configuredVpnInterface.isPresent()) {
-            return configuredVpnInterface.get();
-        }
-        return null;
+        return read(broker, LogicalDatastoreType.CONFIGURATION, interfaceId).orNull();
     }
 
     public static String getDpnFromNodeConnectorId(NodeConnectorId portId) {
@@ -854,7 +839,7 @@ public class NatUtil {
     }
 
     public static String getGroupIdKey(String routerName) {
-        return new String("snatmiss." + routerName);
+        return "snatmiss." + routerName;
     }
 
     public static long createGroupId(String groupIdKey, IdManagerService idManager) {
@@ -886,12 +871,7 @@ public class NatUtil {
     }
 
     public static IpPortMapping getIportMapping(DataBroker broker, long routerId) {
-        Optional<IpPortMapping> getIportMappingData =
-            read(broker, LogicalDatastoreType.CONFIGURATION, getIportMappingIdentifier(routerId));
-        if (getIportMappingData.isPresent()) {
-            return getIportMappingData.get();
-        }
-        return null;
+        return read(broker, LogicalDatastoreType.CONFIGURATION, getIportMappingIdentifier(routerId)).orNull();
     }
 
     public static InstanceIdentifier<IpPortMapping> getIportMappingIdentifier(long routerId) {
@@ -920,9 +900,7 @@ public class NatUtil {
                 externalIps.add(ipMap.getExternalIp());
             }
             //remove duplicates
-            Set<String> uniqueExternalIps = Sets.newHashSet(externalIps);
-            externalIps = Lists.newArrayList(uniqueExternalIps);
-            return externalIps;
+            return new ArrayList<>(new HashSet<>(externalIps));
         }
         return null;
     }
@@ -1497,8 +1475,7 @@ public class NatUtil {
     public static Subnetmap getSubnetMap(DataBroker broker, Uuid subnetId) {
         InstanceIdentifier<Subnetmap> subnetmapId = InstanceIdentifier.builder(Subnetmaps.class)
             .child(Subnetmap.class, new SubnetmapKey(subnetId)).build();
-        Optional<Subnetmap> subnetOpt = read(broker, LogicalDatastoreType.CONFIGURATION, subnetmapId);
-        return subnetOpt.isPresent() ? subnetOpt.get() : null;
+        return read(broker, LogicalDatastoreType.CONFIGURATION, subnetmapId).orNull();
     }
 
     public static List<Uuid> getSubnetIdsFromNetworkId(DataBroker broker, Uuid networkId) {

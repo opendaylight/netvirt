@@ -7,7 +7,7 @@
  */
 package org.opendaylight.netvirt.neutronvpn;
 
-import com.google.common.collect.Maps;
+import java.util.HashMap;
 import java.util.Map;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
@@ -97,7 +97,7 @@ public class NeutronHostConfigChangeListener extends AsyncDataTreeChangeListener
     }
 
     private Map<String, String> extractHostConfig(Node node) {
-        Map<String, String> config = Maps.newHashMap();
+        Map<String, String> config = new HashMap<>();
         OvsdbNodeAugmentation ovsdbNode = getOvsdbNodeAugmentation(node);
         if (ovsdbNode != null && ovsdbNode.getOpenvswitchExternalIds() != null) {
             for (OpenvswitchExternalIds openvswitchExternalIds : ovsdbNode.getOpenvswitchExternalIds()) {

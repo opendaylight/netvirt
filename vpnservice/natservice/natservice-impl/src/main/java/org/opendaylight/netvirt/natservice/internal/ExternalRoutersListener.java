@@ -8,8 +8,6 @@
 package org.opendaylight.netvirt.natservice.internal;
 
 import com.google.common.base.Optional;
-import com.google.common.collect.Sets;
-import com.google.common.collect.Sets.SetView;
 import com.google.common.util.concurrent.AsyncFunction;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
@@ -18,6 +16,7 @@ import com.google.common.util.concurrent.ListenableFuture;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -489,14 +488,11 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
                                                           InstanceIdentifier<T> path) {
         ReadOnlyTransaction tx = broker.newReadOnlyTransaction();
 
-        Optional<T> result = Optional.absent();
         try {
-            result = tx.read(datastoreType, path).get();
+            return tx.read(datastoreType, path).get();
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
-
-        return result;
     }
 
     // TODO Clean up the exception handling
@@ -725,8 +721,7 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
     }
 
     private String getGroupIdKey(String routerName) {
-        String groupIdKey = new String("snatmiss." + routerName);
-        return groupIdKey;
+        return "snatmiss." + routerName;
     }
 
     protected long createGroupId(String groupIdKey) {
@@ -1079,13 +1074,12 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
 
         //Check if the Update is on External IPs
         LOG.debug("NAT Service : Checking if this is update on External IPs");
-        List<String> originalExternalIpsList = original.getExternalIps();
-        List<String> updatedExternalIpsList = update.getExternalIps();
-        Set<String> originalExternalIps = Sets.newHashSet(originalExternalIpsList);
-        Set<String> updatedExternalIps = Sets.newHashSet(updatedExternalIpsList);
+        List<String> originalExternalIps = original.getExternalIps();
+        List<String> updatedExternalIps = update.getExternalIps();
 
         //Check if the External IPs are added during the update.
-        SetView<String> addedExternalIps = Sets.difference(updatedExternalIps, originalExternalIps);
+        Set<String> addedExternalIps = new HashSet<>(updatedExternalIps);
+        addedExternalIps.removeAll(originalExternalIps);
         if (addedExternalIps.size() != 0) {
             LOG.debug("NAT Service : Start processing of the External IPs addition during the update operation");
             vpnManager.setupArpResponderFlowsToExternalNetworkIps(routerName, addedExternalIps,
@@ -1110,14 +1104,14 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
         }
 
         //Check if the External IPs are removed during the update.
-        SetView<String> removedExternalIps = Sets.difference(originalExternalIps, updatedExternalIps);
+        Set<String> removedExternalIps = new HashSet<>(originalExternalIps);
+        removedExternalIps.removeAll(updatedExternalIps);
         if (removedExternalIps.size() > 0) {
             LOG.debug("NAT Service : Start processing of the External IPs removal during the update operation");
             vpnManager.setupArpResponderFlowsToExternalNetworkIps(routerName,
                 removedExternalIps, original.getExtGwMacAddress(),
                 dpnId, networkId, null, NwConstants.DEL_FLOW);
 
-            List<String> removedExternalIpsAsList = new ArrayList<>();
             for (String removedExternalIp : removedExternalIps) {
              /*
                 1) Remove the mappings in the IntExt IP model which has external IP.
@@ -1169,7 +1163,6 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
                         + "router ID {} from the ExternalIpsCounter model.",
                     externalIpAddrStr, routerId);
                 naptManager.removeExternalIpCounter(routerId, externalIpAddrStr);
-                removedExternalIpsAsList.add(externalIpAddrStr);
 
                 LOG.debug("NAT Service : Allocate the least loaded external IPs to the subnets "
                     + "whose external IPs were removed.");
@@ -1275,11 +1268,10 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
 
         //Check if its Update on subnets
         LOG.debug("NAT Service : Checking if this is update on subnets");
-        List<Uuid> originalSubnetIdsList = original.getSubnetIds();
-        List<Uuid> updatedSubnetIdsList = update.getSubnetIds();
-        Set<Uuid> originalSubnetIds = Sets.newHashSet(originalSubnetIdsList);
-        Set<Uuid> updatedSubnetIds = Sets.newHashSet(updatedSubnetIdsList);
-        SetView<Uuid> addedSubnetIds = Sets.difference(updatedSubnetIds, originalSubnetIds);
+        List<Uuid> originalSubnetIds = original.getSubnetIds();
+        List<Uuid> updatedSubnetIds = update.getSubnetIds();
+        Set<Uuid> addedSubnetIds = new HashSet<>(updatedSubnetIds);
+        addedSubnetIds.removeAll(originalSubnetIds);
 
         //Check if the Subnet IDs are added during the update.
         if (addedSubnetIds.size() != 0) {
@@ -1301,7 +1293,8 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
         }
 
         //Check if the Subnet IDs are removed during the update.
-        SetView<Uuid> removedSubnetIds = Sets.difference(originalSubnetIds, updatedSubnetIds);
+        Set<Uuid> removedSubnetIds = new HashSet<>(originalSubnetIds);
+        removedSubnetIds.removeAll(updatedSubnetIds);
         if (removedSubnetIds.size() != 0) {
             LOG.debug("NAT Service : Start processing of the Subnet IDs removal during the update operation");
             for (Uuid removedSubnetId : removedSubnetIds) {
