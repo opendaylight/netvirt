@@ -14,8 +14,6 @@ import static org.mockito.Mockito.when;
 import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.Map;
-
-import com.google.common.collect.Maps;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
@@ -25,8 +23,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 import org.opendaylight.netvirt.openstack.netvirt.api.NetworkingProvider;
 import org.opendaylight.netvirt.openstack.netvirt.api.OvsdbInventoryService;
 import org.opendaylight.netvirt.utils.servicehelper.ServiceHelper;
-import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology
-        .Node;
+import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Node;
 import org.osgi.framework.ServiceReference;
 
 /**
@@ -39,7 +36,7 @@ public class ProviderNetworkManagerImplTest {
 
     @Mock private OvsdbInventoryService ovsdbInventoryService;
 
-    @Spy private Map<Node, NetworkingProvider> nodeToProviderMapping = Maps.newHashMap();
+    @Spy private Map<Node, NetworkingProvider> nodeToProviderMapping = new HashMap<>();
 
     /**
      * Test method {@link ProviderNetworkManagerImpl#getProvider(Node)}

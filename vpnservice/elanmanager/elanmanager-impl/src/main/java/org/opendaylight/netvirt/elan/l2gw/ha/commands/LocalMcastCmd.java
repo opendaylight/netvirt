@@ -7,7 +7,7 @@
  */
 package org.opendaylight.netvirt.elan.l2gw.ha.commands;
 
-import com.google.common.collect.Lists;
+import java.util.ArrayList;
 import java.util.List;
 import org.opendaylight.netvirt.elan.l2gw.ha.HwvtepHAUtil;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.HwvtepGlobalAugmentation;
@@ -56,7 +56,7 @@ public class LocalMcastCmd
     @Override
     public LocalMcastMacs transform(InstanceIdentifier<Node> nodePath, LocalMcastMacs src) {
         LocalMcastMacsBuilder ucmlBuilder = new LocalMcastMacsBuilder(src);
-        List<LocatorSet> locatorSet = Lists.newArrayList();
+        List<LocatorSet> locatorSet = new ArrayList<>();
         for (LocatorSet locator : src.getLocatorSet()) {
             locatorSet.add(new LocatorSetBuilder().setLocatorRef(HwvtepHAUtil.buildLocatorRef(nodePath,
                     HwvtepHAUtil.getTepIpVal(locator.getLocatorRef()))).build());
