@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5a682502_db4acbab",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/StatefulIngressAclServiceImpl.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 90,
+      "author": {
+        "id": 4269
+      },
+      "writtenOn": "2016-10-24T07:52:26Z",
+      "side": 1,
+      "message": "We cannot use optional here?\nIf this fixed for all the  classes in AclService now will a new checkstyle rule or so will give an error if such null check are introduced in future?",
+      "revId": "24df16582e3eddddb86585027c660edb705c150a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
