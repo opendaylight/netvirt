@@ -8,7 +8,7 @@
 
 package org.opendaylight.netvirt.openstack.netvirt.impl;
 
-import com.google.common.collect.Maps;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Predicate;
@@ -26,8 +26,8 @@ import org.slf4j.LoggerFactory;
 
 public class ProviderNetworkManagerImpl implements ConfigInterface, NetworkingProviderManager {
     private static final Logger LOG = LoggerFactory.getLogger(ProviderNetworkManagerImpl.class);
-    private Map<Long, ProviderEntry> providers = Maps.newHashMap();
-    private Map<Node, NetworkingProvider> nodeToProviderMapping = Maps.newHashMap();
+    private Map<Long, ProviderEntry> providers = new HashMap<>();
+    private Map<Node, NetworkingProvider> nodeToProviderMapping = new HashMap<>();
     private volatile OvsdbInventoryService ovsdbInventoryService;
 
     @Override
@@ -56,7 +56,7 @@ public class ProviderNetworkManagerImpl implements ConfigInterface, NetworkingPr
     }
 
     public void providerAdded(final ServiceReference ref, final NetworkingProvider provider){
-        Map <String, String> properties = Maps.newHashMap();
+        Map <String, String> properties = new HashMap<>();
         Long pid = (Long) ref.getProperty(org.osgi.framework.Constants.SERVICE_ID);
         properties.put(Constants.SOUTHBOUND_PROTOCOL_PROPERTY,
                 (String) ref.getProperty(Constants.SOUTHBOUND_PROTOCOL_PROPERTY));

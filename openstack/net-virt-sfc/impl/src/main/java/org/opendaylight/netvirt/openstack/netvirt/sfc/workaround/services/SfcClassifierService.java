@@ -8,7 +8,6 @@
 
 package org.opendaylight.netvirt.openstack.netvirt.sfc.workaround.services;
 
-import com.google.common.collect.Lists;
 import com.google.common.util.concurrent.CheckedFuture;
 import java.math.BigInteger;
 import java.util.ArrayList;
@@ -165,7 +164,7 @@ public class SfcClassifierService extends AbstractServiceInstance implements Con
             ib.setInstruction(new ApplyActionsCaseBuilder().setApplyActions(aab.build()).build());
             ib.setOrder(0);
             ib.setKey(new InstructionKey(0));
-            List<Instruction> instructions = Lists.newArrayList();
+            List<Instruction> instructions = new ArrayList<>();
             instructions.add(ib.build());
 
             InstructionsBuilder isb = new InstructionsBuilder();
@@ -191,7 +190,7 @@ public class SfcClassifierService extends AbstractServiceInstance implements Con
 
         if (write) {
             InstructionsBuilder isb = new InstructionsBuilder();
-            List<Instruction> instructions = Lists.newArrayList();
+            List<Instruction> instructions = new ArrayList<>();
             InstructionBuilder ib =
                     InstructionUtils.createGotoTableInstructions(new InstructionBuilder(), goToTableId);
             ib.setOrder(0);
@@ -223,7 +222,7 @@ public class SfcClassifierService extends AbstractServiceInstance implements Con
 
         if (write) {
             InstructionsBuilder isb = new InstructionsBuilder();
-            List<Instruction> instructions = Lists.newArrayList();
+            List<Instruction> instructions = new ArrayList<>();
 
             InstructionBuilder ib = InstructionUtils.createGotoTableInstructions(new InstructionBuilder(), getTable());
             ib.setOrder(instructions.size());
@@ -255,8 +254,8 @@ public class SfcClassifierService extends AbstractServiceInstance implements Con
 
         if (write) {
             InstructionsBuilder isb = new InstructionsBuilder();
-            List<Instruction> instructions = Lists.newArrayList();
-            List<Action> actionList = Lists.newArrayList();
+            List<Instruction> instructions = new ArrayList<>();
+            List<Action> actionList = new ArrayList<>();
 
             ActionBuilder ab = new ActionBuilder();
 
@@ -337,7 +336,7 @@ public class SfcClassifierService extends AbstractServiceInstance implements Con
             mutableIb.setOrder(1);
             mutableIb.setKey(new InstructionKey(1));
 
-            List<Instruction> instructions = Lists.newArrayList();
+            List<Instruction> instructions = new ArrayList<>();
             instructions.add(popNshIb.build());
             instructions.add(mutableIb.build());
 
@@ -368,7 +367,7 @@ public class SfcClassifierService extends AbstractServiceInstance implements Con
         if (write) {
             InstructionBuilder ib = new InstructionBuilder();
             InstructionsBuilder isb = new InstructionsBuilder();
-            List<Instruction> instructions = Lists.newArrayList();
+            List<Instruction> instructions = new ArrayList<>();
             InstructionUtils.createLocalInstructions(ib, dataPathId);
             ib.setOrder(0);
             ib.setKey(new InstructionKey(0));
@@ -401,7 +400,7 @@ public class SfcClassifierService extends AbstractServiceInstance implements Con
         if (write) {
             InstructionBuilder ib = new InstructionBuilder();
             InstructionsBuilder isb = new InstructionsBuilder();
-            List<Instruction> instructions = Lists.newArrayList();
+            List<Instruction> instructions = new ArrayList<>();
             InstructionUtils.createOutputPortInstructions(ib, dataPathId, sfOfPort);
 
             ib.setOrder(0);
@@ -436,10 +435,10 @@ public class SfcClassifierService extends AbstractServiceInstance implements Con
         if (write) {
             InstructionBuilder ib = new InstructionBuilder();
             InstructionsBuilder isb = new InstructionsBuilder();
-            List<Instruction> instructions = Lists.newArrayList();
+            List<Instruction> instructions = new ArrayList<>();
             ApplyActionsBuilder aab = new ApplyActionsBuilder();
             ActionBuilder ab = new ActionBuilder();
-            List<Action> actionList = Lists.newArrayList();
+            List<Action> actionList = new ArrayList<>();
 
             // Move Eth Src to Eth Dst
             ab.setAction(ActionUtils.nxMoveEthSrcToEthDstAction());
@@ -510,9 +509,9 @@ public class SfcClassifierService extends AbstractServiceInstance implements Con
         org.opendaylight.yang.gen.v1.urn.opendaylight.action.types.rev131112.action.Action pushNsh =
                 ActionUtils.nxPushNshAction();
         org.opendaylight.yang.gen.v1.urn.opendaylight.action.types.rev131112.action.Action nshMdtypeLoad =
-                ActionUtils.nxLoadNshMdtypeAction(Short.valueOf((short)0x1));
+                ActionUtils.nxLoadNshMdtypeAction((short) 0x1);
         org.opendaylight.yang.gen.v1.urn.opendaylight.action.types.rev131112.action.Action nshNpLoad =
-                ActionUtils.nxLoadNshNpAction(Short.valueOf((short)0x3));
+                ActionUtils.nxLoadNshNpAction((short) 0x3);
         org.opendaylight.yang.gen.v1.urn.opendaylight.action.types.rev131112.action.Action nshC1Load =
                 ActionUtils.nxLoadNshc1RegAction(header.getNshMetaC1());
         org.opendaylight.yang.gen.v1.urn.opendaylight.action.types.rev131112.action.Action nspLoad =
