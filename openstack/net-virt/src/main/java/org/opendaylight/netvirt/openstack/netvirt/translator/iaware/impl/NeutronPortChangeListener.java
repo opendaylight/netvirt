@@ -14,17 +14,15 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
-
 import org.opendaylight.controller.md.sal.binding.api.ClusteredDataChangeListener;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.DataChangeListener;
 import org.opendaylight.controller.md.sal.common.api.data.AsyncDataBroker.DataChangeScope;
 import org.opendaylight.controller.md.sal.common.api.data.AsyncDataChangeEvent;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.netvirt.openstack.netvirt.translator.NeutronPort;
 import org.opendaylight.netvirt.openstack.netvirt.translator.NeutronPort_AllowedAddressPairs;
 import org.opendaylight.netvirt.openstack.netvirt.translator.NeutronPort_ExtraDHCPOption;
-import org.opendaylight.netvirt.openstack.netvirt.translator.NeutronPort_VIFDetail;
-import org.opendaylight.netvirt.openstack.netvirt.translator.NeutronPort;
 import org.opendaylight.netvirt.openstack.netvirt.translator.NeutronSecurityGroup;
 import org.opendaylight.netvirt.openstack.netvirt.translator.Neutron_IPs;
 import org.opendaylight.netvirt.openstack.netvirt.translator.crud.INeutronSecurityGroupCRUD;
@@ -194,7 +192,7 @@ public class NeutronPortChangeListener implements ClusteredDataChangeListener, A
         PortBindingExtension binding = port.getAugmentation(PortBindingExtension.class);
         result.setBindinghostID(binding.getHostId());
         if (binding.getVifDetails() != null) {
-            final Map<String, String> details = new HashMap<String, String>(binding.getVifDetails().size());
+            final Map<String, String> details = new HashMap<>(binding.getVifDetails().size());
             for (final VifDetails vifDetail : binding.getVifDetails()) {
                 details.put(vifDetail.getDetailsKey(), vifDetail.getValue());
             }

@@ -102,10 +102,8 @@ public class NetvirtSfcStandaloneOF13Provider implements INetvirtSfcOF13Provider
 
         LOG.debug("add: Classifiers: {}", classifiers);
         for (Classifier classifier : classifiers.getClassifier()) {
-            if (classifier.getAcl().equals(aclName)) {
-                if (classifier.getBridges() != null) {
-                    addClassifierRules(classifier.getBridges(), acl);
-                }
+            if (classifier.getAcl().equals(aclName) && classifier.getBridges() != null) {
+                addClassifierRules(classifier.getBridges(), acl);
             }
         }
     }
@@ -116,11 +114,9 @@ public class NetvirtSfcStandaloneOF13Provider implements INetvirtSfcOF13Provider
         Classifiers classifiers = mdsalUtils.read(LogicalDatastoreType.CONFIGURATION, getClassifierIid());
         if (classifiers != null) {
             for (Classifier classifier : classifiers.getClassifier()) {
-                if (classifier.getAcl().equalsIgnoreCase(aclName)) {
-                    if (classifier.getSffs() != null) {
-                        for (Sff sff : classifier.getSffs().getSff()) {
-                            removeClassifierRules(sff, acl);
-                        }
+                if (classifier.getAcl().equalsIgnoreCase(aclName) && classifier.getSffs() != null) {
+                    for (Sff sff : classifier.getSffs().getSff()) {
+                        removeClassifierRules(sff, acl);
                     }
                 }
             }
