@@ -12,7 +12,6 @@
 package org.opendaylight.netvirt.natservice.internal;
 
 import com.google.common.base.Optional;
-import com.google.common.collect.Lists;
 import com.google.common.util.concurrent.UncheckedExecutionException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -269,9 +268,8 @@ public class NaptManager {
                 } else {
                     LOG.debug("NAPT Service : getExternalAddress single ip case");
                     if (externalIp.contains(subnetPrefix)) {
-                        String[] externalIpSplit = externalIp.split("/");
-                        String extIp = externalIpSplit[0];
-                        externalIp = extIp; //remove /32 what we got from checkIpMap
+                        //remove /32 what we got from checkIpMap
+                        externalIp = externalIp.substring(0, externalIp.indexOf(subnetPrefix));
                     }
                     allIps.add(externalIp);
                 }
@@ -328,7 +326,7 @@ public class NaptManager {
                         List<Integer> portList =
                             NatUtil.getInternalIpPortListInfo(dataBroker, segmentId, internalIpAddress, protocolType);
                         if (portList == null) {
-                            portList = Lists.newArrayList();
+                            portList = new ArrayList<>();
                         }
                         portList.add(ipPort);
 

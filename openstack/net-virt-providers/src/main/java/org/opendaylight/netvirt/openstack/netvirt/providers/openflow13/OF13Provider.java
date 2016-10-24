@@ -8,23 +8,23 @@
 
 package org.opendaylight.netvirt.openstack.netvirt.providers.openflow13;
 
+import com.google.common.base.Optional;
+import com.google.common.base.Preconditions;
+import com.google.common.util.concurrent.CheckedFuture;
 import java.net.InetAddress;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
-
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
 import org.opendaylight.controller.md.sal.binding.api.ReadWriteTransaction;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
-import org.opendaylight.netvirt.openstack.netvirt.translator.NeutronNetwork;
-import org.opendaylight.netvirt.openstack.netvirt.translator.NeutronPort;
-import org.opendaylight.netvirt.openstack.netvirt.translator.NeutronSecurityGroup;
-import org.opendaylight.netvirt.openstack.netvirt.translator.Neutron_IPs;
 import org.opendaylight.netvirt.openstack.netvirt.MdsalHelper;
 import org.opendaylight.netvirt.openstack.netvirt.NetworkHandler;
 import org.opendaylight.netvirt.openstack.netvirt.api.BridgeConfigurationManager;
@@ -46,7 +46,10 @@ import org.opendaylight.netvirt.openstack.netvirt.api.StatusCode;
 import org.opendaylight.netvirt.openstack.netvirt.api.TenantNetworkManager;
 import org.opendaylight.netvirt.openstack.netvirt.providers.ConfigInterface;
 import org.opendaylight.netvirt.openstack.netvirt.providers.NetvirtProvidersProvider;
-import org.opendaylight.netvirt.openstack.netvirt.providers.openflow13.services.ResubmitAclLearnService;
+import org.opendaylight.netvirt.openstack.netvirt.translator.NeutronNetwork;
+import org.opendaylight.netvirt.openstack.netvirt.translator.NeutronPort;
+import org.opendaylight.netvirt.openstack.netvirt.translator.NeutronSecurityGroup;
+import org.opendaylight.netvirt.openstack.netvirt.translator.Neutron_IPs;
 import org.opendaylight.netvirt.utils.mdsal.openflow.FlowUtils;
 import org.opendaylight.netvirt.utils.mdsal.openflow.InstructionUtils;
 import org.opendaylight.netvirt.utils.servicehelper.ServiceHelper;
@@ -97,13 +100,6 @@ import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.google.common.base.Optional;
-import com.google.common.base.Preconditions;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-import com.google.common.util.concurrent.CheckedFuture;
-
 
 /**
  * Open vSwitch OpenFlow 1.3 Networking Provider for OpenStack Neutron
@@ -197,7 +193,7 @@ public class OF13Provider implements ConfigInterface, NetworkingProvider {
             return true;
         }
 
-        Map<String, String> options = Maps.newHashMap();
+        Map<String, String> options = new HashMap<>();
         options.put("key", "flow");
         options.put("local_ip", src.getHostAddress());
         options.put("remote_ip", dst.getHostAddress());
@@ -1443,7 +1439,7 @@ public class OF13Provider implements ConfigInterface, NetworkingProvider {
         InstructionsBuilder isb = new InstructionsBuilder();
 
         // Instructions List Stores Individual Instructions
-        List<Instruction> instructions = Lists.newArrayList();
+        List<Instruction> instructions = new ArrayList<>();
 
         // Call the InstructionBuilder Methods Containing Actions
         InstructionUtils.createNormalInstructions(FlowUtils.getNodeName(dpidLong), ib);
@@ -1801,7 +1797,7 @@ public class OF13Provider implements ConfigInterface, NetworkingProvider {
         NodeConnectorId ncid = new NodeConnectorId(Constants.OPENFLOW_NODE_PREFIX + dpidLong + ":" + port);
         LOG.debug("createOutputGroupInstructions() Node Connector ID is - Type=openflow: DPID={} port={} existingInstructions={}", dpidLong, port, instructions);
 
-        List<Action> actionList = Lists.newArrayList();
+        List<Action> actionList = new ArrayList<>();
         ActionBuilder ab = new ActionBuilder();
 
         List<Action> existingActions;
@@ -1867,7 +1863,7 @@ public class OF13Provider implements ConfigInterface, NetworkingProvider {
             if (addNew && !buckets.getBucket().isEmpty()) {
                 /* the new output action is not in the bucket, add to bucket */
                 Bucket bucket = buckets.getBucket().get(0);
-                List<Action> bucketActionList = Lists.newArrayList();
+                List<Action> bucketActionList = new ArrayList<>();
                 bucketActionList.addAll(bucket.getAction());
                 /* set order for new action and add to action list */
                 ab.setOrder(bucketActionList.size());
@@ -1876,7 +1872,7 @@ public class OF13Provider implements ConfigInterface, NetworkingProvider {
 
                 /* set bucket and buckets list. Reset groupBuilder with new buckets.*/
                 BucketsBuilder bucketsBuilder = new BucketsBuilder();
-                List<Bucket> bucketList = Lists.newArrayList();
+                List<Bucket> bucketList = new ArrayList<>();
                 BucketBuilder bucketBuilder = new BucketBuilder();
                 bucketBuilder.setBucketId(new BucketId((long) 1));
                 bucketBuilder.setKey(new BucketKey(new BucketId((long) 1)));
@@ -1896,13 +1892,13 @@ public class OF13Provider implements ConfigInterface, NetworkingProvider {
             groupBuilder.setBarrier(false);
 
             BucketsBuilder bucketBuilder = new BucketsBuilder();
-            List<Bucket> bucketList = Lists.newArrayList();
+            List<Bucket> bucketList = new ArrayList<>();
             BucketBuilder bucket = new BucketBuilder();
             bucket.setBucketId(new BucketId((long) 1));
             bucket.setKey(new BucketKey(new BucketId((long) 1)));
 
             /* put output action to the bucket */
-            List<Action> bucketActionList = Lists.newArrayList();
+            List<Action> bucketActionList = new ArrayList<>();
             /* set order for new action and add to action list */
             ab.setOrder(bucketActionList.size());
             ab.setKey(new ActionKey(bucketActionList.size()));
@@ -1959,7 +1955,7 @@ public class OF13Provider implements ConfigInterface, NetworkingProvider {
         NodeConnectorId ncid = new NodeConnectorId(Constants.OPENFLOW_NODE_PREFIX + dpidLong + ":" + port);
         LOG.debug("removeOutputPortFromGroup() Node Connector ID is - Type=openflow: DPID={} port={} existingInstructions={}", dpidLong, port, instructions);
 
-        List<Action> actionList = Lists.newArrayList();
+        List<Action> actionList = new ArrayList<>();
         ActionBuilder ab;
 
         List<Action> existingActions;
@@ -1998,7 +1994,7 @@ public class OF13Provider implements ConfigInterface, NetworkingProvider {
             /* modify the action bucket in group */
             groupBuilder = new GroupBuilder(group);
             Buckets buckets = groupBuilder.getBuckets();
-            List<Action> bucketActions = Lists.newArrayList();
+            List<Action> bucketActions = new ArrayList<>();
             for (Bucket bucket : buckets.getBucket()) {
                 int index = 0;
                 boolean isPortDeleted = false;
@@ -2040,7 +2036,7 @@ public class OF13Provider implements ConfigInterface, NetworkingProvider {
                 /* rewrite the group to group table */
                 /* set bucket and buckets list. Reset groupBuilder with new buckets.*/
                 BucketsBuilder bucketsBuilder = new BucketsBuilder();
-                List<Bucket> bucketList = Lists.newArrayList();
+                List<Bucket> bucketList = new ArrayList<>();
                 BucketBuilder bucketBuilder = new BucketBuilder();
                 bucketBuilder.setBucketId(new BucketId((long) 1));
                 bucketBuilder.setKey(new BucketKey(new BucketId((long) 1)));
