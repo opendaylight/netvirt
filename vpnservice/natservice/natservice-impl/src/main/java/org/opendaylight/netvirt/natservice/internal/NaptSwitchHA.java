@@ -8,27 +8,33 @@
 package org.opendaylight.netvirt.natservice.internal;
 
 import com.google.common.base.Optional;
-import com.google.common.collect.Sets;
-
+import java.math.BigInteger;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
+import org.opendaylight.controller.md.sal.binding.api.DataBroker;
+import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.mdsalutil.ActionInfo;
 import org.opendaylight.genius.mdsalutil.BucketInfo;
 import org.opendaylight.genius.mdsalutil.FlowEntity;
 import org.opendaylight.genius.mdsalutil.GroupEntity;
 import org.opendaylight.genius.mdsalutil.InstructionInfo;
 import org.opendaylight.genius.mdsalutil.InstructionType;
+import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.mdsalutil.MatchFieldType;
 import org.opendaylight.genius.mdsalutil.MatchInfo;
-import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.mdsalutil.MetaDataUtil;
 import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.genius.mdsalutil.actions.ActionGroup;
 import org.opendaylight.genius.mdsalutil.actions.ActionNxResubmit;
 import org.opendaylight.genius.mdsalutil.actions.ActionSetFieldTunnelId;
+import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.netvirt.bgpmanager.api.IBgpManager;
 import org.opendaylight.netvirt.fibmanager.api.IFibManager;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.group.types.rev131018.GroupTypes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeId;
@@ -66,14 +72,6 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.math.BigInteger;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
-import java.util.HashMap;
 
 public class NaptSwitchHA {
     private static final Logger LOG = LoggerFactory.getLogger(NaptSwitchHA.class);
@@ -829,10 +827,9 @@ public class NaptSwitchHA {
     protected void bestEffortDeletion(long routerId,String routerName,HashMap<String,Long> externalIpLabel) {
         List<String> newExternalIps = NatUtil.getExternalIpsForRouter(dataBroker,routerId);
         if (newExternalIps != null && externalIpsCache != null) {
-            Set<String> originalSubnetIds = Sets.newHashSet(externalIpsCache);
-            Set<String> updatedSubnetIds = Sets.newHashSet(newExternalIps);
-            Sets.SetView<String> removeExternalIp = Sets.difference(originalSubnetIds, updatedSubnetIds);
-            if (removeExternalIp.isEmpty()) {
+            Set<String> removedExternalIps = new HashSet<>(externalIpsCache);
+            removedExternalIps.removeAll(newExternalIps);
+            if (removedExternalIps.isEmpty()) {
                 LOG.debug("No external Ip needed to be removed in bestEffortDeletion method for router {}",routerName);
                 return;
             }
@@ -851,7 +848,7 @@ public class NaptSwitchHA {
                 return;
             }
             Long label;
-            for (String externalIp : removeExternalIp) {
+            for (String externalIp : removedExternalIps) {
                 if (externalIpLabel.containsKey(externalIp)) {
                     label = externalIpLabel.get(externalIp);
                     LOG.debug("Label {} for ExternalIp {} for router {}",label,externalIp,routerName);

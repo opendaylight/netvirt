@@ -11,14 +11,14 @@ package org.opendaylight.netvirt.openstack.netvirt.providers.openflow13.services
 import java.math.BigInteger;
 import java.net.Inet6Address;
 import java.net.InetAddress;
+import java.util.ArrayList;
 import java.util.List;
-
-import org.opendaylight.netvirt.openstack.netvirt.providers.openflow13.AbstractServiceInstance;
 import org.opendaylight.netvirt.openstack.netvirt.api.Action;
 import org.opendaylight.netvirt.openstack.netvirt.api.L3ForwardingProvider;
 import org.opendaylight.netvirt.openstack.netvirt.api.Status;
 import org.opendaylight.netvirt.openstack.netvirt.api.StatusCode;
 import org.opendaylight.netvirt.openstack.netvirt.providers.ConfigInterface;
+import org.opendaylight.netvirt.openstack.netvirt.providers.openflow13.AbstractServiceInstance;
 import org.opendaylight.netvirt.openstack.netvirt.providers.openflow13.Service;
 import org.opendaylight.netvirt.utils.mdsal.openflow.FlowUtils;
 import org.opendaylight.netvirt.utils.mdsal.openflow.InstructionUtils;
@@ -31,12 +31,10 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.instru
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.instruction.list.InstructionBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.instruction.list.InstructionKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.NodeBuilder;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.google.common.collect.Lists;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class L3ForwardingService extends AbstractServiceInstance implements L3ForwardingProvider, ConfigInterface {
     private static final Logger LOG = LoggerFactory.getLogger(L3ForwardingService.class);
@@ -74,7 +72,7 @@ public class L3ForwardingService extends AbstractServiceInstance implements L3Fo
         if (action.equals(Action.ADD)) {
             // Instructions List Stores Individual Instructions
             InstructionsBuilder isb = new InstructionsBuilder();
-            List<Instruction> instructions = Lists.newArrayList();
+            List<Instruction> instructions = new ArrayList<>();
             InstructionBuilder ib = new InstructionBuilder();
 
             // Set Dest Mac address

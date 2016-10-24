@@ -8,7 +8,6 @@
 
 package org.opendaylight.netvirt.elan.l2gw.utils;
 
-import com.google.common.collect.Lists;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -121,7 +120,7 @@ public class L2GatewayConnectionUtils {
      */
     public static List<L2gatewayConnection> getL2GwConnectionsByElanName(DataBroker broker, String elanName) {
         List<L2gatewayConnection> allL2GwConns = getAllL2gatewayConnections(broker);
-        List<L2gatewayConnection> elanL2GateWayConnections = Lists.newArrayList();
+        List<L2gatewayConnection> elanL2GateWayConnections = new ArrayList<>();
         if (allL2GwConns != null) {
             for (L2gatewayConnection l2GwConn : allL2GwConns) {
                 if (l2GwConn.getNetworkId().getValue().equalsIgnoreCase(elanName)) {
