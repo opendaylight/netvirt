@@ -7,7 +7,6 @@
  */
 package org.opendaylight.netvirt.elan.l2gw.listeners;
 
-import com.google.common.collect.Lists;
 import com.google.common.util.concurrent.ListenableFuture;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -84,10 +83,10 @@ public class HwvtepTerminationPointListener
         synchronized (HwvtepTerminationPointListener.class) {
             List<Runnable> list = waitingJobsList.get(key);
             if (list == null) {
-                waitingJobsList.put(key, Lists.newArrayList(runnable));
-            } else {
-                list.add(runnable);
+                list = new ArrayList<>();
+                waitingJobsList.put(key, list);
             }
+            list.add(runnable);
             LOG.debug("added the job to wait list of physical locator {}", key);
         }
     }
@@ -131,16 +130,14 @@ public class HwvtepTerminationPointListener
 
         LOG.trace("physical locator available {}", identifier);
         teps.put(identifier, true);
-        List<Runnable> runnableList = null;
+        List<Runnable> runnableList;
         synchronized (HwvtepTerminationPointListener.class) {
             runnableList = waitingJobsList.get(identifier);
             waitingJobsList.remove(identifier);
         }
         if (runnableList != null) {
             LOG.debug("physical locator available {} running jobs ", identifier);
-            for (Runnable r : runnableList) {
-                r.run();
-            }
+            runnableList.forEach(Runnable::run);
         } else {
             LOG.debug("no jobs are waiting for physical locator {}", identifier);
         }
