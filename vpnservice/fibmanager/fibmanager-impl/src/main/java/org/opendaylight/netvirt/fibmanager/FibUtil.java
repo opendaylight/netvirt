@@ -472,13 +472,6 @@ public class FibUtil {
 
         Preconditions.checkNotNull(nextHopList, "NextHopList can't be null");
 
-        for ( String nextHop: nextHopList){
-            if (nextHop == null || nextHop.isEmpty()){
-                LOG.error("nextHop list contains null element");
-                return;
-            }
-        }
-
         LOG.debug("Created vrfEntry for {} nexthop {} label {}", prefix, nextHopList, label);
         try{
             InstanceIdentifier<VrfEntry> vrfEntryId =
