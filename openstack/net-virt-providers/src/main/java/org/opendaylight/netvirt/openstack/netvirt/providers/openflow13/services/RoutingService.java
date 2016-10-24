@@ -11,17 +11,17 @@ package org.opendaylight.netvirt.openstack.netvirt.providers.openflow13.services
 import java.math.BigInteger;
 import java.net.Inet6Address;
 import java.net.InetAddress;
+import java.util.ArrayList;
 import java.util.List;
-
 import org.apache.commons.net.util.SubnetUtils;
-import org.opendaylight.netvirt.openstack.netvirt.api.StatusCode;
-import org.opendaylight.netvirt.openstack.netvirt.providers.openflow13.AbstractServiceInstance;
-import org.opendaylight.netvirt.openstack.netvirt.providers.openflow13.Service;
 import org.opendaylight.netvirt.openstack.netvirt.api.Action;
 import org.opendaylight.netvirt.openstack.netvirt.api.Constants;
 import org.opendaylight.netvirt.openstack.netvirt.api.RoutingProvider;
-import org.opendaylight.netvirt.openstack.netvirt.providers.ConfigInterface;
 import org.opendaylight.netvirt.openstack.netvirt.api.Status;
+import org.opendaylight.netvirt.openstack.netvirt.api.StatusCode;
+import org.opendaylight.netvirt.openstack.netvirt.providers.ConfigInterface;
+import org.opendaylight.netvirt.openstack.netvirt.providers.openflow13.AbstractServiceInstance;
+import org.opendaylight.netvirt.openstack.netvirt.providers.openflow13.Service;
 import org.opendaylight.netvirt.utils.mdsal.openflow.ActionUtils;
 import org.opendaylight.netvirt.utils.mdsal.openflow.FlowUtils;
 import org.opendaylight.netvirt.utils.mdsal.openflow.MatchUtils;
@@ -38,8 +38,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.instru
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.instruction.list.InstructionBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.instruction.list.InstructionKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.NodeBuilder;
-
-import com.google.common.collect.Lists;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.openflowplugin.extension.nicira.action.rev140714.dst.choice.grouping.dst.choice.DstNxRegCaseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.openflowplugin.extension.nicira.action.rev140714.src.choice.grouping.src.choice.SrcOfEthSrcCaseBuilder;
 import org.osgi.framework.BundleContext;
@@ -92,12 +90,12 @@ public class RoutingService extends AbstractServiceInstance implements RoutingPr
         if (action.equals(Action.ADD)) {
             // Instructions List Stores Individual Instructions
             InstructionsBuilder isb = new InstructionsBuilder();
-            List<Instruction> instructions = Lists.newArrayList();
+            List<Instruction> instructions = new ArrayList<>();
             InstructionBuilder ib = new InstructionBuilder();
             ApplyActionsBuilder aab = new ApplyActionsBuilder();
             ActionBuilder ab = new ActionBuilder();
             List<org.opendaylight.yang.gen.v1.urn.opendaylight.action.types.rev131112.action.list.Action> actionList
-                    = Lists.newArrayList();
+                    = new ArrayList<>();
 
             //if this is an east<->west route, save the src mac in case this is an ICMP echo request
             if(!isExternalNet) {
@@ -175,12 +173,12 @@ public class RoutingService extends AbstractServiceInstance implements RoutingPr
         if (action.equals(Action.ADD)) {
             // Instructions List Stores Individual Instructions
             InstructionsBuilder isb = new InstructionsBuilder();
-            List<Instruction> instructions = Lists.newArrayList();
+            List<Instruction> instructions = new ArrayList<>();
             InstructionBuilder ib = new InstructionBuilder();
             ApplyActionsBuilder aab = new ApplyActionsBuilder();
             ActionBuilder ab = new ActionBuilder();
             List<org.opendaylight.yang.gen.v1.urn.opendaylight.action.types.rev131112.action.list.Action> actionList =
-                    Lists.newArrayList();
+                    new ArrayList<>();
 
             // Set source Mac address
             ab.setAction(ActionUtils.setDlSrcAction(new MacAddress(macAddress)));

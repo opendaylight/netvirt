@@ -11,13 +11,13 @@
  */
 package org.opendaylight.netvirt.natservice.internal;
 
+import com.google.common.base.Optional;
+import com.google.common.util.concurrent.UncheckedExecutionException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.concurrent.Future;
 import java.util.concurrent.ExecutionException;
-
-import com.google.common.collect.Lists;
+import java.util.concurrent.Future;
 import org.apache.commons.net.util.SubnetUtils;
 import org.apache.commons.net.util.SubnetUtils.SubnetInfo;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
@@ -42,6 +42,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev16011
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.external.ips.counter.ExternalCounters;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.external.ips.counter.ExternalCountersKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.external.ips.counter.external.counters.ExternalIpCounter;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.external.ips.counter.external.counters.ExternalIpCounterBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.external.ips.counter.external.counters.ExternalIpCounterKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.intext.ip.map.IpMapping;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.intext.ip.map.IpMappingKey;
@@ -69,10 +70,6 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier.InstanceIdenti
 import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import  org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.external.ips.counter.external.counters.ExternalIpCounterBuilder;
-
-import com.google.common.base.Optional;
-import com.google.common.util.concurrent.UncheckedExecutionException;
 
 public class NaptManager  {
     private static final Logger LOG = LoggerFactory.getLogger(NaptManager.class);
@@ -249,9 +246,8 @@ public class NaptManager  {
                  } else {
                      LOG.debug("NAPT Service : getExternalAddress single ip case");
                      if(externalIp.contains(subnetPrefix)) {
-                         String[] externalIpSplit = externalIp.split("/");
-                         String extIp = externalIpSplit[0];
-                         externalIp = extIp; //remove /32 what we got from checkIpMap
+                         //remove /32 what we got from checkIpMap
+                         externalIp = externalIp.substring(0, externalIp.indexOf(subnetPrefix));
                      }
                      allIps.add(externalIp);
                  }
@@ -303,7 +299,7 @@ public class NaptManager  {
                          ProtocolTypes protocolType = NatUtil.getProtocolType(protocol);
                          List<Integer> portList = NatUtil.getInternalIpPortListInfo(dataBroker,segmentId,internalIpAddress,protocolType);
                          if (portList == null) {
-                             portList = Lists.newArrayList();
+                             portList = new ArrayList<>();
                          }
                          portList.add(ipPort);
 
