@@ -7,8 +7,8 @@
  */
 package org.opendaylight.netvirt.it;
 
-import com.google.common.collect.Maps;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
@@ -50,7 +50,7 @@ public class SouthboundUtils {
 
         // Create a single map of both the existing otherConfig and the new otherConfig
         // and then write that to the final otherConfig builder
-        Map<String, String> allOtherConfigs = Maps.newHashMap();
+        Map<String, String> allOtherConfigs = new HashMap<>();
         OvsdbNodeAugmentation ovsdbNodeAugmentation = ovsdbNode.getAugmentation(OvsdbNodeAugmentation.class);
         if (ovsdbNodeAugmentation != null && ovsdbNodeAugmentation.getOpenvswitchOtherConfigs() != null) {
             for (OpenvswitchOtherConfigs ovsOtherConfigs : ovsdbNodeAugmentation.getOpenvswitchOtherConfigs()) {

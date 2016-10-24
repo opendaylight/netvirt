@@ -8,10 +8,10 @@
 
 package org.opendaylight.netvirt.elan.l2gw.jobs;
 
-import com.google.common.collect.Lists;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentMap;
@@ -95,7 +95,7 @@ public class DeleteL2GwDeviceMacsFromElanJob implements Callable<List<Listenable
 
         ConcurrentMap<String, L2GatewayDevice> elanL2GwDevices = ElanL2GwCacheUtils
                 .getInvolvedL2GwDevices(this.elanName);
-        List<ListenableFuture<Void>> futures = Lists.newArrayList();
+        List<ListenableFuture<Void>> futures = new ArrayList<>();
         for (L2GatewayDevice otherDevice : elanL2GwDevices.values()) {
             if (!otherDevice.getHwvtepNodeId().equals(this.l2GwDevice.getHwvtepNodeId())
                     && !ElanL2GatewayUtils.areMLAGDevices(this.l2GwDevice, otherDevice)) {
@@ -116,8 +116,7 @@ public class DeleteL2GwDeviceMacsFromElanJob implements Callable<List<Listenable
                                 logicalSwitchName, hwvtepId), error);
                     }
                 });
-                // TODO: why to create a new arraylist for uninstallFuture?
-                futures.addAll(Lists.newArrayList(uninstallFuture));
+                futures.add(uninstallFuture);
             }
         }
         return futures;

@@ -8,8 +8,7 @@
 
 package org.opendaylight.netvirt.openstack.netvirt.api;
 
-import com.google.common.collect.Maps;
-
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -133,25 +132,25 @@ public class LoadBalancerConfiguration {
     private Map <String, LoadBalancerPoolMember> members;
 
     public LoadBalancerConfiguration() {
-        this.members = Maps.newHashMap();
+        this.members = new HashMap<>();
     }
 
     public LoadBalancerConfiguration(String name, String vip) {
-        this.members = Maps.newHashMap();
+        this.members = new HashMap<>();
         this.name = name;
         this.vip = vip;
         this.vmac = null;
     }
 
     public LoadBalancerConfiguration(String name, String vip, String vmac) {
-        this.members = Maps.newHashMap();
+        this.members = new HashMap<>();
         this.name = name;
         this.vip = vip;
         this.vmac = vmac;
     }
 
     public LoadBalancerConfiguration(LoadBalancerConfiguration lbConfig) {
-        this.members = Maps.newHashMap(lbConfig.getMembers());
+        this.members = new HashMap<>(lbConfig.getMembers());
         this.name = lbConfig.getName();
         this.vip = lbConfig.getVip();
         this.vmac = lbConfig.getVmac();
