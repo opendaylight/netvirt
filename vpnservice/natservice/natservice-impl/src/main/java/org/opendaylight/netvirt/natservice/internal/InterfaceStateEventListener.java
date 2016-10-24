@@ -7,10 +7,15 @@
  */
 package org.opendaylight.netvirt.natservice.internal;
 
-import com.google.common.collect.Lists;
+import com.google.common.base.Optional;
+import java.math.BigInteger;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.DataChangeListener;
-import org.opendaylight.controller.md.sal.common.api.data.AsyncDataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
 import org.opendaylight.genius.mdsalutil.BucketInfo;
@@ -39,13 +44,6 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import com.google.common.base.Optional;
-
-import java.math.BigInteger;
-import java.util.List;
-import java.util.Set;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
 
 public class InterfaceStateEventListener extends AsyncDataTreeChangeListenerBase<Interface, InterfaceStateEventListener> implements AutoCloseable {
     private static final Logger LOG = LoggerFactory.getLogger(InterfaceStateEventListener.class);
@@ -283,7 +281,7 @@ public class InterfaceStateEventListener extends AsyncDataTreeChangeListenerBase
     }
 
     private List<ProtocolTypes> getPortocolList() {
-        List<ProtocolTypes> protocollist = Lists.newArrayList();
+        List<ProtocolTypes> protocollist = new ArrayList<>();
         protocollist.add(ProtocolTypes.TCP);
         protocollist.add(ProtocolTypes.UDP);
         return protocollist;
