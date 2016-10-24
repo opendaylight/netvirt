@@ -25,9 +25,9 @@ import static org.ops4j.pax.exam.karaf.options.KarafDistributionOption.configure
 import static org.ops4j.pax.exam.karaf.options.KarafDistributionOption.editConfigurationFilePut;
 import static org.ops4j.pax.exam.karaf.options.KarafDistributionOption.keepRuntimeFolder;
 
-import com.google.common.collect.Maps;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -644,7 +644,7 @@ public class NetvirtSfcIT extends AbstractMdsalTestBase {
         String flowId = "DEFAULT_PIPELINE_FLOW_" + pipelineOrchestrator.getTable(Service.SFC_CLASSIFIER);
         nvItUtils.verifyFlow(nodeInfo.datapathId, flowId, pipelineOrchestrator.getTable(Service.SFC_CLASSIFIER));
 
-        Map<String, String> externalIds = Maps.newHashMap();
+        Map<String, String> externalIds = new HashMap<>();
         externalIds.put("attached-mac", "f6:00:00:0f:00:01");
         southboundUtils.addTerminationPoint(nodeInfo.bridgeNode, SF1DPLPORTNAME, "internal", (Map<String, String>) null, externalIds);
         externalIds.clear();
