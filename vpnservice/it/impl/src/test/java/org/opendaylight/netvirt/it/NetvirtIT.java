@@ -26,9 +26,9 @@ import static org.ops4j.pax.exam.karaf.options.LogLevelOption.LogLevel.INFO;
 import static org.ops4j.pax.exam.karaf.options.LogLevelOption.LogLevel.TRACE;
 import static org.ops4j.pax.exam.karaf.options.LogLevelOption.LogLevel.WARN;
 
-import com.google.common.collect.Maps;
 import java.io.File;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -269,7 +269,7 @@ public class NetvirtIT extends AbstractMdsalTestBase {
 
     private void addLocalIp(NodeInfo nodeInfo, String ip) {
         LOG.info("addlocalIp: nodeinfo: {}, local_ip: {}", nodeInfo.ovsdbNode.getNodeId(), ip);
-        Map<String, String> otherConfigs = Maps.newHashMap();
+        Map<String, String> otherConfigs = new HashMap<>();
         otherConfigs.put("local_ip", ip);
         assertTrue(nvSouthboundUtils.addOpenVSwitchOtherConfig(nodeInfo.ovsdbNode, otherConfigs));
     }

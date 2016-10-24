@@ -64,8 +64,6 @@ import org.osgi.framework.ServiceReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.collect.Lists;
-
 public class IngressAclLearnServiceUtil {
 
     /*
@@ -149,7 +147,7 @@ public class IngressAclLearnServiceUtil {
         ApplyActions applyActions = new ApplyActionsBuilder().setAction(listAction).build();
         ApplyActionsCase applyActionsCase = new ApplyActionsCaseBuilder().setApplyActions(applyActions).build();
         InstructionsBuilder instructionsBuilder = new InstructionsBuilder();
-        List<Instruction> instructions = Lists.newArrayList();
+        List<Instruction> instructions = new ArrayList<>();
         if(instructionBuilder == null) {
             instructionBuilder = new InstructionBuilder();
         }
@@ -249,7 +247,7 @@ public class IngressAclLearnServiceUtil {
         ApplyActions applyActions = new ApplyActionsBuilder().setAction(listAction).build();
         ApplyActionsCase applyActionsCase = new ApplyActionsCaseBuilder().setApplyActions(applyActions).build();
         InstructionsBuilder instructionsBuilder = new InstructionsBuilder();
-        List<Instruction> instructions = Lists.newArrayList();
+        List<Instruction> instructions = new ArrayList<>();
         if(instructionBuilder == null) {
             instructionBuilder = new InstructionBuilder();
         }
@@ -329,7 +327,7 @@ public class IngressAclLearnServiceUtil {
         ApplyActions applyActions = new ApplyActionsBuilder().setAction(listAction).build();
         ApplyActionsCase applyActionsCase = new ApplyActionsCaseBuilder().setApplyActions(applyActions).build();
         InstructionsBuilder instructionsBuilder = new InstructionsBuilder();
-        List<Instruction> instructions = Lists.newArrayList();
+        List<Instruction> instructions = new ArrayList<>();
 
         if(instructionBuilder == null) {
             instructionBuilder = new InstructionBuilder();
@@ -413,7 +411,7 @@ public class IngressAclLearnServiceUtil {
         ApplyActions applyActions = new ApplyActionsBuilder().setAction(listAction).build();
         ApplyActionsCase applyActionsCase = new ApplyActionsCaseBuilder().setApplyActions(applyActions).build();
         InstructionsBuilder instructionsBuilder = new InstructionsBuilder();
-        List<Instruction> instructions = Lists.newArrayList();
+        List<Instruction> instructions = new ArrayList<>();
 
         if(instructionBuilder == null) {
             instructionBuilder = new InstructionBuilder();
