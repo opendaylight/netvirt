@@ -7,14 +7,18 @@
  */
 package org.opendaylight.netvirt.openstack.netvirt.providers.openflow13.services;
 
-import com.google.common.collect.Lists;
+import java.math.BigInteger;
+import java.net.Inet6Address;
+import java.net.InetAddress;
+import java.util.ArrayList;
+import java.util.List;
 import org.opendaylight.netvirt.openstack.netvirt.api.Action;
 import org.opendaylight.netvirt.openstack.netvirt.api.IcmpEchoProvider;
 import org.opendaylight.netvirt.openstack.netvirt.api.Status;
 import org.opendaylight.netvirt.openstack.netvirt.api.StatusCode;
+import org.opendaylight.netvirt.openstack.netvirt.providers.ConfigInterface;
 import org.opendaylight.netvirt.openstack.netvirt.providers.openflow13.AbstractServiceInstance;
 import org.opendaylight.netvirt.openstack.netvirt.providers.openflow13.Service;
-import org.opendaylight.netvirt.openstack.netvirt.providers.ConfigInterface;
 import org.opendaylight.netvirt.utils.mdsal.openflow.ActionUtils;
 import org.opendaylight.netvirt.utils.mdsal.openflow.FlowUtils;
 import org.opendaylight.netvirt.utils.mdsal.openflow.MatchUtils;
@@ -41,11 +45,6 @@ import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.math.BigInteger;
-import java.net.Inet6Address;
-import java.net.InetAddress;
-import java.util.List;
 
 /**
  * @author Josh Hershberg (jhershbe@redhat.com)
@@ -116,11 +115,11 @@ public class IcmpEchoResponderService extends AbstractServiceInstance implements
         if (action.equals(Action.ADD)) {
             // Instructions List Stores Individual Instructions
             InstructionsBuilder isb = new InstructionsBuilder();
-            List<Instruction> instructions = Lists.newArrayList();
+            List<Instruction> instructions = new ArrayList<>();
             InstructionBuilder ib = new InstructionBuilder();
             ApplyActionsBuilder aab = new ApplyActionsBuilder();
             ActionBuilder ab = new ActionBuilder();
-            List<org.opendaylight.yang.gen.v1.urn.opendaylight.action.types.rev131112.action.list.Action> actionList = Lists.newArrayList();
+            List<org.opendaylight.yang.gen.v1.urn.opendaylight.action.types.rev131112.action.list.Action> actionList = new ArrayList<>();
 
             if (isRouted) {
                 ab.setAction(
