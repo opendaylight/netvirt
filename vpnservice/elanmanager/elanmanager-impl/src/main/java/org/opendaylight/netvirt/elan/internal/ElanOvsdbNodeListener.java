@@ -82,7 +82,11 @@ public class ElanOvsdbNodeListener extends AbstractDataChangeListener<Node> impl
     @Override
     protected void update(InstanceIdentifier<Node> identifier, Node original, Node update) {
         LOG.debug("ElanOvsdbNodeListener.update, updated node detected. original: {} new: {}", original, update);
-        doNodeUpdate(update);
+        // ignore updates where the bridge was deleted
+        if (!(bridgeMgr.isBridgeOnOvsdbNode(original, bridgeMgr.getIntegrationBridgeName())
+                && !bridgeMgr.isBridgeOnOvsdbNode(update, bridgeMgr.getIntegrationBridgeName()))) {
+            doNodeUpdate(update);
+        }
         elanProvider.updateExternalElanNetworks(original, update);
     }
 

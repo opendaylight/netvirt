@@ -456,4 +456,12 @@ public class ElanBridgeManager {
     public boolean hasDatapathID(Node node) {
         return southboundUtils.getDataPathId(node) > 0 ? true : false;
     }
+
+    public Boolean isBridgeOnOvsdbNode(Node ovsdbNode, String bridgename) {
+        return southboundUtils.isBridgeOnOvsdbNode(ovsdbNode, bridgename);
+    }
+
+    public String getIntegrationBridgeName() {
+        return INTEGRATION_BRIDGE;
+    }
 }
