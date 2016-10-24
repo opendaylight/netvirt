@@ -8,10 +8,10 @@
 package org.opendaylight.netvirt.natservice.internal;
 
 import com.google.common.base.Optional;
-import com.google.common.collect.Sets;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
@@ -876,10 +876,9 @@ public class NaptSwitchHA {
     protected void bestEffortDeletion(long routerId, String routerName, HashMap<String, Long> externalIpLabel) {
         List<String> newExternalIps = NatUtil.getExternalIpsForRouter(dataBroker, routerId);
         if (newExternalIps != null && externalIpsCache != null) {
-            Set<String> originalSubnetIds = Sets.newHashSet(externalIpsCache);
-            Set<String> updatedSubnetIds = Sets.newHashSet(newExternalIps);
-            Sets.SetView<String> removeExternalIp = Sets.difference(originalSubnetIds, updatedSubnetIds);
-            if (removeExternalIp.isEmpty()) {
+            Set<String> removedExternalIps = new HashSet<>(externalIpsCache);
+            removedExternalIps.removeAll(newExternalIps);
+            if (removedExternalIps.isEmpty()) {
                 LOG.debug("No external Ip needed to be removed in bestEffortDeletion method for router {}", routerName);
                 return;
             }
@@ -898,7 +897,7 @@ public class NaptSwitchHA {
                 return;
             }
             Long label;
-            for (String externalIp : removeExternalIp) {
+            for (String externalIp : removedExternalIps) {
                 if (externalIpLabel.containsKey(externalIp)) {
                     label = externalIpLabel.get(externalIp);
                     LOG.debug("Label {} for ExternalIp {} for router {}", label, externalIp, routerName);

@@ -11,8 +11,6 @@ import static org.opendaylight.controller.md.sal.common.api.data.LogicalDatastor
 import static org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType.OPERATIONAL;
 
 import com.google.common.base.Optional;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -332,7 +330,7 @@ public class HwvtepHAUtil {
      * @return ha Child ids
      */
     public static  List<NodeId> getChildNodeIdsFromManagerOtherConfig(Optional<Node> haGlobalConfigNodeOptional) {
-        List<NodeId> childNodeIds = Lists.newArrayList();
+        List<NodeId> childNodeIds = new ArrayList<>();
         if (!haGlobalConfigNodeOptional.isPresent()) {
             return childNodeIds;
         }
@@ -416,14 +414,15 @@ public class HwvtepHAUtil {
      */
     public static List<Managers> buildManagersForHANode(Node childNode, Optional<Node> haGlobalCfg) {
 
-        Set<NodeId> nodeIds = Sets.newHashSet(childNode.getNodeId());
+        Set<NodeId> nodeIds = new HashSet<>();
+        nodeIds.add(childNode.getNodeId());
         List<NodeId> childNodeIds = getChildNodeIdsFromManagerOtherConfig(haGlobalCfg);
         nodeIds.addAll(childNodeIds);
 
         ManagersBuilder builder1 = new ManagersBuilder();
 
         builder1.setKey(new ManagersKey(new Uri(MANAGER_KEY)));
-        List<ManagerOtherConfigs> otherConfigses = Lists.newArrayList();
+        List<ManagerOtherConfigs> otherConfigses = new ArrayList<>();
         StringBuffer stringBuffer = new StringBuffer();
         for (NodeId nodeId : nodeIds) {
             stringBuffer.append(nodeId.getValue());
@@ -434,7 +433,7 @@ public class HwvtepHAUtil {
 
         otherConfigses.add(getOtherConfigBuilder(HA_CHILDREN, children).build());
         builder1.setManagerOtherConfigs(otherConfigses);
-        List<Managers> managers = Lists.newArrayList();
+        List<Managers> managers = new ArrayList<>();
         managers.add(builder1.build());
         return managers;
     }

@@ -7,7 +7,7 @@
  */
 package org.opendaylight.netvirt.elan.l2gw.listeners;
 
-import com.google.common.collect.Lists;
+import java.util.Collections;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.hwvtep.HwvtepClusteredDataTreeChangeListener;
@@ -75,7 +75,7 @@ public class HwvtepLocalUcastMacListener extends
         elanL2GwDevice.removeUcastLocalMac(macRemoved);
 
         elanL2GatewayUtils.unInstallL2GwUcastMacFromElan(elan, elanL2GwDevice,
-                Lists.newArrayList(macRemoved.getMacEntryKey()));
+                Collections.singletonList(macRemoved.getMacEntryKey()));
     }
 
     @Override

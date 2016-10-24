@@ -8,8 +8,8 @@
 package org.opendaylight.netvirt.natservice.internal;
 
 import com.google.common.base.Optional;
-import com.google.common.collect.Lists;
 import java.math.BigInteger;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
@@ -302,7 +302,7 @@ public class InterfaceStateEventListener
     }
 
     private List<ProtocolTypes> getPortocolList() {
-        List<ProtocolTypes> protocollist = Lists.newArrayList();
+        List<ProtocolTypes> protocollist = new ArrayList<>();
         protocollist.add(ProtocolTypes.TCP);
         protocollist.add(ProtocolTypes.UDP);
         return protocollist;

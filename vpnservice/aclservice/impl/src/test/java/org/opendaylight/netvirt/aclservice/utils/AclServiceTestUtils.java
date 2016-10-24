@@ -8,14 +8,11 @@
 
 package org.opendaylight.netvirt.aclservice.utils;
 
-import static com.google.common.collect.Iterables.filter;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-
-import com.google.common.collect.Iterables;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -23,7 +20,6 @@ import java.util.List;
 import java.util.concurrent.ConcurrentMap;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
 import org.junit.Assert;
 import org.opendaylight.genius.mdsalutil.ActionInfo;
 import org.opendaylight.genius.mdsalutil.InstructionInfo;
@@ -92,9 +88,10 @@ public class AclServiceTestUtils {
     }
 
     public static void verifyMatchInfo(List<MatchInfoBase> flowMatches, NxMatchFieldType matchType, String... params) {
-        Iterable<MatchInfoBase> matches = filter(flowMatches,
-            item -> item instanceof NxMatchInfo && ((NxMatchInfo) item).getMatchField().equals(matchType));
-        assertFalse(Iterables.isEmpty(matches));
+        List<MatchInfoBase> matches = flowMatches.stream().filter(
+            item -> item instanceof NxMatchInfo && ((NxMatchInfo) item).getMatchField().equals(matchType)).collect(
+                Collectors.toList());
+        assertFalse(matches.isEmpty());
         for (MatchInfoBase baseMatch : matches) {
             verifyMatchValues((NxMatchInfo)baseMatch, params);
         }
@@ -118,15 +115,13 @@ public class AclServiceTestUtils {
 
     public static void verifyMatchFieldTypeDontExist(List<MatchInfoBase> flowMatches,
             Class<? extends MatchInfo> matchType) {
-        Iterable<MatchInfoBase> matches = filter(flowMatches,
-            item -> matchType.isAssignableFrom(item.getClass()));
-        Assert.assertTrue("unexpected match type " + matchType.getSimpleName(), Iterables.isEmpty(matches));
+        Assert.assertFalse("unexpected match type " + matchType.getSimpleName(), flowMatches.stream().anyMatch(
+            item -> matchType.isAssignableFrom(item.getClass())));
     }
 
     public static void verifyMatchFieldTypeDontExist(List<MatchInfoBase> flowMatches, NxMatchFieldType matchType) {
-        Iterable<MatchInfoBase> matches = filter(flowMatches,
-            item -> item instanceof NxMatchInfo && ((NxMatchInfo) item).getMatchField().equals(matchType));
-        Assert.assertTrue("unexpected match type " + matchType.name(), Iterables.isEmpty(matches));
+        Assert.assertFalse("unexpected match type " + matchType.name(), flowMatches.stream().anyMatch(
+            item -> item instanceof NxMatchInfo && ((NxMatchInfo) item).getMatchField().equals(matchType)));
     }
 
     public static void prepareAclDataUtil(AclDataUtil aclDataUtil, AclInterface inter, String... updatedAclNames) {

@@ -7,7 +7,7 @@
  */
 package org.opendaylight.netvirt.elan.l2gw.nodehandlertest;
 
-import com.google.common.collect.Lists;
+import java.util.ArrayList;
 import java.util.List;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.HwvtepGlobalAugmentation;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.HwvtepGlobalAugmentationBuilder;
@@ -31,7 +31,7 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 public class GlobalAugmentationHelper {
     public static void addLogicalSwitches(HwvtepGlobalAugmentationBuilder augmentationBuilder,
                                           List<String> logicalSwitchData) {
-        List<LogicalSwitches> logicalSwitches = Lists.newArrayList();
+        List<LogicalSwitches> logicalSwitches = new ArrayList<>();
         for (int i = 0; i < logicalSwitchData.size(); i += 2) {
             logicalSwitches.add(TestBuilders.buildLogicalSwitch(logicalSwitchData.get(i),
                     logicalSwitchData.get(i + 1)));
@@ -41,7 +41,7 @@ public class GlobalAugmentationHelper {
 
     public static Node updateLogicalSwitches(Node node, List<String> logicalSwitchData) {
         HwvtepGlobalAugmentationBuilder hwvtepGlobalAugmentationBuilder = new HwvtepGlobalAugmentationBuilder();
-        List<LogicalSwitches> logicalSwitches = Lists.newArrayList();
+        List<LogicalSwitches> logicalSwitches = new ArrayList<>();
         for (int i = 0; i < logicalSwitchData.size(); i += 2) {
             logicalSwitches.add(TestBuilders.buildLogicalSwitch(logicalSwitchData.get(i),
                     logicalSwitchData.get(i + 1)));
@@ -56,7 +56,7 @@ public class GlobalAugmentationHelper {
     public static void addLocalMcastMacs(InstanceIdentifier<Node> iid,
                                          HwvtepGlobalAugmentationBuilder augmentationBuilder,
                                          List<String> localMcastData) {
-        List<LocalMcastMacs> localMcastMacses = Lists.newArrayList();
+        List<LocalMcastMacs> localMcastMacses = new ArrayList<>();
         for (int i = 0; i < localMcastData.size(); i += 3) {
             localMcastMacses.add(TestBuilders.buildLocalMcastMacs(iid, localMcastData.get(i), localMcastData.get(i + 1),
                     localMcastData.get(i + 2)));
@@ -67,7 +67,7 @@ public class GlobalAugmentationHelper {
     public static void addRemoteMcastMacs(InstanceIdentifier<Node> iid,
                                           HwvtepGlobalAugmentationBuilder augmentationBuilder,
                                           List<String> remoteMcastData) {
-        List<RemoteMcastMacs> remoteMcastMacses = Lists.newArrayList();
+        List<RemoteMcastMacs> remoteMcastMacses = new ArrayList<>();
         for (int i = 0; i < remoteMcastData.size(); i += 4) {
             remoteMcastMacses.add(TestBuilders.buildRemoteMcastMacs(iid, remoteMcastData.get(i),
                     remoteMcastData.get(i + 1), new String[]{remoteMcastData.get(i + 2),
@@ -79,7 +79,7 @@ public class GlobalAugmentationHelper {
     public static void addLocalUcastMacs(InstanceIdentifier<Node> iid,
                                          HwvtepGlobalAugmentationBuilder augmentationBuilder,
                                          List<String> localUcastData) {
-        List<LocalUcastMacs> localUcastMacses = Lists.newArrayList();
+        List<LocalUcastMacs> localUcastMacses = new ArrayList<>();
         for (int i = 0; i < localUcastData.size(); i += 4) {
             localUcastMacses.add(TestBuilders.buildLocalUcastMacs(iid, localUcastData.get(i),
                     localUcastData.get(i + 1), localUcastData.get(i + 2), localUcastData.get(i + 3)));
@@ -90,7 +90,7 @@ public class GlobalAugmentationHelper {
     public static void addRemoteUcastMacs(InstanceIdentifier<Node> iid,
                                           HwvtepGlobalAugmentationBuilder augmentationBuilder,
                                           List<String> remoteUcastMacdata) {
-        List<RemoteUcastMacs> remoteUcastMacses = Lists.newArrayList();
+        List<RemoteUcastMacs> remoteUcastMacses = new ArrayList<>();
         for (int i = 0; i < remoteUcastMacdata.size(); i += 4) {
             remoteUcastMacses.add(TestBuilders.buildRemoteUcastMacs(iid, remoteUcastMacdata.get(i),
                     remoteUcastMacdata.get(i + 1),
@@ -102,7 +102,7 @@ public class GlobalAugmentationHelper {
     //physicallocators
     public static void addGlobalTerminationPoints(NodeBuilder nodeBuilder, InstanceIdentifier<Node> nodeIid,
                                                   List<String> globalTerminationPointIp) {
-        List<TerminationPoint> terminationPoints = Lists.newArrayList();
+        List<TerminationPoint> terminationPoints = new ArrayList<>();
         for (int i = 0; i < globalTerminationPointIp.size(); i++) {
             terminationPoints.add(TestBuilders.buildTerminationPoint(nodeIid, globalTerminationPointIp.get(i)));
         }
@@ -110,7 +110,7 @@ public class GlobalAugmentationHelper {
     }
 
     public static void addSwitches(HwvtepGlobalAugmentationBuilder augmentationBuilder, InstanceIdentifier<Node> psId) {
-        List<Switches> switches = Lists.newArrayList();
+        List<Switches> switches = new ArrayList<>();
 
         SwitchesBuilder switchesBuilder = new SwitchesBuilder();
         switchesBuilder.setKey(new SwitchesKey(new HwvtepPhysicalSwitchRef(psId)));

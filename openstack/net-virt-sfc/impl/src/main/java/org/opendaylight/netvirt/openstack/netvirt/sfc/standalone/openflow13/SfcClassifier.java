@@ -8,7 +8,6 @@
 
 package org.opendaylight.netvirt.openstack.netvirt.sfc.standalone.openflow13;
 
-import com.google.common.collect.Lists;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
@@ -94,7 +93,7 @@ public class SfcClassifier {
             ib.setInstruction(new ApplyActionsCaseBuilder().setApplyActions(aab.build()).build());
             ib.setOrder(0);
             ib.setKey(new InstructionKey(0));
-            List<Instruction> instructions = Lists.newArrayList();
+            List<Instruction> instructions = new ArrayList<>();
             instructions.add(ib.build());
 
             InstructionsBuilder isb = new InstructionsBuilder();
@@ -179,7 +178,7 @@ public class SfcClassifier {
                 ActionUtils.nxLoadTunIPv4Action(header.getNshTunIpDst().getValue(), false);
 
         int count = 0;
-        List<Action> actionList = Lists.newArrayList();
+        List<Action> actionList = new ArrayList<>();
         actionList.add(new ActionBuilder().setOrder(count++).setAction(pushNsh).build());
         actionList.add(new ActionBuilder().setOrder(count++).setAction(nshMdtypeLoad).build());
         actionList.add(new ActionBuilder().setOrder(count++).setAction(nshNpLoad).build());
@@ -206,7 +205,7 @@ public class SfcClassifier {
         if (write) {
             InstructionBuilder ib = new InstructionBuilder();
             InstructionsBuilder isb = new InstructionsBuilder();
-            List<Instruction> instructions = Lists.newArrayList();
+            List<Instruction> instructions = new ArrayList<>();
 
             InstructionUtils.createSetTunnelIdInstructions(ib, new BigInteger(segmentationId));
             ApplyActionsCase aac = (ApplyActionsCase) ib.getInstruction();

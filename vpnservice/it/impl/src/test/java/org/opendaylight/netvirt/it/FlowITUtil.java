@@ -10,7 +10,7 @@ package org.opendaylight.netvirt.it;
 import static org.junit.Assert.assertNotNull;
 
 import com.google.common.base.Optional;
-import com.google.common.collect.Lists;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.ExecutionException;
@@ -327,7 +327,7 @@ public class FlowITUtil {
         }
 
         MatchAugmentationIterator it = new MatchAugmentationIterator(m1);
-        List<AllMatchesGrouping> side1Matches = Lists.newArrayList();
+        List<AllMatchesGrouping> side1Matches = new ArrayList<>();
         AllMatchesGrouping aug;
         while (null != (aug = it.next())) {
             side1Matches.add(aug);

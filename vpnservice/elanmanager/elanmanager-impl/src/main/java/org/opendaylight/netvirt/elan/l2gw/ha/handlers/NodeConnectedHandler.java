@@ -11,7 +11,7 @@ import static org.opendaylight.controller.md.sal.common.api.data.LogicalDatastor
 import static org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType.OPERATIONAL;
 
 import com.google.common.base.Optional;
-import com.google.common.collect.Sets;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
@@ -201,7 +201,7 @@ public class NodeConnectedHandler {
         HwvtepGlobalAugmentationBuilder dstBuilder = new HwvtepGlobalAugmentationBuilder();
 
         NodeId nodeId = srcNode.getNodeId();
-        Set<NodeId> nodeIds = Sets.newHashSet();
+        Set<NodeId> nodeIds = new HashSet<>();
         nodeIds.add(nodeId);
 
         globalAugmentationMerger.mergeConfigData(dstBuilder, src, childPath);
