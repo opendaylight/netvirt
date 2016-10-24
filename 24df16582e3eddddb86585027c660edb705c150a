@@ -16,6 +16,75 @@
       "revId": "24df16582e3eddddb86585027c660edb705c150a",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5a682502_fb9227f5",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/StatefulIngressAclServiceImpl.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 90,
+      "author": {
+        "id": 4540
+      },
+      "writtenOn": "2016-10-24T08:10:32Z",
+      "side": 1,
+      "message": "Regarding using Optional here, I\u0027m somewhat torn. It\u0027s nice to avoid all potential null values using Optional on the one hand, but on the other, Optional is really a functional construct, and I like to think of it in the same vein as Java 8\u0027s streaming APIs; .isPresent() and .get() are rather unfortunate in that context (and the API\u0027s author regrets including them). From my point of view a wholesale switch to Optional only really makes sense if we re-write the affected code in a more functional style, but that only works with the Java 8 Optional, not Guava\u0027s.",
+      "parentUuid": "5a682502_db4acbab",
+      "revId": "24df16582e3eddddb86585027c660edb705c150a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5a682502_db8f6bcb",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/listeners/AclInterfaceStateListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 127,
+      "author": {
+        "id": 4540
+      },
+      "writtenOn": "2016-10-24T08:10:32Z",
+      "side": 1,
+      "message": "Don\u0027t we need an .isPresent() check first?",
+      "revId": "24df16582e3eddddb86585027c660edb705c150a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5a682502_1bc1e3e4",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/utils/AclServiceOFFlowBuilder.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 47,
+      "author": {
+        "id": 4540
+      },
+      "writtenOn": "2016-10-24T08:10:32Z",
+      "side": 1,
+      "message": "Urgh, not your fault, but a null-check in a switch-style construct...",
+      "revId": "24df16582e3eddddb86585027c660edb705c150a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5a682502_7bb6178c",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/utils/AclServiceUtils.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 622,
+      "author": {
+        "id": 4540
+      },
+      "writtenOn": "2016-10-24T08:10:32Z",
+      "side": 1,
+      "message": "Why not Optional here?",
+      "revId": "24df16582e3eddddb86585027c660edb705c150a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
