@@ -8,17 +8,15 @@
 
 package org.opendaylight.netvirt.openstack.netvirt;
 
+import java.util.LinkedList;
+import java.util.Queue;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 import org.opendaylight.netvirt.openstack.netvirt.api.Constants;
 
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-
-import java.util.Queue;
-import java.util.concurrent.ConcurrentMap;
-
 public class NodeConfiguration {
-    private java.util.Queue<Integer> internalVlans = Lists.newLinkedList();
-    private ConcurrentMap<String, Integer> tenantVlanMap = Maps.newConcurrentMap();
+    private java.util.Queue<Integer> internalVlans = new LinkedList<>();
+    private ConcurrentMap<String, Integer> tenantVlanMap = new ConcurrentHashMap<>();
 
     public NodeConfiguration() {
         for (int i = 1; i < Constants.MAX_VLAN; i++) {

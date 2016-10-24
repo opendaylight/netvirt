@@ -8,9 +8,11 @@
 
 package org.opendaylight.netvirt.openstack.netvirt.providers.openflow13;
 
+import com.google.common.base.Optional;
+import com.google.common.util.concurrent.CheckedFuture;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
-
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
@@ -42,10 +44,6 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.osgi.framework.ServiceReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.google.common.base.Optional;
-import com.google.common.collect.Lists;
-import com.google.common.util.concurrent.CheckedFuture;
 
 /**
  * Any ServiceInstance class that extends AbstractServiceInstance to be a part of the pipeline
@@ -253,7 +251,7 @@ public abstract class AbstractServiceInstance {
         InstructionsBuilder isb = new InstructionsBuilder();
 
         // Instructions List Stores Individual Instructions
-        List<Instruction> instructions = Lists.newArrayList();
+        List<Instruction> instructions = new ArrayList<>();
 
         // Call the InstructionBuilder Methods Containing Actions
         InstructionBuilder ib = this.getMutablePipelineInstructionBuilder();

@@ -15,9 +15,7 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.HashMap;
 import java.util.Map;
-
 import org.opendaylight.netvirt.openstack.netvirt.api.Constants;
 import org.opendaylight.netvirt.openstack.netvirt.api.EgressAclProvider;
 import org.opendaylight.netvirt.openstack.netvirt.api.LearnConstants;
@@ -54,8 +52,6 @@ import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.google.common.collect.Lists;
 
 public class EgressAclService extends AbstractServiceInstance implements EgressAclProvider, ConfigInterface {
 
@@ -1090,7 +1086,7 @@ public class EgressAclService extends AbstractServiceInstance implements EgressA
 
             instructionBuilder = InstructionUtils
                     .createInstructionBuilder(ActionUtils.conntrackActionBuilder(conntrackAction), 1, false);
-            List<Instruction> instructionsList = Lists.newArrayList();
+            List<Instruction> instructionsList = new ArrayList<>();
             instructionsList.add(instructionBuilder.build());
             InstructionsBuilder isb = new InstructionsBuilder();
             isb.setInstruction(instructionsList);
@@ -1102,7 +1098,7 @@ public class EgressAclService extends AbstractServiceInstance implements EgressA
     private FlowBuilder addPipelineInstruction( FlowBuilder flowBuilder ,
                                                 InstructionBuilder instructionBuilder,boolean isDrop) {
         InstructionBuilder pipeLineIndstructionBuilder = createPipleLineInstructionBuilder(isDrop);
-        List<Instruction> instructionsList = Lists.newArrayList();
+        List<Instruction> instructionsList = new ArrayList<>();
         instructionsList.add(pipeLineIndstructionBuilder.build());
         if (null != instructionBuilder) {
             instructionsList.add(instructionBuilder.build());
@@ -1119,7 +1115,7 @@ public class EgressAclService extends AbstractServiceInstance implements EgressA
             InstructionUtils.createDropInstructions(ib);
         }
         ib.setOrder(0);
-        List<Instruction> instructionsList = Lists.newArrayList();
+        List<Instruction> instructionsList = new ArrayList<>();
         ib.setKey(new InstructionKey(0));
         instructionsList.add(ib.build());
         return ib;
