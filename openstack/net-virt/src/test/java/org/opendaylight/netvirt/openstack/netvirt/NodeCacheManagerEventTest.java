@@ -44,6 +44,6 @@ public class NodeCacheManagerEventTest {
     @Test
     public void testEquals() {
         assertTrue("Error, the two object should be equal", nodeCacheManagerEvent.equals(nodeCacheManagerEvent));
-        assertFalse("Error, the two object should not be equal", nodeCacheManagerEvent.equals(new String("dummy")));
+        assertFalse("Error, the two object should not be equal", nodeCacheManagerEvent.equals("dummy"));
     }
 }
