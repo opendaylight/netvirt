@@ -44,13 +44,12 @@ import org.slf4j.LoggerFactory;
  */
 public class StatefulEgressAclServiceImpl extends AbstractEgressAclServiceImpl {
 
+    private static final Logger LOG = LoggerFactory.getLogger(StatefulEgressAclServiceImpl.class);
+
     public StatefulEgressAclServiceImpl(DataBroker dataBroker, IMdsalApiManager mdsalManager, AclDataUtil aclDataUtil,
             AclServiceUtils aclServiceUtils) {
         super(dataBroker, mdsalManager, aclDataUtil, aclServiceUtils);
     }
-
-    private static final Logger LOG = LoggerFactory.getLogger(StatefulEgressAclServiceImpl.class);
-
 
     /**
      * Program conntrack rules.
@@ -68,8 +67,8 @@ public class StatefulEgressAclServiceImpl extends AbstractEgressAclServiceImpl {
     }
 
     @Override
-    protected String syncSpecificAclFlow(BigInteger dpId, int lportTag, int addOrRemove, Ace ace, String portId,
-            Map<String, List<MatchInfoBase>> flowMap, String flowName) {
+    protected String syncSpecificAclFlow(BigInteger dpId, int lportTag, int addOrRemove, int priority, Ace ace,
+            String portId, Map<String, List<MatchInfoBase>> flowMap, String flowName) {
         List<MatchInfoBase> flows = flowMap.get(flowName);
         flowName += "Egress" + lportTag + ace.getKey().getRuleName();
         flows.add(AclServiceUtils.buildLPortTagMatch(lportTag));
@@ -82,8 +81,8 @@ public class StatefulEgressAclServiceImpl extends AbstractEgressAclServiceImpl {
             new String[] {"1", "0", elanId.toString(), "255"}, 2));
         List<InstructionInfo> instructions = getDispatcherTableResubmitInstructions(actionsInfos);
 
-        syncFlow(dpId, NwConstants.INGRESS_ACL_FILTER_TABLE, flowName, AclConstants.PROTO_MATCH_PRIORITY,
-            "ACL", 0, 0, AclConstants.COOKIE_ACL_BASE, flows, instructions, addOrRemove);
+        syncFlow(dpId, NwConstants.INGRESS_ACL_FILTER_TABLE, flowName, priority, "ACL", 0, 0,
+                AclConstants.COOKIE_ACL_BASE, flows, instructions, addOrRemove);
         return flowName;
     }
 
