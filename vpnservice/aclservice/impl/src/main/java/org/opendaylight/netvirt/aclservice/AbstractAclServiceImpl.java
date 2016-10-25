@@ -10,6 +10,8 @@ package org.opendaylight.netvirt.aclservice;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
@@ -154,18 +156,21 @@ public abstract class AbstractAclServiceImpl implements AclServiceListener {
             return;
         }
         for (Uuid remoteAclId : aclUuidList) {
-            Set<AclInterface> portSet = aclDataUtil.getRemoteAclInterfaces(remoteAclId);
-            if (portSet == null) {
+            Map<Uuid, Set<AclInterface>> mapAclWithPortSet = aclDataUtil.getRemoteAclInterfaces(remoteAclId);
+            if (mapAclWithPortSet == null) {
                 continue;
             }
-            for (AclInterface port : portSet) {
-                if (currentPortId.equals(port.getInterfaceId())) {
-                    continue;
-                }
-                List<Ace> remoteAceList = AclServiceUtils.getAceWithRemoteAclId(dataBroker, port, remoteAclId);
-                for (Ace ace : remoteAceList) {
-                    programAceRule(port.getDpId(), port.getLPortTag(), action, ace, port.getInterfaceId(),
-                            syncAllowedAddresses);
+            for (Entry<Uuid, Set<AclInterface>> entry : mapAclWithPortSet.entrySet()) {
+                String aclName = entry.getKey().getValue();
+                for (AclInterface port : entry.getValue()) {
+                    if (currentPortId.equals(port.getInterfaceId())) {
+                        continue;
+                    }
+                    List<Ace> remoteAceList = AclServiceUtils.getAceWithRemoteAclId(dataBroker, port, remoteAclId);
+                    for (Ace ace : remoteAceList) {
+                        programAceRule(port.getDpId(), port.getLPortTag(), action, aclName, ace, port.getInterfaceId(),
+                                syncAllowedAddresses);
+                    }
                 }
             }
         }
@@ -198,22 +203,22 @@ public abstract class AbstractAclServiceImpl implements AclServiceListener {
     }
 
     @Override
-    public boolean applyAce(AclInterface port, Ace ace) {
+    public boolean applyAce(AclInterface port, String aclName, Ace ace) {
         if (!port.isPortSecurityEnabled()) {
             return false;
         }
-        programAceRule(port.getDpId(), port.getLPortTag(), NwConstants.ADD_FLOW, ace,
-                port.getInterfaceId(), null);
+        programAceRule(port.getDpId(), port.getLPortTag(), NwConstants.ADD_FLOW, aclName, ace, port.getInterfaceId(),
+                null);
         return true;
     }
 
     @Override
-    public boolean removeAce(AclInterface port, Ace ace) {
+    public boolean removeAce(AclInterface port, String aclName, Ace ace) {
         if (!port.isPortSecurityEnabled()) {
             return false;
         }
-        programAceRule(port.getDpId(), port.getLPortTag(), NwConstants.DEL_FLOW, ace,
-                port.getInterfaceId(), null);
+        programAceRule(port.getDpId(), port.getLPortTag(), NwConstants.DEL_FLOW, aclName, ace, port.getInterfaceId(),
+                null);
         return true;
     }
 
@@ -279,12 +284,13 @@ public abstract class AbstractAclServiceImpl implements AclServiceListener {
      * @param dpId the dpId
      * @param lportTag the lport tag
      * @param addOrRemove whether to delete or add flow
+     * @param aclName the acl name
      * @param ace rule to be program
      * @param portId the port id
      * @param syncAllowedAddresses the allowed addresses
      */
-    protected abstract void programAceRule(BigInteger dpId, int lportTag, int addOrRemove, Ace ace, String portId,
-                                           List<AllowedAddressPairs> syncAllowedAddresses);
+    protected abstract void programAceRule(BigInteger dpId, int lportTag, int addOrRemove, String aclName, Ace ace,
+            String portId, List<AllowedAddressPairs> syncAllowedAddresses);
 
     /**
      * Writes/remove the flow to/from the datastore.

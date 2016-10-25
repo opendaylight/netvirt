@@ -39,7 +39,7 @@ public final class AclConstants {
     public static final Integer CT_STATE_UNTRACKED_PRIORITY = 62030;
     public static final Integer CT_STATE_TRACKED_EXIST_PRIORITY = 62020;
     public static final Integer CT_STATE_TRACKED_NEW_PRIORITY = 62010;
-    public static final Integer CT_STATE_NEW_PRIORITY_DROP = 36007;
+    public static final Integer CT_STATE_NEW_PRIORITY_DROP = 50;
     public static final short DHCP_CLIENT_PORT_IPV4 = 68;
     public static final short DHCP_SERVER_PORT_IPV4 = 67;
     public static final short DHCP_CLIENT_PORT_IPV6 = 546;
@@ -84,6 +84,10 @@ public final class AclConstants {
     public static final String SECURITY_GROUP_UDP_HARD_TO_KEY = "security-group-udp-hard-timeout";
 
     public static final String LEARN_MATCH_REG_VALUE = "1";
+
+    public static final String ACL_FLOW_PRIORITY_POOL_NAME = "acl.flow.priorities.pool";
+    public static final long ACL_FLOW_PRIORITY_POOL_START = 1000L;
+    public static final long ACL_FLOW_PRIORITY_POOL_END = 60000L;
 
     private AclConstants() {
     }
