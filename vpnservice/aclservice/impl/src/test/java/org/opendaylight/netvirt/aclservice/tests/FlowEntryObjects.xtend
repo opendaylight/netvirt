@@ -596,44 +596,6 @@ class FlowEntryObjects {
             ],
             new FlowEntity(123bi) => [
                 cookie = 110100480bi
-                flowId = "Egress_ICMPv6_ALL123_987_Permit_"
-                flowName = "ACL"
-                instructionInfoList = #[
-                    new InstructionInfo(InstructionType.apply_actions, #[
-                        new ActionInfoBuilder >> [
-                            actionType = ActionType.nx_resubmit
-                            actionValues = #[
-                                "17"
-                            ]
-                        ]
-                    ])
-                ]
-                matchInfoList = #[
-                    new MatchInfoBuilder >> [
-                        matchField = MatchFieldType.eth_type
-                        matchValues = #[
-                            34525L
-                        ]
-                    ],
-                    new MatchInfoBuilder >> [
-                        matchField = MatchFieldType.ip_proto
-                        matchValues = #[
-                            58L
-                        ]
-                    ],
-                    new MatchInfoBuilder >> [
-                        bigMatchValues = #[
-                            1085217976614912bi,
-                            MetaDataUtil.METADATA_MASK_LPORT_TAG
-                        ]
-                        matchField = MatchFieldType.metadata
-                    ]
-                ]
-                priority = 63010
-                tableId = 40 as short
-            ],
-            new FlowEntity(123bi) => [
-                cookie = 110100480bi
                 flowId = "Egress_ICMPv6_123_987_134_Drop_"
                 flowName = "ACL"
                 instructionInfoList = #[
@@ -1392,44 +1354,6 @@ class FlowEntryObjects {
                         matchField = MatchFieldType.udp_src
                         matchValues = #[
                             547L
-                        ]
-                    ],
-                    new MatchInfoBuilder >> [
-                        bigMatchValues = #[
-                            1085217976614912bi,
-                            MetaDataUtil.METADATA_MASK_LPORT_TAG
-                        ]
-                        matchField = MatchFieldType.metadata
-                    ]
-                ]
-                priority = 63010
-                tableId = 40 as short
-            ],
-            new FlowEntity(123bi) => [
-                cookie = 110100480bi
-                flowId = "Egress_ICMPv6_ALL123_987_Permit_"
-                flowName = "ACL"
-                instructionInfoList = #[
-                    new InstructionInfo(InstructionType.apply_actions, #[
-                        new ActionInfoBuilder >> [
-                            actionType = ActionType.nx_resubmit
-                            actionValues = #[
-                                "17"
-                            ]
-                        ]
-                    ])
-                ]
-                matchInfoList = #[
-                    new MatchInfoBuilder >> [
-                        matchField = MatchFieldType.eth_type
-                        matchValues = #[
-                            34525L
-                        ]
-                    ],
-                    new MatchInfoBuilder >> [
-                        matchField = MatchFieldType.ip_proto
-                        matchValues = #[
-                            58L
                         ]
                     ],
                     new MatchInfoBuilder >> [
@@ -3830,44 +3754,6 @@ class FlowEntryObjects {
                         matchField = MatchFieldType.udp_src
                         matchValues = #[
                             547L
-                        ]
-                    ],
-                    new MatchInfoBuilder >> [
-                        bigMatchValues = #[
-                            1085217976614912bi,
-                            MetaDataUtil.METADATA_MASK_LPORT_TAG
-                        ]
-                        matchField = MatchFieldType.metadata
-                    ]
-                ]
-                priority = 63010
-                tableId = 40 as short
-            ],
-            new FlowEntity(123bi) => [
-                cookie = 110100480bi
-                flowId = "Egress_ICMPv6_ALL123_987_Permit_"
-                flowName = "ACL"
-                instructionInfoList = #[
-                    new InstructionInfo(InstructionType.apply_actions, #[
-                        new ActionInfoBuilder >> [
-                            actionType = ActionType.nx_resubmit
-                            actionValues = #[
-                                "17"
-                            ]
-                        ]
-                    ])
-                ]
-                matchInfoList = #[
-                    new MatchInfoBuilder >> [
-                        matchField = MatchFieldType.eth_type
-                        matchValues = #[
-                            34525L
-                        ]
-                    ],
-                    new MatchInfoBuilder >> [
-                        matchField = MatchFieldType.ip_proto
-                        matchValues = #[
-                            58L
                         ]
                     ],
                     new MatchInfoBuilder >> [
