@@ -86,17 +86,14 @@ public class TunnelEndPointChangeListener
                 for (VpnInterfaces vpnInterface : vpnInterfaces) {
                     String vpnInterfaceName = vpnInterface.getInterfaceName();
                     dataStoreCoordinator.enqueueJob("VPNINTERFACE-" + vpnInterfaceName,
-                            new Callable<List<ListenableFuture<Void>>>() {
-                                @Override
-                                public List<ListenableFuture<Void>> call() throws Exception {
-                                    LOG.trace("Handling TEP {} add for VPN instance {} VPN interface {}",
-                                            tep.getInterfaceName(), vpnName, vpnInterfaceName);
-                                    WriteTransaction writeConfigTxn = broker.newWriteOnlyTransaction();
-                                    WriteTransaction writeOperTxn = broker.newWriteOnlyTransaction();
-                                    vpnInterfaceManager.processVpnInterfaceAdjacencies(dpnId, vpnName, vpnInterfaceName,
-                                            writeConfigTxn, writeOperTxn);
-                                    return Arrays.asList(writeOperTxn.submit(), writeConfigTxn.submit());
-                                }
+                            () -> {
+                                LOG.trace("Handling TEP {} add for VPN instance {} VPN interface {}",
+                                        tep.getInterfaceName(), vpnName, vpnInterfaceName);
+                                WriteTransaction writeConfigTxn = broker.newWriteOnlyTransaction();
+                                WriteTransaction writeOperTxn = broker.newWriteOnlyTransaction();
+                                vpnInterfaceManager.processVpnInterfaceAdjacencies(dpnId, vpnName, vpnInterfaceName,
+                                        writeConfigTxn, writeOperTxn);
+                                return Arrays.asList(writeOperTxn.submit(), writeConfigTxn.submit());
                             });
                 }
             }
