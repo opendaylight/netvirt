@@ -657,7 +657,7 @@ public class NaptSwitchHA {
     public FlowEntity buildSnatFlowEntity(BigInteger dpId, String routerName, long groupId, long routerVpnId, int addordel) {
 
         FlowEntity flowEntity;
-        List<MatchInfo> matches = new ArrayList<MatchInfo>();
+        List<MatchInfo> matches = new ArrayList<>();
         matches.add(new MatchInfo(MatchFieldType.eth_type,
                 new long[]{ 0x0800L }));
         matches.add(new MatchInfo(MatchFieldType.metadata, new BigInteger[] {
@@ -666,8 +666,8 @@ public class NaptSwitchHA {
         String flowRef = getFlowRefSnat(dpId, NwConstants.PSNAT_TABLE, routerName);
 
         if (addordel == NatConstants.ADD_FLOW) {
-            List<InstructionInfo> instructions = new ArrayList<InstructionInfo>();
-            List<ActionInfo> actionsInfo = new ArrayList<ActionInfo>();
+            List<InstructionInfo> instructions = new ArrayList<>();
+            List<ActionInfo> actionsInfo = new ArrayList<>();
 
             ActionInfo actionSetField = new ActionInfo(ActionType.set_field_tunnel_id, new BigInteger[] {
                     BigInteger.valueOf(routerVpnId)}) ;

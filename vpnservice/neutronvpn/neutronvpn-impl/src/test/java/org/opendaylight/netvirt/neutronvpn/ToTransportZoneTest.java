@@ -278,7 +278,7 @@ public class ToTransportZoneTest {
     private RouterDpnList buildRouterDpnList() {
         RouterDpnListBuilder routerDpnBuilder = new RouterDpnListBuilder();
         routerDpnBuilder.setRouterId(ROUTER_ID);
-        List<DpnVpninterfacesList> list = new ArrayList<DpnVpninterfacesList>();
+        List<DpnVpninterfacesList> list = new ArrayList<>();
         list.add(new DpnVpninterfacesListBuilder().setDpnId(BigInteger.valueOf(DPN_ID)).build());
         list.add(new DpnVpninterfacesListBuilder().setDpnId(DPN_ID_2).build());
         routerDpnBuilder.setDpnVpninterfacesList(list);
@@ -296,7 +296,7 @@ public class ToTransportZoneTest {
     private List<Subnets> buildSubnets() {
         List<Subnets> subnets = new ArrayList<>();
         SubnetsBuilder subnetsBuilder = new SubnetsBuilder();
-        List<Vteps> vteps = new ArrayList<Vteps>();
+        List<Vteps> vteps = new ArrayList<>();
         
         vteps.add(buildVtep(DPN_ID_2, OVS_IP_2, VTEP_PORT));
         subnetsBuilder.setVteps(vteps);

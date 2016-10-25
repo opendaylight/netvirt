@@ -321,7 +321,7 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
                     if (null != portId) {
                         List<Uuid> portList = builder.getPortList();
                         if (null == portList) {
-                            portList = new ArrayList<Uuid>();
+                            portList = new ArrayList<>();
                         }
                         portList.add(portId);
                         builder.setPortList(portList);
@@ -331,7 +331,7 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
                     if (null != directPortId) {
                         List<Uuid> directPortList = builder.getDirectPortList();
                         if (null == directPortList) {
-                            directPortList = new ArrayList<Uuid>();
+                            directPortList = new ArrayList<>();
                         }
                         directPortList.add(directPortId);
                         builder.setDirectPortList(directPortList);
