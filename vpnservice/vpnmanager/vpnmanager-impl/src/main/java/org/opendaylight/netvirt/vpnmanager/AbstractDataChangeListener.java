@@ -45,16 +45,16 @@ public abstract class AbstractDataChangeListener<T extends DataObject> implement
 
         /* All DataObjects for create */
         final Map<InstanceIdentifier<?>, DataObject> createdData = changeEvent.getCreatedData() != null
-                ? changeEvent.getCreatedData() : Collections.<InstanceIdentifier<?>, DataObject>emptyMap();
+                ? changeEvent.getCreatedData() : Collections.emptyMap();
         /* All DataObjects for remove */
         final Set<InstanceIdentifier<?>> removeData = changeEvent.getRemovedPaths() != null
-                ? changeEvent.getRemovedPaths() : Collections.<InstanceIdentifier<?>>emptySet();
+                ? changeEvent.getRemovedPaths() : Collections.emptySet();
         /* All DataObjects for updates */
         final Map<InstanceIdentifier<?>, DataObject> updateData = changeEvent.getUpdatedData() != null
-                ? changeEvent.getUpdatedData() : Collections.<InstanceIdentifier<?>, DataObject>emptyMap();
+                ? changeEvent.getUpdatedData() : Collections.emptyMap();
         /* All Original DataObjects */
         final Map<InstanceIdentifier<?>, DataObject> originalData = changeEvent.getOriginalData() != null
-                ? changeEvent.getOriginalData() : Collections.<InstanceIdentifier<?>, DataObject>emptyMap();
+                ? changeEvent.getOriginalData() : Collections.emptyMap();
 
         this.createData(createdData);
         this.updateData(updateData, originalData);
@@ -68,7 +68,7 @@ public abstract class AbstractDataChangeListener<T extends DataObject> implement
     @SuppressWarnings("unchecked")
     private void createData(final Map<InstanceIdentifier<?>, DataObject> createdData) {
         final Set<InstanceIdentifier<?>> keys = createdData.keySet() != null
-                ? createdData.keySet() : Collections.<InstanceIdentifier<?>>emptySet();
+                ? createdData.keySet() : Collections.emptySet();
         for (InstanceIdentifier<?> key : keys) {
             if (clazz.equals(key.getTargetType())) {
                 InstanceIdentifier<T> createKeyIdent = key.firstIdentifierOf(clazz);
@@ -85,7 +85,7 @@ public abstract class AbstractDataChangeListener<T extends DataObject> implement
             final Map<InstanceIdentifier<?>, DataObject> originalData) {
 
         final Set<InstanceIdentifier<?>> keys = updateData.keySet() != null
-                ? updateData.keySet() : Collections.<InstanceIdentifier<?>>emptySet();
+                ? updateData.keySet() : Collections.emptySet();
         for (InstanceIdentifier<?> key : keys) {
             if (clazz.equals(key.getTargetType())) {
                 InstanceIdentifier<T> updateKeyIdent = key.firstIdentifierOf(clazz);

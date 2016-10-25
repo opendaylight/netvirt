@@ -396,7 +396,7 @@ public class VpnServiceChainUtils {
         Optional<VpnToPseudoPortData> lportTagOpc = MDSALUtil.read(broker, LogicalDatastoreType.CONFIGURATION, path);
 
         return lportTagOpc.isPresent() ? Optional.fromNullable(lportTagOpc.get().getVpnLportTag())
-                                       : Optional.<Long>absent();
+                                       : Optional.absent();
     }
 
     /**

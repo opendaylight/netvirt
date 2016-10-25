@@ -294,7 +294,7 @@ public class InterVpnLinkCache {
     public static Optional<InterVpnLinkDataComposite> getInterVpnLinkByName(String iVpnLinkName) {
         ConcurrentHashMap<String, InterVpnLinkDataComposite> cache =
             (ConcurrentHashMap<String, InterVpnLinkDataComposite>) CacheUtil.getCache(IVPNLINK_NAME_2_IVPNLINK_CACHE_NAME);
-        return (cache == null) ? Optional.<InterVpnLinkDataComposite>absent()
+        return (cache == null) ? Optional.absent()
                                : Optional.fromNullable(cache.get(iVpnLinkName));
     }
 
@@ -302,20 +302,20 @@ public class InterVpnLinkCache {
         LOG.trace("Checking if {} is configured as an InterVpnLink endpoint", endpointIp);
         ConcurrentHashMap<String, InterVpnLinkDataComposite> cache =
             (ConcurrentHashMap<String, InterVpnLinkDataComposite>) CacheUtil.getCache(ENDPOINT_2_IVPNLINK_CACHE_NAME);
-        return (cache == null) ? Optional.<InterVpnLinkDataComposite>absent()
+        return (cache == null) ? Optional.absent()
                                : Optional.fromNullable(cache.get(endpointIp));
     }
 
     public static Optional<InterVpnLinkDataComposite> getInterVpnLinkByVpnId(String vpnId) {
         ConcurrentHashMap<String, InterVpnLinkDataComposite> cache =
             (ConcurrentHashMap<String, InterVpnLinkDataComposite>) CacheUtil.getCache(UUID_2_IVPNLINK_CACHE_NAME);
-        return (cache == null) ? Optional.<InterVpnLinkDataComposite>absent() : Optional.fromNullable(cache.get(vpnId));
+        return (cache == null) ? Optional.absent() : Optional.fromNullable(cache.get(vpnId));
     }
 
     public static List<InterVpnLinkDataComposite> getAllInterVpnLinks() {
         ConcurrentHashMap<String, InterVpnLinkDataComposite> cache =
             (ConcurrentHashMap<String, InterVpnLinkDataComposite>) CacheUtil.getCache(UUID_2_IVPNLINK_CACHE_NAME);
-        return (cache == null) ? Collections.<InterVpnLinkDataComposite>emptyList()
+        return (cache == null) ? Collections.emptyList()
                                : Collections.list(cache.elements());
     }
 

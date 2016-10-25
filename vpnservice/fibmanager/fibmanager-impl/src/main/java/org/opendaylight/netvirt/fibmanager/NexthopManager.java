@@ -212,7 +212,7 @@ public class NexthopManager implements AutoCloseable {
     }
 
     protected List<ActionInfo> getEgressActionsForInterface(String ifName) {
-        List<ActionInfo> listActionInfo = new ArrayList<ActionInfo>();
+        List<ActionInfo> listActionInfo = new ArrayList<>();
         try {
             Future<RpcResult<GetEgressActionsForInterfaceOutput>> result =
                     interfaceManager.getEgressActionsForInterface(
@@ -318,7 +318,7 @@ public class NexthopManager implements AutoCloseable {
                 if (macAddress == null ) {
                     macAddress = FibUtil.getMacAddressFromPrefix(dataBroker, ifName, ipAddress);
                 }
-                List<BucketInfo> listBucketInfo = new ArrayList<BucketInfo>();
+                List<BucketInfo> listBucketInfo = new ArrayList<>();
                 List<ActionInfo> listActionInfo = new ArrayList<>();
                 // MAC re-write
                 if (macAddress != null) {
