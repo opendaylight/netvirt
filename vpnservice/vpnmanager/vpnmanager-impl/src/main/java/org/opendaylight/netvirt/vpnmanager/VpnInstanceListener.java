@@ -62,7 +62,7 @@ public class VpnInstanceListener extends AsyncDataTreeChangeListenerBase<VpnInst
     private final VpnInterfaceManager vpnInterfaceManager;
     private final IFibManager fibManager;
     private ExecutorService executorService = Executors.newSingleThreadExecutor();
-    private ConcurrentMap<String, Runnable> vpnOpMap = new ConcurrentHashMap<String, Runnable>();
+    private ConcurrentMap<String, Runnable> vpnOpMap = new ConcurrentHashMap<>();
 
     public VpnInstanceListener(final DataBroker dataBroker, final IBgpManager bgpManager,
                                final IdManagerService idManager,
@@ -474,8 +474,8 @@ public class VpnInstanceListener extends AsyncDataTreeChangeListenerBase<VpnInst
             if (rd != null) {
                 List<VpnTarget> vpnTargetList = config.getVpnTargets().getVpnTarget();
 
-                List<String> ertList = new ArrayList<String>();
-                List<String> irtList = new ArrayList<String>();
+                List<String> ertList = new ArrayList<>();
+                List<String> irtList = new ArrayList<>();
 
                 for (VpnTarget vpnTarget : vpnTargetList) {
                     if (vpnTarget.getVrfRTType() == VpnTarget.VrfRTType.ExportExtcommunity) {
