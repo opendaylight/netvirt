@@ -89,6 +89,24 @@
     },
     {
       "key": {
+        "uuid": "5a682502_724ab184",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 2151,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-10-25T17:46:29Z",
+      "side": 1,
+      "message": "I meant we can be using an OpenFlow ALL-type Group to have all these actions instead of creating a long flow every time for a router-interface.",
+      "parentUuid": "5a682502_5e2ce44a",
+      "revId": "94040559e088de5a8717eb5f46ec6a2d868481e8",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7a6b29fe_b5bed3d2",
         "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronPortChangeListener.java",
         "patchSetId": 8
