@@ -9,11 +9,9 @@
 package org.opendaylight.netvirt.elan.l2gw.listeners;
 
 import com.google.common.base.Optional;
-import com.google.common.util.concurrent.ListenableFuture;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
-import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import org.opendaylight.controller.md.sal.binding.api.ClusteredDataTreeChangeListener;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
@@ -244,14 +242,11 @@ public class HwvtepPhysicalSwitchListener
                     // Initiate ITM tunnel creation
                     ElanClusterUtils.runOnlyInLeaderNode(entityOwnershipService,
                             "handling Physical Switch add create itm tunnels ",
-                            new Callable<List<ListenableFuture<Void>>>() {
-                                @Override
-                                public List<ListenableFuture<Void>> call() throws Exception {
-                                    ElanL2GatewayUtils.createItmTunnels(itmRpcService,
-                                            hwvtepNodeId, psName, tunnelIpAddr);
-                                    return Collections.emptyList();
-                                }
-                            });
+                        () -> {
+                            ElanL2GatewayUtils.createItmTunnels(itmRpcService,
+                                    hwvtepNodeId, psName, tunnelIpAddr);
+                            return Collections.emptyList();
+                        });
 
                     // Initiate Logical switch creation for associated L2
                     // Gateway Connections

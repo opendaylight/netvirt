@@ -25,7 +25,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
@@ -109,14 +108,10 @@ public class EgressAclServiceTest {
     private static NodeBuilder nodeBuilder;
 
     private static Answer<Object> answer() {
-        return new Answer<Object>() {
-            @Override
-            public CheckedFuture<Void, TransactionCommitFailedException> answer(InvocationOnMock invocation)
-                    throws Throwable {
-                flowBuilder = (FlowBuilder) invocation.getArguments()[0];
-                nodeBuilder = (NodeBuilder) invocation.getArguments()[1];
-                return null;
-            }
+        return invocation -> {
+            flowBuilder = (FlowBuilder) invocation.getArguments()[0];
+            nodeBuilder = (NodeBuilder) invocation.getArguments()[1];
+            return null;
         };
     }
 
