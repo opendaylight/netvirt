@@ -14,7 +14,9 @@ import static org.opendaylight.netvirt.aclservice.tests.infra.AssertBuilderBeans
 
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 import javax.inject.Inject;
 import org.junit.Rule;
 
@@ -59,23 +61,36 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.constants.rev150712.EthertypeBase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.constants.rev150712.EthertypeV4;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 public class AclServiceTest {
 
     public @Rule MethodRule guice = new GuiceRule(AclServiceModule.class, AclServiceTestModule.class);
 
+    private static final Logger LOG = LoggerFactory.getLogger(AclServiceTest.class);
+
     private static final String PORT_MAC_1 = "0D:AA:D8:42:30:F3";
     private static final String PORT_MAC_2 = "0D:AA:D8:42:30:F4";
+    private static final String PORT_MAC_3 = "0D:AA:D8:42:30:F5";
     private static final String PORT_1 = "port1";
     private static final String PORT_2 = "port2";
-    private static String SG_UUID  = "85cc3048-abc3-43cc-89b3-377341426ac5";
-    private static String SR_UUID_1 = "85cc3048-abc3-43cc-89b3-377341426ac6";
-    private static String SR_UUID_2 = "85cc3048-abc3-43cc-89b3-377341426ac7";
+    private static final String PORT_3 = "port3";
+    protected static String SG_UUID_1  = "85cc3048-abc3-43cc-89b3-377341426ac5";
+    protected static String SG_UUID_2  = "85cc3048-abc3-43cc-89b3-377341426ac8";
+    private static String SR_UUID_1_1 = "85cc3048-abc3-43cc-89b3-377341426ac6";
+    private static String SR_UUID_1_2 = "85cc3048-abc3-43cc-89b3-377341426ac7";
+    private static String SR_UUID_2_1 = "85cc3048-abc3-43cc-89b3-377341426a21";
+    private static String SR_UUID_2_2 = "85cc3048-abc3-43cc-89b3-377341426a22";
     private static String ELAN = "elan1";
     private static String IP_PREFIX_1 = "10.0.0.1/24";
     private static String IP_PREFIX_2 = "10.0.0.2/24";
+    private static String IP_PREFIX_3 = "10.0.0.3/24";
     private static long ELAN_TAG = 5000L;
+
+    protected static final Integer FLOW_PRIORITY_SG_1 = 1001;
+    protected static final Integer FLOW_PRIORITY_SG_2 = 1002;
 
     @Inject DataBroker dataBroker;
     @Inject DataBrokerPairsUtil dataBrokerUtil;
@@ -106,8 +121,8 @@ public class AclServiceTest {
         Matches matches = newMatch(EthertypeV4.class, -1, -1,-1, -1,
             null, AclConstants.IPV4_ALL_NETWORK, (short)-1);
         dataBrokerUtil.put(ImmutableIdentifiedAceBuilder.builder()
-            .sgUuid(SG_UUID)
-            .newRuleName(SR_UUID_1)
+            .sgUuid(SG_UUID_1)
+            .newRuleName(SR_UUID_1_1)
             .newMatches(matches)
             .newDirection(DirectionEgress.class)
             .build());
@@ -115,11 +130,11 @@ public class AclServiceTest {
         matches = newMatch(EthertypeV4.class, -1, -1,-1, -1,
             AclConstants.IPV4_ALL_NETWORK, null, (short)-1);
         dataBrokerUtil.put(ImmutableIdentifiedAceBuilder.builder()
-            .sgUuid(SG_UUID)
-            .newRuleName(SR_UUID_2)
+            .sgUuid(SG_UUID_1)
+            .newRuleName(SR_UUID_1_2)
             .newMatches(matches)
             .newDirection(DirectionIngress.class)
-            .newRemoteGroupId(new Uuid(SG_UUID)).build());
+            .newRemoteGroupId(new Uuid(SG_UUID_1)).build());
 
         // When
         putNewStateInterface(dataBroker, PORT_1, PORT_MAC_1);
@@ -139,17 +154,17 @@ public class AclServiceTest {
         Matches matches = newMatch(EthertypeV4.class, -1, -1, 80, 80,
             null, AclConstants.IPV4_ALL_NETWORK, (short)NwConstants.IP_PROT_TCP);
         dataBrokerUtil.put(ImmutableIdentifiedAceBuilder.builder()
-            .sgUuid(SG_UUID)
-            .newRuleName(SR_UUID_1)
+            .sgUuid(SG_UUID_1)
+            .newRuleName(SR_UUID_1_1)
             .newMatches(matches)
             .newDirection(DirectionEgress.class)
-            .newRemoteGroupId(new Uuid(SG_UUID)).build());
+            .newRemoteGroupId(new Uuid(SG_UUID_1)).build());
         matches = newMatch(EthertypeV4.class, -1, -1, 80, 80,
             AclConstants.IPV4_ALL_NETWORK, null, (short)NwConstants.IP_PROT_TCP);
 
         dataBrokerUtil.put(ImmutableIdentifiedAceBuilder.builder()
-            .sgUuid(SG_UUID)
-            .newRuleName(SR_UUID_2)
+            .sgUuid(SG_UUID_1)
+            .newRuleName(SR_UUID_1_2)
             .newMatches(matches)
             .newDirection(DirectionIngress.class)
             .build());
@@ -173,8 +188,8 @@ public class AclServiceTest {
         Matches matches = newMatch(EthertypeV4.class, -1, -1, 80, 80,
             null, AclConstants.IPV4_ALL_NETWORK, (short)NwConstants.IP_PROT_UDP);
         dataBrokerUtil.put(ImmutableIdentifiedAceBuilder.builder()
-            .sgUuid(SG_UUID)
-            .newRuleName(SR_UUID_1)
+            .sgUuid(SG_UUID_1)
+            .newRuleName(SR_UUID_1_1)
             .newMatches(matches)
             .newDirection(DirectionEgress.class)
             .build());
@@ -182,11 +197,11 @@ public class AclServiceTest {
         matches = newMatch(EthertypeV4.class, -1, -1, 80, 80,
             AclConstants.IPV4_ALL_NETWORK, null, (short)NwConstants.IP_PROT_UDP);
         dataBrokerUtil.put(ImmutableIdentifiedAceBuilder.builder()
-            .sgUuid(SG_UUID)
-            .newRuleName(SR_UUID_2)
+            .sgUuid(SG_UUID_1)
+            .newRuleName(SR_UUID_1_2)
             .newMatches(matches)
             .newDirection(DirectionIngress.class)
-            .newRemoteGroupId(new Uuid(SG_UUID)).build());
+            .newRemoteGroupId(new Uuid(SG_UUID_1)).build());
         // When
         putNewStateInterface(dataBroker, PORT_1, PORT_MAC_1);
         putNewStateInterface(dataBroker, PORT_2, PORT_MAC_2);
@@ -205,17 +220,17 @@ public class AclServiceTest {
         Matches matches = newMatch(EthertypeV4.class, -1, -1, 2, 3,
             null, AclConstants.IPV4_ALL_NETWORK, (short)NwConstants.IP_PROT_ICMP);
         dataBrokerUtil.put(ImmutableIdentifiedAceBuilder.builder()
-            .sgUuid(SG_UUID)
-            .newRuleName(SR_UUID_1)
+            .sgUuid(SG_UUID_1)
+            .newRuleName(SR_UUID_1_1)
             .newMatches(matches)
             .newDirection(DirectionEgress.class)
-            .newRemoteGroupId(new Uuid(SG_UUID)).build());
+            .newRemoteGroupId(new Uuid(SG_UUID_1)).build());
 
         matches = newMatch( EthertypeV4.class, -1, -1, 2, 3,
             AclConstants.IPV4_ALL_NETWORK, null, (short)NwConstants.IP_PROT_ICMP);
         dataBrokerUtil.put(ImmutableIdentifiedAceBuilder.builder()
-            .sgUuid(SG_UUID)
-            .newRuleName(SR_UUID_2)
+            .sgUuid(SG_UUID_1)
+            .newRuleName(SR_UUID_1_2)
             .newMatches(matches)
             .newDirection(DirectionIngress.class)
             .build());
@@ -238,8 +253,8 @@ public class AclServiceTest {
         Matches matches = newMatch(EthertypeV4.class, -1, -1, 333, 777,
             null, AclConstants.IPV4_ALL_NETWORK, (short)NwConstants.IP_PROT_TCP);
         dataBrokerUtil.put(ImmutableIdentifiedAceBuilder.builder()
-            .sgUuid(SG_UUID)
-            .newRuleName(SR_UUID_1)
+            .sgUuid(SG_UUID_1)
+            .newRuleName(SR_UUID_1_1)
             .newMatches(matches)
             .newDirection(DirectionEgress.class)
             .build());
@@ -247,8 +262,8 @@ public class AclServiceTest {
             AclConstants.IPV4_ALL_NETWORK, null, (short)NwConstants.IP_PROT_UDP);
 
         dataBrokerUtil.put(ImmutableIdentifiedAceBuilder.builder()
-            .sgUuid(SG_UUID)
-            .newRuleName(SR_UUID_2)
+            .sgUuid(SG_UUID_1)
+            .newRuleName(SR_UUID_1_2)
             .newMatches(matches)
             .newDirection(DirectionIngress.class)
             .build());
@@ -271,8 +286,8 @@ public class AclServiceTest {
         Matches matches = newMatch(EthertypeV4.class, -1, -1, 1, 65535,
             null, AclConstants.IPV4_ALL_NETWORK, (short)NwConstants.IP_PROT_TCP);
         dataBrokerUtil.put(ImmutableIdentifiedAceBuilder.builder()
-            .sgUuid(SG_UUID)
-            .newRuleName(SR_UUID_1)
+            .sgUuid(SG_UUID_1)
+            .newRuleName(SR_UUID_1_1)
             .newMatches(matches)
             .newDirection(DirectionEgress.class)
             .build());
@@ -280,8 +295,8 @@ public class AclServiceTest {
             AclConstants.IPV4_ALL_NETWORK, null, (short)NwConstants.IP_PROT_UDP);
 
         dataBrokerUtil.put(ImmutableIdentifiedAceBuilder.builder()
-            .sgUuid(SG_UUID)
-            .newRuleName(SR_UUID_2)
+            .sgUuid(SG_UUID_1)
+            .newRuleName(SR_UUID_1_2)
             .newMatches(matches)
             .newDirection(DirectionIngress.class)
             .build());
@@ -297,6 +312,40 @@ public class AclServiceTest {
         assertFlows(FlowEntryObjects.dstAllFlows());
     }
 
+    @Test
+    public void newInterfaceWithTwoAclsHavingSameRules() throws Exception {
+        LOG.info("Start testing newInterfaceWithTwoAclsHavingSameRules");
+        // Given
+        setUpData();
+
+        Matches icmpEgressMatches = newMatch(EthertypeV4.class, -1, -1, 2, 3, null, AclConstants.IPV4_ALL_NETWORK,
+                (short) NwConstants.IP_PROT_ICMP);
+        Matches icmpIngressMatches = newMatch(EthertypeV4.class, -1, -1, 2, 3, AclConstants.IPV4_ALL_NETWORK, null,
+                (short) NwConstants.IP_PROT_ICMP);
+
+        dataBrokerUtil.put(ImmutableIdentifiedAceBuilder.builder().sgUuid(SG_UUID_1).newRuleName(SR_UUID_1_1)
+                .newMatches(icmpEgressMatches).newDirection(DirectionEgress.class).build());
+
+        dataBrokerUtil.put(ImmutableIdentifiedAceBuilder.builder().sgUuid(SG_UUID_1).newRuleName(SR_UUID_1_2)
+                .newMatches(icmpIngressMatches).newDirection(DirectionIngress.class).build());
+
+        dataBrokerUtil.put(ImmutableIdentifiedAceBuilder.builder().sgUuid(SG_UUID_2).newRuleName(SR_UUID_2_1)
+                .newMatches(icmpEgressMatches).newDirection(DirectionEgress.class).build());
+
+        dataBrokerUtil.put(ImmutableIdentifiedAceBuilder.builder().sgUuid(SG_UUID_2).newRuleName(SR_UUID_2_2)
+                .newMatches(icmpIngressMatches).newDirection(DirectionIngress.class).build());
+
+        // When
+        putNewStateInterface(dataBroker, PORT_3, PORT_MAC_3);
+
+        // TODO Later could do work for better synchronization here..
+        Thread.sleep(500);
+
+        // Then
+        assertFlows(FlowEntryObjects.icmpFlowsForTwoAclsHavingSameRules());
+        LOG.info("End testing newInterfaceWithTwoAclsHavingSameRules");
+    }
+
     private void assertFlows(Iterable<FlowEntity> expectedFlows) {
         List<FlowEntity> flows = mdsalApiManager.getFlows();
         if (!Iterables.isEmpty(expectedFlows)) {
@@ -304,20 +353,23 @@ public class AclServiceTest {
         }
         // TODO Support Iterable <-> List directly within XtendBeanGenerator
         List<FlowEntity> expectedFlowsAsNewArrayList = Lists.newArrayList(expectedFlows);
+        LOG.info("actual flows = {}", flows);
+        LOG.info("expectedFlows = {}", expectedFlowsAsNewArrayList);
         assertEqualBeans(expectedFlowsAsNewArrayList, flows);
     }
 
-    private void newAllowedAddressPair(String portName, String sgUuid, String ipAddress, String macAddress )
+    private void newAllowedAddressPair(String portName, List<String> sgUuidList, String ipAddress, String macAddress)
             throws TransactionCommitFailedException {
         AllowedAddressPairs allowedAddressPair = new AllowedAddressPairsBuilder()
                 .setIpAddress(new IpPrefixOrAddress(new IpPrefix(ipAddress.toCharArray())))
                 .setMacAddress(new MacAddress(macAddress))
                 .build();
+        List<Uuid> sgList = sgUuidList.stream().map(sg -> new Uuid(sg)).collect(Collectors.toList());
 
         dataBrokerUtil.put(ImmutableIdentifiedInterfaceWithAclBuilder.builder()
             .interfaceName(portName)
             .portSecurity(true)
-            .addNewSecurityGroup(new Uuid(SG_UUID))
+            .addAllNewSecurityGroups(sgList)
             .addIfAllowedAddressPair(allowedAddressPair).build());
 
     }
@@ -385,8 +437,10 @@ public class AclServiceTest {
         newElan(ELAN, ELAN_TAG);
         newElanInterface(ELAN, PORT_1 ,true);
         newElanInterface(ELAN, PORT_2, true);
-        newAllowedAddressPair(PORT_1, SG_UUID, IP_PREFIX_1, PORT_MAC_1);
-        newAllowedAddressPair(PORT_2, SG_UUID, IP_PREFIX_2, PORT_MAC_2);
+        newElanInterface(ELAN, PORT_3, true);
+        newAllowedAddressPair(PORT_1, Arrays.asList(SG_UUID_1), IP_PREFIX_1, PORT_MAC_1);
+        newAllowedAddressPair(PORT_2, Arrays.asList(SG_UUID_1), IP_PREFIX_2, PORT_MAC_2);
+        newAllowedAddressPair(PORT_3, Arrays.asList(SG_UUID_1, SG_UUID_2), IP_PREFIX_3, PORT_MAC_3);
     }
 
 }

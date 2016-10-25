@@ -142,15 +142,15 @@ public abstract class AbstractEgressAclServiceImpl extends AbstractAclServiceImp
             AccessListEntries accessListEntries = acl.getAccessListEntries();
             List<Ace> aceList = accessListEntries.getAce();
             for (Ace ace: aceList) {
-                programAceRule(dpId, lportTag, addOrRemove, ace, portId, null);
+                programAceRule(dpId, lportTag, addOrRemove, acl.getAclName(), ace, portId, null);
             }
         }
         return true;
     }
 
     @Override
-    protected void programAceRule(BigInteger dpId, int lportTag, int addOrRemove, Ace ace, String portId,
-                                  List<AllowedAddressPairs> syncAllowedAddresses) {
+    protected void programAceRule(BigInteger dpId, int lportTag, int addOrRemove, String aclName, Ace ace,
+            String portId, List<AllowedAddressPairs> syncAllowedAddresses) {
         SecurityRuleAttr aceAttr = AclServiceUtils.getAccesssListAttributes(ace);
         if (!aceAttr.getDirection().equals(DirectionEgress.class)) {
             return;
@@ -171,13 +171,14 @@ public abstract class AbstractEgressAclServiceImpl extends AbstractAclServiceImp
             LOG.error("Failed to apply ACL {} lportTag {}", ace.getKey(), lportTag);
             return;
         }
-        //The flow map contains list of flows if port range is selected.
-        for ( String  flowName : flowMap.keySet()) {
-            flowName = syncSpecificAclFlow(dpId, lportTag, addOrRemove, ace, portId, flowMap, flowName);
+        int priority = this.aclDataUtil.getAclFlowPriority(aclName);
+        // The flow map contains list of flows if port range is selected.
+        for (String flowName : flowMap.keySet()) {
+            flowName = syncSpecificAclFlow(dpId, lportTag, addOrRemove, priority, ace, portId, flowMap, flowName);
         }
     }
 
-    protected abstract String syncSpecificAclFlow(BigInteger dpId, int lportTag, int addOrRemove, Ace ace,
+    protected abstract String syncSpecificAclFlow(BigInteger dpId, int lportTag, int addOrRemove, int priority, Ace ace,
             String portId, Map<String, List<MatchInfoBase>> flowMap, String flowName);
 
     /**
