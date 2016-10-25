@@ -85,8 +85,8 @@ public class NeutronBgpvpnChangeListener extends AsyncDataTreeChangeListenerBase
         LOG.trace("Adding Bgpvpn : key: {}, value={}", identifier, input);
         if (isBgpvpnTypeL3(input.getType())) {
             // handle route-target(s)
-            List<String> importRouteTargets = new ArrayList<String>();
-            List<String> exportRouteTargets = new ArrayList<String>();
+            List<String> importRouteTargets = new ArrayList<>();
+            List<String> exportRouteTargets = new ArrayList<>();
             List<String> inputRouteList = input.getRouteTargets();
             List<String> inputImportRouteList = input.getImportTargets();
             List<String> inputExportRouteList = input.getExportTargets();

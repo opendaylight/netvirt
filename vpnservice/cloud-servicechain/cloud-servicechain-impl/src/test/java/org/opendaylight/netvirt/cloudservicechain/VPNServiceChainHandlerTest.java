@@ -169,7 +169,7 @@ public class VPNServiceChainHandlerTest {
         iab.setIpAddress("1.3.4.5");
         iab.setKey(new IpAddressesKey("1.3.4.5"));
 
-        LinkedList<IpAddresses> ipadd = new LinkedList<IpAddresses>();
+        LinkedList<IpAddresses> ipadd = new LinkedList<>();
         ipadd.add(iab.build());
 
         VpnToDpnListBuilder vtdlb = new VpnToDpnListBuilder();
@@ -181,11 +181,11 @@ public class VPNServiceChainHandlerTest {
         // final VpnInterfacesKey a =new VpnInterfacesKey("eth0");
         // vib.setKey(a);
         vib.setInterfaceName("eth0");
-        LinkedList<VpnInterfaces> interfaces = new LinkedList<VpnInterfaces>();
+        LinkedList<VpnInterfaces> interfaces = new LinkedList<>();
         interfaces.add(vib.build());
         vtdlb.setVpnInterfaces(interfaces);
 
-        LinkedList<VpnToDpnList> v = new LinkedList<VpnToDpnList>();
+        LinkedList<VpnToDpnList> v = new LinkedList<>();
         v.add(vtdlb.build());
 
         VpnInstanceOpDataEntryBuilder vi = new VpnInstanceOpDataEntryBuilder();
@@ -214,7 +214,7 @@ public class VPNServiceChainHandlerTest {
         vrb.setDestPrefix("123");
         vrb.setKey(new VrfEntryKey("123"));
         vrb.setLabel(1L);
-        List<String> list = new ArrayList<String>();
+        List<String> list = new ArrayList<>();
         list.add(dcgwIp);
         vrb.setNextHopAddressList(list);
         return vrb.build();
