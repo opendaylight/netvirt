@@ -80,7 +80,7 @@ public class VpnInterfaceOpListener extends AsyncDataTreeChangeListenerBase<VpnI
                 public List<ListenableFuture<Void>> call() throws Exception {
                     WriteTransaction writeOperTxn = dataBroker.newWriteOnlyTransaction();
                     postProcessVpnInterfaceRemoval(identifier, del, writeOperTxn);
-                    List<ListenableFuture<Void>> futures = new ArrayList<ListenableFuture<Void>>();
+                    List<ListenableFuture<Void>> futures = new ArrayList<>();
                     futures.add(writeOperTxn.submit());
                     return futures;
                 }

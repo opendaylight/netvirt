@@ -325,7 +325,7 @@ public class TransportZoneNotificationUtil {
         subnetsBuilder.setGatewayIp(new IpAddress("0.0.0.0".toCharArray()));
         subnetsBuilder.setKey(new SubnetsKey(new IpPrefix(subnetIp.toCharArray())));
         subnetsBuilder.setVlanId(0);
-        subnetsBuilder.setVteps(new ArrayList<Vteps>());
+        subnetsBuilder.setVteps(new ArrayList<>());
         return subnetsBuilder.build();
     }
 

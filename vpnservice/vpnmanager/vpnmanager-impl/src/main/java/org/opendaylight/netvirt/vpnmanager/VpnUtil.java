@@ -230,7 +230,7 @@ public class VpnUtil {
      */
     public static List<VrfEntry> getVrfEntriesByOrigin(DataBroker broker, String rd,
         List<RouteOrigin> originsToConsider) {
-        List<VrfEntry> result = new ArrayList<VrfEntry>();
+        List<VrfEntry> result = new ArrayList<>();
         List<VrfEntry> allVpnVrfEntries = getAllVrfEntries(broker, rd);
         for (VrfEntry vrfEntry : allVpnVrfEntries) {
             if (originsToConsider.contains(RouteOrigin.value(vrfEntry.getOrigin()))) {
@@ -245,7 +245,7 @@ public class VpnUtil {
         if (vpnIds.isPresent()) {
             return vpnIds.get().getPrefixes();
         }
-        return new ArrayList<Prefixes>();
+        return new ArrayList<>();
     }
 
     static List<Extraroute> getAllExtraRoutes(DataBroker broker, String vrfId) {
@@ -253,7 +253,7 @@ public class VpnUtil {
         if (extraRoutes.isPresent()) {
             return extraRoutes.get().getExtraroute();
         }
-        return new ArrayList<Extraroute>();
+        return new ArrayList<>();
     }
 
     /**
@@ -266,7 +266,7 @@ public class VpnUtil {
      */
     public static List<VrfEntry> getAllVrfEntries(DataBroker broker, String rd) {
         VrfTables vrfTables = VpnUtil.getVrfTable(broker, rd);
-        return (vrfTables != null) ? vrfTables.getVrfEntry() : new ArrayList<VrfEntry>();
+        return (vrfTables != null) ? vrfTables.getVrfEntry() : new ArrayList<>();
     }
 
     //FIXME: Implement caches for DS reads
@@ -294,7 +294,7 @@ public class VpnUtil {
         if (vpnInstanceOpDataOptional.isPresent()) {
             return vpnInstanceOpDataOptional.get().getVpnInstanceOpDataEntry();
         } else {
-            return new ArrayList<VpnInstanceOpDataEntry>();
+            return new ArrayList<>();
         }
     }
 
@@ -355,7 +355,7 @@ public class VpnUtil {
         InstanceIdentifier<Vpn> vpnExtraRoutesId =
             InstanceIdentifier.builder(VpnToExtraroute.class).child(Vpn.class, new VpnKey(vpnRd)).build();
         Optional<Vpn> vpnOpc = read(broker, LogicalDatastoreType.OPERATIONAL, vpnExtraRoutesId);
-        return vpnOpc.isPresent() ? vpnOpc.get().getExtraroute() : new ArrayList<Extraroute>();
+        return vpnOpc.isPresent() ? vpnOpc.get().getExtraroute() : new ArrayList<>();
     }
 
     static Adjacencies getVpnInterfaceAugmentation(List<Adjacency> nextHopList) {
@@ -544,7 +544,7 @@ public class VpnUtil {
         InstanceIdentifier<VrfTables> vpnVrfTableIid =
             InstanceIdentifier.builder(FibEntries.class).child(VrfTables.class, new VrfTablesKey(rd)).build();
         Optional<VrfTables> vrfTablesOpc = read(broker, LogicalDatastoreType.CONFIGURATION, vpnVrfTableIid);
-        List<VrfEntry> matches = new ArrayList<VrfEntry>();
+        List<VrfEntry> matches = new ArrayList<>();
 
         if (vrfTablesOpc.isPresent()) {
             VrfTables vrfTables = vrfTablesOpc.get();
@@ -1114,7 +1114,7 @@ public class VpnUtil {
     }
 
     public static List<BigInteger> getDpnsOnVpn(DataBroker dataBroker, String vpnInstanceName) {
-        List<BigInteger> result = new ArrayList<BigInteger>();
+        List<BigInteger> result = new ArrayList<>();
         String rd = getVpnRd(dataBroker, vpnInstanceName);
         if (rd == null) {
             LOG.debug("Could not find Route-Distinguisher for VpnName={}", vpnInstanceName);
@@ -1232,10 +1232,10 @@ public class VpnUtil {
     }
 
     public static FlowEntity buildL3vpnGatewayFlow(BigInteger dpId, String gwMacAddress, long vpnId) {
-        List<MatchInfo> mkMatches = new ArrayList<MatchInfo>();
+        List<MatchInfo> mkMatches = new ArrayList<>();
         mkMatches.add(new MatchMetadata(MetaDataUtil.getVpnIdMetadata(vpnId), MetaDataUtil.METADATA_MASK_VRFID));
         mkMatches.add(new MatchEthernetDestination(new MacAddress(gwMacAddress)));
-        List<InstructionInfo> mkInstructions = new ArrayList<InstructionInfo>();
+        List<InstructionInfo> mkInstructions = new ArrayList<>();
         mkInstructions.add(new InstructionGotoTable(NwConstants.L3_FIB_TABLE));
         String flowId = getL3VpnGatewayFlowRef(NwConstants.L3_GW_MAC_TABLE, dpId, vpnId, gwMacAddress);
         FlowEntity flowEntity = MDSALUtil.buildFlowEntity(dpId, NwConstants.L3_GW_MAC_TABLE,

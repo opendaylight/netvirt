@@ -150,7 +150,7 @@ public class VpnSubnetRouteHandler implements NeutronvpnListener {
                     return;
                 }
                 LOG.debug("onSubnetAddedToVpn: Creating new SubnetOpDataEntry node for subnet: " + subnetId.getValue());
-                Map<BigInteger, SubnetToDpn> subDpnMap = new HashMap<BigInteger, SubnetToDpn>();
+                Map<BigInteger, SubnetToDpn> subDpnMap = new HashMap<>();
                 BigInteger dpnId = null;
                 BigInteger nhDpnId = null;
                 SubnetToDpn subDpn = null;
@@ -167,7 +167,7 @@ public class VpnSubnetRouteHandler implements NeutronvpnListener {
                 }
                 subOpBuilder.setVrfId(rd);
                 subOpBuilder.setVpnName(vpnName);
-                subOpBuilder.setSubnetToDpn(new ArrayList<SubnetToDpn>());
+                subOpBuilder.setSubnetToDpn(new ArrayList<>());
                 subOpBuilder.setRouteAdvState(TaskState.Na);
                 subOpBuilder.setElanTag(elanTag);
 
@@ -208,7 +208,7 @@ public class VpnSubnetRouteHandler implements NeutronvpnListener {
                         }
                     }
                     if (subDpnMap.size() > 0) {
-                        subOpBuilder.setSubnetToDpn(new ArrayList<SubnetToDpn>(subDpnMap.values()));
+                        subOpBuilder.setSubnetToDpn(new ArrayList<>(subDpnMap.values()));
                     }
                 }
 

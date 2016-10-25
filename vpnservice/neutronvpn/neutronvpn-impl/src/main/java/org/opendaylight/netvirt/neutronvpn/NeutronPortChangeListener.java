@@ -230,8 +230,8 @@ public class NeutronPortChangeListener extends AsyncDataTreeChangeListenerBase<P
                 return futures;
             });
         }
-        List<FixedIps> oldIPs = (original.getFixedIps() != null) ? original.getFixedIps() : new ArrayList<FixedIps>();
-        List<FixedIps> newIPs = (update.getFixedIps() != null) ? update.getFixedIps() : new ArrayList<FixedIps>();
+        List<FixedIps> oldIPs = (original.getFixedIps() != null) ? original.getFixedIps() : new ArrayList<>();
+        List<FixedIps> newIPs = (update.getFixedIps() != null) ? update.getFixedIps() : new ArrayList<>();
         if (!oldIPs.equals(newIPs)) {
             Iterator<FixedIps> iterator = newIPs.iterator();
             while (iterator.hasNext()) {
