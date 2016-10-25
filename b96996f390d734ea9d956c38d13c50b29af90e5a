@@ -16,6 +16,24 @@
       "revId": "b96996f390d734ea9d956c38d13c50b29af90e5a",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5a682502_92ecadc9",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/intervpnlink/InterVpnLinkNodeListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 46,
+      "author": {
+        "id": 5350
+      },
+      "writtenOn": "2016-10-25T16:42:20Z",
+      "side": 1,
+      "message": "It doesn\u0027t matter much as long as we are informed that a DPN goes down. There is a correspondence between nodes under \"openflow:1\" in Inventory and nodes under \"flow:1\" in topology. Hopefully, the latter fires less DCNs.",
+      "parentUuid": "5a682502_7288f122",
+      "revId": "b96996f390d734ea9d956c38d13c50b29af90e5a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
