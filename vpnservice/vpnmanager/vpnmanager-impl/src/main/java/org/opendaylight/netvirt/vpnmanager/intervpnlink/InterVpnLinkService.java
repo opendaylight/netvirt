@@ -145,7 +145,7 @@ public class InterVpnLinkService {
         return vpnTargets.stream()
                          .filter(target-> target.getVrfRTType().equals(rtType) ||
                                           target.getVrfRTType().equals(VpnTarget.VrfRTType.Both))
-                         .map(target-> target.getVrfRTValue())
+                         .map(VpnTarget::getVrfRTValue)
                          .collect(Collectors.toList());
     }
 

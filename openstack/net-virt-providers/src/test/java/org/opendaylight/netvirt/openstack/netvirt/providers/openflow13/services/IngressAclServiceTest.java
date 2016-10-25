@@ -110,14 +110,10 @@ public class IngressAclServiceTest {
     private static NodeBuilder nodeBuilder;
 
     private static Answer<Object> answer() {
-        return new Answer<Object>() {
-            @Override
-            public CheckedFuture<Void, TransactionCommitFailedException> answer(InvocationOnMock invocation)
-                    throws Throwable {
-                flowBuilder = (FlowBuilder) invocation.getArguments()[0];
-                nodeBuilder = (NodeBuilder) invocation.getArguments()[1];
-                return null;
-            }
+        return invocation -> {
+            flowBuilder = (FlowBuilder) invocation.getArguments()[0];
+            nodeBuilder = (NodeBuilder) invocation.getArguments()[1];
+            return null;
         };
     }
 

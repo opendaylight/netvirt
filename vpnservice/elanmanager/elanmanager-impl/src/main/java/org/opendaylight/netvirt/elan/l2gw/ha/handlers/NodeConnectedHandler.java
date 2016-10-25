@@ -93,19 +93,17 @@ public class NodeConnectedHandler {
                  as it is expecting the logical switch to be already present in operational ds
                  (created in the device )
                  */
-                HAJobScheduler.getInstance().submitJob(new Runnable() {
-                    public void run() {
-                        try {
-                            hwvtepHACache.updateConnectedNodeStatus(childNodePath);
-                            LOG.info("HA child reconnected handleNodeReConnected {}",
-                                    childNode.getNodeId().getValue());
-                            ReadWriteTransaction tx = db.newReadWriteTransaction();
-                            copyHAPSConfigToChildPS(haPSCfg.get(), childNodePath, tx);
-                            tx.submit().checkedGet();
-                        } catch (InterruptedException | ExecutionException | ReadFailedException
-                                | TransactionCommitFailedException e) {
-                            LOG.error("Failed to process ", e);
-                        }
+                HAJobScheduler.getInstance().submitJob(() -> {
+                    try {
+                        hwvtepHACache.updateConnectedNodeStatus(childNodePath);
+                        LOG.info("HA child reconnected handleNodeReConnected {}",
+                                childNode.getNodeId().getValue());
+                        ReadWriteTransaction tx1 = db.newReadWriteTransaction();
+                        copyHAPSConfigToChildPS(haPSCfg.get(), childNodePath, tx1);
+                        tx1.submit().checkedGet();
+                    } catch (InterruptedException | ExecutionException | ReadFailedException
+                            | TransactionCommitFailedException e) {
+                        LOG.error("Failed to process ", e);
                     }
                 });
 
