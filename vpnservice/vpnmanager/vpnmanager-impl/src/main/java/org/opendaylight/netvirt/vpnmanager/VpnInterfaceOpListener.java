@@ -11,7 +11,6 @@ import com.google.common.base.Optional;
 import com.google.common.util.concurrent.ListenableFuture;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
@@ -75,15 +74,12 @@ public class VpnInterfaceOpListener extends AsyncDataTreeChangeListenerBase<VpnI
         final String vpnName = del.getVpnInstanceName();
         DataStoreJobCoordinator dataStoreCoordinator = DataStoreJobCoordinator.getInstance();
         dataStoreCoordinator.enqueueJob("VPNINTERFACE-" + interfaceName,
-            new Callable<List<ListenableFuture<Void>>>() {
-                @Override
-                public List<ListenableFuture<Void>> call() throws Exception {
-                    WriteTransaction writeOperTxn = dataBroker.newWriteOnlyTransaction();
-                    postProcessVpnInterfaceRemoval(identifier, del, writeOperTxn);
-                    List<ListenableFuture<Void>> futures = new ArrayList<>();
-                    futures.add(writeOperTxn.submit());
-                    return futures;
-                }
+            () -> {
+                WriteTransaction writeOperTxn = dataBroker.newWriteOnlyTransaction();
+                postProcessVpnInterfaceRemoval(identifier, del, writeOperTxn);
+                List<ListenableFuture<Void>> futures = new ArrayList<>();
+                futures.add(writeOperTxn.submit());
+                return futures;
             });
     }
 
@@ -175,12 +171,9 @@ public class VpnInterfaceOpListener extends AsyncDataTreeChangeListenerBase<VpnI
         final String vpnName = update.getVpnInstanceName();
         DataStoreJobCoordinator dataStoreCoordinator = DataStoreJobCoordinator.getInstance();
         dataStoreCoordinator.enqueueJob("VPNINTERFACE-" + interfaceName,
-            new Callable<List<ListenableFuture<Void>>>() {
-                @Override
-                public List<ListenableFuture<Void>> call() throws Exception {
-                    postProcessVpnInterfaceUpdate(identifier, original, update);
-                    return null;
-                }
+            () -> {
+                postProcessVpnInterfaceUpdate(identifier, original, update);
+                return null;
             });
     }
 

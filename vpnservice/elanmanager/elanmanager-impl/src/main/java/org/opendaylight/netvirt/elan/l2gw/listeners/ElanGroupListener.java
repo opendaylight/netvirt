@@ -7,11 +7,9 @@
  */
 package org.opendaylight.netvirt.elan.l2gw.listeners;
 
-import com.google.common.util.concurrent.ListenableFuture;
 import java.math.BigInteger;
 import java.util.List;
 import java.util.Set;
-import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentMap;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.clustering.EntityOwnershipService;
@@ -133,13 +131,10 @@ public class ElanGroupListener extends AsyncClusteredDataTreeChangeListenerBase<
                     update.getKey().getGroupId());
             ElanClusterUtils.runOnlyInLeaderNode(entityOwnershipService, elanInstance.getElanInstanceName(),
                     "updating broadcast group",
-                    new Callable<List<ListenableFuture<Void>>>() {
-                        @Override
-                        public List<ListenableFuture<Void>> call() throws Exception {
-                            elanInterfaceManager.setupElanBroadcastGroups(elanInstance, dpnId);
-                            return null;
-                        }
-                    });
+                () -> {
+                    elanInterfaceManager.setupElanBroadcastGroups(elanInstance, dpnId);
+                    return null;
+                });
         } else {
             LOG.trace("no buckets in the update {} {}", elanInstance.getElanInstanceName(),
                     update.getKey().getGroupId());

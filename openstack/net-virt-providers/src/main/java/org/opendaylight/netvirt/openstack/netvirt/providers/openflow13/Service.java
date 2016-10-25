@@ -47,11 +47,5 @@ public enum Service {
         return description;
     }
 
-    public static Comparator<Service> insertComparator = new Comparator<Service>() {
-
-        @Override
-        public int compare(Service service1, Service service2) {
-            return service1.getTable() - service2.getTable();
-        }
-    };
+    public static Comparator<Service> insertComparator = Comparator.comparingInt(Service::getTable);
 }

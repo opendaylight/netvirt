@@ -273,7 +273,7 @@ public class ElanL2GatewayUtils {
         NodeId nodeId = new NodeId(deviceNodeId);
 
         // TODO (eperefr)
-        List<MacAddress> lstMac = macAddresses.stream().filter(physAddress -> physAddress != null).map(
+        List<MacAddress> lstMac = macAddresses.stream().filter(Objects::nonNull).map(
             physAddress -> new MacAddress(physAddress.getValue())).collect(Collectors.toList());
         return HwvtepUtils.deleteRemoteUcastMacs(broker, nodeId, logicalSwitchName, lstMac);
     }
@@ -562,7 +562,7 @@ public class ElanL2GatewayUtils {
         }
         List<LocalUcastMacs> lstUcastLocalMacs = l2gwDevice.getUcastLocalMacs();
         if (lstUcastLocalMacs != null && !lstUcastLocalMacs.isEmpty()) {
-            macs = lstUcastLocalMacs.stream().filter(localUcastMac -> localUcastMac != null).map(
+            macs = lstUcastLocalMacs.stream().filter(Objects::nonNull).map(
                     HwvtepMacTableGenericAttributes::getMacEntryKey).collect(Collectors.toList());
         }
         return macs;
