@@ -54,7 +54,7 @@ public class NeutronNetwork {
         networkId = UUID.randomUUID().toString();
         this.netType = netType;
         this.providerNet = providerNet;
-        this.subnetIpPrefixMap = new HashMap<String, Subnet>();
+        this.subnetIpPrefixMap = new HashMap<>();
     }
 
     String getNetworkId() {
