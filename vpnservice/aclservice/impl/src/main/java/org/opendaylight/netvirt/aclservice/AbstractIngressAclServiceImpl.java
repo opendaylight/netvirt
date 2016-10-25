@@ -153,15 +153,15 @@ public abstract class AbstractIngressAclServiceImpl extends AbstractAclServiceIm
             AccessListEntries accessListEntries = acl.getAccessListEntries();
             List<Ace> aceList = accessListEntries.getAce();
             for (Ace ace : aceList) {
-                programAceRule(dpId, lportTag, addOrRemove, ace, portId, null);
+                programAceRule(dpId, lportTag, addOrRemove, acl.getAclName(), ace, portId, null);
             }
         }
         return true;
     }
 
     @Override
-    protected void programAceRule(BigInteger dpId, int lportTag, int addOrRemove, Ace ace, String portId,
-                                  List<AllowedAddressPairs> syncAllowedAddresses) {
+    protected void programAceRule(BigInteger dpId, int lportTag, int addOrRemove, String aclName, Ace ace,
+            String portId, List<AllowedAddressPairs> syncAllowedAddresses) {
         SecurityRuleAttr aceAttr = AclServiceUtils.getAccesssListAttributes(ace);
         if (!aceAttr.getDirection().equals(DirectionIngress.class)) {
             return;
@@ -182,13 +182,13 @@ public abstract class AbstractIngressAclServiceImpl extends AbstractAclServiceIm
             LOG.error("Failed to apply ACL {} lportTag {}", ace.getKey(), lportTag);
             return;
         }
-        for ( String  flowName : flowMap.keySet()) {
-            flowName = syncSpecificAclFlow(dpId, lportTag, addOrRemove, ace, portId, flowMap, flowName);
+        for (String flowName : flowMap.keySet()) {
+            flowName = syncSpecificAclFlow(dpId, lportTag, addOrRemove, aclName, ace, portId, flowMap, flowName);
         }
     }
 
-    protected abstract String syncSpecificAclFlow(BigInteger dpId, int lportTag, int addOrRemove, Ace ace,
-            String portId, Map<String, List<MatchInfoBase>> flowMap, String flowName);
+    protected abstract String syncSpecificAclFlow(BigInteger dpId, int lportTag, int addOrRemove, String aclName,
+            Ace ace, String portId, Map<String, List<MatchInfoBase>> flowMap, String flowName);
 
     /**
      * Add rule to ensure only DHCP server traffic from the specified mac is
