@@ -29,5 +29,5 @@ public interface AclServiceManager {
 
     void notify(AclInterface port, AclInterface oldPort, Action action);
 
-    void notifyAce(AclInterface port, Action action, Ace ace);
+    void notifyAce(AclInterface port, Action action, String aclName, Ace ace);
 }

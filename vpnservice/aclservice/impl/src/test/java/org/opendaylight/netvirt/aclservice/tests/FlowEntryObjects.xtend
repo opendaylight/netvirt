@@ -32,7 +32,7 @@ class FlowEntryObjects {
         + etherEgressFlowsPort1
         + fixedIngressFlowsPort2
         + etherIngressFlowsPort2
-        + fixedEgrssFlowsPort2
+        + fixedEgressFlowsPort2
         + etheregressFlowPort2
     }
 
@@ -42,7 +42,7 @@ class FlowEntryObjects {
         + fixedEgressFlowsPort1
         + fixedIngressFlowsPort2
         + tcpIngressFlowPort2
-        + fixedEgrssFlowsPort2
+        + fixedEgressFlowsPort2
         + tcpEgressFlowPort2
     }
 
@@ -52,7 +52,7 @@ class FlowEntryObjects {
         + udpEgressFlowsPort1
         + fixedIngressFlowsPort2
         + udpIngressFlowsPort2
-        + fixedEgrssFlowsPort2
+        + fixedEgressFlowsPort2
         + udpEgressFlowsPort2
     }
 
@@ -62,7 +62,7 @@ class FlowEntryObjects {
         + fixedEgressFlowsPort1
         + fixedIngressFlowsPort2
         + icmpIngressFlowsPort2
-        + fixedEgrssFlowsPort2
+        + fixedEgressFlowsPort2
         + icmpEgressFlowsPort2
     }
 
@@ -78,6 +78,13 @@ class FlowEntryObjects {
         + udpIngressAllFlows
         + fixedEgressFlowsPort1
         + tcpEgressAllFlows
+    }
+
+    static def icmpFlowsForTwoAclsHavingSameRules() {
+        fixedIngressFlowsPort3
+        + icmpIngressFlowsPort3
+        + fixedEgressFlowsPort3
+        + icmpEgressFlowsPort3
     }
 
     static def fixedIngressFlowsPort1() {
@@ -1135,7 +1142,7 @@ class FlowEntryObjects {
                         ]
                     ]
                 ]
-                priority = 61010
+                priority = AclServiceTest.FLOW_PRIORITY_SG_1
                 tableId = 252 as short
             ],
             new FlowEntity(123bi) => [
@@ -1206,13 +1213,13 @@ class FlowEntryObjects {
                         ]
                     ]
                 ]
-                priority = 61010
+                priority = AclServiceTest.FLOW_PRIORITY_SG_1
                 tableId = 252 as short
             ]
         ]
     }
 
-    static def fixedEgrssFlowsPort2 () {
+    static def fixedEgressFlowsPort2 () {
         #[
             new FlowEntity(123bi) => [
                 cookie = 110100480bi
@@ -1611,7 +1618,7 @@ class FlowEntryObjects {
                         ]
                     ]
                 ]
-                priority = 61010
+                priority = AclServiceTest.FLOW_PRIORITY_SG_1
                 tableId = 41 as short
             ]
         ]
@@ -1671,7 +1678,7 @@ class FlowEntryObjects {
                         ]
                     ]
                 ]
-                priority = 61010
+                priority = AclServiceTest.FLOW_PRIORITY_SG_1
                 tableId = 41 as short
             ]
         ]
@@ -1744,7 +1751,7 @@ class FlowEntryObjects {
                         ]
                     ]
                 ]
-                priority = 61010
+                priority = AclServiceTest.FLOW_PRIORITY_SG_1
                 tableId = 252 as short
             ]
         ]
@@ -1817,7 +1824,7 @@ class FlowEntryObjects {
                         ]
                     ]
                 ]
-                priority = 61010
+                priority = AclServiceTest.FLOW_PRIORITY_SG_1
                 tableId = 252 as short
             ]
         ]
@@ -1906,7 +1913,7 @@ class FlowEntryObjects {
                         ]
                     ]
                 ]
-                priority = 61010
+                priority = AclServiceTest.FLOW_PRIORITY_SG_1
                 tableId = 41 as short
             ],
             new FlowEntity(123bi) => [
@@ -1987,7 +1994,7 @@ class FlowEntryObjects {
                         ]
                     ]
                 ]
-                priority = 61010
+                priority = AclServiceTest.FLOW_PRIORITY_SG_1
                 tableId = 41 as short
             ]
         ]
@@ -2060,7 +2067,7 @@ class FlowEntryObjects {
                         ]
                     ]
                 ]
-                priority = 61010
+                priority = AclServiceTest.FLOW_PRIORITY_SG_1
                 tableId = 41 as short
             ]
         ]
@@ -2149,7 +2156,7 @@ class FlowEntryObjects {
                         ]
                     ]
                 ]
-                priority = 61010
+                priority = AclServiceTest.FLOW_PRIORITY_SG_1
                 tableId = 252 as short
             ],
             new FlowEntity(123bi) => [
@@ -2230,7 +2237,7 @@ class FlowEntryObjects {
                         ]
                     ]
                 ]
-                priority = 61010
+                priority = AclServiceTest.FLOW_PRIORITY_SG_1
                 tableId = 252 as short
             ]
         ]
@@ -2303,7 +2310,7 @@ class FlowEntryObjects {
                         ]
                     ]
                 ]
-                priority = 61010
+                priority = AclServiceTest.FLOW_PRIORITY_SG_1
                 tableId = 41 as short
             ]
         ]
@@ -2376,7 +2383,7 @@ class FlowEntryObjects {
                         ]
                     ]
                 ]
-                priority = 61010
+                priority = AclServiceTest.FLOW_PRIORITY_SG_1
                 tableId = 252 as short
             ]
         ]
@@ -2449,7 +2456,7 @@ class FlowEntryObjects {
                         ]
                     ]
                 ]
-                priority = 61010
+                priority = AclServiceTest.FLOW_PRIORITY_SG_1
                 tableId = 252 as short
             ]
         ]
@@ -2538,7 +2545,7 @@ class FlowEntryObjects {
                         ]
                     ]
                 ]
-                priority = 61010
+                priority = AclServiceTest.FLOW_PRIORITY_SG_1
                 tableId = 41 as short
             ],
             new FlowEntity(123bi) => [
@@ -2622,766 +2629,766 @@ class FlowEntryObjects {
                         ]
                     ]
                 ]
-                priority = 61010
+                priority = AclServiceTest.FLOW_PRIORITY_SG_1
                 tableId = 41 as short
             ]
         ]
     }
 
     static def udpIngressPortRangeFlows() {
-    	#[
-    		new FlowEntity(123bi) => [
-		        cookie = 110100480bi
-		        flowId = "UDP_DESTINATION_2000_65532Ingress98785cc3048-abc3-43cc-89b3-377341426ac7"
-		        flowName = "ACL"
-		        instructionInfoList = #[
-		            new InstructionInfo(InstructionType.apply_actions, #[
-		                new ActionInfoBuilder >> [
-		                    actionKey = 2
-		                    actionType = ActionType.nx_conntrack
-		                    actionValues = #[
-		                        "1",
-		                        "0",
-		                        "5000",
-		                        "255"
-		                    ]
-		                ],
-		                new ActionInfoBuilder >> [
-		                    actionType = ActionType.nx_resubmit
-		                    actionValues = #[
-		                        "220"
-		                    ]
-		                ]
-		            ])
-		        ]
-		        matchInfoList = #[
-		            new MatchInfoBuilder >> [
-		                matchField = MatchFieldType.eth_type
-		                matchValues = #[
-		                    2048L
-		                ]
-		            ],
-		            new MatchInfoBuilder >> [
-		                matchField = MatchFieldType.eth_type
-		                matchValues = #[
-		                    2048L
-		                ]
-		            ],
-		            new NxMatchInfoBuilder >> [
-		                matchField = NxMatchFieldType.nx_udp_dst_with_mask
-		                matchValues = #[
-		                    2000L,
-		                    65532L
-		                ]
-		            ],
-		            new MatchInfoBuilder >> [
-		                matchField = MatchFieldType.ip_proto
-		                matchValues = #[
-		                    17L
-		                ]
-		            ],
-		            new MatchInfoBuilder >> [
-		                bigMatchValues = #[
-		                    1085217976614912bi,
-		                    MetaDataUtil.METADATA_MASK_LPORT_TAG
-		                ]
-		                matchField = MatchFieldType.metadata
-		            ],
-		            new NxMatchInfoBuilder >> [
-		                matchField = NxMatchFieldType.ct_state
-		                matchValues = #[
-		                    33L,
-		                    33L
-		                ]
-		            ]
-		        ]
-		        priority = 61010
-		        tableId = 252 as short
-		    ]
-    	]
+        #[
+            new FlowEntity(123bi) => [
+                cookie = 110100480bi
+                flowId = "UDP_DESTINATION_2000_65532Ingress98785cc3048-abc3-43cc-89b3-377341426ac7"
+                flowName = "ACL"
+                instructionInfoList = #[
+                    new InstructionInfo(InstructionType.apply_actions, #[
+                        new ActionInfoBuilder >> [
+                            actionKey = 2
+                            actionType = ActionType.nx_conntrack
+                            actionValues = #[
+                                "1",
+                                "0",
+                                "5000",
+                                "255"
+                            ]
+                        ],
+                        new ActionInfoBuilder >> [
+                            actionType = ActionType.nx_resubmit
+                            actionValues = #[
+                                "220"
+                            ]
+                        ]
+                    ])
+                ]
+                matchInfoList = #[
+                    new MatchInfoBuilder >> [
+                        matchField = MatchFieldType.eth_type
+                        matchValues = #[
+                            2048L
+                        ]
+                    ],
+                    new MatchInfoBuilder >> [
+                        matchField = MatchFieldType.eth_type
+                        matchValues = #[
+                            2048L
+                        ]
+                    ],
+                    new NxMatchInfoBuilder >> [
+                        matchField = NxMatchFieldType.nx_udp_dst_with_mask
+                        matchValues = #[
+                            2000L,
+                            65532L
+                        ]
+                    ],
+                    new MatchInfoBuilder >> [
+                        matchField = MatchFieldType.ip_proto
+                        matchValues = #[
+                            17L
+                        ]
+                    ],
+                    new MatchInfoBuilder >> [
+                        bigMatchValues = #[
+                            1085217976614912bi,
+                            MetaDataUtil.METADATA_MASK_LPORT_TAG
+                        ]
+                        matchField = MatchFieldType.metadata
+                    ],
+                    new NxMatchInfoBuilder >> [
+                        matchField = NxMatchFieldType.ct_state
+                        matchValues = #[
+                            33L,
+                            33L
+                        ]
+                    ]
+                ]
+                priority = AclServiceTest.FLOW_PRIORITY_SG_1
+                tableId = 252 as short
+            ]
+        ]
     }
 
     static def tcpEgressRangeFlows() {
-    	#[
-    		new FlowEntity(123bi) => [
-		        cookie = 110100480bi
-		        flowId = "TCP_DESTINATION_776_65534Egress98785cc3048-abc3-43cc-89b3-377341426ac6"
-		        flowName = "ACL"
-		        instructionInfoList = #[
-		            new InstructionInfo(InstructionType.apply_actions, #[
-		                new ActionInfoBuilder >> [
-		                    actionKey = 2
-		                    actionType = ActionType.nx_conntrack
-		                    actionValues = #[
-		                        "1",
-		                        "0",
-		                        "5000",
-		                        "255"
-		                    ]
-		                ],
-		                new ActionInfoBuilder >> [
-		                    actionType = ActionType.nx_resubmit
-		                    actionValues = #[
-		                        "17"
-		                    ]
-		                ]
-		            ])
-		        ]
-		        matchInfoList = #[
-		            new MatchInfoBuilder >> [
-		                matchField = MatchFieldType.eth_type
-		                matchValues = #[
-		                    2048L
-		                ]
-		            ],
-		            new MatchInfoBuilder >> [
-		                matchField = MatchFieldType.eth_type
-		                matchValues = #[
-		                    2048L
-		                ]
-		            ],
-		            new NxMatchInfoBuilder >> [
-		                matchField = NxMatchFieldType.nx_tcp_dst_with_mask
-		                matchValues = #[
-		                    776L,
-		                    65534L
-		                ]
-		            ],
-		            new MatchInfoBuilder >> [
-		                matchField = MatchFieldType.ip_proto
-		                matchValues = #[
-		                    6L
-		                ]
-		            ],
-		            new MatchInfoBuilder >> [
-		                bigMatchValues = #[
-		                    1085217976614912bi,
-		                    MetaDataUtil.METADATA_MASK_LPORT_TAG
-		                ]
-		                matchField = MatchFieldType.metadata
-		            ],
-		            new NxMatchInfoBuilder >> [
-		                matchField = NxMatchFieldType.ct_state
-		                matchValues = #[
-		                    33L,
-		                    33L
-		                ]
-		            ]
-		        ]
-		        priority = 61010
-		        tableId = 41 as short
-		    ],
-		    new FlowEntity(123bi) => [
-		        cookie = 110100480bi
-		        flowId = "TCP_DESTINATION_512_65280Egress98785cc3048-abc3-43cc-89b3-377341426ac6"
-		        flowName = "ACL"
-		        instructionInfoList = #[
-		            new InstructionInfo(InstructionType.apply_actions, #[
-		                new ActionInfoBuilder >> [
-		                    actionKey = 2
-		                    actionType = ActionType.nx_conntrack
-		                    actionValues = #[
-		                        "1",
-		                        "0",
-		                        "5000",
-		                        "255"
-		                    ]
-		                ],
-		                new ActionInfoBuilder >> [
-		                    actionType = ActionType.nx_resubmit
-		                    actionValues = #[
-		                        "17"
-		                    ]
-		                ]
-		            ])
-		        ]
-		        matchInfoList = #[
-		            new MatchInfoBuilder >> [
-		                matchField = MatchFieldType.eth_type
-		                matchValues = #[
-		                    2048L
-		                ]
-		            ],
-		            new MatchInfoBuilder >> [
-		                matchField = MatchFieldType.eth_type
-		                matchValues = #[
-		                    2048L
-		                ]
-		            ],
-		            new NxMatchInfoBuilder >> [
-		                matchField = NxMatchFieldType.nx_tcp_dst_with_mask
-		                matchValues = #[
-		                    512L,
-		                    65280L
-		                ]
-		            ],
-		            new MatchInfoBuilder >> [
-		                matchField = MatchFieldType.ip_proto
-		                matchValues = #[
-		                    6L
-		                ]
-		            ],
-		            new MatchInfoBuilder >> [
-		                bigMatchValues = #[
-		                    1085217976614912bi,
-		                    MetaDataUtil.METADATA_MASK_LPORT_TAG
-		                ]
-		                matchField = MatchFieldType.metadata
-		            ],
-		            new NxMatchInfoBuilder >> [
-		                matchField = NxMatchFieldType.ct_state
-		                matchValues = #[
-		                    33L,
-		                    33L
-		                ]
-		            ]
-		        ]
-		        priority = 61010
-		        tableId = 41 as short
-		    ],
-		    new FlowEntity(123bi) => [
-		        cookie = 110100480bi
-		        flowId = "TCP_DESTINATION_334_65534Egress98785cc3048-abc3-43cc-89b3-377341426ac6"
-		        flowName = "ACL"
-		        instructionInfoList = #[
-		            new InstructionInfo(InstructionType.apply_actions, #[
-		                new ActionInfoBuilder >> [
-		                    actionKey = 2
-		                    actionType = ActionType.nx_conntrack
-		                    actionValues = #[
-		                        "1",
-		                        "0",
-		                        "5000",
-		                        "255"
-		                    ]
-		                ],
-		                new ActionInfoBuilder >> [
-		                    actionType = ActionType.nx_resubmit
-		                    actionValues = #[
-		                        "17"
-		                    ]
-		                ]
-		            ])
-		        ]
-		        matchInfoList = #[
-		            new MatchInfoBuilder >> [
-		                matchField = MatchFieldType.eth_type
-		                matchValues = #[
-		                    2048L
-		                ]
-		            ],
-		            new MatchInfoBuilder >> [
-		                matchField = MatchFieldType.eth_type
-		                matchValues = #[
-		                    2048L
-		                ]
-		            ],
-		            new NxMatchInfoBuilder >> [
-		                matchField = NxMatchFieldType.nx_tcp_dst_with_mask
-		                matchValues = #[
-		                    334L,
-		                    65534L
-		                ]
-		            ],
-		            new MatchInfoBuilder >> [
-		                matchField = MatchFieldType.ip_proto
-		                matchValues = #[
-		                    6L
-		                ]
-		            ],
-		            new MatchInfoBuilder >> [
-		                bigMatchValues = #[
-		                    1085217976614912bi,
-		                    MetaDataUtil.METADATA_MASK_LPORT_TAG
-		                ]
-		                matchField = MatchFieldType.metadata
-		            ],
-		            new NxMatchInfoBuilder >> [
-		                matchField = NxMatchFieldType.ct_state
-		                matchValues = #[
-		                    33L,
-		                    33L
-		                ]
-		            ]
-		        ]
-		        priority = 61010
-		        tableId = 41 as short
-		    ],
-		    new FlowEntity(123bi) => [
-		        cookie = 110100480bi
-		        flowId = "TCP_DESTINATION_333_65535Egress98785cc3048-abc3-43cc-89b3-377341426ac6"
-		        flowName = "ACL"
-		        instructionInfoList = #[
-		            new InstructionInfo(InstructionType.apply_actions, #[
-		                new ActionInfoBuilder >> [
-		                    actionKey = 2
-		                    actionType = ActionType.nx_conntrack
-		                    actionValues = #[
-		                        "1",
-		                        "0",
-		                        "5000",
-		                        "255"
-		                    ]
-		                ],
-		                new ActionInfoBuilder >> [
-		                    actionType = ActionType.nx_resubmit
-		                    actionValues = #[
-		                        "17"
-		                    ]
-		                ]
-		            ])
-		        ]
-		        matchInfoList = #[
-		            new MatchInfoBuilder >> [
-		                matchField = MatchFieldType.eth_type
-		                matchValues = #[
-		                    2048L
-		                ]
-		            ],
-		            new MatchInfoBuilder >> [
-		                matchField = MatchFieldType.eth_type
-		                matchValues = #[
-		                    2048L
-		                ]
-		            ],
-		            new NxMatchInfoBuilder >> [
-		                matchField = NxMatchFieldType.nx_tcp_dst_with_mask
-		                matchValues = #[
-		                    333L,
-		                    65535L
-		                ]
-		            ],
-		            new MatchInfoBuilder >> [
-		                matchField = MatchFieldType.ip_proto
-		                matchValues = #[
-		                    6L
-		                ]
-		            ],
-		            new MatchInfoBuilder >> [
-		                bigMatchValues = #[
-		                    1085217976614912bi,
-		                    MetaDataUtil.METADATA_MASK_LPORT_TAG
-		                ]
-		                matchField = MatchFieldType.metadata
-		            ],
-		            new NxMatchInfoBuilder >> [
-		                matchField = NxMatchFieldType.ct_state
-		                matchValues = #[
-		                    33L,
-		                    33L
-		                ]
-		            ]
-		        ]
-		        priority = 61010
-		        tableId = 41 as short
-		    ],
-		    new FlowEntity(123bi) => [
-		        cookie = 110100480bi
-		        flowId = "TCP_DESTINATION_336_65520Egress98785cc3048-abc3-43cc-89b3-377341426ac6"
-		        flowName = "ACL"
-		        instructionInfoList = #[
-		            new InstructionInfo(InstructionType.apply_actions, #[
-		                new ActionInfoBuilder >> [
-		                    actionKey = 2
-		                    actionType = ActionType.nx_conntrack
-		                    actionValues = #[
-		                        "1",
-		                        "0",
-		                        "5000",
-		                        "255"
-		                    ]
-		                ],
-		                new ActionInfoBuilder >> [
-		                    actionType = ActionType.nx_resubmit
-		                    actionValues = #[
-		                        "17"
-		                    ]
-		                ]
-		            ])
-		        ]
-		        matchInfoList = #[
-		            new MatchInfoBuilder >> [
-		                matchField = MatchFieldType.eth_type
-		                matchValues = #[
-		                    2048L
-		                ]
-		            ],
-		            new MatchInfoBuilder >> [
-		                matchField = MatchFieldType.eth_type
-		                matchValues = #[
-		                    2048L
-		                ]
-		            ],
-		            new NxMatchInfoBuilder >> [
-		                matchField = NxMatchFieldType.nx_tcp_dst_with_mask
-		                matchValues = #[
-		                    336L,
-		                    65520L
-		                ]
-		            ],
-		            new MatchInfoBuilder >> [
-		                matchField = MatchFieldType.ip_proto
-		                matchValues = #[
-		                    6L
-		                ]
-		            ],
-		            new MatchInfoBuilder >> [
-		                bigMatchValues = #[
-		                    1085217976614912bi,
-		                    MetaDataUtil.METADATA_MASK_LPORT_TAG
-		                ]
-		                matchField = MatchFieldType.metadata
-		            ],
-		            new NxMatchInfoBuilder >> [
-		                matchField = NxMatchFieldType.ct_state
-		                matchValues = #[
-		                    33L,
-		                    33L
-		                ]
-		            ]
-		        ]
-		        priority = 61010
-		        tableId = 41 as short
-		    ],
-		    new FlowEntity(123bi) => [
-		        cookie = 110100480bi
-		        flowId = "TCP_DESTINATION_352_65504Egress98785cc3048-abc3-43cc-89b3-377341426ac6"
-		        flowName = "ACL"
-		        instructionInfoList = #[
-		            new InstructionInfo(InstructionType.apply_actions, #[
-		                new ActionInfoBuilder >> [
-		                    actionKey = 2
-		                    actionType = ActionType.nx_conntrack
-		                    actionValues = #[
-		                        "1",
-		                        "0",
-		                        "5000",
-		                        "255"
-		                    ]
-		                ],
-		                new ActionInfoBuilder >> [
-		                    actionType = ActionType.nx_resubmit
-		                    actionValues = #[
-		                        "17"
-		                    ]
-		                ]
-		            ])
-		        ]
-		        matchInfoList = #[
-		            new MatchInfoBuilder >> [
-		                matchField = MatchFieldType.eth_type
-		                matchValues = #[
-		                    2048L
-		                ]
-		            ],
-		            new MatchInfoBuilder >> [
-		                matchField = MatchFieldType.eth_type
-		                matchValues = #[
-		                    2048L
-		                ]
-		            ],
-		            new NxMatchInfoBuilder >> [
-		                matchField = NxMatchFieldType.nx_tcp_dst_with_mask
-		                matchValues = #[
-		                    352L,
-		                    65504L
-		                ]
-		            ],
-		            new MatchInfoBuilder >> [
-		                matchField = MatchFieldType.ip_proto
-		                matchValues = #[
-		                    6L
-		                ]
-		            ],
-		            new MatchInfoBuilder >> [
-		                bigMatchValues = #[
-		                    1085217976614912bi,
-		                    MetaDataUtil.METADATA_MASK_LPORT_TAG
-		                ]
-		                matchField = MatchFieldType.metadata
-		            ],
-		            new NxMatchInfoBuilder >> [
-		                matchField = NxMatchFieldType.ct_state
-		                matchValues = #[
-		                    33L,
-		                    33L
-		                ]
-		            ]
-		        ]
-		        priority = 61010
-		        tableId = 41 as short
-		    ],
-		    new FlowEntity(123bi) => [
-		        cookie = 110100480bi
-		        flowId = "TCP_DESTINATION_384_65408Egress98785cc3048-abc3-43cc-89b3-377341426ac6"
-		        flowName = "ACL"
-		        instructionInfoList = #[
-		            new InstructionInfo(InstructionType.apply_actions, #[
-		                new ActionInfoBuilder >> [
-		                    actionKey = 2
-		                    actionType = ActionType.nx_conntrack
-		                    actionValues = #[
-		                        "1",
-		                        "0",
-		                        "5000",
-		                        "255"
-		                    ]
-		                ],
-		                new ActionInfoBuilder >> [
-		                    actionType = ActionType.nx_resubmit
-		                    actionValues = #[
-		                        "17"
-		                    ]
-		                ]
-		            ])
-		        ]
-		        matchInfoList = #[
-		            new MatchInfoBuilder >> [
-		                matchField = MatchFieldType.eth_type
-		                matchValues = #[
-		                    2048L
-		                ]
-		            ],
-		            new MatchInfoBuilder >> [
-		                matchField = MatchFieldType.eth_type
-		                matchValues = #[
-		                    2048L
-		                ]
-		            ],
-		            new NxMatchInfoBuilder >> [
-		                matchField = NxMatchFieldType.nx_tcp_dst_with_mask
-		                matchValues = #[
-		                    384L,
-		                    65408L
-		                ]
-		            ],
-		            new MatchInfoBuilder >> [
-		                matchField = MatchFieldType.ip_proto
-		                matchValues = #[
-		                    6L
-		                ]
-		            ],
-		            new MatchInfoBuilder >> [
-		                bigMatchValues = #[
-		                    1085217976614912bi,
-		                    MetaDataUtil.METADATA_MASK_LPORT_TAG
-		                ]
-		                matchField = MatchFieldType.metadata
-		            ],
-		            new NxMatchInfoBuilder >> [
-		                matchField = NxMatchFieldType.ct_state
-		                matchValues = #[
-		                    33L,
-		                    33L
-		                ]
-		            ]
-		        ]
-		        priority = 61010
-		        tableId = 41 as short
-		    ],
-		    new FlowEntity(123bi) => [
-		        cookie = 110100480bi
-		        flowId = "TCP_DESTINATION_768_65528Egress98785cc3048-abc3-43cc-89b3-377341426ac6"
-		        flowName = "ACL"
-		        instructionInfoList = #[
-		            new InstructionInfo(InstructionType.apply_actions, #[
-		                new ActionInfoBuilder >> [
-		                    actionKey = 2
-		                    actionType = ActionType.nx_conntrack
-		                    actionValues = #[
-		                        "1",
-		                        "0",
-		                        "5000",
-		                        "255"
-		                    ]
-		                ],
-		                new ActionInfoBuilder >> [
-		                    actionType = ActionType.nx_resubmit
-		                    actionValues = #[
-		                        "17"
-		                    ]
-		                ]
-		            ])
-		        ]
-		        matchInfoList = #[
-		            new MatchInfoBuilder >> [
-		                matchField = MatchFieldType.eth_type
-		                matchValues = #[
-		                    2048L
-		                ]
-		            ],
-		            new MatchInfoBuilder >> [
-		                matchField = MatchFieldType.eth_type
-		                matchValues = #[
-		                    2048L
-		                ]
-		            ],
-		            new NxMatchInfoBuilder >> [
-		                matchField = NxMatchFieldType.nx_tcp_dst_with_mask
-		                matchValues = #[
-		                    768L,
-		                    65528L
-		                ]
-		            ],
-		            new MatchInfoBuilder >> [
-		                matchField = MatchFieldType.ip_proto
-		                matchValues = #[
-		                    6L
-		                ]
-		            ],
-		            new MatchInfoBuilder >> [
-		                bigMatchValues = #[
-		                    1085217976614912bi,
-		                    MetaDataUtil.METADATA_MASK_LPORT_TAG
-		                ]
-		                matchField = MatchFieldType.metadata
-		            ],
-		            new NxMatchInfoBuilder >> [
-		                matchField = NxMatchFieldType.ct_state
-		                matchValues = #[
-		                    33L,
-		                    33L
-		                ]
-		            ]
-		        ]
-		        priority = 61010
-		        tableId = 41 as short
-		    ]
-    	]
+        #[
+            new FlowEntity(123bi) => [
+                cookie = 110100480bi
+                flowId = "TCP_DESTINATION_776_65534Egress98785cc3048-abc3-43cc-89b3-377341426ac6"
+                flowName = "ACL"
+                instructionInfoList = #[
+                    new InstructionInfo(InstructionType.apply_actions, #[
+                        new ActionInfoBuilder >> [
+                            actionKey = 2
+                            actionType = ActionType.nx_conntrack
+                            actionValues = #[
+                                "1",
+                                "0",
+                                "5000",
+                                "255"
+                            ]
+                        ],
+                        new ActionInfoBuilder >> [
+                            actionType = ActionType.nx_resubmit
+                            actionValues = #[
+                                "17"
+                            ]
+                        ]
+                    ])
+                ]
+                matchInfoList = #[
+                    new MatchInfoBuilder >> [
+                        matchField = MatchFieldType.eth_type
+                        matchValues = #[
+                            2048L
+                        ]
+                    ],
+                    new MatchInfoBuilder >> [
+                        matchField = MatchFieldType.eth_type
+                        matchValues = #[
+                            2048L
+                        ]
+                    ],
+                    new NxMatchInfoBuilder >> [
+                        matchField = NxMatchFieldType.nx_tcp_dst_with_mask
+                        matchValues = #[
+                            776L,
+                            65534L
+                        ]
+                    ],
+                    new MatchInfoBuilder >> [
+                        matchField = MatchFieldType.ip_proto
+                        matchValues = #[
+                            6L
+                        ]
+                    ],
+                    new MatchInfoBuilder >> [
+                        bigMatchValues = #[
+                            1085217976614912bi,
+                            MetaDataUtil.METADATA_MASK_LPORT_TAG
+                        ]
+                        matchField = MatchFieldType.metadata
+                    ],
+                    new NxMatchInfoBuilder >> [
+                        matchField = NxMatchFieldType.ct_state
+                        matchValues = #[
+                            33L,
+                            33L
+                        ]
+                    ]
+                ]
+                priority = AclServiceTest.FLOW_PRIORITY_SG_1
+                tableId = 41 as short
+            ],
+            new FlowEntity(123bi) => [
+                cookie = 110100480bi
+                flowId = "TCP_DESTINATION_512_65280Egress98785cc3048-abc3-43cc-89b3-377341426ac6"
+                flowName = "ACL"
+                instructionInfoList = #[
+                    new InstructionInfo(InstructionType.apply_actions, #[
+                        new ActionInfoBuilder >> [
+                            actionKey = 2
+                            actionType = ActionType.nx_conntrack
+                            actionValues = #[
+                                "1",
+                                "0",
+                                "5000",
+                                "255"
+                            ]
+                        ],
+                        new ActionInfoBuilder >> [
+                            actionType = ActionType.nx_resubmit
+                            actionValues = #[
+                                "17"
+                            ]
+                        ]
+                    ])
+                ]
+                matchInfoList = #[
+                    new MatchInfoBuilder >> [
+                        matchField = MatchFieldType.eth_type
+                        matchValues = #[
+                            2048L
+                        ]
+                    ],
+                    new MatchInfoBuilder >> [
+                        matchField = MatchFieldType.eth_type
+                        matchValues = #[
+                            2048L
+                        ]
+                    ],
+                    new NxMatchInfoBuilder >> [
+                        matchField = NxMatchFieldType.nx_tcp_dst_with_mask
+                        matchValues = #[
+                            512L,
+                            65280L
+                        ]
+                    ],
+                    new MatchInfoBuilder >> [
+                        matchField = MatchFieldType.ip_proto
+                        matchValues = #[
+                            6L
+                        ]
+                    ],
+                    new MatchInfoBuilder >> [
+                        bigMatchValues = #[
+                            1085217976614912bi,
+                            MetaDataUtil.METADATA_MASK_LPORT_TAG
+                        ]
+                        matchField = MatchFieldType.metadata
+                    ],
+                    new NxMatchInfoBuilder >> [
+                        matchField = NxMatchFieldType.ct_state
+                        matchValues = #[
+                            33L,
+                            33L
+                        ]
+                    ]
+                ]
+                priority = AclServiceTest.FLOW_PRIORITY_SG_1
+                tableId = 41 as short
+            ],
+            new FlowEntity(123bi) => [
+                cookie = 110100480bi
+                flowId = "TCP_DESTINATION_334_65534Egress98785cc3048-abc3-43cc-89b3-377341426ac6"
+                flowName = "ACL"
+                instructionInfoList = #[
+                    new InstructionInfo(InstructionType.apply_actions, #[
+                        new ActionInfoBuilder >> [
+                            actionKey = 2
+                            actionType = ActionType.nx_conntrack
+                            actionValues = #[
+                                "1",
+                                "0",
+                                "5000",
+                                "255"
+                            ]
+                        ],
+                        new ActionInfoBuilder >> [
+                            actionType = ActionType.nx_resubmit
+                            actionValues = #[
+                                "17"
+                            ]
+                        ]
+                    ])
+                ]
+                matchInfoList = #[
+                    new MatchInfoBuilder >> [
+                        matchField = MatchFieldType.eth_type
+                        matchValues = #[
+                            2048L
+                        ]
+                    ],
+                    new MatchInfoBuilder >> [
+                        matchField = MatchFieldType.eth_type
+                        matchValues = #[
+                            2048L
+                        ]
+                    ],
+                    new NxMatchInfoBuilder >> [
+                        matchField = NxMatchFieldType.nx_tcp_dst_with_mask
+                        matchValues = #[
+                            334L,
+                            65534L
+                        ]
+                    ],
+                    new MatchInfoBuilder >> [
+                        matchField = MatchFieldType.ip_proto
+                        matchValues = #[
+                            6L
+                        ]
+                    ],
+                    new MatchInfoBuilder >> [
+                        bigMatchValues = #[
+                            1085217976614912bi,
+                            MetaDataUtil.METADATA_MASK_LPORT_TAG
+                        ]
+                        matchField = MatchFieldType.metadata
+                    ],
+                    new NxMatchInfoBuilder >> [
+                        matchField = NxMatchFieldType.ct_state
+                        matchValues = #[
+                            33L,
+                            33L
+                        ]
+                    ]
+                ]
+                priority = AclServiceTest.FLOW_PRIORITY_SG_1
+                tableId = 41 as short
+            ],
+            new FlowEntity(123bi) => [
+                cookie = 110100480bi
+                flowId = "TCP_DESTINATION_333_65535Egress98785cc3048-abc3-43cc-89b3-377341426ac6"
+                flowName = "ACL"
+                instructionInfoList = #[
+                    new InstructionInfo(InstructionType.apply_actions, #[
+                        new ActionInfoBuilder >> [
+                            actionKey = 2
+                            actionType = ActionType.nx_conntrack
+                            actionValues = #[
+                                "1",
+                                "0",
+                                "5000",
+                                "255"
+                            ]
+                        ],
+                        new ActionInfoBuilder >> [
+                            actionType = ActionType.nx_resubmit
+                            actionValues = #[
+                                "17"
+                            ]
+                        ]
+                    ])
+                ]
+                matchInfoList = #[
+                    new MatchInfoBuilder >> [
+                        matchField = MatchFieldType.eth_type
+                        matchValues = #[
+                            2048L
+                        ]
+                    ],
+                    new MatchInfoBuilder >> [
+                        matchField = MatchFieldType.eth_type
+                        matchValues = #[
+                            2048L
+                        ]
+                    ],
+                    new NxMatchInfoBuilder >> [
+                        matchField = NxMatchFieldType.nx_tcp_dst_with_mask
+                        matchValues = #[
+                            333L,
+                            65535L
+                        ]
+                    ],
+                    new MatchInfoBuilder >> [
+                        matchField = MatchFieldType.ip_proto
+                        matchValues = #[
+                            6L
+                        ]
+                    ],
+                    new MatchInfoBuilder >> [
+                        bigMatchValues = #[
+                            1085217976614912bi,
+                            MetaDataUtil.METADATA_MASK_LPORT_TAG
+                        ]
+                        matchField = MatchFieldType.metadata
+                    ],
+                    new NxMatchInfoBuilder >> [
+                        matchField = NxMatchFieldType.ct_state
+                        matchValues = #[
+                            33L,
+                            33L
+                        ]
+                    ]
+                ]
+                priority = AclServiceTest.FLOW_PRIORITY_SG_1
+                tableId = 41 as short
+            ],
+            new FlowEntity(123bi) => [
+                cookie = 110100480bi
+                flowId = "TCP_DESTINATION_336_65520Egress98785cc3048-abc3-43cc-89b3-377341426ac6"
+                flowName = "ACL"
+                instructionInfoList = #[
+                    new InstructionInfo(InstructionType.apply_actions, #[
+                        new ActionInfoBuilder >> [
+                            actionKey = 2
+                            actionType = ActionType.nx_conntrack
+                            actionValues = #[
+                                "1",
+                                "0",
+                                "5000",
+                                "255"
+                            ]
+                        ],
+                        new ActionInfoBuilder >> [
+                            actionType = ActionType.nx_resubmit
+                            actionValues = #[
+                                "17"
+                            ]
+                        ]
+                    ])
+                ]
+                matchInfoList = #[
+                    new MatchInfoBuilder >> [
+                        matchField = MatchFieldType.eth_type
+                        matchValues = #[
+                            2048L
+                        ]
+                    ],
+                    new MatchInfoBuilder >> [
+                        matchField = MatchFieldType.eth_type
+                        matchValues = #[
+                            2048L
+                        ]
+                    ],
+                    new NxMatchInfoBuilder >> [
+                        matchField = NxMatchFieldType.nx_tcp_dst_with_mask
+                        matchValues = #[
+                            336L,
+                            65520L
+                        ]
+                    ],
+                    new MatchInfoBuilder >> [
+                        matchField = MatchFieldType.ip_proto
+                        matchValues = #[
+                            6L
+                        ]
+                    ],
+                    new MatchInfoBuilder >> [
+                        bigMatchValues = #[
+                            1085217976614912bi,
+                            MetaDataUtil.METADATA_MASK_LPORT_TAG
+                        ]
+                        matchField = MatchFieldType.metadata
+                    ],
+                    new NxMatchInfoBuilder >> [
+                        matchField = NxMatchFieldType.ct_state
+                        matchValues = #[
+                            33L,
+                            33L
+                        ]
+                    ]
+                ]
+                priority = AclServiceTest.FLOW_PRIORITY_SG_1
+                tableId = 41 as short
+            ],
+            new FlowEntity(123bi) => [
+                cookie = 110100480bi
+                flowId = "TCP_DESTINATION_352_65504Egress98785cc3048-abc3-43cc-89b3-377341426ac6"
+                flowName = "ACL"
+                instructionInfoList = #[
+                    new InstructionInfo(InstructionType.apply_actions, #[
+                        new ActionInfoBuilder >> [
+                            actionKey = 2
+                            actionType = ActionType.nx_conntrack
+                            actionValues = #[
+                                "1",
+                                "0",
+                                "5000",
+                                "255"
+                            ]
+                        ],
+                        new ActionInfoBuilder >> [
+                            actionType = ActionType.nx_resubmit
+                            actionValues = #[
+                                "17"
+                            ]
+                        ]
+                    ])
+                ]
+                matchInfoList = #[
+                    new MatchInfoBuilder >> [
+                        matchField = MatchFieldType.eth_type
+                        matchValues = #[
+                            2048L
+                        ]
+                    ],
+                    new MatchInfoBuilder >> [
+                        matchField = MatchFieldType.eth_type
+                        matchValues = #[
+                            2048L
+                        ]
+                    ],
+                    new NxMatchInfoBuilder >> [
+                        matchField = NxMatchFieldType.nx_tcp_dst_with_mask
+                        matchValues = #[
+                            352L,
+                            65504L
+                        ]
+                    ],
+                    new MatchInfoBuilder >> [
+                        matchField = MatchFieldType.ip_proto
+                        matchValues = #[
+                            6L
+                        ]
+                    ],
+                    new MatchInfoBuilder >> [
+                        bigMatchValues = #[
+                            1085217976614912bi,
+                            MetaDataUtil.METADATA_MASK_LPORT_TAG
+                        ]
+                        matchField = MatchFieldType.metadata
+                    ],
+                    new NxMatchInfoBuilder >> [
+                        matchField = NxMatchFieldType.ct_state
+                        matchValues = #[
+                            33L,
+                            33L
+                        ]
+                    ]
+                ]
+                priority = AclServiceTest.FLOW_PRIORITY_SG_1
+                tableId = 41 as short
+            ],
+            new FlowEntity(123bi) => [
+                cookie = 110100480bi
+                flowId = "TCP_DESTINATION_384_65408Egress98785cc3048-abc3-43cc-89b3-377341426ac6"
+                flowName = "ACL"
+                instructionInfoList = #[
+                    new InstructionInfo(InstructionType.apply_actions, #[
+                        new ActionInfoBuilder >> [
+                            actionKey = 2
+                            actionType = ActionType.nx_conntrack
+                            actionValues = #[
+                                "1",
+                                "0",
+                                "5000",
+                                "255"
+                            ]
+                        ],
+                        new ActionInfoBuilder >> [
+                            actionType = ActionType.nx_resubmit
+                            actionValues = #[
+                                "17"
+                            ]
+                        ]
+                    ])
+                ]
+                matchInfoList = #[
+                    new MatchInfoBuilder >> [
+                        matchField = MatchFieldType.eth_type
+                        matchValues = #[
+                            2048L
+                        ]
+                    ],
+                    new MatchInfoBuilder >> [
+                        matchField = MatchFieldType.eth_type
+                        matchValues = #[
+                            2048L
+                        ]
+                    ],
+                    new NxMatchInfoBuilder >> [
+                        matchField = NxMatchFieldType.nx_tcp_dst_with_mask
+                        matchValues = #[
+                            384L,
+                            65408L
+                        ]
+                    ],
+                    new MatchInfoBuilder >> [
+                        matchField = MatchFieldType.ip_proto
+                        matchValues = #[
+                            6L
+                        ]
+                    ],
+                    new MatchInfoBuilder >> [
+                        bigMatchValues = #[
+                            1085217976614912bi,
+                            MetaDataUtil.METADATA_MASK_LPORT_TAG
+                        ]
+                        matchField = MatchFieldType.metadata
+                    ],
+                    new NxMatchInfoBuilder >> [
+                        matchField = NxMatchFieldType.ct_state
+                        matchValues = #[
+                            33L,
+                            33L
+                        ]
+                    ]
+                ]
+                priority = AclServiceTest.FLOW_PRIORITY_SG_1
+                tableId = 41 as short
+            ],
+            new FlowEntity(123bi) => [
+                cookie = 110100480bi
+                flowId = "TCP_DESTINATION_768_65528Egress98785cc3048-abc3-43cc-89b3-377341426ac6"
+                flowName = "ACL"
+                instructionInfoList = #[
+                    new InstructionInfo(InstructionType.apply_actions, #[
+                        new ActionInfoBuilder >> [
+                            actionKey = 2
+                            actionType = ActionType.nx_conntrack
+                            actionValues = #[
+                                "1",
+                                "0",
+                                "5000",
+                                "255"
+                            ]
+                        ],
+                        new ActionInfoBuilder >> [
+                            actionType = ActionType.nx_resubmit
+                            actionValues = #[
+                                "17"
+                            ]
+                        ]
+                    ])
+                ]
+                matchInfoList = #[
+                    new MatchInfoBuilder >> [
+                        matchField = MatchFieldType.eth_type
+                        matchValues = #[
+                            2048L
+                        ]
+                    ],
+                    new MatchInfoBuilder >> [
+                        matchField = MatchFieldType.eth_type
+                        matchValues = #[
+                            2048L
+                        ]
+                    ],
+                    new NxMatchInfoBuilder >> [
+                        matchField = NxMatchFieldType.nx_tcp_dst_with_mask
+                        matchValues = #[
+                            768L,
+                            65528L
+                        ]
+                    ],
+                    new MatchInfoBuilder >> [
+                        matchField = MatchFieldType.ip_proto
+                        matchValues = #[
+                            6L
+                        ]
+                    ],
+                    new MatchInfoBuilder >> [
+                        bigMatchValues = #[
+                            1085217976614912bi,
+                            MetaDataUtil.METADATA_MASK_LPORT_TAG
+                        ]
+                        matchField = MatchFieldType.metadata
+                    ],
+                    new NxMatchInfoBuilder >> [
+                        matchField = NxMatchFieldType.ct_state
+                        matchValues = #[
+                            33L,
+                            33L
+                        ]
+                    ]
+                ]
+                priority = AclServiceTest.FLOW_PRIORITY_SG_1
+                tableId = 41 as short
+            ]
+        ]
     }
 
     static def udpIngressAllFlows() {
-    	#[
-    		new FlowEntity(123bi) => [
-		        cookie = 110100480bi
-		        flowId = "UDP_DESTINATION_1_0Ingress98785cc3048-abc3-43cc-89b3-377341426ac7"
-		        flowName = "ACL"
-		        instructionInfoList = #[
-		            new InstructionInfo(InstructionType.apply_actions, #[
-		                new ActionInfoBuilder >> [
-		                    actionKey = 2
-		                    actionType = ActionType.nx_conntrack
-		                    actionValues = #[
-		                        "1",
-		                        "0",
-		                        "5000",
-		                        "255"
-		                    ]
-		                ],
-		                new ActionInfoBuilder >> [
-		                    actionType = ActionType.nx_resubmit
-		                    actionValues = #[
-		                        "220"
-		                    ]
-		                ]
-		            ])
-		        ]
-		        matchInfoList = #[
-		            new MatchInfoBuilder >> [
-		                matchField = MatchFieldType.eth_type
-		                matchValues = #[
-		                    2048L
-		                ]
-		            ],
-		            new MatchInfoBuilder >> [
-		                matchField = MatchFieldType.eth_type
-		                matchValues = #[
-		                    2048L
-		                ]
-		            ],
-		            new MatchInfoBuilder >> [
-		                matchField = MatchFieldType.ip_proto
-		                matchValues = #[
-		                    17L
-		                ]
-		            ],
-		            new MatchInfoBuilder >> [
-		                bigMatchValues = #[
-		                    1085217976614912bi,
-		                    MetaDataUtil.METADATA_MASK_LPORT_TAG
-		                ]
-		                matchField = MatchFieldType.metadata
-		            ],
-		            new NxMatchInfoBuilder >> [
-		                matchField = NxMatchFieldType.ct_state
-		                matchValues = #[
-		                    33L,
-		                    33L
-		                ]
-		            ]
-		        ]
-		        priority = 61010
-		        tableId = 252 as short
-		    ]
-    	]
+        #[
+            new FlowEntity(123bi) => [
+                cookie = 110100480bi
+                flowId = "UDP_DESTINATION_1_0Ingress98785cc3048-abc3-43cc-89b3-377341426ac7"
+                flowName = "ACL"
+                instructionInfoList = #[
+                    new InstructionInfo(InstructionType.apply_actions, #[
+                        new ActionInfoBuilder >> [
+                            actionKey = 2
+                            actionType = ActionType.nx_conntrack
+                            actionValues = #[
+                                "1",
+                                "0",
+                                "5000",
+                                "255"
+                            ]
+                        ],
+                        new ActionInfoBuilder >> [
+                            actionType = ActionType.nx_resubmit
+                            actionValues = #[
+                                "220"
+                            ]
+                        ]
+                    ])
+                ]
+                matchInfoList = #[
+                    new MatchInfoBuilder >> [
+                        matchField = MatchFieldType.eth_type
+                        matchValues = #[
+                            2048L
+                        ]
+                    ],
+                    new MatchInfoBuilder >> [
+                        matchField = MatchFieldType.eth_type
+                        matchValues = #[
+                            2048L
+                        ]
+                    ],
+                    new MatchInfoBuilder >> [
+                        matchField = MatchFieldType.ip_proto
+                        matchValues = #[
+                            17L
+                        ]
+                    ],
+                    new MatchInfoBuilder >> [
+                        bigMatchValues = #[
+                            1085217976614912bi,
+                            MetaDataUtil.METADATA_MASK_LPORT_TAG
+                        ]
+                        matchField = MatchFieldType.metadata
+                    ],
+                    new NxMatchInfoBuilder >> [
+                        matchField = NxMatchFieldType.ct_state
+                        matchValues = #[
+                            33L,
+                            33L
+                        ]
+                    ]
+                ]
+                priority = AclServiceTest.FLOW_PRIORITY_SG_1
+                tableId = 252 as short
+            ]
+        ]
     }
 
- 	static def tcpEgressAllFlows() {
- 		#[
- 			new FlowEntity(123bi) => [
-		        cookie = 110100480bi
-		        flowId = "TCP_DESTINATION_1_0Egress98785cc3048-abc3-43cc-89b3-377341426ac6"
-		        flowName = "ACL"
-		        instructionInfoList = #[
-		            new InstructionInfo(InstructionType.apply_actions, #[
-		                new ActionInfoBuilder >> [
-		                    actionKey = 2
-		                    actionType = ActionType.nx_conntrack
-		                    actionValues = #[
-		                        "1",
-		                        "0",
-		                        "5000",
-		                        "255"
-		                    ]
-		                ],
-		                new ActionInfoBuilder >> [
-		                    actionType = ActionType.nx_resubmit
-		                    actionValues = #[
-		                        "17"
-		                    ]
-		                ]
-		            ])
-		        ]
-		        matchInfoList = #[
-		            new MatchInfoBuilder >> [
-		                matchField = MatchFieldType.eth_type
-		                matchValues = #[
-		                    2048L
-		                ]
-		            ],
-		            new MatchInfoBuilder >> [
-		                matchField = MatchFieldType.eth_type
-		                matchValues = #[
-		                    2048L
-		                ]
-		            ],
-		            new MatchInfoBuilder >> [
-		                matchField = MatchFieldType.ip_proto
-		                matchValues = #[
-		                    6L
-		                ]
-		            ],
-		            new MatchInfoBuilder >> [
-		                bigMatchValues = #[
-		                    1085217976614912bi,
-		                    MetaDataUtil.METADATA_MASK_LPORT_TAG
-		                ]
-		                matchField = MatchFieldType.metadata
-		            ],
-		            new NxMatchInfoBuilder >> [
-		                matchField = NxMatchFieldType.ct_state
-		                matchValues = #[
-		                    33L,
-		                    33L
-		                ]
-		            ]
-		        ]
-		        priority = 61010
-		        tableId = 41 as short
-		    ]
- 		]
+     static def tcpEgressAllFlows() {
+         #[
+             new FlowEntity(123bi) => [
+                cookie = 110100480bi
+                flowId = "TCP_DESTINATION_1_0Egress98785cc3048-abc3-43cc-89b3-377341426ac6"
+                flowName = "ACL"
+                instructionInfoList = #[
+                    new InstructionInfo(InstructionType.apply_actions, #[
+                        new ActionInfoBuilder >> [
+                            actionKey = 2
+                            actionType = ActionType.nx_conntrack
+                            actionValues = #[
+                                "1",
+                                "0",
+                                "5000",
+                                "255"
+                            ]
+                        ],
+                        new ActionInfoBuilder >> [
+                            actionType = ActionType.nx_resubmit
+                            actionValues = #[
+                                "17"
+                            ]
+                        ]
+                    ])
+                ]
+                matchInfoList = #[
+                    new MatchInfoBuilder >> [
+                        matchField = MatchFieldType.eth_type
+                        matchValues = #[
+                            2048L
+                        ]
+                    ],
+                    new MatchInfoBuilder >> [
+                        matchField = MatchFieldType.eth_type
+                        matchValues = #[
+                            2048L
+                        ]
+                    ],
+                    new MatchInfoBuilder >> [
+                        matchField = MatchFieldType.ip_proto
+                        matchValues = #[
+                            6L
+                        ]
+                    ],
+                    new MatchInfoBuilder >> [
+                        bigMatchValues = #[
+                            1085217976614912bi,
+                            MetaDataUtil.METADATA_MASK_LPORT_TAG
+                        ]
+                        matchField = MatchFieldType.metadata
+                    ],
+                    new NxMatchInfoBuilder >> [
+                        matchField = NxMatchFieldType.ct_state
+                        matchValues = #[
+                            33L,
+                            33L
+                        ]
+                    ]
+                ]
+                priority = AclServiceTest.FLOW_PRIORITY_SG_1
+                tableId = 41 as short
+            ]
+         ]
+     }
 
- 	}
     static def expectedFlows(String mac) {
         // Code auto. generated by https://github.com/vorburger/xtendbeans
         #[
@@ -3910,6 +3917,1006 @@ class FlowEntryObjects {
                 ]
                 priority = 63020
                 tableId = 40 as short
+            ]
+        ]
+    }
+
+    static def fixedIngressFlowsPort3() {
+        #[
+            new FlowEntity(123bi) => [
+                cookie = 110100480bi
+                flowId = "Ingress_DHCP_Server_v4123_987__Permit_"
+                flowName = "ACL"
+                instructionInfoList = #[
+                    new InstructionInfo(InstructionType.apply_actions, #[
+                        new ActionInfoBuilder >> [
+                            actionType = ActionType.nx_resubmit
+                            actionValues = #[
+                                "220"
+                            ]
+                        ]
+                    ])
+                ]
+                matchInfoList = #[
+                    new MatchInfoBuilder >> [
+                        matchField = MatchFieldType.eth_type
+                        matchValues = #[
+                            2048L
+                        ]
+                    ],
+                    new MatchInfoBuilder >> [
+                        matchField = MatchFieldType.ip_proto
+                        matchValues = #[
+                            17L
+                        ]
+                    ],
+                    new MatchInfoBuilder >> [
+                        matchField = MatchFieldType.udp_dst
+                        matchValues = #[
+                            68L
+                        ]
+                    ],
+                    new MatchInfoBuilder >> [
+                        matchField = MatchFieldType.udp_src
+                        matchValues = #[
+                            67L
+                        ]
+                    ],
+                    new MatchInfoBuilder >> [
+                        bigMatchValues = #[
+                            1085217976614912bi,
+                            MetaDataUtil.METADATA_MASK_LPORT_TAG
+                        ]
+                        matchField = MatchFieldType.metadata
+                    ]
+                ]
+                priority = 63010
+                tableId = 251 as short
+            ],
+            new FlowEntity(123bi) => [
+                cookie = 110100480bi
+                flowId = "Ingress_DHCP_Server_v6_123_987___Permit_"
+                flowName = "ACL"
+                instructionInfoList = #[
+                    new InstructionInfo(InstructionType.apply_actions, #[
+                        new ActionInfoBuilder >> [
+                            actionType = ActionType.nx_resubmit
+                            actionValues = #[
+                                "220"
+                            ]
+                        ]
+                    ])
+                ]
+                matchInfoList = #[
+                    new MatchInfoBuilder >> [
+                        matchField = MatchFieldType.eth_type
+                        matchValues = #[
+                            34525L
+                        ]
+                    ],
+                    new MatchInfoBuilder >> [
+                        matchField = MatchFieldType.ip_proto
+                        matchValues = #[
+                            17L
+                        ]
+                    ],
+                    new MatchInfoBuilder >> [
+                        matchField = MatchFieldType.udp_dst
+                        matchValues = #[
+                            546L
+                        ]
+                    ],
+                    new MatchInfoBuilder >> [
+                        matchField = MatchFieldType.udp_src
+                        matchValues = #[
+                            547L
+                        ]
+                    ],
+                    new MatchInfoBuilder >> [
+                        bigMatchValues = #[
+                            1085217976614912bi,
+                            MetaDataUtil.METADATA_MASK_LPORT_TAG
+                        ]
+                        matchField = MatchFieldType.metadata
+                    ]
+                ]
+                priority = 63010
+                tableId = 251 as short
+            ],
+            new FlowEntity(123bi) => [
+                cookie = 110100480bi
+                flowId = "Ingress_ICMPv6_123_987_130_Permit_"
+                flowName = "ACL"
+                instructionInfoList = #[
+                    new InstructionInfo(InstructionType.apply_actions, #[
+                        new ActionInfoBuilder >> [
+                            actionType = ActionType.nx_resubmit
+                            actionValues = #[
+                                "220"
+                            ]
+                        ]
+                    ])
+                ]
+                matchInfoList = #[
+                    new MatchInfoBuilder >> [
+                        matchField = MatchFieldType.eth_type
+                        matchValues = #[
+                            34525L
+                        ]
+                    ],
+                    new MatchInfoBuilder >> [
+                        matchField = MatchFieldType.ip_proto
+                        matchValues = #[
+                            58L
+                        ]
+                    ],
+                    new MatchInfoBuilder >> [
+                        matchField = MatchFieldType.icmp_v6
+                        matchValues = #[
+                            130L,
+                            0L
+                        ]
+                    ],
+                    new MatchInfoBuilder >> [
+                        bigMatchValues = #[
+                            1085217976614912bi,
+                            MetaDataUtil.METADATA_MASK_LPORT_TAG
+                        ]
+                        matchField = MatchFieldType.metadata
+                    ]
+                ]
+                priority = 63010
+                tableId = 251 as short
+            ],
+            new FlowEntity(123bi) => [
+                cookie = 110100480bi
+                flowId = "Ingress_ICMPv6_123_987_135_Permit_"
+                flowName = "ACL"
+                instructionInfoList = #[
+                    new InstructionInfo(InstructionType.apply_actions, #[
+                        new ActionInfoBuilder >> [
+                            actionType = ActionType.nx_resubmit
+                            actionValues = #[
+                                "220"
+                            ]
+                        ]
+                    ])
+                ]
+                matchInfoList = #[
+                    new MatchInfoBuilder >> [
+                        matchField = MatchFieldType.eth_type
+                        matchValues = #[
+                            34525L
+                        ]
+                    ],
+                    new MatchInfoBuilder >> [
+                        matchField = MatchFieldType.ip_proto
+                        matchValues = #[
+                            58L
+                        ]
+                    ],
+                    new MatchInfoBuilder >> [
+                        matchField = MatchFieldType.icmp_v6
+                        matchValues = #[
+                            135L,
+                            0L
+                        ]
+                    ],
+                    new MatchInfoBuilder >> [
+                        bigMatchValues = #[
+                            1085217976614912bi,
+                            MetaDataUtil.METADATA_MASK_LPORT_TAG
+                        ]
+                        matchField = MatchFieldType.metadata
+                    ]
+                ]
+                priority = 63010
+                tableId = 251 as short
+            ],
+            new FlowEntity(123bi) => [
+                cookie = 110100480bi
+                flowId = "Ingress_ICMPv6_123_987_136_Permit_"
+                flowName = "ACL"
+                instructionInfoList = #[
+                    new InstructionInfo(InstructionType.apply_actions, #[
+                        new ActionInfoBuilder >> [
+                            actionType = ActionType.nx_resubmit
+                            actionValues = #[
+                                "220"
+                            ]
+                        ]
+                    ])
+                ]
+                matchInfoList = #[
+                    new MatchInfoBuilder >> [
+                        matchField = MatchFieldType.eth_type
+                        matchValues = #[
+                            34525L
+                        ]
+                    ],
+                    new MatchInfoBuilder >> [
+                        matchField = MatchFieldType.ip_proto
+                        matchValues = #[
+                            58L
+                        ]
+                    ],
+                    new MatchInfoBuilder >> [
+                        matchField = MatchFieldType.icmp_v6
+                        matchValues = #[
+                            136L,
+                            0L
+                        ]
+                    ],
+                    new MatchInfoBuilder >> [
+                        bigMatchValues = #[
+                            1085217976614912bi,
+                            MetaDataUtil.METADATA_MASK_LPORT_TAG
+                        ]
+                        matchField = MatchFieldType.metadata
+                    ]
+                ]
+                priority = 63010
+                tableId = 251 as short
+            ],
+            new FlowEntity(123bi) => [
+                cookie = 110100480bi
+                flowId = "Ingress_ARP_123_987"
+                flowName = "ACL"
+                instructionInfoList = #[
+                    new InstructionInfo(InstructionType.apply_actions, #[
+                        new ActionInfoBuilder >> [
+                            actionType = ActionType.nx_resubmit
+                            actionValues = #[
+                                "220"
+                            ]
+                        ]
+                    ])
+                ]
+                matchInfoList = #[
+                    new MatchInfoBuilder >> [
+                        matchField = MatchFieldType.eth_type
+                        matchValues = #[
+                            2054L
+                        ]
+                    ],
+                    new MatchInfoBuilder >> [
+                        bigMatchValues = #[
+                            1085217976614912bi,
+                            MetaDataUtil.METADATA_MASK_LPORT_TAG
+                        ]
+                        matchField = MatchFieldType.metadata
+                    ]
+                ]
+                priority = 63010
+                tableId = 251 as short
+            ],
+            new FlowEntity(123bi) => [
+                cookie = 110100480bi
+                flowId = "Ingress_Fixed_Conntrk_Untrk_123_0D:AA:D8:42:30:F5_10.0.0.3/24_Untracked"
+                flowName = "ACL"
+                instructionInfoList = #[
+                    new InstructionInfo(InstructionType.apply_actions, #[
+                        new ActionInfoBuilder >> [
+                            actionKey = 2
+                            actionType = ActionType.nx_conntrack
+                            actionValues = #[
+                                "0",
+                                "0",
+                                "5000",
+                                "252"
+                            ]
+                        ]
+                    ])
+                ]
+                matchInfoList = #[
+                    new MatchInfoBuilder >> [
+                        matchField = MatchFieldType.eth_type
+                        matchValues = #[
+                            2048L
+                        ]
+                    ],
+                    new NxMatchInfoBuilder >> [
+                        matchField = NxMatchFieldType.ct_state
+                        matchValues = #[
+                            0L,
+                            32L
+                        ]
+                    ],
+                    new MatchInfoBuilder >> [
+                        matchField = MatchFieldType.eth_dst
+                        stringMatchValues = #[
+                            "0D:AA:D8:42:30:F5"
+                        ]
+                    ],
+                    new MatchInfoBuilder >> [
+                        matchField = MatchFieldType.eth_type
+                        matchValues = #[
+                            2048L
+                        ]
+                    ],
+                    new MatchInfoBuilder >> [
+                        matchField = MatchFieldType.ipv4_destination
+                        stringMatchValues = #[
+                            "10.0.0.3",
+                            "24"
+                        ]
+                    ]
+                ]
+                priority = 61010
+                tableId = 251 as short
+            ],
+            new FlowEntity(123bi) => [
+                cookie = 110100480bi
+                flowId = "Ingress_Fixed_Conntrk_Trk_123_0D:AA:D8:42:30:F5_10.0.0.3/24_Tracked"
+                flowName = "ACL"
+                instructionInfoList = #[
+                    new InstructionInfo(InstructionType.goto_table, #[
+                        252L
+                    ])
+                ]
+                matchInfoList = #[
+                    new NxMatchInfoBuilder >> [
+                        matchField = NxMatchFieldType.ct_state
+                        matchValues = #[
+                            32L,
+                            32L
+                        ]
+                    ],
+                    new MatchInfoBuilder >> [
+                        matchField = MatchFieldType.eth_dst
+                        stringMatchValues = #[
+                            "0D:AA:D8:42:30:F5"
+                        ]
+                    ],
+                    new MatchInfoBuilder >> [
+                        matchField = MatchFieldType.eth_type
+                        matchValues = #[
+                            2048L
+                        ]
+                    ],
+                    new MatchInfoBuilder >> [
+                        matchField = MatchFieldType.ipv4_destination
+                        stringMatchValues = #[
+                            "10.0.0.3",
+                            "24"
+                        ]
+                    ]
+                ]
+                priority = 62020
+                tableId = 251 as short
+            ]
+        ]
+    }
+
+    static def fixedEgressFlowsPort3 () {
+        #[
+            new FlowEntity(123bi) => [
+                cookie = 110100480bi
+                flowId = "Egress_DHCP_Client_v4123_987__Permit_"
+                flowName = "ACL"
+                instructionInfoList = #[
+                    new InstructionInfo(InstructionType.apply_actions, #[
+                        new ActionInfoBuilder >> [
+                            actionType = ActionType.nx_resubmit
+                            actionValues = #[
+                                "17"
+                            ]
+                        ]
+                    ])
+                ]
+                matchInfoList = #[
+                    new MatchInfoBuilder >> [
+                        matchField = MatchFieldType.eth_type
+                        matchValues = #[
+                            2048L
+                        ]
+                    ],
+                    new MatchInfoBuilder >> [
+                        matchField = MatchFieldType.ip_proto
+                        matchValues = #[
+                            17L
+                        ]
+                    ],
+                    new MatchInfoBuilder >> [
+                        matchField = MatchFieldType.udp_dst
+                        matchValues = #[
+                            67L
+                        ]
+                    ],
+                    new MatchInfoBuilder >> [
+                        matchField = MatchFieldType.udp_src
+                        matchValues = #[
+                            68L
+                        ]
+                    ],
+                    new MatchInfoBuilder >> [
+                        bigMatchValues = #[
+                            1085217976614912bi,
+                            MetaDataUtil.METADATA_MASK_LPORT_TAG
+                        ]
+                        matchField = MatchFieldType.metadata
+                    ]
+                ]
+                priority = 63010
+                tableId = 40 as short
+            ],
+            new FlowEntity(123bi) => [
+                cookie = 110100480bi
+                flowId = "Egress_DHCP_Client_v6_123_987__Permit_"
+                flowName = "ACL"
+                instructionInfoList = #[
+                    new InstructionInfo(InstructionType.apply_actions, #[
+                        new ActionInfoBuilder >> [
+                            actionType = ActionType.nx_resubmit
+                            actionValues = #[
+                                "17"
+                            ]
+                        ]
+                    ])
+                ]
+                matchInfoList = #[
+                    new MatchInfoBuilder >> [
+                        matchField = MatchFieldType.eth_type
+                        matchValues = #[
+                            34525L
+                        ]
+                    ],
+                    new MatchInfoBuilder >> [
+                        matchField = MatchFieldType.ip_proto
+                        matchValues = #[
+                            17L
+                        ]
+                    ],
+                    new MatchInfoBuilder >> [
+                        matchField = MatchFieldType.udp_dst
+                        matchValues = #[
+                            547L
+                        ]
+                    ],
+                    new MatchInfoBuilder >> [
+                        matchField = MatchFieldType.udp_src
+                        matchValues = #[
+                            546L
+                        ]
+                    ],
+                    new MatchInfoBuilder >> [
+                        bigMatchValues = #[
+                            1085217976614912bi,
+                            MetaDataUtil.METADATA_MASK_LPORT_TAG
+                        ]
+                        matchField = MatchFieldType.metadata
+                    ]
+                ]
+                priority = 63010
+                tableId = 40 as short
+            ],
+            new FlowEntity(123bi) => [
+                cookie = 110100480bi
+                flowId = "Egress_DHCP_Server_v4123_987__Drop_"
+                flowName = "ACL"
+                instructionInfoList = #[
+                ]
+                matchInfoList = #[
+                    new MatchInfoBuilder >> [
+                        matchField = MatchFieldType.eth_type
+                        matchValues = #[
+                            2048L
+                        ]
+                    ],
+                    new MatchInfoBuilder >> [
+                        matchField = MatchFieldType.ip_proto
+                        matchValues = #[
+                            17L
+                        ]
+                    ],
+                    new MatchInfoBuilder >> [
+                        matchField = MatchFieldType.udp_dst
+                        matchValues = #[
+                            68L
+                        ]
+                    ],
+                    new MatchInfoBuilder >> [
+                        matchField = MatchFieldType.udp_src
+                        matchValues = #[
+                            67L
+                        ]
+                    ],
+                    new MatchInfoBuilder >> [
+                        bigMatchValues = #[
+                            1085217976614912bi,
+                            MetaDataUtil.METADATA_MASK_LPORT_TAG
+                        ]
+                        matchField = MatchFieldType.metadata
+                    ]
+                ]
+                priority = 63010
+                tableId = 40 as short
+            ],
+            new FlowEntity(123bi) => [
+                cookie = 110100480bi
+                flowId = "Egress_DHCP_Server_v6_123_987__Drop_"
+                flowName = "ACL"
+                instructionInfoList = #[
+                ]
+                matchInfoList = #[
+                    new MatchInfoBuilder >> [
+                        matchField = MatchFieldType.eth_type
+                        matchValues = #[
+                            34525L
+                        ]
+                    ],
+                    new MatchInfoBuilder >> [
+                        matchField = MatchFieldType.ip_proto
+                        matchValues = #[
+                            17L
+                        ]
+                    ],
+                    new MatchInfoBuilder >> [
+                        matchField = MatchFieldType.udp_dst
+                        matchValues = #[
+                            546L
+                        ]
+                    ],
+                    new MatchInfoBuilder >> [
+                        matchField = MatchFieldType.udp_src
+                        matchValues = #[
+                            547L
+                        ]
+                    ],
+                    new MatchInfoBuilder >> [
+                        bigMatchValues = #[
+                            1085217976614912bi,
+                            MetaDataUtil.METADATA_MASK_LPORT_TAG
+                        ]
+                        matchField = MatchFieldType.metadata
+                    ]
+                ]
+                priority = 63010
+                tableId = 40 as short
+            ],
+            new FlowEntity(123bi) => [
+                cookie = 110100480bi
+                flowId = "Egress_ICMPv6_ALL123_987_Permit_"
+                flowName = "ACL"
+                instructionInfoList = #[
+                    new InstructionInfo(InstructionType.apply_actions, #[
+                        new ActionInfoBuilder >> [
+                            actionType = ActionType.nx_resubmit
+                            actionValues = #[
+                                "17"
+                            ]
+                        ]
+                    ])
+                ]
+                matchInfoList = #[
+                    new MatchInfoBuilder >> [
+                        matchField = MatchFieldType.eth_type
+                        matchValues = #[
+                            34525L
+                        ]
+                    ],
+                    new MatchInfoBuilder >> [
+                        matchField = MatchFieldType.ip_proto
+                        matchValues = #[
+                            58L
+                        ]
+                    ],
+                    new MatchInfoBuilder >> [
+                        bigMatchValues = #[
+                            1085217976614912bi,
+                            MetaDataUtil.METADATA_MASK_LPORT_TAG
+                        ]
+                        matchField = MatchFieldType.metadata
+                    ]
+                ]
+                priority = 63010
+                tableId = 40 as short
+            ],
+            new FlowEntity(123bi) => [
+                cookie = 110100480bi
+                flowId = "Egress_ICMPv6_123_987_134_Drop_"
+                flowName = "ACL"
+                instructionInfoList = #[
+                ]
+                matchInfoList = #[
+                    new MatchInfoBuilder >> [
+                        matchField = MatchFieldType.eth_type
+                        matchValues = #[
+                            34525L
+                        ]
+                    ],
+                    new MatchInfoBuilder >> [
+                        matchField = MatchFieldType.ip_proto
+                        matchValues = #[
+                            58L
+                        ]
+                    ],
+                    new MatchInfoBuilder >> [
+                        matchField = MatchFieldType.icmp_v6
+                        matchValues = #[
+                            134L,
+                            0L
+                        ]
+                    ],
+                    new MatchInfoBuilder >> [
+                        bigMatchValues = #[
+                            1085217976614912bi,
+                            MetaDataUtil.METADATA_MASK_LPORT_TAG
+                        ]
+                        matchField = MatchFieldType.metadata
+                    ]
+                ]
+                priority = 63020
+                tableId = 40 as short
+            ],
+            new FlowEntity(123bi) => [
+                cookie = 110100480bi
+                flowId = "Egress_ARP_123_0D:AA:D8:42:30:F5"
+                flowName = "ACL"
+                instructionInfoList = #[
+                    new InstructionInfo(InstructionType.apply_actions, #[
+                        new ActionInfoBuilder >> [
+                            actionType = ActionType.nx_resubmit
+                            actionValues = #[
+                                "17"
+                            ]
+                        ]
+                    ])
+                ]
+                matchInfoList = #[
+                    new MatchInfoBuilder >> [
+                        matchField = MatchFieldType.eth_type
+                        matchValues = #[
+                            2054L
+                        ]
+                    ],
+                    new MatchInfoBuilder >> [
+                        matchField = MatchFieldType.arp_sha
+                        stringMatchValues = #[
+                            "0D:AA:D8:42:30:F5"
+                        ]
+                    ],
+                    new MatchInfoBuilder >> [
+                        bigMatchValues = #[
+                            1085217976614912bi,
+                            MetaDataUtil.METADATA_MASK_LPORT_TAG
+                        ]
+                        matchField = MatchFieldType.metadata
+                    ]
+                ]
+                priority = 63010
+                tableId = 40 as short
+            ],
+            new FlowEntity(123bi) => [
+                cookie = 110100480bi
+                flowId = "Egress_Fixed_Conntrk_Untrk_123_0D:AA:D8:42:30:F5_10.0.0.3/24_Untracked"
+                flowName = "ACL"
+                instructionInfoList = #[
+                    new InstructionInfo(InstructionType.apply_actions, #[
+                        new ActionInfoBuilder >> [
+                            actionKey = 2
+                            actionType = ActionType.nx_conntrack
+                            actionValues = #[
+                                "0",
+                                "0",
+                                "5000",
+                                "41"
+                            ]
+                        ]
+                    ])
+                ]
+                matchInfoList = #[
+                    new NxMatchInfoBuilder >> [
+                        matchField = NxMatchFieldType.ct_state
+                        matchValues = #[
+                            0L,
+                            32L
+                        ]
+                    ],
+                    new MatchInfoBuilder >> [
+                        matchField = MatchFieldType.eth_src
+                        stringMatchValues = #[
+                            "0D:AA:D8:42:30:F5"
+                        ]
+                    ],
+                    new MatchInfoBuilder >> [
+                        matchField = MatchFieldType.eth_type
+                        matchValues = #[
+                            2048L
+                        ]
+                    ],
+                    new MatchInfoBuilder >> [
+                        matchField = MatchFieldType.ipv4_source
+                        stringMatchValues = #[
+                            "10.0.0.3",
+                            "24"
+                        ]
+                    ]
+                ]
+                priority = 61010
+                tableId = 40 as short
+            ]
+        ]
+    }
+
+    static def icmpIngressFlowsPort3() {
+        #[
+            new FlowEntity(123bi) => [
+                cookie = 110100480bi
+                flowId = "ICMP_V4_DESTINATION_23_Ingress98785cc3048-abc3-43cc-89b3-377341426ac7"
+                flowName = "ACL"
+                instructionInfoList = #[
+                    new InstructionInfo(InstructionType.apply_actions, #[
+                        new ActionInfoBuilder >> [
+                            actionKey = 2
+                            actionType = ActionType.nx_conntrack
+                            actionValues = #[
+                                "1",
+                                "0",
+                                "5000",
+                                "255"
+                            ]
+                        ],
+                        new ActionInfoBuilder >> [
+                            actionType = ActionType.nx_resubmit
+                            actionValues = #[
+                                "220"
+                            ]
+                        ]
+                    ])
+                ]
+                matchInfoList = #[
+                    new MatchInfoBuilder >> [
+                        matchField = MatchFieldType.eth_type
+                        matchValues = #[
+                            2048L
+                        ]
+                    ],
+                    new MatchInfoBuilder >> [
+                        matchField = MatchFieldType.eth_type
+                        matchValues = #[
+                            2048L
+                        ]
+                    ],
+                    new MatchInfoBuilder >> [
+                        matchField = MatchFieldType.icmp_v4
+                        matchValues = #[
+                            2L,
+                            3L
+                        ]
+                    ],
+                    new MatchInfoBuilder >> [
+                        matchField = MatchFieldType.ip_proto
+                        matchValues = #[
+                            1L
+                        ]
+                    ],
+                    new MatchInfoBuilder >> [
+                        bigMatchValues = #[
+                            1085217976614912bi,
+                            MetaDataUtil.METADATA_MASK_LPORT_TAG
+                        ]
+                        matchField = MatchFieldType.metadata
+                    ],
+                    new NxMatchInfoBuilder >> [
+                        matchField = NxMatchFieldType.ct_state
+                        matchValues = #[
+                            33L,
+                            33L
+                        ]
+                    ]
+                ]
+                priority = AclServiceTest.FLOW_PRIORITY_SG_1
+                tableId = 252 as short
+            ],
+            new FlowEntity(123bi) => [
+                cookie = 110100480bi
+                flowId = "ICMP_V4_DESTINATION_23_Ingress98785cc3048-abc3-43cc-89b3-377341426a22"
+                flowName = "ACL"
+                instructionInfoList = #[
+                    new InstructionInfo(InstructionType.apply_actions, #[
+                        new ActionInfoBuilder >> [
+                            actionKey = 2
+                            actionType = ActionType.nx_conntrack
+                            actionValues = #[
+                                "1",
+                                "0",
+                                "5000",
+                                "255"
+                            ]
+                        ],
+                        new ActionInfoBuilder >> [
+                            actionType = ActionType.nx_resubmit
+                            actionValues = #[
+                                "220"
+                            ]
+                        ]
+                    ])
+                ]
+                matchInfoList = #[
+                    new MatchInfoBuilder >> [
+                        matchField = MatchFieldType.eth_type
+                        matchValues = #[
+                            2048L
+                        ]
+                    ],
+                    new MatchInfoBuilder >> [
+                        matchField = MatchFieldType.eth_type
+                        matchValues = #[
+                            2048L
+                        ]
+                    ],
+                    new MatchInfoBuilder >> [
+                        matchField = MatchFieldType.icmp_v4
+                        matchValues = #[
+                            2L,
+                            3L
+                        ]
+                    ],
+                    new MatchInfoBuilder >> [
+                        matchField = MatchFieldType.ip_proto
+                        matchValues = #[
+                            1L
+                        ]
+                    ],
+                    new MatchInfoBuilder >> [
+                        bigMatchValues = #[
+                            1085217976614912bi,
+                            MetaDataUtil.METADATA_MASK_LPORT_TAG
+                        ]
+                        matchField = MatchFieldType.metadata
+                    ],
+                    new NxMatchInfoBuilder >> [
+                        matchField = NxMatchFieldType.ct_state
+                        matchValues = #[
+                            33L,
+                            33L
+                        ]
+                    ]
+                ]
+                priority = AclServiceTest.FLOW_PRIORITY_SG_2
+                tableId = 252 as short
+            ]
+        ]
+    }
+
+    static def icmpEgressFlowsPort3() {
+        #[
+            new FlowEntity(123bi) => [
+                cookie = 110100480bi
+                flowId = "ICMP_V4_DESTINATION_23_Egress98785cc3048-abc3-43cc-89b3-377341426ac6"
+                flowName = "ACL"
+                instructionInfoList = #[
+                    new InstructionInfo(InstructionType.apply_actions, #[
+                        new ActionInfoBuilder >> [
+                            actionKey = 2
+                            actionType = ActionType.nx_conntrack
+                            actionValues = #[
+                                "1",
+                                "0",
+                                "5000",
+                                "255"
+                            ]
+                        ],
+                        new ActionInfoBuilder >> [
+                            actionType = ActionType.nx_resubmit
+                            actionValues = #[
+                                "17"
+                            ]
+                        ]
+                    ])
+                ]
+                matchInfoList = #[
+                    new MatchInfoBuilder >> [
+                        matchField = MatchFieldType.eth_type
+                        matchValues = #[
+                            2048L
+                        ]
+                    ],
+                    new MatchInfoBuilder >> [
+                        matchField = MatchFieldType.eth_type
+                        matchValues = #[
+                            2048L
+                        ]
+                    ],
+                    new MatchInfoBuilder >> [
+                        matchField = MatchFieldType.icmp_v4
+                        matchValues = #[
+                            2L,
+                            3L
+                        ]
+                    ],
+                    new MatchInfoBuilder >> [
+                        matchField = MatchFieldType.ip_proto
+                        matchValues = #[
+                            1L
+                        ]
+                    ],
+                    new MatchInfoBuilder >> [
+                        bigMatchValues = #[
+                            1085217976614912bi,
+                            MetaDataUtil.METADATA_MASK_LPORT_TAG
+                        ]
+                        matchField = MatchFieldType.metadata
+                    ],
+                    new NxMatchInfoBuilder >> [
+                        matchField = NxMatchFieldType.ct_state
+                        matchValues = #[
+                            33L,
+                            33L
+                        ]
+                    ]
+                ]
+                priority = AclServiceTest.FLOW_PRIORITY_SG_1
+                tableId = 41 as short
+            ],
+            new FlowEntity(123bi) => [
+                cookie = 110100480bi
+                flowId = "ICMP_V4_DESTINATION_23_Egress98785cc3048-abc3-43cc-89b3-377341426a21"
+                flowName = "ACL"
+                instructionInfoList = #[
+                    new InstructionInfo(InstructionType.apply_actions, #[
+                        new ActionInfoBuilder >> [
+                            actionKey = 2
+                            actionType = ActionType.nx_conntrack
+                            actionValues = #[
+                                "1",
+                                "0",
+                                "5000",
+                                "255"
+                            ]
+                        ],
+                        new ActionInfoBuilder >> [
+                            actionType = ActionType.nx_resubmit
+                            actionValues = #[
+                                "17"
+                            ]
+                        ]
+                    ])
+                ]
+                matchInfoList = #[
+                    new MatchInfoBuilder >> [
+                        matchField = MatchFieldType.eth_type
+                        matchValues = #[
+                            2048L
+                        ]
+                    ],
+                    new MatchInfoBuilder >> [
+                        matchField = MatchFieldType.eth_type
+                        matchValues = #[
+                            2048L
+                        ]
+                    ],
+                    new MatchInfoBuilder >> [
+                        matchField = MatchFieldType.icmp_v4
+                        matchValues = #[
+                            2L,
+                            3L
+                        ]
+                    ],
+                    new MatchInfoBuilder >> [
+                        matchField = MatchFieldType.ip_proto
+                        matchValues = #[
+                            1L
+                        ]
+                    ],
+                    new MatchInfoBuilder >> [
+                        bigMatchValues = #[
+                            1085217976614912bi,
+                            MetaDataUtil.METADATA_MASK_LPORT_TAG
+                        ]
+                        matchField = MatchFieldType.metadata
+                    ],
+                    new NxMatchInfoBuilder >> [
+                        matchField = NxMatchFieldType.ct_state
+                        matchValues = #[
+                            33L,
+                            33L
+                        ]
+                    ]
+                ]
+                priority = AclServiceTest.FLOW_PRIORITY_SG_2
+                tableId = 41 as short
             ]
         ]
     }

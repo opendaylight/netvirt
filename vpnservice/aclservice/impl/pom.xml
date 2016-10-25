@@ -72,6 +72,11 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
       <version>${vpnservices.version}</version>
     </dependency>
     <dependency>
+      <groupId>org.opendaylight.genius</groupId>
+      <artifactId>idmanager-api</artifactId>
+      <version>${genius.version}</version>
+    </dependency>
+    <dependency>
       <groupId>org.opendaylight.infrautils</groupId>
       <artifactId>inject</artifactId>
       <version>${infrautils.version}</version>
@@ -141,6 +146,10 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
       <version>2.3.3</version>
       <!-- <scope>test here breaks APT in Eclipse :( -->
       <scope>provided</scope>
+    </dependency>
+    <dependency>
+        <groupId>com.google.truth</groupId>
+        <artifactId>truth</artifactId>
     </dependency>
   </dependencies>
 
