@@ -12,8 +12,8 @@ import com.google.common.base.Preconditions;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
-
 import java.math.BigInteger;
+import java.net.Inet4Address;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
@@ -25,13 +25,12 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.LinkedBlockingQueue;
-
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.genius.datastoreutils.DataStoreJobCoordinator;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
+import org.opendaylight.genius.datastoreutils.DataStoreJobCoordinator;
 import org.opendaylight.genius.mdsalutil.ActionInfo;
 import org.opendaylight.genius.mdsalutil.ActionType;
 import org.opendaylight.genius.mdsalutil.FlowEntity;
@@ -1521,13 +1520,22 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
         matches.add(new MatchInfo(MatchFieldType.metadata, new BigInteger[] {
                 MetaDataUtil.getVpnIdMetadata(vpnId), MetaDataUtil.METADATA_MASK_VRFID }));
 
-        matches.add(new MatchInfo(MatchFieldType.eth_type,
-                new long[] { NwConstants.ETHTYPE_IPV4 }));
-
-        if(prefixLength != 0) {
-            matches.add(new MatchInfo(MatchFieldType.ipv4_destination, new String[] {
-                    destPrefix.getHostAddress(), Integer.toString(prefixLength)}));
+        if (destPrefix instanceof Inet4Address) {
+            matches.add(new MatchInfo(MatchFieldType.eth_type,
+                    new long[] { NwConstants.ETHTYPE_IPV4 }));
+            if(prefixLength != 0) {
+                matches.add(new MatchInfo(MatchFieldType.ipv4_destination, new String[] {
+                        destPrefix.getHostAddress(), Integer.toString(prefixLength)}));
+            }
+        } else {
+            matches.add(new MatchInfo(MatchFieldType.eth_type,
+                    new long[] { NwConstants.ETHTYPE_IPV6 }));
+            if(prefixLength != 0) {
+                matches.add(new MatchInfo(MatchFieldType.ipv6_destination, new String[] {
+                        destPrefix.getHostAddress() + "/" + Integer.toString(prefixLength)}));
+            }
         }
+
         int priority = DEFAULT_FIB_FLOW_PRIORITY + prefixLength;
         String flowRef = getFlowRef(dpId, NwConstants.L3_FIB_TABLE, rd, priority, destPrefix);
         FlowEntity flowEntity = MDSALUtil.buildFlowEntity(dpId, NwConstants.L3_FIB_TABLE, flowRef, priority, flowRef, 0, 0,

@@ -618,8 +618,14 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
         // create adjacency list
         for (FixedIps ip : ips) {
             // create vm adjacency
-            StringBuilder IpPrefixBuild = new StringBuilder(ip.getIpAddress().getIpv4Address().getValue());
-            String IpPrefix = IpPrefixBuild.append("/32").toString();
+            String ipValue = String.valueOf(ip.getIpAddress().getValue());
+            StringBuilder IpPrefixBuild = new StringBuilder(ipValue);
+            String IpPrefix;
+            if (ip.getIpAddress().getIpv4Address() != null) {
+                IpPrefix = IpPrefixBuild.append("/32").toString();
+            } else {
+                IpPrefix = IpPrefixBuild.append("/128").toString();
+            }
             Adjacency vmAdj = new AdjacencyBuilder().setKey(new AdjacencyKey(IpPrefix)).setIpAddress(IpPrefix)
                     .setMacAddress(port.getMacAddress().getValue()).build();
             adjList.add(vmAdj);
@@ -631,9 +637,8 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
                     adjList.addAll(erAdjList);
                 }
             }
-            String ipValue = ip.getIpAddress().getIpv4Address().getValue();
             NeutronvpnUtils.createVpnPortFixedIpToPort(dataBroker, vpnId.getValue(), ipValue, infName, port
-                            .getMacAddress().getValue(), false, true, false);
+                    .getMacAddress().getValue(), false, true, false);
         }
         // create vpn-interface on this neutron port
         Adjacencies adjs = new AdjacenciesBuilder().setAdjacency(adjList).build();
@@ -668,7 +673,7 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
 
             List<FixedIps> ips = port.getFixedIps();
             for (FixedIps ip : ips) {
-                String ipValue = ip.getIpAddress().getIpv4Address().getValue();
+                String ipValue = String.valueOf(ip.getIpAddress().getValue());
                 NeutronvpnUtils.removeVpnPortFixedIpToPort(dataBroker, vpnId.getValue(), ipValue);
             }
         } catch (Exception ex) {
@@ -725,7 +730,7 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
 
                 List<FixedIps> ips = port.getFixedIps();
                 for (FixedIps ip : ips) {
-                    String ipValue = ip.getIpAddress().getIpv4Address().getValue();
+                    String ipValue = String.valueOf(ip.getIpAddress().getValue());
                     if (oldVpnId != null) {
                         NeutronvpnUtils.removeVpnPortFixedIpToPort(dataBroker, oldVpnId.getValue(), ipValue);
                     }
@@ -1798,7 +1803,7 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
             if (port != null) {
                 List<FixedIps> fixedIPs = port.getFixedIps();
                 for (FixedIps ip : fixedIPs) {
-                    fixedIPList.add(ip.getIpAddress().getIpv4Address().getValue());
+                    fixedIPList.add(String.valueOf(ip.getIpAddress().getValue()));
                 }
             } else {
                 returnMsg.append("neutron port: ").append(portId.getValue()).append(" not found");
