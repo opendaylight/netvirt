@@ -71,14 +71,10 @@ public class NetvirtProvidersConfigImpl implements AutoCloseable, ConfigInterfac
 
     @Override
     public void onDataChanged(final AsyncDataChangeEvent<InstanceIdentifier<?>, DataObject> asyncDataChangeEvent) {
-        executorService.submit(new Runnable() {
-
-            @Override
-            public void run() {
-                LOG.info("onDataChanged: {}", asyncDataChangeEvent);
-                processConfigCreate(asyncDataChangeEvent);
-                processConfigUpdate(asyncDataChangeEvent);
-            }
+        executorService.submit(() -> {
+            LOG.info("onDataChanged: {}", asyncDataChangeEvent);
+            processConfigCreate(asyncDataChangeEvent);
+            processConfigUpdate(asyncDataChangeEvent);
         });
     }
 
