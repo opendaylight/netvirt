@@ -1122,16 +1122,13 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
             for (final Uuid portId : sn.getPortList()) {
                 LOG.debug("adding vpn-interface for port {}", portId.getValue());
                 final DataStoreJobCoordinator portDataStoreCoordinator = DataStoreJobCoordinator.getInstance();
-                portDataStoreCoordinator.enqueueJob("PORT-" + portId.getValue(), new Callable<List<ListenableFuture<Void>>>() {
-                    @Override
-                    public List<ListenableFuture<Void>> call() throws Exception {
-                        WriteTransaction wrtConfigTxn = dataBroker.newWriteOnlyTransaction();
-                        List<ListenableFuture<Void>> futures = new ArrayList<>();
-                        createVpnInterface(vpnId, routerId, NeutronvpnUtils.getNeutronPort(dataBroker, portId),
-                                wrtConfigTxn);
-                        futures.add(wrtConfigTxn.submit());
-                        return futures;
-                    }
+                portDataStoreCoordinator.enqueueJob("PORT-" + portId.getValue(), () -> {
+                    WriteTransaction wrtConfigTxn = dataBroker.newWriteOnlyTransaction();
+                    List<ListenableFuture<Void>> futures = new ArrayList<>();
+                    createVpnInterface(vpnId, routerId, NeutronvpnUtils.getNeutronPort(dataBroker, portId),
+                            wrtConfigTxn);
+                    futures.add(wrtConfigTxn.submit());
+                    return futures;
                 });
             }
         }
