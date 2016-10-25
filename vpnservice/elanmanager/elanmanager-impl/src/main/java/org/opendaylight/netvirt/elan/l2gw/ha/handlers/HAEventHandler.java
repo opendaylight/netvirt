@@ -40,7 +40,7 @@ public class HAEventHandler implements IHAEventHandler {
             return;
         }
         nodeConnectedHandler.handleNodeConnected(connectedNode, connectedNodePath, haNodePath,
-                Optional.<Node>absent(), Optional.<Node>absent(), tx);
+                Optional.absent(), Optional.absent(), tx);
     }
 
     @Override

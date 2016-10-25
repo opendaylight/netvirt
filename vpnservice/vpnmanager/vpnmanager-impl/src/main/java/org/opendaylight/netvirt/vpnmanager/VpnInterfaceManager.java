@@ -231,7 +231,7 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                                 delAdjFromVpnInterface(identifier, adj, dpnId, writeOperTxn, writeConfigTxn);
                             }
                         }
-                        List<ListenableFuture<Void>> futures = new ArrayList<ListenableFuture<Void>>();
+                        List<ListenableFuture<Void>> futures = new ArrayList<>();
                         futures.add(writeOperTxn.submit());
                         futures.add(writeConfigTxn.submit());
                         futures.add(writeInvTxn.submit());
@@ -247,7 +247,7 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                     () -> {
                         WriteTransaction writeConfigTxn = dataBroker.newWriteOnlyTransaction();
                         createFibEntryForRouterInterface(vpnInterface, interfaceName, writeConfigTxn);
-                        List<ListenableFuture<Void>> futures = new ArrayList<ListenableFuture<Void>>();
+                        List<ListenableFuture<Void>> futures = new ArrayList<>();
                         futures.add(writeConfigTxn.submit());
                         return futures;
                     });
@@ -516,7 +516,7 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                 () -> {
                     WriteTransaction writeTxn = dataBroker.newWriteOnlyTransaction();
                     int instructionKey = 0;
-                    List<Instruction> instructions = new ArrayList<Instruction>();
+                    List<Instruction> instructions = new ArrayList<>();
 
                     instructions.add(MDSALUtil.buildAndGetWriteMetadaInstruction(
                             MetaDataUtil.getVpnIdMetadata(vpnId), MetaDataUtil.METADATA_MASK_VRFID, ++instructionKey));
@@ -529,7 +529,7 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                                     NwConstants.COOKIE_VM_INGRESS_TABLE, instructions);
                     writeTxn.put(LogicalDatastoreType.CONFIGURATION,
                             InterfaceUtils.buildServiceId(vpnInterfaceName, ServiceIndex.getIndex(NwConstants.L3VPN_SERVICE_NAME, NwConstants.L3VPN_SERVICE_INDEX)), serviceInfo, true);
-                    List<ListenableFuture<Void>> futures = new ArrayList<ListenableFuture<Void>>();
+                    List<ListenableFuture<Void>> futures = new ArrayList<>();
                     futures.add(writeTxn.submit());
                     return futures;
                 });
@@ -648,10 +648,10 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
         String rd = getRouteDistinguisher(vpnInterface.getVpnInstanceName());
         rd = (rd != null) ? rd : vpnInterface.getVpnInstanceName();
         Adjacencies adjacencies = vpnInterface.getAugmentation(Adjacencies.class);
-        List<Adjacency> adjList = (adjacencies != null) ? adjacencies.getAdjacency() : new ArrayList<Adjacency>();
+        List<Adjacency> adjList = (adjacencies != null) ? adjacencies.getAdjacency() : new ArrayList<>();
         String prefix = null;
         long label = 0;
-        List<String> nhList = new ArrayList<String>();
+        List<String> nhList = new ArrayList<>();
         boolean nextHopAdded = false;
         long vpnId = VpnUtil.getVpnId(dataBroker, vpnInterface.getVpnInstanceName());
 
@@ -723,10 +723,10 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
         String rd = getRouteDistinguisher(vpnInterface.getVpnInstanceName());
         rd = (rd != null) ? rd : vpnInterface.getVpnInstanceName();
         Adjacencies adjacencies = vpnInterface.getAugmentation(Adjacencies.class);
-        List<Adjacency> adjList = (adjacencies != null) ? adjacencies.getAdjacency() : new ArrayList<Adjacency>();
+        List<Adjacency> adjList = (adjacencies != null) ? adjacencies.getAdjacency() : new ArrayList<>();
         String prefix = null;
         long label = 0;
-        List<String> nhList = new ArrayList<String>();
+        List<String> nhList = new ArrayList<>();
         boolean isNextHopRemoveReqd = false;
         BigInteger srcDpnId = new BigInteger(stateTunnelList.getSrcInfo().getTepDeviceId());
         long vpnId = VpnUtil.getVpnId(dataBroker, vpnInterface.getVpnInstanceName());
@@ -758,7 +758,7 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                     updateLabelMapper(label, nhList);
 
                     // Update the VRF entry with emtpy nextHop
-                    fibManager.updateFibEntry(dataBroker, rd, prefix, new ArrayList<String>() /* empty */, null);
+                    fibManager.updateFibEntry(dataBroker, rd, prefix, new ArrayList<>() /* empty */, null);
 
                     //Get the list of VPN's importing this route(prefix) .
                     // Then update the VRF entry with nhList
@@ -993,7 +993,7 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                     () -> {
                         WriteTransaction writeConfigTxn = dataBroker.newWriteOnlyTransaction();
                         deleteFibEntryForRouterInterface(vpnInterface, writeConfigTxn);
-                        List<ListenableFuture<Void>> futures = new ArrayList<ListenableFuture<Void>>();
+                        List<ListenableFuture<Void>> futures = new ArrayList<>();
                         futures.add(writeConfigTxn.submit());
                         return futures;
                     });
@@ -1168,7 +1168,7 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                         InterfaceUtils.buildServiceId(vpnInterfaceName,
                             ServiceIndex.getIndex(NwConstants.L3VPN_SERVICE_NAME, NwConstants.L3VPN_SERVICE_INDEX)));
 
-                    List<ListenableFuture<Void>> futures = new ArrayList<ListenableFuture<Void>>();
+                    List<ListenableFuture<Void>> futures = new ArrayList<>();
                     futures.add(writeTxn.submit());
                     return futures;
                 });
@@ -1210,10 +1210,10 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
         final UpdateData updateData = new UpdateData(identifier, original, update);
         final Adjacencies origAdjs = original.getAugmentation(Adjacencies.class);
         final List<Adjacency> oldAdjs = (origAdjs != null && origAdjs.getAdjacency() != null) ?
-                origAdjs.getAdjacency() : new ArrayList<Adjacency>();
+                origAdjs.getAdjacency() : new ArrayList<>();
         final Adjacencies updateAdjs = update.getAugmentation(Adjacencies.class);
         final List<Adjacency> newAdjs = (updateAdjs != null && updateAdjs.getAdjacency() != null) ?
-                updateAdjs.getAdjacency() : new ArrayList<Adjacency>();
+                updateAdjs.getAdjacency() : new ArrayList<>();
 
         //handles switching between <internal VPN - external VPN>
         if (oldVpnName != null && !oldVpnName.equals(newVpnName)) {
@@ -1302,10 +1302,10 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                 }
                 final Adjacencies origAdjs = updData.getOriginal().getAugmentation(Adjacencies.class);
                 final List<Adjacency> oldAdjs = (origAdjs != null && origAdjs.getAdjacency() != null) ?
-                        origAdjs.getAdjacency() : new ArrayList<Adjacency>();
+                        origAdjs.getAdjacency() : new ArrayList<>();
                 final Adjacencies updateAdjs = updData.getUpdate().getAugmentation(Adjacencies.class);
                 final List<Adjacency> newAdjs = (updateAdjs != null && updateAdjs.getAdjacency() != null) ?
-                        updateAdjs.getAdjacency() : new ArrayList<Adjacency>();
+                        updateAdjs.getAdjacency() : new ArrayList<>();
                 addVpnInterface(updData.getIdentifier(), updData.getUpdate(), oldAdjs, newAdjs);
                 LOG.trace("Processed Add for update on VPNInterface {} upon VPN swap",
                         updData.getUpdate().getName());

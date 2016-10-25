@@ -483,7 +483,7 @@ public class SouthboundImpl implements Southbound {
         List<OvsdbTerminationPointAugmentation> tpAugmentations = new ArrayList<>();
         if (node == null) {
             LOG.error("extractTerminationPointAugmentations: Node value is null");
-            return Collections.<OvsdbTerminationPointAugmentation>emptyList();
+            return Collections.emptyList();
         }
         List<TerminationPoint> terminationPoints = node.getTerminationPoint();
         if(terminationPoints != null && !terminationPoints.isEmpty()){
@@ -501,7 +501,7 @@ public class SouthboundImpl implements Southbound {
     public List<OvsdbTerminationPointAugmentation> readTerminationPointAugmentations(Node node) {
         if (node == null) {
             LOG.error("readTerminationPointAugmentations: Node value is null");
-            return Collections.<OvsdbTerminationPointAugmentation>emptyList();
+            return Collections.emptyList();
         }
         InstanceIdentifier<Node> bridgeNodeIid = MdsalHelper.createInstanceIdentifier(node.getNodeId());
         Node operNode = mdsalUtils.read(LogicalDatastoreType.OPERATIONAL, bridgeNodeIid);

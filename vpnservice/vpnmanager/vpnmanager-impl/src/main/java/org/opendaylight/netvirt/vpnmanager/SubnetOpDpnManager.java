@@ -60,7 +60,7 @@ public class SubnetOpDpnManager {
                 return null;
             }
             SubnetToDpnBuilder subDpnBuilder = new SubnetToDpnBuilder().setKey(new SubnetToDpnKey(dpnId));
-            List<VpnInterfaces> vpnIntfList = new ArrayList<VpnInterfaces>();
+            List<VpnInterfaces> vpnIntfList = new ArrayList<>();
             subDpnBuilder.setVpnInterfaces(vpnIntfList);
             subDpn = subDpnBuilder.build();
             logger.trace("Creating SubnetToDpn entry for subnet  " + subnetId.getValue() + " with DPNId "+ dpnId);

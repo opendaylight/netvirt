@@ -101,7 +101,7 @@ public class VLANProvider implements ConfigInterface {
             return;
         }
         this.isCachePopulationDone = true;
-        Set<String> lstMacAddress = new HashSet<String>();
+        Set<String> lstMacAddress;
         List<NeutronPort> neutronPorts = neutronPortCache.getAllPorts();
         for (NeutronPort neutronPort : neutronPorts) {
             if (neutronPort != null && neutronPort.getDeviceOwner().equalsIgnoreCase(Constants.OWNER_ROUTER_GATEWAY)) {
@@ -123,7 +123,7 @@ public class VLANProvider implements ConfigInterface {
                         vlanProviderCache.containsKey(providerSegmentationId)) {
                     lstMacAddress = vlanProviderCache.get(providerSegmentationId);
                 } else {
-                    lstMacAddress = new HashSet<String>();
+                    lstMacAddress = new HashSet<>();
                     vlanProviderCache.put(providerSegmentationId, lstMacAddress);
                 }
                 lstMacAddress.add(macAddress);
