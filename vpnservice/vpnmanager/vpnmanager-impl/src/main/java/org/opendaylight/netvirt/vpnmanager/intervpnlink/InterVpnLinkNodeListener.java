@@ -18,9 +18,13 @@ import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFaile
 import org.opendaylight.genius.datastoreutils.DataStoreJobCoordinator;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeId;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.Nodes;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.Node;
+import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.NetworkTopology;
+import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.NodeId;
+import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.TopologyId;
+import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.Topology;
+import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.TopologyKey;
+import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Node;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Uri;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.netvirt.inter.vpn.link.rev160311.inter.vpn.link.states.InterVpnLinkState;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.netvirt.inter.vpn.link.rev160311.inter.vpn.links.InterVpnLink;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.netvirt.inter.vpn.link.rev160311.inter.vpn.links.InterVpnLinkBuilder;
@@ -41,9 +45,14 @@ import java.util.concurrent.Callable;
 public class InterVpnLinkNodeListener extends AsyncDataTreeChangeListenerBase<Node, InterVpnLinkNodeListener>
         implements AutoCloseable {
     private static final Logger LOG = LoggerFactory.getLogger(InterVpnLinkNodeListener.class);
+    private static final String NBR_OF_DPNS_PROPERTY_NAME = "vpnservice.intervpnlink.number.dpns";
+
+    // TODO: Remove when included in ovsdb's SouthboundUtils
+    public static final TopologyId FLOW_TOPOLOGY_ID = new TopologyId(new Uri("flow:1"));
+
     private final DataBroker dataBroker;
     private final IMdsalApiManager mdsalManager;
-    private static final String NBR_OF_DPNS_PROPERTY_NAME = "vpnservice.intervpnlink.number.dpns";
+
 
     public InterVpnLinkNodeListener(final DataBroker dataBroker, final IMdsalApiManager mdsalMgr) {
         super(Node.class, InterVpnLinkNodeListener.class);
@@ -57,8 +66,10 @@ public class InterVpnLinkNodeListener extends AsyncDataTreeChangeListenerBase<No
     }
 
     @Override
-    protected InstanceIdentifier<Node> getWildCardPath() {
-        return InstanceIdentifier.create(Nodes.class).child(Node.class);
+    protected InstanceIdentifier<Node> getWildCardPath(){
+        return InstanceIdentifier.create(NetworkTopology.class)
+                                 .child(Topology.class, new TopologyKey(FLOW_TOPOLOGY_ID))
+                                 .child(Node.class);
     }
 
     @Override
@@ -68,7 +79,7 @@ public class InterVpnLinkNodeListener extends AsyncDataTreeChangeListenerBase<No
 
     @Override
     protected void add(InstanceIdentifier<Node> identifier, Node add) {
-        NodeId nodeId = add.getId();
+        NodeId nodeId = add.getNodeId();
         String[] node =  nodeId.getValue().split(":");
         if(node.length < 2) {
             LOG.warn("Unexpected nodeId {}", nodeId.getValue());
@@ -83,7 +94,7 @@ public class InterVpnLinkNodeListener extends AsyncDataTreeChangeListenerBase<No
     @Override
     protected void remove(InstanceIdentifier<Node> identifier, Node del) {
         LOG.trace("Node {} has been deleted", identifier.firstKeyOf(Node.class).toString());
-        NodeId nodeId = del.getId();
+        NodeId nodeId = del.getNodeId();
         String[] node =  nodeId.getValue().split(":");
         if(node.length < 2) {
             LOG.warn("Unexpected nodeId {}", nodeId.getValue());
@@ -97,7 +108,6 @@ public class InterVpnLinkNodeListener extends AsyncDataTreeChangeListenerBase<No
 
     @Override
     protected void update(InstanceIdentifier<Node> identifier, Node original, Node update) {
-        LOG.trace("Node {} has changed", identifier.firstKeyOf(Node.class).toString());
     }
 
     protected class InterVpnLinkNodeWorker implements Callable<List<ListenableFuture<Void>>> {
@@ -132,7 +142,6 @@ public class InterVpnLinkNodeListener extends AsyncDataTreeChangeListenerBase<No
                     // Remove it
                     MDSALUtil.syncDelete(broker, LogicalDatastoreType.CONFIGURATION, interVpnLinkIid);
                     // Create it again, but first we have to wait for everything to be removed from dataplane
-                    // TODO: the wait causes an IllegalMonitorStateException
                     Long timeToWait = Long.getLong("wait.time.sync.install", 1500L);
                     try {
                         Thread.sleep(timeToWait);
