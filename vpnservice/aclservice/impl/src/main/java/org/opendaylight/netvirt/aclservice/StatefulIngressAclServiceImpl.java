@@ -78,8 +78,8 @@ public class StatefulIngressAclServiceImpl extends AbstractIngressAclServiceImpl
     }
 
     @Override
-    protected String syncSpecificAclFlow(BigInteger dpId, int lportTag, int addOrRemove, Ace ace, String portId,
-            Map<String, List<MatchInfoBase>> flowMap, String flowName) {
+    protected String syncSpecificAclFlow(BigInteger dpId, int lportTag, int addOrRemove, String aclName, Ace ace,
+            String portId, Map<String, List<MatchInfoBase>> flowMap, String flowName) {
         List<MatchInfoBase> flows = flowMap.get(flowName);
         flowName += "Ingress" + lportTag + ace.getKey().getRuleName();
         flows.add(AclServiceUtils.buildLPortTagMatch(lportTag));
@@ -91,9 +91,10 @@ public class StatefulIngressAclServiceImpl extends AbstractIngressAclServiceImpl
         actionsInfos.add(new ActionInfo(ActionType.nx_conntrack,
             new String[] {"1", "0", elanTag.toString(), "255"}, 2));
         List<InstructionInfo> instructions = getDispatcherTableResubmitInstructions(actionsInfos);
+        int priority = this.aclDataUtil.getAclFlowPriority(aclName);
 
-        syncFlow(dpId, NwConstants.EGRESS_ACL_FILTER_TABLE, flowName, AclConstants.PROTO_MATCH_PRIORITY,
-            "ACL", 0, 0, AclConstants.COOKIE_ACL_BASE, flows, instructions, addOrRemove);
+        syncFlow(dpId, NwConstants.EGRESS_ACL_FILTER_TABLE, flowName, priority, "ACL", 0, 0,
+                AclConstants.COOKIE_ACL_BASE, flows, instructions, addOrRemove);
         return flowName;
     }
 
