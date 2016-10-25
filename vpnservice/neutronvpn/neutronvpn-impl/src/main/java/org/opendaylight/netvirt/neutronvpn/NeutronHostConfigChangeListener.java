@@ -72,19 +72,16 @@ public class NeutronHostConfigChangeListener extends AsyncDataTreeChangeListener
 
     @Override
     protected void remove(InstanceIdentifier<Node>identifier, Node del){
-        LOG.trace("NeutronHostConfigChangeListener.remove {}",del);
         updateHostConfig(del, Action.DELETE);
     }
 
     @Override
     protected void update(InstanceIdentifier<Node>identifier, Node original, Node update){
-        LOG.trace("NeutronHostConfigChangeListener.update {}",update);
         updateHostConfig(update, Action.UPDATE);
     }
 
     @Override
     protected void add(InstanceIdentifier<Node>identifier, Node add){
-        LOG.trace("NeutronHostConfigChangeListener.add {}",add);
         updateHostConfig(add, Action.ADD);
 
     }
