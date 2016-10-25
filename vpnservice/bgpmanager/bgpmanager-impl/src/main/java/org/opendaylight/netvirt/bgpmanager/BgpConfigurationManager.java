@@ -243,16 +243,13 @@ public class BgpConfigurationManager {
         }
         BgpUtil.registerWithBatchManager(new DefaultBatchHandler(dataBroker, LogicalDatastoreType.CONFIGURATION, BgpUtil.batchSize, BgpUtil.batchInterval));
 
-        GlobalEventExecutor.INSTANCE.execute(new Runnable() {
-            @Override
-            public void run() {
-                final WaitingServiceTracker<IBgpManager> tracker = WaitingServiceTracker.create(
-                        IBgpManager.class, bundleContext);
-                bgpManager = tracker.waitForService(WaitingServiceTracker.FIVE_MINUTES);
-                updateServer = new BgpThriftService(Integer.parseInt(uPort), bgpManager, fibDSWriter);
-                updateServer.start();
-                LOG.info("BgpConfigurationManager initialized. IBgpManager={}", bgpManager);
-            }
+        GlobalEventExecutor.INSTANCE.execute(() -> {
+            final WaitingServiceTracker<IBgpManager> tracker = WaitingServiceTracker.create(
+                    IBgpManager.class, bundleContext);
+            bgpManager = tracker.waitForService(WaitingServiceTracker.FIVE_MINUTES);
+            updateServer = new BgpThriftService(Integer.parseInt(uPort), bgpManager, fibDSWriter);
+            updateServer.start();
+            LOG.info("BgpConfigurationManager initialized. IBgpManager={}", bgpManager);
         });
     }
 
@@ -319,20 +316,17 @@ public class BgpConfigurationManager {
     public void setEntityOwnershipService(final EntityOwnershipService entityOwnershipService) {
         try {
             EntityOwnerUtils.registerEntityCandidateForOwnerShip(entityOwnershipService,
-                    BGP_ENTITY_TYPE_FOR_OWNERSHIP, BGP_ENTITY_NAME, new EntityOwnershipListener() {
-                @Override
-                public void ownershipChanged(EntityOwnershipChange ownershipChange) {
-                    LOG.trace("entity owner change event fired");
-                    if (ownershipChange.hasOwner() && ownershipChange.isOwner()) {
-                        LOG.trace("This PL is the Owner");
-                        activateMIP();
-                        bgpRestarted();
-                    } else {
-                        LOG.info("Not owner: hasOwner: {}, isOwner: {}",ownershipChange.hasOwner(),
-                                ownershipChange.isOwner() );
-                    }
-                }
-            });
+                    BGP_ENTITY_TYPE_FOR_OWNERSHIP, BGP_ENTITY_NAME, ownershipChange -> {
+                        LOG.trace("entity owner change event fired");
+                        if (ownershipChange.hasOwner() && ownershipChange.isOwner()) {
+                            LOG.trace("This PL is the Owner");
+                            activateMIP();
+                            bgpRestarted();
+                        } else {
+                            LOG.info("Not owner: hasOwner: {}, isOwner: {}",ownershipChange.hasOwner(),
+                                    ownershipChange.isOwner() );
+                        }
+                    });
         } catch (Exception e) {
             LOG.error("failed to register bgp entity", e);
         }
@@ -1430,37 +1424,34 @@ public class BgpConfigurationManager {
         if (previousReplayJobInProgress()) {
             cancelPreviousReplayJob();
         }
-        Runnable task = new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    LOG.info("running bgp replay task ");
-                    if (get() == null) {
-                        String host = getConfigHost();
-                        int port = getConfigPort();
-                        LOG.info("connecting  to bgp host {} ", host);
+        Runnable task = () -> {
+            try {
+                LOG.info("running bgp replay task ");
+                if (get() == null) {
+                    String host = getConfigHost();
+                    int port = getConfigPort();
+                    LOG.info("connecting  to bgp host {} ", host);
 
-                        boolean res = bgpRouter.connect(host, port);
-                        LOG.info("no config to push in bgp replay task ");
-                        return;
-                    }
-                    setStaleStartTime(System.currentTimeMillis());
-                    LOG.info("started creating stale fibDSWriter  map ");
-                    createStaleFibMap();
-                    setStaleEndTime(System.currentTimeMillis());
-                    LOG.info("took {} msecs for stale fibDSWriter map creation ", getStaleEndTime()- getStaleStartTime());
-                    LOG.info("started bgp config replay ");
-                    setCfgReplayStartTime(System.currentTimeMillis());
-                    replay();
-                    setCfgReplayEndTime(System.currentTimeMillis());
-                    LOG.info("took {} msecs for bgp replay ", getCfgReplayEndTime() - getCfgReplayStartTime());
-                    long route_sync_time = getStalePathtime(BGP_RESTART_ROUTE_SYNC_SEC, config.getAsId());
-                    Thread.sleep(route_sync_time * 1000L);
-                    setStaleCleanupTime(route_sync_time);
-                    new RouteCleanup().call();
-                } catch (Exception eCancel) {
-                    LOG.error("Stale Cleanup Task Cancelled", eCancel);
+                    boolean res = bgpRouter.connect(host, port);
+                    LOG.info("no config to push in bgp replay task ");
+                    return;
                 }
+                setStaleStartTime(System.currentTimeMillis());
+                LOG.info("started creating stale fibDSWriter  map ");
+                createStaleFibMap();
+                setStaleEndTime(System.currentTimeMillis());
+                LOG.info("took {} msecs for stale fibDSWriter map creation ", getStaleEndTime()- getStaleStartTime());
+                LOG.info("started bgp config replay ");
+                setCfgReplayStartTime(System.currentTimeMillis());
+                replay();
+                setCfgReplayEndTime(System.currentTimeMillis());
+                LOG.info("took {} msecs for bgp replay ", getCfgReplayEndTime() - getCfgReplayStartTime());
+                long route_sync_time = getStalePathtime(BGP_RESTART_ROUTE_SYNC_SEC, config.getAsId());
+                Thread.sleep(route_sync_time * 1000L);
+                setStaleCleanupTime(route_sync_time);
+                new RouteCleanup().call();
+            } catch (Exception eCancel) {
+                LOG.error("Stale Cleanup Task Cancelled", eCancel);
             }
         };
         lastReplayJobFt = executor.submit(task);
