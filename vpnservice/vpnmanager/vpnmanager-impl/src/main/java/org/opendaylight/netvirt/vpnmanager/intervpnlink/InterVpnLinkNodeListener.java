@@ -111,7 +111,7 @@ public class InterVpnLinkNodeListener extends AsyncDataTreeChangeListenerBase<No
         }
         @Override
         public List<ListenableFuture<Void>> call() throws Exception {
-            List<ListenableFuture<Void>> result = new ArrayList<ListenableFuture<Void>>();
+            List<ListenableFuture<Void>> result = new ArrayList<>();
 
             List<InterVpnLink> allInterVpnLinks = InterVpnLinkUtil.getAllInterVpnLinks(broker);
             for ( InterVpnLink interVpnLink : allInterVpnLinks ) {
