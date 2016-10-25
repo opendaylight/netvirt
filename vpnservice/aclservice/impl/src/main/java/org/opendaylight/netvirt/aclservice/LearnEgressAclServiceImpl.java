@@ -57,8 +57,8 @@ public class LearnEgressAclServiceImpl extends AbstractEgressAclServiceImpl {
     }
 
     @Override
-    protected String syncSpecificAclFlow(BigInteger dpId, int lportTag, int addOrRemove, Ace ace, String portId,
-            Map<String, List<MatchInfoBase>> flowMap, String flowName) {
+    protected String syncSpecificAclFlow(BigInteger dpId, int lportTag, int addOrRemove, String aclName, Ace ace,
+            String portId, Map<String, List<MatchInfoBase>> flowMap, String flowName) {
         List<MatchInfoBase> flowMatches = flowMap.get(flowName);
         flowMatches.add(AclServiceUtils.buildLPortTagMatch(lportTag));
         List<ActionInfo> actionsInfos = new ArrayList<>();

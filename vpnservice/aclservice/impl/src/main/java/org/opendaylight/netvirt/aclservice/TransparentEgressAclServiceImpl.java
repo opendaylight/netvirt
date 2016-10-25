@@ -58,14 +58,14 @@ public class TransparentEgressAclServiceImpl extends AbstractEgressAclServiceImp
     }
 
     @Override
-    protected void programAceRule(BigInteger dpId, int lportTag, int addOrRemove, Ace ace, String portId,
-            List<AllowedAddressPairs> syncAllowedAddresses) {
+    protected void programAceRule(BigInteger dpId, int lportTag, int addOrRemove, String aclName, Ace ace,
+            String portId, List<AllowedAddressPairs> syncAllowedAddresses) {
         LOG.debug("transparent egress acl service - do nothing");
     }
 
     @Override
-    protected String syncSpecificAclFlow(BigInteger dpId, int lportTag, int addOrRemove, Ace ace, String portId,
-            Map<String, List<MatchInfoBase>> flowMap, String flowName) {
+    protected String syncSpecificAclFlow(BigInteger dpId, int lportTag, int addOrRemove, String aclName, Ace ace,
+            String portId, Map<String, List<MatchInfoBase>> flowMap, String flowName) {
         // Not in use here. programAceRule function is overridden.
         return null;
     }

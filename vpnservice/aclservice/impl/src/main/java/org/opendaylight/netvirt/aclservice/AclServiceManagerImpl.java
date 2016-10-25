@@ -9,12 +9,19 @@ package org.opendaylight.netvirt.aclservice;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.opendaylight.netvirt.aclservice.api.AclServiceListener;
 import org.opendaylight.netvirt.aclservice.api.AclServiceManager;
 import org.opendaylight.netvirt.aclservice.api.utils.AclInterface;
+import org.opendaylight.netvirt.aclservice.utils.AclConstants;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.acl.access.list.entries.Ace;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.CreateIdPoolInput;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.CreateIdPoolInputBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.IdManagerService;
+import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -23,10 +30,16 @@ public class AclServiceManagerImpl implements AclServiceManager {
 
     private static final Logger LOG = LoggerFactory.getLogger(AclServiceManagerImpl.class);
 
+    private final IdManagerService idManager;
+
     private final List<AclServiceListener> aclServiceListeners = new ArrayList<>();
 
     @Inject
-    public AclServiceManagerImpl(final AclServiceImplFactory factory) {
+    public AclServiceManagerImpl(final AclServiceImplFactory factory, final IdManagerService idManager) {
+        this.idManager = idManager;
+        LOG.info("ACL Service Initiated, idManager = {}", idManager);
+        createIdPool();
+
         addAclServiceListner(factory.createIngressAclServiceImpl());
         addAclServiceListner(factory.createEgressAclServiceImpl());
 
@@ -64,14 +77,31 @@ public class AclServiceManagerImpl implements AclServiceManager {
     }
 
     @Override
-    public void notifyAce(AclInterface port, Action action, Ace ace) {
+    public void notifyAce(AclInterface port, Action action, String aclName, Ace ace) {
         for (AclServiceListener aclServiceListener : aclServiceListeners) {
             LOG.debug("Ace action {} invoking class {}", action, aclServiceListener.getClass().getName());
             if (action == Action.ADD) {
-                aclServiceListener.applyAce(port, ace);
+                aclServiceListener.applyAce(port, aclName, ace);
             } else if (action == Action.REMOVE) {
-                aclServiceListener.removeAce(port, ace);
+                aclServiceListener.removeAce(port, aclName, ace);
             }
+        }
+    }
+
+    /**
+     * Creates the id pool.
+     */
+    private void createIdPool() {
+        CreateIdPoolInput createPool = new CreateIdPoolInputBuilder()
+                .setPoolName(AclConstants.ACL_FLOW_PRIORITY_POOL_NAME).setLow(AclConstants.ACL_FLOW_PRIORITY_POOL_START)
+                .setHigh(AclConstants.ACL_FLOW_PRIORITY_POOL_END).build();
+        try {
+            Future<RpcResult<Void>> result = idManager.createIdPool(createPool);
+            if ((result != null) && (result.get().isSuccessful())) {
+                LOG.debug("Created IdPool for {}", AclConstants.ACL_FLOW_PRIORITY_POOL_NAME);
+            }
+        } catch (InterruptedException | ExecutionException e) {
+            LOG.error("Failed to create idPool for ACL service", e);
         }
     }
 

@@ -9,6 +9,7 @@
 package org.opendaylight.netvirt.aclservice.utils;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -23,6 +24,7 @@ public class AclDataUtil {
 
     private final Map<Uuid, List<AclInterface>> aclInterfaceMap = new ConcurrentHashMap<>();
     private final Map<Uuid, List<Uuid>> remoteAclIdMap = new ConcurrentHashMap<>();
+    private final Map<String, Integer> aclFlowPriorityMap = new ConcurrentHashMap<>();
 
     public synchronized void addAclInterfaceMap(List<Uuid> aclList, AclInterface port) {
         for (Uuid acl : aclList) {
@@ -50,19 +52,29 @@ public class AclDataUtil {
         return aclInterfaceMap.get(acl);
     }
 
-    public Set<AclInterface> getRemoteAclInterfaces(Uuid remoteAclId) {
+    /**
+     * Gets the set of ACL interfaces per ACL (in a map) which has specified
+     * remote ACL ID.
+     *
+     * @param remoteAclId the remote acl id
+     * @return the set of ACL interfaces per ACL (in a map) which has specified
+     *         remote ACL ID.
+     */
+    public Map<Uuid, Set<AclInterface>> getRemoteAclInterfaces(Uuid remoteAclId) {
         List<Uuid> remoteAclList = getRemoteAcl(remoteAclId);
         if (remoteAclList == null) {
             return null;
         }
-        Set<AclInterface> interfaceSet = new HashSet<>();
-        for (Uuid acl: remoteAclList) {
+        Map<Uuid, Set<AclInterface>> mapOfAclWithInterfaces = new HashMap<>();
+        for (Uuid acl : remoteAclList) {
+            Set<AclInterface> interfaceSet = new HashSet<>();
             List<AclInterface> interfaces = getInterfaceList(acl);
             if (interfaces != null && !interfaces.isEmpty()) {
                 interfaceSet.addAll(interfaces);
+                mapOfAclWithInterfaces.put(acl, interfaceSet);
             }
         }
-        return interfaceSet;
+        return mapOfAclWithInterfaces;
     }
 
     public synchronized void addRemoteAclId(Uuid remoteAclId, Uuid aclId) {
@@ -85,5 +97,39 @@ public class AclDataUtil {
 
     public List<Uuid> getRemoteAcl(Uuid remoteAclId) {
         return remoteAclIdMap.get(remoteAclId);
+    }
+
+    /**
+     * Adds the acl flow priority to the cache.
+     *
+     * @param aclName the acl name
+     * @param flowPriority the flow priority
+     */
+    public void addAclFlowPriority(final String aclName, final Integer flowPriority) {
+        this.aclFlowPriorityMap.put(aclName, flowPriority);
+    }
+
+    /**
+     * Removes the acl flow priority from the cache.
+     *
+     * @param aclName the acl name
+     */
+    public void removeAclFlowPriority(final String aclName) {
+        this.aclFlowPriorityMap.remove(aclName);
+    }
+
+    /**
+     * Gets the acl flow priority from the cache.
+     *
+     * @param aclName the acl name
+     * @return the acl flow priority
+     */
+    public Integer getAclFlowPriority(final String aclName) {
+        Integer priority = this.aclFlowPriorityMap.get(aclName);
+        if (priority == null) {
+            // Set to default value
+            priority = AclConstants.CT_STATE_TRACKED_NEW_PRIORITY;
+        }
+        return priority;
     }
 }

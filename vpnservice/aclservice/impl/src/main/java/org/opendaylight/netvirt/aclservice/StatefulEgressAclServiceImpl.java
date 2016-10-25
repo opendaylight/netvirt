@@ -44,9 +44,13 @@ import org.slf4j.LoggerFactory;
  */
 public class StatefulEgressAclServiceImpl extends AbstractEgressAclServiceImpl {
 
+    private final AclDataUtil aclDataUtil;
+
     public StatefulEgressAclServiceImpl(DataBroker dataBroker, IMdsalApiManager mdsalManager, AclDataUtil aclDataUtil,
             AclServiceUtils aclServiceUtils) {
         super(dataBroker, mdsalManager, aclDataUtil, aclServiceUtils);
+
+        this.aclDataUtil = aclDataUtil;
     }
 
     private static final Logger LOG = LoggerFactory.getLogger(StatefulEgressAclServiceImpl.class);
@@ -68,8 +72,8 @@ public class StatefulEgressAclServiceImpl extends AbstractEgressAclServiceImpl {
     }
 
     @Override
-    protected String syncSpecificAclFlow(BigInteger dpId, int lportTag, int addOrRemove, Ace ace, String portId,
-            Map<String, List<MatchInfoBase>> flowMap, String flowName) {
+    protected String syncSpecificAclFlow(BigInteger dpId, int lportTag, int addOrRemove, String aclName, Ace ace,
+            String portId, Map<String, List<MatchInfoBase>> flowMap, String flowName) {
         List<MatchInfoBase> flows = flowMap.get(flowName);
         flowName += "Egress" + lportTag + ace.getKey().getRuleName();
         flows.add(AclServiceUtils.buildLPortTagMatch(lportTag));
@@ -81,9 +85,10 @@ public class StatefulEgressAclServiceImpl extends AbstractEgressAclServiceImpl {
         actionsInfos.add(new ActionInfo(ActionType.nx_conntrack,
             new String[] {"1", "0", elanId.toString(), "255"}, 2));
         List<InstructionInfo> instructions = getDispatcherTableResubmitInstructions(actionsInfos);
+        int priority = this.aclDataUtil.getAclFlowPriority(aclName);
 
-        syncFlow(dpId, NwConstants.INGRESS_ACL_FILTER_TABLE, flowName, AclConstants.PROTO_MATCH_PRIORITY,
-            "ACL", 0, 0, AclConstants.COOKIE_ACL_BASE, flows, instructions, addOrRemove);
+        syncFlow(dpId, NwConstants.INGRESS_ACL_FILTER_TABLE, flowName, priority, "ACL", 0, 0,
+                AclConstants.COOKIE_ACL_BASE, flows, instructions, addOrRemove);
         return flowName;
     }
 
