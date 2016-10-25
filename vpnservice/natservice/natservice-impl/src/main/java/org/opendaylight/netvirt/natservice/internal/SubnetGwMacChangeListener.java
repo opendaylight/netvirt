@@ -8,6 +8,9 @@
 
 package org.opendaylight.netvirt.natservice.internal;
 
+import java.net.Inet6Address;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
@@ -76,6 +79,17 @@ public class SubnetGwMacChangeListener
         String fixedIp = vpnPortipToPort.getPortFixedip();
         if (fixedIp == null) {
             LOG.trace("Fixed ip is null for VpnPortipToPort");
+            return;
+        }
+
+        try {
+            InetAddress address = InetAddress.getByName(fixedIp);
+            if (address instanceof Inet6Address) {
+                LOG.debug("Skipping ipv6 address {}.", address);
+                return;
+            }
+        } catch (UnknownHostException e) {
+            LOG.warn("Invalid ip address {}", fixedIp, e);
             return;
         }
 
