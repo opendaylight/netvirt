@@ -21,12 +21,12 @@ import java.util.Map;
  * Created by ECHIAPT on 9/25/2015.
  */
 public class BgpCountersBroadcaster extends NotificationBroadcasterSupport implements BgpCountersBroadcasterMBean  {
-    public Map<String, String> bgpCountersMap = new HashMap<String, String>();
+    public Map<String, String> bgpCountersMap = new HashMap<>();
     private static final Logger LOGGER = LoggerFactory.getLogger(BgpCountersBroadcaster.class);
 
     public Map<String, String> retrieveCounterMap() {
         LOGGER.trace("Polled retrieveCounterMap");
-        Map<String, String> countersVal = new HashMap<String, String>(bgpCountersMap);
+        Map<String, String> countersVal = new HashMap<>(bgpCountersMap);
         Iterator<Map.Entry<String, String>> entries = countersVal.entrySet().iterator();
         while (entries.hasNext()) {
             Map.Entry<String, String> entry = entries.next();

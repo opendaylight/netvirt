@@ -18,7 +18,7 @@ public class LearnConstants {
     public static final int IP_PROT_ICMP = 1;
     public static final int IP_PROT_TCP = 6;
     public static final int IP_PROT_UDP = 17;
-    public static final HashMap<Integer, String> ICMP_TYPE_MAP = new HashMap<Integer, String>();
+    public static final HashMap<Integer, String> ICMP_TYPE_MAP = new HashMap<>();
     static
     {
         ICMP_TYPE_MAP.put(8, "0");

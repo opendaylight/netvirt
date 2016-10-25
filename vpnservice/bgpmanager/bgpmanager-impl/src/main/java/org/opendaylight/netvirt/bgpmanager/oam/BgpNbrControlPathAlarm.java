@@ -18,8 +18,8 @@ import java.util.ArrayList;
 
 public class BgpNbrControlPathAlarm extends NotificationBroadcasterSupport implements BgpNbrControlPathAlarmMBean {
 
-    ArrayList<String> raiseAlarmObject = new ArrayList<String>();
-    ArrayList<String> clearAlarmObject = new ArrayList<String>();
+    ArrayList<String> raiseAlarmObject = new ArrayList<>();
+    ArrayList<String> clearAlarmObject = new ArrayList<>();
     private long sequenceNumber = 1;
 
     public void setRaiseAlarmObject(ArrayList<String> raiseAlarmObject) {
