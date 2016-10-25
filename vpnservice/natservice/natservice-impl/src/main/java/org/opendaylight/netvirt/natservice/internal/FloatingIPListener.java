@@ -256,7 +256,7 @@ public class FloatingIPListener extends AsyncDataTreeChangeListenerBase<Internal
                   externalIp, "32" }));
 
         List<ActionInfo> actionsInfo = new ArrayList<>();
-        List<InstructionInfo> instructions = new ArrayList<InstructionInfo>();
+        List<InstructionInfo> instructions = new ArrayList<>();
 
         String macAddress = NatUtil.getFloatingIpPortMacFromFloatingIpId(dataBroker, floatingIpId);
             if (macAddress != null) {

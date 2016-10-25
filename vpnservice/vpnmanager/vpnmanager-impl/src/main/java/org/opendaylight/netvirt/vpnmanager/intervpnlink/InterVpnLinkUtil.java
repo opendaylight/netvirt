@@ -263,7 +263,7 @@ public class InterVpnLinkUtil {
 
     public static List<Instruction> buildLportDispatcherTableInstructions (long vpnId) {
         int instructionKey = 0;
-        List<Instruction> instructions = new ArrayList<Instruction>();
+        List<Instruction> instructions = new ArrayList<>();
         instructions.add(MDSALUtil.buildAndGetWriteMetadaInstruction(MetaDataUtil.getVpnIdMetadata(vpnId),
                 MetaDataUtil.METADATA_MASK_VRFID,
                 ++instructionKey));
@@ -286,7 +286,7 @@ public class InterVpnLinkUtil {
                 MDSALUtil.read(broker, LogicalDatastoreType.CONFIGURATION, interVpnLinkStateIid);
 
         return (interVpnLinkStateOpData.isPresent()) ? interVpnLinkStateOpData.get().getInterVpnLinkState()
-                : new ArrayList<InterVpnLinkState>();
+                : new ArrayList<>();
     }
 
     /**
@@ -370,7 +370,7 @@ public class InterVpnLinkUtil {
                 MDSALUtil.read(broker, LogicalDatastoreType.CONFIGURATION, interVpnLinksIid);
 
         return (interVpnLinksOpData.isPresent()) ? interVpnLinksOpData.get().getInterVpnLink()
-                : new ArrayList<InterVpnLink>();
+                : new ArrayList<>();
     }
 
     /**
@@ -391,7 +391,7 @@ public class InterVpnLinkUtil {
             }
         } else {
             LOG.trace("Could not find InterVpnLinkState for interVpnLink {}", vpnLinkName);
-            return new ArrayList<BigInteger>();
+            return new ArrayList<>();
         }
     }
 
@@ -413,7 +413,7 @@ public class InterVpnLinkUtil {
                     iVpnLink.getSecondEndpoint().getVpnUuid().getValue());
         } else {
             LOG.trace("Could not find an InterVpnLink with endpoint IpAddr={}", endpointIp);
-            return new ArrayList<BigInteger>();
+            return new ArrayList<>();
         }
     }
 
@@ -489,7 +489,7 @@ public class InterVpnLinkUtil {
             InterVpnLinkState vpnLinkState = optVpnLinkState.get();
             List<BigInteger> dpnIdList = (destinationIs1stEndpoint) ? vpnLinkState.getFirstEndpointState().getDpId()
                     : vpnLinkState.getSecondEndpointState().getDpId();
-            List<String> nexthops = new ArrayList<String>();
+            List<String> nexthops = new ArrayList<>();
             for (BigInteger dpnId : dpnIdList) {
                 nexthops.add(InterfaceUtils.getEndpointIpAddressForDPN(broker, dpnId));
             }
