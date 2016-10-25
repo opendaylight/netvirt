@@ -530,7 +530,7 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
         prefixBuilder.setIpAddress(lri.getPrefix());
         // Increment the refCount here
         InstanceIdentifier<LabelRouteInfo> lriId = InstanceIdentifier.builder(LabelRouteMap.class)
-                .child(LabelRouteInfo.class, new LabelRouteInfoKey((long)lri.getLabel())).build();
+                .child(LabelRouteInfo.class, new LabelRouteInfoKey(lri.getLabel())).build();
         LabelRouteInfoBuilder builder = new LabelRouteInfoBuilder(lri);
         if (!isPresentInList) {
             LOG.debug("vpnName {} is not present in LRI with label {}..", vpnInstanceName, lri.getLabel());
@@ -569,16 +569,16 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
                         vrfEntry.getLabel(), lri.getVpnInterfaceName(), lri.getDpnId());
             }
         }
-        final List<InstructionInfo> instructions = new ArrayList<InstructionInfo>();
+        final List<InstructionInfo> instructions = new ArrayList<>();
         BigInteger subnetRouteMeta =  ((BigInteger.valueOf(elanTag)).shiftLeft(32)).or((BigInteger.valueOf(vpnId).shiftLeft(1)));
         instructions.add(new InstructionInfo(InstructionType.write_metadata,  new BigInteger[] { subnetRouteMeta, MetaDataUtil.METADATA_MASK_SUBNET_ROUTE }));
         instructions.add(new InstructionInfo(InstructionType.goto_table, new long[] { NwConstants.L3_SUBNET_ROUTE_TABLE }));
         makeConnectedRoute(dpnId,vpnId,vrfEntry,rd,instructions,NwConstants.ADD_FLOW, tx);
 
         if (RouteOrigin.value(vrfEntry.getOrigin()) != RouteOrigin.SELF_IMPORTED) {
-            List<ActionInfo> actionsInfos = new ArrayList<ActionInfo>();
+            List<ActionInfo> actionsInfos = new ArrayList<>();
             // reinitialize instructions list for LFIB Table
-            final List<InstructionInfo> LFIBinstructions = new ArrayList<InstructionInfo>();
+            final List<InstructionInfo> LFIBinstructions = new ArrayList<>();
 
             actionsInfos.add(new ActionPopMpls());
             LFIBinstructions.add(new InstructionInfo(InstructionType.apply_actions, actionsInfos));
@@ -757,7 +757,7 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
     }
 
     private List<BigInteger> getDpnIdForPrefix(DataBroker broker, Long vpnId, String rd, VrfEntry vrfEntry) {
-        List<BigInteger> returnLocalDpnId = new ArrayList<BigInteger>();
+        List<BigInteger> returnLocalDpnId = new ArrayList<>();
         Prefixes localNextHopInfo = FibUtil.getPrefixToInterface(broker, vpnId, vrfEntry.getDestPrefix());
 
         if (localNextHopInfo == null) {
@@ -896,7 +896,7 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
 
     private LabelRouteInfo getLabelRouteInfo(Long label) {
         InstanceIdentifier<LabelRouteInfo>lriIid = InstanceIdentifier.builder(LabelRouteMap.class)
-                .child(LabelRouteInfo.class, new LabelRouteInfoKey((long)label)).build();
+                .child(LabelRouteInfo.class, new LabelRouteInfoKey(label)).build();
         Optional<LabelRouteInfo> opResult = read(dataBroker, LogicalDatastoreType.OPERATIONAL, lriIid);
         if (opResult.isPresent()) {
             return opResult.get();
@@ -907,11 +907,11 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
     private boolean deleteLabelRouteInfo(LabelRouteInfo lri, String vpnInstanceName) {
         LOG.debug("deleting LRI : for label {} vpninstancename {}", lri.getLabel(), vpnInstanceName);
         InstanceIdentifier<LabelRouteInfo> lriId = InstanceIdentifier.builder(LabelRouteMap.class)
-                .child(LabelRouteInfo.class, new LabelRouteInfoKey((long) lri.getLabel())).build();
+                .child(LabelRouteInfo.class, new LabelRouteInfoKey(lri.getLabel())).build();
         if (lri == null) {
             return true;
         }
-        List<String> vpnInstancesList = lri.getVpnInstanceList() != null ? lri.getVpnInstanceList() : new ArrayList<String>();
+        List<String> vpnInstancesList = lri.getVpnInstanceList() != null ? lri.getVpnInstanceList() : new ArrayList<>();
         if (vpnInstancesList.contains(vpnInstanceName)) {
             LOG.debug("vpninstance {} name is present", vpnInstanceName);
             vpnInstancesList.remove(vpnInstanceName);
@@ -1689,7 +1689,7 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
             tx = dataBroker.newWriteOnlyTransaction();
         }
 
-        List<MatchInfo> matches = new ArrayList<MatchInfo>();
+        List<MatchInfo> matches = new ArrayList<>();
         matches.add(new MatchInfo(MatchFieldType.eth_type,
                 new long[] { NwConstants.ETHTYPE_MPLS_UC }));
         matches.add(new MatchInfo(MatchFieldType.mpls_label, new String[]{Long.toString(label)}));
@@ -1895,11 +1895,10 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
                                 return futures;
                             LOG.trace("manageRemoteRouteOnDPN :: action {}, DpnId {}, vpnId {}, rd {}, destPfx {}",
                                     action, localDpnId, vpnId, rd, destPrefix);
-                            List<String> nhList = new ArrayList<String>();
                             List<String> nextHopAddressList = vrfEntry.getNextHopAddressList();
                             VrfEntry modVrfEntry;
                             if (nextHopAddressList == null || (nextHopAddressList.isEmpty())) {
-                                nhList = Arrays.asList(destTepIp);
+                                List<String> nhList = Arrays.asList(destTepIp);
                                 modVrfEntry = new VrfEntryBuilder(vrfEntry).setNextHopAddressList(nhList).build();
                             } else {
                                 modVrfEntry = vrfEntry;
@@ -2135,7 +2134,7 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
         // Instruction to goto L3 InterfaceTable
         List<InstructionInfo> instructions = new ArrayList<>();
         instructions.add(new InstructionInfo(InstructionType.goto_table, new long[] {NwConstants.L3_LFIB_TABLE}));
-        List<MatchInfo> matches = new ArrayList<MatchInfo>();
+        List<MatchInfo> matches = new ArrayList<>();
         matches.add(new MatchInfo(MatchFieldType.eth_type,
                 new long[] { NwConstants.ETHTYPE_MPLS_UC }));
         FlowEntity flowEntityToLfib = MDSALUtil.buildFlowEntity(dpnId, NwConstants.INTERNAL_TUNNEL_TABLE,
