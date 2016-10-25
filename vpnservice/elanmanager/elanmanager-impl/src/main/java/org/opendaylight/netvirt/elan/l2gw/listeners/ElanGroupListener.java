@@ -133,12 +133,9 @@ public class ElanGroupListener extends AsyncClusteredDataTreeChangeListenerBase<
                     update.getKey().getGroupId());
             ElanClusterUtils.runOnlyInLeaderNode(entityOwnershipService, elanInstance.getElanInstanceName(),
                     "updating broadcast group",
-                    new Callable<List<ListenableFuture<Void>>>() {
-                        @Override
-                        public List<ListenableFuture<Void>> call() throws Exception {
-                            elanInterfaceManager.setupElanBroadcastGroups(elanInstance, dpnId);
-                            return null;
-                        }
+                    (Callable<List<ListenableFuture<Void>>>) () -> {
+                        elanInterfaceManager.setupElanBroadcastGroups(elanInstance, dpnId);
+                        return null;
                     });
         } else {
             LOG.trace("no buckets in the update {} {}", elanInstance.getElanInstanceName(),

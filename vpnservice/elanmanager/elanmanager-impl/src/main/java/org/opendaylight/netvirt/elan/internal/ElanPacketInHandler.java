@@ -15,7 +15,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.concurrent.Callable;
 
 import org.opendaylight.controller.liblldp.NetUtils;
 import org.opendaylight.controller.liblldp.PacketException;
@@ -84,9 +83,7 @@ public class ElanPacketInHandler implements PacketProcessingListener {
 
                 final DataStoreJobCoordinator portDataStoreCoordinator = DataStoreJobCoordinator.getInstance();
                 portDataStoreCoordinator.enqueueJob(ElanUtils.getElanMacKey(elanTag, macAddress),
-                    new Callable<List<ListenableFuture<Void>>>() {
-                        @Override
-                        public List<ListenableFuture<Void>> call() throws Exception {
+                        () -> {
 
                             long portTag = MetaDataUtil.getLportFromMetadata(metadata).intValue();
 
@@ -187,8 +184,7 @@ public class ElanPacketInHandler implements PacketProcessingListener {
 
                             ElanManagerCounters.unknown_smac_pktin_learned.inc();
                             return futures;
-                        }
-                    });
+                        });
 
             } catch (PacketException e) {
                 LOG.error("Failed to decode packet: {}", notification, e);
