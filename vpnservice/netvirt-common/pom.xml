@@ -76,21 +76,6 @@
       <artifactId>iana-if-type-2014-05-08</artifactId>
     </dependency>
     <dependency>
-      <groupId>org.opendaylight.netvirt</groupId>
-      <artifactId>model-bgp</artifactId>
-      <version>${model.bgp.version}</version>
-    </dependency>
-    <!--dependency>
-      <groupId>org.opendaylight.netvirt</groupId>
-      <artifactId>fibmanager-api</artifactId>
-      <version>${vpnservices.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.opendaylight.netvirt</groupId>
-      <artifactId>bgpmanager-api</artifactId>
-      <version>${vpnservices.version}</version>
-    </dependency-->
-    <dependency>
       <groupId>org.opendaylight.controller</groupId>
       <artifactId>config-api</artifactId>
     </dependency>
