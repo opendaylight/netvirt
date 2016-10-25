@@ -111,7 +111,7 @@ public class VpnNodeListener extends AsyncClusteredDataTreeChangeListenerBase<No
         final BigInteger COOKIE_TABLE_MISS = new BigInteger("1030000", 16);
         // Instruction to goto L3 InterfaceTable
         List<InstructionInfo> instructions = Collections.singletonList(new InstructionInfo(InstructionType.goto_table, new long[] { NwConstants.L3_INTERFACE_TABLE }));
-        List<MatchInfo> matches = new ArrayList<MatchInfo>();
+        List<MatchInfo> matches = new ArrayList<>();
         FlowEntity flowEntityLfib = MDSALUtil.buildFlowEntity(dpnId, NwConstants.L3_LFIB_TABLE,
                 getTableMissFlowRef(dpnId, NwConstants.L3_LFIB_TABLE, NwConstants.TABLE_MISS_FLOW),
                 NwConstants.TABLE_MISS_PRIORITY, "Table Miss", 0, 0, COOKIE_TABLE_MISS, matches, instructions);
@@ -125,12 +125,12 @@ public class VpnNodeListener extends AsyncClusteredDataTreeChangeListenerBase<No
     }
 
     private void makeL3IntfTblMissFlow(WriteTransaction writeFlowTx, BigInteger dpnId, int addOrRemove) {
-        List<InstructionInfo> instructions = new ArrayList<InstructionInfo>();
-        List<MatchInfo> matches = new ArrayList<MatchInfo>();
+        List<InstructionInfo> instructions = new ArrayList<>();
+        List<MatchInfo> matches = new ArrayList<>();
         final BigInteger COOKIE_TABLE_MISS = new BigInteger("1030000", 16);
         // Instruction to goto L3 InterfaceTable
 
-        List <ActionInfo> actionsInfos = new ArrayList <ActionInfo> ();
+        List <ActionInfo> actionsInfos = new ArrayList<>();
         actionsInfos.add(new ActionNxResubmit((NwConstants.LPORT_DISPATCHER_TABLE)));
         instructions.add(new InstructionInfo(InstructionType.apply_actions, actionsInfos));
         //instructions.add(new InstructionInfo(InstructionType.goto_table, new long[] { NwConstants.LPORT_DISPATCHER_TABLE }));
@@ -149,11 +149,11 @@ public class VpnNodeListener extends AsyncClusteredDataTreeChangeListenerBase<No
 
     private void makeSubnetRouteTableMissFlow(WriteTransaction writeFlowTx, BigInteger dpnId, int addOrRemove) {
         final BigInteger COOKIE_TABLE_MISS = new BigInteger("8000004", 16);
-        List<ActionInfo> actionsInfos = new ArrayList<ActionInfo>();
-        List<InstructionInfo> instructions = new ArrayList<InstructionInfo>();
+        List<ActionInfo> actionsInfos = new ArrayList<>();
+        List<InstructionInfo> instructions = new ArrayList<>();
         actionsInfos.add(new ActionPuntToController());
         instructions.add(new InstructionInfo(InstructionType.apply_actions, actionsInfos));
-        List<MatchInfo> matches = new ArrayList<MatchInfo>();
+        List<MatchInfo> matches = new ArrayList<>();
         String flowRef = getTableMissFlowRef(dpnId, NwConstants.L3_SUBNET_ROUTE_TABLE, NwConstants.TABLE_MISS_FLOW);
         FlowEntity flowEntity = MDSALUtil.buildFlowEntity(dpnId, NwConstants.L3_SUBNET_ROUTE_TABLE, flowRef,
                 NwConstants.TABLE_MISS_PRIORITY, "Subnet Route Table Miss", 0, 0, COOKIE_TABLE_MISS, matches, instructions);
@@ -166,7 +166,7 @@ public class VpnNodeListener extends AsyncClusteredDataTreeChangeListenerBase<No
     }
 
     private void createTableMissForVpnGwFlow(WriteTransaction writeFlowTx, BigInteger dpId) {
-        List<MatchInfo> matches = new ArrayList<MatchInfo>();
+        List<MatchInfo> matches = new ArrayList<>();
         List<ActionInfo> actionsInfos = Collections.singletonList(new ActionNxResubmit(NwConstants.LPORT_DISPATCHER_TABLE));
         List<InstructionInfo> instructions = Collections.singletonList(new InstructionInfo(InstructionType.apply_actions, actionsInfos));
         FlowEntity flowEntityMissforGw = MDSALUtil.buildFlowEntity(dpId, NwConstants.L3_GW_MAC_TABLE,
@@ -185,7 +185,7 @@ public class VpnNodeListener extends AsyncClusteredDataTreeChangeListenerBase<No
                 ArpResponderUtil.retrieveStandardArpResponderGroupId(idManagerService),
                 ArpResponderConstant.GROUP_FLOW_NAME.value(), buckets);
 
-        final List<MatchInfo> matches = new ArrayList<MatchInfo>();
+        final List<MatchInfo> matches = new ArrayList<>();
         matches.add(new MatchInfo(MatchFieldType.eth_type, new long[] { NwConstants.ETHTYPE_ARP }));
         matches.add(new MatchInfo(MatchFieldType.arp_op, new long[] {NwConstants.ARP_REQUEST}));
         final List<ActionInfo> actionInfos = Collections.singletonList(
@@ -199,7 +199,7 @@ public class VpnNodeListener extends AsyncClusteredDataTreeChangeListenerBase<No
    }
 
     private void createArpResponseMatchFlowForGwMacTable(WriteTransaction writeFlowTx, BigInteger dpId) {
-        List<MatchInfo> matches = new ArrayList<MatchInfo>();
+        List<MatchInfo> matches = new ArrayList<>();
         matches.add(new MatchInfo(MatchFieldType.eth_type, new long[] { NwConstants.ETHTYPE_ARP }));
         matches.add(new MatchInfo(MatchFieldType.arp_op, new long[] {NwConstants.ARP_REPLY}));
         List<ActionInfo> actionsInfos = new ArrayList<>();
