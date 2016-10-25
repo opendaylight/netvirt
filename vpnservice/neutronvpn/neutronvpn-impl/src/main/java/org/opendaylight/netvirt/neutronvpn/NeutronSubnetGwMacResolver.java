@@ -62,17 +62,12 @@ public class NeutronSubnetGwMacResolver {
     public void start() {
         LOG.info("{} start", getClass().getSimpleName());
 
-        arpFuture = executorService.scheduleAtFixedRate(new Runnable() {
-
-            @Override
-            public void run() {
-                try {
-                    sendArpRequestsToExtGateways();
-                } catch (Throwable t) {
-                    LOG.warn("Failed to send ARP request to GW ips", t);
-                }
+        arpFuture = executorService.scheduleAtFixedRate(() -> {
+            try {
+                sendArpRequestsToExtGateways();
+            } catch (Throwable t) {
+                LOG.warn("Failed to send ARP request to GW ips", t);
             }
-
         }, 0, vpnManager.getArpCacheTimeoutMillis(), TimeUnit.MILLISECONDS);
 
     }
@@ -85,14 +80,7 @@ public class NeutronSubnetGwMacResolver {
         // Let the FIB flows a chance to be installed
         // otherwise the ARP response will be routed straight to L2
         // and bypasses L3 arp cache
-        executorService.schedule(new Runnable() {
-
-            @Override
-            public void run() {
-                sendArpRequestsToExtGatewayTask(router);
-            }
-
-        }, L3_INSTALL_DELAY_MILLIS, TimeUnit.MILLISECONDS);
+        executorService.schedule(() -> sendArpRequestsToExtGatewayTask(router), L3_INSTALL_DELAY_MILLIS, TimeUnit.MILLISECONDS);
     }
 
     private void sendArpRequestsToExtGatewayTask(Router router) {
