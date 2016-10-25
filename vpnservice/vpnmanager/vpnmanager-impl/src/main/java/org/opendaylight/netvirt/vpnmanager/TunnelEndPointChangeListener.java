@@ -8,11 +8,9 @@
 
 package org.opendaylight.netvirt.vpnmanager;
 
-import com.google.common.util.concurrent.ListenableFuture;
 import java.math.BigInteger;
 import java.util.Arrays;
 import java.util.List;
-import java.util.concurrent.Callable;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
@@ -86,25 +84,22 @@ public class TunnelEndPointChangeListener
                 for (VpnInterfaces vpnInterface : vpnInterfaces) {
                     String vpnInterfaceName = vpnInterface.getInterfaceName();
                     dataStoreCoordinator.enqueueJob("VPNINTERFACE-" + vpnInterfaceName,
-                            new Callable<List<ListenableFuture<Void>>>() {
-                                @Override
-                                public List<ListenableFuture<Void>> call() throws Exception {
-                                    LOG.trace("Handling TEP {} add for VPN instance {} VPN interface {}",
-                                            tep.getInterfaceName(), vpnName, vpnInterfaceName);
-                                    WriteTransaction writeConfigTxn = broker.newWriteOnlyTransaction();
-                                    WriteTransaction writeOperTxn = broker.newWriteOnlyTransaction();
-                                    WriteTransaction writeInvTxn = broker.newWriteOnlyTransaction();
-                                    final org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces
-                                            .rev140508.interfaces.state.Interface
-                                            interfaceState =
-                                            InterfaceUtils.getInterfaceStateFromOperDS(broker, vpnInterfaceName);
-                                    final int lPortTag = interfaceState.getIfIndex();
-                                    vpnInterfaceManager.processVpnInterfaceAdjacencies(dpnId, lPortTag, vpnName,
-                                            vpnInterfaceName, vpnId, writeConfigTxn, writeOperTxn, writeInvTxn);
-                                    return Arrays.asList(writeOperTxn.submit(), writeConfigTxn.submit(),
-                                            writeInvTxn.submit());
-                                }
-                            });
+                        () -> {
+                            LOG.trace("Handling TEP {} add for VPN instance {} VPN interface {}",
+                                    tep.getInterfaceName(), vpnName, vpnInterfaceName);
+                            WriteTransaction writeConfigTxn = broker.newWriteOnlyTransaction();
+                            WriteTransaction writeOperTxn = broker.newWriteOnlyTransaction();
+                            WriteTransaction writeInvTxn = broker.newWriteOnlyTransaction();
+                            final org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces
+                                    .rev140508.interfaces.state.Interface
+                                    interfaceState =
+                                    InterfaceUtils.getInterfaceStateFromOperDS(broker, vpnInterfaceName);
+                            final int lPortTag = interfaceState.getIfIndex();
+                            vpnInterfaceManager.processVpnInterfaceAdjacencies(dpnId, lPortTag, vpnName,
+                                    vpnInterfaceName, vpnId, writeConfigTxn, writeOperTxn, writeInvTxn);
+                            return Arrays.asList(writeOperTxn.submit(), writeConfigTxn.submit(),
+                                    writeInvTxn.submit());
+                        });
                 }
             }
         }

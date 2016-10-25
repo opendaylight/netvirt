@@ -81,14 +81,11 @@ public class FloatingIPListener extends AsyncDataTreeChangeListenerBase<Internal
         this.mdsalManager = mdsalManager;
         this.interfaceManager = interfaceManager;
         this.idManager = idManager;
-        GlobalEventExecutor.INSTANCE.execute(new Runnable() {
-            @Override
-            public void run() {
-                final WaitingServiceTracker<FloatingIPHandler> tracker = WaitingServiceTracker.create(
-                        FloatingIPHandler.class, bundleContext);
-                floatingIPHandler = tracker.waitForService(WaitingServiceTracker.FIVE_MINUTES);
-                LOG.info("FloatingIPListener initialized. FloatingIPHandler={}", floatingIPHandler);
-            }
+        GlobalEventExecutor.INSTANCE.execute(() -> {
+            final WaitingServiceTracker<FloatingIPHandler> tracker = WaitingServiceTracker.create(
+                    FloatingIPHandler.class, bundleContext);
+            floatingIPHandler = tracker.waitForService(WaitingServiceTracker.FIVE_MINUTES);
+            LOG.info("FloatingIPListener initialized. FloatingIPHandler={}", floatingIPHandler);
         });
     }
 

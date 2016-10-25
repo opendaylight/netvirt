@@ -28,7 +28,6 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.runners.MockitoJUnitRunner;
-import org.mockito.stubbing.Answer;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.DataChangeListener;
 import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
@@ -124,12 +123,9 @@ public class ToTransportZoneTest {
             any(AsyncDataBroker.DataChangeScope.class))). //
             thenReturn(dataChangeListenerRegistration);
         doReturn(mockWriteTx).when(dataBroker).newWriteOnlyTransaction();
-        doAnswer(new Answer<Void>() {
-            @Override
-            public Void answer(InvocationOnMock invocation) throws Throwable {
-                testTZ(invocation);
-                return null;
-            }
+        doAnswer(invocation -> {
+            testTZ(invocation);
+            return null;
         }).when(mockWriteTx).put(any(), any(), any(), any(Boolean.class));
         doReturn(Futures.immediateCheckedFuture(null)).when(mockWriteTx).submit();
         doReturn(mockReadTx).when(dataBroker).newReadOnlyTransaction();
