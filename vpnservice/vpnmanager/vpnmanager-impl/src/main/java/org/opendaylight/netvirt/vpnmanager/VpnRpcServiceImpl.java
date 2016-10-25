@@ -187,7 +187,7 @@ public class VpnRpcServiceImpl implements VpnRpcService {
             }
         } else {
             vpnInterfaceMgr.addExtraRoute(destination, nexthop, vpnRd, null /*routerId */, label.intValue(),
-                                          null /* intfName */);
+                                          null /* intfName */, null, null);
         }
 
         AddStaticRouteOutput labelOutput = new AddStaticRouteOutputBuilder().setLabel(label).build();
@@ -247,7 +247,7 @@ public class VpnRpcServiceImpl implements VpnRpcService {
                 LOG.warn("Could not withdraw route [vpn={}  prefix={}] to BGP. Reason:", vpnRd, destination, e);
             }
         } else {
-            vpnInterfaceMgr.delExtraRoute(destination, nexthop, vpnRd, null /*routerId*/, null /*intfName*/);
+            vpnInterfaceMgr.delExtraRoute(destination, nexthop, vpnRd, null /*routerId*/, null /*intfName*/, null);
         }
         result.set(RpcResultBuilder.<Void>success().build());
 
