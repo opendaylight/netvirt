@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5a682502_92402d58",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/FibManagerImpl.java",
+        "patchSetId": 16
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-10-25T18:00:27Z",
+      "side": 1,
+      "message": "would it be possible that we can create this cache in InterVPNLink engine files init instead of here?",
+      "revId": "fcf319fe8376df935f776b4a7b4fb0fe5ba49c8f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5a682502_122c1dab",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 16
+      },
+      "lineNbr": 1473,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-10-25T18:00:27Z",
+      "side": 1,
+      "message": "the primary adjacency field is not set into OPERATIONAL l3vpn:vpn-interfaces of the VPNInterfaceManager.. \n\nIt is retained only in CONFIG DS of l3vpn:vpn-interfaces..\n\nSo can you please set primaryadjacency for OPERATIONAL vpn-interfaces also for consistency reasons.\n(may not be really necessitated in this review :), but would be good to have) ?",
+      "revId": "fcf319fe8376df935f776b4a7b4fb0fe5ba49c8f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
