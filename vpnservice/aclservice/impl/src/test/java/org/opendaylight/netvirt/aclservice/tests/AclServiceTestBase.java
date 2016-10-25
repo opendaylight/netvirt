@@ -388,7 +388,7 @@ public abstract class AclServiceTestBase {
                 .setIpAddress(new IpPrefixOrAddress(new IpPrefix(ipAddress.toCharArray())))
                 .setMacAddress(new MacAddress(macAddress))
                 .build();
-        List<Uuid> sgList = sgUuidList.stream().map(sg -> new Uuid(sg)).collect(Collectors.toList());
+        List<Uuid> sgList = sgUuidList.stream().map(Uuid::new).collect(Collectors.toList());
 
         dataBrokerUtil.put(ImmutableIdentifiedInterfaceWithAclBuilder.builder()
             .interfaceName(portName)
