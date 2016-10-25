@@ -305,7 +305,7 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
                     if (null != portId) {
                         List<Uuid> portList = builder.getPortList();
                         if (null == portList) {
-                            portList = new ArrayList<Uuid>();
+                            portList = new ArrayList<>();
                         }
                         portList.add(portId);
                         builder.setPortList(portList);
@@ -315,7 +315,7 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
                     if (null != directPortId) {
                         List<Uuid> directPortList = builder.getDirectPortList();
                         if (null == directPortList) {
-                            directPortList = new ArrayList<Uuid>();
+                            directPortList = new ArrayList<>();
                         }
                         directPortList.add(directPortId);
                         builder.setDirectPortList(directPortList);
@@ -704,7 +704,7 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
                 LOG.debug("Updating vpn interface {}", infName);
                 if (!isBeingAssociated) {
                     Adjacencies adjs = vpnIfBuilder.getAugmentation(Adjacencies.class);
-                    List<Adjacency> adjacencyList = (adjs != null) ? adjs.getAdjacency() : new ArrayList<Adjacency>();
+                    List<Adjacency> adjacencyList = (adjs != null) ? adjs.getAdjacency() : new ArrayList<>();
                     Iterator<Adjacency> adjacencyIter = adjacencyList.iterator();
                     while (adjacencyIter.hasNext()) {
                         Adjacency adjacency = adjacencyIter.next();

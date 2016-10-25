@@ -29,7 +29,7 @@ public class PortInfo {
         this.mac = macFor(ofPort);
         this.id = UUID.randomUUID().toString();
         this.name = "tap" + id.substring(0, 11);
-        this.fixedIpList = new HashMap<String, PortIp>();
+        this.fixedIpList = new HashMap<>();
         ipv6Utils = new Ipv6Utils();
     }
 

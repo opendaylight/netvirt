@@ -99,8 +99,8 @@ public class NeutronRouterChangeListener extends AsyncDataTreeChangeListenerBase
         if (vpnId == null) {
             vpnId = routerId;
         }
-        List<Routes> oldRoutes = (original.getRoutes() != null) ? original.getRoutes() : new ArrayList<Routes>();
-        List<Routes> newRoutes = (update.getRoutes() != null) ? update.getRoutes() : new ArrayList<Routes>();
+        List<Routes> oldRoutes = (original.getRoutes() != null) ? original.getRoutes() : new ArrayList<>();
+        List<Routes> newRoutes = (update.getRoutes() != null) ? update.getRoutes() : new ArrayList<>();
         if (!oldRoutes.equals(newRoutes)) {
             Iterator<Routes> iterator = newRoutes.iterator();
             while (iterator.hasNext()) {
@@ -123,9 +123,9 @@ public class NeutronRouterChangeListener extends AsyncDataTreeChangeListenerBase
 
     private void handleChangedRoutes(Uuid vpnName, List<Routes> routes, int addedOrRemoved) {
         // Some routes may point to an InterVpnLink's endpoint, lets treat them differently
-        List<Routes> interVpnLinkRoutes = new ArrayList<Routes>();
-        List<Routes> otherRoutes = new ArrayList<Routes>();
-        HashMap<String, InterVpnLink> nexthopsXinterVpnLinks = new HashMap<String, InterVpnLink>();
+        List<Routes> interVpnLinkRoutes = new ArrayList<>();
+        List<Routes> otherRoutes = new ArrayList<>();
+        HashMap<String, InterVpnLink> nexthopsXinterVpnLinks = new HashMap<>();
         for ( Routes route : routes ) {
             String nextHop = String.valueOf(route.getNexthop().getValue());
             // Nexthop is another VPN?

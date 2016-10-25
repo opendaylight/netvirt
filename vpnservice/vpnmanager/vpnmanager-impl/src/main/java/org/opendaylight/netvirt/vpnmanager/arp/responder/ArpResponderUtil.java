@@ -163,7 +163,7 @@ public class ArpResponderUtil {
     public static List<MatchInfo> getMatchCriteria(final int lportTag,
         final long vpnId, final String ipAddress) {
 
-        final List<MatchInfo> matches = new ArrayList<MatchInfo>();
+        final List<MatchInfo> matches = new ArrayList<>();
         short matchIndex = NwConstants.L3VPN_SERVICE_INDEX;
         final BigInteger metadata = MetaDataUtil.getMetaDataForLPortDispatcher(
             lportTag, ++matchIndex, MetaDataUtil.getVpnIdMetadata(vpnId));

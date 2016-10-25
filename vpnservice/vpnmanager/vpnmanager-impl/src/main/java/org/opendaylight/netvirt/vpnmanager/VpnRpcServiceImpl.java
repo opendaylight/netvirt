@@ -98,7 +98,7 @@ public class VpnRpcServiceImpl implements VpnRpcService {
     }
 
     private Collection<RpcError> validateAddStaticRouteInput(AddStaticRouteInput input) {
-        Collection<RpcError> rpcErrors = new ArrayList<RpcError>();
+        Collection<RpcError> rpcErrors = new ArrayList<>();
         String destination = input.getDestination();
         String vpnInstanceName = input.getVpnInstanceName();
         String nexthop = input.getNexthop();

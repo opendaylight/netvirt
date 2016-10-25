@@ -121,7 +121,7 @@ public class InterVpnLinkDataComposite {
 
     public List<BigInteger> getFirstEndpointDpns() {
         return ( !isComplete() || this.interVpnLinkState.getFirstEndpointState().getDpId() == null )
-                   ? Collections.<BigInteger>emptyList()
+                   ? Collections.emptyList()
                    : this.interVpnLinkState.getFirstEndpointState().getDpId();
     }
 
@@ -141,7 +141,7 @@ public class InterVpnLinkDataComposite {
 
     public List<BigInteger> getSecondEndpointDpns() {
         return (!isComplete() || this.interVpnLinkState.getSecondEndpointState().getDpId() == null )
-                    ? Collections.<BigInteger>emptyList()
+                    ? Collections.emptyList()
                     : this.interVpnLinkState.getSecondEndpointState().getDpId();
     }
 
