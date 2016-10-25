@@ -84,7 +84,7 @@ public class DhcpUCastMacListener
             return;
         }
         IpAddress tunnelIp = device.getTunnelIp();
-        Pair<IpAddress, String> tunnelIpElanName = new ImmutablePair<IpAddress, String>(tunnelIp, elanInstanceName);
+        Pair<IpAddress, String> tunnelIpElanName = new ImmutablePair<>(tunnelIp, elanInstanceName);
         dhcpExternalTunnelManager.removeFromAvailableCache(tunnelIpElanName);
     }
 

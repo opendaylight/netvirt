@@ -271,10 +271,8 @@ public class L2GatewayConnectionUtils {
                     l2gwDeviceNodeId, l2GwConnId);
         }
         elanL2GwDevice.addL2GatewayId(l2GwConnId);
-        if (elanL2GwDevice.getL2gwConnectionIdToDevices().get(l2GwConnId) == null) {
-            elanL2GwDevice.getL2gwConnectionIdToDevices().put(l2GwConnId, new ArrayList<Devices>());
-        }
-        elanL2GwDevice.getL2gwConnectionIdToDevices().get(l2GwConnId).add(l2Device);
+        elanL2GwDevice.getL2gwConnectionIdToDevices().computeIfAbsent(l2GwConnId, key -> new ArrayList<>()).add(
+                l2Device);
 
         LOG.trace("Elan L2GwConn cache updated with below details: {}", elanL2GwDevice);
         return elanL2GwDevice;

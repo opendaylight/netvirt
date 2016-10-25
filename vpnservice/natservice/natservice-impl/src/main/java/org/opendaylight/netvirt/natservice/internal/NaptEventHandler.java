@@ -221,7 +221,7 @@ public class NaptEventHandler {
 
             byte[] pktOut = buildNaptPacketOut(ethPkt);
 
-            List<ActionInfo> actionInfos  = new ArrayList<ActionInfo>();
+            List<ActionInfo> actionInfos  = new ArrayList<>();
             if (ethPkt.getPayload() instanceof IPv4) {
                 IPv4 ipPkt = (IPv4) ethPkt.getPayload();
                 if ((ipPkt.getPayload() instanceof TCP) || (ipPkt.getPayload() instanceof UDP) ) {

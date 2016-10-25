@@ -223,6 +223,6 @@ public class ExternalNetworkGroupInstaller {
             return null;
         }
 
-        return MDSALUtil.buildGroupEntity(dpId, groupId, subnetName, GroupTypes.GroupAll, new ArrayList<BucketInfo>());
+        return MDSALUtil.buildGroupEntity(dpId, groupId, subnetName, GroupTypes.GroupAll, new ArrayList<>());
     }
 }

@@ -146,7 +146,7 @@ public class FibRpcServiceImpl implements FibRpcService {
             LOG.error("UnknowHostException in removeRoute. Failed  to remove Route for ipPrefix {}", ipAddress, e);
             return;
         }
-        List<MatchInfo> matches = new ArrayList<MatchInfo>();
+        List<MatchInfo> matches = new ArrayList<>();
 
         matches.add(new MatchMetadata(MetaDataUtil.getVpnIdMetadata(vpnId), MetaDataUtil.METADATA_MASK_VRFID));
 
@@ -170,7 +170,7 @@ public class FibRpcServiceImpl implements FibRpcService {
     }
 
     private void removeLFibTableEntry(BigInteger dpnId, long serviceId) {
-        List<MatchInfo> matches = new ArrayList<MatchInfo>();
+        List<MatchInfo> matches = new ArrayList<>();
         matches.add(MatchEthernetType.MPLS_UNICAST);
         matches.add(new MatchMplsLabel(serviceId));
 
@@ -189,7 +189,7 @@ public class FibRpcServiceImpl implements FibRpcService {
 
     private void removeTunnelTableEntry(BigInteger dpnId, long serviceId) {
         LOG.info("remove terminatingServiceActions called with DpnId = {} and label = {}", dpnId , serviceId);
-        List<MatchInfo> mkMatches = new ArrayList<MatchInfo>();
+        List<MatchInfo> mkMatches = new ArrayList<>();
         // Matching metadata
         mkMatches.add(new MatchTunnelId(BigInteger.valueOf(serviceId)));
         Flow flowEntity = MDSALUtil.buildFlowNew(NwConstants.INTERNAL_TUNNEL_TABLE,
@@ -201,7 +201,7 @@ public class FibRpcServiceImpl implements FibRpcService {
     }
 
     private void makeTunnelTableEntry(BigInteger dpnId, long serviceId, List<Instruction> customInstructions) {
-        List<MatchInfo> mkMatches = new ArrayList<MatchInfo>();
+        List<MatchInfo> mkMatches = new ArrayList<>();
 
         LOG.info("create terminatingServiceAction on DpnId = {} and serviceId = {} and actions = {}", dpnId , serviceId);
 
@@ -231,7 +231,7 @@ public class FibRpcServiceImpl implements FibRpcService {
             LOG.error("UnknowHostException in addRoute. Failed  to add Route for ipPrefix {}", ipAddress, e);
             return;
         }
-        List<MatchInfo> matches = new ArrayList<MatchInfo>();
+        List<MatchInfo> matches = new ArrayList<>();
 
         matches.add(new MatchMetadata(MetaDataUtil.getVpnIdMetadata(vpnId), MetaDataUtil.METADATA_MASK_VRFID));
 
@@ -255,12 +255,12 @@ public class FibRpcServiceImpl implements FibRpcService {
     }
 
     private void makeLFibTableEntry(BigInteger dpId, long serviceId, List<Instruction> customInstructions) {
-        List<MatchInfo> matches = new ArrayList<MatchInfo>();
+        List<MatchInfo> matches = new ArrayList<>();
         matches.add(MatchEthernetType.MPLS_UNICAST);
         matches.add(new MatchMplsLabel(serviceId));
 
-        List<Instruction> instructions = new ArrayList<Instruction>();
-        List<ActionInfo> actionsInfos = new ArrayList<ActionInfo>();
+        List<Instruction> instructions = new ArrayList<>();
+        List<ActionInfo> actionsInfos = new ArrayList<>();
         actionsInfos.add(new ActionPopMpls());
         Instruction writeInstruction = new InstructionApplyActions(actionsInfos).buildInstruction(0);
         instructions.add(writeInstruction);

@@ -34,12 +34,12 @@ public class ArpUtils {
     public static TransmitPacketInput createArpRequestInput(BigInteger dpnId, byte[] abySenderMAC,
         byte[] abySenderIpAddress, byte[] abyTargetIpAddress, NodeConnectorRef ingress) {
         return createArpRequestInput(dpnId, null, abySenderMAC, (byte[]) null, abySenderIpAddress, abyTargetIpAddress,
-            ingress, new ArrayList<ActionInfo>());
+            ingress, new ArrayList<>());
     }
 
     public static TransmitPacketInput createArpRequestInput(BigInteger dpnId, Long groupId, byte[] abySenderMAC,
         byte[] abySenderIpAddress, byte[] abyTargetIpAddress, NodeConnectorRef ingress) {
-        List<ActionInfo> lstActionInfo = new ArrayList<ActionInfo>();
+        List<ActionInfo> lstActionInfo = new ArrayList<>();
         return createArpRequestInput(dpnId, groupId, abySenderMAC, null, abySenderIpAddress, abyTargetIpAddress,
             ingress, lstActionInfo);
     }

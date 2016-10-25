@@ -306,7 +306,7 @@ public class BgpUpdater {
   public static class Processor<I extends Iface> extends org.apache.thrift.TBaseProcessor<I> implements org.apache.thrift.TProcessor {
     private static final Logger LOGGER = LoggerFactory.getLogger(Processor.class.getName());
     public Processor(I iface) {
-      super(iface, getProcessMap(new HashMap<String, org.apache.thrift.ProcessFunction<I, ? extends org.apache.thrift.TBase>>()));
+      super(iface, getProcessMap(new HashMap<>()));
     }
 
     protected Processor(I iface, Map<String,  org.apache.thrift.ProcessFunction<I, ? extends  org.apache.thrift.TBase>> processMap) {
@@ -402,7 +402,7 @@ public class BgpUpdater {
   public static class AsyncProcessor<I extends AsyncIface> extends org.apache.thrift.TBaseAsyncProcessor<I> {
     private static final Logger LOGGER = LoggerFactory.getLogger(AsyncProcessor.class.getName());
     public AsyncProcessor(I iface) {
-      super(iface, getProcessMap(new HashMap<String, org.apache.thrift.AsyncProcessFunction<I, ? extends org.apache.thrift.TBase, ?>>()));
+      super(iface, getProcessMap(new HashMap<>()));
     }
 
     protected AsyncProcessor(I iface, Map<String,  org.apache.thrift.AsyncProcessFunction<I, ? extends  org.apache.thrift.TBase, ?>> processMap) {
@@ -540,7 +540,7 @@ public class BgpUpdater {
     private static final org.apache.thrift.protocol.TField NEXTHOP_FIELD_DESC = new org.apache.thrift.protocol.TField("nexthop", org.apache.thrift.protocol.TType.STRING, (short)4);
     private static final org.apache.thrift.protocol.TField LABEL_FIELD_DESC = new org.apache.thrift.protocol.TField("label", org.apache.thrift.protocol.TType.I32, (short)5);
 
-    private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<Class<? extends IScheme>, SchemeFactory>();
+    private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<>();
     static {
       schemes.put(StandardScheme.class, new onUpdatePushRoute_argsStandardSchemeFactory());
       schemes.put(TupleScheme.class, new onUpdatePushRoute_argsTupleSchemeFactory());
@@ -560,7 +560,7 @@ public class BgpUpdater {
       NEXTHOP((short)4, "nexthop"),
       LABEL((short)5, "label");
 
-      private static final Map<String, _Fields> byName = new HashMap<String, _Fields>();
+      private static final Map<String, _Fields> byName = new HashMap<>();
 
       static {
         for (_Fields field : EnumSet.allOf(_Fields.class)) {
@@ -628,7 +628,7 @@ public class BgpUpdater {
     private byte __isset_bitfield = 0;
     public static final Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> metaDataMap;
     static {
-      Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<_Fields, org.apache.thrift.meta_data.FieldMetaData>(_Fields.class);
+      Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<>(_Fields.class);
       tmpMap.put(_Fields.RD, new org.apache.thrift.meta_data.FieldMetaData("rd", org.apache.thrift.TFieldRequirementType.DEFAULT,
               new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING)));
       tmpMap.put(_Fields.PREFIX, new org.apache.thrift.meta_data.FieldMetaData("prefix", org.apache.thrift.TFieldRequirementType.DEFAULT,
@@ -1285,7 +1285,7 @@ public class BgpUpdater {
     private static final org.apache.thrift.protocol.TField PREFIXLEN_FIELD_DESC = new org.apache.thrift.protocol.TField("prefixlen", org.apache.thrift.protocol.TType.I32, (short)3);
     private static final org.apache.thrift.protocol.TField NEXTHOP_FIELD_DESC = new org.apache.thrift.protocol.TField("nexthop", org.apache.thrift.protocol.TType.STRING, (short)4);
 
-    private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<Class<? extends IScheme>, SchemeFactory>();
+    private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<>();
     static {
       schemes.put(StandardScheme.class, new onUpdateWithdrawRoute_argsStandardSchemeFactory());
       schemes.put(TupleScheme.class, new onUpdateWithdrawRoute_argsTupleSchemeFactory());
@@ -1303,7 +1303,7 @@ public class BgpUpdater {
       PREFIXLEN((short)3, "prefixlen"),
       NEXTHOP((short)4, "nexthop");
 
-      private static final Map<String, _Fields> byName = new HashMap<String, _Fields>();
+      private static final Map<String, _Fields> byName = new HashMap<>();
 
       static {
         for (_Fields field : EnumSet.allOf(_Fields.class)) {
@@ -1368,7 +1368,7 @@ public class BgpUpdater {
     private byte __isset_bitfield = 0;
     public static final Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> metaDataMap;
     static {
-      Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<_Fields, org.apache.thrift.meta_data.FieldMetaData>(_Fields.class);
+      Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<>(_Fields.class);
       tmpMap.put(_Fields.RD, new org.apache.thrift.meta_data.FieldMetaData("rd", org.apache.thrift.TFieldRequirementType.DEFAULT,
               new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING)));
       tmpMap.put(_Fields.PREFIX, new org.apache.thrift.meta_data.FieldMetaData("prefix", org.apache.thrift.TFieldRequirementType.DEFAULT,
@@ -1933,7 +1933,7 @@ public class BgpUpdater {
     private static final org.apache.thrift.protocol.TStruct STRUCT_DESC = new org.apache.thrift.protocol.TStruct("onStartConfigResyncNotification_args");
 
 
-    private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<Class<? extends IScheme>, SchemeFactory>();
+    private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<>();
     static {
       schemes.put(StandardScheme.class, new onStartConfigResyncNotification_argsStandardSchemeFactory());
       schemes.put(TupleScheme.class, new onStartConfigResyncNotification_argsTupleSchemeFactory());
@@ -1944,7 +1944,7 @@ public class BgpUpdater {
     public enum _Fields implements org.apache.thrift.TFieldIdEnum {
       ;
 
-      private static final Map<String, _Fields> byName = new HashMap<String, _Fields>();
+      private static final Map<String, _Fields> byName = new HashMap<>();
 
       static {
         for (_Fields field : EnumSet.allOf(_Fields.class)) {
@@ -1997,7 +1997,7 @@ public class BgpUpdater {
     }
     public static final Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> metaDataMap;
     static {
-      Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<_Fields, org.apache.thrift.meta_data.FieldMetaData>(_Fields.class);
+      Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<>(_Fields.class);
       metaDataMap = Collections.unmodifiableMap(tmpMap);
       org.apache.thrift.meta_data.FieldMetaData.addStructMetaDataMap(onStartConfigResyncNotification_args.class, metaDataMap);
     }
@@ -2182,7 +2182,7 @@ public class BgpUpdater {
     private static final org.apache.thrift.protocol.TField ERR_CODE_FIELD_DESC = new org.apache.thrift.protocol.TField("errCode", org.apache.thrift.protocol.TType.BYTE, (short)2);
     private static final org.apache.thrift.protocol.TField ERR_SUBCODE_FIELD_DESC = new org.apache.thrift.protocol.TField("errSubcode", org.apache.thrift.protocol.TType.BYTE, (short)3);
 
-    private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<Class<? extends IScheme>, SchemeFactory>();
+    private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<>();
     static {
       schemes.put(StandardScheme.class, new onNotificationSendEvent_argsStandardSchemeFactory());
       schemes.put(TupleScheme.class, new onNotificationSendEvent_argsTupleSchemeFactory());
@@ -2198,7 +2198,7 @@ public class BgpUpdater {
       ERR_CODE((short)2, "errCode"),
       ERR_SUBCODE((short)3, "errSubcode");
 
-      private static final Map<String, _Fields> byName = new HashMap<String, _Fields>();
+      private static final Map<String, _Fields> byName = new HashMap<>();
 
       static {
         for (_Fields field : EnumSet.allOf(_Fields.class)) {
@@ -2262,7 +2262,7 @@ public class BgpUpdater {
     private byte __isset_bitfield = 0;
     public static final Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> metaDataMap;
     static {
-      Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<_Fields, org.apache.thrift.meta_data.FieldMetaData>(_Fields.class);
+      Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<>(_Fields.class);
       tmpMap.put(_Fields.PREFIX, new org.apache.thrift.meta_data.FieldMetaData("prefix", org.apache.thrift.TFieldRequirementType.DEFAULT,
               new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING)));
       tmpMap.put(_Fields.ERR_CODE, new org.apache.thrift.meta_data.FieldMetaData("errCode", org.apache.thrift.TFieldRequirementType.DEFAULT,
