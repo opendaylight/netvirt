@@ -140,32 +140,29 @@ public class PipelineOrchestratorImpl implements ConfigInterface, NodeCacheListe
     }
 
     public final void start() {
-        eventHandler.submit(new Runnable()  {
-            @Override
-            public void run() {
-                try {
-                    while (true) {
-                        Node node = queue.take();
-                        LOG.debug("dequeue Node : {}", node);
-                        if (southbound.getBridge(node) != null) {
-                            for (Service service : staticPipeline) {
-                                AbstractServiceInstance serviceInstance = getServiceInstance(service);
-                                if (serviceInstance != null) {
-                                    serviceInstance.programDefaultPipelineRule(node);
-                                }
+        eventHandler.submit(() -> {
+            try {
+                while (true) {
+                    Node node = queue.take();
+                    LOG.debug("dequeue Node : {}", node);
+                    if (southbound.getBridge(node) != null) {
+                        for (Service service : staticPipeline) {
+                            AbstractServiceInstance serviceInstance = getServiceInstance(service);
+                            if (serviceInstance != null) {
+                                serviceInstance.programDefaultPipelineRule(node);
                             }
-                            // TODO: might need a flow to go from table 0 to the pipeline
                         }
+                        // TODO: might need a flow to go from table 0 to the pipeline
                     }
-                } catch (Exception e) {
-                    LOG.warn("Processing interrupted, terminating ", e);
                 }
-
-                while (!queue.isEmpty()) {
-                    queue.poll();
-                }
-                queue = null;
+            } catch (Exception e) {
+                LOG.warn("Processing interrupted, terminating ", e);
             }
+
+            while (!queue.isEmpty()) {
+                queue.poll();
+            }
+            queue = null;
         });
     }
 

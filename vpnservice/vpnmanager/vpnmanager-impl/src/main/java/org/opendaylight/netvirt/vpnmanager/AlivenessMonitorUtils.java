@@ -203,7 +203,7 @@ public class AlivenessMonitorUtils {
     public static java.util.Optional<Long> getMonitorIdFromInterface(MacEntry macEntry) {
         java.util.Optional<Long> monitorId = alivenessCache.entrySet().parallelStream()
             .filter(map -> macEntry.equals(map.getValue()))
-            .map(map -> map.getKey())
+            .map(Map.Entry::getKey)
             .findFirst();
         return monitorId;
     }
