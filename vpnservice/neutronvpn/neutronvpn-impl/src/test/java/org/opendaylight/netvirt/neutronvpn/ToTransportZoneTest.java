@@ -80,7 +80,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.re
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.rev150105.ovsdb.node.attributes.OpenvswitchOtherConfigsBuilder;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Node;
 import org.opendaylight.yangtools.concepts.ListenerRegistration;
-import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -140,7 +139,7 @@ public class ToTransportZoneTest {
         when(neutronvpnManager.updateSubnetmapNodeWithPorts(any(Uuid.class), any(Uuid.class), any(Uuid.class)))
             .thenReturn(subnetMap);
 
-        when(mockReadTx.<DataObject>read(any(LogicalDatastoreType.class), any(InstanceIdentifier.class)))
+        when(mockReadTx.read(any(LogicalDatastoreType.class), any(InstanceIdentifier.class)))
             .thenReturn(Futures.immediateCheckedFuture(Optional.absent()));
         interfaceStateToTransportZoneChangeListener =
             new InterfaceStateToTransportZoneListener(dataBroker, neutronvpnManager);
@@ -164,7 +163,7 @@ public class ToTransportZoneTest {
         interf = new InterfacesBuilder().setInterface(interfaces).build();
         port = buildPort(PORT_IP);
         buildNode();
-        when(mockReadTx.<DataObject>read(any(LogicalDatastoreType.class), any(InstanceIdentifier.class)))
+        when(mockReadTx.read(any(LogicalDatastoreType.class), any(InstanceIdentifier.class)))
             .thenReturn(Futures.immediateCheckedFuture(Optional.of(interf)))
             .thenReturn(Futures.immediateCheckedFuture(Optional.of(port)))
             .thenReturn(Futures.immediateCheckedFuture(Optional.absent()))
@@ -193,7 +192,7 @@ public class ToTransportZoneTest {
         TransportZone tz = new TransportZoneBuilder().setZoneName(NETWORK_ID)
             .setTunnelType(TunnelTypeVxlan.class).setSubnets(new ArrayList<>()).build();
         buildNode();
-        when(mockReadTx.<DataObject>read(any(LogicalDatastoreType.class), any(InstanceIdentifier.class)))
+        when(mockReadTx.read(any(LogicalDatastoreType.class), any(InstanceIdentifier.class)))
             .thenReturn(Futures.immediateCheckedFuture(Optional.of(interf)))
             .thenReturn(Futures.immediateCheckedFuture(Optional.of(port)))
             .thenReturn(Futures.immediateCheckedFuture(Optional.of(network)))
@@ -224,7 +223,7 @@ public class ToTransportZoneTest {
         TransportZone tz = new TransportZoneBuilder().setZoneName(NETWORK_ID)
             .setTunnelType(TunnelTypeVxlan.class).setSubnets(new ArrayList<>()).build();
         buildNode();
-        when(mockReadTx.<DataObject>read(any(LogicalDatastoreType.class), any(InstanceIdentifier.class)))
+        when(mockReadTx.read(any(LogicalDatastoreType.class), any(InstanceIdentifier.class)))
             .thenReturn(Futures.immediateCheckedFuture(Optional.of(interf)))
             .thenReturn(Futures.immediateCheckedFuture(Optional.of(port)))
             .thenReturn(Futures.immediateCheckedFuture(Optional.of(network)))
@@ -255,7 +254,7 @@ public class ToTransportZoneTest {
         TransportZone tz = new TransportZoneBuilder().setZoneName(NETWORK_ID)
             .setTunnelType(TunnelTypeVxlan.class).setSubnets(buildSubnets()).build();
         buildNode();
-        when(mockReadTx.<DataObject>read(any(LogicalDatastoreType.class), any(InstanceIdentifier.class)))
+        when(mockReadTx.read(any(LogicalDatastoreType.class), any(InstanceIdentifier.class)))
             .thenReturn(Futures.immediateCheckedFuture(Optional.of(interf)))
             .thenReturn(Futures.immediateCheckedFuture(Optional.of(port)))
             .thenReturn(Futures.immediateCheckedFuture(Optional.of(network)));
@@ -268,7 +267,7 @@ public class ToTransportZoneTest {
 
     @Test
     public void addRouter() throws Exception {
-        when(mockReadTx.<DataObject>read(any(LogicalDatastoreType.class), any(InstanceIdentifier.class)))
+        when(mockReadTx.read(any(LogicalDatastoreType.class), any(InstanceIdentifier.class)))
             .thenReturn(Futures.immediateCheckedFuture(Optional.absent()));
         RouterDpnListBuilder intBuilder = new RouterDpnListBuilder();
         RouterDpnList routerDpnList = buildRouterDpnList();
@@ -280,7 +279,7 @@ public class ToTransportZoneTest {
     private RouterDpnList buildRouterDpnList() {
         RouterDpnListBuilder routerDpnBuilder = new RouterDpnListBuilder();
         routerDpnBuilder.setRouterId(ROUTER_ID);
-        List<DpnVpninterfacesList> list = new ArrayList<DpnVpninterfacesList>();
+        List<DpnVpninterfacesList> list = new ArrayList<>();
         list.add(new DpnVpninterfacesListBuilder().setDpnId(BigInteger.valueOf(DPN_ID)).build());
         list.add(new DpnVpninterfacesListBuilder().setDpnId(DPN_ID_2).build());
         routerDpnBuilder.setDpnVpninterfacesList(list);
@@ -297,7 +296,7 @@ public class ToTransportZoneTest {
 
     private List<Subnets> buildSubnets() {
         SubnetsBuilder subnetsBuilder = new SubnetsBuilder();
-        List<Vteps> vteps = new ArrayList<Vteps>();
+        List<Vteps> vteps = new ArrayList<>();
 
         vteps.add(buildVtep(DPN_ID_2, OVS_IP_2, VTEP_PORT));
         subnetsBuilder.setVteps(vteps);

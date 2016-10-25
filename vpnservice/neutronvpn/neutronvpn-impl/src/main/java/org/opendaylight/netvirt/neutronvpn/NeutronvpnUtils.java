@@ -698,7 +698,7 @@ public class NeutronvpnUtils {
         if (locks.get(lockName) != null) {
             synchronized (locks) {
                 if (locks.get(lockName) == null) {
-                    locks.putIfAbsent(lockName, new ImmutablePair<ReadWriteLock, AtomicInteger>(new
+                    locks.putIfAbsent(lockName, new ImmutablePair<>(new
                             ReentrantReadWriteLock(), new AtomicInteger(0)));
                 }
                 locks.get(lockName).getRight().incrementAndGet();
@@ -713,7 +713,7 @@ public class NeutronvpnUtils {
                 throw new RuntimeException(String.format("Unable to acquire lock for %s", lockName), e.getCause());
             }
         } else {
-            locks.putIfAbsent(lockName, new ImmutablePair<ReadWriteLock, AtomicInteger>(new ReentrantReadWriteLock(),
+            locks.putIfAbsent(lockName, new ImmutablePair<>(new ReentrantReadWriteLock(),
                     new AtomicInteger(0)));
             locks.get(lockName).getRight().incrementAndGet();
             try {

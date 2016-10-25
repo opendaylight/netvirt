@@ -502,8 +502,8 @@ public class VpnInstanceListener extends AsyncDataTreeChangeListenerBase<VpnInst
             String rd = config.getRouteDistinguisher();
             List<VpnTarget> vpnTargetList = config.getVpnTargets().getVpnTarget();
 
-            List<String> ertList = new ArrayList<String>();
-            List<String> irtList = new ArrayList<String>();
+            List<String> ertList = new ArrayList<>();
+            List<String> irtList = new ArrayList<>();
 
             if (vpnTargetList != null) {
                 for (VpnTarget vpnTarget : vpnTargetList) {

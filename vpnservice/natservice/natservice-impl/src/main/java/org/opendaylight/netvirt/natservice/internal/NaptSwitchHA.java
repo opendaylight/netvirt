@@ -736,19 +736,19 @@ public class NaptSwitchHA {
     public FlowEntity buildSnatFlowEntity(BigInteger dpId, String routerName, long groupId,
                                           long routerVpnId, int addordel) {
         FlowEntity flowEntity;
-        List<MatchInfo> matches = new ArrayList<MatchInfo>();
+        List<MatchInfo> matches = new ArrayList<>();
         matches.add(MatchEthernetType.IPV4);
         matches.add(new MatchMetadata(MetaDataUtil.getVpnIdMetadata(routerVpnId), MetaDataUtil.METADATA_MASK_VRFID));
 
         String flowRef = getFlowRefSnat(dpId, NwConstants.PSNAT_TABLE, routerName);
 
         if (addordel == NatConstants.ADD_FLOW) {
-            List<ActionInfo> actionsInfo = new ArrayList<ActionInfo>();
+            List<ActionInfo> actionsInfo = new ArrayList<>();
 
             actionsInfo.add(new ActionSetFieldTunnelId(BigInteger.valueOf(routerVpnId)));
             LOG.debug("Setting the tunnel to the list of action infos {}", actionsInfo);
             actionsInfo.add(new ActionGroup(groupId));
-            List<InstructionInfo> instructions = new ArrayList<InstructionInfo>();
+            List<InstructionInfo> instructions = new ArrayList<>();
             instructions.add(new InstructionApplyActions(actionsInfo));
 
             flowEntity = MDSALUtil.buildFlowEntity(dpId, NwConstants.PSNAT_TABLE, flowRef,

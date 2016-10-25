@@ -114,7 +114,7 @@ public class VlanResponderService extends AbstractServiceInstance implements Vla
                 InstructionUtils.setFlowBuilderInstruction(flowBuilder, popVlanInstruction);
                 writeFlow(flowBuilder, nodeBuilder);
             } else {
-                Set<String> lstMacAddress = new HashSet<String>();
+                Set<String> lstMacAddress = new HashSet<>();
                 if (vlanProviderCache != null && !vlanProviderCache.isEmpty() &&
                         vlanProviderCache.containsKey(segmentationId)) {
                     lstMacAddress = vlanProviderCache.get(segmentationId);
@@ -160,11 +160,11 @@ public class VlanResponderService extends AbstractServiceInstance implements Vla
             if (write) {
                 LOG.debug("In programProviderNetworkPushVlan macAddress:" + macAddress
                         + "segmentationId:" + segmentationId);
-                Set<String> lstMacAddress = new HashSet<String>();
+                Set<String> lstMacAddress;
                 if (vlanProviderCache != null && !vlanProviderCache.isEmpty() && vlanProviderCache.containsKey(segmentationId)) {
                     lstMacAddress = vlanProviderCache.get(segmentationId);
                 } else {
-                    lstMacAddress = new HashSet<String>();
+                    lstMacAddress = new HashSet<>();
                     vlanProviderCache.put(segmentationId, lstMacAddress);
                 }
                 lstMacAddress.add(macAddress);
