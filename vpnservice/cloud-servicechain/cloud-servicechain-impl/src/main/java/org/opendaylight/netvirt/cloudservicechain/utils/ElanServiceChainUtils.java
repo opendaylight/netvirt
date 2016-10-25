@@ -68,7 +68,7 @@ public class ElanServiceChainUtils {
                 MDSALUtil.read(broker, LogicalDatastoreType.OPERATIONAL, elanDpnIfacesIid);
         if (!elanDpnIfacesOpc.isPresent()) {
             logger.warn("Could not find and DpnInterface for elan {}", elanInstanceName);
-            return Optional.<Collection<BigInteger>>absent();
+            return Optional.absent();
         }
 
         Collection<BigInteger> dpns = new HashSet<>();

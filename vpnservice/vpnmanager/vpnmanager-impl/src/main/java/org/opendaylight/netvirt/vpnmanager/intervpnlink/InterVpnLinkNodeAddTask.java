@@ -45,13 +45,13 @@ public class InterVpnLinkNodeAddTask implements Callable<List<ListenableFuture<V
 
     @Override
     public List<ListenableFuture<Void>> call() throws Exception {
-        List<ListenableFuture<Void>> result = new ArrayList<ListenableFuture<Void>>();
+        List<ListenableFuture<Void>> result = new ArrayList<>();
         // check if there is any inter-vpn-link in with erroneous state
         List<InterVpnLinkState> allInterVpnLinkState = InterVpnLinkUtil.getAllInterVpnLinkState(broker);
         int numberOfDpns = Integer.getInteger(NBR_OF_DPNS_PROPERTY_NAME, 1);
 
-        List<BigInteger> firstDpnList = new ArrayList<BigInteger>();
-        List<BigInteger> secondDpnList = new ArrayList<BigInteger>();
+        List<BigInteger> firstDpnList = new ArrayList<>();
+        List<BigInteger> secondDpnList = new ArrayList<>();
         for (InterVpnLinkState interVpnLinkState : allInterVpnLinkState) {
             // if the inter-vpn-link is erroneous and any of its endPoints has no dpns associated
             if (shouldConfigureLinkIntoDpn(interVpnLinkState, this.dpnId, numberOfDpns)) {

@@ -1828,7 +1828,7 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
             synchronized (vpnInstanceMap) {
                 notifieeList = vpnInstanceMap.get(vpnName);
                 if (notifieeList == null) {
-                    notifieeList = new ArrayList<Runnable>();
+                    notifieeList = new ArrayList<>();
                     vpnInstanceMap.put(vpnName, notifieeList);
                 }
                 notifieeList.add(notifyTask);
