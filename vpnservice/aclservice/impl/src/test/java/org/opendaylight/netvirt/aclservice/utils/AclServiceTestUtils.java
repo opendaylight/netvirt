@@ -117,7 +117,7 @@ public class AclServiceTestUtils {
             case nx_udp_src_with_mask:
             case nx_udp_dst_with_mask:
             case ct_state:
-                long[] values = Arrays.stream(params).mapToLong(l -> Long.parseLong(l)).toArray();
+                long[] values = Arrays.stream(params).mapToLong(Long::parseLong).toArray();
                 Assert.assertArrayEquals(values, match.getMatchValues());
                 break;
             default:
@@ -133,7 +133,7 @@ public class AclServiceTestUtils {
             case eth_type:
             case tcp_flags:
             case icmp_v4:
-                long[] values = Arrays.stream(params).mapToLong(l -> Long.parseLong(l)).toArray();
+                long[] values = Arrays.stream(params).mapToLong(Long::parseLong).toArray();
                 Assert.assertArrayEquals(values, match.getMatchValues());
                 break;
             case ipv4_source:
@@ -186,7 +186,7 @@ public class AclServiceTestUtils {
     }
 
     public static List<Uuid> prapreaAclIds(String... names) {
-        return Stream.of(names).map(name -> new Uuid(name)).collect(Collectors.toList());
+        return Stream.of(names).map(Uuid::new).collect(Collectors.toList());
     }
 
     public static void verifyActionTypeExist(List<ActionInfo> flowActions, ActionType actionType) {
