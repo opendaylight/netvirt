@@ -58,15 +58,15 @@ public class StatelessEgressAclServiceImpl extends AbstractEgressAclServiceImpl 
     }
 
     @Override
-    protected String syncSpecificAclFlow(BigInteger dpId, int lportTag, int addOrRemove, Ace ace, String portId,
-            Map<String, List<MatchInfoBase>> flowMap, String flowName) {
+    protected String syncSpecificAclFlow(BigInteger dpId, int lportTag, int addOrRemove, String aclName, Ace ace,
+            String portId, Map<String, List<MatchInfoBase>> flowMap, String flowName) {
         // Not in use here. programAceRule function is overridden.
         return null;
     }
 
     @Override
-    protected void programAceRule(BigInteger dpId, int lportTag, int addOrRemove, Ace ace, String portId,
-            List<AllowedAddressPairs> syncAllowedAddresses) {
+    protected void programAceRule(BigInteger dpId, int lportTag, int addOrRemove, String aclName, Ace ace,
+            String portId, List<AllowedAddressPairs> syncAllowedAddresses) {
         SecurityRuleAttr aceAttr = AclServiceUtils.getAccesssListAttributes(ace);
         if (!aceAttr.getDirection().equals(DirectionEgress.class)) {
             return;

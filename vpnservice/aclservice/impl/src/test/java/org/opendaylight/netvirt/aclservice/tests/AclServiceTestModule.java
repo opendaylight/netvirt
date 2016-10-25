@@ -8,8 +8,11 @@
 package org.opendaylight.netvirt.aclservice.tests;
 
 import static org.mockito.Mockito.mock;
+import static org.opendaylight.yangtools.testutils.mockito.MoreAnswers.realOrException;
 
+import com.google.common.util.concurrent.Futures;
 import com.google.inject.AbstractModule;
+import java.util.concurrent.Future;
 import org.mockito.Mockito;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
@@ -18,8 +21,17 @@ import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.genius.mdsalutil.interfaces.testutils.TestIMdsalApiManager;
 import org.opendaylight.netvirt.aclservice.tests.infra.SynchronousEachOperationNewWriteTransaction;
 import org.opendaylight.netvirt.aclservice.utils.AclClusterUtil;
+import org.opendaylight.netvirt.aclservice.utils.AclConstants;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.AllocateIdInput;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.AllocateIdOutput;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.AllocateIdOutputBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.CreateIdPoolInput;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.IdManagerService;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.ReleaseIdInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.config.rev160806.AclserviceConfig;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.config.rev160806.AclserviceConfig.SecurityGroupMode;
+import org.opendaylight.yangtools.yang.common.RpcResult;
+import org.opendaylight.yangtools.yang.common.RpcResultBuilder;
 
 /**
  * Test Dependency Injection (DI) Wiring (currently through Guice).
@@ -40,6 +52,8 @@ public class AclServiceTestModule extends AbstractModule {
         bind(TestIMdsalApiManager.class).toInstance(singleton);
 
         bind(WriteTransaction.class).to(SynchronousEachOperationNewWriteTransaction.class);
+
+        bind(IdManagerService.class).toInstance(Mockito.mock(TestIdManagerService.class, realOrException()));
     }
 
     private AclserviceConfig aclServiceConfig() {
@@ -47,4 +61,31 @@ public class AclServiceTestModule extends AbstractModule {
         Mockito.when(aclServiceConfig.getSecurityGroupMode()).thenReturn(SecurityGroupMode.Stateful);
         return aclServiceConfig;
     }
+
+    private abstract static class TestIdManagerService implements IdManagerService {
+        private static long aclFlowPriority = AclConstants.PROTO_MATCH_PRIORITY;
+
+        @Override
+        public Future<RpcResult<Void>> createIdPool(CreateIdPoolInput input) {
+            // TODO Auto-generated method stub
+            return null;
+        }
+
+        @Override
+        public Future<RpcResult<AllocateIdOutput>> allocateId(AllocateIdInput input) {
+            AllocateIdOutputBuilder output = new AllocateIdOutputBuilder();
+            output.setIdValue(aclFlowPriority);
+
+            RpcResultBuilder<AllocateIdOutput> allocateIdRpcBuilder = RpcResultBuilder.success();
+            allocateIdRpcBuilder.withResult(output.build());
+            return Futures.immediateFuture(allocateIdRpcBuilder.build());
+        }
+
+        @Override
+        public Future<RpcResult<Void>> releaseId(ReleaseIdInput input) {
+            // TODO Auto-generated method stub
+            return null;
+        }
+    }
+
 }
