@@ -96,7 +96,7 @@ public class InterfaceStateChangeListener extends AsyncDataTreeChangeListenerBas
                                         WriteTransaction writeInvTxn = dataBroker.newWriteOnlyTransaction();
                                         vpnInterfaceManager.processVpnInterfaceUp(dpnId, vpnInterface, ifIndex, false,
                                                 writeConfigTxn, writeOperTxn, writeInvTxn);
-                                        List<ListenableFuture<Void>> futures = new ArrayList<ListenableFuture<Void>>();
+                                        List<ListenableFuture<Void>> futures = new ArrayList<>();
                                         futures.add(writeOperTxn.submit());
                                         futures.add(writeConfigTxn.submit());
                                         futures.add(writeInvTxn.submit());
@@ -148,7 +148,7 @@ public class InterfaceStateChangeListener extends AsyncDataTreeChangeListenerBas
                                 WriteTransaction writeInvTxn = dataBroker.newWriteOnlyTransaction();
                                 vpnInterfaceManager.processVpnInterfaceDown(dpnId, interfaceName, ifIndex, false, false,
                                         writeConfigTxn, writeOperTxn, writeInvTxn);
-                                List<ListenableFuture<Void>> futures = new ArrayList<ListenableFuture<Void>>();
+                                List<ListenableFuture<Void>> futures = new ArrayList<>();
                                 futures.add(writeOperTxn.submit());
                                 futures.add(writeConfigTxn.submit());
                                 futures.add(writeInvTxn.submit());
@@ -193,7 +193,7 @@ public class InterfaceStateChangeListener extends AsyncDataTreeChangeListenerBas
                                             WriteTransaction writeInvTxn = dataBroker.newWriteOnlyTransaction();
                                             vpnInterfaceManager.processVpnInterfaceUp(dpnId, vpnInterface, ifIndex,
                                                     true, writeConfigTxn, writeOperTxn, writeInvTxn);
-                                            List<ListenableFuture<Void>> futures = new ArrayList<ListenableFuture<Void>>();
+                                            List<ListenableFuture<Void>> futures = new ArrayList<>();
                                             futures.add(writeOperTxn.submit());
                                             futures.add(writeConfigTxn.submit());
                                             futures.add(writeInvTxn.submit());
@@ -211,7 +211,7 @@ public class InterfaceStateChangeListener extends AsyncDataTreeChangeListenerBas
                                             WriteTransaction writeInvTxn = dataBroker.newWriteOnlyTransaction();
                                             vpnInterfaceManager.processVpnInterfaceDown(dpnId, interfaceName, ifIndex, true, false,
                                                     writeConfigTxn, writeOperTxn, writeInvTxn);
-                                            List<ListenableFuture<Void>> futures = new ArrayList<ListenableFuture<Void>>();
+                                            List<ListenableFuture<Void>> futures = new ArrayList<>();
                                             futures.add(writeOperTxn.submit());
                                             futures.add(writeConfigTxn.submit());
                                             futures.add(writeInvTxn.submit());

@@ -30,7 +30,7 @@ public class Routes implements org.apache.thrift.TBase<Routes, Routes._Fields>, 
   private static final org.apache.thrift.protocol.TField UPDATES_FIELD_DESC = new org.apache.thrift.protocol.TField("updates", org.apache.thrift.protocol.TType.LIST, (short)2);
   private static final org.apache.thrift.protocol.TField MORE_FIELD_DESC = new org.apache.thrift.protocol.TField("more", org.apache.thrift.protocol.TType.I32, (short)4);
 
-  private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<Class<? extends IScheme>, SchemeFactory>();
+  private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<>();
   static {
     schemes.put(StandardScheme.class, new RoutesStandardSchemeFactory());
     schemes.put(TupleScheme.class, new RoutesTupleSchemeFactory());
@@ -46,7 +46,7 @@ public class Routes implements org.apache.thrift.TBase<Routes, Routes._Fields>, 
     UPDATES((short)2, "updates"),
     MORE((short)4, "more");
 
-    private static final Map<String, _Fields> byName = new HashMap<String, _Fields>();
+    private static final Map<String, _Fields> byName = new HashMap<>();
 
     static {
       for (_Fields field : EnumSet.allOf(_Fields.class)) {
@@ -111,7 +111,7 @@ public class Routes implements org.apache.thrift.TBase<Routes, Routes._Fields>, 
   private _Fields optionals[] = {_Fields.UPDATES,_Fields.MORE};
   public static final Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> metaDataMap;
   static {
-    Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<_Fields, org.apache.thrift.meta_data.FieldMetaData>(_Fields.class);
+    Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<>(_Fields.class);
     tmpMap.put(_Fields.ERRCODE, new org.apache.thrift.meta_data.FieldMetaData("errcode", org.apache.thrift.TFieldRequirementType.DEFAULT, 
         new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I32)));
     tmpMap.put(_Fields.UPDATES, new org.apache.thrift.meta_data.FieldMetaData("updates", org.apache.thrift.TFieldRequirementType.OPTIONAL, 
@@ -141,7 +141,7 @@ public class Routes implements org.apache.thrift.TBase<Routes, Routes._Fields>, 
     __isset_bitfield = other.__isset_bitfield;
     this.errcode = other.errcode;
     if (other.isSetUpdates()) {
-      List<Update> __this__updates = new ArrayList<Update>(other.updates.size());
+      List<Update> __this__updates = new ArrayList<>(other.updates.size());
       for (Update other_element : other.updates) {
         __this__updates.add(new Update(other_element));
       }
@@ -196,7 +196,7 @@ public class Routes implements org.apache.thrift.TBase<Routes, Routes._Fields>, 
 
   public void addToUpdates(Update elem) {
     if (this.updates == null) {
-      this.updates = new ArrayList<Update>();
+      this.updates = new ArrayList<>();
     }
     this.updates.add(elem);
   }
@@ -491,7 +491,7 @@ public class Routes implements org.apache.thrift.TBase<Routes, Routes._Fields>, 
             if (schemeField.type == org.apache.thrift.protocol.TType.LIST) {
               {
                 org.apache.thrift.protocol.TList _list0 = iprot.readListBegin();
-                struct.updates = new ArrayList<Update>(_list0.size);
+                struct.updates = new ArrayList<>(_list0.size);
                 for (int _i1 = 0; _i1 < _list0.size; ++_i1)
                 {
                   Update _elem2;
@@ -607,7 +607,7 @@ public class Routes implements org.apache.thrift.TBase<Routes, Routes._Fields>, 
       if (incoming.get(1)) {
         {
           org.apache.thrift.protocol.TList _list5 = new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.STRUCT, iprot.readI32());
-          struct.updates = new ArrayList<Update>(_list5.size);
+          struct.updates = new ArrayList<>(_list5.size);
           for (int _i6 = 0; _i6 < _list5.size; ++_i6)
           {
             Update _elem7;

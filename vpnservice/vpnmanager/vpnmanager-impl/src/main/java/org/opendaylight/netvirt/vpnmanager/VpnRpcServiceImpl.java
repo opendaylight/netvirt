@@ -103,7 +103,7 @@ public class VpnRpcServiceImpl implements VpnRpcService {
     }
 
     private Collection<RpcError> validateAddStaticRouteInput(AddStaticRouteInput input) {
-        Collection<RpcError> rpcErrors = new ArrayList<RpcError>();
+        Collection<RpcError> rpcErrors = new ArrayList<>();
         String destination = input.getDestination();
         String vpnInstanceName = input.getVpnInstanceName();
         String nexthop = input.getNexthop();
@@ -168,7 +168,7 @@ public class VpnRpcServiceImpl implements VpnRpcService {
 
             // The nexthop list to advertise to BGP contains the list of IPs of those DPNs where the
             // endpoint has been instantiated
-            List<String> nexthopList = new ArrayList<String>();
+            List<String> nexthopList = new ArrayList<>();
             List<BigInteger> dpns = InterVpnLinkUtil.getVpnLinkEndpointDPNsByIp(dataBroker, nexthop);
             for ( BigInteger dpnId : dpns ) {
                 nexthopList.add(InterfaceUtils.getEndpointIpAddressForDPN(dataBroker, dpnId));
@@ -196,7 +196,7 @@ public class VpnRpcServiceImpl implements VpnRpcService {
     }
 
     private Collection<RpcError> validateRemoveStaticRouteInput(RemoveStaticRouteInput input) {
-        Collection<RpcError> rpcErrors = new ArrayList<RpcError>();
+        Collection<RpcError> rpcErrors = new ArrayList<>();
         String destination = input.getDestination();
         String vpnInstanceName = input.getVpnInstanceName();
         String nexthop = input.getNexthop();

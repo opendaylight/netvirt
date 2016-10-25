@@ -199,7 +199,7 @@ public class NexthopManager implements AutoCloseable {
     }
 
     protected List<ActionInfo> getEgressActionsForInterface(String ifName) {
-        List<ActionInfo> listActionInfo = new ArrayList<ActionInfo>();
+        List<ActionInfo> listActionInfo = new ArrayList<>();
         try {
             Future<RpcResult<GetEgressActionsForInterfaceOutput>> result =
                     interfaceManager.getEgressActionsForInterface(
@@ -309,7 +309,7 @@ public class NexthopManager implements AutoCloseable {
                             read(LogicalDatastoreType.OPERATIONAL, getAdjacencyIdentifier(ifName, ipAddress));
                     macAddress = adjacencyData.isPresent() ? adjacencyData.get().getMacAddress() : null;
                 }
-                List<BucketInfo> listBucketInfo = new ArrayList<BucketInfo>();
+                List<BucketInfo> listBucketInfo = new ArrayList<>();
                 List<ActionInfo> listActionInfo = new ArrayList<>();
                 // MAC re-write
                 if (macAddress != null) {

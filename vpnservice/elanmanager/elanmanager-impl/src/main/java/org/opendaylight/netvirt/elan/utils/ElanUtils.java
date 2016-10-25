@@ -2188,12 +2188,12 @@ public class ElanUtils {
 
     public static FlowEntity buildDmacRedirectToDispatcherFlow(BigInteger dpId, String dstMacAddress,
             String displayName, long elanTag) {
-        List<MatchInfo> matches = new ArrayList<MatchInfo>();
+        List<MatchInfo> matches = new ArrayList<>();
         matches.add(new MatchInfo(MatchFieldType.metadata,
                 new BigInteger[] { getElanMetadataLabel(elanTag), MetaDataUtil.METADATA_MASK_SERVICE }));
         matches.add(new MatchInfo(MatchFieldType.eth_dst, new String[] { dstMacAddress }));
-        List<InstructionInfo> instructions = new ArrayList<InstructionInfo>();
-        List<ActionInfo> actions = new ArrayList<ActionInfo>();
+        List<InstructionInfo> instructions = new ArrayList<>();
+        List<ActionInfo> actions = new ArrayList<>();
         actions.add(new ActionInfo(ActionType.nx_resubmit,
                 new String[] { String.valueOf(NwConstants.LPORT_DISPATCHER_TABLE) }));
 
@@ -2207,7 +2207,7 @@ public class ElanUtils {
 
     public static FlowEntity buildDmacRedirectToDispatcherFlowMacNoActions(BigInteger dpId, String dstMacAddress,
             String displayName, long elanTag) {
-        List<MatchInfo> matches = new ArrayList<MatchInfo>();
+        List<MatchInfo> matches = new ArrayList<>();
         matches.add(new MatchInfo(MatchFieldType.metadata,
                 new BigInteger[] { getElanMetadataLabel(elanTag), MetaDataUtil.METADATA_MASK_SERVICE }));
         matches.add(new MatchInfo(MatchFieldType.eth_dst, new String[] { dstMacAddress }));
@@ -2215,7 +2215,7 @@ public class ElanUtils {
         String flowId = getKnownDynamicmacFlowRef(NwConstants.ELAN_DMAC_TABLE, dpId, dstMacAddress, elanTag);
         FlowEntity flow  = MDSALUtil.buildFlowEntity(dpId, NwConstants.ELAN_DMAC_TABLE, flowId, 20, displayName, 0, 0,
                 ElanConstants.COOKIE_ELAN_KNOWN_DMAC.add(BigInteger.valueOf(elanTag)),
-                matches, new ArrayList<InstructionInfo>());
+                matches, new ArrayList<>());
         return flow;
     }
 

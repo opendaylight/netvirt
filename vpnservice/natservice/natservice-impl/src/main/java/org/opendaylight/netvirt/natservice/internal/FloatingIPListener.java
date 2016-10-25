@@ -246,7 +246,7 @@ public class FloatingIPListener extends AsyncDataTreeChangeListenerBase<IpMappin
                   externalIp, "32" }));
 
         List<ActionInfo> actionsInfo = new ArrayList<>();
-        List<InstructionInfo> instructions = new ArrayList<InstructionInfo>();
+        List<InstructionInfo> instructions = new ArrayList<>();
 
         IpAddress externalIpv4Address = new IpAddress(new Ipv4Address(externalIp));
         Port port = NatUtil.getNeutronPortForFloatingIp(dataBroker, externalIpv4Address);
