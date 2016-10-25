@@ -38,7 +38,6 @@ public class VpnInterfaceOpListener extends AsyncDataTreeChangeListenerBase<VpnI
     private static final Logger LOG = LoggerFactory.getLogger(VpnInterfaceOpListener.class);
     private final DataBroker dataBroker;
     private final VpnInterfaceManager vpnInterfaceManager;
-    private ConcurrentHashMap<String, Runnable> vpnIntfMap = new ConcurrentHashMap<String, Runnable>();
     private ExecutorService executorService = Executors.newSingleThreadExecutor();
 
     /*public VpnInterfaceOpListener(final DataBroker dataBroker) {
@@ -150,7 +149,7 @@ public class VpnInterfaceOpListener extends AsyncDataTreeChangeListenerBase<VpnI
     }
 
     private void notifyTaskIfRequired(String intfName) {
-        Runnable notifyTask = vpnIntfMap.remove(intfName);
+        Runnable notifyTask = vpnInterfaceManager.isNotifyTaskQueued(intfName);
         if (notifyTask == null) {
             LOG.trace("VpnInterfaceOpListener update: No Notify Task queued for vpnInterface {}", intfName);
             return;
