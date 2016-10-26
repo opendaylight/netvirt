@@ -339,7 +339,7 @@ public class Ipv6ServiceUtils {
         List<ActionInfo> actionsInfos = new ArrayList<>();
         actionsInfos.add(new ActionInfo(ActionType.punt_to_controller,
                 new String[] {}));
-        instructions.add(new InstructionInfo(InstructionType.write_actions,
+        instructions.add(new InstructionInfo(InstructionType.apply_actions,
                 actionsInfos));
         FlowEntity rsFlowEntity = MDSALUtil.buildFlowEntity(dpId, tableId,
                 getIPv6FlowRef(dpId, elanTag, ipv6Address),Ipv6Constants.DEFAULT_FLOW_PRIORITY, "IPv6NS",
@@ -364,7 +364,7 @@ public class Ipv6ServiceUtils {
         // Punt to controller
         actionsInfos.add(new ActionInfo(ActionType.punt_to_controller,
                 new String[] {}));
-        instructions.add(new InstructionInfo(InstructionType.write_actions,
+        instructions.add(new InstructionInfo(InstructionType.apply_actions,
                 actionsInfos));
         FlowEntity rsFlowEntity = MDSALUtil.buildFlowEntity(dpId, tableId,
                 getIPv6FlowRef(dpId, elanTag, "IPv6RS"),Ipv6Constants.DEFAULT_FLOW_PRIORITY, "IPv6RS", 0, 0,

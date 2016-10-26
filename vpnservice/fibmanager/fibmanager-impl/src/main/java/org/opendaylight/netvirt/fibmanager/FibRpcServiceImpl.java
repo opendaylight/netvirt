@@ -265,7 +265,7 @@ public class FibRpcServiceImpl implements FibRpcService {
         List<Instruction> instructions = new ArrayList<Instruction>();
         List<ActionInfo> actionsInfos = new ArrayList<ActionInfo>();
         actionsInfos.add(new ActionInfo(ActionType.pop_mpls, new String[]{}));
-        Instruction writeInstruction = new InstructionInfo(InstructionType.write_actions, actionsInfos).buildInstruction(0);
+        Instruction writeInstruction = new InstructionInfo(InstructionType.apply_actions, actionsInfos).buildInstruction(0);
         instructions.add(writeInstruction);
         instructions.addAll(customInstructions);
 
