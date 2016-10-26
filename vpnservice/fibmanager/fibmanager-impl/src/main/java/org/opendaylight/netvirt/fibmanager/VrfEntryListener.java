@@ -781,10 +781,10 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
             List<ActionInfo> actionsInfos =
                     Arrays.asList(new ActionInfo(ActionType.group, new String[] { String.valueOf(groupId)}));
             final List<InstructionInfo> instructions =
-                    Arrays.asList(new InstructionInfo(InstructionType.write_actions, actionsInfos));
+                    Arrays.asList(new InstructionInfo(InstructionType.apply_actions, actionsInfos));
             actionsInfos = Arrays.asList(new ActionInfo(ActionType.pop_mpls, new String[]{}),
                     new ActionInfo(ActionType.group, new String[] { String.valueOf(groupId) }) );
-            final List<InstructionInfo> lfibinstructions = Arrays.asList(new InstructionInfo(InstructionType.write_actions, actionsInfos));
+            final List<InstructionInfo> lfibinstructions = Arrays.asList(new InstructionInfo(InstructionType.apply_actions, actionsInfos));
             if (RouteOrigin.value(vrfEntry.getOrigin()) != RouteOrigin.SELF_IMPORTED) {
                 LOG.debug("Installing tunnel table entry on dpn {} for interface {} with label {}",
                         dpnId, localNextHopInfo.getVpnInterfaceName(), vrfEntry.getLabel());
@@ -878,7 +878,7 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
         mkMatches.add(new MatchInfo(MatchFieldType.tunnel_id, new BigInteger[] {BigInteger.valueOf(label)}));
 
         List<InstructionInfo> mkInstructions = new ArrayList<>();
-        mkInstructions.add(new InstructionInfo(InstructionType.write_actions, actionsInfos));
+        mkInstructions.add(new InstructionInfo(InstructionType.apply_actions, actionsInfos));
 
         FlowEntity terminatingServiceTableFlowEntity = MDSALUtil.buildFlowEntity(destDpId, NwConstants.INTERNAL_TUNNEL_TABLE,
                 getTableMissFlowRef(destDpId, NwConstants.INTERNAL_TUNNEL_TABLE,label), 5, String.format("%s:%d","TST Flow Entry ",label),
@@ -1094,7 +1094,7 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
                 return;
             }
             actionInfos.addAll(egressActions);
-            instructions.add(new InstructionInfo(InstructionType.write_actions, actionInfos));
+            instructions.add(new InstructionInfo(InstructionType.apply_actions, actionInfos));
             makeConnectedRoute(remoteDpnId, vpnId, vrfEntry, rd, instructions, NwConstants.ADD_FLOW, tx);
         }
         if(!wrTxPresent ){

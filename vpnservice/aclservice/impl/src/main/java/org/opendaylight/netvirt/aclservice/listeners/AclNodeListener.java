@@ -528,7 +528,7 @@ public class AclNodeListener extends AsyncDataTreeChangeListenerBase<FlowCapable
         List<InstructionInfo> instructions = new ArrayList<>();
         List<ActionInfo> actionsInfos = new ArrayList<>();
         actionsInfos.add(new ActionInfo(ActionType.drop_action, new String[] {}));
-        instructions.add(new InstructionInfo(InstructionType.write_actions, actionsInfos));
+        instructions.add(new InstructionInfo(InstructionType.apply_actions, actionsInfos));
         flowId = "Fixed_Conntrk_NewDrop_" + dpId + "_" + flowId + tableId;
         syncFlow(dpId, tableId, flowId, priority, "ACL", 0, 0,
                 AclConstants.COOKIE_ACL_BASE, matches, instructions, addOrRemove);
