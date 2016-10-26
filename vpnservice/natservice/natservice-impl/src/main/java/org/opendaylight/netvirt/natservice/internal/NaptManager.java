@@ -194,8 +194,9 @@ public class NaptManager  {
       * method to get external ip/port mapping when provided with internal ip/port pair
       * If already a mapping exist for the given input, then the existing mapping is returned
       * instead of overwriting with new ip/port pair.
-      * @param segmentId
+      * @param segmentId - Router ID
       * @param sourceAddress - internal ip address/port pair
+      * @param protocol - TCP/UDP
       * @return external ip address/port
       */
      public SessionAddress getExternalAddressMapping(long segmentId, SessionAddress sourceAddress, NAPTEntryEvent.Protocol protocol) {
@@ -333,8 +334,9 @@ public class NaptManager  {
      /**
       * release the existing mapping of internal ip/port to external ip/port pair
       * if no mapping exist for given internal ip/port, it returns false
-      * @param segmentId
-      * @param address
+      * @param segmentId - Router ID
+      * @param address - Session Address
+      * @param protocol - TCP/UDP
       * @return true if mapping exist and the mapping is removed successfully
       */
 
@@ -412,7 +414,7 @@ public class NaptManager  {
 
      /**
       * removes the internal ip to external ip mapping if present
-      * @param segmentId
+      * @param segmentId - Router ID
       * @return true if successfully removed
       */
      public boolean removeMapping(long segmentId) {

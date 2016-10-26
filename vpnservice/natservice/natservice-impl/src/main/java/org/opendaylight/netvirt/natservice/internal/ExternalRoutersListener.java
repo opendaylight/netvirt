@@ -1380,7 +1380,7 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
         }
     }
 
-    private Long checkExternalIpLabel(long routerId, String externalIp){
+    protected Long checkExternalIpLabel(long routerId, String externalIp){
         List<IpMap> ipMaps = naptManager.getIpMapList(dataBroker, routerId);
         for(IpMap ipMap : ipMaps){
             if(ipMap.getExternalIp().equals(externalIp)){
@@ -1969,7 +1969,8 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
 
     /**
      * router association to vpn
-     *
+     *@param routerName - Name of router
+     *@param bgpVpnName BGP VPN name
      */
     public void changeLocalVpnIdToBgpVpnId(String routerName, String bgpVpnName){
         LOG.debug("NAT Service : Router associated to BGP VPN");
@@ -2000,7 +2001,8 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
 
     /**
      * router disassociation from vpn
-     *
+     *@param routerName - Name of router
+     *@param bgpVpnName BGP VPN name
      */
     public void changeBgpVpnIdToLocalVpnId(String routerName, String bgpVpnName){
         LOG.debug("NAT Service : Router dissociated from BGP VPN");
