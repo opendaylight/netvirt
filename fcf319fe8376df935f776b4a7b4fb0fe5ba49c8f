@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "3a65312a_da8c8582",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/FibManagerImpl.java",
+        "patchSetId": 16
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 5350
+      },
+      "writtenOn": "2016-10-26T12:39:15Z",
+      "side": 1,
+      "message": "I\u0027ll take this in a different commit",
+      "parentUuid": "5a682502_92402d58",
+      "revId": "fcf319fe8376df935f776b4a7b4fb0fe5ba49c8f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "5a682502_122c1dab",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
         "patchSetId": 16
@@ -30,6 +48,24 @@
       "writtenOn": "2016-10-25T18:00:27Z",
       "side": 1,
       "message": "the primary adjacency field is not set into OPERATIONAL l3vpn:vpn-interfaces of the VPNInterfaceManager.. \n\nIt is retained only in CONFIG DS of l3vpn:vpn-interfaces..\n\nSo can you please set primaryadjacency for OPERATIONAL vpn-interfaces also for consistency reasons.\n(may not be really necessitated in this review :), but would be good to have) ?",
+      "revId": "fcf319fe8376df935f776b4a7b4fb0fe5ba49c8f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a65312a_5a407556",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 16
+      },
+      "lineNbr": 1473,
+      "author": {
+        "id": 5350
+      },
+      "writtenOn": "2016-10-26T12:39:15Z",
+      "side": 1,
+      "message": "I\u0027m not sure if I\u0027m following you here. \nThe VpnInterface that is being written to OPER DS 2 lines above has been augmented with the corresponding adjacencies... and these adjacencies have been created out of the configurational ones. This:\n\n  new AdjacencyBuilder(adj) \n\nis copying the primaryAdjacency value to the new one.",
+      "parentUuid": "5a682502_122c1dab",
       "revId": "fcf319fe8376df935f776b4a7b4fb0fe5ba49c8f",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
