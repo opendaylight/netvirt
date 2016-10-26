@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "3a65312a_3a4ad983",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/AbstractAclServiceImpl.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 164,
+      "author": {
+        "id": 5346
+      },
+      "writtenOn": "2016-10-26T12:40:23Z",
+      "side": 1,
+      "message": "SG\u0027s UUID in string format is used as the aclName",
+      "parentUuid": "3a65312a_3ab659dd",
+      "revId": "40b69b6ae6855082bef5ef46c62a81b0a19d6031",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "3a65312a_1a943d36",
         "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/AclServiceManagerImpl.java",
         "patchSetId": 2
@@ -30,6 +48,24 @@
       "writtenOn": "2016-10-26T11:47:39Z",
       "side": 1,
       "message": "should the priority be a part of the ACL model? it helps user view the priority, it if openstack makes it model stateful we can just set that value.",
+      "revId": "40b69b6ae6855082bef5ef46c62a81b0a19d6031",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a65312a_1a36fd03",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/AclServiceManagerImpl.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 94,
+      "author": {
+        "id": 5346
+      },
+      "writtenOn": "2016-10-26T12:40:23Z",
+      "side": 1,
+      "message": "Currently sequencing of ACL\u0027s per port is not handled but has to handled at a later point. Keeping sequencing of ACL in mind, we cannot have priority in ACL model. In case of sequencing, priorities for ACL take different values based on the order they are associated to port.\n\neg: \nPort1 -\u003e acl-1, acl-2\nPort2 -\u003e acl-2, acl-1",
+      "parentUuid": "3a65312a_1a943d36",
       "revId": "40b69b6ae6855082bef5ef46c62a81b0a19d6031",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -59,6 +95,30 @@
     },
     {
       "key": {
+        "uuid": "3a65312a_7a3bb1eb",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/listeners/AclEventListener.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 151,
+      "author": {
+        "id": 5346
+      },
+      "writtenOn": "2016-10-26T12:40:23Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "3a65312a_3a5e59ea",
+      "range": {
+        "startLine": 151,
+        "startChar": 24,
+        "endLine": 151,
+        "endChar": 45
+      },
+      "revId": "40b69b6ae6855082bef5ef46c62a81b0a19d6031",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "3a65312a_da72c548",
         "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/utils/AclDataUtil.java",
         "patchSetId": 2
@@ -70,6 +130,24 @@
       "writtenOn": "2016-10-26T11:47:39Z",
       "side": 1,
       "message": "Does the first SG has the lowest priority or we should substract from an offset? it doesn\u0027t make much difference just a thought.",
+      "revId": "40b69b6ae6855082bef5ef46c62a81b0a19d6031",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a65312a_9a216db7",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/utils/AclDataUtil.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 133,
+      "author": {
+        "id": 5346
+      },
+      "writtenOn": "2016-10-26T12:40:23Z",
+      "side": 1,
+      "message": "Currently sequencing of ACL is not handled but has to be handled at a later point as discussed in the mailing list.",
+      "parentUuid": "3a65312a_da72c548",
       "revId": "40b69b6ae6855082bef5ef46c62a81b0a19d6031",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
