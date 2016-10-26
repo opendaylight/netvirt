@@ -695,7 +695,11 @@ public class IngressAclService extends AbstractServiceInstance implements Ingres
             flowId = flowId + "_Permit";
             addConntrackMatch(matchBuilder, MatchUtils.TRACKED_NEW_CT_STATE,MatchUtils.TRACKED_NEW_CT_STATE_MASK);
             FlowBuilder flowBuilder = FlowUtils.createFlowBuilder(flowId, protoPortMatchPriority, matchBuilder, getTable());
-            addInstructionWithLearnConntrackCommit(portSecurityRule, flowBuilder, LearnConstants.ICMP_TYPE_MAP.get(portSecurityRule.getSecurityRulePortMin()),
+            String icmpType = LearnConstants.ICMP_TYPE_MAP.get(portSecurityRule.getSecurityRulePortMin());
+            if (icmpType == null){
+                icmpType = Integer.toString(portSecurityRule.getSecurityRulePortMin());
+            }
+            addInstructionWithLearnConntrackCommit(portSecurityRule, flowBuilder, icmpType,
                     Integer.toString(portSecurityRule.getSecurityRulePortMax()));
             syncFlow(flowBuilder ,nodeBuilder, write);
         }
