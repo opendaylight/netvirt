@@ -37,4 +37,12 @@ public class NatConstants {
     public static final int ADD_FLOW = 0;
     public static final int DEL_FLOW = 1;
 
+    public enum ITMTunnelLocType {
+        Invalid(0), Internal(1), External(2), Hwvtep(3);
+
+        private final int type;
+        ITMTunnelLocType(int id) { this.type = id; }
+        public int getValue() { return type; }
+    }
+
 }

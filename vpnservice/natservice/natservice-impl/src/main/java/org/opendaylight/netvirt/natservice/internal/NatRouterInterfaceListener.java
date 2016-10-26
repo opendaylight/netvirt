@@ -69,6 +69,7 @@ public class NatRouterInterfaceListener extends AsyncDataTreeChangeListenerBase<
         WriteTransaction writeOperTxn = dataBroker.newWriteOnlyTransaction();
         if (interfaceState!= null) {
             NatUtil.addToNeutronRouterDpnsMap(dataBroker, routerId, interfaceName, interfaceManager, writeOperTxn);
+            NatUtil.addToDpnRoutersMap(dataBroker, routerId, interfaceName, interfaceManager, writeOperTxn);
         }else{
             LOG.warn("NAT Service : Interface {} not yet operational to handle router interface add event in router {}",
                     interfaceName, routerId);
@@ -90,6 +91,9 @@ public class NatRouterInterfaceListener extends AsyncDataTreeChangeListenerBase<
         //Delete the NeutronRouterDpnMap from the ODL:L3VPN operational model
         WriteTransaction writeTxn = dataBroker.newWriteOnlyTransaction();
         NatUtil.removeFromNeutronRouterDpnsMap(dataBroker, routerId, interfaceName, interfaceManager, writeTxn);
+
+        //Delete the DpnRouterMap from the ODL:L3VPN operational model
+        NatUtil.removeFromDpnRoutersMap(dataBroker, routerId, interfaceName, interfaceManager, writeTxn);
         writeTxn.submit();
     }
 
