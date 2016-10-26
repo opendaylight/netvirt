@@ -131,11 +131,13 @@ public class NatInterfaceStateChangeListener extends AsyncDataTreeChangeListener
     void handleRouterInterfacesUpEvent(String routerName, String interfaceName, WriteTransaction writeOperTxn) {
         LOG.debug("NAT Service : Handling UP event for router interface {} in Router {}", interfaceName, routerName);
         NatUtil.addToNeutronRouterDpnsMap(dataBroker, routerName, interfaceName, interfaceManager, writeOperTxn);
+        NatUtil.addToDpnRoutersMap(dataBroker, routerName, interfaceName, interfaceManager, writeOperTxn);
     }
 
     void handleRouterInterfacesDownEvent(String routerName, String interfaceName, BigInteger dpnId,
                                          WriteTransaction writeOperTxn) {
         LOG.debug("NAT Service : Handling DOWN event for router Interface {} in Router {}", interfaceName, routerName);
         NatUtil.removeFromNeutronRouterDpnsMap(dataBroker, routerName, interfaceName, dpnId, writeOperTxn);
+        NatUtil.removeFromDpnRoutersMap(dataBroker, routerName, interfaceName, dpnId, interfaceManager, writeOperTxn);
     }
 }
