@@ -444,6 +444,7 @@ public class NetvirtIT extends AbstractMdsalTestBase {
         }
     }
 
+    @Ignore
     @Test
     @SuppressWarnings("checkstyle:IllegalCatch")
     public void testNetVirtFixedSG() throws InterruptedException {
