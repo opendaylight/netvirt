@@ -676,7 +676,7 @@ public class NaptSwitchHA {
             actionsInfo.add(actionSetField);
             LOG.debug("Setting the tunnel to the list of action infos {}", actionsInfo);
             actionsInfo.add(new ActionInfo(ActionType.group, new String[] {String.valueOf(groupId)}));
-            instructions.add(new InstructionInfo(InstructionType.write_actions, actionsInfo));
+            instructions.add(new InstructionInfo(InstructionType.apply_actions, actionsInfo));
 
             flowEntity = MDSALUtil.buildFlowEntity(dpId, NwConstants.PSNAT_TABLE, flowRef,
                     NatConstants.DEFAULT_PSNAT_FLOW_PRIORITY, flowRef, 0, 0,
