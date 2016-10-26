@@ -102,7 +102,7 @@ public class InterfaceStateEventListener extends AsyncDataTreeChangeListenerBase
 
                 String routerName = getRouterIdForPort(dataBroker, interfaceName);
                 if (routerName != null) {
-                    processInterfaceRemoved(interfaceName, routerName);
+                    processInterfaceRemoved(interfaceName, routerName, dpnId);
                     removeSnatEntriesForPort(interfaceName,routerName);
                 } else {
                     LOG.debug("NAT Service : PORT_REMOVE: Router Id is null either Interface {} is not associated " +
@@ -359,8 +359,8 @@ public class InterfaceStateEventListener extends AsyncDataTreeChangeListenerBase
         }
     }
 
-    private void processInterfaceRemoved(String portName, String rtrId) {
-        LOG.trace("Processing Interface Removed Event for interface {}", portName);
+    private void processInterfaceRemoved(String portName, String rtrId, BigInteger dpnId) {
+        LOG.trace("NAT Service : Processing Interface Removed Event for interface {} on DPN ID {}", portName, dpnId);
         String routerId = getRouterIdForPort(dataBroker, portName);
         List<IpMapping> ipMappingList = getIpMappingForPortName(portName, routerId);
         if (ipMappingList == null || ipMappingList.isEmpty()) {
@@ -369,7 +369,8 @@ public class InterfaceStateEventListener extends AsyncDataTreeChangeListenerBase
         }
         InstanceIdentifier<RouterPorts> pIdentifier = NatUtil.buildRouterPortsIdentifier(routerId);
         for (IpMapping ipMapping : ipMappingList) {
-            floatingIPListener.removeNATFlowEntries(portName, ipMapping, pIdentifier, routerId);
+            LOG.trace("NAT Service : Removing DNAT Flow entries for dpnId {} ", dpnId);
+            floatingIPListener.removeNATFlowEntries(portName, ipMapping, pIdentifier, routerId, dpnId);
         }
     }
 
