@@ -1,0 +1,78 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3a65312a_3ab659dd",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/AbstractAclServiceImpl.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 164,
+      "author": {
+        "id": 4269
+      },
+      "writtenOn": "2016-10-26T11:47:39Z",
+      "side": 1,
+      "message": "The uuid is not used here?",
+      "revId": "40b69b6ae6855082bef5ef46c62a81b0a19d6031",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a65312a_1a943d36",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/AclServiceManagerImpl.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 94,
+      "author": {
+        "id": 4269
+      },
+      "writtenOn": "2016-10-26T11:47:39Z",
+      "side": 1,
+      "message": "should the priority be a part of the ACL model? it helps user view the priority, it if openstack makes it model stateful we can just set that value.",
+      "revId": "40b69b6ae6855082bef5ef46c62a81b0a19d6031",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a65312a_3a5e59ea",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/listeners/AclEventListener.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 151,
+      "author": {
+        "id": 4269
+      },
+      "writtenOn": "2016-10-26T11:47:39Z",
+      "side": 1,
+      "message": "should we release the id here?",
+      "range": {
+        "startLine": 151,
+        "startChar": 24,
+        "endLine": 151,
+        "endChar": 45
+      },
+      "revId": "40b69b6ae6855082bef5ef46c62a81b0a19d6031",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a65312a_da72c548",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/utils/AclDataUtil.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 133,
+      "author": {
+        "id": 4269
+      },
+      "writtenOn": "2016-10-26T11:47:39Z",
+      "side": 1,
+      "message": "Does the first SG has the lowest priority or we should substract from an offset? it doesn\u0027t make much difference just a thought.",
+      "revId": "40b69b6ae6855082bef5ef46c62a81b0a19d6031",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
