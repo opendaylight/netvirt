@@ -556,6 +556,56 @@ public class FloatingIPListener extends AsyncDataTreeChangeListenerBase<IpMappin
 
     }
 
+    void removeNATFlowEntries(String interfaceName, final IpMapping mapping,
+                              final InstanceIdentifier<RouterPorts> pIdentifier, final String routerName, BigInteger dpnId) {
+
+        if(dpnId.equals(BigInteger.ZERO)) {
+            LOG.info("NAT Service : Abort processing Floating ip configuration. No DPN for port : {}", interfaceName);
+            return;
+        }
+
+        long routerId = NatUtil.getVpnId(dataBroker, routerName);
+        if(routerId == NatConstants.INVALID_ID) {
+            LOG.warn("NAT Service : Could not retrieve router id for {} to remove NAT Flow entries", routerName);
+            return;
+        }
+        //if(routerId == NatConstants.INVALID_ID) {
+        //The router could be associated with BGP VPN
+        Uuid associatedVPN = NatUtil.getVpnForRouter(dataBroker, routerName);
+        long associatedVpnId = NatConstants.INVALID_ID;
+        if(associatedVPN == null) {
+            LOG.warn("NAT Service : Could not retrieve router id for {} to remove NAT Flow entries", routerName);
+        } else {
+            LOG.debug("NAT Service : Retrieving vpn id for VPN {} to proceed with remove NAT Flows", associatedVPN.getValue());
+            associatedVpnId = NatUtil.getVpnId(dataBroker, associatedVPN.getValue());
+        }
+
+        //Delete the DNAT and SNAT table entries
+        removeDNATTblEntry(dpnId, mapping.getInternalIp(), mapping.getExternalIp(), routerId);
+
+        Uuid extNwId = getExtNetworkId(pIdentifier, LogicalDatastoreType.OPERATIONAL);
+        if(extNwId == null) {
+            LOG.error("NAT Service : External network associated with interface {} could not be retrieved", interfaceName);
+            return;
+        }
+        long vpnId = getVpnId(extNwId);
+        if(vpnId < 0) {
+            LOG.error("NAT Service : No VPN associated with ext nw {}. Unable to delete SNAT table entry for fixed ip {}",
+                    extNwId, mapping.getInternalIp());
+            return;
+        }
+        removeSNATTblEntry(dpnId, mapping.getInternalIp(), routerId, mapping.getExternalIp(), vpnId);
+
+        long label = getOperationalIpMapping(routerName, interfaceName, mapping.getInternalIp());
+        if(label < 0) {
+            LOG.error("NAT Service : Could not retrieve label for prefix {} in router {}", mapping.getInternalIp(), routerId);
+            return;
+        }
+        floatingIPHandler.onRemoveFloatingIp(dpnId, routerName, extNwId, mapping.getExternalIp(), mapping.getInternalIp(), (int) label);
+        removeOperationalDS(routerName, interfaceName, mapping.getInternalIp(), mapping.getExternalIp());
+
+    }
+
     void removeNATFlowEntries(BigInteger dpnId, String interfaceName, String vpnName, String routerName, Uuid externalNetworkId, String internalIp, String externalIp) {
         long routerId = NatUtil.getVpnId(dataBroker, routerName);
         if(routerId == NatConstants.INVALID_ID) {
@@ -598,10 +648,14 @@ public class FloatingIPListener extends AsyncDataTreeChangeListenerBase<IpMappin
         //removeSNATTblEntry(dpnId, internalIp, routerId, externalIp);
     }
 
-    private long getOperationalIpMapping(String routerId, String interfaceName, String internalIp) {
+    protected long getOperationalIpMapping(String routerId, String interfaceName, String internalIp) {
         InstanceIdentifier<IpMapping> ipMappingIdentifier = NatUtil.getIpMappingIdentifier(routerId, interfaceName, internalIp);
         Optional<IpMapping> ipMapping = NatUtil.read(dataBroker, LogicalDatastoreType.OPERATIONAL, ipMappingIdentifier);
         if(ipMapping.isPresent()) {
+            Long label = ipMapping.get().getLabel();
+            if(label == null){
+                return NatConstants.INVALID_ID;
+            }
             return ipMapping.get().getLabel();
         }
         return NatConstants.INVALID_ID;
