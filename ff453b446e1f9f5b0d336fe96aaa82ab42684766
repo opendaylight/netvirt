@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3a65312a_bdaee3e5",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/pom.xml",
+        "patchSetId": 2
+      },
+      "lineNbr": 118,
+      "author": {
+        "id": 3276
+      },
+      "writtenOn": "2016-10-26T13:03:49Z",
+      "side": 1,
+      "message": "you don\u0027t need this as you\u0027re using flow:1. This would\u0027ve been needed if were using ovsdb:1.",
+      "range": {
+        "startLine": 109,
+        "startChar": 0,
+        "endLine": 118,
+        "endChar": 17
+      },
+      "revId": "ff453b446e1f9f5b0d336fe96aaa82ab42684766",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
