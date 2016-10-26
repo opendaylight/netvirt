@@ -119,7 +119,7 @@ public class ExternalNetworksChangeListenerTest {
         List<InstructionInfo> instructions = new ArrayList<>();
         List<ActionInfo> actionsInfos = new ArrayList<>();
         actionsInfos.add(new ActionInfo(ActionType.group, new String[] {String.valueOf(groupId)}));
-        instructions.add(new InstructionInfo(InstructionType.write_actions, actionsInfos));
+        instructions.add(new InstructionInfo(InstructionType.apply_actions, actionsInfos));
 
 
         String flowRef =  new StringBuffer().append(SNAT_FLOWID_PREFIX).append(dpnId).append(FLOWID_SEPARATOR).

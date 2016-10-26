@@ -117,7 +117,7 @@ public class DhcpServiceUtils {
 
         List<ActionInfo> actionsInfos = new ArrayList<>();
         List<InstructionInfo> instructions = new ArrayList<>();
-        instructions.add(new InstructionInfo(InstructionType.write_actions, actionsInfos));
+        instructions.add(new InstructionInfo(InstructionType.apply_actions, actionsInfos));
         // Drop Action
         actionsInfos.add(new ActionInfo(ActionType.drop_action,
                 new String[] {}));
