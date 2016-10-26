@@ -138,10 +138,17 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev16011
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.intext.ip.port.map.IpPortMapping;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.intext.ip.port.map.IpPortMappingKey;
 import org.opendaylight.yangtools.yang.common.RpcResult;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.dpn.routers.DpnRoutersList;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.dpn.routers.DpnRoutersListKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.dpn.routers.dpn.routers.list.RoutersList;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.neutron.router.dpns.router.dpn.list.dpn.vpninterfaces.list.RouterInterfacesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.neutron.router.dpns.router.dpn.list.dpn.vpninterfaces.list.RouterInterfacesKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.neutron.router.dpns.router.dpn.list.DpnVpninterfacesListBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.neutron.router.dpns.router.dpn.list.DpnVpninterfacesListKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.dpn.routers.DpnRoutersListBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.dpn.routers.dpn.routers.list.RoutersListBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.dpn.routers.dpn.routers.list.RoutersListKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.DpnRouters;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.Interfaces;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.InterfaceKey;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface;
@@ -617,7 +624,7 @@ public class NatUtil {
          * NodeConnectorId is of form 'openflow:dpnid:portnum'
          */
         String[] split = portId.getValue().split(OF_URI_SEPARATOR);
-        if (split.length != 2) {
+        if (split == null || split.length != 3) {
             return null;
         }
         return split[1];
@@ -625,7 +632,7 @@ public class NatUtil {
 
     public static BigInteger getDpIdFromInterface(org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface ifState) {
         String lowerLayerIf = ifState.getLowerLayerIf().get(0);
-        if (lowerLayerIf != null) {
+        if (lowerLayerIf == null) {
             return BigInteger.ZERO;
         }
         NodeConnectorId nodeConnectorId = new NodeConnectorId(lowerLayerIf);
@@ -1102,6 +1109,49 @@ public class NatUtil {
                     routerDpnListBuilder.build(), true);
         }
     }
+
+    static void addToDpnRoutersMap(DataBroker broker, String routerName, String interfaceName,
+                                          OdlInterfaceRpcService ifaceMgrRpcService, WriteTransaction writeOperTxn) {
+        BigInteger dpId = getDpnForInterface(ifaceMgrRpcService, interfaceName);
+        if(dpId.equals(BigInteger.ZERO)) {
+            LOG.warn("NAT Service : Could not retrieve dp id for interface {} to handle router {} association model", interfaceName, routerName);
+            return;
+        }
+
+        LOG.debug("NAT Service : Adding the DPN {} and router {} for the Interface {} in the ODL-L3VPN : " +
+                        "DPNRouters map",
+                dpId, routerName, interfaceName);
+        InstanceIdentifier<DpnRoutersList> dpnRoutersListIdentifier = getDpnRoutersId(dpId);
+
+        Optional<DpnRoutersList> optionalDpnRoutersList = read(broker, LogicalDatastoreType.OPERATIONAL, dpnRoutersListIdentifier);
+
+        RoutersList routersList = new RoutersListBuilder().setKey(new RoutersListKey(routerName)).setRouter(routerName)
+                .build();
+        if (optionalDpnRoutersList.isPresent()) {
+            List<RoutersList> routersListFromDs = optionalDpnRoutersList.get().getRoutersList();
+            if(!routersListFromDs.contains(routersList)) {
+                LOG.debug("NAT Service : Router {} not present for the DPN {}" +
+                        " in the ODL-L3VPN : DPNRouters map", routerName, dpId);
+                writeOperTxn.merge(LogicalDatastoreType.OPERATIONAL, dpnRoutersListIdentifier.child(RoutersList.class, new
+                        RoutersListKey(routerName)), routersList, true);
+            }else{
+                LOG.debug("NAT Service : Router {} already mapped to the DPN {} in the ODL-L3VPN : DPNRouters map",
+                        routerName, dpId);
+            }
+        } else {
+            LOG.debug("NAT Service : Building new DPNRoutersList for the Router {} present in the DPN {} " +
+                    "ODL-L3VPN : DPNRouters map", routerName, dpId);
+            DpnRoutersListBuilder dpnRoutersListBuilder = new DpnRoutersListBuilder();
+            dpnRoutersListBuilder.setDpnId(dpId);
+            RoutersListBuilder routersListBuilder = new RoutersListBuilder();
+            routersListBuilder.setRouter(routerName);
+            dpnRoutersListBuilder.setRoutersList(Arrays.asList(routersListBuilder.build()));
+            writeOperTxn.merge(LogicalDatastoreType.OPERATIONAL,
+                    getDpnRoutersId(dpId),
+                    dpnRoutersListBuilder.build(), true);
+        }
+    }
+
     static void removeFromNeutronRouterDpnsMap(DataBroker broker, String routerName, String interfaceName,
                                                   BigInteger dpId, WriteTransaction writeOperTxn) {
         if(dpId.equals(BigInteger.ZERO)) {
@@ -1160,6 +1210,106 @@ public class NatUtil {
             }
         }
     }
+
+    static void removeFromDpnRoutersMap(DataBroker broker, String routerName, String vpnInterfaceName,
+                                        OdlInterfaceRpcService ifaceMgrRpcService, WriteTransaction writeOperTxn) {
+        BigInteger dpId = getDpnForInterface(ifaceMgrRpcService, vpnInterfaceName);
+        if (dpId.equals(BigInteger.ZERO)) {
+            LOG.warn("NAT Service : removeFromDpnRoutersMap() : Could not retrieve DPN ID for interface {} to handle router {} dissociation model",
+                    vpnInterfaceName, routerName);
+            return;
+        }
+        removeFromDpnRoutersMap(broker, routerName, vpnInterfaceName, dpId, ifaceMgrRpcService, writeOperTxn);
+    }
+
+    static void removeFromDpnRoutersMap(DataBroker broker, String routerName, String vpnInterfaceName, BigInteger curDpnId,
+                                           OdlInterfaceRpcService ifaceMgrRpcService, WriteTransaction writeOperTxn) {
+
+        LOG.debug("NAT Service : removeFromDpnRoutersMap() : Removing the DPN {} and router {} for the Interface {} in the ODL-L3VPN : " +
+                        "DPNRouters map",
+                curDpnId, routerName, vpnInterfaceName);
+
+        //Get the dpn-routers-list instance for the current DPN
+        InstanceIdentifier<DpnRoutersList> dpnRoutersListIdentifier = getDpnRoutersId(curDpnId);
+        Optional<DpnRoutersList> dpnRoutersListData = read(broker, LogicalDatastoreType.OPERATIONAL, dpnRoutersListIdentifier);
+
+        if (dpnRoutersListData != null && dpnRoutersListData.isPresent()) {
+            InstanceIdentifier<RoutersList> routersListIdentifier = getRoutersList(curDpnId, routerName);
+            Optional<RoutersList> routersListData = read(broker, LogicalDatastoreType.OPERATIONAL, routersListIdentifier);
+
+            if (routersListData != null && routersListData.isPresent()) {
+
+                //Get the routers-list instance for the router on the current DPN only
+                LOG.debug("NAT Service : Get the interfaces for the router {} from the NeutronVPN - router-interfaces-map", routerName);
+                InstanceIdentifier<org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.router.interfaces.map.RouterInterfaces> routerInterfacesId =
+                        getRoutersInterfacesIdentifier(routerName);
+                Optional<org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.router.interfaces.map.RouterInterfaces> routerInterfacesData =
+                        read(broker, LogicalDatastoreType.CONFIGURATION, routerInterfacesId);
+
+                //Get the VM interfaces for the router on the current DPN only.
+                if (routerInterfacesData != null && routerInterfacesData.isPresent()) {
+                    List<org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.router.interfaces.map.router.interfaces.Interfaces> vmInterfaces =
+                            routerInterfacesData.get().getInterfaces();
+                    if (vmInterfaces != null) {
+                        List<String> curDpnInterfaceNames = new ArrayList<>();
+                        for (org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.router.interfaces.map.router.interfaces.Interfaces vmInterface :
+                                vmInterfaces) {
+                            String vmInterfaceName = vmInterface.getInterfaceId();
+                            BigInteger vmDpnId = getDpnForInterface(ifaceMgrRpcService, vmInterfaceName);
+                            if (vmDpnId.equals(BigInteger.ZERO) || !vmDpnId.equals(curDpnId)) {
+                                LOG.debug("NAT Service : DP ID {} for the interface {} is not the same as that of the DP ID for the interface {} ",
+                                        curDpnId, vpnInterfaceName, vmDpnId, vmInterfaceName);
+                                continue;
+                            }
+                            curDpnInterfaceNames.add(vmInterfaceName);
+                        }
+
+                        //Filter out the interfaces for the router which belong to the different DPNs
+                        Set<String> curDpnRemovedInterfaceNameSet = new HashSet<>();
+                        curDpnRemovedInterfaceNameSet.add(vpnInterfaceName);
+                        Set<String> curDpnAllInterfaceNamesSet = Sets.newHashSet(curDpnInterfaceNames);
+                        Sets.SetView<String> remainingDpnInterfaceNamesSet = Sets.difference(curDpnAllInterfaceNamesSet, curDpnRemovedInterfaceNameSet);
+
+                        if (remainingDpnInterfaceNamesSet.size() != 0) {
+                            LOG.debug("NAT Service : Router {} is present in the DPN {} through the other interface. " +
+                                    "Hence DPN router model WOULD NOT be cleared", routerName, curDpnId);
+                            return;
+                        } else {
+                            LOG.debug("NAT Service : Router {} is present in the DPN {} only through the interface {} " +
+                                    "Hence DPN router model WILL be cleared. Possbily last VM for the router " +
+                                    "deleted in the DPN", routerName, curDpnId);
+                            writeOperTxn.delete(LogicalDatastoreType.OPERATIONAL, routersListIdentifier);
+                        }
+                    }
+                }else{
+                    LOG.debug("NAT Service : Unable to get the routers list for the DPN {}. " +
+                            "Possibly all subnets removed from router {}." +
+                            " OR Router {} has been deleted." +
+                            "Hence DPN router model WILL be cleared ", curDpnId, routerName, routerName);
+                    writeOperTxn.delete(LogicalDatastoreType.OPERATIONAL, routersListIdentifier);
+                }
+            }else{
+                LOG.debug("NAT Service : Unable to get the dpn-routers-list for the DPN {}", curDpnId);
+            }
+        }else{
+            LOG.debug("NAT Service : Unable to get the dpn-routers-list for the DPN {}", curDpnId);
+        }
+    }
+
+    private static InstanceIdentifier<org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.router.interfaces.map.RouterInterfaces>
+        getRoutersInterfacesIdentifier(String routerName){
+        return InstanceIdentifier.builder(org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.RouterInterfacesMap.class)
+                .child(org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.router.interfaces.map.RouterInterfaces.class,
+                        new org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.router.interfaces.map.RouterInterfacesKey(new Uuid(routerName)))
+                .build();
+    }
+
+    private static InstanceIdentifier<RoutersList> getRoutersList(BigInteger dpnId, String routerName) {
+        return InstanceIdentifier.builder(DpnRouters.class)
+                .child(DpnRoutersList.class, new DpnRoutersListKey(dpnId))
+                .child(RoutersList.class, new RoutersListKey(routerName)).build();
+    }
+
     public static BigInteger getDpnForInterface(OdlInterfaceRpcService interfaceManagerRpcService, String ifName) {
         BigInteger nodeId = BigInteger.ZERO;
         try {
@@ -1173,10 +1323,10 @@ public class NatUtil {
             if (dpIdResult.isSuccessful()) {
                 nodeId = dpIdResult.getResult().getDpid();
             } else {
-                LOG.error("Could not retrieve DPN Id for interface {}", ifName);
+                LOG.error("NAT Service : Could not retrieve DPN Id for interface {}", ifName);
             }
-        } catch (InterruptedException | ExecutionException e) {
-            LOG.error("Exception when getting dpn for interface {}", ifName,  e);
+        } catch (NullPointerException | InterruptedException | ExecutionException e) {
+            LOG.error("NAT Service : Exception when getting dpn for interface {}", ifName,  e);
         }
         return nodeId;
     }
@@ -1370,6 +1520,11 @@ public class NatUtil {
             return true;
         }
         return false;
+    }
+
+    static InstanceIdentifier<DpnRoutersList> getDpnRoutersId(BigInteger dpnId) {
+        return InstanceIdentifier.builder(DpnRouters.class)
+                .child(DpnRoutersList.class, new DpnRoutersListKey(dpnId)).build();
     }
 
     static InstanceIdentifier<DpnVpninterfacesList> getRouterDpnId(String routerName, BigInteger dpnId) {

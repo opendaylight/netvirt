@@ -23,6 +23,7 @@ import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.mdsalutil.MetaDataUtil;
 import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.netvirt.bgpmanager.api.IBgpManager;
+import org.opendaylight.netvirt.fibmanager.api.IFibManager;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
@@ -78,6 +79,7 @@ public class NaptSwitchHA {
     private final IBgpManager bgpManager;
     private final VpnRpcService vpnService;
     private final FibRpcService fibService;
+    private final IFibManager fibManager;
     private List<String> externalIpsCache;
     private HashMap<String,Long> externalIpsLabel;
 
@@ -89,7 +91,8 @@ public class NaptSwitchHA {
                         final NAPTSwitchSelector naptSwitchSelector,
                         final IBgpManager bgpManager,
                         final VpnRpcService vpnService,
-                        final FibRpcService fibService) {
+                        final FibRpcService fibService,
+                        final IFibManager fibManager) {
         this.dataBroker = dataBroker;
         this.mdsalManager = mdsalManager;
         this.externalRouterListener = externalRouterListener;
@@ -305,8 +308,11 @@ public class NaptSwitchHA {
         }
         return routerUuidsAsString;
     }
+    public boolean isNaptSwitchDown(String routerName, BigInteger dpnId , BigInteger naptSwitch,Long routerVpnId,List<String> externalIpCache){
+        return isNaptSwitchDown(routerName, dpnId , naptSwitch, routerVpnId, externalIpCache, true);
+    }
 
-    public boolean isNaptSwitchDown(String routerName, BigInteger dpnId , BigInteger naptSwitch,Long routerVpnId,List<String> externalIpCache) {
+    public boolean isNaptSwitchDown(String routerName, BigInteger dpnId , BigInteger naptSwitch,Long routerVpnId,List<String> externalIpCache, boolean isClearBgpRts) {
         externalIpsCache = externalIpCache;
         if (!naptSwitch.equals(dpnId)) {
             LOG.debug("DpnId {} is not a naptSwitch {} for Router {}",dpnId, naptSwitch, routerName);
@@ -321,7 +327,8 @@ public class NaptSwitchHA {
         //elect a new NaptSwitch
         naptSwitch = naptSwitchSelector.selectNewNAPTSwitch(routerName);
         if (naptSwitch.equals(BigInteger.ZERO)) {
-            LOG.info("No napt switch is elected since all the switches for router {} are down",routerName);
+            LOG.error("NAT Service : No napt switch is elected since all the switches for router {} are down. SNAT IS" +
+                    " NOT SUPPORTED FOR ROUTER {}",routerName);
             boolean naptUpdatedStatus = updateNaptSwitch(routerName,naptSwitch);
             if(!naptUpdatedStatus) {
                 LOG.debug("Failed to update naptSwitch {} for router {} in ds", naptSwitch,routerName);
@@ -332,8 +339,18 @@ public class NaptSwitchHA {
                 if (vpnName != null) {
                     //List<String> externalIps = NatUtil.getExternalIpsForRouter(dataBroker, routerId);
                     //if (externalIps != null) {
-                    for (String externalIp : externalIpsCache) {
-                        externalRouterListener.clearBgpRoutes(externalIp, vpnName);
+                    if(isClearBgpRts){
+                        LOG.debug("NAT Service : Clearing both FIB entries and the BGP routes");
+                        for (String externalIp : externalIpsCache) {
+                            externalRouterListener.clearBgpRoutes(externalIp, vpnName);
+                        }
+                    }else{
+                        LOG.debug("NAT Service : Clearing the FIB entries but not the BGP routes");
+                        String rd = NatUtil.getVpnRd(dataBroker, vpnName);
+                        for (String externalIp : externalIpsCache) {
+                            LOG.debug("NAT Service : Removing Fib entry rd {} prefix {}", rd, externalIp);
+                            fibManager.removeFibEntry(dataBroker, rd, externalIp, null);
+                        }
                     }
                 } else {
                     LOG.debug("vpn is not associated to extn/w for router {}", routerName);
@@ -490,7 +507,7 @@ public class NaptSwitchHA {
                                 , intportnum, proto, externalAddress, extportNumber,bgpVpnId,ex);
                         return false;
                     }
-                    LOG.debug("Successfully installed a flow in SecondarySwitch {} Outbound NAPT table for router {} " +
+                    LOG.debug("Successfully installed a flow in Primary switch {} Outbound NAPT table for router {} " +
                             "ipport {}:{} proto {} extIpport {}:{} BgpVpnId {}", newNaptSwitch,routerId, internalIpAddress
                             , intportnum, proto, externalAddress, extportNumber,bgpVpnId);
                     //Install the flow in newNaptSwitch Inbound NAPT table.
@@ -503,7 +520,7 @@ public class NaptSwitchHA {
                                 internalIpAddress, intportnum,bgpVpnId);
                         return false;
                     }
-                    LOG.debug("Successfully installed a flow in SecondarySwitch {} Inbound NAPT table for router {} " +
+                    LOG.debug("Successfully installed a flow in Primary switch {} Inbound NAPT table for router {} " +
                             "ipport {}:{} proto {} extIpport {}:{} BgpVpnId {}", newNaptSwitch,routerId, internalIpAddress
                             , intportnum, proto, externalAddress, extportNumber,bgpVpnId);
 
