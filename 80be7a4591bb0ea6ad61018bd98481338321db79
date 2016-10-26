@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3a65312a_a8f4e387",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/StatefulEgressAclServiceImpl.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 75,
+      "author": {
+        "id": 4269
+      },
+      "writtenOn": "2016-10-26T17:08:43Z",
+      "side": 1,
+      "message": "Does passing priority makes more sense? We need not have the logic to get it each implemantation?",
+      "revId": "80be7a4591bb0ea6ad61018bd98481338321db79",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
