@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3a65312a_a81ce314",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 2132,
+      "author": {
+        "id": 5661
+      },
+      "writtenOn": "2016-10-26T16:24:06Z",
+      "side": 1,
+      "message": "Didn\u0027t fully follow the logic here, but don\u0027t we need this logic for IPv6 networks?",
+      "range": {
+        "startLine": 2132,
+        "startChar": 13,
+        "endLine": 2132,
+        "endChar": 26
+      },
+      "revId": "2691fd63827ed8c80ca295f5f5dc018754b72de8",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a65312a_68b00bf5",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronPortChangeListener.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 277,
+      "author": {
+        "id": 5661
+      },
+      "writtenOn": "2016-10-26T16:24:06Z",
+      "side": 1,
+      "message": "Is adding the Router/Gateway Mac address to Table 19 happen inside this method?",
+      "range": {
+        "startLine": 277,
+        "startChar": 24,
+        "endLine": 277,
+        "endChar": 48
+      },
+      "revId": "2691fd63827ed8c80ca295f5f5dc018754b72de8",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
