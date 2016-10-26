@@ -37,6 +37,24 @@
     },
     {
       "key": {
+        "uuid": "3a65312a_3d74939b",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/AbstractAclServiceImpl.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 164,
+      "author": {
+        "id": 4269
+      },
+      "writtenOn": "2016-10-26T15:39:54Z",
+      "side": 1,
+      "message": "I was not clear why we require to uuid to be stored if we are not using it here?",
+      "parentUuid": "3a65312a_3a4ad983",
+      "revId": "40b69b6ae6855082bef5ef46c62a81b0a19d6031",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "3a65312a_1a943d36",
         "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/AclServiceManagerImpl.java",
         "patchSetId": 2
