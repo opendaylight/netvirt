@@ -18,9 +18,6 @@ import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.netvirt.fibmanager.api.IFibManager;
 import org.opendaylight.netvirt.fibmanager.api.RouteOrigin;
 import org.opendaylight.netvirt.vpnmanager.api.IVpnManager;
-import org.opendaylight.netvirt.vpnmanager.api.intervpnlink.InterVpnLinkCache;
-import org.opendaylight.netvirt.vpnmanager.intervpnlink.InterVpnLinkCacheFeeder;
-import org.opendaylight.netvirt.vpnmanager.intervpnlink.InterVpnLinkStateCacheFeeder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.CreateIdPoolInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.CreateIdPoolInputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.IdManagerService;
@@ -30,16 +27,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class VpnManagerImpl implements IVpnManager {
+
     private static final Logger LOG = LoggerFactory.getLogger(VpnManagerImpl.class);
     private final DataBroker dataBroker;
     private final VpnInterfaceManager vpnInterfaceManager;
     private final VpnInstanceListener vpnInstanceListener;
     private final IdManagerService idManager;
     private final IMdsalApiManager mdsalManager;
-
-    // A couple of listener in order to maintain the InterVpnLink cache
-    private InterVpnLinkCacheFeeder iVpnLinkCacheFeeder;
-    private InterVpnLinkStateCacheFeeder iVpnLinkStateCacheFeeder;
 
     public VpnManagerImpl(final DataBroker dataBroker,
                           final IdManagerService idManagerService,
@@ -56,9 +50,6 @@ public class VpnManagerImpl implements IVpnManager {
     public void start() {
         LOG.info("{} start", getClass().getSimpleName());
         createIdPool();
-        iVpnLinkCacheFeeder = new InterVpnLinkCacheFeeder(dataBroker);
-        iVpnLinkStateCacheFeeder = new InterVpnLinkStateCacheFeeder(dataBroker);
-        InterVpnLinkCache.createInterVpnLinkCaches(dataBroker);  // Idempotent creation
     }
 
     private void createIdPool() {
