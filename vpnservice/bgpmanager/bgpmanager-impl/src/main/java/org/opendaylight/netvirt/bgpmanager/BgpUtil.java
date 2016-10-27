@@ -23,6 +23,9 @@ import org.opendaylight.genius.utils.batching.ActionableResource;
 import org.opendaylight.genius.utils.batching.ActionableResourceImpl;
 import org.opendaylight.genius.utils.batching.ResourceBatchingManager;
 import org.opendaylight.genius.utils.batching.ResourceHandler;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.VpnInstanceOpData;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.VpnInstanceOpDataEntry;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.VpnInstanceOpDataEntryKey;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
@@ -159,5 +162,21 @@ public class BgpUtil {
 
     public static DataBroker getBroker() {
         return dataBroker;
+    }
+
+    public static Optional<String> getVpnNameFromRd(DataBroker dataBroker2, String rd) {
+        InstanceIdentifier<VpnInstanceOpDataEntry> id = InstanceIdentifier.create(VpnInstanceOpData.class)
+                                                                          .child(VpnInstanceOpDataEntry.class,
+                                                                                 new VpnInstanceOpDataEntryKey(rd));
+        Optional<String> ret = Optional.absent();
+        try {
+            Optional<VpnInstanceOpDataEntry> vpnInstanceOpData = read(dataBroker, LogicalDatastoreType.OPERATIONAL, id);
+            if (vpnInstanceOpData.isPresent()) {
+                ret = Optional.of(vpnInstanceOpData.get().getVpnInstanceName());
+            }
+        } catch (ExecutionException | InterruptedException | TimeoutException e) {
+            LOG.warn("Exception while retrieving VpnInstance name for RD {}", rd, e);
+        }
+        return ret;
     }
 }
