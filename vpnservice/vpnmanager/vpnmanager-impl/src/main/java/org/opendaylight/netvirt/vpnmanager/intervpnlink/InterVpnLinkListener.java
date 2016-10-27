@@ -14,7 +14,11 @@ import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
@@ -26,9 +30,12 @@ import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.netvirt.bgpmanager.api.IBgpManager;
+import org.opendaylight.netvirt.fibmanager.api.IFibManager;
 import org.opendaylight.netvirt.fibmanager.api.RouteOrigin;
 import org.opendaylight.netvirt.vpnmanager.VpnConstants;
 import org.opendaylight.netvirt.vpnmanager.VpnUtil;
+import org.opendaylight.netvirt.vpnmanager.api.intervpnlink.InterVpnLinkCache;
+import org.opendaylight.netvirt.vpnmanager.api.intervpnlink.InterVpnLinkDataComposite;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.FlowId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.tables.table.Flow;
@@ -41,6 +48,15 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.ReleaseIdInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.ReleaseIdInputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.VrfEntry;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.VpnMaps;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.vpnmaps.VpnMap;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.vpn.rpc.rev160201.AddStaticRouteInput;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.vpn.rpc.rev160201.AddStaticRouteInputBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.vpn.rpc.rev160201.AddStaticRouteOutput;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l3.rev150712.l3.attributes.Routes;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l3.rev150712.routers.attributes.Routers;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l3.rev150712.routers.attributes.routers.Router;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.rev150712.Neutron;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.netvirt.inter.vpn.link.rev160311.InterVpnLinkCreationError;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.netvirt.inter.vpn.link.rev160311.InterVpnLinkCreationErrorBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.netvirt.inter.vpn.link.rev160311.InterVpnLinks;
@@ -55,7 +71,9 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.netvirt.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.netvirt.inter.vpn.link.rev160311.inter.vpn.links.InterVpnLink;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.netvirt.inter.vpn.link.rev160311.inter.vpn.links.InterVpnLinkKey;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.opendaylight.yangtools.yang.common.RpcError;
 import org.opendaylight.yangtools.yang.common.RpcResult;
+import org.opendaylight.yangtools.yang.common.RpcResultBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -66,18 +84,20 @@ public class InterVpnLinkListener extends AsyncDataTreeChangeListenerBase<InterV
     private final IMdsalApiManager mdsalManager;
     private final IdManagerService idManager;
     private final IBgpManager bgpManager;
+    private final IFibManager fibManager;
     private final NotificationPublishService notificationsService;
     private static final String NBR_OF_DPNS_PROPERTY_NAME = "vpnservice.intervpnlink.number.dpns";
     private static final long INVALID_ID = 0;
 
     public InterVpnLinkListener(final DataBroker dataBroker, final IdManagerService idManager,
                                 final IMdsalApiManager mdsalManager, final IBgpManager bgpManager,
-                                final NotificationPublishService notifService) {
+                                final IFibManager fibManager, final NotificationPublishService notifService) {
         super(InterVpnLink.class, InterVpnLinkListener.class);
         this.dataBroker = dataBroker;
         this.idManager = idManager;
         this.mdsalManager = mdsalManager;
         this.bgpManager = bgpManager;
+        this.fibManager = fibManager;
         this.notificationsService = notifService;
     }
 
@@ -107,7 +127,6 @@ public class InterVpnLinkListener extends AsyncDataTreeChangeListenerBase<InterV
                 add.getName(), add.getFirstEndpoint().getVpnUuid(), add.getFirstEndpoint().getIpAddress(),
                 add.getSecondEndpoint().getVpnUuid(), add.getSecondEndpoint().getIpAddress());
 
-        int numberOfDpns = Integer.getInteger(NBR_OF_DPNS_PROPERTY_NAME, 1);
         // Create VpnLink state
         InstanceIdentifier<InterVpnLinkState> vpnLinkStateIid = InterVpnLinkUtil.getInterVpnLinkStateIid(add.getName());
         InterVpnLinkState vpnLinkState = new InterVpnLinkStateBuilder().setInterVpnLinkName(add.getName()).build();
@@ -144,11 +163,11 @@ public class InterVpnLinkListener extends AsyncDataTreeChangeListenerBase<InterV
             return;
         }
 
-        // TODO: Doing like this we are retrieving operative DPNs from MDSAL when we just need one. Fix it
+        InterVpnLinkCache.addInterVpnLinkToCaches(add);
+
+        int numberOfDpns = Integer.getInteger(NBR_OF_DPNS_PROPERTY_NAME, 1);
         List<BigInteger> firstDpnList = VpnUtil.pickRandomDPNs(dataBroker, numberOfDpns, null);
         if (firstDpnList != null && !firstDpnList.isEmpty()) {
-            // TODO: Limitation to be solved later
-            // List<BigInteger> secondDpnList = VpnUtil.pickRandomDPNs(dataBroker, numberOfDpns, firstDpnList);
             List<BigInteger> secondDpnList = firstDpnList;
 
             Long firstVpnLportTag = allocateVpnLinkLportTag(key.getName() + firstEndpointVpnUuid.getValue());
@@ -163,6 +182,8 @@ public class InterVpnLinkListener extends AsyncDataTreeChangeListenerBase<InterV
             InterVpnLinkUtil.updateInterVpnLinkState(dataBroker, add.getName(), InterVpnLinkState.State.Active,
                                                      firstEndPointState, secondEndPointState);
 
+            Optional<InterVpnLinkDataComposite> iVpnLink = InterVpnLinkCache.getInterVpnLinkByName(add.getName());
+
             // Note that in the DPN of the firstEndpoint we install the lportTag of the secondEndpoint and viceversa
             InterVpnLinkUtil.installLPortDispatcherTableFlow(dataBroker, mdsalManager, add, firstDpnList,
                                                              secondEndpointVpnUuid, secondVpnLportTag.intValue());
@@ -175,6 +196,9 @@ public class InterVpnLinkListener extends AsyncDataTreeChangeListenerBase<InterV
             // Vpn2 is not physically present there.
             InterVpnLinkUtil.updateVpnToDpnMap(dataBroker, firstDpnList, secondEndpointVpnUuid);
             InterVpnLinkUtil.updateVpnToDpnMap(dataBroker, secondDpnList, firstEndpointVpnUuid);
+
+            // Program static routes if needed
+            handleStaticRoutes(iVpnLink.get());
 
             // Now, if the corresponding flags are activated, there will be some routes exchange
             leakRoutesIfNeeded(add);
@@ -192,8 +216,88 @@ public class InterVpnLinkListener extends AsyncDataTreeChangeListenerBase<InterV
             InterVpnLinkUtil.updateInterVpnLinkState(dataBroker, add.getName(), InterVpnLinkState.State.Error,
                                                      firstEndPointState, secondEndPointState);
         }
+    }
+
+    private Map<String, String> buildRouterXL3VPNMap() {
+        Map<String, String> result = new HashMap<>();
+        InstanceIdentifier<VpnMaps> vpnMapsIdentifier = InstanceIdentifier.builder(VpnMaps.class).build();
+        Optional<VpnMaps> optVpnMaps =
+            MDSALUtil.read(dataBroker, LogicalDatastoreType.CONFIGURATION, vpnMapsIdentifier);
+        if (optVpnMaps.isPresent() && optVpnMaps.get().getVpnMap() != null) {
+            for ( VpnMap vpnMap : optVpnMaps.get().getVpnMap() ) {
+                result.put(vpnMap.getRouterId().getValue(), vpnMap.getVpnId().getValue());
+            }
+        }
+
+        return result;
+    }
 
 
+    /*
+     * Checks if there are any static routes pointing to any of both
+     * InterVpnLink's endpoints. Goes through all routers checking if they have
+     * a route whose nexthop is an InterVpnLink endpoint
+     */
+    private void handleStaticRoutes(InterVpnLinkDataComposite iVpnLink) {
+        // Map that corresponds a routerId with the L3VPN that it's been assigned to.
+        Map<String, String> routerXL3VpnMap = buildRouterXL3VPNMap();
+
+        // Retrieving all Routers
+        InstanceIdentifier<Routers> routersIid = InstanceIdentifier.builder(Neutron.class).child(Routers.class).build();
+        Optional<Routers> routerOpData = MDSALUtil.read(dataBroker, LogicalDatastoreType.CONFIGURATION, routersIid);
+        List<Router> routers = routerOpData.get().getRouter();
+        for ( Router router : routers ) {
+            String vpnId = routerXL3VpnMap.get(router.getUuid().getValue());
+            if ( vpnId == null ) {
+                LOG.warn("Could not find suitable VPN for router {}", router.getUuid());
+                continue; // with next router
+            }
+            for ( Routes route : router.getRoutes() ) {
+                handleStaticRoute(vpnId, route, iVpnLink);
+            }
+        }
+    }
+
+    /*
+     * Takes care of an static route to see if flows related to interVpnLink
+     * must be installed in tables 20 and 17
+     *
+     * @param vpnId Vpn to which the route belongs
+     * @param route Route to handle. Will only be considered if its nexthop is the VPN's endpoint IpAddress
+     *              at the other side of the InterVpnLink
+     * @param iVpnLink
+     */
+    private void handleStaticRoute(String vpnId, Routes route, InterVpnLinkDataComposite iVpnLink) {
+
+        String routeNextHop = route.getNexthop().getIpv4Address().getValue();
+        String destination = String.valueOf(route.getDestination().getValue());
+
+        // is nexthop the other endpoint's IP
+        String otherEndpoint = iVpnLink.getOtherEndpoint(vpnId);
+        if ( !routeNextHop.equals(otherEndpoint) ) {
+            LOG.debug("VPN {}: Route to {} nexthop={} points to an InterVpnLink endpoint, but its not "
+                      + "the other endpoint. Other endpoint is {}",
+                      vpnId, destination, routeNextHop, otherEndpoint);
+            return;
+        }
+
+        // Lets work: 1) write Fibentry, 2) advertise to BGP and 3) check if it must be leaked
+        String vpnRd = VpnUtil.getVpnRd(dataBroker, vpnId);
+        if ( vpnRd == null ) {
+            LOG.warn("Could not find Route-Distinguisher for VpnName {}", vpnId);
+            return;
+        }
+
+        int label = VpnUtil.getUniqueId(idManager, VpnConstants.VPN_IDPOOL_NAME,
+                                        VpnUtil.getNextHopLabelKey(vpnId, destination));
+
+        try {
+            InterVpnLinkUtil.handleStaticRoute(iVpnLink, vpnId, destination, routeNextHop, label,
+                                               dataBroker, fibManager, bgpManager);
+        } catch (Exception e) {
+            LOG.warn("InterVpnLink [{}]: Could not handle static route [vpn={} prefix={} nexthop={} label={}]",
+                     iVpnLink.getInterVpnLinkName(), vpnId, destination, routeNextHop, label, e);
+        }
     }
 
     private void leakRoutesIfNeeded(InterVpnLink vpnLink) {

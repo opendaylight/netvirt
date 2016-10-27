@@ -19,9 +19,12 @@ import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.genius.utils.ServiceIndex;
 import org.opendaylight.netvirt.bgpmanager.api.IBgpManager;
+import org.opendaylight.netvirt.fibmanager.api.IFibManager;
 import org.opendaylight.netvirt.fibmanager.api.RouteOrigin;
 import org.opendaylight.netvirt.vpnmanager.VpnConstants;
 import org.opendaylight.netvirt.vpnmanager.VpnUtil;
+import org.opendaylight.netvirt.vpnmanager.api.intervpnlink.InterVpnLinkCache;
+import org.opendaylight.netvirt.vpnmanager.api.intervpnlink.InterVpnLinkDataComposite;
 import org.opendaylight.netvirt.vpnmanager.utilities.InterfaceUtils;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.tables.table.Flow;
@@ -33,6 +36,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev15033
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.VrfEntryBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.VrfEntryKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.VpnInstanceOpDataEntry;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.vpn.rpc.rev160201.AddStaticRouteOutput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.netvirt.inter.vpn.link.rev160311.InterVpnLinkStates;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.netvirt.inter.vpn.link.rev160311.InterVpnLinks;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.netvirt.inter.vpn.link.rev160311.inter.vpn.link.states.InterVpnLinkState;
@@ -45,13 +49,17 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.netvirt.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.netvirt.inter.vpn.link.rev160311.inter.vpn.links.InterVpnLink;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.netvirt.inter.vpn.link.rev160311.inter.vpn.links.InterVpnLinkKey;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.opendaylight.yangtools.yang.common.RpcResultBuilder;
+import org.opendaylight.yangtools.yang.common.RpcError.ErrorType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * This class contains methods to be used as utilities related with inter-vpn-link.
@@ -147,6 +155,7 @@ public class InterVpnLinkUtil {
                             .build();
             VpnUtil.syncUpdate(broker, LogicalDatastoreType.CONFIGURATION,
                     InterVpnLinkUtil.getInterVpnLinkStateIid(vpnLinkName), newVpnLinkState);
+            InterVpnLinkCache.addInterVpnLinkStateToCaches(newVpnLinkState);
         } else {
             InterVpnLinkState newIVpnLinkState =
                     new InterVpnLinkStateBuilder().setKey(new InterVpnLinkStateKey(vpnLinkName))
@@ -157,6 +166,7 @@ public class InterVpnLinkUtil {
                             .build();
             VpnUtil.syncWrite(broker, LogicalDatastoreType.CONFIGURATION,
                     InterVpnLinkUtil.getInterVpnLinkStateIid(vpnLinkName), newIVpnLinkState);
+            InterVpnLinkCache.addInterVpnLinkStateToCaches(newIVpnLinkState);
         }
     }
 
@@ -220,14 +230,15 @@ public class InterVpnLinkUtil {
      * @return the flow reference string
      */
     public static String getLportDispatcherFlowRef(String interVpnLinkName, Integer lportTag) {
-        String flowRef = new StringBuffer().append(VpnConstants.FLOWID_PREFIX).append("INTERVPNLINK")
+        return new StringBuffer()
+                .append(VpnConstants.FLOWID_PREFIX).append("INTERVPNLINK")
                 .append(NwConstants.FLOWID_SEPARATOR).append(interVpnLinkName)
                 .append(NwConstants.FLOWID_SEPARATOR).append(lportTag)
-                .append(NwConstants.FLOWID_SEPARATOR).append(ServiceIndex.getIndex(NwConstants.L3VPN_SERVICE_NAME, NwConstants.L3VPN_SERVICE_INDEX))
+                .append(NwConstants.FLOWID_SEPARATOR).append(ServiceIndex.getIndex(NwConstants.L3VPN_SERVICE_NAME,
+                                                                                   NwConstants.L3VPN_SERVICE_INDEX))
                 .append(NwConstants.FLOWID_SEPARATOR)
                 .append(VpnConstants.DEFAULT_LPORT_DISPATCHER_FLOW_PRIORITY)
                 .toString();
-        return flowRef;
     }
 
 
@@ -475,5 +486,38 @@ public class InterVpnLinkUtil {
             LOG.warn("Error when advertising leaked routes: Could not find State for InterVpnLink={}",
                     interVpnLink.getName());
         }
+    }
+
+    public static void handleStaticRoute(InterVpnLinkDataComposite iVpnLink, String vpnName,
+                                         String destination, String nexthop, int label,
+                                         DataBroker dataBroker, IFibManager fibManager, IBgpManager bgpManager)
+             throws Exception {
+
+        LOG.debug("handleStaticRoute [vpnLink={} srcVpn={} destination={} nextHop={} label={}]",
+                  iVpnLink.getInterVpnLinkName(), vpnName, destination, nexthop, label);
+
+        String vpnRd = VpnUtil.getVpnRd(dataBroker, vpnName);
+        if ( vpnRd == null ) {
+            LOG.warn("Could not find Route-Distinguisher for VpnName {}", vpnName);
+            return;
+        }
+        LOG.debug("Writing FibEntry to DS:  vpnRd={}, prefix={}, label={}, nexthop={} (interVpnLink)",
+                  vpnRd, destination, label, nexthop);
+        fibManager.addOrUpdateFibEntry(dataBroker, vpnRd, destination, Collections.singletonList(nexthop), label,
+                                       RouteOrigin.STATIC, null);
+
+        // Now advertise to BGP. The nexthop that must be advertised to BGP are the IPs of the DPN where the
+        // VPN's endpoint have been instantiated
+        // List<String> nexthopList = new ArrayList<>(); // The nexthops to be advertised to BGP
+        List<BigInteger> endpointDpns = iVpnLink.getEndpointDpnsByVpnName(vpnName);
+        List<String> nexthopList =
+            endpointDpns.stream().map(dpnId -> InterfaceUtils.getEndpointIpAddressForDPN(dataBroker, dpnId))
+                                 .collect(Collectors.toList());
+        LOG.debug("advertising IVpnLink route to BGP:  vpnRd={}, prefix={}, label={}, nexthops={}",
+                  vpnRd, destination, label, nexthopList);
+        bgpManager.advertisePrefix(vpnRd, destination, nexthopList, label);
+
+        // TODO: Leak if static-routes-leaking flag is active
+
     }
 }
