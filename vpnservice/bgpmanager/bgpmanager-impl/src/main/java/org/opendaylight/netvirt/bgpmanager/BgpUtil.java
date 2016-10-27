@@ -23,6 +23,10 @@ import org.opendaylight.genius.utils.batching.ActionableResource;
 import org.opendaylight.genius.utils.batching.ActionableResourceImpl;
 import org.opendaylight.genius.utils.batching.ResourceBatchingManager;
 import org.opendaylight.genius.utils.batching.ResourceHandler;
+import org.opendaylight.netvirt.bgpmanager.thrift.gen.encap_type;
+import org.opendaylight.netvirt.bgpmanager.thrift.gen.protocol_type;
+import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.BgpControlPlaneType;
+import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.EncapType;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
@@ -160,4 +164,19 @@ public class BgpUtil {
     public static DataBroker getBroker() {
         return dataBroker;
     }
+
+    // Convert ProtocolType to thrift protocol_type
+    public static protocol_type convertToThriftProtocolType(BgpControlPlaneType protocolType )
+    {
+        // TODO: add implementation
+        return protocol_type.PROTOCOL_ANY;
+    }
+
+    // Convert EncapType to thrift encap_type
+    public static encap_type convertToThriftEncapType(EncapType encapType)
+    {
+        // TODO: add implementation
+        return encap_type.MPLS;
+    }
 }
+
