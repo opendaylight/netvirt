@@ -24,6 +24,7 @@ import org.opendaylight.netvirt.bgpmanager.BgpConfigurationManager;
 import org.opendaylight.netvirt.bgpmanager.FibDSWriter;
 import org.opendaylight.netvirt.bgpmanager.api.IBgpManager;
 import org.opendaylight.netvirt.bgpmanager.thrift.gen.BgpUpdater;
+import org.opendaylight.netvirt.bgpmanager.thrift.gen.protocol_type;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.fibentries.VrfTables;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -120,12 +121,49 @@ public class BgpThriftService {
             }
         }
 
-        public void onUpdatePushRoute(String rd, String prefix, int plen, String nexthop, int label) {
-            LOGGER.debug("Update on push route : rd {} prefix {} plen {}", rd, prefix, plen);
-            BgpConfigurationManager.onUpdatePushRoute(rd, prefix, plen, nexthop, label);
+        @SuppressWarnings("checkstyle:IllegalCatch")
+        public void onUpdatePushRoute(protocol_type protocolType,
+                                      String rd,
+                                      String prefix,
+                                      int plen,
+                                      String nexthop,
+                                      int ethtag,
+                                      String esi,
+                                      String macaddress,
+                                      int l2label,
+                                      int l3label,
+                                      String routermac) {
+            try {
+                LOGGER.debug("Update on push route : rd {} prefix {} plen {}", rd, prefix, plen);
+
+                // l2label is ignored even in case of RT5. only l3label considered
+                BgpConfigurationManager.onUpdatePushRoute(
+                        protocolType,
+                        rd,
+                        prefix,
+                        plen,
+                        nexthop,
+                        ethtag,
+                        esi,
+                        macaddress,
+                        l3label,
+                        routermac);
+
+            } catch (Throwable e) {
+                LOGGER.error("failed to handle update route ", e);
+            }
         }
 
-        public void onUpdateWithdrawRoute(String rd, String prefix, int plen, String nexthop) {
+        public void onUpdateWithdrawRoute(protocol_type protocolType,
+                                          String rd,
+                                          String prefix,
+                                          int plen,
+                                          String nexthop,
+                                          int ethtag,
+                                          String esi,
+                                          String macaddress,
+                                          int l2label,
+                                          int l3label) {
             LOGGER.debug("Route del ** {} ** {}/{} ", rd, prefix, plen);
             LOGGER.info("REMOVE: Removing Fib entry rd {} prefix {}", rd, prefix);
             fibDSWriter.removeFibEntryFromDS(rd, prefix + "/" + plen);
