@@ -224,7 +224,7 @@ public class VpnRpcServiceImpl implements VpnRpcService {
             return result;
         }
 
-        Optional<InterVpnLink> optVpnLink = InterVpnLinkUtil.getInterVpnLinkByEndpointIp(dataBroker, nexthop);
+        Optional<InterVpnLinkDataComposite> optVpnLink = InterVpnLinkCache.getInterVpnLinkByEndpoint(nexthop);
         if ( optVpnLink.isPresent() ) {
             fibManager.removeOrUpdateFibEntry(dataBroker,  vpnRd, destination, nexthop, null);
             try {
