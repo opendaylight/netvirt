@@ -399,99 +399,9 @@ public class InterVpnLinkUtil {
     }
 
 
-    /**
-     * Leaks a route from one VPN to another. By default, the origin for this leaked route is INTERVPN
-     *
-     * @param broker           dataBroker service reference
-     * @param bgpManager       Used to advertise routes to the BGP Router
-     * @param interVpnLink     Reference to the object that holds the info about the link between the 2 VPNs
-     * @param srcVpnUuid       UUID of the VPN that has the route that is going to be leaked to the other VPN
-     * @param dstVpnUuid       UUID of the VPN that is going to receive the route
-     * @param prefix           Prefix of the route
-     * @param label            Label of the route in the original VPN
-     */
-    public static void leakRoute(DataBroker broker, IBgpManager bgpManager, InterVpnLink interVpnLink,
-                                 String srcVpnUuid, String dstVpnUuid, String prefix, Long label) {
-        leakRoute(broker, bgpManager, interVpnLink, srcVpnUuid, dstVpnUuid, prefix, label, RouteOrigin.INTERVPN);
-    }
-
-    /**
-     * Leaks a route from one VPN to another.
-     *
-     * @param broker           dataBroker service reference
-     * @param bgpManager       Used to advertise routes to the BGP Router
-     * @param interVpnLink     Reference to the object that holds the info about the link between the 2 VPNs
-     * @param srcVpnUuid       UUID of the VPN that has the route that is going to be leaked to the other VPN
-     * @param dstVpnUuid       UUID of the VPN that is going to receive the route
-     * @param prefix           Prefix of the route
-     * @param label            Label of the route in the original VPN
-     * @param forcedOrigin     By default, origin for leaked routes should be INTERVPN, however it is possible to
-     *                         provide a different origin if desired.
-     */
-    public static void leakRoute(DataBroker broker, IBgpManager bgpManager, InterVpnLink interVpnLink,
-                                 String srcVpnUuid, String dstVpnUuid, String prefix, Long label,
-                                 RouteOrigin forcedOrigin) {
-        Preconditions.checkNotNull(interVpnLink);
-
-        // The source VPN must participate in the InterVpnLink
-        Preconditions.checkArgument(interVpnLink.getFirstEndpoint().getVpnUuid().getValue().equals(srcVpnUuid)
-                        || interVpnLink.getSecondEndpoint().getVpnUuid().getValue().equals(srcVpnUuid),
-                "The source VPN {} does not participate in the interVpnLink {}",
-                srcVpnUuid, interVpnLink.getName());
-        // The destination VPN must participate in the InterVpnLink
-        Preconditions.checkArgument(interVpnLink.getFirstEndpoint().getVpnUuid().getValue().equals(dstVpnUuid)
-                        || interVpnLink.getSecondEndpoint().getVpnUuid().getValue().equals(dstVpnUuid),
-                "The destination VPN {} does not participate in the interVpnLink {}",
-                dstVpnUuid, interVpnLink.getName());
-
-        boolean destinationIs1stEndpoint = interVpnLink.getFirstEndpoint().getVpnUuid().getValue().equals(dstVpnUuid);
-
-        String endpointIp = (destinationIs1stEndpoint) ? interVpnLink.getSecondEndpoint().getIpAddress().getValue()
-                : interVpnLink.getFirstEndpoint().getIpAddress().getValue();
-
-        VrfEntry newVrfEntry = new VrfEntryBuilder().setKey(new VrfEntryKey(prefix)).setDestPrefix(prefix)
-                .setLabel(label).setNextHopAddressList(Arrays.asList(endpointIp))
-                .setOrigin(RouteOrigin.INTERVPN.getValue())
-                .build();
-
-        String dstVpnRd = VpnUtil.getVpnRd(broker, dstVpnUuid);
-        InstanceIdentifier<VrfEntry> newVrfEntryIid =
-                InstanceIdentifier.builder(FibEntries.class)
-                        .child(VrfTables.class, new VrfTablesKey(dstVpnRd))
-                        .child(VrfEntry.class, new VrfEntryKey(newVrfEntry.getDestPrefix()))
-                        .build();
-        VpnUtil.asyncWrite(broker, LogicalDatastoreType.CONFIGURATION, newVrfEntryIid, newVrfEntry);
-
-        // Finally, route is advertised it to the DC-GW. But while in the FibEntries the nexthop is the other
-        // endpoint's IP, in the DC-GW the nexthop for those prefixes are the IPs of those DPNs where the target
-        // VPN has been instantiated
-        Optional<InterVpnLinkState> optVpnLinkState = getInterVpnLinkState(broker, interVpnLink.getName());
-        if ( optVpnLinkState.isPresent() ) {
-            InterVpnLinkState vpnLinkState = optVpnLinkState.get();
-            List<BigInteger> dpnIdList = (destinationIs1stEndpoint) ? vpnLinkState.getFirstEndpointState().getDpId()
-                    : vpnLinkState.getSecondEndpointState().getDpId();
-            List<String> nexthops = new ArrayList<String>();
-            for (BigInteger dpnId : dpnIdList) {
-                nexthops.add(InterfaceUtils.getEndpointIpAddressForDPN(broker, dpnId));
-            }
-            try {
-                LOG.debug("Advertising route in VPN={} [prefix={} label={}  nexthops={}] to DC-GW",
-                        dstVpnRd, newVrfEntry.getDestPrefix(), label.intValue(), nexthops);
-                bgpManager.advertisePrefix(dstVpnRd, newVrfEntry.getDestPrefix(), nexthops, label.intValue());
-            } catch (Exception exc) {
-                LOG.error("Could not advertise prefix {} with label {} to VPN rd={}",
-                        newVrfEntry.getDestPrefix(), label.intValue(), dstVpnRd);
-            }
-        } else {
-            LOG.warn("Error when advertising leaked routes: Could not find State for InterVpnLink={}",
-                    interVpnLink.getName());
-        }
-    }
-
     public static void handleStaticRoute(InterVpnLinkDataComposite iVpnLink, String vpnName,
                                          String destination, String nexthop, int label,
-                                         DataBroker dataBroker, IFibManager fibManager, IBgpManager bgpManager)
-             throws Exception {
+                                         DataBroker dataBroker, IFibManager fibManager, IBgpManager bgpManager) {
 
         LOG.debug("handleStaticRoute [vpnLink={} srcVpn={} destination={} nextHop={} label={}]",
                   iVpnLink.getInterVpnLinkName(), vpnName, destination, nexthop, label);
@@ -515,7 +425,11 @@ public class InterVpnLinkUtil {
                                  .collect(Collectors.toList());
         LOG.debug("advertising IVpnLink route to BGP:  vpnRd={}, prefix={}, label={}, nexthops={}",
                   vpnRd, destination, label, nexthopList);
-        bgpManager.advertisePrefix(vpnRd, destination, nexthopList, label);
+        try {
+            bgpManager.advertisePrefix(vpnRd, destination, nexthopList, label);
+        } catch (Exception e) { // TODO: advertisePrefix should throw a more specific Exception
+            LOG.warn("Could not advertise Prefix {} in VpnRD {} to BGP router", destination, vpnRd, e);
+        }
 
         // TODO: Leak if static-routes-leaking flag is active
 
