@@ -441,12 +441,13 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
                                                        && interVpnLink.get().isBgpRoutesLeaking() );
 
         if ( proceed ) {
-            String theOtherVpnId = interVpnLink.get().getFirstEndpoint().getVpnUuid().getValue().equals(vpnUuid)
-                    ? interVpnLink.get().getSecondEndpoint().getVpnUuid().getValue()
-                    : vpnUuid;
+            boolean isVpnFirstEndpoint = interVpnLink.get().getFirstEndpoint().getVpnUuid().getValue().equals(vpnUuid);
 
+            String theOtherVpnId = isVpnFirstEndpoint ? interVpnLink.get().getSecondEndpoint().getVpnUuid().getValue()
+                                                      : vpnUuid;
             String dstVpnRd = FibUtil.getVpnRd(dataBroker, theOtherVpnId);
-            String endpointIp = vrfEntry.getNextHopAddressList().get(0);
+            String endpointIp = isVpnFirstEndpoint ? interVpnLink.get().getFirstEndpoint().getIpAddress().toString()
+                                                   : interVpnLink.get().getSecondEndpoint().getIpAddress().toString();
 
             InstanceIdentifier<VrfEntry> vrfEntryIidInOtherVpn =
                     InstanceIdentifier.builder(FibEntries.class)
