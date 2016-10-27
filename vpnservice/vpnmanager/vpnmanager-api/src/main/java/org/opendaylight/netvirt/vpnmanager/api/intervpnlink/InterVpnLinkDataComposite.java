@@ -14,7 +14,8 @@ import java.util.List;
 
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.netvirt.inter.vpn.link.rev160311.inter.vpn.link.states.InterVpnLinkState;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.netvirt.inter.vpn.link.rev160311.inter.vpn.links.InterVpnLink;
-
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import com.google.common.base.Optional;
 
 /**
@@ -22,6 +23,8 @@ import com.google.common.base.Optional;
  * and stateful
  */
 public class InterVpnLinkDataComposite {
+
+    private static final Logger LOG = LoggerFactory.getLogger(InterVpnLinkDataComposite.class);
 
     private InterVpnLink interVpnLinkCfg;
     private InterVpnLinkState interVpnLinkState;
@@ -143,6 +146,17 @@ public class InterVpnLinkDataComposite {
 
         return isFirstEndpointVpnName(vpnName) ? Optional.of(interVpnLinkState.getSecondEndpointState().getLportTag())
                                                : Optional.of(interVpnLinkState.getFirstEndpointState().getLportTag());
+    }
+
+    public String getOtherEndpoint(String vpnUuid) {
+        if ( !isFirstEndpointVpnName(vpnUuid) && !isSecondEndpointVpnName(vpnUuid)) {
+            LOG.debug("VPN {} does not participate in InterVpnLink {}", vpnUuid, getInterVpnLinkName());
+            return null;
+        }
+
+        Optional<String> optEndpointIpAddr = isFirstEndpointVpnName(vpnUuid) ? getSecondEndpointIpAddr()
+                                                                             : getFirstEndpointIpAddr();
+        return optEndpointIpAddr.orNull();
     }
 
     public List<BigInteger> getEndpointDpnsByVpnName(String vpnUuid) {

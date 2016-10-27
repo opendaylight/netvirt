@@ -77,7 +77,7 @@ public class InterVpnLinkNodeListener extends AsyncDataTreeChangeListenerBase<No
         BigInteger dpId = new BigInteger(node[1]);
         DataStoreJobCoordinator coordinator = DataStoreJobCoordinator.getInstance();
         coordinator.enqueueJob("IVpnLink" + dpId.toString(),
-                new InterVpnLinkNodeAddTask(dataBroker, mdsalManager, dpId));
+                               new InterVpnLinkNodeAddTask(dataBroker, mdsalManager, dpId));
     }
 
     @Override
@@ -111,7 +111,7 @@ public class InterVpnLinkNodeListener extends AsyncDataTreeChangeListenerBase<No
         }
         @Override
         public List<ListenableFuture<Void>> call() throws Exception {
-            List<ListenableFuture<Void>> result = new ArrayList<ListenableFuture<Void>>();
+            List<ListenableFuture<Void>> result = new ArrayList<>();
 
             List<InterVpnLink> allInterVpnLinks = InterVpnLinkUtil.getAllInterVpnLinks(broker);
             for ( InterVpnLink interVpnLink : allInterVpnLinks ) {
@@ -132,7 +132,6 @@ public class InterVpnLinkNodeListener extends AsyncDataTreeChangeListenerBase<No
                     // Remove it
                     MDSALUtil.syncDelete(broker, LogicalDatastoreType.CONFIGURATION, interVpnLinkIid);
                     // Create it again, but first we have to wait for everything to be removed from dataplane
-                    // TODO: the wait causes an IllegalMonitorStateException
                     Long timeToWait = Long.getLong("wait.time.sync.install", 1500L);
                     try {
                         Thread.sleep(timeToWait);
