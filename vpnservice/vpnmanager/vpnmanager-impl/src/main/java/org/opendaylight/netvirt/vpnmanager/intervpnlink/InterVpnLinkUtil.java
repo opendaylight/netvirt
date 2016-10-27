@@ -8,7 +8,14 @@
 package org.opendaylight.netvirt.vpnmanager.intervpnlink;
 
 import com.google.common.base.Optional;
-import com.google.common.base.Preconditions;
+import com.google.common.util.concurrent.ListenableFuture;
+import java.math.BigInteger;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.stream.Collectors;
+
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
@@ -30,12 +37,6 @@ import org.opendaylight.netvirt.vpnmanager.utilities.InterfaceUtils;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.tables.table.Flow;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.instruction.list.Instruction;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.FibEntries;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.fibentries.VrfTables;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.fibentries.VrfTablesKey;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.VrfEntry;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.VrfEntryBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.VrfEntryKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.netvirt.inter.vpn.link.rev160311.InterVpnLinkStates;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.netvirt.inter.vpn.link.rev160311.InterVpnLinks;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.netvirt.inter.vpn.link.rev160311.inter.vpn.link.states.InterVpnLinkState;
@@ -49,14 +50,6 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.util.concurrent.ListenableFuture;
-import java.math.BigInteger;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.stream.Collectors;
-
 
 /**
  * This class contains methods to be used as utilities related with inter-vpn-link.
@@ -68,7 +61,7 @@ public class InterVpnLinkUtil {
 
     /**
      * Retrieves the Instance Identifier that points to an InterVpnLink object
-     * in MDSL
+     * in MDSAL.
      *
      * @param iVpnLinkName The name of the InterVpnLink
      * @return The requested InstanceIdentifier
@@ -81,7 +74,7 @@ public class InterVpnLinkUtil {
 
     /**
      * Retrieves the Instance Identifier that points to an InterVpnLinkState object
-     * in MDSL
+     * in MDSAL.
      *
      * @param vpnLinkName The name of the InterVpnLink
      * @return The requested InstanceIdentifier
@@ -136,7 +129,7 @@ public class InterVpnLinkUtil {
     }
 
     /**
-     * Retrieves the InterVpnLink object searching by its name
+     * Retrieves the InterVpnLink object searching by its name.
      *
      * @param broker dataBroker service reference
      * @param vpnLinkName Name of the InterVpnLink
@@ -151,7 +144,7 @@ public class InterVpnLinkUtil {
     }
 
     /**
-     * Updates inter-VPN link state
+     * Updates inter-VPN link state.
      *
      * @param broker dataBroker service reference
      * @param vpnLinkName The name of the InterVpnLink
@@ -191,7 +184,7 @@ public class InterVpnLinkUtil {
     /**
      * Installs a Flow in LPortDispatcher table that matches on SI=2 and
      * the lportTag of one InterVpnLink's endpoint and sets the vrfTag of the
-     * other endpoint and sends to FIB table
+     * other endpoint and sends to FIB table.
      *
      * @param broker dataBroker service reference
      * @param mdsalManager MDSAL API accessor
@@ -200,7 +193,7 @@ public class InterVpnLinkUtil {
      * @param dpnList The list of DPNs where this flow must be installed
      * @param vpnUuidOtherEndpoint UUID of the other endpoint of the
      *     InterVpnLink
-     * @param lPortTagOfOtherEndpoint Dataplane identifier of the other
+     * @param lportTagOfOtherEndpoint Dataplane identifier of the other
      *     endpoint of the InterVpnLink
      * @return the list of Futures for each and every flow that has been
      *     installed
@@ -210,14 +203,14 @@ public class InterVpnLinkUtil {
                                                                                InterVpnLink interVpnLink,
                                                                                List<BigInteger> dpnList,
                                                                                Uuid vpnUuidOtherEndpoint,
-                                                                               Long lPortTagOfOtherEndpoint) {
+                                                                               Long lportTagOfOtherEndpoint) {
         List<ListenableFuture<Void>> result = new ArrayList<>();
         long vpnId = VpnUtil.getVpnId(broker, vpnUuidOtherEndpoint.getValue());
         for ( BigInteger dpnId : dpnList ) {
             // insert into LPortDispatcher table
-            Flow lPortDispatcherFlow = buildLPortDispatcherFlow(interVpnLink.getName(), vpnId,
-                                                                lPortTagOfOtherEndpoint.intValue());
-            result.add(mdsalManager.installFlow(dpnId, lPortDispatcherFlow));
+            Flow lportDispatcherFlow = buildLPortDispatcherFlow(interVpnLink.getName(), vpnId,
+                                                                lportTagOfOtherEndpoint.intValue());
+            result.add(mdsalManager.installFlow(dpnId, lportDispatcherFlow));
         }
 
         return result;
@@ -225,7 +218,7 @@ public class InterVpnLinkUtil {
 
     /**
      * Builds a Flow to be installed into LPortDispatcher table, that matches on
-     * SI=2 + vpnLinkEndpointPseudoPortTag and sends to FIB
+     * SI=2 + vpnLinkEndpointPseudoPortTag and sends to FIB.
      *
      * @param interVpnLinkName The name of the InterVpnLink
      * @param vpnId Dataplane identifier of the VPN, the Vrf Tag.
@@ -240,16 +233,15 @@ public class InterVpnLinkUtil {
                                 ServiceIndex.getIndex(NwConstants.L3VPN_SERVICE_NAME, NwConstants.L3VPN_SERVICE_INDEX)),
                         MetaDataUtil.getMetaDataMaskForLPortDispatcher() }));
         String flowRef = getLportDispatcherFlowRef(interVpnLinkName, lportTag);
-        Flow lPortDispatcherFlow = MDSALUtil.buildFlowNew(NwConstants.LPORT_DISPATCHER_TABLE, flowRef,
-                VpnConstants.DEFAULT_LPORT_DISPATCHER_FLOW_PRIORITY, flowRef,
-                0, 0, VpnUtil.getCookieL3((int) vpnId), matches,
-                buildLportDispatcherTableInstructions(vpnId));
-        return lPortDispatcherFlow;
+        return MDSALUtil.buildFlowNew(NwConstants.LPORT_DISPATCHER_TABLE, flowRef,
+                                      VpnConstants.DEFAULT_LPORT_DISPATCHER_FLOW_PRIORITY, flowRef,
+                                      0, 0, VpnUtil.getCookieL3((int) vpnId), matches,
+                                      buildLportDispatcherTableInstructions(vpnId));
     }
 
     /**
      * Builds a flowRef to be assigned to the flow to be installed into
-     * LPortDispatcher table
+     * LPortDispatcher table.
      *
      * @param interVpnLinkName The name of the InterVpnLink
      * @param lportTag Dataplane identifier of the LogicalPort
@@ -268,7 +260,7 @@ public class InterVpnLinkUtil {
     }
 
 
-    public static List<Instruction> buildLportDispatcherTableInstructions (long vpnId) {
+    public static List<Instruction> buildLportDispatcherTableInstructions(long vpnId) {
         int instructionKey = 0;
         List<Instruction> instructions = new ArrayList<Instruction>();
         instructions.add(MDSALUtil.buildAndGetWriteMetadaInstruction(MetaDataUtil.getVpnIdMetadata(vpnId),
@@ -280,7 +272,7 @@ public class InterVpnLinkUtil {
     }
 
     /**
-     * Retrieves the States of all InterVpnLinks
+     * Retrieves the States of all InterVpnLinks.
      *
      * @param broker dataBroker service reference
      * @return the list of objects that holds the InterVpnLink state information
@@ -297,7 +289,7 @@ public class InterVpnLinkUtil {
     }
 
     /**
-     * Retrieves the State of an InterVpnLink
+     * Retrieves the State of an InterVpnLink.
      *
      * @param broker dataBroker service reference
      * @param iVpnLinkName The name of the InterVpnLink
@@ -309,19 +301,18 @@ public class InterVpnLinkUtil {
     }
 
     /**
-     * Checks if the specified InterVpnLink is currently Active
+     * Checks if the specified InterVpnLink is currently Active.
      *
      * @param broker dataBroker service reference
-     * @param iVpnLinkName The name of the InterVpnLink
+     * @param interVpnLinkName The name of the InterVpnLink
      * @return true if the InterVpnLink is Active
      */
-    public static boolean isInterVpnLinkActive(DataBroker broker, String iVpnLinkName) {
-        Optional<InterVpnLinkState> optIVpnLinkState = getInterVpnLinkState(broker, iVpnLinkName);
+    public static boolean isInterVpnLinkActive(DataBroker broker, String interVpnLinkName) {
+        Optional<InterVpnLinkState> optIVpnLinkState = getInterVpnLinkState(broker, interVpnLinkName);
         if ( ! optIVpnLinkState.isPresent() ) {
             return false;
         }
-        InterVpnLinkState iVpnLinkState = optIVpnLinkState.get();
-        return iVpnLinkState.getState() == InterVpnLinkState.State.Active;
+        return optIVpnLinkState.get().getState() == InterVpnLinkState.State.Active;
     }
 
     /**
@@ -425,99 +416,9 @@ public class InterVpnLinkUtil {
     }
 
 
-    /**
-     * Leaks a route from one VPN to another. By default, the origin for this leaked route is INTERVPN
-     *
-     * @param broker           dataBroker service reference
-     * @param bgpManager       Used to advertise routes to the BGP Router
-     * @param interVpnLink     Reference to the object that holds the info about the link between the 2 VPNs
-     * @param srcVpnUuid       UUID of the VPN that has the route that is going to be leaked to the other VPN
-     * @param dstVpnUuid       UUID of the VPN that is going to receive the route
-     * @param prefix           Prefix of the route
-     * @param label            Label of the route in the original VPN
-     */
-    public static void leakRoute(DataBroker broker, IBgpManager bgpManager, InterVpnLink interVpnLink,
-                                 String srcVpnUuid, String dstVpnUuid, String prefix, Long label) {
-        leakRoute(broker, bgpManager, interVpnLink, srcVpnUuid, dstVpnUuid, prefix, label, RouteOrigin.INTERVPN);
-    }
-
-    /**
-     * Leaks a route from one VPN to another.
-     *
-     * @param broker           dataBroker service reference
-     * @param bgpManager       Used to advertise routes to the BGP Router
-     * @param interVpnLink     Reference to the object that holds the info about the link between the 2 VPNs
-     * @param srcVpnUuid       UUID of the VPN that has the route that is going to be leaked to the other VPN
-     * @param dstVpnUuid       UUID of the VPN that is going to receive the route
-     * @param prefix           Prefix of the route
-     * @param label            Label of the route in the original VPN
-     * @param forcedOrigin     By default, origin for leaked routes should be INTERVPN, however it is possible to
-     *                         provide a different origin if desired.
-     */
-    public static void leakRoute(DataBroker broker, IBgpManager bgpManager, InterVpnLink interVpnLink,
-                                 String srcVpnUuid, String dstVpnUuid, String prefix, Long label,
-                                 RouteOrigin forcedOrigin) {
-        Preconditions.checkNotNull(interVpnLink);
-
-        // The source VPN must participate in the InterVpnLink
-        Preconditions.checkArgument(interVpnLink.getFirstEndpoint().getVpnUuid().getValue().equals(srcVpnUuid)
-                        || interVpnLink.getSecondEndpoint().getVpnUuid().getValue().equals(srcVpnUuid),
-                "The source VPN {} does not participate in the interVpnLink {}",
-                srcVpnUuid, interVpnLink.getName());
-        // The destination VPN must participate in the InterVpnLink
-        Preconditions.checkArgument(interVpnLink.getFirstEndpoint().getVpnUuid().getValue().equals(dstVpnUuid)
-                        || interVpnLink.getSecondEndpoint().getVpnUuid().getValue().equals(dstVpnUuid),
-                "The destination VPN {} does not participate in the interVpnLink {}",
-                dstVpnUuid, interVpnLink.getName());
-
-        boolean destinationIs1stEndpoint = interVpnLink.getFirstEndpoint().getVpnUuid().getValue().equals(dstVpnUuid);
-
-        String endpointIp = destinationIs1stEndpoint ? interVpnLink.getSecondEndpoint().getIpAddress().getValue()
-                : interVpnLink.getFirstEndpoint().getIpAddress().getValue();
-
-        VrfEntry newVrfEntry = new VrfEntryBuilder().setKey(new VrfEntryKey(prefix)).setDestPrefix(prefix)
-                .setLabel(label).setNextHopAddressList(Arrays.asList(endpointIp))
-                .setOrigin(RouteOrigin.INTERVPN.getValue())
-                .build();
-
-        String dstVpnRd = VpnUtil.getVpnRd(broker, dstVpnUuid);
-        InstanceIdentifier<VrfEntry> newVrfEntryIid =
-                InstanceIdentifier.builder(FibEntries.class)
-                        .child(VrfTables.class, new VrfTablesKey(dstVpnRd))
-                        .child(VrfEntry.class, new VrfEntryKey(newVrfEntry.getDestPrefix()))
-                        .build();
-        VpnUtil.asyncWrite(broker, LogicalDatastoreType.CONFIGURATION, newVrfEntryIid, newVrfEntry);
-
-        // Finally, route is advertised it to the DC-GW. But while in the FibEntries the nexthop is the other
-        // endpoint's IP, in the DC-GW the nexthop for those prefixes are the IPs of those DPNs where the target
-        // VPN has been instantiated
-        Optional<InterVpnLinkState> optVpnLinkState = getInterVpnLinkState(broker, interVpnLink.getName());
-        if ( optVpnLinkState.isPresent() ) {
-            InterVpnLinkState vpnLinkState = optVpnLinkState.get();
-            List<BigInteger> dpnIdList = destinationIs1stEndpoint ? vpnLinkState.getFirstEndpointState().getDpId()
-                    : vpnLinkState.getSecondEndpointState().getDpId();
-            List<String> nexthops = new ArrayList<String>();
-            for (BigInteger dpnId : dpnIdList) {
-                nexthops.add(InterfaceUtils.getEndpointIpAddressForDPN(broker, dpnId));
-            }
-            try {
-                LOG.debug("Advertising route in VPN={} [prefix={} label={}  nexthops={}] to DC-GW",
-                        dstVpnRd, newVrfEntry.getDestPrefix(), label.intValue(), nexthops);
-                bgpManager.advertisePrefix(dstVpnRd, newVrfEntry.getDestPrefix(), nexthops, label.intValue());
-            } catch (Exception exc) {
-                LOG.error("Could not advertise prefix {} with label {} to VPN rd={}",
-                        newVrfEntry.getDestPrefix(), label.intValue(), dstVpnRd);
-            }
-        } else {
-            LOG.warn("Error when advertising leaked routes: Could not find State for InterVpnLink={}",
-                    interVpnLink.getName());
-        }
-    }
-
     public static void handleStaticRoute(InterVpnLinkDataComposite iVpnLink, String vpnName,
                                          String destination, String nexthop, int label,
-                                         DataBroker dataBroker, IFibManager fibManager, IBgpManager bgpManager)
-             throws Exception {
+                                         DataBroker dataBroker, IFibManager fibManager, IBgpManager bgpManager) {
 
         LOG.debug("handleStaticRoute [vpnLink={} srcVpn={} destination={} nextHop={} label={}]",
                   iVpnLink.getInterVpnLinkName(), vpnName, destination, nexthop, label);
@@ -541,7 +442,11 @@ public class InterVpnLinkUtil {
                                  .collect(Collectors.toList());
         LOG.debug("advertising IVpnLink route to BGP:  vpnRd={}, prefix={}, label={}, nexthops={}",
                   vpnRd, destination, label, nexthopList);
-        bgpManager.advertisePrefix(vpnRd, destination, nexthopList, label);
+        try {
+            bgpManager.advertisePrefix(vpnRd, destination, nexthopList, label);
+        } catch (Exception e) { // TODO: advertisePrefix should throw a more specific Exception
+            LOG.warn("Could not advertise Prefix {} in VpnRD {} to BGP router", destination, vpnRd, e);
+        }
 
         // TODO: Leak if static-routes-leaking flag is active
 
