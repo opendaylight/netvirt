@@ -77,6 +77,18 @@ module inter-vpn-link {
               description "Flag to enable the leaking of BGP routes learnt from one VPN to another VPN";
           }
 
+          leaf static-routes-leaking {
+              mandatory "true";
+              type boolean;
+              description "Flag to enable the leaking of static routes from one VPN to another VPN";
+          }
+
+          leaf local-routes-leaking {
+              mandatory "true";
+              type boolean;
+              description "Flag to enable the leaking of local routes from one VPN to another VPN";
+          }
+
           must "first-endpoint and second-endpoint";  // To ensure both endpoints are present
       }
   }

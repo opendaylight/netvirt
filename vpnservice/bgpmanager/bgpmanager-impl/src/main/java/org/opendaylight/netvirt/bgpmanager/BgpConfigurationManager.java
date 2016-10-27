@@ -18,6 +18,7 @@ import java.lang.reflect.Constructor;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -60,6 +61,8 @@ import org.opendaylight.netvirt.bgpmanager.thrift.gen.af_safi;
 import org.opendaylight.netvirt.bgpmanager.thrift.gen.qbgpConstants;
 import org.opendaylight.netvirt.bgpmanager.thrift.server.BgpThriftService;
 import org.opendaylight.netvirt.fibmanager.api.RouteOrigin;
+import org.opendaylight.netvirt.vpnmanager.api.intervpnlink.InterVpnLinkCache;
+import org.opendaylight.netvirt.vpnmanager.api.intervpnlink.InterVpnLinkDataComposite;
 import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.Bgp;
 import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.bgp.AsId;
 import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.bgp.AsIdBuilder;
@@ -354,6 +357,7 @@ public class BgpConfigurationManager {
             super(ConfigServer.class, ConfigServerReactor.class);
         }
 
+        @Override
         protected synchronized void
         add(InstanceIdentifier<ConfigServer> iid, ConfigServer val) {
             LOG.trace("received bgp connect config host {}", val.getHost().getValue());
@@ -385,6 +389,7 @@ public class BgpConfigurationManager {
             return InstanceIdentifier.create(Bgp.class).child(ConfigServer.class);
         }
 
+        @Override
         protected synchronized void
         remove(InstanceIdentifier<ConfigServer> iid, ConfigServer val) {
             LOG.trace("received bgp disconnect");
@@ -396,6 +401,7 @@ public class BgpConfigurationManager {
             }
         }
 
+        @Override
         protected void update(InstanceIdentifier<ConfigServer> iid,
                               ConfigServer oldval, ConfigServer newval) {
             LOG.trace("received bgp Connection update");
@@ -432,6 +438,7 @@ public class BgpConfigurationManager {
             super(AsId.class, AsIdReactor.class);
         }
 
+        @Override
         protected synchronized void
         add(InstanceIdentifier<AsId> iid, AsId val) {
             LOG.error("received bgp add asid {}",val);
@@ -482,6 +489,7 @@ public class BgpConfigurationManager {
             return InstanceIdentifier.create(Bgp.class).child(AsId.class);
         }
 
+        @Override
         protected synchronized void
         remove(InstanceIdentifier<AsId> iid, AsId val) {
             LOG.error("received delete router config asNum {}", val.getLocalAs().intValue());
@@ -508,6 +516,7 @@ public class BgpConfigurationManager {
             }
         }
 
+        @Override
         protected void update(InstanceIdentifier<AsId> iid,
                               AsId oldval, AsId newval) {
             if (ignoreClusterDcnEventForFollower()) {
@@ -536,6 +545,7 @@ public class BgpConfigurationManager {
             super(GracefulRestart.class, GracefulRestartReactor.class);
         }
 
+        @Override
         protected synchronized void
         add(InstanceIdentifier<GracefulRestart> iid, GracefulRestart val) {
             if (ignoreClusterDcnEventForFollower()) {
@@ -564,6 +574,7 @@ public class BgpConfigurationManager {
             return InstanceIdentifier.create(Bgp.class).child(GracefulRestart.class);
         }
 
+        @Override
         protected synchronized void
         remove(InstanceIdentifier<GracefulRestart> iid, GracefulRestart val) {
             if (ignoreClusterDcnEventForFollower()) {
@@ -584,6 +595,7 @@ public class BgpConfigurationManager {
             }
         }
 
+        @Override
         protected void update(InstanceIdentifier<GracefulRestart> iid,
                               GracefulRestart oldval, GracefulRestart newval) {
             if (ignoreClusterDcnEventForFollower()) {
@@ -623,6 +635,7 @@ public class BgpConfigurationManager {
             super(Logging.class, LoggingReactor.class);
         }
 
+        @Override
         protected synchronized void
         add(InstanceIdentifier<Logging> iid, Logging val) {
             if (ignoreClusterDcnEventForFollower()) {
@@ -652,6 +665,7 @@ public class BgpConfigurationManager {
             return InstanceIdentifier.create(Bgp.class).child(Logging.class);
         }
 
+        @Override
         protected synchronized void
         remove(InstanceIdentifier<Logging> iid, Logging val) {
             if (ignoreClusterDcnEventForFollower()) {
@@ -672,6 +686,7 @@ public class BgpConfigurationManager {
             }
         }
 
+        @Override
         protected void update(InstanceIdentifier<Logging> iid,
                               Logging oldval, Logging newval) {
             if (ignoreClusterDcnEventForFollower()) {
@@ -711,6 +726,7 @@ public class BgpConfigurationManager {
             super(Neighbors.class, NeighborsReactor.class);
         }
 
+        @Override
         protected synchronized void
         add(InstanceIdentifier<Neighbors> iid, Neighbors val) {
             if (ignoreClusterDcnEventForFollower()) {
@@ -745,6 +761,7 @@ public class BgpConfigurationManager {
             return InstanceIdentifier.create(Bgp.class).child(Neighbors.class);
         }
 
+        @Override
         protected synchronized void
         remove(InstanceIdentifier<Neighbors> iid, Neighbors val) {
             if (ignoreClusterDcnEventForFollower()) {
@@ -767,6 +784,7 @@ public class BgpConfigurationManager {
             }
         }
 
+        @Override
         protected void update(InstanceIdentifier<Neighbors> iid,
                               Neighbors oldval, Neighbors newval) {
             if (ignoreClusterDcnEventForFollower()) {
@@ -795,6 +813,7 @@ public class BgpConfigurationManager {
             super(EbgpMultihop.class, EbgpMultihopReactor.class);
         }
 
+        @Override
         protected synchronized void
         add(InstanceIdentifier<EbgpMultihop> iid, EbgpMultihop val) {
             if (ignoreClusterDcnEventForFollower()) {
@@ -826,6 +845,7 @@ public class BgpConfigurationManager {
             return InstanceIdentifier.create(Bgp.class).child(Neighbors.class).child(EbgpMultihop.class);
         }
 
+        @Override
         protected synchronized void
         remove(InstanceIdentifier<EbgpMultihop> iid, EbgpMultihop val) {
             if (ignoreClusterDcnEventForFollower()) {
@@ -847,6 +867,7 @@ public class BgpConfigurationManager {
             }
         }
 
+        @Override
         protected void update(InstanceIdentifier<EbgpMultihop> iid,
                               EbgpMultihop oldval, EbgpMultihop newval) {
             if (ignoreClusterDcnEventForFollower()) {
@@ -875,6 +896,7 @@ public class BgpConfigurationManager {
             super(UpdateSource.class, UpdateSourceReactor.class);
         }
 
+        @Override
         protected synchronized void
         add(InstanceIdentifier<UpdateSource> iid, UpdateSource val) {
             if (ignoreClusterDcnEventForFollower()) {
@@ -906,6 +928,7 @@ public class BgpConfigurationManager {
             return InstanceIdentifier.create(Bgp.class).child(Neighbors.class).child(UpdateSource.class);
         }
 
+        @Override
         protected synchronized void
         remove(InstanceIdentifier<UpdateSource> iid, UpdateSource val) {
             if (ignoreClusterDcnEventForFollower()) {
@@ -927,6 +950,7 @@ public class BgpConfigurationManager {
             }
         }
 
+        @Override
         protected void update(InstanceIdentifier<UpdateSource> iid,
                               UpdateSource oldval, UpdateSource newval) {
             if (ignoreClusterDcnEventForFollower()) {
@@ -955,6 +979,7 @@ public class BgpConfigurationManager {
             super(AddressFamilies.class, AddressFamiliesReactor.class);
         }
 
+        @Override
         protected synchronized void
         add(InstanceIdentifier<AddressFamilies> iid, AddressFamilies val) {
             if (ignoreClusterDcnEventForFollower()) {
@@ -988,6 +1013,7 @@ public class BgpConfigurationManager {
             return InstanceIdentifier.create(Bgp.class).child(Neighbors.class).child(AddressFamilies.class);
         }
 
+        @Override
         protected synchronized void
         remove(InstanceIdentifier<AddressFamilies> iid, AddressFamilies val) {
             if (ignoreClusterDcnEventForFollower()) {
@@ -1011,6 +1037,7 @@ public class BgpConfigurationManager {
             }
         }
 
+        @Override
         protected void update(InstanceIdentifier<AddressFamilies> iid,
                               AddressFamilies oldval, AddressFamilies newval) {
             if (ignoreClusterDcnEventForFollower()) {
@@ -1043,6 +1070,7 @@ public class BgpConfigurationManager {
             return NetworksReactor.this;
         }
 
+        @Override
         protected synchronized void
         add(InstanceIdentifier<Networks> iid, Networks val) {
             if (ignoreClusterDcnEventForFollower()) {
@@ -1073,6 +1101,7 @@ public class BgpConfigurationManager {
             return InstanceIdentifier.create(Bgp.class).child(Networks.class);
         }
 
+        @Override
         protected synchronized void
         remove(InstanceIdentifier<Networks> iid, Networks val) {
             if (ignoreClusterDcnEventForFollower()) {
@@ -1101,6 +1130,7 @@ public class BgpConfigurationManager {
             }
         }
 
+        @Override
         protected void update(final InstanceIdentifier<Networks> iid,
                               final Networks oldval, final Networks newval) {
             if (ignoreClusterDcnEventForFollower()) {
@@ -1144,6 +1174,7 @@ public class BgpConfigurationManager {
             super(Vrfs.class, VrfsReactor.class);
         }
 
+        @Override
         protected synchronized void
         add(InstanceIdentifier<Vrfs> iid, Vrfs val) {
             if (ignoreClusterDcnEventForFollower()) {
@@ -1175,6 +1206,7 @@ public class BgpConfigurationManager {
             return InstanceIdentifier.create(Bgp.class).child(Vrfs.class);
         }
 
+        @Override
         protected synchronized void
         remove(InstanceIdentifier<Vrfs> iid, Vrfs val) {
             if (ignoreClusterDcnEventForFollower()) {
@@ -1195,6 +1227,7 @@ public class BgpConfigurationManager {
             }
         }
 
+        @Override
         protected void update(InstanceIdentifier<Vrfs> iid,
                               Vrfs oldval, Vrfs newval) {
             if (ignoreClusterDcnEventForFollower()) {
@@ -1243,6 +1276,7 @@ public class BgpConfigurationManager {
         }
 
 
+        @Override
         protected synchronized void
         add(InstanceIdentifier<Bgp> iid, Bgp val) {
             LOG.error("received add Bgp config replaying the config");
@@ -1285,6 +1319,7 @@ public class BgpConfigurationManager {
             return InstanceIdentifier.create(Bgp.class);
         }
 
+        @Override
         protected synchronized void
         remove(InstanceIdentifier<Bgp> iid, Bgp val) {
             if (ignoreClusterDcnEventForFollower()) {
@@ -1296,6 +1331,7 @@ public class BgpConfigurationManager {
             }
         }
 
+        @Override
         protected void update(InstanceIdentifier<Bgp> iid,
                               Bgp oldval, Bgp newval) {
             if (ignoreClusterDcnEventForFollower()) {
@@ -1518,7 +1554,16 @@ public class BgpConfigurationManager {
         }
         if (addroute) {
             LOG.info("ADD: Adding Fib entry rd {} prefix {} nexthop {} label {}", rd, prefix, nextHop, label);
-            fibDSWriter.addFibEntryToDS(rd, prefix + "/" + plen, Arrays.asList(nextHop), label, RouteOrigin.BGP);
+            List<String> nextHopList = Collections.singletonList(nextHop);
+            fibDSWriter.addFibEntryToDS(rd, prefix + "/" + plen, nextHopList, label, RouteOrigin.BGP);
+            String vpnName = BgpUtil.getVpnNameFromRd(dataBroker, rd);
+            if ( vpnName != null ) {
+                Optional<InterVpnLinkDataComposite> optIVpnLink = InterVpnLinkCache.getInterVpnLinkByVpnId(vpnName);
+                if ( optIVpnLink.isPresent() ) {
+                    optIVpnLink.get().leakRouteIfNeeded(dataBroker, vpnName, prefix, nextHopList, label,
+                                                        RouteOrigin.BGP);
+                }
+            }
             LOG.info("ADD: Added Fib entry rd {} prefix {} nexthop {} label {}", rd, prefix, nextHop, label);
         }
     }
