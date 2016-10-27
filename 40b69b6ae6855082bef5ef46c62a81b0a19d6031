@@ -55,6 +55,24 @@
     },
     {
       "key": {
+        "uuid": "3a65312a_e9d7fdeb",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/AbstractAclServiceImpl.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 164,
+      "author": {
+        "id": 5346
+      },
+      "writtenOn": "2016-10-27T12:20:43Z",
+      "side": 1,
+      "message": "Since SG id is mapped to ACL name, SG id is Uuid datatype whereas ACL name is of String. Somewhere we need to do that conversion.\n\nChanged method getRemoteAclInterfaces() itself to return Map\u003cString, Set\u003cAclInterface\u003e\u003e",
+      "parentUuid": "3a65312a_3d74939b",
+      "revId": "40b69b6ae6855082bef5ef46c62a81b0a19d6031",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "3a65312a_1a943d36",
         "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/AclServiceManagerImpl.java",
         "patchSetId": 2
