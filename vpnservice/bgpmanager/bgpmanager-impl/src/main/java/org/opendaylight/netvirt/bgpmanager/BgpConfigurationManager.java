@@ -41,6 +41,7 @@ import org.opendaylight.controller.md.sal.binding.api.DataChangeListener;
 import org.opendaylight.controller.md.sal.common.api.clustering.EntityOwnershipService;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
+import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.genius.utils.clustering.EntityOwnerUtils;
 import org.opendaylight.netvirt.bgpmanager.api.IBgpManager;
 import org.opendaylight.netvirt.bgpmanager.commands.ClearBgpCli;
@@ -57,6 +58,7 @@ import org.opendaylight.netvirt.bgpmanager.thrift.gen.af_safi;
 import org.opendaylight.netvirt.bgpmanager.thrift.gen.qbgpConstants;
 import org.opendaylight.netvirt.bgpmanager.thrift.server.BgpThriftService;
 import org.opendaylight.netvirt.fibmanager.api.RouteOrigin;
+import org.opendaylight.netvirt.vpnmanager.api.intervpnlink.IVpnLinkService;
 import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.Bgp;
 import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.bgp.AsId;
 import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.bgp.AsIdBuilder;
@@ -101,6 +103,7 @@ public class BgpConfigurationManager {
     private static DataBroker dataBroker;
     private static FibDSWriter fibDSWriter;
     public static IBgpManager bgpManager;
+    private static IVpnLinkService vpnLinkService;
     private final BundleContext bundleContext;
     private static Bgp config;
     private static BgpRouter bgpRouter;
@@ -207,10 +210,12 @@ public class BgpConfigurationManager {
     public BgpConfigurationManager(final DataBroker dataBroker,
                                    final EntityOwnershipService entityOwnershipService,
                                    final FibDSWriter fibDSWriter,
+                                   final IVpnLinkService vpnLinkSrvce,
                                    final BundleContext bundleContext)
             throws InterruptedException, ExecutionException, TimeoutException {
         BgpConfigurationManager.dataBroker = dataBroker;
         BgpConfigurationManager.fibDSWriter = fibDSWriter;
+        BgpConfigurationManager.vpnLinkService = vpnLinkSrvce;
         this.bundleContext = bundleContext;
         String uPort = getProperty(UPDATE_PORT, DEF_UPORT);
         cHostStartup = getProperty(CONFIG_HOST, DEF_CHOST);
@@ -1539,7 +1544,13 @@ public class BgpConfigurationManager {
         }
         if (addroute) {
             LOG.info("ADD: Adding Fib entry rd {} prefix {} nexthop {} label {}", rd, prefix, nextHop, label);
-            fibDSWriter.addFibEntryToDS(rd, prefix + "/" + plen, Collections.singletonList(nextHop), label, RouteOrigin.BGP);
+            List<String> nextHopList = Collections.singletonList(nextHop);
+            fibDSWriter.addFibEntryToDS(rd, prefix + "/" + plen, nextHopList, label, RouteOrigin.BGP);
+            String vpnName = BgpUtil.getVpnNameFromRd(dataBroker, rd);
+            if (vpnName != null) {
+                vpnLinkService.leakRouteIfNeeded(vpnName, prefix, nextHopList, label, RouteOrigin.BGP,
+                                                 NwConstants.ADD_FLOW);
+            }
             LOG.info("ADD: Added Fib entry rd {} prefix {} nexthop {} label {}", rd, prefix, nextHop, label);
         }
     }
@@ -1856,6 +1867,7 @@ public class BgpConfigurationManager {
 
     public synchronized void
     addPrefix(String rd, String pfx, List<String> nhList, int lbl) {
+        LOG.error("_XX EPEREFR: IvpnLinkService={}", this.vpnLinkService);
         for (String nh : nhList) {
             Ipv4Address nexthop = new Ipv4Address(nh);
             Long label = (long) lbl;
@@ -2079,6 +2091,11 @@ public class BgpConfigurationManager {
         LOG.debug("Route del ** {} ** {}/{} ", rd, prefix, plen);
         try {
             fibDSWriter.removeFibEntryFromDS(rd, prefix + "/" + plen);
+            String vpnName = BgpUtil.getVpnNameFromRd(dataBroker, rd);
+            if ( vpnName != null ) {
+                vpnLinkService.leakRouteIfNeeded(vpnName, prefix, null /*nextHopList*/, 0 /*INVALID_LABEL*/,
+                                                 RouteOrigin.BGP, NwConstants.DEL_FLOW);
+            }
         } catch (Throwable e) {
             LOG.error("failed to handle withdraw route ", e);
         }
