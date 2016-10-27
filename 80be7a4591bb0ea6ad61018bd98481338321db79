@@ -2,6 +2,23 @@
   "comments": [
     {
       "key": {
+        "uuid": "3a65312a_0ebebfff",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/StatefulEgressAclServiceImpl.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 53,
+      "author": {
+        "id": 6238
+      },
+      "writtenOn": "2016-10-27T06:30:05Z",
+      "side": 1,
+      "message": "I think you don\u0027t need this field locally.\nYou have this field protected in the super class.",
+      "revId": "80be7a4591bb0ea6ad61018bd98481338321db79",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "3a65312a_a8f4e387",
         "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/StatefulEgressAclServiceImpl.java",
         "patchSetId": 3
@@ -13,6 +30,23 @@
       "writtenOn": "2016-10-26T17:08:43Z",
       "side": 1,
       "message": "Does passing priority makes more sense? We need not have the logic to get it each implemantation?",
+      "revId": "80be7a4591bb0ea6ad61018bd98481338321db79",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a65312a_ae47cb1c",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/utils/AclServiceUtils.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 737,
+      "author": {
+        "id": 6238
+      },
+      "writtenOn": "2016-10-27T06:30:05Z",
+      "side": 1,
+      "message": "Did you mean to sync the flow if the priority is INVALID_ID? Or maybe this Acl should be dropped?",
       "revId": "80be7a4591bb0ea6ad61018bd98481338321db79",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
