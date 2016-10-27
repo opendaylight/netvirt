@@ -11,7 +11,8 @@ package org.opendaylight.netvirt.vpnmanager.api.intervpnlink;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
-
+import org.opendaylight.controller.md.sal.binding.api.DataBroker;
+import org.opendaylight.netvirt.fibmanager.api.RouteOrigin;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.netvirt.inter.vpn.link.rev160311.inter.vpn.link.states.InterVpnLinkState;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.netvirt.inter.vpn.link.rev160311.inter.vpn.links.InterVpnLink;
 import org.slf4j.Logger;
@@ -71,6 +72,18 @@ public class InterVpnLinkDataComposite {
         return isComplete() && getState().isPresent() && getState().get() == InterVpnLinkState.State.Active;
     }
 
+    public boolean isBgpRoutesLeaking() {
+        return this.interVpnLinkCfg != null && this.interVpnLinkCfg.isBgpRoutesLeaking();
+    }
+
+    public boolean isStaticRoutesLeaking() {
+        return this.interVpnLinkCfg != null && this.interVpnLinkCfg.isStaticRoutesLeaking();
+    }
+
+    public boolean isLocalRoutesLeaking() {
+        return this.interVpnLinkCfg != null && this.interVpnLinkCfg.isLocalRoutesLeaking();
+    }
+
     public boolean isFirstEndpointVpnName(String vpnName) {
         return interVpnLinkCfg != null
                && interVpnLinkCfg.getFirstEndpoint().getVpnUuid().getValue().equals(vpnName);
@@ -128,6 +141,12 @@ public class InterVpnLinkDataComposite {
             return Optional.absent();
         }
         return Optional.of(this.interVpnLinkCfg.getSecondEndpoint().getIpAddress().getValue());
+    }
+
+    public String getOtherVpnName(String thisVpnName) {
+        Optional<String> optOtherVpnName = isFirstEndpointVpnName(thisVpnName) ? getSecondEndpointVpnUuid()
+                                                                               : getFirstEndpointVpnUuid();
+        return optOtherVpnName.orNull();
     }
 
     public Optional<Long> getEndpointLportTagByIpAddr(String endpointIp) {
@@ -197,5 +216,49 @@ public class InterVpnLinkDataComposite {
 
         return isFirstEndpointIpAddr(endpointIp) ? this.interVpnLinkState.getSecondEndpointState().getDpId()
                                                  : this.interVpnLinkState.getFirstEndpointState().getDpId();
+    }
+
+    private void leakRoute(DataBroker dataBroker, String vpnName, String prefix, List<String> nextHopList, int label) {
+        // TODO: Implement this!!
+        String otherVpnName = getOtherVpnName(vpnName);
+        LOG.debug("Leaking route {} nexthop={} label={} from VpnName {} to vpnName {}",
+                  prefix, nextHopList, label, vpnName, otherVpnName);
+    }
+
+    public void leakRouteIfNeeded(DataBroker dataBroker, String vpnName, String prefix, List<String> nextHopList,
+                                  int label, RouteOrigin origin) {
+        if ( !isActive() ) {
+            LOG.debug("Route to {} in VPN {} cannot be leaked because InterVpnLink {} is not ACTIVE",
+                      prefix, vpnName, getInterVpnLinkName());
+            return;
+        }
+
+        switch (origin) {
+        case BGP:
+            if (!isBgpRoutesLeaking() ) {
+                LOG.debug("BGP route to {} not leaked because bgp-routes-leaking flag is set to FALSE", prefix);
+                return;
+            }
+            leakRoute(dataBroker, vpnName, prefix, nextHopList, label);
+            break;
+        case STATIC:
+            if (!isStaticRoutesLeaking() ) {
+                LOG.debug("Static route to {} not leaked because static-routes-leaking flag is set to FALSE", prefix);
+                return;
+            }
+            leakRoute(dataBroker, vpnName, prefix, nextHopList, label);
+            break;
+        /*
+        case LOCAL:
+        if (!isLocalRoutesLeaking() ) {
+            LOG.debug("Local route to {} not leaked because local-routes-leaking flag is set to FALSE", prefix);
+            return;
+        }
+        leakRoute(dataBroker, vpnName, prefix, nextHopList, label);
+        break;
+        */
+            default:
+                LOG.warn("origin {} not considered in Route-leaking", origin.getValue());
+        }
     }
 }
