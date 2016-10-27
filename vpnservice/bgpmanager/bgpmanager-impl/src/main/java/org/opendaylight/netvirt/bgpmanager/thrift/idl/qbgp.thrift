@@ -117,11 +117,11 @@ service BgpConfigurator {
      * restarting, announceFlush tells neighbor to flush all routes
      * previously advertised by us. This is the F bit of RFC 4724.
      */
-    i32 startBgp(1:i32 asNumber, 2:string routerId, 3: i32 port,
+    i32 startBgp(1:i64 asNumber, 2:string routerId, 3: i32 port,
                        4:i32 holdTime, 5:i32 keepAliveTime,
                        6:i32 stalepathTime, 7:bool announceFlush),
-    i32 stopBgp(1:i32 asNumber),
-    i32 createPeer(1:string ipAddress, 2:i32 asNumber),
+    i32 stopBgp(1:i64 asNumber),
+    i32 createPeer(1:string ipAddress, 2:i64 asNumber),
     i32 deletePeer(1:string ipAddress)
     i32 addVrf(1:layer_type l_type, 2:string rd, 3:list<string> irts, 4:list<string> erts),
     i32 delVrf(1:string rd),
@@ -226,3 +226,4 @@ service BgpUpdater {
     oneway void onNotificationSendEvent(1:string prefix,
                                         2:byte errCode, 3:byte errSubcode)
 }
+
