@@ -29,7 +29,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.vpn.rpc.rev160201.G
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.vpn.rpc.rev160201.RemoveStaticRouteInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.vpn.rpc.rev160201.RemoveVpnLabelInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.vpn.rpc.rev160201.VpnRpcService;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.netvirt.inter.vpn.link.rev160311.inter.vpn.links.InterVpnLink;
 import org.opendaylight.yangtools.yang.common.RpcError;
 import org.opendaylight.yangtools.yang.common.RpcError.ErrorType;
 import org.opendaylight.yangtools.yang.common.RpcResult;
@@ -209,7 +208,7 @@ public class VpnRpcServiceImpl implements VpnRpcService {
         String vpnInstanceName = input.getVpnInstanceName();
         String nexthop = input.getNexthop();
         LOG.info("Removing static route with destination={}, nexthop={} in VPN={}",
-            destination, nexthop, vpnInstanceName);
+                 destination, nexthop, vpnInstanceName);
         Collection<RpcError> rpcErrors = validateRemoveStaticRouteInput(input);
         if (!rpcErrors.isEmpty()) {
             result.set(RpcResultBuilder.<Void>failed().withRpcErrors(rpcErrors).build());
@@ -223,8 +222,8 @@ public class VpnRpcServiceImpl implements VpnRpcService {
             return result;
         }
 
-        Optional<InterVpnLink> optVpnLink = InterVpnLinkUtil.getInterVpnLinkByEndpointIp(dataBroker, nexthop);
-        if (optVpnLink.isPresent()) {
+        Optional<InterVpnLinkDataComposite> optVpnLink = InterVpnLinkCache.getInterVpnLinkByEndpoint(nexthop);
+        if ( optVpnLink.isPresent() ) {
             fibManager.removeOrUpdateFibEntry(dataBroker, vpnRd, destination, nexthop, null);
             bgpManager.withdrawPrefix(vpnRd, destination);
         } else {

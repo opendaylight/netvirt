@@ -7,6 +7,7 @@
  */
 package org.opendaylight.netvirt.fibmanager;
 
+import com.google.common.base.Optional;
 import com.google.common.util.concurrent.FutureCallback;
 import io.netty.util.concurrent.GlobalEventExecutor;
 import java.math.BigInteger;
@@ -20,6 +21,8 @@ import org.opendaylight.netvirt.vpnmanager.api.IVpnManager;
 import org.opendaylight.netvirt.vpnmanager.api.intervpnlink.InterVpnLinkCache;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.RouterInterface;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.VrfEntry;
+import org.opendaylight.netvirt.vpnmanager.api.intervpnlink.InterVpnLinkCache;
+import org.opendaylight.netvirt.vpnmanager.api.intervpnlink.InterVpnLinkDataComposite;
 import org.osgi.framework.BundleContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -173,6 +176,7 @@ public class FibManagerImpl implements IFibManager {
         FibUtil.removeFibEntry(broker, rd, prefix, writeConfigTxn);
     }
 
+    @Override
     public void updateFibEntry(DataBroker broker, String rd, String prefix, List<String> nextHopList,
                                WriteTransaction writeConfigTxn) {
         FibUtil.updateFibEntry(broker, rd, prefix, nextHopList, writeConfigTxn);
@@ -198,6 +202,16 @@ public class FibManagerImpl implements IFibManager {
     public void removeInterVPNLinkRouteFlows(final String interVpnLinkName,
                                              final boolean isVpnFirstEndPoint,
                                              final VrfEntry vrfEntry) {
-        vrfEntryListener.removeInterVPNLinkRouteFlows(interVpnLinkName, isVpnFirstEndPoint, vrfEntry);
+        Optional<InterVpnLinkDataComposite> optInterVpnLink = InterVpnLinkCache.getInterVpnLinkByName(interVpnLinkName);
+        if ( !optInterVpnLink.isPresent() ) {
+            LOG.warn("Could not find InterVpnLink with name {}. InterVpnLink route flows wont be removed",
+                     interVpnLinkName);
+            return;
+        }
+        InterVpnLinkDataComposite interVpnLink = optInterVpnLink.get();
+        String vpnName = (isVpnFirstEndPoint) ? interVpnLink.getFirstEndpointVpnUuid().get()
+                                              : interVpnLink.getSecondEndpointVpnUuid().get();
+
+        vrfEntryListener.removeInterVPNLinkRouteFlows(interVpnLink, vpnName, vrfEntry);
     }
 }
