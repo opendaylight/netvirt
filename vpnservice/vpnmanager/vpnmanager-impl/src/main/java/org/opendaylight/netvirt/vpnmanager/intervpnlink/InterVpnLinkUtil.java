@@ -65,15 +65,15 @@ public class InterVpnLinkUtil {
 
     /**
      * Retrieves the Instance Identifier that points to an InterVpnLink object
-     * in MD-SAL.
+     * in MDSAL.
      *
-     * @param interVpnLinkName The name of the InterVpnLink
+     * @param ivpnLinkName The name of the InterVpnLink
      * @return The requested InstanceIdentifier
      */
-    public static InstanceIdentifier<InterVpnLink> getInterVpnLinkPath(String interVpnLinkName) {
+    public static InstanceIdentifier<InterVpnLink> getInterVpnLinkPath(String ivpnLinkName) {
         return InstanceIdentifier.builder(InterVpnLinks.class)
-            .child(InterVpnLink.class, new InterVpnLinkKey(interVpnLinkName))
-            .build();
+                                 .child(InterVpnLink.class, new InterVpnLinkKey(ivpnLinkName))
+                                 .build();
     }
 
     /**
@@ -129,20 +129,6 @@ public class InterVpnLinkUtil {
         String ifaceName = buildInterVpnLinkIfaceName(vpnName, dpnId);
         LOG.debug("updateVpnFootprint (remove):  vpn={}  dpn={}  ifaceName={}", vpnName, dpnId, ifaceName);
         vpnFootprintService.updateVpnToDpnMapping(dpnId, vpnName, ifaceName, false /* removal */);
-    }
-
-    /**
-     * Retrieves the InterVpnLink object searching by its name.
-     *
-     * @param broker dataBroker service reference
-     * @param vpnLinkName Name of the InterVpnLink
-     * @return the InterVpnLink or Optional.absent() if there is no InterVpnLink with the specified name
-     */
-    public static Optional<InterVpnLink> getInterVpnLinkByName(DataBroker broker, String vpnLinkName) {
-        InstanceIdentifier<InterVpnLink> interVpnLinksIid =
-            InstanceIdentifier.builder(InterVpnLinks.class)
-                .child(InterVpnLink.class, new InterVpnLinkKey(vpnLinkName)).build();
-        return VpnUtil.read(broker, LogicalDatastoreType.CONFIGURATION, interVpnLinksIid);
     }
 
     /**
@@ -228,11 +214,10 @@ public class InterVpnLinkUtil {
                                 ServiceIndex.getIndex(NwConstants.L3VPN_SERVICE_NAME, NwConstants.L3VPN_SERVICE_INDEX)),
                         MetaDataUtil.getMetaDataMaskForLPortDispatcher()));
         String flowRef = getLportDispatcherFlowRef(interVpnLinkName, lportTag);
-        Flow lportDispatcherFlow = MDSALUtil.buildFlowNew(NwConstants.LPORT_DISPATCHER_TABLE, flowRef,
-            VpnConstants.DEFAULT_LPORT_DISPATCHER_FLOW_PRIORITY, flowRef,
-            0, 0, VpnUtil.getCookieL3((int) vpnId), matches,
-            buildLportDispatcherTableInstructions(vpnId));
-        return lportDispatcherFlow;
+        return MDSALUtil.buildFlowNew(NwConstants.LPORT_DISPATCHER_TABLE, flowRef,
+                                      VpnConstants.DEFAULT_LPORT_DISPATCHER_FLOW_PRIORITY, flowRef,
+                                      0, 0, VpnUtil.getCookieL3((int) vpnId), matches,
+                                      buildLportDispatcherTableInstructions(vpnId));
     }
 
     /**
@@ -328,7 +313,6 @@ public class InterVpnLinkUtil {
         }
         return Optional.absent();
     }
-
 
     /**
      * Retrieves the InterVpnLink that has one of its 2 endpoints installed in
@@ -503,12 +487,13 @@ public class InterVpnLinkUtil {
         }
     }
 
-    public static void handleStaticRoute(InterVpnLinkDataComposite interVpnLink, String vpnName,
-        String destination, String nexthop, int label,
-        DataBroker dataBroker, IFibManager fibManager, IBgpManager bgpManager) throws Exception {
+    @SuppressWarnings("checkstyle:IllegalCatch")
+    public static void handleStaticRoute(InterVpnLinkDataComposite ivpnLink, String vpnName,
+                                         String destination, String nexthop, int label,
+                                         DataBroker dataBroker, IFibManager fibManager, IBgpManager bgpManager) {
 
         LOG.debug("handleStaticRoute [vpnLink={} srcVpn={} destination={} nextHop={} label={}]",
-            interVpnLink.getInterVpnLinkName(), vpnName, destination, nexthop, label);
+                  ivpnLink.getInterVpnLinkName(), vpnName, destination, nexthop, label);
 
         String vpnRd = VpnUtil.getVpnRd(dataBroker, vpnName);
         if (vpnRd == null) {
@@ -524,13 +509,20 @@ public class InterVpnLinkUtil {
         // Now advertise to BGP. The nexthop that must be advertised to BGP are the IPs of the DPN where the
         // VPN's endpoint have been instantiated
         // List<String> nexthopList = new ArrayList<>(); // The nexthops to be advertised to BGP
-        List<BigInteger> endpointDpns = interVpnLink.getEndpointDpnsByVpnName(vpnName);
+        List<BigInteger> endpointDpns = ivpnLink.getEndpointDpnsByVpnName(vpnName);
         List<String> nexthopList =
             endpointDpns.stream().map(dpnId -> InterfaceUtils.getEndpointIpAddressForDPN(dataBroker, dpnId))
                 .collect(Collectors.toList());
         LOG.debug("advertising IVpnLink route to BGP:  vpnRd={}, prefix={}, label={}, nexthops={}",
             vpnRd, destination, label, nexthopList);
-        bgpManager.advertisePrefix(vpnRd, null /*macAddress*/, destination, nexthopList,
-                VrfEntry.EncapType.Mplsgre, label, 0 /*l3vni*/, 0 /*l2vni*/, null /*gatewayMacAddress*/);
+
+        try {
+            bgpManager.advertisePrefix(vpnRd, null /*macAddress*/, destination, nexthopList,
+                                       VrfEntry.EncapType.Mplsgre, label, 0 /*l3vni*/, 0 /*l2vni*/,
+                                       null /*gatewayMacAddress*/);
+        } catch (Exception e) {
+            LOG.error("Error when advertising Prefix to BGP: rd={} prefix={} nhList={} label={}",
+                      vpnRd, destination, nexthopList, label);
+        }
     }
 }
