@@ -19,6 +19,10 @@ import org.opendaylight.netvirt.bgpmanager.thrift.gen.BgpConfigurator;
 import org.opendaylight.netvirt.bgpmanager.thrift.gen.Routes;
 import org.opendaylight.netvirt.bgpmanager.thrift.gen.af_afi;
 import org.opendaylight.netvirt.bgpmanager.thrift.gen.af_safi;
+import org.opendaylight.netvirt.bgpmanager.thrift.gen.encap_type;
+import org.opendaylight.netvirt.bgpmanager.thrift.gen.layer_type;
+import org.opendaylight.netvirt.bgpmanager.thrift.gen.protocol_type;
+import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.LayerType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -70,14 +74,24 @@ public class BgpRouter {
 
 
     private class BgpOp {
+
         public Optype type;
         public boolean add;
-        String[] strs;
-        int[] ints;
-        List<String> irts;
-        List<String> erts;
-        long asNumber;
+        public String[] strs;
+        public int[] ints;
+        public List<String> irts;
+        public List<String> erts;
+        public long asNumber;
         static final int IGNORE = 0;
+        public layer_type thriftLayerType;
+        public protocol_type thriftProtocolType;
+        public int ethernetTag;
+        public String esi;
+        public String macAddress;
+        public int l2label;
+        public int l3label;
+        public encap_type thriftEncapType;
+        public String routermac;
 
         BgpOp() {
             strs = new String[3];
@@ -158,13 +172,34 @@ public class BgpRouter {
                 result = bop.add ? bgpClient.createPeer(op.strs[0], op.asNumber) : bgpClient.deletePeer(op.strs[0]);
                 break;
             case VRF:
-                result = bop.add ? bgpClient.addVrf(op.strs[0], op.irts, op.erts) : bgpClient.delVrf(op.strs[0]);
+                result = bop.add
+                        ? bgpClient.addVrf(op.thriftLayerType, op.strs[0], op.irts, op.erts)
+                        : bgpClient.delVrf(op.strs[0]);
                 break;
             case PFX:
                 // order of args is different in addPrefix(), hence the
                 // seeming out-of-order-ness of string indices
-                result = bop.add ? bgpClient.pushRoute(op.strs[1], op.strs[2], op.strs[0],
-                        op.ints[0]) : bgpClient.withdrawRoute(op.strs[1], op.strs[0]);
+                result = bop.add
+                        ? bgpClient.pushRoute(
+                                op.thriftProtocolType,
+                                op.strs[1],//prefix
+                                op.strs[2],//nexthop
+                                op.strs[0],//rd
+                                op.ethernetTag,
+                                op.esi,
+                                op.macAddress,
+                                op.l2label,
+                                op.l3label,
+                                op.thriftEncapType,
+                                op.routermac)
+
+                        : bgpClient.withdrawRoute(
+                        op.thriftProtocolType,
+                        op.strs[1],//prefix
+                        op.strs[0],//rd
+                        op.ethernetTag,
+                        op.esi,
+                        op.macAddress);
                 break;
             case LOG:
                 result = bgpClient.setLogConfig(op.strs[0], op.strs[1]);
@@ -233,8 +268,9 @@ public class BgpRouter {
         dispatch(bop);
     }
 
-    public synchronized void addVrf(String rd, List<String> irts, List<String> erts)
+    public synchronized void addVrf(LayerType layerType, String rd, List<String> irts, List<String> erts)
             throws TException, BgpRouterException {
+        bop.thriftLayerType = layerType == LayerType.LAYER2 ? layer_type.LAYER_2 : layer_type.LAYER_3;
         bop.type = Optype.VRF;
         bop.add = true;
         bop.strs[0] = rd;
@@ -255,15 +291,31 @@ public class BgpRouter {
     // bit of a mess-up: the order of arguments is different in
     // the Thrift RPC: prefix-nexthop-rd-label.
 
-    public synchronized void addPrefix(String rd, String prefix, String nexthop, int label)
+    public synchronized void addPrefix(String rd,
+                                       String prefix,
+                                       String nexthop,
+                                       int label,
+                                       protocol_type protocolType,
+                                       int ethtag,
+                                       String esi,
+                                       String macaddress,
+                                       encap_type encapType,
+                                       String routermac )
             throws TException, BgpRouterException {
         bop.type = Optype.PFX;
         bop.add = true;
         bop.strs[0] = rd;
         bop.strs[1] = prefix;
         bop.strs[2] = nexthop;
-        bop.ints[0] = label;
-        LOGGER.debug("Adding BGP route - rd:{} prefix:{} nexthop:{} label:{} ", rd, prefix, nexthop, label);
+        bop.ints[0] = label;// TODO: set label2 or label3 based on encapsulation type and protocol type
+        bop.thriftProtocolType = protocolType;
+        bop.ethernetTag = ethtag;
+        bop.esi = esi;
+        bop.macAddress = macaddress;
+        bop.thriftEncapType = encapType;
+        bop.routermac = routermac;
+
+        LOGGER.debug("Adding BGP route - rd:{} prefix:{} nexthop:{} label:{} ", rd ,prefix, nexthop, label);
         dispatch(bop);
     }
 
@@ -321,7 +373,9 @@ public class BgpRouter {
         int op = (state == BgpSyncHandle.INITED) ? GET_RTS_INIT : GET_RTS_NEXT;
         handle.setState(BgpSyncHandle.ITERATING);
         int winSize = handle.getMaxCount() * handle.getRouteSize();
-        Routes outRoutes = bgpClient.getRoutes(op, winSize);
+
+        // TODO: receive correct protocol_type here, currently populating with dummy protocol type
+        Routes outRoutes = bgpClient.getRoutes(protocol_type.PROTOCOL_ANY, op, winSize);
         if (outRoutes.errcode != 0) {
             return outRoutes;
         }
@@ -416,3 +470,4 @@ public class BgpRouter {
         dispatch(bop);
     }
 }
+
