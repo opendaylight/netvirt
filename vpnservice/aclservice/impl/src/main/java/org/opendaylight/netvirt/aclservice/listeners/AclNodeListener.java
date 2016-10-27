@@ -101,9 +101,6 @@ public class AclNodeListener extends AsyncDataTreeChangeListenerBase<FlowCapable
     @Override
     protected void add(InstanceIdentifier<FlowCapableNode> key, FlowCapableNode dataObjectModification) {
         LOG.trace("FlowCapableNode Added: key: {}", key);
-        if (!aclClusterUtil.isEntityOwner()) {
-            return;
-        }
         NodeKey nodeKey = key.firstKeyOf(Node.class);
         BigInteger dpnId = MDSALUtil.getDpnIdFromNodeName(nodeKey.getId());
         createTableDefaultEntries(dpnId);
