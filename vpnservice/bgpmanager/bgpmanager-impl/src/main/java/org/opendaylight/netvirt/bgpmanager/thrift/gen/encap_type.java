@@ -11,14 +11,16 @@ import java.util.Map;
 import java.util.HashMap;
 import org.apache.thrift.TEnum;
 
-public enum af_safi implements org.apache.thrift.TEnum {
-  SAFI_IPV4_LABELED_UNICAST(4),
-  SAFI_MPLS_VPN(5),
-  SAFI_EVPN(6);
+public enum encap_type implements org.apache.thrift.TEnum {
+  L2TPV3_OVER_IP(1),
+  GRE(2),
+  IP_IN_IP(7),
+  VXLAN(8),
+  MPLS(10);
 
   private final int value;
 
-  private af_safi(int value) {
+  private encap_type(int value) {
     this.value = value;
   }
 
@@ -33,14 +35,18 @@ public enum af_safi implements org.apache.thrift.TEnum {
    * Find a the enum type by its integer value, as defined in the Thrift IDL.
    * @return null if the value is not found.
    */
-  public static af_safi findByValue(int value) { 
+  public static encap_type findByValue(int value) { 
     switch (value) {
-      case 4:
-        return SAFI_IPV4_LABELED_UNICAST;
-      case 5:
-        return SAFI_MPLS_VPN;
-      case 6:
-        return SAFI_EVPN;
+      case 1:
+        return L2TPV3_OVER_IP;
+      case 2:
+        return GRE;
+      case 7:
+        return IP_IN_IP;
+      case 8:
+        return VXLAN;
+      case 10:
+        return MPLS;
       default:
         return null;
     }
