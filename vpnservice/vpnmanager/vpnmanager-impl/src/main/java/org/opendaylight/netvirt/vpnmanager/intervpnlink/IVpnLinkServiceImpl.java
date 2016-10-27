@@ -362,8 +362,7 @@ public class IVpnLinkServiceImpl implements IVpnLinkService, AutoCloseable {
         Map<String, String> routerXL3VpnMap = buildRouterXL3VPNMap();
 
         // Retrieving all Routers
-        InstanceIdentifier<Routers> routersIid = InstanceIdentifier.builder(Neutron.class)
-                .child(Routers.class).build();
+        InstanceIdentifier<Routers> routersIid = InstanceIdentifier.builder(Neutron.class).child(Routers.class).build();
         Optional<Routers> routerOpData = MDSALUtil.read(dataBroker, LogicalDatastoreType.CONFIGURATION, routersIid);
         if (!routerOpData.isPresent()) {
 

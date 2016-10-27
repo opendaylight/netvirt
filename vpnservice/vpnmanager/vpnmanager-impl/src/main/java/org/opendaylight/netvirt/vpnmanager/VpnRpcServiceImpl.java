@@ -213,7 +213,7 @@ public class VpnRpcServiceImpl implements VpnRpcService {
         String vpnInstanceName = input.getVpnInstanceName();
         String nexthop = input.getNexthop();
         LOG.info("Removing static route with destination={}, nexthop={} in VPN={}",
-            destination, nexthop, vpnInstanceName);
+                 destination, nexthop, vpnInstanceName);
         Collection<RpcError> rpcErrors = validateRemoveStaticRouteInput(input);
         if (!rpcErrors.isEmpty()) {
             result.set(RpcResultBuilder.<Void>failed().withRpcErrors(rpcErrors).build());

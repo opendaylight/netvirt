@@ -70,5 +70,4 @@ public interface IVpnLinkService {
      * @param interVpnLink InterVpnLink to be considered.
      */
     void handleStaticRoutes(InterVpnLinkDataComposite interVpnLink);
-
 }

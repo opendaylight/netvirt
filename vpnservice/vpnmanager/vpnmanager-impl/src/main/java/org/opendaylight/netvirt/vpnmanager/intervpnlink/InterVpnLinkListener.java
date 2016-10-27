@@ -109,7 +109,6 @@ public class InterVpnLinkListener extends AsyncDataTreeChangeListenerBase<InterV
         this.vpnOpDataSyncer = vpnOpDataSyncer;
     }
 
-
     public void start() {
         LOG.info("{} start", getClass().getSimpleName());
         registerListener(LogicalDatastoreType.CONFIGURATION, dataBroker);
@@ -130,6 +129,7 @@ public class InterVpnLinkListener extends AsyncDataTreeChangeListenerBase<InterV
     protected void add(InstanceIdentifier<InterVpnLink> identifier, InterVpnLink add) {
 
         String ivpnLinkName = add.getName();
+
         LOG.debug("Reacting to IVpnLink {} creation. Vpn1=[name={}  EndpointIp={}]  Vpn2=[name={} endpointIP={}]",
                   ivpnLinkName, add.getFirstEndpoint().getVpnUuid(), add.getFirstEndpoint().getIpAddress(),
                   add.getSecondEndpoint().getVpnUuid(), add.getSecondEndpoint().getIpAddress());
@@ -248,6 +248,7 @@ public class InterVpnLinkListener extends AsyncDataTreeChangeListenerBase<InterV
             SecondEndpointState secondEndPointState =
                 new SecondEndpointStateBuilder().setVpnUuid(vpn2Uuid).setLportTag(secondVpnLportTag)
                                                 .setDpId(Collections.emptyList()).build();
+
             InterVpnLinkUtil.updateInterVpnLinkState(dataBroker, ivpnLinkName, InterVpnLinkState.State.Error,
                                                      firstEndPointState, secondEndPointState);
         }
@@ -296,10 +297,10 @@ public class InterVpnLinkListener extends AsyncDataTreeChangeListenerBase<InterV
             if (interVpnLinkState.getFirstEndpointState() != null) {
                 Long firstEndpointLportTag = interVpnLinkState.getFirstEndpointState().getLportTag();
                 removeVpnLinkEndpointFlows(del, vpn2Uuid,
-                    interVpnLinkState.getSecondEndpointState().getDpId(),
-                    firstEndpointLportTag.intValue(),
-                    del.getFirstEndpoint().getIpAddress().getValue(),
-                    vrfEntriesSecondEndpoint, isVpnFirstEndPoint);
+                                           interVpnLinkState.getSecondEndpointState().getDpId(),
+                                           firstEndpointLportTag.intValue(),
+                                           del.getFirstEndpoint().getIpAddress().getValue(),
+                                           vrfEntriesSecondEndpoint, isVpnFirstEndPoint);
             } else {
                 LOG.info("Could not get first endpoint state attributes for InterVpnLink {}", del.getName());
             }

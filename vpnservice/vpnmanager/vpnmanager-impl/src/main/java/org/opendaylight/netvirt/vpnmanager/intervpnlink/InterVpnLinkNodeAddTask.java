@@ -58,6 +58,7 @@ public class InterVpnLinkNodeAddTask implements Callable<List<ListenableFuture<V
     @Override
     public List<ListenableFuture<Void>> call() throws Exception {
         List<ListenableFuture<Void>> result = new ArrayList<>();
+
         // check if there is any inter-vpn-link in with erroneous state
         int numberOfDpns = Integer.getInteger(NBR_OF_DPNS_PROPERTY_NAME, 1);
 

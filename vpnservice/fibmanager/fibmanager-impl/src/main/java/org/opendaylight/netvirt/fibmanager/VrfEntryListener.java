@@ -158,6 +158,7 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
     private final NexthopManager nextHopManager;
     private final OdlInterfaceRpcService interfaceManager;
     private final IdManagerService idManager;
+
     List<SubTransaction> transactionObjects;
 
     private static Integer batchSize;
@@ -620,7 +621,6 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
                                /*writeTx*/null);
         }
     }
-
 
     /*
      * Installs the flows in FIB table that, for a given route, do the switching from one VPN to the other.

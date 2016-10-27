@@ -109,6 +109,7 @@ import org.opendaylight.yangtools.yang.common.RpcError;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+
 public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInterface, VpnInterfaceManager>
     implements AutoCloseable {
 
