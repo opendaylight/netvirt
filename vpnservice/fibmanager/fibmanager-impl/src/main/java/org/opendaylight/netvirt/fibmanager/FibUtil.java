@@ -251,53 +251,6 @@ public class FibUtil {
         return getVpnInstanceOpData(broker, rd).transform(VpnInstanceOpDataEntry::getVpnInstanceName);
     }
 
-    static List<InterVpnLink> getAllInterVpnLinks(DataBroker broker) {
-        InstanceIdentifier<InterVpnLinks> interVpnLinksIid = InstanceIdentifier.builder(InterVpnLinks.class).build();
-
-        return MDSALUtil.read(broker, LogicalDatastoreType.CONFIGURATION, interVpnLinksIid).transform(
-            InterVpnLinks::getInterVpnLink).or(new ArrayList<>());
-    }
-
-    /**
-     * Returns the instance identifier for a given vpnLinkName.
-     *
-     * @param vpnLinkName The vpn link name
-     * @return InstanceIdentifier
-     */
-    public static InstanceIdentifier<InterVpnLinkState> getInterVpnLinkStateIid(String vpnLinkName) {
-        return InstanceIdentifier.builder(InterVpnLinkStates.class)
-            .child(InterVpnLinkState.class, new InterVpnLinkStateKey(vpnLinkName)).build();
-    }
-
-    /**
-     * Checks if the InterVpnLink is in Active state.
-     *
-     * @param broker The DataBroker
-     * @param vpnLinkName The vpn linkname
-     * @return The link state
-     */
-    public static boolean isInterVpnLinkActive(DataBroker broker, String vpnLinkName) {
-        Optional<InterVpnLinkState> interVpnLinkState = getInterVpnLinkState(broker, vpnLinkName);
-        if (!interVpnLinkState.isPresent()) {
-            LOG.warn("Could not find Operative State for InterVpnLink {}", vpnLinkName);
-            return false;
-        }
-
-        return interVpnLinkState.get().getState().equals(InterVpnLinkState.State.Active);
-    }
-
-    /**
-     * Checks if the state of the interVpnLink.
-     *
-     * @param broker The DataBroker
-     * @param vpnLinkName The vpn linkname
-     * @return The link state
-     */
-    public static Optional<InterVpnLinkState> getInterVpnLinkState(DataBroker broker, String vpnLinkName) {
-        InstanceIdentifier<InterVpnLinkState> vpnLinkStateIid = getInterVpnLinkStateIid(vpnLinkName);
-        return read(broker, LogicalDatastoreType.CONFIGURATION, vpnLinkStateIid);
-    }
-
     /**
      * Obtains the route-distinguisher for a given vpn-name.
      *
