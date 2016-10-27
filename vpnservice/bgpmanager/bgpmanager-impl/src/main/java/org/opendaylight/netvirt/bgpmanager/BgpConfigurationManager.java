@@ -17,7 +17,7 @@ import java.io.InputStreamReader;
 import java.lang.reflect.Constructor;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -43,13 +43,13 @@ import org.opendaylight.controller.md.sal.common.api.clustering.EntityOwnershipL
 import org.opendaylight.controller.md.sal.common.api.clustering.EntityOwnershipService;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
+import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.genius.utils.clustering.EntityOwnerUtils;
 import org.opendaylight.netvirt.bgpmanager.api.IBgpManager;
 import org.opendaylight.netvirt.bgpmanager.commands.ClearBgpCli;
 import org.opendaylight.netvirt.bgpmanager.oam.BgpAlarms;
 import org.opendaylight.netvirt.bgpmanager.oam.BgpConstants;
 import org.opendaylight.netvirt.bgpmanager.oam.BgpCounters;
-import org.opendaylight.netvirt.bgpmanager.oam.BgpAlarms;
 import org.opendaylight.netvirt.bgpmanager.thrift.client.BgpRouter;
 import org.opendaylight.netvirt.bgpmanager.thrift.client.BgpRouterException;
 import org.opendaylight.netvirt.bgpmanager.thrift.client.BgpSyncHandle;
@@ -60,6 +60,7 @@ import org.opendaylight.netvirt.bgpmanager.thrift.gen.af_safi;
 import org.opendaylight.netvirt.bgpmanager.thrift.gen.qbgpConstants;
 import org.opendaylight.netvirt.bgpmanager.thrift.server.BgpThriftService;
 import org.opendaylight.netvirt.fibmanager.api.RouteOrigin;
+import org.opendaylight.netvirt.vpnmanager.api.intervpnlink.IVpnLinkService;
 import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.Bgp;
 import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.bgp.AsId;
 import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.bgp.AsIdBuilder;
@@ -97,13 +98,13 @@ import org.osgi.framework.BundleContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.util.concurrent.atomic.AtomicInteger;
-import org.opendaylight.yangtools.yang.binding.DataObject;
 
 public class BgpConfigurationManager {
     private static final Logger LOG = LoggerFactory.getLogger(BgpConfigurationManager.class);
     private static DataBroker dataBroker;
     private static FibDSWriter fibDSWriter;
     public static IBgpManager bgpManager;
+    private static IVpnLinkService vpnLinkService;
     private final BundleContext bundleContext;
     private static Bgp config;
     private static BgpRouter bgpRouter;
@@ -210,10 +211,12 @@ public class BgpConfigurationManager {
     public BgpConfigurationManager(final DataBroker dataBroker,
                                    final EntityOwnershipService entityOwnershipService,
                                    final FibDSWriter fibDSWriter,
+                                   final IVpnLinkService vpnLinkSrvce,
                                    final BundleContext bundleContext)
             throws InterruptedException, ExecutionException, TimeoutException {
         BgpConfigurationManager.dataBroker = dataBroker;
         BgpConfigurationManager.fibDSWriter = fibDSWriter;
+        BgpConfigurationManager.vpnLinkService = vpnLinkSrvce;
         this.bundleContext = bundleContext;
         String uPort = getProperty(UPDATE_PORT, DEF_UPORT);
         cHostStartup = getProperty(CONFIG_HOST, DEF_CHOST);
@@ -1551,7 +1554,13 @@ public class BgpConfigurationManager {
         }
         if (addroute) {
             LOG.info("ADD: Adding Fib entry rd {} prefix {} nexthop {} label {}", rd, prefix, nextHop, label);
-            fibDSWriter.addFibEntryToDS(rd, prefix + "/" + plen, Arrays.asList(nextHop), label, RouteOrigin.BGP);
+            List<String> nextHopList = Collections.singletonList(nextHop);
+            fibDSWriter.addFibEntryToDS(rd, prefix + "/" + plen, nextHopList, label, RouteOrigin.BGP);
+            String vpnName = BgpUtil.getVpnNameFromRd(dataBroker, rd);
+            if ( vpnName != null ) {
+                vpnLinkService.leakRouteIfNeeded(vpnName, prefix, nextHopList, label, RouteOrigin.BGP,
+                                                 NwConstants.ADD_FLOW);
+            }
             LOG.info("ADD: Added Fib entry rd {} prefix {} nexthop {} label {}", rd, prefix, nextHop, label);
         }
     }
@@ -2099,6 +2108,11 @@ public class BgpConfigurationManager {
         LOG.debug("Route del ** {} ** {}/{} ", rd, prefix, plen);
         try {
             fibDSWriter.removeFibEntryFromDS(rd, prefix + "/" + plen);
+            String vpnName = BgpUtil.getVpnNameFromRd(dataBroker, rd);
+            if ( vpnName != null ) {
+                vpnLinkService.leakRouteIfNeeded(vpnName, prefix, null /*nextHopList*/, 0 /*INVALID_LABEL*/,
+                                                 RouteOrigin.BGP, NwConstants.DEL_FLOW);
+            }
         } catch (Throwable e) {
             LOG.error("failed to handle withdraw route ", e);
         }
