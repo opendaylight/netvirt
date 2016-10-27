@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Ericsson India Global Services Pvt Ltd. and others.  All rights reserved.
+ * Copyright (c) 2015 - 2017 Ericsson India Global Services Pvt Ltd. and others.  All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
@@ -21,8 +21,10 @@ import org.opendaylight.controller.md.sal.binding.api.BindingTransactionChain;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.AsyncTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionChain;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionChainListener;
+import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.utils.batching.ActionableResource;
 import org.opendaylight.genius.utils.batching.ActionableResourceImpl;
@@ -159,6 +161,20 @@ public class BgpUtil {
     public static InstanceIdentifier<VpnInstanceOpDataEntry> getVpnInstanceOpDataIdentifier(String rd) {
         return InstanceIdentifier.builder(VpnInstanceOpData.class)
                 .child(VpnInstanceOpDataEntry.class, new VpnInstanceOpDataEntryKey(rd)).build();
+    }
+
+    public static String getVpnNameFromRd(DataBroker dataBroker2, String rd) {
+        InstanceIdentifier<VpnInstanceOpDataEntry> id = InstanceIdentifier.create(VpnInstanceOpData.class)
+                                                                          .child(VpnInstanceOpDataEntry.class,
+                                                                                 new VpnInstanceOpDataEntryKey(rd));
+        try {
+            Optional<VpnInstanceOpDataEntry> vpnInstanceOpData =
+                SingleTransactionDataBroker.syncReadOptional(dataBroker2, LogicalDatastoreType.OPERATIONAL, id);
+            return vpnInstanceOpData.isPresent() ? vpnInstanceOpData.get().getVpnInstanceName() : null;
+        } catch (ReadFailedException e) {
+            LOG.warn("Exception while retrieving VpnInstance name for RD {}", rd, e);
+        }
+        return null;
     }
 }
 

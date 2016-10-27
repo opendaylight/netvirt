@@ -140,6 +140,12 @@ public class InterVpnLinkDataComposite {
                    : this.interVpnLinkState.getFirstEndpointState().getDpId();
     }
 
+    public Optional<Long> getFirstEndpointLportTag() {
+        return ( !isComplete() || this.interVpnLinkState.getFirstEndpointState().getLportTag() == null )
+                   ? Optional.absent()
+                   : Optional.of(this.interVpnLinkState.getFirstEndpointState().getLportTag());
+    }
+
     public Optional<String> getSecondEndpointVpnUuid() {
         if (!isComplete()) {
             return Optional.absent();
@@ -160,10 +166,57 @@ public class InterVpnLinkDataComposite {
                     : this.interVpnLinkState.getSecondEndpointState().getDpId();
     }
 
+    public Optional<Long> getSecondEndpointLportTag() {
+        return (!isComplete() || this.interVpnLinkState.getSecondEndpointState().getLportTag() == null )
+            ? Optional.absent()
+            : Optional.of(this.interVpnLinkState.getSecondEndpointState().getLportTag());
+    }
+
+
+    public String getVpnNameByIpAddress(String endpointIpAddr) {
+        if ( !isFirstEndpointIpAddr(endpointIpAddr) && !isSecondEndpointIpAddr(endpointIpAddr)) {
+            LOG.debug("Endpoint IpAddress {} does not participate in InterVpnLink {}",
+                      endpointIpAddr, getInterVpnLinkName());
+            return null;
+        }
+        return isFirstEndpointIpAddr(endpointIpAddr) ? getFirstEndpointVpnUuid().get()
+                                                     : getSecondEndpointVpnUuid().get();
+    }
+
+    public String getOtherEndpoint(String vpnUuid) {
+        if ( !isFirstEndpointVpnName(vpnUuid) && !isSecondEndpointVpnName(vpnUuid)) {
+            LOG.debug("VPN {} does not participate in InterVpnLink {}", vpnUuid, getInterVpnLinkName());
+            return null;
+        }
+
+        Optional<String> optEndpointIpAddr = isFirstEndpointVpnName(vpnUuid) ? getSecondEndpointIpAddr()
+                                                                             : getFirstEndpointIpAddr();
+        return optEndpointIpAddr.orNull();
+    }
+
+    public String getOtherVpnNameByIpAddress(String endpointIpAddr) {
+        if ( !isFirstEndpointIpAddr(endpointIpAddr) && !isSecondEndpointIpAddr(endpointIpAddr)) {
+            LOG.debug("Endpoint IpAddress {} does not participate in InterVpnLink {}",
+                      endpointIpAddr, getInterVpnLinkName());
+            return null;
+        }
+        return isFirstEndpointIpAddr(endpointIpAddr) ? getSecondEndpointVpnUuid().get()
+                                                     : getFirstEndpointVpnUuid().get();
+    }
+
     public String getOtherVpnName(String thisVpnName) {
         Optional<String> optOtherVpnName = isFirstEndpointVpnName(thisVpnName) ? getSecondEndpointVpnUuid()
                                                                                : getFirstEndpointVpnUuid();
         return optOtherVpnName.orNull();
+    }
+
+    public Optional<Long> getEndpointLportTagByVpnName(String vpnName) {
+        if ( !isComplete() ) {
+            return Optional.absent();
+        }
+
+        return isFirstEndpointVpnName(vpnName) ? Optional.of(interVpnLinkState.getFirstEndpointState().getLportTag())
+                                               : Optional.of(interVpnLinkState.getSecondEndpointState().getLportTag());
     }
 
     public Optional<Long> getEndpointLportTagByIpAddr(String endpointIp) {
@@ -185,8 +238,8 @@ public class InterVpnLinkDataComposite {
                                                : Optional.of(interVpnLinkState.getFirstEndpointState().getLportTag());
     }
 
-    public String getOtherEndpoint(String vpnUuid) {
-        if (!isFirstEndpointVpnName(vpnUuid) && !isSecondEndpointVpnName(vpnUuid)) {
+    public String getOtherEndpointIpAddr(String vpnUuid) {
+        if ( !isFirstEndpointVpnName(vpnUuid) && !isSecondEndpointVpnName(vpnUuid)) {
             LOG.debug("VPN {} does not participate in InterVpnLink {}", vpnUuid, getInterVpnLinkName());
             return null;
         }
@@ -245,4 +298,5 @@ public class InterVpnLinkDataComposite {
         return isFirstEndpointIpAddr(endpointIp) ? this.interVpnLinkState.getSecondEndpointState().getDpId()
                                                  : this.interVpnLinkState.getFirstEndpointState().getDpId();
     }
+
 }

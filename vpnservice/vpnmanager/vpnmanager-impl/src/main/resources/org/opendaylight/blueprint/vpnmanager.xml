@@ -74,6 +74,7 @@
     <argument ref="vpnFootprintService" />
     <argument ref="interfaceManager" />
     <argument ref="vpnManager" />
+    <argument ref="interVpnLinkService" />
   </bean>
 
   <bean id="interfaceStateChangeListener"

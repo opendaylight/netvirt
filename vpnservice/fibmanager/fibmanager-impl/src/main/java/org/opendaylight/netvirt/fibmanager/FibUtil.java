@@ -53,11 +53,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.VpnInstanceOpDataEntryKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.vpn.instance.op.data.entry.VpnToDpnList;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.to.vpn.id.VpnInstance;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.netvirt.inter.vpn.link.rev160311.InterVpnLinkStates;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.netvirt.inter.vpn.link.rev160311.InterVpnLinks;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.netvirt.inter.vpn.link.rev160311.inter.vpn.link.states.InterVpnLinkState;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.netvirt.inter.vpn.link.rev160311.inter.vpn.link.states.InterVpnLinkStateKey;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.netvirt.inter.vpn.link.rev160311.inter.vpn.links.InterVpnLink;
+
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.common.RpcResult;
@@ -246,53 +242,6 @@ public class FibUtil {
      */
     public static Optional<String> getVpnNameFromRd(DataBroker broker, String rd) {
         return getVpnInstanceOpData(broker, rd).transform(VpnInstanceOpDataEntry::getVpnInstanceName);
-    }
-
-    static List<InterVpnLink> getAllInterVpnLinks(DataBroker broker) {
-        InstanceIdentifier<InterVpnLinks> interVpnLinksIid = InstanceIdentifier.builder(InterVpnLinks.class).build();
-
-        return MDSALUtil.read(broker, LogicalDatastoreType.CONFIGURATION, interVpnLinksIid).transform(
-            InterVpnLinks::getInterVpnLink).or(new ArrayList<>());
-    }
-
-    /**
-     * Returns the instance identifier for a given vpnLinkName.
-     *
-     * @param vpnLinkName The vpn link name
-     * @return InstanceIdentifier
-     */
-    public static InstanceIdentifier<InterVpnLinkState> getInterVpnLinkStateIid(String vpnLinkName) {
-        return InstanceIdentifier.builder(InterVpnLinkStates.class)
-            .child(InterVpnLinkState.class, new InterVpnLinkStateKey(vpnLinkName)).build();
-    }
-
-    /**
-     * Checks if the InterVpnLink is in Active state.
-     *
-     * @param broker The DataBroker
-     * @param vpnLinkName The vpn linkname
-     * @return The link state
-     */
-    public static boolean isInterVpnLinkActive(DataBroker broker, String vpnLinkName) {
-        Optional<InterVpnLinkState> interVpnLinkState = getInterVpnLinkState(broker, vpnLinkName);
-        if (!interVpnLinkState.isPresent()) {
-            LOG.warn("Could not find Operative State for InterVpnLink {}", vpnLinkName);
-            return false;
-        }
-
-        return interVpnLinkState.get().getState().equals(InterVpnLinkState.State.Active);
-    }
-
-    /**
-     * Checks if the state of the interVpnLink.
-     *
-     * @param broker The DataBroker
-     * @param vpnLinkName The vpn linkname
-     * @return The link state
-     */
-    public static Optional<InterVpnLinkState> getInterVpnLinkState(DataBroker broker, String vpnLinkName) {
-        InstanceIdentifier<InterVpnLinkState> vpnLinkStateIid = getInterVpnLinkStateIid(vpnLinkName);
-        return read(broker, LogicalDatastoreType.CONFIGURATION, vpnLinkStateIid);
     }
 
     /**
