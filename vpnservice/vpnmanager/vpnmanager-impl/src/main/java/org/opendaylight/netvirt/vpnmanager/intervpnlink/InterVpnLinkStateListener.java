@@ -11,6 +11,7 @@ import com.google.common.base.Optional;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
+import org.opendaylight.netvirt.vpnmanager.api.intervpnlink.IVpnLinkService;
 import org.opendaylight.netvirt.vpnmanager.api.intervpnlink.InterVpnLinkCache;
 import org.opendaylight.netvirt.vpnmanager.api.intervpnlink.InterVpnLinkDataComposite;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.netvirt.inter.vpn.link.rev160311.InterVpnLinkStates;
@@ -29,9 +30,9 @@ public class InterVpnLinkStateListener
     private static final Logger LOG = LoggerFactory.getLogger(InterVpnLinkStateListener.class);
 
     private final DataBroker dataBroker;
-    private final InterVpnLinkService ivpnLinkService;
+    private final IVpnLinkService ivpnLinkService;
 
-    public InterVpnLinkStateListener(final DataBroker dataBroker, final InterVpnLinkService interVpnLinkService) {
+    public InterVpnLinkStateListener(final DataBroker dataBroker, final IVpnLinkService interVpnLinkService) {
         super(InterVpnLinkState.class, InterVpnLinkStateListener.class);
         this.dataBroker = dataBroker;
         this.ivpnLinkService = interVpnLinkService;
