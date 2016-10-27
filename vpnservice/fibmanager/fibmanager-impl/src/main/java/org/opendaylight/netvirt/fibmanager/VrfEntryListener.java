@@ -446,7 +446,7 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
                     : vpnUuid;
 
             String dstVpnRd = FibUtil.getVpnRd(dataBroker, theOtherVpnId);
-            String endpointIp = vrfEntry.getNextHopAddressList().get(0);
+            String endpointIp = interVpnLink.get().getFirstEndpoint().getIpAddress().toString();
 
             InstanceIdentifier<VrfEntry> vrfEntryIidInOtherVpn =
                     InstanceIdentifier.builder(FibEntries.class)
