@@ -58,25 +58,20 @@ public class InterVpnLinkNodeAddTask implements Callable<List<ListenableFuture<V
     @Override
     public List<ListenableFuture<Void>> call() throws Exception {
         List<ListenableFuture<Void>> result = new ArrayList<>();
+
         // check if there is any inter-vpn-link in with erroneous state
-        List<InterVpnLinkState> allInterVpnLinkState = InterVpnLinkUtil.getAllInterVpnLinkState(broker);
         int numberOfDpns = Integer.getInteger(NBR_OF_DPNS_PROPERTY_NAME, 1);
 
         List<BigInteger> firstDpnList = Collections.singletonList(this.dpnId);
         List<BigInteger> secondDpnList = firstDpnList;
-        for (InterVpnLinkState interVpnLinkState : allInterVpnLinkState) {
-            if (interVpnLinkState.getState() != InterVpnLinkState.State.Error) {
-                continue;
-            }
-
-            // if the inter-vpn-link is erroneous and any of its endPoints has no dpns associated
-            if (shouldConfigureLinkIntoDpn(interVpnLinkState, numberOfDpns)) {
-                installLPortDispatcherTable(interVpnLinkState, firstDpnList, secondDpnList);
-                CheckedFuture<Void, TransactionCommitFailedException> futures =
-                    updateInterVpnLinkState(interVpnLinkState, firstDpnList, secondDpnList, numberOfDpns);
-                result.add(futures);
-            }
-        }
+        InterVpnLinkCache.getAllInterVpnLinks().stream()
+            .filter(i -> i.isComplete() && !i.isActive()
+                            && shouldConfigureLinkIntoDpn(i.getInterVpnLinkState(), numberOfDpns))
+            .forEach(i -> {
+                installLPortDispatcherTable(i.getInterVpnLinkState(), firstDpnList, secondDpnList);
+                result.add(updateInterVpnLinkState(i.getInterVpnLinkState(), firstDpnList, secondDpnList,
+                                                   numberOfDpns));
+            });
         return result;
     }
 
@@ -97,19 +92,17 @@ public class InterVpnLinkNodeAddTask implements Callable<List<ListenableFuture<V
     }
 
     private CheckedFuture<Void, TransactionCommitFailedException> updateInterVpnLinkState(
-        InterVpnLinkState interVpnLinkState, List<BigInteger> firstDpnList, List<BigInteger> secondDpnList,
-        int numberOfDpns) {
+            InterVpnLinkState interVpnLinkState, List<BigInteger> firstDpnList, List<BigInteger> secondDpnList,
+            int numberOfDpns) {
+
         FirstEndpointState firstEndPointState =
-            new FirstEndpointStateBuilder(interVpnLinkState.getFirstEndpointState())
-                .setDpId(firstDpnList).build();
+            new FirstEndpointStateBuilder(interVpnLinkState.getFirstEndpointState()).setDpId(firstDpnList).build();
         SecondEndpointState secondEndPointState =
-            new SecondEndpointStateBuilder(interVpnLinkState.getSecondEndpointState())
-                .setDpId(secondDpnList).build();
-        InterVpnLinkState newInterVpnLinkState = new InterVpnLinkStateBuilder(interVpnLinkState)
-            .setState(InterVpnLinkState.State.Active)
-            .setFirstEndpointState(firstEndPointState)
-            .setSecondEndpointState(secondEndPointState)
-            .build();
+            new SecondEndpointStateBuilder(interVpnLinkState.getSecondEndpointState()).setDpId(secondDpnList).build();
+        InterVpnLinkState newInterVpnLinkState =
+            new InterVpnLinkStateBuilder(interVpnLinkState).setState(InterVpnLinkState.State.Active)
+                    .setFirstEndpointState(firstEndPointState).setSecondEndpointState(secondEndPointState)
+                    .build();
         WriteTransaction tx = broker.newWriteOnlyTransaction();
         tx.merge(LogicalDatastoreType.CONFIGURATION,
             InterVpnLinkUtil.getInterVpnLinkStateIid(interVpnLinkState.getInterVpnLinkName()), newInterVpnLinkState,
