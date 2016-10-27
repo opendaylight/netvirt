@@ -13,6 +13,7 @@ import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 import java.math.BigInteger;
+import java.util.Arrays;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -20,6 +21,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
+import java.util.concurrent.TimeoutException;
+import java.util.stream.Collectors;
+import java.util.concurrent.Callable;
+import java.lang.StringBuffer;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.NotificationPublishService;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
@@ -36,12 +41,14 @@ import org.opendaylight.netvirt.fibmanager.api.RouteOrigin;
 import org.opendaylight.netvirt.vpnmanager.VpnConstants;
 import org.opendaylight.netvirt.vpnmanager.VpnFootprintService;
 import org.opendaylight.netvirt.vpnmanager.VpnUtil;
+import org.opendaylight.netvirt.vpnmanager.api.intervpnlink.IVpnLinkService;
 import org.opendaylight.netvirt.vpnmanager.api.intervpnlink.InterVpnLinkCache;
 import org.opendaylight.netvirt.vpnmanager.api.intervpnlink.InterVpnLinkDataComposite;
 import org.opendaylight.netvirt.vpnmanager.intervpnlink.tasks.InterVpnLinkCleanedCheckerTask;
 import org.opendaylight.netvirt.vpnmanager.intervpnlink.tasks.InterVpnLinkCreatorTask;
 import org.opendaylight.netvirt.vpnmanager.intervpnlink.tasks.InterVpnLinkRemoverTask;
 import org.opendaylight.netvirt.vpnmanager.VpnOpDataSyncer;
+import org.opendaylight.netvirt.vpnmanager.utilities.InterfaceUtils;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.FlowId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.tables.table.Flow;
@@ -86,7 +93,6 @@ public class InterVpnLinkListener extends AsyncDataTreeChangeListenerBase<InterV
 
     private static final long INVALID_ID = 0;
 
-    private final InterVpnLinkService ivpnLinkService;
     private final DataBroker dataBroker;
     private final IMdsalApiManager mdsalManager;
     private final IdManagerService idManager;
@@ -95,6 +101,8 @@ public class InterVpnLinkListener extends AsyncDataTreeChangeListenerBase<InterV
     private final NotificationPublishService notificationsService;
     private final VpnFootprintService vpnFootprintService;
     private final VpnOpDataSyncer vpnOpDataSyncer;
+    private final IVpnLinkService ivpnLinkService;
+    private final InterVpnLinkLocator ivpnLinkLocator;
 
 
     // A couple of listener in order to maintain the InterVpnLink cache
@@ -105,7 +113,7 @@ public class InterVpnLinkListener extends AsyncDataTreeChangeListenerBase<InterV
     public InterVpnLinkListener(final DataBroker dataBroker, final IdManagerService idManager,
                                 final IMdsalApiManager mdsalManager, final IBgpManager bgpManager,
                                 final IFibManager fibManager, final NotificationPublishService notifService,
-                                final InterVpnLinkService interVpnLinkService,
+                                final IVpnLinkService interVpnLinkService,
                                 final VpnFootprintService vpnFootprintService,
                                 final VpnOpDataSyncer vpnOpDataSyncer) {
         super(InterVpnLink.class, InterVpnLinkListener.class);
@@ -118,15 +126,12 @@ public class InterVpnLinkListener extends AsyncDataTreeChangeListenerBase<InterV
         this.ivpnLinkService = interVpnLinkService;
         this.vpnFootprintService = vpnFootprintService;
         this.vpnOpDataSyncer = vpnOpDataSyncer;
+        this.ivpnLinkLocator = new InterVpnLinkLocator(dataBroker);
     }
-
 
     public void start() {
         LOG.info("{} start", getClass().getSimpleName());
         registerListener(LogicalDatastoreType.CONFIGURATION, dataBroker);
-        InterVpnLinkCache.createInterVpnLinkCaches(dataBroker);
-        iVpnLinkCacheFeeder = new InterVpnLinkCacheFeeder(dataBroker);
-        iVpnLinkStateCacheFeeder = new InterVpnLinkStateCacheFeeder(dataBroker);
     }
 
     @Override
@@ -142,14 +147,15 @@ public class InterVpnLinkListener extends AsyncDataTreeChangeListenerBase<InterV
     @Override
     protected void add(InstanceIdentifier<InterVpnLink> identifier, InterVpnLink add) {
 
+        String ivpnLinkName = add.getName();
 
         LOG.debug("Reacting to IVpnLink {} creation. Vpn1=[name={}  EndpointIp={}]  Vpn2=[name={} endpointIP={}]",
-                  add.getName(), add.getFirstEndpoint().getVpnUuid(), add.getFirstEndpoint().getIpAddress(),
+                  ivpnLinkName, add.getFirstEndpoint().getVpnUuid(), add.getFirstEndpoint().getIpAddress(),
                   add.getSecondEndpoint().getVpnUuid(), add.getSecondEndpoint().getIpAddress());
 
         // Create VpnLink state
-        InstanceIdentifier<InterVpnLinkState> vpnLinkStateIid = InterVpnLinkUtil.getInterVpnLinkStateIid(add.getName());
-        InterVpnLinkState vpnLinkState = new InterVpnLinkStateBuilder().setInterVpnLinkName(add.getName()).build();
+        InstanceIdentifier<InterVpnLinkState> vpnLinkStateIid = InterVpnLinkUtil.getInterVpnLinkStateIid(ivpnLinkName);
+        InterVpnLinkState vpnLinkState = new InterVpnLinkStateBuilder().setInterVpnLinkName(ivpnLinkName).build();
         MDSALUtil.syncWrite(dataBroker, LogicalDatastoreType.CONFIGURATION, vpnLinkStateIid, vpnLinkState);
 
         InterVpnLinkKey key = add.getKey();
@@ -159,13 +165,13 @@ public class InterVpnLinkListener extends AsyncDataTreeChangeListenerBase<InterV
         String vpn2Name = vpn2Uuid.getValue();
         // First VPN
         if ( VpnUtil.getVpnInstance(this.dataBroker, vpn1Name) == null ) {
-            String errMsg = "InterVpnLink " + add.getName() + " creation error: could not find 1st endpoint Vpn "
+            String errMsg = "InterVpnLink " + ivpnLinkName + " creation error: could not find 1st endpoint Vpn "
                             + vpn1Name;
             setInError(vpnLinkStateIid, vpnLinkState, errMsg);
             return;
         }
         if (!checkVpnAvailability(key, vpn1Uuid)) {
-            String errMsg = "InterVpnLink " + add.getName() + " creation error: Vpn " + vpn1Name
+            String errMsg = "InterVpnLink " + ivpnLinkName + " creation error: Vpn " + vpn1Name
                             + " is already associated to an inter-vpn-link ";
             setInError(vpnLinkStateIid, vpnLinkState, errMsg);
             return;
@@ -173,13 +179,13 @@ public class InterVpnLinkListener extends AsyncDataTreeChangeListenerBase<InterV
 
         // Second VPN
         if ( VpnUtil.getVpnInstance(this.dataBroker, vpn2Name) == null ) {
-            String errMsg = "InterVpnLink " + add.getName() + " creation error: could not find 2nd endpoint Vpn "
+            String errMsg = "InterVpnLink " + ivpnLinkName + " creation error: could not find 2nd endpoint Vpn "
                              + vpn2Name;
             setInError(vpnLinkStateIid, vpnLinkState, errMsg);
             return;
         }
         if (!checkVpnAvailability(key, vpn2Uuid)) {
-            String errMsg = "InterVpnLink " + add.getName() + " creation error: Vpn " + vpn2Name
+            String errMsg = "InterVpnLink " + ivpnLinkName + " creation error: Vpn " + vpn2Name
                             + " is already associated with an inter-vpn-link";
             setInError(vpnLinkStateIid, vpnLinkState, errMsg);
             return;
@@ -195,7 +201,7 @@ public class InterVpnLinkListener extends AsyncDataTreeChangeListenerBase<InterV
                                                     VpnConstants.PER_VPN_INSTANCE_MAX_WAIT_TIME_IN_MILLISECONDS);
             if ( !vpn1Ready ) {
                 String errMsg =
-                    "InterVpnLink " + add.getName() + " creation error: Operational Data for VPN " + vpn1Name +
+                    "InterVpnLink " + ivpnLinkName + " creation error: Operational Data for VPN " + vpn1Name +
                     " not ready after " + VpnConstants.PER_INTERFACE_MAX_WAIT_TIME_IN_MILLISECONDS + " milliseconds";
                 setInError(vpnLinkStateIid, vpnLinkState, errMsg);
                 return;
@@ -208,14 +214,14 @@ public class InterVpnLinkListener extends AsyncDataTreeChangeListenerBase<InterV
                                                     VpnConstants.PER_VPN_INSTANCE_MAX_WAIT_TIME_IN_MILLISECONDS);
             if ( !vpn1Ready ) {
                 String errMsg =
-                    "InterVpnLink " + add.getName() + " creation error: Operational Data for VPN " + vpn2Name +
+                    "InterVpnLink " + ivpnLinkName + " creation error: Operational Data for VPN " + vpn2Name +
                     " not ready after " + VpnConstants.PER_INTERFACE_MAX_WAIT_TIME_IN_MILLISECONDS + " milliseconds";
                 setInError(vpnLinkStateIid, vpnLinkState, errMsg);
                 return;
             }
         }
 
-        List<BigInteger> firstDpnList = ivpnLinkService.selectSuitableDpns(add);
+        List<BigInteger> firstDpnList = ivpnLinkLocator.selectSuitableDpns(add);
         if (firstDpnList != null && !firstDpnList.isEmpty()) {
             List<BigInteger> secondDpnList = firstDpnList;
 
@@ -228,16 +234,16 @@ public class InterVpnLinkListener extends AsyncDataTreeChangeListenerBase<InterV
                 new SecondEndpointStateBuilder().setVpnUuid(vpn2Uuid).setDpId(secondDpnList)
                                                 .setLportTag(secondVpnLportTag).build();
 
-            InterVpnLinkUtil.updateInterVpnLinkState(dataBroker, add.getName(), InterVpnLinkState.State.Active,
+            InterVpnLinkUtil.updateInterVpnLinkState(dataBroker, ivpnLinkName, InterVpnLinkState.State.Active,
                                                      firstEndPointState, secondEndPointState);
 
-            Optional<InterVpnLinkDataComposite> iVpnLink = InterVpnLinkCache.getInterVpnLinkByName(add.getName());
+            Optional<InterVpnLinkDataComposite> iVpnLink = InterVpnLinkCache.getInterVpnLinkByName(ivpnLinkName);
 
             // Note that in the DPN of the firstEndpoint we install the lportTag of the secondEndpoint and viceversa
-            InterVpnLinkUtil.installLPortDispatcherTableFlow(dataBroker, mdsalManager, add, firstDpnList,
-                                                             vpn2Uuid, secondVpnLportTag);
-            InterVpnLinkUtil.installLPortDispatcherTableFlow(dataBroker, mdsalManager, add, secondDpnList,
-                                                             vpn1Uuid, firstVpnLportTag);
+            InterVpnLinkUtil.installLPortDispatcherTableFlow(dataBroker, mdsalManager, ivpnLinkName, firstDpnList,
+                                                             vpn2Name, secondVpnLportTag);
+            InterVpnLinkUtil.installLPortDispatcherTableFlow(dataBroker, mdsalManager, ivpnLinkName, secondDpnList,
+                                                             vpn1Name, firstVpnLportTag);
             // Update the VPN -> DPNs Map.
             // Note: when a set of DPNs is calculated for Vpn1, these DPNs are added to the VpnToDpn map of Vpn2. Why?
             // because we do the handover from Vpn1 to Vpn2 in those DPNs, so in those DPNs we must know how to reach
@@ -250,7 +256,7 @@ public class InterVpnLinkListener extends AsyncDataTreeChangeListenerBase<InterV
             handleStaticRoutes(iVpnLink.get());
 
             // Now, if the corresponding flags are activated, there will be some routes exchange
-            leakRoutesIfNeeded(add);
+            iVpnLinkService.exchangeRoutes(iVpnLink.get());
         } else {
             // If there is no connection to DPNs, the InterVpnLink is created and the InterVpnLinkState is also created
             // with the corresponding LPortTags but no DPN is assigned since there is no DPN operative.
@@ -262,7 +268,7 @@ public class InterVpnLinkListener extends AsyncDataTreeChangeListenerBase<InterV
             SecondEndpointState secondEndPointState =
                 new SecondEndpointStateBuilder().setVpnUuid(vpn2Uuid).setLportTag(secondVpnLportTag)
                                                 .setDpId(Collections.emptyList()).build();
-            InterVpnLinkUtil.updateInterVpnLinkState(dataBroker, add.getName(), InterVpnLinkState.State.Error,
+            InterVpnLinkUtil.updateInterVpnLinkState(dataBroker, ivpnLinkName, InterVpnLinkState.State.Error,
                                                      firstEndPointState, secondEndPointState);
         }
     }
@@ -329,7 +335,7 @@ public class InterVpnLinkListener extends AsyncDataTreeChangeListenerBase<InterV
         String destination = String.valueOf(route.getDestination().getValue());
 
         // is nexthop the other endpoint's IP
-        String otherEndpoint = iVpnLink.getOtherEndpoint(vpnId);
+        String otherEndpoint = iVpnLink.getOtherEndpointIpAddr(vpnId);
         if ( !routeNextHop.equals(otherEndpoint) ) {
             LOG.debug("VPN {}: Route to {} nexthop={} points to an InterVpnLink endpoint, but its not "
                       + "the other endpoint. Other endpoint is {}",
@@ -353,91 +359,6 @@ public class InterVpnLinkListener extends AsyncDataTreeChangeListenerBase<InterV
         } catch (Exception e) {
             LOG.warn("InterVpnLink [{}]: Could not handle static route [vpn={} prefix={} nexthop={} label={}]",
                      iVpnLink.getInterVpnLinkName(), vpnId, destination, routeNextHop, label, e);
-        }
-    }
-
-    private void leakRoutesIfNeeded(InterVpnLink vpnLink) {
-
-        // The type of routes to exchange depend on the leaking flags that have been activated
-        List<RouteOrigin> originsToConsider = new ArrayList<>();
-        if ( vpnLink.isBgpRoutesLeaking() ) {
-            originsToConsider.add(RouteOrigin.BGP);
-        }
-
-        /* For now, only BGP leaking. Leave this here for when the other leakings are activated
-        if ( vpnLink.isConnectedRoutesLeaking() ) {
-            originsToConsider.add(RouteOrigin.CONNECTED);
-        }
-        if ( vpnLink.isStaticRoutesLeaking() ) {
-            originsToConsider.add(RouteOrigin.STATIC);
-            NOTE: There are 2 types of static routes depending on the nexthop:
-              + static route when nexthop is a VM, the Dc-GW or a DPNIP
-              + static route when nexthop is an InterVPN Link
-            Only the 1st type should be considered since the 2nd has a special treatment
-        } */
-        String vpn1Uuid = vpnLink.getFirstEndpoint().getVpnUuid().getValue();
-        String vpn2Uuid = vpnLink.getSecondEndpoint().getVpnUuid().getValue();
-
-        if ( ! originsToConsider.isEmpty() ) {
-            // 1st Endpoint ==> 2nd endpoint
-            leakRoutes(vpnLink, vpn1Uuid, vpn2Uuid, originsToConsider);
-
-            // 2nd Endpoint ==> 1st endpoint
-            leakRoutes(vpnLink, vpn2Uuid, vpn1Uuid, originsToConsider);
-        }
-
-        // Static routes in Vpn1 pointing to Vpn2's endpoint
-        leakExtraRoutesToVpnEndpoint(vpnLink, vpn1Uuid, vpn2Uuid);
-
-        // Static routes in Vpn2 pointing to Vpn1's endpoint
-        leakExtraRoutesToVpnEndpoint(vpnLink, vpn2Uuid, vpn1Uuid);
-    }
-
-    private void leakRoutes(InterVpnLink vpnLink, String srcVpnUuid, String dstVpnUuid,
-                            List<RouteOrigin> originsToConsider) {
-        String srcVpnRd = VpnUtil.getVpnRd(dataBroker, srcVpnUuid);
-        String dstVpnRd = VpnUtil.getVpnRd(dataBroker, dstVpnUuid);
-        List<VrfEntry> srcVpnRemoteVrfEntries = VpnUtil.getVrfEntriesByOrigin(dataBroker, srcVpnRd, originsToConsider);
-        for ( VrfEntry vrfEntry : srcVpnRemoteVrfEntries ) {
-            long label = VpnUtil.getUniqueId(idManager, VpnConstants.VPN_IDPOOL_NAME,
-                                             VpnUtil.getNextHopLabelKey(dstVpnRd, vrfEntry.getDestPrefix()));
-            if (label == VpnConstants.INVALID_LABEL) {
-                LOG.error("Unable to fetch label from Id Manager. Bailing out of leaking routes for InterVpnLink {} rd {} prefix {}",
-                        vpnLink.getName(), dstVpnRd, vrfEntry.getDestPrefix());
-                continue;
-            }
-            InterVpnLinkUtil.leakRoute(dataBroker, bgpManager, vpnLink, srcVpnUuid, dstVpnUuid,
-                                       vrfEntry.getDestPrefix(), label);
-        }
-    }
-
-    /*
-     * Checks if there are static routes in Vpn1 whose nexthop is Vpn2's endpoint. Those routes must be leaked to Vpn1.
-     *
-     * @param vpnLink
-     * @param vpn1Uuid
-     * @param vpn2Uuid
-     */
-    private void leakExtraRoutesToVpnEndpoint(InterVpnLink vpnLink, String vpn1Uuid, String vpn2Uuid) {
-
-        String vpn1Rd = VpnUtil.getVpnRd(dataBroker, vpn1Uuid);
-        String vpn2Endpoint = vpnLink.getSecondEndpoint().getIpAddress().getValue();
-        List<VrfEntry> allVpnVrfEntries = VpnUtil.getAllVrfEntries(dataBroker, vpn1Rd);
-        for ( VrfEntry vrfEntry : allVpnVrfEntries ) {
-            if ( vrfEntry.getNextHopAddressList() != null
-                && vrfEntry.getNextHopAddressList().contains(vpn2Endpoint) ) {
-                // Vpn1 has a route pointing to Vpn2's endpoint. Forcing the leaking of the route will update the
-                // BGP accordingly
-                long label = VpnUtil.getUniqueId(idManager, VpnConstants.VPN_IDPOOL_NAME,
-                                                  VpnUtil.getNextHopLabelKey(vpn1Rd, vrfEntry.getDestPrefix()));
-                if (label == VpnConstants.INVALID_LABEL) {
-                    LOG.error("Unable to fetch label from Id Manager. Bailing out of leaking extra routes for InterVpnLink {} rd {} prefix {}",
-                              vpnLink.getName(), vpn1Rd, vrfEntry.getDestPrefix());
-                    continue;
-                }
-                InterVpnLinkUtil.leakRoute(dataBroker, bgpManager, vpnLink, vpn2Uuid, vpn1Uuid, vrfEntry.getDestPrefix(),
-                                           label, RouteOrigin.value(vrfEntry.getOrigin()));
-            }
         }
     }
 
@@ -467,8 +388,6 @@ public class InterVpnLinkListener extends AsyncDataTreeChangeListenerBase<InterV
         // Remove the corresponding entries in InterVpnLinkState
 
         // For each endpoint, remove all routes that have been learnt by intervpnLink
-
-
 
         String vpn1Uuid = del.getFirstEndpoint().getVpnUuid().getValue();
         String rd1 = VpnUtil.getVpnRdFromVpnInstanceConfig(dataBroker, vpn1Uuid);
