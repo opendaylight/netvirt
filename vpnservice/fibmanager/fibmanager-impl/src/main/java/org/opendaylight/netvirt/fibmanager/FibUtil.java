@@ -44,23 +44,9 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.adj
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.prefix.to._interface.vpn.ids.Prefixes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.id.to.vpn.instance.VpnIds;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.id.to.vpn.instance.VpnIdsKey;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data
-        .VpnInstanceOpDataEntry;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data
-        .VpnInstanceOpDataEntryKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.VpnInstanceOpDataEntry;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.VpnInstanceOpDataEntryKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.vpn.instance.op.data.entry.VpnToDpnList;
-
-
-
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.netvirt.inter.vpn.link.rev160311
-        .InterVpnLinkStates;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.netvirt.inter.vpn.link.rev160311.InterVpnLinks;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.netvirt.inter.vpn.link.rev160311.inter.vpn
-        .link.states.InterVpnLinkState;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.netvirt.inter.vpn.link.rev160311.inter.vpn
-        .link.states.InterVpnLinkStateKey;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.netvirt.inter.vpn.link.rev160311.inter.vpn
-        .links.InterVpnLink;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.common.RpcResult;
@@ -233,147 +219,6 @@ public class FibUtil {
                 : null);
     }
 
-    static List<InterVpnLink> getAllInterVpnLinks(DataBroker broker) {
-        InstanceIdentifier<InterVpnLinks> interVpnLinksIid = InstanceIdentifier.builder(InterVpnLinks.class).build();
-
-        Optional<InterVpnLinks> interVpnLinksOpData = MDSALUtil.read(broker, LogicalDatastoreType.CONFIGURATION,
-                                                                     interVpnLinksIid);
-
-        return interVpnLinksOpData.isPresent() ? interVpnLinksOpData.get().getInterVpnLink()
-                                               : new ArrayList<>();
-    }
-
-    /**
-     * Returns the instance identifier for a given vpnLinkName
-     *
-     * @param vpnLinkName
-     * @return
-     */
-    public static InstanceIdentifier<InterVpnLinkState> getInterVpnLinkStateIid(String vpnLinkName) {
-        return InstanceIdentifier.builder(InterVpnLinkStates.class).child(InterVpnLinkState.class, new InterVpnLinkStateKey(vpnLinkName)).build();
-    }
-
-    /**
-     * Checks if the InterVpnLink is in Active state
-     *
-     * @param broker
-     * @param vpnLinkName
-     * @return
-     */
-    public static boolean isInterVpnLinkActive(DataBroker broker, String vpnLinkName) {
-        Optional<InterVpnLinkState> interVpnLinkState = getInterVpnLinkState(broker, vpnLinkName);
-        if ( !interVpnLinkState.isPresent() ) {
-            LOG.warn("Could not find Operative State for InterVpnLink {}", vpnLinkName);
-            return false;
-        }
-
-        return interVpnLinkState.get().getState().equals(InterVpnLinkState.State.Active);
-    }
-
-    /**
-     * Checks if the state of the interVpnLink
-     *
-     * @param broker
-     * @param vpnLinkName
-     * @return
-     */
-    public static Optional<InterVpnLinkState> getInterVpnLinkState(DataBroker broker, String vpnLinkName) {
-        InstanceIdentifier<InterVpnLinkState> vpnLinkStateIid = getInterVpnLinkStateIid(vpnLinkName);
-        return read(broker, LogicalDatastoreType.CONFIGURATION, vpnLinkStateIid);
-    }
-
-    /**
-     * Retrieves the InterVpnLink in which the VPN, represented by its Uuid,
-     * participates
-     *
-     * @param dataBroker
-     * @param vpnUuid
-     * @return The InterVpnLink or Optional.absent() if the VPN does not
-     *         participate in an InterVpnLink
-     */
-    public static Optional<InterVpnLink> getInterVpnLinkByVpnUuid(DataBroker dataBroker, String vpnUuid) {
-        List<InterVpnLink> interVpnLinkList = getAllInterVpnLinks(dataBroker);
-        for (InterVpnLink interVpnLink : interVpnLinkList) {
-            if (interVpnLink.getFirstEndpoint().getVpnUuid().getValue().equals(vpnUuid)
-                    || interVpnLink.getSecondEndpoint().getVpnUuid().getValue().equals(vpnUuid)) {
-                LOG.debug("InterVpnLink found for VPN {}. Details: vpn1=( uuid={} endpoint={})  vpn2=( uuid={} endpoint={} ))",
-                        vpnUuid, interVpnLink.getFirstEndpoint().getVpnUuid(),
-                        interVpnLink.getFirstEndpoint().getIpAddress(), interVpnLink.getSecondEndpoint().getVpnUuid(),
-                        interVpnLink.getSecondEndpoint().getIpAddress());
-                return Optional.fromNullable(interVpnLink);
-            }
-        }
-        LOG.debug("Could not find a suitable InterVpnLink for VpnUuid={}", vpnUuid);
-        return Optional.absent();
-    }
-
-    /**
-     * Retrieves the InterVpnLink in which the VPN, represented by its
-     * Route-Distinguisher, participates.
-     *
-     * @param dataBroker
-     * @param rd
-     * @return The InterVpnLink or Optional.absent() if the VPN does not
-     *         participate in an InterVpnLink
-     */
-    public static Optional<InterVpnLink> getInterVpnLinkByRd(DataBroker dataBroker, String rd) {
-        Optional<String> vpnId = getVpnNameFromRd(dataBroker, rd);
-        if ( !vpnId.isPresent() ) {
-            LOG.debug("Could not find vpnId for RouteDistinguisher {}", rd);
-            return Optional.absent();
-        }
-
-        return getInterVpnLinkByVpnUuid(dataBroker, vpnId.get());
-    }
-
-    /**
-     * Checks if the route-distinguisher is involved in any inter-vpn-link, which is returned if its found.
-     *
-     * @param dataBroker
-     * @param rd
-     * @return
-     */
-    public static Optional<InterVpnLink> getActiveInterVpnLinkFromRd(DataBroker dataBroker, String rd) {
-
-        Optional<InterVpnLink> interVpnLink = getInterVpnLinkByRd(dataBroker, rd);
-        if ( interVpnLink.isPresent() ) {
-            if ( isInterVpnLinkActive(dataBroker, interVpnLink.get().getName()) ) {
-                return interVpnLink;
-            } else {
-                LOG.warn("InterVpnLink for RouteDistinguisher {} exists, but it's in error state. InterVpnLink={}",
-                        rd, interVpnLink.get().getName());
-                return Optional.absent();
-            }
-        }
-        return Optional.absent();
-    }
-
-    /**
-     * Checks if the route-distinguisher is involved in any inter-vpn-link. In that case, this method will return
-     * the endpoint of the other vpn involved in the inter-vpn-link.
-     *
-     * @param dataBroker
-     * @param rd
-     * @return
-     */
-    public static Optional<String> getInterVpnLinkOppositeEndPointIpAddress(DataBroker dataBroker, String rd) {
-        Optional<String> vpnId = getVpnNameFromRd(dataBroker, rd);
-        if ( !vpnId.isPresent() ) {
-            LOG.debug("Could not find the VpnName for RouteDistinguisher {}", rd);
-            return Optional.absent();
-        }
-        List<InterVpnLink> interVpnLinkList = getAllInterVpnLinks(dataBroker);
-        if (!interVpnLinkList.isEmpty()) {
-            for (InterVpnLink interVpnLink : interVpnLinkList) {
-                if (interVpnLink.getFirstEndpoint().getVpnUuid().getValue().equals(vpnId)) {
-                    return Optional.fromNullable(interVpnLink.getSecondEndpoint().getVpnUuid().getValue());
-                } else if (interVpnLink.getSecondEndpoint().getIpAddress().getValue().equals(vpnId)) {
-                    return Optional.fromNullable(interVpnLink.getFirstEndpoint().getIpAddress().getValue());
-                }
-            }
-        }
-        return Optional.absent();
-    }
 
     /**
      * Obtains the route-distinguisher for a given vpn-name
@@ -395,24 +240,6 @@ public class FibUtil {
             rd = vpnInstance.get().getVrfId();
         }
         return rd;
-    }
-
-    /**
-     * Returns a boolean value which indicates if the endpoint's IP received as parameter belongs to any InterVpnLink.
-     *
-     * @param broker
-     * @param endpointIp IP to serch for.
-     * @return
-     */
-    public static boolean getInterVpnLinkByEndpointIp(DataBroker broker, String endpointIp) {
-        List<InterVpnLink> allInterVpnLinks = getAllInterVpnLinks(broker);
-        for (InterVpnLink interVpnLink : allInterVpnLinks) {
-            if (interVpnLink.getFirstEndpoint().getIpAddress().getValue().equals(endpointIp)
-                    || interVpnLink.getSecondEndpoint().getIpAddress().getValue().equals(endpointIp)) {
-                return true;
-            }
-        }
-        return false;
     }
 
     public static int getUniqueId(IdManagerService idManager, String poolName, String idKey) {
@@ -695,23 +522,10 @@ public class FibUtil {
         }
     }
 
-    public static boolean isControllerManagedRoute(RouteOrigin routeOrigin) {
-        if (routeOrigin == RouteOrigin.STATIC ||
-                routeOrigin == RouteOrigin.CONNECTED ||
-                routeOrigin == RouteOrigin.LOCAL ||
-                routeOrigin == RouteOrigin.INTERVPN) {
-            return true;
-        }
-        return false;
-    }
-
     public static boolean isControllerManagedNonInterVpnLinkRoute(RouteOrigin routeOrigin)
     {
-        if (routeOrigin == RouteOrigin.STATIC ||
-                routeOrigin == RouteOrigin.CONNECTED ||
-                routeOrigin == RouteOrigin.LOCAL) {
-            return true;
-        }
-        return false;
+        return routeOrigin == RouteOrigin.STATIC
+                || routeOrigin == RouteOrigin.CONNECTED
+                || routeOrigin == RouteOrigin.LOCAL;
     }
 }
