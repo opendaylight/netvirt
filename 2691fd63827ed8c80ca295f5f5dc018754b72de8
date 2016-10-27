@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "3a65312a_8e992f71",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 2132,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2016-10-27T07:53:42Z",
+      "side": 1,
+      "message": "This is ping responder code for Neutron router interfaces. The way it works is by using OpenFlow rules. Currently OpenFlow rules only support ping response for IPv4. There is no support for Ping6, hence this validation.",
+      "parentUuid": "3a65312a_a81ce314",
+      "range": {
+        "startLine": 2132,
+        "startChar": 13,
+        "endLine": 2132,
+        "endChar": 26
+      },
+      "revId": "2691fd63827ed8c80ca295f5f5dc018754b72de8",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "3a65312a_68b00bf5",
         "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronPortChangeListener.java",
         "patchSetId": 2
@@ -36,6 +60,30 @@
       "writtenOn": "2016-10-26T16:24:06Z",
       "side": 1,
       "message": "Is adding the Router/Gateway Mac address to Table 19 happen inside this method?",
+      "range": {
+        "startLine": 277,
+        "startChar": 24,
+        "endLine": 277,
+        "endChar": 48
+      },
+      "revId": "2691fd63827ed8c80ca295f5f5dc018754b72de8",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a65312a_4e04377e",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronPortChangeListener.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 277,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2016-10-27T07:53:42Z",
+      "side": 1,
+      "message": "AFAIU its done over here - https://github.com/opendaylight/netvirt/blob/master/vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnUtil.java#L1318",
+      "parentUuid": "3a65312a_68b00bf5",
       "range": {
         "startLine": 277,
         "startChar": 24,
