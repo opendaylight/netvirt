@@ -149,6 +149,7 @@ public class InterfaceStateChangeListener extends AsyncDataTreeChangeListenerBas
                                 vpnInterfaceManager.processVpnInterfaceDown(dpnId, interfaceName, ifIndex, false, false,
                                         writeConfigTxn, writeOperTxn, writeInvTxn);
                                 List<ListenableFuture<Void>> futures = new ArrayList<ListenableFuture<Void>>();
+                                futures.add(writeOperTxn.submit());
                                 futures.add(writeConfigTxn.submit());
                                 futures.add(writeInvTxn.submit());
                                 return futures;
