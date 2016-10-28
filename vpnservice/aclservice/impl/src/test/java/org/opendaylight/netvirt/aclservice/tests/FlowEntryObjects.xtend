@@ -14,6 +14,7 @@ import org.opendaylight.genius.mdsalutil.InstructionInfo
 import org.opendaylight.genius.mdsalutil.InstructionType
 import org.opendaylight.genius.mdsalutil.MatchFieldType
 import org.opendaylight.genius.mdsalutil.MatchInfoBuilder
+import org.opendaylight.genius.mdsalutil.MetaDataUtil
 import org.opendaylight.genius.mdsalutil.NxMatchFieldType
 import org.opendaylight.genius.mdsalutil.NxMatchInfoBuilder
 
@@ -123,7 +124,7 @@ class FlowEntryObjects {
                     new MatchInfoBuilder >> [
                         bigMatchValues = #[
                             1085217976614912bi,
-                            2305841909702066176bi
+                            MetaDataUtil.METADATA_MASK_LPORT_TAG
                         ]
                         matchField = MatchFieldType.metadata
                     ]
@@ -173,7 +174,7 @@ class FlowEntryObjects {
                     new MatchInfoBuilder >> [
                         bigMatchValues = #[
                             1085217976614912bi,
-                            2305841909702066176bi
+                            MetaDataUtil.METADATA_MASK_LPORT_TAG
                         ]
                         matchField = MatchFieldType.metadata
                     ]
@@ -218,7 +219,7 @@ class FlowEntryObjects {
                     new MatchInfoBuilder >> [
                         bigMatchValues = #[
                             1085217976614912bi,
-                            2305841909702066176bi
+                            MetaDataUtil.METADATA_MASK_LPORT_TAG
                         ]
                         matchField = MatchFieldType.metadata
                     ]
@@ -263,7 +264,7 @@ class FlowEntryObjects {
                     new MatchInfoBuilder >> [
                         bigMatchValues = #[
                             1085217976614912bi,
-                            2305841909702066176bi
+                            MetaDataUtil.METADATA_MASK_LPORT_TAG
                         ]
                         matchField = MatchFieldType.metadata
                     ]
@@ -308,7 +309,7 @@ class FlowEntryObjects {
                     new MatchInfoBuilder >> [
                         bigMatchValues = #[
                             1085217976614912bi,
-                            2305841909702066176bi
+                            MetaDataUtil.METADATA_MASK_LPORT_TAG
                         ]
                         matchField = MatchFieldType.metadata
                     ]
@@ -340,7 +341,7 @@ class FlowEntryObjects {
                     new MatchInfoBuilder >> [
                         bigMatchValues = #[
                             1085217976614912bi,
-                            2305841909702066176bi
+                            MetaDataUtil.METADATA_MASK_LPORT_TAG
                         ]
                         matchField = MatchFieldType.metadata
                     ]
@@ -491,7 +492,7 @@ class FlowEntryObjects {
                     new MatchInfoBuilder >> [
                         bigMatchValues = #[
                             1085217976614912bi,
-                            2305841909702066176bi
+                            MetaDataUtil.METADATA_MASK_LPORT_TAG
                         ]
                         matchField = MatchFieldType.metadata
                     ]
@@ -541,7 +542,7 @@ class FlowEntryObjects {
                     new MatchInfoBuilder >> [
                         bigMatchValues = #[
                             1085217976614912bi,
-                            2305841909702066176bi
+                            MetaDataUtil.METADATA_MASK_LPORT_TAG
                         ]
                         matchField = MatchFieldType.metadata
                     ]
@@ -583,7 +584,7 @@ class FlowEntryObjects {
                     new MatchInfoBuilder >> [
                         bigMatchValues = #[
                             1085217976614912bi,
-                            2305841909702066176bi
+                            MetaDataUtil.METADATA_MASK_LPORT_TAG
                         ]
                         matchField = MatchFieldType.metadata
                     ]
@@ -625,7 +626,7 @@ class FlowEntryObjects {
                     new MatchInfoBuilder >> [
                         bigMatchValues = #[
                             1085217976614912bi,
-                            2305841909702066176bi
+                            MetaDataUtil.METADATA_MASK_LPORT_TAG
                         ]
                         matchField = MatchFieldType.metadata
                     ]
@@ -663,7 +664,7 @@ class FlowEntryObjects {
                     new MatchInfoBuilder >> [
                         bigMatchValues = #[
                             1085217976614912bi,
-                            2305841909702066176bi
+                            MetaDataUtil.METADATA_MASK_LPORT_TAG
                         ]
                         matchField = MatchFieldType.metadata
                     ]
@@ -700,7 +701,7 @@ class FlowEntryObjects {
                     new MatchInfoBuilder >> [
                         bigMatchValues = #[
                             1085217976614912bi,
-                            2305841909702066176bi
+                            MetaDataUtil.METADATA_MASK_LPORT_TAG
                         ]
                         matchField = MatchFieldType.metadata
                     ]
@@ -738,7 +739,7 @@ class FlowEntryObjects {
                     new MatchInfoBuilder >> [
                         bigMatchValues = #[
                             1085217976614912bi,
-                            2305841909702066176bi
+                            MetaDataUtil.METADATA_MASK_LPORT_TAG
                         ]
                         matchField = MatchFieldType.metadata
                     ]
@@ -842,7 +843,7 @@ class FlowEntryObjects {
                     new MatchInfoBuilder >> [
                         bigMatchValues = #[
                             1085217976614912bi,
-                            2305841909702066176bi
+                            MetaDataUtil.METADATA_MASK_LPORT_TAG
                         ]
                         matchField = MatchFieldType.metadata
                     ]
@@ -892,7 +893,7 @@ class FlowEntryObjects {
                     new MatchInfoBuilder >> [
                         bigMatchValues = #[
                             1085217976614912bi,
-                            2305841909702066176bi
+                            MetaDataUtil.METADATA_MASK_LPORT_TAG
                         ]
                         matchField = MatchFieldType.metadata
                     ]
@@ -937,7 +938,7 @@ class FlowEntryObjects {
                     new MatchInfoBuilder >> [
                         bigMatchValues = #[
                             1085217976614912bi,
-                            2305841909702066176bi
+                            MetaDataUtil.METADATA_MASK_LPORT_TAG
                         ]
                         matchField = MatchFieldType.metadata
                     ]
@@ -982,7 +983,7 @@ class FlowEntryObjects {
                     new MatchInfoBuilder >> [
                         bigMatchValues = #[
                             1085217976614912bi,
-                            2305841909702066176bi
+                            MetaDataUtil.METADATA_MASK_LPORT_TAG
                         ]
                         matchField = MatchFieldType.metadata
                     ]
@@ -1027,7 +1028,7 @@ class FlowEntryObjects {
                     new MatchInfoBuilder >> [
                         bigMatchValues = #[
                             1085217976614912bi,
-                            2305841909702066176bi
+                            MetaDataUtil.METADATA_MASK_LPORT_TAG
                         ]
                         matchField = MatchFieldType.metadata
                     ]
@@ -1059,7 +1060,7 @@ class FlowEntryObjects {
                     new MatchInfoBuilder >> [
                         bigMatchValues = #[
                             1085217976614912bi,
-                            2305841909702066176bi
+                            MetaDataUtil.METADATA_MASK_LPORT_TAG
                         ]
                         matchField = MatchFieldType.metadata
                     ]
@@ -1223,7 +1224,7 @@ class FlowEntryObjects {
                     new MatchInfoBuilder >> [
                         bigMatchValues = #[
                             1085217976614912bi,
-                            2305841909702066176bi
+                            MetaDataUtil.METADATA_MASK_LPORT_TAG
                         ]
                         matchField = MatchFieldType.metadata
                     ],
@@ -1294,7 +1295,7 @@ class FlowEntryObjects {
                     new MatchInfoBuilder >> [
                         bigMatchValues = #[
                             1085217976614912bi,
-                            2305841909702066176bi
+                            MetaDataUtil.METADATA_MASK_LPORT_TAG
                         ]
                         matchField = MatchFieldType.metadata
                     ],
@@ -1356,7 +1357,7 @@ class FlowEntryObjects {
                     new MatchInfoBuilder >> [
                         bigMatchValues = #[
                             1085217976614912bi,
-                            2305841909702066176bi
+                            MetaDataUtil.METADATA_MASK_LPORT_TAG
                         ]
                         matchField = MatchFieldType.metadata
                     ]
@@ -1406,7 +1407,7 @@ class FlowEntryObjects {
                     new MatchInfoBuilder >> [
                         bigMatchValues = #[
                             1085217976614912bi,
-                            2305841909702066176bi
+                            MetaDataUtil.METADATA_MASK_LPORT_TAG
                         ]
                         matchField = MatchFieldType.metadata
                     ]
@@ -1448,7 +1449,7 @@ class FlowEntryObjects {
                     new MatchInfoBuilder >> [
                         bigMatchValues = #[
                             1085217976614912bi,
-                            2305841909702066176bi
+                            MetaDataUtil.METADATA_MASK_LPORT_TAG
                         ]
                         matchField = MatchFieldType.metadata
                     ]
@@ -1490,7 +1491,7 @@ class FlowEntryObjects {
                     new MatchInfoBuilder >> [
                         bigMatchValues = #[
                             1085217976614912bi,
-                            2305841909702066176bi
+                            MetaDataUtil.METADATA_MASK_LPORT_TAG
                         ]
                         matchField = MatchFieldType.metadata
                     ]
@@ -1528,7 +1529,7 @@ class FlowEntryObjects {
                     new MatchInfoBuilder >> [
                         bigMatchValues = #[
                             1085217976614912bi,
-                            2305841909702066176bi
+                            MetaDataUtil.METADATA_MASK_LPORT_TAG
                         ]
                         matchField = MatchFieldType.metadata
                     ]
@@ -1565,7 +1566,7 @@ class FlowEntryObjects {
                     new MatchInfoBuilder >> [
                         bigMatchValues = #[
                             1085217976614912bi,
-                            2305841909702066176bi
+                            MetaDataUtil.METADATA_MASK_LPORT_TAG
                         ]
                         matchField = MatchFieldType.metadata
                     ]
@@ -1603,7 +1604,7 @@ class FlowEntryObjects {
                     new MatchInfoBuilder >> [
                         bigMatchValues = #[
                             1085217976614912bi,
-                            2305841909702066176bi
+                            MetaDataUtil.METADATA_MASK_LPORT_TAG
                         ]
                         matchField = MatchFieldType.metadata
                     ]
@@ -1706,7 +1707,7 @@ class FlowEntryObjects {
                     new MatchInfoBuilder >> [
                         bigMatchValues = #[
                             1085217976614912bi,
-                            2305841909702066176bi
+                            MetaDataUtil.METADATA_MASK_LPORT_TAG
                         ]
                         matchField = MatchFieldType.metadata
                     ],
@@ -1766,7 +1767,7 @@ class FlowEntryObjects {
                     new MatchInfoBuilder >> [
                         bigMatchValues = #[
                             1085217976614912bi,
-                            2305841909702066176bi
+                            MetaDataUtil.METADATA_MASK_LPORT_TAG
                         ]
                         matchField = MatchFieldType.metadata
                     ],
@@ -1839,7 +1840,7 @@ class FlowEntryObjects {
                     new MatchInfoBuilder >> [
                         bigMatchValues = #[
                             1085217976614912bi,
-                            2305841909702066176bi
+                            MetaDataUtil.METADATA_MASK_LPORT_TAG
                         ]
                         matchField = MatchFieldType.metadata
                     ],
@@ -1912,7 +1913,7 @@ class FlowEntryObjects {
                     new MatchInfoBuilder >> [
                         bigMatchValues = #[
                             1085217976614912bi,
-                            2305841909702066176bi
+                            MetaDataUtil.METADATA_MASK_LPORT_TAG
                         ]
                         matchField = MatchFieldType.metadata
                     ],
@@ -2001,7 +2002,7 @@ class FlowEntryObjects {
                     new MatchInfoBuilder >> [
                         bigMatchValues = #[
                             1085217976614912bi,
-                            2305841909702066176bi
+                            MetaDataUtil.METADATA_MASK_LPORT_TAG
                         ]
                         matchField = MatchFieldType.metadata
                     ],
@@ -2082,7 +2083,7 @@ class FlowEntryObjects {
                     new MatchInfoBuilder >> [
                         bigMatchValues = #[
                             1085217976614912bi,
-                            2305841909702066176bi
+                            MetaDataUtil.METADATA_MASK_LPORT_TAG
                         ]
                         matchField = MatchFieldType.metadata
                     ],
@@ -2155,7 +2156,7 @@ class FlowEntryObjects {
                     new MatchInfoBuilder >> [
                         bigMatchValues = #[
                             1085217976614912bi,
-                            2305841909702066176bi
+                            MetaDataUtil.METADATA_MASK_LPORT_TAG
                         ]
                         matchField = MatchFieldType.metadata
                     ],
@@ -2244,7 +2245,7 @@ class FlowEntryObjects {
                     new MatchInfoBuilder >> [
                         bigMatchValues = #[
                             1085217976614912bi,
-                            2305841909702066176bi
+                            MetaDataUtil.METADATA_MASK_LPORT_TAG
                         ]
                         matchField = MatchFieldType.metadata
                     ],
@@ -2325,7 +2326,7 @@ class FlowEntryObjects {
                     new MatchInfoBuilder >> [
                         bigMatchValues = #[
                             1085217976614912bi,
-                            2305841909702066176bi
+                            MetaDataUtil.METADATA_MASK_LPORT_TAG
                         ]
                         matchField = MatchFieldType.metadata
                     ],
@@ -2398,7 +2399,7 @@ class FlowEntryObjects {
                     new MatchInfoBuilder >> [
                         bigMatchValues = #[
                             1085217976614912bi,
-                            2305841909702066176bi
+                            MetaDataUtil.METADATA_MASK_LPORT_TAG
                         ]
                         matchField = MatchFieldType.metadata
                     ],
@@ -2471,7 +2472,7 @@ class FlowEntryObjects {
                     new MatchInfoBuilder >> [
                         bigMatchValues = #[
                             1085217976614912bi,
-                            2305841909702066176bi
+                            MetaDataUtil.METADATA_MASK_LPORT_TAG
                         ]
                         matchField = MatchFieldType.metadata
                     ],
@@ -2544,7 +2545,7 @@ class FlowEntryObjects {
                     new MatchInfoBuilder >> [
                         bigMatchValues = #[
                             1085217976614912bi,
-                            2305841909702066176bi
+                            MetaDataUtil.METADATA_MASK_LPORT_TAG
                         ]
                         matchField = MatchFieldType.metadata
                     ],
@@ -2633,7 +2634,7 @@ class FlowEntryObjects {
                     new MatchInfoBuilder >> [
                         bigMatchValues = #[
                             1085217976614912bi,
-                            2305841909702066176bi
+                            MetaDataUtil.METADATA_MASK_LPORT_TAG
                         ]
                         matchField = MatchFieldType.metadata
                     ],
@@ -2717,7 +2718,7 @@ class FlowEntryObjects {
                     new MatchInfoBuilder >> [
                         bigMatchValues = #[
                             1085217976614912bi,
-                            2305841909702066176bi
+                            MetaDataUtil.METADATA_MASK_LPORT_TAG
                         ]
                         matchField = MatchFieldType.metadata
                     ],
@@ -2790,7 +2791,7 @@ class FlowEntryObjects {
 		            new MatchInfoBuilder >> [
 		                bigMatchValues = #[
 		                    1085217976614912bi,
-		                    2305841909702066176bi
+		                    MetaDataUtil.METADATA_MASK_LPORT_TAG
 		                ]
 		                matchField = MatchFieldType.metadata
 		            ],
@@ -2863,7 +2864,7 @@ class FlowEntryObjects {
 		            new MatchInfoBuilder >> [
 		                bigMatchValues = #[
 		                    1085217976614912bi,
-		                    2305841909702066176bi
+		                    MetaDataUtil.METADATA_MASK_LPORT_TAG
 		                ]
 		                matchField = MatchFieldType.metadata
 		            ],
@@ -2931,7 +2932,7 @@ class FlowEntryObjects {
 		            new MatchInfoBuilder >> [
 		                bigMatchValues = #[
 		                    1085217976614912bi,
-		                    2305841909702066176bi
+		                    MetaDataUtil.METADATA_MASK_LPORT_TAG
 		                ]
 		                matchField = MatchFieldType.metadata
 		            ],
@@ -2999,7 +3000,7 @@ class FlowEntryObjects {
 		            new MatchInfoBuilder >> [
 		                bigMatchValues = #[
 		                    1085217976614912bi,
-		                    2305841909702066176bi
+		                    MetaDataUtil.METADATA_MASK_LPORT_TAG
 		                ]
 		                matchField = MatchFieldType.metadata
 		            ],
@@ -3067,7 +3068,7 @@ class FlowEntryObjects {
 		            new MatchInfoBuilder >> [
 		                bigMatchValues = #[
 		                    1085217976614912bi,
-		                    2305841909702066176bi
+		                    MetaDataUtil.METADATA_MASK_LPORT_TAG
 		                ]
 		                matchField = MatchFieldType.metadata
 		            ],
@@ -3135,7 +3136,7 @@ class FlowEntryObjects {
 		            new MatchInfoBuilder >> [
 		                bigMatchValues = #[
 		                    1085217976614912bi,
-		                    2305841909702066176bi
+		                    MetaDataUtil.METADATA_MASK_LPORT_TAG
 		                ]
 		                matchField = MatchFieldType.metadata
 		            ],
@@ -3203,7 +3204,7 @@ class FlowEntryObjects {
 		            new MatchInfoBuilder >> [
 		                bigMatchValues = #[
 		                    1085217976614912bi,
-		                    2305841909702066176bi
+		                    MetaDataUtil.METADATA_MASK_LPORT_TAG
 		                ]
 		                matchField = MatchFieldType.metadata
 		            ],
@@ -3271,7 +3272,7 @@ class FlowEntryObjects {
 		            new MatchInfoBuilder >> [
 		                bigMatchValues = #[
 		                    1085217976614912bi,
-		                    2305841909702066176bi
+		                    MetaDataUtil.METADATA_MASK_LPORT_TAG
 		                ]
 		                matchField = MatchFieldType.metadata
 		            ],
@@ -3339,7 +3340,7 @@ class FlowEntryObjects {
 		            new MatchInfoBuilder >> [
 		                bigMatchValues = #[
 		                    1085217976614912bi,
-		                    2305841909702066176bi
+		                    MetaDataUtil.METADATA_MASK_LPORT_TAG
 		                ]
 		                matchField = MatchFieldType.metadata
 		            ],
@@ -3405,7 +3406,7 @@ class FlowEntryObjects {
 		            new MatchInfoBuilder >> [
 		                bigMatchValues = #[
 		                    1085217976614912bi,
-		                    2305841909702066176bi
+		                    MetaDataUtil.METADATA_MASK_LPORT_TAG
 		                ]
 		                matchField = MatchFieldType.metadata
 		            ],
@@ -3471,7 +3472,7 @@ class FlowEntryObjects {
 		            new MatchInfoBuilder >> [
 		                bigMatchValues = #[
 		                    1085217976614912bi,
-		                    2305841909702066176bi
+		                    MetaDataUtil.METADATA_MASK_LPORT_TAG
 		                ]
 		                matchField = MatchFieldType.metadata
 		            ],
@@ -3534,7 +3535,7 @@ class FlowEntryObjects {
                     new MatchInfoBuilder >> [
                         bigMatchValues = #[
                             1085217976614912bi,
-                            2305841909702066176bi
+                            MetaDataUtil.METADATA_MASK_LPORT_TAG
                         ]
                         matchField = MatchFieldType.metadata
                     ]
@@ -3584,7 +3585,7 @@ class FlowEntryObjects {
                     new MatchInfoBuilder >> [
                         bigMatchValues = #[
                             1085217976614912bi,
-                            2305841909702066176bi
+                            MetaDataUtil.METADATA_MASK_LPORT_TAG
                         ]
                         matchField = MatchFieldType.metadata
                     ]
@@ -3629,7 +3630,7 @@ class FlowEntryObjects {
                     new MatchInfoBuilder >> [
                         bigMatchValues = #[
                             1085217976614912bi,
-                            2305841909702066176bi
+                            MetaDataUtil.METADATA_MASK_LPORT_TAG
                         ]
                         matchField = MatchFieldType.metadata
                     ]
@@ -3674,7 +3675,7 @@ class FlowEntryObjects {
                     new MatchInfoBuilder >> [
                         bigMatchValues = #[
                             1085217976614912bi,
-                            2305841909702066176bi
+                            MetaDataUtil.METADATA_MASK_LPORT_TAG
                         ]
                         matchField = MatchFieldType.metadata
                     ]
@@ -3719,7 +3720,7 @@ class FlowEntryObjects {
                     new MatchInfoBuilder >> [
                         bigMatchValues = #[
                             1085217976614912bi,
-                            2305841909702066176bi
+                            MetaDataUtil.METADATA_MASK_LPORT_TAG
                         ]
                         matchField = MatchFieldType.metadata
                     ]
@@ -3751,7 +3752,7 @@ class FlowEntryObjects {
                     new MatchInfoBuilder >> [
                         bigMatchValues = #[
                             1085217976614912bi,
-                            2305841909702066176bi
+                            MetaDataUtil.METADATA_MASK_LPORT_TAG
                         ]
                         matchField = MatchFieldType.metadata
                     ]
@@ -3801,7 +3802,7 @@ class FlowEntryObjects {
                     new MatchInfoBuilder >> [
                         bigMatchValues = #[
                             1085217976614912bi,
-                            2305841909702066176bi
+                            MetaDataUtil.METADATA_MASK_LPORT_TAG
                         ]
                         matchField = MatchFieldType.metadata
                     ]
@@ -3851,7 +3852,7 @@ class FlowEntryObjects {
                     new MatchInfoBuilder >> [
                         bigMatchValues = #[
                             1085217976614912bi,
-                            2305841909702066176bi
+                            MetaDataUtil.METADATA_MASK_LPORT_TAG
                         ]
                         matchField = MatchFieldType.metadata
                     ]
@@ -3893,7 +3894,7 @@ class FlowEntryObjects {
                     new MatchInfoBuilder >> [
                         bigMatchValues = #[
                             1085217976614912bi,
-                            2305841909702066176bi
+                            MetaDataUtil.METADATA_MASK_LPORT_TAG
                         ]
                         matchField = MatchFieldType.metadata
                     ]
@@ -3935,7 +3936,7 @@ class FlowEntryObjects {
                     new MatchInfoBuilder >> [
                         bigMatchValues = #[
                             1085217976614912bi,
-                            2305841909702066176bi
+                            MetaDataUtil.METADATA_MASK_LPORT_TAG
                         ]
                         matchField = MatchFieldType.metadata
                     ]
@@ -3973,7 +3974,7 @@ class FlowEntryObjects {
                     new MatchInfoBuilder >> [
                         bigMatchValues = #[
                             1085217976614912bi,
-                            2305841909702066176bi
+                            MetaDataUtil.METADATA_MASK_LPORT_TAG
                         ]
                         matchField = MatchFieldType.metadata
                     ]
@@ -4010,7 +4011,7 @@ class FlowEntryObjects {
                     new MatchInfoBuilder >> [
                         bigMatchValues = #[
                             1085217976614912bi,
-                            2305841909702066176bi
+                            MetaDataUtil.METADATA_MASK_LPORT_TAG
                         ]
                         matchField = MatchFieldType.metadata
                     ]
