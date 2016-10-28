@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3a65312a_f1687f89",
+        "filename": "openstack/utils/mdsal-openflow/pom.xml",
+        "patchSetId": 9
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 3276
+      },
+      "writtenOn": "2016-10-28T07:50:40Z",
+      "side": 1,
+      "message": "please don\u0027t change things in legacy netvirt code. Looks like you copied over code from legacy arp responder for this. You should be looking to use mdsalutils in Genius for this and add support for ARP responder flows in there.",
+      "revId": "120b04004376cb7fd62cc378ac387cd494e123a4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a65312a_b16e0795",
+        "filename": "vpnservice/features/pom.xml",
+        "patchSetId": 9
+      },
+      "lineNbr": 103,
+      "author": {
+        "id": 3276
+      },
+      "writtenOn": "2016-10-28T07:50:40Z",
+      "side": 1,
+      "message": "why this? all of netvirt code uses genius provided mdsal util. This util was used in legacy netvirt and might be removed in carbon.",
+      "range": {
+        "startLine": 99,
+        "startChar": 0,
+        "endLine": 103,
+        "endChar": 49
+      },
+      "revId": "120b04004376cb7fd62cc378ac387cd494e123a4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
