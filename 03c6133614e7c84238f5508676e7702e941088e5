@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3a65312a_855f4572",
+        "filename": "openstack/net-virt-providers/src/main/java/org/opendaylight/netvirt/openstack/netvirt/providers/openflow13/services/IngressAclLearnServiceUtil.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 98,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2016-10-29T13:22:36Z",
+      "side": 1,
+      "message": "this returns the table without the tableoffset. If you need the offset you can get an instance of the PipelineOrchestrator and use its getTable to get the table+offset.",
+      "revId": "03c6133614e7c84238f5508676e7702e941088e5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a65312a_a55a4181",
+        "filename": "openstack/net-virt-providers/src/main/java/org/opendaylight/netvirt/openstack/netvirt/providers/openflow13/services/ResubmitAclLearnService.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 79,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2016-10-29T13:22:36Z",
+      "side": 1,
+      "message": "The AbstractService has getTable() methods that handle this tableOffset addition, so it is better to use them. Just pass in the table and it will return the right table with offset.",
+      "revId": "03c6133614e7c84238f5508676e7702e941088e5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
