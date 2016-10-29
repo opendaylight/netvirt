@@ -807,6 +807,8 @@ public class IngressAclService extends AbstractServiceInstance implements Ingres
     }
     private FlowBuilder addInstructionWithLearnConntrackCommit(NeutronSecurityRule portSecurityRule, FlowBuilder flowBuilder , String icmpType, String icmpCode) {
         InstructionBuilder instructionBuilder = null;
+        short learnTableId=getTable(Service.ACL_LEARN_SERVICE);
+        short resubmitTableId=getTable(Service.OUTBOUND_NAT);
         if (securityServicesManager.isConntrackEnabled()) {
             Action conntrackAction = ActionUtils.nxConntrackAction(1, 0L, 0, (short)0xff);
             instructionBuilder = InstructionUtils
@@ -814,11 +816,11 @@ public class IngressAclService extends AbstractServiceInstance implements Ingres
             return addPipelineInstruction(flowBuilder,instructionBuilder, false);
         }
         if (portSecurityRule.getSecurityRuleProtocol().equalsIgnoreCase(MatchUtils.TCP)) {
-            return IngressAclLearnServiceUtil.programIngressAclLearnRuleForTcp(flowBuilder,instructionBuilder);
+            return IngressAclLearnServiceUtil.programIngressAclLearnRuleForTcp(flowBuilder,instructionBuilder,learnTableId,resubmitTableId);
         } else if (portSecurityRule.getSecurityRuleProtocol().equalsIgnoreCase(MatchUtils.UDP)) {
-            return IngressAclLearnServiceUtil.programIngressAclLearnRuleForUdp(flowBuilder,instructionBuilder);
+            return IngressAclLearnServiceUtil.programIngressAclLearnRuleForUdp(flowBuilder,instructionBuilder,learnTableId,resubmitTableId);
         } else if (portSecurityRule.getSecurityRuleProtocol().equalsIgnoreCase(MatchUtils.ICMP)) {
-            return IngressAclLearnServiceUtil.programIngressAclLearnRuleForIcmp(flowBuilder,instructionBuilder, icmpType, icmpCode);
+            return IngressAclLearnServiceUtil.programIngressAclLearnRuleForIcmp(flowBuilder,instructionBuilder, icmpType, icmpCode,learnTableId,resubmitTableId);
         }
         return flowBuilder;
     }
