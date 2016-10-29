@@ -18,6 +18,7 @@ import org.opendaylight.netvirt.openstack.netvirt.providers.ConfigInterface;
 import org.opendaylight.netvirt.openstack.netvirt.providers.openflow13.AbstractServiceInstance;
 import org.opendaylight.netvirt.openstack.netvirt.providers.openflow13.Service;
 import org.opendaylight.netvirt.openstack.netvirt.api.L2ForwardingLearnProvider;
+import org.opendaylight.netvirt.openstack.netvirt.providers.NetvirtProvidersProvider;
 import org.opendaylight.netvirt.openstack.netvirt.api.LearnConstants;
 import org.opendaylight.netvirt.openstack.netvirt.api.LearnConstants.LearnFlowModsType;
 import org.opendaylight.netvirt.utils.mdsal.openflow.ActionUtils;
@@ -75,7 +76,7 @@ public class IngressAclLearnServiceUtil {
      * fin_hard_timeout=60,priority=61010, cookie=0x6900000,eth_type=0x800,nw_proto=6, NXM_OF_IP_SRC[]=NXM_OF_IP_DST[],NXM_OF_IP_DST[]=NXM_OF_IP_SRC[],
      * NXM_OF_TCP_SRC[]=NXM_OF_TCP_DST[],NXM_OF_TCP_DST[]=NXM_OF_TCP_SRC[],load:0x1->NXM_NX_REG6[0..7]),resubmit(,100)"
      */
-    public static FlowBuilder programIngressAclLearnRuleForTcp(FlowBuilder flowBuilder, InstructionBuilder instructionBuilder) {
+    public static FlowBuilder programIngressAclLearnRuleForTcp(FlowBuilder flowBuilder, InstructionBuilder instructionBuilder, short learnTableId, short resubmitTableId) {
         List<Action> listAction = new ArrayList<>();
 
         // Create learn action
@@ -90,7 +91,14 @@ public class IngressAclLearnServiceUtil {
                 "18000", "300", "61010", "0", "0", "39", "60", "60"
         };*/
         String[] header = new String[] {
-                "18000", "18000", "61010", "0", "0", "39", "60", "60"
+         "18000",
+         "18000",
+         "61010",
+         "0",
+         "0",
+         String.valueOf(learnTableId),
+         "60",
+         "60"
         };
 
         String[][] flowMod = new String[8][];
@@ -135,7 +143,7 @@ public class IngressAclLearnServiceUtil {
         listAction.add(buildAction(0, header, flowMod));
         ActionBuilder ab = new ActionBuilder();
         ab = new ActionBuilder();
-        ab.setAction(createResubmitActions());
+        ab.setAction(createResubmitActions(resubmitTableId));
         ab.setKey(new ActionKey(1));
         listAction.add(ab.build());
         ApplyActions applyActions = new ApplyActionsBuilder().setAction(listAction).build();
@@ -165,7 +173,7 @@ public class IngressAclLearnServiceUtil {
      * fin_hard_timeout=60,priority=61010, cookie=0x6900000,eth_type=0x800,nw_proto=6, NXM_OF_IP_SRC[]=NXM_OF_IP_DST[],NXM_OF_IP_DST[]=NXM_OF_IP_SRC[],
      * NXM_OF_TCP_SRC[]=NXM_OF_TCP_DST[],NXM_OF_TCP_DST[]=NXM_OF_TCP_SRC[],load:0x1->NXM_NX_REG6[0..7]),resubmit(,100)"
      */
-    public static FlowBuilder programIngressAclLearnRuleForUdp(FlowBuilder flowBuilder, InstructionBuilder instructionBuilder) {
+    public static FlowBuilder programIngressAclLearnRuleForUdp(FlowBuilder flowBuilder, InstructionBuilder instructionBuilder, short learnTableId, short resubmitTableId) {
         List<Action> listAction = new ArrayList<>();
 
         // Create learn action
@@ -180,7 +188,14 @@ public class IngressAclLearnServiceUtil {
                 "18000", "300", "61010", "0", "0", "39", "60", "60"
         };*/
         String[] header = new String[] {
-                "60", "60", "61010", "0", "0", "39", "0", "0"
+         "60",
+         "60",
+         "61010",
+         "0",
+         "0",
+         String.valueOf(learnTableId),
+         "0",
+         "0"
         };
 
         String[][] flowMod = new String[8][];
@@ -227,7 +242,7 @@ public class IngressAclLearnServiceUtil {
 
         ActionBuilder ab = new ActionBuilder();
         ab = new ActionBuilder();
-        ab.setAction(createResubmitActions());
+        ab.setAction(createResubmitActions(resubmitTableId));
         ab.setKey(new ActionKey(1));
         listAction.add(ab.build());
 
@@ -258,12 +273,19 @@ public class IngressAclLearnServiceUtil {
      * fin_hard_timeout=60,priority=61010, cookie=0x6900000,eth_type=0x800,nw_proto=6, NXM_OF_IP_SRC[]=NXM_OF_IP_DST[],NXM_OF_IP_DST[]=NXM_OF_IP_SRC[],
      * NXM_OF_TCP_SRC[]=NXM_OF_TCP_DST[],NXM_OF_TCP_DST[]=NXM_OF_TCP_SRC[],load:0x1->NXM_NX_REG6[0..7]),resubmit(,100)"
      */
-    public static FlowBuilder programIngressAclLearnRuleForIcmp(FlowBuilder flowBuilder, InstructionBuilder instructionBuilder, String icmpType, String icmpCode) {
+    public static FlowBuilder programIngressAclLearnRuleForIcmp(FlowBuilder flowBuilder, InstructionBuilder instructionBuilder, String icmpType, String icmpCode, short learnTableId, short resubmitTableId) {
         //, Integer icmpCode,Integer icmpType
         List<Action> listAction = new ArrayList<>();
 
         String[] header = new String[] {
-                "3600", "3600", "61010", "0", "0", "39", "0", "0"
+         "3600",
+         "3600",
+         "61010",
+         "0",
+         "0",
+         String.valueOf(learnTableId),
+         "0",
+         "0"
         };
 
         String[][] flowMod = new String[7][];
@@ -301,7 +323,7 @@ public class IngressAclLearnServiceUtil {
         listAction.add(buildAction(0, header, flowMod));
         ActionBuilder ab = new ActionBuilder();
         ab = new ActionBuilder();
-        ab.setAction(createResubmitActions());
+        ab.setAction(createResubmitActions(resubmitTableId));
         ab.setKey(new ActionKey(1));
         listAction.add(ab.build());
         ApplyActions applyActions = new ApplyActionsBuilder().setAction(listAction).build();
@@ -417,11 +439,10 @@ public class IngressAclLearnServiceUtil {
         return abExt.build();
     }
 
-    private static org.opendaylight.yang.gen.v1.urn.opendaylight.action.types.rev131112.action.Action createResubmitActions() {
+    private static org.opendaylight.yang.gen.v1.urn.opendaylight.action.types.rev131112.action.Action createResubmitActions(short tableId) {
 
-        final String resubmitTable = "100";
         NxResubmitBuilder gttb = new NxResubmitBuilder();
-        gttb.setTable(Short.parseShort(resubmitTable));
+        gttb.setTable(tableId);
 
         // Wrap our Apply Action in an InstructionBuilder
         return (new NxActionResubmitRpcAddGroupCaseBuilder().setNxResubmit(gttb.build())).build();
