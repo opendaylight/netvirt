@@ -15,6 +15,7 @@ import java.net.UnknownHostException;
 import java.util.List;
 import java.util.ArrayList;
 
+import org.opendaylight.netvirt.openstack.netvirt.providers.NetvirtProvidersProvider;
 import org.opendaylight.netvirt.openstack.netvirt.api.StatusCode;
 import org.opendaylight.netvirt.openstack.netvirt.api.InboundNatProvider;
 import org.opendaylight.netvirt.openstack.netvirt.api.Status;
@@ -75,14 +76,20 @@ public class ResubmitAclLearnService extends AbstractServiceInstance implements 
         List<Action> listAction = new ArrayList<>();
 
         NxResubmitBuilder nxarsb = new NxResubmitBuilder();
-        nxarsb.setTable(Short.parseShort("39"));
+        short tableId=(short)(Service.ACL_LEARN_SERVICE.getTable() + NetvirtProvidersProvider.getTableOffset());
+        nxarsb.setTable(tableId);
+        LOG.info("DEBUG: {} ",Service.ACL_LEARN_SERVICE.getTable()+NetvirtProvidersProvider.getTableOffset());
+        //nxarsb.setTable(Short.parseShort("39"));
         ActionBuilder actionBuilder = new ActionBuilder();
         actionBuilder.setAction(new NxActionResubmitRpcAddGroupCaseBuilder().setNxResubmit(nxarsb.build()).build());
         actionBuilder.setKey(new ActionKey(0));
         listAction.add(actionBuilder.build());
 
         nxarsb = new NxResubmitBuilder();
-        nxarsb.setTable(Short.parseShort("40"));
+        tableId=(short)(Service.EGRESS_ACL.getTable() + NetvirtProvidersProvider.getTableOffset());
+        nxarsb.setTable(tableId);
+        LOG.info("DEBUG: {}",Service.EGRESS_ACL.getTable()+NetvirtProvidersProvider.getTableOffset());
+        //nxarsb.setTable(Short.parseShort("40"));
         actionBuilder = new ActionBuilder();
         actionBuilder.setAction(new NxActionResubmitRpcAddGroupCaseBuilder().setNxResubmit(nxarsb.build()).build());
         actionBuilder.setKey(new ActionKey(1));
