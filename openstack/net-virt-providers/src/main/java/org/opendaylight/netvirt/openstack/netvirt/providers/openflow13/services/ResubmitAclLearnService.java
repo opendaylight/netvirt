@@ -75,14 +75,16 @@ public class ResubmitAclLearnService extends AbstractServiceInstance implements 
         List<Action> listAction = new ArrayList<>();
 
         NxResubmitBuilder nxarsb = new NxResubmitBuilder();
-        nxarsb.setTable(Short.parseShort("39"));
+        //nxarsb.setTable(Short.parseShort("39"));
+        nxarsb.setTable(getTable(Service.ACL_LEARN_SERVICE));
         ActionBuilder actionBuilder = new ActionBuilder();
         actionBuilder.setAction(new NxActionResubmitRpcAddGroupCaseBuilder().setNxResubmit(nxarsb.build()).build());
         actionBuilder.setKey(new ActionKey(0));
         listAction.add(actionBuilder.build());
 
         nxarsb = new NxResubmitBuilder();
-        nxarsb.setTable(Short.parseShort("40"));
+        //nxarsb.setTable(Short.parseShort("40"));
+        nxarsb.setTable(getTable(Service.EGRESS_ACL));
         actionBuilder = new ActionBuilder();
         actionBuilder.setAction(new NxActionResubmitRpcAddGroupCaseBuilder().setNxResubmit(nxarsb.build()).build());
         actionBuilder.setKey(new ActionKey(1));
