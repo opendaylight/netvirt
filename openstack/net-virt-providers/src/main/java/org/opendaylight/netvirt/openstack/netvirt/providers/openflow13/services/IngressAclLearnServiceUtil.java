@@ -18,6 +18,7 @@ import org.opendaylight.netvirt.openstack.netvirt.providers.ConfigInterface;
 import org.opendaylight.netvirt.openstack.netvirt.providers.openflow13.AbstractServiceInstance;
 import org.opendaylight.netvirt.openstack.netvirt.providers.openflow13.Service;
 import org.opendaylight.netvirt.openstack.netvirt.api.L2ForwardingLearnProvider;
+import org.opendaylight.netvirt.openstack.netvirt.providers.NetvirtProvidersProvider;
 import org.opendaylight.netvirt.openstack.netvirt.api.LearnConstants;
 import org.opendaylight.netvirt.openstack.netvirt.api.LearnConstants.LearnFlowModsType;
 import org.opendaylight.netvirt.utils.mdsal.openflow.ActionUtils;
@@ -90,7 +91,14 @@ public class IngressAclLearnServiceUtil {
                 "18000", "300", "61010", "0", "0", "39", "60", "60"
         };*/
         String[] header = new String[] {
-                "18000", "18000", "61010", "0", "0", "39", "60", "60"
+         "18000",
+         "18000",
+         "61010",
+         "0",
+         "0",
+         String.valueOf((short)(Service.ACL_LEARN_SERVICE.getTable() + NetvirtProvidersProvider.getTableOffset())),
+         "60",
+         "60"
         };
 
         String[][] flowMod = new String[8][];
@@ -180,7 +188,14 @@ public class IngressAclLearnServiceUtil {
                 "18000", "300", "61010", "0", "0", "39", "60", "60"
         };*/
         String[] header = new String[] {
-                "60", "60", "61010", "0", "0", "39", "0", "0"
+         "60",
+         "60",
+         "61010",
+         "0",
+         "0",
+         String.valueOf((short)(Service.ACL_LEARN_SERVICE.getTable() + NetvirtProvidersProvider.getTableOffset())),
+         "0",
+         "0"
         };
 
         String[][] flowMod = new String[8][];
@@ -263,7 +278,14 @@ public class IngressAclLearnServiceUtil {
         List<Action> listAction = new ArrayList<>();
 
         String[] header = new String[] {
-                "3600", "3600", "61010", "0", "0", "39", "0", "0"
+         "3600",
+         "3600",
+         "61010",
+         "0",
+         "0",
+         String.valueOf((short)(Service.ACL_LEARN_SERVICE.getTable() + NetvirtProvidersProvider.getTableOffset())),
+         "0",
+         "0"
         };
 
         String[][] flowMod = new String[7][];
@@ -419,9 +441,8 @@ public class IngressAclLearnServiceUtil {
 
     private static org.opendaylight.yang.gen.v1.urn.opendaylight.action.types.rev131112.action.Action createResubmitActions() {
 
-        final String resubmitTable = "100";
         NxResubmitBuilder gttb = new NxResubmitBuilder();
-        gttb.setTable(Short.parseShort(resubmitTable));
+        gttb.setTable((short)(Service.OUTBOUND_NAT.getTable() + NetvirtProvidersProvider.getTableOffset()));
 
         // Wrap our Apply Action in an InstructionBuilder
         return (new NxActionResubmitRpcAddGroupCaseBuilder().setNxResubmit(gttb.build())).build();
