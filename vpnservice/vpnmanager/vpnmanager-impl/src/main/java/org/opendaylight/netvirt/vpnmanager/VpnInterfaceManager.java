@@ -1135,7 +1135,7 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
             if (adjs != null) {
                 adjsList = adjs.getAdjacency();
                 for (Adjacency adj : adjsList) {
-                    if (adj.getMacAddress() != null && !adj.getMacAddress().isEmpty()) {
+                    if (adj.isPrimaryAdjacency()) {
                         String primaryInterfaceIp = adj.getIpAddress();
                         String prefix = VpnUtil.getIpPrefix(primaryInterfaceIp);
                         fibManager.removeFibEntry(dataBroker, vpnInterface.getVpnInstanceName(), prefix, null);
@@ -1911,7 +1911,7 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
             rd = vpnName;
         }
         for (Adjacency adj : adjs) {
-            if (adj.getMacAddress() != null && !adj.getMacAddress().isEmpty()) {
+            if (adj.isPrimaryAdjacency()) {
                 String primaryInterfaceIp = adj.getIpAddress();
                 String macAddress = adj.getMacAddress();
                 String prefix = VpnUtil.getIpPrefix(primaryInterfaceIp);
@@ -1923,7 +1923,8 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                         .setMacAddress(macAddress).setIpAddress(primaryInterfaceIp).build();
 
                 VrfEntry vrfEntry = new VrfEntryBuilder().setKey(new VrfEntryKey(prefix)).setDestPrefix(prefix)
-                        .setNextHopAddressList(Arrays.asList(primaryInterfaceIp)).setLabel(label)
+                        .setNextHopAddressList(Arrays.asList(""))
+                        .setLabel(label)
                         .setOrigin(RouteOrigin.SELF_IMPORTED.getValue())
                         .addAugmentation(RouterInterface.class, routerInt).build();
 
