@@ -76,6 +76,7 @@ import org.slf4j.LoggerFactory;
 @ExamReactorStrategy(PerClass.class)
 public class NetvirtIT extends AbstractMdsalTestBase {
     private static final Logger LOG = LoggerFactory.getLogger(NetvirtIT.class);
+    private static final String PHYSNET = "physnet";
     private static OvsdbItUtils itUtils;
     private static MdsalUtils mdsalUtils = null;
     private static SouthboundUtils southboundUtils;
@@ -418,8 +419,46 @@ public class NetvirtIT extends AbstractMdsalTestBase {
             disconnectOvs(nodeInfo);
             disconnectOvs(nodeInfo2);
         } catch (Exception e) {
-            LOG.error("testNeutronNet: Exception thrown by OvsDocker.OvsDocker()", e);
-            fail("testNeutronNet: Exception thrown by OvsDocker.OvsDocker() : " + e.getMessage());
+            LOG.error("testNeutronNetTwoNodes: Exception thrown by OvsDocker.OvsDocker()", e);
+            fail("testNeutronNetTwoNodes: Exception thrown by OvsDocker.OvsDocker() : " + e.getMessage());
+        }
+    }
+
+    @Test
+    @SuppressWarnings("checkstyle:IllegalCatch")
+    public void testProviderNetTwoNodes() throws InterruptedException {
+        int ovs1 = 1;
+        int ovs2 = 2;
+        System.getProperties().setProperty(ItConstants.DOCKER_COMPOSE_FILE_NAME, "two_ovs-2.5.1-dual-nic.yml");
+        System.getProperties().setProperty(ItConstants.DOCKER_WAIT_FOR_PING_SECS, "20");
+        try (DockerOvs ovs = new DockerOvs()) {
+            Boolean isUserSpace = userSpaceEnabled.equals("yes");
+            LOG.info("isUserSpace: {}, usingExternalDocker: {}", isUserSpace, ovs.usingExternalDocker());
+
+            NetOvs netOvs = getNetOvs(ovs, isUserSpace);
+
+            NodeInfo nodeInfo = connectOvs(netOvs, ovs1, ovs);
+            NodeInfo nodeInfo2 = connectOvs(netOvs, ovs2, ovs);
+
+            netOvs.createFlatNetwork(NETWORK1_NAME, NETWORK1_SEGID, "172.29.5.", PHYSNET);
+
+            String port1 = addPort(netOvs, nodeInfo, ovs1, NETWORK1_NAME);
+            String port2 = addPort(netOvs, nodeInfo2, ovs2, NETWORK1_NAME);
+
+            int rc = netOvs.ping(port1, port2);
+            LOG.info("Ping status rc: {}, ignored for isUserSpace: {}", rc, isUserSpace);
+            netOvs.logState(ovs1, "node 1 after ping");
+            netOvs.logState(ovs2, "node 2 after ping");
+            if (!isUserSpace) {
+                LOG.info("Ping status rc: {}", rc);
+            }
+
+            destroyOvs(netOvs);
+            disconnectOvs(nodeInfo);
+            disconnectOvs(nodeInfo2);
+        } catch (Exception e) {
+            LOG.error("testProviderNet: Exception thrown by OvsDocker.OvsDocker()", e);
+            fail("testProviderNet: Exception thrown by OvsDocker.OvsDocker() : " + e.getMessage());
         }
     }
 
