@@ -8,10 +8,13 @@
 package org.opendaylight.netvirt.it;
 
 import java.io.IOException;
+
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Node;
 
 public interface NetOvs {
     String createNetwork(String networkName, String segId, String ipPfx);
+
+    String createFlatNetwork(String networkName, String segId, String ipPfx, String physNet);
 
     String createRouter(String routerName);
 
