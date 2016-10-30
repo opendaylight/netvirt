@@ -39,6 +39,23 @@
       "revId": "120b04004376cb7fd62cc378ac387cd494e123a4",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a65312a_00032310",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/arp/responder/ArpResponderUtil.java",
+        "patchSetId": 9
+      },
+      "lineNbr": 210,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2016-10-30T16:29:36Z",
+      "side": 1,
+      "message": "Could you explain why do we need to create a different flow per lport tag and service index?\nWhy isn\u0027t it enough to match metadata only based on the vpn-id?",
+      "revId": "120b04004376cb7fd62cc378ac387cd494e123a4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
