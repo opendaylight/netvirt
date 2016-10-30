@@ -15,6 +15,8 @@ import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.
 public interface NetOvs {
     String createNetwork(String networkName, String segId, String ipPfx);
 
+    String createFlatNetwork(String networkName, String segId, String ipPfx, String physNet);
+
     String createRouter(String routerName);
 
     String createPort(int ovsInstance, Node bridgeNode, String networkName, List<Uuid> securityGroupList) throws

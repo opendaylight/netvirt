@@ -15,6 +15,7 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.constants.rev150712.IpVersionV4;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.networks.rev150712.NetworkTypeBase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.networks.rev150712.NetworkTypeVxlan;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.networks.rev150712.networks.attributes.Networks;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.networks.rev150712.networks.attributes.networks.Network;
@@ -33,16 +34,25 @@ public class NeutronNetwork {
     private final String tenantId;
     private final String networkId;
     private final String subnetId;
+    private final Class<? extends NetworkTypeBase> netType;
+    private final String providerNet;
     private Network network;
     private Subnet subnet;
 
     NeutronNetwork(final MdsalUtils mdsalUtils, final String segId, final String ipPfx) {
+        this(mdsalUtils, segId, ipPfx, NetworkTypeVxlan.class, null);
+    }
+
+    NeutronNetwork(final MdsalUtils mdsalUtils, final String segId, final String ipPfx,
+                                                    Class<? extends NetworkTypeBase> netType, String providerNet) {
         this.mdsalUtils = mdsalUtils;
         this.segId = segId;
         this.ipPfx = ipPfx;
         tenantId = UUID.randomUUID().toString();
         networkId = UUID.randomUUID().toString();
         subnetId = UUID.randomUUID().toString();
+        this.netType = netType;
+        this.providerNet = providerNet;
     }
 
     String getNetworkId() {
@@ -59,8 +69,9 @@ public class NeutronNetwork {
 
     void createNetwork(final String name) {
         NetworkProviderExtension networkProviderExtension = new NetworkProviderExtensionBuilder()
-                .setNetworkType(NetworkTypeVxlan.class)
+                .setNetworkType(netType)
                 .setSegmentationId(segId)
+                .setPhysicalNetwork(providerNet)
                 .build();
 
         network = new NetworkBuilder()
