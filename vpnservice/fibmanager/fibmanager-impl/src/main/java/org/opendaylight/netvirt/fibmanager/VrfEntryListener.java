@@ -2144,7 +2144,7 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
 
         instructions.add(new InstructionInfo(InstructionType.apply_actions, actionsInfos));
 
-        int priority = FibConstants.DEFAULT_FIB_FLOW_PRIORITY;
+        int priority = FibConstants.DEFAULT_FIB_FLOW_PRIORITY + FibConstants.DEFAULT_PREFIX_LENGTH;
         String flowRef = getFlowRef(dpnId, NwConstants.L3_FIB_TABLE, vrfEntry.getLabel(), priority);
 
         FlowEntity flowEntity = MDSALUtil.buildFlowEntity(dpnId, NwConstants.L3_FIB_TABLE, flowRef, priority, flowRef,
