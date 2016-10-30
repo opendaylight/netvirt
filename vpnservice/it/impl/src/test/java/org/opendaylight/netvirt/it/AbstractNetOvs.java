@@ -17,6 +17,9 @@ import org.opendaylight.ovsdb.utils.mdsal.utils.MdsalUtils;
 import org.opendaylight.ovsdb.utils.ovsdb.it.utils.DockerOvs;
 import org.opendaylight.ovsdb.utils.southbound.utils.SouthboundUtils;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.networks.rev150712.NetworkTypeBase;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.networks.rev150712.NetworkTypeFlat;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.networks.rev150712.NetworkTypeVxlan;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.ports.attributes.Ports;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.ports.attributes.ports.Port;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.ports.attributes.ports.PortBuilder;
@@ -46,12 +49,23 @@ public class AbstractNetOvs implements NetOvs {
                 getClass().getSimpleName(), isUserSpace, dockerOvs.usingExternalDocker());
     }
 
+    @Override
     public String createNetwork(String networkName, String segId, String ipPfx) {
-        NeutronNetwork neutronNetwork = new NeutronNetwork(mdsalUtils, segId, ipPfx);
+        return createNetwork(networkName, segId, ipPfx, NetworkTypeVxlan.class, null);
+    }
+
+    private String createNetwork(String networkName, String segId, String ipPfx,
+                                 Class<? extends NetworkTypeBase> netType, String physNet) {
+        NeutronNetwork neutronNetwork = new NeutronNetwork(mdsalUtils, segId, ipPfx, netType, physNet);
         neutronNetwork.createNetwork(networkName);
         neutronNetwork.createSubnet(networkName + "subnet");
         putNeutronNetwork(networkName, neutronNetwork);
         return networkName;
+    }
+
+    @Override
+    public String createFlatNetwork(String networkName, String segId, String ipPfx, String providerNet) {
+        return createNetwork(networkName, segId, ipPfx, NetworkTypeFlat.class, providerNet);
     }
 
     @Override
