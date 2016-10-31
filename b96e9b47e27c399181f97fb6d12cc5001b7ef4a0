@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3a65312a_a69ec854",
+        "filename": "openstack/netvirt2/renderers/hwgw/src/main/java/org/opendaylight/yang/gen/v1/urn/opendaylight/params/xml/ns/yang/netvirt/hwgw/rev151227/HwgwModule.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 5357
+      },
+      "writtenOn": "2016-10-31T08:04:58Z",
+      "side": 0,
+      "message": "I\u0027m no lawyer but is there any reason this file does not need a copyright any more? Now I see the same change in other files. Actually sort of curious about this.",
+      "revId": "b96e9b47e27c399181f97fb6d12cc5001b7ef4a0",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
