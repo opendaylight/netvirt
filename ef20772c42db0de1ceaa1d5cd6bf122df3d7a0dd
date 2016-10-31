@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3a65312a_46ad3488",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 1918,
+      "author": {
+        "id": 5357
+      },
+      "writtenOn": "2016-10-31T08:13:55Z",
+      "side": 1,
+      "message": "probably worth not assuming there is a \u0027/\u0027. Can\u0027t hurt to check.",
+      "revId": "ef20772c42db0de1ceaa1d5cd6bf122df3d7a0dd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
