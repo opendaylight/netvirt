@@ -1,0 +1,72 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3a65312a_0954ef52",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/AclServiceManagerImpl.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 104,
+      "author": {
+        "id": 5867
+      },
+      "writtenOn": "2016-10-31T15:11:16Z",
+      "side": 1,
+      "message": "This is wrong - you\u0027re essentially \"hiding\" a component initialization issue bd doing this.. if I were you, I would just let the exception \"propagate\" up, without catching it at all.  Add \"throws..\" where you have to.  If there is some reason why in the constructor you cannot do that, then use an AbstractLifecycle from infrautils, where we intentionally made the \"start\" method do a throws Exception for exactly this reason.",
+      "revId": "fc2e957a44e8c828e0b29904f09895c06014a0b8",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a65312a_294babb1",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/utils/AclServiceUtils.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 735,
+      "author": {
+        "id": 5867
+      },
+      "writtenOn": "2016-10-31T15:11:16Z",
+      "side": 1,
+      "message": "are you 100% sure that you want to fall back to reutrning this default if your idmanager call fails? Is this reasonable, functionally speaking? Wouldn\u0027t you rather let the whole thing fail by propagating this exception? I\u0027m pretty sure it\u0027s the right thing to do in the case of the other comment I made in the initialization; in this case, I\u0027m just asking you... ;-)",
+      "revId": "fc2e957a44e8c828e0b29904f09895c06014a0b8",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a65312a_a9d69bc3",
+        "filename": "vpnservice/aclservice/impl/src/test/java/org/opendaylight/netvirt/aclservice/tests/AclServiceTestModule.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 71,
+      "author": {
+        "id": 5867
+      },
+      "writtenOn": "2016-10-31T15:11:16Z",
+      "side": 1,
+      "message": "Isn\u0027t this causing issues, and wouldn\u0027t it be better to implement a no-op here which simply returns a success Future? Similar to what you have done in allocateId, but without actually \"doing\" anything real.",
+      "revId": "fc2e957a44e8c828e0b29904f09895c06014a0b8",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a65312a_09db4fee",
+        "filename": "vpnservice/aclservice/impl/src/test/java/org/opendaylight/netvirt/aclservice/tests/AclServiceTestModule.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 87,
+      "author": {
+        "id": 5867
+      },
+      "writtenOn": "2016-10-31T15:11:16Z",
+      "side": 1,
+      "message": "same comment as above.",
+      "revId": "fc2e957a44e8c828e0b29904f09895c06014a0b8",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
