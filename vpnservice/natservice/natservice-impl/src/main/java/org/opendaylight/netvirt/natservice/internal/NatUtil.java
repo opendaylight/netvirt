@@ -625,7 +625,7 @@ public class NatUtil {
 
     public static BigInteger getDpIdFromInterface(org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface ifState) {
         String lowerLayerIf = ifState.getLowerLayerIf().get(0);
-        if (lowerLayerIf != null) {
+        if (lowerLayerIf == null) {
             return BigInteger.ZERO;
         }
         NodeConnectorId nodeConnectorId = new NodeConnectorId(lowerLayerIf);
