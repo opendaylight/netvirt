@@ -100,11 +100,13 @@ public class ArpNotificationHandler implements OdlArputilListener {
             long vpnId = MetaDataUtil.getVpnIdFromMetadata(metadata);
             // Respond to ARP request only if vpnservice is configured on the interface
             if (VpnUtil.isVpnInterfaceConfigured(dataBroker, srcInterface)) {
-                LOG.info("Received ARP Request for interface {} ", srcInterface);
+                if (LOG.isDebugEnabled()) {
+                    LOG.debug("Received ARP request for target IP {}, sender MAC {} and sender IP {} via interface {}",
+                            targetIP.getIpv4Address().getValue(), srcMac.getValue(), srcIP.getIpv4Address().getValue(), srcInterface);
+                }
                 InstanceIdentifier<org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.id.to.vpn.instance.VpnIds>
                 vpnIdsInstanceIdentifier = VpnUtil.getVpnIdToVpnInstanceIdentifier(vpnId);
-                Optional<VpnIds> vpnIdsOptional
-                = VpnUtil.read(dataBroker, LogicalDatastoreType.CONFIGURATION, vpnIdsInstanceIdentifier);
+                Optional<VpnIds> vpnIdsOptional = VpnUtil.read(dataBroker, LogicalDatastoreType.CONFIGURATION, vpnIdsInstanceIdentifier);
                 if (!vpnIdsOptional.isPresent()) {
                     // Donot respond to ARP requests on unknown VPNs
                     LOG.trace("ARP NO_RESOLVE: VPN {} not configured. Ignoring responding to ARP requests on this VPN", vpnId);
