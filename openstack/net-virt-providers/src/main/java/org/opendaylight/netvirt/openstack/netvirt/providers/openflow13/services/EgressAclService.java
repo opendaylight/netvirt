@@ -614,14 +614,38 @@ public class EgressAclService extends AbstractServiceInstance implements EgressA
                 addInstructionWithLearnConntrackCommit(portSecurityRule, flowBuilder, entry.getValue(), "0");
                 syncFlow(flowBuilder ,nodeBuilder, write);
             }
+            addIcmpFlow(nodeBuilder, portSecurityRule, segmentationId, srcMac, write);
         } else {
             flowId = flowId + "_Permit";
             addConntrackMatch(matchBuilder, MatchUtils.TRACKED_NEW_CT_STATE,MatchUtils.TRACKED_NEW_CT_STATE_MASK);
             FlowBuilder flowBuilder = FlowUtils.createFlowBuilder(flowId, protoPortMatchPriority, matchBuilder, getTable());
-            addInstructionWithLearnConntrackCommit(portSecurityRule, flowBuilder, LearnConstants.ICMP_TYPE_MAP.get(portSecurityRule.getSecurityRulePortMin()),
+             String icmpType = LearnConstants.ICMP_TYPE_MAP.get(portSecurityRule.getSecurityRulePortMin());
+            if (icmpType == null){
+                icmpType = Integer.toString(portSecurityRule.getSecurityRulePortMin());
+            }
+            addInstructionWithLearnConntrackCommit(portSecurityRule, flowBuilder, icmpType,
                     Integer.toString(portSecurityRule.getSecurityRulePortMax()));
             syncFlow(flowBuilder ,nodeBuilder, write);
         }
+    }
+
+    private void addIcmpFlow(NodeBuilder nodeBuilder, NeutronSecurityRule portSecurityRule, String segmentationId, String srcMac, boolean write){
+        MatchBuilder matchBuilder = new MatchBuilder();
+        InstructionBuilder instructionBuilder = null;
+        short learnTableId=getTable(Service.ACL_LEARN_SERVICE);
+        short resubmitId=getTable(Service.LOAD_BALANCER);
+        String flowId = "Ingress_ICMP_" + segmentationId + "_" + srcMac + "_";
+        matchBuilder = MatchUtils.createV4EtherMatchWithType(matchBuilder,srcMac,null,MatchUtils.ETHERTYPE_IPV4);
+        flowId = flowId + "all" + "_" ;
+        matchBuilder = MatchUtils.createICMPv4Match(matchBuilder, MatchUtils.ALL_ICMP, MatchUtils.ALL_ICMP);
+        Icmpv4MatchBuilder icmpv4match = new Icmpv4MatchBuilder();
+        matchBuilder.setIcmpv4Match(icmpv4match.build());
+        String rangeflowId = flowId;
+        addConntrackMatch(matchBuilder, MatchUtils.TRACKED_NEW_CT_STATE,MatchUtils.TRACKED_NEW_CT_STATE_MASK);
+        FlowBuilder flowBuilder = FlowUtils.createFlowBuilder(rangeflowId, Constants.PROTO_PORT_ICMP_MATCH_PRIORITY, matchBuilder, getTable());
+        flowBuilder = EgressAclLearnServiceUtil.programEgressAclLearnRuleForIcmpAll(flowBuilder,instructionBuilder, learnTableId, resubmitId);
+        syncFlow(flowBuilder ,nodeBuilder, write);
+
     }
 
     /**

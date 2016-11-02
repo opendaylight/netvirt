@@ -344,6 +344,90 @@ public class EgressAclLearnServiceUtil {
         return flowBuilder;
 
     }
+
+    /*
+     * (Table:EgressAclLearnService) EgressACL Learning
+     * Match: reg6 = LearnConstants.NxmOfFieldType.NXM_NX_REG6
+     * Action: learn and resubmit to next table
+     * "table=40,dl_src=fa:16:3e:d3:bb:8a,priority=61003,icmp,dl_src=fa:16:3e:55:71:d1,actions=learn(table=39,idle_timeout=18000,fin_idle_timeout=60,
+     * fin_hard_timeout=60,priority=61010, cookie=0x6900000,eth_type=0x800,nw_proto=6, NXM_OF_IP_SRC[]=NXM_OF_IP_DST[],NXM_OF_IP_DST[]=NXM_OF_IP_SRC[],
+     * NXM_OF_ICMP_TYPE=NXM_OF_ICMP_TYPE,NXM_OF_ICMP_CODE=NXM_OF_ICMP_CODE,load:0x1->NXM_NX_REG6[0..7]),resubmit(,50)"
+     */
+    public static FlowBuilder programEgressAclLearnRuleForIcmpAll(FlowBuilder flowBuilder, InstructionBuilder instructionBuilder, short learnTableId, short resubmitId) {
+        List<Action> listAction = new ArrayList<>();
+
+        String[] header = new String[] {
+         "3600",
+         "3600",
+         "61010",
+         "0",
+         "0",
+         String.valueOf(learnTableId),
+         "0",
+         "0"
+        };
+
+        String[][] flowMod = new String[7][];
+        //eth_type=0x800
+        flowMod[0] = new String[] { LearnConstants.LearnFlowModsType.MATCH_FROM_VALUE.name(),
+                Integer.toString(LearnConstants.ETHTYPE_IPV4),
+                LearnConstants.NxmOfFieldType.NXM_OF_ETH_TYPE.getHexType(),
+                LearnConstants.NxmOfFieldType.NXM_OF_ETH_TYPE.getFlowModHeaderLen() };
+        //nw_proto=1
+        flowMod[1] = new String[] { LearnConstants.LearnFlowModsType.MATCH_FROM_VALUE.name(),
+                Integer.toString(LearnConstants.IP_PROT_ICMP),
+                LearnConstants.NxmOfFieldType.NXM_OF_IP_PROTO.getHexType(),
+                LearnConstants.NxmOfFieldType.NXM_OF_IP_PROTO.getFlowModHeaderLen() };
+        //NXM_OF_IP_SRC[]=NXM_OF_IP_DST[]
+        flowMod[2] = new String[] { LearnConstants.LearnFlowModsType.MATCH_FROM_FIELD.name(),
+                LearnConstants.NxmOfFieldType.NXM_OF_IP_DST.getHexType(),
+                LearnConstants.NxmOfFieldType.NXM_OF_IP_SRC.getHexType(),
+                LearnConstants.NxmOfFieldType.NXM_OF_IP_DST.getFlowModHeaderLen()};
+        // NXM_OF_IP_DST[]=NXM_OF_IP_SRC[]
+        flowMod[3] = new String[] { LearnConstants.LearnFlowModsType.MATCH_FROM_FIELD.name(),
+                LearnConstants.NxmOfFieldType.NXM_OF_IP_SRC.getHexType(),
+                LearnConstants.NxmOfFieldType.NXM_OF_IP_DST.getHexType(),
+                LearnConstants.NxmOfFieldType.NXM_OF_IP_SRC.getFlowModHeaderLen()};
+         //NXM_OF_ICMP_TYPE=NXM_OF_ICMP_TYPE
+        flowMod[4] = new String[] { LearnConstants.LearnFlowModsType.MATCH_FROM_FIELD.name(),
+                LearnConstants.NxmOfFieldType.NXM_OF_ICMP_TYPE.getHexType(),
+                LearnConstants.NxmOfFieldType.NXM_OF_ICMP_TYPE.getHexType(),
+                LearnConstants.NxmOfFieldType.NXM_OF_ICMP_TYPE.getFlowModHeaderLen()};
+        // NXM_OF_ICMP_CODE=NXM_OF_ICMP_CODE
+        flowMod[5] = new String[] { LearnConstants.LearnFlowModsType.MATCH_FROM_FIELD.name(),
+                LearnConstants.NxmOfFieldType.NXM_OF_ICMP_CODE.getHexType(),
+                LearnConstants.NxmOfFieldType.NXM_OF_ICMP_CODE.getHexType(),
+                LearnConstants.NxmOfFieldType.NXM_OF_ICMP_CODE.getFlowModHeaderLen()};
+        flowMod[6] = new String[] {
+                LearnConstants.LearnFlowModsType.COPY_FROM_VALUE.name(), LearnConstants.LEARN_MATCH_REG_VALUE,
+                LearnConstants.NxmOfFieldType.NXM_NX_REG6.getHexType(), "8" };
+        listAction.add(buildAction(0, header, flowMod));
+        ActionBuilder ab = new ActionBuilder();
+        ab.setAction(createResubmitActions(resubmitId));
+        ab.setKey(new ActionKey(1));
+        listAction.add(ab.build());
+        ApplyActions applyActions = new ApplyActionsBuilder().setAction(listAction).build();
+        ApplyActionsCase applyActionsCase = new ApplyActionsCaseBuilder().setApplyActions(applyActions).build();
+        InstructionsBuilder instructionsBuilder = new InstructionsBuilder();
+        List<Instruction> instructions = Lists.newArrayList();
+
+        if(instructionBuilder == null) {
+            instructionBuilder = new InstructionBuilder();
+        }
+        instructionBuilder.setInstruction(applyActionsCase);
+        instructionBuilder.setOrder(0);
+        instructionBuilder.setKey(new InstructionKey(0));
+        instructions.add(instructionBuilder.build());
+        // Add InstructionBuilder to the Instruction(s)Builder List
+        instructionsBuilder.setInstruction(instructions);
+
+        // Add InstructionsBuilder to FlowBuilder
+        flowBuilder.setInstructions(instructionsBuilder.build());
+
+        return flowBuilder;
+
+    }
+
     /*
      * build Action
      *
