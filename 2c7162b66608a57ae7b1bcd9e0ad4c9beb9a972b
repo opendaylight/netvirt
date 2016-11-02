@@ -1,0 +1,67 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3a65312a_1b46edbf",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 2
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 2759
+      },
+      "writtenOn": "2016-11-02T14:21:20Z",
+      "side": 1,
+      "message": "There should be a blank line after the 1st line in a commit message so that tools like git shortlog parses this correctly.",
+      "revId": "2c7162b66608a57ae7b1bcd9e0ad4c9beb9a972b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a65312a_5b17c5a3",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 2
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 2759
+      },
+      "writtenOn": "2016-11-02T14:21:20Z",
+      "side": 1,
+      "message": "\"Fix\" is better than \"Fixed\" as commit messages should be written in present-tense, imperative-style. To keep the messages short and to the point.",
+      "range": {
+        "startLine": 7,
+        "startChar": 0,
+        "endLine": 7,
+        "endChar": 5
+      },
+      "revId": "2c7162b66608a57ae7b1bcd9e0ad4c9beb9a972b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a65312a_9b115daf",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 2
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 2759
+      },
+      "writtenOn": "2016-11-02T14:21:20Z",
+      "side": 1,
+      "message": "Again \"Add\" is better than \"Added\".",
+      "range": {
+        "startLine": 8,
+        "startChar": 6,
+        "endLine": 8,
+        "endChar": 11
+      },
+      "revId": "2c7162b66608a57ae7b1bcd9e0ad4c9beb9a972b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
