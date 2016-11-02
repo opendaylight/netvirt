@@ -16,6 +16,23 @@
       "revId": "ef20772c42db0de1ceaa1d5cd6bf122df3d7a0dd",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a65312a_5594b436",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 1927,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-11-02T05:26:59Z",
+      "side": 1,
+      "message": "This isn\u0027t going to be used anyway by the vrfentrylistener.. \n\nSo why can\u0027t this remain empty ?",
+      "revId": "ef20772c42db0de1ceaa1d5cd6bf122df3d7a0dd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
