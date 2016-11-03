@@ -478,7 +478,7 @@ public class AclNodeListener extends AsyncDataTreeChangeListenerBase<FlowCapable
             .TRACKED_REL_CT_STATE, AclConstants.TRACKED_REL_CT_STATE_MASK, dispatcherTableId, tableId, write );
         programConntrackDropRule(dpnId, AclConstants.CT_STATE_NEW_PRIORITY_DROP,"Tracked_New",
             AclConstants.TRACKED_NEW_CT_STATE, AclConstants.TRACKED_NEW_CT_STATE_MASK, tableId, write );
-        programConntrackDropRule(dpnId, AclConstants.CT_STATE_NEW_PRIORITY_DROP, "Tracked_Invalid",
+        programConntrackDropRule(dpnId, AclConstants.CT_STATE_TRACKED_EXIST_PRIORITY, "Tracked_Invalid",
             AclConstants.TRACKED_INV_CT_STATE, AclConstants.TRACKED_INV_CT_STATE_MASK, tableId, write );
 
     }

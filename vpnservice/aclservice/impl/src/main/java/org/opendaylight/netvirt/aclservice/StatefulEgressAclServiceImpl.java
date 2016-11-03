@@ -102,13 +102,12 @@ public class StatefulEgressAclServiceImpl extends AbstractEgressAclServiceImpl {
      * @param addOrRemove whether to add or remove the flow
      */
     private void programConntrackRecircRules(BigInteger dpId, List<AllowedAddressPairs> allowedAddresses,
-            Integer priority, String flowId, int conntrackState, int conntrackMask, String portId, int addOrRemove) {
+            Integer priority, String flowId, String portId, int addOrRemove) {
         for (AllowedAddressPairs allowedAddress : allowedAddresses) {
             IpPrefixOrAddress attachIp = allowedAddress.getIpAddress();
             String attachMac = allowedAddress.getMacAddress().getValue();
 
             List<MatchInfoBase> matches = new ArrayList<>();
-            matches.add(new NxMatchInfo(NxMatchFieldType.ct_state, new long[] {conntrackState, conntrackMask}));
             matches.add(new MatchInfo(MatchFieldType.eth_src, new String[] {attachMac}));
             matches.addAll(AclServiceUtils.buildIpMatches(attachIp, MatchCriteria.MATCH_SOURCE));
 
@@ -120,7 +119,7 @@ public class StatefulEgressAclServiceImpl extends AbstractEgressAclServiceImpl {
                         NwConstants.INGRESS_ACL_FILTER_TABLE)}, 2));
             instructions.add(new InstructionInfo(InstructionType.apply_actions, actionsInfos));
 
-            String flowName = "Egress_Fixed_Conntrk_Untrk_" + dpId + "_" + attachMac + "_"
+            String flowName = "Egress_Fixed_Conntrk_" + dpId + "_" + attachMac + "_"
                     + String.valueOf(attachIp.getValue()) + "_" + flowId;
             syncFlow(dpId, NwConstants.INGRESS_ACL_TABLE, flowName, AclConstants.PROTO_MATCH_PRIORITY, "ACL", 0, 0,
                     AclConstants.COOKIE_ACL_BASE, matches, instructions, addOrRemove);
@@ -140,7 +139,7 @@ public class StatefulEgressAclServiceImpl extends AbstractEgressAclServiceImpl {
     private void programEgressAclFixedConntrackRule(BigInteger dpid, List<AllowedAddressPairs> allowedAddresses,
             int lportTag, String portId, Action action, int write) {
         programConntrackRecircRules(dpid, allowedAddresses, AclConstants.CT_STATE_UNTRACKED_PRIORITY,
-            "Untracked",AclConstants.UNTRACKED_CT_STATE,AclConstants.UNTRACKED_CT_STATE_MASK, portId, write );
+            "Recirc", portId, write );
         LOG.info("programEgressAclFixedConntrackRule :  default connection tracking rule are added.");
     }
 }

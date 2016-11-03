@@ -112,14 +112,13 @@ public class StatefulIngressAclServiceImpl extends AbstractIngressAclServiceImpl
      * @param addOrRemove whether to add or remove the flow
      */
     private void programConntrackRecircRules(BigInteger dpId, List<AllowedAddressPairs> allowedAddresses,
-            Integer priority, String flowId, int conntrackState, int conntrackMask, String portId, int addOrRemove) {
+            Integer priority, String flowId, String portId, int addOrRemove) {
         for (AllowedAddressPairs allowedAddress : allowedAddresses) {
             IpPrefixOrAddress attachIp = allowedAddress.getIpAddress();
             String attachMac = allowedAddress.getMacAddress().getValue();
 
             List<MatchInfoBase> matches = new ArrayList<>();
             matches.add(new MatchInfo(MatchFieldType.eth_type, new long[] { NwConstants.ETHTYPE_IPV4 }));
-            matches.add(new NxMatchInfo(NxMatchFieldType.ct_state, new long[] {conntrackState, conntrackMask}));
             matches.add(new MatchInfo(MatchFieldType.eth_dst, new String[] { attachMac }));
             matches.addAll(AclServiceUtils.buildIpMatches(attachIp, MatchCriteria.MATCH_DESTINATION));
 
@@ -131,45 +130,9 @@ public class StatefulIngressAclServiceImpl extends AbstractIngressAclServiceImpl
                     new String[] {"0", "0", elanTag.toString(), Short.toString(
                         NwConstants.EGRESS_ACL_FILTER_TABLE)}, 2));
             instructions.add(new InstructionInfo(InstructionType.apply_actions, actionsInfos));
-            String flowName = "Ingress_Fixed_Conntrk_Untrk_" + dpId + "_" + attachMac + "_"
+            String flowName = "Ingress_Fixed_Conntrk_" + dpId + "_" + attachMac + "_"
                     + String.valueOf(attachIp.getValue()) + "_" + flowId;
             syncFlow(dpId, NwConstants.EGRESS_ACL_TABLE, flowName, AclConstants.PROTO_MATCH_PRIORITY, "ACL", 0, 0,
-                    AclConstants.COOKIE_ACL_BASE, matches, instructions, addOrRemove);
-        }
-    }
-
-    /**
-     * Program conntrack tracked rule.
-     *
-     * @param dpId the dp id
-     * @param allowedAddresses the allowed addresses
-     * @param priority the priority
-     * @param flowId the flow id
-     * @param conntrackState the conntrack state
-     * @param conntrackMask the conntrack mask
-     * @param addOrRemove the add or remove
-     */
-    private void programConntrackTrackedRule(BigInteger dpId, List<AllowedAddressPairs> allowedAddresses,
-            Integer priority, String flowId, int conntrackState, int conntrackMask, int addOrRemove) {
-        for (AllowedAddressPairs allowedAddress : allowedAddresses) {
-            IpPrefixOrAddress attachIp = allowedAddress.getIpAddress();
-            String attachMac = allowedAddress.getMacAddress().getValue();
-
-            List<MatchInfoBase> matches = new ArrayList<>();
-            matches.add(new NxMatchInfo(NxMatchFieldType.ct_state, new long[] {conntrackState, conntrackMask}));
-            matches.add(new MatchInfo(MatchFieldType.eth_dst, new String[] {attachMac}));
-            matches.addAll(AclServiceUtils.buildIpMatches(attachIp, MatchCriteria.MATCH_DESTINATION));
-
-            List<ActionInfo> actionsInfos = new ArrayList<>();
-            actionsInfos.add(new ActionInfo(ActionType.goto_table, new String[] {}));
-
-            List<InstructionInfo> instructions = new ArrayList<>();
-            instructions.add(new InstructionInfo(InstructionType.goto_table,
-                    new long[] {NwConstants.EGRESS_ACL_FILTER_TABLE}));
-
-            String flowName = "Ingress_Fixed_Conntrk_Trk_" + dpId + "_" + attachMac + "_"
-                    + String.valueOf(attachIp.getValue()) + "_" + flowId;
-            syncFlow(dpId, NwConstants.EGRESS_ACL_TABLE, flowName, priority, "ACL", 0, 0,
                     AclConstants.COOKIE_ACL_BASE, matches, instructions, addOrRemove);
         }
     }
@@ -185,9 +148,7 @@ public class StatefulIngressAclServiceImpl extends AbstractIngressAclServiceImpl
     private void programIngressAclFixedConntrackRule(BigInteger dpid, List<AllowedAddressPairs> allowedAddresses,
             String portId, Action action, int write) {
         programConntrackRecircRules(dpid, allowedAddresses, AclConstants.CT_STATE_UNTRACKED_PRIORITY,
-            "Untracked", AclConstants.UNTRACKED_CT_STATE, AclConstants.UNTRACKED_CT_STATE_MASK, portId, write);
-        programConntrackTrackedRule(dpid, allowedAddresses, AclConstants.CT_STATE_TRACKED_EXIST_PRIORITY, "Tracked",
-                AclConstants.TRACKED_CT_STATE, AclConstants.TRACKED_CT_STATE_MASK, write);
+            "Recirc",portId, write);
         LOG.info("programIngressAclFixedConntrackRule :  default connection tracking rule are added.");
     }
 }

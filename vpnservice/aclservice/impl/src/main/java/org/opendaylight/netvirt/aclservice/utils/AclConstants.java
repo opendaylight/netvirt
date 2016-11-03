@@ -46,15 +46,11 @@ public final class AclConstants {
     public static final short DHCP_SERVER_PORT_IPV6 = 547;
     public static final BigInteger COOKIE_ACL_BASE = new BigInteger("6900000", 16);
 
-    public static final int UNTRACKED_CT_STATE = 0x00;
-    public static final int TRACKED_CT_STATE = 0x20;
     public static final int TRACKED_EST_CT_STATE = 0x22;
     public static final int TRACKED_REL_CT_STATE = 0x24;
     public static final int TRACKED_NEW_CT_STATE = 0x21;
     public static final int TRACKED_INV_CT_STATE = 0x30;
 
-    public static final int UNTRACKED_CT_STATE_MASK = 0x20;
-    public static final int TRACKED_CT_STATE_MASK = 0x20;
     public static final int TRACKED_EST_CT_STATE_MASK = 0x37;
     public static final int TRACKED_REL_CT_STATE_MASK = 0x37;
     public static final int TRACKED_NEW_CT_STATE_MASK = 0x21;
