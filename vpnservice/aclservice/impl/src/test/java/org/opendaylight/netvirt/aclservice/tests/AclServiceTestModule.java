@@ -28,6 +28,13 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.config.r
  */
 public class AclServiceTestModule extends AbstractModule {
 
+    final SecurityGroupMode securityGroupMode;
+
+    AclServiceTestModule(SecurityGroupMode securityGroupMode) {
+        super();
+        this.securityGroupMode = securityGroupMode;
+    }
+
     @Override
     protected void configure() {
         bind(DataBroker.class).toInstance(DataBrokerTestModule.dataBroker());
@@ -44,7 +51,7 @@ public class AclServiceTestModule extends AbstractModule {
 
     private AclserviceConfig aclServiceConfig() {
         AclserviceConfig aclServiceConfig = mock(AclserviceConfig.class);
-        Mockito.when(aclServiceConfig.getSecurityGroupMode()).thenReturn(SecurityGroupMode.Stateful);
+        Mockito.when(aclServiceConfig.getSecurityGroupMode()).thenReturn(securityGroupMode);
         return aclServiceConfig;
     }
 }

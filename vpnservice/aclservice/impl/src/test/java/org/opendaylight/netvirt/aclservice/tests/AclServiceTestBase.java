@@ -16,27 +16,16 @@ import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import java.util.List;
 import javax.inject.Inject;
-import org.junit.Rule;
-
 import org.junit.Test;
-import org.junit.rules.MethodRule;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
 import org.opendaylight.genius.mdsalutil.FlowEntity;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.genius.mdsalutil.interfaces.testutils.TestIMdsalApiManager;
-import org.opendaylight.infrautils.inject.guice.testutils.GuiceRule;
 import org.opendaylight.netvirt.aclservice.tests.infra.DataBrokerPairsUtil;
 import org.opendaylight.netvirt.aclservice.utils.AclConstants;
 import org.opendaylight.netvirt.aclservice.utils.AclServiceUtils;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.AccessLists;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.Ipv4Acl;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.Acl;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.AclKey;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.acl.AccessListEntries;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.acl.access.list.entries.Ace;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.acl.access.list.entries.AceKey;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.acl.access.list.entries.ace.Matches;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.acl.access.list.entries.ace.MatchesBuilder;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.acl.access.list.entries.ace.matches.ace.type.AceIpBuilder;
@@ -61,21 +50,19 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.constants.rev150712
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
 
-public class AclServiceTest {
+public abstract class AclServiceTestBase {
 
-    public @Rule MethodRule guice = new GuiceRule(AclServiceModule.class, AclServiceTestModule.class);
-
-    private static final String PORT_MAC_1 = "0D:AA:D8:42:30:F3";
-    private static final String PORT_MAC_2 = "0D:AA:D8:42:30:F4";
-    private static final String PORT_1 = "port1";
-    private static final String PORT_2 = "port2";
-    private static String SG_UUID  = "85cc3048-abc3-43cc-89b3-377341426ac5";
-    private static String SR_UUID_1 = "85cc3048-abc3-43cc-89b3-377341426ac6";
-    private static String SR_UUID_2 = "85cc3048-abc3-43cc-89b3-377341426ac7";
-    private static String ELAN = "elan1";
-    private static String IP_PREFIX_1 = "10.0.0.1/24";
-    private static String IP_PREFIX_2 = "10.0.0.2/24";
-    private static long ELAN_TAG = 5000L;
+    static final String PORT_MAC_1 = "0D:AA:D8:42:30:F3";
+    static final String PORT_MAC_2 = "0D:AA:D8:42:30:F4";
+    static final String PORT_1 = "port1";
+    static final String PORT_2 = "port2";
+    static String SG_UUID  = "85cc3048-abc3-43cc-89b3-377341426ac5";
+    static String SR_UUID_1 = "85cc3048-abc3-43cc-89b3-377341426ac6";
+    static String SR_UUID_2 = "85cc3048-abc3-43cc-89b3-377341426ac7";
+    static String ELAN = "elan1";
+    static String IP_PREFIX_1 = "10.0.0.1/24";
+    static String IP_PREFIX_2 = "10.0.0.2/24";
+    static long ELAN_TAG = 5000L;
 
     @Inject DataBroker dataBroker;
     @Inject DataBrokerPairsUtil dataBrokerUtil;
@@ -95,8 +82,10 @@ public class AclServiceTest {
         Thread.sleep(500);
 
         // Then
-        assertFlows(FlowEntryObjects.expectedFlows(PORT_MAC_1));
+        newInterfaceCheck();
     }
+
+    abstract void newInterfaceCheck();
 
     @Test
     public void newInterfaceWithEtherTypeAcl() throws Exception {
@@ -129,8 +118,10 @@ public class AclServiceTest {
         Thread.sleep(500);
 
         // Then
-        assertFlows(FlowEntryObjects.etherFlows());
+        newInterfaceWithEtherTypeAclCheck();
     }
+
+    abstract void newInterfaceWithEtherTypeAclCheck();
 
     @Test
     public void newInterfaceWithTcpDstAcl() throws Exception {
@@ -163,8 +154,11 @@ public class AclServiceTest {
         Thread.sleep(500);
 
         // Then
+        newInterfaceWithTcpDstAclCheck();
         assertFlows(FlowEntryObjects.tcpFlows());
     }
+
+    abstract void newInterfaceWithTcpDstAclCheck();
 
     @Test
     public void newInterfaceWithUdpDstAcl() throws Exception {
@@ -195,8 +189,10 @@ public class AclServiceTest {
         Thread.sleep(500);
 
         // Then
-        assertFlows(FlowEntryObjects.udpFlows());
+        newInterfaceWithUdpDstAclCheck();
     }
+
+    abstract void newInterfaceWithUdpDstAclCheck();
 
     @Test
     public void newInterfaceWithIcmpAcl() throws Exception {
@@ -228,8 +224,10 @@ public class AclServiceTest {
         Thread.sleep(500);
 
         // Then
-        assertFlows(FlowEntryObjects.icmpFlows());
+        newInterfaceWithIcmpAclCheck();
     }
+
+    abstract void newInterfaceWithIcmpAclCheck();
 
     @Test
     public void newInterfaceWithDstPortRange() throws Exception {
@@ -253,7 +251,6 @@ public class AclServiceTest {
             .newDirection(DirectionIngress.class)
             .build());
 
-
         // When
         putNewStateInterface(dataBroker, PORT_1, PORT_MAC_1);
 
@@ -261,8 +258,10 @@ public class AclServiceTest {
         Thread.sleep(500);
 
         // Then
-        assertFlows(FlowEntryObjects.dstRangeFlows());
+        newInterfaceWithDstPortRangeCheck();
     }
+
+    abstract void newInterfaceWithDstPortRangeCheck();
 
     @Test
     public void newInterfaceWithDstAllPorts() throws Exception {
@@ -286,7 +285,6 @@ public class AclServiceTest {
             .newDirection(DirectionIngress.class)
             .build());
 
-
         // When
         putNewStateInterface(dataBroker, PORT_1, PORT_MAC_1);
 
@@ -294,10 +292,13 @@ public class AclServiceTest {
         Thread.sleep(500);
 
         // Then
-        assertFlows(FlowEntryObjects.dstAllFlows());
+        newInterfaceWithDstAllPortsCheck();
     }
 
-    private void assertFlows(Iterable<FlowEntity> expectedFlows) {
+    abstract void newInterfaceWithDstAllPortsCheck();
+
+    // TODO Remove this here, use the one about to be merged in TestIMdsalApiManager
+    protected void assertFlows(Iterable<FlowEntity> expectedFlows) {
         List<FlowEntity> flows = mdsalApiManager.getFlows();
         if (!Iterables.isEmpty(expectedFlows)) {
             assertTrue("No Flows created (bean wiring may be broken?)", !flows.isEmpty());
@@ -319,11 +320,9 @@ public class AclServiceTest {
             .portSecurity(true)
             .addNewSecurityGroup(new Uuid(SG_UUID))
             .addIfAllowedAddressPair(allowedAddressPair).build());
-
     }
 
     private void newElan(String elanName, long elanId) {
-
         ElanInstance elan = new ElanInstanceBuilder().setElanInstanceName(elanName).setElanTag(5000L).build();
         MDSALUtil.syncWrite(dataBroker, CONFIGURATION,
                 AclServiceUtils.getElanInstanceConfigurationDataPath(elanName),
@@ -368,17 +367,6 @@ public class AclServiceTest {
         matchesBuilder.setAceType(aceIpBuilder.build());
         return matchesBuilder.build();
 
-    }
-
-    private InstanceIdentifier<Ace> getAceInstanceIdentifier(String securityRuleUuid, String securityRuleGroupId) {
-        return InstanceIdentifier
-                .builder(AccessLists.class)
-                .child(Acl.class,
-                        new AclKey(securityRuleGroupId, Ipv4Acl.class))
-                .child(AccessListEntries.class)
-                .child(Ace.class,
-                        new AceKey(securityRuleUuid))
-                .build();
     }
 
     public void setUpData() throws Exception {
