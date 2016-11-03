@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "3a65312a_43efdbb0",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/AclServiceManagerImpl.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 104,
+      "author": {
+        "id": 5346
+      },
+      "writtenOn": "2016-11-03T11:04:38Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "3a65312a_0954ef52",
+      "revId": "fc2e957a44e8c828e0b29904f09895c06014a0b8",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "3a65312a_294babb1",
         "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/utils/AclServiceUtils.java",
         "patchSetId": 5
@@ -30,6 +48,24 @@
       "writtenOn": "2016-10-31T15:11:16Z",
       "side": 1,
       "message": "are you 100% sure that you want to fall back to reutrning this default if your idmanager call fails? Is this reasonable, functionally speaking? Wouldn\u0027t you rather let the whole thing fail by propagating this exception? I\u0027m pretty sure it\u0027s the right thing to do in the case of the other comment I made in the initialization; in this case, I\u0027m just asking you... ;-)",
+      "revId": "fc2e957a44e8c828e0b29904f09895c06014a0b8",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a65312a_233f3f27",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/utils/AclServiceUtils.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 735,
+      "author": {
+        "id": 5346
+      },
+      "writtenOn": "2016-11-03T11:04:38Z",
+      "side": 1,
+      "message": "Yes. This would be a best case effort.",
+      "parentUuid": "3a65312a_294babb1",
       "revId": "fc2e957a44e8c828e0b29904f09895c06014a0b8",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -53,6 +89,24 @@
     },
     {
       "key": {
+        "uuid": "3a65312a_033cc32e",
+        "filename": "vpnservice/aclservice/impl/src/test/java/org/opendaylight/netvirt/aclservice/tests/AclServiceTestModule.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 71,
+      "author": {
+        "id": 5346
+      },
+      "writtenOn": "2016-11-03T11:04:38Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "3a65312a_a9d69bc3",
+      "revId": "fc2e957a44e8c828e0b29904f09895c06014a0b8",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "3a65312a_09db4fee",
         "filename": "vpnservice/aclservice/impl/src/test/java/org/opendaylight/netvirt/aclservice/tests/AclServiceTestModule.java",
         "patchSetId": 5
@@ -64,6 +118,24 @@
       "writtenOn": "2016-10-31T15:11:16Z",
       "side": 1,
       "message": "same comment as above.",
+      "revId": "fc2e957a44e8c828e0b29904f09895c06014a0b8",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a65312a_634937d0",
+        "filename": "vpnservice/aclservice/impl/src/test/java/org/opendaylight/netvirt/aclservice/tests/AclServiceTestModule.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 87,
+      "author": {
+        "id": 5346
+      },
+      "writtenOn": "2016-11-03T11:04:38Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "3a65312a_09db4fee",
       "revId": "fc2e957a44e8c828e0b29904f09895c06014a0b8",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
