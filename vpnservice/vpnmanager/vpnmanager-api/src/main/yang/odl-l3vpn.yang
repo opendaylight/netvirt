@@ -407,4 +407,13 @@ module odl-l3vpn {
             leaf router-name { type string; }
         }
     }
+
+    container dpn-to-vtep-map {
+        config false;
+        list dpn-to-vtep {
+            key dpnId;
+            leaf dpnId { type uint64;}
+            leaf vtepip { type string; }
+        }
+    }
 }
