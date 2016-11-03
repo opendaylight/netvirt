@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3a65312a_4148735b",
+        "filename": "openstack/net-virt-it/src/test/java/org/opendaylight/netvirt/openstack/netvirt/it/NetvirtIT.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 430,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2016-11-03T19:04:03Z",
+      "side": 1,
+      "message": "Use the Service enums rather than a constant: Service.RESUBMIT_ACL_SERVICE.getTable().",
+      "revId": "929be24bdd0a56b49632065f3aa9c8b150e25480",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a65312a_01dafb77",
+        "filename": "openstack/net-virt-it/src/test/java/org/opendaylight/netvirt/openstack/netvirt/it/NetvirtIT.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 431,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2016-11-03T19:04:03Z",
+      "side": 1,
+      "message": "I don\u0027t think the Resubmit flow should be verified here. This block of code is verifying the default pipeline flows. The ReSubmit looks like a flow installed later. \n\nWhat could be an issue is if the Resubmit was included as part of the static pipeline where everything is expected to be a table\u003dx,actions:goto_table\u003dy. Maybe a default pipeline flow should be installed that is a drop rule?\n\nAt a minimum, though, I think we should just not look for the Resubmit at this point since it isn\u0027t a default pipeline flow.",
+      "revId": "929be24bdd0a56b49632065f3aa9c8b150e25480",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a65312a_3cb63c3e",
+        "filename": "openstack/utils/netvirt-it-utils/src/main/java/org/opendaylight/netvirt/utils/netvirt/it/utils/NetvirtItUtils.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 223,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2016-11-03T19:04:03Z",
+      "side": 1,
+      "message": "spelling, operational\n\nalso aren\u0027t these logs verbose? Do they really help? I guess it is nice to see all the current flows.",
+      "revId": "929be24bdd0a56b49632065f3aa9c8b150e25480",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
