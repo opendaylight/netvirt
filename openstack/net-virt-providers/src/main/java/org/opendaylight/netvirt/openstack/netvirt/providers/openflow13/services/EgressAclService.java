@@ -774,7 +774,7 @@ public class EgressAclService extends AbstractServiceInstance implements EgressA
      */
     private void egressAclDhcpAllowClientTrafficFromVm(Long dpidLong,
                                                        boolean write, long localPort, Integer priority) {
-        String flowName = "Egress_DHCP_Client"  + "_Permit_";
+        String flowName = "Egress_DHCP_Client_"  + localPort + "_Permit_";
         MatchBuilder matchBuilder = new MatchBuilder();
         MatchUtils.createInPortMatch(matchBuilder, dpidLong, localPort);
         MatchUtils.createDhcpMatch(matchBuilder, DHCP_DESTINATION_PORT, DHCP_SOURCE_PORT);
@@ -794,7 +794,7 @@ public class EgressAclService extends AbstractServiceInstance implements EgressA
      */
     private void egressAclDhcpv6AllowClientTrafficFromVm(Long dpidLong,
                                                          boolean write, long localPort, Integer priority) {
-        String flowName = "Egress_DHCPv6_Client"  + "_Permit_";
+        String flowName = "Egress_DHCPv6_Client_"  + localPort + "_Permit_";
         MatchBuilder matchBuilder = new MatchBuilder();
         MatchUtils.createInPortMatch(matchBuilder, dpidLong, localPort);
         MatchUtils.createDhcpv6Match(matchBuilder, DHCPV6_DESTINATION_PORT, DHCPV6_SOURCE_PORT);
