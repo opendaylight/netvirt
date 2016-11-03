@@ -27,7 +27,7 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
   <properties>
     <openflowplugin.version>0.4.0-SNAPSHOT</openflowplugin.version>
     <ovsdb.version>1.4.0-SNAPSHOT</ovsdb.version>
-    <sfc.version>0.4.0-SNAPSHOT</sfc.version>
+    <sfc.version>0.5.0-SNAPSHOT</sfc.version>
     <sonar.jacoco.itReportPath>../it/target/jacoco-it.exec</sonar.jacoco.itReportPath>
   </properties>
 
