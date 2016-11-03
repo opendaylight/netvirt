@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "3a65312a_6634a5de",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 1070,
+      "author": {
+        "id": 6773
+      },
+      "writtenOn": "2016-11-03T12:25:23Z",
+      "side": 1,
+      "message": "1. I believe that all provider networks should behave as consistently as possible. VLAN should be equal in capability and functionality to VXLAN.\n2. Not setting the DstMAC on the source host implies that either (1) a tunnelID driven mechanism needs to be used (as with LPort today) which implies complications for federation of NetVirts or (2) an additional L3 lookup would be required on the target host which would imply potential complexity/loop/performance issues.\n\nThe clean solution would be to remain compliant with the Vanilla OpenStack approach where the switch between L3 networks occurs on the source host and forwarding between hosts is in the context of the egress L2 network. Again, this implies rewriting the DstMAC on the source host.\n\nCan you please explain why this would break any existing functionality?",
+      "parentUuid": "3a65312a_e3e707e3",
+      "revId": "22b5c6b74ea5bed14a0dc8c3d8fb329d4fb0fa8a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "3a65312a_899bdfc8",
         "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
         "patchSetId": 8
