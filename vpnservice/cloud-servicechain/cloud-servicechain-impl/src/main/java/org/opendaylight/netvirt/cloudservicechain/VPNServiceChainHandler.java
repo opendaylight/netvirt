@@ -8,7 +8,7 @@
 
 package org.opendaylight.netvirt.cloudservicechain;
 
-import java.math.BigInteger;;
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -21,6 +21,7 @@ import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.netvirt.cloudservicechain.jobs.AddVpnPseudoPortDataJob;
 import org.opendaylight.netvirt.cloudservicechain.jobs.RemoveVpnPseudoPortDataJob;
+import org.opendaylight.netvirt.cloudservicechain.utils.VpnPseudoPortCache;
 import org.opendaylight.netvirt.cloudservicechain.utils.VpnServiceChainUtils;
 import org.opendaylight.genius.mdsalutil.NWUtil;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.VpnAfConfig;
@@ -31,7 +32,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.Fl
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.tables.table.Flow;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.tables.table.FlowBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fib.rpc.rev160121.FibRpcService;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.fibentries.VrfTables;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.VrfEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.VpnInstanceOpData;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.VpnInstanceOpDataEntry;
@@ -61,6 +61,14 @@ public class VPNServiceChainHandler implements AutoCloseable {
         this.fibRpcService = fibRpcSrv;
     }
 
+    public void init() {
+        VpnPseudoPortCache.createVpnPseudoPortCache(broker);
+    }
+
+    @Override
+    public void close() throws Exception {
+        VpnPseudoPortCache.destroyVpnPseudoPortCache();
+    }
     /**
      * Get RouterDistinguisher by VpnName
      *
@@ -145,7 +153,7 @@ public class VPNServiceChainHandler implements AutoCloseable {
                 }
             }
         } catch (Exception ex) {
-            LOG.error("Exception: programSCFinVPNPipeline", ex);
+            LOG.error("Exception: programVpnToScfPipeline", ex);
         }
     }
 
@@ -174,10 +182,7 @@ public class VPNServiceChainHandler implements AutoCloseable {
     }
 
 
-    @Override
-    public void close() throws Exception {
-        // add
-    }
+
 
 
     /**

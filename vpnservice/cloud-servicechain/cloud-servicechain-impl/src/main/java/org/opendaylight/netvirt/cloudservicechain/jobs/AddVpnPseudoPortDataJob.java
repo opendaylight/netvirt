@@ -55,8 +55,7 @@ public class AddVpnPseudoPortDataJob extends VpnPseudoPortDataBaseJob {
                                             .setVpnLportTag(vpnPseudoLportTag).build();
         LOG.trace("Adding lportTag={} to VpnToLportTag map for VPN with rd={}", vpnPseudoLportTag, vpnRd);
         InstanceIdentifier<VpnToPseudoPortData> path = VpnServiceChainUtils.getVpnToPseudoPortTagIid(vpnRd);
-        writeTxn.merge(LogicalDatastoreType.CONFIGURATION, path, newValue, true);
-        MDSALUtil.syncWrite(dataBroker, LogicalDatastoreType.CONFIGURATION, path, newValue);
+        writeTxn.put(LogicalDatastoreType.CONFIGURATION, path, newValue, true);
 
         result.add(writeTxn.submit());
 
