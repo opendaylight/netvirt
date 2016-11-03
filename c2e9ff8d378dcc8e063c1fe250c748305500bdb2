@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3a65312a_c61139ae",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2016-11-03T13:55:33Z",
+      "side": 1,
+      "message": "@Aswin, does this have any performance impact?",
+      "revId": "c2e9ff8d378dcc8e063c1fe250c748305500bdb2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
