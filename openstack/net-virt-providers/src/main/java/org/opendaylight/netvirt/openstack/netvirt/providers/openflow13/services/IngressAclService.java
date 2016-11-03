@@ -769,7 +769,7 @@ public class IngressAclService extends AbstractServiceInstance implements Ingres
         matchBuilder = MatchUtils.createV4EtherMatchWithType(matchBuilder,dhcpMacAddress,attachMac,
                                                              MatchUtils.ETHERTYPE_IPV4);
         MatchUtils.addLayer4Match(matchBuilder, MatchUtils.UDP_SHORT, 67, 68);
-        String flowId = "Ingress_DHCP_Server_" + segmentationId + "_" + dhcpMacAddress + "_Permit";
+        String flowId = "Ingress_DHCP_Server_" + segmentationId + "_" + attachMac + "_Permit";
         FlowBuilder flowBuilder = FlowUtils.createFlowBuilder(flowId, protoPortMatchPriority, matchBuilder, getTable());
         addPipelineInstruction(flowBuilder, null, false);
         NodeBuilder nodeBuilder = FlowUtils.createNodeBuilder(dpidLong);
@@ -793,7 +793,7 @@ public class IngressAclService extends AbstractServiceInstance implements Ingres
         matchBuilder = MatchUtils.createV4EtherMatchWithType(matchBuilder,dhcpMacAddress,attachMac,
                                                              MatchUtils.ETHERTYPE_IPV6);
         MatchUtils.addLayer4Match(matchBuilder, MatchUtils.UDP_SHORT, 547, 546);
-        String flowId = "Ingress_DHCPv6_Server_" + segmentationId + "_" + dhcpMacAddress + "_Permit";
+        String flowId = "Ingress_DHCPv6_Server_" + segmentationId + "_" + attachMac + "_Permit";
         FlowBuilder flowBuilder = FlowUtils.createFlowBuilder(flowId, protoPortMatchPriority, matchBuilder, getTable());
         addPipelineInstruction(flowBuilder, null, false);
         NodeBuilder nodeBuilder = FlowUtils.createNodeBuilder(dpidLong);
