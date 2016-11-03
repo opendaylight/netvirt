@@ -146,8 +146,16 @@ public class VpnServiceChainUtils {
         return MDSALDataStoreUtils.read(broker, LogicalDatastoreType.CONFIGURATION, id);
     }
 
+    public static List<VpnToPseudoPortData> getAllVpnToPseudoPortData(DataBroker broker) {
+        InstanceIdentifier<VpnToPseudoPortList> path = InstanceIdentifier.builder(VpnToPseudoPortList.class).build();
+        Optional<VpnToPseudoPortList> all = MDSALDataStoreUtils.read(broker, LogicalDatastoreType.CONFIGURATION, path);
+
+        return all.isPresent() ? all.get().getVpnToPseudoPortData() : new ArrayList<>();
+    }
+
+
     /**
-     *      * Retrieves the VpnId searching by VpnInstanceName
+     * Retrieves the VpnId searching by VpnInstanceName
      *
      * @param broker
      * @param vpnName
