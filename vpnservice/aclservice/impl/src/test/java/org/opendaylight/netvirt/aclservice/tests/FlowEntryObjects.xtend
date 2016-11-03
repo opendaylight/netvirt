@@ -351,7 +351,7 @@ class FlowEntryObjects {
             ],
             new FlowEntity(123bi) => [
                 cookie = 110100480bi
-                flowId = "Ingress_Fixed_Conntrk_Untrk_123_0D:AA:D8:42:30:F3_10.0.0.1/24_Untracked"
+                flowId = "Ingress_Fixed_Conntrk_123_0D:AA:D8:42:30:F3_10.0.0.1/24_Recirc"
             flowName = "ACL"
             instructionInfoList = #[
                 new InstructionInfo(InstructionType.apply_actions, #[
@@ -372,13 +372,6 @@ class FlowEntryObjects {
                     matchField = MatchFieldType.eth_type
                     matchValues = #[
                         2048L
-                    ]
-                ],
-                new NxMatchInfoBuilder >> [
-                    matchField = NxMatchFieldType.ct_state
-                    matchValues = #[
-                        0L,
-                        32L
                     ]
                 ],
                 new MatchInfoBuilder >> [
@@ -403,48 +396,8 @@ class FlowEntryObjects {
                 ]
                 priority = 61010
                 tableId = 251 as short
-            ],
-            new FlowEntity(123bi) => [
-                cookie = 110100480bi
-                flowId = "Ingress_Fixed_Conntrk_Trk_123_0D:AA:D8:42:30:F3_10.0.0.1/24_Tracked"
-            flowName = "ACL"
-            instructionInfoList = #[
-                new InstructionInfo(InstructionType.goto_table, #[
-                    252L
-                ])
             ]
-            matchInfoList = #[
-                new NxMatchInfoBuilder >> [
-                    matchField = NxMatchFieldType.ct_state
-                    matchValues = #[
-                        32L,
-                        32L
-                    ]
-                ],
-                new MatchInfoBuilder >> [
-                    matchField = MatchFieldType.eth_dst
-                    stringMatchValues = #[
-                        "0D:AA:D8:42:30:F3"
-                ]
-            ],
-            new MatchInfoBuilder >> [
-                matchField = MatchFieldType.eth_type
-                matchValues = #[
-                    2048L
-                ]
-            ],
-            new MatchInfoBuilder >> [
-                matchField = MatchFieldType.ipv4_destination
-                stringMatchValues = #[
-                    "10.0.0.1",
-                "24"
-                        ]
-                    ]
-                ]
-                priority = 62020
-                tableId = 251 as short
-            ]
-            ]
+        ]
     }
 
     static def fixedEgressFlowsPort1() {
@@ -749,7 +702,7 @@ class FlowEntryObjects {
             ],
             new FlowEntity(123bi) => [
                 cookie = 110100480bi
-                flowId = "Egress_Fixed_Conntrk_Untrk_123_0D:AA:D8:42:30:F3_10.0.0.1/24_Untracked"
+                flowId = "Egress_Fixed_Conntrk_123_0D:AA:D8:42:30:F3_10.0.0.1/24_Recirc"
                 flowName = "ACL"
                 instructionInfoList = #[
                     new InstructionInfo(InstructionType.apply_actions, #[
@@ -766,13 +719,6 @@ class FlowEntryObjects {
                     ])
                 ]
                 matchInfoList = #[
-                    new NxMatchInfoBuilder >> [
-                        matchField = NxMatchFieldType.ct_state
-                        matchValues = #[
-                            0L,
-                            32L
-                        ]
-                    ],
                     new MatchInfoBuilder >> [
                         matchField = MatchFieldType.eth_src
                         stringMatchValues = #[
@@ -1070,7 +1016,7 @@ class FlowEntryObjects {
             ],
             new FlowEntity(123bi) => [
                 cookie = 110100480bi
-                flowId = "Ingress_Fixed_Conntrk_Untrk_123_0D:AA:D8:42:30:F4_10.0.0.2/24_Untracked"
+                flowId = "Ingress_Fixed_Conntrk_123_0D:AA:D8:42:30:F4_10.0.0.2/24_Recirc"
                 flowName = "ACL"
                 instructionInfoList = #[
                     new InstructionInfo(InstructionType.apply_actions, #[
@@ -1091,13 +1037,6 @@ class FlowEntryObjects {
                         matchField = MatchFieldType.eth_type
                         matchValues = #[
                             2048L
-                        ]
-                    ],
-                    new NxMatchInfoBuilder >> [
-                        matchField = NxMatchFieldType.ct_state
-                        matchValues = #[
-                            0L,
-                            32L
                         ]
                     ],
                     new MatchInfoBuilder >> [
@@ -1121,46 +1060,6 @@ class FlowEntryObjects {
                     ]
                 ]
                 priority = 61010
-                tableId = 251 as short
-            ],
-            new FlowEntity(123bi) => [
-                cookie = 110100480bi
-                flowId = "Ingress_Fixed_Conntrk_Trk_123_0D:AA:D8:42:30:F4_10.0.0.2/24_Tracked"
-                flowName = "ACL"
-                instructionInfoList = #[
-                    new InstructionInfo(InstructionType.goto_table, #[
-                        252L
-                    ])
-                ]
-                matchInfoList = #[
-                    new NxMatchInfoBuilder >> [
-                        matchField = NxMatchFieldType.ct_state
-                        matchValues = #[
-                            32L,
-                            32L
-                        ]
-                    ],
-                    new MatchInfoBuilder >> [
-                        matchField = MatchFieldType.eth_dst
-                        stringMatchValues = #[
-                            "0D:AA:D8:42:30:F4"
-                        ]
-                    ],
-                    new MatchInfoBuilder >> [
-                        matchField = MatchFieldType.eth_type
-                        matchValues = #[
-                            2048L
-                        ]
-                    ],
-                    new MatchInfoBuilder >> [
-                        matchField = MatchFieldType.ipv4_destination
-                        stringMatchValues = #[
-                            "10.0.0.2",
-                            "24"
-                        ]
-                    ]
-                ]
-                priority = 62020
                 tableId = 251 as short
             ]
         ]
@@ -1614,7 +1513,7 @@ class FlowEntryObjects {
             ],
             new FlowEntity(123bi) => [
                 cookie = 110100480bi
-                flowId = "Egress_Fixed_Conntrk_Untrk_123_0D:AA:D8:42:30:F4_10.0.0.2/24_Untracked"
+                flowId = "Egress_Fixed_Conntrk_123_0D:AA:D8:42:30:F4_10.0.0.2/24_Recirc"
                 flowName = "ACL"
                 instructionInfoList = #[
                     new InstructionInfo(InstructionType.apply_actions, #[
@@ -1631,13 +1530,6 @@ class FlowEntryObjects {
                     ])
                 ]
                 matchInfoList = #[
-                    new NxMatchInfoBuilder >> [
-                        matchField = NxMatchFieldType.ct_state
-                        matchValues = #[
-                            0L,
-                            32L
-                        ]
-                    ],
                     new MatchInfoBuilder >> [
                         matchField = MatchFieldType.eth_src
                         stringMatchValues = #[
