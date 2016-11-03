@@ -18,11 +18,14 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev15033
 public interface IFibManager {
     void populateFibOnNewDpn(BigInteger dpnId, long vpnId, String rd,
                              final FutureCallback<List<Void>> callback);
-    void cleanUpDpnForVpn(BigInteger dpnId, long vpnId, String rd,
-                          String localNextHopIp, String remoteNextHopIp,
-                          final FutureCallback<List<Void>> callback);
-    void populateFibOnDpn(BigInteger localDpnId, long vpnId, String rd,
-                          String localNextHopIp, String remoteNextHopIp);
+    void cleanUpExternalRoutesOnDpn(BigInteger dpnId, long vpnId, String rd,
+                                    String localNextHopIp, String remoteNextHopIp);
+    void populateExternalRoutesOnDpn(BigInteger localDpnId, long vpnId, String rd,
+                                     String localNextHopIp, String remoteNextHopIp);
+    void cleanUpInternalRoutesOnDpn(final BigInteger dpnId, final long vpnId, final String rd,
+                                    final String localNextHopIp, final String remoteNextHopIp);
+    void populateInternalRoutesOnDpn(BigInteger localDpnId, long vpnId, String rd,
+                                     String localNextHopIp, String remoteNextHopIp);
     void cleanUpDpnForVpn(BigInteger dpnId, long vpnId, String rd,
                           final FutureCallback<List<Void>> callback);
     List<String> printFibEntries();
@@ -47,6 +50,7 @@ public interface IFibManager {
                              int label, RouteOrigin origin, WriteTransaction writeConfigTxn);
     void removeOrUpdateFibEntry(DataBroker broker, String rd, String prefix, String nextHopToRemove, WriteTransaction writeConfigTxn);
     void removeFibEntry(DataBroker broker, String rd, String prefix, WriteTransaction writeConfigTxn);
+    void updateFibEntry(DataBroker broker, String rd, String prefix , List<String> nextHopList, WriteTransaction writeConfigTxn);
     void addVrfTable(DataBroker broker, String rd, WriteTransaction writeConfigTxn);
     void removeVrfTable(DataBroker broker, String rd, WriteTransaction writeConfigTxn);
     void removeInterVPNLinkRouteFlows(final String interVpnLinkName,
