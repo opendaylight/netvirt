@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "3a65312a_63777703",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 2096,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2016-11-03T11:10:37Z",
+      "side": 1,
+      "message": "Thanks @Miguel for reviewing the patch. \nI hope you are talking about NwUtil.java in genius? I will propose a patch in genius adding this api. Once it gets merged in genius in some future patch, I can update the code to use NwUtil api.",
+      "parentUuid": "3a65312a_c3e2cb02",
+      "range": {
+        "startLine": 2096,
+        "startChar": 22,
+        "endLine": 2096,
+        "endChar": 35
+      },
+      "revId": "c0baa02ba7c0ede4b3343e39f4419ac1724b2c9f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "3a65312a_a3ba2fdf",
         "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/SubnetGwMacChangeListener.java",
         "patchSetId": 6
@@ -48,6 +72,30 @@
     },
     {
       "key": {
+        "uuid": "3a65312a_4374fbfc",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/SubnetGwMacChangeListener.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 87,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2016-11-03T11:10:37Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "3a65312a_a3ba2fdf",
+      "range": {
+        "startLine": 86,
+        "startChar": 12,
+        "endLine": 87,
+        "endChar": 48
+      },
+      "revId": "c0baa02ba7c0ede4b3343e39f4419ac1724b2c9f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "3a65312a_03cb2373",
         "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
         "patchSetId": 6
@@ -59,6 +107,30 @@
       "writtenOn": "2016-11-03T09:53:39Z",
       "side": 1,
       "message": "String ipPrefix \u003d (ip.getIpAddress().getIpv4Address() !\u003d null) ? ipValue + \"/32\" : ipValue + \"/128\"",
+      "range": {
+        "startLine": 634,
+        "startChar": 12,
+        "endLine": 639,
+        "endChar": 13
+      },
+      "revId": "c0baa02ba7c0ede4b3343e39f4419ac1724b2c9f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a65312a_83657347",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 639,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2016-11-03T11:10:37Z",
+      "side": 1,
+      "message": "Sure, I\u0027ll give this patch some time for any additional review comments before I update it.",
+      "parentUuid": "3a65312a_03cb2373",
       "range": {
         "startLine": 634,
         "startChar": 12,
