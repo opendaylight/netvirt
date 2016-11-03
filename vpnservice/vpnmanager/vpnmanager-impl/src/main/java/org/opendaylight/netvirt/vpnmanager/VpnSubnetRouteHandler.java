@@ -10,11 +10,8 @@ package org.opendaylight.netvirt.vpnmanager;
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import java.math.BigInteger;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
@@ -702,6 +699,141 @@ public class VpnSubnetRouteHandler implements NeutronvpnListener {
 
     @Override
     public void onRouterDisassociatedFromVpn(RouterDisassociatedFromVpn notification) {
+    }
+
+    public void updateSubnetRouteOnTunnelUpEvent(Uuid subnetId, BigInteger dpnId) {
+        logger.info("updateSubnetRouteOnTunnelUpEvent: Subnet {} Dpn {}", subnetId.getValue(), dpnId.toString());
+        try {
+            VpnUtil.lockSubnet(lockManager, subnetId.getValue());
+            try {
+                InstanceIdentifier<SubnetOpDataEntry> subOpIdentifier = InstanceIdentifier.builder(SubnetOpData.class).
+                        child(SubnetOpDataEntry.class, new SubnetOpDataEntryKey(subnetId)).build();
+                Optional<SubnetOpDataEntry> optionalSubs = VpnUtil.read(dataBroker,
+                        LogicalDatastoreType.OPERATIONAL,
+                        subOpIdentifier);
+                if (!optionalSubs.isPresent()) {
+                    logger.error("updateSubnetRouteOnTunnelUpEvent: SubnetOpDataEntry for subnet " + subnetId.getValue() +
+                            " is not available");
+                    return;
+                }
+                SubnetOpDataEntry subOpEntry = null;
+                SubnetOpDataEntryBuilder subOpBuilder = new SubnetOpDataEntryBuilder(optionalSubs.get());
+                String rd = subOpBuilder.getVrfId();
+                String subnetIp = subOpBuilder.getSubnetCidr();
+                String vpnName = subOpBuilder.getVpnName();
+                List<SubnetToDpn> subDpnList = subOpBuilder.getSubnetToDpn();
+                long elanTag = subOpBuilder.getElanTag();
+                if ((subOpBuilder.getRouteAdvState() == TaskState.Pending) || (subOpBuilder.getRouteAdvState() == TaskState.Na)) {
+                    for (SubnetToDpn subDpn : subDpnList) {
+                        if (subDpn.getDpnId().equals(dpnId)) {
+                            if (subOpBuilder.getNhDpnId() == null) {
+                                try {
+                                    subOpBuilder.setNhDpnId(dpnId);
+                                    int label = getLabel(rd, subnetIp);
+                                    addSubnetRouteToFib(rd, subnetIp, dpnId, vpnName, elanTag, label, subnetId);
+                                    //advertiseSubnetRouteToBgp(rd, subnetIp, dpnId, vpnName, elanTag, label);
+                                    subOpBuilder.setRouteAdvState(TaskState.Done);
+                                } catch(Exception ex) {
+                                    logger.error("updateSubnetRouteOnTunnelUpEvent: Advertising NextHopDPN " + dpnId + " information for subnet " +
+                                            subnetId.getValue() + " to BGP failed {}" + ex);
+                                }
+                            }
+                        }
+                    }
+                }
+                subOpEntry = subOpBuilder.build();
+                MDSALUtil.syncWrite(dataBroker, LogicalDatastoreType.OPERATIONAL, subOpIdentifier, subOpEntry);
+                logger.info("updateSubnetRouteOnTunnelUpEvent: Updated subnetopdataentry to OP Datastore tunnel up on dpn {} for subnet {}",
+                        dpnId.toString(), subnetId.getValue());
+            } catch (Exception ex) {
+                logger.error("Creation of SubnetOpDataEntry for subnet " +
+                        subnetId.getValue() + " failed {}" + ex);
+            } finally {
+                VpnUtil.unlockSubnet(lockManager, subnetId.getValue());
+            }
+        } catch (Exception e) {
+            logger.error("Unable to handle tunnel up event for subnetId {} dpnId {}", subnetId.getValue(), dpnId.toString());
+        }
+    }
+
+    public void updateSubnetRouteOnTunnelDownEvent(Uuid subnetId, BigInteger dpnId) {
+        logger.info("updateSubnetRouteOnTunnelDownEvent: Subnet {} Dpn {}", subnetId.getValue(), dpnId.toString());
+        //TODO(vivek): Change this to use more granularized lock at subnetId level
+        try {
+            VpnUtil.lockSubnet(lockManager, subnetId.getValue());
+            try {
+                InstanceIdentifier<SubnetOpDataEntry> subOpIdentifier = InstanceIdentifier.builder(SubnetOpData.class).
+                        child(SubnetOpDataEntry.class, new SubnetOpDataEntryKey(subnetId)).build();
+                Optional<SubnetOpDataEntry> optionalSubs = VpnUtil.read(dataBroker,
+                        LogicalDatastoreType.OPERATIONAL,
+                        subOpIdentifier);
+                if (!optionalSubs.isPresent()) {
+                    logger.error("updateSubnetRouteOnTunnelDownEvent: SubnetOpDataEntry for subnet " + subnetId.getValue() +
+                            " is not available");
+                    return;
+                }
+                SubnetOpDataEntry subOpEntry = null;
+                List<SubnetToDpn> subDpnList = null;
+                SubnetOpDataEntryBuilder subOpBuilder = new SubnetOpDataEntryBuilder(optionalSubs.get());
+                String rd = subOpBuilder.getVrfId();
+                String subnetIp = subOpBuilder.getSubnetCidr();
+                String vpnName = subOpBuilder.getVpnName();
+                long elanTag = subOpBuilder.getElanTag();
+                BigInteger nhDpnId = subOpBuilder.getNhDpnId();
+                if ((nhDpnId != null) && (nhDpnId.equals(dpnId))) {
+                    subDpnList = subOpBuilder.getSubnetToDpn();
+                    List<BigInteger> dpnIdList = new ArrayList<BigInteger>();
+
+                    Iterator<SubnetToDpn> subNetIt = subDpnList.iterator();
+                    while (subNetIt.hasNext()) {
+                        SubnetToDpn subnetToDpn = subNetIt.next();
+                        if (!subnetToDpn.getDpnId().equals(dpnId)) {
+                            dpnIdList.add(subnetToDpn.getDpnId());
+                        }
+                    }
+                    if (dpnIdList.isEmpty()) {
+                        subOpBuilder.setNhDpnId(null);
+                        try {
+                            // Withdraw route from BGP for this subnet
+                            deleteSubnetRouteFromFib(rd, subnetIp, vpnName);
+                            //withdrawSubnetRoutefromBgp(rd, subnetIp);
+                            subOpBuilder.setRouteAdvState(TaskState.Na);
+                        } catch (Exception ex) {
+                            logger.error("updateSubnetRouteOnTunnelDownEvent: Withdrawing NextHopDPN " + dpnId.toString() + " information for subnet " +
+                                    subnetId.getValue() + " from BGP failed {}" + ex);
+                            subOpBuilder.setRouteAdvState(TaskState.Pending);
+                        }
+                    } else {
+                        logger.debug("DpnList {} to choose the next bestfit dpn", dpnIdList);
+                        // current nhdpn not reachable from dc-gw, so we need to swap the NHDpnId
+                        nhDpnId = dpnIdList.get(0);
+                        subOpBuilder.setNhDpnId(nhDpnId);
+                        logger.debug("updateSubnetRouteOnTunnelDownEvent: Swapping the Designated DPN to " + nhDpnId.toString() + " for subnet " + subnetId.getValue());
+                        try {
+                            //update the VRF entry for the subnetroute.
+                            int label = getLabel(rd, subnetIp);
+                            addSubnetRouteToFib(rd, subnetIp, nhDpnId, vpnName, elanTag, label, subnetId);
+                            subOpBuilder.setRouteAdvState(TaskState.Done);
+                        } catch (Exception ex) {
+                            logger.error("updateSubnetRouteOnTunnelDownEvent: Swapping Withdrawing NextHopDPN " + dpnId.toString() + " information for subnet " +
+                                    subnetId.getValue() + " to BGP failed {}" + ex);
+                            subOpBuilder.setRouteAdvState(TaskState.Pending);
+                        }
+                    }
+                }
+                subOpEntry = subOpBuilder.build();
+                MDSALUtil.syncWrite(dataBroker, LogicalDatastoreType.OPERATIONAL, subOpIdentifier, subOpEntry);
+                logger.info("updateSubnetRouteOnTunnelDownEvent: Updated subnetopdataentry to OP Datastore tunnnel down on dpn {} for subnet {}",
+                        dpnId.toString(), subnetId.getValue());
+            } catch (Exception ex) {
+                logger.error("Updation of SubnetOpDataEntry for subnet " +
+                        subnetId.getValue() + " failed {}" + ex);
+            } finally {
+                VpnUtil.unlockSubnet(lockManager, subnetId.getValue());
+            }
+        } catch (Exception e) {
+            logger.error("Unable to handle tunnel down event for subnetId {} dpnId {}", subnetId.getValue(), dpnId.toString());
+        }
     }
 
     private void addSubnetRouteToFib(String rd, String subnetIp, BigInteger nhDpnId, String vpnName,
