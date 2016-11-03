@@ -10,7 +10,8 @@
     <odl:rpc-service id="fibRpcService"
                      interface="org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fib.rpc.rev160121.FibRpcService"/>
 
-    <bean id="vpnServiceChainHandler" class="org.opendaylight.netvirt.cloudservicechain.VPNServiceChainHandler">
+    <bean id="vpnServiceChainHandler" class="org.opendaylight.netvirt.cloudservicechain.VPNServiceChainHandler"
+          init-method="init" destroy-method="close">
         <argument ref="dataBroker" />
         <argument ref="mdsalManager" />
         <argument ref="fibRpcService" />
