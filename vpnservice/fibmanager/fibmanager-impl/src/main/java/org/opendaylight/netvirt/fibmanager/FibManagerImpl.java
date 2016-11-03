@@ -61,15 +61,35 @@ public class FibManagerImpl implements IFibManager {
     }
 
     @Override
-    public void cleanUpDpnForVpn(BigInteger dpnId, long vpnId, String rd,
-                                 String localNextHopIp, String remoteNextHopIp, FutureCallback<List<Void>> callback) {
-        vrfEntryListener.cleanUpDpnForVpn(dpnId, vpnId, rd, localNextHopIp, remoteNextHopIp, callback);
+    public void populateExternalRoutesOnDpn(BigInteger localDpnId, long vpnId,
+                                            String rd, String localNextHopIp,
+                                            String remoteNextHopIp) {
+        vrfEntryListener.populateExternalRoutesOnDpn(localDpnId, vpnId, rd,
+                localNextHopIp, remoteNextHopIp);
     }
 
     @Override
-    public void populateFibOnDpn(BigInteger localDpnId, long vpnId, String rd,
-                                 String localNextHopIp, String remoteNextHopIp) {
-        vrfEntryListener.populateFibOnDpn(localDpnId, vpnId, rd, localNextHopIp, remoteNextHopIp);
+    public void populateInternalRoutesOnDpn(BigInteger localDpnId, long vpnId,
+                                            String rd, String localNextHopIp,
+                                            String remoteNextHopIp) {
+        vrfEntryListener.populateInternalRoutesOnDpn(localDpnId, vpnId, rd,
+                localNextHopIp, remoteNextHopIp);
+    }
+
+    @Override
+    public void cleanUpExternalRoutesOnDpn(BigInteger dpnId, long vpnId,
+                                           String rd, String localNextHopIp,
+                                           String remoteNextHopIp) {
+        vrfEntryListener.cleanUpExternalRoutesOnDpn(dpnId, vpnId, rd,
+                localNextHopIp, remoteNextHopIp);
+    }
+
+    @Override
+    public void cleanUpInternalRoutesOnDpn(BigInteger dpnId, long vpnId,
+                                           String rd, String localNextHopIp,
+                                           String remoteNextHopIp) {
+        vrfEntryListener.cleanUpInternalRoutesOnDpn(dpnId, vpnId, rd,
+                localNextHopIp, remoteNextHopIp);
     }
 
     @Override
@@ -141,6 +161,10 @@ public class FibManagerImpl implements IFibManager {
     @Override
     public void removeFibEntry(DataBroker broker, String rd, String prefix, WriteTransaction writeConfigTxn) {
         FibUtil.removeFibEntry(broker, rd, prefix, writeConfigTxn);
+    }
+
+    public void updateFibEntry(DataBroker broker, String rd, String prefix , List<String> nextHopList, WriteTransaction writeConfigTxn) {
+        FibUtil.UpdateFibEntry(broker, rd, prefix , nextHopList, writeConfigTxn);
     }
 
     @Override
