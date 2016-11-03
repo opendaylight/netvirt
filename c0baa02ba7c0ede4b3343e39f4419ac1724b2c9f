@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3a65312a_c3e2cb02",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 2096,
+      "author": {
+        "id": 5350
+      },
+      "writtenOn": "2016-11-03T09:53:39Z",
+      "side": 1,
+      "message": "this method should preferably be located at NwUtil.java",
+      "range": {
+        "startLine": 2096,
+        "startChar": 22,
+        "endLine": 2096,
+        "endChar": 35
+      },
+      "revId": "c0baa02ba7c0ede4b3343e39f4419ac1724b2c9f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a65312a_a3ba2fdf",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/SubnetGwMacChangeListener.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 87,
+      "author": {
+        "id": 5350
+      },
+      "writtenOn": "2016-11-03T09:53:39Z",
+      "side": 1,
+      "message": "NwUtil.isIpv6Address(fixedIp) ?",
+      "range": {
+        "startLine": 86,
+        "startChar": 12,
+        "endLine": 87,
+        "endChar": 48
+      },
+      "revId": "c0baa02ba7c0ede4b3343e39f4419ac1724b2c9f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a65312a_03cb2373",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 639,
+      "author": {
+        "id": 5350
+      },
+      "writtenOn": "2016-11-03T09:53:39Z",
+      "side": 1,
+      "message": "String ipPrefix \u003d (ip.getIpAddress().getIpv4Address() !\u003d null) ? ipValue + \"/32\" : ipValue + \"/128\"",
+      "range": {
+        "startLine": 634,
+        "startChar": 12,
+        "endLine": 639,
+        "endChar": 13
+      },
+      "revId": "c0baa02ba7c0ede4b3343e39f4419ac1724b2c9f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
