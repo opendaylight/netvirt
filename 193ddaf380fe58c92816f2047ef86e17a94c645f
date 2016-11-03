@@ -16,6 +16,24 @@
       "revId": "193ddaf380fe58c92816f2047ef86e17a94c645f",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a65312a_860aa1d0",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/NexthopManager.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 410,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2016-11-03T13:05:19Z",
+      "side": 0,
+      "message": "I didn\u0027t remove this log - the diff in this line is only due to formatting\nI prefer to keep this trace for all cases of RNH and not only for the tunnel case",
+      "parentUuid": "3a65312a_439cfb69",
+      "revId": "193ddaf380fe58c92816f2047ef86e17a94c645f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
