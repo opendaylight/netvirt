@@ -16,6 +16,24 @@
       "revId": "78f1afd5b4139ed9a88df9dba0d40e3d63e82bdc",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a65312a_70773b03",
+        "filename": "openstack/utils/netvirt-it-utils/src/main/java/org/opendaylight/netvirt/utils/netvirt/it/utils/NetvirtItUtils.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 242,
+      "author": {
+        "id": 4018
+      },
+      "writtenOn": "2016-11-03T06:37:37Z",
+      "side": 1,
+      "message": "Joshua, Once finds the cause of the failures, then this log statement will arrange properly in next patch.\nThanks.",
+      "parentUuid": "3a65312a_b59f0803",
+      "revId": "78f1afd5b4139ed9a88df9dba0d40e3d63e82bdc",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
