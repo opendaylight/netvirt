@@ -23,6 +23,7 @@ import java.util.concurrent.Future;
 
 
 
+
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.primitives.Ints;
@@ -66,12 +67,6 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.MacAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.PhysAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.lockmanager.rev160413.LockManagerService;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.lockmanager.rev160413.TimeUnits;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.lockmanager.rev160413.TryLockInput;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.lockmanager.rev160413.TryLockInputBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.lockmanager.rev160413.UnlockInput;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.lockmanager.rev160413.UnlockInputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.lockmanager.rev160413.*;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeConnectorRef;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeId;
@@ -87,6 +82,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev15033
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.VrfEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.VrfEntryBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.VrfEntryKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.vrfentry.Routes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.PrefixToInterface;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.VpnToExtraroute;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.VpnIdToVpnInstance;
@@ -563,11 +559,20 @@ public class VpnUtil {
         if (vrfTablesOpc.isPresent()) {
             VrfTables vrfTables = vrfTablesOpc.get();
             for (VrfEntry vrfEntry : vrfTables.getVrfEntry()) {
-                if (vrfEntry.getNextHopAddressList() != null && vrfEntry.getNextHopAddressList().contains(nexthop)) {
-                    // TODO: Removes all the VrfEntry if one of the nexthops is the specified nexthop
-                    //                should we only remove the specific nexthop, or all the VrfEnry?
-                    delete(broker, LogicalDatastoreType.CONFIGURATION, vpnVrfTableIid.child(VrfEntry.class,
-                            vrfEntry.getKey()));
+                int availableRoutes = vrfEntry.getRoutes().size();
+                for (Routes routes : vrfEntry.getRoutes()) {
+                    if (routes.getNextHopAddressList() != null && routes.getNextHopAddressList().contains(nexthop)) {
+                        // TODO: Removes all the VrfEntry if one of the nexthops is the specified nexthop
+                        //                should we only remove the specific nexthop, or all the VrfEnry?
+                        delete(broker, LogicalDatastoreType.CONFIGURATION, vpnVrfTableIid.child(VrfEntry.class,
+                                vrfEntry.getKey()).child(Routes.class, routes.getKey()));
+                        availableRoutes--;
+                    }
+                    if (availableRoutes == 0) {
+                        // If all routes are deleted from the vrf entry delete the vrf entry as well.
+                        delete(broker, LogicalDatastoreType.CONFIGURATION, vpnVrfTableIid.child(VrfEntry.class,
+                                vrfEntry.getKey()));
+                    }
                 }
             }
         }

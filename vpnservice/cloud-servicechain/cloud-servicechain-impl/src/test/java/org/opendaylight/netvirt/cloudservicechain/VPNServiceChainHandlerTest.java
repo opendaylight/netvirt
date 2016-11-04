@@ -16,6 +16,7 @@ import static org.mockito.Mockito.anyObject;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
@@ -52,6 +53,9 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev15033
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.VrfEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.VrfEntryBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.VrfEntryKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.vrfentry.Routes;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.vrfentry.RoutesBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.vrfentry.RoutesKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.VpnInstanceOpData;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.VpnInstanceOpDataEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.VpnInstanceOpDataEntryBuilder;
@@ -213,10 +217,10 @@ public class VPNServiceChainHandlerTest {
         VrfEntryBuilder vrb = new VrfEntryBuilder();
         vrb.setDestPrefix("123");
         vrb.setKey(new VrfEntryKey("123"));
-        vrb.setLabel(1L);
         List<String> list = new ArrayList<String>();
         list.add(dcgwIp);
-        vrb.setNextHopAddressList(list);
+        Routes routes = new RoutesBuilder().setKey(new RoutesKey(1L)).setLabel(1L).setNextHopAddressList(list).build();
+        vrb.setRoutes(Arrays.asList(routes));
         return vrb.build();
     }
 
@@ -350,7 +354,7 @@ public class VPNServiceChainHandlerTest {
         assert (installedFlowsCaptured.size() == 2);
 
         FlowEntity expectedLFibFlowEntity = VpnServiceChainUtils.buildLFibVpnPseudoPortFlow(new BigInteger(String.valueOf(dpnId)),
-                ve.getLabel(), ve.getNextHopAddressList().get(0), lportTag);
+                ve.getRoutes().get(0).getLabel(), ve.getRoutes().get(0).getNextHopAddressList().get(0), lportTag);
         assert (new FlowEntityMatcher(expectedLFibFlowEntity).matches(installedFlowsCaptured.get(0)));
 
         FlowEntity expectedLPortDispatcher = VpnServiceChainUtils.buildLportFlowDispForVpnToScf(

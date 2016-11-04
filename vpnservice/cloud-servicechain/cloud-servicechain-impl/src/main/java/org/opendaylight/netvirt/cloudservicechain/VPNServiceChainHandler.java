@@ -8,7 +8,7 @@
 
 package org.opendaylight.netvirt.cloudservicechain;
 
-import java.math.BigInteger;;
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -17,12 +17,12 @@ import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.DataStoreJobCoordinator;
 import org.opendaylight.genius.mdsalutil.MDSALDataStoreUtils;
+import org.opendaylight.genius.mdsalutil.NWUtil;
 import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.netvirt.cloudservicechain.jobs.AddVpnPseudoPortDataJob;
 import org.opendaylight.netvirt.cloudservicechain.jobs.RemoveVpnPseudoPortDataJob;
 import org.opendaylight.netvirt.cloudservicechain.utils.VpnServiceChainUtils;
-import org.opendaylight.genius.mdsalutil.NWUtil;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.VpnAfConfig;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.VpnInstances;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.instances.VpnInstance;
@@ -31,7 +31,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.Fl
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.tables.table.Flow;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.tables.table.FlowBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fib.rpc.rev160121.FibRpcService;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.fibentries.VrfTables;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.VrfEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.VpnInstanceOpData;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.VpnInstanceOpDataEntry;
@@ -151,8 +150,10 @@ public class VPNServiceChainHandler implements AutoCloseable {
 
     public void programVpnToScfPipelineOnDpn(BigInteger dpnId, List<VrfEntry> vpnVrfEntries, short tableIdToGoTo,
                                              int scfTag, int lportTag, int addOrRemove) {
-        VpnServiceChainUtils.programLFibEntriesForSCF(mdsalManager, dpnId, vpnVrfEntries, lportTag,
-                                                      addOrRemove);
+        for (VrfEntry vrfEntry : vpnVrfEntries) {
+            VpnServiceChainUtils.programLFibEntriesForSCF(mdsalManager, dpnId, vrfEntry.getRoutes(), lportTag,
+                    addOrRemove, vrfEntry.getDestPrefix());
+        }
 
         VpnServiceChainUtils.programLPortDispatcherFlowForVpnToScf(mdsalManager, dpnId, lportTag, scfTag,
                                                                    tableIdToGoTo, addOrRemove);
@@ -283,8 +284,10 @@ public class VPNServiceChainHandler implements AutoCloseable {
         List<BigInteger> operativeDPNs = NWUtil.getOperativeDPNs(broker);
         for (BigInteger dpnId : operativeDPNs) {
             if ( cleanLFib ) {
-                VpnServiceChainUtils.programLFibEntriesForSCF(mdsalManager, dpnId, vrfEntries, vpnPseudoLportTag,
-                                                              NwConstants.DEL_FLOW);
+                for (VrfEntry vrfEntry : vrfEntries) {
+                    VpnServiceChainUtils.programLFibEntriesForSCF(mdsalManager, dpnId, vrfEntry.getRoutes(), vpnPseudoLportTag,
+                            NwConstants.DEL_FLOW, vrfEntry.getDestPrefix());
+                }
             }
 
             String vpnToScfflowRef = VpnServiceChainUtils.getL3VpnToScfLportDispatcherFlowRef(vpnPseudoLportTag);

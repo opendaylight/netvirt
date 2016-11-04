@@ -19,6 +19,7 @@ import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.JdkFutureAdapters;
 import com.google.common.util.concurrent.ListenableFuture;
+
 import java.math.BigInteger;
 import java.util.*;
 import java.util.concurrent.*;
@@ -91,6 +92,9 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev15033
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.VrfEntryKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.RouterInterface;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.RouterInterfaceBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.vrfentry.Routes;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.vrfentry.RoutesBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.vrfentry.RoutesKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.AddDpnEvent;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.AddDpnEventBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.Adjacencies;
@@ -1044,8 +1048,8 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                             continue;
                         }
                         String prefix = vrfEntry.getDestPrefix();
-                        long label = vrfEntry.getLabel();
-                        List<String> nextHops = vrfEntry.getNextHopAddressList();
+                        long label = vrfEntry.getRoutes().get(0).getLabel();
+                        List<String> nextHops = vrfEntry.getRoutes().get(0).getNextHopAddressList();
                         SubnetRoute route = vrfEntry.getAugmentation(SubnetRoute.class);
                         for (String nh : nextHops) {
                             if (route != null) {
@@ -1058,7 +1062,7 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                             }
                         }
                     } catch (Exception e) {
-                        LOG.error("Exception occurred while importing route with prefix {} label {} nexthop {} from vpn {} to vpn {}", vrfEntry.getDestPrefix(), vrfEntry.getLabel(), vrfEntry.getNextHopAddressList(), vpn.getVpnInstanceName(), vpnName);
+                        LOG.error("Exception occurred while importing route with prefix {} routes {} from vpn {} to vpn {}", vrfEntry.getDestPrefix(), vrfEntry.getRoutes(), vpn.getVpnInstanceName(), vpnName);
                     }
                 }
                 writeConfigTxn.submit();
@@ -1464,8 +1468,8 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                                                         long elantag, BigInteger dpnId, WriteTransaction writeTxn) {
         SubnetRoute route = new SubnetRouteBuilder().setElantag(elantag).build();
         RouteOrigin origin = RouteOrigin.STATIC; // Only case when a route is considered as directly connected
-        VrfEntry vrfEntry = new VrfEntryBuilder().setDestPrefix(prefix).setNextHopAddressList(Arrays.asList(nextHop))
-                .setLabel((long)label).setOrigin(origin.getValue())
+        List<Routes> routes = Arrays.asList(new RoutesBuilder().setKey(new RoutesKey((long)label)).setLabel((long) label).setNextHopAddressList(Arrays.asList(nextHop)).build());;
+        VrfEntry vrfEntry = new VrfEntryBuilder().setDestPrefix(prefix).setRoutes(routes).setOrigin(origin.getValue())
                 .addAugmentation(SubnetRoute.class, route).build();
 
         LOG.debug("Created vrfEntry for {} nexthop {} label {} and elantag {}", prefix, nextHop, label, elantag);
@@ -1490,8 +1494,7 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
 
         List<VpnInstanceOpDataEntry> vpnsToImportRoute = getVpnsImportingMyRoute(vpnName);
         if (vpnsToImportRoute.size() > 0) {
-            VrfEntry importingVrfEntry = new VrfEntryBuilder().setDestPrefix(prefix).setNextHopAddressList(Arrays.asList(nextHop))
-                    .setLabel((long) label).setOrigin(RouteOrigin.SELF_IMPORTED.getValue())
+            VrfEntry importingVrfEntry = new VrfEntryBuilder().setDestPrefix(prefix).setRoutes(routes).setOrigin(RouteOrigin.SELF_IMPORTED.getValue())
                     .addAugmentation(SubnetRoute.class, route).build();
             List<VrfEntry> importingVrfEntryList = Arrays.asList(importingVrfEntry);
             for (VpnInstanceOpDataEntry vpnInstance : vpnsToImportRoute) {
@@ -1512,8 +1515,8 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                                                         SubnetRoute route, WriteTransaction writeConfigTxn) {
 
         RouteOrigin origin = RouteOrigin.SELF_IMPORTED;
-        VrfEntry vrfEntry = new VrfEntryBuilder().setDestPrefix(prefix).setNextHopAddressList(Arrays.asList(nextHop))
-                .setLabel((long)label).setOrigin(origin.getValue())
+        List<Routes> routes = Arrays.asList(new RoutesBuilder().setKey(new RoutesKey((long)label)).setLabel((long) label).setNextHopAddressList(Arrays.asList(nextHop)).build());;
+        VrfEntry vrfEntry = new VrfEntryBuilder().setDestPrefix(prefix).setRoutes(routes).setOrigin(origin.getValue())
                 .addAugmentation(SubnetRoute.class, route).build();
         LOG.debug("Created vrfEntry for {} nexthop {} label {} and elantag {}", prefix, nextHop, label, route.getElantag());
         List<VrfEntry> vrfEntryList = Arrays.asList(vrfEntry);

@@ -44,6 +44,9 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev15033
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.VrfEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.VrfEntryBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.VrfEntryKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.vrfentry.Routes;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.vrfentry.RoutesBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.vrfentry.RoutesKey;
 import org.opendaylight.yangtools.concepts.ListenerRegistration;
 import org.opendaylight.yangtools.yang.binding.Augmentation;
 import org.opendaylight.yangtools.yang.binding.DataContainer;
@@ -112,8 +115,10 @@ public class FibManagerTest {
 
   private VrfEntry buildVrfEntry(String rd, String prefix, List<String> nextHopList, int label, RouteOrigin origin) {
 
-    return new VrfEntryBuilder().setDestPrefix(prefix).setNextHopAddressList(nextHopList)
-            .setLabel((long) label).setOrigin(origin.getValue()).build();
+    List<Routes> routes = new ArrayList<>();
+    Routes route = new RoutesBuilder().setKey(new RoutesKey((long) label)).setLabel((long) label).setNextHopAddressList(nextHopList).build();
+    routes.add(route);
+    return new VrfEntryBuilder().setDestPrefix(prefix).setRoutes(routes).setOrigin(origin.getValue()).build();
   }
 
   public static InstanceIdentifier<VrfTables> buildVrfTableId(String rd) {

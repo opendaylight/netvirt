@@ -8,10 +8,12 @@
 package org.opendaylight.netvirt.vpnmanager;
 
 import com.google.common.base.Optional;
+
 import java.math.BigInteger;
 import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.Future;
+
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
@@ -29,6 +31,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rpcs.rev160406.I
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rpcs.rev160406.IsDcgwPresentOutput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rpcs.rev160406.ItmRpcService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.VrfEntry;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.vrfentry.Routes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.Adjacencies;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.adjacency.list.Adjacency;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.vpn.instance.op.data.entry.VpnToDpnList;
@@ -253,11 +256,13 @@ public class TunnelInterfaceStateListener extends AsyncDataTreeChangeListenerBas
                             if (vrfEntries != null) {
                                 for (VrfEntry vrfEntry : vrfEntries) {
                                     String destPrefix = vrfEntry.getDestPrefix().trim();
-                                    int vpnLabel = vrfEntry.getLabel().intValue();
-                                    List<String> nextHops = vrfEntry.getNextHopAddressList();
-                                    if (nextHops.contains(srcTepIp.trim())) {
-                                        bgpManager.withdrawPrefix(rd, destPrefix);
-                                        bgpManager.advertisePrefix(rd, destPrefix, nextHops, vpnLabel);
+                                    for (Routes routes : vrfEntry.getRoutes()) {
+                                        int vpnLabel = routes.getLabel().intValue();
+                                        List<String> nextHops = routes.getNextHopAddressList();
+                                        if (nextHops.contains(srcTepIp.trim())) {
+                                            bgpManager.withdrawPrefix(rd, destPrefix);
+                                            bgpManager.advertisePrefix(rd, destPrefix, nextHops, vpnLabel);
+                                        }
                                     }
                                 }
                             }

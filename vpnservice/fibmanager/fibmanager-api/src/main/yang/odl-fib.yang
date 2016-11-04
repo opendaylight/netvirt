@@ -23,17 +23,20 @@ module odl-fib {
                 type string;
                 mandatory true;
             }
-            leaf label {
-                type uint32;
-                mandatory true;
-            }
-            leaf-list nextHopAddressList {
-                type string;
-                min-elements "1";
-            }
             leaf origin {
                 type string;
                 mandatory true;
+            }
+            list routes {
+                key "label";
+                leaf label {
+                    type uint32;
+                    mandatory true;
+                }
+                leaf-list nextHopAddressList {
+                    type string;
+                    min-elements "1";
+                }
             }
         }
     }

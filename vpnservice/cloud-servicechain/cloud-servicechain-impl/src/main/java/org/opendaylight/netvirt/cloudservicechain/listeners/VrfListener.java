@@ -10,6 +10,7 @@ package org.opendaylight.netvirt.cloudservicechain.listeners;
 import java.math.BigInteger;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.List;
 
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.DataChangeListener;
@@ -23,6 +24,7 @@ import org.opendaylight.netvirt.cloudservicechain.utils.VpnServiceChainUtils;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.FibEntries;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.fibentries.VrfTables;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.VrfEntry;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.vrfentry.Routes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.VpnInstanceOpDataEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.vpn.instance.op.data.entry.VpnToDpnList;
 import org.opendaylight.yangtools.concepts.ListenerRegistration;
@@ -85,30 +87,34 @@ public class VrfListener extends AbstractDataChangeListener<VrfEntry> implements
 
     @Override
     protected void remove(InstanceIdentifier<VrfEntry> identifier, VrfEntry vrfEntryDeleted) {
-        logger.debug("VrfEntry removed: id={}  vrfEntry=[ destination={}, nexthops=[{}],  label={} ]",
-                     identifier, vrfEntryDeleted.getDestPrefix(), vrfEntryDeleted.getNextHopAddressList(),
-                     vrfEntryDeleted.getLabel());
+        logger.debug("VrfEntry removed: id={}  vrfEntry=[ destination={}, routes=[{}] ]",
+                     identifier, vrfEntryDeleted.getDestPrefix(), vrfEntryDeleted.getRoutes());
         String vpnRd = identifier.firstKeyOf(VrfTables.class).getRouteDistinguisher();
-        programLabelInAllVpnDpns(vpnRd, vrfEntryDeleted, NwConstants.DEL_FLOW);
+        programLabelInAllVpnDpns(vpnRd, vrfEntryDeleted.getRoutes(), NwConstants.DEL_FLOW, vrfEntryDeleted.getDestPrefix());
     }
 
     @Override
     protected void update(InstanceIdentifier<VrfEntry> identifier, VrfEntry original, VrfEntry update) {
-        logger.debug("VrfEntry updated: id={}  vrfEntry=[ destination={}, nexthops=[{}],  label={} ]",
-                     identifier, update.getDestPrefix(), update.getNextHopAddressList(), update.getLabel());
-        if ( original.getLabel() != update.getLabel() ) {
-            remove(identifier, original);
-            add(identifier, update);
+        logger.debug("VrfEntry updated: id={}  vrfEntry=[ destination={}, routes=[{}] ]",
+                     identifier, update.getDestPrefix(), update.getRoutes());
+        String vpnRd = identifier.firstKeyOf(VrfTables.class).getRouteDistinguisher();
+        List<Routes> originalRoutes = original.getRoutes();
+        List<Routes> updatedRoutes = update.getRoutes();
+        if (originalRoutes.size() > updatedRoutes.size()) {
+            originalRoutes.removeAll(updatedRoutes);
+            programLabelInAllVpnDpns(vpnRd, originalRoutes, NwConstants.DEL_FLOW, original.getDestPrefix());
+        } else if (originalRoutes.size() < updatedRoutes.size()) {
+            updatedRoutes.removeAll(originalRoutes);
+            programLabelInAllVpnDpns(vpnRd, updatedRoutes, NwConstants.ADD_FLOW, update.getDestPrefix());
         }
     }
 
     @Override
     protected void add(InstanceIdentifier<VrfEntry> identifier, VrfEntry vrfEntryAdded) {
-        logger.debug("VrfEntry added: id={}  vrfEntry=[ destination={}, nexthops=[{}],  label={} ]",
-                     identifier, vrfEntryAdded.getDestPrefix(), vrfEntryAdded.getNextHopAddressList(),
-                     vrfEntryAdded.getLabel());
+        logger.debug("VrfEntry added: id={}  vrfEntry=[ destination={}, routes=[{}] ]",
+                     identifier, vrfEntryAdded.getDestPrefix(), vrfEntryAdded.getRoutes());
         String vpnRd = identifier.firstKeyOf(VrfTables.class).getRouteDistinguisher();
-        programLabelInAllVpnDpns(vpnRd, vrfEntryAdded, NwConstants.ADD_FLOW);
+        programLabelInAllVpnDpns(vpnRd, vrfEntryAdded.getRoutes(), NwConstants.ADD_FLOW, vrfEntryAdded.getDestPrefix());
     }
 
     /**
@@ -118,7 +124,7 @@ public class VrfListener extends AbstractDataChangeListener<VrfEntry> implements
      * @param vrfEntry The route to add or remove
      * @param addOrRemove States if the route must be added or removed
      */
-    protected void programLabelInAllVpnDpns(String vpnRd, VrfEntry vrfEntry, int addOrRemove) {
+    protected void programLabelInAllVpnDpns(String vpnRd, List<Routes> routes, int addOrRemove, String destPrefix) {
         Long vpnPseudoLPortTag = VpnPseudoPortCache.getVpnPseudoPortTagFromCache(vpnRd);
         if ( vpnPseudoLPortTag == null ) {
             logger.debug("Vpn with rd={} not related to any VpnPseudoPort", vpnRd);
@@ -134,8 +140,8 @@ public class VrfListener extends AbstractDataChangeListener<VrfEntry> implements
         Collection<VpnToDpnList> vpnToDpnList = vpnOpData.get().getVpnToDpnList();
         for (VpnToDpnList dpnInVpn : vpnToDpnList) {
             BigInteger dpnId = dpnInVpn.getDpnId();
-            VpnServiceChainUtils.programLFibEntriesForSCF(mdsalMgr, dpnId, Arrays.asList(vrfEntry),
-                                                          (int) vpnPseudoLPortTag.longValue(), addOrRemove);
+            VpnServiceChainUtils.programLFibEntriesForSCF(mdsalMgr, dpnId, routes,
+                                                          (int) vpnPseudoLPortTag.longValue(), addOrRemove, destPrefix);
         }
     }
 }

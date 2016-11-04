@@ -45,6 +45,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev15033
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.fibentries.VrfTables;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.fibentries.VrfTablesKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.VrfEntry;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.vrfentry.Routes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.VpnInstanceOpData;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.VpnInstanceToVpnId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.VpnInstanceOpDataEntry;
@@ -338,11 +339,11 @@ public class VpnServiceChainUtils {
      * @param vrfEntries
      * @param lportTag
      */
-    public static void programLFibEntriesForSCF(IMdsalApiManager mdsalMgr, BigInteger dpId, List<VrfEntry> vrfEntries,
-                                                int lportTag, int addOrRemove) {
-        for (VrfEntry vrfEntry : vrfEntries) {
-            Long label = vrfEntry.getLabel();
-            for (String nexthop : vrfEntry.getNextHopAddressList()) {
+    public static void programLFibEntriesForSCF(IMdsalApiManager mdsalMgr, BigInteger dpId, List<Routes> routes,
+                                                int lportTag, int addOrRemove, String destPrefix) {
+        for (Routes route : routes) {
+            Long label = route.getLabel();
+            for (String nexthop : route.getNextHopAddressList()) {
                 FlowEntity flowEntity = buildLFibVpnPseudoPortFlow(dpId, label, nexthop, lportTag);
                 if (addOrRemove == NwConstants.ADD_FLOW) {
                     mdsalMgr.installFlow(flowEntity);
@@ -350,7 +351,7 @@ public class VpnServiceChainUtils {
                     mdsalMgr.removeFlow(flowEntity);
                 }
                 logger.debug("LFIB Entry for label={}, destination={}, nexthop={} {} successfully in dpn={}",
-                             label, vrfEntry.getDestPrefix(), vrfEntry.getNextHopAddressList(),
+                             label, destPrefix, route.getNextHopAddressList(),
                              addOrRemove == NwConstants.DEL_FLOW ? "removed" : "installed", dpId);
             }
         }

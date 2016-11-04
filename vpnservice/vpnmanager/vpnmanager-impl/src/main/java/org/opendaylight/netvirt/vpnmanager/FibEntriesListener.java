@@ -9,27 +9,29 @@ package org.opendaylight.netvirt.vpnmanager;
 
 import java.util.ArrayList;
 import java.util.List;
+
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.FibEntries;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.fibentries.VrfTables;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.fibentries.VrfTablesKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.VrfEntry;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.vrfentry.Routes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.VpnInstanceOpDataEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.VpnInstanceOpDataEntryBuilder;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class FibEntriesListener extends AsyncDataTreeChangeListenerBase<VrfEntry, FibEntriesListener>
+public class FibEntriesListener extends AsyncDataTreeChangeListenerBase<Routes, FibEntriesListener>
         implements AutoCloseable {
     private static final Logger LOG = LoggerFactory.getLogger(FibEntriesListener.class);
     private final DataBroker dataBroker;
     private final VpnInstanceListener vpnInstanceListener;
 
     public FibEntriesListener(final DataBroker dataBroker, final VpnInstanceListener vpnInstanceListener) {
-        super(VrfEntry.class, FibEntriesListener.class);
+        super(Routes.class, FibEntriesListener.class);
         this.dataBroker = dataBroker;
         this.vpnInstanceListener = vpnInstanceListener;
     }
@@ -40,8 +42,8 @@ public class FibEntriesListener extends AsyncDataTreeChangeListenerBase<VrfEntry
     }
 
     @Override
-    protected InstanceIdentifier<VrfEntry> getWildCardPath() {
-        return InstanceIdentifier.create(FibEntries.class).child(VrfTables.class).child(VrfEntry.class);
+    protected InstanceIdentifier<Routes> getWildCardPath() {
+        return InstanceIdentifier.create(FibEntries.class).child(VrfTables.class).child(VrfEntry.class).child(Routes.class);
     }
 
     @Override
@@ -51,8 +53,8 @@ public class FibEntriesListener extends AsyncDataTreeChangeListenerBase<VrfEntry
 
 
     @Override
-    protected void remove(InstanceIdentifier<VrfEntry> identifier,
-                          VrfEntry del) {
+    protected void remove(InstanceIdentifier<Routes> identifier,
+            Routes del) {
         LOG.trace("Remove Fib event - Key : {}, value : {} ", identifier, del);
         final VrfTablesKey key = identifier.firstKeyOf(VrfTables.class, VrfTablesKey.class);
         String rd = key.getRouteDistinguisher();
@@ -76,15 +78,15 @@ public class FibEntriesListener extends AsyncDataTreeChangeListenerBase<VrfEntry
     }
 
     @Override
-    protected void update(InstanceIdentifier<VrfEntry> identifier,
-                          VrfEntry original, VrfEntry update) {
+    protected void update(InstanceIdentifier<Routes> identifier,
+            Routes original, Routes update) {
         // TODO Auto-generated method stub
 
     }
 
     @Override
-    protected void add(InstanceIdentifier<VrfEntry> identifier,
-                       VrfEntry add) {
+    protected void add(InstanceIdentifier<Routes> identifier,
+            Routes add) {
         LOG.trace("Add Vrf Entry event - Key : {}, value : {}", identifier, add);
         final VrfTablesKey key = identifier.firstKeyOf(VrfTables.class, VrfTablesKey.class);
         String rd = key.getRouteDistinguisher();

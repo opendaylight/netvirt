@@ -7,8 +7,8 @@
  */
 package org.opendaylight.netvirt.bgpmanager;
 
-import com.google.common.base.Optional;
 import io.netty.util.concurrent.GlobalEventExecutor;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
@@ -34,6 +34,8 @@ import java.util.concurrent.Future;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
+
 import org.opendaylight.controller.config.api.osgi.WaitingServiceTracker;
 import org.opendaylight.controller.md.sal.binding.api.ClusteredDataTreeChangeListener;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
@@ -43,13 +45,13 @@ import org.opendaylight.controller.md.sal.common.api.clustering.EntityOwnershipL
 import org.opendaylight.controller.md.sal.common.api.clustering.EntityOwnershipService;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
+import org.opendaylight.genius.utils.batching.DefaultBatchHandler;
 import org.opendaylight.genius.utils.clustering.EntityOwnerUtils;
 import org.opendaylight.netvirt.bgpmanager.api.IBgpManager;
 import org.opendaylight.netvirt.bgpmanager.commands.ClearBgpCli;
 import org.opendaylight.netvirt.bgpmanager.oam.BgpAlarms;
 import org.opendaylight.netvirt.bgpmanager.oam.BgpConstants;
 import org.opendaylight.netvirt.bgpmanager.oam.BgpCounters;
-import org.opendaylight.netvirt.bgpmanager.oam.BgpAlarms;
 import org.opendaylight.netvirt.bgpmanager.thrift.client.BgpRouter;
 import org.opendaylight.netvirt.bgpmanager.thrift.client.BgpRouterException;
 import org.opendaylight.netvirt.bgpmanager.thrift.client.BgpSyncHandle;
@@ -92,12 +94,11 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev15033
 import org.opendaylight.yangtools.concepts.ListenerRegistration;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-import org.opendaylight.genius.utils.batching.DefaultBatchHandler;
 import org.osgi.framework.BundleContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import java.util.concurrent.atomic.AtomicInteger;
-import org.opendaylight.yangtools.yang.binding.DataObject;
+
+import com.google.common.base.Optional;
 
 public class BgpConfigurationManager {
     private static final Logger LOG = LoggerFactory.getLogger(BgpConfigurationManager.class);
@@ -2041,8 +2042,10 @@ public class BgpConfigurationManager {
                         }
                         totalStaledCount++;
                         //Create MAP from stale_vrfTables.
-                        for (String nextHop : vrfEntry.getNextHopAddressList()) {
-                            stale_fib_ent_map.put(vrfEntry.getDestPrefix(), nextHop + "/" + vrfEntry.getLabel());
+                        for (org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.vrfentry.Routes routes : vrfEntry.getRoutes()) {
+                            // What is this used for... ? But from what they are doing won't the map entry be overwritten.
+                            // Or is it like all the time it will be size = 1 since its from bgp?
+                            stale_fib_ent_map.put(vrfEntry.getDestPrefix(), routes.getNextHopAddressList().get(0) + "/" + routes.getLabel());
                         }
                     }
                     staledFibEntriesMap.put(vrfTable.getRouteDistinguisher(), stale_fib_ent_map);

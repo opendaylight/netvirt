@@ -9,6 +9,8 @@ package org.opendaylight.netvirt.vpnmanager.intervpnlink;
 
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
+import com.google.common.collect.Lists;
+
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
@@ -32,12 +34,14 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev15033
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.VrfEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.VrfEntryBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.VrfEntryKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.vrfentry.Routes;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.vrfentry.RoutesBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.vrfentry.RoutesKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.VpnInstanceOpDataEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.netvirt.inter.vpn.link.rev160311.InterVpnLinkStates;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.netvirt.inter.vpn.link.rev160311.InterVpnLinks;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.netvirt.inter.vpn.link.rev160311.inter.vpn.link.states.InterVpnLinkState;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.netvirt.inter.vpn.link.rev160311.inter.vpn.link.states.InterVpnLinkStateBuilder;
-
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.netvirt.inter.vpn.link.rev160311.inter.vpn
         .link.states.InterVpnLinkStateKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.netvirt.inter.vpn.link.rev160311.inter.vpn.link.states.inter.vpn.link.state.FirstEndpointState;
@@ -437,9 +441,9 @@ public class InterVpnLinkUtil {
 
         String endpointIp = (destinationIs1stEndpoint) ? interVpnLink.getSecondEndpoint().getIpAddress().getValue()
                 : interVpnLink.getFirstEndpoint().getIpAddress().getValue();
-
+        List<Routes> routesList = Arrays.asList(new RoutesBuilder().setKey(new RoutesKey(label)).setLabel(label).setNextHopAddressList(Arrays.asList(endpointIp)).build());
         VrfEntry newVrfEntry = new VrfEntryBuilder().setKey(new VrfEntryKey(prefix)).setDestPrefix(prefix)
-                .setLabel(label).setNextHopAddressList(Arrays.asList(endpointIp))
+                .setRoutes(routesList)
                 .setOrigin(RouteOrigin.INTERVPN.getValue())
                 .build();
 
@@ -449,6 +453,7 @@ public class InterVpnLinkUtil {
                         .child(VrfTables.class, new VrfTablesKey(dstVpnRd))
                         .child(VrfEntry.class, new VrfEntryKey(newVrfEntry.getDestPrefix()))
                         .build();
+        // TODO: Can this be a merge???
         VpnUtil.asyncWrite(broker, LogicalDatastoreType.CONFIGURATION, newVrfEntryIid, newVrfEntry);
 
         // Finally, route is advertised it to the DC-GW. But while in the FibEntries the nexthop is the other
