@@ -16,6 +16,23 @@
       "revId": "59f774ad1131c46762b36cd3be355cdbdcdc879d",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a65312a_f8032d71",
+        "filename": "vpnservice/aclservice/impl/src/test/java/org/opendaylight/netvirt/aclservice/tests/FlowEntryObjects.xtend",
+        "patchSetId": 1
+      },
+      "lineNbr": 2740,
+      "author": {
+        "id": 5867
+      },
+      "writtenOn": "2016-11-04T09:27:53Z",
+      "side": 1,
+      "message": "Just noticed this myself.. these tab-to-space formatting changes happened automatically from the editor; would you be willing to merge the separately submitted in https://git.opendaylight.org/gerrit/#/c/47975/ ? If that goes in first, then a rebase will remove these changes here.",
+      "revId": "59f774ad1131c46762b36cd3be355cdbdcdc879d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
