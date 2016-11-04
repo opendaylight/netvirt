@@ -1,0 +1,168 @@
+..
+ Copyright? We're using OpenStack one as reference, do we need to retain
+ their copyright?
+
+=====================
+Title of the feature
+=====================
+
+[link to gerrit patch]
+
+Brief introduction of the feature.
+
+Key points to consider:
+ * Use RST format. For help with syntax refer http://sphinx-doc.org/rest.html
+ * For diagrams, you can use http://asciiflow.com to make ascii diagrams.
+ * Use same topic branch name for all patches related to this feature.
+
+Problem description
+===================
+
+Detailed description of the problem being solved by this feature
+
+Use Cases
+---------
+
+Use cases addressed by this feature.
+
+Proposed change
+===============
+
+Details of the proposed change.
+
+Pipeline changes
+----------------
+Any changes to pipeline must be captured explicitly in this section.
+
+Targeted Release
+-----------------
+What release is this feature targeted for? Will this be backported to a
+previous release? If yes, which ones?
+
+Alternatives
+------------
+Alternatives considered and why they were not selected.
+
+Yang changes
+------------
+This should detail any changes to yang models.
+
+Configuration impact
+---------------------
+Any configuration parameters being added/deprecated for this feature?
+What will be defaults for these? How will it impact existing deployments?
+
+Note that outright deletion/modification of existing configuration
+is not allowed due to backward compatibility. They can only be deprecated
+and deleted in later release(s).
+
+Infra considerations
+-------------------------
+
+This should capture impact from/to different infra components like
+MDSAL Datastore, Clustering, karaf etc.
+
+e.g. Clustering should capture how clustering will be supported. This can
+include but not limited to use of CDTCL, EOS, Cluster Singleton etc.
+
+Security considerations
+-----------------------
+Document any security related issues impacted by this feature.
+
+Scale and Performance Impact
+----------------------------
+What are the potential scale and performance impacts of this change?
+Does it help improve scale and performance or make it worse?
+
+Usage
+=====
+
+How will end user use this feature? Primary focus here is how this feature
+will be used in an actual deployment.
+
+e.g. For most netvirt features this will include OpenStack APIs.
+
+This section will be primary input for Test and Documentation teams.
+Along with above this should also capture REST API and CLI.
+
+Features to Install
+-------------------
+odl-netvirt-openstack
+
+REST API
+--------
+Sample JSONS/URIs. These will be an offshoot of yang changes.
+
+CLI
+---
+Any CLI if being added.
+
+
+Implementation
+==============
+
+Assignee(s)
+-----------
+Who is implementing this feature? In case of multiple authors, designate a
+primary assigne and other contributors.
+
+Primary assignee:
+  <developer-a>
+
+Other contributors:
+  <developer-b>
+  <developer-c>
+
+
+Work Items
+----------
+
+Break up work into individual items. This would be like checklist on
+Trello card for this feature.
+
+
+
+Dependencies
+============
+Any dependencies being added/removed? Dependencies here refers to internal
+[other ODL projects] as well as external [OVS, karaf, JDK etc.]
+This should capture any implications for dependent projects. This should
+also capture specific versions if any of these dependencies.
+e.g. OVS version, Linux kernel version, JDK etc.
+
+Following projects currently depend on Netvirt:
+ Unimgr
+
+Testing
+=======
+Capture details of testing that will need to be added.
+
+Unit Tests
+----------
+
+Integration Tests
+-----------------
+
+CSIT
+----
+
+Documentation Impact
+====================
+
+What is impact on documentation for this change? If documentation
+change is needed call out one of the <contributors> who will work with
+Project Documentation Lead to get the changes done.
+
+Don't repeat details already discussed but do reference and call them out.
+
+References
+==========
+
+Add any useful references. Some examples:
+
+* Links to Summit presentation, discussion etc.
+* Links to mail list discussions
+* Links to patches in other projects
+* Links to external documentation
+
+* https://specs.openstack.org/openstack/nova-specs/specs/kilo/template.html
