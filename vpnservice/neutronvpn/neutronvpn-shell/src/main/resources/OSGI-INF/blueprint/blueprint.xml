@@ -50,7 +50,7 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
         </command>
 
         <command>
-            <action class="org.opendaylight.netvirt.neutronvpn.shell.ShowNeutronVpnPort">
+            <action class="org.opendaylight.netvirt.neutronvpn.shell.ShowVpnIpToPort">
                 <property name="dataBroker" ref="dataBrokerRef"/>
             </action>
         </command>

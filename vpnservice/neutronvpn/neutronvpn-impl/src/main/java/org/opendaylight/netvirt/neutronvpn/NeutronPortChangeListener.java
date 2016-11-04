@@ -333,7 +333,8 @@ public class NeutronPortChangeListener extends AsyncDataTreeChangeListenerBase<P
                         null, null, null);
                 nvpnNatManager.handleSubnetsForExternalRouter(routerId, dataBroker);
                 String ipValue = String.valueOf(portIP.getIpAddress().getValue());
-                NeutronvpnUtils.removeVpnPortFixedIpToPort(dataBroker, vpnId.getValue(), ipValue);
+                NeutronvpnUtils.removeVpnPortFixedIpToPort(dataBroker, vpnId.getValue(),
+                        ipValue, null /*writeTransaction*/);
                 // ping responder for router interfaces
                 nvpnManager.deleteVpnInterface(vpnId, routerId, routerPort, null);
             }
