@@ -16,6 +16,24 @@
       "revId": "b96e9b47e27c399181f97fb6d12cc5001b7ef4a0",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a65312a_5be7bb12",
+        "filename": "openstack/net-virt-it/src/test/java/org/opendaylight/netvirt/openstack/netvirt/it/NetvirtIT.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 447,
+      "author": {
+        "id": 4018
+      },
+      "writtenOn": "2016-11-04T11:48:53Z",
+      "side": 0,
+      "message": "Sam,\nHere I didn\u0027t change any code because Current test cases were verifying/comparing the engress and ingress ACL service flows in configuration as well as operational based on the flow id. and we want to check what is written in both data stores for that I have added logs to quickly analysis the cause of the error.",
+      "parentUuid": "3a65312a_81d56b45",
+      "revId": "b96e9b47e27c399181f97fb6d12cc5001b7ef4a0",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }

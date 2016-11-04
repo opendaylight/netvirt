@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "3a65312a_fbb047f6",
+        "filename": "openstack/net-virt-it/src/test/java/org/opendaylight/netvirt/openstack/netvirt/it/NetvirtIT.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 430,
+      "author": {
+        "id": 4018
+      },
+      "writtenOn": "2016-11-04T11:48:53Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "3a65312a_4148735b",
+      "revId": "929be24bdd0a56b49632065f3aa9c8b150e25480",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "3a65312a_01dafb77",
         "filename": "openstack/net-virt-it/src/test/java/org/opendaylight/netvirt/openstack/netvirt/it/NetvirtIT.java",
         "patchSetId": 3
@@ -36,6 +54,24 @@
     },
     {
       "key": {
+        "uuid": "3a65312a_bb636fb0",
+        "filename": "openstack/net-virt-it/src/test/java/org/opendaylight/netvirt/openstack/netvirt/it/NetvirtIT.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 431,
+      "author": {
+        "id": 4018
+      },
+      "writtenOn": "2016-11-04T11:48:53Z",
+      "side": 1,
+      "message": "Sam,\n\nActually, the flowid (DEFAULT_PIPELINE_FLOW_31) is verifying in configuration\nand operational datastore which has recently added in table service.\nWhile verifying API docs the flow id is not available in configuration and operational datastore.\ninstead of that flowid exist as Resubmit_.\nPlease find in below for reference error:\nhttps://logs.opendaylight.org/releng/jenkins092/netvirt-daily-full-integration-carbon/91/archives/2.5.0-net-virt-IT.log.gz\ntestNetVirt(org.opendaylight.netvirt.openstack.netvirt.it.NetvirtIT)\njava.lang.AssertionError: Could not read flow DEFAULT_PIPELINE_FLOW_31 from configuration\n\tat org.junit.Assert.fail(Assert.java:88)\n\tat org.junit.Assert.assertTrue(Assert.java:41)\n\tat org.junit.Assert.assertNotNull(Assert.java:712)\n\tat org.opendaylight.netvirt.utils.netvirt.it.utils.NetvirtItUtils.verifyFlowByFields(NetvirtItUtils.java:214)\n\tat org.opendaylight.netvirt.utils.netvirt.it.utils.NetvirtItUtils.verifyFlowByFields(NetvirtItUtils.java:180)\n\tat org.opendaylight.netvirt.openstack.netvirt.it.NetvirtIT.testNetVirt(NetvirtIT.java:429)\n\nAPI Docs reference for configuration:\nhttp://10.0.0.1:8181/apidoc/explorer/index.html#!/opendaylight-inventory(2013-08-19)/GET_nodes_get_1\n{\n            \"id\": 31,\n            \"flow\": [\n              {\n                \"id\": \"ReSubmit_\",\n                \"idle-timeout\": 0,\n                \"hard-timeout\": 0,\n                \"barrier\": false,\n                \"instructions\": {\n                  \"instruction\": [\n                    {\n                      \"order\": 0,\n                      \"apply-actions\": {\n                        \"action\": [\n                          {\n                            \"order\": 1,\n                            \"openflowplugin-extension-nicira-action:nx-resubmit\": {\n                              \"table\": 40\n                            }\n                          },\n                          {\n                            \"order\": 0,\n                            \"openflowplugin-extension-nicira-action:nx-resubmit\": {\n                              \"table\": 39\n                            }\n                          }\n                        ]\n                      }\n                    }\n                  ]\n                },\n                \"priority\": 0,\n                \"table_id\": 31,\n                \"strict\": true,\n                \"flow-name\": \"ReSubmit_\"\n              }",
+      "parentUuid": "3a65312a_01dafb77",
+      "revId": "929be24bdd0a56b49632065f3aa9c8b150e25480",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "3a65312a_3cb63c3e",
         "filename": "openstack/utils/netvirt-it-utils/src/main/java/org/opendaylight/netvirt/utils/netvirt/it/utils/NetvirtItUtils.java",
         "patchSetId": 3
@@ -47,6 +83,24 @@
       "writtenOn": "2016-11-03T19:04:03Z",
       "side": 1,
       "message": "spelling, operational\n\nalso aren\u0027t these logs verbose? Do they really help? I guess it is nice to see all the current flows.",
+      "revId": "929be24bdd0a56b49632065f3aa9c8b150e25480",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a65312a_1bac23a0",
+        "filename": "openstack/utils/netvirt-it-utils/src/main/java/org/opendaylight/netvirt/utils/netvirt/it/utils/NetvirtItUtils.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 223,
+      "author": {
+        "id": 4018
+      },
+      "writtenOn": "2016-11-04T11:48:53Z",
+      "side": 1,
+      "message": "Sam, this will help what is written in an operational data store. and once finding the current cause of the error we will optimize this log statement.",
+      "parentUuid": "3a65312a_3cb63c3e",
       "revId": "929be24bdd0a56b49632065f3aa9c8b150e25480",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
