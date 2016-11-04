@@ -102,6 +102,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.neu
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.VpnInstanceOpDataEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.vpn.instance.op.data.entry.vpntargets.VpnTarget;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ext.routers.Routers;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.learnt.vpn.vip.to.port.data.LearntVpnVipToPort;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.neutron.vpn.portip.port.data.VpnPortipToPort;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.netvirt.inter.vpn.link.rev160311.inter.vpn.links.InterVpnLink;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
@@ -345,7 +346,7 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
             if (!waitForVpnInterfaceOpRemoval) {
                 // Add the VPNInterface and quit
                 vpnFootprintService.updateVpnToDpnMapping(dpId, vpnName, interfaceName, true /* add */);
-                bindService(dpId, vpnName, interfaceName, lPortTag, writeConfigTxn, writeInvTxn);
+                bindService(dpId, vpnName, interfaceName, lPortTag);
                 processVpnInterfaceAdjacencies(dpId, lPortTag, vpnName, interfaceName,
                         vpnId, writeConfigTxn, writeOperTxn, writeInvTxn);
                 if (interfaceManager.isExternalInterface(interfaceName)) {
@@ -377,7 +378,7 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
             }
             // VPNInterface got removed, proceed with Add
             vpnFootprintService.updateVpnToDpnMapping(dpId, vpnName, interfaceName, true /* add */);
-            bindService(dpId, vpnName, interfaceName, lPortTag, writeConfigTxn, writeInvTxn);
+            bindService(dpId, vpnName, interfaceName, lPortTag);
             processVpnInterfaceAdjacencies(dpId, lPortTag, vpnName, interfaceName,
                     vpnId, writeConfigTxn, writeOperTxn, writeInvTxn);
             if (interfaceManager.isExternalInterface(interfaceName)) {
@@ -512,7 +513,7 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
     }
 
     private void bindService(BigInteger dpId, final String vpnInstanceName, final String vpnInterfaceName,
-                             int lPortTag, WriteTransaction writeConfigTxn, WriteTransaction writeInvTxn) {
+                             int lPortTag) {
         final int priority = VpnConstants.DEFAULT_FLOW_PRIORITY;
         final long vpnId = VpnUtil.getVpnId(dataBroker, vpnInstanceName);
 
@@ -1049,7 +1050,7 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                                 NwConstants.DEL_FLOW);
                     }
                     LOG.info("Unbinding vpn service from interface {} ", interfaceName);
-                    unbindService(dpId, vpnName, interfaceName, lPortTag, isInterfaceStateDown, isConfigRemoval, writeConfigTxn, writeInvTxn);
+                    unbindService(dpId, vpnName, interfaceName, lPortTag, isInterfaceStateDown, isConfigRemoval);
 
                 }else{
                     LOG.info("Unbinding vpn service for interface {} has already been scheduled by a different event ", interfaceName);
@@ -1131,12 +1132,12 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                     }
 
                     String ip = nextHop.getIpAddress().split("/")[0];
-                    VpnPortipToPort vpnPortipToPort = VpnUtil.getNeutronPortFromVpnPortFixedIp(dataBroker,
+                    LearntVpnVipToPort vpnVipToPort = VpnUtil.getLearntVpnVipToPort(dataBroker,
                             vpnName, ip);
-                    if (vpnPortipToPort != null && !vpnPortipToPort.isConfig()) {
+                    if (vpnVipToPort != null) {
                         LOG.trace("VpnInterfaceManager removing adjacency for Interface {} ip {} from VpnPortData Entry",
-                                vpnPortipToPort.getPortName(),ip);
-                        VpnUtil.removeVpnPortFixedIpToPort(dataBroker, vpnName, ip);
+                                vpnVipToPort.getPortName(),ip);
+                        VpnUtil.removeLearntVpnVipToPort(dataBroker, vpnName, ip);
                     }
                 }
             }
@@ -1178,8 +1179,7 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
     }
 
     private void unbindService(BigInteger dpId, String vpnInstanceName, final String vpnInterfaceName,
-                               int lPortTag, boolean isInterfaceStateDown, boolean isConfigRemoval,
-                               WriteTransaction writeConfigTxn, WriteTransaction writeInvTxn) {
+                               int lPortTag, boolean isInterfaceStateDown, boolean isConfigRemoval) {
         if (!isInterfaceStateDown && isConfigRemoval) {
             DataStoreJobCoordinator dataStoreCoordinator = DataStoreJobCoordinator.getInstance();
             dataStoreCoordinator.enqueueJob(vpnInterfaceName,
