@@ -137,7 +137,6 @@ public class ArpNotificationHandler implements OdlArputilListener {
                             synchronized ((vpnName + ipToQuery).intern()) {
                                 removeMipAdjacency(vpnName, oldPortName, srcIP);
                                 VpnUtil.removeVpnPortFixedIpToPort(dataBroker, vpnName, ipToQuery);
-
                                 putVpnIpToMigrateArpCache(vpnName, ipToQuery, srcMac);
                             }
                         } else {
@@ -162,14 +161,13 @@ public class ArpNotificationHandler implements OdlArputilListener {
                 !VpnUtil.isNeutronPortConfigured(dataBroker, srcInterface, srcIP)) {
             synchronized ((vpnName + ipToQuery).intern()) {
                 VpnUtil.createVpnPortFixedIpToPort(dataBroker, vpnName, ipToQuery, srcInterface,
-                        srcMac.getValue(), false, false, true);
+                        srcMac.getValue(), false);
                 addMipAdjacency(vpnName, srcInterface, srcIP, srcMac.getValue());
             }
         }
     }
 
     private void addMipAdjacency(String vpnName, String vpnInterface, IpAddress prefix, String mipMacAddress){
-
         LOG.trace("Adding {} adjacency to VPN Interface {} ",prefix,vpnInterface);
         InstanceIdentifier<VpnInterface> vpnIfId = VpnUtil.getVpnInterfaceIdentifier(vpnInterface);
         InstanceIdentifier<Adjacencies> path = vpnIfId.augmentation(Adjacencies.class);
