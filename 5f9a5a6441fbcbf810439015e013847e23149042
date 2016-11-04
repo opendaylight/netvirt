@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3a65312a_0c886b1e",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 589,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2016-11-04T20:30:41Z",
+      "side": 1,
+      "message": "how often are these flows installed?",
+      "revId": "5f9a5a6441fbcbf810439015e013847e23149042",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
