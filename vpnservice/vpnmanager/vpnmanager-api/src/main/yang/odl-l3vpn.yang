@@ -162,25 +162,25 @@ module odl-l3vpn {
                    leaf ip-address { type string; }
                }
                leaf dpn-state {
-           	        description
-           	        "This flag indicates the state of the DPN.
-           	        Active state indicates atleast one vpn interface present on that DPN for the vpn.
-           	        Inactive state indicates no vpn interface present on that DPN for this vpn.";
+                    description
+                    "This flag indicates the state of the DPN.
+                    Active state indicates atleast one vpn interface present on that DPN for the vpn.
+                    Inactive state indicates no vpn interface present on that DPN for this vpn.";
 
                     type enumeration {
                          enum active {
                             value "0";
                             description
-           	                "Active state";
-           	             }
-           	             enum inactive {
-           	                 value "1";
-           	                 description
-           	                 "Inactive state";
-           	             }
-           	        }
-           	        default "active";
-           	   }
+                            "Active state";
+                         }
+                         enum inactive {
+                             value "1";
+                             description
+                             "Inactive state";
+                         }
+                    }
+                    default "active";
+               }
            }
            container vpnTargets {
               description
@@ -407,4 +407,16 @@ module odl-l3vpn {
             leaf router-name { type string; }
         }
     }
+
+    container vpn-vip-to-port-data {
+        config false;
+        list vpn-vip-to-port {
+            key "vpn-name port-fixedip";
+            leaf vpn-name { type string; }
+            leaf port-fixedip { type string; }
+            leaf port-name { type string; }
+            leaf mac-address { type string; }
+           }
+        }
+
 }

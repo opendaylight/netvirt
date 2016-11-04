@@ -54,8 +54,11 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.Segm
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.SegmentTypeVlan;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.SegmentTypeVxlan;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.NeutronRouterDpns;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.VpnVipToPortData;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.neutron.router.dpns.RouterDpnList;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.neutron.router.dpns.router.dpn.list.DpnVpninterfacesList;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.vip.to.port.data.VpnVipToPort;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.vip.to.port.data.VpnVipToPortKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ExtRouters;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ext.routers.RoutersKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.floating.ip.port.info.FloatingIpIdToPortMapping;
@@ -247,7 +250,7 @@ public class NeutronvpnUtils {
 
     protected static String getNeutronPortNameFromVpnPortFixedIp(DataBroker broker, String vpnName, String fixedIp) {
         InstanceIdentifier id = buildVpnPortipToPortIdentifier(vpnName, fixedIp);
-        Optional<VpnPortipToPort> vpnPortipToPortData = read(broker, LogicalDatastoreType.OPERATIONAL, id);
+        Optional<VpnPortipToPort> vpnPortipToPortData = read(broker, LogicalDatastoreType.CONFIGURATION, id);
         if (vpnPortipToPortData.isPresent()) {
             return vpnPortipToPortData.get().getPortName();
         }
@@ -773,14 +776,14 @@ public class NeutronvpnUtils {
     }
 
     protected static void createVpnPortFixedIpToPort(DataBroker broker, String vpnName, String fixedIp, String
-            portName, String macAddress, boolean isSubnetIp, boolean isConfig, boolean isLearnt) {
+            portName, String macAddress, boolean isSubnetIp) {
         InstanceIdentifier<VpnPortipToPort> id = NeutronvpnUtils.buildVpnPortipToPortIdentifier(vpnName, fixedIp);
         VpnPortipToPortBuilder builder = new VpnPortipToPortBuilder().setKey(new VpnPortipToPortKey(fixedIp, vpnName)
         ).setVpnName(vpnName).setPortFixedip(fixedIp).setPortName(portName).setMacAddress(macAddress).setSubnetIp
-                (isSubnetIp).setConfig(isConfig).setLearnt(isLearnt);
+                (isSubnetIp);
         try {
             synchronized ((vpnName + fixedIp).intern()) {
-                MDSALUtil.syncWrite(broker, LogicalDatastoreType.OPERATIONAL, id, builder.build());
+                MDSALUtil.syncWrite(broker, LogicalDatastoreType.CONFIGURATION, id, builder.build());
             }
             logger.trace("Neutron port with fixedIp: {}, vpn {}, interface {}, mac {}, isSubnetIp {} added to " +
                     "VpnPortipToPort DS", fixedIp, vpnName, portName, macAddress, isSubnetIp);
@@ -792,6 +795,20 @@ public class NeutronvpnUtils {
 
     protected static void removeVpnPortFixedIpToPort(DataBroker broker, String vpnName, String fixedIp) {
         InstanceIdentifier<VpnPortipToPort> id = NeutronvpnUtils.buildVpnPortipToPortIdentifier(vpnName, fixedIp);
+        try {
+            synchronized ((vpnName + fixedIp).intern()) {
+                MDSALUtil.syncDelete(broker, LogicalDatastoreType.CONFIGURATION, id);
+            }
+            logger.trace("Neutron router port with fixedIp: {}, vpn {} removed from VpnPortipToPort DS", fixedIp,
+                    vpnName);
+        } catch (Exception e) {
+            logger.error("Failure while removing VPNPortFixedIpToPort map for vpn {} - fixedIP {}", vpnName, fixedIp,
+                    e);
+        }
+    }
+
+    protected static void removeVpnVipToPort(DataBroker broker, String vpnName, String fixedIp) {
+        InstanceIdentifier<VpnVipToPort> id = NeutronvpnUtils.buildVpnVipToPortIdentifier(vpnName, fixedIp);
         try {
             synchronized ((vpnName + fixedIp).intern()) {
                 MDSALUtil.syncDelete(broker, LogicalDatastoreType.OPERATIONAL, id);
@@ -870,6 +887,12 @@ public class NeutronvpnUtils {
     static InstanceIdentifier<VpnPortipToPort> buildVpnPortipToPortIdentifier(String vpnName, String fixedIp) {
         InstanceIdentifier<VpnPortipToPort> id = InstanceIdentifier.builder(NeutronVpnPortipPortData.class).child
                 (VpnPortipToPort.class, new VpnPortipToPortKey(fixedIp, vpnName)).build();
+        return id;
+    }
+
+    static InstanceIdentifier<VpnVipToPort> buildVpnVipToPortIdentifier(String vpnName, String fixedIp) {
+        InstanceIdentifier<VpnVipToPort> id = InstanceIdentifier.builder(VpnVipToPortData.class).child
+                (VpnVipToPort.class, new VpnVipToPortKey(fixedIp, vpnName)).build();
         return id;
     }
 
