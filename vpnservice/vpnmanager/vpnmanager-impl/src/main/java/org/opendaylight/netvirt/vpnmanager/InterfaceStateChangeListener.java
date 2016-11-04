@@ -164,61 +164,65 @@ public class InterfaceStateChangeListener extends AsyncDataTreeChangeListenerBas
     protected void update(InstanceIdentifier<Interface> identifier,
                           Interface original, Interface update) {
         LOG.trace("Operation Interface update event - Old: {}, New: {}", original, update);
-        final String interfaceName = update.getName();
-        if (original.getOperStatus().equals(Interface.OperStatus.Unknown) ||
-                update.getOperStatus().equals(Interface.OperStatus.Unknown)){
-            LOG.debug("Interface {} state change is from/to UNKNOWN. Ignoring the update event.", interfaceName);
-            return;
-        }
-        final BigInteger dpnId = InterfaceUtils.getDpIdFromInterface(update);
+        try {
+            final String interfaceName = update.getName();
+            if (original.getOperStatus().equals(Interface.OperStatus.Unknown) ||
+                    update.getOperStatus().equals(Interface.OperStatus.Unknown)){
+                LOG.debug("Interface {} state change is from/to UNKNOWN. Ignoring the update event.", interfaceName);
+                return;
+            }
+            final BigInteger dpnId = InterfaceUtils.getDpIdFromInterface(update);
 
-        if (update.getIfIndex() == null) {
-            return;
-        }
-        if (update != null && (update.getType() != null)) {
-            if (!update.getType().equals(Tunnel.class)) {
-                final VpnInterface vpnInterface = VpnUtil.getConfiguredVpnInterface(dataBroker, interfaceName);
-                if (vpnInterface != null) {
-                    final int ifIndex = update.getIfIndex();
-                    if (update.getOperStatus().equals(Interface.OperStatus.Up)) {
-                        DataStoreJobCoordinator dataStoreCoordinator = DataStoreJobCoordinator.getInstance();
-                        dataStoreCoordinator.enqueueJob("VPNINTERFACE-" + interfaceName,
-                                new Callable<List<ListenableFuture<Void>>>() {
-                                    @Override
-                                    public List<ListenableFuture<Void>> call() throws Exception {
-                                        WriteTransaction writeConfigTxn = dataBroker.newWriteOnlyTransaction();
-                                        WriteTransaction writeOperTxn = dataBroker.newWriteOnlyTransaction();
-                                        WriteTransaction writeInvTxn = dataBroker.newWriteOnlyTransaction();
-                                        vpnInterfaceManager.processVpnInterfaceUp(dpnId, vpnInterface, ifIndex, 
-                                                true, writeConfigTxn, writeOperTxn, writeInvTxn);
-                                        List<ListenableFuture<Void>> futures = new ArrayList<ListenableFuture<Void>>();
-                                        futures.add(writeOperTxn.submit());
-                                        futures.add(writeConfigTxn.submit());
-                                        futures.add(writeInvTxn.submit());
-                                        return futures;
-                                    }
-                                });
-                    } else if (update.getOperStatus().equals(Interface.OperStatus.Down)) {
-                        DataStoreJobCoordinator dataStoreCoordinator = DataStoreJobCoordinator.getInstance();
-                        dataStoreCoordinator.enqueueJob(interfaceName,
-                                new Callable<List<ListenableFuture<Void>>>() {
-                                    @Override
-                                    public List<ListenableFuture<Void>> call() throws Exception {
-                                        WriteTransaction writeConfigTxn = dataBroker.newWriteOnlyTransaction();
-                                        WriteTransaction writeOperTxn = dataBroker.newWriteOnlyTransaction();
-                                        WriteTransaction writeInvTxn = dataBroker.newWriteOnlyTransaction();
-                                        vpnInterfaceManager.processVpnInterfaceDown(dpnId, interfaceName, ifIndex, true, false,
-                                                writeConfigTxn, writeOperTxn, writeInvTxn);
-                                        List<ListenableFuture<Void>> futures = new ArrayList<ListenableFuture<Void>>();
-                                        futures.add(writeOperTxn.submit());
-                                        futures.add(writeConfigTxn.submit());
-                                        futures.add(writeInvTxn.submit());
-                                        return futures;
-                                    }
-                                });
+            if (update.getIfIndex() == null) {
+                return;
+            }
+            if (update != null && (update.getType() != null)) {
+                if (!update.getType().equals(Tunnel.class)) {
+                    final VpnInterface vpnInterface = VpnUtil.getConfiguredVpnInterface(dataBroker, interfaceName);
+                    if (vpnInterface != null) {
+                        final int ifIndex = update.getIfIndex();
+                        if (update.getOperStatus().equals(Interface.OperStatus.Up)) {
+                            DataStoreJobCoordinator dataStoreCoordinator = DataStoreJobCoordinator.getInstance();
+                            dataStoreCoordinator.enqueueJob("VPNINTERFACE-" + interfaceName,
+                                    new Callable<List<ListenableFuture<Void>>>() {
+                                        @Override
+                                        public List<ListenableFuture<Void>> call() throws Exception {
+                                            WriteTransaction writeConfigTxn = dataBroker.newWriteOnlyTransaction();
+                                            WriteTransaction writeOperTxn = dataBroker.newWriteOnlyTransaction();
+                                            WriteTransaction writeInvTxn = dataBroker.newWriteOnlyTransaction();
+                                            vpnInterfaceManager.processVpnInterfaceUp(dpnId, vpnInterface, ifIndex,
+                                                    true, writeConfigTxn, writeOperTxn, writeInvTxn);
+                                            List<ListenableFuture<Void>> futures = new ArrayList<ListenableFuture<Void>>();
+                                            futures.add(writeOperTxn.submit());
+                                            futures.add(writeConfigTxn.submit());
+                                            futures.add(writeInvTxn.submit());
+                                            return futures;
+                                        }
+                                    });
+                        } else if (update.getOperStatus().equals(Interface.OperStatus.Down)) {
+                            DataStoreJobCoordinator dataStoreCoordinator = DataStoreJobCoordinator.getInstance();
+                            dataStoreCoordinator.enqueueJob(interfaceName,
+                                    new Callable<List<ListenableFuture<Void>>>() {
+                                        @Override
+                                        public List<ListenableFuture<Void>> call() throws Exception {
+                                            WriteTransaction writeConfigTxn = dataBroker.newWriteOnlyTransaction();
+                                            WriteTransaction writeOperTxn = dataBroker.newWriteOnlyTransaction();
+                                            WriteTransaction writeInvTxn = dataBroker.newWriteOnlyTransaction();
+                                            vpnInterfaceManager.processVpnInterfaceDown(dpnId, interfaceName, ifIndex, true, false,
+                                                    writeConfigTxn, writeOperTxn, writeInvTxn);
+                                            List<ListenableFuture<Void>> futures = new ArrayList<ListenableFuture<Void>>();
+                                            futures.add(writeOperTxn.submit());
+                                            futures.add(writeConfigTxn.submit());
+                                            futures.add(writeInvTxn.submit());
+                                            return futures;
+                                        }
+                                    });
+                        }
                     }
                 }
             }
+        }catch (Exception e) {
+            LOG.error("Exception observed in handling updation of VPN Interface {}. ", update.getName(), e);
         }
     }
 }
