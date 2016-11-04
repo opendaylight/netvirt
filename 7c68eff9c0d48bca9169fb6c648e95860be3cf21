@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "3a65312a_be8d1d34",
+        "filename": "resources/commons/blueprint-template.rst",
+        "patchSetId": 1
+      },
+      "lineNbr": 37,
+      "author": {
+        "id": 3276
+      },
+      "writtenOn": "2016-11-04T14:18:20Z",
+      "side": 1,
+      "message": "will do.",
+      "parentUuid": "3a65312a_db310b0d",
+      "range": {
+        "startLine": 37,
+        "startChar": 29,
+        "endLine": 37,
+        "endChar": 38
+      },
+      "revId": "7c68eff9c0d48bca9169fb6c648e95860be3cf21",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "3a65312a_d23bafe9",
         "filename": "resources/commons/blueprint-template.rst",
         "patchSetId": 1
@@ -48,6 +72,30 @@
     },
     {
       "key": {
+        "uuid": "3a65312a_1e837105",
+        "filename": "resources/commons/blueprint-template.rst",
+        "patchSetId": 1
+      },
+      "lineNbr": 51,
+      "author": {
+        "id": 3276
+      },
+      "writtenOn": "2016-11-04T14:18:20Z",
+      "side": 1,
+      "message": "That will be captured in a bigger Dependencies section.",
+      "parentUuid": "3a65312a_d23bafe9",
+      "range": {
+        "startLine": 51,
+        "startChar": 72,
+        "endLine": 51,
+        "endChar": 73
+      },
+      "revId": "7c68eff9c0d48bca9169fb6c648e95860be3cf21",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "3a65312a_3255c31d",
         "filename": "resources/commons/blueprint-template.rst",
         "patchSetId": 1
@@ -59,6 +107,30 @@
       "writtenOn": "2016-11-04T07:07:09Z",
       "side": 1,
       "message": "this should be broadened to \u0027infrastructure\u0027 considerations, and can cover md-sal datastore, clustering, and impacts from/to all common infrastructure components",
+      "range": {
+        "startLine": 53,
+        "startChar": 0,
+        "endLine": 53,
+        "endChar": 10
+      },
+      "revId": "7c68eff9c0d48bca9169fb6c648e95860be3cf21",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a65312a_5e7cc920",
+        "filename": "resources/commons/blueprint-template.rst",
+        "patchSetId": 1
+      },
+      "lineNbr": 53,
+      "author": {
+        "id": 3276
+      },
+      "writtenOn": "2016-11-04T14:18:20Z",
+      "side": 1,
+      "message": "will do.",
+      "parentUuid": "3a65312a_3255c31d",
       "range": {
         "startLine": 53,
         "startChar": 0,
@@ -117,6 +189,30 @@
     },
     {
       "key": {
+        "uuid": "3a65312a_de8f3922",
+        "filename": "resources/commons/blueprint-template.rst",
+        "patchSetId": 1
+      },
+      "lineNbr": 68,
+      "author": {
+        "id": 3276
+      },
+      "writtenOn": "2016-11-04T14:18:20Z",
+      "side": 1,
+      "message": "Use case is more of a high level use case. Usage is more about actual CLI/API etc. Aim is that Usage section will feed into User Guide.",
+      "parentUuid": "3a65312a_72361b05",
+      "range": {
+        "startLine": 68,
+        "startChar": 0,
+        "endLine": 68,
+        "endChar": 5
+      },
+      "revId": "7c68eff9c0d48bca9169fb6c648e95860be3cf21",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "3a65312a_b240b357",
         "filename": "resources/commons/blueprint-template.rst",
         "patchSetId": 1
@@ -128,6 +224,30 @@
       "writtenOn": "2016-11-04T07:07:09Z",
       "side": 1,
       "message": "dependencies should capture specific versions of dependent projects, such as OVS version, and Openstack distro.",
+      "range": {
+        "startLine": 119,
+        "startChar": 62,
+        "endLine": 119,
+        "endChar": 63
+      },
+      "revId": "7c68eff9c0d48bca9169fb6c648e95860be3cf21",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a65312a_5ea3299e",
+        "filename": "resources/commons/blueprint-template.rst",
+        "patchSetId": 1
+      },
+      "lineNbr": 119,
+      "author": {
+        "id": 3276
+      },
+      "writtenOn": "2016-11-04T14:18:20Z",
+      "side": 1,
+      "message": "Yes, will call these out explicitly.",
+      "parentUuid": "3a65312a_b240b357",
       "range": {
         "startLine": 119,
         "startChar": 62,
