@@ -163,6 +163,7 @@ module neutronvpn {
 
     /* Data models to adhere to restart requirements */
     container neutron-vpn-portip-port-data {
+        config true;
         list vpn-portip-to-port {
             key "vpn-name port-fixedip";
             leaf vpn-name { type string;}
@@ -170,8 +171,6 @@ module neutronvpn {
             leaf port-name { type string;}
             leaf mac-address { type string;}
             leaf subnet-ip { type boolean;}
-            leaf config { type boolean;}
-            leaf learnt { type boolean; }
         }
     }
 
