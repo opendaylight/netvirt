@@ -59,7 +59,7 @@ public class ShowNeutronVpnPort extends OsgiCommandSupport {
             }else{
                 InstanceIdentifier<VpnPortipToPort> id = InstanceIdentifier.builder(NeutronVpnPortipPortData.class).child
                         (VpnPortipToPort.class, new VpnPortipToPortKey(portFixedIp, vpnName)).build();
-                Optional<VpnPortipToPort> vpnPortipToPortData = read(LogicalDatastoreType.OPERATIONAL, id);
+                Optional<VpnPortipToPort> vpnPortipToPortData = read(LogicalDatastoreType.CONFIGURATION, id);
                 if (vpnPortipToPortData == null) {
                     System.out.println(" Data not present");
                 }else {
