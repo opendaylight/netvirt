@@ -72,6 +72,24 @@
     },
     {
       "key": {
+        "uuid": "3a65312a_2c0d6791",
+        "filename": "openstack/net-virt-it/src/test/java/org/opendaylight/netvirt/openstack/netvirt/it/NetvirtIT.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 431,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2016-11-04T21:04:11Z",
+      "side": 1,
+      "message": "The Resubmit_ flows are not part of the default pipeline which is what this block of code is verifying. The node connects, br-int is created and then the default pipeline flows installed. At this point the Resubmit_flows would not exist. Later after the ports and neutron events happen the Resubmit_flows would pop up right?",
+      "parentUuid": "3a65312a_bb636fb0",
+      "revId": "929be24bdd0a56b49632065f3aa9c8b150e25480",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "3a65312a_3cb63c3e",
         "filename": "openstack/utils/netvirt-it-utils/src/main/java/org/opendaylight/netvirt/utils/netvirt/it/utils/NetvirtItUtils.java",
         "patchSetId": 3
