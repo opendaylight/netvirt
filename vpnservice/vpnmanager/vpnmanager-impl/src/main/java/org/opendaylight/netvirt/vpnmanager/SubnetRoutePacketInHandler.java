@@ -106,6 +106,13 @@ public class SubnetRoutePacketInHandler implements PacketProcessingListener {
                                 + "Target IP {} is a valid Neutron port, ignoring subnet route processing", dstIpStr);
                         return;
                     }
+                    if (VpnUtil.getLearntVpnVipToPort(dataBroker, vpnIds.getVpnInstanceName(), dstIpStr) !=
+                            null) {
+                        LOG.debug("SubnetRoutePacketInHandler: IPv4 Packet received with "
+                                + "Target IP {} is an already discovered IPAddress,"
+                                + "ignoring subnet route processing", dstIpStr);
+                        return;
+                    }
                     long elanTag = getElanTagFromSubnetRouteMetadata(metadata);
                     if (elanTag == 0) {
                         LOG.error("SubnetRoutePacketInHandler: elanTag value from metadata found to be 0, for IPv4 " +
