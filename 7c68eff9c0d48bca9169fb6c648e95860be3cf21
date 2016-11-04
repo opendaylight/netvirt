@@ -1,0 +1,96 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3a65312a_d23bafe9",
+        "filename": "resources/commons/blueprint-template.rst",
+        "patchSetId": 1
+      },
+      "lineNbr": 51,
+      "author": {
+        "id": 4534
+      },
+      "writtenOn": "2016-11-04T07:07:09Z",
+      "side": 1,
+      "message": "should also add a section on impact to existing features, in this and other projects",
+      "range": {
+        "startLine": 51,
+        "startChar": 72,
+        "endLine": 51,
+        "endChar": 73
+      },
+      "revId": "7c68eff9c0d48bca9169fb6c648e95860be3cf21",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a65312a_3255c31d",
+        "filename": "resources/commons/blueprint-template.rst",
+        "patchSetId": 1
+      },
+      "lineNbr": 53,
+      "author": {
+        "id": 4534
+      },
+      "writtenOn": "2016-11-04T07:07:09Z",
+      "side": 1,
+      "message": "this should be broadened to \u0027infrastructure\u0027 considerations, and can cover md-sal datastore, clustering, and impacts from/to all common infrastructure components",
+      "range": {
+        "startLine": 53,
+        "startChar": 0,
+        "endLine": 53,
+        "endChar": 10
+      },
+      "revId": "7c68eff9c0d48bca9169fb6c648e95860be3cf21",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a65312a_72361b05",
+        "filename": "resources/commons/blueprint-template.rst",
+        "patchSetId": 1
+      },
+      "lineNbr": 68,
+      "author": {
+        "id": 4534
+      },
+      "writtenOn": "2016-11-04T07:07:09Z",
+      "side": 1,
+      "message": "should this be moved up, to occur after the use cases section? this will give fullthe high level overview to someone not interested in gory impl details",
+      "range": {
+        "startLine": 68,
+        "startChar": 0,
+        "endLine": 68,
+        "endChar": 5
+      },
+      "revId": "7c68eff9c0d48bca9169fb6c648e95860be3cf21",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a65312a_b240b357",
+        "filename": "resources/commons/blueprint-template.rst",
+        "patchSetId": 1
+      },
+      "lineNbr": 119,
+      "author": {
+        "id": 4534
+      },
+      "writtenOn": "2016-11-04T07:07:09Z",
+      "side": 1,
+      "message": "dependencies should capture specific versions of dependent projects, such as OVS version, and Openstack distro.",
+      "range": {
+        "startLine": 119,
+        "startChar": 62,
+        "endLine": 119,
+        "endChar": 63
+      },
+      "revId": "7c68eff9c0d48bca9169fb6c648e95860be3cf21",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
