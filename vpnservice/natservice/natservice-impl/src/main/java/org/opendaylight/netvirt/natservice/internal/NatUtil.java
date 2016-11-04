@@ -1125,6 +1125,27 @@ public class NatUtil {
             }
         }
     }
+
+    static void removeFromNeutronRouterDpnsMap(DataBroker broker, String routerName,
+                                               BigInteger dpId, WriteTransaction writeOperTxn) {
+        if(dpId.equals(BigInteger.ZERO)) {
+            LOG.warn("NAT Service : DPN ID is invalid for the router {} ", routerName);
+            return;
+        }
+
+        InstanceIdentifier<DpnVpninterfacesList> routerDpnListIdentifier = getRouterDpnId(routerName, dpId);
+        Optional<DpnVpninterfacesList> optionalRouterDpnList = NatUtil.read(broker, LogicalDatastoreType
+                .OPERATIONAL, routerDpnListIdentifier);
+        if (optionalRouterDpnList.isPresent()) {
+            LOG.debug("NAT Service : Removing the dpn-vpninterfaces-list from the odl-l3vpn:neutron-router-dpns model " +
+                            "for the router {}", routerName);
+            writeOperTxn.delete(LogicalDatastoreType.OPERATIONAL, routerDpnListIdentifier);
+        }else{
+            LOG.debug("NAT Service : dpn-vpninterfaces-list does not exist in the odl-l3vpn:neutron-router-dpns model " +
+                    "for the router {}", routerName);
+        }
+    }
+
     static void removeFromNeutronRouterDpnsMap(DataBroker broker, String routerName, String vpnInterfaceName,
                                                   OdlInterfaceRpcService ifaceMgrRpcService, WriteTransaction writeOperTxn) {
         BigInteger dpId = getDpnForInterface(ifaceMgrRpcService, vpnInterfaceName);
