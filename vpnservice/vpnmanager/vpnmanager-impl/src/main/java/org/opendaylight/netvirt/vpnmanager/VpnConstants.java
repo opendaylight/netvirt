@@ -27,6 +27,8 @@ public class VpnConstants {
     public static final long PER_VPN_INSTANCE_OPDATA_MAX_WAIT_TIME_IN_MILLISECONDS = 180000;
     public static final int ELAN_GID_MIN = 200000;
     public static final int INVALID_LABEL = 0;
+    public static final String ARP_MONITORING_ENTITY = "arpmonitoring";
+
 
     // An IdPool for Pseudo LPort tags, that is, lportTags that are no related to an interface.
     // These lportTags must be higher than 170000 to avoid collision with interface LportTags and

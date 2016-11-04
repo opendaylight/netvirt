@@ -53,7 +53,7 @@ public class ArpMonitorStopTask implements Callable<List<ListenableFuture<Void>>
         }
         removeMipAdjacency(macEntry.getIpAddress().getHostAddress(),
                 macEntry.getVpnName(), macEntry.getInterfaceName(), tx);
-        VpnUtil.removeVpnPortFixedIpToPort(dataBroker, macEntry.getVpnName(),
+        VpnUtil.removeVpnVipFixedIpToPort(dataBroker, macEntry.getVpnName(),
                 macEntry.getIpAddress().getHostAddress());
         CheckedFuture<Void, TransactionCommitFailedException> txFutures = tx.submit();
         try {
