@@ -18,7 +18,7 @@ import org.opendaylight.genius.mdsalutil.MetaDataUtil
 import org.opendaylight.genius.mdsalutil.NxMatchFieldType
 import org.opendaylight.genius.mdsalutil.NxMatchInfoBuilder
 
-import static extension org.opendaylight.netvirt.aclservice.tests.infra.BuilderExtensions.operator_doubleGreaterThan
+import static extension org.opendaylight.mdsal.binding.testutils.XtendBuilderExtensions.operator_doubleGreaterThan
 
 class FlowEntryObjects {
 
