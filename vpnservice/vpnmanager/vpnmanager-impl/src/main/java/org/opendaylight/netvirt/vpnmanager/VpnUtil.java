@@ -17,10 +17,10 @@ import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
-
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
+import org.opendaylight.controller.md.sal.common.api.clustering.EntityOwnershipService;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
 import org.opendaylight.genius.mdsalutil.FlowEntity;
@@ -35,6 +35,7 @@ import org.opendaylight.genius.mdsalutil.NWUtil;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.genius.utils.cache.DataStoreCache;
 import org.opendaylight.netvirt.fibmanager.api.RouteOrigin;
+import org.opendaylight.genius.utils.clustering.ClusteringUtils;
 import org.opendaylight.netvirt.neutronvpn.api.utils.NeutronConstants;
 import org.opendaylight.netvirt.neutronvpn.interfaces.INeutronVpnManager;
 import org.opendaylight.netvirt.vpnmanager.utilities.InterfaceUtils;
@@ -90,6 +91,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.Adj
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.AdjacenciesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.PrefixToInterface;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.RouterInterfaces;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.LearntVpnVipToPortData;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.VpnIdToVpnInstance;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.VpnInstanceOpData;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.VpnInstanceToVpnId;
@@ -115,6 +117,9 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.to.extraroute.vpn.Extraroute;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.to.extraroute.vpn.ExtrarouteBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.to.extraroute.vpn.ExtrarouteKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.learnt.vpn.vip.to.port.data.LearntVpnVipToPort;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.learnt.vpn.vip.to.port.data.LearntVpnVipToPortBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.learnt.vpn.vip.to.port.data.LearntVpnVipToPortKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ExtRouters;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ExternalNetworks;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.NaptSwitches;
@@ -175,6 +180,7 @@ import com.google.common.primitives.Ints;
 import com.google.common.util.concurrent.CheckedFuture;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
+import com.google.common.util.concurrent.ListenableFuture;
 
 public class VpnUtil {
     private static final Logger LOG = LoggerFactory.getLogger(VpnUtil.class);
@@ -1041,41 +1047,28 @@ public class VpnUtil {
         }
     }
 
-    public static boolean isNeutronPortConfigured(DataBroker broker, String portId,
-                                                  org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress targetIP) {
-        InstanceIdentifier<Port> portIdentifier = InstanceIdentifier.create(Neutron.class).
-                child(Ports.class).child(Port.class, new PortKey(new Uuid(portId)));
-        Optional<Port> optPort = VpnUtil.read(broker, LogicalDatastoreType.CONFIGURATION, portIdentifier);
-        if (optPort.isPresent()) {
-            Port port = optPort.get();
-            for (FixedIps ip : port.getFixedIps()) {
-                if (Objects.equals(ip.getIpAddress(), targetIP)) {
-                    return true;
-                }
-            }
-        }
-
-        LOG.trace("No neutron ports found matching portId {} with targetIp {}", portId, targetIP);
-        return false;
-    }
-
-    protected static void createVpnPortFixedIpToPort(DataBroker broker, String vpnName, String fixedIp, String
-            portName, String macAddress, boolean isSubnetIp, boolean isConfig, boolean isLearnt) {
+    protected static void createLearntVpnVipToPort(DataBroker broker, String vpnName, String fixedIp, String
+            portName, String macAddress) {
         synchronized ((vpnName + fixedIp).intern()) {
-            InstanceIdentifier<VpnPortipToPort> id = buildVpnPortipToPortIdentifier(vpnName, fixedIp);
-            VpnPortipToPortBuilder builder = new VpnPortipToPortBuilder().setKey(
-                    new VpnPortipToPortKey(fixedIp, vpnName)).setVpnName(vpnName).setPortFixedip(fixedIp).setPortName
-                    (portName).setMacAddress(macAddress.toLowerCase()).setSubnetIp(isSubnetIp).setConfig(isConfig)
-                    .setLearnt(isLearnt);
+            InstanceIdentifier<LearntVpnVipToPort> id = buildLearntVpnVipToPortIdentifier(vpnName, fixedIp);
+            LearntVpnVipToPortBuilder builder = new LearntVpnVipToPortBuilder().setKey(
+                    new LearntVpnVipToPortKey(fixedIp, vpnName)).setVpnName(vpnName).setPortFixedip(fixedIp).setPortName
+                    (portName).setMacAddress(macAddress.toLowerCase());
             MDSALUtil.syncWrite(broker, LogicalDatastoreType.OPERATIONAL, id, builder.build());
             LOG.debug("ARP learned for fixedIp: {}, vpn {}, interface {}, mac {}, isSubnetIp {} added to " +
-                    "VpnPortipToPort DS", fixedIp, vpnName, portName, macAddress, isLearnt);
+                    "VpnPortipToPort DS", fixedIp, vpnName, portName, macAddress);
         }
     }
 
-    protected static void removeVpnPortFixedIpToPort(DataBroker broker, String vpnName, String fixedIp) {
+    private static InstanceIdentifier<LearntVpnVipToPort> buildLearntVpnVipToPortIdentifier(String vpnName, String fixedIp) {
+        InstanceIdentifier<LearntVpnVipToPort> id = InstanceIdentifier.builder(LearntVpnVipToPortData.class).child
+                (LearntVpnVipToPort.class, new LearntVpnVipToPortKey(fixedIp, vpnName)).build();
+        return id;
+    }
+
+    protected static void removeLearntVpnVipToPort(DataBroker broker, String vpnName, String fixedIp) {
         synchronized ((vpnName + fixedIp).intern()) {
-            InstanceIdentifier<VpnPortipToPort> id = buildVpnPortipToPortIdentifier(vpnName, fixedIp);
+            InstanceIdentifier<LearntVpnVipToPort> id = buildLearntVpnVipToPortIdentifier(vpnName, fixedIp);
             MDSALUtil.syncDelete(broker, LogicalDatastoreType.OPERATIONAL, id);
             LOG.debug("Delete learned ARP for fixedIp: {}, vpn {} removed from VpnPortipToPort DS", fixedIp, vpnName);
         }
@@ -1089,9 +1082,18 @@ public class VpnUtil {
 
     static VpnPortipToPort getNeutronPortFromVpnPortFixedIp(DataBroker broker, String vpnName, String fixedIp) {
         InstanceIdentifier id = buildVpnPortipToPortIdentifier(vpnName, fixedIp);
-        Optional<VpnPortipToPort> vpnPortipToPortData = read(broker, LogicalDatastoreType.OPERATIONAL, id);
+        Optional<VpnPortipToPort> vpnPortipToPortData = read(broker, LogicalDatastoreType.CONFIGURATION, id);
         if (vpnPortipToPortData.isPresent()) {
             return (vpnPortipToPortData.get());
+        }
+        return null;
+    }
+
+    static LearntVpnVipToPort getLearntVpnVipToPort(DataBroker broker, String vpnName, String fixedIp) {
+        InstanceIdentifier id = buildLearntVpnVipToPortIdentifier(vpnName, fixedIp);
+        Optional<LearntVpnVipToPort> learntVpnVipToPort = read(broker, LogicalDatastoreType.OPERATIONAL, id);
+        if (learntVpnVipToPort.isPresent()) {
+            return (learntVpnVipToPort.get());
         }
         return null;
     }
@@ -1303,7 +1305,32 @@ public class VpnUtil {
             }
         }
         return gatewayMac;
+    }
 
+    public static void runOnlyInLeaderNode(EntityOwnershipService entityOwnershipService, Runnable job) {
+        runOnlyInLeaderNode(entityOwnershipService, job, "");
+    }
+
+    public static void runOnlyInLeaderNode(EntityOwnershipService entityOwnershipService, final Runnable job,
+            final String jobDescription) {
+        ListenableFuture<Boolean> checkEntityOwnerFuture = ClusteringUtils.checkNodeEntityOwner(
+                entityOwnershipService, VpnConstants.ARP_MONITORING_ENTITY,
+                VpnConstants.ARP_MONITORING_ENTITY);
+        Futures.addCallback(checkEntityOwnerFuture, new FutureCallback<Boolean>() {
+            @Override
+            public void onSuccess(Boolean isOwner) {
+                if (isOwner) {
+                    job.run();
+                } else {
+                    LOG.trace("job is not run as i m not cluster owner desc :{} ", jobDescription);
+                }
+            }
+
+            @Override
+            public void onFailure(Throwable error) {
+                LOG.error("Failed to identity cluster owner ", error);
+            }
+        });
     }
 
     public static boolean isVpnIntfPresentInVpnToDpnList(DataBroker broker, VpnInterface vpnInterface) {
