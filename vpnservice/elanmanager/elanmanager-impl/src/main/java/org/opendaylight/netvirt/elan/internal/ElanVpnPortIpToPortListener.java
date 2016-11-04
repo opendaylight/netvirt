@@ -20,21 +20,21 @@ import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
 import org.opendaylight.netvirt.elan.utils.ElanConstants;
 import org.opendaylight.netvirt.elan.utils.ElanUtils;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.interfaces.ElanInterface;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.NeutronVpnPortipPortData;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.neutron.vpn.portip.port.data.VpnPortipToPort;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.VpnVipToPortData;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.vip.to.port.data.VpnVipToPort;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class ElanVpnPortIpToPortListener extends
-        AsyncDataTreeChangeListenerBase<VpnPortipToPort, ElanVpnPortIpToPortListener> {
+        AsyncDataTreeChangeListenerBase<VpnVipToPort, ElanVpnPortIpToPortListener> {
     private static final Logger LOG = LoggerFactory.getLogger(ElanVpnPortIpToPortListener.class);
     private final DataBroker broker;
     private final IInterfaceManager interfaceManager;
     private final ElanUtils elanUtils;
 
     public ElanVpnPortIpToPortListener(DataBroker broker, IInterfaceManager interfaceManager, ElanUtils elanUtils) {
-        super(VpnPortipToPort.class, ElanVpnPortIpToPortListener.class);
+        super(VpnVipToPort.class, ElanVpnPortIpToPortListener.class);
         this.broker = broker;
         this.interfaceManager = interfaceManager;
         this.elanUtils = elanUtils;
@@ -51,61 +51,48 @@ public class ElanVpnPortIpToPortListener extends
     }
 
     @Override
-    protected InstanceIdentifier<VpnPortipToPort> getWildCardPath() {
-        return InstanceIdentifier.create(NeutronVpnPortipPortData.class).child(VpnPortipToPort.class);
+    protected InstanceIdentifier<VpnVipToPort> getWildCardPath() {
+        return InstanceIdentifier.create(VpnVipToPortData.class).child(VpnVipToPort.class);
     }
 
     @Override
-    protected void remove(InstanceIdentifier<VpnPortipToPort> key, VpnPortipToPort dataObjectModification) {
+    protected void remove(InstanceIdentifier<VpnVipToPort> key, VpnVipToPort dataObjectModification) {
         String macAddress = dataObjectModification.getMacAddress();
         String interfaceName = dataObjectModification.getPortName();
-        boolean isLearnt = dataObjectModification.isLearnt();
-        if (!isLearnt) {
-            LOG.trace("Not learnt mac {}. Not performing action", macAddress);
-            return;
-        }
         LOG.trace("Removing mac address {} from interface {} ", macAddress, interfaceName);
         DataStoreJobCoordinator.getInstance().enqueueJob(buildJobKey(macAddress, interfaceName),
                 new StaticMacRemoveWorker(macAddress, interfaceName));
     }
 
     @Override
-    protected void update(InstanceIdentifier<VpnPortipToPort> key, VpnPortipToPort dataObjectModificationBefore,
-            VpnPortipToPort dataObjectModificationAfter) {
+    protected void update(InstanceIdentifier<VpnVipToPort> key, VpnVipToPort dataObjectModificationBefore,
+            VpnVipToPort dataObjectModificationAfter) {
         String oldMac = dataObjectModificationBefore.getMacAddress();
         String oldInterfaceName = dataObjectModificationBefore.getPortName();
         String newMac = dataObjectModificationAfter.getMacAddress();
         String newInterfaceName = dataObjectModificationAfter.getPortName();
-        boolean isLearntOld = dataObjectModificationBefore.isLearnt();
-        boolean isLearntNew = dataObjectModificationAfter.isLearnt();
         DataStoreJobCoordinator coordinator = DataStoreJobCoordinator.getInstance();
         if (oldMac.equals(newMac) && oldInterfaceName.equals(newInterfaceName)) {
             LOG.trace("No change in Mac Address {} and InterfaceName {}. No actions performed", newMac,
                     newInterfaceName);
             return;
         }
-        if (isLearntOld) {
-            LOG.trace("Removing mac address {} from interface {} due to update event", oldMac, oldInterfaceName);
-            coordinator.enqueueJob(buildJobKey(oldMac, oldInterfaceName), new StaticMacRemoveWorker(oldMac,
-                    oldInterfaceName));
-        }
-        if (isLearntNew) {
-            LOG.trace("Adding mac address {} to interface {} due to update event", newMac, newInterfaceName);
-            coordinator.enqueueJob(buildJobKey(newMac, newInterfaceName), new StaticMacAddWorker(newMac,
-                    newInterfaceName));
-        }
+        LOG.trace("Removing mac address {} from interface {} due to update event", oldMac, oldInterfaceName);
+        coordinator.enqueueJob(buildJobKey(oldMac, oldInterfaceName), new StaticMacRemoveWorker(oldMac,
+                oldInterfaceName));
+
+        LOG.trace("Adding mac address {} to interface {} due to update event", newMac, newInterfaceName);
+        coordinator.enqueueJob(buildJobKey(newMac, newInterfaceName), new StaticMacAddWorker(newMac,
+                newInterfaceName));
     }
 
     @Override
-    protected void add(InstanceIdentifier<VpnPortipToPort> key, VpnPortipToPort dataObjectModification) {
+    protected void add(InstanceIdentifier<VpnVipToPort> key, VpnVipToPort dataObjectModification) {
         String macAddress = dataObjectModification.getMacAddress();
         String interfaceName = dataObjectModification.getPortName();
-        boolean isLearnt = dataObjectModification.isLearnt();
-        if (isLearnt) {
-            LOG.trace("Adding mac address {} to interface {} ", macAddress, interfaceName);
-            DataStoreJobCoordinator.getInstance().enqueueJob(buildJobKey(macAddress, interfaceName),
-                    new StaticMacAddWorker(macAddress, interfaceName));
-        }
+        LOG.trace("Adding mac address {} to interface {} ", macAddress, interfaceName);
+        DataStoreJobCoordinator.getInstance().enqueueJob(buildJobKey(macAddress, interfaceName),
+                new StaticMacAddWorker(macAddress, interfaceName));
     }
 
     @Override
