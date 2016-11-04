@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3a65312a_f8eccdc9",
+        "filename": "vpnservice/aclservice/impl/src/test/java/org/opendaylight/netvirt/aclservice/tests/FlowEntryObjects.xtend",
+        "patchSetId": 1
+      },
+      "lineNbr": 2740,
+      "author": {
+        "id": 4540
+      },
+      "writtenOn": "2016-11-04T09:24:49Z",
+      "side": 1,
+      "message": "It\u0027s a shame you included all these whitespace changes...",
+      "revId": "59f774ad1131c46762b36cd3be355cdbdcdc879d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
