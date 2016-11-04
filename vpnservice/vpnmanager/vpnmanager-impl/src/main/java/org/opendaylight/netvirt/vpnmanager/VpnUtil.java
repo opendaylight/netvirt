@@ -29,10 +29,12 @@ import com.google.common.primitives.Ints;
 import com.google.common.util.concurrent.CheckedFuture;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
+import com.google.common.util.concurrent.ListenableFuture;
 
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
+import org.opendaylight.controller.md.sal.common.api.clustering.EntityOwnershipService;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
 import org.opendaylight.genius.mdsalutil.MDSALDataStoreUtils;
@@ -47,6 +49,7 @@ import org.opendaylight.genius.mdsalutil.MatchFieldType;
 import org.opendaylight.genius.mdsalutil.MatchInfo;
 import org.opendaylight.genius.mdsalutil.MetaDataUtil;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
+import org.opendaylight.genius.utils.clustering.ClusteringUtils;
 import org.opendaylight.netvirt.neutronvpn.api.utils.NeutronConstants;
 import org.opendaylight.netvirt.neutronvpn.interfaces.INeutronVpnManager;
 import org.opendaylight.netvirt.vpnmanager.utilities.InterfaceUtils;
@@ -54,7 +57,6 @@ import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev14081
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.VpnInstances;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.VpnInterfaces;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.instances.VpnInstance;
-import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.VpnInstances;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.instances.VpnInstanceKey;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.interfaces.VpnInterface;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.interfaces.VpnInterfaceKey;
@@ -89,6 +91,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev15033
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.VrfEntryKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.PrefixToInterface;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.VpnToExtraroute;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.VpnVipToPortData;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.VpnIdToVpnInstance;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.VpnInstanceOpData;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.VpnInstanceToVpnId;
@@ -117,6 +120,9 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.to.extraroute.vpn.Extraroute;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.to.extraroute.vpn.ExtrarouteBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.to.extraroute.vpn.ExtrarouteKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.vip.to.port.data.VpnVipToPort;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.vip.to.port.data.VpnVipToPortBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.vip.to.port.data.VpnVipToPortKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ExtRouters;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ExternalNetworks;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ext.routers.Routers;
@@ -167,7 +173,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.netvirt.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.netvirt.inter.vpn.link.rev160311.inter.vpn.link.states.InterVpnLinkStateKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.netvirt.inter.vpn.link.rev160311.inter.vpn.links.InterVpnLink;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.RouterInterfacesMap;
 import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.data.impl.schema.tree.SchemaValidationFailedException;
@@ -1214,22 +1219,49 @@ public class VpnUtil {
     }
 
     protected static void createVpnPortFixedIpToPort(DataBroker broker, String vpnName, String fixedIp, String
-            portName, String macAddress, boolean isSubnetIp, boolean isConfig, boolean isLearnt) {
+            portName, String macAddress, boolean isSubnetIp) {
         synchronized ((vpnName + fixedIp).intern()) {
             InstanceIdentifier<VpnPortipToPort> id = buildVpnPortipToPortIdentifier(vpnName, fixedIp);
             VpnPortipToPortBuilder builder = new VpnPortipToPortBuilder().setKey(
                     new VpnPortipToPortKey(fixedIp, vpnName)).setVpnName(vpnName).setPortFixedip(fixedIp).setPortName
-                    (portName).setMacAddress(macAddress.toLowerCase()).setSubnetIp(isSubnetIp).setConfig(isConfig)
-                    .setLearnt(isLearnt);
+                    (portName).setMacAddress(macAddress.toLowerCase()).setSubnetIp(isSubnetIp);
+            MDSALUtil.syncWrite(broker, LogicalDatastoreType.CONFIGURATION, id, builder.build());
+            LOG.debug("ARP learned for fixedIp: {}, vpn {}, interface {}, mac {}, isSubnetIp {} added to " +
+                    "VpnPortipToPort DS", fixedIp, vpnName, portName, macAddress);
+        }
+    }
+
+    protected static void createVpnVipFixedIpToPort(DataBroker broker, String vpnName, String fixedIp, String
+            portName, String macAddress) {
+        synchronized ((vpnName + fixedIp).intern()) {
+            InstanceIdentifier<VpnVipToPort> id = buildVpnMipipToPortIdentifier(vpnName, fixedIp);
+            VpnVipToPortBuilder builder = new VpnVipToPortBuilder().setKey(
+                    new VpnVipToPortKey(fixedIp, vpnName)).setVpnName(vpnName).setPortFixedip(fixedIp).setPortName
+                    (portName).setMacAddress(macAddress.toLowerCase());
             MDSALUtil.syncWrite(broker, LogicalDatastoreType.OPERATIONAL, id, builder.build());
             LOG.debug("ARP learned for fixedIp: {}, vpn {}, interface {}, mac {}, isSubnetIp {} added to " +
-                    "VpnPortipToPort DS", fixedIp, vpnName, portName, macAddress, isLearnt);
+                    "VpnPortipToPort DS", fixedIp, vpnName, portName, macAddress);
         }
+    }
+
+    private static InstanceIdentifier<VpnVipToPort> buildVpnMipipToPortIdentifier(String vpnName, String fixedIp) {
+        InstanceIdentifier<VpnVipToPort> id = InstanceIdentifier.builder(VpnVipToPortData.class).child
+                (VpnVipToPort.class, new VpnVipToPortKey(fixedIp, vpnName)).build();
+        return id;
     }
 
     protected static void removeVpnPortFixedIpToPort(DataBroker broker, String vpnName, String fixedIp) {
         synchronized ((vpnName + fixedIp).intern()) {
             InstanceIdentifier<VpnPortipToPort> id = buildVpnPortipToPortIdentifier(vpnName, fixedIp);
+            MDSALUtil.syncDelete(broker, LogicalDatastoreType.CONFIGURATION, id);
+            LOG.debug("Delete learned ARP for fixedIp: {}, vpn {} removed from VpnPortipToPort DS", fixedIp, vpnName);
+        }
+    }
+
+    protected static void removeVpnVipFixedIpToPort(DataBroker broker, String vpnName, String fixedIp) {
+        synchronized ((vpnName + fixedIp).intern()) {
+            InstanceIdentifier<VpnVipToPort> id = buildVpnMipipToPortIdentifier(vpnName, fixedIp);
+
             MDSALUtil.syncDelete(broker, LogicalDatastoreType.OPERATIONAL, id);
             LOG.debug("Delete learned ARP for fixedIp: {}, vpn {} removed from VpnPortipToPort DS", fixedIp, vpnName);
         }
@@ -1243,9 +1275,18 @@ public class VpnUtil {
 
     static VpnPortipToPort getNeutronPortFromVpnPortFixedIp(DataBroker broker, String vpnName, String fixedIp) {
         InstanceIdentifier id = buildVpnPortipToPortIdentifier(vpnName, fixedIp);
-        Optional<VpnPortipToPort> vpnPortipToPortData = read(broker, LogicalDatastoreType.OPERATIONAL, id);
+        Optional<VpnPortipToPort> vpnPortipToPortData = read(broker, LogicalDatastoreType.CONFIGURATION, id);
         if (vpnPortipToPortData.isPresent()) {
             return (vpnPortipToPortData.get());
+        }
+        return null;
+    }
+
+    static VpnVipToPort getNeutronPortFromVpnVipFixedIp(DataBroker broker, String vpnName, String fixedIp) {
+        InstanceIdentifier id = buildVpnMipipToPortIdentifier(vpnName, fixedIp);
+        Optional<VpnVipToPort> vpnVipipToPortData = read(broker, LogicalDatastoreType.OPERATIONAL, id);
+        if (vpnVipipToPortData.isPresent()) {
+            return (vpnVipipToPortData.get());
         }
         return null;
     }
@@ -1442,7 +1483,32 @@ public class VpnUtil {
             }
         }
         return gatewayMac;
+    }
 
+    public static void runOnlyInLeaderNode(EntityOwnershipService entityOwnershipService, Runnable job) {
+        runOnlyInLeaderNode(entityOwnershipService, job, "");
+    }
+
+    public static void runOnlyInLeaderNode(EntityOwnershipService entityOwnershipService, final Runnable job,
+            final String jobDescription) {
+        ListenableFuture<Boolean> checkEntityOwnerFuture = ClusteringUtils.checkNodeEntityOwner(
+                entityOwnershipService, VpnConstants.ARP_MONITORING_ENTITY,
+                VpnConstants.ARP_MONITORING_ENTITY);
+        Futures.addCallback(checkEntityOwnerFuture, new FutureCallback<Boolean>() {
+            @Override
+            public void onSuccess(Boolean isOwner) {
+                if (isOwner) {
+                    job.run();
+                } else {
+                    LOG.trace("job is not run as i m not cluster owner desc :{} ", jobDescription);
+                }
+            }
+
+            @Override
+            public void onFailure(Throwable error) {
+                LOG.error("Failed to identity cluster owner ", error);
+            }
+        });
     }
 
 }

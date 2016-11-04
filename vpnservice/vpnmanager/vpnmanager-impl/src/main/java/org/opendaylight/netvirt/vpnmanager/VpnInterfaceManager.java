@@ -103,6 +103,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.vpn.instance.op.data.entry.vpn.to.dpn.list.IpAddresses;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.vpn.instance.op.data.entry.vpn.to.dpn.list.VpnInterfacesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.vpn.instance.op.data.entry.vpn.to.dpn.list.VpnInterfacesKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.vip.to.port.data.VpnVipToPort;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.neutron.vpn.portip.port.data.VpnPortipToPort;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.netvirt.inter.vpn.link.rev160311.inter.vpn.links.InterVpnLink;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
@@ -1252,12 +1253,12 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                     }
 
                     String ip = nextHop.getIpAddress().split("/")[0];
-                    VpnPortipToPort vpnPortipToPort = VpnUtil.getNeutronPortFromVpnPortFixedIp(dataBroker,
+                    VpnVipToPort vpnVipToPort = VpnUtil.getNeutronPortFromVpnVipFixedIp(dataBroker,
                             vpnName, ip);
-                    if (vpnPortipToPort != null && !vpnPortipToPort.isConfig()) {
+                    if (vpnVipToPort != null) {
                         LOG.trace("VpnInterfaceManager removing adjacency for Interface {} ip {} from VpnPortData Entry",
-                                vpnPortipToPort.getPortName(),ip);
-                        VpnUtil.removeVpnPortFixedIpToPort(dataBroker, vpnName, ip);
+                                vpnVipToPort.getPortName(),ip);
+                        VpnUtil.removeVpnVipFixedIpToPort(dataBroker, vpnName, ip);
                     }
                 }
             }
