@@ -2,6 +2,40 @@
   "comments": [
     {
       "key": {
+        "uuid": "3a65312a_8c747bfe",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2016-11-04T21:13:09Z",
+      "side": 1,
+      "message": "spelling",
+      "revId": "7c68eff9c0d48bca9169fb6c648e95860be3cf21",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a65312a_2c5ba788",
+        "filename": "resources/commons/blueprint-template.rst",
+        "patchSetId": 1
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2016-11-04T21:13:09Z",
+      "side": 1,
+      "message": "Ideally we would have our docs updated and include the pipeline. Then in this section maybe a textual difference would be good.",
+      "revId": "7c68eff9c0d48bca9169fb6c648e95860be3cf21",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "3a65312a_db310b0d",
         "filename": "resources/commons/blueprint-template.rst",
         "patchSetId": 1
