@@ -2,6 +2,29 @@
   "comments": [
     {
       "key": {
+        "uuid": "3a65312a_db310b0d",
+        "filename": "resources/commons/blueprint-template.rst",
+        "patchSetId": 1
+      },
+      "lineNbr": 37,
+      "author": {
+        "id": 3972
+      },
+      "writtenOn": "2016-11-04T13:29:48Z",
+      "side": 1,
+      "message": "targeted",
+      "range": {
+        "startLine": 37,
+        "startChar": 29,
+        "endLine": 37,
+        "endChar": 38
+      },
+      "revId": "7c68eff9c0d48bca9169fb6c648e95860be3cf21",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "3a65312a_d23bafe9",
         "filename": "resources/commons/blueprint-template.rst",
         "patchSetId": 1
@@ -41,6 +64,29 @@
         "startChar": 0,
         "endLine": 53,
         "endChar": 10
+      },
+      "revId": "7c68eff9c0d48bca9169fb6c648e95860be3cf21",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a65312a_fb404758",
+        "filename": "resources/commons/blueprint-template.rst",
+        "patchSetId": 1
+      },
+      "lineNbr": 65,
+      "author": {
+        "id": 3972
+      },
+      "writtenOn": "2016-11-04T13:29:48Z",
+      "side": 1,
+      "message": "impacts",
+      "range": {
+        "startLine": 65,
+        "startChar": 45,
+        "endLine": 65,
+        "endChar": 51
       },
       "revId": "7c68eff9c0d48bca9169fb6c648e95860be3cf21",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
