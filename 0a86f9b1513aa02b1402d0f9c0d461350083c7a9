@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3a65312a_ded0d955",
+        "filename": "docs/index.rst",
+        "patchSetId": 1
+      },
+      "lineNbr": 6,
+      "author": {
+        "id": 2759
+      },
+      "writtenOn": "2016-11-04T13:47:17Z",
+      "side": 1,
+      "message": "Just a note.\n\nThe wording here is important. As when we link this into the docs repo it will take this as the name of the documentation. So if it\u0027s going to be the NetVirt Guide we should call it as such or if it\u0027s going to be Blueprint Guide etc....",
+      "range": {
+        "startLine": 6,
+        "startChar": 0,
+        "endLine": 6,
+        "endChar": 35
+      },
+      "revId": "0a86f9b1513aa02b1402d0f9c0d461350083c7a9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
