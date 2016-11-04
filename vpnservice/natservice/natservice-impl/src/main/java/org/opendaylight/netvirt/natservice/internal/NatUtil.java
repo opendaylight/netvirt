@@ -30,6 +30,9 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeConnectorId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.VpnInstanceOpData;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.VpnInstanceToVpnId;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.LearntVpnVipToPortData;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.learnt.vpn.vip.to.port.data.LearntVpnVipToPort;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.learnt.vpn.vip.to.port.data.LearntVpnVipToPortKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.action.types.rev131112.action.action.OutputActionCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.action.types.rev131112.action.action.PushVlanActionCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.action.types.rev131112.action.action.SetFieldCase;
@@ -1443,13 +1446,21 @@ public class NatUtil {
         InstanceIdentifier<VpnPortipToPort> portIpInst = InstanceIdentifier.builder(NeutronVpnPortipPortData.class)
                 .child(VpnPortipToPort.class, new VpnPortipToPortKey(gatewayIp.getIpv4Address().getValue(), vpnName))
                 .build();
-        Optional<VpnPortipToPort> portIpToPortOpt = read(broker, LogicalDatastoreType.OPERATIONAL, portIpInst);
-        if (!portIpToPortOpt.isPresent()) {
-            LOG.trace("No resolution was found to GW ip {} in subnet {}", gatewayIp, subnetId.getValue());
-            return null;
+        Optional<VpnPortipToPort> portIpToPortOpt = read(broker, LogicalDatastoreType.CONFIGURATION, portIpInst);
+        if (portIpToPortOpt.isPresent()) {
+            return portIpToPortOpt.get().getMacAddress();
         }
 
-        return portIpToPortOpt.get().getMacAddress();
+        InstanceIdentifier<LearntVpnVipToPort> learntIpInst = InstanceIdentifier.builder(LearntVpnVipToPortData.class)
+                .child(LearntVpnVipToPort.class, new LearntVpnVipToPortKey(gatewayIp.getIpv4Address().getValue(), vpnName))
+                .build();
+        Optional<LearntVpnVipToPort> learntIpToPortOpt = read(broker, LogicalDatastoreType.OPERATIONAL, learntIpInst);
+        if (learntIpToPortOpt.isPresent()) {
+            return learntIpToPortOpt.get().getMacAddress();
+        }
+
+        LOG.error("No resolution was found to GW ip {} in subnet {}", gatewayIp, subnetId.getValue());
+        return null;
     }
 
     public static boolean isIPv6Subnet(String prefix) {

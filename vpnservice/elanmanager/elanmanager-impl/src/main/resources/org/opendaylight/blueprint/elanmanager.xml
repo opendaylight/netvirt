@@ -117,7 +117,7 @@
   </bean>
 
   <bean id="elanVpnPortIpToPortListener"
-    class="org.opendaylight.netvirt.elan.internal.ElanVpnPortIpToPortListener"
+    class="org.opendaylight.netvirt.elan.internal.ElanLearntVpnVipToPortListener"
     init-method="init" destroy-method="close">
     <argument ref="dataBroker" />
     <argument ref="interfaceManager" />
