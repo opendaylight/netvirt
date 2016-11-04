@@ -124,8 +124,58 @@ public class NatInterfaceStateChangeListener extends AsyncDataTreeChangeListener
     }
 
     @Override
-    protected void update(InstanceIdentifier<Interface> identifier,
-            Interface original, Interface update) {
+    protected void update(InstanceIdentifier<Interface> identifier, Interface original, Interface update) {
+        try {
+            final String interfaceName = update.getName();
+            LOG.trace("NAT Service : UPDATE : Received interface {} state change event", interfaceName);
+            if (update != null && update.getType() != null && !update.getType().equals(Tunnel.class)) {
+                BigInteger dpId;
+                try {
+                    dpId = NatUtil.getDpIdFromInterface(update);
+                } catch (Exception e){
+                    LOG.warn("NAT Service : Unable to retrieve DPN ID from Interface operational data store for Interface {}. Fetching " +
+                            "from VPN Interface op data store. ", update.getName(), e);
+                    InstanceIdentifier<VpnInterface> id = NatUtil.getVpnInterfaceIdentifier(interfaceName);
+                    Optional<VpnInterface> optVpnInterface = NatUtil.read(dataBroker, LogicalDatastoreType.OPERATIONAL, id);
+                    if (!optVpnInterface.isPresent()) {
+                        LOG.debug("NAT Service : Interface {} is not a VPN Interface, ignoring.", interfaceName);
+                        return;
+                    }
+                    final VpnInterface vpnInterface = optVpnInterface.get();
+                    dpId = vpnInterface.getDpnId();
+                }
+                if(dpId == null || dpId.equals(BigInteger.ZERO)){
+                    LOG.debug("NAT Service : Unable to get DPN ID for the Interface {}", interfaceName);
+                    return;
+                }
+                LOG.debug("NAT Service : DPN ID {} for the interface {} ", dpId, interfaceName);
+                WriteTransaction writeOperTxn = dataBroker.newWriteOnlyTransaction();
+                RouterInterface routerInterface = NatUtil.getConfiguredRouterInterface(dataBroker, interfaceName);
+                if (routerInterface != null) {
+                    Interface.OperStatus originalOperStatus = original.getOperStatus();
+                    Interface.OperStatus updateOperStatus = update.getOperStatus();
+                    if( originalOperStatus != updateOperStatus) {
+                        String routerName = routerInterface.getRouterName();
+                        if(updateOperStatus == Interface.OperStatus.Unknown) {
+                            LOG.debug("NAT Service : DPN {} connnected to the interface {} has gone down. Hence clearing" +
+                                    " the dpn-vpninterfaces-list entry from the neutron-router-dpns model" +
+                                    " in the ODL:L3VPN", dpId, interfaceName);
+                            //If the interface state is unknown, it means that the corressponding DPN has gone down.
+                            //So remove the dpn-vpninterfaces-list from the neutron-router-dpns model.
+                            NatUtil.removeFromNeutronRouterDpnsMap(dataBroker, routerName, dpId, writeOperTxn);
+                        }else if(updateOperStatus == Interface.OperStatus.Up){
+                            LOG.debug("NAT Service : DPN {} connnected to the interface {} has come up. Hence adding" +
+                                    " the dpn-vpninterfaces-list entry from the neutron-router-dpns model" +
+                                    " in the ODL:L3VPN", dpId, interfaceName);
+                            handleRouterInterfacesUpEvent(routerName, interfaceName, writeOperTxn);
+                        }
+                    }
+                }
+                writeOperTxn.submit();
+            }
+        } catch (Exception e) {
+            LOG.error("NAT Service : UPDATE : Exception observed in handling updation of VPN Interface {}. ", update.getName(), e);
+        }
     }
 
     void handleRouterInterfacesUpEvent(String routerName, String interfaceName, WriteTransaction writeOperTxn) {
