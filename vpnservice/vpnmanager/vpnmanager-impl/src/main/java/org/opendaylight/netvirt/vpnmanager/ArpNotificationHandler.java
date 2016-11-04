@@ -37,6 +37,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.adj
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.adjacency.list.AdjacencyBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.adjacency.list.AdjacencyKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.id.to.vpn.instance.VpnIds;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.learnt.vpn.vip.to.port.data.LearntVpnVipToPort;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.neutron.vpn.portip.port.data.VpnPortipToPort;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.vpn.config.rev161130.VpnConfig;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
@@ -127,24 +128,23 @@ public class ArpNotificationHandler implements OdlArputilListener {
                 LOG.trace("ARP being processed for Source IP {}", ipToQuery);
                 VpnPortipToPort vpnPortipToPort = VpnUtil.getNeutronPortFromVpnPortFixedIp(dataBroker, vpnName, ipToQuery);
                 if (vpnPortipToPort != null) {
-                    String oldPortName = vpnPortipToPort.getPortName();
-                    String oldMac = vpnPortipToPort.getMacAddress();
+                    /* This is a well known neutron port and so should be ignored
+                     * from being discovered
+                     */
+                    return;
+                }
+                LearntVpnVipToPort learntVpnVipToPort = VpnUtil.getLearntVpnVipToPort(dataBroker, vpnName, ipToQuery);
+                if (learntVpnVipToPort != null) {
+                    String oldPortName = learntVpnVipToPort.getPortName();
+                    String oldMac = learntVpnVipToPort.getMacAddress();
                     if (!oldMac.equalsIgnoreCase(srcMac.getValue())) {
                         //MAC has changed for requested IP
                         LOG.trace("ARP Source IP/MAC data modified for IP {} with MAC {} and Port {}",
                                 ipToQuery, srcMac, srcInterface);
-                        if (!vpnPortipToPort.isConfig()) {
-                            synchronized ((vpnName + ipToQuery).intern()) {
-                                removeMipAdjacency(vpnName, oldPortName, srcIP);
-                                VpnUtil.removeVpnPortFixedIpToPort(dataBroker, vpnName, ipToQuery);
-
-                                putVpnIpToMigrateArpCache(vpnName, ipToQuery, srcMac);
-                            }
-                        } else {
-                            //MAC mismatch for a Neutron learned IP
-                            LOG.warn("MAC Address mismatch for Interface {} having a Mac {},  IP {} and ARP learnt Mac {}",
-                                    oldPortName, oldMac, ipToQuery, srcMac.getValue());
-                            return;
+                        synchronized ((vpnName + ipToQuery).intern()) {
+                            removeMipAdjacency(vpnName, oldPortName, srcIP);
+                            VpnUtil.removeLearntVpnVipToPort(dataBroker, vpnName, ipToQuery);
+                            putVpnIpToMigrateArpCache(vpnName, ipToQuery, srcMac);
                         }
                     }
                 } else if (shouldLearnMacFromArpPackets(vpnName, ipToQuery)) {
@@ -157,19 +157,14 @@ public class ArpNotificationHandler implements OdlArputilListener {
     private void learnMacFromArpPackets(String vpnName, String srcInterface,
                                         IpAddress srcIP, PhysAddress srcMac) {
         String ipToQuery = srcIP.getIpv4Address().getValue();
-        /* Traffic coming from external interfaces should always be learnt */
-        if (interfaceManager.isExternalInterface(srcInterface) ||
-                !VpnUtil.isNeutronPortConfigured(dataBroker, srcInterface, srcIP)) {
-            synchronized ((vpnName + ipToQuery).intern()) {
-                VpnUtil.createVpnPortFixedIpToPort(dataBroker, vpnName, ipToQuery, srcInterface,
-                        srcMac.getValue(), false, false, true);
-                addMipAdjacency(vpnName, srcInterface, srcIP, srcMac.getValue());
-            }
+        synchronized ((vpnName + ipToQuery).intern()) {
+            VpnUtil.createLearntVpnVipToPort(dataBroker, vpnName, ipToQuery, srcInterface,
+                    srcMac.getValue());
+            addMipAdjacency(vpnName, srcInterface, srcIP, srcMac.getValue());
         }
     }
 
     private void addMipAdjacency(String vpnName, String vpnInterface, IpAddress prefix, String mipMacAddress){
-
         LOG.trace("Adding {} adjacency to VPN Interface {} ",prefix,vpnInterface);
         InstanceIdentifier<VpnInterface> vpnIfId = VpnUtil.getVpnInterfaceIdentifier(vpnInterface);
         InstanceIdentifier<Adjacencies> path = vpnIfId.augmentation(Adjacencies.class);
