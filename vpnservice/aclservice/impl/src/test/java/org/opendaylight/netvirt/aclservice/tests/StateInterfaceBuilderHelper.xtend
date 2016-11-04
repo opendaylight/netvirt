@@ -15,7 +15,7 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.PhysAddress
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier
 
-import static extension org.opendaylight.netvirt.aclservice.tests.infra.BuilderExtensions.operator_doubleGreaterThan
+import static extension org.opendaylight.mdsal.binding.testutils.XtendBuilderExtensions.operator_doubleGreaterThan
 import static org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType.OPERATIONAL
 import org.opendaylight.genius.mdsalutil.MDSALUtil
 

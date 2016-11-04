@@ -9,15 +9,14 @@ package org.opendaylight.netvirt.aclservice.tests;
 
 import static org.junit.Assert.assertTrue;
 import static org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType.CONFIGURATION;
+import static org.opendaylight.mdsal.binding.testutils.AssertDataObjects.assertEqualBeans;
 import static org.opendaylight.netvirt.aclservice.tests.StateInterfaceBuilderHelper.putNewStateInterface;
-import static org.opendaylight.netvirt.aclservice.tests.infra.AssertBuilderBeans.assertEqualBeans;
 
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import java.util.List;
 import javax.inject.Inject;
 import org.junit.Rule;
-
 import org.junit.Test;
 import org.junit.rules.MethodRule;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
