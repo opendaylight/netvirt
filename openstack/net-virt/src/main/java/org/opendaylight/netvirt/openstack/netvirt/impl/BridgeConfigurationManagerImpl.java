@@ -566,13 +566,19 @@ public class BridgeConfigurationManagerImpl implements BridgeConfigurationManage
      */
     private boolean addBridge(Node ovsdbNode, String bridgeName, String mac) {
         boolean rv = true;
-        if ((!southbound.isBridgeOnOvsdbNode(ovsdbNode, bridgeName)) ||
-                (southbound.getBridgeFromConfig(ovsdbNode, bridgeName) == null)) {
+        boolean isBridgeOnOvsdbNode = southbound.isBridgeOnOvsdbNode(ovsdbNode, bridgeName);
+        boolean isBridgeInConfig = (southbound.getBridgeFromConfig(ovsdbNode, bridgeName) != null);
+
+        if (!isBridgeOnOvsdbNode || !isBridgeInConfig) {
             Class<? extends DatapathTypeBase> dpType = null;
             if (configurationService.isUserSpaceEnabled()) {
                 dpType = DatapathTypeNetdev.class;
             }
-            rv = southbound.addBridge(ovsdbNode, bridgeName, getControllersFromOvsdbNode(ovsdbNode), dpType, mac);
+
+            // if the bridge is already on the OVS node, do not configure the MAC
+            // as doing so would cause the dpid to change on the switch (see bugs 6070, 7093)
+            rv = southbound.addBridge(ovsdbNode, bridgeName,
+                    getControllersFromOvsdbNode(ovsdbNode), dpType, isBridgeOnOvsdbNode ? null : mac);
         }
         return rv;
     }
