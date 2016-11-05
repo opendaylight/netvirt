@@ -214,7 +214,7 @@ public class SouthboundImpl implements Southbound {
             bridgeOtherConfigsList.add(bridgeOtherConfigsBuilder.build());
             if (mac != null) {
                 BridgeOtherConfigsBuilder macOtherConfigBuilder = new BridgeOtherConfigsBuilder();
-                macOtherConfigBuilder.setBridgeOtherConfigKey("hwaddr");
+                macOtherConfigBuilder.setBridgeOtherConfigKey(MdsalHelper.HWADDR);
                 macOtherConfigBuilder.setBridgeOtherConfigValue(mac);
                 bridgeOtherConfigsList.add(macOtherConfigBuilder.build());
             }
