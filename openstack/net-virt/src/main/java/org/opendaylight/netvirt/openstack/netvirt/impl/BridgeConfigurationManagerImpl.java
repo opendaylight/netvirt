@@ -13,6 +13,7 @@ import org.opendaylight.netvirt.openstack.netvirt.NetworkHandler;
 import org.opendaylight.netvirt.openstack.netvirt.api.OvsdbTables;
 import org.opendaylight.netvirt.openstack.netvirt.translator.NeutronNetwork;
 import org.opendaylight.netvirt.openstack.netvirt.ConfigInterface;
+import org.opendaylight.netvirt.openstack.netvirt.MdsalHelper;
 import org.opendaylight.netvirt.openstack.netvirt.api.BridgeConfigurationManager;
 import org.opendaylight.netvirt.openstack.netvirt.api.ConfigurationService;
 import org.opendaylight.netvirt.openstack.netvirt.api.Constants;
@@ -566,13 +567,20 @@ public class BridgeConfigurationManagerImpl implements BridgeConfigurationManage
      */
     private boolean addBridge(Node ovsdbNode, String bridgeName, String mac) {
         boolean rv = true;
-        if ((!southbound.isBridgeOnOvsdbNode(ovsdbNode, bridgeName)) ||
-                (southbound.getBridgeFromConfig(ovsdbNode, bridgeName) == null)) {
+        boolean isBridgeInConfig = (southbound.getBridgeFromConfig(ovsdbNode, bridgeName) != null);
+        Node bridgeNode = southbound.readBridgeNode(ovsdbNode, bridgeName);
+
+        if (bridgeNode == null || !isBridgeInConfig) {
             Class<? extends DatapathTypeBase> dpType = null;
             if (configurationService.isUserSpaceEnabled()) {
                 dpType = DatapathTypeNetdev.class;
             }
-            rv = southbound.addBridge(ovsdbNode, bridgeName, getControllersFromOvsdbNode(ovsdbNode), dpType, mac);
+
+            // if the bridge is already on the OVS node, use the existing MAC address
+            // because changing the MAC causes the dpid to change on the switch, which
+            // in turn causes a connection flap (see bugs 6070, 6944)
+            rv = southbound.addBridge(ovsdbNode, bridgeName, getControllersFromOvsdbNode(ovsdbNode), dpType,
+                    bridgeNode == null ? mac : southbound.getOtherConfig(bridgeNode, OvsdbTables.BRIDGE, MdsalHelper.HWADDR));
         }
         return rv;
     }
