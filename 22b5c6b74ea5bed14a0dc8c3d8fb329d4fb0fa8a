@@ -2,6 +2,23 @@
   "comments": [
     {
       "key": {
+        "uuid": "3a65312a_52f678d8",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/NexthopManager.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 670,
+      "author": {
+        "id": 670
+      },
+      "writtenOn": "2016-11-06T08:57:14Z",
+      "side": 1,
+      "message": "Naming - Not such a fan of using \"ExtPort\" for this (though can resolve later) -- these ports aren\u0027t more external than vxlan ports.. we also have too many usages of external already (external openstack network, external gateway etc.).. need some naming for Flat/Vlan that will simplify things",
+      "revId": "22b5c6b74ea5bed14a0dc8c3d8fb329d4fb0fa8a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "3a65312a_e3e707e3",
         "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
         "patchSetId": 8
@@ -49,6 +66,24 @@
       "side": 1,
       "message": "When we use tunnel technologies that does not require an L2 Frame to be carried in the tunnel, we should not be setting the DSTMAC at all..\n\nIn the existing file, we are using MPLSOverGRE tunnels (though that is not supported yet by Openstack but widely used by service providers), and that is carrying L3 in Outer L2.. In such a circumstance, how does it make sense to setup the dst-mac?\n\nLet us not overlean on only what Openstack supports.. Openstack is lagging several orchestration areas that are service provider specific btw !",
       "parentUuid": "3a65312a_6634a5de",
+      "revId": "22b5c6b74ea5bed14a0dc8c3d8fb329d4fb0fa8a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a65312a_b2038cb7",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 1070,
+      "author": {
+        "id": 670
+      },
+      "writtenOn": "2016-11-06T08:57:14Z",
+      "side": 1,
+      "message": "These traditional networking issues have already been discussed in the community during Boron. The general case should be to do correct networking L2 MAC rewrites in L3 routing scenarios.\n\nIf there are scenarios that are an exception to this like BGP tunneling (though I think the MAC would be later rewritten by BGPoMPLS anyways?), we should probably wrap this call with something like:\n\nif (!TunnelTypeMplsOverGre.class.equals(adjacencyResult.getInterfaceType())) { \n    macRewrite()\n}\n\n(we can even wrap this up in a utility such as if applyMacRewrites() if this occurs in other places)\n\nIn any case Vivek, the target is to definitely keep supporting anything already supported by netvirt, regardless of what OpenStack supports, while keeping all cases as correct as possible, so thanks for the comments. The analysis of what is better and who is lagging is irrelevant :)",
+      "parentUuid": "3a65312a_b22553ad",
       "revId": "22b5c6b74ea5bed14a0dc8c3d8fb329d4fb0fa8a",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
