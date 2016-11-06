@@ -240,7 +240,7 @@ public class NeutronPort implements Serializable, INeutronObject {
     }
 
     public Boolean getPortSecurityEnabled() {
-        if (portSecurityEnabled == null) {
+        if (portSecurityEnabled == null || portSecurityEnabled) {
             if (deviceOwner != null && deviceOwner.startsWith("network:")) {
                 // port with device owner of network:xxx is created by
                 // neutorn for its internal use. So security group doesn't apply.
