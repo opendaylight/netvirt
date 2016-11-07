@@ -702,6 +702,19 @@ public class VpnUtil {
         return false;
     }
 
+    static boolean isInterfaceAssociatedWithVpn(DataBroker broker, String vpnName, String interfaceName) {
+        InstanceIdentifier<VpnInterface> interfaceId = getVpnInterfaceIdentifier(interfaceName);
+        Optional<VpnInterface> optConfiguredVpnInterface = read(broker, LogicalDatastoreType.CONFIGURATION, interfaceId);
+
+        if (optConfiguredVpnInterface.isPresent()) {
+            String configuredVpnName = optConfiguredVpnInterface.get().getVpnInstanceName();
+            if ((configuredVpnName != null) && (configuredVpnName.equalsIgnoreCase(vpnName))) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     static String getIpPrefix(String prefix) {
         String prefixValues[] = prefix.split("/");
         if (prefixValues.length == 1) {
@@ -1152,8 +1165,7 @@ public class VpnUtil {
         }
     }
 
-    public static Port getNeutronPortForFloatingIp(DataBroker broker,
-            org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress targetIP) {
+    public static Port getNeutronPortForFloatingIp(DataBroker broker, IpAddress targetIP) {
         InstanceIdentifier<Ports> portsIdentifier = InstanceIdentifier.create(Neutron.class).child(Ports.class);
         Optional<Ports> portsOptional = VpnUtil.read(broker, LogicalDatastoreType.CONFIGURATION, portsIdentifier);
         if (!portsOptional.isPresent() || portsOptional.get().getPort() == null) {
@@ -1172,6 +1184,24 @@ public class VpnUtil {
         }
 
         return null;
+    }
+
+    public static boolean isNeutronPortConfigured(DataBroker broker, String portId,
+                                                  org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress targetIP) {
+        InstanceIdentifier<Port> portIdentifier = InstanceIdentifier.create(Neutron.class).
+                child(Ports.class).child(Port.class, new PortKey(new Uuid(portId)));
+        Optional<Port> optPort = VpnUtil.read(broker, LogicalDatastoreType.CONFIGURATION, portIdentifier);
+        if (optPort.isPresent()) {
+            Port port = optPort.get();
+            for (FixedIps ip : port.getFixedIps()) {
+                if (Objects.equals(ip.getIpAddress(), targetIP)) {
+                    return true;
+                }
+            }
+        }
+
+        LOG.trace("No neutron ports found matching portId {} with targetIp {}", portId, targetIP);
+        return false;
     }
 
     protected static void createVpnPortFixedIpToPort(DataBroker broker, String vpnName, String fixedIp, String
