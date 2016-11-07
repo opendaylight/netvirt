@@ -16,6 +16,24 @@
       "revId": "5f9a5a6441fbcbf810439015e013847e23149042",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a65312a_7f77fc02",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 589,
+      "author": {
+        "id": 5350
+      },
+      "writtenOn": "2016-11-07T10:50:53Z",
+      "side": 1,
+      "message": "it\u0027s one per label on each L3VPN, but only when InterVpnLink has been configured for 2 L3VPNs. Do you want to lower it to TRACE?",
+      "parentUuid": "3a65312a_0c886b1e",
+      "revId": "5f9a5a6441fbcbf810439015e013847e23149042",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
