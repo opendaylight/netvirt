@@ -12,7 +12,6 @@ import org.opendaylight.netvirt.aclservice.AclServiceManagerImpl;
 import org.opendaylight.netvirt.aclservice.api.AclServiceManager;
 import org.opendaylight.netvirt.aclservice.listeners.AclEventListener;
 import org.opendaylight.netvirt.aclservice.listeners.AclInterfaceListener;
-import org.opendaylight.netvirt.aclservice.listeners.AclInterfaceStateListener;
 import org.opendaylight.netvirt.aclservice.listeners.AclNodeListener;
 
 /**
@@ -25,7 +24,6 @@ public class AclServiceModule extends AbstractGuiceJsr250Module {
     @Override
     protected void configureBindings() {
         bind(AclServiceManager.class).to(AclServiceManagerImpl.class);
-        bind(AclInterfaceStateListener.class);
         bind(AclNodeListener.class);
         bind(AclInterfaceListener.class);
         bind(AclEventListener.class);

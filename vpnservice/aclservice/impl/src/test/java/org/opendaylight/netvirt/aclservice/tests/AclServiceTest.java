@@ -22,11 +22,13 @@ import org.junit.Test;
 import org.junit.rules.MethodRule;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
+import org.opendaylight.genius.datastoreutils.testutils.TestableDataTreeChangeListener;
 import org.opendaylight.genius.mdsalutil.FlowEntity;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.genius.mdsalutil.interfaces.testutils.TestIMdsalApiManager;
 import org.opendaylight.infrautils.inject.guice.testutils.GuiceRule;
+import org.opendaylight.netvirt.aclservice.listeners.AclInterfaceStateListener;
 import org.opendaylight.netvirt.aclservice.tests.infra.DataBrokerPairsUtil;
 import org.opendaylight.netvirt.aclservice.utils.AclConstants;
 import org.opendaylight.netvirt.aclservice.utils.AclServiceUtils;
@@ -81,6 +83,10 @@ public class AclServiceTest {
     @Inject DataBrokerPairsUtil dataBrokerUtil;
     @Inject TestIMdsalApiManager mdsalApiManager;
 
+    // TODO This is WIP - I'll make this more transparent with 1 method for all listeners..
+    @Inject AclInterfaceStateListener aclInterfaceStateListener;
+    @Inject TestableDataTreeChangeListener testableChainedListener;
+
     @Test
     public void newInterface() throws Exception {
         // Given
@@ -91,8 +97,9 @@ public class AclServiceTest {
         // When
         putNewStateInterface(dataBroker, "port1", PORT_MAC_1);
 
-        // TODO Later could do work for better synchronization here.
-        Thread.sleep(500);
+        // TODO This is WIP - I'll make this more transparent with 1 method for all listeners..
+        aclInterfaceStateListener.addAfterListener(testableChainedListener);
+        testableChainedListener.awaitEventsConsumption();
 
         // Then
         assertFlows(FlowEntryObjects.expectedFlows(PORT_MAC_1));
