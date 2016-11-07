@@ -2152,6 +2152,10 @@ public class ElanUtils {
         return isExternal(getInterfaceFromConfigDS(interfaceName, broker));
     }
 
+    public static boolean isExternal(String interfaceName, DataBroker broker) {
+        return isExternal(getInterfaceFromConfigDS(interfaceName, broker));
+    }
+
     public static boolean isExternal(
             org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang
             .ietf.interfaces.rev140508.interfaces.Interface iface) {

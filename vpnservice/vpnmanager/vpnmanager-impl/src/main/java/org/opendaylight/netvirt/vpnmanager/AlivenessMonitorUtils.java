@@ -8,6 +8,7 @@
 package org.opendaylight.netvirt.vpnmanager;
 
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
+import org.opendaylight.netvirt.elan.utils.ElanUtils;
 import org.opendaylight.netvirt.neutronvpn.interfaces.INeutronVpnManager;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
@@ -51,10 +52,15 @@ public class AlivenessMonitorUtils {
     private static Map<Long, MacEntry> alivenessCache = new ConcurrentHashMap<>();
 
     public static void startArpMonitoring(MacEntry macEntry, Long arpMonitorProfileId,
-            AlivenessMonitorService alivenessMonitorService, DataBroker dataBroker,
-            OdlInterfaceRpcService interfaceRpc, INeutronVpnManager neutronVpnService) {
-        Optional<IpAddress> gatewayIpOptional = VpnUtil.getGatewayIpAddressFromInterface(macEntry.getInterfaceName(),
-                neutronVpnService, dataBroker);
+        AlivenessMonitorService alivenessMonitorService, DataBroker dataBroker,
+        OdlInterfaceRpcService interfaceRpc, INeutronVpnManager neutronVpnService) {
+        if (ElanUtils.isExternal(macEntry.getInterfaceName(), dataBroker)) {
+            LOG.debug("ARP monitoring is not supported for external interfaces: "
+                    + "skipping ARP monitoring of gateway from interface {}", macEntry.getInterfaceName());
+            return;
+        }
+        Optional<IpAddress> gatewayIpOptional =
+                VpnUtil.getGatewayIpAddressFromInterface(macEntry.getInterfaceName(), neutronVpnService, dataBroker);
         IpAddress gatewayIp;
         PhysAddress gatewayMac;
         if(!gatewayIpOptional.isPresent()) {
