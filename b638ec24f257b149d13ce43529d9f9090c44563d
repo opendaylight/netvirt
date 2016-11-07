@@ -1,0 +1,157 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3a65312a_1fc1a880",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/FloatingIPListener.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 572,
+      "author": {
+        "id": 5357
+      },
+      "writtenOn": "2016-11-07T09:51:34Z",
+      "side": 1,
+      "message": "remove this line ^^^",
+      "revId": "b638ec24f257b149d13ce43529d9f9090c44563d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a65312a_1fac08ed",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NatTunnelInterfaceStateListener.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 246,
+      "author": {
+        "id": 5357
+      },
+      "writtenOn": "2016-11-07T09:51:34Z",
+      "side": 1,
+      "message": "This function is rather long. It could easily be broken down by extracting the parts that handle the ADD and DELETE into separate functions.",
+      "revId": "b638ec24f257b149d13ce43529d9f9090c44563d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a65312a_ff6e6cc8",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NatTunnelInterfaceStateListener.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 288,
+      "author": {
+        "id": 5357
+      },
+      "writtenOn": "2016-11-07T09:51:34Z",
+      "side": 1,
+      "message": "Why not unite this check with the previous one? Aren\u0027t they two ways of checking for the same thing? Or am I missing something?",
+      "revId": "b638ec24f257b149d13ce43529d9f9090c44563d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a65312a_5f5fa00e",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NatTunnelInterfaceStateListener.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 315,
+      "author": {
+        "id": 5357
+      },
+      "writtenOn": "2016-11-07T09:51:34Z",
+      "side": 1,
+      "message": "I think this log line is superfluous. It will by necessity followed by the next log line a few lines below this which contains a much clearer explanation of what happened. Maybe just change the second one to debug or something?? There\u0027s some of this below as well where you handle the delete.",
+      "revId": "b638ec24f257b149d13ce43529d9f9090c44563d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a65312a_7f909c95",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NatTunnelInterfaceStateListener.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 365,
+      "author": {
+        "id": 5357
+      },
+      "writtenOn": "2016-11-07T09:51:34Z",
+      "side": 1,
+      "message": "Again, very long method here. ~200 lines.",
+      "revId": "b638ec24f257b149d13ce43529d9f9090c44563d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a65312a_ad77b101",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NatUtil.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 1128,
+      "author": {
+        "id": 5357
+      },
+      "writtenOn": "2016-11-07T09:51:34Z",
+      "side": 1,
+      "message": "This line ^^^ can be moved to inside teh if block.",
+      "revId": "b638ec24f257b149d13ce43529d9f9090c44563d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a65312a_0d606531",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NatUtil.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 1236,
+      "author": {
+        "id": 5357
+      },
+      "writtenOn": "2016-11-07T09:51:34Z",
+      "side": 1,
+      "message": "This function contains six layers of nesting which makes it rather confusing to read. Many of the ifs are simple tests that can be treated as validations and written as such:\nif (...) {\n  LOG....\n  return \n}\nthereby greatly reducing the nesting. This would have the added advantage of putting the LOG statements close enough to the code that checks for their condition. Currently, they do not even fit on the same screen in the code review. \n\nI completely realize that this is a stylistic comment but it\u0027s a pretty well discussed concept. See here, for example: http://wiki.c2.com/?ArrowAntiPattern \n\nTo quote:\n\"In CodeComplete, SteveMcConnell notes that comprehension decreases beyond three levels of nested \u0027if\u0027 blocks, according to 1986 study by NoamChomsky and GeraldWeinberg. McConnell refers to the AntiPattern as \"Dangerously Deep Nesting\".\"",
+      "revId": "b638ec24f257b149d13ce43529d9f9090c44563d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a65312a_ed188986",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NatUtil.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 1267,
+      "author": {
+        "id": 5357
+      },
+      "writtenOn": "2016-11-07T09:51:34Z",
+      "side": 1,
+      "message": "By using Sets.difference you are iterating through all of the InterfaceNames when all you really need to know is whether there is at least one left. Wouldn\u0027t it be more efficient to cycle through manually and return the second at least one ifc is remaining?",
+      "revId": "b638ec24f257b149d13ce43529d9f9090c44563d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a65312a_6d0c7943",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NatUtil.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 1328,
+      "author": {
+        "id": 5357
+      },
+      "writtenOn": "2016-11-07T09:51:34Z",
+      "side": 1,
+      "message": "NullPointerException should really only be caught as a last resort. Instead, the null condition should be checked. I think at the very least there should be comment here explaining why it is appropriate to catch the NPE in this case and where it comes from.",
+      "revId": "b638ec24f257b149d13ce43529d9f9090c44563d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
