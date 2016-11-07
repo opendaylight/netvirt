@@ -10,6 +10,7 @@ package org.opendaylight.netvirt.elan.internal;
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.util.concurrent.ListenableFuture;
+
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -22,6 +23,7 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ConcurrentMap;
+
 import org.apache.commons.lang3.StringUtils;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
@@ -136,6 +138,7 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
         this.elanForwardingEntriesHandler.setElanUtils(elanUtils);
     }
 
+    @Override
     public void init() {
         registerListener(LogicalDatastoreType.CONFIGURATION, broker);
     }
@@ -846,7 +849,7 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
 
         List<Bucket> listBucketInfo = new ArrayList<>();
         for (String interfaceName : currDpnInterfaces.getInterfaces()) {
-            if (elanUtils.isExternal(interfaceName)) {
+            if (interfaceManager.isExternalInterface(interfaceName)) {
                 List<Action> listActionInfo = elanUtils.getExternalPortItmEgressAction(interfaceName);
                 if (!listActionInfo.isEmpty()) {
                     listBucketInfo.add(MDSALUtil.buildBucket(listActionInfo, MDSALUtil.GROUP_WEIGHT, bucketId,
@@ -1093,7 +1096,7 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
                 continue;
             }
 
-            if (!elanUtils.isExternal(ifName)) {
+            if (!interfaceManager.isExternalInterface(ifName)) {
                 listBucket.add(MDSALUtil.buildBucket(getInterfacePortActions(ifInfo), MDSALUtil.GROUP_WEIGHT, bucketId,
                         MDSALUtil.WATCH_PORT, MDSALUtil.WATCH_GROUP));
                 bucketId++;
@@ -1128,7 +1131,7 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
                     continue;
                 }
 
-                if (!elanUtils.isExternal(ifName)) {
+                if (!interfaceManager.isExternalInterface(ifName)) {
                     // only add root interfaces
                     bucketId = addInterfaceIfRootInterface(bucketId, ifName, listBucket, ifInfo);
                 }

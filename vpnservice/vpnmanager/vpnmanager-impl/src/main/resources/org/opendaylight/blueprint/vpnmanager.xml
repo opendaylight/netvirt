@@ -8,6 +8,8 @@
              odl:type="default" />
   <reference id="mdsalUtils"
              interface="org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager" />
+  <reference id="interfaceManager"
+             interface="org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager" />
   <reference id="notificationPublishService"
              interface="org.opendaylight.controller.md.sal.binding.api.NotificationPublishService" />
   <reference id="bgpmanager"
@@ -95,6 +97,7 @@
     <argument ref="mdsalUtils" />
     <argument ref="alivenessManager" />
     <argument ref="neutronVpnService" />
+    <argument ref="interfaceManager" />
   </bean>
 
   <bean id="subnetRoutePacketInHandler"
