@@ -7,7 +7,13 @@
  */
 package org.opendaylight.netvirt.vpnmanager;
 
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
+
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
+import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
 import org.opendaylight.netvirt.neutronvpn.interfaces.INeutronVpnManager;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
@@ -40,21 +46,22 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Optional;
 
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
-
 public class AlivenessMonitorUtils {
 
     private static final Logger LOG = LoggerFactory.getLogger(AlivenessMonitorUtils.class);
     private static Map<Long, MacEntry> alivenessCache = new ConcurrentHashMap<>();
 
     public static void startArpMonitoring(MacEntry macEntry, Long arpMonitorProfileId,
-            AlivenessMonitorService alivenessMonitorService, DataBroker dataBroker,
-            OdlInterfaceRpcService interfaceRpc, INeutronVpnManager neutronVpnService) {
-        Optional<IpAddress> gatewayIpOptional = VpnUtil.getGatewayIpAddressFromInterface(macEntry.getInterfaceName(),
-                neutronVpnService, dataBroker);
+        AlivenessMonitorService alivenessMonitorService, DataBroker dataBroker,
+        OdlInterfaceRpcService interfaceRpc, INeutronVpnManager neutronVpnService,
+        IInterfaceManager interfaceManager) {
+        if (interfaceManager.isExternalInterface(macEntry.getInterfaceName())) {
+            LOG.debug("ARP monitoring is not supported for external interfaces: "
+                    + "skipping ARP monitoring of gateway from interface {}", macEntry.getInterfaceName());
+            return;
+        }
+        Optional<IpAddress> gatewayIpOptional =
+                VpnUtil.getGatewayIpAddressFromInterface(macEntry.getInterfaceName(), neutronVpnService, dataBroker);
         IpAddress gatewayIp;
         PhysAddress gatewayMac;
         if(!gatewayIpOptional.isPresent()) {

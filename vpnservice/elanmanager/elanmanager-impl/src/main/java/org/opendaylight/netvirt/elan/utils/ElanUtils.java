@@ -12,6 +12,7 @@ import com.google.common.util.concurrent.CheckedFuture;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
+
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -20,6 +21,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
+
 import org.apache.commons.lang3.StringUtils;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
@@ -46,13 +48,11 @@ import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.genius.utils.ServiceIndex;
 import org.opendaylight.netvirt.elan.ElanException;
-import org.opendaylight.netvirt.elan.internal.ElanBridgeManager;
 import org.opendaylight.netvirt.elan.internal.ElanInstanceManager;
 import org.opendaylight.netvirt.elan.internal.ElanInterfaceManager;
 import org.opendaylight.netvirt.elan.l2gw.utils.ElanL2GatewayMulticastUtils;
 import org.opendaylight.netvirt.elan.l2gw.utils.ElanL2GatewayUtils;
 import org.opendaylight.netvirt.elan.l2gw.utils.L2GatewayConnectionUtils;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.Interfaces;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.InterfacesState;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface.AdminStatus;
@@ -72,7 +72,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.meta.rev160406.IfIndexesInterfaceMap;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.meta.rev160406._if.indexes._interface.map.IfIndexInterface;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.meta.rev160406._if.indexes._interface.map.IfIndexInterfaceKey;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rev160406.IfExternal;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rev160406.TunnelTypeBase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rev160406.TunnelTypeVxlan;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.GetDpidFromInterfaceInputBuilder;
@@ -172,7 +171,7 @@ public class ElanUtils {
     private final ElanL2GatewayUtils elanL2GatewayUtils;
     private final ElanL2GatewayMulticastUtils elanL2GatewayMulticastUtils;
     private final L2GatewayConnectionUtils l2GatewayConnectionUtils;
-    private final ElanBridgeManager bridgeManager;
+    private final IInterfaceManager interfaceManager;
 
     public static final FutureCallback<Void> DEFAULT_CALLBACK = new FutureCallback<Void>() {
         @Override
@@ -189,13 +188,13 @@ public class ElanUtils {
     public ElanUtils(DataBroker dataBroker, IMdsalApiManager mdsalManager, ElanInstanceManager elanInstanceManager,
                      OdlInterfaceRpcService interfaceManagerRpcService, ItmRpcService itmRpcService,
                      ElanInterfaceManager elanInterfaceManager,
-                     EntityOwnershipService entityOwnershipService, ElanBridgeManager bridgeManager) {
+                     EntityOwnershipService entityOwnershipService, IInterfaceManager interfaceManager) {
         this.broker = dataBroker;
         this.mdsalManager = mdsalManager;
         this.elanInstanceManager = elanInstanceManager;
         this.interfaceManagerRpcService = interfaceManagerRpcService;
         this.itmRpcService = itmRpcService;
-        this.bridgeManager = bridgeManager;
+        this.interfaceManager = interfaceManager;
 
         elanL2GatewayMulticastUtils =
                 new ElanL2GatewayMulticastUtils(broker, elanInstanceManager, elanInterfaceManager, this);
@@ -2056,29 +2055,6 @@ public class ElanUtils {
     }
 
     /**
-     * Gets the interface from config ds.
-     *
-     * @param interfaceName
-     *            the interface name
-     * @param dataBroker
-     *            the data broker
-     * @return the interface from config ds
-     */
-    public static org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang
-        .ietf.interfaces.rev140508.interfaces.Interface getInterfaceFromConfigDS(
-            String interfaceName, DataBroker dataBroker) {
-        InstanceIdentifier<org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang
-            .ietf.interfaces.rev140508.interfaces.Interface> ifaceId = createInterfaceInstanceIdentifier(interfaceName);
-        Optional<org.opendaylight.yang.gen.v1.urn
-            .ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface> iface = MDSALUtil
-                .read(dataBroker, LogicalDatastoreType.CONFIGURATION, ifaceId);
-        if (iface.isPresent()) {
-            return iface.get();
-        }
-        return null;
-    }
-
-    /**
      * Creates the interface state instance identifier.
      *
      * @param interfaceName
@@ -2095,27 +2071,6 @@ public class ElanUtils {
                         .ietf.interfaces.rev140508.interfaces.state.Interface.class,
                         new org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang
                             .ietf.interfaces.rev140508.interfaces.state.InterfaceKey(
-                                interfaceName));
-        return idBuilder.build();
-    }
-
-    /**
-     * Creates the interface instance identifier.
-     *
-     * @param interfaceName
-     *            the interface name
-     * @return the instance identifier
-     */
-    public static InstanceIdentifier<org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang
-        .ietf.interfaces.rev140508.interfaces.Interface> createInterfaceInstanceIdentifier(
-            String interfaceName) {
-        InstanceIdentifierBuilder<org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang
-            .ietf.interfaces.rev140508.interfaces.Interface> idBuilder = InstanceIdentifier
-                .builder(Interfaces.class)
-                .child(org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang
-                        .ietf.interfaces.rev140508.interfaces.Interface.class,
-                        new org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang
-                            .ietf.interfaces.rev140508.interfaces.InterfaceKey(
                                 interfaceName));
         return idBuilder.build();
     }
@@ -2146,21 +2101,6 @@ public class ElanUtils {
     public static boolean isFlat(ElanInstance elanInstance) {
         return elanInstance != null && elanInstance.getSegmentType() != null
                 && elanInstance.getSegmentType().isAssignableFrom(SegmentTypeFlat.class);
-    }
-
-    public boolean isExternal(String interfaceName) {
-        return isExternal(getInterfaceFromConfigDS(interfaceName, broker));
-    }
-
-    public static boolean isExternal(
-            org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang
-            .ietf.interfaces.rev140508.interfaces.Interface iface) {
-        if (iface == null) {
-            return false;
-        }
-
-        IfExternal ifExternal = iface.getAugmentation(IfExternal.class);
-        return ifExternal != null && Boolean.TRUE.equals(ifExternal.isExternal());
     }
 
     public static boolean isEtreeRootInterfaceByInterfaceName(DataBroker broker, String interfaceName) {
@@ -2271,7 +2211,7 @@ public class ElanUtils {
         }
 
         for (String dpnInterface : dpnInterfaces.getInterfaces()) {
-            if (isExternal(dpnInterface)) {
+            if (interfaceManager.isExternalInterface(dpnInterface)) {
                 return dpnInterface;
             }
         }
