@@ -15,6 +15,7 @@ import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
 import org.opendaylight.genius.datastoreutils.DataStoreJobCoordinator;
+import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
 import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.netvirt.neutronvpn.interfaces.INeutronVpnManager;
@@ -38,16 +39,19 @@ public class ArpMonitoringHandler extends AsyncDataTreeChangeListenerBase<VpnPor
     private final IMdsalApiManager mdsalManager;
     private final AlivenessMonitorService alivenessManager;
     private final INeutronVpnManager neutronVpnService;
+    private final IInterfaceManager interfaceManager;
     private Long arpMonitorProfileId = 0L;
 
     public ArpMonitoringHandler(final DataBroker dataBroker, final OdlInterfaceRpcService interfaceRpc,
-            IMdsalApiManager mdsalManager, AlivenessMonitorService alivenessManager, INeutronVpnManager neutronVpnService) {
+            IMdsalApiManager mdsalManager, AlivenessMonitorService alivenessManager, INeutronVpnManager neutronVpnService,
+            IInterfaceManager interfaceManager) {
         super(VpnPortipToPort.class, ArpMonitoringHandler.class);
         this.dataBroker = dataBroker;
         this.interfaceRpc = interfaceRpc;
         this.mdsalManager = mdsalManager;
         this.alivenessManager = alivenessManager;
         this.neutronVpnService = neutronVpnService;
+        this.interfaceManager = interfaceManager;
     }
 
     public void start() {
@@ -114,7 +118,7 @@ public class ArpMonitoringHandler extends AsyncDataTreeChangeListenerBase<VpnPor
                 DataStoreJobCoordinator coordinator = DataStoreJobCoordinator.getInstance();
                 coordinator.enqueueJob(buildJobKey(srcInetAddr.toString(), vpnName),
                         new ArpMonitorStartTask(macEntry, arpMonitorProfileId, dataBroker, alivenessManager,
-                                interfaceRpc, neutronVpnService));
+                                interfaceRpc, neutronVpnService, interfaceManager));
             }
             if (value.isSubnetIp()) {
                 WriteTransaction writeTx = dataBroker.newWriteOnlyTransaction();
