@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3a65312a_df2570ac",
+        "filename": "vpnservice/it/impl/src/test/java/org/opendaylight/netvirt/it/NetvirtIT.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 334,
+      "author": {
+        "id": 5046
+      },
+      "writtenOn": "2016-11-07T09:19:02Z",
+      "side": 1,
+      "message": "I think we can move it to new method \"createDefaultSG\", because I it in many tests.",
+      "range": {
+        "startLine": 331,
+        "startChar": 12,
+        "endLine": 334,
+        "endChar": 68
+      },
+      "revId": "9e63a69664551fb119cc9977935997efb6943955",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
