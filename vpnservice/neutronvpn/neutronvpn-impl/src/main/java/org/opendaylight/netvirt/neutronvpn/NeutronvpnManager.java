@@ -708,7 +708,7 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
                         Optional<VpnPortipToPort> optionalVpnPort = NeutronvpnUtils.read(dataBroker,
                                 LogicalDatastoreType
                                 .OPERATIONAL, id);
-                        if (optionalVpnPort.isPresent() && optionalVpnPort.get().isLearnt()) {
+                        if (!optionalVpnPort.isPresent() || optionalVpnPort.get().isLearnt()) {
                             LOG.trace("Removing adjacencies from vpninterface {} upon dissociation of router {} " +
                                     "from VPN " + "{}", infName, vpnId, oldVpnId);
                             adjacencyIter.remove();
