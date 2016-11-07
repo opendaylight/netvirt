@@ -22,6 +22,7 @@ import org.junit.Test;
 import org.junit.rules.MethodRule;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
+import org.opendaylight.genius.datastoreutils.testutils.TestableDataTreeChangeListener;
 import org.opendaylight.genius.mdsalutil.FlowEntity;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.mdsalutil.NwConstants;
@@ -30,13 +31,6 @@ import org.opendaylight.infrautils.inject.guice.testutils.GuiceRule;
 import org.opendaylight.netvirt.aclservice.tests.infra.DataBrokerPairsUtil;
 import org.opendaylight.netvirt.aclservice.utils.AclConstants;
 import org.opendaylight.netvirt.aclservice.utils.AclServiceUtils;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.AccessLists;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.Ipv4Acl;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.Acl;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.AclKey;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.acl.AccessListEntries;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.acl.access.list.entries.Ace;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.acl.access.list.entries.AceKey;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.acl.access.list.entries.ace.Matches;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.acl.access.list.entries.ace.MatchesBuilder;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.acl.access.list.entries.ace.matches.ace.type.AceIpBuilder;
@@ -63,7 +57,8 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
 public class AclServiceTest {
 
-    public @Rule MethodRule guice = new GuiceRule(AclServiceModule.class, AclServiceTestModule.class);
+    public @Rule MethodRule guice = new GuiceRule(
+            AclServiceModule.class, AclServiceTestModule.class);
 
     private static final String PORT_MAC_1 = "0D:AA:D8:42:30:F3";
     private static final String PORT_MAC_2 = "0D:AA:D8:42:30:F4";
@@ -81,6 +76,8 @@ public class AclServiceTest {
     @Inject DataBrokerPairsUtil dataBrokerUtil;
     @Inject TestIMdsalApiManager mdsalApiManager;
 
+    @Inject TestableDataTreeChangeListener testableChainedListener;
+
     @Test
     public void newInterface() throws Exception {
         // Given
@@ -90,9 +87,7 @@ public class AclServiceTest {
                 .portSecurity(true).build());
         // When
         putNewStateInterface(dataBroker, "port1", PORT_MAC_1);
-
-        // TODO Later could do work for better synchronization here.
-        Thread.sleep(500);
+        testableChainedListener.awaitEventsConsumption();
 
         // Then
         assertFlows(FlowEntryObjects.expectedFlows(PORT_MAC_1));
@@ -368,17 +363,6 @@ public class AclServiceTest {
         matchesBuilder.setAceType(aceIpBuilder.build());
         return matchesBuilder.build();
 
-    }
-
-    private InstanceIdentifier<Ace> getAceInstanceIdentifier(String securityRuleUuid, String securityRuleGroupId) {
-        return InstanceIdentifier
-                .builder(AccessLists.class)
-                .child(Acl.class,
-                        new AclKey(securityRuleGroupId, Ipv4Acl.class))
-                .child(AccessListEntries.class)
-                .child(Ace.class,
-                        new AceKey(securityRuleUuid))
-                .build();
     }
 
     public void setUpData() throws Exception {

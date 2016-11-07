@@ -17,6 +17,7 @@ import org.opendaylight.controller.md.sal.binding.test.DataBrokerTestModule;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.genius.mdsalutil.interfaces.testutils.TestIMdsalApiManager;
 import org.opendaylight.netvirt.aclservice.tests.infra.SynchronousEachOperationNewWriteTransaction;
+import org.opendaylight.netvirt.aclservice.tests.infra.TestableDataTreeChangeListenerModule;
 import org.opendaylight.netvirt.aclservice.utils.AclClusterUtil;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.config.rev160806.AclserviceConfig;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.config.rev160806.AclserviceConfig.SecurityGroupMode;
@@ -40,6 +41,9 @@ public class AclServiceTestModule extends AbstractModule {
         bind(TestIMdsalApiManager.class).toInstance(singleton);
 
         bind(WriteTransaction.class).to(SynchronousEachOperationNewWriteTransaction.class);
+
+        // TODO move to AclServiceTest's GuiceRule
+        install(new TestableDataTreeChangeListenerModule());
     }
 
     private AclserviceConfig aclServiceConfig() {
