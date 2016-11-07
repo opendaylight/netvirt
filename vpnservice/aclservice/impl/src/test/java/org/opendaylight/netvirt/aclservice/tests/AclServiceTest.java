@@ -24,6 +24,8 @@ import org.junit.Test;
 import org.junit.rules.MethodRule;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
+import org.opendaylight.genius.datastoreutils.testutils.AsyncEventsWaiter;
+import org.opendaylight.genius.datastoreutils.testutils.TestableDataTreeChangeListenerModule;
 import org.opendaylight.genius.mdsalutil.FlowEntity;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.mdsalutil.NwConstants;
@@ -60,7 +62,9 @@ import org.slf4j.LoggerFactory;
 
 public class AclServiceTest {
 
-    public @Rule MethodRule guice = new GuiceRule(AclServiceModule.class, AclServiceTestModule.class);
+    public @Rule MethodRule guice = new GuiceRule(
+            AclServiceModule.class, AclServiceTestModule.class,
+            TestableDataTreeChangeListenerModule.class);
 
     private static final Logger LOG = LoggerFactory.getLogger(AclServiceTest.class);
 
@@ -89,6 +93,8 @@ public class AclServiceTest {
     @Inject DataBrokerPairsUtil dataBrokerUtil;
     @Inject TestIMdsalApiManager mdsalApiManager;
 
+    @Inject AsyncEventsWaiter asyncEventsWaiter;
+
     @Test
     public void newInterface() throws Exception {
         // Given
@@ -99,9 +105,7 @@ public class AclServiceTest {
 
         // When
         putNewStateInterface(dataBroker, "port1", PORT_MAC_1);
-
-        // TODO Later could do work for better synchronization here.
-        Thread.sleep(500);
+        asyncEventsWaiter.awaitEventsConsumption();
 
         // Then
         assertFlowsInAnyOrder(FlowEntryObjects.expectedFlows(PORT_MAC_1));
@@ -132,10 +136,9 @@ public class AclServiceTest {
 
         // When
         putNewStateInterface(dataBroker, PORT_1, PORT_MAC_1);
+        asyncEventsWaiter.awaitEventsConsumption();
         putNewStateInterface(dataBroker, PORT_2, PORT_MAC_2);
-
-        // TODO Later could do work for better synchronization here..
-        Thread.sleep(500);
+        asyncEventsWaiter.awaitEventsConsumption();
 
         // Then
         assertFlowsInAnyOrder(FlowEntryObjects.etherFlows());
@@ -165,10 +168,9 @@ public class AclServiceTest {
 
         // When
         putNewStateInterface(dataBroker, PORT_1, PORT_MAC_1);
+        asyncEventsWaiter.awaitEventsConsumption();
         putNewStateInterface(dataBroker, PORT_2, PORT_MAC_2);
-
-        // TODO Later could do work for better synchronization here..
-        Thread.sleep(500);
+        asyncEventsWaiter.awaitEventsConsumption();
 
         // Then
         assertFlowsInAnyOrder(FlowEntryObjects.tcpFlows());
@@ -198,10 +200,9 @@ public class AclServiceTest {
 
         // When
         putNewStateInterface(dataBroker, PORT_1, PORT_MAC_1);
+        asyncEventsWaiter.awaitEventsConsumption();
         putNewStateInterface(dataBroker, PORT_2, PORT_MAC_2);
-
-        // TODO Later could do work for better synchronization here..
-        Thread.sleep(500);
+        asyncEventsWaiter.awaitEventsConsumption();
 
         // Then
         assertFlowsInAnyOrder(FlowEntryObjects.udpFlows());
@@ -231,10 +232,9 @@ public class AclServiceTest {
 
         // When
         putNewStateInterface(dataBroker, PORT_1, PORT_MAC_1);
+        asyncEventsWaiter.awaitEventsConsumption();
         putNewStateInterface(dataBroker, PORT_2, PORT_MAC_2);
-
-        // TODO Later could do work for better synchronization here..
-        Thread.sleep(500);
+        asyncEventsWaiter.awaitEventsConsumption();
 
         // Then
         assertFlowsInAnyOrder(FlowEntryObjects.icmpFlows());
@@ -264,9 +264,7 @@ public class AclServiceTest {
 
         // When
         putNewStateInterface(dataBroker, PORT_1, PORT_MAC_1);
-
-        // TODO Later could do work for better synchronization here..
-        Thread.sleep(500);
+        asyncEventsWaiter.awaitEventsConsumption();
 
         // Then
         assertFlowsInAnyOrder(FlowEntryObjects.dstRangeFlows());
@@ -296,9 +294,7 @@ public class AclServiceTest {
 
         // When
         putNewStateInterface(dataBroker, PORT_1, PORT_MAC_1);
-
-        // TODO Later could do work for better synchronization here..
-        Thread.sleep(500);
+        asyncEventsWaiter.awaitEventsConsumption();
 
         // Then
         assertFlowsInAnyOrder(FlowEntryObjects.dstAllFlows());
@@ -328,9 +324,7 @@ public class AclServiceTest {
 
         // When
         putNewStateInterface(dataBroker, PORT_3, PORT_MAC_3);
-
-        // TODO Later could do work for better synchronization here..
-        Thread.sleep(500);
+        asyncEventsWaiter.awaitEventsConsumption();
 
         // Then
         assertFlowsInAnyOrder(FlowEntryObjects.icmpFlowsForTwoAclsHavingSameRules());
@@ -389,14 +383,12 @@ public class AclServiceTest {
             .portSecurity(true)
             .addAllNewSecurityGroups(sgList)
             .addIfAllowedAddressPair(allowedAddressPair).build());
-
     }
 
     private void newElan(String elanName, long elanId) {
         ElanInstance elan = new ElanInstanceBuilder().setElanInstanceName(elanName).setElanTag(5000L).build();
         MDSALUtil.syncWrite(dataBroker, CONFIGURATION,
-                AclServiceUtils.getElanInstanceConfigurationDataPath(elanName),
-                elan);
+                AclServiceUtils.getElanInstanceConfigurationDataPath(elanName), elan);
     }
 
     private void newElanInterface(String elanName, String portName, boolean isWrite) {
