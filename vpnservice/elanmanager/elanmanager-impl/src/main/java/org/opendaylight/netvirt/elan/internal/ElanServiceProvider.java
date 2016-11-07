@@ -588,7 +588,7 @@ public class ElanServiceProvider implements IElanService {
 
         Set<String> externalElanInterfaces = new HashSet<>();
         for (String elanInterface : elanInterfaces) {
-            if (elanUtils.isExternal(elanInterface)) {
+            if (interfaceManager.isExternalInterface(elanInterface)) {
                 externalElanInterfaces.add(elanInterface);
             }
         }
@@ -596,13 +596,14 @@ public class ElanServiceProvider implements IElanService {
         return externalElanInterfaces;
     }
 
+    @Override
     public String getExternalElanInterface(String elanInstanceName, BigInteger dpnId) {
         return elanUtils.getExternalElanInterface(elanInstanceName, dpnId);
     }
 
     @Override
     public boolean isExternalInterface(String interfaceName) {
-        return elanUtils.isExternal(interfaceName);
+        return interfaceManager.isExternalInterface(interfaceName);
     }
 
     @Override
@@ -661,7 +662,7 @@ public class ElanServiceProvider implements IElanService {
                 interfaceName = parentRef + IfmConstants.OF_URI_SEPARATOR + segmentationId;
                 String trunkName = parentRef + IfmConstants.OF_URI_SEPARATOR + "trunk";
                 // trunk interface may have been created by other vlan network
-                Interface trunkInterface = ElanUtils.getInterfaceFromConfigDS(trunkName, broker);
+                Interface trunkInterface = interfaceManager.getInterfaceInfoFromConfigDataStore(trunkName);
                 if (trunkInterface == null) {
                     interfaceManager.createVLANInterface(trunkName, parentRef, null, null, null,
                             IfL2vlan.L2vlanMode.Trunk, true);
