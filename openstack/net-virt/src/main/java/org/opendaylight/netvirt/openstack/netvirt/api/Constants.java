@@ -89,7 +89,7 @@ public final class Constants {
     public static final Integer PROTO_PREFIX_MATCH_PRIORITY = 61008;
     public static final Integer PROTO_PORT_MATCH_PRIORITY = 61007;
     public static final Integer PROTO_PORT_PREFIX_MATCH_PRIORITY = 61004;
-    public static final Integer PROTO_DHCP_SERVER_MATCH_PRIORITY = 61006;
+    public static final Integer PROTO_DHCP_SERVER_MATCH_PRIORITY = 61008;
     public static final Integer PROTO_PORT_ICMP_MATCH_PRIORITY = 61003;
     public static final Integer PROTO_TCP_SYN_MATCH_PRIORITY_DROP = 61002;
     public static final Integer PROTO_REG6_MATCH_PRIORITY = 61005;
