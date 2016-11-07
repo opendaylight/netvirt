@@ -101,6 +101,10 @@ public class MatchUtils {
     public static final short SCTP_SHORT = 132;
     public static final String TCP = "tcp";
     public static final String UDP = "udp";
+    public static final String ICMP_PROTOCOL = "1";
+    public static final String TCP_PROTOCOL = "6";
+    public static final String UDP_PROTOCOL = "17";
+    public static final String ANY_PROTOCOL = "0";
     private static final int TCP_SYN = 0x0002;
     public static final String ICMP = "icmp";
     public static final String ICMPV6 = "icmpv6";
@@ -527,6 +531,36 @@ public class MatchUtils {
         else if (ipProtocol == ICMP_SHORT) {
             ipMmatch.setIpProtocol(ICMP_SHORT);
         }
+        matchBuilder.setIpMatch(ipMmatch.build());
+        return matchBuilder;
+    }
+
+    /**
+     * Create  IP protocol match with Eth Match
+     *
+     * @param matchBuilder MatchBuilder Object without a match yet
+     * @param ipProtocol   Integer representing the IP protocol
+     * @param srcMac The source macAddress
+     * @param dstMac The destination mac address
+     * @return matchBuilder Map MatchBuilder Object with a match
+     */
+    public static MatchBuilder createIpProtocolAndEthMatch(MatchBuilder matchBuilder, short ipProtocol, String srcMac, String dstMac) {
+
+        EthernetTypeBuilder ethTypeBuilder = new EthernetTypeBuilder();
+        ethTypeBuilder.setType(new EtherType(0x0800L));
+        EthernetMatchBuilder ethMatchBuilder = new EthernetMatchBuilder();
+        ethMatchBuilder.setEthernetType(ethTypeBuilder.build());
+        if (null != srcMac) {
+            ethMatchBuilder.setEthernetSource(new EthernetSourceBuilder()
+            .setAddress(new MacAddress(srcMac)).build());
+        }
+        if (null != dstMac) {
+            ethMatchBuilder.setEthernetDestination(new EthernetDestinationBuilder()
+                           .setAddress(new MacAddress(dstMac)).build());
+        }
+        matchBuilder.setEthernetMatch(ethMatchBuilder.build());
+        IpMatchBuilder ipMmatch = new IpMatchBuilder();
+        ipMmatch.setIpProtocol(ipProtocol);
         matchBuilder.setIpMatch(ipMmatch.build());
         return matchBuilder;
     }
