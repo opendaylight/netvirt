@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3a65312a_186ffe93",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 1535,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-11-07T16:25:14Z",
+      "side": 1,
+      "message": "how is flow removal taken care?",
+      "revId": "33c391cc7e5037e9ffec471d49526ec75f8bcb42",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
