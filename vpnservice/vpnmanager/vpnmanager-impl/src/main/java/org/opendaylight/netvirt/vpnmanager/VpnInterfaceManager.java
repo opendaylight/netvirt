@@ -1223,7 +1223,7 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                 LOG.trace("NextHops are " + nextHops);
                 for (Adjacency nextHop : nextHops) {
                     List<String> nhList = new ArrayList<String>();
-                    if (nextHop.isPrimaryAdjacency()) {
+                    if (!nextHop.isPrimaryAdjacency()) {
                         // This is either an extra-route (or) a learned IP via subnet-route
                         String nextHopIp = InterfaceUtils.getEndpointIpAddressForDPN(dataBroker, dpnId);
                         if (nextHopIp == null || nextHopIp.isEmpty()) {
