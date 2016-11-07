@@ -977,24 +977,6 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
         }
     }
 
-    private void waitForFibToRemoveVpnPrefix(String interfaceName) {
-        // FIB didn't get a chance yet to clean up this VPNInterface
-        // Let us give it a chance here !
-        LOG.info("VPN Interface {} removal waiting for FIB to clean up ! ", interfaceName);
-        try {
-            Runnable notifyTask = new VpnNotifyTask();
-            vpnIntfMap.put(interfaceName, notifyTask);
-            synchronized (notifyTask) {
-                try {
-                    notifyTask.wait(VpnConstants.PER_INTERFACE_MAX_WAIT_TIME_IN_MILLISECONDS);
-                } catch (InterruptedException e) {
-                }
-            }
-        } finally {
-            vpnIntfMap.remove(interfaceName);
-        }
-    }
-
     private void removeAdjacenciesFromVpn(final BigInteger dpnId, final String interfaceName, final String vpnName,
                                           WriteTransaction writeConfigTxn) {
         //Read NextHops
@@ -1158,15 +1140,53 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
         @Override
         public void run() {
             List<UpdateData> processQueue = new ArrayList<>();
+            List<VpnInterface> vpnInterfaceList = new ArrayList<>();
             vpnInterfacesUpdateQueue.drainTo(processQueue);
             for (UpdateData updData : processQueue) {
                 remove(updData.getIdentifier(), updData.getOriginal());
-                //TODO: Refactor wait to be based on queue size
-                waitForFibToRemoveVpnPrefix(updData.getUpdate().getName());
                 LOG.trace("Processed Remove for update on VPNInterface {} upon VPN swap",
                         updData.getOriginal().getName());
+                vpnInterfaceList.add(updData.getOriginal());
             }
+
+            /* Decide the max-wait time based on number of VpnInterfaces.
+            *  max-wait-time is num-of-interface * 4seconds (random choice).
+            *  Every 2sec poll VpnToDpnList. If VpnInterface is removed ,
+            *  remove it from vpnInterfaceList.
+            */
+
+            int max_wait_time = vpnInterfaceList.size() * (int)(VpnConstants.PER_INTERFACE_MAX_WAIT_TIME_IN_MILLISECONDS / 1000);
+            int wait_time = 2;
+            Iterator<VpnInterface> vpnInterfaceIterator = vpnInterfaceList.iterator();
+            VpnInterface vpnInterface;
+            while (wait_time < max_wait_time) {
+                try {
+                    Thread.sleep(2000); // sleep for 2sec
+                } catch (java.lang.InterruptedException e) {
+                }
+
+                while (vpnInterfaceIterator.hasNext()) {
+                    vpnInterface = vpnInterfaceIterator.next();
+                    if (!VpnUtil.isVpnIntfPresentInVpnToDpnList(dataBroker, vpnInterface)) {
+                        vpnInterfaceIterator.remove();
+                    }
+                }
+                if (vpnInterfaceList.size() == 0) {
+                    LOG.trace("All VpnInterfaces are successfully removed from OLD VPN after time {}", wait_time);
+                    break;
+                }
+                wait_time += 2; //Increment linearly by 2sec.
+            }
+
+            if (vpnInterfaceList.size() > 0) {
+                LOG.error("VpnInterfacesList {} not removed from old Vpn even after waiting {}", vpnInterfaceList, wait_time);
+            }
+
             for (UpdateData updData : processQueue) {
+                if (vpnInterfaceList.contains(updData.getOriginal())) {
+                    LOG.warn("Failed to swap VpnInterfaces {} to target VPN {}", updData.getOriginal(), updData.getUpdate().getVpnInstanceName());
+                    continue;
+                }
                 final Adjacencies origAdjs = updData.getOriginal().getAugmentation(Adjacencies.class);
                 final List<Adjacency> oldAdjs = (origAdjs != null && origAdjs.getAdjacency() != null) ?
                         origAdjs.getAdjacency() : new ArrayList<Adjacency>();
