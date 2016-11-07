@@ -19,6 +19,29 @@
     },
     {
       "key": {
+        "uuid": "3a65312a_35e76314",
+        "filename": "resources/commons/blueprint-template.rst",
+        "patchSetId": 1
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 6804
+      },
+      "writtenOn": "2016-11-07T15:00:57Z",
+      "side": 1,
+      "message": "Is this optional?\nI would assume that the patch with the code would be available after the blue print is approved.",
+      "range": {
+        "startLine": 7,
+        "startChar": 0,
+        "endLine": 7,
+        "endChar": 22
+      },
+      "revId": "7c68eff9c0d48bca9169fb6c648e95860be3cf21",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "3a65312a_2c5ba788",
         "filename": "resources/commons/blueprint-template.rst",
         "patchSetId": 1
@@ -76,6 +99,52 @@
         "startChar": 29,
         "endLine": 37,
         "endChar": 38
+      },
+      "revId": "7c68eff9c0d48bca9169fb6c648e95860be3cf21",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a65312a_f5ab2b87",
+        "filename": "resources/commons/blueprint-template.rst",
+        "patchSetId": 1
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 6804
+      },
+      "writtenOn": "2016-11-07T15:00:57Z",
+      "side": 1,
+      "message": "A feature, by default, should not be backported in upstream.\nI think that we should nor encourage that in the template.\nIf a feature should be backported for any reason it should have a separate process for getting it approved.",
+      "range": {
+        "startLine": 37,
+        "startChar": 44,
+        "endLine": 38,
+        "endChar": 17
+      },
+      "revId": "7c68eff9c0d48bca9169fb6c648e95860be3cf21",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a65312a_3595a340",
+        "filename": "resources/commons/blueprint-template.rst",
+        "patchSetId": 1
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 6804
+      },
+      "writtenOn": "2016-11-07T15:00:57Z",
+      "side": 1,
+      "message": "since we are committed to backwards compatibility, is deleting/modifying a config is an option?\nshould we have a process for deprecating it first?",
+      "range": {
+        "startLine": 50,
+        "startChar": 41,
+        "endLine": 50,
+        "endChar": 48
       },
       "revId": "7c68eff9c0d48bca9169fb6c648e95860be3cf21",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
@@ -240,6 +309,29 @@
         "startChar": 0,
         "endLine": 68,
         "endChar": 5
+      },
+      "revId": "7c68eff9c0d48bca9169fb6c648e95860be3cf21",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a65312a_759f1b60",
+        "filename": "resources/commons/blueprint-template.rst",
+        "patchSetId": 1
+      },
+      "lineNbr": 72,
+      "author": {
+        "id": 6804
+      },
+      "writtenOn": "2016-11-07T15:00:57Z",
+      "side": 1,
+      "message": "isn\u0027t this data captured in the \u0027Use Cases\u0027 section",
+      "range": {
+        "startLine": 71,
+        "startChar": 0,
+        "endLine": 72,
+        "endChar": 37
       },
       "revId": "7c68eff9c0d48bca9169fb6c648e95860be3cf21",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
