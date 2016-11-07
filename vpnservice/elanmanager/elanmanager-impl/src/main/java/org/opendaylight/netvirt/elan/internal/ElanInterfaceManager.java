@@ -28,6 +28,7 @@ import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
 import org.opendaylight.genius.datastoreutils.DataStoreJobCoordinator;
+import org.opendaylight.genius.interfacemanager.IfmUtil;
 import org.opendaylight.genius.interfacemanager.globals.InterfaceInfo;
 import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
 import org.opendaylight.genius.itm.globals.ITMConstants;
@@ -846,7 +847,7 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
 
         List<Bucket> listBucketInfo = new ArrayList<>();
         for (String interfaceName : currDpnInterfaces.getInterfaces()) {
-            if (elanUtils.isExternal(interfaceName)) {
+            if (IfmUtil.isExternal(interfaceName, broker)) {
                 List<Action> listActionInfo = elanUtils.getExternalPortItmEgressAction(interfaceName);
                 if (!listActionInfo.isEmpty()) {
                     listBucketInfo.add(MDSALUtil.buildBucket(listActionInfo, MDSALUtil.GROUP_WEIGHT, bucketId,
@@ -1093,7 +1094,7 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
                 continue;
             }
 
-            if (!elanUtils.isExternal(ifName)) {
+            if (!IfmUtil.isExternal(ifName, broker)) {
                 listBucket.add(MDSALUtil.buildBucket(getInterfacePortActions(ifInfo), MDSALUtil.GROUP_WEIGHT, bucketId,
                         MDSALUtil.WATCH_PORT, MDSALUtil.WATCH_GROUP));
                 bucketId++;
@@ -1128,7 +1129,7 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
                     continue;
                 }
 
-                if (!elanUtils.isExternal(ifName)) {
+                if (!IfmUtil.isExternal(ifName, broker)) {
                     // only add root interfaces
                     bucketId = addInterfaceIfRootInterface(bucketId, ifName, listBucket, ifInfo);
                 }

@@ -24,6 +24,7 @@ import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.clustering.CandidateAlreadyRegisteredException;
 import org.opendaylight.controller.md.sal.common.api.clustering.EntityOwnershipService;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.genius.interfacemanager.IfmUtil;
 import org.opendaylight.genius.interfacemanager.exceptions.InterfaceAlreadyExistsException;
 import org.opendaylight.genius.interfacemanager.globals.IfmConstants;
 import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
@@ -588,7 +589,7 @@ public class ElanServiceProvider implements IElanService {
 
         Set<String> externalElanInterfaces = new HashSet<>();
         for (String elanInterface : elanInterfaces) {
-            if (elanUtils.isExternal(elanInterface)) {
+            if (IfmUtil.isExternal(elanInterface, broker)) {
                 externalElanInterfaces.add(elanInterface);
             }
         }
@@ -602,7 +603,7 @@ public class ElanServiceProvider implements IElanService {
 
     @Override
     public boolean isExternalInterface(String interfaceName) {
-        return elanUtils.isExternal(interfaceName);
+        return IfmUtil.isExternal(interfaceName, broker);
     }
 
     @Override
@@ -661,7 +662,7 @@ public class ElanServiceProvider implements IElanService {
                 interfaceName = parentRef + IfmConstants.OF_URI_SEPARATOR + segmentationId;
                 String trunkName = parentRef + IfmConstants.OF_URI_SEPARATOR + "trunk";
                 // trunk interface may have been created by other vlan network
-                Interface trunkInterface = ElanUtils.getInterfaceFromConfigDS(trunkName, broker);
+                Interface trunkInterface = IfmUtil.getInterfaceFromConfigDS(trunkName, broker);
                 if (trunkInterface == null) {
                     interfaceManager.createVLANInterface(trunkName, parentRef, null, null, null,
                             IfL2vlan.L2vlanMode.Trunk, true);
