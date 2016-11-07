@@ -34,6 +34,24 @@
       "revId": "5f9a5a6441fbcbf810439015e013847e23149042",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a65312a_3fdbc4ee",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 589,
+      "author": {
+        "id": 5350
+      },
+      "writtenOn": "2016-11-07T10:55:59Z",
+      "side": 1,
+      "message": "No sorry, the above is not exactly true. It depends on how you configure InterVpnLink and how routes are leaked from one L3VPN to the other. If BGP routes are leaked then there could be thousands of flows like this. If only static routes are leaked, then there\u0027ll be just a few of them, most probably one or two.",
+      "parentUuid": "3a65312a_7f77fc02",
+      "revId": "5f9a5a6441fbcbf810439015e013847e23149042",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
