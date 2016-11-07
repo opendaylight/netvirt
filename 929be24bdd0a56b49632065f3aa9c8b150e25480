@@ -90,6 +90,24 @@
     },
     {
       "key": {
+        "uuid": "3a65312a_ff094c2d",
+        "filename": "openstack/net-virt-it/src/test/java/org/opendaylight/netvirt/openstack/netvirt/it/NetvirtIT.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 431,
+      "author": {
+        "id": 4018
+      },
+      "writtenOn": "2016-11-07T09:12:09Z",
+      "side": 1,
+      "message": "No. If br-int is connected then by default Resubmit flows are available.\nPlease find the default dump flows,\n[stack@devstack-control devstack]$ sudo ovs-ofctl -O OpenFlow13 dump-flows br-int\nOFPST_FLOW reply (OF1.3) (xid\u003d0x2):\n cookie\u003d0x0, duration\u003d17.261s, table\u003d0, n_packets\u003d0, n_bytes\u003d0, dl_type\u003d0x88cc actions\u003dCONTROLLER:65535\n cookie\u003d0x0, duration\u003d17.261s, table\u003d0, n_packets\u003d0, n_bytes\u003d0, priority\u003d0 actions\u003dgoto_table:20\n cookie\u003d0x0, duration\u003d17.261s, table\u003d20, n_packets\u003d0, n_bytes\u003d0, priority\u003d0 actions\u003dgoto_table:30\n cookie\u003d0x0, duration\u003d17.261s, table\u003d30, n_packets\u003d0, n_bytes\u003d0, priority\u003d0 actions\u003dgoto_table:31\n cookie\u003d0x0, duration\u003d17.261s, table\u003d31, n_packets\u003d0, n_bytes\u003d0, priority\u003d0 actions\u003dresubmit(,39),resubmit(,40)\n cookie\u003d0x0, duration\u003d17.259s, table\u003d40, n_packets\u003d0, n_bytes\u003d0, priority\u003d0 actions\u003dgoto_table:50\n cookie\u003d0x0, duration\u003d17.249s, table\u003d50, n_packets\u003d0, n_bytes\u003d0, priority\u003d0 actions\u003dgoto_table:60\n cookie\u003d0x0, duration\u003d17.237s, table\u003d60, n_packets\u003d0, n_bytes\u003d0, priority\u003d0 actions\u003dgoto_table:70\n cookie\u003d0x0, duration\u003d17.229s, table\u003d70, n_packets\u003d0, n_bytes\u003d0, priority\u003d0 actions\u003dgoto_table:80\n cookie\u003d0x0, duration\u003d17.220s, table\u003d80, n_packets\u003d0, n_bytes\u003d0, priority\u003d0 actions\u003dgoto_table:90\n cookie\u003d0x0, duration\u003d17.212s, table\u003d90, n_packets\u003d0, n_bytes\u003d0, priority\u003d0 actions\u003dgoto_table:100\n cookie\u003d0x0, duration\u003d17.205s, table\u003d100, n_packets\u003d0, n_bytes\u003d0, priority\u003d0 actions\u003dgoto_table:105\n cookie\u003d0x0, duration\u003d17.261s, table\u003d105, n_packets\u003d0, n_bytes\u003d0, reg0\u003d0x2 actions\u003dlearn(table\u003d110,hard_timeout\u003d300,priority\u003d16400,NXM_NX_TUN_ID[],NXM_OF_ETH_DST[]\u003dNXM_OF_ETH_SRC[],output:NXM_OF_IN_PORT[]),goto_table:110\n cookie\u003d0x0, duration\u003d17.195s, table\u003d105, n_packets\u003d0, n_bytes\u003d0, priority\u003d0 actions\u003dgoto_table:110\n cookie\u003d0x0, duration\u003d17.183s, table\u003d110, n_packets\u003d0, n_bytes\u003d0, priority\u003d0 actions\u003ddrop",
+      "parentUuid": "3a65312a_2c0d6791",
+      "revId": "929be24bdd0a56b49632065f3aa9c8b150e25480",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "3a65312a_3cb63c3e",
         "filename": "openstack/utils/netvirt-it-utils/src/main/java/org/opendaylight/netvirt/utils/netvirt/it/utils/NetvirtItUtils.java",
         "patchSetId": 3
