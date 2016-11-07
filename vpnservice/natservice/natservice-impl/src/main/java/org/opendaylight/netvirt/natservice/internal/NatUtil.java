@@ -625,15 +625,14 @@ public class NatUtil {
 
     public static BigInteger getDpIdFromInterface(org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface ifState) {
         String lowerLayerIf = ifState.getLowerLayerIf().get(0);
-        if (lowerLayerIf == null) {
-            return BigInteger.ZERO;
+        if (lowerLayerIf != null) {
+            NodeConnectorId nodeConnectorId = new NodeConnectorId(lowerLayerIf);
+            String dpnFromNodeConnectorId = getDpnFromNodeConnectorId(nodeConnectorId);
+            if (dpnFromNodeConnectorId != null) {
+                return new BigInteger(dpnFromNodeConnectorId);
+            }
         }
-        NodeConnectorId nodeConnectorId = new NodeConnectorId(lowerLayerIf);
-        String dpnFromNodeConnectorId = getDpnFromNodeConnectorId(nodeConnectorId);
-        if (dpnFromNodeConnectorId == null) {
-            return BigInteger.ZERO;
-        }
-        return new BigInteger(dpnFromNodeConnectorId);
+        return BigInteger.ZERO;
     }
 
 

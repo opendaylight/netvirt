@@ -97,11 +97,14 @@ public class InterfaceStateEventListener extends AsyncDataTreeChangeListenerBase
                 String interfaceName = delintrf.getName();
                 LOG.trace("NAT Service : Port removed event received for interface {} ", interfaceName);
 
-                BigInteger dpnId = NatUtil.getDpIdFromInterface(delintrf);
-                LOG.trace("NAT Service : PORT_REMOVE: Interface {} down in Dpn {}", interfaceName, dpnId);
-
                 String routerName = getRouterIdForPort(dataBroker, interfaceName);
                 if (routerName != null) {
+                    BigInteger dpnId = NatUtil.getDpIdFromInterface(delintrf);
+                    LOG.trace("NAT Service : PORT_REMOVE: Interface {} down in Dpn {}", interfaceName, dpnId);
+                    if (dpnId == BigInteger.ZERO) {
+                        LOG.error("NAT Service: Could not retrieve DPN ID {} for interface {}", dpnId, interfaceName);
+                        return;
+                    }
                     processInterfaceRemoved(interfaceName, routerName);
                     removeSnatEntriesForPort(interfaceName,routerName);
                 } else {
@@ -123,9 +126,6 @@ public class InterfaceStateEventListener extends AsyncDataTreeChangeListenerBase
         } else if (update.getOperStatus().equals(Interface.OperStatus.Down)) {
             try {
                 LOG.trace("NAT Service : Port DOWN event received for interface {} ", interfaceName);
-
-                BigInteger dpnId = NatUtil.getDpIdFromInterface(update);
-                LOG.trace("NAT Service : PORT_DOWN: Interface {} down in Dpn {}", interfaceName, dpnId);
 
                 String routerName = getRouterIdForPort(dataBroker, interfaceName);
                 if (routerName != null) {
