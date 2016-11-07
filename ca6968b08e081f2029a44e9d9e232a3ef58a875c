@@ -16,6 +16,24 @@
       "revId": "ca6968b08e081f2029a44e9d9e232a3ef58a875c",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a65312a_0284afd2",
+        "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/translator/iaware/impl/NeutronFloatingIPDataTreeChangeListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 4540
+      },
+      "writtenOn": "2016-11-07T13:11:51Z",
+      "side": 1,
+      "message": "Good catch, I\u0027ve switched to ClusteredDataTreeChangeListener.",
+      "parentUuid": "9a561d44_c23118a4",
+      "revId": "ca6968b08e081f2029a44e9d9e232a3ef58a875c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
