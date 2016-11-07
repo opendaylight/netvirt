@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "3a65312a_cd302d59",
+        "filename": "openstack/net-virt-providers/src/main/java/org/opendaylight/netvirt/openstack/netvirt/providers/openflow13/services/EgressAclService.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 440,
+      "author": {
+        "id": 4030
+      },
+      "writtenOn": "2016-11-07T07:38:05Z",
+      "side": 1,
+      "message": "Currently we supported learn action for TCP, UDP and ICMP. will support later for IP protocol.",
+      "parentUuid": "3a65312a_6d95993f",
+      "revId": "2d9e000928fcb681e63f9b137f8ead6ec872484b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "3a65312a_6d7c7921",
         "filename": "openstack/net-virt-providers/src/main/java/org/opendaylight/netvirt/openstack/netvirt/providers/openflow13/services/EgressAclService.java",
         "patchSetId": 3
@@ -30,6 +48,24 @@
       "writtenOn": "2016-11-07T06:32:55Z",
       "side": 1,
       "message": "Is this section still required?",
+      "revId": "2d9e000928fcb681e63f9b137f8ead6ec872484b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a65312a_4d3c1d30",
+        "filename": "openstack/net-virt-providers/src/main/java/org/opendaylight/netvirt/openstack/netvirt/providers/openflow13/services/EgressAclService.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 606,
+      "author": {
+        "id": 4030
+      },
+      "writtenOn": "2016-11-07T07:38:05Z",
+      "side": 1,
+      "message": "It is required, some specific Icmp types(8,13,15,17) request have different response so we are maintaining map to create reverse flow to allow response.\nfor Icmp ping request:\nType (8) - Code (0)\nReverse flow:\nType (0) - Code (0)\n\nthe above responses, we are maintaining in the map",
+      "parentUuid": "3a65312a_6d7c7921",
       "revId": "2d9e000928fcb681e63f9b137f8ead6ec872484b",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
