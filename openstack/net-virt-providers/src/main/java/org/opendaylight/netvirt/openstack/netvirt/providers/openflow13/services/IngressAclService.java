@@ -161,6 +161,22 @@ public class IngressAclService extends AbstractServiceInstance implements Ingres
             ingressAclIp(dpid, isIpv6, segmentationId, attachedMac,
                 portSecurityRule, ipaddress,
                 write, Constants.PROTO_PORT_PREFIX_MATCH_PRIORITY);
+            if(!isIpv6) {
+                portSecurityRule.setSecurityRuleProtocol(MatchUtils.TCP);
+                portSecurityRule.setSecurityRulePortMin(PORT_RANGE_MIN);
+                portSecurityRule.setSecurityRulePortMax(PORT_RANGE_MAX);
+                ingressAclTcp(dpid, segmentationId, attachedMac, portSecurityRule, ipaddress,
+                        write, Constants.PROTO_PORT_MATCH_PRIORITY);
+                portSecurityRule.setSecurityRuleProtocol(MatchUtils.UDP);
+                ingressAclUdp(dpid, segmentationId, attachedMac, portSecurityRule, ipaddress,
+                        write, Constants.PROTO_PORT_MATCH_PRIORITY);
+                portSecurityRule.setSecurityRuleProtocol(MatchUtils.ICMP);
+                portSecurityRule.setSecurityRulePortMin(null);
+                portSecurityRule.setSecurityRulePortMax(null);
+                ingressAclIcmp(dpid, segmentationId, attachedMac, portSecurityRule, ipaddress,
+                        write, Constants.PROTO_PORT_MATCH_PRIORITY);
+                
+            }
         } else {
 
             switch (portSecurityRule.getSecurityRuleProtocol()) {
