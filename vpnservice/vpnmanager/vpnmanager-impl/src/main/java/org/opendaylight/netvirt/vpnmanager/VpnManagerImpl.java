@@ -15,9 +15,11 @@ import java.util.concurrent.Future;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
+import org.opendaylight.genius.utils.cache.DataStoreCache;
 import org.opendaylight.netvirt.fibmanager.api.IFibManager;
 import org.opendaylight.netvirt.fibmanager.api.RouteOrigin;
 import org.opendaylight.netvirt.vpnmanager.api.IVpnManager;
+import org.opendaylight.netvirt.vpnmanager.cache.listeners.VpnOpInstanceCacheManager;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.CreateIdPoolInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.CreateIdPoolInputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.IdManagerService;
@@ -34,6 +36,7 @@ public class VpnManagerImpl implements IVpnManager {
     private final VpnInstanceListener vpnInstanceListener;
     private final IdManagerService idManager;
     private final IMdsalApiManager mdsalManager;
+    VpnOpInstanceCacheManager vpnOpInstanceCacheManager;
 
     public VpnManagerImpl(final DataBroker dataBroker,
                           final IdManagerService idManagerService,
@@ -50,6 +53,8 @@ public class VpnManagerImpl implements IVpnManager {
     public void start() {
         LOG.info("{} start", getClass().getSimpleName());
         createIdPool();
+        DataStoreCache.create(VpnConstants.VPN_OP_INSTANCE_CACHE_NAME);
+        vpnOpInstanceCacheManager = new VpnOpInstanceCacheManager(dataBroker);
     }
 
     private void createIdPool() {

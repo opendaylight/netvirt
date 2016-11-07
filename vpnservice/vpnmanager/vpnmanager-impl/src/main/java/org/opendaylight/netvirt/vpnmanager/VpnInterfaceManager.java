@@ -1167,21 +1167,24 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
         }
     }
 
-    private void waitForFibToRemoveVpnPrefix(String interfaceName) {
+    private void waitForFibToRemoveVpnPrefix(VpnInterface vpnInterface) {
         // FIB didn't get a chance yet to clean up this VPNInterface
         // Let us give it a chance here !
-        LOG.info("VPN Interface {} removal waiting for FIB to clean up ! ", interfaceName);
-        try {
-            Runnable notifyTask = new VpnNotifyTask();
-            vpnIntfMap.put(interfaceName, notifyTask);
-            synchronized (notifyTask) {
-                try {
-                    notifyTask.wait(VpnConstants.PER_INTERFACE_MAX_WAIT_TIME_IN_MILLISECONDS);
-                } catch (InterruptedException e) {
-                }
+        LOG.info("VPN Interface {} removal waiting for FIB to clean up ! ", vpnInterface.getName());
+        int retry = 5;
+        while (retry > 0) {
+            try {
+                Thread.sleep(2000);
+            } catch (java.lang.InterruptedException e) {
             }
-        } finally {
-            vpnIntfMap.remove(interfaceName);
+            //If VpnIntf is still present in VpnToDpnList, sleep for 2sec.
+            if (!VpnUtil.isVpnIntfPresentInVpnToDpnList(dataBroker, vpnInterface)) {
+                break;
+            }
+            retry--;
+        }
+        if (retry == 0) {
+            LOG.error("VPN Interface {} not removed from vpn {} after 5 retries ", vpnInterface.getName(), vpnInterface.getVpnInstanceName());
         }
     }
 
@@ -1344,7 +1347,7 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
             for (UpdateData updData : processQueue) {
                 remove(updData.getIdentifier(), updData.getOriginal());
                 //TODO: Refactor wait to be based on queue size
-                waitForFibToRemoveVpnPrefix(updData.getUpdate().getName());
+                waitForFibToRemoveVpnPrefix(updData.getUpdate());
                 LOG.trace("Processed Remove for update on VPNInterface {} upon VPN swap",
                         updData.getOriginal().getName());
             }
