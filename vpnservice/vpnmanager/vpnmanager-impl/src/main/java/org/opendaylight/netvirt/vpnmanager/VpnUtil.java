@@ -38,6 +38,7 @@ import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFaile
 import org.opendaylight.genius.mdsalutil.MDSALDataStoreUtils;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.mdsalutil.NwConstants;
+import org.opendaylight.genius.utils.cache.DataStoreCache;
 import org.opendaylight.netvirt.bgpmanager.api.IBgpManager;
 import org.opendaylight.netvirt.fibmanager.api.RouteOrigin;
 import org.opendaylight.genius.mdsalutil.FlowEntity;
@@ -652,6 +653,11 @@ public class VpnUtil {
             return vpnInstanceOpData.get();
         }
         return null;
+    }
+
+    static VpnInstanceOpDataEntry getVpnInstanceOpDataFromCache(DataBroker broker, String rd) {
+        InstanceIdentifier<VpnInstanceOpDataEntry> id = VpnUtil.getVpnInstanceOpDataIdentifier(rd);
+        return (VpnInstanceOpDataEntry) DataStoreCache.get(VpnConstants.VPN_OP_INSTANCE_CACHE_NAME, id, rd, broker, false);
     }
 
     static VpnInterface getConfiguredVpnInterface(DataBroker broker, String interfaceName) {
@@ -1404,6 +1410,27 @@ public class VpnUtil {
         }
         return gatewayMac;
 
+    }
+
+    public static boolean isVpnIntfPresentInVpnToDpnList(DataBroker broker, VpnInterface vpnInterface) {
+        BigInteger dpnId = vpnInterface.getDpnId();
+        String rd = VpnUtil.getVpnRd(broker, vpnInterface.getVpnInstanceName());
+        VpnInstanceOpDataEntry vpnInstanceOpData = VpnUtil.getVpnInstanceOpDataFromCache(broker, rd);
+        if (vpnInstanceOpData != null) {
+            List<VpnToDpnList> dpnToVpns = vpnInstanceOpData.getVpnToDpnList();
+            if ((dpnToVpns!= null)) {
+                for (VpnToDpnList dpn :dpnToVpns) {
+                    if (dpn.getDpnId().equals(dpnId)) {
+                        if (dpn.getVpnInterfaces().contains(vpnInterface.getName())) {
+                            return Boolean.TRUE;
+                        } else {
+                            return Boolean.FALSE;
+                        }
+                    }
+                }
+            }
+        }
+        return Boolean.FALSE;
     }
 
 }
