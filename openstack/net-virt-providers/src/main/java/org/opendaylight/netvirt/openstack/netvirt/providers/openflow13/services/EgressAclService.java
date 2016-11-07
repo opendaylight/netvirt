@@ -170,6 +170,24 @@ public class EgressAclService extends AbstractServiceInstance implements EgressA
             egressAclIp(dpid, isIpv6, segmentationId, attachedMac,
                 portSecurityRule, ipaddress,
                 write, Constants.PROTO_PORT_PREFIX_MATCH_PRIORITY);
+            if(!isIpv6) {
+                portSecurityRule.setSecurityRuleProtocol(MatchUtils.TCP);
+                portSecurityRule.setSecurityRulePortMin(PORT_RANGE_MIN);
+                portSecurityRule.setSecurityRulePortMax(PORT_RANGE_MAX);
+                egressAclTcp(dpid, segmentationId, attachedMac,
+                        portSecurityRule,ipaddress, write,
+                        Constants.PROTO_PORT_MATCH_PRIORITY);
+                portSecurityRule.setSecurityRuleProtocol(MatchUtils.UDP);
+                egressAclUdp(dpid, segmentationId, attachedMac,
+                        portSecurityRule, ipaddress, write,
+                        Constants.PROTO_PORT_MATCH_PRIORITY);
+                portSecurityRule.setSecurityRuleProtocol(MatchUtils.ICMP);
+                portSecurityRule.setSecurityRulePortMin(null);
+                portSecurityRule.setSecurityRulePortMax(null);
+                egressAclIcmp(dpid, segmentationId, attachedMac,
+                        portSecurityRule, ipaddress,write,
+                        Constants.PROTO_PORT_MATCH_PRIORITY);
+            }
         } else {
             switch (portSecurityRule.getSecurityRuleProtocol()) {
                 case MatchUtils.TCP:
