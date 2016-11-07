@@ -36,6 +36,24 @@
     },
     {
       "key": {
+        "uuid": "3a65312a_b5bc136e",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NatTunnelInterfaceStateListener.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 246,
+      "author": {
+        "id": 6329
+      },
+      "writtenOn": "2016-11-07T15:39:11Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "3a65312a_1fac08ed",
+      "revId": "b638ec24f257b149d13ce43529d9f9090c44563d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "3a65312a_ff6e6cc8",
         "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NatTunnelInterfaceStateListener.java",
         "patchSetId": 6
@@ -47,6 +65,24 @@
       "writtenOn": "2016-11-07T09:51:34Z",
       "side": 1,
       "message": "Why not unite this check with the previous one? Aren\u0027t they two ways of checking for the same thing? Or am I missing something?",
+      "revId": "b638ec24f257b149d13ce43529d9f9090c44563d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a65312a_d5726fe4",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NatTunnelInterfaceStateListener.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 288,
+      "author": {
+        "id": 6329
+      },
+      "writtenOn": "2016-11-07T15:39:11Z",
+      "side": 1,
+      "message": "The code if (!optionalRouterDpnList.isPresent()){ ...} checks if the queried-instance \u0027optionalRouterDpnList\u0027 is actually present.\n\nWhereas the below code actually checks if the \u0027routersList\u0027 (a member of the  optionalRouterDpnList instance) for the DPN is \u0027null\u0027 and if null returns false \n\nList\u003cRoutersList\u003e routersList \u003d optionalRouterDpnList.get().getRoutersList();\nif(routersList \u003d\u003d null){ ... }",
+      "parentUuid": "3a65312a_ff6e6cc8",
       "revId": "b638ec24f257b149d13ce43529d9f9090c44563d",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -81,6 +117,24 @@
       "writtenOn": "2016-11-07T09:51:34Z",
       "side": 1,
       "message": "Again, very long method here. ~200 lines.",
+      "revId": "b638ec24f257b149d13ce43529d9f9090c44563d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a65312a_1574e7cd",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NatTunnelInterfaceStateListener.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 365,
+      "author": {
+        "id": 6329
+      },
+      "writtenOn": "2016-11-07T15:39:11Z",
+      "side": 1,
+      "message": "Done. The long method is splitted into smaller methods now",
+      "parentUuid": "3a65312a_7f909c95",
       "revId": "b638ec24f257b149d13ce43529d9f9090c44563d",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
