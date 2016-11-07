@@ -16,12 +16,15 @@ import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import java.util.List;
 import javax.inject.Inject;
+import org.awaitility.Awaitility;
+import org.awaitility.Duration;
 import org.junit.Rule;
 
 import org.junit.Test;
 import org.junit.rules.MethodRule;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
+import org.opendaylight.genius.datastoreutils.TestableAsyncListener;
 import org.opendaylight.genius.mdsalutil.FlowEntity;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.mdsalutil.NwConstants;
@@ -81,6 +84,9 @@ public class AclServiceTest {
     @Inject DataBrokerPairsUtil dataBrokerUtil;
     @Inject TestIMdsalApiManager mdsalApiManager;
 
+    // TODO This is WIP - I'll make this more transparent with 1 method for all listeners..
+    @Inject TestableAsyncListener testableAsyncListener1;
+
     @Test
     public void newInterface() throws Exception {
         // Given
@@ -91,8 +97,9 @@ public class AclServiceTest {
         // When
         putNewStateInterface(dataBroker, "port1", PORT_MAC_1);
 
-        // TODO Later could do work for better synchronization here.
-        Thread.sleep(500);
+        // TODO This is WIP - I'll make this more transparent with 1 method for all listeners..
+        Awaitility.await("TestableAsyncListener/S").atMost(Duration.FIVE_HUNDRED_MILLISECONDS)
+                .until(() -> testableAsyncListener1.hasConsumedEvents());
 
         // Then
         assertFlows(FlowEntryObjects.expectedFlows(PORT_MAC_1));
