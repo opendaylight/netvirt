@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3a65312a_e22533ac",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 9
+      },
+      "lineNbr": 1066,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-11-07T11:31:14Z",
+      "side": 1,
+      "message": "would be great to just check for MPLSOverGRE tunnel type and based on that restrict not doing DSTMACAction..\n\nBut this change is good too !",
+      "revId": "b99404b932e0966c93cb6b76a4321bc9a767a5fc",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
