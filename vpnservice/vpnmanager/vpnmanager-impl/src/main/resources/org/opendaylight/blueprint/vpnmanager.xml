@@ -229,4 +229,10 @@
     <argument ref="dataBroker" />
     <argument ref="elanService" />
   </bean>
+
+  <bean id="vpnOpInstanceCacheManager"
+        class="org.opendaylight.netvirt.vpnmanager.cache.listeners.VpnOpInstanceCacheManager"
+        init-method="start" destroy-method="close">
+    <argument ref="dataBroker" />
+  </bean>
 </blueprint>
