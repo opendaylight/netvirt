@@ -103,6 +103,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.vpn.instance.op.data.entry.vpn.to.dpn.list.IpAddresses;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.vpn.instance.op.data.entry.vpn.to.dpn.list.VpnInterfacesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.vpn.instance.op.data.entry.vpn.to.dpn.list.VpnInterfacesKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.to.extraroute.Vpn;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.neutron.vpn.portip.port.data.VpnPortipToPort;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.netvirt.inter.vpn.link.rev160311.inter.vpn.links.InterVpnLink;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
@@ -1177,24 +1178,6 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
         }
     }
 
-    private void waitForFibToRemoveVpnPrefix(String interfaceName) {
-        // FIB didn't get a chance yet to clean up this VPNInterface
-        // Let us give it a chance here !
-        LOG.info("VPN Interface {} removal waiting for FIB to clean up ! ", interfaceName);
-        try {
-            Runnable notifyTask = new VpnNotifyTask();
-            vpnIntfMap.put(interfaceName, notifyTask);
-            synchronized (notifyTask) {
-                try {
-                    notifyTask.wait(VpnConstants.PER_INTERFACE_MAX_WAIT_TIME_IN_MILLISECONDS);
-                } catch (InterruptedException e) {
-                }
-            }
-        } finally {
-            vpnIntfMap.remove(interfaceName);
-        }
-    }
-
     private void removeAdjacenciesFromVpn(final BigInteger dpnId, final String interfaceName, final String vpnName,
                                           WriteTransaction writeConfigTxn) {
         //Read NextHops
@@ -1356,14 +1339,44 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
         @Override
         public void run() {
             List<UpdateData> processQueue = new ArrayList<>();
+            List<VpnInterface> vpnInterfaceList = new ArrayList<>();
             vpnInterfacesUpdateQueue.drainTo(processQueue);
             for (UpdateData updData : processQueue) {
                 remove(updData.getIdentifier(), updData.getOriginal());
-                //TODO: Refactor wait to be based on queue size
-                waitForFibToRemoveVpnPrefix(updData.getUpdate().getName());
                 LOG.trace("Processed Remove for update on VPNInterface {} upon VPN swap",
                         updData.getOriginal().getName());
+                vpnInterfaceList.add(updData.getOriginal());
             }
+
+            /* Decide the max-wait time based on number of VpnInterfaces.
+            *  max-wait-time is num-of-interface * 5seconds (random choice).
+            *  Every 2sec poll VpnToDpnList. If VpnInterface is removed ,
+            *  remove it from vpnInterfaceList.
+            */
+
+            int max_wait_time = vpnInterfaceList.size() * 5;
+            int wait_time = 2;
+            Iterator<VpnInterface> vpnInterfaceIterator = vpnInterfaceList.iterator();
+            VpnInterface vpnInterface;
+            while (wait_time < max_wait_time) {
+                try {
+                    Thread.sleep(2000); // sleep for 2sec
+                } catch (java.lang.InterruptedException e) {
+                }
+
+                while (vpnInterfaceIterator.hasNext()) {
+                    vpnInterface = vpnInterfaceIterator.next();
+                    if (!VpnUtil.isVpnIntfPresentInVpnToDpnList(dataBroker, vpnInterface)) {
+                        vpnInterfaceIterator.remove();
+                    }
+                }
+                if (vpnInterfaceList.size() == 0) {
+                    LOG.trace("All VpnInterfaces are successfully removed from OLD VPN after time {}", wait_time);
+                    break;
+                }
+                wait_time += wait_time;
+            }
+
             for (UpdateData updData : processQueue) {
                 final List<Adjacency> oldAdjs = updData.getOriginal().getAugmentation(Adjacencies.class).
                         getAdjacency() != null ? updData.getOriginal().getAugmentation(Adjacencies.class).getAdjacency()
@@ -1374,6 +1387,10 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                 addVpnInterface(updData.getIdentifier(), updData.getUpdate(), oldAdjs, newAdjs);
                 LOG.trace("Processed Add for update on VPNInterface {} upon VPN swap",
                         updData.getUpdate().getName());
+            }
+
+            if (vpnInterfaceList.size() > 0) {
+                LOG.warn("VpnInterfacesList {} not removed from old Vpn even after waiting {}", vpnInterfaceList, wait_time);
             }
         }
     }
