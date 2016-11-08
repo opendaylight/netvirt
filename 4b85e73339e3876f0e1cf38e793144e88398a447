@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "3a65312a_648dab7b",
+        "filename": "docs/specs/specs-template.rst",
+        "patchSetId": 3
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 3276
+      },
+      "writtenOn": "2016-11-08T12:16:37Z",
+      "side": 1,
+      "message": "I\u0027d prefer to but haven\u0027t had ANY inputs on this yet. If we haven\u0027t made a decision, would prefer to retain so that it reminds us. Will probably add a TODO.",
+      "parentUuid": "3a65312a_e4253bac",
+      "revId": "4b85e73339e3876f0e1cf38e793144e88398a447",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "3a65312a_2e6f1494",
         "filename": "docs/specs/specs-template.rst",
         "patchSetId": 3
@@ -66,6 +84,30 @@
     },
     {
       "key": {
+        "uuid": "3a65312a_c4e91f1c",
+        "filename": "docs/specs/specs-template.rst",
+        "patchSetId": 3
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 3276
+      },
+      "writtenOn": "2016-11-08T12:16:37Z",
+      "side": 1,
+      "message": "Fair enough, will do.",
+      "parentUuid": "3a65312a_443a2fce",
+      "range": {
+        "startLine": 39,
+        "startChar": 42,
+        "endLine": 40,
+        "endChar": 16
+      },
+      "revId": "4b85e73339e3876f0e1cf38e793144e88398a447",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "3a65312a_243733e5",
         "filename": "docs/specs/specs-template.rst",
         "patchSetId": 3
@@ -77,6 +119,24 @@
       "writtenOn": "2016-11-08T11:49:39Z",
       "side": 1,
       "message": "This is a nice idea but could confuse the reader - not sure how important it is to note the alternatives in the blueprint. Can keep optional I guess though I would move it to the end of the proposal (by the way is there a marking of optional/mandatory sections? or is it all mandatory?)",
+      "revId": "4b85e73339e3876f0e1cf38e793144e88398a447",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a65312a_a4eea320",
+        "filename": "docs/specs/specs-template.rst",
+        "patchSetId": 3
+      },
+      "lineNbr": 44,
+      "author": {
+        "id": 3276
+      },
+      "writtenOn": "2016-11-08T12:16:37Z",
+      "side": 1,
+      "message": "An artifact of way done in OpenStack. All sections need to be present but are optional, as in can mention N.A. or None. Which one are mandatory or not for a given review is something that can be debated as part of individual review.",
+      "parentUuid": "3a65312a_243733e5",
       "revId": "4b85e73339e3876f0e1cf38e793144e88398a447",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -117,6 +177,24 @@
     },
     {
       "key": {
+        "uuid": "3a65312a_44dd0f70",
+        "filename": "docs/specs/specs-template.rst",
+        "patchSetId": 3
+      },
+      "lineNbr": 65,
+      "author": {
+        "id": 3276
+      },
+      "writtenOn": "2016-11-08T12:16:37Z",
+      "side": 1,
+      "message": "I did have it as Clustering considerations as I too felt Clustering is crucial enough part. Will add Clustering and an Other Infra considerations, left empty for most.",
+      "parentUuid": "3a65312a_04583731",
+      "revId": "4b85e73339e3876f0e1cf38e793144e88398a447",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "3a65312a_c49bdfc7",
         "filename": "docs/specs/specs-template.rst",
         "patchSetId": 3
@@ -134,6 +212,24 @@
     },
     {
       "key": {
+        "uuid": "3a65312a_84e72740",
+        "filename": "docs/specs/specs-template.rst",
+        "patchSetId": 3
+      },
+      "lineNbr": 90,
+      "author": {
+        "id": 3276
+      },
+      "writtenOn": "2016-11-08T12:16:37Z",
+      "side": 1,
+      "message": "We could have some new features come in. Those may not necessarily be user features. eg. Lets say I add odl-netvirt-cli and add it to odl-netvirt-openstack. For end user there is no change, but should still document it all here.",
+      "parentUuid": "3a65312a_c49bdfc7",
+      "revId": "4b85e73339e3876f0e1cf38e793144e88398a447",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "3a65312a_246573e1",
         "filename": "docs/specs/specs-template.rst",
         "patchSetId": 3
@@ -145,6 +241,24 @@
       "writtenOn": "2016-11-08T11:49:39Z",
       "side": 1,
       "message": "Since this should use some northbound, ideally just restconf - maybe we should suggest some format, maybe from restconf api explorer?",
+      "revId": "4b85e73339e3876f0e1cf38e793144e88398a447",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a65312a_c4d0ff55",
+        "filename": "docs/specs/specs-template.rst",
+        "patchSetId": 3
+      },
+      "lineNbr": 94,
+      "author": {
+        "id": 3276
+      },
+      "writtenOn": "2016-11-08T12:16:37Z",
+      "side": 1,
+      "message": "Yes, this would include actal URI and JSONs from restconf API explorer. As mentioned, this section will give inputs for User Guide, CSIT etc.",
+      "parentUuid": "3a65312a_246573e1",
       "revId": "4b85e73339e3876f0e1cf38e793144e88398a447",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -197,6 +311,24 @@
       "side": 1,
       "message": "Actually sfc is actually dependent on neutron.. and neutron isn\u0027t really dependant on netvirt but probably should be (we are actually dependant on neutron-nb today).\n\nDo you mean what projects directly use the netvirt yang models? This raises another question by the way - are the netvirt (and genius for that matter) yang models expected to be modified directly by other projects, and deal with various orders of insertion etc. ?",
       "parentUuid": "3a65312a_44afcfe3",
+      "revId": "4b85e73339e3876f0e1cf38e793144e88398a447",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a65312a_04cb17a6",
+        "filename": "docs/specs/specs-template.rst",
+        "patchSetId": 3
+      },
+      "lineNbr": 133,
+      "author": {
+        "id": 3276
+      },
+      "writtenOn": "2016-11-08T12:16:37Z",
+      "side": 1,
+      "message": "In ODL each project declares its dependencies around NM2/M3 timeframe. This will capture projects who have announced that they depend on netvirt. I forsee scenarios where we will add PTLs of these projects to spec reviews, the ones with yang changes, as an FYI. Also, I intend to use same template for Genius too :)",
+      "parentUuid": "3a65312a_047dd76e",
       "revId": "4b85e73339e3876f0e1cf38e793144e88398a447",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
