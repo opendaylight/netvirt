@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "3a65312a_e417fb4f",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/FloatingIPListener.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 572,
+      "author": {
+        "id": 6329
+      },
+      "writtenOn": "2016-11-08T14:21:26Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "3a65312a_1fc1a880",
+      "revId": "b638ec24f257b149d13ce43529d9f9090c44563d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "3a65312a_1fac08ed",
         "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NatTunnelInterfaceStateListener.java",
         "patchSetId": 6
@@ -100,6 +118,24 @@
       "writtenOn": "2016-11-07T09:51:34Z",
       "side": 1,
       "message": "I think this log line is superfluous. It will by necessity followed by the next log line a few lines below this which contains a much clearer explanation of what happened. Maybe just change the second one to debug or something?? There\u0027s some of this below as well where you handle the delete.",
+      "revId": "b638ec24f257b149d13ce43529d9f9090c44563d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a65312a_8406071f",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NatTunnelInterfaceStateListener.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 315,
+      "author": {
+        "id": 6329
+      },
+      "writtenOn": "2016-11-08T14:21:26Z",
+      "side": 1,
+      "message": "The logs here are intended for reporting the TEP operations w.r.t the DC GW and not for the tunnel between the switches",
+      "parentUuid": "3a65312a_5f5fa00e",
       "revId": "b638ec24f257b149d13ce43529d9f9090c44563d",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
