@@ -2,6 +2,23 @@
   "comments": [
     {
       "key": {
+        "uuid": "3a65312a_e4253bac",
+        "filename": "docs/specs/specs-template.rst",
+        "patchSetId": 3
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 670
+      },
+      "writtenOn": "2016-11-08T11:49:39Z",
+      "side": 1,
+      "message": "This should probably be replaced before commit?",
+      "revId": "4b85e73339e3876f0e1cf38e793144e88398a447",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "3a65312a_2e6f1494",
         "filename": "docs/specs/specs-template.rst",
         "patchSetId": 3
@@ -19,6 +36,149 @@
         "endLine": 40,
         "endChar": 16
       },
+      "revId": "4b85e73339e3876f0e1cf38e793144e88398a447",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a65312a_443a2fce",
+        "filename": "docs/specs/specs-template.rst",
+        "patchSetId": 3
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 670
+      },
+      "writtenOn": "2016-11-08T11:49:39Z",
+      "side": 1,
+      "message": "I agree with Livnat, I think it is better to leave this line out. \nOur backport approval process can stay the same for now if deemed necessary, but no reason to encourage the idea in the template. Generally target the next master release for new features.",
+      "parentUuid": "3a65312a_2e6f1494",
+      "range": {
+        "startLine": 39,
+        "startChar": 42,
+        "endLine": 40,
+        "endChar": 16
+      },
+      "revId": "4b85e73339e3876f0e1cf38e793144e88398a447",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a65312a_243733e5",
+        "filename": "docs/specs/specs-template.rst",
+        "patchSetId": 3
+      },
+      "lineNbr": 44,
+      "author": {
+        "id": 670
+      },
+      "writtenOn": "2016-11-08T11:49:39Z",
+      "side": 1,
+      "message": "This is a nice idea but could confuse the reader - not sure how important it is to note the alternatives in the blueprint. Can keep optional I guess though I would move it to the end of the proposal (by the way is there a marking of optional/mandatory sections? or is it all mandatory?)",
+      "revId": "4b85e73339e3876f0e1cf38e793144e88398a447",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a65312a_843447df",
+        "filename": "docs/specs/specs-template.rst",
+        "patchSetId": 3
+      },
+      "lineNbr": 61,
+      "author": {
+        "id": 670
+      },
+      "writtenOn": "2016-11-08T11:49:39Z",
+      "side": 1,
+      "message": "cosmetics: remove extra line after header",
+      "revId": "4b85e73339e3876f0e1cf38e793144e88398a447",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a65312a_04583731",
+        "filename": "docs/specs/specs-template.rst",
+        "patchSetId": 3
+      },
+      "lineNbr": 65,
+      "author": {
+        "id": 670
+      },
+      "writtenOn": "2016-11-08T11:49:39Z",
+      "side": 1,
+      "message": "I think clustering support should have its own section, it\u0027s important enough to mandate the dev to mention it is planned to be supported (and how if it is not straightforward).\n\nThen the Infrastructure Considerations section will probably be left empty for most proposals (again, move to end?)",
+      "revId": "4b85e73339e3876f0e1cf38e793144e88398a447",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a65312a_c49bdfc7",
+        "filename": "docs/specs/specs-template.rst",
+        "patchSetId": 3
+      },
+      "lineNbr": 90,
+      "author": {
+        "id": 670
+      },
+      "writtenOn": "2016-11-08T11:49:39Z",
+      "side": 1,
+      "message": "Do we expect any spec to require a new feature? Or is this meant as a way to determine legacy vs current netvirt?",
+      "revId": "4b85e73339e3876f0e1cf38e793144e88398a447",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a65312a_246573e1",
+        "filename": "docs/specs/specs-template.rst",
+        "patchSetId": 3
+      },
+      "lineNbr": 94,
+      "author": {
+        "id": 670
+      },
+      "writtenOn": "2016-11-08T11:49:39Z",
+      "side": 1,
+      "message": "Since this should use some northbound, ideally just restconf - maybe we should suggest some format, maybe from restconf api explorer?",
+      "revId": "4b85e73339e3876f0e1cf38e793144e88398a447",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a65312a_e4aa5bd3",
+        "filename": "docs/specs/specs-template.rst",
+        "patchSetId": 3
+      },
+      "lineNbr": 120,
+      "author": {
+        "id": 670
+      },
+      "writtenOn": "2016-11-08T11:49:39Z",
+      "side": 1,
+      "message": "cosmetic: \"This would be like checklist on a ...\" --\u003e \"This should be a checklist on a ...\"",
+      "revId": "4b85e73339e3876f0e1cf38e793144e88398a447",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a65312a_44afcfe3",
+        "filename": "docs/specs/specs-template.rst",
+        "patchSetId": 3
+      },
+      "lineNbr": 133,
+      "author": {
+        "id": 670
+      },
+      "writtenOn": "2016-11-08T11:49:39Z",
+      "side": 1,
+      "message": "Not sure if I understand this section. Does this mean to present the dev with the current projects using netvirt? I would add sfc here too. How is the dev supposed to know which yangs are used though? I think any change in yang models should probably notify the projects that depend on it, how do offset 0/1 projects operate in this regard?",
       "revId": "4b85e73339e3876f0e1cf38e793144e88398a447",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
