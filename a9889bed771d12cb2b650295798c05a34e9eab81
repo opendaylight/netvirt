@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3a65312a_c4311f0d",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 1198,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-11-08T14:15:39Z",
+      "side": 1,
+      "message": "Instead of sleeping with a guarantee of 2sec, you could have generated a notification from the CacheUpdater thread for every update, so that the existing code on the left side could have remained intact..\n\nWould you want to try thaT?",
+      "revId": "a9889bed771d12cb2b650295798c05a34e9eab81",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a65312a_a46863f6",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 1208,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-11-08T14:15:39Z",
+      "side": 1,
+      "message": "this should be LOG.error.",
+      "revId": "a9889bed771d12cb2b650295798c05a34e9eab81",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a65312a_a44fc391",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/cache/listeners/VpnOpInstanceCacheManager.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 59,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-11-08T14:15:39Z",
+      "side": 1,
+      "message": "can be logger.trace",
+      "revId": "a9889bed771d12cb2b650295798c05a34e9eab81",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
