@@ -248,6 +248,24 @@
     },
     {
       "key": {
+        "uuid": "3a65312a_241d7310",
+        "filename": "docs/specs/specs-template.rst",
+        "patchSetId": 3
+      },
+      "lineNbr": 90,
+      "author": {
+        "id": 3276
+      },
+      "writtenOn": "2016-11-08T12:40:46Z",
+      "side": 1,
+      "message": "Well worded, done.",
+      "parentUuid": "3a65312a_04f4b7f0",
+      "revId": "4b85e73339e3876f0e1cf38e793144e88398a447",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "3a65312a_246573e1",
         "filename": "docs/specs/specs-template.rst",
         "patchSetId": 3
