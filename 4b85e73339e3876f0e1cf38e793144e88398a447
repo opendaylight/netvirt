@@ -230,6 +230,24 @@
     },
     {
       "key": {
+        "uuid": "3a65312a_04f4b7f0",
+        "filename": "docs/specs/specs-template.rst",
+        "patchSetId": 3
+      },
+      "lineNbr": 90,
+      "author": {
+        "id": 3972
+      },
+      "writtenOn": "2016-11-08T12:22:26Z",
+      "side": 1,
+      "message": "I had assumed this was all for current netvirt.\n\nA blueprint \"feature\" may introduce a new karaf feature.  It may also be implemented as part of an existing karaf feature.  \n\nPerhaps this should say:\n\n\"Identify existing karaf feature to which this change applies and/or new karaf features being introduced.\"\n\nIt may also introduce new external dependencies, which are captured below.",
+      "parentUuid": "3a65312a_c49bdfc7",
+      "revId": "4b85e73339e3876f0e1cf38e793144e88398a447",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "3a65312a_246573e1",
         "filename": "docs/specs/specs-template.rst",
         "patchSetId": 3
@@ -328,6 +346,24 @@
       "writtenOn": "2016-11-08T12:16:37Z",
       "side": 1,
       "message": "In ODL each project declares its dependencies around NM2/M3 timeframe. This will capture projects who have announced that they depend on netvirt. I forsee scenarios where we will add PTLs of these projects to spec reviews, the ones with yang changes, as an FYI. Also, I intend to use same template for Genius too :)",
+      "parentUuid": "3a65312a_047dd76e",
+      "revId": "4b85e73339e3876f0e1cf38e793144e88398a447",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a65312a_0442f70f",
+        "filename": "docs/specs/specs-template.rst",
+        "patchSetId": 3
+      },
+      "lineNbr": 133,
+      "author": {
+        "id": 3972
+      },
+      "writtenOn": "2016-11-08T12:22:26Z",
+      "side": 1,
+      "message": "I think this section has two components:\n\n1. Changes to existing NetVirt dependencies (addition or removal).\n2. Impacts to existing projects that depend on NetVirt.",
       "parentUuid": "3a65312a_047dd76e",
       "revId": "4b85e73339e3876f0e1cf38e793144e88398a447",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
