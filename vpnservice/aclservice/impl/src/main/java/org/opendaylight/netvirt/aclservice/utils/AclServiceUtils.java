@@ -11,6 +11,7 @@ package org.opendaylight.netvirt.aclservice.utils;
 import com.google.common.base.Optional;
 import com.googlecode.ipv6.IPv6Address;
 import com.googlecode.ipv6.IPv6NetworkMask;
+
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -19,8 +20,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
+
 import javax.inject.Inject;
 import javax.inject.Singleton;
+
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
@@ -681,11 +684,11 @@ public final class AclServiceUtils {
         return mib;
     }
 
-    public static MatchInfoBase getMatchInfoByType(List<MatchInfoBase> flows, MatchFieldType type) {
+    public static MatchInfo getMatchInfoByType(List<MatchInfoBase> flows, MatchFieldType type) {
         for (MatchInfoBase mib : flows) {
             if (mib instanceof MatchInfo) {
                 if (((MatchInfo)mib).getMatchField() == type) {
-                    return mib;
+                    return (MatchInfo) mib;
                 }
             }
         }
@@ -717,6 +720,24 @@ public final class AclServiceUtils {
             return true;
         }
         return false;
+    }
+
+    public static boolean containsMatchFieldTypeAndValue(List<MatchInfoBase> flows, MatchFieldType type,
+            long[] values) {
+        MatchInfo mib = getMatchInfoByType(flows, type);
+        if (mib != null && mib.getMatchValues().equals(values)) {
+            return true;
+        }
+
+        return false;
+    }
+
+    public static boolean containsTcpMatchField(List<MatchInfoBase> flows) {
+        return containsMatchFieldTypeAndValue(flows, MatchFieldType.ip_proto, new long[] {IPProtocols.TCP.intValue()});
+    }
+
+    public static boolean containsUdpMatchField(List<MatchInfoBase> flows) {
+        return containsMatchFieldTypeAndValue(flows, MatchFieldType.ip_proto, new long[] {IPProtocols.TCP.intValue()});
     }
 
     public static Integer allocateId(IdManagerService idManager, String poolName, String idKey) {
