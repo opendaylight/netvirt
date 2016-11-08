@@ -26,6 +26,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 import org.apache.commons.lang3.tuple.Pair;
 import org.junit.Before;
@@ -131,9 +133,10 @@ public class NeutronL3AdapterTest {
 
     @Test
     public void testhandleNeutronSubnetEvent() throws Exception {
-        Map<String,NeutronNetwork> networkCleanupCache = new HashMap<>();
+        ConcurrentMap<String,NeutronNetwork> networkCleanupCache = new ConcurrentHashMap<>();
         INeutronNetworkCRUD neutronNetworkCache = mock(INeutronNetworkCRUD.class);
         NeutronNetwork neutronNetwork = mock(NeutronNetwork.class);
+        when(neutronNetwork.getNetworkUUID()).thenReturn("00000000-0000-0000-0000-000000000000");
         when(neutronNetworkCache.getNetwork(anyString())).thenReturn(neutronNetwork);
         // Mock variables
         MemberModifier.field(NeutronL3Adapter.class, "networkCleanupCache").set(neutronL3Adapter , networkCleanupCache);
@@ -144,7 +147,7 @@ public class NeutronL3AdapterTest {
     @Test
     public void testHandleNeutronPortEvent() throws Exception {
         Map<String, NeutronRouter_Interface> subnetIdToRouterInterfaceCache = new HashMap<>();
-        Map<String,NeutronPort> portCleanupCache = new HashMap<>();
+        ConcurrentMap<String,NeutronPort> portCleanupCache = new ConcurrentHashMap<>();
         // Mock variables
         Neutron_IPs neutronIP = mock(Neutron_IPs.class);
         when(neutronIP.getSubnetUUID()).thenReturn(UUID);
@@ -406,7 +409,7 @@ public class NeutronL3AdapterTest {
     @Test
     public void testHandleNeutronNetworkEvent() throws Exception {
         // Nothing to be done here
-        Map<String,NeutronNetwork> networkCleanupCache = new HashMap<>();
+        ConcurrentMap<String,NeutronNetwork> networkCleanupCache = new ConcurrentHashMap<>();
         // Mock variables
         MemberModifier.field(NeutronL3Adapter.class, "networkCleanupCache").set(neutronL3Adapter , networkCleanupCache);
         Whitebox.invokeMethod(neutronL3Adapter, "handleNeutronNetworkEvent", mock(NeutronNetwork.class), Action.ADD);
@@ -875,14 +878,14 @@ public class NeutronL3AdapterTest {
 
     @Test
     public void testSetDependencies() throws Exception {
-        Map<String,NeutronNetwork> networkCleanupCache = new HashMap<>();
+        ConcurrentMap<String,NeutronNetwork> networkCleanupCache = new ConcurrentHashMap<>();
         INeutronNetworkCRUD neutronNetworkCache = mock(INeutronNetworkCRUD.class);
         NeutronNetwork neutronNetwork = mock(NeutronNetwork.class);
         List <NeutronNetwork> neutronNetworkList = new ArrayList<>();
         neutronNetworkList.add(neutronNetwork);
         when(neutronNetworkCache.getAllNetworks()).thenReturn(neutronNetworkList);
 
-        Map<String,NeutronPort> portCleanupCache = new HashMap<>();
+        ConcurrentMap<String,NeutronPort> portCleanupCache = new ConcurrentHashMap<>();
         INeutronPortCRUD neutronPortCache = mock(INeutronPortCRUD.class);
         NeutronPort neutronPort = mock(NeutronPort.class);
         List <NeutronPort> neutronPortList = new ArrayList<>();

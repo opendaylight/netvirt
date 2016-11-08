@@ -76,6 +76,8 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 /**
  * Neutron L3 Adapter implements a hub-like adapter for the various Neutron events. Based on
@@ -138,8 +140,8 @@ public class NeutronL3Adapter extends AbstractHandler implements GatewayMacResol
     private String externalRouterMac;
     private Boolean enabled = false;
     private Boolean isCachePopulationDone = false;
-    private Map<String, NeutronPort> portCleanupCache;
-    private Map<String, NeutronNetwork> networkCleanupCache;
+    private ConcurrentMap<String, NeutronPort> portCleanupCache;
+    private ConcurrentMap<String, NeutronNetwork> networkCleanupCache;
 
     private Southbound southbound;
     private DistributedArpService distributedArpService;
@@ -175,8 +177,8 @@ public class NeutronL3Adapter extends AbstractHandler implements GatewayMacResol
         } else {
             LOG.debug("OVSDB L3 forwarding is disabled");
         }
-        this.portCleanupCache = new HashMap<>();
-        this.networkCleanupCache = new HashMap<>();
+        this.portCleanupCache = new ConcurrentHashMap<>();
+        this.networkCleanupCache = new ConcurrentHashMap<>();
     }
 
     //
@@ -1595,13 +1597,11 @@ public class NeutronL3Adapter extends AbstractHandler implements GatewayMacResol
     }
 
     public NeutronPort getPortFromCleanupCache(String portid) {
-        for (String neutronPortUuid : this.portCleanupCache.keySet()) {
-            if (neutronPortUuid.equals(portid)) {
-                LOG.info("getPortFromCleanupCache: Matching NeutronPort found {}", portid);
-                return this.portCleanupCache.get(neutronPortUuid);
-            }
+        NeutronPort ret = this.portCleanupCache.get(portid);
+        if (ret != null) {
+            LOG.info("getPortFromCleanupCache: Matching NeutronPort found {}", portid);
         }
-        return null;
+        return ret;
     }
 
     private void storeNetworkInCleanupCache(NeutronNetwork network) {
@@ -1612,25 +1612,14 @@ public class NeutronL3Adapter extends AbstractHandler implements GatewayMacResol
 
 
     private void updateNetworkInCleanupCache(NeutronNetwork network) {
-        for (String neutronNetworkUuid:this.networkCleanupCache.keySet()) {
-            if (neutronNetworkUuid.equals(network.getNetworkUUID())) {
-                this.networkCleanupCache.remove(neutronNetworkUuid);
-            }
-        }
         this.networkCleanupCache.put(network.getNetworkUUID(), network);
     }
 
     public void removeNetworkFromCleanupCache(String networkid) {
-        NeutronNetwork network = null;
-        for (String neutronNetworkUuid:this.networkCleanupCache.keySet()) {
-            if (neutronNetworkUuid.equals(networkid)) {
-                network = networkCleanupCache.get(neutronNetworkUuid);
-                break;
-            }
-        }
+        NeutronNetwork network = networkCleanupCache.get(networkid);
         if (network != null) {
-            for (String neutronPortUuid:this.portCleanupCache.keySet()) {
-                if (this.portCleanupCache.get(neutronPortUuid).getNetworkUUID().equals(network.getNetworkUUID())) {
+            for (NeutronPort port : this.portCleanupCache.values()) {
+                if (port.getNetworkUUID().equals(networkid)) {
                     LOG.info("This network is used by another port", network);
                     return;
                 }
@@ -1644,13 +1633,11 @@ public class NeutronL3Adapter extends AbstractHandler implements GatewayMacResol
     }
 
     public NeutronNetwork getNetworkFromCleanupCache(String networkid) {
-        for (String neutronNetworkUuid:this.networkCleanupCache.keySet()) {
-            if (neutronNetworkUuid.equals(networkid)) {
-                LOG.info("getPortFromCleanupCache: Matching NeutronPort found {}", networkid);
-                return networkCleanupCache.get(neutronNetworkUuid);
-            }
+        NeutronNetwork ret = networkCleanupCache.get(networkid);
+        if (ret != null) {
+            LOG.info("getPortFromCleanupCache: Matching NeutronPort found {}", networkid);
         }
-        return null;
+        return ret;
     }
     /**
      * Return String that represents OF port with marker explicitly provided (reverse of MatchUtils:parseExplicitOFPort)
