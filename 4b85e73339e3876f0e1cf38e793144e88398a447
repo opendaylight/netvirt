@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3a65312a_2e6f1494",
+        "filename": "docs/specs/specs-template.rst",
+        "patchSetId": 3
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 6804
+      },
+      "writtenOn": "2016-11-08T06:17:49Z",
+      "side": 1,
+      "message": "I think we are at the point were we want to stabilize our release and be more strict about the way things are done.\nSince we are time based release, features which do not make the deadline are simply pushed to the next version.\nGenerally features backport should not be acceptable IMO.",
+      "range": {
+        "startLine": 39,
+        "startChar": 42,
+        "endLine": 40,
+        "endChar": 16
+      },
+      "revId": "4b85e73339e3876f0e1cf38e793144e88398a447",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
