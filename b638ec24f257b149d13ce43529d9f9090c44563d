@@ -158,6 +158,24 @@
     },
     {
       "key": {
+        "uuid": "3a65312a_49dd2a70",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NatUtil.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 1128,
+      "author": {
+        "id": 6329
+      },
+      "writtenOn": "2016-11-08T09:39:05Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "3a65312a_ad77b101",
+      "revId": "b638ec24f257b149d13ce43529d9f9090c44563d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "3a65312a_0d606531",
         "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NatUtil.java",
         "patchSetId": 6
@@ -169,6 +187,24 @@
       "writtenOn": "2016-11-07T09:51:34Z",
       "side": 1,
       "message": "This function contains six layers of nesting which makes it rather confusing to read. Many of the ifs are simple tests that can be treated as validations and written as such:\nif (...) {\n  LOG....\n  return \n}\nthereby greatly reducing the nesting. This would have the added advantage of putting the LOG statements close enough to the code that checks for their condition. Currently, they do not even fit on the same screen in the code review. \n\nI completely realize that this is a stylistic comment but it\u0027s a pretty well discussed concept. See here, for example: http://wiki.c2.com/?ArrowAntiPattern \n\nTo quote:\n\"In CodeComplete, SteveMcConnell notes that comprehension decreases beyond three levels of nested \u0027if\u0027 blocks, according to 1986 study by NoamChomsky and GeraldWeinberg. McConnell refers to the AntiPattern as \"Dangerously Deep Nesting\".\"",
+      "revId": "b638ec24f257b149d13ce43529d9f9090c44563d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a65312a_69e4663b",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NatUtil.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 1236,
+      "author": {
+        "id": 6329
+      },
+      "writtenOn": "2016-11-08T09:39:05Z",
+      "side": 1,
+      "message": "Good review comment. Done",
+      "parentUuid": "3a65312a_0d606531",
       "revId": "b638ec24f257b149d13ce43529d9f9090c44563d",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -192,6 +228,24 @@
     },
     {
       "key": {
+        "uuid": "3a65312a_69bbc60e",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NatUtil.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 1267,
+      "author": {
+        "id": 6329
+      },
+      "writtenOn": "2016-11-08T09:39:05Z",
+      "side": 1,
+      "message": "Not using Sets now. Just through iteration the objective is met",
+      "parentUuid": "3a65312a_ed188986",
+      "revId": "b638ec24f257b149d13ce43529d9f9090c44563d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "3a65312a_6d0c7943",
         "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NatUtil.java",
         "patchSetId": 6
@@ -203,6 +257,24 @@
       "writtenOn": "2016-11-07T09:51:34Z",
       "side": 1,
       "message": "NullPointerException should really only be caught as a last resort. Instead, the null condition should be checked. I think at the very least there should be comment here explaining why it is appropriate to catch the NPE in this case and where it comes from.",
+      "revId": "b638ec24f257b149d13ce43529d9f9090c44563d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a65312a_095972fe",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NatUtil.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 1328,
+      "author": {
+        "id": 6329
+      },
+      "writtenOn": "2016-11-08T09:39:05Z",
+      "side": 1,
+      "message": "getDpidFromInterface RPC used can return the NPE. It means that the DPN is not properly retrieved through the RPC . So in this case the DPN ID is set as the INVALID_ID value (-1) and the caller of the method should interpret and proceed accordingly. If NPE is not handled, the thread itself will be crashed.",
+      "parentUuid": "3a65312a_6d0c7943",
       "revId": "b638ec24f257b149d13ce43529d9f9090c44563d",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
