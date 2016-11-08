@@ -19,13 +19,13 @@ module inter-vpn-link {
 
   grouping vpn-endpoint-attribs {
       leaf vpn-uuid {
-          mandatory "true";
+          mandatory true;
           type yang:uuid;
           description "UUID of the VPN to which this endpoint belongs to";
       }
 
       leaf ip-address {
-          mandatory "true";
+          mandatory true;
           type inet:ipv4-address;
           description "IP address of the endpoint";
        }
@@ -57,7 +57,7 @@ module inter-vpn-link {
           min-elements "0";
 
           leaf name {
-              mandatory "true";
+              mandatory true;
               type string;
               description "Inter VPN link name";
           }
@@ -69,12 +69,27 @@ module inter-vpn-link {
 
          container second-endpoint {
               uses vpn-endpoint-attribs;
-          }
+         }
 
           leaf bgp-routes-leaking {
-              mandatory "true";
+              mandatory false;
               type boolean;
+              default false;
               description "Flag to enable the leaking of BGP routes learnt from one VPN to another VPN";
+          }
+
+          leaf connected-routes-leaking {
+              mandatory false;
+              type boolean;
+              default false;
+              description "Flag to enable the leaking of directly connected routes learnt from one VPN to another VPN";
+          }
+
+          leaf static-routes-leaking {
+              mandatory false;
+              type boolean;
+              default false;
+              description "Flag to enable the leaking of static routes learnt from one VPN to another VPN";
           }
 
           must "first-endpoint and second-endpoint";  // To ensure both endpoints are present
