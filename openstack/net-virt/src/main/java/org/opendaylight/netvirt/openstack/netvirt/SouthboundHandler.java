@@ -181,7 +181,7 @@ public class SouthboundHandler extends AbstractHandler
                                 String networkSegId = network.getProviderSegmentationID();
                                 // vxlan ports should not be removed in table 110 flow entry
                                 // unless last VM instance removed from the openstack node(Bug# 5813)
-                                if (neutronNetworkSegId.equals(networkSegId)) {
+                                if (neutronNetworkSegId != null && neutronNetworkSegId.equals(networkSegId)) {
                                     isLastInstanceOnNode = false;
                                     break;
                                 }
