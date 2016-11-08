@@ -861,7 +861,7 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
     private DpnInterfaces getDpnInterfaces(ElanDpnInterfacesList elanDpns, BigInteger dpnId) {
         if (elanDpns != null) {
             for (DpnInterfaces dpnInterface : elanDpns.getDpnInterfaces()) {
-                if (dpnInterface.getDpId() == dpnId) {
+                if (dpnInterface.getDpId().equals(dpnId)) {
                     return dpnInterface;
                 }
             }
