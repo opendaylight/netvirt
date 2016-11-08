@@ -182,6 +182,24 @@
       "revId": "4b85e73339e3876f0e1cf38e793144e88398a447",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a65312a_047dd76e",
+        "filename": "docs/specs/specs-template.rst",
+        "patchSetId": 3
+      },
+      "lineNbr": 133,
+      "author": {
+        "id": 670
+      },
+      "writtenOn": "2016-11-08T11:53:00Z",
+      "side": 1,
+      "message": "Actually sfc is actually dependent on neutron.. and neutron isn\u0027t really dependant on netvirt but probably should be (we are actually dependant on neutron-nb today).\n\nDo you mean what projects directly use the netvirt yang models? This raises another question by the way - are the netvirt (and genius for that matter) yang models expected to be modified directly by other projects, and deal with various orders of insertion etc. ?",
+      "parentUuid": "3a65312a_44afcfe3",
+      "revId": "4b85e73339e3876f0e1cf38e793144e88398a447",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
