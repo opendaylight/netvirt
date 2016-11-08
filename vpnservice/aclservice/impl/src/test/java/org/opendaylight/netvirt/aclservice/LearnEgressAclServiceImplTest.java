@@ -15,8 +15,10 @@ import static org.mockito.Mockito.when;
 
 import com.google.common.base.Optional;
 import com.google.common.util.concurrent.Futures;
+
 import java.math.BigInteger;
 import java.util.Arrays;
+
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -34,6 +36,7 @@ import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.genius.mdsalutil.NxMatchFieldType;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.netvirt.aclservice.api.utils.AclInterface;
+import org.opendaylight.netvirt.aclservice.utils.AclConstants;
 import org.opendaylight.netvirt.aclservice.utils.AclDataUtil;
 import org.opendaylight.netvirt.aclservice.utils.AclServiceTestUtils;
 import org.opendaylight.netvirt.aclservice.utils.AclServiceUtils;
@@ -74,6 +77,8 @@ public class LearnEgressAclServiceImplTest {
     MethodInvocationParamSaver<Void> installFlowValueSaver = null;
     MethodInvocationParamSaver<Void> removeFlowValueSaver = null;
 
+    final Integer tcpFinIdleTimeoutValue = 60;
+
     @Before
     public void setUp() {
         AclDataUtil aclDataUtil = new AclDataUtil();
@@ -86,7 +91,7 @@ public class LearnEgressAclServiceImplTest {
         doAnswer(installFlowValueSaver).when(mdsalManager).installFlow(any(FlowEntity.class));
         removeFlowValueSaver = new MethodInvocationParamSaver<>(null);
         doAnswer(installFlowValueSaver).when(mdsalManager).removeFlow(any(FlowEntity.class));
-
+        doReturn(tcpFinIdleTimeoutValue).when(config).getSecurityGroupTcpFinIdleTimeout();
     }
 
     @Test
@@ -115,6 +120,19 @@ public class LearnEgressAclServiceImplTest {
         AclServiceTestUtils.verifyActionTypeExist(flow.getInstructionInfoList().get(0).getActionInfos(),
                 ActionType.learn);
 
+        // verify that tcpFinIdleTimeout is used for TCP
+        AclServiceTestUtils.verifyActionInfo(flow.getInstructionInfoList().get(0).getActionInfos(),
+                ActionType.learn,
+                new String[] {
+                    String.valueOf(0),
+                    String.valueOf(0),
+                    AclConstants.PROTO_MATCH_PRIORITY.toString(),
+                    AclConstants.COOKIE_ACL_BASE.toString(),
+                    "0",
+                    Short.toString(NwConstants.EGRESS_LEARN_TABLE),
+                    String.valueOf(tcpFinIdleTimeoutValue),
+                    "0"
+                });
     }
 
     @Test
@@ -155,6 +173,20 @@ public class LearnEgressAclServiceImplTest {
                 NxMatchFieldType.nx_udp_dst_with_mask, "80", "65535");
         AclServiceTestUtils.verifyActionTypeExist(flow.getInstructionInfoList().get(0).getActionInfos(),
                 ActionType.learn);
+
+        // verify that even though tcpFinIdleTimeout is set to non-zero, it is not used for UDP
+        AclServiceTestUtils.verifyActionInfo(flow.getInstructionInfoList().get(0).getActionInfos(),
+                ActionType.learn,
+                new String[] {
+                    String.valueOf(0),
+                    String.valueOf(0),
+                    AclConstants.PROTO_MATCH_PRIORITY.toString(),
+                    AclConstants.COOKIE_ACL_BASE.toString(),
+                    "0",
+                    Short.toString(NwConstants.EGRESS_LEARN_TABLE),
+                    "0",
+                    "0"
+                });
     }
 
     @Test
