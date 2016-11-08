@@ -17,10 +17,11 @@ import org.opendaylight.genius.mdsalutil.ActionInfo;
 import org.opendaylight.genius.mdsalutil.ActionType;
 import org.opendaylight.genius.mdsalutil.InstructionInfo;
 import org.opendaylight.genius.mdsalutil.InstructionType;
+import org.opendaylight.genius.mdsalutil.MatchFieldType;
 import org.opendaylight.genius.mdsalutil.MatchInfoBase;
 import org.opendaylight.genius.mdsalutil.NwConstants;
-import org.opendaylight.genius.mdsalutil.NxMatchFieldType;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
+import org.opendaylight.genius.mdsalutil.packet.IPProtocols;
 import org.opendaylight.netvirt.aclservice.api.AclServiceManager.Action;
 import org.opendaylight.netvirt.aclservice.utils.AclConstants;
 import org.opendaylight.netvirt.aclservice.utils.AclDataUtil;
@@ -73,13 +74,9 @@ public class LearnIngressAclServiceImpl extends AbstractIngressAclServiceImpl {
      * learn flowmod learnFlowModType srcField dstField FlowModNumBits 0 1 2 3
      */
     private void addLearnActions(List<MatchInfoBase> flows, List<ActionInfo> actionsInfos) {
-        boolean isTcp = AclServiceUtils.containsMatchFieldType(flows, NxMatchFieldType.nx_tcp_src_with_mask)
-                || AclServiceUtils.containsMatchFieldType(flows, NxMatchFieldType.nx_tcp_dst_with_mask);
-        boolean isUdp = AclServiceUtils.containsMatchFieldType(flows, NxMatchFieldType.nx_udp_src_with_mask)
-                || AclServiceUtils.containsMatchFieldType(flows, NxMatchFieldType.nx_udp_dst_with_mask);
-        if (isTcp) {
+        if (AclServiceUtils.containsTcpMatchField(flows)) {
             addTcpLearnActions(actionsInfos);
-        } else if (isUdp) {
+        } else if (AclServiceUtils.containsUdpMatchField(flows)) {
             addUdpLearnActions(actionsInfos);
         } else {
             addOtherProtocolsLearnActions(actionsInfos);
@@ -87,27 +84,7 @@ public class LearnIngressAclServiceImpl extends AbstractIngressAclServiceImpl {
     }
 
     private void addOtherProtocolsLearnActions(List<ActionInfo> actionsInfos) {
-        String[][] flowMod = new String[5][];
-
-        flowMod[0] = new String[] { NwConstants.LearnFlowModsType.MATCH_FROM_VALUE.name(),
-                Integer.toString(NwConstants.ETHTYPE_IPV4),
-                NwConstants.NxmOfFieldType.NXM_OF_ETH_TYPE.getHexType(),
-                NwConstants.NxmOfFieldType.NXM_OF_ETH_TYPE.getFlowModHeaderLen() };
-        flowMod[1] = new String[] { NwConstants.LearnFlowModsType.MATCH_FROM_FIELD.name(),
-                NwConstants.NxmOfFieldType.NXM_OF_IP_SRC.getHexType(),
-                NwConstants.NxmOfFieldType.NXM_OF_IP_DST.getHexType(),
-                NwConstants.NxmOfFieldType.NXM_OF_IP_DST.getFlowModHeaderLen() };
-        flowMod[2] = new String[] { NwConstants.LearnFlowModsType.MATCH_FROM_FIELD.name(),
-                NwConstants.NxmOfFieldType.NXM_OF_IP_DST.getHexType(),
-                NwConstants.NxmOfFieldType.NXM_OF_IP_SRC.getHexType(),
-                NwConstants.NxmOfFieldType.NXM_OF_IP_SRC.getFlowModHeaderLen() };
-        flowMod[3] = new String[] { NwConstants.LearnFlowModsType.MATCH_FROM_FIELD.name(),
-                NwConstants.NxmOfFieldType.NXM_OF_IP_PROTO.getHexType(),
-                NwConstants.NxmOfFieldType.NXM_OF_IP_PROTO.getHexType(),
-                NwConstants.NxmOfFieldType.NXM_OF_IP_PROTO.getFlowModHeaderLen() };
-        flowMod[4] = new String[] {
-                NwConstants.LearnFlowModsType.COPY_FROM_VALUE.name(), AclConstants.LEARN_MATCH_REG_VALUE,
-                NwConstants.NxmOfFieldType.NXM_NX_REG5.getHexType(), "8" };
+        String[][] learnActionMatches = LearnCommonAclServiceImpl.getOtherProtocolsLearnActionMatches(actionsInfos);
 
         String[] header = new String[] {
                 String.valueOf(this.aclServiceUtils.getConfig().getSecurityGroupDefaultIdleTimeout()),
@@ -115,39 +92,11 @@ public class LearnIngressAclServiceImpl extends AbstractIngressAclServiceImpl {
                 AclConstants.PROTO_MATCH_PRIORITY.toString(),
                 AclConstants.COOKIE_ACL_BASE.toString(), "0",
                 Short.toString(NwConstants.INGRESS_LEARN_TABLE), "0", "0"};
-        actionsInfos.add(new ActionInfo(ActionType.learn, header, flowMod));
+        actionsInfos.add(new ActionInfo(ActionType.learn, header, learnActionMatches));
     }
 
     private void addTcpLearnActions(List<ActionInfo> actionsInfos) {
-        String[][] flowMod = new String[7][];
-
-        flowMod[0] = new String[] { NwConstants.LearnFlowModsType.MATCH_FROM_VALUE.name(),
-                Integer.toString(NwConstants.ETHTYPE_IPV4),
-                NwConstants.NxmOfFieldType.NXM_OF_ETH_TYPE.getHexType(),
-                NwConstants.NxmOfFieldType.NXM_OF_ETH_TYPE.getFlowModHeaderLen() };
-        flowMod[1] = new String[] { NwConstants.LearnFlowModsType.MATCH_FROM_VALUE.name(),
-                Integer.toString(NwConstants.IP_PROT_TCP),
-                NwConstants.NxmOfFieldType.NXM_OF_IP_PROTO.getHexType(),
-                NwConstants.NxmOfFieldType.NXM_OF_IP_PROTO.getFlowModHeaderLen() };
-        flowMod[2] = new String[] { NwConstants.LearnFlowModsType.MATCH_FROM_FIELD.name(),
-                NwConstants.NxmOfFieldType.NXM_OF_IP_SRC.getHexType(),
-                NwConstants.NxmOfFieldType.NXM_OF_IP_DST.getHexType(),
-                NwConstants.NxmOfFieldType.NXM_OF_IP_DST.getFlowModHeaderLen() };
-        flowMod[3] = new String[] { NwConstants.LearnFlowModsType.MATCH_FROM_FIELD.name(),
-                NwConstants.NxmOfFieldType.NXM_OF_TCP_SRC.getHexType(),
-                NwConstants.NxmOfFieldType.NXM_OF_TCP_DST.getHexType(),
-                NwConstants.NxmOfFieldType.NXM_OF_TCP_DST.getFlowModHeaderLen() };
-        flowMod[4] = new String[] { NwConstants.LearnFlowModsType.MATCH_FROM_FIELD.name(),
-                NwConstants.NxmOfFieldType.NXM_OF_IP_DST.getHexType(),
-                NwConstants.NxmOfFieldType.NXM_OF_IP_SRC.getHexType(),
-                NwConstants.NxmOfFieldType.NXM_OF_IP_SRC.getFlowModHeaderLen() };
-        flowMod[5] = new String[] { NwConstants.LearnFlowModsType.MATCH_FROM_FIELD.name(),
-                NwConstants.NxmOfFieldType.NXM_OF_TCP_DST.getHexType(),
-                NwConstants.NxmOfFieldType.NXM_OF_TCP_SRC.getHexType(),
-                NwConstants.NxmOfFieldType.NXM_OF_TCP_SRC.getFlowModHeaderLen() };
-        flowMod[6] = new String[] {
-                NwConstants.LearnFlowModsType.COPY_FROM_VALUE.name(), AclConstants.LEARN_MATCH_REG_VALUE,
-                NwConstants.NxmOfFieldType.NXM_NX_REG5.getHexType(), "8" };
+        String[][] learnActionMatches = LearnCommonAclServiceImpl.getTcpLearnActionMatches();
 
         String[] header = new String[] {
                 String.valueOf(this.aclServiceUtils.getConfig().getSecurityGroupTcpIdleTimeout()),
@@ -157,39 +106,11 @@ public class LearnIngressAclServiceImpl extends AbstractIngressAclServiceImpl {
                 Short.toString(NwConstants.INGRESS_LEARN_TABLE),
                 String.valueOf(this.aclServiceUtils.getConfig().getSecurityGroupTcpFinIdleTimeout()),
                 String.valueOf(this.aclServiceUtils.getConfig().getSecurityGroupTcpFinHardTimeout())};
-        actionsInfos.add(new ActionInfo(ActionType.learn, header, flowMod));
+        actionsInfos.add(new ActionInfo(ActionType.learn, header, learnActionMatches));
     }
 
     private void addUdpLearnActions(List<ActionInfo> actionsInfos) {
-        String[][] flowMod = new String[7][];
-
-        flowMod[0] = new String[] { NwConstants.LearnFlowModsType.MATCH_FROM_VALUE.name(),
-                Integer.toString(NwConstants.ETHTYPE_IPV4),
-                NwConstants.NxmOfFieldType.NXM_OF_ETH_TYPE.getHexType(),
-                NwConstants.NxmOfFieldType.NXM_OF_ETH_TYPE.getFlowModHeaderLen() };
-        flowMod[1] = new String[] { NwConstants.LearnFlowModsType.MATCH_FROM_VALUE.name(),
-                Integer.toString(NwConstants.IP_PROT_UDP),
-                NwConstants.NxmOfFieldType.NXM_OF_IP_PROTO.getHexType(),
-                NwConstants.NxmOfFieldType.NXM_OF_IP_PROTO.getFlowModHeaderLen() };
-        flowMod[2] = new String[] { NwConstants.LearnFlowModsType.MATCH_FROM_FIELD.name(),
-                NwConstants.NxmOfFieldType.NXM_OF_IP_SRC.getHexType(),
-                NwConstants.NxmOfFieldType.NXM_OF_IP_DST.getHexType(),
-                NwConstants.NxmOfFieldType.NXM_OF_IP_SRC.getFlowModHeaderLen() };
-        flowMod[3] = new String[] { NwConstants.LearnFlowModsType.MATCH_FROM_FIELD.name(),
-                NwConstants.NxmOfFieldType.NXM_OF_UDP_SRC.getHexType(),
-                NwConstants.NxmOfFieldType.NXM_OF_UDP_DST.getHexType(),
-                NwConstants.NxmOfFieldType.NXM_OF_UDP_SRC.getFlowModHeaderLen() };
-        flowMod[4] = new String[] { NwConstants.LearnFlowModsType.MATCH_FROM_FIELD.name(),
-                NwConstants.NxmOfFieldType.NXM_OF_IP_DST.getHexType(),
-                NwConstants.NxmOfFieldType.NXM_OF_IP_SRC.getHexType(),
-                NwConstants.NxmOfFieldType.NXM_OF_IP_SRC.getFlowModHeaderLen() };
-        flowMod[5] = new String[] { NwConstants.LearnFlowModsType.MATCH_FROM_FIELD.name(),
-                NwConstants.NxmOfFieldType.NXM_OF_UDP_DST.getHexType(),
-                NwConstants.NxmOfFieldType.NXM_OF_UDP_SRC.getHexType(),
-                NwConstants.NxmOfFieldType.NXM_OF_UDP_SRC.getFlowModHeaderLen() };
-        flowMod[6] = new String[] {
-                NwConstants.LearnFlowModsType.COPY_FROM_VALUE.name(), AclConstants.LEARN_MATCH_REG_VALUE,
-                NwConstants.NxmOfFieldType.NXM_NX_REG5.getHexType(), "8" };
+        String[][] learnActionMatches = LearnCommonAclServiceImpl.getUdpLearnActionMatches();
 
         String[] header = new String[] {
                 String.valueOf(this.aclServiceUtils.getConfig().getSecurityGroupUdpIdleTimeout()),
@@ -197,6 +118,6 @@ public class LearnIngressAclServiceImpl extends AbstractIngressAclServiceImpl {
                 AclConstants.PROTO_MATCH_PRIORITY.toString(),
                 AclConstants.COOKIE_ACL_BASE.toString(), "0",
                 Short.toString(NwConstants.INGRESS_LEARN_TABLE), "0", "0" };
-        actionsInfos.add(new ActionInfo(ActionType.learn, header, flowMod));
+        actionsInfos.add(new ActionInfo(ActionType.learn, header, learnActionMatches));
     }
 }

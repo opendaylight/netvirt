@@ -676,11 +676,11 @@ public class AclServiceUtils {
         return mib;
     }
 
-    public static MatchInfoBase getMatchInfoByType(List<MatchInfoBase> flows, MatchFieldType type) {
+    public static MatchInfo getMatchInfoByType(List<MatchInfoBase> flows, MatchFieldType type) {
         for (MatchInfoBase mib : flows) {
             if (mib instanceof MatchInfo) {
                 if (((MatchInfo)mib).getMatchField() == type) {
-                    return mib;
+                    return (MatchInfo) mib;
                 }
             }
         }
@@ -713,4 +713,22 @@ public class AclServiceUtils {
         }
         return false;
     }
+    
+    public static boolean containsMatchFieldTypeAndValue(List<MatchInfoBase> flows, MatchFieldType type, long[] values) {
+        MatchInfo mib = getMatchInfoByType(flows, type);
+        if (mib != null && mib.getMatchValues().equals(values)) {
+            return true;
+        }
+        
+        return false;
+    }
+    
+    public static boolean containsTcpMatchField(List<MatchInfoBase> flows) {
+        return containsMatchFieldTypeAndValue(flows, MatchFieldType.ip_proto, new long[] {IPProtocols.TCP.intValue()});
+    }
+
+    public static boolean containsUdpMatchField(List<MatchInfoBase> flows) {
+        return containsMatchFieldTypeAndValue(flows, MatchFieldType.ip_proto, new long[] {IPProtocols.TCP.intValue()});
+    }
+  
 }
