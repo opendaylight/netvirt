@@ -1,0 +1,7 @@
+Code-Review+2: Sam Hague <shague@redhat.com>
+Verified+1: jenkins-releng <jenkins-releng@opendaylight.org>
+Submitted-by: Vishal Thapar <vishal.thapar@ericsson.com>
+Submitted-at: Tue, 08 Nov 2016 17:23:57 +0000
+Reviewed-on: https://git.opendaylight.org/gerrit/48128
+Project: netvirt
+Branch: refs/heads/master
