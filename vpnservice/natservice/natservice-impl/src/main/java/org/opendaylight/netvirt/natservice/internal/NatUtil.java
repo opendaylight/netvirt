@@ -617,7 +617,7 @@ public class NatUtil {
          * NodeConnectorId is of form 'openflow:dpnid:portnum'
          */
         String[] split = portId.getValue().split(OF_URI_SEPARATOR);
-        if (split.length != 2) {
+        if (split.length != 3) {
             return null;
         }
         return split[1];
