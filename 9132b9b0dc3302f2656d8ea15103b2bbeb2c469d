@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3a65312a_aa3aedca",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 22
+      },
+      "lineNbr": 1909,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-11-08T14:25:12Z",
+      "side": 1,
+      "message": "can we please set the Origin for this to LOCAL.",
+      "revId": "9132b9b0dc3302f2656d8ea15103b2bbeb2c469d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
