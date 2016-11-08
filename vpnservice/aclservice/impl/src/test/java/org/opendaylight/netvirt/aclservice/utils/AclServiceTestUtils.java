@@ -215,6 +215,7 @@ public class AclServiceTestUtils {
             case drop_action:
                 break;
             case goto_table:
+            case learn:
             case nx_resubmit:
                 Assert.assertArrayEquals(params, action.getActionValues());
                 break;
