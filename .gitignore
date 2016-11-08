@@ -24,6 +24,7 @@ report.html
 *.swp
 .gitignore
 target-ide/
+.tox
 .vagrant
 .DS_Store
 .checkstyle
