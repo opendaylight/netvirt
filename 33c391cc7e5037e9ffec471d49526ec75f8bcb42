@@ -16,6 +16,24 @@
       "revId": "33c391cc7e5037e9ffec471d49526ec75f8bcb42",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a65312a_0e133867",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 1535,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2016-11-08T08:56:33Z",
+      "side": 1,
+      "message": "When there is a notification of a vrfEntry removal, we delete all the corresponding fib entries.\nBasically, as you can see, for IPv6 east-west routing we are taking the same approach as IPv4. \nThe changes done in this patch are mainly about supporting IPv6 addresses along with IPv4 (also the changes will not have any effect when IPv4 subnets alone are used).\n\nI\u0027ve verified both dual-stack as well as IPv6 only network on a multi-node setup and the patch supports the e-w use-case.\nJFYI, I captured some logs in this process. Please take a look at the logs for more details, thanks.\n\nSetup and OVS flow logs - https://paste.fedoraproject.org/475268/\nNetvirt state like fib entries, subnet-maps etc - https://paste.fedoraproject.org/475269/",
+      "parentUuid": "3a65312a_186ffe93",
+      "revId": "33c391cc7e5037e9ffec471d49526ec75f8bcb42",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
