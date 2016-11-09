@@ -107,6 +107,7 @@ public class VpnNodeListener extends AsyncClusteredDataTreeChangeListenerBase<No
         createTableMissForVpnGwFlow(writeFlowTx, dpId);
         createArpRequestMatchFlowForGwMacTable(writeFlowTx, dpId);
         createArpResponseMatchFlowForGwMacTable(writeFlowTx, dpId);
+        programTableMissForVpnVniDemuxTable(writeFlowTx, dpId, NwConstants.ADD_FLOW);
         writeFlowTx.submit();
     }
 
@@ -161,6 +162,22 @@ public class VpnNodeListener extends AsyncClusteredDataTreeChangeListenerBase<No
         String flowRef = getTableMissFlowRef(dpnId, NwConstants.L3_SUBNET_ROUTE_TABLE, NwConstants.TABLE_MISS_FLOW);
         FlowEntity flowEntity = MDSALUtil.buildFlowEntity(dpnId, NwConstants.L3_SUBNET_ROUTE_TABLE, flowRef,
             NwConstants.TABLE_MISS_PRIORITY, "Subnet Route Table Miss", 0, 0, cookieTableMiss, matches, instructions);
+
+        if (addOrRemove == NwConstants.ADD_FLOW) {
+            mdsalManager.addFlowToTx(flowEntity, writeFlowTx);
+        } else {
+            mdsalManager.removeFlowToTx(flowEntity, writeFlowTx);
+        }
+    }
+
+    private void programTableMissForVpnVniDemuxTable(WriteTransaction writeFlowTx, BigInteger dpnId, int addOrRemove) {
+        final BigInteger COOKIE_TABLE_MISS = new BigInteger("1080000", 16);
+        List<ActionInfo> actionsInfos = Collections.singletonList(new ActionNxResubmit(NwConstants.LPORT_DISPATCHER_TABLE));
+        List<InstructionInfo> instructions = Collections.singletonList(new InstructionApplyActions(actionsInfos));
+        List<MatchInfo> matches = new ArrayList<MatchInfo>();
+        String flowRef = getTableMissFlowRef(dpnId, (short)VpnInstanceListener.VPN_VNI_DEMUX_TABLE, NwConstants.TABLE_MISS_FLOW);
+        FlowEntity flowEntity = MDSALUtil.buildFlowEntity(dpnId, (short)VpnInstanceListener.VPN_VNI_DEMUX_TABLE, flowRef,
+                NwConstants.TABLE_MISS_PRIORITY, "VPN-VNI Demux Table Miss", 0, 0, COOKIE_TABLE_MISS, matches, instructions);
 
         if (addOrRemove == NwConstants.ADD_FLOW) {
             mdsalManager.addFlowToTx(flowEntity, writeFlowTx);
