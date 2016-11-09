@@ -358,6 +358,11 @@ public class VpnInstanceListener extends AsyncDataTreeChangeListenerBase<VpnInst
         String rd = config.getRouteDistinguisher();
         String vpnInstanceName = value.getVpnInstanceName();
 
+        if (value.getType().equals(VpnInstance.Type.L2) && value.getL3vni() == null) {
+            LOG.error("L3VNI is a mandatory attribute for Vpn of type L2. L3VNI not found for vpn {}. Aborting", value.getVpnInstanceName());
+            return;
+        }
+
         long vpnId = VpnUtil.getUniqueId(idManager, VpnConstants.VPN_IDPOOL_NAME, vpnInstanceName);
         if (vpnId == 0) {
             LOG.error("Unable to fetch label from Id Manager. Bailing out of adding operational data for Vpn Instance {}", value.getVpnInstanceName());
@@ -408,7 +413,7 @@ public class VpnInstanceListener extends AsyncDataTreeChangeListenerBase<VpnInst
         }
         VpnInstanceOpDataEntryBuilder builder =
                 new VpnInstanceOpDataEntryBuilder().setVpnId(vpnId)
-                        .setVpnInstanceName(vpnInstanceName).setEvi(value.getEvi());
+                        .setVpnInstanceName(vpnInstanceName).setL3vni(value.getL3vni());
         setVpnInstanceType(value.getType(), builder);
         if (rd == null) {
             builder.setVrfId(vpnInstanceName);

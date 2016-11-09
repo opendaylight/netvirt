@@ -152,6 +152,11 @@ module neutronvpn {
            default "l3";
         }
 
+        leaf l3vni {
+            type uint32;
+            mandatory false;
+        }
+
     }
 
     container vpnMaps {

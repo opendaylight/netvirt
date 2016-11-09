@@ -746,7 +746,7 @@ module l3vpn {
         default "l3";
       }
 
-      leaf evi {
+      leaf l3vni {
          type uint32;
       }
 

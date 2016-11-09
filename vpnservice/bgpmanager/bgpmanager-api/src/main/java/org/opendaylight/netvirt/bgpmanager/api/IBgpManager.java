@@ -41,11 +41,11 @@ public interface IBgpManager {
      * @param nextHopList
      * @param encapType
      * @param vpnLabel
-     * @param evi
+     * @param l3vni
      * @param gatewayMac
      */
     public void addPrefix(String rd, String macAddress, String prefix, List<String> nextHopList,
-                          VrfEntry.EncapType encapType, int vpnLabel, long evi, String gatewayMac, RouteOrigin origin) throws Exception;
+                          VrfEntry.EncapType encapType, int vpnLabel, long l3vni, String gatewayMac, RouteOrigin origin) throws Exception;
 
     /**
      * Adds a route in a BGP neighbour. It persists the VrfEntry in Datastore and sends the BGP message
@@ -56,11 +56,11 @@ public interface IBgpManager {
      * @param nextHop
      * @param encapType
      * @param vpnLabel
-     * @param evi
+     * @param l3vni
      * @param gatewayMac
      */
     public void addPrefix(String rd, String macAddress, String prefix, String nextHop,
-                          VrfEntry.EncapType encapType, int vpnLabel, long evi, String gatewayMac, RouteOrigin origin) throws Exception;
+                          VrfEntry.EncapType encapType, int vpnLabel, long l3vni, String gatewayMac, RouteOrigin origin) throws Exception;
 
 
     /**
@@ -87,11 +87,11 @@ public interface IBgpManager {
      * @param nextHopList
      * @param encapType
      * @param vpnLabel
-     * @param evi
+     * @param l3vni
      * @param gatewayMac
      */
     public void advertisePrefix(String rd, String macAddress, String prefix, List<String> nextHopList,
-                                VrfEntry.EncapType encapType, int vpnLabel, long evi, String gatewayMac) throws Exception;
+                                VrfEntry.EncapType encapType, int vpnLabel, long l3vni, String gatewayMac) throws Exception;
 
     /**
      * Advertises a Prefix to a BGP neighbour. Only sends the BGP messages, no writing to MD-SAL
@@ -102,11 +102,11 @@ public interface IBgpManager {
      * @param nextHop
      * @param encapType
      * @param vpnLabel
-     * @param evi
+     * @param l3vni
      * @param gatewayMac
      */
     public void advertisePrefix(String rd, String macAddress, String prefix, String nextHop,
-                                VrfEntry.EncapType encapType, int vpnLabel, long evi, String gatewayMac) throws Exception;
+                                VrfEntry.EncapType encapType, int vpnLabel, long l3vni, String gatewayMac) throws Exception;
 
     /**
      *

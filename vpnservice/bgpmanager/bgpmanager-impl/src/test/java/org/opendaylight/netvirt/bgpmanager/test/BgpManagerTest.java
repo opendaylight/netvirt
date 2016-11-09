@@ -46,7 +46,7 @@ public class BgpManagerTest extends AbstractDataBrokerTest {
         int label = 1234;
 
         bgpFibWriter.addFibEntryToDS(rd, null /*macAddress*/, prefix, nexthop,
-                VrfEntry.EncapType.Mplsgre, label, 0 /*evi*/, null /*gatewayMacAddress*/, RouteOrigin.STATIC);
+                VrfEntry.EncapType.Mplsgre, label, 0 /*l3vni*/, null /*gatewayMacAddress*/, RouteOrigin.STATIC);
         //assertEquals(1, fibManager.getDataChgCount());
         assertEquals(1, 1);
     }
@@ -59,7 +59,7 @@ public class BgpManagerTest extends AbstractDataBrokerTest {
         int label = 1234;
         try{
             bgpFibWriter.addFibEntryToDS(rd, null /*macAddress*/, prefix, null,
-                    VrfEntry.EncapType.Mplsgre, label, 0 /*evi*/, null /*gatewayMacAddress*/, RouteOrigin.CONNECTED);
+                    VrfEntry.EncapType.Mplsgre, label, 0 /*l3vni*/, null /*gatewayMacAddress*/, RouteOrigin.CONNECTED);
             assertEquals(1,0); //The code is not launching NullPointerException
         }catch(NullPointerException e){
             //The code must launch NullPointerException

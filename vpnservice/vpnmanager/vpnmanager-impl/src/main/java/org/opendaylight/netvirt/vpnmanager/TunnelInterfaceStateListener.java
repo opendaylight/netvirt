@@ -258,7 +258,7 @@ public class TunnelInterfaceStateListener extends AsyncDataTreeChangeListenerBas
                                     if (nextHops.contains(srcTepIp.trim())) {
                                         bgpManager.withdrawPrefix(rd, destPrefix);
                                         bgpManager.advertisePrefix(rd, vrfEntry.getMacAddress(), destPrefix, nextHops,
-                                                vrfEntry.getEncapType(), vpnLabel, vrfEntry.getEvi(), vrfEntry.getGatewayMacAddress());
+                                                vrfEntry.getEncapType(), vpnLabel, vrfEntry.getL3vni(), vrfEntry.getGatewayMacAddress());
                                     }
                                 }
                             }

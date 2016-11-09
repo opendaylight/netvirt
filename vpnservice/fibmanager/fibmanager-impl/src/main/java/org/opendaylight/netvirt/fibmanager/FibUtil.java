@@ -466,7 +466,7 @@ public class FibUtil {
         }
     }
     public static void addOrUpdateFibEntry(DataBroker broker, String rd, String macAddress, String prefix, List<String> nextHopList,
-                                           VrfEntry.EncapType encapType, int label, long evi, String gatewayMacAddress,
+                                           VrfEntry.EncapType encapType, int label, long l3vni, String gatewayMacAddress,
                                            RouteOrigin origin, WriteTransaction writeConfigTxn) {
 
         if (rd == null || rd.isEmpty() ) {
@@ -494,7 +494,7 @@ public class FibUtil {
             if (! entry.isPresent()) {
                 VrfEntryBuilder vrfEntryBuilder = new VrfEntryBuilder().setDestPrefix(prefix).setNextHopAddressList(nextHopList)
                         .setOrigin(origin.getValue());
-                buildVpnEncapSpecificInfo(vrfEntryBuilder, encapType, (long)label, evi, macAddress, gatewayMacAddress);
+                buildVpnEncapSpecificInfo(vrfEntryBuilder, encapType, (long)label, l3vni, macAddress, gatewayMacAddress);
 
                 if (writeConfigTxn != null) {
                     writeConfigTxn.merge(LogicalDatastoreType.CONFIGURATION, vrfEntryId, vrfEntryBuilder.build(), true);
@@ -510,7 +510,7 @@ public class FibUtil {
                 }
                 VrfEntryBuilder vrfEntryBuilder = new VrfEntryBuilder().setDestPrefix(prefix).setNextHopAddressList(nh)
                         .setLabel((long) label).setOrigin(origin.getValue());
-                buildVpnEncapSpecificInfo(vrfEntryBuilder, encapType, (long)label, evi, macAddress, gatewayMacAddress);
+                buildVpnEncapSpecificInfo(vrfEntryBuilder, encapType, (long)label, l3vni, macAddress, gatewayMacAddress);
                 if (writeConfigTxn != null) {
                     writeConfigTxn.merge(LogicalDatastoreType.CONFIGURATION, vrfEntryId, vrfEntryBuilder.build(), true);
                 } else {
@@ -523,11 +523,11 @@ public class FibUtil {
     }
 
     private static void buildVpnEncapSpecificInfo(VrfEntryBuilder builder, VrfEntry.EncapType encapType, long label,
-                                                 long evi, String macAddress, String gatewayMac) {
+                                                 long l3vni, String macAddress, String gatewayMac) {
         if (encapType.equals(VrfEntry.EncapType.Mplsgre)) {
             builder.setLabel(label);
         } else {
-            builder.setEvi(evi).setMacAddress(macAddress).setGatewayMacAddress(gatewayMac);
+            builder.setL3vni(l3vni).setMacAddress(macAddress).setGatewayMacAddress(gatewayMac);
         }
         builder.setEncapType(encapType);
     }

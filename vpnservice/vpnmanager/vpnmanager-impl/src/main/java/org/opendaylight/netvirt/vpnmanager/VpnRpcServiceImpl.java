@@ -165,7 +165,7 @@ public class VpnRpcServiceImpl implements VpnRpcService {
             LOG.debug("addStaticRoute: Writing FibEntry to DS:  vpnRd={}, prefix={}, label={}, nexthop={} (interVpnLink)",
                     vpnRd, destination, label, nexthop);
             fibManager.addOrUpdateFibEntry(dataBroker, vpnRd, null /*macAddress*/, destination, Arrays.asList(nexthop), VrfEntry.EncapType.Mplsgre, label.intValue(),
-                    0 /*evi*/, null /*gatewayMacAddress*/, RouteOrigin.STATIC, null /*writeTxn*/);
+                    0 /*l3vni*/, null /*gatewayMacAddress*/, RouteOrigin.STATIC, null /*writeTxn*/);
 
             // The nexthop list to advertise to BGP contains the list of IPs of those DPNs where the
             // endpoint has been instantiated
@@ -178,7 +178,7 @@ public class VpnRpcServiceImpl implements VpnRpcService {
                 LOG.debug("addStaticRoute:advertise IVpnLink route to BGP:  vpnRd={}, prefix={}, label={}, nexthops={}",
                         vpnRd, destination, label, nexthopList);
                 bgpManager.advertisePrefix(vpnRd, null /*macAddress*/, destination, nexthopList,
-                        VrfEntry.EncapType.Mplsgre, label.intValue(), 0 /*evi*/, null /*gatewayMacAddress*/);
+                        VrfEntry.EncapType.Mplsgre, label.intValue(), 0 /*l3vni*/, null /*gatewayMacAddress*/);
             } catch (Exception e) {
                 String errMsg = "Could not advertise route [vpn=" + vpnRd + ", prefix=" + destination + ", label="
                         + label + ", nexthops=" + nexthopList + ", ] to BGP. Reason: " + e;

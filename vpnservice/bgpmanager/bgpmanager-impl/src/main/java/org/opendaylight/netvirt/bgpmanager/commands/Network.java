@@ -98,7 +98,7 @@ public class Network extends OsgiCommandSupport {
                 }
                 LOGGER.info("ADD: Adding Fib entry rd {} prefix {} nexthop {} label {}", rd, pfx, nh, label);
                 bm.addPrefix(rd, null /*maAddress*/, pfx, nh,
-                        VrfEntry.EncapType.Mplsgre, label, 0 /*evi*/, null /*gatewayMacAddress*/, staticOrigin);
+                        VrfEntry.EncapType.Mplsgre, label, 0 /*l3vni*/, null /*gatewayMacAddress*/, staticOrigin);
                 LOGGER.info("ADD: Added Fib entry rd {} prefix {} nexthop {} label {}", rd, pfx, nh, label);
                 break;
             case "del":

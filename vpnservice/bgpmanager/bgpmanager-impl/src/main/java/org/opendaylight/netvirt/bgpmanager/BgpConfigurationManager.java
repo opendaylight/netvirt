@@ -1538,13 +1538,13 @@ public class BgpConfigurationManager {
                                          String routermac) throws InterruptedException, ExecutionException, TimeoutException {
         Map<String, Map<String, String>> stale_fib_rd_map = BgpConfigurationManager.getStaledFibEntriesMap();
         boolean addroute = false;
-        long evi = 0L;
+        long l3vni = 0L;
         VrfEntry.EncapType encapType = VrfEntry.EncapType.Mplsgre;
         if (protocolType.equals(protocol_type.PROTOCOL_EVPN)) {
             encapType = VrfEntry.EncapType.Vxlan;
             VpnInstanceOpDataEntry vpnInstanceOpDataEntry = BgpUtil.getVpnInstanceOpData(dataBroker, rd);
             if (vpnInstanceOpDataEntry != null) {
-                evi = vpnInstanceOpDataEntry.getEvi();
+                l3vni = vpnInstanceOpDataEntry.getL3vni();
             } else {
                 LOG.error("No corresponding vpn instance found for rd {}. Aborting...", rd);
                 return;
@@ -1575,7 +1575,7 @@ public class BgpConfigurationManager {
             LOG.info("ADD: Adding Fib entry rd {} prefix {} nexthop {} label {}", rd, prefix, nextHop, label);
             // TODO: modify addFibEntryToDS signature
             fibDSWriter.addFibEntryToDS(rd, macaddress, prefix + "/" + plen, Arrays.asList(nextHop),
-                    encapType, label, evi, routermac, RouteOrigin.BGP);
+                    encapType, label, l3vni, routermac, RouteOrigin.BGP);
             LOG.info("ADD: Added Fib entry rd {} prefix {} nexthop {} label {}", rd, prefix, nextHop, label);
         }
     }
@@ -1908,7 +1908,7 @@ public class BgpConfigurationManager {
 
     public synchronized void
     addPrefix(String rd, String macAddress, String pfx, List<String> nhList,
-              VrfEntry.EncapType encapType, int lbl, long evi, String gatewayMac) {
+              VrfEntry.EncapType encapType, int lbl, long l3vni, String gatewayMac) {
         for (String nh : nhList) {
             Ipv4Address nexthop = new Ipv4Address(nh);
             Long label = (long) lbl;
@@ -1916,13 +1916,13 @@ public class BgpConfigurationManager {
                     .child(Networks.class, new NetworksKey(pfx, rd)).build();
             NetworksBuilder networksBuilder = new NetworksBuilder().setRd(rd).setPrefixLen(pfx).setNexthop(nexthop)
                                                 .setLabel(label).setEthtag(BgpConstants.DEFAULT_ETH_TAG);
-            buildVpnEncapSpecificInfo(networksBuilder, encapType, label, evi, macAddress, gatewayMac);
+            buildVpnEncapSpecificInfo(networksBuilder, encapType, label, l3vni, macAddress, gatewayMac);
             update(iid, networksBuilder.build());
         }
     }
 
     private static void buildVpnEncapSpecificInfo(NetworksBuilder builder, VrfEntry.EncapType encapType, long label,
-                                                  long evi, String macAddress, String gatewayMac) {
+                                                  long l3vni, String macAddress, String gatewayMac) {
         if (encapType.equals(VrfEntry.EncapType.Mplsgre)) {
             builder.setLabel(label).setProtocolType(ProtocolType.PROTOCOLL3VPN).setEncapType(EncapType.GRE);
         } else {

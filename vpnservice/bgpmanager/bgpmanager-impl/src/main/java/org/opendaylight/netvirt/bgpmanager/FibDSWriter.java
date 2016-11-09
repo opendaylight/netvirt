@@ -34,7 +34,7 @@ public class FibDSWriter {
     }
 
     public synchronized void addFibEntryToDS(String rd, String macAddress, String prefix, List<String> nextHopList,
-                                             VrfEntry.EncapType encapType, int label, long evi, String gatewayMacAddress,
+                                             VrfEntry.EncapType encapType, int label, long l3vni, String gatewayMacAddress,
                                              RouteOrigin origin) {
         if (rd == null || rd.isEmpty() ) {
             logger.error("Prefix {} not associated with vpn", prefix);
@@ -62,7 +62,7 @@ public class FibDSWriter {
 
             VrfEntryBuilder vrfEntryBuilder = new VrfEntryBuilder().setDestPrefix(prefix).setNextHopAddressList(nextHopList)
                                                      .setLabel((long)label).setOrigin(origin.getValue());
-            buildVpnEncapSpecificInfo(vrfEntryBuilder, encapType, (long)label, evi, macAddress, gatewayMacAddress);
+            buildVpnEncapSpecificInfo(vrfEntryBuilder, encapType, (long)label, l3vni, macAddress, gatewayMacAddress);
             BgpUtil.write(dataBroker, LogicalDatastoreType.CONFIGURATION, vrfEntryId, vrfEntryBuilder.build());
         } catch (Exception e) {
             logger.error("addFibEntryToDS: error ", e);
@@ -71,11 +71,11 @@ public class FibDSWriter {
     }
 
     private static void buildVpnEncapSpecificInfo(VrfEntryBuilder builder, VrfEntry.EncapType encapType, long label,
-                                                  long evi, String macAddress, String gatewayMac) {
+                                                  long l3vni, String macAddress, String gatewayMac) {
         if (encapType.equals(VrfEntry.EncapType.Mplsgre)) {
             builder.setLabel(label);
         } else {
-            builder.setEvi(evi).setMacAddress(macAddress).setGatewayMacAddress(gatewayMac);
+            builder.setL3vni(l3vni).setMacAddress(macAddress).setGatewayMacAddress(gatewayMac);
         }
         builder.setEncapType(encapType);
     }

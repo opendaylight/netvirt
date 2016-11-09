@@ -467,7 +467,7 @@ public class InterVpnLinkUtil {
                 LOG.debug("Advertising route in VPN={} [prefix={} label={}  nexthops={}] to DC-GW",
                         dstVpnRd, newVrfEntry.getDestPrefix(), label.intValue(), nexthops);
                 bgpManager.advertisePrefix(dstVpnRd, null /*macAddress*/, newVrfEntry.getDestPrefix(), nexthops,
-                        VrfEntry.EncapType.Mplsgre, label.intValue(), 0 /*evi*/, null /*gatewayMacAddress*/);
+                        VrfEntry.EncapType.Mplsgre, label.intValue(), 0 /*l3vni*/, null /*gatewayMacAddress*/);
             } catch (Exception exc) {
                 LOG.error("Could not advertise prefix {} with label {} to VPN rd={}",
                         newVrfEntry.getDestPrefix(), label.intValue(), dstVpnRd);

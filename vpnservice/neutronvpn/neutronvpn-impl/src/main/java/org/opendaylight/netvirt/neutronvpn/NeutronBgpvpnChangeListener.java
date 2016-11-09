@@ -86,13 +86,13 @@ public class NeutronBgpvpnChangeListener extends AsyncDataTreeChangeListenerBase
         LOG.trace("Adding Bgpvpn : key: {}, value={}", identifier, input);
 
         VpnInstance.Type vpnInstanceType = VpnInstance.Type.L2;
-        long evi = 0;
+        long l3vni = 0;
         if (isBgpvpnTypeL3(input.getType())) {
             vpnInstanceType = VpnInstance.Type.L3;
         } else {
-            evi = NeutronvpnUtils.getUniqueId(idManager, NeutronConstants.VPN_IDPOOL_NAME, input.getUuid().getValue());
-            if (evi == 0) {
-                LOG.error("Unable to retrieve unique evi for vpn instance {}. Aborting..", input.getUuid().getValue());
+            l3vni = NeutronvpnUtils.getUniqueId(idManager, NeutronConstants.VPN_IDPOOL_NAME, input.getUuid().getValue());
+            if (l3vni == 0) {
+                LOG.error("Unable to retrieve unique l3vni for vpn instance {}. Aborting..", input.getUuid().getValue());
             }
         }
             // handle route-target(s)
@@ -138,7 +138,7 @@ public class NeutronBgpvpnChangeListener extends AsyncDataTreeChangeListenerBase
             if (rd != null) {
                 try {
                     nvpnManager.createVpn(input.getUuid(), input.getName(), input.getTenantId(), rd, importRouteTargets,
-                            exportRouteTargets, router, input.getNetworks(), vpnInstanceType, evi);
+                            exportRouteTargets, router, input.getNetworks(), vpnInstanceType, l3vni);
                 } catch (Exception e) {
                     LOG.error("Creation of BGPVPN {} failed with error message {}. ", input.getUuid(),
                             e.getMessage(), e);

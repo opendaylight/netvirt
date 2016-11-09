@@ -59,7 +59,7 @@ module odl-fib {
                mandatory false;
             }
 
-            leaf evi {
+            leaf l3vni {
                type uint32;
                mandatory false;
             }

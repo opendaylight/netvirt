@@ -758,7 +758,7 @@ public class VpnSubnetRouteHandler implements NeutronvpnListener {
             // due to bugs with ClusterDataChangeListener used by BGPManager.
             //bgpManager.withdrawPrefix(rd, subnetIp);
             bgpManager.advertisePrefix(rd, null /*macAddress*/, subnetIp, Arrays.asList(nexthopIp),
-                    VrfEntry.EncapType.Mplsgre, label, 0 /*evi*/, null /*gatewayMacAddress*/);
+                    VrfEntry.EncapType.Mplsgre, label, 0 /*l3vni*/, null /*gatewayMacAddress*/);
         } catch (Exception e) {
             logger.error("Subnet route not advertised for rd " + rd + " failed ", e);
             throw e;
