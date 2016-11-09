@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "3a65312a_f00332b6",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 1198,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-11-09T04:35:58Z",
+      "side": 1,
+      "message": "I thought through this further and found this is not feasible as there will always be a gap between re-registering for the notification for the next update and we might miss the notifications..\n\nSo let us live with this for now.",
+      "parentUuid": "3a65312a_c4311f0d",
+      "revId": "a9889bed771d12cb2b650295798c05a34e9eab81",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "3a65312a_a46863f6",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
         "patchSetId": 2
