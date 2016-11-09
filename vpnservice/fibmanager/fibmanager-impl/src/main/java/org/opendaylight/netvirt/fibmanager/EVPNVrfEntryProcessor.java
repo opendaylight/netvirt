@@ -88,11 +88,11 @@ public class EVPNVrfEntryProcessor {
 
     private List<BigInteger> createLocalEvpnFlows(long vpnId, String rd, VrfEntry vrfEntry, Prefixes localNextHopInfo, int lportTag) {
         if (localNextHopInfo != null) {
-            LOG.info("Creating local EVPN flows for prefix {} rd {} nexthop {} evi {}.", vrfEntry.getDestPrefix(), rd, vrfEntry.getNextHopAddressList(), vrfEntry.getL3vni());
+            LOG.info("Creating local EVPN flows for prefix {} rd {} nexthop {} l3vni {}.", vrfEntry.getDestPrefix(), rd, vrfEntry.getNextHopAddressList(), vrfEntry.getL3vni());
             String localNextHopIP = vrfEntry.getDestPrefix();
             BigInteger dpnId = localNextHopInfo.getDpnId();
             final long groupId = vrfEntryListener.getNextHopManager().createLocalNextHop(vpnId, dpnId, localNextHopInfo.getVpnInterfaceName(), localNextHopIP, vrfEntry.getDestPrefix());
-            LOG.debug("LocalNextHopGroup {} created/reused for prefix {} rd {} evi {} nexthop {}", groupId, vrfEntry.getDestPrefix(), rd, vrfEntry.getL3vni(), vrfEntry.getNextHopAddressList());
+            LOG.debug("LocalNextHopGroup {} created/reused for prefix {} rd {} l3vni {} nexthop {}", groupId, vrfEntry.getDestPrefix(), rd, vrfEntry.getL3vni(), vrfEntry.getNextHopAddressList());
 
             List<ActionInfo> actionsInfos =
                     Arrays.asList(new ActionInfo(ActionType.group, new String[] { String.valueOf(groupId)}));
@@ -105,7 +105,7 @@ public class EVPNVrfEntryProcessor {
                         public List<ListenableFuture<Void>> call() throws Exception {
                             WriteTransaction tx = dataBroker.newWriteOnlyTransaction();
                             vrfEntryListener.makeConnectedRoute(dpnId, vpnId, vrfEntry, rd, instructions, NwConstants.ADD_FLOW, tx);
-                            //programInternalTunnelFlow(dpnId, vrfEntry.getEvi(), groupId, lportTag, tx);
+                            //programInternalTunnelFlow(dpnId, vrfEntry.getL3vni(), groupId, lportTag, tx);
 
                             List<ListenableFuture<Void>> futures = new ArrayList<>();
                             futures.add(tx.submit());
@@ -119,7 +119,7 @@ public class EVPNVrfEntryProcessor {
 
     private void createRemoteEvpnFlows(String rd, Prefixes localNextHopInfo, VrfEntry vrfEntry, VpnInstanceOpDataEntry vpnInstance,
                                        List<BigInteger> localDpnId, VrfTablesKey vrfTableKey, int lportTag) {
-        LOG.info("Creating remote EVPN flows for prefix {} rd {} nexthop {} evi {}", vrfEntry.getDestPrefix(), rd, vrfEntry.getNextHopAddressList(), vrfEntry.getL3vni());
+        LOG.info("Creating remote EVPN flows for prefix {} rd {} nexthop {} l3vni {}", vrfEntry.getDestPrefix(), rd, vrfEntry.getNextHopAddressList(), vrfEntry.getL3vni());
         Optional<Adjacency> adjacencyData =  FibUtil.read(dataBroker, LogicalDatastoreType.OPERATIONAL,
                 vrfEntryListener.getNextHopManager().getAdjacencyIdentifier(localNextHopInfo.getVpnInterfaceName(), vrfEntry.getDestPrefix()));
         String macAddress = adjacencyData.get().getMacAddress();
@@ -197,12 +197,12 @@ public class EVPNVrfEntryProcessor {
         LOG.debug("Successfully added FIB entry for prefix {} in vpnId {}", vrfEntry.getDestPrefix(), vpnId);
     }
 
-    void programInternalTunnelFlow(BigInteger dpId, long evi, long groupId/*String egressInterfaceName*/, int lportTag,
+    void programInternalTunnelFlow(BigInteger dpId, long l3vni, long groupId/*String egressInterfaceName*/, int lportTag,
                               WriteTransaction tx) {
         List<ActionInfo> actionsInfos = new ArrayList<ActionInfo>();
         actionsInfos.add(new ActionInfo(ActionType.group, new String[] { String.valueOf(groupId) }));
         List<MatchInfo> mkMatches = new ArrayList<>();
-        LOG.debug("create terminatingServiceAction on DpnId = {} and serviceId = {} and actions = {}", dpId , evi,actionsInfos);
+        LOG.debug("create terminatingServiceAction on DpnId = {} and serviceId = {} and actions = {}", dpId , l3vni,actionsInfos);
         mkMatches.add(new MatchInfo(MatchFieldType.tunnel_id, new BigInteger[] {BigInteger.valueOf(lportTag)}));
         List<InstructionInfo> mkInstructions = new ArrayList<>();
         mkInstructions.add(new InstructionInfo(InstructionType.write_actions, actionsInfos));
@@ -219,7 +219,7 @@ public class EVPNVrfEntryProcessor {
                 .child(Table.class, new TableKey(terminatingServiceTableFlowEntity.getTableId())).child(Flow.class,flowKey).build();
         tx.put(LogicalDatastoreType.CONFIGURATION, flowInstanceId, flowbld.build(),true );
         LOG.debug("Terminating service Entry for dpID {} : label : {} egress : {} installed successfully",
-                dpId, evi, groupId);
+                dpId, l3vni, groupId);
     }
 
     public void removeFlows() {
