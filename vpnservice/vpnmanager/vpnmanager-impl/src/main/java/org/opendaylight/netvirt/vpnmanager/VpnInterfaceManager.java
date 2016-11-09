@@ -67,6 +67,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.Nodes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.Node;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.NodeBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.NodeKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.instances.ElanInstance;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.FibEntries;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.LabelRouteMap;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.RouterInterface;
@@ -357,10 +358,15 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                             interfaceName, vpnName, opVpnName);
                 }
             }
+            String vpnRd = VpnUtil.getVpnRd(dataBroker, vpnName);
+            VpnInstanceOpDataEntry vpnInstanceOpDataEntry = VpnUtil.getVpnInstanceOpData(dataBroker, vpnRd);
             if (!waitForVpnInterfaceOpRemoval) {
                 // Add the VPNInterface and quit
                 vpnFootprintService.updateVpnToDpnMapping(dpId, vpnName, interfaceName, true /* add */);
                 bindService(dpId, vpnName, interfaceName, lPortTag, writeConfigTxn, writeInvTxn);
+                if (VpnUtil.isL3VpnOverVxLan(vpnInstanceOpDataEntry.getL3vni())) {
+                    buildAndProgramGwMacFlow(dpId, vpnId, getGatewayMac(interfaceName), writeInvTxn, NwConstants.ADD_FLOW);
+                }
                 processVpnInterfaceAdjacencies(dpId, lPortTag, vpnName, interfaceName, writeConfigTxn, writeOperTxn, writeInvTxn);
                 return;
             }
@@ -389,6 +395,9 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
             // VPNInterface got removed, proceed with Add
             vpnFootprintService.updateVpnToDpnMapping(dpId, vpnName, interfaceName, true /* add */);
             bindService(dpId, vpnName, interfaceName, lPortTag, writeConfigTxn, writeInvTxn);
+            if (VpnUtil.isL3VpnOverVxLan(vpnInstanceOpDataEntry.getL3vni())) {
+                buildAndProgramGwMacFlow(dpId, vpnId, getGatewayMac(interfaceName), writeInvTxn, NwConstants.ADD_FLOW);
+            }
             processVpnInterfaceAdjacencies(dpId, lPortTag, vpnName, interfaceName, writeConfigTxn, writeOperTxn, writeInvTxn);
         } else {
             // Interface is retained in the DPN, but its Link Up.
@@ -623,12 +632,16 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                 return;
             }
             String gwMacAddress = gwMacAddressOptional.get();
-            FlowEntity flowEntity = VpnUtil.buildL3vpnGatewayFlow(dpnId, gwMacAddress, vpnId);
-            if (addOrRemove == NwConstants.ADD_FLOW) {
-                mdsalManager.addFlowToTx(flowEntity, writeInvTxn);
-            } else if (addOrRemove == NwConstants.DEL_FLOW) {
-                mdsalManager.removeFlowToTx(flowEntity, writeInvTxn);
-            }
+            buildAndProgramGwMacFlow(dpnId, vpnId, gwMacAddress, writeInvTxn, addOrRemove);
+        }
+    }
+
+    private void buildAndProgramGwMacFlow(BigInteger dpnId, long vpnId, String gatewayMac, WriteTransaction writeInvTxn, int addOrRemove) {
+        FlowEntity flowEntity = VpnUtil.buildL3vpnGatewayFlow(dpnId, gatewayMac, vpnId);
+        if (addOrRemove == NwConstants.ADD_FLOW) {
+            mdsalManager.addFlowToTx(flowEntity, writeInvTxn);
+        } else if (addOrRemove == NwConstants.DEL_FLOW) {
+            mdsalManager.removeFlowToTx(flowEntity, writeInvTxn);
         }
     }
 
@@ -1319,6 +1332,11 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
         }
         long vpnId = VpnUtil.getVpnId(dataBroker, vpnInstanceName);
         setupGwMacIfExternalVpn(dpId, vpnInterfaceName, vpnId, writeConfigTxn, NwConstants.DEL_FLOW);
+        String vpnRd = VpnUtil.getVpnRd(dataBroker, vpnInstanceName);
+        VpnInstanceOpDataEntry vpnInstanceOpDataEntry = VpnUtil.getVpnInstanceOpData(dataBroker, vpnRd);
+        if (VpnUtil.isL3VpnOverVxLan(vpnInstanceOpDataEntry.getL3vni())) {
+            buildAndProgramGwMacFlow(dpId, vpnId, getGatewayMac(vpnInterfaceName), writeInvTxn, NwConstants.DEL_FLOW);
+        }
     }
 
 
