@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "3a65312a_3305b47a",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/TunnelInterfaceStateListener.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 106,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-11-09T11:31:17Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "3a65312a_ca0009ad",
+      "revId": "6dc3453f934b4d1c9bf294d50f364ee4c6bdf059",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "3a65312a_2a2d3d47",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/TunnelInterfaceStateListener.java",
         "patchSetId": 5
@@ -30,6 +48,24 @@
       "writtenOn": "2016-11-08T15:11:35Z",
       "side": 1,
       "message": "same comment as above - also variable name should probably be isTunnelUp, maybe this should be a function?",
+      "revId": "6dc3453f934b4d1c9bf294d50f364ee4c6bdf059",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a65312a_130a388a",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/TunnelInterfaceStateListener.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 125,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-11-09T11:31:17Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "3a65312a_2a2d3d47",
       "revId": "6dc3453f934b4d1c9bf294d50f364ee4c6bdf059",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
