@@ -56,6 +56,24 @@
       "revId": "120b04004376cb7fd62cc378ac387cd494e123a4",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a65312a_302c8a02",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/arp/responder/ArpResponderUtil.java",
+        "patchSetId": 9
+      },
+      "lineNbr": 210,
+      "author": {
+        "id": 6550
+      },
+      "writtenOn": "2016-11-09T07:02:49Z",
+      "side": 1,
+      "message": "This is to differentiate between tagged and untagged packets. In case of tagged packets we need to put back vlan related headers back to packet as its getting removed in table\u003d0",
+      "parentUuid": "3a65312a_00032310",
+      "revId": "120b04004376cb7fd62cc378ac387cd494e123a4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
