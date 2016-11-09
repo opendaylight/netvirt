@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3a65312a_130b58d7",
+        "filename": "vpnservice/aclservice/impl/src/test/java/org/opendaylight/netvirt/aclservice/tests/AclServiceTestModule.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 4269
+      },
+      "writtenOn": "2016-11-09T10:33:19Z",
+      "side": 1,
+      "message": "Should this go to the test classes?",
+      "revId": "5810fc6107fb2653c8bf6f87edcee93728178551",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
