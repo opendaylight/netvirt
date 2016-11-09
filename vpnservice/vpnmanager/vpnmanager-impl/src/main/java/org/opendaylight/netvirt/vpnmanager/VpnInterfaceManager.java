@@ -829,7 +829,7 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                     try {
                         if (rd != null) {
                             bgpManager.advertisePrefix(rd, null /*macAddress*/, prefix, nhList, VrfEntry.EncapType.Mplsgre,
-                                    (int)label, 0 /*evi*/, null /*gatewayMacAddress*/);
+                                    (int)label, 0 /*l3vni*/, null /*gatewayMacAddress*/);
                         }
                     } catch (Exception ex) {
                         LOG.error("Exception when advertising prefix {} on rd {} as {}", prefix, rd, ex);
