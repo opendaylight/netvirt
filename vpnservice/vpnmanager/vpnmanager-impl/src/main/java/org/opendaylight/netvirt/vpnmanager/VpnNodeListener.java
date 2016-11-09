@@ -96,6 +96,7 @@ public class VpnNodeListener extends AsyncClusteredDataTreeChangeListenerBase<No
         createTableMissForVpnGwFlow(writeFlowTx, dpId);
         createArpRequestMatchFlowForGwMacTable(writeFlowTx, dpId);
         createArpResponseMatchFlowForGwMacTable(writeFlowTx, dpId);
+        programTableMissForExternalTunnelTable(writeFlowTx, dpId, NwConstants.ADD_FLOW);
         writeFlowTx.submit();
     }
 
@@ -199,6 +200,23 @@ public class VpnNodeListener extends AsyncClusteredDataTreeChangeListenerBase<No
         LOG.trace("Invoking MDSAL to install L3 Gw Mac Arp Reply Match Flow");
         mdsalManager.addFlowToTx(flowEntity, writeFlowTx);
    }
+
+    private void programTableMissForExternalTunnelTable(WriteTransaction writeFlowTx, BigInteger dpnId, int addOrRemove) {
+        final BigInteger COOKIE_TABLE_MISS = new BigInteger("1080000", 16);
+        List<ActionInfo> actionsInfos = new ArrayList<ActionInfo>();
+        List<InstructionInfo> instructions = new ArrayList<InstructionInfo>();
+        actionsInfos.add(new ActionInfo(ActionType.nx_resubmit, new String[]{Short.toString(NwConstants.LPORT_DISPATCHER_TABLE)}));
+        List<MatchInfo> matches = new ArrayList<MatchInfo>();
+        String flowRef = getTableMissFlowRef(dpnId, NwConstants.EXTERNAL_TUNNEL_TABLE, NwConstants.TABLE_MISS_FLOW);
+        FlowEntity flowEntity = MDSALUtil.buildFlowEntity(dpnId, NwConstants.EXTERNAL_TUNNEL_TABLE, flowRef,
+                NwConstants.TABLE_MISS_PRIORITY, "External Tunnel Table Miss", 0, 0, COOKIE_TABLE_MISS, matches, instructions);
+
+        if (addOrRemove == NwConstants.ADD_FLOW) {
+            mdsalManager.addFlowToTx(flowEntity, writeFlowTx);
+        } else {
+            mdsalManager.removeFlowToTx(flowEntity, writeFlowTx);
+        }
+    }
 
     private String getFlowRefForArpFlows(BigInteger dpnId, short tableId, int arpRequestOrReply) {
         return new StringBuffer().append(FLOWID_PREFIX_FOR_ARP).append(dpnId).append(NwConstants.FLOWID_SEPARATOR)

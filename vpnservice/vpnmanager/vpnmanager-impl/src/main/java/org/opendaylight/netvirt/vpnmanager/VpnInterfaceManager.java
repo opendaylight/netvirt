@@ -30,6 +30,7 @@ import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
 import org.opendaylight.genius.datastoreutils.DataStoreJobCoordinator;
+import org.opendaylight.genius.itm.globals.ITMConstants;
 import org.opendaylight.genius.mdsalutil.ActionInfo;
 import org.opendaylight.genius.mdsalutil.ActionType;
 import org.opendaylight.genius.mdsalutil.FlowEntity;
@@ -77,6 +78,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.Nodes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.Node;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.NodeBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.NodeKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.instances.ElanInstance;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.FibEntries;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.LabelRouteMap;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.SubnetRoute;
@@ -356,11 +358,16 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                             interfaceName, vpnName, opVpnName);
                 }
             }
+            String vpnRd = VpnUtil.getVpnRd(dataBroker, vpnName);
+            VpnInstanceOpDataEntry vpnInstanceOpDataEntry = VpnUtil.getVpnInstanceOpData(dataBroker, vpnRd);
             if (!waitForVpnInterfaceOpRemoval) {
                 // Add the VPNInterface and quit
                 updateVpnToDpnMapping(dpId, vpnName, interfaceName, true /* add */);
                 bindService(dpId, vpnName, interfaceName, lPortTag, writeConfigTxn, writeInvTxn);
-                processVpnInterfaceAdjacencies(dpId, vpnName, interfaceName, writeConfigTxn, writeOperTxn);
+                if (vpnInstanceOpDataEntry.getType().equals(VpnInstanceOpDataEntry.Type.L2)) {
+                    setupGwMacForEvpn(dpId, vpnId, getGatewayMac(interfaceName), writeInvTxn, NwConstants.ADD_FLOW);
+                }
+                 processVpnInterfaceAdjacencies(dpId, vpnName, interfaceName, writeConfigTxn, writeOperTxn);
                 return;
             }
 
@@ -388,6 +395,9 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
             // VPNInterface got removed, proceed with Add
             updateVpnToDpnMapping(dpId, vpnName, interfaceName, true /* add */);
             bindService(dpId, vpnName, interfaceName, lPortTag, writeConfigTxn, writeInvTxn);
+            if (vpnInstanceOpDataEntry.getType().equals(VpnInstanceOpDataEntry.Type.L2)) {
+                setupGwMacForEvpn(dpId, vpnId, getGatewayMac(interfaceName), writeInvTxn, NwConstants.ADD_FLOW);
+            }
             processVpnInterfaceAdjacencies(dpId, vpnName, interfaceName, writeConfigTxn, writeOperTxn);
         } else {
             // Interface is retained in the DPN, but its Link Up.
@@ -625,6 +635,39 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
         setupGwMacIfExternalVpn(dpId, vpnInterfaceName, vpnId, writeInvTxn, NwConstants.ADD_FLOW);
     }
 
+    private void bindServiceForDcGwTunnel(BigInteger dpId, final String vpnInstanceName, final String vpnInterfaceName,
+                             int lPortTag, WriteTransaction writeConfigTxn, WriteTransaction writeInvTxn) {
+
+        final int priority = VpnConstants.DEFAULT_FLOW_PRIORITY;
+        final long vpnId = VpnUtil.getVpnId(dataBroker, vpnInstanceName);
+
+        DataStoreJobCoordinator dataStoreCoordinator = DataStoreJobCoordinator.getInstance();
+        dataStoreCoordinator.enqueueJob(vpnInterfaceName,
+                new Callable<List<ListenableFuture<Void>>>() {
+                    @Override
+                    public List<ListenableFuture<Void>> call() throws Exception {
+                        WriteTransaction writeTxn = dataBroker.newWriteOnlyTransaction();
+                        int instructionKey = 0;
+                        List<Instruction> instructions = new ArrayList<Instruction>();
+
+                        instructions.add(MDSALUtil.buildAndGetWriteMetadaInstruction(
+                                MetaDataUtil.getVpnIdMetadata(vpnId), MetaDataUtil.METADATA_MASK_VRFID, ++instructionKey));
+                        instructions.add(MDSALUtil.buildAndGetGotoTableInstruction(NwConstants.L3_GW_MAC_TABLE, ++instructionKey));
+
+                        BoundServices
+                                serviceInfo =
+                                InterfaceUtils.getBoundServices(String.format("%s.%s.%s", "vpn",vpnInstanceName, vpnInterfaceName),
+                                        ServiceIndex.getIndex(NwConstants.L3VPN_SERVICE_NAME, NwConstants.L3VPN_SERVICE_INDEX), priority,
+                                        NwConstants.COOKIE_VM_INGRESS_TABLE, instructions);
+                        writeTxn.put(LogicalDatastoreType.CONFIGURATION,
+                                InterfaceUtils.buildServiceId(vpnInterfaceName, ServiceIndex.getIndex(NwConstants.L3VPN_SERVICE_NAME, NwConstants.L3VPN_SERVICE_INDEX)), serviceInfo, true);
+                        List<ListenableFuture<Void>> futures = new ArrayList<ListenableFuture<Void>>();
+                        futures.add(writeTxn.submit());
+                        return futures;
+                    }
+                });
+    }
+
     private void setupGwMacIfExternalVpn(BigInteger dpnId, String interfaceName, long vpnId,
             WriteTransaction writeInvTxn, int addOrRemove) {
         InstanceIdentifier<VpnIds> vpnIdsInstanceIdentifier = VpnUtil.getVpnIdToVpnInstanceIdentifier(vpnId);
@@ -642,6 +685,15 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
             } else if (addOrRemove == NwConstants.DEL_FLOW) {
                 mdsalManager.removeFlowToTx(flowEntity, writeInvTxn);
             }
+        }
+    }
+
+    private void setupGwMacForEvpn(BigInteger dpnId, long vpnId, String gatewayMac, WriteTransaction writeInvTxn, int addOrRemove) {
+        FlowEntity flowEntity = VpnUtil.buildL3vpnGatewayFlow(dpnId, gatewayMac, vpnId);
+        if (addOrRemove == NwConstants.ADD_FLOW) {
+            mdsalManager.addFlowToTx(flowEntity, writeInvTxn);
+        } else if (addOrRemove == NwConstants.DEL_FLOW) {
+            mdsalManager.removeFlowToTx(flowEntity, writeInvTxn);
         }
     }
 
@@ -1346,6 +1398,11 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
         }
         long vpnId = VpnUtil.getVpnId(dataBroker, vpnInstanceName);
         setupGwMacIfExternalVpn(dpId, vpnInterfaceName, vpnId, writeConfigTxn, NwConstants.DEL_FLOW);
+        String vpnRd = VpnUtil.getVpnRd(dataBroker, vpnInstanceName);
+        VpnInstanceOpDataEntry vpnInstanceOpDataEntry = VpnUtil.getVpnInstanceOpData(dataBroker, vpnRd);
+        if (vpnInstanceOpDataEntry.getType().equals(VpnInstanceOpDataEntry.Type.L2)) {
+            setupGwMacForEvpn(dpId, vpnId, getGatewayMac(vpnInterfaceName), writeInvTxn, NwConstants.DEL_FLOW);
+        }
     }
 
 
