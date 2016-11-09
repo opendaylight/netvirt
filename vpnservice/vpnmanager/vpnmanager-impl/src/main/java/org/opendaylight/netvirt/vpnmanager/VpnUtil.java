@@ -29,6 +29,7 @@ import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.clustering.EntityOwnershipService;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
+import org.opendaylight.genius.datastoreutils.DataStoreJobCoordinator;
 import org.opendaylight.genius.mdsalutil.FlowEntity;
 import org.opendaylight.genius.mdsalutil.InstructionInfo;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
@@ -39,6 +40,7 @@ import org.opendaylight.genius.mdsalutil.instructions.InstructionGotoTable;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.genius.mdsalutil.matches.MatchEthernetDestination;
 import org.opendaylight.genius.mdsalutil.matches.MatchMetadata;
+import org.opendaylight.genius.utils.ServiceIndex;
 import org.opendaylight.genius.utils.cache.DataStoreCache;
 import org.opendaylight.genius.utils.clustering.ClusteringUtils;
 import org.opendaylight.netvirt.bgpmanager.api.IBgpManager;
@@ -61,6 +63,7 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.MacAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.PhysAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.instruction.list.Instruction;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.AllocateIdInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.AllocateIdInputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.AllocateIdOutput;
@@ -74,6 +77,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.met
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.meta.rev160406._if.indexes._interface.map.IfIndexInterface;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.meta.rev160406._if.indexes._interface.map.IfIndexInterfaceKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.OdlInterfaceRpcService;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.servicebinding.rev160406.service.bindings.services.info.BoundServices;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.lockmanager.rev160413.LockManagerService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.lockmanager.rev160413.TimeUnits;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.lockmanager.rev160413.TryLockInput;
@@ -1528,5 +1532,78 @@ public class VpnUtil {
         }
 
         return externalIps.stream().map(externalIp -> externalIp.getIpAddress()).collect(Collectors.toList());
+    }
+
+    static void bindService(final String vpnInstanceName, final String interfaceName, DataBroker dataBroker,
+                            boolean isTunnelInterface) {
+        DataStoreJobCoordinator dataStoreCoordinator = DataStoreJobCoordinator.getInstance();
+        dataStoreCoordinator.enqueueJob(interfaceName,
+            () -> {
+                WriteTransaction writeTxn = dataBroker.newWriteOnlyTransaction();
+                BoundServices serviceInfo = isTunnelInterface
+                        ? VpnUtil.getBoundServicesForTunnelInterface(vpnInstanceName, interfaceName)
+                        : getBoundServicesForVpnInterface(dataBroker, vpnInstanceName, interfaceName);
+                writeTxn.put(LogicalDatastoreType.CONFIGURATION, InterfaceUtils.buildServiceId(interfaceName,
+                        ServiceIndex.getIndex(NwConstants.L3VPN_SERVICE_NAME, NwConstants.L3VPN_SERVICE_INDEX)),
+                        serviceInfo, true);
+                List<ListenableFuture<Void>> futures = new ArrayList<>();
+                futures.add(writeTxn.submit());
+                return futures;
+            });
+    }
+
+    static BoundServices getBoundServicesForVpnInterface(DataBroker broker, String vpnName, String interfaceName) {
+        List<Instruction> instructions = new ArrayList<>();
+        int instructionKey = 0;
+        final long vpnId = VpnUtil.getVpnId(broker, vpnName);
+        instructions.add(
+                MDSALUtil.buildAndGetWriteMetadaInstruction(MetaDataUtil.getVpnIdMetadata(vpnId),
+                        MetaDataUtil.METADATA_MASK_VRFID, ++instructionKey));
+        instructions.add(MDSALUtil.buildAndGetGotoTableInstruction(NwConstants.L3_GW_MAC_TABLE,
+                ++instructionKey));
+        BoundServices serviceInfo = InterfaceUtils.getBoundServices(
+                String.format("%s.%s.%s", "vpn", vpnName, interfaceName),
+                ServiceIndex.getIndex(NwConstants.L3VPN_SERVICE_NAME, NwConstants.L3VPN_SERVICE_INDEX),
+                VpnConstants.DEFAULT_FLOW_PRIORITY, NwConstants.COOKIE_VM_INGRESS_TABLE, instructions);
+        return serviceInfo;
+    }
+
+    static BoundServices getBoundServicesForTunnelInterface(String vpnName, String interfaceName) {
+        int instructionKey = 0;
+        List<Instruction> instructions = new ArrayList<Instruction>();
+        instructions.add(MDSALUtil.buildAndGetGotoTableInstruction(
+                NwConstants.L3VNI_EXTERNAL_TUNNEL_DEMUX_TABLE, ++instructionKey));
+        BoundServices serviceInfo = InterfaceUtils.getBoundServices(String.format("%s.%s.%s", "vpn",
+                vpnName, interfaceName),
+                ServiceIndex.getIndex(NwConstants.L3VPN_SERVICE_NAME,
+                        NwConstants.L3VNI_EXTERNAL_TUNNEL_DEMUX_TABLE), VpnConstants.DEFAULT_FLOW_PRIORITY,
+                NwConstants.COOKIE_VM_INGRESS_TABLE, instructions);
+        return serviceInfo;
+    }
+
+    static void unbindService(DataBroker dataBroker, final String vpnInterfaceName, boolean isInterfaceStateDown,
+                               boolean isConfigRemoval) {
+        if (!isInterfaceStateDown && isConfigRemoval) {
+            DataStoreJobCoordinator dataStoreCoordinator = DataStoreJobCoordinator.getInstance();
+            dataStoreCoordinator.enqueueJob(vpnInterfaceName,
+                () -> {
+                    WriteTransaction writeTxn = dataBroker.newWriteOnlyTransaction();
+                    writeTxn.delete(LogicalDatastoreType.CONFIGURATION,
+                            InterfaceUtils.buildServiceId(vpnInterfaceName,
+                                    ServiceIndex.getIndex(NwConstants.L3VPN_SERVICE_NAME,
+                                            NwConstants.L3VPN_SERVICE_INDEX)));
+
+                    List<ListenableFuture<Void>> futures = new ArrayList<>();
+                    futures.add(writeTxn.submit());
+                    return futures;
+                });
+        }
+    }
+
+    static FlowEntity buildFlowEntity(BigInteger dpnId, short tableId, String flowId) {
+        FlowEntity flowEntity = new FlowEntity(dpnId);
+        flowEntity.setTableId(tableId);
+        flowEntity.setFlowId(flowId);
+        return flowEntity;
     }
 }
