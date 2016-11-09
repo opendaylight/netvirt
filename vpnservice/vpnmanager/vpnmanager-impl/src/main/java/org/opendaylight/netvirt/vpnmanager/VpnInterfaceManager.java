@@ -41,10 +41,8 @@ import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
 import org.opendaylight.genius.datastoreutils.DataStoreJobCoordinator;
 import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
-import org.opendaylight.genius.mdsalutil.MetaDataUtil;
 import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
-import org.opendaylight.genius.utils.ServiceIndex;
 import org.opendaylight.netvirt.bgpmanager.api.IBgpManager;
 import org.opendaylight.netvirt.fibmanager.api.FibHelper;
 import org.opendaylight.netvirt.fibmanager.api.IFibManager;
@@ -67,11 +65,9 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.action.types.rev131112.action.list.Action;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.instruction.list.Instruction;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.arputil.rev160406.OdlArputilService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.IdManagerService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.OdlInterfaceRpcService;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.servicebinding.rev160406.service.bindings.services.info.BoundServices;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.op.rev160406.tunnels_state.StateTunnelList;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.FibEntries;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.LabelRouteMap;
@@ -334,7 +330,7 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
             if (!waitForVpnInterfaceOpRemoval) {
                 // Add the VPNInterface and quit
                 vpnFootprintService.updateVpnToDpnMapping(dpId, vpnName, interfaceName, true /* add */);
-                bindService(dpId, vpnName, interfaceName, lportTag);
+                VpnUtil.bindService(vpnName, interfaceName, dataBroker, false /*isTunnelInterface*/);
                 processVpnInterfaceAdjacencies(dpId, lportTag, vpnName, interfaceName,
                         vpnId, writeConfigTxn, writeOperTxn, writeInvTxn, interfaceState);
                 if (interfaceManager.isExternalInterface(interfaceName)) {
@@ -368,7 +364,7 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
             }
             // VPNInterface got removed, proceed with Add
             vpnFootprintService.updateVpnToDpnMapping(dpId, vpnName, interfaceName, true /* add */);
-            bindService(dpId, vpnName, interfaceName, lportTag);
+            VpnUtil.bindService(vpnName, interfaceName, dataBroker, false/*isTunnelInterface*/);
             processVpnInterfaceAdjacencies(dpId, lportTag, vpnName, interfaceName,
                     vpnId, writeConfigTxn, writeOperTxn, writeInvTxn, interfaceState);
             if (interfaceManager.isExternalInterface(interfaceName)) {
@@ -523,37 +519,6 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                 }
             }
         }
-    }
-
-    private void bindService(BigInteger dpId, final String vpnInstanceName, final String vpnInterfaceName,
-            int lportTag) {
-        final int priority = VpnConstants.DEFAULT_FLOW_PRIORITY;
-        final long vpnId = VpnUtil.getVpnId(dataBroker, vpnInstanceName);
-
-        DataStoreJobCoordinator dataStoreCoordinator = DataStoreJobCoordinator.getInstance();
-        dataStoreCoordinator.enqueueJob(vpnInterfaceName,
-            () -> {
-                WriteTransaction writeTxn = dataBroker.newWriteOnlyTransaction();
-                int instructionKey = 0;
-                List<Instruction> instructions = new ArrayList<>();
-
-                instructions.add(
-                        MDSALUtil.buildAndGetWriteMetadaInstruction(MetaDataUtil.getVpnIdMetadata(vpnId),
-                                MetaDataUtil.METADATA_MASK_VRFID, ++instructionKey));
-                instructions.add(MDSALUtil.buildAndGetGotoTableInstruction(NwConstants.L3_GW_MAC_TABLE,
-                        ++instructionKey));
-
-                BoundServices serviceInfo = InterfaceUtils.getBoundServices(
-                        String.format("%s.%s.%s", "vpn", vpnInstanceName, vpnInterfaceName),
-                        ServiceIndex.getIndex(NwConstants.L3VPN_SERVICE_NAME, NwConstants.L3VPN_SERVICE_INDEX),
-                        priority, NwConstants.COOKIE_VM_INGRESS_TABLE, instructions);
-                writeTxn.put(LogicalDatastoreType.CONFIGURATION, InterfaceUtils.buildServiceId(vpnInterfaceName,
-                        ServiceIndex.getIndex(NwConstants.L3VPN_SERVICE_NAME, NwConstants.L3VPN_SERVICE_INDEX)),
-                        serviceInfo, true);
-                List<ListenableFuture<Void>> futures = new ArrayList<>();
-                futures.add(writeTxn.submit());
-                return futures;
-            });
     }
 
     @SuppressWarnings("checkstyle:IllegalCatch")
@@ -1120,7 +1085,7 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                                 NwConstants.DEL_FLOW);
                     }
                     LOG.info("Unbinding vpn service from interface {} ", interfaceName);
-                    unbindService(dpId, vpnName, interfaceName, lportTag, isInterfaceStateDown, isConfigRemoval);
+                    VpnUtil.unbindService(dataBroker, interfaceName, isInterfaceStateDown, isConfigRemoval);
 
                 } else {
                     LOG.info("Unbinding vpn service for interface {} has already been scheduled by a different event ",
@@ -1251,25 +1216,6 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
             LOG.trace("VPNInterface adjacency Gsteway IP {} for ARP Responder removal", gwIp.get());
             final String flowId = ArpResponderUtil.getFlowID(lportTag, gwIp.get());
             ArpResponderUtil.removeFlow(mdsalManager, writeInvTxn, dpId, flowId);
-        }
-    }
-
-    private void unbindService(BigInteger dpId, String vpnInstanceName, final String vpnInterfaceName,
-                               int lportTag, boolean isInterfaceStateDown, boolean isConfigRemoval) {
-        if (!isInterfaceStateDown && isConfigRemoval) {
-            DataStoreJobCoordinator dataStoreCoordinator = DataStoreJobCoordinator.getInstance();
-            dataStoreCoordinator.enqueueJob(vpnInterfaceName,
-                () -> {
-                    WriteTransaction writeTxn = dataBroker.newWriteOnlyTransaction();
-                    writeTxn.delete(LogicalDatastoreType.CONFIGURATION,
-                        InterfaceUtils.buildServiceId(vpnInterfaceName,
-                            ServiceIndex.getIndex(NwConstants.L3VPN_SERVICE_NAME,
-                                NwConstants.L3VPN_SERVICE_INDEX)));
-
-                    List<ListenableFuture<Void>> futures = new ArrayList<>();
-                    futures.add(writeTxn.submit());
-                    return futures;
-                });
         }
     }
 
