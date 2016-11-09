@@ -93,6 +93,7 @@ public class VpnNodeListener extends AsyncClusteredDataTreeChangeListenerBase<No
         makeTableMissFlow(writeFlowTx, dpId, NwConstants.ADD_FLOW);
         makeL3IntfTblMissFlow(writeFlowTx, dpId, NwConstants.ADD_FLOW);
         makeSubnetRouteTableMissFlow(writeFlowTx, dpId, NwConstants.ADD_FLOW);
+        programTableMissForVpnVniDemuxTable(writeFlowTx, dpId, NwConstants.ADD_FLOW);
         createTableMissForVpnGwFlow(writeFlowTx, dpId);
         createArpRequestMatchFlowForGwMacTable(writeFlowTx, dpId);
         createArpResponseMatchFlowForGwMacTable(writeFlowTx, dpId);
@@ -150,6 +151,23 @@ public class VpnNodeListener extends AsyncClusteredDataTreeChangeListenerBase<No
         String flowRef = getTableMissFlowRef(dpnId, NwConstants.L3_SUBNET_ROUTE_TABLE, NwConstants.TABLE_MISS_FLOW);
         FlowEntity flowEntity = MDSALUtil.buildFlowEntity(dpnId, NwConstants.L3_SUBNET_ROUTE_TABLE, flowRef,
                 NwConstants.TABLE_MISS_PRIORITY, "Subnet Route Table Miss", 0, 0, COOKIE_TABLE_MISS, matches, instructions);
+
+        if (addOrRemove == NwConstants.ADD_FLOW) {
+            mdsalManager.addFlowToTx(flowEntity, writeFlowTx);
+        } else {
+            mdsalManager.removeFlowToTx(flowEntity, writeFlowTx);
+        }
+    }
+
+    private void programTableMissForVpnVniDemuxTable(WriteTransaction writeFlowTx, BigInteger dpnId, int addOrRemove) {
+        final BigInteger COOKIE_TABLE_MISS = new BigInteger("1080000", 16);
+        List<ActionInfo> actionsInfos = new ArrayList<ActionInfo>();
+        List<InstructionInfo> instructions = new ArrayList<InstructionInfo>();
+        actionsInfos.add(new ActionInfo(ActionType.nx_resubmit, new String[]{Short.toString(NwConstants.LPORT_DISPATCHER_TABLE)}));
+        List<MatchInfo> matches = new ArrayList<MatchInfo>();
+        String flowRef = getTableMissFlowRef(dpnId, (short)1850, NwConstants.TABLE_MISS_FLOW);
+        FlowEntity flowEntity = MDSALUtil.buildFlowEntity(dpnId, (short)1850, flowRef,
+                NwConstants.TABLE_MISS_PRIORITY, "VPN-VNI Demux Table Miss", 0, 0, COOKIE_TABLE_MISS, matches, instructions);
 
         if (addOrRemove == NwConstants.ADD_FLOW) {
             mdsalManager.addFlowToTx(flowEntity, writeFlowTx);
