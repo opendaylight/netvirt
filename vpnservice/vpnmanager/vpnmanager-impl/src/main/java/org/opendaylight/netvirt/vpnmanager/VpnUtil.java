@@ -1455,11 +1455,6 @@ public class VpnUtil {
         return (l2Vni != null && l2Vni != 0);
     }
 
-    static   String getGatewayMac(String interfaceName) {
-        //OUI based MAC creation and use
-        return VpnConstants.DEFAULT_GATEWAY_MAC_ADDRESS;
-    }
-
     /**
      * Retrieves the primary rd of a vpn instance
      * Primary rd will be the first rd in the list of rds configured for a vpn instance
