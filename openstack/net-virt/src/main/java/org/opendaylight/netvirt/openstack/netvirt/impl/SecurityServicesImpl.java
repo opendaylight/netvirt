@@ -456,13 +456,14 @@ public class SecurityServicesImpl implements ConfigInterface, SecurityServicesMa
         String segmentationId = neutronNetwork.getProviderSegmentationID();
         long localPort = southbound.getOFPort(intf);
         NeutronPort dhcpPort = this.getDhcpServerPort(intf);
+        if (dhcpPort != null) {
+            ingressAclProvider.programFixedSecurityGroup(dpid, segmentationId,
+                dhcpPort.getMacAddress(), localPort, attachedMac, write);
+        }
         List<Neutron_IPs> srcAddressList = null;
         srcAddressList = this.getIpAddressList(intf);
-        ingressAclProvider.programFixedSecurityGroup(dpid, segmentationId,
-            dhcpPort.getMacAddress(), localPort, attachedMac, write);
         egressAclProvider.programFixedSecurityGroup(dpid, segmentationId,
             attachedMac, localPort, srcAddressList, write);
-
     }
 
     @Override
