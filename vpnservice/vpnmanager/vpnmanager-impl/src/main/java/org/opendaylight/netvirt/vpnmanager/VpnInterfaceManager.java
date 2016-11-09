@@ -440,23 +440,23 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
         InstanceIdentifier<Adjacencies> path = identifier.augmentation(Adjacencies.class);
         Optional<Adjacencies> adjacencies = VpnUtil.read(dataBroker, LogicalDatastoreType.OPERATIONAL, path);
         if (adjacencies.isPresent()) {
-            VpnInstanceOpDataEntry vpnInstanceOpData = VpnUtil.getVpnInstanceOpData(dataBroker, rd);
-            long l3vni = 0;
-            String gatewayMac = null;
-            VrfEntry.EncapType encapType = null;
-            if (VpnUtil.isL3VpnOverVxLan(vpnInstanceOpData.getL3vni())) {
-                encapType = VrfEntry.EncapType.Vxlan;
-                l3vni = vpnInstanceOpData.getL3vni();
-                gatewayMac = VpnUtil.getGatewayMac(intf.getName());
-            } else {
-                encapType = VrfEntry.EncapType.Mplsgre;
-            }
             List<Adjacency> nextHops = adjacencies.get().getAdjacency();
 
             if (!nextHops.isEmpty()) {
                 LOG.trace("NextHops are {}", nextHops);
+                VpnInstanceOpDataEntry vpnInstanceOpData = VpnUtil.getVpnInstanceOpData(dataBroker, rd);
+                long l3vni = vpnInstanceOpData.getL3vni();
+                VrfEntry.EncapType encapType = VpnUtil.isL3VpnOverVxLan(l3vni)
+                        ? VrfEntry.EncapType.Vxlan : VrfEntry.EncapType.Mplsgre;
                 for (Adjacency nextHop : nextHops) {
-                    long label = nextHop.getLabel();
+                    String gatewayMac = null;
+                    long label = 0;
+                    if (VpnUtil.isL3VpnOverVxLan(l3vni)) {
+                        gatewayMac = getGatewayMacAddressForInterface(vpnInstanceOpData.getVpnInstanceName(),
+                                intf.getName(), nextHop.getIpAddress()).get();
+                    } else {
+                        label = nextHop.getLabel();
+                    }
                     try {
                         LOG.info("VPN ADVERTISE: Adding Fib Entry rd {} prefix {} nexthop {} label {}", rd,
                                 nextHop.getIpAddress(), nextHopIp, label);
@@ -547,7 +547,6 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
             });
     }
 
-    // TODO Clean up the exception handling
     @SuppressWarnings("checkstyle:IllegalCatch")
     protected void processVpnInterfaceAdjacencies(BigInteger dpnId, final int lportTag, String vpnName,
                                                   String interfaceName, final long vpnId,
@@ -657,7 +656,7 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
 
         L3vpnInput input = new L3vpnInput().setNextHopIp(nextHopIp).setL3vni(l3vni).setPrimaryRd(primaryRd)
                 .setGatewayMac(gwMac.isPresent() ? gwMac.get() : null).setInterfaceName(interfaceName)
-                .setVpnName(vpnName).setInterfaceName(interfaceName).setDpnId(dpnId).setEncapType(encapType);
+                .setVpnName(vpnName).setDpnId(dpnId).setEncapType(encapType);
         for (Adjacency nextHop : aug.getAdjacency()) {
             input.setNextHop(nextHop).setRd(nextHop.getVrfId());
             registeredPopulator.populateFib(input, writeConfigTxn, writeOperTxn);
