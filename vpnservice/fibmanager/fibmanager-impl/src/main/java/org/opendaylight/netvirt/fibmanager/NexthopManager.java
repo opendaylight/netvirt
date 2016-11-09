@@ -556,7 +556,7 @@ public class NexthopManager implements AutoCloseable {
         }
     }
 
-    private InstanceIdentifier<Adjacency> getAdjacencyIdentifier(String vpnInterfaceName, String ipAddress) {
+    InstanceIdentifier<Adjacency> getAdjacencyIdentifier(String vpnInterfaceName, String ipAddress) {
         return InstanceIdentifier.builder(VpnInterfaces.class)
             .child(VpnInterface.class, new VpnInterfaceKey(vpnInterfaceName)).augmentation(
                 Adjacencies.class).child(Adjacency.class, new AdjacencyKey(ipAddress)).build();
