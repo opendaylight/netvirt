@@ -27,6 +27,8 @@ import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFaile
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.netvirt.fibmanager.api.RouteOrigin;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.interfaces.VpnInterface;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.InterfacesState;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.AllocateIdInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.AllocateIdInputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.AllocateIdOutput;
@@ -706,5 +708,29 @@ public class FibUtil {
         return routeOrigin == RouteOrigin.STATIC
             || routeOrigin == RouteOrigin.CONNECTED
             || routeOrigin == RouteOrigin.LOCAL;
+    }
+
+    public static InstanceIdentifier<Interface> buildStateInterfaceId(String interfaceName) {
+        InstanceIdentifier.InstanceIdentifierBuilder<Interface> idBuilder =
+                InstanceIdentifier.builder(InterfacesState.class)
+                        .child(org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508
+                                .interfaces.state.Interface.class, new org.opendaylight.yang.gen.v1.urn.ietf
+                                .params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state
+                                .InterfaceKey(interfaceName));
+        InstanceIdentifier<org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508
+                .interfaces.state.Interface> id = idBuilder.build();
+        return id;
+    }
+
+    public static org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces
+            .state.Interface getInterfaceStateFromOperDS(DataBroker dataBroker, String interfaceName) {
+        InstanceIdentifier<org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508
+                .interfaces.state.Interface> ifStateId = buildStateInterfaceId(interfaceName);
+        Optional<Interface> ifStateOptional = FibUtil.read(dataBroker, LogicalDatastoreType.OPERATIONAL, ifStateId);
+        if (ifStateOptional.isPresent()) {
+            return ifStateOptional.get();
+        }
+
+        return null;
     }
 }

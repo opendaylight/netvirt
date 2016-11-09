@@ -37,6 +37,7 @@ import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
 import org.opendaylight.genius.datastoreutils.DataStoreJobCoordinator;
 import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
+import org.opendaylight.genius.mdsalutil.FlowEntity;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.mdsalutil.MetaDataUtil;
 import org.opendaylight.genius.mdsalutil.NwConstants;
@@ -322,6 +323,7 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                             interfaceName, vpnName, opVpnName);
                 }
             }
+            String vpnRd = VpnUtil.getVpnRd(dataBroker, vpnName);
             if (!waitForVpnInterfaceOpRemoval) {
                 // Add the VPNInterface and quit
                 vpnFootprintService.updateVpnToDpnMapping(dpId, vpnName, interfaceName, true /* add */);
@@ -535,7 +537,16 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
             });
     }
 
-    // TODO Clean up the exception handling
+    private void buildAndProgramGwMacFlow(BigInteger dpnId, long vpnId, String gatewayMac,
+                                          WriteTransaction writeInvTxn, int addOrRemove) {
+        FlowEntity flowEntity = VpnUtil.buildL3vpnGatewayFlow(dpnId, gatewayMac, vpnId);
+        if (addOrRemove == NwConstants.ADD_FLOW) {
+            mdsalManager.addFlowToTx(flowEntity, writeInvTxn);
+        } else if (addOrRemove == NwConstants.DEL_FLOW) {
+            mdsalManager.removeFlowToTx(flowEntity, writeInvTxn);
+        }
+    }
+
     @SuppressWarnings("checkstyle:IllegalCatch")
     protected void processVpnInterfaceAdjacencies(BigInteger dpnId, final int lportTag, String vpnName,
                                                   String interfaceName, final long vpnId,
@@ -1245,6 +1256,12 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
         }
         VpnUtil.setupGwMacIfExternalVpn(dataBroker, mdsalManager, dpId, vpnInterfaceName,
                 vpnId, writeInvTxn, addOrRemove);
+        String vpnRd = VpnUtil.getVpnRd(dataBroker, vpnInstanceName);
+        VpnInstanceOpDataEntry vpnInstanceOpDataEntry = VpnUtil.getVpnInstanceOpData(dataBroker, vpnRd);
+        if (VpnUtil.isL3VpnOverVxLan(vpnInstanceOpDataEntry.getL3vni())) {
+            buildAndProgramGwMacFlow(dpId, vpnId, VpnUtil.getGatewayMac(vpnInterfaceName),
+                    writeInvTxn, addOrRemove);
+        }
     }
 
     // TODO Clean up the exception handling
