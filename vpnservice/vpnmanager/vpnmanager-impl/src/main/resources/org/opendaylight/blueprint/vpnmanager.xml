@@ -164,6 +164,7 @@
     <argument ref="idManagerService" />
     <argument ref="vpnInterfaceManager" />
     <argument ref="fibManager" />
+    <argument ref="mdsalUtils" />
   </bean>
 
   <bean id="fibEntriesListener" class="org.opendaylight.netvirt.vpnmanager.FibEntriesListener"

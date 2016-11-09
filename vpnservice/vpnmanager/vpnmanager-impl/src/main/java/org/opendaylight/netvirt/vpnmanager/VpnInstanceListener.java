@@ -13,7 +13,10 @@ import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
+
+import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.Callable;
@@ -30,14 +33,33 @@ import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
 import org.opendaylight.genius.datastoreutils.DataStoreJobCoordinator;
+import org.opendaylight.genius.mdsalutil.*;
+import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
+import org.opendaylight.genius.utils.ServiceIndex;
 import org.opendaylight.netvirt.bgpmanager.api.IBgpManager;
 import org.opendaylight.netvirt.fibmanager.api.IFibManager;
+import org.opendaylight.netvirt.vpnmanager.utilities.InterfaceUtils;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.VpnAfConfig;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.VpnInstances;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.af.config.VpnTargets;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.af.config.vpntargets.VpnTarget;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.instances.VpnInstance;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.FlowCapableNode;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.FlowId;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.tables.Table;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.tables.TableKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.tables.table.Flow;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.tables.table.FlowBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.tables.table.FlowKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.instruction.list.Instruction;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.IdManagerService;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.servicebinding.rev160406.service.bindings.services.info.BoundServices;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.op.rev160406.ExternalTunnelList;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.op.rev160406.external.tunnel.list.ExternalTunnel;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rev160406.DcGatewayIpList;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rev160406.dc.gateway.ip.list.DcGatewayIp;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.Nodes;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.Node;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.id.to.vpn.instance.VpnIds;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.VpnInstanceOpDataEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.VpnInstanceOpDataEntryBuilder;
@@ -52,6 +74,9 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import static org.opendaylight.genius.mdsalutil.MatchFieldType.metadata;
+import static org.opendaylight.genius.mdsalutil.NwConstants.COOKIE_VM_FIB_TABLE;
+
 public class VpnInstanceListener extends AsyncDataTreeChangeListenerBase<VpnInstance, VpnInstanceListener>
         implements AutoCloseable {
     private static final Logger LOG = LoggerFactory.getLogger(VpnInstanceListener.class);
@@ -61,19 +86,26 @@ public class VpnInstanceListener extends AsyncDataTreeChangeListenerBase<VpnInst
     private final IdManagerService idManager;
     private final VpnInterfaceManager vpnInterfaceManager;
     private final IFibManager fibManager;
+    private final IMdsalApiManager mdsalManager;
     private ExecutorService executorService = Executors.newSingleThreadExecutor();
     private ConcurrentMap<String, Runnable> vpnOpMap = new ConcurrentHashMap<String, Runnable>();
+    private final short VPN_VNI_DEMUX_TABLE = 1850; //TODO Move existing L3VPN tables and make this table 20
+    private final String VPN_VNI_DEMUX = "VPN VNI DEMUX TABLE";
+    private final String RT5_SERVICE_NAME = "RT5 SERVICE";
+    private static final int DEFAULT_FIB_FLOW_PRIORITY = 10;
 
     public VpnInstanceListener(final DataBroker dataBroker, final IBgpManager bgpManager,
                                final IdManagerService idManager,
                                final VpnInterfaceManager vpnInterfaceManager,
-                               final IFibManager fibManager) {
+                               final IFibManager fibManager,
+                               final IMdsalApiManager mdsalManager) {
         super(VpnInstance.class, VpnInstanceListener.class);
         this.dataBroker = dataBroker;
         this.bgpManager = bgpManager;
         this.idManager = idManager;
         this.vpnInterfaceManager = vpnInterfaceManager;
         this.fibManager = fibManager;
+        this.mdsalManager = mdsalManager;
     }
 
     public void start() {
@@ -333,9 +365,38 @@ public class VpnInstanceListener extends AsyncDataTreeChangeListenerBase<VpnInst
             // to call the respective helpers.
             final VpnAfConfig config = vpnInstance.getIpv4Family();
             final String rd = config.getRouteDistinguisher();
+            final long vpnId = VpnUtil.getVpnId(dataBroker, vpnInstance.getVpnInstanceName());
+
             WriteTransaction writeConfigTxn = broker.newWriteOnlyTransaction();
             WriteTransaction writeOperTxn = broker.newWriteOnlyTransaction();
             addVpnInstance(vpnInstance, writeConfigTxn, writeOperTxn);
+
+
+            // bind service on each tunnel interface
+            for ( String tunnelInterfaceName: getDcGatewayTunnelInterfaceNameList() )
+                bindService( vpnInstance.getVpnInstanceName(), tunnelInterfaceName );
+
+            // install flow
+            List<MatchInfo> mkMatches = new ArrayList<>();
+            mkMatches.add(new MatchInfo(MatchFieldType.tunnel_id, new BigInteger[] { BigInteger.valueOf(vpnInstance.getL3vni()) }));
+
+            BigInteger[] metadata = new BigInteger[] { MetaDataUtil.getVpnIdMetadata(vpnId), MetaDataUtil.METADATA_MASK_VRFID };
+
+            List<Instruction> instructions =
+                    Arrays.asList(new InstructionInfo(InstructionType.write_metadata, metadata).buildInstruction(0),
+                            new InstructionInfo(InstructionType.goto_table,
+                                    new long[] { NwConstants.L3_GW_MAC_TABLE }).buildInstruction(1));
+
+            String flowRef = getFibFlowRef( vpnInstance.getVpnInstanceName(), vpnId);
+            Flow flowEntity = MDSALUtil.buildFlowNew(NwConstants.L3_GW_MAC_TABLE, flowRef, DEFAULT_FIB_FLOW_PRIORITY, flowRef, 0, 0,
+                    COOKIE_VM_FIB_TABLE, mkMatches, instructions);
+
+
+            for ( BigInteger dpnId: VpnUtil.getOperativeDPNs( dataBroker ) )
+                mdsalManager.installFlow( dpnId, flowEntity );
+
+            ///////////////////////
+
             CheckedFuture<Void, TransactionCommitFailedException> checkFutures = writeOperTxn.submit();
             try {
                 checkFutures.get();
@@ -572,5 +633,80 @@ public class VpnInstanceListener extends AsyncDataTreeChangeListenerBase<VpnInst
                 notifieeIter.remove();
             }
         }
+    }
+
+    private void bindService( final String vpnInstanceName, final String tunnelInterfaceName ) {
+        final int priority = VpnConstants.DEFAULT_FLOW_PRIORITY;
+
+        DataStoreJobCoordinator dataStoreCoordinator = DataStoreJobCoordinator.getInstance();
+        dataStoreCoordinator.enqueueJob(tunnelInterfaceName,
+                new Callable<List<ListenableFuture<Void>>>() {
+                    @Override
+                    public List<ListenableFuture<Void>> call() throws Exception {
+                        WriteTransaction writeTxn = dataBroker.newWriteOnlyTransaction();
+                        int instructionKey = 0;
+                        List<Instruction> instructions = new ArrayList<Instruction>();
+
+                        instructions.add(MDSALUtil.buildAndGetGotoTableInstruction(VPN_VNI_DEMUX_TABLE, ++instructionKey));
+
+                        BoundServices
+                                serviceInfo =
+                                InterfaceUtils.getBoundServices(String.format("%s.%s.%s", "vpn",vpnInstanceName, tunnelInterfaceName),
+                                        ServiceIndex.getIndex(RT5_SERVICE_NAME, VPN_VNI_DEMUX_TABLE), priority,
+                                        NwConstants.COOKIE_VM_INGRESS_TABLE, instructions);
+                        writeTxn.put(LogicalDatastoreType.CONFIGURATION,
+                                InterfaceUtils.buildServiceId(tunnelInterfaceName, ServiceIndex.getIndex(NwConstants.L3VPN_SERVICE_NAME, NwConstants.L3VPN_SERVICE_INDEX)), serviceInfo, true);
+                        List<ListenableFuture<Void>> futures = new ArrayList<ListenableFuture<Void>>();
+                        futures.add(writeTxn.submit());
+                        return futures;
+                    }
+                });
+    }
+
+
+    private List<String> getDcGatewayTunnelInterfaceNameList()
+    {
+        List<String> tunnelInterfaceNameList = new ArrayList<>();
+
+        InstanceIdentifier<DcGatewayIpList> dcGatewayIpListInstanceIdentifier = InstanceIdentifier.create(DcGatewayIpList.class);
+        Optional<DcGatewayIpList> dcGatewayIpListOptional = VpnUtil.read(dataBroker, LogicalDatastoreType.CONFIGURATION, dcGatewayIpListInstanceIdentifier);
+        List<DcGatewayIp> dcGatewayIps = dcGatewayIpListOptional.get().getDcGatewayIp();
+
+        InstanceIdentifier<ExternalTunnelList> externalTunnelListId = InstanceIdentifier.create(ExternalTunnelList.class);
+
+        Optional<ExternalTunnelList> externalTunnelListOptional = VpnUtil.read(dataBroker, LogicalDatastoreType.OPERATIONAL, externalTunnelListId);
+        if (externalTunnelListOptional.isPresent()) {
+            List<ExternalTunnel> externalTunnels = externalTunnelListOptional.get().getExternalTunnel();
+
+            List<String> externalTunnelIpList = new ArrayList<>();
+            for ( ExternalTunnel externalTunnel: externalTunnels )
+                externalTunnelIpList.add( externalTunnel.getDestinationDevice() );
+
+            List<String> dcGatewayIpList = new ArrayList<>();
+            for ( DcGatewayIp dcGatewayIp: dcGatewayIps )
+                dcGatewayIpList.add( dcGatewayIp.getIpAddress().getIpv4Address().toString() );
+
+            // Find all externalTunnelIps present in dcGateWayIpList
+            List<String> externalTunnelIpsInDcGatewayIpList = new ArrayList<>();
+            for ( String externalTunnelIp: externalTunnelIpList )
+                for ( String dcGateWayIp: dcGatewayIpList )
+                    if ( externalTunnelIp.contentEquals(dcGateWayIp) )
+                        externalTunnelIpsInDcGatewayIpList.add(externalTunnelIp);
+
+
+            for ( String externalTunnelIpsInDcGatewayIp: externalTunnelIpsInDcGatewayIpList )
+                for ( ExternalTunnel externalTunnel: externalTunnels )
+                    if ( externalTunnel.getDestinationDevice().contentEquals( externalTunnelIpsInDcGatewayIp) )
+                        tunnelInterfaceNameList.add(externalTunnel.getTunnelInterfaceName());
+
+        }
+
+        return tunnelInterfaceNameList;
+    }
+
+    private String getFibFlowRef(String vpnInstanceName, long vpnId ) {
+        return new StringBuilder(64)
+                .append(vpnInstanceName).append(NwConstants.FLOWID_SEPARATOR)
+                .append(vpnId).toString();
     }
 }
