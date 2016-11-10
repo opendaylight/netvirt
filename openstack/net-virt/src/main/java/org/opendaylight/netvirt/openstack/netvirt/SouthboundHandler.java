@@ -242,7 +242,7 @@ public class SouthboundHandler extends AbstractHandler
     public void notifyNode (Node node, Action action) {
         LOG.info("notifyNode : action: {}, Node  : {} ", action, node);
 
-        if ((action.equals(Action.ADD)) && (southbound.getBridge(node) != null)) {
+        if ((action == Action.ADD) && (southbound.getBridge(node) != null)) {
             networkingProviderManager.getProvider(node).initializeOFFlowRules(node);
         }
     }
