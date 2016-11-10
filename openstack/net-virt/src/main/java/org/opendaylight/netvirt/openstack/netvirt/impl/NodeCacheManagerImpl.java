@@ -63,6 +63,13 @@ public class NodeCacheManagerImpl extends AbstractHandler implements NodeCacheMa
         NodeId nodeId = node.getNodeId();
         if (nodeCache.get(nodeId) == null) {
             action = Action.ADD;
+        } else {
+            long oldDpid = southbound.getDataPathId(nodeCache.get(nodeId));
+            long newDpid = southbound.getDataPathId(node);
+            LOG.info("oldDpid == {}, newDpid == {}", oldDpid, newDpid);
+            if (oldDpid != newDpid) {
+                action = Action.ADD;
+            }
         }
         nodeCache.put(nodeId, node);
 

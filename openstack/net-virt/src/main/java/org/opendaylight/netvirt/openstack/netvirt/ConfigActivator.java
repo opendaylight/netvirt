@@ -260,7 +260,7 @@ public class ConfigActivator implements BundleActivator {
         trackService(context, INeutronSubnetCRUD.class, lBaaSHandler, lBaaSPoolHandler, lBaaSPoolMemberHandler,
                 securityServices, neutronL3Adapter);
         trackService(context, INeutronPortCRUD.class, tenantNetworkManager, lBaaSHandler, lBaaSPoolHandler,
-                lBaaSPoolMemberHandler, securityServices, neutronL3Adapter, distributedArpService);
+                lBaaSPoolMemberHandler, securityServices, neutronL3Adapter, distributedArpService, portHandler);
         trackService(context, INeutronFloatingIPCRUD.class, neutronL3Adapter);
         trackService(context, INeutronLoadBalancerCRUD.class, lBaaSHandler, lBaaSPoolHandler, lBaaSPoolMemberHandler);
         trackService(context, INeutronLoadBalancerPoolCRUD.class, lBaaSHandler, lBaaSPoolMemberHandler);
