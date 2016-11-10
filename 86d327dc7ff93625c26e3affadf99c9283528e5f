@@ -1,0 +1,106 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3a65312a_8423a004",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/ArpNotificationHandler.java",
+        "patchSetId": 12
+      },
+      "lineNbr": 150,
+      "author": {
+        "id": 670
+      },
+      "writtenOn": "2016-11-10T09:52:41Z",
+      "side": 1,
+      "message": "What\u0027s going on here.. ?",
+      "revId": "86d327dc7ff93625c26e3affadf99c9283528e5f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a65312a_1f27d9b7",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/TunnelEndPointChangeListener.java",
+        "patchSetId": 12
+      },
+      "lineNbr": 97,
+      "author": {
+        "id": 670
+      },
+      "writtenOn": "2016-11-10T09:52:41Z",
+      "side": 1,
+      "message": "Can be a separate commit, but probably best to use Genius\u0027 IInterfaceManager for datastore read/writes",
+      "revId": "86d327dc7ff93625c26e3affadf99c9283528e5f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a65312a_e477f400",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 12
+      },
+      "lineNbr": 1858,
+      "author": {
+        "id": 670
+      },
+      "writtenOn": "2016-11-10T09:52:41Z",
+      "side": 1,
+      "message": "rename to addArpResponderFlow",
+      "revId": "86d327dc7ff93625c26e3affadf99c9283528e5f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a65312a_44606832",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 12
+      },
+      "lineNbr": 1870,
+      "author": {
+        "id": 670
+      },
+      "writtenOn": "2016-11-10T09:52:41Z",
+      "side": 1,
+      "message": "indentation.. also this logic and the TRACE from the previous if is a bit confusing if subnetGwMac is null in the first case.. I would put it in a function, and use if and else if to assign the gwMac",
+      "revId": "86d327dc7ff93625c26e3affadf99c9283528e5f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a65312a_c47478ff",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 12
+      },
+      "lineNbr": 1881,
+      "author": {
+        "id": 670
+      },
+      "writtenOn": "2016-11-10T09:52:41Z",
+      "side": 1,
+      "message": "typo Resonder--\u003eResponder",
+      "revId": "86d327dc7ff93625c26e3affadf99c9283528e5f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a65312a_ff2bfd7f",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnNodeListener.java",
+        "patchSetId": 12
+      },
+      "lineNbr": 180,
+      "author": {
+        "id": 670
+      },
+      "writtenOn": "2016-11-10T09:52:41Z",
+      "side": 1,
+      "message": "Could you explain what the purpose of the group is here, instead of using an ARP responder flow directly like in the other cases? Is this for indirection?",
+      "revId": "86d327dc7ff93625c26e3affadf99c9283528e5f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
