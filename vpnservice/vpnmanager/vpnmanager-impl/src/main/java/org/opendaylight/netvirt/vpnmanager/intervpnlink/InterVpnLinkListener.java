@@ -23,6 +23,8 @@ import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.NotificationPublishService;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
+import org.opendaylight.genius.datastoreutils.DataStoreJobCoordinator;
+import org.opendaylight.genius.datastoreutils.InvalidJobException;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.mdsalutil.NwConstants;
@@ -34,6 +36,9 @@ import org.opendaylight.netvirt.vpnmanager.VpnConstants;
 import org.opendaylight.netvirt.vpnmanager.VpnUtil;
 import org.opendaylight.netvirt.vpnmanager.api.intervpnlink.InterVpnLinkCache;
 import org.opendaylight.netvirt.vpnmanager.api.intervpnlink.InterVpnLinkDataComposite;
+import org.opendaylight.netvirt.vpnmanager.intervpnlink.tasks.InterVpnLinkCleanedCheckerTask;
+import org.opendaylight.netvirt.vpnmanager.intervpnlink.tasks.InterVpnLinkCreatorTask;
+import org.opendaylight.netvirt.vpnmanager.intervpnlink.tasks.InterVpnLinkRemoverTask;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.FlowId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.tables.table.Flow;
@@ -379,11 +384,11 @@ public class InterVpnLinkListener extends AsyncDataTreeChangeListenerBase<InterV
                                                   VpnUtil.getNextHopLabelKey(vpn1Rd, vrfEntry.getDestPrefix()));
                 if (label == VpnConstants.INVALID_LABEL) {
                     LOG.error("Unable to fetch label from Id Manager. Bailing out of leaking extra routes for InterVpnLink {} rd {} prefix {}",
-                            vpnLink.getName(), vpn1Rd, vrfEntry.getDestPrefix());
+                              vpnLink.getName(), vpn1Rd, vrfEntry.getDestPrefix());
                     continue;
                 }
                 InterVpnLinkUtil.leakRoute(dataBroker, bgpManager, vpnLink, vpn2Uuid, vpn1Uuid, vrfEntry.getDestPrefix(),
-                        label, RouteOrigin.value(vrfEntry.getOrigin()));
+                                           label, RouteOrigin.value(vrfEntry.getOrigin()));
             }
         }
 
@@ -511,13 +516,31 @@ public class InterVpnLinkListener extends AsyncDataTreeChangeListenerBase<InterV
 
     private void releaseVpnLinkLPortTag(String idKey) {
         ReleaseIdInput releaseIdInput =
-                new ReleaseIdInputBuilder().setPoolName(VpnConstants.PSEUDO_LPORT_TAG_ID_POOL_NAME).setIdKey(idKey).build();
+            new ReleaseIdInputBuilder().setPoolName(VpnConstants.PSEUDO_LPORT_TAG_ID_POOL_NAME).setIdKey(idKey).build();
         idManager.releaseId(releaseIdInput);
     }
 
     @Override
     protected void update(InstanceIdentifier<InterVpnLink> identifier, InterVpnLink original, InterVpnLink update) {
-     // TODO
+
+        LOG.debug("Update InterVpnLink {}. "
+                  + " original=[1stEndpoint=[vpn=<{}> ipAddr=<{}>] 2ndEndpoint=[vpn=<{}> ipAddr=<{}>]]"
+                  + " update=[1stEndpoint=[vpn=<{}> ipAddr=<{}>] 2ndEndpoint=[vpn=<{}> ipAddr=<{}>]]",
+                  original.getName(),
+                  original.getFirstEndpoint().getVpnUuid(), original.getFirstEndpoint().getIpAddress(),
+                  original.getSecondEndpoint().getVpnUuid(), original.getSecondEndpoint().getIpAddress(),
+                  update.getFirstEndpoint().getVpnUuid(), update.getFirstEndpoint().getIpAddress(),
+                  update.getSecondEndpoint().getVpnUuid(), update.getSecondEndpoint().getIpAddress());
+
+        String specificJobKey = "InterVpnLink.update." + original.getName();
+        DataStoreJobCoordinator dsJobCoordinator = DataStoreJobCoordinator.getInstance();
+        try {
+            dsJobCoordinator.enqueueJob(new InterVpnLinkRemoverTask(dataBroker, identifier, specificJobKey));
+            dsJobCoordinator.enqueueJob(new InterVpnLinkCleanedCheckerTask(dataBroker, original, specificJobKey));
+            dsJobCoordinator.enqueueJob(new InterVpnLinkCreatorTask(dataBroker, update, specificJobKey));
+        } catch (InvalidJobException e) {
+            LOG.debug("Could not complete InterVpnLink {} update process", original.getName(), e);
+        }
     }
 
     private String getInterVpnFibFlowRef(BigInteger dpnId, short tableId, String interVpnLinkName,  String nextHop ) {
