@@ -962,7 +962,7 @@ public class VpnUtil {
      * @param ifaceName interface name.
      */
     public static void removeIfaceFromVpnToDpnMap(DataBroker broker, String rd, BigInteger dpnId, String ifaceName) {
-        tryDelete(broker, LogicalDatastoreType.CONFIGURATION, getVpnToDpnInterfacePath(rd, dpnId, ifaceName));
+        tryDelete(broker, LogicalDatastoreType.OPERATIONAL, getVpnToDpnInterfacePath(rd, dpnId, ifaceName));
         // Note: tryDelete is a best-effort. Sometimes we want to update the VpnToDpnMap ifaces when the
         // DPN has gone down (and the VpnToDpnMap has been removed in a different Thread)
     }
