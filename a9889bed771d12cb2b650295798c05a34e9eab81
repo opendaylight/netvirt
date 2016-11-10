@@ -37,6 +37,24 @@
     },
     {
       "key": {
+        "uuid": "3a65312a_44d06850",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 1198,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-11-10T02:56:11Z",
+      "side": 1,
+      "message": "Further thought about this, can we do all the removes and wait on the aggregate results?",
+      "parentUuid": "3a65312a_f00332b6",
+      "revId": "a9889bed771d12cb2b650295798c05a34e9eab81",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "3a65312a_a46863f6",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
         "patchSetId": 2
