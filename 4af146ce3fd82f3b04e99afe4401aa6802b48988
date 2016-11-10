@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3a65312a_9f95a942",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/AlivenessMonitorUtils.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 58,
+      "author": {
+        "id": 6177
+      },
+      "writtenOn": "2016-11-10T12:07:15Z",
+      "side": 1,
+      "message": "Instead of doing that, I believe it is better to not create an ArpMonitorStartTask at all for the external interface.\n(i.e. a change in ArpMonitoringHandler)",
+      "revId": "4af146ce3fd82f3b04e99afe4401aa6802b48988",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
