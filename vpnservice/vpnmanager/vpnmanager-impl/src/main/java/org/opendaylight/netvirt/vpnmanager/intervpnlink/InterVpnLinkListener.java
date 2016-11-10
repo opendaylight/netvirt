@@ -564,6 +564,26 @@ public class InterVpnLinkListener extends AsyncDataTreeChangeListenerBase<InterV
         }
     }
 
+        LOG.debug("Update InterVpnLink {}. "
+                  + " original=[1stEndpoint=[vpn=<{}> ipAddr=<{}>] 2ndEndpoint=[vpn=<{}> ipAddr=<{}>]]"
+                  + " update=[1stEndpoint=[vpn=<{}> ipAddr=<{}>] 2ndEndpoint=[vpn=<{}> ipAddr=<{}>]]",
+                  original.getName(),
+                  original.getFirstEndpoint().getVpnUuid(), original.getFirstEndpoint().getIpAddress(),
+                  original.getSecondEndpoint().getVpnUuid(), original.getSecondEndpoint().getIpAddress(),
+                  update.getFirstEndpoint().getVpnUuid(), update.getFirstEndpoint().getIpAddress(),
+                  update.getSecondEndpoint().getVpnUuid(), update.getSecondEndpoint().getIpAddress());
+
+        String specificJobKey = "InterVpnLink.update." + original.getName();
+        DataStoreJobCoordinator dsJobCoordinator = DataStoreJobCoordinator.getInstance();
+        try {
+            dsJobCoordinator.enqueueJob(new InterVpnLinkRemoverTask(dataBroker, identifier, specificJobKey));
+            dsJobCoordinator.enqueueJob(new InterVpnLinkCleanedCheckerTask(dataBroker, original, specificJobKey));
+            dsJobCoordinator.enqueueJob(new InterVpnLinkCreatorTask(dataBroker, update, specificJobKey));
+        } catch (InvalidJobException e) {
+            LOG.debug("Could not complete InterVpnLink {} update process", original.getName(), e);
+        }
+    }
+
     private Long allocateVpnLinkLportTag(String idKey) {
         AllocateIdInput getIdInput =
                 new AllocateIdInputBuilder().setPoolName(VpnConstants.PSEUDO_LPORT_TAG_ID_POOL_NAME)
