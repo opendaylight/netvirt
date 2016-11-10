@@ -325,6 +325,7 @@ public class ArpNotificationHandler implements OdlArputilListener {
         InstanceIdentifier<Adjacencies> path = vpnIfId.augmentation(Adjacencies.class);
         synchronized (vpnInterface.intern()) {
             Optional<Adjacencies> adjacencies = VpnUtil.read(dataBroker, LogicalDatastoreType.CONFIGURATION, path);
+            String subnetId = null;
             String nextHopIpAddr = null;
             String nextHopMacAddress = null;
             String ip = prefix.getIpv4Address().getValue();
@@ -333,6 +334,7 @@ public class ArpNotificationHandler implements OdlArputilListener {
                 ip = VpnUtil.getIpPrefix(ip);
                 for (Adjacency adjacs : adjacencyList) {
                     if (adjacs.isPrimaryAdjacency()) {
+                        subnetId = adjacs.getSubnetId();
                         nextHopIpAddr = adjacs.getIpAddress();
                         nextHopMacAddress = adjacs.getMacAddress();
                         break;
@@ -350,7 +352,7 @@ public class ArpNotificationHandler implements OdlArputilListener {
                     }
                     String nextHopIp = nextHopIpAddr.split("/")[0];
                     AdjacencyBuilder newAdjBuilder = new AdjacencyBuilder().setIpAddress(ip).setKey
-                            (new AdjacencyKey(ip)).setNextHopIpList(Arrays.asList(nextHopIp));
+                            (new AdjacencyKey(ip)).setNextHopIpList(Arrays.asList(nextHopIp)).setSubnetId(subnetId);
                     if (mipMacAddress != null && !mipMacAddress.equals(nextHopMacAddress)) {
                         newAdjBuilder.setMacAddress(mipMacAddress);
                     }

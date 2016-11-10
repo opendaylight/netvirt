@@ -629,15 +629,17 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
         // create adjacency list
         for (FixedIps ip : ips) {
             // create vm adjacency
+            String subnetId = ip.getSubnetId().getValue();
             StringBuilder IpPrefixBuild = new StringBuilder(ip.getIpAddress().getIpv4Address().getValue());
             String IpPrefix = IpPrefixBuild.append("/32").toString();
             Adjacency vmAdj = new AdjacencyBuilder().setKey(new AdjacencyKey(IpPrefix)).setIpAddress(IpPrefix)
-                    .setMacAddress(port.getMacAddress().getValue()).setPrimaryAdjacency(true).build();
+                    .setMacAddress(port.getMacAddress().getValue()).setSubnetId(subnetId)
+                    .setPrimaryAdjacency(true).build();
             adjList.add(vmAdj);
             // create extra route adjacency
             if (rtr != null && rtr.getRoutes() != null) {
                 List<Routes> routeList = rtr.getRoutes();
-                List<Adjacency> erAdjList = addAdjacencyforExtraRoute(vpnId, routeList);
+                List<Adjacency> erAdjList = addAdjacencyforExtraRoute(vpnId, routeList, subnetId);
                 if (erAdjList != null && !erAdjList.isEmpty()) {
                     adjList.addAll(erAdjList);
                 }
@@ -1322,7 +1324,7 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
                         && interVpnLink.getFirstEndpoint().getIpAddress().getValue().equals(nexthop)) );
     }
 
-    protected List<Adjacency> addAdjacencyforExtraRoute(Uuid vpnId, List<Routes> routeList) {
+    protected List<Adjacency> addAdjacencyforExtraRoute(Uuid vpnId, List<Routes> routeList, String subnetId) {
         List<Adjacency> adjList = new ArrayList<>();
         Map<String, List<String>> adjMap = new HashMap<>();
         for (Routes route : routeList) {
@@ -1354,7 +1356,7 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
 
         for (String destination : adjMap.keySet()) {
             Adjacency erAdj = new AdjacencyBuilder().setIpAddress(destination).setNextHopIpList(adjMap.get
-                    (destination)).setKey(new AdjacencyKey(destination)).build();
+                    (destination)).setSubnetId(subnetId).setKey(new AdjacencyKey(destination)).build();
             adjList.add(erAdj);
         }
 

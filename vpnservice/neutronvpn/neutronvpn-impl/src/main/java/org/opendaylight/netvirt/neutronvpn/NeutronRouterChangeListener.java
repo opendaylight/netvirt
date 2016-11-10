@@ -146,7 +146,7 @@ public class NeutronRouterChangeListener extends AsyncDataTreeChangeListenerBase
 
         if ( addedOrRemoved == NwConstants.ADD_FLOW ) {
             nvpnManager.addInterVpnRoutes(vpnName, interVpnLinkRoutes, nexthopsXinterVpnLinks);
-            nvpnManager.addAdjacencyforExtraRoute(vpnName, otherRoutes);
+            nvpnManager.addAdjacencyforExtraRoute(vpnName, otherRoutes, null);
         } else {
             nvpnManager.removeAdjacencyforExtraRoute(vpnName, otherRoutes);
             nvpnManager.removeInterVpnRoutes(vpnName, interVpnLinkRoutes, nexthopsXinterVpnLinks);
