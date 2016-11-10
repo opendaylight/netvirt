@@ -1,6 +1,13 @@
 ..
  TODO:Copyright? We're using OpenStack one as reference, do we need to retain
  their copyright?
+ 
+ Key points to consider:
+  * Use RST format. For help with syntax refer http://sphinx-doc.org/rest.html
+  * For diagrams, you can use http://asciiflow.com to make ascii diagrams.
+  * Read `OpenDaylight Documentation Guide <http://docs.opendaylight.org/en/latest/documentation.html>`__
+  * Use same topic branch name for all patches related to this feature.
+  * All sections should be retained, but can be marked None or N.A.
 
 =====================
 Title of the feature
@@ -10,11 +17,7 @@ Title of the feature
 
 Brief introduction of the feature.
 
-Key points to consider:
- * Use RST format. For help with syntax refer http://sphinx-doc.org/rest.html
- * For diagrams, you can use http://asciiflow.com to make ascii diagrams.
- * Use same topic branch name for all patches related to this feature.
- * All sections should be retained, but can be marked None or N.A.
+
 
 Problem description
 ===================
@@ -133,6 +136,7 @@ also capture specific versions if any of these dependencies.
 e.g. OVS version, Linux kernel version, JDK etc.
 
 This should also capture impacts on existing project that depend on Netvirt.
+
 Following projects currently depend on Netvirt:
  Unimgr
 
@@ -166,4 +170,5 @@ Add any useful references. Some examples:
 * Links to patches in other projects
 * Links to external documentation
 
+* http://docs.opendaylight.org/en/latest/documentation.html
 * https://specs.openstack.org/openstack/nova-specs/specs/kilo/template.html
