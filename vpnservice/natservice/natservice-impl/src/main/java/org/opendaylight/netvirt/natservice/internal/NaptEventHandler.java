@@ -132,6 +132,10 @@ public class NaptEventHandler {
                 return;
             }
             Long vpnId = NatUtil.getVpnId(dataBroker, vpnUuid.getValue());
+            if(vpnId == NatConstants.INVALID_ID){
+                LOG.debug("NAT Service : Unable to get the VPN ID");
+                return;
+            }
 
             //Get the internal IpAddress, internal port number from the event
             String internalIpAddress = naptEntryEvent.getIpAddress();

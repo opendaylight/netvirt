@@ -31,6 +31,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeCon
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.VrfEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.VpnInstanceOpData;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.VpnInstanceToVpnId;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.VpnInstanceOpDataEntry.Type;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.action.types.rev131112.action.action.OutputActionCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.action.types.rev131112.action.action.PushVlanActionCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.action.types.rev131112.action.action.SetFieldCase;
@@ -45,6 +46,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpc
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.GetEgressActionsForInterfaceInputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.GetEgressActionsForInterfaceOutput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.OdlInterfaceRpcService;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.to.vpn.id.VpnInstance;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ExtRouters;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ExternalIpsCounter;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ExternalNetworks;
@@ -109,7 +111,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.openflowplugin.extension.ni
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.MacAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 
@@ -200,15 +201,60 @@ public class NatUtil {
         Optional<org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.to.vpn.id.VpnInstance> vpnInstance
                 = read(broker, LogicalDatastoreType.CONFIGURATION, id);
 
-
-        long vpnId = NatConstants.INVALID_ID;
-        if(vpnInstance.isPresent()) {
-            Long vpnIdAsLong = vpnInstance.get().getVpnId();
-            if(vpnIdAsLong != null){
-                vpnId = vpnIdAsLong;
-            }
+        if(!vpnInstance.isPresent()) {
+            return NatConstants.INVALID_ID;
         }
-        return vpnId;
+
+        VpnInstance vpnInstanceData = vpnInstance.get();
+        String rd = vpnInstanceData.getVrfId();
+        VpnInstanceOpDataEntry vpnInstanceOpDataEntry = getVpnInstanceOpData(broker, rd);
+
+        if(vpnInstanceOpDataEntry == null){
+            LOG.debug("NAT Service : VpnInstanceOpDataEntry is null");
+            return NatConstants.INVALID_ID;
+        }
+
+        Type vpnType = vpnInstanceOpDataEntry.getType();
+        if(vpnType == null){
+            LOG.debug("NAT Service : VpnType of VpnInstanceOpDataEntry is null");
+            return NatConstants.INVALID_ID;
+        }
+
+        switch (vpnType){
+            case L2:
+                Long evi = vpnInstanceOpDataEntry.getEvi();
+                if(evi == null){
+                    LOG.debug("NAT Service : EVI of VpnInstanceOpDataEntry is null");
+                    return NatConstants.INVALID_ID;
+                }
+                return evi;
+
+            case L3:
+                Long vpnId = vpnInstanceOpDataEntry.getVpnId();
+                if(vpnId == null){
+                    LOG.debug("NAT Service : VpnId of VpnInstanceOpDataEntry is null");
+                    return NatConstants.INVALID_ID;
+                }
+                return vpnId;
+        }
+        return NatConstants.INVALID_ID;
+    }
+
+    static Type getVpnType(DataBroker broker, String rd){
+        VpnInstanceOpDataEntry vpnInstanceOpDataEntry = getVpnInstanceOpData(broker, rd);
+        if(vpnInstanceOpDataEntry != null){
+            return vpnInstanceOpDataEntry.getType();
+        }
+        return null;
+    }
+
+    static VpnInstanceOpDataEntry getVpnInstanceOpData(DataBroker broker, String rd) {
+        InstanceIdentifier<VpnInstanceOpDataEntry> id = getVpnInstanceOpDataIdentifier(rd);
+        Optional<VpnInstanceOpDataEntry> vpnInstanceOpData = read(broker, LogicalDatastoreType.OPERATIONAL, id);
+        if (vpnInstanceOpData.isPresent()) {
+            return vpnInstanceOpData.get();
+        }
+        return null;
     }
 
     public static Long getVpnId(DataBroker broker, long routerId){
