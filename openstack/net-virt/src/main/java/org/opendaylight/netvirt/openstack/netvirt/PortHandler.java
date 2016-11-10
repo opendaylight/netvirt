@@ -15,9 +15,11 @@ import org.opendaylight.netvirt.openstack.netvirt.api.Action;
 import org.opendaylight.netvirt.openstack.netvirt.api.BridgeConfigurationManager;
 import org.opendaylight.netvirt.openstack.netvirt.api.NetworkingProviderManager;
 import org.opendaylight.netvirt.openstack.netvirt.api.NodeCacheManager;
+import org.opendaylight.netvirt.openstack.netvirt.api.NodeCacheListener;
 import org.opendaylight.netvirt.openstack.netvirt.api.TenantNetworkManager;
 import org.opendaylight.netvirt.openstack.netvirt.translator.NeutronNetwork;
 import org.opendaylight.netvirt.openstack.netvirt.translator.NeutronPort;
+import org.opendaylight.netvirt.openstack.netvirt.translator.crud.INeutronPortCRUD;
 import org.opendaylight.netvirt.openstack.netvirt.translator.iaware.INeutronPortAware;
 import org.opendaylight.netvirt.openstack.netvirt.api.Constants;
 import org.opendaylight.netvirt.openstack.netvirt.api.EventDispatcher;
@@ -35,7 +37,7 @@ import org.slf4j.LoggerFactory;
 /**
  * Handle requests for Neutron Port.
  */
-public class PortHandler extends AbstractHandler implements INeutronPortAware, ConfigInterface {
+public class PortHandler extends AbstractHandler implements INeutronPortAware, NodeCacheListener, ConfigInterface {
     private static final Logger LOG = LoggerFactory.getLogger(PortHandler.class);
 
     // The implementation for each of these services is resolved by the OSGi Service Manager
@@ -46,6 +48,7 @@ public class PortHandler extends AbstractHandler implements INeutronPortAware, C
     private volatile NeutronL3Adapter neutronL3Adapter;
     private volatile DistributedArpService distributedArpService;
     private volatile Southbound southbound;
+    private volatile INeutronPortCRUD neutronPortCache;
 
     /**
      * Invoked when a port creation is requested
@@ -184,6 +187,17 @@ public class PortHandler extends AbstractHandler implements INeutronPortAware, C
         return null;
     }
 
+    @Override
+    public void notifyNode(Node node, Action action) {
+        if (action == Action.ADD) {
+            List<NeutronPort> neutronPorts = neutronPortCache.getAllPorts();
+            for (NeutronPort neutronPort : neutronPorts) {
+                LOG.info("in notifyNode, neutronPort {} will be added", neutronPort);
+                neutronPortCreated(neutronPort);
+            }
+        }
+    }
+
     /**
      * Process the event.
      *
@@ -217,6 +231,7 @@ public class PortHandler extends AbstractHandler implements INeutronPortAware, C
     public void setDependencies(ServiceReference serviceReference) {
         nodeCacheManager =
                 (NodeCacheManager) ServiceHelper.getGlobalInstance(NodeCacheManager.class, this);
+        nodeCacheManager.cacheListenerAdded(serviceReference, this);
         networkingProviderManager =
                 (NetworkingProviderManager) ServiceHelper.getGlobalInstance(NetworkingProviderManager.class, this);
         tenantNetworkManager =
@@ -232,8 +247,13 @@ public class PortHandler extends AbstractHandler implements INeutronPortAware, C
         eventDispatcher =
                 (EventDispatcher) ServiceHelper.getGlobalInstance(EventDispatcher.class, this);
         eventDispatcher.eventHandlerAdded(serviceReference, this);
+
     }
 
     @Override
-    public void setDependencies(Object impl) {}
+    public void setDependencies(Object impl) {
+        if (impl instanceof INeutronPortCRUD) {
+            neutronPortCache = (INeutronPortCRUD)impl;
+        }
+    }
 }
