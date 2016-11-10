@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3a65312a_5445b36e",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-11-10T17:33:57Z",
+      "side": 1,
+      "message": "For a VPN of type L3, the l3vni attribute presence indicates that it is a VXLAN-capable L3VPN.",
+      "revId": "e342b6cd4a05537c5d1138c8d934ced5b41164be",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
