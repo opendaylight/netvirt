@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3a65312a_bb819291",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/FibUtil.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 616,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-11-11T17:54:28Z",
+      "side": 1,
+      "message": "for what prefix?",
+      "range": {
+        "startLine": 616,
+        "startChar": 41,
+        "endLine": 616,
+        "endChar": 45
+      },
+      "revId": "0a45f468f3123702615267577546dfa0053d16e4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a65312a_9b7e56ad",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 250,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-11-11T17:54:28Z",
+      "side": 1,
+      "message": "RouteOrigin with value STATIC, CONNECTED, LOCAL are all considered Internal Routes..\n\nSo this if condition need to be fixed.",
+      "revId": "0a45f468f3123702615267577546dfa0053d16e4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
