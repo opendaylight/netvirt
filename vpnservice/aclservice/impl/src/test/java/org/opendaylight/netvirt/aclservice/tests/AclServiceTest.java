@@ -365,6 +365,8 @@ public class AclServiceTest {
         // is not a good idea (different instances can have same hashCode), and e.g. on
         // System#identityHashCode even less so.
         try {
+            LOG.info("expectedFlows = {}", expectedFlowsAsNewArrayList);
+            LOG.info("flows = {}",flows);
             assertThat(flows).containsExactlyElementsIn(expectedFlowsAsNewArrayList);
         } catch (AssertionError e) {
             // The point of this is basically just that our assertEqualBeans output,
