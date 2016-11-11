@@ -632,7 +632,8 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
             String ipValue = String.valueOf(ip.getIpAddress().getValue());
             String ipPrefix = (ip.getIpAddress().getIpv4Address() != null) ? ipValue + "/32" : ipValue + "/128";
             Adjacency vmAdj = new AdjacencyBuilder().setKey(new AdjacencyKey(ipPrefix)).setIpAddress(ipPrefix)
-                    .setMacAddress(port.getMacAddress().getValue()).setPrimaryAdjacency(true).build();
+                    .setMacAddress(port.getMacAddress().getValue()).setPrimaryAdjacency(true)
+                    .setSubnetId(ip.getSubnetId()).build();
             adjList.add(vmAdj);
             // create extra route adjacency
             if (rtr != null && rtr.getRoutes() != null) {
