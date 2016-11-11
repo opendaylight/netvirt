@@ -1,0 +1,106 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3a65312a_b6bec7fd",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/ModifyVpnFootprintTask.java",
+        "patchSetId": 32
+      },
+      "lineNbr": 115,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-11-11T18:42:19Z",
+      "side": 1,
+      "message": "where is this used?",
+      "revId": "6d0920c7f17f78e12ff226a560cb77e36a1fb7cb",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a65312a_56c1337f",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/ModifyVpnFootprintTask.java",
+        "patchSetId": 32
+      },
+      "lineNbr": 215,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-11-11T18:42:19Z",
+      "side": 1,
+      "message": "can become true for multiple vpn interfaces on the same DPN.",
+      "revId": "6d0920c7f17f78e12ff226a560cb77e36a1fb7cb",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a65312a_96bbcb0d",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/ModifyVpnFootprintTask.java",
+        "patchSetId": 32
+      },
+      "lineNbr": 263,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-11-11T18:42:19Z",
+      "side": 1,
+      "message": "can become true for multiple interfaces on the same DPN..",
+      "revId": "6d0920c7f17f78e12ff226a560cb77e36a1fb7cb",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a65312a_36f477f1",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 32
+      },
+      "lineNbr": 576,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-11-11T18:42:19Z",
+      "side": 1,
+      "message": "We see that the management of DpnToVpnList asynchronous to the Binding Interface and VRFEntry creation here...\n\nWhen multiple interfaces are landing on the same DPN, the key serializes execution of modifyVpnFootPrintTask.  However, each task is unique and it seems to maintain its own firstDpnonVpn and lastDpnOnVpn.  So it is quite possible that populateFibOnNewDpn is executed more than once..  The same would apply to cleanUpFibOnDpn case as well.\n\nOn another note, we have encountered problems where the DPNToVpnList is mismanaged during bulk deletion of VMs followed by bulk addition (bringing them to 0 and then bringning them back to no of VMs initially there) in a 3-PL environemtn with the VMs dispersed across the PLs. Can you please make sure that TC works for this review?",
+      "revId": "6d0920c7f17f78e12ff226a560cb77e36a1fb7cb",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a65312a_db360e03",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 32
+      },
+      "lineNbr": 803,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-11-11T18:42:19Z",
+      "side": 1,
+      "message": "is this function used?",
+      "revId": "6d0920c7f17f78e12ff226a560cb77e36a1fb7cb",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a65312a_bb587257",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnOpDataSyncer.java",
+        "patchSetId": 32
+      },
+      "lineNbr": 99,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-11-11T18:42:19Z",
+      "side": 1,
+      "message": "If a thread is woken up by an InterrupException,, i am not sure if its right to assume that the required data is available?",
+      "revId": "6d0920c7f17f78e12ff226a560cb77e36a1fb7cb",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
