@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3a65312a_25b603da",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/intervpnlink/tasks/InterVpnLinkCleanedCheckerTask.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 57,
+      "author": {
+        "id": 5473
+      },
+      "writtenOn": "2016-11-11T10:43:07Z",
+      "side": 1,
+      "message": "CLEANED",
+      "range": {
+        "startLine": 57,
+        "startChar": 45,
+        "endLine": 57,
+        "endChar": 51
+      },
+      "revId": "3b7832b4ba8de3233b368f8e042ba5d2f2c0f2a6",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
