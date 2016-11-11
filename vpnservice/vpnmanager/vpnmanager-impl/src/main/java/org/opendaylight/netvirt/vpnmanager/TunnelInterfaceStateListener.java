@@ -70,7 +70,7 @@ public class TunnelInterfaceStateListener extends AsyncDataTreeChangeListenerBas
 
     public void start() {
         LOG.info("{} start", getClass().getSimpleName());
-        registerListener(LogicalDatastoreType.OPERATIONAL, dataBroker);
+        //registerListener(LogicalDatastoreType.OPERATIONAL, dataBroker);
     }
 
     @Override
