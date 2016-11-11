@@ -1,0 +1,225 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3a65312a_a05fa10d",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInstanceListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 36,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-11-11T13:27:49Z",
+      "side": 1,
+      "message": "please see if we can avoid * imports.",
+      "revId": "01a764a5adeaf867b9c24a89654aed83495af4b0",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a65312a_40a68d11",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInstanceListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 368,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-11-11T13:27:49Z",
+      "side": 1,
+      "message": "only addVpnInstance call below allocates the VPNID and so it is not retrievable here.",
+      "revId": "01a764a5adeaf867b9c24a89654aed83495af4b0",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a65312a_6048e92d",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInstanceListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 376,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-11-11T13:27:49Z",
+      "side": 1,
+      "message": "We have to add a new file that can listen to new DCGWs added (or) DCGWs removed and appropriately bind / unbind for such tunnelports.",
+      "revId": "01a764a5adeaf867b9c24a89654aed83495af4b0",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a65312a_2082714f",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInstanceListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 377,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-11-11T13:27:49Z",
+      "side": 1,
+      "message": "We have to bind the VPN service to the external tunnel, however we should not blindly attempt to install flows into the DEMUX Table.  It should be done for L3VPN with L3VNI..\n\nThe L2VPN will use the ELAN supplied DEMUX table which should not be tinkered in this review.",
+      "revId": "01a764a5adeaf867b9c24a89654aed83495af4b0",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a65312a_e087d95f",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInstanceListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 381,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-11-11T13:27:49Z",
+      "side": 1,
+      "message": "what if it is not an L3VPN with L3VNI provided?\n\nHow do we retain backward compatibility here..?",
+      "revId": "01a764a5adeaf867b9c24a89654aed83495af4b0",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a65312a_c0557dc7",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInstanceListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 388,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-11-11T13:27:49Z",
+      "side": 1,
+      "message": "From VNI_TUN_DEMUX_TABLE we can directly go to FIB_TABLE by skipping L3_GW_MAC_TABLE.. We need to address that change here...",
+      "revId": "01a764a5adeaf867b9c24a89654aed83495af4b0",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a65312a_c090dd97",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInstanceListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 392,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-11-11T13:27:49Z",
+      "side": 1,
+      "message": "Where is the table miss for DEMUX TABLE?  Shouldn\u0027t that be the first piece of code?\n\nThe table miss in VNI_DEUX_TABLE should go back to the Dispatcher Table...",
+      "revId": "01a764a5adeaf867b9c24a89654aed83495af4b0",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a65312a_a08de17d",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInstanceListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 395,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-11-11T13:27:49Z",
+      "side": 1,
+      "message": "we are attempting to bind the external tunnel port on all DPNs which is fine to start with..\n\nWe can revisit how to make this dynamic later.",
+      "revId": "01a764a5adeaf867b9c24a89654aed83495af4b0",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a65312a_40f4cdf1",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInstanceListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 396,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-11-11T13:27:49Z",
+      "side": 1,
+      "message": "Can we check whetehr this goes to flow inventory (or) default config shard?",
+      "revId": "01a764a5adeaf867b9c24a89654aed83495af4b0",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a65312a_20f9d1e9",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInstanceListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 408,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-11-11T13:27:49Z",
+      "side": 1,
+      "message": "This submit is going to take a hit depending upon how many DPNs are returned by getOperativeDpn().  Can you please move this early (or) batch the",
+      "revId": "01a764a5adeaf867b9c24a89654aed83495af4b0",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a65312a_c0be1dff",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInstanceListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 650,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-11-11T13:27:49Z",
+      "side": 1,
+      "message": "Why this Table name is not a constant?\n\nFurther, wouldn\u0027t this demand a Genius change, since all table names are maintained in Genius ?",
+      "revId": "01a764a5adeaf867b9c24a89654aed83495af4b0",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a65312a_0038159f",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInstanceListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 655,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-11-11T13:27:49Z",
+      "side": 1,
+      "message": "You should use L3VPN_SERVICE_NAME only here ... why we invented RT5_SERVICE_NAME..",
+      "revId": "01a764a5adeaf867b9c24a89654aed83495af4b0",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a65312a_60daa979",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInstanceListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 667,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-11-11T13:27:49Z",
+      "side": 1,
+      "message": "Some RPC should be there in ITM for this to retrieve only the DC-Gateway Operational Tunnels.. Can we send mail to ITM and getmore information here..\n\nThis is like for-based comparison of two big lists which we should avoid.",
+      "revId": "01a764a5adeaf867b9c24a89654aed83495af4b0",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
