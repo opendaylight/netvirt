@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "3a65312a_9fdda973",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/ArpNotificationHandler.java",
+        "patchSetId": 12
+      },
+      "lineNbr": 150,
+      "author": {
+        "id": 6550
+      },
+      "writtenOn": "2016-11-11T08:02:48Z",
+      "side": 1,
+      "message": "With commenting of code, Controller ceases to send packet. and there by we are preventing duplicate ARP packets, as ovs already responds with ARP packet.",
+      "parentUuid": "3a65312a_8423a004",
+      "revId": "86d327dc7ff93625c26e3affadf99c9283528e5f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "3a65312a_1f27d9b7",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/TunnelEndPointChangeListener.java",
         "patchSetId": 12
@@ -53,6 +71,24 @@
     },
     {
       "key": {
+        "uuid": "3a65312a_7fda4d79",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 12
+      },
+      "lineNbr": 1858,
+      "author": {
+        "id": 6550
+      },
+      "writtenOn": "2016-11-11T08:02:48Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "3a65312a_e477f400",
+      "revId": "86d327dc7ff93625c26e3affadf99c9283528e5f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "3a65312a_44606832",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
         "patchSetId": 12
@@ -64,6 +100,24 @@
       "writtenOn": "2016-11-10T09:52:41Z",
       "side": 1,
       "message": "indentation.. also this logic and the TRACE from the previous if is a bit confusing if subnetGwMac is null in the first case.. I would put it in a function, and use if and else if to assign the gwMac",
+      "revId": "86d327dc7ff93625c26e3affadf99c9283528e5f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a65312a_315da922",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 12
+      },
+      "lineNbr": 1870,
+      "author": {
+        "id": 6550
+      },
+      "writtenOn": "2016-11-11T08:02:48Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "3a65312a_44606832",
       "revId": "86d327dc7ff93625c26e3affadf99c9283528e5f",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -87,6 +141,24 @@
     },
     {
       "key": {
+        "uuid": "3a65312a_d14b9557",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 12
+      },
+      "lineNbr": 1881,
+      "author": {
+        "id": 6550
+      },
+      "writtenOn": "2016-11-11T08:02:48Z",
+      "side": 1,
+      "message": "Oops. Thank you for pointing out",
+      "parentUuid": "3a65312a_c47478ff",
+      "revId": "86d327dc7ff93625c26e3affadf99c9283528e5f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "3a65312a_ff2bfd7f",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnNodeListener.java",
         "patchSetId": 12
@@ -98,6 +170,24 @@
       "writtenOn": "2016-11-10T09:52:41Z",
       "side": 1,
       "message": "Could you explain what the purpose of the group is here, instead of using an ARP responder flow directly like in the other cases? Is this for indirection?",
+      "revId": "86d327dc7ff93625c26e3affadf99c9283528e5f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a65312a_114ead6f",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnNodeListener.java",
+        "patchSetId": 12
+      },
+      "lineNbr": 180,
+      "author": {
+        "id": 6550
+      },
+      "writtenOn": "2016-11-11T08:02:48Z",
+      "side": 1,
+      "message": "We cannot have resubmit and go_to_table, for go_to_table metadata is not received and even we can\u0027t use twice resubmit.  Hence we needed to use group table",
+      "parentUuid": "3a65312a_ff2bfd7f",
       "revId": "86d327dc7ff93625c26e3affadf99c9283528e5f",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
