@@ -18,6 +18,7 @@ import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
 import org.opendaylight.genius.datastoreutils.DataStoreJobCoordinator;
+import org.opendaylight.netvirt.vpnmanager.utilities.InterfaceUtils;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.instances.VpnInstance;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.op.rev160406.DpnEndpoints;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.op.rev160406.dpn.endpoints.DPNTEPsInfo;
@@ -93,7 +94,10 @@ public class TunnelEndPointChangeListener
                                             tep.getInterfaceName(), vpnName, vpnInterfaceName);
                                     WriteTransaction writeConfigTxn = broker.newWriteOnlyTransaction();
                                     WriteTransaction writeOperTxn = broker.newWriteOnlyTransaction();
-                                    vpnInterfaceManager.processVpnInterfaceAdjacencies(dpnId, vpnName, vpnInterfaceName,
+                                    final org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface interfaceState =
+                                            InterfaceUtils.getInterfaceStateFromOperDS(broker, vpnInterfaceName);
+                                    final int lPortTag = interfaceState.getIfIndex();
+                                    vpnInterfaceManager.processVpnInterfaceAdjacencies(dpnId, lPortTag, vpnName, vpnInterfaceName,
                                             writeConfigTxn, writeOperTxn);
                                     return Arrays.asList(writeOperTxn.submit(), writeConfigTxn.submit());
                                 }
