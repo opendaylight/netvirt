@@ -550,18 +550,18 @@ public class SecurityServicesImplTest {
         verify(ingressAclService, times(0)).programPortSecurityRule(eq(new Long(1)), eq("1000"), eq("attached-mac"), eq(2L), eq(neutronSecurityRule_1), eq(neutron_ip_1), eq(false));
     }
 
-
-    /**
+    /*
+    * *
      * Test syncSecurityRule deletion of ingress rule no ipv4 ether.
      */
     @Test
-    public void testSyncSecurityRuleDeletionIngressNonIpV4() {
+    public void testSyncSecurityRuleDeletionIngressIpV6() {
         List<NeutronSecurityRule> securityRuleList = new ArrayList<>();
         securityRuleList.add(neutronSecurityRule_1);
         when(neutronSecurityRule_1.getSecurityRuleDirection()).thenReturn(NeutronSecurityRule.DIRECTION_INGRESS);
         when(neutronSecurityRule_1.getSecurityRuleEthertype()).thenReturn(NeutronSecurityRule.ETHERTYPE_IPV6);
         securityServicesImpl.syncSecurityRule(neutronPort_Vm1, neutronSecurityRule_1, neutron_ip_1, false);
-        verify(ingressAclService, times(0)).programPortSecurityRule(eq(new Long(1)), eq("1000"), eq("attached-mac"), eq(2L), eq(neutronSecurityRule_1), eq(neutron_ip_1), eq(false));
+        verify(ingressAclService, times(1)).programPortSecurityRule(eq(new Long(1)), eq("1000"), eq("attached-mac"), eq(2L), eq(neutronSecurityRule_1), eq(neutron_ip_1), eq(false));
     }
 
     /**

@@ -8,6 +8,9 @@
 
 package org.opendaylight.netvirt.openstack.netvirt.api;
 
+import java.util.HashSet;
+import java.util.Set;
+
 /**
  * A collection of configuration constants
  */
@@ -97,6 +100,19 @@ public final class Constants {
     public static final Integer CT_STATE_TRACKED_EXIST_PRIORITY = 62020;
     public static final Integer CT_STATE_TRACKED_NEW_PRIORITY = 62010;
     public static final Integer CT_STATE_NEW_PRIORITY_DROP = 36007;
+    public static final Integer ICMPv6_ECHO_REQUEST_TYPE = 128;
+    public static final Integer ICMPv6_ECHO_RESPONSE_TYPE = 129;
+    public static final Integer ICMPv6_ROUTER_SOLICITATION_TYPE = 133;
+    public static final Integer ICMPv6_ROUTER_ADVERTISEMENT_TYPE = 134;
+    public static final Integer ICMPv6_NEIGHBOR_SOLICITATION_TYPE = 135;
+    public static final Integer ICMPv6_NEIGHBOR_ADVERTISEMENT_TYPE = 136;
+
+    public static final Set<Integer> ICMPv6_NEIGHBOR_DISCOVERY_TYPE = new HashSet<Integer>();
+    static
+    {
+        ICMPv6_NEIGHBOR_DISCOVERY_TYPE.add(ICMPv6_NEIGHBOR_SOLICITATION_TYPE);
+        ICMPv6_NEIGHBOR_DISCOVERY_TYPE.add(ICMPv6_NEIGHBOR_ADVERTISEMENT_TYPE);
+    };
 
     public static final int TCP_SYN = 0x002;
     public static final short INGRESS_ACL = 40; // Flows Destined to the VM Port go here
