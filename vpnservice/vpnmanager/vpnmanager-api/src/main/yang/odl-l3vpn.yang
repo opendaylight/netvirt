@@ -19,11 +19,11 @@ module odl-l3vpn {
             leaf primary-adjacency {
                 type boolean;
                 default false;
-                description 
-                    "Value of True indicates this is a primary adjacency";
+                description "Value of True indicates this is a primary adjacency";
             }
             leaf label { type uint32; config "false"; } /* optional */
             leaf mac_address {type string;} /* optional */
+            leaf subnet_id {type yang:uuid;} /* optional */
         }
     }
 
