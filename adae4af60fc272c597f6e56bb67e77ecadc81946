@@ -1,0 +1,89 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3a65312a_60cbc972",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 200,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-11-11T13:57:30Z",
+      "side": 1,
+      "message": "L3vpnVxlanVrfProcessor might be a good name..",
+      "revId": "adae4af60fc272c597f6e56bb67e77ecadc81946",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a65312a_e094f938",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 368,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-11-11T13:57:30Z",
+      "side": 1,
+      "message": "This call to setupGwMac is already there in bindService.. \n\nPlease check the existing bindService method there, and you only need to check and change the parameters invoked there based on wheter this the encapType is VXLAN..",
+      "revId": "adae4af60fc272c597f6e56bb67e77ecadc81946",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a65312a_40ffad67",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 398,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-11-11T13:57:30Z",
+      "side": 1,
+      "message": "You should have a common util that will only check if type l3 and (l3vni !\u003d 0).. If l3vni is non-zero it is vxlan-enabled L3VPN, otherwise it is a legacy L3VPN that runs on MPLSOverGRE.",
+      "revId": "adae4af60fc272c597f6e56bb67e77ecadc81946",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a65312a_80f8a57d",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 638,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-11-11T13:57:30Z",
+      "side": 1,
+      "message": "This method is there in other rievew and here too..\n\nAnd both are in the same VPN Engine.. Am i missing something?",
+      "revId": "adae4af60fc272c597f6e56bb67e77ecadc81946",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a65312a_a09cc16a",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnNodeListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 204,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-11-11T13:57:30Z",
+      "side": 1,
+      "message": "Better to remove this Table Miss.. Instead as I said in another review, program TableMiss for VPN_VNI_DEMUX_TABLE here.",
+      "revId": "adae4af60fc272c597f6e56bb67e77ecadc81946",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
