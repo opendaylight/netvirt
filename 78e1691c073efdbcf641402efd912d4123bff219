@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3a65312a_56093330",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnUtil.java",
+        "patchSetId": 33
+      },
+      "lineNbr": 987,
+      "author": {
+        "id": 6584
+      },
+      "writtenOn": "2016-11-11T23:15:25Z",
+      "side": 0,
+      "message": "This change is removing the method removeIfaceFromVpnToDpnMap, but in change \"Bug 7147: VpnInterfaces not removed when InterVpnLink is removed\" we changed this line from CONFIGURATION to OPERATIONAL... Is that what we want?",
+      "range": {
+        "startLine": 987,
+        "startChar": 47,
+        "endLine": 987,
+        "endChar": 60
+      },
+      "revId": "78e1691c073efdbcf641402efd912d4123bff219",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
