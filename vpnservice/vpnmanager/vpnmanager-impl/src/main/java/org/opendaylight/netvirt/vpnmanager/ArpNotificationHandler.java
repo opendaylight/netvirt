@@ -145,19 +145,6 @@ public class ArpNotificationHandler implements OdlArputilListener {
                 } else {
                     learnMacFromArpPackets(vpnName, srcInterface, srcIP, srcMac);
                 }
-                String targetIpToQuery = notification.getDstIpaddress().getIpv4Address().getValue();
-                VpnPortipToPort vpnTargetIpToPort = VpnUtil.getNeutronPortFromVpnPortFixedIp(dataBroker,
-                        vpnName, targetIpToQuery);
-
-                if (vpnIds.isExternalVpn()) {
-                    handleArpRequestForExternalVpn(srcInterface, srcIP, srcMac, targetIP, targetIpToQuery,
-                            vpnTargetIpToPort);
-                    return;
-                }
-                if (vpnTargetIpToPort != null && vpnTargetIpToPort.isSubnetIp()) { // handle router interfaces ARP
-                    handleArpRequestForSubnetIp(srcInterface, srcIP, srcMac, targetIP, vpnTargetIpToPort);
-                    return;
-                }
                 if (elanService.isExternalInterface(srcInterface)) {
                     handleArpRequestFromExternalInterface(srcInterface, srcIP, srcMac, targetIP);
                     return;
