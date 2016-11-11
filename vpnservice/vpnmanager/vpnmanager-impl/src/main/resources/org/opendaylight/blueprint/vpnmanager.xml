@@ -221,6 +221,7 @@
         init-method="start" destroy-method="close">
     <argument ref="dataBroker" />
     <argument ref="mdsalUtils" />
+    <argument ref="idManagerService" />
   </bean>
 
   <bean id="vpnElanInterfaceChangeListener"
