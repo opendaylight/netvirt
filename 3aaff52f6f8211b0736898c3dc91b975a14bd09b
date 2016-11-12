@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3a65312a_7f752397",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/utils/AclServiceUtils.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 740,
+      "author": {
+        "id": 3511
+      },
+      "writtenOn": "2016-11-12T18:30:49Z",
+      "side": 1,
+      "message": "should be UDP",
+      "revId": "3aaff52f6f8211b0736898c3dc91b975a14bd09b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
