@@ -22,6 +22,30 @@
       "revId": "78e1691c073efdbcf641402efd912d4123bff219",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a65312a_3cc9f978",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnUtil.java",
+        "patchSetId": 33
+      },
+      "lineNbr": 987,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-11-12T03:40:01Z",
+      "side": 0,
+      "message": "Is this method now places elsewhere.. I so, yes this should be OPERATIONAL.",
+      "parentUuid": "3a65312a_56093330",
+      "range": {
+        "startLine": 987,
+        "startChar": 47,
+        "endLine": 987,
+        "endChar": 60
+      },
+      "revId": "78e1691c073efdbcf641402efd912d4123bff219",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
