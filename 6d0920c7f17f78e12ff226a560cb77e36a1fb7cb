@@ -70,6 +70,23 @@
     },
     {
       "key": {
+        "uuid": "3a65312a_1cc4fd5d",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 32
+      },
+      "lineNbr": 582,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-11-12T03:40:01Z",
+      "side": 1,
+      "message": "Can we pleas retain synchronicity here by direct method calls instead of a DJC within a DJC..\n\nUsually a DJC within a DJC reduces performance instead of retaining it .",
+      "revId": "6d0920c7f17f78e12ff226a560cb77e36a1fb7cb",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "3a65312a_db360e03",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
         "patchSetId": 32
