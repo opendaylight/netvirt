@@ -16,6 +16,24 @@
       "revId": "3aaff52f6f8211b0736898c3dc91b975a14bd09b",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a65312a_ff6813bc",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/utils/AclServiceUtils.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 740,
+      "author": {
+        "id": 3511
+      },
+      "writtenOn": "2016-11-12T18:49:31Z",
+      "side": 1,
+      "message": "this should have failed the test but it appears that the Learn unit-tests are only verify the match and not the action. please add some more relevant verification.",
+      "parentUuid": "3a65312a_7f752397",
+      "revId": "3aaff52f6f8211b0736898c3dc91b975a14bd09b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
