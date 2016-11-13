@@ -51,6 +51,14 @@ public class NeutronNetworkInterface extends AbstractNeutronInterface<Network,Ne
             .put(NetworkTypeVxlan.class,"vxlan")
             .build();
 
+    static private String getNetworkTypeString(Class<? extends NetworkTypeBase> type) {
+        String ret = NETWORK_MAP.get(type);
+        if (ret == null) {
+            ret = "flat";
+        }
+        return ret;
+    }
+
     NeutronNetworkInterface(final DataBroker dataBroker) {
         super(dataBroker);
     }
@@ -143,14 +151,14 @@ public class NeutronNetworkInterface extends AbstractNeutronInterface<Network,Ne
         NetworkProviderExtension providerExtension = network.getAugmentation(NetworkProviderExtension.class);
         result.setProviderPhysicalNetwork(providerExtension.getPhysicalNetwork());
         result.setProviderSegmentationID(providerExtension.getSegmentationId());
-        result.setProviderNetworkType(NETWORK_MAP.get(providerExtension.getNetworkType()));
+        result.setProviderNetworkType(getNetworkTypeString(providerExtension.getNetworkType()));
         List<NeutronNetwork_Segment> segments = new ArrayList<>();
         if (providerExtension.getSegments() != null) {
             for (Segments segment: providerExtension.getSegments()) {
                 NeutronNetwork_Segment neutronSegment = new NeutronNetwork_Segment();
                 neutronSegment.setProviderPhysicalNetwork(segment.getPhysicalNetwork());
                 neutronSegment.setProviderSegmentationID(segment.getSegmentationId());
-                neutronSegment.setProviderNetworkType(NETWORK_MAP.get(segment.getNetworkType()));
+                neutronSegment.setProviderNetworkType(getNetworkTypeString(segment.getNetworkType()));
                 segments.add(neutronSegment);
             }
         }
