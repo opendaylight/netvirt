@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "3a65312a_8663cc19",
+        "filename": "vpnservice/it/impl/src/test/java/org/opendaylight/netvirt/it/AbstractNetOvs.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 5357
+      },
+      "writtenOn": "2016-11-13T14:26:47Z",
+      "side": 1,
+      "message": "No. They are used.",
+      "parentUuid": "3a65312a_66a030f5",
+      "revId": "fd3627ffc2dace8b567e60f566c24b0c0a17fb11",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "3a65312a_869bccc8",
         "filename": "vpnservice/it/impl/src/test/java/org/opendaylight/netvirt/it/NetOvs.java",
         "patchSetId": 1
@@ -36,6 +54,24 @@
     },
     {
       "key": {
+        "uuid": "3a65312a_dc262868",
+        "filename": "vpnservice/it/impl/src/test/java/org/opendaylight/netvirt/it/NetOvs.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 5357
+      },
+      "writtenOn": "2016-11-13T14:26:47Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "3a65312a_869bccc8",
+      "revId": "fd3627ffc2dace8b567e60f566c24b0c0a17fb11",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "3a65312a_c6a5c405",
         "filename": "vpnservice/it/impl/src/test/java/org/opendaylight/netvirt/it/NetvirtIT.java",
         "patchSetId": 1
@@ -47,6 +83,24 @@
       "writtenOn": "2016-10-30T18:49:43Z",
       "side": 1,
       "message": "do we want to keep TwoNodes in the name like the others?",
+      "revId": "fd3627ffc2dace8b567e60f566c24b0c0a17fb11",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a65312a_a6a40858",
+        "filename": "vpnservice/it/impl/src/test/java/org/opendaylight/netvirt/it/NetvirtIT.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 428,
+      "author": {
+        "id": 5357
+      },
+      "writtenOn": "2016-11-13T14:26:47Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "3a65312a_c6a5c405",
       "revId": "fd3627ffc2dace8b567e60f566c24b0c0a17fb11",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -76,6 +130,30 @@
     },
     {
       "key": {
+        "uuid": "3a65312a_06897cca",
+        "filename": "vpnservice/it/impl/src/test/java/org/opendaylight/netvirt/it/NetvirtIT.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 442,
+      "author": {
+        "id": 5357
+      },
+      "writtenOn": "2016-11-13T14:26:47Z",
+      "side": 1,
+      "message": "I want to make the IP configurable. See next comment. Added a constant for physnet",
+      "parentUuid": "3a65312a_a6aa48d2",
+      "range": {
+        "startLine": 442,
+        "startChar": 69,
+        "endLine": 442,
+        "endChar": 72
+      },
+      "revId": "fd3627ffc2dace8b567e60f566c24b0c0a17fb11",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "3a65312a_06afbce4",
         "filename": "vpnservice/it/impl/src/test/java/org/opendaylight/netvirt/it/NetvirtIT.java",
         "patchSetId": 1
@@ -87,6 +165,24 @@
       "writtenOn": "2016-10-30T18:49:43Z",
       "side": 1,
       "message": "Will the 172.29.x.x network work across different hosts? Does the yml file ensure that the network can be used? My setup uses 172.18.x.x for the docker0.",
+      "revId": "fd3627ffc2dace8b567e60f566c24b0c0a17fb11",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a65312a_7cd8b453",
+        "filename": "vpnservice/it/impl/src/test/java/org/opendaylight/netvirt/it/NetvirtIT.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 443,
+      "author": {
+        "id": 5357
+      },
+      "writtenOn": "2016-11-13T14:26:47Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "3a65312a_06afbce4",
       "revId": "fd3627ffc2dace8b567e60f566c24b0c0a17fb11",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
