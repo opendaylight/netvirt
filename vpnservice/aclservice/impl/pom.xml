@@ -17,9 +17,7 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
     <relativePath>../../commons/config-parent</relativePath>
   </parent>
 
-  <groupId>org.opendaylight.netvirt</groupId>
   <artifactId>aclservice-impl</artifactId>
-  <version>0.3.2-SNAPSHOT</version>
   <packaging>bundle</packaging>
 
   <dependencies>

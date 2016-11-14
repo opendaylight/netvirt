@@ -16,9 +16,7 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
   </parent>
 
   <modelVersion>4.0.0</modelVersion>
-  <groupId>org.opendaylight.netvirt</groupId>
   <artifactId>natservice-impl</artifactId>
-  <version>${vpnservices.version}</version>
   <packaging>bundle</packaging>
   <properties>
     <powermock.version>1.6.4</powermock.version>

@@ -18,7 +18,6 @@
   </parent>
 
   <modelVersion>4.0.0</modelVersion>
-  <groupId>org.opendaylight.netvirt</groupId>
   <artifactId>model-bgp</artifactId>
   <version>${model.bgp.version}</version>
   <name>${project.artifactId}</name>
