@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3a65312a_a5804c47",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 17
+      },
+      "lineNbr": 1957,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2016-11-14T13:35:55Z",
+      "side": 1,
+      "message": "This will throw NPE if GW ip is IPv6",
+      "revId": "09d986a0e8603af58ae73b5d4831e196ae8e2973",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a65312a_c542a80f",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/arp/responder/ArpResponderConstant.java",
+        "patchSetId": 17
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2016-11-14T13:35:55Z",
+      "side": 1,
+      "message": "I personally find it very confusing to hold the constant definitions in enum structure. \nAlso, some of these constants should be part of NwConstants and formatted similarly to other table/cookie definitions",
+      "revId": "09d986a0e8603af58ae73b5d4831e196ae8e2973",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a65312a_a545ec18",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/arp/responder/ArpResponderConstant.java",
+        "patchSetId": 17
+      },
+      "lineNbr": 77,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2016-11-14T13:35:55Z",
+      "side": 1,
+      "message": "Isn\u0027t it possible that some other pool has taken this id? Why not use the IdManager to take an id from one of the pools?",
+      "revId": "09d986a0e8603af58ae73b5d4831e196ae8e2973",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
