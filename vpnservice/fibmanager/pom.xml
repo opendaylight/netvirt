@@ -16,7 +16,7 @@ and is available at http://www.eclipse.org/legal/epl-v10.html INTERNAL
   </parent>
 
   <groupId>org.opendaylight.netvirt</groupId>
-  <artifactId>fibmanager-aggregator</artifactId>
+  <artifactId>fibmanager</artifactId>
   <version>0.3.2-SNAPSHOT</version>
   <name>fibmanager</name>
   <packaging>pom</packaging>

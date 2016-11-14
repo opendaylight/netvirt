@@ -17,7 +17,7 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
   </parent>
 
   <groupId>org.opendaylight.netvirt</groupId>
-  <artifactId>neutronvpn-aggregator</artifactId>
+  <artifactId>neutronvpn</artifactId>
   <version>0.3.2-SNAPSHOT</version>
   <name>neutronvpn</name>
   <packaging>pom</packaging>
