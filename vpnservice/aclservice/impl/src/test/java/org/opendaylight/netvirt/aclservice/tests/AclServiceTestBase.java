@@ -15,20 +15,15 @@ import static org.opendaylight.netvirt.aclservice.tests.StateInterfaceBuilderHel
 
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
-import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
 import javax.inject.Inject;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.MethodRule;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
 import org.opendaylight.genius.mdsalutil.FlowEntity;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.genius.mdsalutil.interfaces.testutils.TestIMdsalApiManager;
-import org.opendaylight.infrautils.inject.guice.testutils.GuiceRule;
 import org.opendaylight.netvirt.aclservice.tests.infra.DataBrokerPairsUtil;
 import org.opendaylight.netvirt.aclservice.utils.AclConstants;
 import org.opendaylight.netvirt.aclservice.utils.AclServiceUtils;
@@ -58,29 +53,30 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 
-public class AclServiceTest {
+public abstract class AclServiceTestBase {
 
-    public @Rule MethodRule guice = new GuiceRule(AclServiceModule.class, AclServiceTestModule.class);
+    private static final Logger LOG = LoggerFactory.getLogger(AclServiceTestBase.class);
 
-    private static final Logger LOG = LoggerFactory.getLogger(AclServiceTest.class);
-
-    private static final String PORT_MAC_1 = "0D:AA:D8:42:30:F3";
-    private static final String PORT_MAC_2 = "0D:AA:D8:42:30:F4";
-    private static final String PORT_MAC_3 = "0D:AA:D8:42:30:F5";
-    private static final String PORT_1 = "port1";
-    private static final String PORT_2 = "port2";
-    private static final String PORT_3 = "port3";
-    protected static String SG_UUID_1  = "85cc3048-abc3-43cc-89b3-377341426ac5";
-    protected static String SG_UUID_2  = "85cc3048-abc3-43cc-89b3-377341426ac8";
-    private static String SR_UUID_1_1 = "85cc3048-abc3-43cc-89b3-377341426ac6";
-    private static String SR_UUID_1_2 = "85cc3048-abc3-43cc-89b3-377341426ac7";
-    private static String SR_UUID_2_1 = "85cc3048-abc3-43cc-89b3-377341426a21";
-    private static String SR_UUID_2_2 = "85cc3048-abc3-43cc-89b3-377341426a22";
-    private static String ELAN = "elan1";
-    private static String IP_PREFIX_1 = "10.0.0.1/24";
-    private static String IP_PREFIX_2 = "10.0.0.2/24";
-    private static String IP_PREFIX_3 = "10.0.0.3/24";
-    private static long ELAN_TAG = 5000L;
+    static final String PORT_MAC_1 = "0D:AA:D8:42:30:F3";
+    static final String PORT_MAC_2 = "0D:AA:D8:42:30:F4";
+    static final String PORT_MAC_3 = "0D:AA:D8:42:30:F5";
+    static final String PORT_1 = "port1";
+    static final String PORT_2 = "port2";
+    static final String PORT_3 = "port3";
+    static String SG_UUID  = "85cc3048-abc3-43cc-89b3-377341426ac5";
+    static String SR_UUID_1 = "85cc3048-abc3-43cc-89b3-377341426ac6";
+    static String SR_UUID_2 = "85cc3048-abc3-43cc-89b3-377341426ac7";
+    static String SG_UUID_1  = "85cc3048-abc3-43cc-89b3-377341426ac5";
+    static String SG_UUID_2  = "85cc3048-abc3-43cc-89b3-377341426ac8";
+    static String SR_UUID_1_1 = "85cc3048-abc3-43cc-89b3-377341426ac6";
+    static String SR_UUID_1_2 = "85cc3048-abc3-43cc-89b3-377341426ac7";
+    static String SR_UUID_2_1 = "85cc3048-abc3-43cc-89b3-377341426a21";
+    static String SR_UUID_2_2 = "85cc3048-abc3-43cc-89b3-377341426a22";
+    static String ELAN = "elan1";
+    static String IP_PREFIX_1 = "10.0.0.1/24";
+    static String IP_PREFIX_2 = "10.0.0.2/24";
+    static String IP_PREFIX_3 = "10.0.0.3/24";
+    static long ELAN_TAG = 5000L;
 
     protected static final Integer FLOW_PRIORITY_SG_1 = 1001;
     protected static final Integer FLOW_PRIORITY_SG_2 = 1002;
@@ -104,12 +100,13 @@ public class AclServiceTest {
         Thread.sleep(500);
 
         // Then
-        assertFlowsInAnyOrder(FlowEntryObjects.expectedFlows(PORT_MAC_1));
+        newInterfaceCheck();
     }
+
+    abstract void newInterfaceCheck();
 
     @Test
     public void newInterfaceWithEtherTypeAcl() throws Exception {
-        // Given
         setUpData();
 
         Matches matches = newMatch(EthertypeV4.class, -1, -1,-1, -1,
@@ -138,8 +135,10 @@ public class AclServiceTest {
         Thread.sleep(500);
 
         // Then
-        assertFlowsInAnyOrder(FlowEntryObjects.etherFlows());
+        newInterfaceWithEtherTypeAclCheck();
     }
+
+    abstract void newInterfaceWithEtherTypeAclCheck();
 
     @Test
     public void newInterfaceWithTcpDstAcl() throws Exception {
@@ -171,8 +170,10 @@ public class AclServiceTest {
         Thread.sleep(500);
 
         // Then
-        assertFlowsInAnyOrder(FlowEntryObjects.tcpFlows());
+        newInterfaceWithTcpDstAclCheck();
     }
+
+    abstract void newInterfaceWithTcpDstAclCheck();
 
     @Test
     public void newInterfaceWithUdpDstAcl() throws Exception {
@@ -204,8 +205,10 @@ public class AclServiceTest {
         Thread.sleep(500);
 
         // Then
-        assertFlowsInAnyOrder(FlowEntryObjects.udpFlows());
+        newInterfaceWithUdpDstAclCheck();
     }
+
+    abstract void newInterfaceWithUdpDstAclCheck();
 
     @Test
     public void newInterfaceWithIcmpAcl() throws Exception {
@@ -237,8 +240,10 @@ public class AclServiceTest {
         Thread.sleep(500);
 
         // Then
-        assertFlowsInAnyOrder(FlowEntryObjects.icmpFlows());
+        newInterfaceWithIcmpAclCheck();
     }
+
+    abstract void newInterfaceWithIcmpAclCheck();
 
     @Test
     public void newInterfaceWithDstPortRange() throws Exception {
@@ -269,8 +274,10 @@ public class AclServiceTest {
         Thread.sleep(500);
 
         // Then
-        assertFlowsInAnyOrder(FlowEntryObjects.dstRangeFlows());
+        newInterfaceWithDstPortRangeCheck();
     }
+
+    abstract void newInterfaceWithDstPortRangeCheck();
 
     @Test
     public void newInterfaceWithDstAllPorts() throws Exception {
@@ -301,8 +308,10 @@ public class AclServiceTest {
         Thread.sleep(500);
 
         // Then
-        assertFlowsInAnyOrder(FlowEntryObjects.dstAllFlows());
+        newInterfaceWithDstAllPortsCheck();
     }
+
+    abstract void newInterfaceWithDstAllPortsCheck();
 
     @Test
     public void newInterfaceWithTwoAclsHavingSameRules() throws Exception {
@@ -333,13 +342,15 @@ public class AclServiceTest {
         Thread.sleep(500);
 
         // Then
-        assertFlowsInAnyOrder(FlowEntryObjects.icmpFlowsForTwoAclsHavingSameRules());
+        newInterfaceWithTwoAclsHavingSameRulesCheck();
     }
+
+    abstract void newInterfaceWithTwoAclsHavingSameRulesCheck();
 
     // TODO Remove this from here, use the one about to be merged in TestIMdsalApiManager
     // under https://git.opendaylight.org/gerrit/#/c/47842/ *BUT* remember to integrate
     // the ignore ordering fix recently added here to there...
-    private void assertFlowsInAnyOrder(Iterable<FlowEntity> expectedFlows) {
+    protected void assertFlowsInAnyOrder(Iterable<FlowEntity> expectedFlows) {
         List<FlowEntity> flows = mdsalApiManager.getFlows();
         if (!Iterables.isEmpty(expectedFlows)) {
             assertTrue("No Flows created (bean wiring may be broken?)", !flows.isEmpty());
@@ -376,20 +387,18 @@ public class AclServiceTest {
         }
     }
 
-    private void newAllowedAddressPair(String portName, List<String> sgUuidList, String ipAddress, String macAddress)
+    private void newAllowedAddressPair(String portName, String sgUuid, String ipAddress, String macAddress )
             throws TransactionCommitFailedException {
         AllowedAddressPairs allowedAddressPair = new AllowedAddressPairsBuilder()
                 .setIpAddress(new IpPrefixOrAddress(new IpPrefix(ipAddress.toCharArray())))
                 .setMacAddress(new MacAddress(macAddress))
                 .build();
-        List<Uuid> sgList = sgUuidList.stream().map(sg -> new Uuid(sg)).collect(Collectors.toList());
 
         dataBrokerUtil.put(ImmutableIdentifiedInterfaceWithAclBuilder.builder()
             .interfaceName(portName)
             .portSecurity(true)
-            .addAllNewSecurityGroups(sgList)
+            .addNewSecurityGroup(new Uuid(SG_UUID))
             .addIfAllowedAddressPair(allowedAddressPair).build());
-
     }
 
     private void newElan(String elanName, long elanId) {
@@ -443,10 +452,8 @@ public class AclServiceTest {
         newElan(ELAN, ELAN_TAG);
         newElanInterface(ELAN, PORT_1 ,true);
         newElanInterface(ELAN, PORT_2, true);
-        newElanInterface(ELAN, PORT_3, true);
-        newAllowedAddressPair(PORT_1, Arrays.asList(SG_UUID_1), IP_PREFIX_1, PORT_MAC_1);
-        newAllowedAddressPair(PORT_2, Arrays.asList(SG_UUID_1), IP_PREFIX_2, PORT_MAC_2);
-        newAllowedAddressPair(PORT_3, Arrays.asList(SG_UUID_1, SG_UUID_2), IP_PREFIX_3, PORT_MAC_3);
+        newAllowedAddressPair(PORT_1, SG_UUID, IP_PREFIX_1, PORT_MAC_1);
+        newAllowedAddressPair(PORT_2, SG_UUID, IP_PREFIX_2, PORT_MAC_2);
     }
 
 }

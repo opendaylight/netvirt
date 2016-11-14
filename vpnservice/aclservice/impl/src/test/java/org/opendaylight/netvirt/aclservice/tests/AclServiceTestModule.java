@@ -45,6 +45,13 @@ import org.slf4j.LoggerFactory;
 public class AclServiceTestModule extends AbstractModule {
     private static final Logger LOG = LoggerFactory.getLogger(AclServiceTestModule.class);
 
+    final SecurityGroupMode securityGroupMode;
+
+    AclServiceTestModule(SecurityGroupMode securityGroupMode) {
+        super();
+        this.securityGroupMode = securityGroupMode;
+    }
+
     @Override
     protected void configure() {
         bind(DataBroker.class).toInstance(DataBrokerTestModule.dataBroker());
@@ -63,7 +70,7 @@ public class AclServiceTestModule extends AbstractModule {
 
     private AclserviceConfig aclServiceConfig() {
         AclserviceConfig aclServiceConfig = mock(AclserviceConfig.class);
-        Mockito.when(aclServiceConfig.getSecurityGroupMode()).thenReturn(SecurityGroupMode.Stateful);
+        Mockito.when(aclServiceConfig.getSecurityGroupMode()).thenReturn(securityGroupMode);
         return aclServiceConfig;
     }
 
@@ -72,8 +79,8 @@ public class AclServiceTestModule extends AbstractModule {
         private static Map<String, Integer> cacheMap = new HashMap<>();
 
         static {
-            cacheMap.put(AclServiceTest.SG_UUID_1, AclServiceTest.FLOW_PRIORITY_SG_1);
-            cacheMap.put(AclServiceTest.SG_UUID_2, AclServiceTest.FLOW_PRIORITY_SG_2);
+            cacheMap.put(AclServiceTestBase.SG_UUID_1, AclServiceTestBase.FLOW_PRIORITY_SG_1);
+            cacheMap.put(AclServiceTestBase.SG_UUID_2, AclServiceTestBase.FLOW_PRIORITY_SG_2);
         }
 
         @Override

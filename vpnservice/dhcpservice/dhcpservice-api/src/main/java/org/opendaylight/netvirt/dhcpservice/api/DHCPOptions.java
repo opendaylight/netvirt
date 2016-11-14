@@ -8,34 +8,25 @@
 
 package org.opendaylight.netvirt.dhcpservice.api;
 
-import java.net.InetAddress;
-import java.net.UnknownHostException;
-import java.util.LinkedHashMap;
-
-
-
-import java.util.List;
-
-import org.apache.commons.lang3.ArrayUtils;
-import org.opendaylight.controller.liblldp.HexEncode;
-import org.opendaylight.controller.liblldp.NetUtils;
-//import org.apache.commons.lang3.ArrayUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import static org.opendaylight.netvirt.dhcpservice.api.DHCPConstants.OPT_END;
 import static org.opendaylight.netvirt.dhcpservice.api.DHCPConstants.OPT_PAD;
 
+import java.net.InetAddress;
+import java.net.UnknownHostException;
+import java.util.LinkedHashMap;
+import java.util.List;
+import org.apache.commons.lang3.ArrayUtils;
+import org.opendaylight.controller.liblldp.HexEncode;
+import org.opendaylight.controller.liblldp.NetUtils;
+
 public class DHCPOptions {
-    protected static final Logger logger = LoggerFactory
-            .getLogger(DHCPOptions.class);
 
     class DhcpOption {
         private byte code;
         private byte length;
         private byte[] value;
 
-        public DhcpOption(byte code, byte[] value) {
+        DhcpOption(byte code, byte[] value) {
             if ((code != OPT_PAD) && (code != OPT_END) && (value != null)) {
                 this.code = code;
                 this.value = value;
@@ -62,10 +53,10 @@ public class DHCPOptions {
         public String toString() {
             StringBuilder sb = new StringBuilder();
             sb.append("{ ")
-            .append("code: ").append(this.code)
-            .append(", len: ").append(this.length)
-            .append(", value: 0x").append(HexEncode.bytesToHexString(this.value))
-            .append(" }");
+                    .append("code: ").append(this.code)
+                    .append(", len: ").append(this.length)
+                    .append(", value: 0x").append(HexEncode.bytesToHexString(this.value))
+                    .append(" }");
             return sb.toString();
         }
     }
@@ -76,12 +67,12 @@ public class DHCPOptions {
         options = new LinkedHashMap<>();
     }
 
-    private void setOption(DhcpOption opt) {
-        this.options.put(opt.getCode(), opt);
-    }
-
     private DhcpOption getOption(byte code) {
         return this.options.get(code);
+    }
+
+    private void setOption(DhcpOption opt) {
+        this.options.put(opt.getCode(), opt);
     }
 
     public void setOption(byte code, byte[] opt) {
@@ -89,11 +80,9 @@ public class DHCPOptions {
     }
 
     public byte[] getOptionBytes(byte code) {
-        try{
+        try {
             return this.getOption(code).getValue();
-        }
-        catch (NullPointerException e)
-        {
+        } catch (NullPointerException e) {
             return null;
         }
     }
@@ -145,13 +134,13 @@ public class DHCPOptions {
         byte[] opt = this.getOptionBytes(code);
         try {
             return InetAddress.getByAddress(opt).getHostAddress();
-        } catch (UnknownHostException| NullPointerException e) {
+        } catch (UnknownHostException | NullPointerException e) {
             return null;
         }
     }
 
     public void setOptionStrAddrs(byte code, List<String> addrs) throws UnknownHostException {
-        if(!addrs.isEmpty()) {
+        if (!addrs.isEmpty()) {
             this.setOption(new DhcpOption(code, DHCPUtils.strListAddrsToByteArray(addrs)));
         }
     }
@@ -162,8 +151,8 @@ public class DHCPOptions {
 
     public byte[] serialize() {
         byte[] options = new byte[0];
-        for(DhcpOption dOpt: this.options.values()) {
-            options = ArrayUtils.addAll(options, dOpt.serialize());
+        for (DhcpOption dhcpOption: this.options.values()) {
+            options = ArrayUtils.addAll(options, dhcpOption.serialize());
         }
         byte[] end = new byte[] {(byte)255};
         options = ArrayUtils.addAll(options, end);
@@ -172,7 +161,7 @@ public class DHCPOptions {
 
     private byte[] getOptionValArray(byte[] opt, int pos, int len) {
         byte[] val = new byte[len];
-        for(int i = 0; i < len; i++) {
+        for (int i = 0; i < len; i++) {
             val[i] = opt[pos + i];
         }
         return val;
@@ -180,7 +169,8 @@ public class DHCPOptions {
 
     public void deserialize(byte[] options) {
         int pos = 0;
-        byte code, len;
+        byte code;
+        byte len;
         byte[] value;
         if (options != null) {
             while (pos < options.length) {
@@ -204,11 +194,10 @@ public class DHCPOptions {
     public String toString() {
         StringBuilder sb = new StringBuilder();
         sb.append("{");
-        int i = 1;
-        for(DhcpOption dOpt: this.options.values()) {
+        int count = 1;
+        for (DhcpOption dhcpOption: this.options.values()) {
             //options = ArrayUtils.addAll(options, dOpt.serialize());
-            sb.append("Option").append(i++)
-            .append(dOpt.toString());
+            sb.append("Option").append(count++).append(dhcpOption.toString());
         }
         sb.append("}");
         return sb.toString();
