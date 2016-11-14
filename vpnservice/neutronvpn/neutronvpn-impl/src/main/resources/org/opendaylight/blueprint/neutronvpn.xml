@@ -118,6 +118,13 @@
     <argument ref="elanService" />
   </bean>
 
+  <bean id="subnetMapListenerNeutron"
+        class="org.opendaylight.netvirt.neutronvpn.SubnetmapListener"
+        init-method="start" destroy-method="close">
+    <argument ref="dataBroker" />
+    <argument ref="notificationPublishService" />
+  </bean>
+
   <bean id="neutronSubnetGwMacResolver"
         class="org.opendaylight.netvirt.neutronvpn.NeutronSubnetGwMacResolver"
         init-method="start" destroy-method="close">

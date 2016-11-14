@@ -44,9 +44,6 @@ import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev14081
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.interfaces.VpnInterfaceKey;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.ElanInstances;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.instances.ElanInstance;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.instances.ElanInstanceKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.Adjacencies;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.AdjacenciesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.adjacency.list.Adjacency;
@@ -81,9 +78,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev15060
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.RouterDisassociatedFromVpn;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.RouterDisassociatedFromVpnBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.RouterInterfacesMap;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.SubnetAddedToVpnBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.SubnetDeletedFromVpnBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.SubnetUpdatedInVpnBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.Subnetmaps;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.VpnMaps;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.createl3vpn.input.L3vpn;
@@ -1093,28 +1087,6 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
         LOG.debug("Adding subnet {} to vpn {}", subnet.getValue(), vpnId.getValue());
         Subnetmap sn = updateSubnetNode(subnet, null, null, null, null, vpnId);
         final Uuid routerId = NeutronvpnUtils.getVpnMap(dataBroker, vpnId).getRouterId();
-        // send subnet added to vpn notification
-        isExternalVpn = vpnId.equals(routerId) ? false : true;
-        String elanInstanceName = sn.getNetworkId().getValue();
-        InstanceIdentifier<ElanInstance> elanIdentifierId = InstanceIdentifier.builder(ElanInstances.class)
-                .child(ElanInstance.class, new ElanInstanceKey(elanInstanceName)).build();
-        try {
-            Optional<ElanInstance> elanInstance = NeutronvpnUtils.read(dataBroker, LogicalDatastoreType
-                    .CONFIGURATION, elanIdentifierId);
-            if (elanInstance.isPresent()) {
-                long elanTag = elanInstance.get().getElanTag();
-                checkAndPublishSubnetAddNotification(subnet, sn.getSubnetIp(), vpnId.getValue(), isExternalVpn,
-                        elanTag);
-                LOG.debug("Subnet added to VPN notification sent for subnet {} on VPN {}", subnet.getValue(),
-                        vpnId.getValue());
-            } else {
-                LOG.error("Subnet added to VPN notification failed for subnet {}  on VPN {} because of failure in " +
-                        "reading ELANInstance {}", subnet.getValue(), vpnId.getValue(), elanInstanceName);
-            }
-        } catch (Exception e) {
-            LOG.error("Subnet added to VPN notification failed for subnet {} on VPN {}", subnet.getValue(), vpnId
-                    .getValue(), e);
-        }
         // Check if there are ports on this subnet and add corresponding
         // vpn-interfaces
         List<Uuid> portList = sn.getPortList();
@@ -1159,27 +1131,6 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
             }
         }
         sn = updateSubnetNode(subnet, null, null, null, null, vpnId);
-        // send vpn updated for subnet notification
-        String elanInstanceName = sn.getNetworkId().getValue();
-        InstanceIdentifier<ElanInstance> elanIdentifierId = InstanceIdentifier.builder(ElanInstances.class)
-                .child(ElanInstance.class, new ElanInstanceKey(elanInstanceName)).build();
-        try {
-            Optional<ElanInstance> elanInstance = NeutronvpnUtils.read(dataBroker, LogicalDatastoreType
-                    .CONFIGURATION, elanIdentifierId);
-            if (elanInstance.isPresent()) {
-                long elanTag = elanInstance.get().getElanTag();
-                checkAndPublishSubnetUpdNotification(subnet, sn.getSubnetIp(), vpnId.getValue(), isBeingAssociated,
-                        elanTag);
-                LOG.debug("VPN updated for subnet notification sent for subnet {} on VPN {}", subnet.getValue(),
-                        vpnId.getValue());
-            } else {
-                LOG.error("VPN updated for subnet notification failed for subnet {} on VPN {} because of failure " +
-                        "in reading ELANInstance {}", subnet.getValue(), vpnId.getValue(), elanInstanceName);
-            }
-        } catch (Exception e) {
-            LOG.error("VPN updated for subnet notification failed for subnet {} on VPN {}", subnet.getValue(),
-                    vpnId.getValue(), e);
-        }
         // Check for ports on this subnet and update association of
         // corresponding vpn-interfaces to external vpn
         List<Uuid> portList = sn.getPortList();
@@ -1497,28 +1448,6 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
         LOG.debug("Removing subnet {} from vpn {}", subnet.getValue(), vpnId.getValue());
         final Uuid routerId = NeutronvpnUtils.getVpnMap(dataBroker, vpnId).getRouterId();
         Subnetmap sn = NeutronvpnUtils.getSubnetmap(dataBroker, subnet);
-        // send subnet removed from vpn notification
-        isExternalVpn = vpnId.equals(routerId) ? false : true;
-        String elanInstanceName = sn.getNetworkId().getValue();
-        InstanceIdentifier<ElanInstance> elanIdentifierId = InstanceIdentifier.builder(ElanInstances.class)
-                .child(ElanInstance.class, new ElanInstanceKey(elanInstanceName)).build();
-        try {
-            Optional<ElanInstance> elanInstance = NeutronvpnUtils.read(dataBroker, LogicalDatastoreType
-                    .CONFIGURATION, elanIdentifierId);
-            if (elanInstance.isPresent()) {
-                long elanTag = elanInstance.get().getElanTag();
-                checkAndPublishSubnetDelNotification(subnet, sn.getSubnetIp(), vpnId.getValue(), isExternalVpn,
-                        elanTag);
-                LOG.debug("Subnet removed from VPN notification sent for subnet {} on VPN {}", subnet.getValue(),
-                        vpnId.getValue());
-            } else {
-                LOG.error("Subnet removed from VPN notification failed for subnet {} on VPN {} because of failure " +
-                        "in reading ELANInstance {}", subnet.getValue(), vpnId.getValue(), elanInstanceName);
-            }
-        } catch (Exception e) {
-            LOG.error("Subnet removed from VPN notification failed for subnet {} on VPN {}", subnet.getValue(),
-                    vpnId.getValue(), e);
-        }
         if (sn != null) {
             // Check if there are ports on this subnet; remove corresponding vpn-interfaces
             List<Uuid> portList = sn.getPortList();
@@ -2198,51 +2127,6 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
         StringBuilder help = new StringBuilder("Usage:");
         help.append("display vpn-config [-vid/--vpnid <id>]");
         return help.toString();
-    }
-
-    private void checkAndPublishSubnetAddNotification(Uuid subnetId, String subnetIp, String vpnName,
-                                                      Boolean isExternalvpn, Long elanTag) throws InterruptedException {
-        SubnetAddedToVpnBuilder builder = new SubnetAddedToVpnBuilder();
-
-        LOG.info("publish notification called");
-
-        builder.setSubnetId(subnetId);
-        builder.setSubnetIp(subnetIp);
-        builder.setVpnName(vpnName);
-        builder.setExternalVpn(isExternalvpn);
-        builder.setElanTag(elanTag);
-
-        notificationPublishService.putNotification(builder.build());
-    }
-
-    private void checkAndPublishSubnetDelNotification(Uuid subnetId, String subnetIp, String vpnName,
-                                                      Boolean isExternalvpn, Long elanTag) throws InterruptedException {
-        SubnetDeletedFromVpnBuilder builder = new SubnetDeletedFromVpnBuilder();
-
-        LOG.info("publish notification called");
-
-        builder.setSubnetId(subnetId);
-        builder.setSubnetIp(subnetIp);
-        builder.setVpnName(vpnName);
-        builder.setExternalVpn(isExternalvpn);
-        builder.setElanTag(elanTag);
-
-        notificationPublishService.putNotification(builder.build());
-    }
-
-    private void checkAndPublishSubnetUpdNotification(Uuid subnetId, String subnetIp, String vpnName,
-                                                      Boolean isExternalvpn, Long elanTag) throws InterruptedException {
-        SubnetUpdatedInVpnBuilder builder = new SubnetUpdatedInVpnBuilder();
-
-        LOG.info("publish notification called");
-
-        builder.setSubnetId(subnetId);
-        builder.setSubnetIp(subnetIp);
-        builder.setVpnName(vpnName);
-        builder.setExternalVpn(isExternalvpn);
-        builder.setElanTag(elanTag);
-
-        notificationPublishService.putNotification(builder.build());
     }
 
     private void checkAndPublishRouterAssociatedtoVpnNotification(Uuid routerId, Uuid vpnId) throws
