@@ -16,9 +16,7 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
   </parent>
 
   <modelVersion>4.0.0</modelVersion>
-  <groupId>org.opendaylight.netvirt</groupId>
   <artifactId>elanmanager-impl</artifactId>
-  <version>${vpnservices.version}</version>
   <packaging>bundle</packaging>
 
   <properties>
@@ -107,42 +105,37 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
       <version>${vpns.ovsdb.version}</version>
     </dependency>
 
-      <!--  Only for unit-test -->
-   <dependency>
-        <groupId>org.mockito</groupId>
-        <artifactId>mockito-all</artifactId>
-        <version>${mockitoall.version}</version>
-        <scope>test</scope>
+    <!--  Only for unit-test -->
+    <dependency>
+      <groupId>org.mockito</groupId>
+      <artifactId>mockito-all</artifactId>
+      <version>${mockitoall.version}</version>
+      <scope>test</scope>
     </dependency>
     <dependency>
-        <groupId>org.powermock</groupId>
-        <artifactId>powermock-api-mockito</artifactId>
-        <version>${powermock.version}</version>
-        <scope>test</scope>
+      <groupId>org.powermock</groupId>
+      <artifactId>powermock-api-mockito</artifactId>
+      <version>${powermock.version}</version>
+      <scope>test</scope>
     </dependency>
     <dependency>
-        <groupId>org.powermock</groupId>
-        <artifactId>powermock-module-junit4</artifactId>
-        <version>${powermock.version}</version>
-        <scope>test</scope>
+      <groupId>org.powermock</groupId>
+      <artifactId>powermock-module-junit4</artifactId>
+      <version>${powermock.version}</version>
+      <scope>test</scope>
     </dependency>
-      <dependency>
-          <groupId>org.opendaylight.controller</groupId>
-          <artifactId>sal-binding-broker-impl</artifactId>
-          <scope>test</scope>
-      </dependency>
-      <dependency>
-          <groupId>org.opendaylight.controller</groupId>
-          <artifactId>sal-binding-broker-impl</artifactId>
-          <version>${mdsal.version}</version>
-          <scope>test</scope>
-          <type>test-jar</type>
-      </dependency>
-      <dependency>
-          <groupId>org.slf4j</groupId>
-          <artifactId>slf4j-simple</artifactId>
-          <scope>test</scope>
-      </dependency>
+    <dependency>
+      <groupId>org.opendaylight.controller</groupId>
+      <artifactId>sal-binding-broker-impl</artifactId>
+      <version>${mdsal.version}</version>
+      <scope>test</scope>
+      <type>test-jar</type>
+    </dependency>
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-simple</artifactId>
+      <scope>test</scope>
+    </dependency>
   </dependencies>
 
   <build>
