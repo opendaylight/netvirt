@@ -176,27 +176,27 @@ public class EgressAclService extends AbstractServiceInstance implements EgressA
                     LOG.debug("programPortSecurityRule: Rule matching TCP", portSecurityRule);
                     egressAclTcp(dpid, segmentationId, attachedMac,
                         portSecurityRule,ipaddress, write,
-                        Constants.PROTO_PORT_PREFIX_MATCH_PRIORITY);
+                        Constants.PROTO_SPEC_PORT_PREFIX_MATCH_PRIORITY);
                     break;
                 case MatchUtils.UDP:
                     LOG.debug("programPortSecurityRule: Rule matching UDP", portSecurityRule);
                     egressAclUdp(dpid, segmentationId, attachedMac,
                         portSecurityRule, ipaddress, write,
-                        Constants.PROTO_PORT_PREFIX_MATCH_PRIORITY);
+                        Constants.PROTO_SPEC_PORT_PREFIX_MATCH_PRIORITY);
                     break;
                 case MatchUtils.ICMP:
                 case MatchUtils.ICMPV6:
                     LOG.debug("programPortSecurityRule: Rule matching ICMP", portSecurityRule);
                     egressAclIcmp(dpid, segmentationId, attachedMac,
                         portSecurityRule, ipaddress,write,
-                        Constants.PROTO_PORT_PREFIX_MATCH_PRIORITY);
+                        Constants.PROTO_SPEC_PORT_PREFIX_MATCH_PRIORITY);
                     break;
                 default:
                     LOG.info("programPortSecurityAcl: Protocol is not TCP/UDP/ICMP but other "
                             + "protocol = ", portSecurityRule.getSecurityRuleProtocol());
                     egressOtherProtocolAclHandler(dpid, segmentationId, attachedMac,
                         portSecurityRule, ipaddress, write,
-                        Constants.PROTO_PORT_PREFIX_MATCH_PRIORITY);
+                        Constants.PROTO_SPEC_PORT_PREFIX_MATCH_PRIORITY);
                     break;
             }
         }

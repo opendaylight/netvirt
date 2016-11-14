@@ -167,24 +167,24 @@ public class IngressAclService extends AbstractServiceInstance implements Ingres
                 case MatchUtils.TCP:
                     LOG.debug("programPortSecurityRule: Rule matching TCP", portSecurityRule);
                     ingressAclTcp(dpid, segmentationId, attachedMac, portSecurityRule, ipaddress,
-                        write, Constants.PROTO_PORT_PREFIX_MATCH_PRIORITY);
+                        write, Constants.PROTO_SPEC_PORT_PREFIX_MATCH_PRIORITY);
                     break;
                 case MatchUtils.UDP:
                     LOG.debug("programPortSecurityRule: Rule matching UDP", portSecurityRule);
                     ingressAclUdp(dpid, segmentationId, attachedMac, portSecurityRule, ipaddress,
-                        write, Constants.PROTO_PORT_PREFIX_MATCH_PRIORITY);
+                        write, Constants.PROTO_SPEC_PORT_PREFIX_MATCH_PRIORITY);
                     break;
                 case MatchUtils.ICMP:
                 case MatchUtils.ICMPV6:
                     LOG.debug("programPortSecurityRule: Rule matching ICMP", portSecurityRule);
                     ingressAclIcmp(dpid, segmentationId, attachedMac, portSecurityRule, ipaddress,
-                        write, Constants.PROTO_PORT_PREFIX_MATCH_PRIORITY);
+                        write, Constants.PROTO_SPEC_PORT_PREFIX_MATCH_PRIORITY);
                     break;
                 default:
                     LOG.info("programPortSecurityAcl: Protocol is not TCP/UDP/ICMP but other "
                             + "protocol = ", portSecurityRule.getSecurityRuleProtocol());
                     ingressOtherProtocolAclHandler(dpid, segmentationId, attachedMac, portSecurityRule,
-                        null, write, Constants.PROTO_PORT_PREFIX_MATCH_PRIORITY);
+                        null, write, Constants.PROTO_SPEC_PORT_PREFIX_MATCH_PRIORITY);
                     break;
             }
         }
