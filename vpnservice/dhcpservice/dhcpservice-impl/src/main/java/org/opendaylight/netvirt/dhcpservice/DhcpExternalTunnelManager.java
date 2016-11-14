@@ -38,7 +38,7 @@ import org.opendaylight.genius.utils.clustering.ClusteringUtils;
 import org.opendaylight.genius.utils.hwvtep.HwvtepSouthboundConstants;
 import org.opendaylight.genius.utils.hwvtep.HwvtepSouthboundUtils;
 import org.opendaylight.genius.utils.hwvtep.HwvtepUtils;
-import org.opendaylight.netvirt.dhcpservice.api.DHCPMConstants;
+import org.opendaylight.netvirt.dhcpservice.api.DhcpMConstants;
 import org.opendaylight.netvirt.elanmanager.utils.ElanL2GwCacheUtils;
 import org.opendaylight.netvirt.neutronvpn.api.l2gw.L2GatewayDevice;
 import org.opendaylight.netvirt.neutronvpn.api.l2gw.utils.L2GatewayCacheUtils;
@@ -147,7 +147,7 @@ public class DhcpExternalTunnelManager {
     public BigInteger designateDpnId(IpAddress tunnelIp,
             String elanInstanceName, List<BigInteger> dpns) {
         BigInteger designatedDpnId = readDesignatedSwitchesForExternalTunnel(tunnelIp, elanInstanceName);
-        if (designatedDpnId != null && !designatedDpnId.equals(DHCPMConstants.INVALID_DPID)) {
+        if (designatedDpnId != null && !designatedDpnId.equals(DhcpMConstants.INVALID_DPID)) {
             LOG.trace("Dpn {} already designated for tunnelIp - elan : {} - {}", designatedDpnId, tunnelIp,
                     elanInstanceName);
             return designatedDpnId;
@@ -294,7 +294,7 @@ public class DhcpExternalTunnelManager {
         try {
             Set<Pair<IpAddress, String>> setOfTunnelIpElanNamePairs = designatedDpnsToTunnelIpElanNameCache.get(dpnId);
             WriteTransaction tx = broker.newWriteOnlyTransaction();
-            if (!dpnId.equals(DHCPMConstants.INVALID_DPID)) {
+            if (!dpnId.equals(DhcpMConstants.INVALID_DPID)) {
                 List<String> listOfVms = getAllVmMacs();
                 for (String vmMacAddress : listOfVms) {
                     unInstallDhcpEntries(dpnId, vmMacAddress, tx);
@@ -317,7 +317,7 @@ public class DhcpExternalTunnelManager {
             List<BigInteger> listOfDpns, Pair<IpAddress, String> pair, WriteTransaction tx)
             throws ExecutionException {
         BigInteger newDesignatedDpn = chooseDpn(pair.getLeft(), pair.getRight(), listOfDpns);
-        if (newDesignatedDpn.equals(DHCPMConstants.INVALID_DPID)) {
+        if (newDesignatedDpn.equals(DhcpMConstants.INVALID_DPID)) {
             return;
         }
         Set<String> setOfVmMacs = tunnelIpElanNameToVmMacCache.get(pair);
@@ -350,7 +350,7 @@ public class DhcpExternalTunnelManager {
      */
     private BigInteger chooseDpn(IpAddress tunnelIp, String elanInstanceName,
             List<BigInteger> dpns) {
-        BigInteger designatedDpnId = DHCPMConstants.INVALID_DPID;
+        BigInteger designatedDpnId = DhcpMConstants.INVALID_DPID;
         if (dpns != null && dpns.size() != 0) {
             List<BigInteger> candidateDpns = DhcpServiceUtils.getDpnsForElan(elanInstanceName, broker);
             candidateDpns.retainAll(dpns);
@@ -396,7 +396,7 @@ public class DhcpExternalTunnelManager {
     }
 
     private void handleUnableToDesignateDpn(IpAddress tunnelIp, String elanInstanceName) {
-        writeDesignatedSwitchForExternalTunnel(DHCPMConstants.INVALID_DPID, tunnelIp, elanInstanceName);
+        writeDesignatedSwitchForExternalTunnel(DhcpMConstants.INVALID_DPID, tunnelIp, elanInstanceName);
     }
 
     private void installDhcpEntries(BigInteger dpnId, String vmMacAddress, WriteTransaction tx) {
@@ -585,7 +585,7 @@ public class DhcpExternalTunnelManager {
     }
 
     public void installRemoteMcastMac(final BigInteger designatedDpnId, final IpAddress tunnelIp, final String elanInstanceName) {
-        if (designatedDpnId.equals(DHCPMConstants.INVALID_DPID)) {
+        if (designatedDpnId.equals(DhcpMConstants.INVALID_DPID)) {
             return;
         }
         ListenableFuture<Boolean> checkEntityOwnerFuture = ClusteringUtils.checkNodeEntityOwner(entityOwnershipService, HwvtepSouthboundConstants.ELAN_ENTITY_TYPE, HwvtepSouthboundConstants.ELAN_ENTITY_NAME);
@@ -651,7 +651,7 @@ public class DhcpExternalTunnelManager {
         LOG.trace("In handleTunnelStateUp tunnelIp {}, interfaceDpn {}", tunnelIp, interfaceDpn);
         try {
             synchronized (getTunnelIpDpnKey(tunnelIp, interfaceDpn)) {
-                Set<Pair<IpAddress, String>> tunnelIpElanPair = designatedDpnsToTunnelIpElanNameCache.get(DHCPMConstants.INVALID_DPID);
+                Set<Pair<IpAddress, String>> tunnelIpElanPair = designatedDpnsToTunnelIpElanNameCache.get(DhcpMConstants.INVALID_DPID);
                 List<BigInteger> dpns = DhcpServiceUtils.getListOfDpns(broker);
                 if (tunnelIpElanPair == null || tunnelIpElanPair.isEmpty()) {
                     LOG.trace("There are no undesignated DPNs");
@@ -661,7 +661,7 @@ public class DhcpExternalTunnelManager {
                 for (Pair<IpAddress, String> pair : tunnelIpElanPair) {
                     if (tunnelIp.equals(pair.getLeft())) {
                         BigInteger newDesignatedDpn = designateDpnId(tunnelIp, pair.getRight(), dpns);
-                        if (newDesignatedDpn != null && !newDesignatedDpn.equals(DHCPMConstants.INVALID_DPID)) {
+                        if (newDesignatedDpn != null && !newDesignatedDpn.equals(DhcpMConstants.INVALID_DPID)) {
                             Set<String> vmMacAddress = tunnelIpElanNameToVmMacCache.get(pair);
                             if (vmMacAddress != null && !vmMacAddress.isEmpty()) {
                                 LOG.trace("Updating DHCP flow for macAddress {} with newDpn {}", vmMacAddress, newDesignatedDpn);

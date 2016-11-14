@@ -23,7 +23,7 @@ import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.mdsalutil.MatchInfo;
 import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
-import org.opendaylight.netvirt.dhcpservice.api.DHCPMConstants;
+import org.opendaylight.netvirt.dhcpservice.api.DhcpMConstants;
 import org.opendaylight.netvirt.neutronvpn.interfaces.INeutronVpnManager;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.ports.attributes.ports.Port;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.subnets.rev150712.subnets.attributes.subnets.Subnet;
@@ -57,7 +57,7 @@ public class DhcpManager {
         this.dhcpExternalTunnelManager = dhcpExternalTunnelManager;
         this.interfaceManager = interfaceManager;
 
-        configureLeaseDuration(DHCPMConstants.DEFAULT_LEASE_TIME);
+        configureLeaseDuration(DhcpMConstants.DEFAULT_LEASE_TIME);
     }
 
     public void init() {
@@ -147,7 +147,7 @@ public class DhcpManager {
         instructions.add(new InstructionInfo(InstructionType.apply_actions, actionsInfos));
         FlowEntity flowEntity = MDSALUtil.buildFlowEntity(dpId, NwConstants.DHCP_TABLE, "DHCPTableMissFlow",
                 0, "DHCP Table Miss Flow", 0, 0,
-                DHCPMConstants.COOKIE_DHCP_BASE, matches, instructions);
+                DhcpMConstants.COOKIE_DHCP_BASE, matches, instructions);
         DhcpServiceCounters.install_dhcp_table_miss_flow.inc();
         mdsalUtil.installFlow(flowEntity);
         setupTableMissForHandlingExternalTunnel(dpId);
@@ -160,7 +160,7 @@ public class DhcpManager {
 
         FlowEntity flowEntity = MDSALUtil.buildFlowEntity(dpId, NwConstants.DHCP_TABLE_EXTERNAL_TUNNEL, "DHCPTableMissFlowForExternalTunnel",
                 0, "DHCP Table Miss Flow For External Tunnel", 0, 0,
-                DHCPMConstants.COOKIE_DHCP_BASE, matches, instructions);
+                DhcpMConstants.COOKIE_DHCP_BASE, matches, instructions);
         DhcpServiceCounters.install_dhcp_table_miss_flow_for_external_table.inc();
         mdsalUtil.installFlow(flowEntity);
     }

@@ -35,7 +35,7 @@ import org.opendaylight.genius.mdsalutil.packet.IPv4;
 import org.opendaylight.genius.mdsalutil.packet.UDP;
 import org.opendaylight.netvirt.dhcpservice.api.DHCP;
 import org.opendaylight.netvirt.dhcpservice.api.DHCPConstants;
-import org.opendaylight.netvirt.dhcpservice.api.DHCPMConstants;
+import org.opendaylight.netvirt.dhcpservice.api.DhcpMConstants;
 import org.opendaylight.netvirt.dhcpservice.api.DHCPUtils;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.action.types.rev131112.action.list.Action;
@@ -201,9 +201,9 @@ public class DhcpPktHandler implements PacketProcessingListener {
             IPv4 ipPkt = (IPv4) ethPkt.getPayload();
             if (ipPkt.getPayload() instanceof UDP) {
                 UDP udpPkt = (UDP) ipPkt.getPayload();
-                if ((udpPkt.getSourcePort() == DHCPMConstants.dhcpClientPort)
-                        && (udpPkt.getDestinationPort() == DHCPMConstants.dhcpServerPort)) {
-                    LOG.trace("Matched dhcpClientPort and dhcpServerPort");
+                if ((udpPkt.getSourcePort() == DhcpMConstants.DHCP_CLIENT_PORT)
+                        && (udpPkt.getDestinationPort() == DhcpMConstants.DHCP_SERVER_PORT)) {
+                    LOG.trace("Matched DHCP_CLIENT_PORT and DHCP_SERVER_PORT");
                     byte[] rawDhcpPayload = udpPkt.getRawPayload();
                     DHCP reply = new DHCP();
                     try {
@@ -302,8 +302,8 @@ public class DhcpPktHandler implements PacketProcessingListener {
             return null;
         }
         udpPkt.setRawPayload(rawPkt);
-        udpPkt.setDestinationPort(DHCPMConstants.dhcpClientPort);
-        udpPkt.setSourcePort(DHCPMConstants.dhcpServerPort);
+        udpPkt.setDestinationPort(DhcpMConstants.DHCP_CLIENT_PORT);
+        udpPkt.setSourcePort(DhcpMConstants.DHCP_SERVER_PORT);
         udpPkt.setLength((short) (rawPkt.length + 8));
         //Create IP Pkt
         IPv4 ip4Reply = new IPv4();
@@ -317,13 +317,13 @@ public class DhcpPktHandler implements PacketProcessingListener {
         short checkSum = 0;
         if(this.computeUdpChecksum) {
          checkSum = computeChecksum(rawPkt, reply.getSiaddr(),
-                NetUtils.intToByteArray4(DHCPMConstants.BCAST_IP));
+                NetUtils.intToByteArray4(DhcpMConstants.BCAST_IP));
         }
         udpPkt.setChecksum(checkSum);
         ip4Reply.setPayload(udpPkt);
         ip4Reply.setProtocol(IPProtocols.UDP.byteValue());
         ip4Reply.setSourceAddress(reply.getSiaddrAsInetAddr());
-        ip4Reply.setDestinationAddress(DHCPMConstants.BCAST_IP);
+        ip4Reply.setDestinationAddress(DhcpMConstants.BCAST_IP);
         ip4Reply.setTotalLength((short) (rawPkt.length+20));
         ip4Reply.setTtl((byte) 32);
         // create Ethernet Frame
