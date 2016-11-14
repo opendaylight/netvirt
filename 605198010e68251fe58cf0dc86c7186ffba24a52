@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3a65312a_5fc027e0",
+        "filename": "openstack/net-virt-providers/src/main/java/org/opendaylight/netvirt/openstack/netvirt/providers/openflow13/services/IngressAclService.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 187,
+      "author": {
+        "id": 869
+      },
+      "writtenOn": "2016-11-14T06:08:41Z",
+      "side": 1,
+      "message": "changing the Priority is not enough to fix this bug.\nwhen the VM initiate ping packets will hit the table 40.\ndefault IP rule \n\"cookie\u003d0x0, duration\u003d352.213s, table\u003d40, n_packets\u003d27, n_bytes\u003d3152, priority\u003d61004,ip,dl_src\u003dfa:16:3e:89:ea:d6 actions\u003dgoto_table:50\"\nand it will reach DHCP namespace ,then DHCP sends reply to the VM this will get dropped in table 90(ingress).\nbecause the default IP rule matching dst\u003dVM_MAC,nw_src\u003dVM_IN_NETWORK,\n\"cookie\u003d0x0, duration\u003d552.391s, table\u003d90, n_packets\u003d0, n_bytes\u003d0, priority\u003d61004,ip,dl_dst\u003dfa:16:3e:d5:35:69,nw_src\u003d10.0.0.7 actions\u003dgoto_table:100\"\n\ngeneric way to fix this issue adding LEARN rule for DEFAULT SG.",
+      "range": {
+        "startLine": 187,
+        "startChar": 47,
+        "endLine": 187,
+        "endChar": 84
+      },
+      "revId": "605198010e68251fe58cf0dc86c7186ffba24a52",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
