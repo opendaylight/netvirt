@@ -16,6 +16,24 @@
       "revId": "9f7814f14375bd6a6ff3a035ff3cfd21fce91a48",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a65312a_7f19a387",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/AlivenessMonitorUtils.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 58,
+      "author": {
+        "id": 6177
+      },
+      "writtenOn": "2016-11-14T08:21:58Z",
+      "side": 1,
+      "message": "You are right that the current solution should be different, and we\u0027ve opened a bug to fix this: \nhttps://bugs.opendaylight.org/show_bug.cgi?id\u003d7143\n\nFixing it properly is a bit tricky (since you have to figure out the correct srcip/OVS to use). We were seeking to remove this exception first (as it\u0027s flooding the logs), and then handle this properly.",
+      "parentUuid": "3a65312a_7fefe387",
+      "revId": "9f7814f14375bd6a6ff3a035ff3cfd21fce91a48",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
