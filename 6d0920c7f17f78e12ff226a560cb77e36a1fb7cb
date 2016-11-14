@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "3a65312a_02de566d",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/ModifyVpnFootprintTask.java",
+        "patchSetId": 32
+      },
+      "lineNbr": 115,
+      "author": {
+        "id": 5350
+      },
+      "writtenOn": "2016-11-14T19:11:30Z",
+      "side": 1,
+      "message": "nowhere I think. This is just an offered API in case some client wants to use it.",
+      "parentUuid": "3a65312a_b6bec7fd",
+      "revId": "6d0920c7f17f78e12ff226a560cb77e36a1fb7cb",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "3a65312a_56c1337f",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/ModifyVpnFootprintTask.java",
         "patchSetId": 32
@@ -30,6 +48,24 @@
       "writtenOn": "2016-11-11T18:42:19Z",
       "side": 1,
       "message": "can become true for multiple vpn interfaces on the same DPN.",
+      "revId": "6d0920c7f17f78e12ff226a560cb77e36a1fb7cb",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a65312a_42916e98",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/ModifyVpnFootprintTask.java",
+        "patchSetId": 32
+      },
+      "lineNbr": 215,
+      "author": {
+        "id": 5350
+      },
+      "writtenOn": "2016-11-14T19:11:30Z",
+      "side": 1,
+      "message": "I\u0027m not sure if that\u0027s possible if we make the reading and then the addition (or removal) both inside the synchronized block",
+      "parentUuid": "3a65312a_56c1337f",
       "revId": "6d0920c7f17f78e12ff226a560cb77e36a1fb7cb",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -70,6 +106,24 @@
     },
     {
       "key": {
+        "uuid": "3a65312a_0273f680",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 32
+      },
+      "lineNbr": 576,
+      "author": {
+        "id": 5350
+      },
+      "writtenOn": "2016-11-14T19:11:30Z",
+      "side": 1,
+      "message": "As mentioned in the other comment, reading VpnToDpn map from storage and then updating it *synchronously*, both operations inside the same synchronized block, ensures that only one of the ModifyVpnFootprint objects will see its \u0027lastDpn\u0027 or firstDpn\u0027 set to true. \n\nRegarding your note, I thought all DCNs of the same type landed on the same PL. Isn\u0027t that right?",
+      "parentUuid": "3a65312a_36f477f1",
+      "revId": "6d0920c7f17f78e12ff226a560cb77e36a1fb7cb",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "3a65312a_1cc4fd5d",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
         "patchSetId": 32
@@ -87,6 +141,24 @@
     },
     {
       "key": {
+        "uuid": "3a65312a_cb83d902",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 32
+      },
+      "lineNbr": 582,
+      "author": {
+        "id": 5350
+      },
+      "writtenOn": "2016-11-14T19:11:30Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "3a65312a_1cc4fd5d",
+      "revId": "6d0920c7f17f78e12ff226a560cb77e36a1fb7cb",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "3a65312a_db360e03",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
         "patchSetId": 32
@@ -98,6 +170,24 @@
       "writtenOn": "2016-11-11T18:42:19Z",
       "side": 1,
       "message": "is this function used?",
+      "revId": "6d0920c7f17f78e12ff226a560cb77e36a1fb7cb",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a65312a_e26d1a9b",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 32
+      },
+      "lineNbr": 803,
+      "author": {
+        "id": 5350
+      },
+      "writtenOn": "2016-11-14T19:11:30Z",
+      "side": 1,
+      "message": "looks like it doesn\u0027t",
+      "parentUuid": "3a65312a_db360e03",
       "revId": "6d0920c7f17f78e12ff226a560cb77e36a1fb7cb",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
