@@ -12,7 +12,7 @@ import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
 import org.opendaylight.genius.datastoreutils.DataStoreJobCoordinator;
-import org.opendaylight.netvirt.dhcpservice.api.DHCPMConstants;
+import org.opendaylight.netvirt.dhcpservice.api.DhcpMConstants;
 import org.opendaylight.netvirt.dhcpservice.jobs.DhcpInterfaceConfigRemoveJob;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.Interfaces;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface;
@@ -45,7 +45,7 @@ public class DhcpInterfaceConfigListener extends AsyncDataTreeChangeListenerBase
     @Override
     protected void remove(InstanceIdentifier<Interface> identifier, Interface del) {
         DhcpInterfaceConfigRemoveJob job = new DhcpInterfaceConfigRemoveJob(dhcpExternalTunnelManager, dataBroker, del);
-        dataStoreJobCoordinator.enqueueJob(DhcpServiceUtils.getJobKey(del.getName()), job, DHCPMConstants.RETRY_COUNT );
+        dataStoreJobCoordinator.enqueueJob(DhcpServiceUtils.getJobKey(del.getName()), job, DhcpMConstants.RETRY_COUNT );
     }
 
     @Override

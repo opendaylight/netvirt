@@ -22,7 +22,7 @@ import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.netvirt.dhcpservice.DhcpExternalTunnelManager;
 import org.opendaylight.netvirt.dhcpservice.DhcpManager;
 import org.opendaylight.netvirt.dhcpservice.DhcpServiceUtils;
-import org.opendaylight.netvirt.dhcpservice.api.DHCPMConstants;
+import org.opendaylight.netvirt.dhcpservice.api.DhcpMConstants;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rev160406.IfTunnel;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.ports.attributes.ports.Port;
@@ -88,7 +88,7 @@ public class DhcpInterfaceAddJob implements Callable<List<ListenableFuture<Void>
                 return futures;
             }
         }
-        if (!dpnId.equals(DHCPMConstants.INVALID_DPID)) {
+        if (!dpnId.equals(DhcpMConstants.INVALID_DPID)) {
             Port port = dhcpManager.getNeutronPort(interfaceName);
             Subnet subnet = dhcpManager.getNeutronSubnet(port);
             if (null != subnet && subnet.isEnableDhcp()) {

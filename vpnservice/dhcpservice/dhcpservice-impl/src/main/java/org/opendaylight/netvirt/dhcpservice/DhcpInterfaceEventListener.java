@@ -16,7 +16,7 @@ import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
 import org.opendaylight.genius.datastoreutils.DataStoreJobCoordinator;
 import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
-import org.opendaylight.netvirt.dhcpservice.api.DHCPMConstants;
+import org.opendaylight.netvirt.dhcpservice.api.DhcpMConstants;
 import org.opendaylight.netvirt.dhcpservice.jobs.DhcpInterfaceAddJob;
 import org.opendaylight.netvirt.dhcpservice.jobs.DhcpInterfaceRemoveJob;
 import org.opendaylight.netvirt.dhcpservice.jobs.DhcpInterfaceUpdateJob;
@@ -64,7 +64,7 @@ public class DhcpInterfaceEventListener extends AsyncDataTreeChangeListenerBase<
         NodeConnectorId nodeConnectorId = new NodeConnectorId(ofportIds.get(0));
         BigInteger dpnId = BigInteger.valueOf(MDSALUtil.getDpnIdFromPortName(nodeConnectorId));
         DhcpInterfaceRemoveJob job = new DhcpInterfaceRemoveJob(dhcpManager, dhcpExternalTunnelManager, dataBroker, interfaceName, dpnId, interfaceManager);
-        dataStoreJobCoordinator.enqueueJob(DhcpServiceUtils.getJobKey(interfaceName), job, DHCPMConstants.RETRY_COUNT);
+        dataStoreJobCoordinator.enqueueJob(DhcpServiceUtils.getJobKey(interfaceName), job, DhcpMConstants.RETRY_COUNT);
     }
 
     @Override
@@ -92,7 +92,7 @@ public class DhcpInterfaceEventListener extends AsyncDataTreeChangeListenerBase<
         BigInteger dpnId = BigInteger.valueOf(MDSALUtil.getDpnIdFromPortName(nodeConnectorId));
         String interfaceName = update.getName();
         DhcpInterfaceUpdateJob job = new DhcpInterfaceUpdateJob(dhcpManager, dhcpExternalTunnelManager, dataBroker, interfaceName, dpnId, update.getOperStatus(), interfaceManager);
-        dataStoreJobCoordinator.enqueueJob(DhcpServiceUtils.getJobKey(interfaceName), job, DHCPMConstants.RETRY_COUNT);
+        dataStoreJobCoordinator.enqueueJob(DhcpServiceUtils.getJobKey(interfaceName), job, DhcpMConstants.RETRY_COUNT);
     }
 
     @Override
@@ -105,7 +105,7 @@ public class DhcpInterfaceEventListener extends AsyncDataTreeChangeListenerBase<
         NodeConnectorId nodeConnectorId = new NodeConnectorId(ofportIds.get(0));
         BigInteger dpnId = BigInteger.valueOf(MDSALUtil.getDpnIdFromPortName(nodeConnectorId));
         DhcpInterfaceAddJob job = new DhcpInterfaceAddJob(dhcpManager, dhcpExternalTunnelManager, dataBroker, interfaceName, dpnId, interfaceManager);
-        dataStoreJobCoordinator.enqueueJob(DhcpServiceUtils.getJobKey(interfaceName), job, DHCPMConstants.RETRY_COUNT);
+        dataStoreJobCoordinator.enqueueJob(DhcpServiceUtils.getJobKey(interfaceName), job, DhcpMConstants.RETRY_COUNT);
     }
 
     @Override

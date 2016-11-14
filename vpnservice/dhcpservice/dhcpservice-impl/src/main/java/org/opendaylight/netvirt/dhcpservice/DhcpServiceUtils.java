@@ -30,7 +30,7 @@ import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.genius.mdsalutil.packet.IPProtocols;
 import org.opendaylight.genius.utils.ServiceIndex;
-import org.opendaylight.netvirt.dhcpservice.api.DHCPMConstants;
+import org.opendaylight.netvirt.dhcpservice.api.DhcpMConstants;
 import org.opendaylight.netvirt.neutronvpn.api.utils.NeutronUtils;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.InterfacesState;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
@@ -71,7 +71,7 @@ public class DhcpServiceUtils {
     private static final Logger LOG = LoggerFactory.getLogger(DhcpServiceUtils.class);
 
     public static void setupDhcpFlowEntry(BigInteger dpId, short tableId, String vmMacAddress, int addOrRemove, IMdsalApiManager mdsalUtil, WriteTransaction tx) {
-        if (dpId == null || dpId.equals(DHCPMConstants.INVALID_DPID) || vmMacAddress == null) {
+        if (dpId == null || dpId.equals(DhcpMConstants.INVALID_DPID) || vmMacAddress == null) {
             return;
         }
         List<MatchInfo> matches = getDhcpMatch(vmMacAddress);
@@ -87,15 +87,15 @@ public class DhcpServiceUtils {
         if (addOrRemove == NwConstants.DEL_FLOW) {
             FlowEntity flowEntity = MDSALUtil.buildFlowEntity(dpId, tableId,
                     getDhcpFlowRef(dpId, tableId, vmMacAddress),
-                    DHCPMConstants.DEFAULT_DHCP_FLOW_PRIORITY, "DHCP", 0, 0,
-                    DHCPMConstants.COOKIE_DHCP_BASE, matches, null);
+                    DhcpMConstants.DEFAULT_DHCP_FLOW_PRIORITY, "DHCP", 0, 0,
+                    DhcpMConstants.COOKIE_DHCP_BASE, matches, null);
             LOG.trace("Removing DHCP Flow DpId {}, vmMacAddress {}", dpId, vmMacAddress);
             DhcpServiceCounters.remove_dhcp_flow.inc();
             mdsalUtil.removeFlowToTx(flowEntity, tx);
         } else {
             FlowEntity flowEntity = MDSALUtil.buildFlowEntity(dpId, tableId,
-                    getDhcpFlowRef(dpId, tableId, vmMacAddress),DHCPMConstants.DEFAULT_DHCP_FLOW_PRIORITY, "DHCP", 0, 0,
-                    DHCPMConstants.COOKIE_DHCP_BASE, matches, instructions);
+                    getDhcpFlowRef(dpId, tableId, vmMacAddress), DhcpMConstants.DEFAULT_DHCP_FLOW_PRIORITY, "DHCP", 0, 0,
+                    DhcpMConstants.COOKIE_DHCP_BASE, matches, instructions);
             LOG.trace("Installing DHCP Flow DpId {}, vmMacAddress {}", dpId, vmMacAddress);
             DhcpServiceCounters.install_dhcp_flow.inc();
             mdsalUtil.addFlowToTx(flowEntity, tx);
@@ -103,14 +103,14 @@ public class DhcpServiceUtils {
     }
 
     private static String getDhcpFlowRef(BigInteger dpId, long tableId, String vmMacAddress) {
-        return new StringBuffer().append(DHCPMConstants.FLOWID_PREFIX)
+        return new StringBuffer().append(DhcpMConstants.FLOWID_PREFIX)
                 .append(dpId).append(NwConstants.FLOWID_SEPARATOR)
                 .append(tableId).append(NwConstants.FLOWID_SEPARATOR)
                 .append(vmMacAddress).toString();
     }
 
     public static void setupDhcpDropAction(BigInteger dpId, short tableId, String vmMacAddress, int addOrRemove, IMdsalApiManager mdsalUtil, WriteTransaction tx) {
-        if (dpId == null || dpId.equals(DHCPMConstants.INVALID_DPID) || vmMacAddress == null) {
+        if (dpId == null || dpId.equals(DhcpMConstants.INVALID_DPID) || vmMacAddress == null) {
             return;
         }
         List<MatchInfo> matches = getDhcpMatch(vmMacAddress);
@@ -124,15 +124,15 @@ public class DhcpServiceUtils {
         if (addOrRemove == NwConstants.DEL_FLOW) {
             FlowEntity flowEntity = MDSALUtil.buildFlowEntity(dpId, tableId,
                     getDhcpFlowRef(dpId, tableId, vmMacAddress),
-                    DHCPMConstants.DEFAULT_DHCP_FLOW_PRIORITY, "DHCP", 0, 0,
-                    DHCPMConstants.COOKIE_DHCP_BASE, matches, null);
+                    DhcpMConstants.DEFAULT_DHCP_FLOW_PRIORITY, "DHCP", 0, 0,
+                    DhcpMConstants.COOKIE_DHCP_BASE, matches, null);
             LOG.trace("Removing DHCP Drop Flow DpId {}, vmMacAddress {}", dpId, vmMacAddress);
             DhcpServiceCounters.remove_dhcp_drop_flow.inc();
             mdsalUtil.removeFlowToTx(flowEntity, tx);
         } else {
             FlowEntity flowEntity = MDSALUtil.buildFlowEntity(dpId, tableId,
-                    getDhcpFlowRef(dpId, tableId, vmMacAddress),DHCPMConstants.DEFAULT_DHCP_FLOW_PRIORITY, "DHCP", 0, 0,
-                    DHCPMConstants.COOKIE_DHCP_BASE, matches, instructions);
+                    getDhcpFlowRef(dpId, tableId, vmMacAddress), DhcpMConstants.DEFAULT_DHCP_FLOW_PRIORITY, "DHCP", 0, 0,
+                    DhcpMConstants.COOKIE_DHCP_BASE, matches, instructions);
             LOG.trace("Installing DHCP Drop Flow DpId {}, vmMacAddress {}", dpId, vmMacAddress);
             DhcpServiceCounters.install_dhcp_drop_flow.inc();
             mdsalUtil.addFlowToTx(flowEntity, tx);
@@ -146,9 +146,9 @@ public class DhcpServiceUtils {
         matches.add(new MatchInfo(MatchFieldType.ip_proto,
                 new long[] { IPProtocols.UDP.intValue() }));
         matches.add(new MatchInfo(MatchFieldType.udp_src,
-                new long[] { DHCPMConstants.dhcpClientPort }));
+                new long[] { DhcpMConstants.DHCP_CLIENT_PORT}));
         matches.add(new MatchInfo(MatchFieldType.udp_dst,
-                new long[] { DHCPMConstants.dhcpServerPort }));
+                new long[] { DhcpMConstants.DHCP_SERVER_PORT}));
         matches.add(new MatchInfo(MatchFieldType.eth_src,
                 new String[] { vmMacAddress }));
         return matches;
@@ -226,7 +226,7 @@ public class DhcpServiceUtils {
     }
 
     public static String getJobKey(String interfaceName) {
-        return new StringBuilder().append(DHCPMConstants.DHCP_JOB_KEY_PREFIX).append(interfaceName).toString();
+        return new StringBuilder().append(DhcpMConstants.DHCP_JOB_KEY_PREFIX).append(interfaceName).toString();
     }
 
     public static void submitTransaction(WriteTransaction tx) {
@@ -246,8 +246,8 @@ public class DhcpServiceUtils {
         BoundServices
                 serviceInfo =
                 getBoundServices(String.format("%s.%s", "dhcp", interfaceName),
-                        serviceIndex, DHCPMConstants.DEFAULT_FLOW_PRIORITY,
-                        DHCPMConstants.COOKIE_VM_INGRESS_TABLE, instructions);
+                        serviceIndex, DhcpMConstants.DEFAULT_FLOW_PRIORITY,
+                        DhcpMConstants.COOKIE_VM_INGRESS_TABLE, instructions);
         tx.put(LogicalDatastoreType.CONFIGURATION,
                 buildServiceId(interfaceName, serviceIndex), serviceInfo, true);
     }

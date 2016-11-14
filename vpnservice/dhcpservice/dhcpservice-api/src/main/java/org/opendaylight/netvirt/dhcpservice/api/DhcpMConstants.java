@@ -10,7 +10,7 @@ package org.opendaylight.netvirt.dhcpservice.api;
 
 import java.math.BigInteger;
 
-public final class DHCPMConstants {
+public final class DhcpMConstants {
 
     public static final long DHCP_TABLE_MAX_ENTRY = 10000;
 
@@ -27,8 +27,8 @@ public final class DHCPMConstants {
     public static final String BCAST_DEST_IP = "255.255.255.255";
     public static final int BCAST_IP = 0xffffffff;
 
-    public static final short dhcpClientPort = 68;
-    public static final short dhcpServerPort = 67;
+    public static final short DHCP_CLIENT_PORT = 68;
+    public static final short DHCP_SERVER_PORT = 67;
 
     public static final int DEFAULT_LEASE_TIME = 86400;
     public static final String DEFAULT_DOMAIN_NAME = "openstacklocal";

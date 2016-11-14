@@ -14,7 +14,7 @@ import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
-import org.opendaylight.netvirt.dhcpservice.api.DHCPMConstants;
+import org.opendaylight.netvirt.dhcpservice.api.DhcpMConstants;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.Nodes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.Node;
@@ -67,7 +67,7 @@ public class NodeListener extends AsyncDataTreeChangeListenerBase<Node, NodeList
         dhcpManager.setupTableMissForDhcpTable(dpId);
         dhcpExternalTunnelManager.installDhcpDropActionOnDpn(dpId);
         List<BigInteger> listOfDpns = DhcpServiceUtils.getListOfDpns(broker);
-        dhcpExternalTunnelManager.handleDesignatedDpnDown(DHCPMConstants.INVALID_DPID, listOfDpns);
+        dhcpExternalTunnelManager.handleDesignatedDpnDown(DhcpMConstants.INVALID_DPID, listOfDpns);
     }
 
     @Override
