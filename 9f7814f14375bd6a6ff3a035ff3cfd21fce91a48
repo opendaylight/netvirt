@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3a65312a_7fefe387",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/AlivenessMonitorUtils.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 58,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2016-11-14T04:40:29Z",
+      "side": 1,
+      "message": "Why do we have to ignore arp monitoring (since it is a learned route) on an external interface ? \nIf it is non-neutron port, we can ignore querying neutron port to get gw ip address. is there a way of getting gw ip address and its mac address for external interface ?",
+      "revId": "9f7814f14375bd6a6ff3a035ff3cfd21fce91a48",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
