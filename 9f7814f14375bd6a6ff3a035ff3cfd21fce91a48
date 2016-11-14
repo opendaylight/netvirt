@@ -34,6 +34,24 @@
       "revId": "9f7814f14375bd6a6ff3a035ff3cfd21fce91a48",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a65312a_6262aaae",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/AlivenessMonitorUtils.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 58,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2016-11-14T09:39:52Z",
+      "side": 1,
+      "message": "Okay. I understand.",
+      "parentUuid": "3a65312a_7f19a387",
+      "revId": "9f7814f14375bd6a6ff3a035ff3cfd21fce91a48",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
