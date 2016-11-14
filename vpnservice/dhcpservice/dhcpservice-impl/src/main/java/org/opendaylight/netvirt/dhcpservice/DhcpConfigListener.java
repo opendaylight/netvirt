@@ -8,11 +8,9 @@
 package org.opendaylight.netvirt.dhcpservice;
 
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.common.api.data.AsyncDataBroker;
-import org.opendaylight.controller.md.sal.common.api.data.AsyncDataBroker.DataChangeScope;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncClusteredDataTreeChangeListenerBase;
-import org.opendaylight.netvirt.dhcpservice.api.DHCPMConstants;
+import org.opendaylight.netvirt.dhcpservice.api.DhcpMConstants;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.DhcpConfig;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.dhcp.config.Configs;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
@@ -68,8 +66,8 @@ public class DhcpConfigListener extends AsyncClusteredDataTreeChangeListenerBase
     private void updateConfig(DhcpConfig update) {
         //TODO: Update operational with actual values
         if(update == null || update.getConfigs() == null || update.getConfigs().isEmpty()) {
-            dhcpManager.setLeaseDuration(DHCPMConstants.DEFAULT_LEASE_TIME);
-            dhcpManager.setDefaultDomain(DHCPMConstants.DEFAULT_DOMAIN_NAME);
+            dhcpManager.setLeaseDuration(DhcpMConstants.DEFAULT_LEASE_TIME);
+            dhcpManager.setDefaultDomain(DhcpMConstants.DEFAULT_DOMAIN_NAME);
             return;
         }
         Configs config = update.getConfigs().get(0);

@@ -8,6 +8,14 @@
 
 package org.opendaylight.netvirt.dhcpservice.api;
 
+import static org.opendaylight.netvirt.dhcpservice.api.DHCPConstants.BOOTREPLY;
+import static org.opendaylight.netvirt.dhcpservice.api.DHCPConstants.DHCP_MAX_SIZE;
+import static org.opendaylight.netvirt.dhcpservice.api.DHCPConstants.DHCP_MIN_SIZE;
+import static org.opendaylight.netvirt.dhcpservice.api.DHCPConstants.DHCP_NOOPT_HDR_SIZE;
+import static org.opendaylight.netvirt.dhcpservice.api.DHCPConstants.HTYPE_ETHER;
+import static org.opendaylight.netvirt.dhcpservice.api.DHCPConstants.MAGIC_COOKIE;
+import static org.opendaylight.netvirt.dhcpservice.api.DHCPConstants.OPT_MESSAGE_TYPE;
+
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.Arrays;
@@ -16,7 +24,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
@@ -28,14 +35,6 @@ import org.opendaylight.controller.liblldp.Packet;
 import org.opendaylight.controller.liblldp.PacketException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import static org.opendaylight.netvirt.dhcpservice.api.DHCPConstants.BOOTREPLY;
-import static org.opendaylight.netvirt.dhcpservice.api.DHCPConstants.DHCP_MAX_SIZE;
-import static org.opendaylight.netvirt.dhcpservice.api.DHCPConstants.DHCP_MIN_SIZE;
-import static org.opendaylight.netvirt.dhcpservice.api.DHCPConstants.DHCP_NOOPT_HDR_SIZE;
-import static org.opendaylight.netvirt.dhcpservice.api.DHCPConstants.HTYPE_ETHER;
-import static org.opendaylight.netvirt.dhcpservice.api.DHCPConstants.MAGIC_COOKIE;
-import static org.opendaylight.netvirt.dhcpservice.api.DHCPConstants.OPT_MESSAGE_TYPE;
 
 public class DHCP extends Packet {
     protected static final Logger LOG = LoggerFactory
@@ -58,7 +57,8 @@ public class DHCP extends Packet {
     private static final String OPTIONS = "Options";
     private DHCPOptions dhcpOptions = null;
 
-    private static Map<String, Pair<Integer, Integer>> fieldCoordinates = new LinkedHashMap<String, Pair<Integer, Integer>>() {
+    private static Map<String, Pair<Integer, Integer>> fieldCoordinates =
+            new LinkedHashMap<String, Pair<Integer, Integer>>() {
         private static final long serialVersionUID = 1L;
         {
             put(OP, new ImmutablePair<>(0, 8));
@@ -190,8 +190,7 @@ public class DHCP extends Packet {
     // Setters
     @Override
     public void setHeaderField(String headerField, byte[] readValue) {
-        if (headerField.equals(OPTIONS) &&
-                   (readValue == null || readValue.length == 0)) {
+        if (headerField.equals(OPTIONS) && (readValue == null || readValue.length == 0)) {
             hdrFieldsMap.remove(headerField);
             return;
         }
@@ -364,28 +363,29 @@ public class DHCP extends Packet {
 
     /**
      * This method deserializes the data bits obtained from the wire into the
-     * respective header and payload which are of type Packet
+     * respective header and payload which are of type Packet.
      *
      * @param data       byte[] data from wire to deserialize
      * @param bitOffset  int    bit position where packet header starts in data
      *        array
      * @param size       int    size of packet in bits
      * @return Packet
-     * @throws PacketException
+     * @throws PacketException the packet deserialization failed
      *
-     * Note: Copied from org.opendaylight.controller.sal.packet.Packet
+     * <p>Note: Copied from org.opendaylight.controller.sal.packet.Packet</p>
      */
     @Override
     public Packet deserialize(byte[] data, int bitOffset, int size)
             throws PacketException {
 
         // Deserialize the header fields one by one
-        int startOffset = 0, numBits = 0;
+        int startOffset = 0;
+        int numBits = 0;
         for (Entry<String, Pair<Integer, Integer>> pairs : hdrFieldCoordMap
                 .entrySet()) {
             String hdrField = pairs.getKey();
             startOffset = bitOffset + this.getfieldOffset(hdrField);
-            if(hdrField.equals(OPTIONS)) {
+            if (hdrField.equals(OPTIONS)) {
                 numBits = (size - DHCP_NOOPT_HDR_SIZE) * 8;
             } else {
                 numBits = this.getfieldnumBits(hdrField);
@@ -419,7 +419,7 @@ public class DHCP extends Packet {
         if (payloadClass != null) {
             try {
                 payload = payloadClass.newInstance();
-            } catch (Exception e) {
+            } catch (InstantiationException | IllegalAccessException e) {
                 throw new RuntimeException(
                         "Error parsing payload for Ethernet packet", e);
             }
@@ -453,7 +453,7 @@ public class DHCP extends Packet {
             // DHCP Options not ended properly
             //throw new PacketException("Missing DHCP Option END");
             LOG.error("Missing DHCP Option END");
-        }else if(data.length < DHCP_MIN_SIZE) {
+        } else if (data.length < DHCP_MIN_SIZE) {
             byte[] padding = new byte[DHCP_MIN_SIZE - data.length];
             LOG.debug("DHCP Pkt too small: {}, padding added {}",
                     data.length, padding.length);
@@ -461,6 +461,7 @@ public class DHCP extends Packet {
         }
         return data;
     }
+
     @Override
     /**
      * Gets the number of bits for the fieldname specified
@@ -480,10 +481,11 @@ public class DHCP extends Packet {
     public int getHeaderSize() {
         byte[] barr = fieldValues.get(OPTIONS);
         int len = 0;
-        if(barr != null) { len = barr.length; }
+        if (barr != null) {
+            len = barr.length;
+        }
         return (DHCP_NOOPT_HDR_SIZE + len) * 8;
     }
-
 
     @Override
     protected void postDeserializeCustomOperation(byte[] data, int startBitOffset) {
@@ -525,28 +527,28 @@ public class DHCP extends Packet {
         return dhcpOptions.getOptionBytes(code);
     }
 
-    public void setOptionShort(byte code, short s) {
-        dhcpOptions.setOptionShort(code, s);
+    public void setOptionShort(byte code, short opt) {
+        dhcpOptions.setOptionShort(code, opt);
     }
 
     public short getOptionShort(byte code) {
         return dhcpOptions.getOptionShort(code);
     }
 
-    public void setOptionInt(byte code, int i) {
-        dhcpOptions.setOptionInt(code, i);
+    public void setOptionInt(byte code, int opt) {
+        dhcpOptions.setOptionInt(code, opt);
     }
 
     public int getOptionInt(byte code) {
         return dhcpOptions.getOptionInt(code);
     }
 
-    public void setOptionInetAddr(byte code, InetAddress addr) {
-        dhcpOptions.setOptionInetAddr(code, addr);
-    }
-
     public InetAddress getOptionInetAddr(byte code) {
         return dhcpOptions.getOptionInetAddr(code);
+    }
+
+    public void setOptionInetAddr(byte code, InetAddress addr) {
+        dhcpOptions.setOptionInetAddr(code, addr);
     }
 
     public void setOptionInetAddr(byte code, String addr) throws UnknownHostException {
@@ -564,6 +566,7 @@ public class DHCP extends Packet {
     public void setOptionString(byte code, String str) {
         dhcpOptions.setOptionString(code, str);
     }
+
     public boolean containsOption(byte code) {
         // TODO Auto-generated method stub
         return dhcpOptions.containsOption(code);
@@ -576,8 +579,7 @@ public class DHCP extends Packet {
     @Override
     public String toString() {
         StringBuilder ret = new StringBuilder();
-        ret.append(super.toString())
-        .append(dhcpOptions);
+        ret.append(super.toString()).append(dhcpOptions);
 
         return ret.toString();
     }

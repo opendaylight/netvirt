@@ -15,7 +15,7 @@ import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncClusteredDataTreeChangeListenerBase;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
-import org.opendaylight.netvirt.dhcpservice.api.DHCPMConstants;
+import org.opendaylight.netvirt.dhcpservice.api.DhcpMConstants;
 import org.opendaylight.netvirt.elanmanager.utils.ElanL2GwCacheUtils;
 import org.opendaylight.netvirt.neutronvpn.api.l2gw.L2GatewayDevice;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
@@ -127,7 +127,7 @@ public class DhcpUCastMacListener extends AsyncClusteredDataTreeChangeListenerBa
             return;
         }
         BigInteger designatedDpnId = dhcpExternalTunnelManager.readDesignatedSwitchesForExternalTunnel(tunnelIp, elanInstanceName);
-        if (designatedDpnId == null || designatedDpnId.equals(DHCPMConstants.INVALID_DPID)) {
+        if (designatedDpnId == null || designatedDpnId.equals(DhcpMConstants.INVALID_DPID)) {
             LOG.trace("Unable to install flows for macAddress {}. TunnelIp {}, elanInstanceName {}, designatedDpn {} ", macAddress, tunnelIp, elanInstanceName, designatedDpnId);
             dhcpExternalTunnelManager.updateLocalCache(tunnelIp, elanInstanceName, macAddress);
             return;

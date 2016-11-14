@@ -16,29 +16,27 @@ import java.util.List;
 
 public abstract class DHCPUtils {
 
-    public static byte[] byteToByteArray(byte b) {
-        return new byte[] {b};
+    public static byte[] byteToByteArray(byte value) {
+        return new byte[] {value};
     }
 
-    public static byte[] shortToByteArray(short s) {
-        return new byte[] { (byte) ((s >> 8) & 0xff), (byte) (s & 0xff) };
+    public static byte[] shortToByteArray(short value) {
+        return new byte[] { (byte) ((value >> 8) & 0xff), (byte) (value & 0xff) };
     }
 
-    public static byte[] intToByteArray(int i ) {
-        return new byte[] { (byte) ((i >> 24) & 0xff), (byte) ((i >> 16) & 0xff), (byte) ((i >> 8) & 0xff),
-                        (byte) (i & 0xff) };
+    public static byte[] intToByteArray(int value) {
+        return new byte[] {(byte) ((value >> 24) & 0xff), (byte) ((value >> 16) & 0xff),
+            (byte) ((value >> 8) & 0xff), (byte) (value & 0xff) };
     }
 
-    public static byte[] inetAddrToByteArray(InetAddress a) {
-        return a.getAddress();
+    public static byte[] inetAddrToByteArray(InetAddress address) {
+        return address.getAddress();
     }
 
     public static byte[] strAddrToByteArray(String addr) {
         try {
             return InetAddress.getByName(addr).getAddress();
         } catch (UnknownHostException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
             return null;
         }
     }
@@ -47,10 +45,10 @@ public abstract class DHCPUtils {
         byte[] result = new byte[strList.size() * 4];
         byte[] addr = new byte[4];
         try {
-        for (int i = 0; i < strList.size(); i++) {
-                    addr = InetAddress.getByName(strList.get(i)).getAddress();
-                System.arraycopy(addr, 0, result, i*4, 4);
-        }
+            for (int i = 0; i < strList.size(); i++) {
+                addr = InetAddress.getByName(strList.get(i)).getAddress();
+                System.arraycopy(addr, 0, result, i * 4, 4);
+            }
         } catch (UnknownHostException e) {
             return null;
         }
@@ -73,7 +71,7 @@ public abstract class DHCPUtils {
     }
 
     public static byte[] strMacAddrtoByteArray(String macAddress) {
-        if(macAddress == null) {
+        if (macAddress == null) {
             return null;
         }
         String[] bytes = macAddress.split(":");
