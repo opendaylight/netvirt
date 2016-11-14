@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3a65312a_ffb0138d",
+        "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/impl/BridgeConfigurationManagerImpl.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 573,
+      "author": {
+        "id": 5972
+      },
+      "writtenOn": "2016-11-14T06:18:54Z",
+      "side": 1,
+      "message": "is this change can make the dpip unchang when reconnected to ovs?",
+      "revId": "a160cc86b30eb3f43dd09b28a2786fbd985bee95",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
