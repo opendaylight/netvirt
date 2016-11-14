@@ -21,6 +21,7 @@ import com.mycila.guice.ext.closeable.CloseableInjector;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
+
 import javax.inject.Inject;
 import org.junit.After;
 import org.junit.Before;
@@ -105,12 +106,13 @@ public class AclServiceTest {
         Thread.sleep(500);
 
         // Then
-        assertFlowsInAnyOrder(FlowEntryObjects.expectedFlows(PORT_MAC_1));
+        newInterfaceCheck();
     }
+
+    abstract void newInterfaceCheck();
 
     @Test
     public void newInterfaceWithEtherTypeAcl() throws Exception {
-        // Given
         setUpData();
 
         Matches matches = newMatch(EthertypeV4.class, -1, -1,-1, -1,
@@ -139,8 +141,10 @@ public class AclServiceTest {
         Thread.sleep(500);
 
         // Then
-        assertFlowsInAnyOrder(FlowEntryObjects.etherFlows());
+        newInterfaceWithEtherTypeAclCheck();
     }
+
+    abstract void newInterfaceWithEtherTypeAclCheck();
 
     @Test
     public void newInterfaceWithTcpDstAcl() throws Exception {
@@ -172,8 +176,10 @@ public class AclServiceTest {
         Thread.sleep(500);
 
         // Then
-        assertFlowsInAnyOrder(FlowEntryObjects.tcpFlows());
+        newInterfaceWithTcpDstAclCheck();
     }
+
+    abstract void newInterfaceWithTcpDstAclCheck();
 
     @Test
     public void newInterfaceWithUdpDstAcl() throws Exception {
@@ -205,8 +211,10 @@ public class AclServiceTest {
         Thread.sleep(500);
 
         // Then
-        assertFlowsInAnyOrder(FlowEntryObjects.udpFlows());
+        newInterfaceWithUdpDstAclCheck();
     }
+
+    abstract void newInterfaceWithUdpDstAclCheck();
 
     @Test
     public void newInterfaceWithIcmpAcl() throws Exception {
@@ -238,8 +246,10 @@ public class AclServiceTest {
         Thread.sleep(500);
 
         // Then
-        assertFlowsInAnyOrder(FlowEntryObjects.icmpFlows());
+        newInterfaceWithIcmpAclCheck();
     }
+
+    abstract void newInterfaceWithIcmpAclCheck();
 
     @Test
     public void newInterfaceWithDstPortRange() throws Exception {
@@ -270,8 +280,10 @@ public class AclServiceTest {
         Thread.sleep(500);
 
         // Then
-        assertFlowsInAnyOrder(FlowEntryObjects.dstRangeFlows());
+        newInterfaceWithDstPortRangeCheck();
     }
+
+    abstract void newInterfaceWithDstPortRangeCheck();
 
     @Test
     public void newInterfaceWithDstAllPorts() throws Exception {
@@ -302,8 +314,10 @@ public class AclServiceTest {
         Thread.sleep(500);
 
         // Then
-        assertFlowsInAnyOrder(FlowEntryObjects.dstAllFlows());
+        newInterfaceWithDstAllPortsCheck();
     }
+
+    abstract void newInterfaceWithDstAllPortsCheck();
 
     @Test
     public void newInterfaceWithTwoAclsHavingSameRules() throws Exception {
@@ -334,13 +348,15 @@ public class AclServiceTest {
         Thread.sleep(500);
 
         // Then
-        assertFlowsInAnyOrder(FlowEntryObjects.icmpFlowsForTwoAclsHavingSameRules());
+        newInterfaceWithTwoAclsHavingSameRulesCheck();
     }
+
+    abstract void newInterfaceWithTwoAclsHavingSameRulesCheck();
 
     // TODO Remove this from here, use the one about to be merged in TestIMdsalApiManager
     // under https://git.opendaylight.org/gerrit/#/c/47842/ *BUT* remember to integrate
     // the ignore ordering fix recently added here to there...
-    private void assertFlowsInAnyOrder(Iterable<FlowEntity> expectedFlows) {
+    protected void assertFlowsInAnyOrder(Iterable<FlowEntity> expectedFlows) {
         List<FlowEntity> flows = mdsalApiManager.getFlows();
         if (!Iterables.isEmpty(expectedFlows)) {
             assertTrue("No Flows created (bean wiring may be broken?)", !flows.isEmpty());
@@ -377,7 +393,7 @@ public class AclServiceTest {
         }
     }
 
-    private void newAllowedAddressPair(String portName, List<String> sgUuidList, String ipAddress, String macAddress)
+    private void newAllowedAddressPair(String portName, List<String> sgUuidList, String ipAddress, String macAddress )
             throws TransactionCommitFailedException {
         AllowedAddressPairs allowedAddressPair = new AllowedAddressPairsBuilder()
                 .setIpAddress(new IpPrefixOrAddress(new IpPrefix(ipAddress.toCharArray())))
@@ -390,7 +406,6 @@ public class AclServiceTest {
             .portSecurity(true)
             .addAllNewSecurityGroups(sgList)
             .addIfAllowedAddressPair(allowedAddressPair).build());
-
     }
 
     private void newElan(String elanName, long elanId) {
