@@ -19,18 +19,15 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 import javax.inject.Inject;
-import org.junit.Rule;
+import org.junit.Before;
 import org.junit.Test;
-import org.junit.rules.MethodRule;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
+import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
 import org.opendaylight.genius.datastoreutils.testutils.AsyncEventsWaiter;
-import org.opendaylight.genius.datastoreutils.testutils.TestableDataTreeChangeListenerModule;
 import org.opendaylight.genius.mdsalutil.FlowEntity;
-import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.genius.mdsalutil.interfaces.testutils.TestIMdsalApiManager;
-import org.opendaylight.infrautils.inject.guice.testutils.GuiceRule;
 import org.opendaylight.netvirt.aclservice.tests.infra.DataBrokerPairsUtil;
 import org.opendaylight.netvirt.aclservice.utils.AclConstants;
 import org.opendaylight.netvirt.aclservice.utils.AclServiceUtils;
@@ -60,40 +57,45 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 
-public class AclServiceTest {
+public abstract class AclServiceTestBase {
 
-    public @Rule MethodRule guice = new GuiceRule(
-            AclServiceModule.class, AclServiceTestModule.class,
-            TestableDataTreeChangeListenerModule.class);
+    private static final Logger LOG = LoggerFactory.getLogger(AclServiceTestBase.class);
 
-    private static final Logger LOG = LoggerFactory.getLogger(AclServiceTest.class);
-
-    private static final String PORT_MAC_1 = "0D:AA:D8:42:30:F3";
-    private static final String PORT_MAC_2 = "0D:AA:D8:42:30:F4";
-    private static final String PORT_MAC_3 = "0D:AA:D8:42:30:F5";
-    private static final String PORT_1 = "port1";
-    private static final String PORT_2 = "port2";
-    private static final String PORT_3 = "port3";
-    protected static String SG_UUID_1  = "85cc3048-abc3-43cc-89b3-377341426ac5";
-    protected static String SG_UUID_2  = "85cc3048-abc3-43cc-89b3-377341426ac8";
-    private static String SR_UUID_1_1 = "85cc3048-abc3-43cc-89b3-377341426ac6";
-    private static String SR_UUID_1_2 = "85cc3048-abc3-43cc-89b3-377341426ac7";
-    private static String SR_UUID_2_1 = "85cc3048-abc3-43cc-89b3-377341426a21";
-    private static String SR_UUID_2_2 = "85cc3048-abc3-43cc-89b3-377341426a22";
-    private static String ELAN = "elan1";
-    private static String IP_PREFIX_1 = "10.0.0.1/24";
-    private static String IP_PREFIX_2 = "10.0.0.2/24";
-    private static String IP_PREFIX_3 = "10.0.0.3/24";
-    private static long ELAN_TAG = 5000L;
+    static final String PORT_MAC_1 = "0D:AA:D8:42:30:F3";
+    static final String PORT_MAC_2 = "0D:AA:D8:42:30:F4";
+    static final String PORT_MAC_3 = "0D:AA:D8:42:30:F5";
+    static final String PORT_1 = "port1";
+    static final String PORT_2 = "port2";
+    static final String PORT_3 = "port3";
+    static String SG_UUID  = "85cc3048-abc3-43cc-89b3-377341426ac5";
+    static String SR_UUID_1 = "85cc3048-abc3-43cc-89b3-377341426ac6";
+    static String SR_UUID_2 = "85cc3048-abc3-43cc-89b3-377341426ac7";
+    static String SG_UUID_1  = "85cc3048-abc3-43cc-89b3-377341426ac5";
+    static String SG_UUID_2  = "85cc3048-abc3-43cc-89b3-377341426ac8";
+    static String SR_UUID_1_1 = "85cc3048-abc3-43cc-89b3-377341426ac6";
+    static String SR_UUID_1_2 = "85cc3048-abc3-43cc-89b3-377341426ac7";
+    static String SR_UUID_2_1 = "85cc3048-abc3-43cc-89b3-377341426a21";
+    static String SR_UUID_2_2 = "85cc3048-abc3-43cc-89b3-377341426a22";
+    static String ELAN = "elan1";
+    static String IP_PREFIX_1 = "10.0.0.1/24";
+    static String IP_PREFIX_2 = "10.0.0.2/24";
+    static String IP_PREFIX_3 = "10.0.0.3/24";
+    static long ELAN_TAG = 5000L;
 
     protected static final Integer FLOW_PRIORITY_SG_1 = 1001;
     protected static final Integer FLOW_PRIORITY_SG_2 = 1002;
 
     @Inject DataBroker dataBroker;
     @Inject DataBrokerPairsUtil dataBrokerUtil;
+    SingleTransactionDataBroker singleTransactionDataBroker;
     @Inject TestIMdsalApiManager mdsalApiManager;
-
     @Inject AsyncEventsWaiter asyncEventsWaiter;
+
+    @Before
+    public void beforeEachTest() throws Exception {
+        singleTransactionDataBroker = new SingleTransactionDataBroker(dataBroker);
+        setUpData();
+    }
 
     @Test
     public void newInterface() throws Exception {
@@ -105,17 +107,17 @@ public class AclServiceTest {
 
         // When
         putNewStateInterface(dataBroker, "port1", PORT_MAC_1);
+
         asyncEventsWaiter.awaitEventsConsumption();
 
         // Then
-        assertFlowsInAnyOrder(FlowEntryObjects.expectedFlows(PORT_MAC_1));
+        newInterfaceCheck();
     }
+
+    abstract void newInterfaceCheck();
 
     @Test
     public void newInterfaceWithEtherTypeAcl() throws Exception {
-        // Given
-        setUpData();
-
         Matches matches = newMatch(EthertypeV4.class, -1, -1,-1, -1,
             null, AclConstants.IPV4_ALL_NETWORK, (short)-1);
         dataBrokerUtil.put(ImmutableIdentifiedAceBuilder.builder()
@@ -136,18 +138,19 @@ public class AclServiceTest {
 
         // When
         putNewStateInterface(dataBroker, PORT_1, PORT_MAC_1);
-        asyncEventsWaiter.awaitEventsConsumption();
         putNewStateInterface(dataBroker, PORT_2, PORT_MAC_2);
+
         asyncEventsWaiter.awaitEventsConsumption();
 
         // Then
-        assertFlowsInAnyOrder(FlowEntryObjects.etherFlows());
+        newInterfaceWithEtherTypeAclCheck();
     }
+
+    abstract void newInterfaceWithEtherTypeAclCheck();
 
     @Test
     public void newInterfaceWithTcpDstAcl() throws Exception {
         // Given
-        setUpData();
         Matches matches = newMatch(EthertypeV4.class, -1, -1, 80, 80,
             null, AclConstants.IPV4_ALL_NETWORK, (short)NwConstants.IP_PROT_TCP);
         dataBrokerUtil.put(ImmutableIdentifiedAceBuilder.builder()
@@ -168,18 +171,19 @@ public class AclServiceTest {
 
         // When
         putNewStateInterface(dataBroker, PORT_1, PORT_MAC_1);
-        asyncEventsWaiter.awaitEventsConsumption();
         putNewStateInterface(dataBroker, PORT_2, PORT_MAC_2);
+
         asyncEventsWaiter.awaitEventsConsumption();
 
         // Then
-        assertFlowsInAnyOrder(FlowEntryObjects.tcpFlows());
+        newInterfaceWithTcpDstAclCheck();
     }
+
+    abstract void newInterfaceWithTcpDstAclCheck();
 
     @Test
     public void newInterfaceWithUdpDstAcl() throws Exception {
         // Given
-        setUpData();
         Matches matches = newMatch(EthertypeV4.class, -1, -1, 80, 80,
             null, AclConstants.IPV4_ALL_NETWORK, (short)NwConstants.IP_PROT_UDP);
         dataBrokerUtil.put(ImmutableIdentifiedAceBuilder.builder()
@@ -200,18 +204,19 @@ public class AclServiceTest {
 
         // When
         putNewStateInterface(dataBroker, PORT_1, PORT_MAC_1);
-        asyncEventsWaiter.awaitEventsConsumption();
         putNewStateInterface(dataBroker, PORT_2, PORT_MAC_2);
+
         asyncEventsWaiter.awaitEventsConsumption();
 
         // Then
-        assertFlowsInAnyOrder(FlowEntryObjects.udpFlows());
+        newInterfaceWithUdpDstAclCheck();
     }
+
+    abstract void newInterfaceWithUdpDstAclCheck();
 
     @Test
     public void newInterfaceWithIcmpAcl() throws Exception {
         // Given
-        setUpData();
         Matches matches = newMatch(EthertypeV4.class, -1, -1, 2, 3,
             null, AclConstants.IPV4_ALL_NETWORK, (short)NwConstants.IP_PROT_ICMP);
         dataBrokerUtil.put(ImmutableIdentifiedAceBuilder.builder()
@@ -232,18 +237,19 @@ public class AclServiceTest {
 
         // When
         putNewStateInterface(dataBroker, PORT_1, PORT_MAC_1);
-        asyncEventsWaiter.awaitEventsConsumption();
         putNewStateInterface(dataBroker, PORT_2, PORT_MAC_2);
+
         asyncEventsWaiter.awaitEventsConsumption();
 
         // Then
-        assertFlowsInAnyOrder(FlowEntryObjects.icmpFlows());
+        newInterfaceWithIcmpAclCheck();
     }
+
+    abstract void newInterfaceWithIcmpAclCheck();
 
     @Test
     public void newInterfaceWithDstPortRange() throws Exception {
         // Given
-        setUpData();
         Matches matches = newMatch(EthertypeV4.class, -1, -1, 333, 777,
             null, AclConstants.IPV4_ALL_NETWORK, (short)NwConstants.IP_PROT_TCP);
         dataBrokerUtil.put(ImmutableIdentifiedAceBuilder.builder()
@@ -264,16 +270,18 @@ public class AclServiceTest {
 
         // When
         putNewStateInterface(dataBroker, PORT_1, PORT_MAC_1);
+
         asyncEventsWaiter.awaitEventsConsumption();
 
         // Then
-        assertFlowsInAnyOrder(FlowEntryObjects.dstRangeFlows());
+        newInterfaceWithDstPortRangeCheck();
     }
+
+    abstract void newInterfaceWithDstPortRangeCheck();
 
     @Test
     public void newInterfaceWithDstAllPorts() throws Exception {
         // Given
-        setUpData();
         Matches matches = newMatch(EthertypeV4.class, -1, -1, 1, 65535,
             null, AclConstants.IPV4_ALL_NETWORK, (short)NwConstants.IP_PROT_TCP);
         dataBrokerUtil.put(ImmutableIdentifiedAceBuilder.builder()
@@ -294,17 +302,18 @@ public class AclServiceTest {
 
         // When
         putNewStateInterface(dataBroker, PORT_1, PORT_MAC_1);
+
         asyncEventsWaiter.awaitEventsConsumption();
 
         // Then
-        assertFlowsInAnyOrder(FlowEntryObjects.dstAllFlows());
+        newInterfaceWithDstAllPortsCheck();
     }
+
+    abstract void newInterfaceWithDstAllPortsCheck();
 
     @Test
     public void newInterfaceWithTwoAclsHavingSameRules() throws Exception {
         // Given
-        setUpData();
-
         Matches icmpEgressMatches = newMatch(EthertypeV4.class, -1, -1, 2, 3, null, AclConstants.IPV4_ALL_NETWORK,
                 (short) NwConstants.IP_PROT_ICMP);
         Matches icmpIngressMatches = newMatch(EthertypeV4.class, -1, -1, 2, 3, AclConstants.IPV4_ALL_NETWORK, null,
@@ -324,16 +333,19 @@ public class AclServiceTest {
 
         // When
         putNewStateInterface(dataBroker, PORT_3, PORT_MAC_3);
+
         asyncEventsWaiter.awaitEventsConsumption();
 
         // Then
-        assertFlowsInAnyOrder(FlowEntryObjects.icmpFlowsForTwoAclsHavingSameRules());
+        newInterfaceWithTwoAclsHavingSameRulesCheck();
     }
+
+    abstract void newInterfaceWithTwoAclsHavingSameRulesCheck();
 
     // TODO Remove this from here, use the one about to be merged in TestIMdsalApiManager
     // under https://git.opendaylight.org/gerrit/#/c/47842/ *BUT* remember to integrate
     // the ignore ordering fix recently added here to there...
-    private void assertFlowsInAnyOrder(Iterable<FlowEntity> expectedFlows) {
+    protected void assertFlowsInAnyOrder(Iterable<FlowEntity> expectedFlows) {
         List<FlowEntity> flows = mdsalApiManager.getFlows();
         if (!Iterables.isEmpty(expectedFlows)) {
             assertTrue("No Flows created (bean wiring may be broken?)", !flows.isEmpty());
@@ -370,7 +382,7 @@ public class AclServiceTest {
         }
     }
 
-    private void newAllowedAddressPair(String portName, List<String> sgUuidList, String ipAddress, String macAddress)
+    private void newAllowedAddressPair(String portName, List<String> sgUuidList, String ipAddress, String macAddress )
             throws TransactionCommitFailedException {
         AllowedAddressPairs allowedAddressPair = new AllowedAddressPairsBuilder()
                 .setIpAddress(new IpPrefixOrAddress(new IpPrefix(ipAddress.toCharArray())))
@@ -385,20 +397,22 @@ public class AclServiceTest {
             .addIfAllowedAddressPair(allowedAddressPair).build());
     }
 
-    private void newElan(String elanName, long elanId) {
+    private void newElan(String elanName, long elanId) throws TransactionCommitFailedException {
         ElanInstance elan = new ElanInstanceBuilder().setElanInstanceName(elanName).setElanTag(5000L).build();
-        MDSALUtil.syncWrite(dataBroker, CONFIGURATION,
-                AclServiceUtils.getElanInstanceConfigurationDataPath(elanName), elan);
+        singleTransactionDataBroker.syncWrite(CONFIGURATION,
+                AclServiceUtils.getElanInstanceConfigurationDataPath(elanName),
+                elan);
     }
 
-    private void newElanInterface(String elanName, String portName, boolean isWrite) {
+    private void newElanInterface(String elanName, String portName, boolean isWrite)
+            throws TransactionCommitFailedException {
         ElanInterface elanInterface = new ElanInterfaceBuilder().setName(portName)
                 .setElanInstanceName(elanName).build();
         InstanceIdentifier<ElanInterface> id = AclServiceUtils.getElanInterfaceConfigurationDataPathId(portName);
         if (isWrite) {
-            MDSALUtil.syncWrite(dataBroker, CONFIGURATION, id, elanInterface);
+            singleTransactionDataBroker.syncWrite(CONFIGURATION, id, elanInterface);
         } else {
-            MDSALUtil.syncDelete(dataBroker, CONFIGURATION, id);
+            singleTransactionDataBroker.syncDelete(CONFIGURATION, id);
         }
     }
 
