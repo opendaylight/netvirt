@@ -170,5 +170,14 @@ Add any useful references. Some examples:
 * Links to patches in other projects
 * Links to external documentation
 
-* http://docs.opendaylight.org/en/latest/documentation.html
-* https://specs.openstack.org/openstack/nova-specs/specs/kilo/template.html
+[1] http://docs.opendaylight.org/en/latest/documentation.html
+
+[2] https://specs.openstack.org/openstack/nova-specs/specs/kilo/template.html
+
+.. note::
+
+  This template was derived from [2], and has been modified to support our project.
+
+  This work is licensed under a Creative Commons Attribution 3.0 Unported License.
+  http://creativecommons.org/licenses/by/3.0/legalcode
+
