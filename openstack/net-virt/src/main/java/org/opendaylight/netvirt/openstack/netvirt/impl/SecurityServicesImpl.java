@@ -625,6 +625,15 @@ public class SecurityServicesImpl implements ConfigInterface, SecurityServicesMa
             LOG.error("Neutron Port is null: " + intf);
             return false;
         }
+        if (neutronPort.getDeviceOwner() != null
+            && neutronPort.getDeviceOwner().startsWith("network:")) {
+            // port with device owner of network:xxx is created by
+            // neutorn for its internal use. So security group doesn't apply.
+            // router interface, dhcp port and floating ip.
+            // It can be realized by setting port security enabled to false
+            LOG.info("Port Security is disabled for Port: " + neutronPort);
+            return false;
+        }
         if (neutronPort.getPortSecurityEnabled()) {
             LOG.info("Port Security is enabled for Port: " + neutronPort);
             return true;
