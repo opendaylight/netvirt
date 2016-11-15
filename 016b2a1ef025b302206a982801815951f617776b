@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "3a65312a_f177a239",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 35
+      },
+      "lineNbr": 538,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-11-15T10:57:18Z",
+      "side": 1,
+      "message": "Hi Peri,\n\nMiguel team are not aware of the pipeline changes for ARP responder..\n\nSince ARP responder is running a parallel commit that has not merged, and so would be great if we focus on changes specific to this review..\n\nWhichever lands first, the other one will rebase and there we can strip out unnecessary methods.",
+      "parentUuid": "3a65312a_160df43e",
+      "revId": "016b2a1ef025b302206a982801815951f617776b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "3a65312a_f13cc2c1",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
         "patchSetId": 35
