@@ -20,9 +20,11 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class DhcpInterfaceConfigListener extends AsyncDataTreeChangeListenerBase<Interface, DhcpInterfaceConfigListener> implements AutoCloseable {
+public class DhcpInterfaceConfigListener
+        extends AsyncDataTreeChangeListenerBase<Interface, DhcpInterfaceConfigListener>
+        implements AutoCloseable {
 
-    private static final Logger logger = LoggerFactory.getLogger(DhcpInterfaceConfigListener.class);
+    private static final Logger LOG = LoggerFactory.getLogger(DhcpInterfaceConfigListener.class);
 
     private final DataBroker dataBroker;
     private final DhcpExternalTunnelManager dhcpExternalTunnelManager;
@@ -39,7 +41,7 @@ public class DhcpInterfaceConfigListener extends AsyncDataTreeChangeListenerBase
     @Override
     public void close() throws Exception {
         super.close();
-        logger.info("DhcpInterfaceConfigListener Closed");
+        LOG.info("DhcpInterfaceConfigListener Closed");
     }
 
     @Override

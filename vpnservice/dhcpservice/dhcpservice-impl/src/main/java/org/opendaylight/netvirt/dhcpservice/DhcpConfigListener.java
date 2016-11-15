@@ -17,7 +17,8 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class DhcpConfigListener extends AsyncClusteredDataTreeChangeListenerBase<DhcpConfig, DhcpConfigListener> implements AutoCloseable {
+public class DhcpConfigListener extends AsyncClusteredDataTreeChangeListenerBase<DhcpConfig, DhcpConfigListener>
+        implements AutoCloseable {
 
     private static final Logger LOG = LoggerFactory.getLogger(DhcpConfigListener.class);
 
@@ -65,16 +66,16 @@ public class DhcpConfigListener extends AsyncClusteredDataTreeChangeListenerBase
 
     private void updateConfig(DhcpConfig update) {
         //TODO: Update operational with actual values
-        if(update == null || update.getConfigs() == null || update.getConfigs().isEmpty()) {
+        if (update == null || update.getConfigs() == null || update.getConfigs().isEmpty()) {
             dhcpManager.setLeaseDuration(DhcpMConstants.DEFAULT_LEASE_TIME);
             dhcpManager.setDefaultDomain(DhcpMConstants.DEFAULT_DOMAIN_NAME);
             return;
         }
         Configs config = update.getConfigs().get(0);
-        if(config.getLeaseDuration() != null) {
+        if (config.getLeaseDuration() != null) {
             dhcpManager.setLeaseDuration(config.getLeaseDuration());
         }
-        if(config.getDefaultDomain() != null) {
+        if (config.getDefaultDomain() != null) {
             dhcpManager.setDefaultDomain(config.getDefaultDomain());
             //TODO: What to do if string is ""
         }

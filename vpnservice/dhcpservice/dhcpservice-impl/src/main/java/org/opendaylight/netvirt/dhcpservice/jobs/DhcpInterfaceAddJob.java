@@ -7,11 +7,13 @@
  */
 package org.opendaylight.netvirt.dhcpservice.jobs;
 
+import com.google.common.base.Optional;
+import com.google.common.util.concurrent.FutureCallback;
+import com.google.common.util.concurrent.ListenableFuture;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Callable;
-
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
@@ -35,10 +37,6 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.base.Optional;
-import com.google.common.util.concurrent.FutureCallback;
-import com.google.common.util.concurrent.ListenableFuture;
-
 public class DhcpInterfaceAddJob implements Callable<List<ListenableFuture<Void>>> {
 
     private static final Logger LOG = LoggerFactory.getLogger(DhcpInterfaceAddJob.class);
@@ -60,8 +58,9 @@ public class DhcpInterfaceAddJob implements Callable<List<ListenableFuture<Void>
         }
     };
 
-    public DhcpInterfaceAddJob(DhcpManager dhcpManager, DhcpExternalTunnelManager dhcpExternalTunnelManager, DataBroker dataBroker,
-            String interfaceName, BigInteger dpnId, IInterfaceManager interfaceManager) {
+    public DhcpInterfaceAddJob(DhcpManager dhcpManager, DhcpExternalTunnelManager dhcpExternalTunnelManager,
+                               DataBroker dataBroker, String interfaceName, BigInteger dpnId,
+                               IInterfaceManager interfaceManager) {
         super();
         this.dhcpManager = dhcpManager;
         this.dhcpExternalTunnelManager = dhcpExternalTunnelManager;
@@ -110,17 +109,24 @@ public class DhcpInterfaceAddJob implements Callable<List<ListenableFuture<Void>
     }
 
     private String getAndUpdateVmMacAddress(String interfaceName) {
-        InstanceIdentifier<InterfaceNameMacAddress> instanceIdentifier = InstanceIdentifier.builder(InterfaceNameMacAddresses.class).child(InterfaceNameMacAddress.class, new InterfaceNameMacAddressKey(interfaceName)).build();
-        Optional<InterfaceNameMacAddress> existingEntry = MDSALUtil.read(dataBroker, LogicalDatastoreType.OPERATIONAL, instanceIdentifier);
+        InstanceIdentifier<InterfaceNameMacAddress> instanceIdentifier =
+                InstanceIdentifier.builder(InterfaceNameMacAddresses.class)
+                        .child(InterfaceNameMacAddress.class, new InterfaceNameMacAddressKey(interfaceName)).build();
+        Optional<InterfaceNameMacAddress> existingEntry =
+                MDSALUtil.read(dataBroker, LogicalDatastoreType.OPERATIONAL, instanceIdentifier);
         if (!existingEntry.isPresent()) {
             LOG.trace("Entry for interface {} missing in InterfaceNameVmMacAddress map", interfaceName);
             String vmMacAddress = getNeutronMacAddress(interfaceName);
-            if (vmMacAddress==null || vmMacAddress.isEmpty()) {
+            if (vmMacAddress == null || vmMacAddress.isEmpty()) {
                 return null;
             }
             LOG.trace("Updating InterfaceNameVmMacAddress map with {}, {}", interfaceName,vmMacAddress);
-            InterfaceNameMacAddress interfaceNameMacAddress = new InterfaceNameMacAddressBuilder().setKey(new InterfaceNameMacAddressKey(interfaceName)).setInterfaceName(interfaceName).setMacAddress(vmMacAddress).build();
-            MDSALDataStoreUtils.asyncUpdate(dataBroker, LogicalDatastoreType.OPERATIONAL, instanceIdentifier, interfaceNameMacAddress, DEFAULT_CALLBACK);
+            InterfaceNameMacAddress interfaceNameMacAddress =
+                    new InterfaceNameMacAddressBuilder()
+                            .setKey(new InterfaceNameMacAddressKey(interfaceName))
+                            .setInterfaceName(interfaceName).setMacAddress(vmMacAddress).build();
+            MDSALDataStoreUtils.asyncUpdate(dataBroker, LogicalDatastoreType.OPERATIONAL, instanceIdentifier,
+                    interfaceNameMacAddress, DEFAULT_CALLBACK);
             return vmMacAddress;
         }
         return existingEntry.get().getMacAddress();
@@ -128,7 +134,7 @@ public class DhcpInterfaceAddJob implements Callable<List<ListenableFuture<Void>
 
     private String getNeutronMacAddress(String interfaceName) {
         Port port = dhcpManager.getNeutronPort(interfaceName);
-        if (port!=null) {
+        if (port != null) {
             LOG.trace("Port found in neutron. Interface Name {}, port {}", interfaceName, port);
             return port.getMacAddress().getValue();
         }

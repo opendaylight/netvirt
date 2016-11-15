@@ -7,11 +7,13 @@
  */
 package org.opendaylight.netvirt.dhcpservice.jobs;
 
+import com.google.common.base.Optional;
+import com.google.common.util.concurrent.FutureCallback;
+import com.google.common.util.concurrent.ListenableFuture;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Callable;
-
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
@@ -29,10 +31,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.dhcpserv
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.google.common.base.Optional;
-import com.google.common.util.concurrent.FutureCallback;
-import com.google.common.util.concurrent.ListenableFuture;
 
 public class DhcpInterfaceRemoveJob implements Callable<List<ListenableFuture<Void>>> {
 
@@ -55,8 +53,9 @@ public class DhcpInterfaceRemoveJob implements Callable<List<ListenableFuture<Vo
         }
     };
 
-    public DhcpInterfaceRemoveJob(DhcpManager dhcpManager, DhcpExternalTunnelManager dhcpExternalTunnelManager, DataBroker dataBroker,
-            String interfaceName, BigInteger dpnId, IInterfaceManager interfaceManager) {
+    public DhcpInterfaceRemoveJob(DhcpManager dhcpManager, DhcpExternalTunnelManager dhcpExternalTunnelManager,
+                                  DataBroker dataBroker,
+                                  String interfaceName, BigInteger dpnId, IInterfaceManager interfaceManager) {
         super();
         this.dhcpManager = dhcpManager;
         this.dhcpExternalTunnelManager = dhcpExternalTunnelManager;
@@ -97,12 +96,16 @@ public class DhcpInterfaceRemoveJob implements Callable<List<ListenableFuture<Vo
     }
 
     private String getAndRemoveVmMacAddress(String interfaceName) {
-        InstanceIdentifier<InterfaceNameMacAddress> instanceIdentifier = InstanceIdentifier.builder(InterfaceNameMacAddresses.class).child(InterfaceNameMacAddress.class, new InterfaceNameMacAddressKey(interfaceName)).build();
-        Optional<InterfaceNameMacAddress> existingEntry = MDSALUtil.read(dataBroker, LogicalDatastoreType.OPERATIONAL, instanceIdentifier);
+        InstanceIdentifier<InterfaceNameMacAddress> instanceIdentifier =
+                InstanceIdentifier.builder(InterfaceNameMacAddresses.class)
+                        .child(InterfaceNameMacAddress.class, new InterfaceNameMacAddressKey(interfaceName)).build();
+        Optional<InterfaceNameMacAddress> existingEntry =
+                MDSALUtil.read(dataBroker, LogicalDatastoreType.OPERATIONAL, instanceIdentifier);
         if (existingEntry.isPresent()) {
             String vmMacAddress = existingEntry.get().getMacAddress();
             LOG.trace("Entry for interface found in InterfaceNameVmMacAddress map {}, {}", interfaceName, vmMacAddress);
-            MDSALDataStoreUtils.asyncRemove(dataBroker, LogicalDatastoreType.OPERATIONAL, instanceIdentifier, DEFAULT_CALLBACK);
+            MDSALDataStoreUtils.asyncRemove(dataBroker, LogicalDatastoreType.OPERATIONAL,
+                    instanceIdentifier, DEFAULT_CALLBACK);
             return vmMacAddress;
         }
         LOG.trace("Entry for interface {} missing in InterfaceNameVmMacAddress map", interfaceName);

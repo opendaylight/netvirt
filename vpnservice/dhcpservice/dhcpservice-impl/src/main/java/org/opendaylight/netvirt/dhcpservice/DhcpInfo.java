@@ -14,44 +14,44 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.subnets.rev150712.subnet.attributes.HostRoutes;
 
 public class DhcpInfo  {
-    private String _clientIp;
-    private String _serverIp;
-    private String _gatewayIp;
-    private String _cidr;
-    private List<String> _dnsServers;
-    private List<HostRoutes> _hostRoutes;
-    
+    private String clientIp;
+    private String serverIp;
+    private String gatewayIp;
+    private String cidr;
+    private List<String> dnsServers;
+    private List<HostRoutes> hostRoutes;
+
     public DhcpInfo() {
         //Empty constructor
     }
 
     protected DhcpInfo setClientIp(String clientIp) {
-        _clientIp = clientIp;
+        this.clientIp = clientIp;
         return this;
     }
 
     protected DhcpInfo setCidr(String cidr) {
-        _cidr = cidr;
+        this.cidr = cidr;
         return this;
     }
 
     protected DhcpInfo setServerIp(String serverIp) {
-        _serverIp = serverIp;
+        this.serverIp = serverIp;
         return this;
     }
 
     protected DhcpInfo setGatewayIp(String gwIp) {
-        _gatewayIp = gwIp;
+        gatewayIp = gwIp;
         return this;
     }
 
     protected DhcpInfo setHostRoutes(List<HostRoutes> hostRoutes) {
-        _hostRoutes = hostRoutes;
+        this.hostRoutes = hostRoutes;
         return this;
     }
 
     protected DhcpInfo setDnsServers(List<String> dnsServers) {
-        _dnsServers = dnsServers;
+        this.dnsServers = dnsServers;
         return this;
     }
 
@@ -63,36 +63,36 @@ public class DhcpInfo  {
     }
 
     protected DhcpInfo addDnsServer(String dnsServerIp) {
-        if(_dnsServers == null) {
-            _dnsServers = new ArrayList<>();
+        if (dnsServers == null) {
+            dnsServers = new ArrayList<>();
         }
-        _dnsServers.add(dnsServerIp);
+        dnsServers.add(dnsServerIp);
         return this;
     }
 
 
     protected String getClientIp() {
-        return _clientIp;
+        return clientIp;
     }
 
     protected String getCidr() {
-        return _cidr;
+        return cidr;
     }
 
     protected String getServerIp() {
-        return _serverIp ;
+        return serverIp;
     }
 
     protected String getGatewayIp() {
-        return _gatewayIp ;
+        return gatewayIp;
     }
 
     protected List<String> getDnsServers() {
-        return _dnsServers;
+        return dnsServers;
     }
 
     protected List<HostRoutes> getHostRoutes() {
-        return _hostRoutes;
+        return hostRoutes;
     }
 
 }

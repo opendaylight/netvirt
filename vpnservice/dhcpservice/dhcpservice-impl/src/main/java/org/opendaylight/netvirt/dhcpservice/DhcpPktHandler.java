@@ -17,7 +17,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
-
 import org.apache.commons.net.util.SubnetUtils;
 import org.apache.commons.net.util.SubnetUtils.SubnetInfo;
 import org.opendaylight.controller.liblldp.EtherTypes;
@@ -35,8 +34,8 @@ import org.opendaylight.genius.mdsalutil.packet.IPv4;
 import org.opendaylight.genius.mdsalutil.packet.UDP;
 import org.opendaylight.netvirt.dhcpservice.api.DHCP;
 import org.opendaylight.netvirt.dhcpservice.api.DHCPConstants;
-import org.opendaylight.netvirt.dhcpservice.api.DhcpMConstants;
 import org.opendaylight.netvirt.dhcpservice.api.DHCPUtils;
+import org.opendaylight.netvirt.dhcpservice.api.DhcpMConstants;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.action.types.rev131112.action.list.Action;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.GetEgressActionsForInterfaceInputBuilder;
@@ -70,8 +69,6 @@ public class DhcpPktHandler implements PacketProcessingListener {
     private final IInterfaceManager interfaceManager;
     private final DhcpserviceConfig config;
 
-    private boolean computeUdpChecksum = true;
-
     public DhcpPktHandler(final DhcpManager dhcpManager,
                           final DhcpExternalTunnelManager dhcpExternalTunnelManager,
                           final OdlInterfaceRpcService interfaceManagerRpc,
@@ -94,40 +91,37 @@ public class DhcpPktHandler implements PacketProcessingListener {
         }
         Class<? extends PacketInReason> pktInReason = packet.getPacketInReason();
         short tableId = packet.getTableId().getValue();
-        if ( (tableId == NwConstants.DHCP_TABLE || tableId == NwConstants.DHCP_TABLE_EXTERNAL_TUNNEL )
+        if ((tableId == NwConstants.DHCP_TABLE || tableId == NwConstants.DHCP_TABLE_EXTERNAL_TUNNEL)
                 && isPktInReasonSendtoCtrl(pktInReason)) {
             byte[] inPayload = packet.getPayload();
             Ethernet ethPkt = new Ethernet();
             try {
                 ethPkt.deserialize(inPayload, 0, inPayload.length * NetUtils.NumBitsInAByte);
-            } catch (Exception e) {
+            } catch (PacketException e) {
                 LOG.warn("Failed to decode DHCP Packet.", e);
                 LOG.trace("Received packet {}", packet);
                 return;
             }
-            try {
-                DHCP pktIn;
-                pktIn = getDhcpPktIn(ethPkt);
-                if (pktIn != null) {
-                    LOG.trace("DHCPPkt received: {}", pktIn);
-                    LOG.trace("Received Packet: {}", packet);
-                    BigInteger metadata = packet.getMatch().getMetadata().getMetadata();
-                    long portTag = MetaDataUtil.getLportFromMetadata(metadata).intValue();
-                    String macAddress = DHCPUtils.byteArrayToString(ethPkt.getSourceMACAddress());
-                    BigInteger tunnelId = packet.getMatch().getTunnel() == null ? null : packet.getMatch().getTunnel().getTunnelId();
-                    String interfaceName = getInterfaceNameFromTag(portTag);
-                    InterfaceInfo interfaceInfo = interfaceManager.getInterfaceInfoFromOperationalDataStore(interfaceName);
-                    if (interfaceInfo == null) {
-                        LOG.error("Failed to get interface info for interface name {}", interfaceName);
-                        return;
-                    }
-                    DHCP replyPkt = handleDhcpPacket(pktIn, interfaceName, macAddress, tunnelId);
-                    byte[] pktOut = getDhcpPacketOut(replyPkt, ethPkt, interfaceInfo.getMacAddress());
-                    sendPacketOut(pktOut, interfaceInfo.getDpId(), interfaceName, tunnelId);
+            DHCP pktIn;
+            pktIn = getDhcpPktIn(ethPkt);
+            if (pktIn != null) {
+                LOG.trace("DHCPPkt received: {}", pktIn);
+                LOG.trace("Received Packet: {}", packet);
+                BigInteger metadata = packet.getMatch().getMetadata().getMetadata();
+                long portTag = MetaDataUtil.getLportFromMetadata(metadata).intValue();
+                String macAddress = DHCPUtils.byteArrayToString(ethPkt.getSourceMACAddress());
+                BigInteger tunnelId =
+                        packet.getMatch().getTunnel() == null ? null : packet.getMatch().getTunnel().getTunnelId();
+                String interfaceName = getInterfaceNameFromTag(portTag);
+                InterfaceInfo interfaceInfo =
+                        interfaceManager.getInterfaceInfoFromOperationalDataStore(interfaceName);
+                if (interfaceInfo == null) {
+                    LOG.error("Failed to get interface info for interface name {}", interfaceName);
+                    return;
                 }
-            } catch (Exception e) {
-                LOG.warn("Failed to get DHCP Reply");
-                LOG.trace("Reason for failure.", e);
+                DHCP replyPkt = handleDhcpPacket(pktIn, interfaceName, macAddress, tunnelId);
+                byte[] pktOut = getDhcpPacketOut(replyPkt, ethPkt, interfaceInfo.getMacAddress());
+                sendPacketOut(pktOut, interfaceInfo.getDpId(), interfaceName, tunnelId);
             }
         }
     }
@@ -149,15 +143,15 @@ public class DhcpPktHandler implements PacketProcessingListener {
             LOG.trace("DHCPRELEASE received");
             return null;
         }
-        Port nPort;
+        Port port;
         if (tunnelId != null) {
-            nPort = dhcpExternalTunnelManager.readVniMacToPortCache(tunnelId, macAddress);
+            port = dhcpExternalTunnelManager.readVniMacToPortCache(tunnelId, macAddress);
         } else {
-            nPort = getNeutronPort(interfaceName);
+            port = getNeutronPort(interfaceName);
         }
-        Subnet nSubnet = getNeutronSubnet(nPort);
-        DhcpInfo dhcpInfo = getDhcpInfo(nPort, nSubnet);
-        LOG.trace("NeutronPort: {} \n NeutronSubnet: {}, dhcpInfo{}",nPort, nSubnet, dhcpInfo);
+        Subnet subnet = getNeutronSubnet(port);
+        DhcpInfo dhcpInfo = getDhcpInfo(port, subnet);
+        LOG.trace("NeutronPort: {} \n NeutronSubnet: {}, dhcpInfo{}", port, subnet, dhcpInfo);
         DHCP reply = null;
         if (dhcpInfo != null) {
             if (msgType == DHCPConstants.MSG_DISCOVER) {
@@ -170,26 +164,26 @@ public class DhcpPktHandler implements PacketProcessingListener {
         return reply;
     }
 
-    private DhcpInfo getDhcpInfo(Port nPort, Subnet nSubnet) {
+    private DhcpInfo getDhcpInfo(Port port, Subnet subnet) {
         DhcpInfo dhcpInfo = null;
-        if( (nPort != null) && (nSubnet != null) ) {
-            String clientIp = nPort.getFixedIps().get(0).getIpAddress().getIpv4Address().getValue();
-            String serverIp = nSubnet.getGatewayIp().getIpv4Address().getValue();
-            List<IpAddress> dnsServers = nSubnet.getDnsNameservers();
+        if ((port != null) && (subnet != null)) {
+            String clientIp = port.getFixedIps().get(0).getIpAddress().getIpv4Address().getValue();
+            String serverIp = subnet.getGatewayIp().getIpv4Address().getValue();
+            List<IpAddress> dnsServers = subnet.getDnsNameservers();
             dhcpInfo = new DhcpInfo();
             dhcpInfo.setClientIp(clientIp).setServerIp(serverIp)
-                .setCidr(String.valueOf(nSubnet.getCidr().getValue())).setHostRoutes(nSubnet.getHostRoutes())
+                .setCidr(String.valueOf(subnet.getCidr().getValue())).setHostRoutes(subnet.getHostRoutes())
                 .setDnsServersIpAddrs(dnsServers).setGatewayIp(serverIp);
         }
         return dhcpInfo;
     }
 
-    private Subnet getNeutronSubnet(Port nPort) {
-        return dhcpMgr.getNeutronSubnet(nPort);
+    private Subnet getNeutronSubnet(Port port) {
+        return dhcpMgr.getNeutronSubnet(port);
     }
 
     private Port getNeutronPort(String interfaceName) {
-            return dhcpMgr.getNeutronPort(interfaceName);
+        return dhcpMgr.getNeutronPort(interfaceName);
     }
 
     private DHCP getDhcpPktIn(Ethernet actualEthernetPacket) {
@@ -237,7 +231,7 @@ public class DhcpPktHandler implements PacketProcessingListener {
         reply.setChaddr(dhcpPkt.getChaddr());
 
         reply.setMsgType(DHCPConstants.MSG_OFFER);
-        if(dhcpPkt.containsOption(DHCPConstants.OPT_PARAMETER_REQUEST_LIST)) {
+        if (dhcpPkt.containsOption(DHCPConstants.OPT_PARAMETER_REQUEST_LIST)) {
             setParameterListOptions(dhcpPkt, reply, dhcpInfo);
         }
         setCommonOptions(reply, dhcpInfo);
@@ -259,7 +253,7 @@ public class DhcpPktHandler implements PacketProcessingListener {
         reply.setGiaddr(dhcpPkt.getGiaddr());
         reply.setChaddr(dhcpPkt.getChaddr());
         byte[] allocatedIp = DHCPUtils.strAddrToByteArray(dhcpInfo.getClientIp());
-        if(Arrays.equals(allocatedIp, dhcpPkt.getCiaddr())) {
+        if (Arrays.equals(allocatedIp, dhcpPkt.getCiaddr())) {
             //This means a renew request
             sendAck = true;
         } else {
@@ -272,12 +266,11 @@ public class DhcpPktHandler implements PacketProcessingListener {
             reply.setYiaddr(dhcpInfo.getClientIp());
             reply.setSiaddr(dhcpInfo.getServerIp());
             reply.setMsgType(DHCPConstants.MSG_ACK);
-            if(dhcpPkt.containsOption(DHCPConstants.OPT_PARAMETER_REQUEST_LIST)) {
+            if (dhcpPkt.containsOption(DHCPConstants.OPT_PARAMETER_REQUEST_LIST)) {
                 setParameterListOptions(dhcpPkt, reply, dhcpInfo);
             }
             setCommonOptions(reply, dhcpInfo);
-        }
-        else {
+        } else {
             reply.setMsgType(DHCPConstants.MSG_NAK);
         }
         return reply;
@@ -296,9 +289,8 @@ public class DhcpPktHandler implements PacketProcessingListener {
         byte[] rawPkt;
         try {
             rawPkt = reply.serialize();
-        } catch (PacketException e2) {
-            // TODO Auto-generated catch block
-            e2.printStackTrace();
+        } catch (PacketException e) {
+            LOG.warn("Failed to serialize packet", e);
             return null;
         }
         udpPkt.setRawPayload(rawPkt);
@@ -306,25 +298,24 @@ public class DhcpPktHandler implements PacketProcessingListener {
         udpPkt.setSourcePort(DhcpMConstants.DHCP_SERVER_PORT);
         udpPkt.setLength((short) (rawPkt.length + 8));
         //Create IP Pkt
-        IPv4 ip4Reply = new IPv4();
         try {
             rawPkt = udpPkt.serialize();
         } catch (PacketException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            LOG.warn("Failed to serialize packet", e);
             return null;
         }
         short checkSum = 0;
-        if(this.computeUdpChecksum) {
-         checkSum = computeChecksum(rawPkt, reply.getSiaddr(),
-                NetUtils.intToByteArray4(DhcpMConstants.BCAST_IP));
+        boolean computeUdpChecksum = true;
+        if (computeUdpChecksum) {
+            checkSum = computeChecksum(rawPkt, reply.getSiaddr(), NetUtils.intToByteArray4(DhcpMConstants.BCAST_IP));
         }
         udpPkt.setChecksum(checkSum);
+        IPv4 ip4Reply = new IPv4();
         ip4Reply.setPayload(udpPkt);
         ip4Reply.setProtocol(IPProtocols.UDP.byteValue());
         ip4Reply.setSourceAddress(reply.getSiaddrAsInetAddr());
         ip4Reply.setDestinationAddress(DhcpMConstants.BCAST_IP);
-        ip4Reply.setTotalLength((short) (rawPkt.length+20));
+        ip4Reply.setTotalLength((short) (rawPkt.length + 20));
         ip4Reply.setTtl((byte) 32);
         // create Ethernet Frame
         Ethernet ether = new Ethernet();
@@ -360,38 +351,39 @@ public class DhcpPktHandler implements PacketProcessingListener {
     }
 
     public short computeChecksum(byte[] inData, byte[] srcAddr, byte[] destAddr) {
-        short checkSum = (short) 0;
-        int sum = 0, carry = 0;
-        int wordData, i;
+        int sum = 0;
+        int carry = 0;
+        int wordData;
+        int index;
 
-        for (i = 0; i < inData.length - 1; i = i + 2) {
+        for (index = 0; index < inData.length - 1; index = index + 2) {
             // Skip, if the current bytes are checkSum bytes
-            wordData = ((inData[i] << 8) & 0xFF00) + (inData[i + 1] & 0xFF);
+            wordData = ((inData[index] << 8) & 0xFF00) + (inData[index + 1] & 0xFF);
             sum = sum + wordData;
         }
 
-        if (i < inData.length) {
-            wordData = ((inData[i] << 8) & 0xFF00) + (0 & 0xFF);
+        if (index < inData.length) {
+            wordData = ((inData[index] << 8) & 0xFF00) + (0 & 0xFF);
             sum = sum + wordData;
         }
 
-        for (i = 0; i < 4; i = i + 2) {
-            wordData = ((srcAddr[i] << 8) & 0xFF00) + (srcAddr[i + 1] & 0xFF);
+        for (index = 0; index < 4; index = index + 2) {
+            wordData = ((srcAddr[index] << 8) & 0xFF00) + (srcAddr[index + 1] & 0xFF);
             sum = sum + wordData;
         }
 
-        for (i = 0; i < 4; i = i + 2) {
-            wordData = ((destAddr[i] << 8) & 0xFF00) + (destAddr[i + 1] & 0xFF);
+        for (index = 0; index < 4; index = index + 2) {
+            wordData = ((destAddr[index] << 8) & 0xFF00) + (destAddr[index + 1] & 0xFF);
             sum = sum + wordData;
         }
         sum = sum + 17 + inData.length;
 
-        while((sum >> 16) != 0) {
+        while ((sum >> 16) != 0) {
             carry = (sum >> 16);
-            sum = (sum & 0xFFFF)+ carry;
+            sum = (sum & 0xFFFF) + carry;
         }
-        checkSum = (short) ~((short) sum & 0xFFFF);
-        if(checkSum == 0) {
+        short checkSum = (short) ~((short) sum & 0xFFFF);
+        if (checkSum == 0) {
             checkSum = (short)0xffff;
         }
         return checkSum;
@@ -402,7 +394,7 @@ public class DhcpPktHandler implements PacketProcessingListener {
         if (dhcpMgr.getDhcpDefDomain() != null) {
             pkt.setOptionString(DHCPConstants.OPT_DOMAIN_NAME, dhcpMgr.getDhcpDefDomain());
         }
-        if(dhcpMgr.getDhcpLeaseTime() > 0) {
+        if (dhcpMgr.getDhcpLeaseTime() > 0) {
             pkt.setOptionInt(DHCPConstants.OPT_REBINDING_TIME, dhcpMgr.getDhcpRebindingTime());
             pkt.setOptionInt(DHCPConstants.OPT_RENEWAL_TIME, dhcpMgr.getDhcpRenewalTime());
         }
@@ -439,52 +431,53 @@ public class DhcpPktHandler implements PacketProcessingListener {
             }
         } catch (UnknownHostException e) {
             // TODO Auto-generated catch block
-            e.printStackTrace();
+            LOG.warn("Failed to set option", e);
         }
     }
 
     private void setParameterListOptions(DHCP req, DHCP reply, DhcpInfo dhcpInfo) {
         byte[] paramList = req.getOptionBytes(DHCPConstants.OPT_PARAMETER_REQUEST_LIST);
-        for(int i = 0; i < paramList.length; i++) {
+        for (int i = 0; i < paramList.length; i++) {
             switch (paramList[i]) {
-            case DHCPConstants.OPT_SUBNET_MASK:
-            case DHCPConstants.OPT_ROUTERS:
-            case DHCPConstants.OPT_SERVER_IDENTIFIER:
-            case DHCPConstants.OPT_DOMAIN_NAME_SERVERS:
-            case DHCPConstants.OPT_BROADCAST_ADDRESS:
-            case DHCPConstants.OPT_LEASE_TIME:
-            case DHCPConstants.OPT_RENEWAL_TIME:
-            case DHCPConstants.OPT_REBINDING_TIME:
-                /* These values will be filled in setCommonOptions
-                 * Setting these just to preserve order as
-                 * specified in PARAMETER_REQUEST_LIST.
-                 */
-                reply.setOptionInt(paramList[i], 0);
-                break;
-            case DHCPConstants.OPT_DOMAIN_NAME:
-                reply.setOptionString(paramList[i], " ");
-                break;
-            case DHCPConstants.OPT_CLASSLESS_ROUTE:
-                setOptionClasslessRoute(reply, dhcpInfo);
-                break;
-            default:
-                LOG.trace("DHCP Option code {} not supported yet", paramList[i]);
-                break;
+                case DHCPConstants.OPT_SUBNET_MASK:
+                case DHCPConstants.OPT_ROUTERS:
+                case DHCPConstants.OPT_SERVER_IDENTIFIER:
+                case DHCPConstants.OPT_DOMAIN_NAME_SERVERS:
+                case DHCPConstants.OPT_BROADCAST_ADDRESS:
+                case DHCPConstants.OPT_LEASE_TIME:
+                case DHCPConstants.OPT_RENEWAL_TIME:
+                case DHCPConstants.OPT_REBINDING_TIME:
+                    /* These values will be filled in setCommonOptions
+                     * Setting these just to preserve order as
+                     * specified in PARAMETER_REQUEST_LIST.
+                     */
+                    reply.setOptionInt(paramList[i], 0);
+                    break;
+                case DHCPConstants.OPT_DOMAIN_NAME:
+                    reply.setOptionString(paramList[i], " ");
+                    break;
+                case DHCPConstants.OPT_CLASSLESS_ROUTE:
+                    setOptionClasslessRoute(reply, dhcpInfo);
+                    break;
+                default:
+                    LOG.trace("DHCP Option code {} not supported yet", paramList[i]);
+                    break;
             }
         }
     }
+
     private void setOptionClasslessRoute(DHCP reply, DhcpInfo dhcpInfo) {
         List<HostRoutes> hostRoutes = dhcpInfo.getHostRoutes();
-        if(hostRoutes == null) {
+        if (hostRoutes == null) {
             //we can't set this option, so return
             return;
         }
         ByteArrayOutputStream result = new ByteArrayOutputStream();
         Iterator<HostRoutes> iter = hostRoutes.iterator();
-        while(iter.hasNext()) {
+        while (iter.hasNext()) {
             HostRoutes hostRoute = iter.next();
-            if(hostRoute.getNexthop().getIpv4Address() == null ||
-                hostRoute.getDestination().getIpv4Prefix() == null ) {
+            if (hostRoute.getNexthop().getIpv4Address() == null
+                    || hostRoute.getDestination().getIpv4Prefix() == null ) {
                 // we only deal with IPv4 addresses
                 return;
             }
@@ -502,9 +495,8 @@ public class DhcpPktHandler implements PacketProcessingListener {
     }
 
     protected byte[] convertToClasslessRouteOption(String dest, String router) {
-        ByteArrayOutputStream bArr = new ByteArrayOutputStream();
-        if((dest == null ||
-                router == null)) {
+        ByteArrayOutputStream byteArray = new ByteArrayOutputStream();
+        if ((dest == null || router == null)) {
             return null;
         }
 
@@ -517,23 +509,23 @@ public class DhcpPktHandler implements PacketProcessingListener {
             prefix = Short.valueOf(parts[1]);
         }
 
-        bArr.write(prefix.byteValue());
+        byteArray.write(prefix.byteValue());
         SubnetUtils util = new SubnetUtils(dest);
         SubnetInfo info = util.getInfo();
         String strNetAddr = info.getNetworkAddress();
         try {
             byte[] netAddr = InetAddress.getByName(strNetAddr).getAddress();
           //Strip any trailing 0s from netAddr
-            for(int i = 0; i < netAddr.length;i++) {
-                if(netAddr[i] != 0) {
-                    bArr.write(netAddr,i,1);
+            for (int i = 0; i < netAddr.length;i++) {
+                if (netAddr[i] != 0) {
+                    byteArray.write(netAddr,i,1);
                 }
             }
-            bArr.write(InetAddress.getByName(router).getAddress());
+            byteArray.write(InetAddress.getByName(router).getAddress());
         } catch (IOException e) {
             return null;
         }
-        return bArr.toByteArray();
+        return byteArray.toByteArray();
     }
 
     private boolean isPktInReasonSendtoCtrl(Class<? extends PacketInReason> pktInReason) {
@@ -542,8 +534,10 @@ public class DhcpPktHandler implements PacketProcessingListener {
 
     private String getInterfaceNameFromTag(long portTag) {
         String interfaceName = null;
-        GetInterfaceFromIfIndexInput input = new GetInterfaceFromIfIndexInputBuilder().setIfIndex(new Integer((int)portTag)).build();
-        Future<RpcResult<GetInterfaceFromIfIndexOutput>> futureOutput = interfaceManagerRpc.getInterfaceFromIfIndex(input);
+        GetInterfaceFromIfIndexInput input =
+                new GetInterfaceFromIfIndexInputBuilder().setIfIndex(new Integer((int)portTag)).build();
+        Future<RpcResult<GetInterfaceFromIfIndexOutput>> futureOutput =
+                interfaceManagerRpc.getInterfaceFromIfIndex(input);
         try {
             GetInterfaceFromIfIndexOutput output = futureOutput.get().getResult();
             interfaceName = output.getInterfaceName();
@@ -557,15 +551,17 @@ public class DhcpPktHandler implements PacketProcessingListener {
     private List<Action> getEgressAction(String interfaceName, BigInteger tunnelId) {
         List<Action> actions = null;
         try {
-            GetEgressActionsForInterfaceInputBuilder egressAction = new GetEgressActionsForInterfaceInputBuilder().setIntfName(interfaceName);
+            GetEgressActionsForInterfaceInputBuilder egressAction =
+                    new GetEgressActionsForInterfaceInputBuilder().setIntfName(interfaceName);
             if (tunnelId != null) {
                 egressAction.setTunnelKey(tunnelId.longValue());
             }
             Future<RpcResult<GetEgressActionsForInterfaceOutput>> result =
                     interfaceManagerRpc.getEgressActionsForInterface(egressAction.build());
             RpcResult<GetEgressActionsForInterfaceOutput> rpcResult = result.get();
-            if(!rpcResult.isSuccessful()) {
-                LOG.warn("RPC Call to Get egress actions for interface {} returned with Errors {}", interfaceName, rpcResult.getErrors());
+            if (!rpcResult.isSuccessful()) {
+                LOG.warn("RPC Call to Get egress actions for interface {} returned with Errors {}",
+                        interfaceName, rpcResult.getErrors());
             } else {
                 actions = rpcResult.getResult().getAction();
             }

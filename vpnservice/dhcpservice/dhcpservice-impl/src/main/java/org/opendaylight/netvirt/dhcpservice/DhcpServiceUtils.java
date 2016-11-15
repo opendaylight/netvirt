@@ -8,12 +8,13 @@
 
 package org.opendaylight.netvirt.dhcpservice;
 
+import com.google.common.base.Optional;
+import com.google.common.util.concurrent.CheckedFuture;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
-
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
@@ -63,14 +64,12 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.base.Optional;
-import com.google.common.util.concurrent.CheckedFuture;
-
 public class DhcpServiceUtils {
 
     private static final Logger LOG = LoggerFactory.getLogger(DhcpServiceUtils.class);
 
-    public static void setupDhcpFlowEntry(BigInteger dpId, short tableId, String vmMacAddress, int addOrRemove, IMdsalApiManager mdsalUtil, WriteTransaction tx) {
+    public static void setupDhcpFlowEntry(BigInteger dpId, short tableId, String vmMacAddress, int addOrRemove,
+                                          IMdsalApiManager mdsalUtil, WriteTransaction tx) {
         if (dpId == null || dpId.equals(DhcpMConstants.INVALID_DPID) || vmMacAddress == null) {
             return;
         }
@@ -94,8 +93,8 @@ public class DhcpServiceUtils {
             mdsalUtil.removeFlowToTx(flowEntity, tx);
         } else {
             FlowEntity flowEntity = MDSALUtil.buildFlowEntity(dpId, tableId,
-                    getDhcpFlowRef(dpId, tableId, vmMacAddress), DhcpMConstants.DEFAULT_DHCP_FLOW_PRIORITY, "DHCP", 0, 0,
-                    DhcpMConstants.COOKIE_DHCP_BASE, matches, instructions);
+                    getDhcpFlowRef(dpId, tableId, vmMacAddress), DhcpMConstants.DEFAULT_DHCP_FLOW_PRIORITY,
+                    "DHCP", 0, 0, DhcpMConstants.COOKIE_DHCP_BASE, matches, instructions);
             LOG.trace("Installing DHCP Flow DpId {}, vmMacAddress {}", dpId, vmMacAddress);
             DhcpServiceCounters.install_dhcp_flow.inc();
             mdsalUtil.addFlowToTx(flowEntity, tx);
@@ -109,7 +108,8 @@ public class DhcpServiceUtils {
                 .append(vmMacAddress).toString();
     }
 
-    public static void setupDhcpDropAction(BigInteger dpId, short tableId, String vmMacAddress, int addOrRemove, IMdsalApiManager mdsalUtil, WriteTransaction tx) {
+    public static void setupDhcpDropAction(BigInteger dpId, short tableId, String vmMacAddress, int addOrRemove,
+                                           IMdsalApiManager mdsalUtil, WriteTransaction tx) {
         if (dpId == null || dpId.equals(DhcpMConstants.INVALID_DPID) || vmMacAddress == null) {
             return;
         }
@@ -131,8 +131,8 @@ public class DhcpServiceUtils {
             mdsalUtil.removeFlowToTx(flowEntity, tx);
         } else {
             FlowEntity flowEntity = MDSALUtil.buildFlowEntity(dpId, tableId,
-                    getDhcpFlowRef(dpId, tableId, vmMacAddress), DhcpMConstants.DEFAULT_DHCP_FLOW_PRIORITY, "DHCP", 0, 0,
-                    DhcpMConstants.COOKIE_DHCP_BASE, matches, instructions);
+                    getDhcpFlowRef(dpId, tableId, vmMacAddress), DhcpMConstants.DEFAULT_DHCP_FLOW_PRIORITY,
+                    "DHCP", 0, 0, DhcpMConstants.COOKIE_DHCP_BASE, matches, instructions);
             LOG.trace("Installing DHCP Drop Flow DpId {}, vmMacAddress {}", dpId, vmMacAddress);
             DhcpServiceCounters.install_dhcp_drop_flow.inc();
             mdsalUtil.addFlowToTx(flowEntity, tx);
@@ -157,7 +157,8 @@ public class DhcpServiceUtils {
     public static List<BigInteger> getListOfDpns(DataBroker broker) {
         List<BigInteger> dpnsList = new LinkedList<>();
         InstanceIdentifier<Nodes> nodesInstanceIdentifier = InstanceIdentifier.builder(Nodes.class).build();
-        Optional<Nodes> nodesOptional = MDSALUtil.read(broker, LogicalDatastoreType.OPERATIONAL, nodesInstanceIdentifier);
+        Optional<Nodes> nodesOptional =
+                MDSALUtil.read(broker, LogicalDatastoreType.OPERATIONAL, nodesInstanceIdentifier);
         if (!nodesOptional.isPresent()) {
             return dpnsList;
         }
@@ -176,8 +177,11 @@ public class DhcpServiceUtils {
 
     public static List<BigInteger> getDpnsForElan(String elanInstanceName, DataBroker broker) {
         List<BigInteger> elanDpns = new LinkedList<>();
-        InstanceIdentifier<ElanDpnInterfacesList> elanDpnInstanceIdentifier = InstanceIdentifier.builder(ElanDpnInterfaces.class).child(ElanDpnInterfacesList.class, new ElanDpnInterfacesListKey(elanInstanceName)).build();
-        Optional<ElanDpnInterfacesList> elanDpnOptional = MDSALUtil.read(broker, LogicalDatastoreType.OPERATIONAL, elanDpnInstanceIdentifier);
+        InstanceIdentifier<ElanDpnInterfacesList> elanDpnInstanceIdentifier =
+                InstanceIdentifier.builder(ElanDpnInterfaces.class)
+                        .child(ElanDpnInterfacesList.class, new ElanDpnInterfacesListKey(elanInstanceName)).build();
+        Optional<ElanDpnInterfacesList> elanDpnOptional =
+                MDSALUtil.read(broker, LogicalDatastoreType.OPERATIONAL, elanDpnInstanceIdentifier);
         if (elanDpnOptional.isPresent()) {
             List<DpnInterfaces> dpns = elanDpnOptional.get().getDpnInterfaces();
             for (DpnInterfaces dpnInterfaces : dpns) {
@@ -187,10 +191,19 @@ public class DhcpServiceUtils {
         return elanDpns;
     }
 
-    public static org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface getInterfaceFromOperationalDS(String interfaceName, DataBroker dataBroker) {
-        org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.InterfaceKey interfaceKey = new org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.InterfaceKey(interfaceName);
-        InstanceIdentifier<org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface> interfaceId = InstanceIdentifier.builder(InterfacesState.class).child(org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface.class, interfaceKey).build();
-        Optional<org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface> interfaceOptional = MDSALUtil.read(LogicalDatastoreType.OPERATIONAL, interfaceId, dataBroker);
+    public static org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces
+            .state.Interface getInterfaceFromOperationalDS(String interfaceName, DataBroker dataBroker) {
+        org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces
+                .state.InterfaceKey interfaceKey =
+                new org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces
+                        .state.InterfaceKey(interfaceName);
+        InstanceIdentifier<org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508
+                .interfaces.state.Interface> interfaceId = InstanceIdentifier.builder(InterfacesState.class)
+                .child(org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508
+                        .interfaces.state.Interface.class, interfaceKey).build();
+        Optional<org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces
+                .state.Interface> interfaceOptional =
+                MDSALUtil.read(LogicalDatastoreType.OPERATIONAL, interfaceId, dataBroker);
         if (!interfaceOptional.isPresent()) {
             return null;
         }
@@ -199,8 +212,8 @@ public class DhcpServiceUtils {
 
 
     public static String getSegmentationId(Uuid networkId, DataBroker broker) {
-        InstanceIdentifier<Network> inst = InstanceIdentifier.create(Neutron.class).child(Networks.class).child
-                (Network.class, new NetworkKey(networkId));
+        InstanceIdentifier<Network> inst = InstanceIdentifier.create(Neutron.class)
+                .child(Networks.class).child(Network.class, new NetworkKey(networkId));
         Optional<Network> optionalNetwork = MDSALUtil.read(broker, LogicalDatastoreType.CONFIGURATION, inst);
         if (!optionalNetwork.isPresent()) {
             return null;
@@ -216,7 +229,8 @@ public class DhcpServiceUtils {
 
     public static String getTrunkPortMacAddress(String parentRefName,
             DataBroker broker) {
-        InstanceIdentifier<Port> portInstanceIdentifier = InstanceIdentifier.create(Neutron.class).child(Ports.class).child(Port.class);
+        InstanceIdentifier<Port> portInstanceIdentifier =
+                InstanceIdentifier.create(Neutron.class).child(Ports.class).child(Port.class);
         Optional<Port> trunkPort = MDSALUtil.read(broker, LogicalDatastoreType.CONFIGURATION, portInstanceIdentifier);
         if (!trunkPort.isPresent()) {
             LOG.warn("Trunk port {} not available for sub-port", parentRefName);
@@ -260,15 +274,18 @@ public class DhcpServiceUtils {
 
     private static InstanceIdentifier<BoundServices> buildServiceId(String interfaceName,
                                                              short dhcpServicePriority) {
-        return InstanceIdentifier.builder(ServiceBindings.class).child(ServicesInfo.class, new ServicesInfoKey(interfaceName, ServiceModeIngress.class))
+        return InstanceIdentifier.builder(ServiceBindings.class)
+                .child(ServicesInfo.class, new ServicesInfoKey(interfaceName, ServiceModeIngress.class))
                 .child(BoundServices.class, new BoundServicesKey(dhcpServicePriority)).build();
     }
 
     public static BoundServices getBoundServices(String serviceName, short servicePriority, int flowPriority,
                                           BigInteger cookie, List<Instruction> instructions) {
-        StypeOpenflowBuilder augBuilder = new StypeOpenflowBuilder().setFlowCookie(cookie).setFlowPriority(flowPriority).setInstruction(instructions);
+        StypeOpenflowBuilder augBuilder = new StypeOpenflowBuilder().setFlowCookie(cookie)
+                .setFlowPriority(flowPriority).setInstruction(instructions);
         return new BoundServicesBuilder().setKey(new BoundServicesKey(servicePriority))
                 .setServiceName(serviceName).setServicePriority(servicePriority)
-                .setServiceType(ServiceTypeFlowBased.class).addAugmentation(StypeOpenflow.class, augBuilder.build()).build();
+                .setServiceType(ServiceTypeFlowBased.class)
+                .addAugmentation(StypeOpenflow.class, augBuilder.build()).build();
     }
 }

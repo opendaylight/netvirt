@@ -7,11 +7,11 @@
  */
 package org.opendaylight.netvirt.dhcpservice.jobs;
 
+import com.google.common.util.concurrent.ListenableFuture;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Callable;
-
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
 import org.opendaylight.netvirt.dhcpservice.DhcpExternalTunnelManager;
@@ -24,8 +24,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rev
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.util.concurrent.ListenableFuture;
-
 public class DhcpInterfaceUpdateJob implements Callable<List<ListenableFuture<Void>>> {
 
     private static final Logger LOG = LoggerFactory.getLogger(DhcpInterfaceUpdateJob.class);
@@ -37,8 +35,9 @@ public class DhcpInterfaceUpdateJob implements Callable<List<ListenableFuture<Vo
     OperStatus operStatus;
     IInterfaceManager interfaceManager;
 
-    public DhcpInterfaceUpdateJob(DhcpManager dhcpManager, DhcpExternalTunnelManager dhcpExternalTunnelManager, DataBroker dataBroker,
-            String interfaceName, BigInteger dpnId, OperStatus operStatus, IInterfaceManager interfaceManager) {
+    public DhcpInterfaceUpdateJob(DhcpManager dhcpManager, DhcpExternalTunnelManager dhcpExternalTunnelManager,
+                                  DataBroker dataBroker, String interfaceName, BigInteger dpnId,
+                                  OperStatus operStatus, IInterfaceManager interfaceManager) {
         super();
         this.dhcpManager = dhcpManager;
         this.dhcpExternalTunnelManager = dhcpExternalTunnelManager;
