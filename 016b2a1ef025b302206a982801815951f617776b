@@ -126,6 +126,24 @@
     },
     {
       "key": {
+        "uuid": "3a65312a_c3861d13",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 35
+      },
+      "lineNbr": 573,
+      "author": {
+        "id": 5350
+      },
+      "writtenOn": "2016-11-15T13:49:58Z",
+      "side": 1,
+      "message": "There is no special need for ModifyVpnFootprintTask, however in terms of OOP I think it is better to have smaller classes with very specific responsibilities. It improves cohesion, and dependencies are more accurate.\nVpnInterfaceManager is a big class (in fact I think it is already a God anti-pattern) and, as a \u0027Manager\u0027, it should just do high level stuff, like controlling and organizing, and specific low-level tasks should be delegated to smaller classes.\n\nIt is also better for unit testing.\n\nI\u0027ll need, however, to expose it through vpnmanager-api since there are other projects that need it, like the cloud-servicechain.",
+      "parentUuid": "3a65312a_e3a6b90f",
+      "revId": "016b2a1ef025b302206a982801815951f617776b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "3a65312a_f13cc2c1",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
         "patchSetId": 35
