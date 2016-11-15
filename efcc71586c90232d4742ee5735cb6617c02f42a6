@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3a65312a_63ae2987",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/ArpNotificationHandler.java",
+        "patchSetId": 18
+      },
+      "lineNbr": 157,
+      "author": {
+        "id": 670
+      },
+      "writtenOn": "2016-11-15T13:58:46Z",
+      "side": 1,
+      "message": "Are you planning to delete this?\nPlease make sure to answer comments with \"fixed\" or \"won\u0027t fix because..\" after upload a new patchset, otherwise It\u0027s really hard tracking the comments and the new patchsets",
+      "revId": "efcc71586c90232d4742ee5735cb6617c02f42a6",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
