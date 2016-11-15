@@ -91,6 +91,24 @@
     },
     {
       "key": {
+        "uuid": "3a65312a_b1108aa9",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 35
+      },
+      "lineNbr": 538,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2016-11-15T11:20:16Z",
+      "side": 1,
+      "message": "Okay. Then I hope we don\u0027t have to populate nextHopAddressList in vrfEntry in case of INTERVPN routes. Because this is never used to program LFIB/TS/FIB entries. Am I correct ?",
+      "parentUuid": "3a65312a_f11b221a",
+      "revId": "016b2a1ef025b302206a982801815951f617776b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "3a65312a_f13cc2c1",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
         "patchSetId": 35
