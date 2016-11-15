@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3a65312a_36e1109b",
+        "filename": "vpnservice/vpnmanager/vpnmanager-api/src/main/java/org/opendaylight/netvirt/vpnmanager/api/intervpnlink/InterVpnLinkDataComposite.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 259,
+      "author": {
+        "id": 6584
+      },
+      "writtenOn": "2016-11-15T08:20:19Z",
+      "side": 1,
+      "message": "Uncomment",
+      "range": {
+        "startLine": 251,
+        "startChar": 8,
+        "endLine": 259,
+        "endChar": 10
+      },
+      "revId": "fb589a723d3bfbcff4288f432a07eaac4769d668",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
