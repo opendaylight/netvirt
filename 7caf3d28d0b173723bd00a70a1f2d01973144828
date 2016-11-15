@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3a65312a_a2396243",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 1378,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-11-15T12:11:11Z",
+      "side": 1,
+      "message": "You need to print for what all interfaces, removal from DPNTOVPN failed..\n\nAlso we can skip doing add processing for such interfaces..",
+      "revId": "7caf3d28d0b173723bd00a70a1f2d01973144828",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
