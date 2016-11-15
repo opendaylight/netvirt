@@ -1,0 +1,72 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3a65312a_160df43e",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 35
+      },
+      "lineNbr": 538,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2016-11-15T10:21:54Z",
+      "side": 1,
+      "message": "what is the purpose of making LFIB and FIB table flow entries pointing to LportDispatcher table (via table 80) ?",
+      "revId": "016b2a1ef025b302206a982801815951f617776b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a65312a_f13cc2c1",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 35
+      },
+      "lineNbr": 577,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2016-11-15T10:21:54Z",
+      "side": 1,
+      "message": "since task status is set in a thread, there is no guarantee that it always returns with correct state. So do you need log this messages based on task status ?",
+      "revId": "016b2a1ef025b302206a982801815951f617776b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a65312a_31475a4d",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 35
+      },
+      "lineNbr": 803,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2016-11-15T10:21:54Z",
+      "side": 1,
+      "message": "The Function toInstanceName is not used at all. remove this.",
+      "revId": "016b2a1ef025b302206a982801815951f617776b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a65312a_315e3a13",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 35
+      },
+      "lineNbr": 854,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2016-11-15T10:21:54Z",
+      "side": 1,
+      "message": "why did you add arp flows back to the code ? It\u0027s not required now due to default flows in my mac and arp responder tables.",
+      "revId": "016b2a1ef025b302206a982801815951f617776b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
