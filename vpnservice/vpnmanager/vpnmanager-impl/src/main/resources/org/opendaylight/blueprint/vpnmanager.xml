@@ -118,6 +118,7 @@
     <argument ref="odlArputilService" />
     <argument ref="arpMonitoringHandler" />
     <argument ref="odlInterfaceRpcService" />
+    <argument ref="interfaceManager"/>
   </bean>
   <service ref="arpNotificationHandler" odl:type="default"
            interface="org.opendaylight.yang.gen.v1.urn.opendaylight.genius.arputil.rev160406.OdlArputilListener" />
