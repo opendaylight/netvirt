@@ -7,8 +7,8 @@
  */
 package org.opendaylight.netvirt.dhcpservice;
 
+import com.google.common.base.Optional;
 import java.math.BigInteger;
-
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
@@ -32,9 +32,9 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.base.Optional;
-
-public class DhcpUCastMacListener extends AsyncClusteredDataTreeChangeListenerBase<LocalUcastMacs, DhcpUCastMacListener> implements AutoCloseable {
+public class DhcpUCastMacListener
+        extends AsyncClusteredDataTreeChangeListenerBase<LocalUcastMacs, DhcpUCastMacListener>
+        implements AutoCloseable {
 
     private static final Logger LOG = LoggerFactory.getLogger(DhcpUCastMacListener.class);
 
@@ -42,7 +42,8 @@ public class DhcpUCastMacListener extends AsyncClusteredDataTreeChangeListenerBa
     private final DhcpManager dhcpManager;
     private final DataBroker broker;
 
-    public DhcpUCastMacListener(DhcpManager dhcpManager,DhcpExternalTunnelManager dhcpExtTunnelMgr, DataBroker dataBroker) {
+    public DhcpUCastMacListener(DhcpManager dhcpManager,DhcpExternalTunnelManager dhcpExtTunnelMgr,
+                                DataBroker dataBroker) {
         super(LocalUcastMacs.class, DhcpUCastMacListener.class);
         this.broker = dataBroker;
         this.dhcpExternalTunnelManager = dhcpExtTunnelMgr;
@@ -98,8 +99,10 @@ public class DhcpUCastMacListener extends AsyncClusteredDataTreeChangeListenerBa
     protected void add(InstanceIdentifier<LocalUcastMacs> identifier,
             LocalUcastMacs add) {
         NodeId torNodeId = identifier.firstKeyOf(Node.class).getNodeId();
-        InstanceIdentifier<LogicalSwitches> logicalSwitchRef = (InstanceIdentifier<LogicalSwitches>) add.getLogicalSwitchRef().getValue();
-        Optional<LogicalSwitches> logicalSwitchOptional = MDSALUtil.read(broker, LogicalDatastoreType.OPERATIONAL, logicalSwitchRef);
+        InstanceIdentifier<LogicalSwitches> logicalSwitchRef =
+                (InstanceIdentifier<LogicalSwitches>) add.getLogicalSwitchRef().getValue();
+        Optional<LogicalSwitches> logicalSwitchOptional =
+                MDSALUtil.read(broker, LogicalDatastoreType.OPERATIONAL, logicalSwitchRef);
         if ( !logicalSwitchOptional.isPresent() ) {
             LOG.error("Logical Switch ref doesn't have data {}", logicalSwitchRef);
             return;
@@ -126,20 +129,24 @@ public class DhcpUCastMacListener extends AsyncClusteredDataTreeChangeListenerBa
                      subnet.getUuid());
             return;
         }
-        BigInteger designatedDpnId = dhcpExternalTunnelManager.readDesignatedSwitchesForExternalTunnel(tunnelIp, elanInstanceName);
+        BigInteger designatedDpnId =
+                dhcpExternalTunnelManager.readDesignatedSwitchesForExternalTunnel(tunnelIp, elanInstanceName);
         if (designatedDpnId == null || designatedDpnId.equals(DhcpMConstants.INVALID_DPID)) {
-            LOG.trace("Unable to install flows for macAddress {}. TunnelIp {}, elanInstanceName {}, designatedDpn {} ", macAddress, tunnelIp, elanInstanceName, designatedDpnId);
+            LOG.trace("Unable to install flows for macAddress {}. TunnelIp {}, elanInstanceName {}, designatedDpn {} ",
+                    macAddress, tunnelIp, elanInstanceName, designatedDpnId);
             dhcpExternalTunnelManager.updateLocalCache(tunnelIp, elanInstanceName, macAddress);
             return;
         }
-        dhcpExternalTunnelManager.installDhcpFlowsForVms(tunnelIp, elanInstanceName, DhcpServiceUtils.getListOfDpns(broker), designatedDpnId, macAddress);
+        dhcpExternalTunnelManager.installDhcpFlowsForVms(tunnelIp, elanInstanceName,
+                DhcpServiceUtils.getListOfDpns(broker), designatedDpnId, macAddress);
     }
 
     private LogicalSwitches getLogicalSwitches(LocalUcastMacs ucastMacs) {
         LogicalSwitches logicalSwitch = null;
-        InstanceIdentifier<LogicalSwitches> logicalSwitchRef = (InstanceIdentifier<LogicalSwitches>)
-                                                                ucastMacs.getLogicalSwitchRef().getValue();
-        Optional<LogicalSwitches> logicalSwitchOptional = MDSALUtil.read(broker, LogicalDatastoreType.OPERATIONAL,
+        InstanceIdentifier<LogicalSwitches> logicalSwitchRef =
+                (InstanceIdentifier<LogicalSwitches>)ucastMacs.getLogicalSwitchRef().getValue();
+        Optional<LogicalSwitches> logicalSwitchOptional =
+                MDSALUtil.read(broker, LogicalDatastoreType.OPERATIONAL,
                 logicalSwitchRef);
         if (logicalSwitchOptional.isPresent()) {
             logicalSwitch = logicalSwitchOptional.get();

@@ -7,10 +7,10 @@
  */
 package org.opendaylight.netvirt.dhcpservice;
 
+import com.google.common.base.Optional;
 import java.math.BigInteger;
 import java.util.List;
 import java.util.concurrent.ConcurrentMap;
-
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
@@ -32,9 +32,9 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.base.Optional;
-
-public class DhcpLogicalSwitchListener extends AsyncDataTreeChangeListenerBase<LogicalSwitches, DhcpLogicalSwitchListener> implements AutoCloseable {
+public class DhcpLogicalSwitchListener
+        extends AsyncDataTreeChangeListenerBase<LogicalSwitches, DhcpLogicalSwitchListener>
+        implements AutoCloseable {
 
     private static final Logger LOG = LoggerFactory.getLogger(DhcpLogicalSwitchListener.class);
 
@@ -89,8 +89,10 @@ public class DhcpLogicalSwitchListener extends AsyncDataTreeChangeListenerBase<L
     private IpAddress getTunnelIp(String nodeId) {
         NodeKey nodeKey = new NodeKey(new NodeId(nodeId));
         InstanceIdentifier<HwvtepGlobalAugmentation> nodeIdentifier = InstanceIdentifier.create(NetworkTopology.class)
-                .child(Topology.class, new TopologyKey(HwvtepSouthboundConstants.HWVTEP_TOPOLOGY_ID)).child(Node.class, nodeKey).augmentation(HwvtepGlobalAugmentation.class);
-        Optional<HwvtepGlobalAugmentation> hwvtepNode = MDSALUtil.read(dataBroker, LogicalDatastoreType.OPERATIONAL, nodeIdentifier);
+                .child(Topology.class, new TopologyKey(HwvtepSouthboundConstants.HWVTEP_TOPOLOGY_ID))
+                .child(Node.class, nodeKey).augmentation(HwvtepGlobalAugmentation.class);
+        Optional<HwvtepGlobalAugmentation> hwvtepNode =
+                MDSALUtil.read(dataBroker, LogicalDatastoreType.OPERATIONAL, nodeIdentifier);
         if (!hwvtepNode.isPresent()) {
             LOG.trace("Hwvtep node not found!");
             return null;

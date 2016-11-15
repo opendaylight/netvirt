@@ -25,7 +25,9 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class DhcpHwvtepListener extends AsyncDataTreeChangeListenerBase<Node, DhcpHwvtepListener> implements AutoCloseable {
+public class DhcpHwvtepListener
+        extends AsyncDataTreeChangeListenerBase<Node, DhcpHwvtepListener>
+        implements AutoCloseable {
 
     private static final Logger LOG = LoggerFactory.getLogger(DhcpHwvtepListener.class);
     private DhcpExternalTunnelManager dhcpExternalTunnelManager;

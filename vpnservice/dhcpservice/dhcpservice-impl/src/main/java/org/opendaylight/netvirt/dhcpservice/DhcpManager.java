@@ -33,7 +33,7 @@ import org.slf4j.LoggerFactory;
 
 public class DhcpManager {
 
-    private static final Logger logger = LoggerFactory.getLogger(DhcpManager.class);
+    private static final Logger LOG = LoggerFactory.getLogger(DhcpManager.class);
     private final IMdsalApiManager mdsalUtil;
     private final INeutronVpnManager neutronVpnService;
     private final DhcpserviceConfig config;
@@ -62,9 +62,10 @@ public class DhcpManager {
 
     public void init() {
         if (config.isControllerDhcpEnabled()) {
-            dhcpInterfaceEventListener = new DhcpInterfaceEventListener(this, broker, dhcpExternalTunnelManager, interfaceManager);
+            dhcpInterfaceEventListener =
+                    new DhcpInterfaceEventListener(this, broker, dhcpExternalTunnelManager, interfaceManager);
             dhcpInterfaceConfigListener = new DhcpInterfaceConfigListener(broker, dhcpExternalTunnelManager);
-            logger.info("DHCP Service initialized");
+            LOG.info("DHCP Service initialized");
         }
     }
 
@@ -75,7 +76,7 @@ public class DhcpManager {
         if (dhcpInterfaceConfigListener != null) {
             dhcpInterfaceConfigListener.close();
         }
-        logger.info("DHCP Service closed");
+        LOG.info("DHCP Service closed");
     }
 
     public int setLeaseDuration(int leaseDuration) {
@@ -108,13 +109,9 @@ public class DhcpManager {
         this.dhcpOptLeaseTime = leaseTime;
     }
 
-    public Subnet getNeutronSubnet(Port nPort) {
-        if (nPort != null) {
-            try {
-                return neutronVpnService.getNeutronSubnet(nPort.getFixedIps().get(0).getSubnetId());
-            } catch (Exception e) {
-                logger.warn("Failed to get Neutron Subnet from Port {}.", nPort, e);
-            }
+    public Subnet getNeutronSubnet(Port port) {
+        if (port != null) {
+            return neutronVpnService.getNeutronSubnet(port.getFixedIps().get(0).getSubnetId());
         }
         return null;
     }
@@ -124,24 +121,23 @@ public class DhcpManager {
             return neutronVpnService.getNeutronPort(name);
         } catch (IllegalArgumentException e) {
             return null;
-        } catch (Exception ex) {
-            logger.warn("In getNeutronPort interface name passed {}.", name, ex);
-            return null;
         }
     }
 
     public void installDhcpEntries(BigInteger dpnId, String vmMacAddress, WriteTransaction tx) {
-        DhcpServiceUtils.setupDhcpFlowEntry(dpnId, NwConstants.DHCP_TABLE, vmMacAddress, NwConstants.ADD_FLOW, mdsalUtil, tx);
+        DhcpServiceUtils.setupDhcpFlowEntry(dpnId, NwConstants.DHCP_TABLE, vmMacAddress, NwConstants.ADD_FLOW,
+                mdsalUtil, tx);
     }
 
     public void unInstallDhcpEntries(BigInteger dpId, String vmMacAddress, WriteTransaction tx) {
-        DhcpServiceUtils.setupDhcpFlowEntry(dpId, NwConstants.DHCP_TABLE, vmMacAddress, NwConstants.DEL_FLOW, mdsalUtil, tx);
+        DhcpServiceUtils.setupDhcpFlowEntry(dpId, NwConstants.DHCP_TABLE, vmMacAddress, NwConstants.DEL_FLOW,
+                mdsalUtil, tx);
     }
 
     public void setupTableMissForDhcpTable(BigInteger dpId) {
         List<MatchInfo> matches = new ArrayList<>();
         List<InstructionInfo> instructions = new ArrayList<>();
-        List <ActionInfo> actionsInfos = new ArrayList<>();
+        List<ActionInfo> actionsInfos = new ArrayList<>();
         actionsInfos.add(new ActionInfo(ActionType.nx_resubmit, new String[]{
                 Short.toString(NwConstants.LPORT_DISPATCHER_TABLE)}));
         instructions.add(new InstructionInfo(InstructionType.apply_actions, actionsInfos));
@@ -156,9 +152,11 @@ public class DhcpManager {
     private void setupTableMissForHandlingExternalTunnel(BigInteger dpId) {
         List<MatchInfo> matches = new ArrayList<>();
         List<InstructionInfo> instructions = new ArrayList<>();
-        instructions.add(new InstructionInfo(InstructionType.goto_table, new long[] { NwConstants.EXTERNAL_TUNNEL_TABLE }));
+        instructions.add(new InstructionInfo(InstructionType.goto_table,
+                new long[] { NwConstants.EXTERNAL_TUNNEL_TABLE }));
 
-        FlowEntity flowEntity = MDSALUtil.buildFlowEntity(dpId, NwConstants.DHCP_TABLE_EXTERNAL_TUNNEL, "DHCPTableMissFlowForExternalTunnel",
+        FlowEntity flowEntity = MDSALUtil.buildFlowEntity(dpId, NwConstants.DHCP_TABLE_EXTERNAL_TUNNEL,
+                "DHCPTableMissFlowForExternalTunnel",
                 0, "DHCP Table Miss Flow For External Tunnel", 0, 0,
                 DhcpMConstants.COOKIE_DHCP_BASE, matches, instructions);
         DhcpServiceCounters.install_dhcp_table_miss_flow_for_external_table.inc();

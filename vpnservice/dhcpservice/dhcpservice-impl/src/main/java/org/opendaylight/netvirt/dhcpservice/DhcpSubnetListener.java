@@ -8,10 +8,10 @@
 
 package org.opendaylight.netvirt.dhcpservice;
 
+import com.google.common.base.Optional;
 import java.math.BigInteger;
-import java.util.Iterator;
 import java.util.List;
-
+import java.util.concurrent.ExecutionException;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
@@ -34,8 +34,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.subnets.rev150712.s
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.google.common.base.Optional;
 
 public class DhcpSubnetListener extends AsyncClusteredDataTreeChangeListenerBase<Subnet, DhcpSubnetListener>
         implements AutoCloseable {
@@ -151,11 +149,10 @@ public class DhcpSubnetListener extends AsyncClusteredDataTreeChangeListenerBase
                 LOG.warn("DhcpSubnetListener installDirectPortEntries tunnelIP is null for  port {}", portIntf);
                 continue;
             }
-            BigInteger designatedDpnId = dhcpExternalTunnelManager.readDesignatedSwitchesForExternalTunnel
-                    (tunnelIp, networkId.getValue());
-            LOG.trace(
-                    "CR-DHCP DhcpSubnetListener update Install DIRECT vmMacAddress: {} tunnelIp: {} designatedDpnId :" +
-                            " {} ListOf Dpn:",
+            BigInteger designatedDpnId =
+                    dhcpExternalTunnelManager.readDesignatedSwitchesForExternalTunnel(tunnelIp, networkId.getValue());
+            LOG.trace("CR-DHCP DhcpSubnetListener update Install DIRECT vmMacAddress: {} tunnelIp: {} "
+                    + "designatedDpnId : {} ListOf Dpn:",
                     vmMacAddress, tunnelIp, designatedDpnId, listOfDpns);
             dhcpExternalTunnelManager.installDhcpFlowsForVms(tunnelIp, networkId.getValue(), listOfDpns,
                     designatedDpnId, vmMacAddress);
@@ -203,27 +200,23 @@ public class DhcpSubnetListener extends AsyncClusteredDataTreeChangeListenerBase
         return nodeConnectorId;
     }
 
-    private SubnetmapBuilder getSubnetMapBuilder(DataBroker broker, Uuid subnetId){
+    private SubnetmapBuilder getSubnetMapBuilder(DataBroker broker, Uuid subnetId) {
         SubnetmapBuilder builder = null ;
-        InstanceIdentifier<Subnetmap> id = InstanceIdentifier.builder(Subnetmaps.class).
-                child(Subnetmap.class, new SubnetmapKey(subnetId)).build();
+        InstanceIdentifier<Subnetmap> id = InstanceIdentifier.builder(Subnetmaps.class)
+                .child(Subnetmap.class, new SubnetmapKey(subnetId)).build();
+        ReadOnlyTransaction tx = broker.newReadOnlyTransaction();
+
+        Optional<Subnetmap> sn ;
         try {
-            ReadOnlyTransaction tx = broker.newReadOnlyTransaction();
+            sn = tx.read(LogicalDatastoreType.CONFIGURATION, id).get();
+        } catch (InterruptedException | ExecutionException e) {
+            throw new RuntimeException(e);
+        }
 
-            Optional<Subnetmap> sn ;
-            try {
-                sn = tx.read(LogicalDatastoreType.CONFIGURATION, id).get();
-            } catch (Exception e) {
-                throw new RuntimeException(e);
-            }
-
-            if (sn.isPresent()) {
-                builder = new SubnetmapBuilder(sn.get());
-            } else {
-                builder = new SubnetmapBuilder().setKey(new SubnetmapKey(subnetId)).setId(subnetId);
-            }
-        } catch (Exception e) {
-            LOG.error("Updation of subnetMap failed for node: {}", subnetId.getValue());
+        if (sn.isPresent()) {
+            builder = new SubnetmapBuilder(sn.get());
+        } else {
+            builder = new SubnetmapBuilder().setKey(new SubnetmapKey(subnetId)).setId(subnetId);
         }
         return builder;
     }
