@@ -162,6 +162,24 @@
     },
     {
       "key": {
+        "uuid": "3a65312a_66ae3787",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 35
+      },
+      "lineNbr": 573,
+      "author": {
+        "id": 5350
+      },
+      "writtenOn": "2016-11-15T15:52:49Z",
+      "side": 1,
+      "message": "well, not that exaggerated. VpnInterfaceManager knows too many details that it doesn\u0027t need to know, like for example how the VpnToDpn map is updated.\n\nThe task was meant to be run asynchronously, but I changed it to synchronous cause you asked to. Also, it could still be run asynchronously in some other places like the InterVpnLink. It\u0027s just the VpnInterfaceManager prefers to run it synchronously.\n\nI agree that we should move the updateVpnToDpnMapping logic to a new class and inject it wherever it is wanted, but lets do that in some other commit.",
+      "parentUuid": "3a65312a_238a71bf",
+      "revId": "016b2a1ef025b302206a982801815951f617776b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "3a65312a_f13cc2c1",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
         "patchSetId": 35
