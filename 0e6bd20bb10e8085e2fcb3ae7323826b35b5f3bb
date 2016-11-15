@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "3a65312a_b686c011",
+        "filename": "docs/specs/specs-template.rst",
+        "patchSetId": 1
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 3276
+      },
+      "writtenOn": "2016-11-15T04:15:42Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "3a65312a_713c4130",
+      "revId": "0e6bd20bb10e8085e2fcb3ae7323826b35b5f3bb",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "3a65312a_b1e2599d",
         "filename": "docs/specs/specs-template.rst",
         "patchSetId": 1
@@ -30,6 +48,24 @@
       "writtenOn": "2016-11-10T15:21:56Z",
       "side": 1,
       "message": "Also, regarding the (c) question from earlier.  [1], and the other openstack templates I\u0027ve seen are covered by the Creative Commons license.  I think we should add the following at the bottom:\n\n.. note::\n\n  This work is licensed under a Creative Commons Attribution 3.0 Unported License.\n  http://creativecommons.org/licenses/by/3.0/legalcode\n\nFurthermore, Just above that, I think we should explicitly reference the template you started from, as follows:\n\n\"This template was derived from [x] and has been modified to support our project.\n\n[1] \u003clink to the template you started from\u003e \"\n\nFinally, we should run it by Phil for conformance.",
+      "revId": "0e6bd20bb10e8085e2fcb3ae7323826b35b5f3bb",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a65312a_f6779839",
+        "filename": "docs/specs/specs-template.rst",
+        "patchSetId": 1
+      },
+      "lineNbr": 173,
+      "author": {
+        "id": 3276
+      },
+      "writtenOn": "2016-11-15T04:15:42Z",
+      "side": 1,
+      "message": "Awaiting reply from Phil.",
+      "parentUuid": "3a65312a_b1e2599d",
       "revId": "0e6bd20bb10e8085e2fcb3ae7323826b35b5f3bb",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
