@@ -50,6 +50,23 @@
       "revId": "4413ade711f3c46b880143ad727057eacde50019",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a65312a_76c0a8e0",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/resources/org/opendaylight/blueprint/vpnmanager.xml",
+        "patchSetId": 3
+      },
+      "lineNbr": 121,
+      "author": {
+        "id": 670
+      },
+      "writtenOn": "2016-11-15T08:51:45Z",
+      "side": 1,
+      "message": "I don\u0027t think this works.. you need ref\u003dinterfaceManager (the id define above)",
+      "revId": "4413ade711f3c46b880143ad727057eacde50019",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
