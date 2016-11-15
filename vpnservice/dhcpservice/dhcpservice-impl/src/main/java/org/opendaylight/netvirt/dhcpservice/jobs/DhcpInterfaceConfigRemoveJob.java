@@ -7,10 +7,10 @@
  */
 package org.opendaylight.netvirt.dhcpservice.jobs;
 
+import com.google.common.util.concurrent.ListenableFuture;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Callable;
-
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.netvirt.dhcpservice.DhcpExternalTunnelManager;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
@@ -19,8 +19,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rev
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rev160406.ParentRefs;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.google.common.util.concurrent.ListenableFuture;
 
 public class DhcpInterfaceConfigRemoveJob implements Callable<List<ListenableFuture<Void>>> {
 
@@ -46,7 +44,8 @@ public class DhcpInterfaceConfigRemoveJob implements Callable<List<ListenableFut
             ParentRefs interfce = iface.getAugmentation(ParentRefs.class);
             if (interfce != null) {
                 LOG.trace("Calling handleTunnelStateDown for tunnelIp {} and interface {}", tunnelIp, iface.getName());
-                dhcpExternalTunnelManager.handleTunnelStateDown(tunnelIp, interfce.getDatapathNodeIdentifier(), futures);
+                dhcpExternalTunnelManager.handleTunnelStateDown(tunnelIp,
+                        interfce.getDatapathNodeIdentifier(), futures);
             }
         }
         return futures;

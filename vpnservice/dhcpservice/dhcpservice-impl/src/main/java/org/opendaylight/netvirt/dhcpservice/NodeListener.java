@@ -59,7 +59,7 @@ public class NodeListener extends AsyncDataTreeChangeListenerBase<Node, NodeList
     protected void add(InstanceIdentifier<Node> identifier, Node add) {
         NodeId nodeId = add.getId();
         String[] node =  nodeId.getValue().split(":");
-        if(node.length < 2) {
+        if (node.length < 2) {
             LOG.warn("Unexpected nodeId {}", nodeId.getValue());
             return;
         }

@@ -20,14 +20,17 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class DhcpDesignatedDpnListener extends AsyncClusteredDataTreeChangeListenerBase<DesignatedSwitchForTunnel, DhcpDesignatedDpnListener> implements AutoCloseable {
+public class DhcpDesignatedDpnListener
+        extends AsyncClusteredDataTreeChangeListenerBase<DesignatedSwitchForTunnel, DhcpDesignatedDpnListener>
+        implements AutoCloseable {
 
     private static final Logger LOG = LoggerFactory.getLogger(DhcpDesignatedDpnListener.class);
 
     private final DhcpExternalTunnelManager dhcpExternalTunnelManager;
     private final DataBroker broker;
 
-    public DhcpDesignatedDpnListener(final DhcpExternalTunnelManager dhcpExternalTunnelManager, final DataBroker broker) {
+    public DhcpDesignatedDpnListener(final DhcpExternalTunnelManager dhcpExternalTunnelManager,
+                                     final DataBroker broker) {
         super(DesignatedSwitchForTunnel.class, DhcpDesignatedDpnListener.class);
         this.dhcpExternalTunnelManager = dhcpExternalTunnelManager;
         this.broker = broker;
@@ -45,8 +48,10 @@ public class DhcpDesignatedDpnListener extends AsyncClusteredDataTreeChangeListe
 
     @Override
     protected void remove(InstanceIdentifier<DesignatedSwitchForTunnel> identifier, DesignatedSwitchForTunnel del) {
-        dhcpExternalTunnelManager.removeFromLocalCache(BigInteger.valueOf(del.getDpId()), del.getTunnelRemoteIpAddress(), del.getElanInstanceName());
-        dhcpExternalTunnelManager.unInstallDhcpFlowsForVms(del.getElanInstanceName(), del.getTunnelRemoteIpAddress(), DhcpServiceUtils.getListOfDpns(broker));
+        dhcpExternalTunnelManager.removeFromLocalCache(BigInteger.valueOf(del.getDpId()),
+                del.getTunnelRemoteIpAddress(), del.getElanInstanceName());
+        dhcpExternalTunnelManager.unInstallDhcpFlowsForVms(del.getElanInstanceName(),
+                del.getTunnelRemoteIpAddress(), DhcpServiceUtils.getListOfDpns(broker));
     }
 
     @Override
@@ -55,7 +60,8 @@ public class DhcpDesignatedDpnListener extends AsyncClusteredDataTreeChangeListe
         BigInteger designatedDpnId = BigInteger.valueOf(update.getDpId());
         IpAddress tunnelRemoteIpAddress = update.getTunnelRemoteIpAddress();
         String elanInstanceName = update.getElanInstanceName();
-        dhcpExternalTunnelManager.removeFromLocalCache(BigInteger.valueOf(original.getDpId()), original.getTunnelRemoteIpAddress(), original.getElanInstanceName());
+        dhcpExternalTunnelManager.removeFromLocalCache(BigInteger.valueOf(original.getDpId()),
+                original.getTunnelRemoteIpAddress(), original.getElanInstanceName());
         dhcpExternalTunnelManager.updateLocalCache(designatedDpnId, tunnelRemoteIpAddress, elanInstanceName);
         List<BigInteger> elanDpns = DhcpServiceUtils.getDpnsForElan(elanInstanceName, broker);
         if (elanDpns == null || elanDpns.isEmpty()) {
@@ -77,7 +83,8 @@ public class DhcpDesignatedDpnListener extends AsyncClusteredDataTreeChangeListe
 
     @Override
     protected InstanceIdentifier<DesignatedSwitchForTunnel> getWildCardPath() {
-        return InstanceIdentifier.create(DesignatedSwitchesForExternalTunnels.class).child(DesignatedSwitchForTunnel.class);
+        return InstanceIdentifier.create(DesignatedSwitchesForExternalTunnels.class)
+                .child(DesignatedSwitchForTunnel.class);
     }
 
     @Override
