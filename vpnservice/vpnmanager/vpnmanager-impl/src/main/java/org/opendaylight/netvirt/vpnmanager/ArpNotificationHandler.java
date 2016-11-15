@@ -34,6 +34,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.rev150712.Neutron;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.subnets.rev150712.subnets.attributes.Subnets;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.subnets.rev150712.subnets.attributes.subnets.Subnet;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.subnets.rev150712.subnets.attributes.subnets.SubnetKey;
+import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.IdManagerService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.arputil.rev160406.OdlArputilService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.arputil.rev160406.SendArpResponseInput;
@@ -68,10 +69,12 @@ public class ArpNotificationHandler implements OdlArputilListener {
     final IElanService elanService;
     ArpMonitoringHandler arpScheduler;
     OdlInterfaceRpcService ifaceMgrRpcService;
+    IInterfaceManager interfaceManager;
 
     public ArpNotificationHandler(DataBroker dataBroker, VpnInterfaceManager vpnIfMgr,
             final IElanService elanService, IdManagerService idManager, OdlArputilService arpManager,
-            ArpMonitoringHandler arpScheduler, OdlInterfaceRpcService ifaceMgrRpcService) {
+            ArpMonitoringHandler arpScheduler, OdlInterfaceRpcService ifaceMgrRpcService,
+                                  IInterfaceManager iInterfaceManager) {
         this.dataBroker = dataBroker;
         vpnIfManager = vpnIfMgr;
         this.elanService = elanService;
@@ -79,6 +82,7 @@ public class ArpNotificationHandler implements OdlArputilListener {
         this.arpManager = arpManager;
         this.arpScheduler = arpScheduler;
         this.ifaceMgrRpcService = ifaceMgrRpcService;
+        this.interfaceManager = iInterfaceManager;
     }
 
     @Override
@@ -139,16 +143,7 @@ public class ArpNotificationHandler implements OdlArputilListener {
                         }
                     }
                 } else {
-                    /* Is this srcInterface a neutron port with the matching fixed-ip */
-                    if (!VpnUtil.isNeutronPortConfigured(dataBroker, srcInterface, srcIP)) {
-                        /* Neutron Port with matching fixed-ip does not exist, so this is a learned IP */
-                        synchronized ((vpnName + ipToQuery).intern()) {
-                            VpnUtil.createVpnPortFixedIpToPort(dataBroker, vpnName, ipToQuery, srcInterface,
-                                    srcMac.getValue(), false, false, true);
-                            addMipAdjacency(vpnName, srcInterface, srcIP, srcMac.getValue());
-
-                        }
-                    }
+                    LearnMacFromArpPackets(vpnName, srcInterface, srcIP, srcMac);
                 }
                 String targetIpToQuery = notification.getDstIpaddress().getIpv4Address().getValue();
                 VpnPortipToPort vpnTargetIpToPort = VpnUtil.getNeutronPortFromVpnPortFixedIp(dataBroker,
@@ -260,15 +255,31 @@ public class ArpNotificationHandler implements OdlArputilListener {
                         }
                     }
                 } else {
-                    /* Is this srcInterface a neutron port with the matching fixed-ip */
-                    if (!VpnUtil.isNeutronPortConfigured(dataBroker, srcInterface, srcIP)) {
-                        /* Neutron Port with matching fixed-ip does not exist, so this is a learned IP */
-                        synchronized ((vpnName + ipToQuery).intern()) {
-                            VpnUtil.createVpnPortFixedIpToPort(dataBroker, vpnName, ipToQuery, srcInterface,
-                                    srcMac.getValue(), false, false, true);
-                            addMipAdjacency(vpnName, srcInterface, srcIP, srcMac.getValue());
-                        }
-                    }
+                    LearnMacFromArpPackets(vpnName, srcInterface, srcIP, srcMac);
+                }
+            }
+        }
+    }
+
+    private void LearnMacFromArpPackets(String vpnName, String srcInterface,
+                                        IpAddress srcIP, PhysAddress srcMac) {
+        String ipToQuery = srcIP.getIpv4Address().getValue();
+        /* Traffic coming from external interfaces should always be learnt */
+        if (interfaceManager.isExternalInterface(srcInterface)) {
+            synchronized ((vpnName + ipToQuery).intern()) {
+                VpnUtil.createVpnPortFixedIpToPort(dataBroker, vpnName, ipToQuery, srcInterface,
+                        srcMac.getValue(), false, false, true);
+                addMipAdjacency(vpnName, srcInterface, srcIP, srcMac.getValue());
+            }
+        } else {
+            /* Is this srcInterface a neutron port with the matching fixed-ip */
+            if (!VpnUtil.isNeutronPortConfigured(dataBroker, srcInterface, srcIP)) {
+                /* Neutron Port with matching fixed-ip does not exist, so this is a learned IP */
+                synchronized ((vpnName + ipToQuery).intern()) {
+                    VpnUtil.createVpnPortFixedIpToPort(dataBroker, vpnName, ipToQuery, srcInterface,
+                            srcMac.getValue(), false, false, true);
+                    addMipAdjacency(vpnName, srcInterface, srcIP, srcMac.getValue());
+
                 }
             }
         }
