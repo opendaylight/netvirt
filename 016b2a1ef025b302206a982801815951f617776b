@@ -37,6 +37,24 @@
     },
     {
       "key": {
+        "uuid": "3a65312a_f11b221a",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 35
+      },
+      "lineNbr": 538,
+      "author": {
+        "id": 5350
+      },
+      "writtenOn": "2016-11-15T11:15:28Z",
+      "side": 1,
+      "message": "InterVpnLink installs flows in 20, with higher priority than regular ones, in order to \u0027kidnap\u0027 packets and apply different services (like service chaining, etc,) instead of the regular L3VPN flow.\n\nIt also installs extra flows in 21 to do the actual switching from a L3VPN to the other one.",
+      "parentUuid": "3a65312a_160df43e",
+      "revId": "016b2a1ef025b302206a982801815951f617776b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "3a65312a_f13cc2c1",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
         "patchSetId": 35
@@ -48,6 +66,24 @@
       "writtenOn": "2016-11-15T10:21:54Z",
       "side": 1,
       "message": "since task status is set in a thread, there is no guarantee that it always returns with correct state. So do you need log this messages based on task status ?",
+      "revId": "016b2a1ef025b302206a982801815951f617776b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a65312a_510496bf",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 35
+      },
+      "lineNbr": 577,
+      "author": {
+        "id": 5350
+      },
+      "writtenOn": "2016-11-15T11:15:28Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "3a65312a_f13cc2c1",
       "revId": "016b2a1ef025b302206a982801815951f617776b",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -71,6 +107,24 @@
     },
     {
       "key": {
+        "uuid": "3a65312a_f1f4c2d0",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 35
+      },
+      "lineNbr": 803,
+      "author": {
+        "id": 5350
+      },
+      "writtenOn": "2016-11-15T11:15:28Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "3a65312a_31475a4d",
+      "revId": "016b2a1ef025b302206a982801815951f617776b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "3a65312a_315e3a13",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
         "patchSetId": 35
@@ -82,6 +136,24 @@
       "writtenOn": "2016-11-15T10:21:54Z",
       "side": 1,
       "message": "why did you add arp flows back to the code ? It\u0027s not required now due to default flows in my mac and arp responder tables.",
+      "revId": "016b2a1ef025b302206a982801815951f617776b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a65312a_11fa1ebd",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 35
+      },
+      "lineNbr": 854,
+      "author": {
+        "id": 5350
+      },
+      "writtenOn": "2016-11-15T11:15:28Z",
+      "side": 1,
+      "message": "Must have been a mistake in a rebase. In fact I remember I have explicitly removed this method from my commit sometime, but feels like it keeps coming.\nRemoved again.",
+      "parentUuid": "3a65312a_315e3a13",
       "revId": "016b2a1ef025b302206a982801815951f617776b",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
