@@ -16,6 +16,40 @@
       "revId": "4413ade711f3c46b880143ad727057eacde50019",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a65312a_b6a3604e",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/ArpNotificationHandler.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 264,
+      "author": {
+        "id": 670
+      },
+      "writtenOn": "2016-11-15T08:49:59Z",
+      "side": 1,
+      "message": "cosmetic function name - learnMacFromArpPackets",
+      "revId": "4413ade711f3c46b880143ad727057eacde50019",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a65312a_56948ce1",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/ArpNotificationHandler.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 268,
+      "author": {
+        "id": 670
+      },
+      "writtenOn": "2016-11-15T08:49:59Z",
+      "side": 1,
+      "message": "why duplicate the code here in both if and else?\nwhy not if (interfaceManager.isExternalInterface(srcInterface) || !VpnUtil.isNeutronPortConfigured(dataBroker, srcInterface, srcIP)) ?",
+      "revId": "4413ade711f3c46b880143ad727057eacde50019",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
