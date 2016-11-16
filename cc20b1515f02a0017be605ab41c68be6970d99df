@@ -16,6 +16,24 @@
       "revId": "cc20b1515f02a0017be605ab41c68be6970d99df",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a65312a_6d3572d9",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 704,
+      "author": {
+        "id": 6177
+      },
+      "writtenOn": "2016-11-16T16:53:28Z",
+      "side": 1,
+      "message": "The external interface\u0027s vpnInterface doesn\u0027t have any adjacencies, and therefore missing the operational vpnInterface.\n\nThis is causing leftovers in Service Bindings when removing the external interface, and therefore causing the bug in the description",
+      "parentUuid": "3a65312a_122179b4",
+      "revId": "cc20b1515f02a0017be605ab41c68be6970d99df",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
