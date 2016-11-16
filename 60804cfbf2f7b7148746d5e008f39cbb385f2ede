@@ -104,6 +104,23 @@
     },
     {
       "key": {
+        "uuid": "3a65312a_b7bb57e4",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/ArpNotificationHandler.java",
+        "patchSetId": 9
+      },
+      "lineNbr": 290,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2016-11-16T12:30:50Z",
+      "side": 1,
+      "message": "Why do you assume the port can\u0027t be null?",
+      "revId": "60804cfbf2f7b7148746d5e008f39cbb385f2ede",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "3a65312a_dce9da81",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/SubnetMacHandler.java",
         "patchSetId": 9
