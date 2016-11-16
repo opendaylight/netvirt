@@ -347,7 +347,7 @@ public class VpnInstanceListener extends AsyncDataTreeChangeListenerBase<VpnInst
             futures.add(writeConfigTxn.submit());
             ListenableFuture<List<Void>> listenableFuture = Futures.allAsList(futures);
             Futures.addCallback(listenableFuture,
-                    new AddBgpVrfWorker(config , vpnInstance.getVpnInstanceName()));
+                    new PostAddVpnInstanceWorker(config , vpnInstance.getVpnInstanceName()));
             return futures;
         }
     }
@@ -455,11 +455,11 @@ public class VpnInstanceListener extends AsyncDataTreeChangeListenerBase<VpnInst
     }
 
 
-    private class AddBgpVrfWorker implements FutureCallback<List<Void>> {
+    private class PostAddVpnInstanceWorker implements FutureCallback<List<Void>> {
         VpnAfConfig config;
         String vpnName;
 
-        public AddBgpVrfWorker(VpnAfConfig config, String vpnName)  {
+        public PostAddVpnInstanceWorker(VpnAfConfig config, String vpnName)  {
             this.config = config;
             this.vpnName = vpnName;
         }
@@ -470,38 +470,49 @@ public class VpnInstanceListener extends AsyncDataTreeChangeListenerBase<VpnInst
          */
         @Override
         public void onSuccess(List<Void> voids) {
+            /*
+            if rd is null, then its either a router vpn instance (or) a vlan external network vpn instance.
+            if rd is non-null, then it is a bgpvpn instance
+             */
             String rd = config.getRouteDistinguisher();
-            if (rd != null) {
-                List<VpnTarget> vpnTargetList = config.getVpnTargets().getVpnTarget();
+            if ((rd == null) || addBgpVrf(voids)) {
+                notifyTask();
+            }
+        }
 
-                List<String> ertList = new ArrayList<String>();
-                List<String> irtList = new ArrayList<String>();
+        private boolean addBgpVrf(List<Void> voids) {
+            String rd = config.getRouteDistinguisher();
+            List<VpnTarget> vpnTargetList = config.getVpnTargets().getVpnTarget();
 
-                for (VpnTarget vpnTarget : vpnTargetList) {
-                    if (vpnTarget.getVrfRTType() == VpnTarget.VrfRTType.ExportExtcommunity) {
-                        ertList.add(vpnTarget.getVrfRTValue());
-                    }
-                    if (vpnTarget.getVrfRTType() == VpnTarget.VrfRTType.ImportExtcommunity) {
-                        irtList.add(vpnTarget.getVrfRTValue());
-                    }
-                    if (vpnTarget.getVrfRTType() == VpnTarget.VrfRTType.Both) {
-                        ertList.add(vpnTarget.getVrfRTValue());
-                        irtList.add(vpnTarget.getVrfRTValue());
-                    }
+            List<String> ertList = new ArrayList<String>();
+            List<String> irtList = new ArrayList<String>();
+
+            for (VpnTarget vpnTarget : vpnTargetList) {
+                if (vpnTarget.getVrfRTType() == VpnTarget.VrfRTType.ExportExtcommunity) {
+                    ertList.add(vpnTarget.getVrfRTValue());
                 }
-
-                try {
-                    bgpManager.addVrf(rd, irtList, ertList);
-                } catch (Exception e) {
-                    LOG.error("Exception when adding VRF to BGP", e);
-                    return;
+                if (vpnTarget.getVrfRTType() == VpnTarget.VrfRTType.ImportExtcommunity) {
+                    irtList.add(vpnTarget.getVrfRTValue());
                 }
-                notifyTaskIfRequired(vpnName, vpnInterfaceManager.getvpnInstanceToIdSynchronizerMap());
-                notifyTaskIfRequired(vpnName, vpnInterfaceManager.getvpnInstanceOpDataSynchronizerMap());
-                if (rd != null) {
-                    vpnInterfaceManager.handleVpnsExportingRoutes(this.vpnName, rd);
+                if (vpnTarget.getVrfRTType() == VpnTarget.VrfRTType.Both) {
+                    ertList.add(vpnTarget.getVrfRTValue());
+                    irtList.add(vpnTarget.getVrfRTValue());
                 }
             }
+
+            try {
+                bgpManager.addVrf(rd, irtList, ertList);
+            } catch (Exception e) {
+                LOG.error("Exception when adding VRF to BGP", e);
+                return false;
+            }
+            vpnInterfaceManager.handleVpnsExportingRoutes(this.vpnName, rd);
+            return true;
+        }
+
+        private void notifyTask() {
+            notifyTaskIfRequired(vpnName, vpnInterfaceManager.getvpnInstanceToIdSynchronizerMap());
+            notifyTaskIfRequired(vpnName, vpnInterfaceManager.getvpnInstanceOpDataSynchronizerMap());
         }
         /**
          *
