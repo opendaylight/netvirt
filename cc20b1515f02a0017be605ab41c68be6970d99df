@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3a65312a_122179b4",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 704,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-11-16T16:38:32Z",
+      "side": 1,
+      "message": "what does this dummy VPN Interface represent?",
+      "revId": "cc20b1515f02a0017be605ab41c68be6970d99df",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
