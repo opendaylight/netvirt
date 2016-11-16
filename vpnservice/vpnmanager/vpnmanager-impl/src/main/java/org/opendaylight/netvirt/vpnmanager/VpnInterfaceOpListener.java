@@ -109,10 +109,13 @@ public class VpnInterfaceOpListener extends AsyncDataTreeChangeListenerBase<VpnI
             LOG.trace("VpnInterfaceOpListener removed: interface name {} rd {} vpnName {}",
                     interfaceName, rd, vpnName);
 
-            if (vpnInstOp != null) {
+            Adjacencies adjs = del.getAugmentation(Adjacencies.class);
+            List<Adjacency> adjList = (adjs != null) ? adjs.getAdjacency() : null;
+
+            if (vpnInstOp != null && adjList != null && adjList.size() > 0) {
                 // Vpn Interface removed => No more adjacencies from it.
                 // Hence clean up interface from vpn-dpn-interface list.
-                Adjacency adjacency = del.getAugmentation(Adjacencies.class).getAdjacency().get(0);
+                Adjacency adjacency = adjs.getAdjacency().get(0);
                 List<Prefixes> prefixToInterface = new ArrayList<>();
                 Optional<Prefixes> prefix = VpnUtil.read(dataBroker, LogicalDatastoreType.OPERATIONAL,
                         VpnUtil.getPrefixToInterfaceIdentifier(vpnInstOp.getVpnId(),
@@ -201,8 +204,11 @@ public class VpnInterfaceOpListener extends AsyncDataTreeChangeListenerBase<VpnI
             LOG.trace("VpnInterfaceOpListener updated: interface name {} original rd {} original vpnName {}",
                     interfaceName, rd, original.getVpnInstanceName());
 
-            if (vpnInstOp != null) {
-                Adjacency adjacency = original.getAugmentation(Adjacencies.class).getAdjacency().get(0);
+            Adjacencies adjs = original.getAugmentation(Adjacencies.class);
+            List<Adjacency> adjList = (adjs != null) ? adjs.getAdjacency() : null;
+
+            if (vpnInstOp != null && adjList != null && adjList.size() > 0) {
+                Adjacency adjacency = adjs.getAdjacency().get(0);
                 List<Prefixes> prefixToInterfaceList = new ArrayList<>();
                 Optional<Prefixes> prefixToInterface = VpnUtil.read(dataBroker, LogicalDatastoreType.OPERATIONAL,
                         VpnUtil.getPrefixToInterfaceIdentifier(vpnInstOp.getVpnId(),

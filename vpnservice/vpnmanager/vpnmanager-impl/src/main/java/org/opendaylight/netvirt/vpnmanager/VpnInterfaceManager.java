@@ -673,9 +673,8 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
 
             Adjacencies aug = VpnUtil.getVpnInterfaceAugmentation(value);
 
-            VpnInterface opInterface = VpnUtil.getVpnInterface(interfaceName, vpnName, aug, dpnId, Boolean.FALSE);
-            InstanceIdentifier<VpnInterface> interfaceId = VpnUtil.getVpnInterfaceIdentifier(interfaceName);
-            writeOperTxn.put(LogicalDatastoreType.OPERATIONAL, interfaceId, opInterface, true);
+            addVpnInterfaceToOperational(vpnName, interfaceName, dpnId, aug, writeOperTxn);
+
             long vpnId = VpnUtil.getVpnId(dataBroker, vpnName);
 
             for (Adjacency nextHop : aug.getAdjacency()) {
@@ -700,6 +699,17 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                 }
             }
         }
+        else
+        {
+            addVpnInterfaceToOperational(vpnName, interfaceName, dpnId, null, writeOperTxn);
+        }
+    }
+
+    private void addVpnInterfaceToOperational(String vpnName, String interfaceName, BigInteger dpnId, Adjacencies aug,
+            WriteTransaction writeOperTxn) {
+        VpnInterface opInterface = VpnUtil.getVpnInterface(interfaceName, vpnName, aug, dpnId, Boolean.FALSE);
+        InstanceIdentifier<VpnInterface> interfaceId = VpnUtil.getVpnInterfaceIdentifier(interfaceName);
+        writeOperTxn.put(LogicalDatastoreType.OPERATIONAL, interfaceId, opInterface, true);
     }
 
     private List<VpnInstanceOpDataEntry> getVpnsImportingMyRoute(final String vpnName) {
@@ -1310,10 +1320,12 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
         final String newVpnName = update.getVpnInstanceName();
         final BigInteger dpnId = update.getDpnId();
         final UpdateData updateData = new UpdateData(identifier, original, update);
-        final List<Adjacency> oldAdjs = original.getAugmentation(Adjacencies.class).getAdjacency() != null ? original
-                .getAugmentation(Adjacencies.class).getAdjacency() : new ArrayList<Adjacency>();
-        final List<Adjacency> newAdjs = update.getAugmentation(Adjacencies.class).getAdjacency() != null ? update
-                .getAugmentation(Adjacencies.class).getAdjacency() : new ArrayList<Adjacency>();
+        final Adjacencies origAdjs = original.getAugmentation(Adjacencies.class);
+        final List<Adjacency> oldAdjs = (origAdjs != null && origAdjs.getAdjacency() != null) ? 
+                origAdjs.getAdjacency() : new ArrayList<Adjacency>();
+        final Adjacencies updateAdjs = update.getAugmentation(Adjacencies.class);
+        final List<Adjacency> newAdjs = (updateAdjs != null && updateAdjs.getAdjacency() != null) ?
+                updateAdjs.getAdjacency() : new ArrayList<Adjacency>();
 
         //handles switching between <internal VPN - external VPN>
         if (!oldVpnName.equals(newVpnName)) {
@@ -1365,12 +1377,12 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                         updData.getOriginal().getName());
             }
             for (UpdateData updData : processQueue) {
-                final List<Adjacency> oldAdjs = updData.getOriginal().getAugmentation(Adjacencies.class).
-                        getAdjacency() != null ? updData.getOriginal().getAugmentation(Adjacencies.class).getAdjacency()
-                        : new ArrayList<Adjacency>();
-                final List<Adjacency> newAdjs = updData.getUpdate().getAugmentation(Adjacencies.class).
-                        getAdjacency() != null ? updData.getUpdate().getAugmentation(Adjacencies.class).getAdjacency()
-                        : new ArrayList<Adjacency>();
+                final Adjacencies origAdjs = updData.getOriginal().getAugmentation(Adjacencies.class);
+                final List<Adjacency> oldAdjs = (origAdjs != null && origAdjs.getAdjacency() != null) ?
+                        origAdjs.getAdjacency() : new ArrayList<Adjacency>();
+                final Adjacencies updateAdjs = updData.getUpdate().getAugmentation(Adjacencies.class);
+                final List<Adjacency> newAdjs = (updateAdjs != null && updateAdjs.getAdjacency() != null) ?
+                        updateAdjs.getAdjacency() : new ArrayList<Adjacency>();
                 addVpnInterface(updData.getIdentifier(), updData.getUpdate(), oldAdjs, newAdjs);
                 LOG.trace("Processed Add for update on VPNInterface {} upon VPN swap",
                         updData.getUpdate().getName());
