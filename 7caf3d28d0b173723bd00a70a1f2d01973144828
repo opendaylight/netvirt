@@ -16,6 +16,23 @@
       "revId": "7caf3d28d0b173723bd00a70a1f2d01973144828",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a65312a_f7b14fe2",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnManagerImpl.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2016-11-16T13:01:09Z",
+      "side": 1,
+      "message": "Why this service isn\u0027t created like any other service using blueprint bean? who is calling the VpnOpInstanceCacheManager.close() method?",
+      "revId": "7caf3d28d0b173723bd00a70a1f2d01973144828",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
