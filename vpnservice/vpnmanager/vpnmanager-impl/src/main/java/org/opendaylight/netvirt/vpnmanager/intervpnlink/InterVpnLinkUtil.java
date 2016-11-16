@@ -22,6 +22,7 @@ import org.opendaylight.netvirt.bgpmanager.api.IBgpManager;
 import org.opendaylight.netvirt.fibmanager.api.IFibManager;
 import org.opendaylight.netvirt.fibmanager.api.RouteOrigin;
 import org.opendaylight.netvirt.vpnmanager.VpnConstants;
+import org.opendaylight.netvirt.vpnmanager.VpnFootprintService;
 import org.opendaylight.netvirt.vpnmanager.VpnUtil;
 import org.opendaylight.netvirt.vpnmanager.api.intervpnlink.InterVpnLinkCache;
 import org.opendaylight.netvirt.vpnmanager.api.intervpnlink.InterVpnLinkDataComposite;
@@ -95,25 +96,43 @@ public class InterVpnLinkUtil {
                 .build();
     }
 
+    public static String buildInterVpnLinkIfaceName(String vpnName, BigInteger dpnId) {
+        return String.format("InterVpnLink.%s.%s", vpnName, dpnId.toString());
+    }
+
     /**
      * Updates VpnToDpn map by adding a fake VpnInterface related to an
-     * InterVpnLink in the corresponding DPNs
+     * InterVpnLink in the corresponding DPNs. If the fake iface is the
+     * first one on the any of the specified DPNs, the installation of
+     * Fib flows on that DPN will be triggered
      *
-     * @param broker dataBroker service reference
+     * @param vpnFootprintService VpnFootprintService service reference
+     * @param vpnName Name of the VPN to which the fake interfaces belong
      * @param dpnList List of DPNs where the fake InterVpnLink interface must
      *     be added
-     * @param vpnUuid UUID of the VPN to which the fake interfaces belong
      */
-    public static void updateVpnToDpnMap(DataBroker broker, List<BigInteger> dpnList, Uuid vpnUuid) {
-        String rd = VpnUtil.getVpnRd(broker, vpnUuid.getValue());
-        InstanceIdentifier<VpnInstanceOpDataEntry> id = VpnUtil.getVpnInstanceOpDataIdentifier(rd);
-        Optional<VpnInstanceOpDataEntry> vpnInstOpData = MDSALUtil.read(broker, LogicalDatastoreType.OPERATIONAL, id);
-        if ( vpnInstOpData.isPresent() ) {
-            for (BigInteger dpnId : dpnList) {
-                String linkIfaceName = String.format("InterVpnLink.%s.%s", vpnUuid.getValue(), dpnId.toString());
-                VpnUtil.mergeDpnInVpnToDpnMap(broker, vpnInstOpData.get(), dpnId, Arrays.asList(linkIfaceName));
-            }
+    public static void updateVpnFootprint(VpnFootprintService vpnFootprintService, String vpnName,
+                                          List<BigInteger> dpnList) {
+        LOG.debug("updateVpnFootprint (add):  vpn={}  dpnList={}", vpnName, dpnList);
+        for ( BigInteger dpnId : dpnList ) {
+            String ifaceName = buildInterVpnLinkIfaceName(vpnName, dpnId);
+            vpnFootprintService.updateVpnToDpnMapping(dpnId, vpnName, ifaceName, true /* addition */);
         }
+    }
+
+    /**
+     * Updates VpnToDpn map by removing the fake VpnInterface related to an
+     * InterVpnLink in the corresponding DPNs.
+     *
+     * @param vpnFootprintService VpnFootprintService service reference
+     * @param vpnName Name of the VPN to which the fake interfaces belong
+     * @param dpnId DPN where the fake InterVpnLink interface must be removed from
+     */
+    public static void removeIVpnLinkIfaceFromVpnFootprint(VpnFootprintService vpnFootprintService,
+                                                           String vpnName, BigInteger dpnId) {
+        String ifaceName = buildInterVpnLinkIfaceName(vpnName, dpnId);
+        LOG.debug("updateVpnFootprint (remove):  vpn={}  dpn={}  ifaceName={}", vpnName, dpnId, ifaceName);
+        vpnFootprintService.updateVpnToDpnMapping(dpnId, vpnName, ifaceName, false /* removal */);
     }
 
 
