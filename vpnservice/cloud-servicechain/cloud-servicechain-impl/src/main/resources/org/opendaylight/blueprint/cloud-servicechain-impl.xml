@@ -6,15 +6,13 @@
     <reference id="dataBroker" interface="org.opendaylight.controller.md.sal.binding.api.DataBroker"
                odl:type="pingpong" />
     <reference id="mdsalManager" interface="org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager" />
-
-    <odl:rpc-service id="fibRpcService"
-                     interface="org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fib.rpc.rev160121.FibRpcService"/>
+    <reference id="vpnManager" interface="org.opendaylight.netvirt.vpnmanager.api.IVpnManager" />
 
     <bean id="vpnServiceChainHandler" class="org.opendaylight.netvirt.cloudservicechain.VPNServiceChainHandler"
           init-method="init" destroy-method="close">
         <argument ref="dataBroker" />
         <argument ref="mdsalManager" />
-        <argument ref="fibRpcService" />
+        <argument ref="vpnManager" />
     </bean>
 
     <bean id="elanServiceChainHandler" class="org.opendaylight.netvirt.cloudservicechain.ElanServiceChainHandler">
