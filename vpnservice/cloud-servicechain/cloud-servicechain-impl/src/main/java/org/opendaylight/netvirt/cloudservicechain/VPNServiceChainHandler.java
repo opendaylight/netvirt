@@ -25,10 +25,10 @@ import org.opendaylight.netvirt.cloudservicechain.jobs.AddVpnPseudoPortDataJob;
 import org.opendaylight.netvirt.cloudservicechain.jobs.RemoveVpnPseudoPortDataJob;
 import org.opendaylight.netvirt.cloudservicechain.utils.VpnPseudoPortCache;
 import org.opendaylight.netvirt.cloudservicechain.utils.VpnServiceChainUtils;
+import org.opendaylight.netvirt.vpnmanager.api.IVpnManager;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.FlowId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.tables.table.Flow;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.tables.table.FlowBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fib.rpc.rev160121.FibRpcService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.VrfEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.VpnInstanceOpData;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.VpnInstanceOpDataEntry;
@@ -45,12 +45,13 @@ public class VPNServiceChainHandler implements AutoCloseable {
 
     private final IMdsalApiManager mdsalManager;
     private final DataBroker broker;
-    private final FibRpcService fibRpcService;
+    private final IVpnManager vpnManager;
 
-    public VPNServiceChainHandler(final DataBroker db, IMdsalApiManager mdsalManager, FibRpcService fibRpcSrv) {
+    public VPNServiceChainHandler(final DataBroker db, final IMdsalApiManager mdsalManager,
+                                  final IVpnManager vpnManager) {
         this.broker = db;
         this.mdsalManager = mdsalManager;
-        this.fibRpcService = fibRpcSrv;
+        this.vpnManager = vpnManager;
     }
 
     public void init() {
@@ -220,15 +221,8 @@ public class VPNServiceChainHandler implements AutoCloseable {
             // located, because in case the last real VpnInterface is removed from that DPN, we still need
             // the Fib table programmed there
             String intfName = buildVpnPseudoPortIfName(dpnId, scfTag, servChainTag, vpnPseudoLportTag);
-            if (addOrRemove == NwConstants.ADD_FLOW ) {
-                // Including this DPN in the VPN footprint even if there is no VpnInterface here.
-                // This is needed so that FibManager maintains the FIB table in this DPN
-                VpnServiceChainUtils.updateMappingDbs(broker, fibRpcService, vpnInstance.getVpnId(),
-                                                      BigInteger.valueOf(dpnId), intfName, vpnName);
-            } else {
-                VpnServiceChainUtils.removeFromMappingDbs(broker, fibRpcService, vpnInstance.getVpnId(),
-                                                          BigInteger.valueOf(dpnId), intfName, vpnName);
-            }
+            vpnManager.updateVpnFootprint(BigInteger.valueOf(dpnId), vpnName, intfName,
+                                          (addOrRemove == NwConstants.ADD_FLOW) );
         }
         LOG.info("L3VPN: Service Chaining programScfToVpnPipeline [End]");
     }

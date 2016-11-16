@@ -46,8 +46,8 @@ import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.netvirt.cloudservicechain.matchers.FlowEntityMatcher;
 import org.opendaylight.netvirt.cloudservicechain.matchers.FlowMatcher;
 import org.opendaylight.netvirt.cloudservicechain.utils.VpnServiceChainUtils;
+import org.opendaylight.netvirt.vpnmanager.api.IVpnManager;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.tables.table.Flow;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fib.rpc.rev160121.FibRpcService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.fibentries.VrfTables;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.fibentries.VrfTablesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.fibentries.VrfTablesKey;
@@ -92,7 +92,7 @@ public class VPNServiceChainHandlerTest {
     private VPNServiceChainHandler vpnsch; // SUT
 
     @Mock DataBroker broker;
-    @Mock FibRpcService fibRpcService;
+    @Mock IVpnManager vpnManager;
     @Mock ReadOnlyTransaction readTx;
     @Mock WriteTransaction writeTx;
     @Mock IMdsalApiManager mdsalMgr;
@@ -113,7 +113,7 @@ public class VPNServiceChainHandlerTest {
         when(broker.newWriteOnlyTransaction()).thenReturn(writeTx);
         CheckedFuture chkdFuture = mock(CheckedFuture.class);
         when(writeTx.submit()).thenReturn(chkdFuture);
-        vpnsch = new VPNServiceChainHandler(broker, mdsalMgr, fibRpcService);
+        vpnsch = new VPNServiceChainHandler(broker, mdsalMgr, vpnManager);
     }
 
     @After
