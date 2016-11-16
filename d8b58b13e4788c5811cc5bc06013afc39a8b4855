@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3a65312a_d271c1e1",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInstanceListener.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 472,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-11-16T16:20:27Z",
+      "side": 1,
+      "message": "We can code here as \n\nonSuccess()\n/*\n  if rd is null, then its either a router vpn instance (or) \n  a vlan external network vpn instance.\n\n  if rd is non-null, then it is a bgpvpn instance\n */\nif ((rd \u003d\u003d null) || addBgpVrf()) {\n   notify...\n}\n\n\naddBgpVrf() {\n// remove rd !\u003d null checks here \n}",
+      "revId": "d8b58b13e4788c5811cc5bc06013afc39a8b4855",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
