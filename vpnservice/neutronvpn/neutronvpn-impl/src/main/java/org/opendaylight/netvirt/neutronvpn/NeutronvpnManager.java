@@ -697,7 +697,8 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
                         .setVpnInstanceName(vpnId.getValue());
                 LOG.debug("Updating vpn interface {}", infName);
                 if (!isBeingAssociated) {
-                    List<Adjacency> adjacencyList = vpnIfBuilder.getAugmentation(Adjacencies.class).getAdjacency();
+                    Adjacencies adjs = vpnIfBuilder.getAugmentation(Adjacencies.class);
+                    List<Adjacency> adjacencyList = (adjs != null) ? adjs.getAdjacency() : new ArrayList<Adjacency>();
                     Iterator<Adjacency> adjacencyIter = adjacencyList.iterator();
                     while (adjacencyIter.hasNext()) {
                         Adjacency adjacency = adjacencyIter.next();
