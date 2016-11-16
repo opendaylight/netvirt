@@ -17,7 +17,6 @@ import static org.mockito.Mockito.when;
 
 import com.google.common.base.Optional;
 import com.google.common.util.concurrent.CheckedFuture;
-
 import java.math.BigInteger;
 import java.util.Collections;
 import java.util.List;
@@ -46,8 +45,8 @@ import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.netvirt.cloudservicechain.matchers.FlowEntityMatcher;
 import org.opendaylight.netvirt.cloudservicechain.matchers.FlowMatcher;
 import org.opendaylight.netvirt.cloudservicechain.utils.VpnServiceChainUtils;
+import org.opendaylight.netvirt.vpnmanager.api.IVpnManager;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.tables.table.Flow;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fib.rpc.rev160121.FibRpcService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.fibentries.VrfTables;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.fibentries.VrfTablesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.fibentries.VrfTablesKey;
@@ -92,10 +91,10 @@ public class VPNServiceChainHandlerTest {
     private VPNServiceChainHandler vpnsch; // SUT
 
     @Mock DataBroker broker;
-    @Mock FibRpcService fibRpcService;
     @Mock ReadOnlyTransaction readTx;
     @Mock WriteTransaction writeTx;
     @Mock IMdsalApiManager mdsalMgr;
+    @Mock IVpnManager vpnManager;
 
 
     @BeforeClass
@@ -113,7 +112,9 @@ public class VPNServiceChainHandlerTest {
         when(broker.newWriteOnlyTransaction()).thenReturn(writeTx);
         CheckedFuture chkdFuture = mock(CheckedFuture.class);
         when(writeTx.submit()).thenReturn(chkdFuture);
-        vpnsch = new VPNServiceChainHandler(broker, mdsalMgr, fibRpcService);
+
+        // SUT
+        vpnsch = new VPNServiceChainHandler(broker, mdsalMgr, vpnManager);
     }
 
     @After
@@ -296,12 +297,10 @@ public class VPNServiceChainHandlerTest {
             VpnServiceChainUtils.buildLPortDispFromScfToL3VpnFlow(VPN_ID, DPN_ID, LPORT_TAG, NwConstants.ADD_FLOW);
         assert (new FlowMatcher(expectedLportDispatcherFlowEntity).matches(installedFlowsCaptured.get(0)));
 
-        LOG.info("second call = {}", installedFlowsCaptured.get(1));
-
         // Verifying VpnToDpn update
-        verify(writeTx, times(1)).put(eq(LogicalDatastoreType.OPERATIONAL),
-                                      argThat(isIIdType(VpnInterfaces.class)),
-                                      anyObject(), eq(Boolean.TRUE));
+        String vpnPseudoPortIfaceName =
+            VpnServiceChainUtils.buildVpnPseudoPortIfName(DPN_ID.longValue(), SCF_TAG, SERV_CHAIN_TAG, LPORT_TAG);
+        verify(vpnManager).updateVpnFootprint(eq(DPN_ID), eq(VPN_NAME), eq(vpnPseudoPortIfaceName), eq(Boolean.TRUE));
     }
 
 

@@ -18,6 +18,7 @@ import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFaile
 import org.opendaylight.genius.datastoreutils.DataStoreJobCoordinator;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
+import org.opendaylight.netvirt.vpnmanager.VpnFootprintService;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.NetworkTopology;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.NodeId;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.TopologyId;
@@ -52,12 +53,15 @@ public class InterVpnLinkNodeListener extends AsyncDataTreeChangeListenerBase<No
 
     private final DataBroker dataBroker;
     private final IMdsalApiManager mdsalManager;
+    private final VpnFootprintService vpnFootprintService;
 
 
-    public InterVpnLinkNodeListener(final DataBroker dataBroker, final IMdsalApiManager mdsalMgr) {
+    public InterVpnLinkNodeListener(final DataBroker dataBroker, final IMdsalApiManager mdsalMgr,
+                                    final VpnFootprintService vpnFootprintService) {
         super(Node.class, InterVpnLinkNodeListener.class);
         this.dataBroker = dataBroker;
-        mdsalManager = mdsalMgr;
+        this.mdsalManager = mdsalMgr;
+        this.vpnFootprintService = vpnFootprintService;
     }
 
     public void start() {
@@ -88,7 +92,7 @@ public class InterVpnLinkNodeListener extends AsyncDataTreeChangeListenerBase<No
         BigInteger dpId = new BigInteger(node[1]);
         DataStoreJobCoordinator coordinator = DataStoreJobCoordinator.getInstance();
         coordinator.enqueueJob("IVpnLink" + dpId.toString(),
-                               new InterVpnLinkNodeAddTask(dataBroker, mdsalManager, dpId));
+                               new InterVpnLinkNodeAddTask(dataBroker, mdsalManager, vpnFootprintService, dpId));
     }
 
     @Override
