@@ -38,6 +38,7 @@ import org.opendaylight.netvirt.bgpmanager.api.IBgpManager;
 import org.opendaylight.netvirt.fibmanager.api.IFibManager;
 import org.opendaylight.netvirt.fibmanager.api.RouteOrigin;
 import org.opendaylight.netvirt.vpnmanager.VpnConstants;
+import org.opendaylight.netvirt.vpnmanager.VpnFootprintService;
 import org.opendaylight.netvirt.vpnmanager.VpnUtil;
 import org.opendaylight.netvirt.vpnmanager.api.intervpnlink.InterVpnLinkCache;
 import org.opendaylight.netvirt.vpnmanager.api.intervpnlink.InterVpnLinkDataComposite;
@@ -100,6 +101,7 @@ public class InterVpnLinkListener extends AsyncDataTreeChangeListenerBase<InterV
     private final IBgpManager bgpManager;
     private final IFibManager fibManager;
     private final NotificationPublishService notificationsService;
+    private final VpnFootprintService vpnFootprintService;
 
     // A couple of listener in order to maintain the InterVpnLink cache
     private InterVpnLinkCacheFeeder iVpnLinkCacheFeeder;
@@ -108,7 +110,8 @@ public class InterVpnLinkListener extends AsyncDataTreeChangeListenerBase<InterV
 
     public InterVpnLinkListener(final DataBroker dataBroker, final IdManagerService idManager,
                                 final IMdsalApiManager mdsalManager, final IBgpManager bgpManager,
-                                final IFibManager fibManager, final NotificationPublishService notifService) {
+                                final IFibManager fibManager, final NotificationPublishService notifService,
+                                final VpnFootprintService vpnFootprintService) {
         super(InterVpnLink.class, InterVpnLinkListener.class);
         this.dataBroker = dataBroker;
         this.idManager = idManager;
@@ -116,6 +119,7 @@ public class InterVpnLinkListener extends AsyncDataTreeChangeListenerBase<InterV
         this.bgpManager = bgpManager;
         this.fibManager = fibManager;
         this.notificationsService = notifService;
+        this.vpnFootprintService = vpnFootprintService;
     }
 
     public void start() {
@@ -136,10 +140,6 @@ public class InterVpnLinkListener extends AsyncDataTreeChangeListenerBase<InterV
         return InterVpnLinkListener.this;
     }
 
-    private String getInterVpnLinkIfaceName(String vpnUuid, BigInteger dpnId ) {
-        return String.format("InterVpnLink.%s.%s", vpnUuid, dpnId.toString());
-    }
-
     @Override
     protected void add(InstanceIdentifier<InterVpnLink> identifier, InterVpnLink add) {
 
@@ -153,32 +153,34 @@ public class InterVpnLinkListener extends AsyncDataTreeChangeListenerBase<InterV
         MDSALUtil.syncWrite(dataBroker, LogicalDatastoreType.CONFIGURATION, vpnLinkStateIid, vpnLinkState);
 
         InterVpnLinkKey key = add.getKey();
-        Uuid firstEndpointVpnUuid = add.getFirstEndpoint().getVpnUuid();
-        Uuid secondEndpointVpnUuid = add.getSecondEndpoint().getVpnUuid();
+        Uuid vpn1Uuid = add.getFirstEndpoint().getVpnUuid();
+        String vpn1Name = vpn1Uuid.getValue();
+        Uuid vpn2Uuid = add.getSecondEndpoint().getVpnUuid();
+        String vpn2Name = vpn2Uuid.getValue();
         // First VPN
-        if ( VpnUtil.getVpnInstance(this.dataBroker, firstEndpointVpnUuid.getValue()) == null ) {
+        if ( VpnUtil.getVpnInstance(this.dataBroker, vpn1Name) == null ) {
             String errMsg = "InterVpnLink " + add.getName() + " creation error: could not find 1st endpoint Vpn "
-                    + firstEndpointVpnUuid.getValue();
+                            + vpn1Name;
             setInError(vpnLinkStateIid, vpnLinkState, errMsg);
             return;
         }
-        if (!checkVpnAvailability(key, firstEndpointVpnUuid)) {
-            String errMsg = "InterVpnLink " + add.getName() + " creation error: Vpn " + firstEndpointVpnUuid.getValue()
-                    + " is already associated to an inter-vpn-link ";
+        if (!checkVpnAvailability(key, vpn1Uuid)) {
+            String errMsg = "InterVpnLink " + add.getName() + " creation error: Vpn " + vpn1Name
+                            + " is already associated to an inter-vpn-link ";
             setInError(vpnLinkStateIid, vpnLinkState, errMsg);
             return;
         }
 
         // Second VPN
-        if ( VpnUtil.getVpnInstance(this.dataBroker, secondEndpointVpnUuid.getValue()) == null ) {
+        if ( VpnUtil.getVpnInstance(this.dataBroker, vpn2Name) == null ) {
             String errMsg = "InterVpnLink " + add.getName() + " creation error: could not find 2nd endpoint Vpn "
-                    + secondEndpointVpnUuid.getValue();
+                             + vpn2Name;
             setInError(vpnLinkStateIid, vpnLinkState, errMsg);
             return;
         }
-        if (!checkVpnAvailability(key, secondEndpointVpnUuid)) {
-            String errMsg = "InterVpnLink " + add.getName() + " creation error: Vpn " + secondEndpointVpnUuid.getValue()
-                    + " is already associated with an inter-vpn-link";
+        if (!checkVpnAvailability(key, vpn2Uuid)) {
+            String errMsg = "InterVpnLink " + add.getName() + " creation error: Vpn " + vpn2Name
+                            + " is already associated with an inter-vpn-link";
             setInError(vpnLinkStateIid, vpnLinkState, errMsg);
             return;
         }
@@ -190,13 +192,13 @@ public class InterVpnLinkListener extends AsyncDataTreeChangeListenerBase<InterV
         if (firstDpnList != null && !firstDpnList.isEmpty()) {
             List<BigInteger> secondDpnList = firstDpnList;
 
-            Long firstVpnLportTag = allocateVpnLinkLportTag(key.getName() + firstEndpointVpnUuid.getValue());
-            Long secondVpnLportTag = allocateVpnLinkLportTag(key.getName() + secondEndpointVpnUuid.getValue());
+            Long firstVpnLportTag = allocateVpnLinkLportTag(key.getName() + vpn1Name);
+            Long secondVpnLportTag = allocateVpnLinkLportTag(key.getName() + vpn2Name);
             FirstEndpointState firstEndPointState =
-                new FirstEndpointStateBuilder().setVpnUuid(firstEndpointVpnUuid).setDpId(firstDpnList)
+                new FirstEndpointStateBuilder().setVpnUuid(vpn1Uuid).setDpId(firstDpnList)
                                                .setLportTag(firstVpnLportTag).build();
             SecondEndpointState secondEndPointState =
-                new SecondEndpointStateBuilder().setVpnUuid(secondEndpointVpnUuid).setDpId(secondDpnList)
+                new SecondEndpointStateBuilder().setVpnUuid(vpn2Uuid).setDpId(secondDpnList)
                                                 .setLportTag(secondVpnLportTag).build();
 
             InterVpnLinkUtil.updateInterVpnLinkState(dataBroker, add.getName(), InterVpnLinkState.State.Active,
@@ -206,16 +208,16 @@ public class InterVpnLinkListener extends AsyncDataTreeChangeListenerBase<InterV
 
             // Note that in the DPN of the firstEndpoint we install the lportTag of the secondEndpoint and viceversa
             InterVpnLinkUtil.installLPortDispatcherTableFlow(dataBroker, mdsalManager, add, firstDpnList,
-                                                             secondEndpointVpnUuid, secondVpnLportTag.intValue());
+                                                             vpn2Uuid, secondVpnLportTag.intValue());
             InterVpnLinkUtil.installLPortDispatcherTableFlow(dataBroker, mdsalManager, add, secondDpnList,
-                                                             firstEndpointVpnUuid, firstVpnLportTag.intValue());
+                                                             vpn1Uuid, firstVpnLportTag.intValue());
             // Update the VPN -> DPNs Map.
             // Note: when a set of DPNs is calculated for Vpn1, these DPNs are added to the VpnToDpn map of Vpn2. Why?
             // because we do the handover from Vpn1 to Vpn2 in those DPNs, so in those DPNs we must know how to reach
             // to Vpn2 targets. If new Vpn2 targets are added later, the Fib will be maintained in these DPNs even if
             // Vpn2 is not physically present there.
-            InterVpnLinkUtil.updateVpnToDpnMap(dataBroker, firstDpnList, secondEndpointVpnUuid);
-            InterVpnLinkUtil.updateVpnToDpnMap(dataBroker, secondDpnList, firstEndpointVpnUuid);
+            InterVpnLinkUtil.updateVpnFootprint(vpnFootprintService, vpn2Name, firstDpnList);
+            InterVpnLinkUtil.updateVpnFootprint(vpnFootprintService, vpn1Name, secondDpnList);
 
             // Program static routes if needed
             handleStaticRoutes(iVpnLink.get());
@@ -225,14 +227,12 @@ public class InterVpnLinkListener extends AsyncDataTreeChangeListenerBase<InterV
         } else {
             // If there is no connection to DPNs, the InterVpnLink is created and the InterVpnLinkState is also created
             // with the corresponding LPortTags but no DPN is assigned since there is no DPN operative.
-            Long firstVpnLportTag = allocateVpnLinkLportTag(key.getName() + firstEndpointVpnUuid.getValue());
-            Long secondVpnLportTag = allocateVpnLinkLportTag(key.getName() + secondEndpointVpnUuid.getValue());
+            Long firstVpnLportTag = allocateVpnLinkLportTag(key.getName() + vpn1Name);
+            Long secondVpnLportTag = allocateVpnLinkLportTag(key.getName() + vpn2Name);
             FirstEndpointState firstEndPointState =
-                new FirstEndpointStateBuilder().setVpnUuid(firstEndpointVpnUuid)
-                                               .setLportTag(firstVpnLportTag).build();
+                new FirstEndpointStateBuilder().setVpnUuid(vpn1Uuid).setLportTag(firstVpnLportTag).build();
             SecondEndpointState secondEndPointState =
-                new SecondEndpointStateBuilder().setVpnUuid(secondEndpointVpnUuid)
-                                                .setLportTag(secondVpnLportTag).build();
+                new SecondEndpointStateBuilder().setVpnUuid(vpn2Uuid).setLportTag(secondVpnLportTag).build();
             InterVpnLinkUtil.updateInterVpnLinkState(dataBroker, add.getName(), InterVpnLinkState.State.Error,
                                                      firstEndPointState, secondEndPointState);
         }
@@ -453,7 +453,7 @@ public class InterVpnLinkListener extends AsyncDataTreeChangeListenerBase<InterV
             boolean isVpnFirstEndPoint = true;
             if (interVpnLinkState.getFirstEndpointState() != null) {
                 Long firstEndpointLportTag = interVpnLinkState.getFirstEndpointState().getLportTag();
-                removeVpnLinkEndpointFlows(del, rd2, vpn2Uuid,
+                removeVpnLinkEndpointFlows(del, vpn2Uuid,
                                            interVpnLinkState.getSecondEndpointState().getDpId(),
                                            firstEndpointLportTag.intValue(),
                                            del.getFirstEndpoint().getIpAddress().getValue(),
@@ -465,7 +465,7 @@ public class InterVpnLinkListener extends AsyncDataTreeChangeListenerBase<InterV
             isVpnFirstEndPoint = false;
             if (interVpnLinkState.getSecondEndpointState() != null) {
                 Long secondEndpointLportTag = interVpnLinkState.getSecondEndpointState().getLportTag();
-                removeVpnLinkEndpointFlows(del, rd1, vpn1Uuid,
+                removeVpnLinkEndpointFlows(del, vpn1Uuid,
                                            interVpnLinkState.getFirstEndpointState().getDpId(),
                                            secondEndpointLportTag.intValue(),
                                            del.getSecondEndpoint().getIpAddress().getValue(),
@@ -497,7 +497,7 @@ public class InterVpnLinkListener extends AsyncDataTreeChangeListenerBase<InterV
         VpnUtil.delete(dataBroker, LogicalDatastoreType.CONFIGURATION, interVpnLinkStateIid);
     }
 
-    private void removeVpnLinkEndpointFlows(InterVpnLink del, String rd, String vpnUuid, List<BigInteger> dpns,
+    private void removeVpnLinkEndpointFlows(InterVpnLink del, String vpnUuid, List<BigInteger> dpns,
                                             int otherEndpointLportTag, String otherEndpointIpAddr, List<VrfEntry> vrfEntries,
                                             final boolean isVpnFirstEndPoint) {
 
@@ -521,7 +521,7 @@ public class InterVpnLinkListener extends AsyncDataTreeChangeListenerBase<InterV
                 mdsalManager.removeFlow(dpnId, flow);
 
                 // Also remove the 'fake' iface from the VpnToDpn map
-                VpnUtil.removeIfaceFromVpnToDpnMap(dataBroker, rd, dpnId, getInterVpnLinkIfaceName(vpnUuid, dpnId));
+                InterVpnLinkUtil.removeIVpnLinkIfaceFromVpnFootprint(vpnFootprintService, vpnUuid, dpnId);
 
             } catch ( Exception e ) {
                 // Whatever happens it should not stop it from trying to remove as much as possible
