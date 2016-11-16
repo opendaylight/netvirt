@@ -34,17 +34,20 @@ public class VpnManagerImpl implements IVpnManager {
     private final VpnInstanceListener vpnInstanceListener;
     private final IdManagerService idManager;
     private final IMdsalApiManager mdsalManager;
+    private final VpnFootprintService vpnFootprintService;
 
     public VpnManagerImpl(final DataBroker dataBroker,
                           final IdManagerService idManagerService,
                           final VpnInstanceListener vpnInstanceListener,
                           final VpnInterfaceManager vpnInterfaceManager,
-                          final IMdsalApiManager mdsalManager) {
+                          final IMdsalApiManager mdsalManager,
+                          final VpnFootprintService vpnFootprintService) {
         this.dataBroker = dataBroker;
         this.vpnInterfaceManager = vpnInterfaceManager;
         this.vpnInstanceListener = vpnInstanceListener;
         this.idManager = idManagerService;
         this.mdsalManager = mdsalManager;
+        this.vpnFootprintService = vpnFootprintService;
     }
 
     public void start() {
@@ -100,7 +103,7 @@ public class VpnManagerImpl implements IVpnManager {
                               RouteOrigin origin) {
         LOG.info("Adding extra route with destination {}, nextHop {}, label{} and origin {}",
                  destination, nextHop, label, origin);
-        vpnInterfaceManager.addExtraRoute(destination, nextHop, rd, routerID, label, origin, /*intfName*/ null, 
+        vpnInterfaceManager.addExtraRoute(destination, nextHop, rd, routerID, label, origin, /*intfName*/ null,
                                           null, null);
     }
 
@@ -118,6 +121,11 @@ public class VpnManagerImpl implements IVpnManager {
     @Override
     public List<BigInteger> getDpnsOnVpn(String vpnInstanceName) {
         return VpnUtil.getDpnsOnVpn(dataBroker, vpnInstanceName);
+    }
+
+    @Override
+    public void updateVpnFootprint(BigInteger dpId, String vpnName, String interfaceName, boolean add) {
+        vpnFootprintService.updateVpnToDpnMapping(dpId, vpnName, interfaceName, add);
     }
 
     @Override

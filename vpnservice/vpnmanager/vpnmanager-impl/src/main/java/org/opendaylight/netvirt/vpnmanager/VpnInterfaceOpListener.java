@@ -38,6 +38,7 @@ public class VpnInterfaceOpListener extends AsyncDataTreeChangeListenerBase<VpnI
     private static final Logger LOG = LoggerFactory.getLogger(VpnInterfaceOpListener.class);
     private final DataBroker dataBroker;
     private final VpnInterfaceManager vpnInterfaceManager;
+    private final VpnFootprintService vpnFootprintService;
     private ExecutorService executorService = Executors.newSingleThreadExecutor();
 
     /*public VpnInterfaceOpListener(final DataBroker dataBroker) {
@@ -45,10 +46,12 @@ public class VpnInterfaceOpListener extends AsyncDataTreeChangeListenerBase<VpnI
         this.dataBroker = dataBroker;
     }*/
 
-    public VpnInterfaceOpListener(final DataBroker dataBroker, final VpnInterfaceManager vpnInterfaceManager) {
+    public VpnInterfaceOpListener(final DataBroker dataBroker, final VpnInterfaceManager vpnInterfaceManager,
+                                  final VpnFootprintService vpnFootprintService) {
         super(VpnInterface.class, VpnInterfaceOpListener.class);
         this.dataBroker = dataBroker;
         this.vpnInterfaceManager = vpnInterfaceManager;
+        this.vpnFootprintService = vpnFootprintService;
     }
 
     public void start() {
@@ -138,8 +141,8 @@ public class VpnInterfaceOpListener extends AsyncDataTreeChangeListenerBase<VpnI
                                 VpnUtil.getPrefixToInterfaceIdentifier(vpnInstOp.getVpnId(), pref.getIpAddress()),
                                 VpnUtil.DEFAULT_CALLBACK);
                     }
-                    vpnInterfaceManager.updateVpnToDpnMapping(pref.getDpnId(), del.getVpnInstanceName(),
-                            interfaceName, false /* delete */);
+                    vpnFootprintService.updateVpnToDpnMapping(pref.getDpnId(), del.getVpnInstanceName(),
+                                                              interfaceName, false /* delete */);
                 }
             }
         } else {
@@ -194,8 +197,7 @@ public class VpnInterfaceOpListener extends AsyncDataTreeChangeListenerBase<VpnI
                 = VpnUtil.read(dataBroker, LogicalDatastoreType.CONFIGURATION, origId);
 
         if (origVpnInstance.isPresent()) {
-            String rd = null;
-            rd = origVpnInstance.get().getVrfId();
+            String rd = origVpnInstance.get().getVrfId();
 
             vpnInstOp = VpnUtil.getVpnInstanceOpData(dataBroker, rd);
             LOG.trace("VpnInterfaceOpListener updated: interface name {} original rd {} original vpnName {}",
@@ -220,8 +222,8 @@ public class VpnInterfaceOpListener extends AsyncDataTreeChangeListenerBase<VpnI
                     }
                 }
                 for (Prefixes prefix : prefixToInterfaceList) {
-                    vpnInterfaceManager.updateVpnToDpnMapping(prefix.getDpnId(), original.getVpnInstanceName(),
-                            interfaceName, false /* delete */);
+                    vpnFootprintService.updateVpnToDpnMapping(prefix.getDpnId(), original.getVpnInstanceName(),
+                                                              interfaceName, false /* delete */);
                 }
             }
         }

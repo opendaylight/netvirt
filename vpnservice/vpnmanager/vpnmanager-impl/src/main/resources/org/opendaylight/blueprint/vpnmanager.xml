@@ -46,6 +46,13 @@
            interface="org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.OdlL3vpnListener" />
   <odl:notification-listener ref="dpnInVpnChangeListener" />
 
+  <bean id="vpnFootprintService" class="org.opendaylight.netvirt.vpnmanager.VpnFootprintService">
+    <argument ref="dataBroker" />
+    <argument ref="fibManager" />
+    <argument ref="odlInterfaceRpcService" />
+    <argument ref="notificationPublishService" />
+  </bean>
+
   <bean id="vpnInterfaceManager"
         class="org.opendaylight.netvirt.vpnmanager.VpnInterfaceManager"
         init-method="start" destroy-method="close">
@@ -56,7 +63,7 @@
     <argument ref="mdsalUtils" />
     <argument ref="fibManager" />
     <argument ref="odlInterfaceRpcService" />
-    <argument ref="notificationPublishService" />
+    <argument ref="vpnFootprintService" />
   </bean>
 
   <bean id="tunnelInterfaceStateListener"
@@ -80,6 +87,7 @@
         init-method="start" destroy-method="close">
     <argument ref="dataBroker" />
     <argument ref="vpnInterfaceManager" />
+    <argument ref="vpnFootprintService" />
   </bean>
 
   <bean id="arpMonitorEventListener"
@@ -156,6 +164,7 @@
     <argument ref="vpnInstanceListener" />
     <argument ref="vpnInterfaceManager" />
     <argument ref="mdsalUtils" />
+    <argument ref="vpnFootprintService" />
   </bean>
   <service ref="vpnManagerImpl"
            interface="org.opendaylight.netvirt.vpnmanager.api.IVpnManager" />
@@ -204,6 +213,7 @@
     <argument ref="bgpmanager" />
     <argument ref="fibManager" />
     <argument ref="notificationPublishService" />
+    <argument ref="vpnFootprintService" />
   </bean>
 
   <bean id="interVpnLinkNodeListener"
