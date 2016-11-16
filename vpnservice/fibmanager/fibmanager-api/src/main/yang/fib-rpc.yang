@@ -85,4 +85,17 @@ module fib-rpc {
 
         }
     }
+
+    rpc create-evpn-flows {
+        description "Creates the EVPN flows";
+        input {
+            leaf rd {
+                type string;
+            }
+            leaf dest-ip {
+                type string;
+            }
+        }
+    }
+
 }

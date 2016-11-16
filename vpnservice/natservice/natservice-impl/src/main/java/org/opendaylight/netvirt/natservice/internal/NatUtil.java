@@ -31,6 +31,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeCon
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.VrfEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.VpnInstanceOpData;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.VpnInstanceToVpnId;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.VpnInstanceOpDataEntry.Type;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.action.types.rev131112.action.action.OutputActionCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.action.types.rev131112.action.action.PushVlanActionCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.action.types.rev131112.action.action.SetFieldCase;
@@ -45,6 +46,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpc
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.GetEgressActionsForInterfaceInputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.GetEgressActionsForInterfaceOutput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.OdlInterfaceRpcService;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.to.vpn.id.VpnInstance;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ExtRouters;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ExternalIpsCounter;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ExternalNetworks;
@@ -191,7 +193,7 @@ public class NatUtil {
         getVpnId() returns the VPN ID from the VPN name
      */
     public static long getVpnId(DataBroker broker, String vpnName) {
-        if(vpnName == null) {
+        if (vpnName == null) {
             return NatConstants.INVALID_ID;
         }
 
@@ -202,13 +204,42 @@ public class NatUtil {
 
 
         long vpnId = NatConstants.INVALID_ID;
-        if(vpnInstance.isPresent()) {
+        if (vpnInstance.isPresent()) {
             Long vpnIdAsLong = vpnInstance.get().getVpnId();
-            if(vpnIdAsLong != null){
+            if (vpnIdAsLong != null) {
                 vpnId = vpnIdAsLong;
             }
         }
         return vpnId;
+    }
+
+    static VrfEntry.EncapType getExtNwProviderType(DataBroker broker, String rd){
+        long l3Vni = getL3Vni(broker, rd);
+        if(l3Vni != NatConstants.INVALID_ID){
+            return VrfEntry.EncapType.Vxlan;
+        }
+        return VrfEntry.EncapType.Mplsgre;
+    }
+
+    static long getL3Vni(DataBroker broker, String rd){
+        VpnInstanceOpDataEntry vpnInstanceOpDataEntry = getVpnInstanceOpData(broker, rd);
+        if(vpnInstanceOpDataEntry == null){
+            return NatConstants.INVALID_ID;
+        }
+        Long l3Vni = vpnInstanceOpDataEntry.getL3vni();
+        if(l3Vni == null || l3Vni == NatConstants.INVALID_ID){
+            return NatConstants.INVALID_ID;
+        }
+        return l3Vni;
+    }
+
+    static VpnInstanceOpDataEntry getVpnInstanceOpData(DataBroker broker, String rd) {
+        InstanceIdentifier<VpnInstanceOpDataEntry> id = getVpnInstanceOpDataIdentifier(rd);
+        Optional<VpnInstanceOpDataEntry> vpnInstanceOpData = read(broker, LogicalDatastoreType.OPERATIONAL, id);
+        if (vpnInstanceOpData.isPresent()) {
+            return vpnInstanceOpData.get();
+        }
+        return null;
     }
 
     public static Long getVpnId(DataBroker broker, long routerId){
@@ -774,6 +805,35 @@ public class NatUtil {
             LOG.info("ADD: Added Fib entry rd {} prefix {} nextHop {} label {}", rd, prefix, nextHopIp, label);
         } catch(Exception e) {
             log.error("Add prefix failed", e);
+        }
+    }
+
+   public static void addRoutesForVxLanProvType(DataBroker broker,
+                                      IBgpManager bgpManager,
+                                      IFibManager fibManager,
+                                      String rd,
+                                      String macAddress,
+                                      String prefix,
+                                      String nextHopIp,
+                                      long l3Vni,
+                                      Logger log,
+                                      String gwMacAddress,
+                                      RouteOrigin origin) {
+        try {
+            LOG.info("NAT Service : Provider -> L2 EVPN ADD Routes : Adding FIB entry rd {} prefix {} nextHop {} evi {}",
+                    rd, prefix, nextHopIp, l3Vni);
+            if (nextHopIp == null) {
+                log.error("NAT Service : Provider -> L2 EVPN ADD Routes : addPrefix failed since nextHopIp cannot be null.");
+                return;
+            }
+            fibManager.addOrUpdateFibEntry(broker, rd, macAddress, prefix, Arrays.asList(nextHopIp),
+                    VrfEntry.EncapType.Vxlan, 0, l3Vni, gwMacAddress, origin, null );
+            bgpManager.advertisePrefix(rd, macAddress, prefix, Arrays.asList(nextHopIp),
+                    VrfEntry.EncapType.Vxlan, 0, l3Vni, gwMacAddress);
+            LOG.info("NAT Service : Provider -> L2 EVPN ADD Routes : Added FIB entry rd {} prefix {} nextHop {} evi {}",
+                    rd, prefix, nextHopIp, l3Vni);
+        } catch(Exception e) {
+            log.error("NAT Service : Provider -> L2 EVPN ADD Routes : Add prefix failed", e);
         }
     }
 
