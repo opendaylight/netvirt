@@ -1,0 +1,157 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3a65312a_1c8a32bf",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnUtils.java",
+        "patchSetId": 9
+      },
+      "lineNbr": 814,
+      "author": {
+        "id": 5357
+      },
+      "writtenOn": "2016-11-16T10:27:14Z",
+      "side": 1,
+      "message": "Is VpnVipToPort supposed to be only in OPERATIONAL?\n\nFrom your commit message:\n\"1. Create a new VPNVipToPort Datastore which will contain non-neutron IP addresses. This Datastore will be of OPERATIONAL type. It will be constructed as part of ARP/GARP requests and ARP response discoveries by the controller.\"",
+      "revId": "60804cfbf2f7b7148746d5e008f39cbb385f2ede",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a65312a_bc87bed6",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/ArpMonitoringHandler.java",
+        "patchSetId": 9
+      },
+      "lineNbr": 104,
+      "author": {
+        "id": 5357
+      },
+      "writtenOn": "2016-11-16T10:27:14Z",
+      "side": 1,
+      "message": "The condition described in this warning is just one of the conditions that can lead to this warning.",
+      "revId": "60804cfbf2f7b7148746d5e008f39cbb385f2ede",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a65312a_3c4a8eac",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/ArpMonitoringHandler.java",
+        "patchSetId": 9
+      },
+      "lineNbr": 112,
+      "author": {
+        "id": 5357
+      },
+      "writtenOn": "2016-11-16T10:27:14Z",
+      "side": 1,
+      "message": "Closing squigly brace needs to be on the next line",
+      "revId": "60804cfbf2f7b7148746d5e008f39cbb385f2ede",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a65312a_5c4f8abd",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/ArpMonitoringHandler.java",
+        "patchSetId": 9
+      },
+      "lineNbr": 134,
+      "author": {
+        "id": 5357
+      },
+      "writtenOn": "2016-11-16T10:27:14Z",
+      "side": 1,
+      "message": "The closing bracket needs to be on the next line.",
+      "revId": "60804cfbf2f7b7148746d5e008f39cbb385f2ede",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a65312a_7ccb661e",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/ArpMonitoringHandler.java",
+        "patchSetId": 9
+      },
+      "lineNbr": 143,
+      "author": {
+        "id": 5357
+      },
+      "writtenOn": "2016-11-16T10:27:14Z",
+      "side": 1,
+      "message": "1) Change VpnPortipToPort to VpnVipToPort\n2) nit: mac address",
+      "revId": "60804cfbf2f7b7148746d5e008f39cbb385f2ede",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a65312a_fcd656c2",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/ArpMonitoringHandler.java",
+        "patchSetId": 9
+      },
+      "lineNbr": 155,
+      "author": {
+        "id": 5357
+      },
+      "writtenOn": "2016-11-16T10:27:14Z",
+      "side": 1,
+      "message": "as above",
+      "revId": "60804cfbf2f7b7148746d5e008f39cbb385f2ede",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a65312a_dce9da81",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/SubnetMacHandler.java",
+        "patchSetId": 9
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 5357
+      },
+      "writtenOn": "2016-11-16T10:27:14Z",
+      "side": 1,
+      "message": "Nit: If this is a new class, why is the copyright dated to 2015?",
+      "revId": "60804cfbf2f7b7148746d5e008f39cbb385f2ede",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a65312a_7cf24670",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/SubnetMacHandler.java",
+        "patchSetId": 9
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 5357
+      },
+      "writtenOn": "2016-11-16T10:27:14Z",
+      "side": 1,
+      "message": "New class. There should be javadoc that explains what this classes purpose is and what it does.",
+      "revId": "60804cfbf2f7b7148746d5e008f39cbb385f2ede",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a65312a_9c13e2b7",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnUtil.java",
+        "patchSetId": 9
+      },
+      "lineNbr": 1488,
+      "author": {
+        "id": 5357
+      },
+      "writtenOn": "2016-11-16T10:27:14Z",
+      "side": 1,
+      "message": "Why are these functions in VpnUtil? Should it perhaps be somewhere more central?",
+      "revId": "60804cfbf2f7b7148746d5e008f39cbb385f2ede",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
