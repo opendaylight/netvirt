@@ -25,6 +25,7 @@ import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
+import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.netvirt.fibmanager.api.RouteOrigin;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.interfaces.VpnInterface;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.AllocateIdInput;
@@ -33,6 +34,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.IdManagerService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.ReleaseIdInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.ReleaseIdInputBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.OdlInterfaceRpcService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.FibEntries;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.RouterInterface;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.fibentries.VrfTables;
@@ -554,6 +556,24 @@ public class FibUtil {
             LOG.debug("Created vrfEntry for router-interface-prefix {} rd {} label {}", prefix, rd, label);
         } catch (Exception e) {
             LOG.error("addFibEntryToDS: error ", e);
+        }
+    }
+
+    public static void createEvpnFlows(InstanceIdentifier<VrfEntry> identifier, VrfEntry vrfEntry, DataBroker dataBroker,
+                                     IMdsalApiManager mdsalApiManager, NexthopManager nexthopManager,
+                                     OdlInterfaceRpcService interfaceManager, IdManagerService idManager){
+        VrfEntryListener vrfEntryListener = new VrfEntryListener(dataBroker, mdsalApiManager, nexthopManager,
+                                                                    interfaceManager, idManager);
+        EvpnFlowProgrammer evpnFlowProgrammer = new EvpnFlowProgrammer(identifier, vrfEntry, dataBroker, vrfEntryListener);
+        evpnFlowProgrammer.createEvpnFlows();
+    }
+
+    private static void buildVpnEncapSpecificInfo(VrfEntryBuilder builder, VrfEntry.EncapType encapType, long label,
+                                                 long l3vni, String macAddress, String gatewayMac) {
+        if (encapType.equals(VrfEntry.EncapType.Mplsgre)) {
+            builder.setLabel(label);
+        } else {
+            builder.setL3vni(l3vni).setMacAddress(macAddress).setGatewayMacAddress(gatewayMac);
         }
     }
 

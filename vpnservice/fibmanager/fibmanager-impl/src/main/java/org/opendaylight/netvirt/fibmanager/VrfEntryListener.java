@@ -2198,10 +2198,10 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
         return null;
     }
 
-    private InstanceIdentifier<VrfEntry> getVrfEntryId(String rd, String ipPrefix) {
-        InstanceIdentifier<VrfEntry> vrfEntryId = InstanceIdentifier.builder(FibEntries.class)
-            .child(VrfTables.class, new VrfTablesKey(rd))
-            .child(VrfEntry.class, new VrfEntryKey(ipPrefix)).build();
+    protected static InstanceIdentifier<VrfEntry> getVrfEntryId(String rd, String ipPrefix) {
+        InstanceIdentifier<VrfEntry> vrfEntryId =
+                InstanceIdentifier.builder(FibEntries.class).child(VrfTables.class, new VrfTablesKey(rd)).
+                        child(VrfEntry.class, new VrfEntryKey(ipPrefix)).build();
         return vrfEntryId;
     }
 
