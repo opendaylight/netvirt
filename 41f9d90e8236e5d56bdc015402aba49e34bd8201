@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3a65312a_123df9bb",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInstanceListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 473,
+      "author": {
+        "id": 6177
+      },
+      "writtenOn": "2016-11-16T14:03:00Z",
+      "side": 1,
+      "message": "typo: addBgpVrf\nAlso, don\u0027t think checkstyle allows if without {}",
+      "revId": "41f9d90e8236e5d56bdc015402aba49e34bd8201",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
