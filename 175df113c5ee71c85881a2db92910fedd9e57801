@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3a65312a_7c3526f6",
+        "filename": "vpnservice/vpnmanager/vpnmanager-api/src/main/yang/odl-l3vpn.yang",
+        "patchSetId": 1
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 5357
+      },
+      "writtenOn": "2016-11-16T10:41:47Z",
+      "side": 1,
+      "message": "nit: extra space",
+      "revId": "175df113c5ee71c85881a2db92910fedd9e57801",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
