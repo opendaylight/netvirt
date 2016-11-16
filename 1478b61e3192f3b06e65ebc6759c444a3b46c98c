@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3a65312a_776d3f98",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/SubnetMacHandler.java",
+        "patchSetId": 10
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 5357
+      },
+      "writtenOn": "2016-11-16T11:44:48Z",
+      "side": 1,
+      "message": "Nit: I think just 2016 is enough for now ;-)",
+      "revId": "1478b61e3192f3b06e65ebc6759c444a3b46c98c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
