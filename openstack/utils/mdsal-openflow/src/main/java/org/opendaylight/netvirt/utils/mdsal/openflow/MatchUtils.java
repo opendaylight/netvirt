@@ -540,14 +540,16 @@ public class MatchUtils {
      *
      * @param matchBuilder MatchBuilder Object without a match yet
      * @param ipProtocol   Integer representing the IP protocol
+     * @param etherType Ethernet type
      * @param srcMac The source macAddress
      * @param dstMac The destination mac address
      * @return matchBuilder Map MatchBuilder Object with a match
      */
-    public static MatchBuilder createIpProtocolAndEthMatch(MatchBuilder matchBuilder, short ipProtocol, String srcMac, String dstMac) {
+    public static MatchBuilder createIpProtocolAndEthMatch(MatchBuilder matchBuilder, short ipProtocol,
+                                                           long etherType, String srcMac, String dstMac) {
 
         EthernetTypeBuilder ethTypeBuilder = new EthernetTypeBuilder();
-        ethTypeBuilder.setType(new EtherType(0x0800L));
+        ethTypeBuilder.setType(new EtherType(etherType));
         EthernetMatchBuilder ethMatchBuilder = new EthernetMatchBuilder();
         ethMatchBuilder.setEthernetType(ethTypeBuilder.build());
         if (null != srcMac) {
@@ -1362,7 +1364,7 @@ public class MatchUtils {
      * @param dstMac The destination mac address
      * @return matchBuilder Map Object with a match
      */
-    public static MatchBuilder createV6EtherMatchWithType(MatchBuilder matchBuilder,String srcMac, String dstMac)
+    public static MatchBuilder createV6EtherMatch(MatchBuilder matchBuilder,String srcMac, String dstMac)
     {
         EthernetTypeBuilder ethTypeBuilder = new EthernetTypeBuilder();
         ethTypeBuilder.setType(new EtherType(0x86DDL));

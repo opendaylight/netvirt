@@ -8,6 +8,9 @@
 
 package org.opendaylight.netvirt.openstack.netvirt.api;
 
+import java.util.HashSet;
+import java.util.Set;
+
 /**
  * A collection of configuration constants
  */
@@ -87,17 +90,45 @@ public final class Constants {
     public static final Integer PROTO_MATCH_PRIORITY = 61010;
     public static final Integer PREFIX_MATCH_PRIORITY = 61009;
     public static final Integer PROTO_PREFIX_MATCH_PRIORITY = 61008;
-    public static final Integer PROTO_PORT_MATCH_PRIORITY = 61007;
-    public static final Integer PROTO_PORT_PREFIX_MATCH_PRIORITY = 61004;
     public static final Integer PROTO_DHCP_SERVER_MATCH_PRIORITY = 61008;
-    public static final Integer PROTO_PORT_ICMP_MATCH_PRIORITY = 61003;
-    public static final Integer PROTO_TCP_SYN_MATCH_PRIORITY_DROP = 61002;
+    public static final Integer PROTO_PORT_MATCH_PRIORITY = 61007;
     public static final Integer PROTO_REG6_MATCH_PRIORITY = 61005;
+    public static final Integer PROTO_PORT_PREFIX_MATCH_PRIORITY = 61004;
+    public static final Integer PROTO_PORT_ICMP_MATCH_PRIORITY = 61003;
+    public static final Integer PROTO_IP_MATCH_PRIORITY = 61002;
+    public static final Integer PROTO_TCP_SYN_MATCH_PRIORITY_DROP = 61001;
     public static final Integer PROTO_VM_IP_MAC_MATCH_PRIORITY = 36001;
     public static final Integer CT_STATE_UNTRACKED_PRIORITY = 62030;
     public static final Integer CT_STATE_TRACKED_EXIST_PRIORITY = 62020;
     public static final Integer CT_STATE_TRACKED_NEW_PRIORITY = 62010;
     public static final Integer CT_STATE_NEW_PRIORITY_DROP = 36007;
+    public static final Integer ICMPv6_ROUTER_SOLICITATION_TYPE = 133;
+    public static final Integer ICMPv6_ROUTER_ADVERTISEMENT_TYPE = 134;
+    public static final Integer ICMPv6_NEIGHBOR_SOLICITATION_TYPE = 135;
+    public static final Integer ICMPv6_NEIGHBOR_ADVERTISEMENT_TYPE = 136;
+    public static final Integer ICMPv6_REDIRECT_TYPE = 137;
+
+    public static final Set<Integer> ICMPv6_NEIGHBOR_DISCOVERY_TYPE = new HashSet<Integer>();
+    static
+    {
+        ICMPv6_NEIGHBOR_DISCOVERY_TYPE.add(ICMPv6_NEIGHBOR_SOLICITATION_TYPE);
+        ICMPv6_NEIGHBOR_DISCOVERY_TYPE.add(ICMPv6_NEIGHBOR_ADVERTISEMENT_TYPE);
+    };
+
+    public static final Set<Integer> ICMPv6_INGRESS_NEIGHBOR_DISCOVERY_TYPE =
+            new HashSet<Integer>(ICMPv6_NEIGHBOR_DISCOVERY_TYPE);
+    static
+    {
+        ICMPv6_INGRESS_NEIGHBOR_DISCOVERY_TYPE.add(ICMPv6_ROUTER_ADVERTISEMENT_TYPE);
+        ICMPv6_INGRESS_NEIGHBOR_DISCOVERY_TYPE.add(ICMPv6_REDIRECT_TYPE);
+    };
+
+    public static final Set<Integer> ICMPv6_EGRESS_NEIGHBOR_DISCOVERY_TYPE =
+            new HashSet<Integer>(ICMPv6_NEIGHBOR_DISCOVERY_TYPE);
+    static
+    {
+        ICMPv6_EGRESS_NEIGHBOR_DISCOVERY_TYPE.add(ICMPv6_ROUTER_SOLICITATION_TYPE);
+    };
 
     public static final int TCP_SYN = 0x002;
     public static final short INGRESS_ACL = 40; // Flows Destined to the VM Port go here
