@@ -470,15 +470,23 @@ public class NaptSwitchHA {
             bgpVpnId = routerVpnId;
         }
         LOG.debug("retrieved bgpVpnId {} for router {}",bgpVpnId,routerId);
+         // Get the External Gateway MAC Address as part of EVPN_RT5 New Feature Support
+        String extGwMacAddress = NatUtil.getExtGwMacAddFromRouterId(dataBroker, routerId);
+        if (extGwMacAddress != null) {
+            LOG.info("External Gateway MAC address {} found for External Router ID {}", extGwMacAddress, routerId);
+        } else {
+            LOG.debug("No External Gateway MAC address found for External Router ID", routerId);
+        }
         for (IntextIpProtocolType protocolType : ipPortMapping.getIntextIpProtocolType()) {
-            if (protocolType.getIpPortMap() == null || protocolType.getIpPortMap().isEmpty()) {
+           if (protocolType.getIpPortMap() == null || protocolType.getIpPortMap().isEmpty()) {
                 LOG.debug("No {} session associated to router {}", protocolType.getProtocol(), routerId);
                 return true;
             }
             for (IpPortMap intIpPortMap : protocolType.getIpPortMap()) {
                 String internalIpAddress = intIpPortMap.getIpPortInternal().split(":")[0];
                 String intportnum = intIpPortMap.getIpPortInternal().split(":")[1];
-
+                LOG.debug("NAT Service: Found Internal IP Address {} and Port Number {}",
+                       internalIpAddress, intportnum);
                 //Get the external IP address and the port from the model
                 NAPTEntryEvent.Protocol proto = protocolType.getProtocol().toString().equals(ProtocolTypes.TCP.toString())
                         ? NAPTEntryEvent.Protocol.TCP : NAPTEntryEvent.Protocol.UDP;
@@ -501,7 +509,7 @@ public class NaptSwitchHA {
                     //Install the flow in newNaptSwitch Outbound NAPT table.
                     try {
                         NaptEventHandler.buildAndInstallNatFlows(newNaptSwitch, NwConstants.OUTBOUND_NAPT_TABLE,
-                                vpnId,  routerId, bgpVpnId, sourceAddress, externalAddress, proto);
+                                vpnId,  routerId, bgpVpnId, sourceAddress, externalAddress, proto, extGwMacAddress);
                     } catch (Exception ex) {
                         LOG.error("Failed to add flow in OUTBOUND_NAPT_TABLE for routerid {} dpnId {} ipport {}:{} proto {}" +
                                 "extIpport {}:{} BgpVpnId {} - {}", routerId, newNaptSwitch, internalIpAddress
@@ -514,7 +522,7 @@ public class NaptSwitchHA {
                     //Install the flow in newNaptSwitch Inbound NAPT table.
                     try {
                         NaptEventHandler.buildAndInstallNatFlows(newNaptSwitch, NwConstants.INBOUND_NAPT_TABLE,
-                                vpnId, routerId, bgpVpnId, externalAddress, sourceAddress, proto);
+                                vpnId, routerId, bgpVpnId, externalAddress, sourceAddress, proto, extGwMacAddress);
                     } catch (Exception ex) {
                         LOG.error("Failed to add flow in INBOUND_NAPT_TABLE for routerid {} dpnId {} extIpport{}:{} proto {} " +
                                         "ipport {}:{} BgpVpnId {}", routerId, newNaptSwitch, externalAddress, extportNumber, proto,
