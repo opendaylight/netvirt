@@ -2184,7 +2184,14 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
             LOG.error("NAT Service : Unable to retrieve the IpPortMapping");
             return;
         }
-
+        // Get the External Gateway MAC Address
+        String extGwMacAddress = NatUtil.getExtGwMacAddFromRouterId(dataBroker, routerId);
+        if (extGwMacAddress != null) {
+           LOG.debug("External Gateway MAC address {} found for External Router ID {}", extGwMacAddress, routerId);
+        } else {
+           LOG.error("No External Gateway MAC address found for External Router ID", routerId);
+           return;
+        }
         List<IntextIpProtocolType> intextIpProtocolTypes = ipPortMapping.getIntextIpProtocolType();
         for(IntextIpProtocolType intextIpProtocolType : intextIpProtocolTypes){
             List<IpPortMap> ipPortMaps = intextIpProtocolType.getIpPortMap();
@@ -2197,7 +2204,7 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
                 }
                 String internalIp = ipPortParts[0];
                 String internalPort = ipPortParts[1];
-
+                LOG.debug("NAT Service : Found Internal IP {} and Internal Port {}",internalIp, internalPort);
                 ProtocolTypes protocolTypes = intextIpProtocolType.getProtocol();
                 NAPTEntryEvent.Protocol protocol;
                 switch (protocolTypes){
@@ -2213,10 +2220,10 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
                 SessionAddress internalAddress = new SessionAddress(internalIp, Integer.valueOf(internalPort));
                 SessionAddress externalAddress = naptManager.getExternalAddressMapping(routerId, internalAddress, protocol);
                 long internetVpnid = NatUtil.getVpnId(dataBroker, routerId);
-                NaptEventHandler.buildAndInstallNatFlows(dpnId, NwConstants.OUTBOUND_NAPT_TABLE, internetVpnid, routerId, bgpVpnId,
-                        internalAddress, externalAddress, protocol);
-                NaptEventHandler.buildAndInstallNatFlows(dpnId, NwConstants.INBOUND_NAPT_TABLE, internetVpnid, routerId, bgpVpnId,
-                        externalAddress, internalAddress, protocol);
+                NaptEventHandler.buildAndInstallNatFlows(dpnId, NwConstants.OUTBOUND_NAPT_TABLE, internetVpnid,
+                   routerId, bgpVpnId, internalAddress, externalAddress, protocol, extGwMacAddress);
+                NaptEventHandler.buildAndInstallNatFlows(dpnId, NwConstants.INBOUND_NAPT_TABLE, internetVpnid, routerId,
+                    bgpVpnId, externalAddress, internalAddress, protocol, extGwMacAddress);
 
             }
         }
