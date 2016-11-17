@@ -139,6 +139,24 @@
       "revId": "526d9ffc12790805f2546ffcc8884136624f96ea",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a65312a_e8b5f0ee",
+        "filename": "vpnservice/vpnmanager/vpnmanager-api/src/main/java/org/opendaylight/netvirt/vpnmanager/api/intervpnlink/InterVpnLinkDataComposite.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 75,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2016-11-17T10:38:18Z",
+      "side": 1,
+      "message": "You could have predicate like Predicate\u003cInterVpnLink\u003e isBgpRoutesLeaking \u003d (InterVpnLink ivl) -\u003e ivl !\u003d null \u0026\u0026 ivl.isBgpRoutesLeaking();\n\nas use this predicate like below if(!isBgpRoutesLeaking.test(this.interVpnLinkCfg)) in leakRouteIfNeeded if route origin is BGP.",
+      "parentUuid": "3a65312a_8809dcdf",
+      "revId": "526d9ffc12790805f2546ffcc8884136624f96ea",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
