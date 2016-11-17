@@ -7,11 +7,11 @@
  */
 package org.opendaylight.netvirt.cloudservicechain.jobs;
 
+import com.google.common.util.concurrent.ListenableFuture;
 import java.util.List;
 import java.util.concurrent.Callable;
 
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import com.google.common.util.concurrent.ListenableFuture;
 
 /**
  * Modifies VpnPseudoPort stateful data. Objects of this class are intended to

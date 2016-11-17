@@ -7,6 +7,7 @@
  */
 package org.opendaylight.netvirt.cloudservicechain.listeners;
 
+import com.google.common.base.Optional;
 import java.math.BigInteger;
 import java.util.List;
 
@@ -24,15 +25,14 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.Rem
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.base.Optional;
 
 public class VpnToDpnListener implements OdlL3vpnListener {
+
+    private static final Logger LOG = LoggerFactory.getLogger(VpnToDpnListener.class);
 
     private final DataBroker broker;
     private final IMdsalApiManager mdsalMgr;
     private final VPNServiceChainHandler vpnScHandler;
-
-    private static final Logger logger = LoggerFactory.getLogger(VpnToDpnListener.class);
 
     public VpnToDpnListener(final DataBroker db, final IMdsalApiManager mdsalManager,
                             VPNServiceChainHandler vpnServiceChainHandler) {
@@ -60,27 +60,27 @@ public class VpnToDpnListener implements OdlL3vpnListener {
 
     private void programVpnScfFlowsOnDpn(BigInteger dpnId, String vpnName, String rd, int addOrRemove) {
         String addedOrRemovedTxt = addOrRemove == NwConstants.ADD_FLOW ? " added " : " removed";
-        logger.debug("DpnToVpn {} event received: dpn={}  vpn={}  rd={}", addedOrRemovedTxt, dpnId, vpnName, rd);
+        LOG.debug("DpnToVpn {} event received: dpn={}  vpn={}  rd={}", addedOrRemovedTxt, dpnId, vpnName, rd);
         if ( dpnId == null ) {
-            logger.warn("Dpn to Vpn {} event received, but no DPN specified in event", addedOrRemovedTxt);
+            LOG.warn("Dpn to Vpn {} event received, but no DPN specified in event", addedOrRemovedTxt);
             return;
         }
 
         if ( vpnName == null ) {
-            logger.warn("Dpn to Vpn {} event received, but no VPN specified in event", addedOrRemovedTxt);
+            LOG.warn("Dpn to Vpn {} event received, but no VPN specified in event", addedOrRemovedTxt);
             return;
         }
 
         if ( rd == null ) {
-            logger.warn("Dpn to Vpn {} event received, but no RD specified in event", addedOrRemovedTxt);
+            LOG.warn("Dpn to Vpn {} event received, but no RD specified in event", addedOrRemovedTxt);
             return;
         }
 
         Optional<VpnToPseudoPortData> optVpnToPseudoPortInfo = VpnServiceChainUtils.getVpnPseudoPortData(broker, rd);
 
         if ( !optVpnToPseudoPortInfo.isPresent() ) {
-            logger.debug("Dpn to Vpn {} event received: Could not find VpnPseudoLportTag for VPN name={}  rd={}",
-                    addedOrRemovedTxt, vpnName, rd);
+            LOG.debug("Dpn to Vpn {} event received: Could not find VpnPseudoLportTag for VPN name={}  rd={}",
+                      addedOrRemovedTxt, vpnName, rd);
             return;
         }
 

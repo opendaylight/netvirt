@@ -7,11 +7,12 @@
  */
 package org.opendaylight.netvirt.cloudservicechain.utils;
 
+import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
+
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.genius.utils.cache.CacheUtil;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.cloud.servicechain.state.rev170511.vpn.to.pseudo.port.list.VpnToPseudoPortData;
-import java.util.List;
-import java.util.concurrent.ConcurrentHashMap;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,6 +23,7 @@ import org.slf4j.LoggerFactory;
  *
  */
 public class VpnPseudoPortCache {
+
     public static final Logger LOG = LoggerFactory.getLogger(VpnPseudoPortCache.class);
     public static final String VPNPSEUDOPORT_CACHE_NAME = "VrfToVpnPseudoPortCache";
 
@@ -42,7 +44,7 @@ public class VpnPseudoPortCache {
         LOG.info("Initial read of Vpn to VpnPseudoPort map from Datastore");
         List<VpnToPseudoPortData> allVpnToPseudoPortData = VpnServiceChainUtils.getAllVpnToPseudoPortData(broker);
         for ( VpnToPseudoPortData vpnToPseudoPort : allVpnToPseudoPortData ) {
-           addVpnPseudoPortToCache(vpnToPseudoPort.getVrfId(), vpnToPseudoPort.getVpnLportTag());
+            addVpnPseudoPortToCache(vpnToPseudoPort.getVrfId(), vpnToPseudoPort.getVpnLportTag());
         }
     }
 
