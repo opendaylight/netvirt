@@ -7,17 +7,19 @@
  */
 package org.opendaylight.netvirt.cloudservicechain;
 
+import com.google.common.base.Optional;
+
 import java.math.BigInteger;
 import java.util.Collection;
 import java.util.List;
 
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.netvirt.cloudservicechain.utils.ElanServiceChainUtils;
-import org.opendaylight.genius.mdsalutil.NWUtil;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
+import org.opendaylight.genius.mdsalutil.NWUtil;
 import org.opendaylight.genius.mdsalutil.NwConstants;
+import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
+import org.opendaylight.netvirt.cloudservicechain.utils.ElanServiceChainUtils;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.cloud.servicechain.state.rev170511.ElanServiceChainState;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.cloud.servicechain.state.rev170511.elan.to.pseudo.port.data.list.ElanToPseudoPortData;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.ElanInstances;
@@ -29,8 +31,6 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.base.Optional;
-
 /**
  * It is in charge of executing the changes in the Pipeline that are related to
  * Elan Pseudo Ports when participating in ServiceChains.
@@ -38,15 +38,12 @@ import com.google.common.base.Optional;
  */
 public class ElanServiceChainHandler {
 
-    private static final Logger logger = LoggerFactory.getLogger(ElanServiceChainHandler.class);
+    private static final Logger LOG = LoggerFactory.getLogger(ElanServiceChainHandler.class);
 
     private final DataBroker broker;
     private final IMdsalApiManager mdsalManager;
 
-    /**
-     * @param db reference to the assigned DataBroker
-     * @param mdsalMgr MDSAL Util API accessor
-     */
+
     public ElanServiceChainHandler(final DataBroker db, final IMdsalApiManager mdsalMgr) {
         this.broker = db;
         this.mdsalManager = mdsalMgr;
@@ -56,7 +53,7 @@ public class ElanServiceChainHandler {
      * Programs the needed flows for sending traffic to the SCF pipeline when
      * it is comming from an L2-GW (ELAN) and also for handing over that
      * traffic from SCF to ELAN when the packets does not match any Service
-     * Chain
+     * Chain.
      *
      * @param elanName Name of the ELAN to be considered
      * @param tableId Table id, in the SCF Pipeline, to which the traffic must
@@ -67,8 +64,8 @@ public class ElanServiceChainHandler {
      * @param addOrRemove States if the flows must be created or removed
      */
     public void programElanScfPipeline(String elanName, short tableId, long scfTag, int elanLportTag, int addOrRemove) {
-        logger.info("programElanScfPipeline:  elanName={}   scfTag={}   elanLportTag={}    addOrRemove={}",
-                    elanName, scfTag, elanLportTag, addOrRemove);
+        LOG.info("programElanScfPipeline:  elanName={}   scfTag={}   elanLportTag={}    addOrRemove={}",
+                 elanName, scfTag, elanLportTag, addOrRemove);
         // There are 3 rules to be considered:
         //  1. LportDispatcher To Scf. Matches on elanPseudoPort + SI=1. Goes to DL Subscriber table
         //  2. LportDispatcher From Scf. Matches on elanPseudoPort + SI=3. Goes to ELAN DMAC
@@ -79,13 +76,13 @@ public class ElanServiceChainHandler {
         // Find the ElanInstance
         Optional<ElanInstance> elanInstance = ElanServiceChainUtils.getElanInstanceByName(broker, elanName);
         if ( !elanInstance.isPresent() ) {
-            logger.debug("Could not find an Elan Instance with name={}", elanName);
+            LOG.debug("Could not find an Elan Instance with name={}", elanName);
             return;
         }
 
         Optional<Collection<BigInteger>> elanDpnsOpc = ElanServiceChainUtils.getElanDpnsByName(broker, elanName);
         if ( !elanDpnsOpc.isPresent() ) {
-            logger.debug("Could not find any DPN related to Elan {}", elanName);
+            LOG.debug("Could not find any DPN related to Elan {}", elanName);
             return;
         }
 
@@ -94,12 +91,12 @@ public class ElanServiceChainHandler {
 
         Long vni = elanInstance.get().getSegmentationId();
         if ( vni == null ) {
-            logger.warn("There is no VNI for elan {}. VNI is mandatory. Returning", elanName);
+            LOG.warn("There is no VNI for elan {}. VNI is mandatory. Returning", elanName);
             return;
         }
 
         int elanTag = elanInstance.get().getElanTag().intValue();
-        logger.debug("elanName={}  ->  vni={}  elanTag={}", elanName, vni, elanTag);
+        LOG.debug("elanName={}  ->  vni={}  elanTag={}", elanName, vni, elanTag);
         // For each DPN in the Elan, do
         //    Program LPortDispatcher to Scf
         //    Program LPortDispatcher from Scf
@@ -119,31 +116,31 @@ public class ElanServiceChainHandler {
         Optional<ElanServiceChainState> elanServiceChainState =
             ElanServiceChainUtils.getElanServiceChainState(broker, elanName);
         if (!elanServiceChainState.isPresent()) {
-            logger.warn("Could not find ServiceChain state data for Elan {}, elanPseudoLportTag={}",
-                        elanName, elanLportTag);
+            LOG.warn("Could not find ServiceChain state data for Elan {}, elanPseudoLportTag={}",
+                     elanName, elanLportTag);
             return;
         }
         Optional<ElanInstance> elanInstance = ElanServiceChainUtils.getElanInstanceByName(broker, elanName);
         if ( !elanInstance.isPresent() ) {
-            logger.warn("Could not find ElanInstance for name {}", elanName);
+            LOG.warn("Could not find ElanInstance for name {}", elanName);
             return;
         }
 
         Long vni = elanInstance.get().getSegmentationId();
         if (vni == null) {
-            logger.warn("Elan {} is not related to a VNI. VNI is mandatory for ServiceChaining. Returning", elanName);
+            LOG.warn("Elan {} is not related to a VNI. VNI is mandatory for ServiceChaining. Returning", elanName);
             return;
         }
 
         List<ElanToPseudoPortData> elanToPseudoPortDataList = elanServiceChainState.get().getElanToPseudoPortData();
         if ( elanToPseudoPortDataList == null || elanToPseudoPortDataList.isEmpty() ) {
-            logger.info("Could not find elan {} with elanPseudoPort {} participating in any ServiceChain",
-                        elanName, elanLportTag);
+            LOG.info("Could not find elan {} with elanPseudoPort {} participating in any ServiceChain",
+                     elanName, elanLportTag);
             return;
         }
 
         if ( elanInstance.get().getElanTag() == null ) {
-            logger.info("Could not find elanTag for elan {} ", elanName);
+            LOG.info("Could not find elanTag for elan {} ", elanName);
             return;
         }
 
@@ -170,11 +167,7 @@ public class ElanServiceChainHandler {
                               .augmentation(ElanServiceChainState.class)
                               .build();
 
-        try {
-            MDSALUtil.syncDelete(broker, LogicalDatastoreType.OPERATIONAL, path);
-        } catch ( Exception e ) {
-            logger.warn("Could not remove elan-servicechain-state for elan {}", elanName, e);
-        }
+        MDSALUtil.syncDelete(broker, LogicalDatastoreType.OPERATIONAL, path);
     }
 
 }

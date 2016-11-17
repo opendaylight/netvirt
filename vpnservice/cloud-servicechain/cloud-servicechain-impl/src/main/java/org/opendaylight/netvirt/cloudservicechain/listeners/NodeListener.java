@@ -46,13 +46,13 @@ import org.slf4j.LoggerFactory;
  */
 public class NodeListener extends AbstractDataChangeListener<Node> implements AutoCloseable {
 
+    private static final String L3_TO_L2_DEFAULT_FLOW_REF = "L3VPN_to_Elan_Fallback_Default_Rule";
+    private static final Logger LOG = LoggerFactory.getLogger(NodeListener.class);
+
     private ListenerRegistration<DataChangeListener> listenerRegistration;
     private final DataBroker broker;
     private final IMdsalApiManager mdsalMgr;
 
-    private static final String L3_TO_L2_DEFAULT_FLOW_REF = "L3VPN_to_Elan_Fallback_Default_Rule";
-
-    private static final Logger logger = LoggerFactory.getLogger(NodeListener.class);
 
     public NodeListener(final DataBroker db, final IMdsalApiManager mdsalManager) {
         super(Node.class);
@@ -65,28 +65,18 @@ public class NodeListener extends AbstractDataChangeListener<Node> implements Au
     }
 
     private void registerListener(final DataBroker db) {
-        try {
-            listenerRegistration =
-                    db.registerDataChangeListener(LogicalDatastoreType.OPERATIONAL,
-                            InstanceIdentifier.create(Nodes.class).child(Node.class),
-                            NodeListener.this, DataChangeScope.SUBTREE);
-        } catch (final Exception e) {
-            logger.error("vpnmanager's NodeListener registration Listener failed.", e);
-            throw new IllegalStateException("vpnmanager's NodeListener registration Listener failed.", e);
-        }
+        listenerRegistration = db.registerDataChangeListener(LogicalDatastoreType.OPERATIONAL,
+                                                             InstanceIdentifier.create(Nodes.class).child(Node.class),
+                                                             NodeListener.this, DataChangeScope.SUBTREE);
     }
 
     @Override
     public void close() throws Exception {
         if (listenerRegistration != null) {
-            try {
-                listenerRegistration.close();
-            } catch (final Exception e) {
-                logger.error("Error when cleaning up NodeListener in VpnManager.", e);
-            }
+            listenerRegistration.close();
             listenerRegistration = null;
         }
-        logger.debug("VpnManager's NodeListener Closed");
+        LOG.debug("VpnManager's NodeListener Closed");
     }
 
     @Override
@@ -95,7 +85,7 @@ public class NodeListener extends AbstractDataChangeListener<Node> implements Au
         if ( dpnId == null ) {
             return;
         }
-        logger.debug("Removing L3VPN to ELAN default Fallback flow in LPortDispatcher table");
+        LOG.debug("Removing L3VPN to ELAN default Fallback flow in LPortDispatcher table");
         Flow flowToRemove = new FlowBuilder().setFlowName(L3_TO_L2_DEFAULT_FLOW_REF)
                 .setId(new FlowId(L3_TO_L2_DEFAULT_FLOW_REF))
                 .setTableId(NwConstants.LPORT_DISPATCHER_TABLE).build();
@@ -113,14 +103,17 @@ public class NodeListener extends AbstractDataChangeListener<Node> implements Au
             return;
         }
 
-        logger.debug("Installing L3VPN to ELAN default Fallback flow in LPortDispatcher table");
+        LOG.debug("Installing L3VPN to ELAN default Fallback flow in LPortDispatcher table");
         BigInteger[] metadataToMatch = new BigInteger[] {
-                MetaDataUtil.getServiceIndexMetaData(ServiceIndex.getIndex(NwConstants.L3VPN_SERVICE_NAME, NwConstants.L3VPN_SERVICE_INDEX)),
-                MetaDataUtil.METADATA_MASK_SERVICE_INDEX
+            MetaDataUtil.getServiceIndexMetaData(ServiceIndex.getIndex(NwConstants.L3VPN_SERVICE_NAME,
+                                                                       NwConstants.L3VPN_SERVICE_INDEX)),
+            MetaDataUtil.METADATA_MASK_SERVICE_INDEX
         };
         List<MatchInfo> matches = Arrays.asList(new MatchInfo(MatchFieldType.metadata, metadataToMatch));
 
-        BigInteger metadataToWrite = MetaDataUtil.getServiceIndexMetaData(ServiceIndex.getIndex(NwConstants.ELAN_SERVICE_NAME, NwConstants.ELAN_SERVICE_INDEX));
+        BigInteger metadataToWrite =
+            MetaDataUtil.getServiceIndexMetaData(ServiceIndex.getIndex(NwConstants.ELAN_SERVICE_NAME,
+                                                                       NwConstants.ELAN_SERVICE_INDEX));
         int instructionKey = 0;
         List<Instruction> instructions =
                 Arrays.asList(MDSALUtil.buildAndGetWriteMetadaInstruction(metadataToWrite,
@@ -138,8 +131,8 @@ public class NodeListener extends AbstractDataChangeListener<Node> implements Au
 
     private BigInteger getDpnIdFromNodeId(NodeId nodeId) {
         String[] node =  nodeId.getValue().split(":");
-        if(node.length < 2) {
-            logger.warn("Unexpected nodeId {}", nodeId.getValue());
+        if (node.length < 2) {
+            LOG.warn("Unexpected nodeId {}", nodeId.getValue());
             return null;
         }
         return new BigInteger(node[1]);
