@@ -123,20 +123,18 @@ public class FloatingIPListener extends AsyncDataTreeChangeListenerBase<Internal
         String internalIp = mapping.getInternalIp();
         String externalIp = mapping.getExternalIp();
         LOG.info("NAT Service : Bulding DNAT Flow entity for ip {} ", externalIp);
-
         long segmentId = (associatedVpn == NatConstants.INVALID_ID) ? routerId : associatedVpn;
         LOG.debug("NAT Service : Segment id {} in build preDNAT Flow", segmentId);
 
         List<MatchInfo> matches = new ArrayList<>();
-        matches.add(new MatchInfo(MatchFieldType.eth_type, new long[] { 0x0800L }));
+        matches.add(new MatchInfo(MatchFieldType.eth_type, new long[]{0x0800L}));
 
-        matches.add(new MatchInfo(MatchFieldType.ipv4_destination, new String[] { externalIp, "32" }));
+        matches.add(new MatchInfo(MatchFieldType.ipv4_destination, new String[]{externalIp, "32"}));
 
 //        matches.add(new MatchInfo(MatchFieldType.metadata, new BigInteger[] {
 //                BigInteger.valueOf(vpnId), MetaDataUtil.METADATA_MASK_VRFID }));
-
         List<ActionInfo> actionsInfos = new ArrayList<>();
-        actionsInfos.add(new ActionInfo(ActionType.set_destination_ip, new String[]{ internalIp, "32" }));
+        actionsInfos.add(new ActionInfo(ActionType.set_destination_ip, new String[]{internalIp, "32"}));
 
         List<InstructionInfo> instructions = new ArrayList<>();
         instructions.add(new InstructionInfo(InstructionType.write_metadata,
@@ -209,7 +207,6 @@ public class FloatingIPListener extends AsyncDataTreeChangeListenerBase<Internal
 
         List<ActionInfo> actionsInfos = new ArrayList<>();
         actionsInfos.add(new ActionInfo(ActionType.set_source_ip, new String[]{ externalIp, "32" }));
-
         List<InstructionInfo> instructions = new ArrayList<>();
         instructions.add(new InstructionInfo(InstructionType.write_metadata,
                 new BigInteger[] { MetaDataUtil.getVpnIdMetadata(vpnId), MetaDataUtil.METADATA_MASK_VRFID }));
@@ -253,7 +250,7 @@ public class FloatingIPListener extends AsyncDataTreeChangeListenerBase<Internal
         if (macAddress != null) {
             actionsInfo.add(new ActionInfo(ActionType.set_field_eth_src, new String[] {macAddress}));
         } else {
-            LOG.warn("No MAC address found for floating IP {}", externalIp);
+           LOG.warn("No MAC address found for floating IP {}", externalIp);
         }
 
         if (provType != ProviderTypes.GRE) {
