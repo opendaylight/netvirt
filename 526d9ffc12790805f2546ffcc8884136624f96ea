@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "3a65312a_e8a6900f",
+        "filename": "vpnservice/bgpmanager/bgpmanager-impl/src/main/java/org/opendaylight/netvirt/bgpmanager/BgpUtil.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 167,
+      "author": {
+        "id": 6584
+      },
+      "writtenOn": "2016-11-17T08:34:13Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "3a65312a_ed6ea200",
+      "revId": "526d9ffc12790805f2546ffcc8884136624f96ea",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "3a65312a_ad32ea0d",
         "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
         "patchSetId": 7
@@ -36,6 +54,24 @@
     },
     {
       "key": {
+        "uuid": "3a65312a_0864ace3",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 444,
+      "author": {
+        "id": 6584
+      },
+      "writtenOn": "2016-11-17T08:34:13Z",
+      "side": 1,
+      "message": "Nice suggestion. Like this is not affecting just this Bug, but also some other parts of the code, I propose to address it in another commit, in order to make commits smaller and easier to review.",
+      "parentUuid": "3a65312a_ad32ea0d",
+      "revId": "526d9ffc12790805f2546ffcc8884136624f96ea",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "3a65312a_8d356ef9",
         "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
         "patchSetId": 7
@@ -47,6 +83,24 @@
       "writtenOn": "2016-11-17T05:27:59Z",
       "side": 1,
       "message": "Nit: remove trailing space.",
+      "revId": "526d9ffc12790805f2546ffcc8884136624f96ea",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a65312a_2869a8be",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 445,
+      "author": {
+        "id": 6584
+      },
+      "writtenOn": "2016-11-17T08:34:13Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "3a65312a_8d356ef9",
       "revId": "526d9ffc12790805f2546ffcc8884136624f96ea",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
