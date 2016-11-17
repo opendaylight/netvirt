@@ -121,6 +121,24 @@
       "revId": "526d9ffc12790805f2546ffcc8884136624f96ea",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a65312a_8809dcdf",
+        "filename": "vpnservice/vpnmanager/vpnmanager-api/src/main/java/org/opendaylight/netvirt/vpnmanager/api/intervpnlink/InterVpnLinkDataComposite.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 75,
+      "author": {
+        "id": 5350
+      },
+      "writtenOn": "2016-11-17T09:54:04Z",
+      "side": 1,
+      "message": "how do you mean?\nI know Predicates are useful when dealing with collections, but I don\u0027t know how they could be helpful here.",
+      "parentUuid": "3a65312a_ed3ce2e4",
+      "revId": "526d9ffc12790805f2546ffcc8884136624f96ea",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
