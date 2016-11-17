@@ -1,0 +1,72 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3a65312a_ed6ea200",
+        "filename": "vpnservice/bgpmanager/bgpmanager-impl/src/main/java/org/opendaylight/netvirt/bgpmanager/BgpUtil.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 167,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2016-11-17T05:27:59Z",
+      "side": 1,
+      "message": "change the return type to Optional\u003cString\u003e",
+      "revId": "526d9ffc12790805f2546ffcc8884136624f96ea",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a65312a_ad32ea0d",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 444,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2016-11-17T05:27:59Z",
+      "side": 1,
+      "message": "Nit: you can have function like Function \u003cUuid, String\u003e ipToString \u003d (Uuid uuid) -\u003e uuid.toString(); which can be used to convert uuid into string value. The same logic can be used for ip to string conversion. it makes the code to be less verbose.",
+      "revId": "526d9ffc12790805f2546ffcc8884136624f96ea",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a65312a_8d356ef9",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 445,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2016-11-17T05:27:59Z",
+      "side": 1,
+      "message": "Nit: remove trailing space.",
+      "revId": "526d9ffc12790805f2546ffcc8884136624f96ea",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a65312a_ed3ce2e4",
+        "filename": "vpnservice/vpnmanager/vpnmanager-api/src/main/java/org/opendaylight/netvirt/vpnmanager/api/intervpnlink/InterVpnLinkDataComposite.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 75,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2016-11-17T05:27:59Z",
+      "side": 1,
+      "message": "Have Predicates like isBgpRoutesLeaking,  isStaticRoutesLeaking  and isConnectedRoutesLeaking instead of having these methods.",
+      "revId": "526d9ffc12790805f2546ffcc8884136624f96ea",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
