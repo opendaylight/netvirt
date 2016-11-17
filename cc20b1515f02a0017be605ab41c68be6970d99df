@@ -34,6 +34,24 @@
       "revId": "cc20b1515f02a0017be605ab41c68be6970d99df",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a65312a_6e71e9df",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 704,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-11-17T17:25:30Z",
+      "side": 1,
+      "message": "This could result in adjacencies.present() , but a get() of them returning Null.\n\nCoudl you please verify and confirm if anywhere in the entire VPN Engine (and VRFEntryListener), we assume that the returned adjacencyList will always be processable (i.e., non-null).. \n\nWe have to fix such places to avoid NPE.",
+      "parentUuid": "3a65312a_6d3572d9",
+      "revId": "cc20b1515f02a0017be605ab41c68be6970d99df",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
