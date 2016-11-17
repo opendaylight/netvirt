@@ -1614,4 +1614,21 @@ public class NatUtil {
                 .setRouterId(routerId).setRouterName(routerName).build();
         MDSALUtil.syncWrite(dataBroker, LogicalDatastoreType.CONFIGURATION, buildRouterIdentifier(routerId), rtrs);
     }
+
+ /**
+  * @param broker
+  * @param routerId
+  * @return
+  */
+    static String getExtGwMacAddFromRouterId(DataBroker broker, long routerId) {
+
+     String routerName = getRouterName(broker, routerId);
+     InstanceIdentifier id = buildRouterIdentifier(routerName);
+     Optional<Routers> routerData = read(broker, LogicalDatastoreType.CONFIGURATION, id);
+     if (routerData.isPresent()) {
+         return routerData.get().getExtGwMacAddress();
+     }
+     return null;
+  }
+
 }
