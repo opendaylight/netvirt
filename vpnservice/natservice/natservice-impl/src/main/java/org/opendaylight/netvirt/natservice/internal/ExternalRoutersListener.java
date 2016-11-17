@@ -2104,7 +2104,13 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
             LOG.error("NAT Service : Unable to retrieve the IpPortMapping");
             return;
         }
-
+		// Get the External Gateway MAC Address as part of EVPN_RT5 New Feature Support
+		String extGwMacAddress = NatUtil.getExtGwMacAddFromRouterId(dataBroker, routerId);
+		if (extGwMacAddress != null) {
+			LOG.info("External Gateway MAC address {} found for External Router ID {}", extGwMacAddress, routerId);
+		} else {
+			LOG.debug("No External Gateway MAC address found for External Router ID", routerId);
+		}
         List<IntextIpProtocolType> intextIpProtocolTypes = ipPortMapping.getIntextIpProtocolType();
         for(IntextIpProtocolType intextIpProtocolType : intextIpProtocolTypes){
             List<IpPortMap> ipPortMaps = intextIpProtocolType.getIpPortMap();
@@ -2134,9 +2140,9 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
                 SessionAddress externalAddress = naptManager.getExternalAddressMapping(routerId, internalAddress, protocol);
                 long internetVpnid = NatUtil.getVpnId(dataBroker, routerId);
                 NaptEventHandler.buildAndInstallNatFlows(dpnId, NwConstants.OUTBOUND_NAPT_TABLE, internetVpnid, routerId, bgpVpnId,
-                        internalAddress, externalAddress, protocol);
+                        internalAddress, externalAddress, protocol, extGwMacAddress);
                 NaptEventHandler.buildAndInstallNatFlows(dpnId, NwConstants.INBOUND_NAPT_TABLE, internetVpnid, routerId, bgpVpnId,
-                        externalAddress, internalAddress, protocol);
+                        externalAddress, internalAddress, protocol, extGwMacAddress);
 
             }
         }

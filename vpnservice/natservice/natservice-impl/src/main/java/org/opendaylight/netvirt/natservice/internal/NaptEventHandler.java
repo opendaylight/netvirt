@@ -93,7 +93,13 @@ public class NaptEventHandler {
     */
         Long routerId = naptEntryEvent.getRouterId();
         LOG.info("NAT Service : handleEvent() entry for IP {}, port {}, routerID {}", naptEntryEvent.getIpAddress(), naptEntryEvent.getPortNumber(), routerId);
-
+		// Get the External Gateway MAC Address as part of EVPN_RT5 New Feature Support
+		String extGwMacAddress = NatUtil.getExtGwMacAddFromRouterId(dataBroker, routerId);
+		if (extGwMacAddress != null) {
+			LOG.info("External Gateway MAC address {} found for External Router ID {}", extGwMacAddress, routerId);
+		} else {
+			LOG.debug("No External Gateway MAC address found for External Router ID", routerId);
+		}
         //Get the DPN ID
         BigInteger dpnId = NatUtil.getPrimaryNaptfromRouterId(dataBroker, routerId);
         long bgpVpnId = NatConstants.INVALID_ID;
@@ -147,11 +153,16 @@ public class NaptEventHandler {
                     return;
                 }
             }
-            //Build and install the NAPT translation flows in the Outbound and Inbound NAPT tables
-            if(!naptEntryEvent.isPktProcessed()) {
-                buildAndInstallNatFlows(dpnId, NwConstants.OUTBOUND_NAPT_TABLE, vpnId, routerId, bgpVpnId, internalAddress, externalAddress, protocol);
-                buildAndInstallNatFlows(dpnId, NwConstants.INBOUND_NAPT_TABLE, vpnId, routerId, bgpVpnId, externalAddress, internalAddress, protocol);
-            }
+			// Build and install the NAPT translation flows in the Outbound and
+			// Inbound NAPT tables
+			if (!naptEntryEvent.isPktProcessed()) {
+				// Added External Gateway MAC Address as part of EVPN_RT5 New
+				// Feature Support
+				buildAndInstallNatFlows(dpnId, NwConstants.OUTBOUND_NAPT_TABLE, vpnId, routerId, bgpVpnId,
+						internalAddress, externalAddress, protocol, extGwMacAddress);
+				buildAndInstallNatFlows(dpnId, NwConstants.INBOUND_NAPT_TABLE, vpnId, routerId, bgpVpnId,
+						externalAddress, internalAddress, protocol, extGwMacAddress);
+			}
 
             //Send Packetout - tcp or udp packets which got punted to controller.
             BigInteger metadata = naptEntryEvent.getPacketReceived().getMatch().getMetadata().getMetadata();
@@ -230,7 +241,7 @@ public class NaptEventHandler {
     }
 
     public static void buildAndInstallNatFlows(BigInteger dpnId, short tableId, long vpnId, long routerId, long bgpVpnId, SessionAddress actualSourceAddress,
-                                         SessionAddress translatedSourceAddress, NAPTEntryEvent.Protocol protocol){
+                                         SessionAddress translatedSourceAddress, NAPTEntryEvent.Protocol protocol, String extGwMacAddress){
         LOG.debug("NAT Service : Build and install NAPT flows in InBound and OutBound tables for dpnId {} and routerId {}", dpnId, routerId);
         //Build the flow for replacing the actual IP and port with the translated IP and port.
         String actualIp = actualSourceAddress.getIpAddress();
@@ -252,9 +263,10 @@ public class NaptEventHandler {
         }
         LOG.debug("NAT Service : Intranet VPN ID {}", intranetVpnId);
         LOG.debug("NAT Service : Router ID {}", routerId);
+      //Added External Gateway MAC Address as part of EVPN_RT5 New Feature Support
         FlowEntity snatFlowEntity = MDSALUtil.buildFlowEntity(dpnId, tableId, switchFlowRef, NatConstants.DEFAULT_NAPT_FLOW_PRIORITY, NatConstants.NAPT_FLOW_NAME,
                 idleTimeout, 0, NatUtil.getCookieNaptFlow(metaDataValue), buildAndGetMatchInfo(actualIp, actualPort, tableId, protocol, intranetVpnId, vpnId),
-                buildAndGetSetActionInstructionInfo(translatedIp, translatedPort, intranetVpnId, vpnId, tableId, protocol));
+                buildAndGetSetActionInstructionInfo(translatedIp, translatedPort, intranetVpnId, vpnId, tableId, protocol,extGwMacAddress));
 
         snatFlowEntity.setSendFlowRemFlag(true);
 
@@ -312,35 +324,44 @@ public class NaptEventHandler {
         return matchInfo;
     }
 
-    private static List<InstructionInfo> buildAndGetSetActionInstructionInfo(String ipAddress, String port, long segmentId, long vpnId, short tableId, NAPTEntryEvent.Protocol protocol) {
+    private static List<InstructionInfo> buildAndGetSetActionInstructionInfo(String ipAddress, String port, long segmentId, long vpnId, short tableId, NAPTEntryEvent.Protocol protocol,String extGwMacAddress) {
         ActionInfo ipActionInfo = null;
+        ActionInfo macActionInfo = null;
         ActionInfo portActionInfo = null;
         ArrayList<ActionInfo> listActionInfo = new ArrayList<>();
         ArrayList<InstructionInfo> instructionInfo = new ArrayList<>();
+		switch (tableId) {
+		case NwConstants.OUTBOUND_NAPT_TABLE:
+			ipActionInfo = new ActionInfo(ActionType.set_source_ip, new String[] { ipAddress });
+			// Added External Gateway MAC Address as part of EVPN_RT5 New Feature Support
+			macActionInfo = new ActionInfo(ActionType.set_field_eth_src, new String[] { extGwMacAddress });
+			if (protocol == NAPTEntryEvent.Protocol.TCP) {
+				portActionInfo = new ActionInfo(ActionType.set_tcp_source_port, new String[] { port });
+			} else if (protocol == NAPTEntryEvent.Protocol.UDP) {
+				portActionInfo = new ActionInfo(ActionType.set_udp_source_port, new String[] { port });
+			}
+			instructionInfo.add(new InstructionInfo(InstructionType.write_metadata,
+					new BigInteger[] { MetaDataUtil.getVpnIdMetadata(vpnId), MetaDataUtil.METADATA_MASK_VRFID }));
+			break;
 
-        if(tableId == NwConstants.OUTBOUND_NAPT_TABLE){
-            ipActionInfo = new ActionInfo(ActionType.set_source_ip, new String[] {ipAddress});
-            if(protocol == NAPTEntryEvent.Protocol.TCP) {
-               portActionInfo = new ActionInfo( ActionType.set_tcp_source_port, new String[] {port});
-            } else if(protocol == NAPTEntryEvent.Protocol.UDP) {
-               portActionInfo = new ActionInfo( ActionType.set_udp_source_port, new String[] {port});
-            }
-            instructionInfo.add(new InstructionInfo(InstructionType.write_metadata,
-                    new BigInteger[] { MetaDataUtil.getVpnIdMetadata(vpnId), MetaDataUtil.METADATA_MASK_VRFID }));
-        }else{
-            ipActionInfo = new ActionInfo(ActionType.set_destination_ip, new String[] {ipAddress});
-            if(protocol == NAPTEntryEvent.Protocol.TCP) {
-               portActionInfo = new ActionInfo( ActionType.set_tcp_destination_port, new String[] {port});
-            } else if(protocol == NAPTEntryEvent.Protocol.UDP) {
-               portActionInfo = new ActionInfo( ActionType.set_udp_destination_port, new String[] {port});
-            }
-            instructionInfo.add(new InstructionInfo(InstructionType.write_metadata,
-                    new BigInteger[] { MetaDataUtil.getVpnIdMetadata(segmentId), MetaDataUtil.METADATA_MASK_VRFID }));
-        }
+		case NwConstants.INBOUND_NAPT_TABLE:
+
+			ipActionInfo = new ActionInfo(ActionType.set_destination_ip, new String[] { ipAddress });
+			if (protocol == NAPTEntryEvent.Protocol.TCP) {
+				portActionInfo = new ActionInfo(ActionType.set_tcp_destination_port, new String[] { port });
+			} else if (protocol == NAPTEntryEvent.Protocol.UDP) {
+				portActionInfo = new ActionInfo(ActionType.set_udp_destination_port, new String[] { port });
+			}
+			instructionInfo.add(new InstructionInfo(InstructionType.write_metadata,
+					new BigInteger[] { MetaDataUtil.getVpnIdMetadata(segmentId), MetaDataUtil.METADATA_MASK_VRFID }));
+
+			break;
+		}
 
         listActionInfo.add(ipActionInfo);
         listActionInfo.add(portActionInfo);
-
+      //Added External Gateway MAC Address as part of EVPN_RT5 New Feature Support
+        listActionInfo.add(macActionInfo);
         instructionInfo.add(new InstructionInfo(InstructionType.apply_actions, listActionInfo));
         instructionInfo.add(new InstructionInfo(InstructionType.goto_table, new long[] { NwConstants.NAPT_PFIB_TABLE
         }));
