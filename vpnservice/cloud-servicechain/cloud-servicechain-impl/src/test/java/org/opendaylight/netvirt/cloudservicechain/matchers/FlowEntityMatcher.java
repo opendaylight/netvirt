@@ -7,7 +7,6 @@
  */
 package org.opendaylight.netvirt.cloudservicechain.matchers;
 
-import org.apache.commons.lang3.StringUtils;
 import org.mockito.ArgumentMatcher;
 import org.opendaylight.genius.mdsalutil.FlowEntity;
 import org.opendaylight.genius.mdsalutil.InstructionInfo;
