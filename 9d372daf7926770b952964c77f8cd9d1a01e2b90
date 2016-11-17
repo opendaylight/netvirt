@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3a65312a_0e35d5d9",
+        "filename": "vpnservice/cloud-servicechain/cloud-servicechain-impl/src/main/java/org/opendaylight/netvirt/cloudservicechain/CloudServiceChainProvider.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 71,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2016-11-17T14:48:02Z",
+      "side": 1,
+      "message": "what was the problem here? 120 chars is acceptable as a line so seems like this one was fine.",
+      "revId": "9d372daf7926770b952964c77f8cd9d1a01e2b90",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a65312a_2e78918e",
+        "filename": "vpnservice/cloud-servicechain/cloud-servicechain-impl/src/main/java/org/opendaylight/netvirt/cloudservicechain/VPNServiceChainHandler.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2016-11-17T14:48:02Z",
+      "side": 1,
+      "message": "no need for extra space here, though the checkstyle doesn\u0027t care.",
+      "revId": "9d372daf7926770b952964c77f8cd9d1a01e2b90",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a65312a_0e6315dd",
+        "filename": "vpnservice/cloud-servicechain/cloud-servicechain-impl/src/main/java/org/opendaylight/netvirt/cloudservicechain/listeners/NodeListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2016-11-17T14:48:02Z",
+      "side": 1,
+      "message": "nitpick the LOG is usually the first field.",
+      "revId": "9d372daf7926770b952964c77f8cd9d1a01e2b90",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
