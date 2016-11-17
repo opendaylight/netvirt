@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3a65312a_0efdd53a",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 1381,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-11-17T17:00:22Z",
+      "side": 1,
+      "message": "Should be log.errr.",
+      "revId": "6d20f52aab4bd4245ff1b7e510781b79ee05fc11",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a65312a_ce02bd3d",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 1386,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-11-17T17:00:22Z",
+      "side": 1,
+      "message": "Should be log.error:\n\nfailed to swap vpnInterface {} to target Vpn {} , \u003cvpn-intf-name\u003e, \u003ctarget-rd\u003e",
+      "revId": "6d20f52aab4bd4245ff1b7e510781b79ee05fc11",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
