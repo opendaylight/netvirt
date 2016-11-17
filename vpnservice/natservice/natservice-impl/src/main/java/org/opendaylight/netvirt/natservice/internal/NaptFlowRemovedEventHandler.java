@@ -164,7 +164,7 @@ public class NaptFlowRemovedEventHandler implements SalFlowListener{
             int externalPortNumber = ipPortExternal.getPortNum();
 
             //Create an NAPT event and place it in the queue.
-            NAPTEntryEvent naptEntryEvent =  new NAPTEntryEvent(externalIpAddress, externalPortNumber, routerId, NAPTEntryEvent.Operation.DELETE, protocol, null, false);
+            NAPTEntryEvent naptEntryEvent = new NAPTEntryEvent(externalIpAddress, externalPortNumber, routerId, NAPTEntryEvent.Operation.DELETE, protocol, null, false);
             naptEventdispatcher.addNaptEvent(naptEntryEvent);
 
             //Get the DPN ID from the Node
