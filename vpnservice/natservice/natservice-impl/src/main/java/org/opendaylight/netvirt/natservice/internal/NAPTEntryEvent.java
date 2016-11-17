@@ -15,6 +15,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.service.rev130709.Pa
 
 public class NAPTEntryEvent {
     private String ipAddress;
+    private String macAddress;
     private int portNumber;
     private Long routerId;
     private Operation op;
@@ -33,6 +34,10 @@ public class NAPTEntryEvent {
     public String getIpAddress() {
         return ipAddress;
     }
+    
+    public String getMacAddress() {
+        return macAddress;
+    }
 
     public int getPortNumber() {
         return portNumber;
@@ -50,8 +55,9 @@ public class NAPTEntryEvent {
         return protocol;
     }
 
-    NAPTEntryEvent(String ipAddress, int portNumber, Long routerId, Operation op, Protocol protocol, PacketReceived packetReceived, boolean pktProcessed){
+    NAPTEntryEvent(String ipAddress, String macAddress, int portNumber, Long routerId, Operation op, Protocol protocol, PacketReceived packetReceived, boolean pktProcessed){
         this.ipAddress = ipAddress;
+        this.macAddress = macAddress;
         this.portNumber = portNumber;
         this.routerId = routerId;
         this.op = op;

@@ -120,9 +120,18 @@ public class FloatingIPListener extends AsyncDataTreeChangeListenerBase<Internal
 
     private FlowEntity buildPreDNATFlowEntity(BigInteger dpId, InternalToExternalPortMap mapping, long routerId, long
             associatedVpn) {
+		List<ActionInfo> actionsInfos = new ArrayList<>();
         String internalIp = mapping.getInternalIp();
         String externalIp = mapping.getExternalIp();
         LOG.info("NAT Service : Bulding DNAT Flow entity for ip {} ", externalIp);
+		// Get the Floating IP ID for supporting as part of new feature EVPN RT5
+		Uuid floatingIpId = mapping.getExternalId();
+		String macAddress = NatUtil.getFloatingIpPortMacFromFloatingIpId(dataBroker, floatingIpId);
+		if (macAddress != null) {
+			actionsInfos.add(new ActionInfo(ActionType.set_field_eth_dest, new String[] { macAddress }));
+		} else {
+			LOG.warn("No MAC address found for floating IP {}", externalIp);
+		}
 
         long segmentId = (associatedVpn == NatConstants.INVALID_ID) ? routerId : associatedVpn;
         LOG.debug("NAT Service : Segment id {} in build preDNAT Flow", segmentId);
@@ -137,7 +146,6 @@ public class FloatingIPListener extends AsyncDataTreeChangeListenerBase<Internal
 //        matches.add(new MatchInfo(MatchFieldType.metadata, new BigInteger[] {
 //                BigInteger.valueOf(vpnId), MetaDataUtil.METADATA_MASK_VRFID }));
 
-        List<ActionInfo> actionsInfos = new ArrayList<>();
         actionsInfos.add(new ActionInfo(ActionType.set_destination_ip, new String[]{ internalIp, "32" }));
 
         List<InstructionInfo> instructions = new ArrayList<>();
@@ -196,7 +204,7 @@ public class FloatingIPListener extends AsyncDataTreeChangeListenerBase<Internal
     }
 
     private FlowEntity buildPreSNATFlowEntity(BigInteger dpId, String internalIp, String externalIp, long vpnId, long
-            routerId, long associatedVpn) {
+            routerId, long associatedVpn, Uuid floatingIpId) {
 
         LOG.info("NAT Service : Building PSNAT Flow entity for ip {} ", internalIp);
 
@@ -216,6 +224,13 @@ public class FloatingIPListener extends AsyncDataTreeChangeListenerBase<Internal
 
         List<ActionInfo> actionsInfos = new ArrayList<>();
         actionsInfos.add(new ActionInfo(ActionType.set_source_ip, new String[]{ externalIp, "32" }));
+		// Get the Floating IP ID for supporting as part of new feature EVPN RT5
+		String macAddress = NatUtil.getFloatingIpPortMacFromFloatingIpId(dataBroker, floatingIpId);
+		if (macAddress != null) {
+			actionsInfos.add(new ActionInfo(ActionType.set_field_eth_src, new String[] { macAddress }));
+		} else {
+			LOG.warn("No MAC address found for floating IP {}", externalIp);
+		}
 
         List<InstructionInfo> instructions = new ArrayList<>();
         instructions.add(new InstructionInfo(InstructionType.write_metadata,
@@ -236,7 +251,7 @@ public class FloatingIPListener extends AsyncDataTreeChangeListenerBase<Internal
             externalNetworkId) {
         String internalIp = mapping.getInternalIp();
         String externalIp = mapping.getExternalIp();
-        Uuid floatingIpId = mapping.getExternalId();
+		Uuid floatingIpId = mapping.getExternalId();
         LOG.info("Building SNAT Flow entity for ip {} ", internalIp);
 
         ProviderTypes provType = NatUtil.getProviderTypefromNetworkId(dataBroker, externalNetworkId);
@@ -258,12 +273,12 @@ public class FloatingIPListener extends AsyncDataTreeChangeListenerBase<Internal
         List<ActionInfo> actionsInfo = new ArrayList<>();
         List<InstructionInfo> instructions = new ArrayList<InstructionInfo>();
 
-        String macAddress = NatUtil.getFloatingIpPortMacFromFloatingIpId(dataBroker, floatingIpId);
-            if (macAddress != null) {
-            actionsInfo.add(new ActionInfo(ActionType.set_field_eth_src, new String[] {macAddress}));
-        } else {
-            LOG.warn("No MAC address found for floating IP {}", externalIp);
-        }
+		String macAddress = NatUtil.getFloatingIpPortMacFromFloatingIpId(dataBroker, floatingIpId);
+		if (macAddress != null) {
+			actionsInfo.add(new ActionInfo(ActionType.set_field_eth_src, new String[] { macAddress }));
+		} else {
+			LOG.warn("No MAC address found for floating IP {}", externalIp);
+		}
 
         if (provType != ProviderTypes.GRE){
             Uuid subnetId = NatUtil.getFloatingIpPortSubnetIdFromFloatingIpId(dataBroker, floatingIpId);
@@ -310,7 +325,7 @@ public class FloatingIPListener extends AsyncDataTreeChangeListenerBase<Internal
                                     long associatedVpnId, Uuid externalNetworkId) {
         FlowEntity pFlowEntity = buildPreSNATFlowEntity(dpnId, mapping.getInternalIp(), mapping.getExternalIp(), vpnId ,
                 routerId,
-                associatedVpnId);
+                associatedVpnId, mapping.getExternalId());
         mdsalManager.installFlow(pFlowEntity);
 
         FlowEntity flowEntity = buildSNATFlowEntity(dpnId, mapping, vpnId, externalNetworkId);
@@ -485,6 +500,8 @@ public class FloatingIPListener extends AsyncDataTreeChangeListenerBase<Internal
                                   Uuid externalNetworkId, InternalToExternalPortMap mapping) {
         String internalIp = mapping.getInternalIp();
         String externalIp = mapping.getExternalIp();
+		// Get the Floating IP ID for supporting as part of new feature EVPN RT5
+		Uuid floatingIpId = mapping.getExternalId();
         //String segmentId = associatedVPN == null ? routerName : associatedVPN;
         LOG.debug("NAT Service : Retrieving vpn id for VPN {} to proceed with create NAT Flows", routerName);
         long routerId = NatUtil.getVpnId(dataBroker, routerName);
@@ -506,7 +523,7 @@ public class FloatingIPListener extends AsyncDataTreeChangeListenerBase<Internal
         FlowEntity flowEntity = buildDNATFlowEntity(dpnId, mapping, routerId, associatedVpnId);
         mdsalManager.installFlow(flowEntity);
 
-        pFlowEntity = buildPreSNATFlowEntity(dpnId, internalIp, externalIp, vpnId , routerId, associatedVpnId);
+        pFlowEntity = buildPreSNATFlowEntity(dpnId, internalIp, externalIp, vpnId , routerId, associatedVpnId, floatingIpId);
         mdsalManager.installFlow(pFlowEntity);
 
         flowEntity = buildSNATFlowEntity(dpnId, mapping, vpnId, externalNetworkId);

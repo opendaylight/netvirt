@@ -14,6 +14,7 @@ import org.opendaylight.genius.mdsalutil.packet.Ethernet;
 import org.opendaylight.genius.mdsalutil.packet.IPv4;
 import org.opendaylight.genius.mdsalutil.packet.TCP;
 import org.opendaylight.genius.mdsalutil.packet.UDP;
+import org.opendaylight.genius.mdsalutil.NWUtil;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.service.rev130709.PacketProcessingListener;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.service.rev130709.PacketReceived;
 import org.slf4j.Logger;
@@ -36,6 +37,8 @@ public class NaptPacketInHandler implements PacketProcessingListener {
     @Override
     public void onPacketReceived(PacketReceived packetReceived) {
         String internalIPAddress = "";
+       //Internal (VM) MAC Address as part of EVPN_RT5 New Feature Support
+        String internalMacAddress = "";
         int portNumber = 0;
         long routerId = 0L;
         NAPTEntryEvent.Operation operation = NAPTEntryEvent.Operation.ADD;
@@ -56,6 +59,15 @@ public class NaptPacketInHandler implements PacketProcessingListener {
                     LOG.warn("Failed to decode Packet", e);
                     return;
                 }
+				// Get the Internal (VM) MAC Address as part of EVPN_RT5 New Feature Support
+				byte[] intMacAddress = ethPkt.getSourceMACAddress();
+				internalMacAddress = NWUtil.toStringMacAddress(intMacAddress);
+				if (internalMacAddress != null) {
+					LOG.debug("NAT Service : Retrieved internal VM MacAddress {}", internalMacAddress);
+				} else {
+					LOG.error("NAT Service : Unable to retrieved Internal VM MAC Address from the Ethernet Packet");
+					return;
+				}
                 if (ethPkt.getPayload() instanceof IPv4) {
                     IPv4 ipPkt = (IPv4) ethPkt.getPayload();
                     byte[] ipSrc = Ints.toByteArray(ipPkt.getSourceAddress());
@@ -104,13 +116,13 @@ public class NaptPacketInHandler implements PacketProcessingListener {
                         //send to Event Queue
                         LOG.trace("NAT Service : Creating NaptEvent for routerId {} and sourceIp {} and Port {}", routerId,
                                 internalIPAddress, portNumber);
-                        NAPTEntryEvent naptEntryEvent = new NAPTEntryEvent(internalIPAddress,portNumber,routerId,
+                        NAPTEntryEvent naptEntryEvent = new NAPTEntryEvent(internalIPAddress,internalMacAddress,portNumber,routerId,
                                 operation,protocol, packetReceived, false);
                         naptEventdispatcher.addNaptEvent(naptEntryEvent);
                         LOG.trace("NAT Service : PacketInHandler sent event to NaptEventHandler");
                     } else {
                         LOG.trace("NAT Service : Packet already processed");
-                        NAPTEntryEvent naptEntryEvent = new NAPTEntryEvent(internalIPAddress,portNumber,routerId,
+                        NAPTEntryEvent naptEntryEvent = new NAPTEntryEvent(internalIPAddress,internalMacAddress,portNumber,routerId,
                                 operation,protocol, packetReceived, true);
                         LOG.trace("NAT Service : PacketInHandler sent event to NaptEventHandler");
                     }

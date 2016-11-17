@@ -31,6 +31,9 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.model.match.types.rev131026
 import org.opendaylight.yang.gen.v1.urn.opendaylight.model.match.types.rev131026.match.layer._4.match.TcpMatch;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.model.match.types.rev131026.match.layer._4.match.UdpMatch;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.intext.ip.port.map.ip.port.mapping.intext.ip.protocol.type.ip.port.map.IpPortExternal;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.intext.ip.port.map.IpPortMapping;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.intext.ip.port.map.ip.port.mapping.intext.ip.protocol.type.IpPortMap;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.intext.ip.port.map.ip.port.mapping.IntextIpProtocolType;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -146,9 +149,39 @@ public class NaptFlowRemovedEventHandler implements SalFlowListener{
             }
             String externalIpAddress = ipPortExternal.getIpAddress();
             int externalPortNumber = ipPortExternal.getPortNum();
+           //Get the Internal (VM) MAC Address as part of EVPN_RT5 New Feature Support
+            String internalMacAddress = "";
+            boolean flag = false;
+            IpPortMapping ipPortMapping = NatUtil.getIportMapping(dataBroker, routerId);
+			if (ipPortMapping == null) {
+				LOG.error("NAT Service : Unable to retrieve the IpPortMapping from router id {}",routerId);
+				return;
+			}
+			for (IntextIpProtocolType protocolType : ipPortMapping.getIntextIpProtocolType()) {
+				if (protocolType.getIpPortMap() == null || protocolType.getIpPortMap().isEmpty()) {
+					LOG.error("NAT Service : No {} session associated to router {}", protocolType.getProtocol(),
+							routerId);
+					return;
+				}
+				for (IpPortMap intIpPortMap : protocolType.getIpPortMap()) {
+					internalMacAddress = intIpPortMap.getInternalMac();
+					if (internalMacAddress != null && !internalMacAddress.isEmpty()) {
+						flag = true;
+						//if internalMacAddress found then quit from inner-for loop
+						break;
+					}
+				}
+				if (flag == true) {
+					//if internalMacAddress found then quit from outer-for loop
+					break;
+				}
+			}
+			LOG.debug("NAT Service : Retrieved internal VM MacAddress {} from NaptFlowRemovedEventHandler",
+					internalMacAddress);
 
             //Create an NAPT event and place it in the queue.
-            NAPTEntryEvent naptEntryEvent =  new NAPTEntryEvent(externalIpAddress, externalPortNumber, routerId, NAPTEntryEvent.Operation.DELETE, protocol, null, false);
+			NAPTEntryEvent naptEntryEvent = new NAPTEntryEvent(externalIpAddress, internalMacAddress,
+					externalPortNumber, routerId, NAPTEntryEvent.Operation.DELETE, protocol, null, false);
             naptEventdispatcher.addNaptEvent(naptEntryEvent);
 
             //Get the DPN ID from the Node
