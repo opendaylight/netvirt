@@ -12,16 +12,9 @@ import java.math.BigInteger;
 import java.util.List;
 import java.util.ArrayList;
 
-import org.opendaylight.netvirt.openstack.netvirt.providers.openflow13.AbstractServiceInstance;
 import org.opendaylight.netvirt.openstack.netvirt.providers.openflow13.Service;
-import org.opendaylight.netvirt.openstack.netvirt.providers.ConfigInterface;
-import org.opendaylight.netvirt.openstack.netvirt.api.L2ForwardingLearnProvider;
 import org.opendaylight.netvirt.openstack.netvirt.api.LearnConstants;
 import org.opendaylight.netvirt.openstack.netvirt.api.LearnConstants.LearnFlowModsType;
-import org.opendaylight.netvirt.utils.mdsal.openflow.ActionUtils;
-import org.opendaylight.netvirt.utils.mdsal.openflow.FlowUtils;
-import org.opendaylight.netvirt.utils.mdsal.openflow.MatchUtils;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.PortNumber;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.action.types.rev131112.action.list.Action;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.action.types.rev131112.action.list.ActionBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.action.types.rev131112.action.list.ActionKey;
@@ -56,10 +49,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.openflowplugin.extension.ni
 import org.opendaylight.yang.gen.v1.urn.opendaylight.openflowplugin.extension.nicira.action.rev140714.nx.action.learn.grouping.NxLearnBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.openflowplugin.extension.nicira.action.rev140714.nx.action.learn.grouping.nx.learn.FlowMods;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.openflowplugin.extension.nicira.action.rev140714.nx.action.learn.grouping.nx.learn.FlowModsBuilder;
-import org.osgi.framework.BundleContext;
-import org.osgi.framework.ServiceReference;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Lists;
 
@@ -73,44 +62,24 @@ public class EgressAclLearnServiceUtil {
      * fin_hard_timeout=60,priority=61010, cookie=0x6900000,eth_type=0x800,nw_proto=6, NXM_OF_IP_SRC[]=NXM_OF_IP_DST[],NXM_OF_IP_DST[]=NXM_OF_IP_SRC[],
      * NXM_OF_TCP_SRC[]=NXM_OF_TCP_DST[],NXM_OF_TCP_DST[]=NXM_OF_TCP_SRC[],load:0x1->NXM_NX_REG6[0..7]),resubmit(,50)"
      */
-    public static FlowBuilder programEgressAclLearnRuleForTcp(FlowBuilder flowBuilder, InstructionBuilder instructionBuilder, short learnTableId, short resubmitId) {
-        List<Action> listAction = new ArrayList<>();
-
-        // Create learn action
-
-        /*
-         * learn header
-         * 0 1 2 3 4 5 6 7 idleTO hardTO prio cook flags table finidle finhard
-         *
-         * learn flowmod
-         * 0 1 2 3 learnFlowModType srcField dstField FlowModNumBits
-         */
-        /*String[] header = new String[] {
-                "18000", "300", "61010", "0", "0", "39", "60", "60"
-        };*/
+    public static FlowBuilder programEgressAclLearnRuleForTcp(FlowBuilder flowBuilder,
+                                                              InstructionBuilder instructionBuilder) {
         String[] header = new String[] {
-         "18000",
-         "18000",
-         "61010",
-         "0",
-         "0",
-         String.valueOf(learnTableId),
-         "60",
-         "60"
+                "18000", "18000", "61010", "0", "0", "39", "60", "60"
         };
 
         String[][] flowMod = new String[8][];
-        //eth_type=0x800
+        // eth_type=0x800
         flowMod[0] = new String[] { LearnConstants.LearnFlowModsType.MATCH_FROM_VALUE.name(),
                 Integer.toString(LearnConstants.ETHTYPE_IPV4),
                 LearnConstants.NxmOfFieldType.NXM_OF_ETH_TYPE.getHexType(),
                 LearnConstants.NxmOfFieldType.NXM_OF_ETH_TYPE.getFlowModHeaderLen() };
+        // nw_proto=6
         flowMod[1] = new String[] { LearnConstants.LearnFlowModsType.MATCH_FROM_VALUE.name(),
                 Integer.toString(LearnConstants.IP_PROT_TCP),
                 LearnConstants.NxmOfFieldType.NXM_OF_IP_PROTO.getHexType(),
                 LearnConstants.NxmOfFieldType.NXM_OF_IP_PROTO.getFlowModHeaderLen() };
-        //nw_proto=6
-        //NXM_OF_IP_SRC[]=NXM_OF_IP_DST[]
+        // NXM_OF_IP_SRC[]=NXM_OF_IP_DST[]
         flowMod[2] = new String[] { LearnConstants.LearnFlowModsType.MATCH_FROM_FIELD.name(),
                 LearnConstants.NxmOfFieldType.NXM_OF_IP_DST.getHexType(),
                 LearnConstants.NxmOfFieldType.NXM_OF_IP_SRC.getHexType(),
@@ -120,114 +89,17 @@ public class EgressAclLearnServiceUtil {
                 LearnConstants.NxmOfFieldType.NXM_OF_IP_SRC.getHexType(),
                 LearnConstants.NxmOfFieldType.NXM_OF_IP_DST.getHexType(),
                 LearnConstants.NxmOfFieldType.NXM_OF_IP_SRC.getFlowModHeaderLen()};
-        //NXM_OF_TCP_SRC[]=NXM_OF_TCP_DST[]
+        // NXM_OF_TCP_SRC[]=NXM_OF_TCP_DST[]
         flowMod[4] = new String[] { LearnConstants.LearnFlowModsType.MATCH_FROM_FIELD.name(),
                 LearnConstants.NxmOfFieldType.NXM_OF_TCP_DST.getHexType(),
                 LearnConstants.NxmOfFieldType.NXM_OF_TCP_SRC.getHexType(),
                 LearnConstants.NxmOfFieldType.NXM_OF_TCP_DST.getFlowModHeaderLen()};
-        //NXM_OF_TCP_DST[]=NXM_OF_TCP_SRC[]
+        //N XM_OF_TCP_DST[]=NXM_OF_TCP_SRC[]
         flowMod[5] = new String[] { LearnConstants.LearnFlowModsType.MATCH_FROM_FIELD.name(),
                 LearnConstants.NxmOfFieldType.NXM_OF_TCP_SRC.getHexType(),
                 LearnConstants.NxmOfFieldType.NXM_OF_TCP_DST.getHexType(),
                 LearnConstants.NxmOfFieldType.NXM_OF_TCP_SRC.getFlowModHeaderLen()};
-       // NXM_NX_TUN_ID[]
-        flowMod[6] = new String[] { LearnConstants.LearnFlowModsType.MATCH_FROM_FIELD.name(),
-                LearnConstants.NxmOfFieldType.NXM_NX_TUN_ID.getHexType(),
-                LearnConstants.NxmOfFieldType.NXM_NX_TUN_ID.getHexType(),
-                LearnConstants.NxmOfFieldType.NXM_NX_TUN_ID.getFlowModHeaderLen() };
-        flowMod[7] = new String[] {
-                LearnConstants.LearnFlowModsType.COPY_FROM_VALUE.name(), "1",
-                LearnConstants.NxmOfFieldType.NXM_NX_REG6.getHexType(), "8" };
-        listAction.add(buildAction(0, header, flowMod));
-        ActionBuilder ab = new ActionBuilder();
-        ab = new ActionBuilder();
-        ab.setAction(createResubmitActions(resubmitId));
-        ab.setKey(new ActionKey(1));
-        listAction.add(ab.build());
-        ApplyActions applyActions = new ApplyActionsBuilder().setAction(listAction).build();
-        ApplyActionsCase applyActionsCase = new ApplyActionsCaseBuilder().setApplyActions(applyActions).build();
-        InstructionsBuilder instructionsBuilder = new InstructionsBuilder();
-        List<Instruction> instructions = Lists.newArrayList();
-        if(instructionBuilder == null) {
-            instructionBuilder = new InstructionBuilder();
-        }
-        instructionBuilder.setInstruction(applyActionsCase);
-        instructionBuilder.setOrder(0);
-        instructionBuilder.setKey(new InstructionKey(0));
-        instructions.add(instructionBuilder.build());
-        // Add InstructionBuilder to the Instruction(s)Builder List
-        instructionsBuilder.setInstruction(instructions);
-        // Add InstructionsBuilder to FlowBuilder
-        flowBuilder.setInstructions(instructionsBuilder.build());
-
-        return flowBuilder;
-
-    }
-
-   /*
-     * (Table:EgressAclLearnService) EgressACL Learning
-     * Match: reg6 = LearnConstants.NxmOfFieldType.NXM_NX_REG6
-     * Action: learn and resubmit to next table
-     * "table=40,dl_src=fa:16:3e:d3:bb:8a,tcp,priority=61002,tcp_dst=22,actions=learn(table=39,idle_timeout=18000,fin_idle_timeout=60,
-     * fin_hard_timeout=60,priority=61010, cookie=0x6900000,eth_type=0x800,nw_proto=6, NXM_OF_IP_SRC[]=NXM_OF_IP_DST[],NXM_OF_IP_DST[]=NXM_OF_IP_SRC[],
-     * NXM_OF_UDP_SRC[]=NXM_OF_UDP_DST[],NXM_OF_UDP_DST[]=NXM_OF_UDP_SRC[],load:0x1->NXM_NX_REG6[0..7]),resubmit(,50)"
-     */
-    public static FlowBuilder programEgressAclLearnRuleForUdp(FlowBuilder flowBuilder, InstructionBuilder instructionBuilder,short learnTableId, short resubmitId) {
-        List<Action> listAction = new ArrayList<>();
-        // Create learn action
-        /*
-         * learn header
-         * 0 1 2 3 4 5 6 7 idleTO hardTO prio cook flags table finidle finhard
-         *
-         * learn flowmod
-         * 0 1 2 3 learnFlowModType srcField dstField FlowModNumBits
-         */
-        /*String[] header = new String[] {
-                "18000", "300", "61010", "0", "0", "39", "60", "60"
-        };*/
-        String[] header = new String[] {
-         "60",
-         "60",
-         "61010",
-         "0",
-         "0",
-         String.valueOf(learnTableId),
-         "0",
-         "0"
-        };
-
-        String[][] flowMod = new String[8][];
-        //eth_type=0x800
-        flowMod[0] = new String[] { LearnConstants.LearnFlowModsType.MATCH_FROM_VALUE.name(),
-                Integer.toString(LearnConstants.ETHTYPE_IPV4),
-                LearnConstants.NxmOfFieldType.NXM_OF_ETH_TYPE.getHexType(),
-                LearnConstants.NxmOfFieldType.NXM_OF_ETH_TYPE.getFlowModHeaderLen() };
-        flowMod[1] = new String[] { LearnConstants.LearnFlowModsType.MATCH_FROM_VALUE.name(),
-                Integer.toString(LearnConstants.IP_PROT_UDP),
-                LearnConstants.NxmOfFieldType.NXM_OF_IP_PROTO.getHexType(),
-                LearnConstants.NxmOfFieldType.NXM_OF_IP_PROTO.getFlowModHeaderLen() };
-        //nw_proto=6
-        //NXM_OF_IP_SRC[]=NXM_OF_IP_DST[]
-        flowMod[2] = new String[] { LearnConstants.LearnFlowModsType.MATCH_FROM_FIELD.name(),
-                LearnConstants.NxmOfFieldType.NXM_OF_IP_DST.getHexType(),
-                LearnConstants.NxmOfFieldType.NXM_OF_IP_SRC.getHexType(),
-                LearnConstants.NxmOfFieldType.NXM_OF_IP_DST.getFlowModHeaderLen()};
-        // NXM_OF_IP_DST[]=NXM_OF_IP_SRC[]
-        flowMod[3] = new String[] { LearnConstants.LearnFlowModsType.MATCH_FROM_FIELD.name(),
-                LearnConstants.NxmOfFieldType.NXM_OF_IP_SRC.getHexType(),
-                LearnConstants.NxmOfFieldType.NXM_OF_IP_DST.getHexType(),
-                LearnConstants.NxmOfFieldType.NXM_OF_IP_SRC.getFlowModHeaderLen()};
-        //NXM_OF_TCP_SRC[]=NXM_OF_TCP_DST[]
-        flowMod[4] = new String[] { LearnConstants.LearnFlowModsType.MATCH_FROM_FIELD.name(),
-                LearnConstants.NxmOfFieldType.NXM_OF_UDP_DST.getHexType(),
-                LearnConstants.NxmOfFieldType.NXM_OF_UDP_SRC.getHexType(),
-                LearnConstants.NxmOfFieldType.NXM_OF_UDP_DST.getFlowModHeaderLen()};
-        //NXM_OF_TCP_DST[]=NXM_OF_TCP_SRC[]
-        flowMod[5] = new String[] { LearnConstants.LearnFlowModsType.MATCH_FROM_FIELD.name(),
-                LearnConstants.NxmOfFieldType.NXM_OF_UDP_SRC.getHexType(),
-                LearnConstants.NxmOfFieldType.NXM_OF_UDP_DST.getHexType(),
-                LearnConstants.NxmOfFieldType.NXM_OF_UDP_SRC.getFlowModHeaderLen()};
-     // NXM_NX_TUN_ID[]
+        // NXM_NX_TUN_ID[]
         flowMod[6] = new String[] { LearnConstants.LearnFlowModsType.MATCH_FROM_FIELD.name(),
                 LearnConstants.NxmOfFieldType.NXM_NX_TUN_ID.getHexType(),
                 LearnConstants.NxmOfFieldType.NXM_NX_TUN_ID.getHexType(),
@@ -235,66 +107,98 @@ public class EgressAclLearnServiceUtil {
         flowMod[7] = new String[] {
                 LearnConstants.LearnFlowModsType.COPY_FROM_VALUE.name(), LearnConstants.LEARN_MATCH_REG_VALUE,
                 LearnConstants.NxmOfFieldType.NXM_NX_REG6.getHexType(), "8" };
-        listAction.add(buildAction(0, header, flowMod));
-        ActionBuilder ab = new ActionBuilder();
-        ab = new ActionBuilder();
-        ab.setAction(createResubmitActions(resubmitId));
-        ab.setKey(new ActionKey(1));
-        listAction.add(ab.build());
-        ApplyActions applyActions = new ApplyActionsBuilder().setAction(listAction).build();
-        ApplyActionsCase applyActionsCase = new ApplyActionsCaseBuilder().setApplyActions(applyActions).build();
-        InstructionsBuilder instructionsBuilder = new InstructionsBuilder();
-        List<Instruction> instructions = Lists.newArrayList();
-        if(instructionBuilder == null) {
-        instructionBuilder = new InstructionBuilder();
-        }
-        instructionBuilder.setInstruction(applyActionsCase);
-        instructionBuilder.setOrder(0);
-        instructionBuilder.setKey(new InstructionKey(0));
-        instructions.add(instructionBuilder.build());
-        // Add InstructionBuilder to the Instruction(s)Builder List
-        instructionsBuilder.setInstruction(instructions);
-        // Add InstructionsBuilder to FlowBuilder
-        flowBuilder.setInstructions(instructionsBuilder.build());
-
-        return flowBuilder;
-
+        return buildLearnFlow(flowBuilder, instructionBuilder, header, flowMod);
     }
 
     /*
      * (Table:EgressAclLearnService) EgressACL Learning
      * Match: reg6 = LearnConstants.NxmOfFieldType.NXM_NX_REG6
      * Action: learn and resubmit to next table
-     * "table=40,dl_src=fa:16:3e:d3:bb:8a,tcp,priority=61002,tcp_dst=22,actions=learn(table=39,idle_timeout=18000,fin_idle_timeout=60,
-     * fin_hard_timeout=60,priority=61010, cookie=0x6900000,eth_type=0x800,nw_proto=6, NXM_OF_IP_SRC[]=NXM_OF_IP_DST[],NXM_OF_IP_DST[]=NXM_OF_IP_SRC[],
-     * NXM_OF_UDP_SRC[]=NXM_OF_UDP_DST[],NXM_OF_UDP_DST[]=NXM_OF_UDP_SRC[],load:0x1->NXM_NX_REG6[0..7]),resubmit(,50)"
+     * "table=40,dl_src=fa:16:3e:d3:bb:8a,tcp,priority=61002,tcp_dst=22,
+     *      actions=learn(table=39,idle_timeout=18000,fin_idle_timeout=60,
+     *      fin_hard_timeout=60,priority=61010, cookie=0x6900000,eth_type=0x86dd,nw_proto=6,
+     *      NXM_NX_IPV6_SRC[]=NXM_NX_IPV6_DST[],NXM_NX_IPV6_DST[]=NXM_NX_IPV6_SRC[],
+     *      NXM_OF_TCP_SRC[]=NXM_OF_TCP_DST[],NXM_OF_TCP_DST[]=NXM_OF_TCP_SRC[],
+     *      load:0x1->NXM_NX_REG6[0..7]),resubmit(,50)"
      */
-    public static FlowBuilder programEgressAclLearnRuleForIcmp(FlowBuilder flowBuilder, InstructionBuilder instructionBuilder, String icmpType, String icmpCode,short learnTableId, short resubmitId) {
-        List<Action> listAction = new ArrayList<>();
-
+    public static FlowBuilder programEgressAclLearnRuleForIpv6Tcp(FlowBuilder flowBuilder,
+                                                                  InstructionBuilder instructionBuilder) {
         String[] header = new String[] {
-         "3600",
-         "3600",
-         "61010",
-         "0",
-         "0",
-         String.valueOf(learnTableId),
-         "0",
-         "0"
+                "18000", "18000", "61010", "0", "0", "39", "60", "60"
         };
 
-        String[][] flowMod = new String[7][];
-        //eth_type=0x800
+        String[][] flowMod = new String[8][];
+
+        // eth_type=0x86dd
+        flowMod[0] = new String[] { LearnConstants.LearnFlowModsType.MATCH_FROM_VALUE.name(),
+                Integer.toString(LearnConstants.ETHTYPE_IPV6),
+                LearnConstants.NxmOfFieldType.NXM_OF_ETH_TYPE.getHexType(),
+                LearnConstants.NxmOfFieldType.NXM_OF_ETH_TYPE.getFlowModHeaderLen() };
+        // nw_proto=6
+        flowMod[1] = new String[] { LearnConstants.LearnFlowModsType.MATCH_FROM_VALUE.name(),
+                Integer.toString(LearnConstants.IP_PROT_TCP),
+                LearnConstants.NxmOfFieldType.NXM_OF_IP_PROTO.getHexType(),
+                LearnConstants.NxmOfFieldType.NXM_OF_IP_PROTO.getFlowModHeaderLen() };
+        // NXM_NX_IPV6_SRC[]=NXM_NX_IPV6_DST[]
+        flowMod[2] = new String[] { LearnConstants.LearnFlowModsType.MATCH_FROM_FIELD.name(),
+                LearnConstants.NxmOfFieldType.NXM_NX_IPV6_DST.getHexType(),
+                LearnConstants.NxmOfFieldType.NXM_NX_IPV6_SRC.getHexType(),
+                LearnConstants.NxmOfFieldType.NXM_NX_IPV6_DST.getFlowModHeaderLen()};
+        // NXM_NX_IPV6_DST[]=NXM_NX_IPV6_SRC[]
+        flowMod[3] = new String[] { LearnConstants.LearnFlowModsType.MATCH_FROM_FIELD.name(),
+                LearnConstants.NxmOfFieldType.NXM_NX_IPV6_SRC.getHexType(),
+                LearnConstants.NxmOfFieldType.NXM_NX_IPV6_DST.getHexType(),
+                LearnConstants.NxmOfFieldType.NXM_NX_IPV6_SRC.getFlowModHeaderLen()};
+        // NXM_OF_TCP_SRC[]=NXM_OF_TCP_DST[]
+        flowMod[4] = new String[] { LearnConstants.LearnFlowModsType.MATCH_FROM_FIELD.name(),
+                LearnConstants.NxmOfFieldType.NXM_OF_TCP_DST.getHexType(),
+                LearnConstants.NxmOfFieldType.NXM_OF_TCP_SRC.getHexType(),
+                LearnConstants.NxmOfFieldType.NXM_OF_TCP_DST.getFlowModHeaderLen()};
+        // NXM_OF_TCP_DST[]=NXM_OF_TCP_SRC[]
+        flowMod[5] = new String[] { LearnConstants.LearnFlowModsType.MATCH_FROM_FIELD.name(),
+                LearnConstants.NxmOfFieldType.NXM_OF_TCP_SRC.getHexType(),
+                LearnConstants.NxmOfFieldType.NXM_OF_TCP_DST.getHexType(),
+                LearnConstants.NxmOfFieldType.NXM_OF_TCP_SRC.getFlowModHeaderLen()};
+        // NXM_NX_TUN_ID[]
+        flowMod[6] = new String[] { LearnConstants.LearnFlowModsType.MATCH_FROM_FIELD.name(),
+                LearnConstants.NxmOfFieldType.NXM_NX_TUN_ID.getHexType(),
+                LearnConstants.NxmOfFieldType.NXM_NX_TUN_ID.getHexType(),
+                LearnConstants.NxmOfFieldType.NXM_NX_TUN_ID.getFlowModHeaderLen() };
+        flowMod[7] = new String[] {
+                LearnConstants.LearnFlowModsType.COPY_FROM_VALUE.name(), LearnConstants.LEARN_MATCH_REG_VALUE,
+                LearnConstants.NxmOfFieldType.NXM_NX_REG6.getHexType(), "8" };
+        return buildLearnFlow(flowBuilder, instructionBuilder, header, flowMod);
+    }
+
+   /*
+     * (Table:EgressAclLearnService) EgressACL Learning
+     * Match: reg6 = LearnConstants.NxmOfFieldType.NXM_NX_REG6
+     * Action: learn and resubmit to next table
+     * "table=40,dl_src=fa:16:3e:d3:bb:8a,tcp,priority=61002,tcp_dst=22,
+     *     actions=learn(table=39,idle_timeout=18000,fin_idle_timeout=60,
+     *     fin_hard_timeout=60,priority=61010, cookie=0x6900000,eth_type=0x800,nw_proto=17,
+     *     NXM_OF_IP_SRC[]=NXM_OF_IP_DST[],NXM_OF_IP_DST[]=NXM_OF_IP_SRC[],
+     *     NXM_OF_UDP_SRC[]=NXM_OF_UDP_DST[],NXM_OF_UDP_DST[]=NXM_OF_UDP_SRC[],
+     *     load:0x1->NXM_NX_REG6[0..7]),resubmit(,50)"
+     */
+    public static FlowBuilder programEgressAclLearnRuleForUdp(FlowBuilder flowBuilder,
+                                                              InstructionBuilder instructionBuilder) {
+        String[] header = new String[] {
+                "60", "60", "61010", "0", "0", "39", "0", "0"
+        };
+
+        String[][] flowMod = new String[8][];
+        // eth_type=0x800
         flowMod[0] = new String[] { LearnConstants.LearnFlowModsType.MATCH_FROM_VALUE.name(),
                 Integer.toString(LearnConstants.ETHTYPE_IPV4),
                 LearnConstants.NxmOfFieldType.NXM_OF_ETH_TYPE.getHexType(),
                 LearnConstants.NxmOfFieldType.NXM_OF_ETH_TYPE.getFlowModHeaderLen() };
-        //nw_proto=1
+        // nw_proto=17
         flowMod[1] = new String[] { LearnConstants.LearnFlowModsType.MATCH_FROM_VALUE.name(),
-                Integer.toString(LearnConstants.IP_PROT_ICMP),
+                Integer.toString(LearnConstants.IP_PROT_UDP),
                 LearnConstants.NxmOfFieldType.NXM_OF_IP_PROTO.getHexType(),
                 LearnConstants.NxmOfFieldType.NXM_OF_IP_PROTO.getFlowModHeaderLen() };
-        //NXM_OF_IP_SRC[]=NXM_OF_IP_DST[]
+        // NXM_OF_IP_SRC[]=NXM_OF_IP_DST[]
         flowMod[2] = new String[] { LearnConstants.LearnFlowModsType.MATCH_FROM_FIELD.name(),
                 LearnConstants.NxmOfFieldType.NXM_OF_IP_DST.getHexType(),
                 LearnConstants.NxmOfFieldType.NXM_OF_IP_SRC.getHexType(),
@@ -304,12 +208,134 @@ public class EgressAclLearnServiceUtil {
                 LearnConstants.NxmOfFieldType.NXM_OF_IP_SRC.getHexType(),
                 LearnConstants.NxmOfFieldType.NXM_OF_IP_DST.getHexType(),
                 LearnConstants.NxmOfFieldType.NXM_OF_IP_SRC.getFlowModHeaderLen()};
-        //icmp_type=0
+        // NXM_OF_UDP_SRC[]=NXM_OF_UDP_DST[]
+        flowMod[4] = new String[] { LearnConstants.LearnFlowModsType.MATCH_FROM_FIELD.name(),
+                LearnConstants.NxmOfFieldType.NXM_OF_UDP_DST.getHexType(),
+                LearnConstants.NxmOfFieldType.NXM_OF_UDP_SRC.getHexType(),
+                LearnConstants.NxmOfFieldType.NXM_OF_UDP_DST.getFlowModHeaderLen()};
+        //NXM_OF_UDP_DST[]=NXM_OF_UDP_SRC[]
+        flowMod[5] = new String[] { LearnConstants.LearnFlowModsType.MATCH_FROM_FIELD.name(),
+                LearnConstants.NxmOfFieldType.NXM_OF_UDP_SRC.getHexType(),
+                LearnConstants.NxmOfFieldType.NXM_OF_UDP_DST.getHexType(),
+                LearnConstants.NxmOfFieldType.NXM_OF_UDP_SRC.getFlowModHeaderLen()};
+        // NXM_NX_TUN_ID[]
+        flowMod[6] = new String[] { LearnConstants.LearnFlowModsType.MATCH_FROM_FIELD.name(),
+                LearnConstants.NxmOfFieldType.NXM_NX_TUN_ID.getHexType(),
+                LearnConstants.NxmOfFieldType.NXM_NX_TUN_ID.getHexType(),
+                LearnConstants.NxmOfFieldType.NXM_NX_TUN_ID.getFlowModHeaderLen() };
+        flowMod[7] = new String[] {
+                LearnConstants.LearnFlowModsType.COPY_FROM_VALUE.name(), LearnConstants.LEARN_MATCH_REG_VALUE,
+                LearnConstants.NxmOfFieldType.NXM_NX_REG6.getHexType(), "8" };
+        return buildLearnFlow(flowBuilder, instructionBuilder, header, flowMod);
+    }
+
+    /*
+     * (Table:EgressAclLearnService) EgressACL Learning
+     * Match: reg6 = LearnConstants.NxmOfFieldType.NXM_NX_REG6
+     * Action: learn and resubmit to next table
+     * "table=40,dl_src=fa:16:3e:d3:bb:8a,tcp,priority=61002,tcp_dst=22,
+     *     actions=learn(table=39,idle_timeout=18000,fin_idle_timeout=60,
+     *     fin_hard_timeout=60,priority=61010, cookie=0x6900000,eth_type=0x86dd,nw_proto=17,
+     *     NXM_NX_IPV6_SRC[]=NXM_NX_IPV6_DST[],NXM_NX_IPV6_DST[]=NXM_NX_IPV6_SRC[],
+     *     NXM_OF_UDP_SRC[]=NXM_OF_UDP_DST[],NXM_OF_UDP_DST[]=NXM_OF_UDP_SRC[],
+     *     load:0x1->NXM_NX_REG6[0..7]),resubmit(,50)"
+     */
+    public static FlowBuilder programEgressAclLearnRuleForIpv6Udp(FlowBuilder flowBuilder,
+                                                                  InstructionBuilder instructionBuilder) {
+        String[] header = new String[] {
+                "60", "60", "61010", "0", "0", "39", "0", "0"
+        };
+
+        String[][] flowMod = new String[8][];
+
+        // eth_type=0x86dd
+        flowMod[0] = new String[] { LearnConstants.LearnFlowModsType.MATCH_FROM_VALUE.name(),
+                Integer.toString(LearnConstants.ETHTYPE_IPV6),
+                LearnConstants.NxmOfFieldType.NXM_OF_ETH_TYPE.getHexType(),
+                LearnConstants.NxmOfFieldType.NXM_OF_ETH_TYPE.getFlowModHeaderLen() };
+        // nw_proto=17
+        flowMod[1] = new String[] { LearnConstants.LearnFlowModsType.MATCH_FROM_VALUE.name(),
+                Integer.toString(LearnConstants.IP_PROT_UDP),
+                LearnConstants.NxmOfFieldType.NXM_OF_IP_PROTO.getHexType(),
+                LearnConstants.NxmOfFieldType.NXM_OF_IP_PROTO.getFlowModHeaderLen() };
+        // NXM_NX_IPV6_SRC[]=NXM_NX_IPV6_DST[]
+        flowMod[2] = new String[] { LearnConstants.LearnFlowModsType.MATCH_FROM_FIELD.name(),
+                LearnConstants.NxmOfFieldType.NXM_NX_IPV6_DST.getHexType(),
+                LearnConstants.NxmOfFieldType.NXM_NX_IPV6_SRC.getHexType(),
+                LearnConstants.NxmOfFieldType.NXM_NX_IPV6_DST.getFlowModHeaderLen()};
+        // NXM_NX_IPV6_DST[]=NXM_NX_IPV6_SRC[]
+        flowMod[3] = new String[] { LearnConstants.LearnFlowModsType.MATCH_FROM_FIELD.name(),
+                LearnConstants.NxmOfFieldType.NXM_NX_IPV6_SRC.getHexType(),
+                LearnConstants.NxmOfFieldType.NXM_NX_IPV6_DST.getHexType(),
+                LearnConstants.NxmOfFieldType.NXM_NX_IPV6_SRC.getFlowModHeaderLen()};
+        // NXM_OF_TCP_SRC[]=NXM_OF_TCP_DST[]
+        flowMod[4] = new String[] { LearnConstants.LearnFlowModsType.MATCH_FROM_FIELD.name(),
+                LearnConstants.NxmOfFieldType.NXM_OF_UDP_DST.getHexType(),
+                LearnConstants.NxmOfFieldType.NXM_OF_UDP_SRC.getHexType(),
+                LearnConstants.NxmOfFieldType.NXM_OF_UDP_DST.getFlowModHeaderLen()};
+        // NXM_OF_TCP_DST[]=NXM_OF_TCP_SRC[]
+        flowMod[5] = new String[] { LearnConstants.LearnFlowModsType.MATCH_FROM_FIELD.name(),
+                LearnConstants.NxmOfFieldType.NXM_OF_UDP_SRC.getHexType(),
+                LearnConstants.NxmOfFieldType.NXM_OF_UDP_DST.getHexType(),
+                LearnConstants.NxmOfFieldType.NXM_OF_UDP_SRC.getFlowModHeaderLen()};
+        // NXM_NX_TUN_ID[]
+        flowMod[6] = new String[] { LearnConstants.LearnFlowModsType.MATCH_FROM_FIELD.name(),
+                LearnConstants.NxmOfFieldType.NXM_NX_TUN_ID.getHexType(),
+                LearnConstants.NxmOfFieldType.NXM_NX_TUN_ID.getHexType(),
+                LearnConstants.NxmOfFieldType.NXM_NX_TUN_ID.getFlowModHeaderLen() };
+        flowMod[7] = new String[] {
+                LearnConstants.LearnFlowModsType.COPY_FROM_VALUE.name(), LearnConstants.LEARN_MATCH_REG_VALUE,
+                LearnConstants.NxmOfFieldType.NXM_NX_REG6.getHexType(), "8" };
+
+        return buildLearnFlow(flowBuilder, instructionBuilder, header, flowMod);
+    }
+
+    /*
+     * (Table:EgressAclLearnService) EgressACL Learning
+     * Match: reg6 = LearnConstants.NxmOfFieldType.NXM_NX_REG6
+     * Action: learn and resubmit to next table
+     * "table=40,dl_src=fa:16:3e:d3:bb:8a,tcp,priority=61002,tcp_dst=22,
+     *     actions=learn(table=39,idle_timeout=18000,fin_idle_timeout=60,
+     *     fin_hard_timeout=60,priority=61010, cookie=0x6900000,eth_type=0x800,nw_proto=1,
+     *     NXM_OF_IP_SRC[]=NXM_OF_IP_DST[],NXM_OF_IP_DST[]=NXM_OF_IP_SRC[],
+     *     NXM_OF_UDP_SRC[]=NXM_OF_UDP_DST[],NXM_OF_UDP_DST[]=NXM_OF_UDP_SRC[],
+     *     load:0x1->NXM_NX_REG6[0..7]),resubmit(,50)"
+     */
+    public static FlowBuilder programEgressAclLearnRuleForIcmp(FlowBuilder flowBuilder,
+                                                               InstructionBuilder instructionBuilder,
+                                                               String icmpType, String icmpCode) {
+        String[] header = new String[] {
+                "3600", "3600", "61010", "0", "0", "39", "0", "0"
+        };
+
+        String[][] flowMod = new String[7][];
+
+        // eth_type=0x800
+        flowMod[0] = new String[] { LearnConstants.LearnFlowModsType.MATCH_FROM_VALUE.name(),
+                Integer.toString(LearnConstants.ETHTYPE_IPV4),
+                LearnConstants.NxmOfFieldType.NXM_OF_ETH_TYPE.getHexType(),
+                LearnConstants.NxmOfFieldType.NXM_OF_ETH_TYPE.getFlowModHeaderLen() };
+        // nw_proto=1
+        flowMod[1] = new String[] { LearnConstants.LearnFlowModsType.MATCH_FROM_VALUE.name(),
+                Integer.toString(LearnConstants.IP_PROT_ICMP),
+                LearnConstants.NxmOfFieldType.NXM_OF_IP_PROTO.getHexType(),
+                LearnConstants.NxmOfFieldType.NXM_OF_IP_PROTO.getFlowModHeaderLen() };
+        // NXM_OF_IP_SRC[]=NXM_OF_IP_DST[]
+        flowMod[2] = new String[] { LearnConstants.LearnFlowModsType.MATCH_FROM_FIELD.name(),
+                LearnConstants.NxmOfFieldType.NXM_OF_IP_DST.getHexType(),
+                LearnConstants.NxmOfFieldType.NXM_OF_IP_SRC.getHexType(),
+                LearnConstants.NxmOfFieldType.NXM_OF_IP_DST.getFlowModHeaderLen()};
+        // NXM_OF_IP_DST[]=NXM_OF_IP_SRC[]
+        flowMod[3] = new String[] { LearnConstants.LearnFlowModsType.MATCH_FROM_FIELD.name(),
+                LearnConstants.NxmOfFieldType.NXM_OF_IP_SRC.getHexType(),
+                LearnConstants.NxmOfFieldType.NXM_OF_IP_DST.getHexType(),
+                LearnConstants.NxmOfFieldType.NXM_OF_IP_SRC.getFlowModHeaderLen()};
+        // icmp_type=0
         flowMod[4] = new String[] { LearnConstants.LearnFlowModsType.MATCH_FROM_VALUE.name(),
                 icmpType,
                 LearnConstants.NxmOfFieldType.NXM_OF_ICMP_TYPE.getHexType(),
                 LearnConstants.NxmOfFieldType.NXM_OF_ICMP_TYPE.getFlowModHeaderLen()};
-        //icmp_code=0
+        // icmp_code=0
         flowMod[5] = new String[] { LearnConstants.LearnFlowModsType.MATCH_FROM_VALUE.name(),
                 icmpCode,
                 LearnConstants.NxmOfFieldType.NXM_OF_ICMP_CODE.getHexType(),
@@ -317,68 +343,94 @@ public class EgressAclLearnServiceUtil {
         flowMod[6] = new String[] {
                 LearnConstants.LearnFlowModsType.COPY_FROM_VALUE.name(), LearnConstants.LEARN_MATCH_REG_VALUE,
                 LearnConstants.NxmOfFieldType.NXM_NX_REG6.getHexType(), "8" };
-        listAction.add(buildAction(0, header, flowMod));
-        ActionBuilder ab = new ActionBuilder();
-        ab = new ActionBuilder();
-        ab.setAction(createResubmitActions(resubmitId));
-        ab.setKey(new ActionKey(1));
-        listAction.add(ab.build());
-        ApplyActions applyActions = new ApplyActionsBuilder().setAction(listAction).build();
-        ApplyActionsCase applyActionsCase = new ApplyActionsCaseBuilder().setApplyActions(applyActions).build();
-        InstructionsBuilder instructionsBuilder = new InstructionsBuilder();
-        List<Instruction> instructions = Lists.newArrayList();
-
-        if(instructionBuilder == null) {
-            instructionBuilder = new InstructionBuilder();
-        }
-        instructionBuilder.setInstruction(applyActionsCase);
-        instructionBuilder.setOrder(0);
-        instructionBuilder.setKey(new InstructionKey(0));
-        instructions.add(instructionBuilder.build());
-        // Add InstructionBuilder to the Instruction(s)Builder List
-        instructionsBuilder.setInstruction(instructions);
-
-        // Add InstructionsBuilder to FlowBuilder
-        flowBuilder.setInstructions(instructionsBuilder.build());
-
-        return flowBuilder;
-
+        return buildLearnFlow(flowBuilder, instructionBuilder, header, flowMod);
     }
 
     /*
      * (Table:EgressAclLearnService) EgressACL Learning
      * Match: reg6 = LearnConstants.NxmOfFieldType.NXM_NX_REG6
      * Action: learn and resubmit to next table
-     * "table=40,dl_src=fa:16:3e:d3:bb:8a,priority=61003,icmp,dl_src=fa:16:3e:55:71:d1,actions=learn(table=39,idle_timeout=18000,fin_idle_timeout=60,
-     * fin_hard_timeout=60,priority=61010, cookie=0x6900000,eth_type=0x800,nw_proto=6, NXM_OF_IP_SRC[]=NXM_OF_IP_DST[],NXM_OF_IP_DST[]=NXM_OF_IP_SRC[],
-     * NXM_OF_ICMP_TYPE=NXM_OF_ICMP_TYPE,NXM_OF_ICMP_CODE=NXM_OF_ICMP_CODE,load:0x1->NXM_NX_REG6[0..7]),resubmit(,50)"
+     * "table=40,dl_src=fa:16:3e:d3:bb:8a,tcp,priority=61002,tcp_dst=22,
+     *     actions=learn(table=39,idle_timeout=18000,fin_idle_timeout=60,
+     *     fin_hard_timeout=60,priority=61010, cookie=0x6900000,eth_type=0x86dd,nw_proto=58,
+     *     NXM_NX_IPV6_SRC[]=NXM_NX_IPV6_DST[],NXM_NX_IPV6_DST[]=NXM_NX_IPV6_SRC[],
+     *     icmpv6_type=<icmpv6_type>,icmpv6_code=<icmpv6_code>,
+     *     load:0x1->NXM_NX_REG6[0..7]),resubmit(,50)"
      */
-    public static FlowBuilder programEgressAclLearnRuleForIcmpAll(FlowBuilder flowBuilder, InstructionBuilder instructionBuilder, short learnTableId, short resubmitId) {
-        List<Action> listAction = new ArrayList<>();
-
+    public static FlowBuilder programEgressAclLearnRuleForIpv6Icmp(FlowBuilder flowBuilder,
+                                                                   InstructionBuilder instructionBuilder,
+                                                                   String icmpType, String icmpCode) {
         String[] header = new String[] {
-         "3600",
-         "3600",
-         "61010",
-         "0",
-         "0",
-         String.valueOf(learnTableId),
-         "0",
-         "0"
+                "3600", "3600", "61010", "0", "0", "39", "0", "0"
         };
 
         String[][] flowMod = new String[7][];
-        //eth_type=0x800
+
+        // eth_type=0x86dd
+        flowMod[0] = new String[] { LearnConstants.LearnFlowModsType.MATCH_FROM_VALUE.name(),
+                Integer.toString(LearnConstants.ETHTYPE_IPV6),
+                LearnConstants.NxmOfFieldType.NXM_OF_ETH_TYPE.getHexType(),
+                LearnConstants.NxmOfFieldType.NXM_OF_ETH_TYPE.getFlowModHeaderLen() };
+        // nw_proto=58
+        flowMod[1] = new String[] { LearnConstants.LearnFlowModsType.MATCH_FROM_VALUE.name(),
+                Integer.toString(LearnConstants.IP_PROT_ICMPV6),
+                LearnConstants.NxmOfFieldType.NXM_OF_IP_PROTO.getHexType(),
+                LearnConstants.NxmOfFieldType.NXM_OF_IP_PROTO.getFlowModHeaderLen() };
+        // NXM_NX_IPV6_SRC[]=NXM_NX_IPV6_DST[]
+        flowMod[2] = new String[] { LearnConstants.LearnFlowModsType.MATCH_FROM_FIELD.name(),
+                LearnConstants.NxmOfFieldType.NXM_NX_IPV6_DST.getHexType(),
+                LearnConstants.NxmOfFieldType.NXM_NX_IPV6_SRC.getHexType(),
+                LearnConstants.NxmOfFieldType.NXM_NX_IPV6_DST.getFlowModHeaderLen()};
+        // NXM_NX_IPV6_DST[]=NXM_NX_IPV6_SRC[]
+        flowMod[3] = new String[] { LearnConstants.LearnFlowModsType.MATCH_FROM_FIELD.name(),
+                LearnConstants.NxmOfFieldType.NXM_NX_IPV6_SRC.getHexType(),
+                LearnConstants.NxmOfFieldType.NXM_NX_IPV6_DST.getHexType(),
+                LearnConstants.NxmOfFieldType.NXM_NX_IPV6_SRC.getFlowModHeaderLen()};
+        // icmpv6_type=<icmpv6_type>
+        flowMod[4] = new String[] { LearnConstants.LearnFlowModsType.MATCH_FROM_VALUE.name(),
+                icmpType,
+                LearnConstants.NxmOfFieldType.NXM_NX_ICMPV6_TYPE.getHexType(),
+                LearnConstants.NxmOfFieldType.NXM_NX_ICMPV6_TYPE.getFlowModHeaderLen()};
+        // icmpv6_code=<icmpv6_code>
+        flowMod[5] = new String[] { LearnConstants.LearnFlowModsType.MATCH_FROM_VALUE.name(),
+                icmpCode,
+                LearnConstants.NxmOfFieldType.NXM_NX_ICMPV6_CODE.getHexType(),
+                LearnConstants.NxmOfFieldType.NXM_NX_ICMPV6_CODE.getFlowModHeaderLen()};
+        flowMod[6] = new String[] {
+                LearnConstants.LearnFlowModsType.COPY_FROM_VALUE.name(), LearnConstants.LEARN_MATCH_REG_VALUE,
+                LearnConstants.NxmOfFieldType.NXM_NX_REG6.getHexType(), "8" };
+
+        return buildLearnFlow(flowBuilder, instructionBuilder, header, flowMod);
+    }
+
+    /*
+     * (Table:EgressAclLearnService) EgressACL Learning
+     * Match: reg6 = LearnConstants.NxmOfFieldType.NXM_NX_REG6
+     * "table=40,dl_src=fa:16:3e:d3:bb:8a,priority=61003,icmp,dl_src=fa:16:3e:55:71:d1,
+     *     actions=learn(table=39,idle_timeout=18000,fin_idle_timeout=60,
+     *     fin_hard_timeout=60,priority=61010, cookie=0x6900000,eth_type=0x800,nw_proto=6,
+     *     NXM_OF_ICMP_TYPE=NXM_OF_ICMP_TYPE,NXM_OF_ICMP_CODE=NXM_OF_ICMP_CODE,load:0x1->NXM_NX_REG6[0..7]),
+     *     resubmit(,50)"
+     */
+    public static FlowBuilder programEgressAclLearnRuleForIcmpAll(FlowBuilder flowBuilder,
+                                                                  InstructionBuilder instructionBuilder) {
+        String[] header = new String[] {
+                "3600", "3600", "61010", "0", "0", "39", "0", "0"
+        };
+
+        String[][] flowMod = new String[7][];
+
+        // eth_type=0x800
         flowMod[0] = new String[] { LearnConstants.LearnFlowModsType.MATCH_FROM_VALUE.name(),
                 Integer.toString(LearnConstants.ETHTYPE_IPV4),
                 LearnConstants.NxmOfFieldType.NXM_OF_ETH_TYPE.getHexType(),
                 LearnConstants.NxmOfFieldType.NXM_OF_ETH_TYPE.getFlowModHeaderLen() };
-        //nw_proto=1
+        // nw_proto=1
         flowMod[1] = new String[] { LearnConstants.LearnFlowModsType.MATCH_FROM_VALUE.name(),
                 Integer.toString(LearnConstants.IP_PROT_ICMP),
                 LearnConstants.NxmOfFieldType.NXM_OF_IP_PROTO.getHexType(),
                 LearnConstants.NxmOfFieldType.NXM_OF_IP_PROTO.getFlowModHeaderLen() };
-        //NXM_OF_IP_SRC[]=NXM_OF_IP_DST[]
+        // NXM_OF_IP_SRC[]=NXM_OF_IP_DST[]
         flowMod[2] = new String[] { LearnConstants.LearnFlowModsType.MATCH_FROM_FIELD.name(),
                 LearnConstants.NxmOfFieldType.NXM_OF_IP_DST.getHexType(),
                 LearnConstants.NxmOfFieldType.NXM_OF_IP_SRC.getHexType(),
@@ -388,7 +440,7 @@ public class EgressAclLearnServiceUtil {
                 LearnConstants.NxmOfFieldType.NXM_OF_IP_SRC.getHexType(),
                 LearnConstants.NxmOfFieldType.NXM_OF_IP_DST.getHexType(),
                 LearnConstants.NxmOfFieldType.NXM_OF_IP_SRC.getFlowModHeaderLen()};
-         //NXM_OF_ICMP_TYPE=NXM_OF_ICMP_TYPE
+        // NXM_OF_ICMP_TYPE=NXM_OF_ICMP_TYPE
         flowMod[4] = new String[] { LearnConstants.LearnFlowModsType.MATCH_FROM_FIELD.name(),
                 LearnConstants.NxmOfFieldType.NXM_OF_ICMP_TYPE.getHexType(),
                 LearnConstants.NxmOfFieldType.NXM_OF_ICMP_TYPE.getHexType(),
@@ -401,9 +453,72 @@ public class EgressAclLearnServiceUtil {
         flowMod[6] = new String[] {
                 LearnConstants.LearnFlowModsType.COPY_FROM_VALUE.name(), LearnConstants.LEARN_MATCH_REG_VALUE,
                 LearnConstants.NxmOfFieldType.NXM_NX_REG6.getHexType(), "8" };
+
+        return buildLearnFlow(flowBuilder, instructionBuilder, header, flowMod);
+    }
+
+    /*
+     * (Table:EgressAclLearnService) EgressACL Learning
+     * Match: reg6 = LearnConstants.NxmOfFieldType.NXM_NX_REG6
+     * "table=40,dl_src=fa:16:3e:d3:bb:8a,priority=61003,icmp,dl_src=fa:16:3e:55:71:d1,
+     *     actions=learn(table=39,idle_timeout=18000,fin_idle_timeout=60,
+     *     fin_hard_timeout=60,priority=61010, cookie=0x6900000,eth_type=0x86dd,nw_proto=58,
+     *     NXM_NX_ICMPV6_TYPE=NXM_NX_ICMPV6_TYPE,NXM_NX_ICMPV6_CODE=NXM_OF_ICMP_CODE,load:0x1->NXM_NX_REG6[0..7]),
+     *     resubmit(,50)"
+     */
+    public static FlowBuilder programEgressAclLearnRuleForIcmpV6All(FlowBuilder flowBuilder,
+                                                                    InstructionBuilder instructionBuilder) {
+        String[] header = new String[] {
+                "3600", "3600", "61010", "0", "0", "39", "0", "0"
+        };
+
+        String[][] flowMod = new String[7][];
+
+        // eth_type=0x86dd
+        flowMod[0] = new String[] { LearnConstants.LearnFlowModsType.MATCH_FROM_VALUE.name(),
+                Integer.toString(LearnConstants.ETHTYPE_IPV6),
+                LearnConstants.NxmOfFieldType.NXM_OF_ETH_TYPE.getHexType(),
+                LearnConstants.NxmOfFieldType.NXM_OF_ETH_TYPE.getFlowModHeaderLen() };
+        // nw_proto=58
+        flowMod[1] = new String[] { LearnConstants.LearnFlowModsType.MATCH_FROM_VALUE.name(),
+                Integer.toString(LearnConstants.IP_PROT_ICMPV6),
+                LearnConstants.NxmOfFieldType.NXM_OF_IP_PROTO.getHexType(),
+                LearnConstants.NxmOfFieldType.NXM_OF_IP_PROTO.getFlowModHeaderLen() };
+        // NXM_NX_IPV6_DST[]=NXM_NX_IPV6_SRC[]
+        flowMod[2] = new String[] { LearnConstants.LearnFlowModsType.MATCH_FROM_FIELD.name(),
+                LearnConstants.NxmOfFieldType.NXM_NX_IPV6_DST.getHexType(),
+                LearnConstants.NxmOfFieldType.NXM_NX_IPV6_SRC.getHexType(),
+                LearnConstants.NxmOfFieldType.NXM_NX_IPV6_DST.getFlowModHeaderLen()};
+        // NXM_NX_IPV6_SRC[]=NXM_NX_IPV6_DST[]
+        flowMod[3] = new String[] { LearnConstants.LearnFlowModsType.MATCH_FROM_FIELD.name(),
+                LearnConstants.NxmOfFieldType.NXM_NX_IPV6_DST.getHexType(),
+                LearnConstants.NxmOfFieldType.NXM_NX_IPV6_SRC.getHexType(),
+                LearnConstants.NxmOfFieldType.NXM_NX_IPV6_DST.getFlowModHeaderLen()};
+        // NXM_NX_ICMPV6_TYPE=NXM_NX_ICMPV6_TYPE
+        flowMod[4] = new String[] { LearnConstants.LearnFlowModsType.MATCH_FROM_FIELD.name(),
+                LearnConstants.NxmOfFieldType.NXM_NX_ICMPV6_TYPE.getHexType(),
+                LearnConstants.NxmOfFieldType.NXM_NX_ICMPV6_TYPE.getHexType(),
+                LearnConstants.NxmOfFieldType.NXM_NX_ICMPV6_TYPE.getFlowModHeaderLen()};
+        // NXM_NX_ICMPV6_CODE=NXM_NX_ICMPV6_CODE
+        flowMod[5] = new String[] { LearnConstants.LearnFlowModsType.MATCH_FROM_FIELD.name(),
+                LearnConstants.NxmOfFieldType.NXM_NX_ICMPV6_CODE.getHexType(),
+                LearnConstants.NxmOfFieldType.NXM_NX_ICMPV6_CODE.getHexType(),
+                LearnConstants.NxmOfFieldType.NXM_NX_ICMPV6_CODE.getFlowModHeaderLen()};
+        flowMod[6] = new String[] {
+                LearnConstants.LearnFlowModsType.COPY_FROM_VALUE.name(), LearnConstants.LEARN_MATCH_REG_VALUE,
+                LearnConstants.NxmOfFieldType.NXM_NX_REG6.getHexType(), "8" };
+
+        return buildLearnFlow(flowBuilder, instructionBuilder, header, flowMod);
+    }
+
+    private static FlowBuilder buildLearnFlow(FlowBuilder flowBuilder, InstructionBuilder instructionBuilder,
+                                              String[] header, String[][] flowMod) {
+        List<Action> listAction = new ArrayList<>();
+
         listAction.add(buildAction(0, header, flowMod));
         ActionBuilder ab = new ActionBuilder();
-        ab.setAction(createResubmitActions(resubmitId));
+        ab = new ActionBuilder();
+        ab.setAction(createResubmitActions());
         ab.setKey(new ActionKey(1));
         listAction.add(ab.build());
         ApplyActions applyActions = new ApplyActionsBuilder().setAction(listAction).build();
@@ -425,7 +540,6 @@ public class EgressAclLearnServiceUtil {
         flowBuilder.setInstructions(instructionsBuilder.build());
 
         return flowBuilder;
-
     }
 
     /*
@@ -519,10 +633,9 @@ public class EgressAclLearnServiceUtil {
         return abExt.build();
     }
 
-    private static org.opendaylight.yang.gen.v1.urn.opendaylight.action.types.rev131112.action.Action createResubmitActions(short tableId) {
-
+    private static org.opendaylight.yang.gen.v1.urn.opendaylight.action.types.rev131112.action.Action createResubmitActions() {
         NxResubmitBuilder gttb = new NxResubmitBuilder();
-        gttb.setTable(tableId);
+        gttb.setTable(Service.LOAD_BALANCER.getTable());
 
         // Wrap our Apply Action in an InstructionBuilder
         return (new NxActionResubmitRpcAddGroupCaseBuilder().setNxResubmit(gttb.build())).build();
