@@ -56,19 +56,19 @@ public class CloudServiceChainProvider implements ICloudServiceChain {
         LOG.info("ELAN Service chaining :programElanScfPipeline [Started] {} {} {} {} {}",
                  elanName, tableId, scfTag, elanLportTag, addOrRemove);
         elanServiceChainHandler.programElanScfPipeline(elanName, tableId, scfTag, elanLportTag, addOrRemove);
-
     }
 
     @Override
     public void programElanScfPipeline(String elanName, short tableId, int scfTag, int elanLportTag, int addOrRemove) {
         LOG.info("ELAN Service chaining :programElanScfPipeline [Started] {} {} {} {} {}",
-                elanName, tableId, scfTag, elanLportTag, addOrRemove);
+                 elanName, tableId, scfTag, elanLportTag, addOrRemove);
         elanServiceChainHandler.programElanScfPipeline(elanName, tableId, scfTag, elanLportTag, addOrRemove);
     }
 
     @Override
     public void removeElanPseudoPortFlows(String elanName, int elanPseudoLportTag) {
-        LOG.info("ELAN Service chaining :removeElanPseudoPortFlows [Started] elanPseudoLportTag={}", elanPseudoLportTag);
+        LOG.info("ELAN Service chaining :removeElanPseudoPortFlows [Started] elanPseudoLportTag={}",
+                 elanPseudoLportTag);
         elanServiceChainHandler.removeElanPseudoPortFlows(elanName, elanPseudoLportTag);
     }
 

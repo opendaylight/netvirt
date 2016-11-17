@@ -30,11 +30,6 @@
    <version>${vpnservices.version}</version>
   </dependency>
   <dependency>
-   <groupId>org.opendaylight.netvirt</groupId>
-   <artifactId>vpnmanager-impl</artifactId>
-   <version>${vpnservices.version}</version>
-  </dependency>
-  <dependency>
    <groupId>org.opendaylight.genius</groupId>
    <artifactId>mdsalutil-api</artifactId>
    <version>${genius.version}</version>
@@ -93,5 +88,17 @@
    <scope>test</scope>
   </dependency>
  </dependencies>
+
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-checkstyle-plugin</artifactId>
+        <configuration>
+          <propertyExpansion>checkstyle.violationSeverity=error</propertyExpansion>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
 
 </project>
