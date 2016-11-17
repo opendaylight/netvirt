@@ -7,20 +7,23 @@
  */
 package org.opendaylight.netvirt.cloudservicechain.utils;
 
+import com.google.common.base.Optional;
+
 import java.math.BigInteger;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.genius.itm.globals.ITMConstants;
+import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.mdsalutil.MatchFieldType;
 import org.opendaylight.genius.mdsalutil.MatchInfo;
-import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.mdsalutil.MetaDataUtil;
 import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
-import org.opendaylight.genius.itm.globals.ITMConstants;
 import org.opendaylight.genius.utils.ServiceIndex;
 import org.opendaylight.netvirt.cloudservicechain.CloudServiceChainConstants;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.FlowId;
@@ -39,15 +42,14 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.instances.ElanInstance;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.instances.ElanInstanceKey;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-import java.util.Arrays;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.base.Optional;
 
 public class ElanServiceChainUtils {
 
-    private static final Logger logger = LoggerFactory.getLogger(ElanServiceChainUtils.class);
+    private static final Logger LOG = LoggerFactory.getLogger(ElanServiceChainUtils.class);
 
 
     public static InstanceIdentifier<ElanInstance> getElanInstanceConfigDataPath(String elanInstanceName) {
@@ -67,7 +69,7 @@ public class ElanServiceChainUtils {
         Optional<ElanDpnInterfacesList> elanDpnIfacesOpc =
                 MDSALUtil.read(broker, LogicalDatastoreType.OPERATIONAL, elanDpnIfacesIid);
         if (!elanDpnIfacesOpc.isPresent()) {
-            logger.warn("Could not find and DpnInterface for elan {}", elanInstanceName);
+            LOG.warn("Could not find and DpnInterface for elan {}", elanInstanceName);
             return Optional.<Collection<BigInteger>>absent();
         }
 
@@ -97,7 +99,7 @@ public class ElanServiceChainUtils {
      */
     public static void programLPortDispatcherToScf(IMdsalApiManager mdsalManager, BigInteger dpnId, long elanTag,
             int elanLportTag, short tableId, long scfTag, int addOrRemove) {
-        logger.info("L2-ServiceChaining: programLPortDispatcherToScf dpId={} elanLportTag={} scfTag={} addOrRemove={} ",
+        LOG.info("L2-ServiceChaining: programLPortDispatcherToScf dpId={} elanLportTag={} scfTag={} addOrRemove={} ",
                     dpnId, elanLportTag, scfTag, addOrRemove);
         String flowRef = buildLportDispToScfFlowRef(elanLportTag, scfTag);
         if (addOrRemove == NwConstants.ADD_FLOW) {
@@ -128,10 +130,10 @@ public class ElanServiceChainUtils {
     /**
      * This flow is in charge of handling packets coming from the SCF Pipeline
      * when there is no matching ServiceChain.
-     *
-     *  + Matches on ElanPseudoPortTag and SI=3 (ELAN)
-     *  + Sets elanTag and sends to DMAC table
-     *
+     * <ul>
+     *  <li> Matches on ElanPseudoPortTag and SI=3 (ELAN)</li>
+     *  <li> Sets elanTag and sends to DMAC table</li>
+     * </ul>
      * @param dpnId Dpn Id where the flow must be installed
      * @param elanLportTag the Elan Pseudo Lport Id to be used in the Dataplane
      * @param elanTag the Elan Id to be used in the Dataplane
@@ -139,15 +141,17 @@ public class ElanServiceChainUtils {
      */
     public static void programLPortDispatcherFromScf(IMdsalApiManager mdsalManager, BigInteger dpnId,
                                                      int elanLportTag, long elanTag, int addOrRemove) {
-        logger.info("L2-ServiceChaining: programLPortDispatcherFromScf dpId={} elanLportTag={} elanTag={} addOrRemove={} ",
+        LOG.info("L2-ServiceChaining: programLPortDispatcherFromScf dpId={} elanLportTag={} elanTag={} addOrRemove={} ",
                 dpnId, elanLportTag, elanTag, addOrRemove);
         String flowRef = buildLportDispFromScfFlowRef(elanTag, elanLportTag );
         if (addOrRemove == NwConstants.ADD_FLOW) {
             List<MatchInfo> matches = Arrays.asList(
-                    new MatchInfo(MatchFieldType.metadata,
-                            new BigInteger[] { MetaDataUtil.getMetaDataForLPortDispatcher(elanLportTag,
-                                    ServiceIndex.getIndex(NwConstants.ELAN_SERVICE_NAME, NwConstants.ELAN_SERVICE_INDEX)),
-                                    MetaDataUtil.getMetaDataMaskForLPortDispatcher() }));
+                new MatchInfo(MatchFieldType.metadata,
+                              new BigInteger[] {
+                                  MetaDataUtil.getMetaDataForLPortDispatcher(elanLportTag,
+                                                                ServiceIndex.getIndex(NwConstants.ELAN_SERVICE_NAME,
+                                                                                      NwConstants.ELAN_SERVICE_INDEX)),
+                                  MetaDataUtil.getMetaDataMaskForLPortDispatcher() }));
             int instructionKey = 0;
             List<Instruction> instructions = Arrays.asList(
                     // BigInter.ONE is for setting also the Split-Horizon flag since it could have been cleared
@@ -179,11 +183,11 @@ public class ElanServiceChainUtils {
      * to the ELAN Pipeline. However, the flow for the SCF Pipeline will have
      * higher priority, and will only be present when there is a ServiceChain
      * using this ElanPseudoPort.
-     *
-     *  + Matches on the VNI
-     *  + Sets SI=1 and ElanPseudoPort tag in the Metadata and sends to
+     * <ul>
+     *  <li> Matches on the VNI
+     *  <li> Sets SI=1 and ElanPseudoPort tag in the Metadata and sends to
      *    LPortDispatcher via table 80.
-     *
+     * </ul>
      * @param dpnId Dpn Id where the flow must be installed
      * @param elanLportTag the Elan Pseudo Lport Id to be used in the Dataplane
      * @param vni the VNI to which the Elan is related
@@ -192,7 +196,7 @@ public class ElanServiceChainUtils {
      */
     public static void programExternalTunnelTable(IMdsalApiManager mdsalManager, BigInteger dpnId, int elanLportTag,
             long vni, int elanTag, int addOrRemove) {
-        logger.info("L2-ServiceChaining: programExternalTunnelTable dpId={} vni={} elanLportTag={} addOrRemove={} ",
+        LOG.info("L2-ServiceChaining: programExternalTunnelTable dpId={} vni={} elanLportTag={} addOrRemove={} ",
                 dpnId, vni, elanLportTag, addOrRemove);
         String flowRef = buildExtTunnelTblToLportDispFlowRef(vni, elanLportTag);
         if (addOrRemove == NwConstants.ADD_FLOW) {
@@ -205,14 +209,15 @@ public class ElanServiceChainUtils {
                     matches, instructions);
             mdsalManager.installFlow(dpnId, flow);
         } else {
-            Flow flow = new FlowBuilder().setTableId(NwConstants.EXTERNAL_TUNNEL_TABLE).setId(new FlowId(flowRef)).build();
+            Flow flow =
+                new FlowBuilder().setTableId(NwConstants.EXTERNAL_TUNNEL_TABLE).setId(new FlowId(flowRef)).build();
             mdsalManager.removeFlow(dpnId, flow);
         }
     }
 
     /**
      * Builds a List of Instructions that set the ElanPseudoPort Tag in
-     * metadata and sends to LPortDispatcher table (via Table 80)
+     * metadata and sends to LPortDispatcher table (via Table 80).
      *
      * @param lportTag Dataplane identifier of the ElanPseudoPort
      *
@@ -276,11 +281,12 @@ public class ElanServiceChainUtils {
      * Read from ElanToLportTagMap the PsuedoLogicalPort related with a given elan.
      *
      * @param broker dataBroker service reference
-     * @param elanInstanceName
+     * @param elanInstanceName the name of the Elan
      * @return the ElanToPseudoPortData object or Optional.absent() if it
      *     cannot be found
      */
-    public static Optional<ElanServiceChainState> getElanServiceChainState(final DataBroker broker, final String elanInstanceName) {
+    public static Optional<ElanServiceChainState> getElanServiceChainState(final DataBroker broker,
+                                                                           final String elanInstanceName) {
         InstanceIdentifier<ElanServiceChainState> path = InstanceIdentifier.builder(ElanInstances.class)
                 .child(ElanInstance.class, new ElanInstanceKey(elanInstanceName))
                 .augmentation(ElanServiceChainState.class).build();

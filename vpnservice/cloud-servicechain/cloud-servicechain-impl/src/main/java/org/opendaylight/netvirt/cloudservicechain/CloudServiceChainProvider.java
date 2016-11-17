@@ -68,7 +68,8 @@ public class CloudServiceChainProvider implements ICloudServiceChain {
 
     @Override
     public void removeElanPseudoPortFlows(String elanName, int elanPseudoLportTag) {
-        LOG.info("ELAN Service chaining :removeElanPseudoPortFlows [Started] elanPseudoLportTag={}", elanPseudoLportTag);
+        LOG.info("ELAN Service chaining :removeElanPseudoPortFlows [Started] elanPseudoLportTag={}",
+                 elanPseudoLportTag);
         elanServiceChainHandler.removeElanPseudoPortFlows(elanName, elanPseudoLportTag);
     }
 
