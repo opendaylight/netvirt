@@ -8,12 +8,11 @@
 package org.opendaylight.netvirt.cloudservicechain.jobs;
 
 import com.google.common.util.concurrent.ListenableFuture;
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.netvirt.cloudservicechain.utils.VpnServiceChainUtils;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.cloud.servicechain.state.rev170511.vpn.to.pseudo.port.list.VpnToPseudoPortData;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.cloud.servicechain.state.rev170511.vpn.to.pseudo.port.list.VpnToPseudoPortDataBuilder;
@@ -42,8 +41,7 @@ public class AddVpnPseudoPortDataJob extends VpnPseudoPortDataBaseJob {
     @Override
     public List<ListenableFuture<Void>> call() throws Exception {
         LOG.debug("Adding VpnToPseudoPortMap: vpnRd={}  vpnPseudoLportTag={}  scfTag={}  scfTable={}",
-                     super.vpnRd, vpnPseudoLportTag, scfTag, scfTableIdToGo);
-        List<ListenableFuture<Void>> result = new ArrayList<>();
+                  super.vpnRd, vpnPseudoLportTag, scfTag, scfTableIdToGo);
 
         WriteTransaction writeTxn = super.dataBroker.newWriteOnlyTransaction();
         if ( writeTxn == null ) {
@@ -57,8 +55,6 @@ public class AddVpnPseudoPortDataJob extends VpnPseudoPortDataBaseJob {
         InstanceIdentifier<VpnToPseudoPortData> path = VpnServiceChainUtils.getVpnToPseudoPortTagIid(vpnRd);
         writeTxn.put(LogicalDatastoreType.CONFIGURATION, path, newValue, true);
 
-        result.add(writeTxn.submit());
-
-        return result;
+        return Collections.singletonList(writeTxn.submit());
     }
 }

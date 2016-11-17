@@ -8,7 +8,7 @@
 package org.opendaylight.netvirt.cloudservicechain.jobs;
 
 import com.google.common.util.concurrent.ListenableFuture;
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
@@ -31,7 +31,6 @@ public class RemoveVpnPseudoPortDataJob extends VpnPseudoPortDataBaseJob {
     public List<ListenableFuture<Void>> call() throws Exception {
 
         LOG.debug("Removing VpnToPseudoPortMap for vpn with Rd={}", super.vpnRd);
-        List<ListenableFuture<Void>> result = new ArrayList<>();
 
         InstanceIdentifier<VpnToPseudoPortData> path = VpnServiceChainUtils.getVpnToPseudoPortTagIid(vpnRd);
 
@@ -42,8 +41,6 @@ public class RemoveVpnPseudoPortDataJob extends VpnPseudoPortDataBaseJob {
 
         LOG.trace("Removing VpnToLportTag entry for VPN with rd={}", super.vpnRd);
         writeTxn.delete(LogicalDatastoreType.CONFIGURATION, path);
-        result.add(writeTxn.submit());
-
-        return result;
+        return Collections.singletonList(writeTxn.submit());
     }
 }
