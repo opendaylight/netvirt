@@ -22,7 +22,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Listens to changes in the Vpn to VpnPseudoPort relationship with the only
- * purpose of updating the VpnPseudoPorts caches in all blades
+ * purpose of updating the VpnPseudoPorts caches in all blades.
  *
  */
 public class VpnPseudoPortListener

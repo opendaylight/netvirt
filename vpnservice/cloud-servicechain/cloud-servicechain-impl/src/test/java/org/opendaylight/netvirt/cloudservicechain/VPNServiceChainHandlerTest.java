@@ -8,11 +8,14 @@
 package org.opendaylight.netvirt.cloudservicechain;
 
 import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.anyObject;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static org.mockito.Mockito.anyObject;
+
+import com.google.common.base.Optional;
+import com.google.common.util.concurrent.CheckedFuture;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
@@ -39,7 +42,6 @@ import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.netvirt.cloudservicechain.matchers.FlowEntityMatcher;
 import org.opendaylight.netvirt.cloudservicechain.matchers.FlowMatcher;
 import org.opendaylight.netvirt.cloudservicechain.utils.VpnServiceChainUtils;
-import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.VpnAfConfig;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.VpnInstances;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.instances.VpnInstance;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.instances.VpnInstanceBuilder;
@@ -66,11 +68,18 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.vpn.instance.op.data.entry.vpn.to.dpn.list.VpnInterfacesBuilder;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
-import com.google.common.base.Optional;
-import com.google.common.util.concurrent.CheckedFuture;
 
 @RunWith(MockitoJUnitRunner.class)
 public class VPNServiceChainHandlerTest {
+
+    static final String RD = "1.1.1.1:10";
+    static final String VPN_NAME = "1";
+    static final long VPN_ID = 1;
+    static final long SCF_TAG = 1L;
+    static final int SERV_CHAIN_TAG = 100;
+    static final int DPN_ID = 1;
+    static final int LPORT_TAG = 1;
+    static final String DC_GW_IP = "3.3.3.3";
 
     private VPNServiceChainHandler vpnsch; // SUT
 
@@ -86,14 +95,6 @@ public class VPNServiceChainHandlerTest {
     @Mock
     IMdsalApiManager mdsalMgr;
 
-    final String RD = "1.1.1.1:10";
-    final String vpnName = "1";
-    final long vpnId = 1;
-    final long scfTag = 1L;
-    final int servChainTag = 100;
-    final int dpnId = 1;
-    final int lportTag = 1;
-    final String dcgwIp = "3.3.3.3";
 
     @BeforeClass
     public static void setUpBeforeClass() throws Exception {
@@ -116,10 +117,6 @@ public class VPNServiceChainHandlerTest {
     }
 
     private void stubGetRouteDistinguisher(String vpnName) throws InterruptedException, ExecutionException {
-        InstanceIdentifier<VpnInstance> id = InstanceIdentifier.builder(VpnInstances.class)
-                .child(VpnInstance.class, new VpnInstanceKey(vpnName)).build();
-        CheckedFuture chkdFuture = mock(CheckedFuture.class);
-
         VpnInstanceBuilder vib = new VpnInstanceBuilder();
         vib.setDescription("aeiou");
         vib.setKey(new VpnInstanceKey(RD));
@@ -127,8 +124,10 @@ public class VPNServiceChainHandlerTest {
         vib.setIpv4Family(ipv4fb.build());
 
         VpnInstance instance = vib.build();
-        VpnAfConfig config = instance.getIpv4Family();
-        String myrd = config.getRouteDistinguisher();
+        InstanceIdentifier<VpnInstance> id = InstanceIdentifier.builder(VpnInstances.class)
+                                                               .child(VpnInstance.class, new VpnInstanceKey(vpnName))
+                                                               .build();
+        CheckedFuture chkdFuture = mock(CheckedFuture.class);
 
         // vib.setIpv4Family()
         when(chkdFuture.get()).thenReturn(Optional.of(instance));
@@ -138,7 +137,7 @@ public class VPNServiceChainHandlerTest {
 
     private InstanceIdentifier<VpnInstance> buildVpnInstance() {
         InstanceIdentifier<VpnInstance> id = InstanceIdentifier.builder(VpnInstances.class)
-                .child(VpnInstance.class, new VpnInstanceKey(vpnName)).build();
+                .child(VpnInstance.class, new VpnInstanceKey(VPN_NAME)).build();
         return id;
     }
 
@@ -160,9 +159,7 @@ public class VPNServiceChainHandlerTest {
 
     private void stubGetVpnInstance(String rd) throws InterruptedException, ExecutionException {
 
-        InstanceIdentifier<VpnInstanceOpDataEntry> id = InstanceIdentifier.create(VpnInstanceOpData.class)
-                .child(VpnInstanceOpDataEntry.class, new VpnInstanceOpDataEntryKey(rd));
-        CheckedFuture chkdFuture = mock(CheckedFuture.class);
+
 
         IpAddressesBuilder iab = new IpAddressesBuilder();
 
@@ -173,9 +170,9 @@ public class VPNServiceChainHandlerTest {
         ipadd.add(iab.build());
 
         VpnToDpnListBuilder vtdlb = new VpnToDpnListBuilder();
-        vtdlb.setDpnId(new BigInteger(Integer.toString(dpnId)));
+        vtdlb.setDpnId(new BigInteger(Integer.toString(DPN_ID)));
         vtdlb.setIpAddresses(ipadd);
-        vtdlb.setKey(new VpnToDpnListKey(new BigInteger(Integer.toString(dpnId))));
+        vtdlb.setKey(new VpnToDpnListKey(new BigInteger(Integer.toString(DPN_ID))));
 
         VpnInterfacesBuilder vib = new VpnInterfacesBuilder();
         // final VpnInterfacesKey a =new VpnInterfacesKey("eth0");
@@ -185,18 +182,22 @@ public class VPNServiceChainHandlerTest {
         interfaces.add(vib.build());
         vtdlb.setVpnInterfaces(interfaces);
 
-        LinkedList<VpnToDpnList> v = new LinkedList<VpnToDpnList>();
-        v.add(vtdlb.build());
+        LinkedList<VpnToDpnList> vpn2Dpn = new LinkedList<VpnToDpnList>();
+        vpn2Dpn.add(vtdlb.build());
 
         VpnInstanceOpDataEntryBuilder vi = new VpnInstanceOpDataEntryBuilder();
-        vi.setVpnId(Long.parseLong(vpnName));
-        vi.setVpnToDpnList(v);
+        vi.setVpnId(Long.parseLong(VPN_NAME));
+        vi.setVpnToDpnList(vpn2Dpn);
 
         LinkedList<Long> ids = new LinkedList<>();
         ids.add(1L);
 
         vi.setVrfId("1");
         vi.setKey(new VpnInstanceOpDataEntryKey(rd));
+
+        InstanceIdentifier<VpnInstanceOpDataEntry> id = InstanceIdentifier.create(VpnInstanceOpData.class)
+            .child(VpnInstanceOpDataEntry.class, new VpnInstanceOpDataEntryKey(rd));
+        CheckedFuture chkdFuture = mock(CheckedFuture.class);
 
         when(chkdFuture.get()).thenReturn(Optional.of(vi.build()));
         when(readTx.read(eq(LogicalDatastoreType.OPERATIONAL), eq(id))).thenReturn(chkdFuture);
@@ -215,14 +216,12 @@ public class VPNServiceChainHandlerTest {
         vrb.setKey(new VrfEntryKey("123"));
         vrb.setLabel(1L);
         List<String> list = new ArrayList<String>();
-        list.add(dcgwIp);
+        list.add(DC_GW_IP);
         vrb.setNextHopAddressList(list);
         return vrb.build();
     }
 
     private void stubGetVrfEntries(String rd) throws InterruptedException, ExecutionException {
-
-        CheckedFuture chkdFuture = mock(CheckedFuture.class);
 
         VrfTablesBuilder tables = new VrfTablesBuilder();
         tables.setKey(new VrfTablesKey(RD));
@@ -230,6 +229,7 @@ public class VPNServiceChainHandlerTest {
         List<VrfEntry> vrfs = new LinkedList<>();
         vrfs.add(stubCreateDCGWVrfEntry());
         tables.setVrfEntry(vrfs);
+        CheckedFuture chkdFuture = mock(CheckedFuture.class);
         when(chkdFuture.get()).thenReturn(Optional.of(tables.build()));
         when(readTx.read(eq(LogicalDatastoreType.CONFIGURATION), eq(VpnServiceChainUtils.buildVrfId(rd))))
                 .thenReturn(chkdFuture);
@@ -241,11 +241,12 @@ public class VPNServiceChainHandlerTest {
         /////////////////////
         // Basic stubbing //
         /////////////////////
-        stubGetRouteDistinguisher_null(vpnName);
+        stubGetRouteDistinguisher_null(VPN_NAME);
         /////////////////////
         // SUT //
         /////////////////////
-        vpnsch.programScfToVpnPipeline(vpnName, scfTag, servChainTag, dpnId, lportTag, /* lastServiceChain */ false,
+        vpnsch.programScfToVpnPipeline(VPN_NAME, SCF_TAG, SERV_CHAIN_TAG, DPN_ID, LPORT_TAG,
+                                       /* lastServiceChain */ false,
                                        NwConstants.ADD_FLOW);
         // verify that nothing is written in Open Flow tables
 
@@ -263,12 +264,13 @@ public class VPNServiceChainHandlerTest {
         /////////////////////
         // Basic stubbing //
         /////////////////////
-        stubGetRouteDistinguisher(vpnName);
+        stubGetRouteDistinguisher(VPN_NAME);
         stubGetVpnInstanceNull(RD);
         /////////////////////
         // SUT //
         /////////////////////
-        vpnsch.programScfToVpnPipeline(vpnName, scfTag, servChainTag, dpnId, lportTag, /* lastServiceChain */ false,
+        vpnsch.programScfToVpnPipeline(VPN_NAME, SCF_TAG, SERV_CHAIN_TAG, DPN_ID, LPORT_TAG,
+                                       /* lastServiceChain */ false,
                                        NwConstants.ADD_FLOW);
 
         ArgumentCaptor<FlowEntity> argumentCaptor = ArgumentCaptor.forClass(FlowEntity.class);
@@ -285,13 +287,14 @@ public class VPNServiceChainHandlerTest {
         /////////////////////
         // Basic stubbing //
         /////////////////////
-        stubGetRouteDistinguisher(vpnName);
+        stubGetRouteDistinguisher(VPN_NAME);
         stubGetVpnInstance(RD);
         stubGetVrfEntries(RD);
         /////////////////////
         // SUT //
         /////////////////////
-        vpnsch.programScfToVpnPipeline(vpnName, scfTag, servChainTag, dpnId, lportTag, /* lastServiceChain */ false,
+        vpnsch.programScfToVpnPipeline(VPN_NAME, SCF_TAG, SERV_CHAIN_TAG, DPN_ID, LPORT_TAG,
+                                       /* lastServiceChain */ false,
                                        NwConstants.ADD_FLOW);
         /////////////////////
         // Verify //
@@ -305,8 +308,8 @@ public class VPNServiceChainHandlerTest {
         List<Flow> installedFlowsCaptured = argumentCaptor.getAllValues();
         assert (installedFlowsCaptured.size() == 2);
 
-        Flow expectedLportDispatcherFlowEntity = VpnServiceChainUtils.buildLPortDispFromScfToL3VpnFlow(vpnId,
-                new BigInteger(String.valueOf(dpnId)), dpnId, NwConstants.ADD_FLOW);
+        Flow expectedLportDispatcherFlowEntity = VpnServiceChainUtils.buildLPortDispFromScfToL3VpnFlow(VPN_ID,
+                new BigInteger(String.valueOf(DPN_ID)), DPN_ID, NwConstants.ADD_FLOW);
         assert (new FlowMatcher(expectedLportDispatcherFlowEntity).matches(installedFlowsCaptured.get(0)));
     }
 
@@ -319,7 +322,7 @@ public class VPNServiceChainHandlerTest {
         String dcgwIp = "3.3.3.3";
         stubGetRouteDistinguisher(vpnName);
         // stub_buildVrfId(RD);
-        vpnsch.programScfToVpnPipeline(vpnName, sftag, servChainTag, dpnId, lportTag, /* lastServiceChain */ false,
+        vpnsch.programScfToVpnPipeline(vpnName, sftag, SERV_CHAIN_TAG, dpnId, lportTag, /* lastServiceChain */ false,
                                        NwConstants.ADD_FLOW);
 
         ArgumentCaptor<FlowEntity> argumentCaptor = ArgumentCaptor.forClass(FlowEntity.class);
@@ -333,28 +336,31 @@ public class VPNServiceChainHandlerTest {
     @Test
     public void testprogramSCFinVPNPipeline() throws Exception {
 
-        short tableId = 10;
         /////////////////////
         // Basic stubbing //
         /////////////////////
-        stubGetRouteDistinguisher(vpnName);
+        stubGetRouteDistinguisher(VPN_NAME);
         stubGetVpnInstance(RD);
         stubGetVrfEntries(RD);
-        VrfEntry ve = stubCreateDCGWVrfEntry();
 
-        vpnsch.programVpnToScfPipeline(vpnName, tableId, scfTag, lportTag, NwConstants.ADD_FLOW);
+        short tableId = 10;
+        vpnsch.programVpnToScfPipeline(VPN_NAME, tableId, SCF_TAG, LPORT_TAG, NwConstants.ADD_FLOW);
 
         ArgumentCaptor<FlowEntity> argumentCaptor = ArgumentCaptor.forClass(FlowEntity.class);
         verify(mdsalMgr, times(2)).installFlow(argumentCaptor.capture());
         List<FlowEntity> installedFlowsCaptured = argumentCaptor.getAllValues();
         assert (installedFlowsCaptured.size() == 2);
 
-        FlowEntity expectedLFibFlowEntity = VpnServiceChainUtils.buildLFibVpnPseudoPortFlow(new BigInteger(String.valueOf(dpnId)),
-                ve.getLabel(), ve.getNextHopAddressList().get(0), lportTag);
+        VrfEntry ve = stubCreateDCGWVrfEntry();
+        FlowEntity expectedLFibFlowEntity =
+            VpnServiceChainUtils.buildLFibVpnPseudoPortFlow(new BigInteger(String.valueOf(DPN_ID)),
+                                                            ve.getLabel(),
+                                                            ve.getNextHopAddressList().get(0),
+                                                            LPORT_TAG);
         assert (new FlowEntityMatcher(expectedLFibFlowEntity).matches(installedFlowsCaptured.get(0)));
 
         FlowEntity expectedLPortDispatcher = VpnServiceChainUtils.buildLportFlowDispForVpnToScf(
-                new BigInteger(String.valueOf(dpnId)), lportTag, scfTag, tableId);
+                new BigInteger(String.valueOf(DPN_ID)), LPORT_TAG, SCF_TAG, tableId);
         assert (new FlowEntityMatcher(expectedLPortDispatcher).matches(installedFlowsCaptured.get(1)));
 
     }
