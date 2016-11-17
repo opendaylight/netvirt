@@ -115,6 +115,7 @@ module odl-nat {
                 list ip-port-map {
                     key ip-port-internal;
                     description "internal to external ip-port mapping";
+                    leaf internal-mac { type string; }
                     leaf ip-port-internal { type string; }
                     container ip-port-external {
                        uses ip-port-entity;
@@ -131,6 +132,7 @@ module odl-nat {
             list ip-port {
                 key internal-ip;
                 leaf internal-ip { type string; }
+                leaf internal-mac { type string; }
                 list int-ip-proto-type {
                     key protocol;
                     leaf protocol { type protocol-types; }

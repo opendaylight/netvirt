@@ -1581,5 +1581,37 @@ public class NatUtil {
                                 new org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.InterfaceKey(interfaceName));
         InstanceIdentifier<Interface> id = idBuilder.build();
         return id;
+    }   
+    /* Added  getExtGwMacAddFromRouterId() method as part of EVNP_RT5 Feature Support
+    getExtGwMacAddFromRouterId() returns the ext_gw_mac_address from the below model using the router-id as the key
+   container ext-routers {
+        list routers {
+            key router-name;
+            leaf router-name { type string; }
+            leaf network-id { type yang:uuid; }
+            leaf enable-snat { type boolean; }
+            leaf-list external-ips {
+                type string; //format - ipaddress\prefixlength
+            }
+            leaf-list subnet-ids { type yang:uuid; }
+            leaf ext_gw_mac_address { type string; }
+        }
     }
+    */
+ /**
+  * @param broker
+  * @param routerId
+  * @return
+  */
+	static String getExtGwMacAddFromRouterId(DataBroker broker, long routerId) {
+
+		String routerName = getRouterName(broker, routerId);
+		InstanceIdentifier id = buildRouterIdentifier(routerName);
+		Optional<Routers> routerData = read(broker, LogicalDatastoreType.CONFIGURATION, id);
+		if (routerData.isPresent()) {
+			return routerData.get().getExtGwMacAddress();
+		}
+		return null;
+
+	}
 }
