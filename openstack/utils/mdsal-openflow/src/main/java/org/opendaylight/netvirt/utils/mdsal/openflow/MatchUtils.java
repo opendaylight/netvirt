@@ -1328,7 +1328,7 @@ public class MatchUtils {
      * @param dstMac The destination mac address
      * @return matchBuilder Map Object with a match
      */
-    public static MatchBuilder createV6EtherMatchWithType(MatchBuilder matchBuilder,String srcMac, String dstMac)
+    public static MatchBuilder createV6EtherMatch(MatchBuilder matchBuilder,String srcMac, String dstMac)
     {
         EthernetTypeBuilder ethTypeBuilder = new EthernetTypeBuilder();
         ethTypeBuilder.setType(new EtherType(0x86DDL));
