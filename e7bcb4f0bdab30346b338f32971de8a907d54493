@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "3a65312a_742416af",
+        "filename": "vpnservice/fibmanager/fibmanager-api/src/main/java/org/opendaylight/netvirt/fibmanager/api/IFibManager.java",
+        "patchSetId": 17
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2016-11-18T09:40:43Z",
+      "side": 1,
+      "message": "No.. Removed..",
+      "parentUuid": "3a65312a_142cdb01",
+      "revId": "e7bcb4f0bdab30346b338f32971de8a907d54493",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "3a65312a_f4303f58",
         "filename": "vpnservice/fibmanager/fibmanager-api/src/main/java/org/opendaylight/netvirt/fibmanager/api/IFibManager.java",
         "patchSetId": 17
@@ -30,6 +48,24 @@
       "writtenOn": "2016-11-10T17:27:36Z",
       "side": 1,
       "message": "l3vni instead of evi",
+      "revId": "e7bcb4f0bdab30346b338f32971de8a907d54493",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a65312a_9421f2a1",
+        "filename": "vpnservice/fibmanager/fibmanager-api/src/main/java/org/opendaylight/netvirt/fibmanager/api/IFibManager.java",
+        "patchSetId": 17
+      },
+      "lineNbr": 48,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2016-11-18T09:40:43Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "3a65312a_f4303f58",
       "revId": "e7bcb4f0bdab30346b338f32971de8a907d54493",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -59,6 +95,30 @@
     },
     {
       "key": {
+        "uuid": "3a65312a_b4350edd",
+        "filename": "vpnservice/fibmanager/fibmanager-api/src/main/yang/odl-fib.yang",
+        "patchSetId": 17
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2016-11-18T09:40:43Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "3a65312a_54ff7367",
+      "range": {
+        "startLine": 42,
+        "startChar": 16,
+        "endLine": 42,
+        "endChar": 17
+      },
+      "revId": "e7bcb4f0bdab30346b338f32971de8a907d54493",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "3a65312a_3404777a",
         "filename": "vpnservice/fibmanager/fibmanager-api/src/main/yang/odl-fib.yang",
         "patchSetId": 17
@@ -70,6 +130,24 @@
       "writtenOn": "2016-11-10T17:27:36Z",
       "side": 1,
       "message": "l3vni here",
+      "revId": "e7bcb4f0bdab30346b338f32971de8a907d54493",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a65312a_d43a4acc",
+        "filename": "vpnservice/fibmanager/fibmanager-api/src/main/yang/odl-fib.yang",
+        "patchSetId": 17
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2016-11-18T09:40:43Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "3a65312a_3404777a",
       "revId": "e7bcb4f0bdab30346b338f32971de8a907d54493",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -93,6 +171,24 @@
     },
     {
       "key": {
+        "uuid": "3a65312a_1435e2d9",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/FibManagerImpl.java",
+        "patchSetId": 17
+      },
+      "lineNbr": 133,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2016-11-18T09:40:43Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "3a65312a_74d8afef",
+      "revId": "e7bcb4f0bdab30346b338f32971de8a907d54493",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "3a65312a_946d8b35",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnConstants.java",
         "patchSetId": 17
@@ -104,6 +200,24 @@
       "writtenOn": "2016-11-10T17:27:36Z",
       "side": 1,
       "message": "not sure if we can use vendor-specific OUIs in upstream commits..\n\nI would request community inputs on this :)",
+      "revId": "e7bcb4f0bdab30346b338f32971de8a907d54493",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a65312a_3451fe0e",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnConstants.java",
+        "patchSetId": 17
+      },
+      "lineNbr": 55,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2016-11-18T09:40:43Z",
+      "side": 1,
+      "message": "Shall we make this configurable?",
+      "parentUuid": "3a65312a_946d8b35",
       "revId": "e7bcb4f0bdab30346b338f32971de8a907d54493",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -127,6 +241,24 @@
     },
     {
       "key": {
+        "uuid": "3a65312a_5483da55",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInstanceListener.java",
+        "patchSetId": 17
+      },
+      "lineNbr": 462,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2016-11-18T09:40:43Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "3a65312a_d49383f8",
+      "revId": "e7bcb4f0bdab30346b338f32971de8a907d54493",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "3a65312a_b49087ed",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
         "patchSetId": 17
@@ -138,6 +270,24 @@
       "writtenOn": "2016-11-10T17:27:36Z",
       "side": 1,
       "message": "This piece of code is not required as quoted in the first review on NeutronVPN.\n\nInstead for L3VPN type, we should setup the L3VNI if it is passed by the tenant user via the ODL RESTful API.",
+      "revId": "e7bcb4f0bdab30346b338f32971de8a907d54493",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a65312a_94f452f3",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 17
+      },
+      "lineNbr": 664,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2016-11-18T09:40:43Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "3a65312a_b49087ed",
       "revId": "e7bcb4f0bdab30346b338f32971de8a907d54493",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -161,6 +311,24 @@
     },
     {
       "key": {
+        "uuid": "3a65312a_74f7f6f5",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 17
+      },
+      "lineNbr": 676,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2016-11-18T09:40:43Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "3a65312a_34bc7769",
+      "revId": "e7bcb4f0bdab30346b338f32971de8a907d54493",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "3a65312a_f4c15fe5",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
         "patchSetId": 17
@@ -172,6 +340,24 @@
       "writtenOn": "2016-11-10T17:27:36Z",
       "side": 1,
       "message": "Based on whaat is the encapsulation type, we have to decide wheter to allocate a label (or) re-use lport-tags.",
+      "revId": "e7bcb4f0bdab30346b338f32971de8a907d54493",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a65312a_d4dd2a72",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 17
+      },
+      "lineNbr": 680,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2016-11-18T09:40:43Z",
+      "side": 1,
+      "message": "Done. Using l3Vni check instead of EncapType",
+      "parentUuid": "3a65312a_f4c15fe5",
       "revId": "e7bcb4f0bdab30346b338f32971de8a907d54493",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -195,6 +381,24 @@
     },
     {
       "key": {
+        "uuid": "3a65312a_14e8420f",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 17
+      },
+      "lineNbr": 722,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2016-11-18T09:40:43Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "3a65312a_74ad4f31",
+      "revId": "e7bcb4f0bdab30346b338f32971de8a907d54493",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "3a65312a_d4aa6318",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
         "patchSetId": 17
@@ -206,6 +410,24 @@
       "writtenOn": "2016-11-10T17:27:36Z",
       "side": 1,
       "message": "I hope advertising RT5 is in the subseuqent BGP/VPN combined revew.",
+      "revId": "e7bcb4f0bdab30346b338f32971de8a907d54493",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a65312a_54d11a56",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 17
+      },
+      "lineNbr": 1116,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2016-11-18T09:40:43Z",
+      "side": 1,
+      "message": "Yes it is.. Had to wait for Thrift api changes to land.",
+      "parentUuid": "3a65312a_d4aa6318",
       "revId": "e7bcb4f0bdab30346b338f32971de8a907d54493",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -229,6 +451,24 @@
     },
     {
       "key": {
+        "uuid": "3a65312a_74809646",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnRpcServiceImpl.java",
+        "patchSetId": 17
+      },
+      "lineNbr": 168,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2016-11-18T09:40:43Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "3a65312a_746a6f1b",
+      "revId": "e7bcb4f0bdab30346b338f32971de8a907d54493",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "3a65312a_54d2d3d2",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnUtil.java",
         "patchSetId": 17
@@ -240,6 +480,24 @@
       "writtenOn": "2016-11-10T17:27:36Z",
       "side": 1,
       "message": "Are all these imports hang over from the parent review?",
+      "revId": "e7bcb4f0bdab30346b338f32971de8a907d54493",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a65312a_14916299",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnUtil.java",
+        "patchSetId": 17
+      },
+      "lineNbr": 168,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2016-11-18T09:40:43Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "3a65312a_54d2d3d2",
       "revId": "e7bcb4f0bdab30346b338f32971de8a907d54493",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
