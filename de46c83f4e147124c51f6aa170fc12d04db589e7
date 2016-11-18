@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3a65312a_976e1400",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 9
+      },
+      "lineNbr": 1377,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-11-18T16:44:06Z",
+      "side": 1,
+      "message": "this is doubling out like 2, 4, 8, 16, 32..\n\nI think we just need to wait as many 2 sec slots like 2, 4, 5, 8, 10 etc..",
+      "revId": "de46c83f4e147124c51f6aa170fc12d04db589e7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
