@@ -44,8 +44,7 @@ import org.opendaylight.netvirt.vpnmanager.utilities.InterfaceUtils;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.VpnAfConfig;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.VpnInstances;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.VpnInterfaces;
-import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.af.config.VpnTargets;
-import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.af.config.vpntargets.VpnTarget;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.vpn.instance.op.data.entry.vpntargets.VpnTarget;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.instances.VpnInstance;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.instances.VpnInstanceKey;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.interfaces.VpnInterface;
@@ -816,20 +815,6 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
             }
         }
         return rts;
-    }
-
-    private List<String> getExportRts(VpnInstance vpnInstance) {
-        List<String> exportRts = new ArrayList<>();
-        VpnAfConfig vpnConfig = vpnInstance.getIpv4Family();
-        VpnTargets targets = vpnConfig.getVpnTargets();
-        List<VpnTarget> vpnTargets = targets.getVpnTarget();
-        for (VpnTarget target : vpnTargets) {
-            if (target.getVrfRTType().equals(VpnTarget.VrfRTType.ExportExtcommunity)) {
-                String rtValue = target.getVrfRTValue();
-                exportRts.add(rtValue);
-            }
-        }
-        return exportRts;
     }
 
     private String getRouteDistinguisher(String vpnName) {
