@@ -419,4 +419,22 @@ module odl-l3vpn {
         }
     }
 
+    container evpn-config {
+        config true;
+        leaf multi-homing-mode {
+            type enumeration {
+                enum "none";
+                enum "all-active";
+                enum "single-active";
+            }
+            default "none";
+        }
+        leaf irb-mode {
+            type enumeration {
+                enum "symmetric";
+                enum "asymmetric";
+            }
+            default "symmetric";
+        }
+    }
 }
