@@ -1,0 +1,99 @@
+/*
+ * Copyright (c) 2016 Hewlett Packard Enterprise, Co. and others. All rights reserved.
+ *
+ * This program and the accompanying materials are made available under the
+ * terms of the Eclipse Public License v1.0 which accompanies this distribution,
+ * and is available at http://www.eclipse.org/legal/epl-v10.html
+ */
+
+package org.opendaylight.netvirt.natservice.internal;
+
+import org.opendaylight.controller.md.sal.binding.api.DataBroker;
+import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.NaptSwitches;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ext.routers.Routers;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.napt.switches.RouterToNaptSwitch;
+import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+/**
+ * CentralizedSwitchChangeListener detect changes in switch <-> router mapping
+ * and update flows accordingly.<br>
+ * The centralized switch a.k.a NAPT switch models currently reside in NAT
+ * bundle. As the roles of centralized switch will grow beyond NAT, the
+ * associated models may need to be renamed and moved to either vpnmanager or
+ * new bundle as part of Carbon model changes
+ *
+ */
+public class CentralizedSwitchChangeListener
+        extends AsyncDataTreeChangeListenerBase<RouterToNaptSwitch, CentralizedSwitchChangeListener> {
+
+    private static final Logger LOG = LoggerFactory.getLogger(CentralizedSwitchChangeListener.class);
+
+    private final DataBroker dataBroker;
+    private final ExternalRoutersListener externalRoutersListener;
+
+    public CentralizedSwitchChangeListener(final DataBroker dataBroker,
+            final ExternalRoutersListener externalRoutersListener) {
+        super(RouterToNaptSwitch.class, CentralizedSwitchChangeListener.class);
+        this.dataBroker = dataBroker;
+        this.externalRoutersListener = externalRoutersListener;
+    }
+
+    @Override
+    public void init() {
+        LOG.info("{} init", getClass().getSimpleName());
+        registerListener(LogicalDatastoreType.CONFIGURATION, dataBroker);
+    }
+
+    @Override
+    protected InstanceIdentifier<RouterToNaptSwitch> getWildCardPath() {
+        return InstanceIdentifier.create(NaptSwitches.class).child(RouterToNaptSwitch.class);
+    }
+
+    @Override
+    protected void remove(InstanceIdentifier<RouterToNaptSwitch> key, RouterToNaptSwitch routerToNaptSwitch) {
+        LOG.debug("Removing {}", routerToNaptSwitch);
+        Routers router = NatUtil.getExternalRouter(dataBroker, routerToNaptSwitch.getRouterName());
+        if (router == null) {
+            LOG.debug("No router data found for router id {}", routerToNaptSwitch.getRouterName());
+            return;
+        }
+
+        externalRoutersListener.removeRouterGwMacFlow(router, routerToNaptSwitch.getPrimarySwitchId());
+    }
+
+    @Override
+    protected void update(InstanceIdentifier<RouterToNaptSwitch> key, RouterToNaptSwitch origRouterToNaptSwitch,
+            RouterToNaptSwitch updatedRouterToNaptSwitch) {
+        LOG.debug("Updating old {} new {}", origRouterToNaptSwitch, updatedRouterToNaptSwitch);
+        Routers router = NatUtil.getExternalRouter(dataBroker, updatedRouterToNaptSwitch.getRouterName());
+        if (router == null) {
+            LOG.warn("No router data found for router id {}", updatedRouterToNaptSwitch.getRouterName());
+            return;
+        }
+
+        externalRoutersListener.removeRouterGwMacFlow(router, origRouterToNaptSwitch.getPrimarySwitchId());
+        externalRoutersListener.installRouterGwMacFlow(router, updatedRouterToNaptSwitch.getPrimarySwitchId());
+    }
+
+    @Override
+    protected void add(InstanceIdentifier<RouterToNaptSwitch> key, RouterToNaptSwitch routerToNaptSwitch) {
+        LOG.debug("Adding {}", routerToNaptSwitch);
+        Routers router = NatUtil.getExternalRouter(dataBroker, routerToNaptSwitch.getRouterName());
+        if (router == null) {
+            LOG.warn("No router data found for router id {}", routerToNaptSwitch.getRouterName());
+            return;
+        }
+
+        externalRoutersListener.installRouterGwMacFlow(router, routerToNaptSwitch.getPrimarySwitchId());
+    }
+
+    @Override
+    protected CentralizedSwitchChangeListener getDataTreeChangeListener() {
+        return this;
+    }
+
+}

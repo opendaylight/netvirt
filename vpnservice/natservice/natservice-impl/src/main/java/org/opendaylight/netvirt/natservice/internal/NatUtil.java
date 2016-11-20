@@ -376,6 +376,12 @@ public class NatUtil {
         return null;
     }
 
+    static Routers getExternalRouter(DataBroker dataBroker, String routerId) {
+        InstanceIdentifier<Routers> id = NatUtil.buildRouterIdentifier(routerId);
+        Optional<Routers> routerData = NatUtil.read(dataBroker, LogicalDatastoreType.CONFIGURATION, id);
+        return routerData.isPresent() ? routerData.get() : null;
+    }
+
     private static InstanceIdentifier<Networks> buildNetworkIdentifier(Uuid networkId) {
         InstanceIdentifier<Networks> network = InstanceIdentifier.builder(ExternalNetworks.class).child
                 (Networks.class, new NetworksKey(networkId)).build();
