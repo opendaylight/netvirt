@@ -1237,6 +1237,13 @@ public class VpnUtil {
         return optionalNets.isPresent() ? optionalNets.get().getVpnid() : null;
     }
 
+    static Routers getExternalRouter(DataBroker dataBroker, String routerId) {
+        InstanceIdentifier<Routers> id = InstanceIdentifier.builder(ExtRouters.class)
+                .child(Routers.class, new RoutersKey(routerId)).build();
+        Optional<Routers> routerData = read(dataBroker, LogicalDatastoreType.CONFIGURATION, id);
+        return routerData.isPresent() ? routerData.get() : null;
+    }
+
     static Optional<List<String>> getAllSubnetGatewayMacAddressesforVpn(DataBroker broker, String vpnName) {
         Optional<List<String>> macAddressesOptional = Optional.absent();
         List<String> macAddresses = new ArrayList<>();

@@ -8,11 +8,14 @@
 
 package org.opendaylight.netvirt.vpnmanager.api;
 
+import java.math.BigInteger;
+import java.util.Collection;
+import java.util.List;
+
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.netvirt.fibmanager.api.IFibManager;
 import org.opendaylight.netvirt.fibmanager.api.RouteOrigin;
-import java.math.BigInteger;
-import java.util.List;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 
 public interface IVpnManager {
     void setFibManager(IFibManager fibManager);
@@ -52,4 +55,11 @@ public interface IVpnManager {
 
     void setupSubnetMacIntoVpnInstance(String vpnName, String srcMacAddress,
             BigInteger dpnId, WriteTransaction writeTx, int addOrRemove);
+
+    void setupRouterGwMacFlow(String routerName, String routerGwMac, BigInteger dpnId, Uuid extNetworkId,
+            WriteTransaction writeTx, int addOrRemove);
+
+    void setupRouterGwArpResponderFlows(String routerName, Collection<String> routerGwIps, String routerGwMac,
+            BigInteger dpnId, Uuid extNetworkId, WriteTransaction writeTx, int addOrRemove);
+
 }
