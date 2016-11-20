@@ -22,6 +22,8 @@ import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.netvirt.elanmanager.api.IElanService;
 import org.opendaylight.netvirt.vpnmanager.api.IVpnManager;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.MacAddress;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.PhysAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.arputil.rev160406.OdlArputilService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.arputil.rev160406.SendArpRequestInput;
@@ -116,11 +118,18 @@ public class NeutronSubnetGwMacResolver {
             return;
         }
 
+        MacAddress macAddress = extPort.getMacAddress();
+        if (macAddress == null) {
+            LOG.trace("External GW port {} for router {} has no mac address", extPort.getUuid().getValue(),
+                    router.getUuid().getValue());
+            return;
+        }
+
         for (FixedIps fixIp : fixedIps) {
             Uuid subnetId = fixIp.getSubnetId();
             IpAddress srcIpAddress = fixIp.getIpAddress();
             IpAddress dstIpAddress = getExternalGwIpAddress(subnetId);
-            sendArpRequest(srcIpAddress, dstIpAddress, extInterfaces);
+            sendArpRequest(srcIpAddress, dstIpAddress, macAddress, extInterfaces);
         }
 
     }
@@ -132,16 +141,18 @@ public class NeutronSubnetGwMacResolver {
         }
     }
 
-    private void sendArpRequest(IpAddress srcIpAddress, IpAddress dstIpAddress, Collection<String> interfaces) {
+    private void sendArpRequest(IpAddress srcIpAddress, IpAddress dstIpAddress, MacAddress srcMacAddress,
+            Collection<String> interfaces) {
         if (srcIpAddress == null || dstIpAddress == null) {
             LOG.trace("Skip sending ARP to external GW srcIp {} dstIp {}", srcIpAddress, dstIpAddress);
             return;
         }
 
+        PhysAddress srcMacPhysAddress = new PhysAddress(srcMacAddress.getValue());
         try {
             List<InterfaceAddress> interfaceAddresses = new ArrayList<>();
-            interfaces.stream().forEach(e -> interfaceAddresses
-                    .add(new InterfaceAddressBuilder().setInterface(e).setIpAddress(srcIpAddress).build()));
+            interfaces.stream().forEach(e -> interfaceAddresses.add(new InterfaceAddressBuilder().setInterface(e)
+                    .setIpAddress(srcIpAddress).setMacaddress(srcMacPhysAddress).build()));
 
             SendArpRequestInput sendArpRequestInput = new SendArpRequestInputBuilder().setIpaddress(dstIpAddress)
                     .setInterfaceAddress(interfaceAddresses).build();
