@@ -335,7 +335,8 @@ public class NaptEventHandler {
                portActionInfo = new ActionInfo( ActionType.set_udp_destination_port, new String[] {port});
             }
             instructionInfo.add(new InstructionInfo(InstructionType.write_metadata,
-                    new BigInteger[] { MetaDataUtil.getVpnIdMetadata(segmentId), MetaDataUtil.METADATA_MASK_VRFID }));
+                    new BigInteger[] { MetaDataUtil.getVpnIdMetadata(segmentId),
+                            MetaDataUtil.METADATA_MASK_VRFID.or(MetaDataUtil.METADATA_MASK_SH_FLAG) }));
         }
 
         listActionInfo.add(ipActionInfo);
