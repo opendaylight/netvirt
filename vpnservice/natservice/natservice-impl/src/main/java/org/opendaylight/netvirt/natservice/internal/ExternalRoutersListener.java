@@ -44,6 +44,7 @@ import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.netvirt.bgpmanager.api.IBgpManager;
 import org.opendaylight.netvirt.fibmanager.api.IFibManager;
 import org.opendaylight.netvirt.fibmanager.api.RouteOrigin;
+import org.opendaylight.netvirt.vpnmanager.api.IVpnManager;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
@@ -126,6 +127,7 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
     private final NaptEventHandler naptEventHandler;
     private final NaptPacketInHandler naptPacketInHandler;
     private final IFibManager fibManager;
+    private final IVpnManager vpnManager;
     private static final BigInteger COOKIE_TUNNEL = new BigInteger("9000000", 16);
     static final BigInteger COOKIE_VM_LFIB_TABLE = new BigInteger("8000022", 16);
 
@@ -141,7 +143,8 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
                                    final SNATDefaultRouteProgrammer snatDefaultRouteProgrammer,
                                    final NaptEventHandler naptEventHandler,
                                    final NaptPacketInHandler naptPacketInHandler,
-                                   final IFibManager fibManager) {
+                                   final IFibManager fibManager,
+                                   final IVpnManager vpnManager) {
         super(Routers.class, ExternalRoutersListener.class);
         this.dataBroker = dataBroker;
         this.mdsalManager = mdsalManager;
@@ -157,8 +160,10 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
         this.naptEventHandler = naptEventHandler;
         this.naptPacketInHandler = naptPacketInHandler;
         this.fibManager = fibManager;
+        this.vpnManager = vpnManager;
     }
 
+    @Override
     public void init() {
         LOG.info("{} init", getClass().getSimpleName());
         registerListener(LogicalDatastoreType.CONFIGURATION, dataBroker);
@@ -245,6 +250,8 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
                 }
             }
         }
+
+        installRouterGwMacFlow(routers, primarySwitchId);
 
         List<String> externalIps = NatUtil.getExternalIpsForRouter(dataBroker,segmentId);
         if (externalIps == null || externalIps.isEmpty()) {
@@ -348,6 +355,16 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
             }
         }*/
         LOG.info("NAT Service : handleEnableSnat() Exit");
+    }
+
+    private void installRouterGwMacFlow(Routers router, BigInteger primarySwitchId) {
+        vpnManager.setupRouterGwMacFlow(router.getRouterName(), router.getExtGwMacAddress(), router.getNetworkId(),
+                primarySwitchId, NwConstants.ADD_FLOW);
+    }
+
+    private void removeRouterGwMacFlow(Routers router, BigInteger primarySwitchId) {
+        vpnManager.setupRouterGwMacFlow(router.getRouterName(), router.getExtGwMacAddress(), router.getNetworkId(),
+                primarySwitchId, NwConstants.DEL_FLOW);
     }
 
     private void installNaptPfibExternalOutputFlow(Routers routers, BigInteger dpnId) {
@@ -1072,7 +1089,7 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
                     return;
                 }
                 List<String> externalIps = NatUtil.getExternalIpsForRouter(dataBroker,routerId);
-                handleDisableSnat(routerName, networkUuid, externalIps, false, null);
+                handleDisableSnat(original, networkUuid, externalIps, false, null);
             } else {
                 LOG.info("NAT Service : SNAT enabled for Router {}", original.getRouterName());
                 handleEnableSnat(original);
@@ -1422,12 +1439,13 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
                 return;
             }
             List<String> externalIps = NatUtil.getExternalIpsForRouter(dataBroker, routerId);
-            handleDisableSnat(routerName, networkUuid, externalIps, true, null);
+            handleDisableSnat(router, networkUuid, externalIps, true, null);
         }
     }
 
-    public void handleDisableSnat(String routerName, Uuid networkUuid, List<String> externalIps, boolean routerFlag, String vpnId){
+    public void handleDisableSnat(Routers router, Uuid networkUuid, List<String> externalIps, boolean routerFlag, String vpnId){
         LOG.info("NAT Service : handleDisableSnat() Entry");
+        String routerName = router.getRouterName();
         try {
             Long routerId = NatUtil.getVpnId(dataBroker, routerName);
 
@@ -1439,6 +1457,7 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
             }
             removeNaptFlowsFromActiveSwitch(routerId, routerName, naptSwitchDpnId, networkUuid, vpnId, externalIps);
             removeFlowsFromNonActiveSwitches(routerName, naptSwitchDpnId, networkUuid);
+            removeRouterGwMacFlow(router, naptSwitchDpnId);
             try {
                 clrRtsFromBgpAndDelFibTs(naptSwitchDpnId, routerId, networkUuid, externalIps, vpnId);
             } catch (Exception ex) {
