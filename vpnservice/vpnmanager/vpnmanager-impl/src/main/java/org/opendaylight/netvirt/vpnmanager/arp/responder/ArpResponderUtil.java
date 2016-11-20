@@ -11,6 +11,7 @@ import java.math.BigInteger;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
@@ -33,6 +34,7 @@ import org.opendaylight.netvirt.vpnmanager.ArpReplyOrRequest;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.action.types.rev131112.action.list.Action;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.action.types.rev131112.action.list.ActionKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.tables.table.Flow;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.instruction.list.Instruction;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.AllocateIdInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.AllocateIdInputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.AllocateIdOutput;
@@ -41,6 +43,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpc
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.GetEgressActionsForInterfaceOutput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.OdlInterfaceRpcService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.group.types.rev131018.GroupTypes;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.openflowplugin.extension.nicira.action.rev140714.add.group.input.buckets.bucket.action.action.NxActionResubmitRpcAddGroupCase;
 import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -54,7 +57,7 @@ public class ArpResponderUtil {
 
     private final static Logger LOG = LoggerFactory
             .getLogger(ArpResponderUtil.class);
-    
+
     private static final long WAIT_TIME_FOR_SYNC_INSTALL = Long.getLong("wait.time.sync.install", 300L);
 
     /**
@@ -249,6 +252,56 @@ public class ArpResponderUtil {
     }
 
     /**
+     * Get instruction list for ARP responder flows originated from ext-net e.g.
+     * router-gw/fip The split-horizon bit should be reset in order to allow
+     * traffic from provider network to be routed back to the provider network
+     * and override the egress table drop flow. In order to allow write-metadata
+     * in the ARP responder table the resubmit action needs to be changed to
+     * goto instruction.
+     *
+     * @param ifaceMgrRpcService
+     * @param extInterfaceName
+     * @param ipAddress
+     * @param macAddress
+     * @return
+     */
+    public static List<Instruction> getExtInterfaceInstructions(final OdlInterfaceRpcService ifaceMgrRpcService,
+            final String extInterfaceName, final String ipAddress, final String macAddress) {
+        Short tableId = null;
+        List<Instruction> instructions = new ArrayList<>();
+        List<Action> actions = getActions(ifaceMgrRpcService, extInterfaceName, ipAddress, macAddress);
+        for (Iterator<Action> iterator = actions.iterator(); iterator.hasNext();) {
+            org.opendaylight.yang.gen.v1.urn.opendaylight.action.types.rev131112.action.Action actionClass = iterator
+                    .next().getAction();
+            if (actionClass instanceof NxActionResubmitRpcAddGroupCase) {
+                tableId = ((NxActionResubmitRpcAddGroupCase) actionClass).getNxResubmit().getTable();
+                iterator.remove();
+                break;
+            }
+        }
+
+        instructions.add(MDSALUtil.buildApplyActionsInstruction(actions, 0));
+        // reset the split-horizon bit to allow traffic to be sent back to the
+        // provider port
+        instructions.add(new InstructionInfo(InstructionType.write_metadata,
+                new BigInteger[] { BigInteger.ZERO, MetaDataUtil.METADATA_MASK_SH_FLAG }).buildInstruction(1));
+
+        if (tableId != null) {
+            // replace resubmit action with goto so it can co-exist with
+            // write-metadata
+            if (tableId > NwConstants.ARP_RESPONDER_TABLE) {
+                instructions.add(new InstructionInfo(InstructionType.goto_table, new long[] { tableId.longValue() })
+                        .buildInstruction(2));
+            } else {
+                LOG.warn("Failed to insall responder flow for interface {}. Resubmit to {} can't be replaced with goto",
+                        extInterfaceName, tableId);
+            }
+        }
+
+        return instructions;
+    }
+
+    /**
      * Install ARP Responder FLOW
      *
      * @param mdSalManager
@@ -268,19 +321,18 @@ public class ArpResponderUtil {
      *            Flow Cookie
      * @param matches
      *            List of Match Criteria for the flow
-     * @param actions
-     *            List of Actions for the flow
+     * @param instructions
+     *            List of Instructions for the flow
      */
     public static void installFlow(final IMdsalApiManager mdSalManager,
-            final WriteTransaction writeInvTxn, final BigInteger dpnId, 
+            final WriteTransaction writeInvTxn, final BigInteger dpnId,
             final String flowId, final String flowName,
             final int priority, final BigInteger cookie,
-            List<MatchInfo> matches, List<Action> actions) {
+            List<MatchInfo> matches, List<Instruction> instructions) {
 
         final Flow flowEntity = MDSALUtil.buildFlowNew(
                 NwConstants.ARP_RESPONDER_TABLE, flowId, priority, flowName, 0,
-                0, cookie, matches,
-                Arrays.asList(MDSALUtil.buildApplyActionsInstruction(actions)));
+                0, cookie, matches, instructions);
         mdSalManager.addFlowToTx(dpnId, flowEntity, writeInvTxn);
     }
 
