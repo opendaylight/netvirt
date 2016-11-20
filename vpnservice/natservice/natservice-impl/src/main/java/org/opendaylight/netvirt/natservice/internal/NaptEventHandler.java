@@ -325,8 +325,11 @@ public class NaptEventHandler {
             } else if(protocol == NAPTEntryEvent.Protocol.UDP) {
                portActionInfo = new ActionInfo( ActionType.set_udp_source_port, new String[] {port});
             }
+            // reset the split-horizon bit to allow traffic from tunnel to be
+            // sent back to the provider port
             instructionInfo.add(new InstructionInfo(InstructionType.write_metadata,
-                    new BigInteger[] { MetaDataUtil.getVpnIdMetadata(vpnId), MetaDataUtil.METADATA_MASK_VRFID }));
+                    new BigInteger[] { MetaDataUtil.getVpnIdMetadata(vpnId),
+                            MetaDataUtil.METADATA_MASK_VRFID.or(MetaDataUtil.METADATA_MASK_SH_FLAG) }));
         }else{
             ipActionInfo = new ActionInfo(ActionType.set_destination_ip, new String[] {ipAddress});
             if(protocol == NAPTEntryEvent.Protocol.TCP) {

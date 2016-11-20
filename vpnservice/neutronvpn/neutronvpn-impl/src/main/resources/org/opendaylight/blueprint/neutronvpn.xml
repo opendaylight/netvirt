@@ -16,7 +16,8 @@
              interface="org.opendaylight.controller.md.sal.binding.api.NotificationPublishService" />
   <reference id="vpnManager"
            interface="org.opendaylight.netvirt.vpnmanager.api.IVpnManager" />
-
+  <reference id="centralizedSwitchProvider"
+           interface="org.opendaylight.netvirt.vpnmanager.api.ICentralizedSwitchProvider" />
 
   <odl:rpc-service id="idManagerService"
                    interface="org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.IdManagerService" />
@@ -125,6 +126,7 @@
     <argument ref="vpnManager" />
     <argument ref="odlArputilService" />
     <argument ref="elanService" />
+    <argument ref="centralizedSwitchProvider" />
   </bean>
 
   <bean id="l2GatewayListener"
