@@ -64,6 +64,8 @@
     <argument ref="fibManager" />
     <argument ref="odlInterfaceRpcService" />
     <argument ref="vpnFootprintService" />
+    <argument ref="interfaceManager" />
+    <argument ref="vpnManagerImpl" />
   </bean>
 
   <bean id="interfaceStateChangeListener"
@@ -246,5 +248,19 @@
         class="org.opendaylight.netvirt.vpnmanager.cache.listeners.VpnOpInstanceCacheManager"
         init-method="start" destroy-method="close">
     <argument ref="dataBroker" />
+  </bean>
+
+  <bean id="centralizedSwitchProvider"
+        class="org.opendaylight.netvirt.vpnmanager.CentralizedSwitchProvider">
+        <argument ref="dataBroker" />
+  </bean>
+  <service ref="centralizedSwitchProvider"
+           interface="org.opendaylight.netvirt.vpnmanager.api.ICentralizedSwitchProvider" />
+
+  <bean id="centralizedSwitchChangeListener"
+        class="org.opendaylight.netvirt.vpnmanager.CentralizedSwitchChangeListener"
+        init-method="init" destroy-method="close">
+        <argument ref="dataBroker" />
+        <argument ref="vpnManagerImpl" />
   </bean>
 </blueprint>

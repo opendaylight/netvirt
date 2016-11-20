@@ -33,6 +33,7 @@ import org.opendaylight.netvirt.vpnmanager.ArpReplyOrRequest;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.action.types.rev131112.action.list.Action;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.action.types.rev131112.action.list.ActionKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.tables.table.Flow;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.instruction.list.Instruction;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.AllocateIdInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.AllocateIdInputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.AllocateIdOutput;
@@ -54,7 +55,7 @@ public class ArpResponderUtil {
 
     private final static Logger LOG = LoggerFactory
             .getLogger(ArpResponderUtil.class);
-    
+
     private static final long WAIT_TIME_FOR_SYNC_INSTALL = Long.getLong("wait.time.sync.install", 300L);
 
     /**
@@ -268,19 +269,18 @@ public class ArpResponderUtil {
      *            Flow Cookie
      * @param matches
      *            List of Match Criteria for the flow
-     * @param actions
-     *            List of Actions for the flow
+     * @param instructions
+     *            List of Instructions for the flow
      */
     public static void installFlow(final IMdsalApiManager mdSalManager,
-            final WriteTransaction writeInvTxn, final BigInteger dpnId, 
+            final WriteTransaction writeInvTxn, final BigInteger dpnId,
             final String flowId, final String flowName,
             final int priority, final BigInteger cookie,
-            List<MatchInfo> matches, List<Action> actions) {
+            List<MatchInfo> matches, List<Instruction> instructions) {
 
         final Flow flowEntity = MDSALUtil.buildFlowNew(
                 NwConstants.ARP_RESPONDER_TABLE, flowId, priority, flowName, 0,
-                0, cookie, matches,
-                Arrays.asList(MDSALUtil.buildApplyActionsInstruction(actions)));
+                0, cookie, matches, instructions);
         mdSalManager.addFlowToTx(dpnId, flowEntity, writeInvTxn);
     }
 
