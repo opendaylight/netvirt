@@ -12,15 +12,24 @@ import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
+
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
+import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
+import org.opendaylight.netvirt.elanmanager.api.IElanService;
 import org.opendaylight.netvirt.fibmanager.api.IFibManager;
 import org.opendaylight.netvirt.fibmanager.api.RouteOrigin;
 import org.opendaylight.netvirt.vpnmanager.api.IVpnManager;
+import org.opendaylight.netvirt.vpnmanager.arp.responder.ArpResponderUtil;
+import org.opendaylight.netvirt.vpnmanager.utilities.InterfaceUtils;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.instruction.list.Instruction;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.CreateIdPoolInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.CreateIdPoolInputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.IdManagerService;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.OdlInterfaceRpcService;
 import org.opendaylight.yangtools.yang.common.RpcError;
 import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.slf4j.Logger;
@@ -35,19 +44,25 @@ public class VpnManagerImpl implements IVpnManager {
     private final IdManagerService idManager;
     private final IMdsalApiManager mdsalManager;
     private final VpnFootprintService vpnFootprintService;
+    private final OdlInterfaceRpcService ifaceMgrRpcService;
+    private final IElanService elanService;
 
     public VpnManagerImpl(final DataBroker dataBroker,
                           final IdManagerService idManagerService,
                           final VpnInstanceListener vpnInstanceListener,
                           final VpnInterfaceManager vpnInterfaceManager,
                           final IMdsalApiManager mdsalManager,
-                          final VpnFootprintService vpnFootprintService) {
+                          final VpnFootprintService vpnFootprintService,
+                          final OdlInterfaceRpcService ifaceMgrRpcService,
+                          final IElanService elanService) {
         this.dataBroker = dataBroker;
         this.vpnInterfaceManager = vpnInterfaceManager;
         this.vpnInstanceListener = vpnInstanceListener;
         this.idManager = idManagerService;
         this.mdsalManager = mdsalManager;
         this.vpnFootprintService = vpnFootprintService;
+        this.ifaceMgrRpcService = ifaceMgrRpcService;
+        this.elanService = elanService;
     }
 
     public void start() {
@@ -145,4 +160,125 @@ public class VpnManagerImpl implements IVpnManager {
         VpnUtil.setupSubnetMacIntoVpnInstance(dataBroker, mdsalManager, vpnName, srcMacAddress,
                 dpnId, writeTx, addOrRemove);
     }
+
+    @Override
+    public void setupRouterGwMacFlow(String routerName, String routerGwMac, BigInteger dpnId, Uuid extNetworkId,
+            WriteTransaction writeTx, int addOrRemove) {
+        if (routerGwMac == null) {
+            LOG.warn("Failed to handle router GW flow in GW-MAC table. MAC address is missing for router-id {}",
+                    routerName);
+            return;
+        }
+
+        if (dpnId == null || BigInteger.ZERO.equals(dpnId)) {
+            LOG.error("Failed to handle router GW flow in GW-MAC table. DPN id is missing for router-id", routerName);
+            return;
+        }
+
+        Uuid vpnId = VpnUtil.getExternalNetworkVpnId(dataBroker, extNetworkId);
+        if (vpnId == null) {
+            LOG.warn("Network {} is not associated with VPN", extNetworkId.getValue());
+            return;
+        }
+
+        LOG.info("{} router GW MAC flow for router-id {} on switch {}",
+                addOrRemove == NwConstants.ADD_FLOW ? "Installing" : "Removing", routerName, dpnId);
+        boolean submit = false;
+        if (writeTx == null) {
+            submit = true;
+            writeTx = dataBroker.newWriteOnlyTransaction();
+        }
+        setupSubnetMacIntoVpnInstance(vpnId.getValue(), routerGwMac, dpnId, writeTx, addOrRemove);
+        if (submit) {
+            writeTx.submit();
+        }
+    }
+
+    @Override
+    public void setupArpResponderFlowsToExternalNetworkIps(String id, Collection<String> fixedIps, String macAddress,
+            BigInteger dpnId, Uuid extNetworkId, WriteTransaction writeTx, int addOrRemove) {
+        String extInterfaceName = elanService.getExternalElanInterface(extNetworkId.getValue(), dpnId);
+        if (extInterfaceName == null) {
+            LOG.warn("Failed to install responder flows for {}. No external interface found for DPN id {}", id, dpnId);
+            return;
+        }
+
+        Interface extInterfaceState = InterfaceUtils.getInterfaceStateFromOperDS(dataBroker, extInterfaceName);
+        if (extInterfaceState == null) {
+            LOG.debug("No interface state found for interface {}. Delaying responder flows for {}", extInterfaceName,
+                    id);
+            return;
+        }
+
+        Integer lportTag = extInterfaceState.getIfIndex();
+        if (lportTag == null) {
+            LOG.debug("No Lport tag found for interface {}. Delaying flows for router-id {}", extInterfaceName, id);
+            return;
+        }
+
+        long vpnId = (addOrRemove == NwConstants.ADD_FLOW) ? getVpnIdFromExtNetworkId(extNetworkId)
+                : VpnConstants.INVALID_ID;
+        setupArpResponderFlowsToExternalNetworkIps(id, fixedIps, macAddress, dpnId, vpnId, extInterfaceName, lportTag,
+                writeTx, addOrRemove);
+    }
+
+
+    @Override
+    public void setupArpResponderFlowsToExternalNetworkIps(String id, Collection<String> fixedIps, String macAddress,
+            BigInteger dpnId, long vpnId, String extInterfaceName, int lPortTag, WriteTransaction writeTx,
+            int addOrRemove) {
+        if (fixedIps == null || fixedIps.isEmpty()) {
+            LOG.debug("No external IPs defined for {}", id);
+            return;
+        }
+
+        LOG.info("{} ARP responder flows for {} fixed-ips {} on switch {}",
+                addOrRemove == NwConstants.ADD_FLOW ? "Installing" : "Removing", id, fixedIps, dpnId);
+
+        boolean submit = false;
+        if (writeTx == null) {
+            submit = true;
+            writeTx = dataBroker.newWriteOnlyTransaction();
+        }
+
+        for (String fixedIp : fixedIps) {
+            if (addOrRemove == NwConstants.ADD_FLOW) {
+                installArpResponderFlowsToExternalNetworkIp(macAddress, dpnId, extInterfaceName, lPortTag, vpnId, fixedIp,
+                        writeTx);
+            } else {
+                removeArpResponderFlowsToExternalNetworkIp(dpnId, lPortTag, fixedIp, writeTx);
+            }
+        }
+
+        if (submit) {
+            writeTx.submit();
+        }
+    }
+
+    private void installArpResponderFlowsToExternalNetworkIp(String macAddress, BigInteger dpnId, String extInterfaceName,
+            Integer lportTag, long vpnId, String fixedIp, WriteTransaction writeTx) {
+        String flowId = ArpResponderUtil.getFlowID(lportTag, fixedIp);
+        List<Instruction> instructions = ArpResponderUtil.getExtInterfaceInstructions(ifaceMgrRpcService,
+                extInterfaceName, fixedIp, macAddress);
+        ArpResponderUtil.installFlow(mdsalManager, writeTx, dpnId, flowId, flowId,
+                NwConstants.DEFAULT_ARP_FLOW_PRIORITY, ArpResponderUtil.generateCookie(lportTag, fixedIp),
+                ArpResponderUtil.getMatchCriteria(lportTag, vpnId, fixedIp), instructions);
+    }
+
+    private void removeArpResponderFlowsToExternalNetworkIp(BigInteger dpnId, Integer lportTag, String fixedIp,
+            WriteTransaction writeTx) {
+        String flowId = ArpResponderUtil.getFlowID(lportTag, fixedIp);
+        ArpResponderUtil.removeFlow(mdsalManager, writeTx, dpnId, flowId);
+    }
+
+    private long getVpnIdFromExtNetworkId(Uuid extNetworkId) {
+        Uuid vpnInstanceId = VpnUtil.getExternalNetworkVpnId(dataBroker, extNetworkId);
+        if (vpnInstanceId == null) {
+            LOG.debug("Network {} is not associated with VPN", extNetworkId.getValue());
+            return VpnConstants.INVALID_ID;
+        }
+
+        return VpnUtil.getVpnId(dataBroker, vpnInstanceId.getValue());
+    }
+
 }

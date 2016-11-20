@@ -8,8 +8,7 @@
 
 package org.opendaylight.netvirt.neutronvpn;
 
-import java.util.ArrayList;
-import java.util.Collection;
+import java.math.BigInteger;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.Executors;
@@ -20,8 +19,11 @@ import java.util.concurrent.TimeUnit;
 
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.netvirt.elanmanager.api.IElanService;
+import org.opendaylight.netvirt.vpnmanager.api.ICentralizedSwitchProvider;
 import org.opendaylight.netvirt.vpnmanager.api.IVpnManager;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.MacAddress;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.PhysAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.arputil.rev160406.OdlArputilService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.arputil.rev160406.SendArpRequestInput;
@@ -46,17 +48,20 @@ public class NeutronSubnetGwMacResolver {
     private final IVpnManager vpnManager;
     private final OdlArputilService arpUtilService;
     private final IElanService elanService;
+    private final ICentralizedSwitchProvider cswitchProvider;
 
     private final ThreadFactory threadFactory = new ThreadFactoryBuilder().setNameFormat("Gw-Mac-Res").build();
     private final ScheduledExecutorService executorService = Executors.newSingleThreadScheduledExecutor(threadFactory);
     private ScheduledFuture<?> arpFuture;
 
     public NeutronSubnetGwMacResolver(final DataBroker broker, final IVpnManager vpnManager,
-            final OdlArputilService arputilService, final IElanService elanService) {
+            final OdlArputilService arputilService, final IElanService elanService,
+            final ICentralizedSwitchProvider cswitchProvider) {
         this.broker = broker;
         this.vpnManager = vpnManager;
         this.arpUtilService = arputilService;
         this.elanService = elanService;
+        this.cswitchProvider = cswitchProvider;
     }
 
     public void start() {
@@ -103,9 +108,9 @@ public class NeutronSubnetGwMacResolver {
             return;
         }
 
-        Collection<String> extInterfaces = getExternalInterfaces(router);
-        if (extInterfaces == null || extInterfaces.isEmpty()) {
-            LOG.trace("No external interfaces defined for router {}", router.getUuid().getValue());
+        String extInterface = getExternalInterface(router);
+        if (extInterface == null) {
+            LOG.trace("No external interface defined for router {}", router.getUuid().getValue());
             return;
         }
 
@@ -116,11 +121,18 @@ public class NeutronSubnetGwMacResolver {
             return;
         }
 
+        MacAddress macAddress = extPort.getMacAddress();
+        if (macAddress == null) {
+            LOG.trace("External GW port {} for router {} has no mac address", extPort.getUuid().getValue(),
+                    router.getUuid().getValue());
+            return;
+        }
+
         for (FixedIps fixIp : fixedIps) {
             Uuid subnetId = fixIp.getSubnetId();
             IpAddress srcIpAddress = fixIp.getIpAddress();
             IpAddress dstIpAddress = getExternalGwIpAddress(subnetId);
-            sendArpRequest(srcIpAddress, dstIpAddress, extInterfaces);
+            sendArpRequest(srcIpAddress, dstIpAddress, macAddress, extInterface);
         }
 
     }
@@ -132,23 +144,24 @@ public class NeutronSubnetGwMacResolver {
         }
     }
 
-    private void sendArpRequest(IpAddress srcIpAddress, IpAddress dstIpAddress, Collection<String> interfaces) {
+    private void sendArpRequest(IpAddress srcIpAddress, IpAddress dstIpAddress, MacAddress srcMacAddress,
+            String interfaceName) {
         if (srcIpAddress == null || dstIpAddress == null) {
             LOG.trace("Skip sending ARP to external GW srcIp {} dstIp {}", srcIpAddress, dstIpAddress);
             return;
         }
 
+        PhysAddress srcMacPhysAddress = new PhysAddress(srcMacAddress.getValue());
         try {
-            List<InterfaceAddress> interfaceAddresses = new ArrayList<>();
-            interfaces.stream().forEach(e -> interfaceAddresses
-                    .add(new InterfaceAddressBuilder().setInterface(e).setIpAddress(srcIpAddress).build()));
+            InterfaceAddress interfaceAddress = new InterfaceAddressBuilder().setInterface(interfaceName)
+                    .setIpAddress(srcIpAddress).setMacaddress(srcMacPhysAddress).build();
 
             SendArpRequestInput sendArpRequestInput = new SendArpRequestInputBuilder().setIpaddress(dstIpAddress)
-                    .setInterfaceAddress(interfaceAddresses).build();
+                    .setInterfaceAddress(Collections.singletonList(interfaceAddress)).build();
             arpUtilService.sendArpRequest(sendArpRequestInput);
         } catch (Exception e) {
-            LOG.error("Failed to send ARP request to external GW {} from interfaces {}",
-                    dstIpAddress.getIpv4Address().getValue(), interfaces, e);
+            LOG.error("Failed to send ARP request to external GW {} from interface {}",
+                    dstIpAddress.getIpv4Address().getValue(), interfaceName, e);
         }
     }
 
@@ -167,20 +180,27 @@ public class NeutronSubnetGwMacResolver {
         return NeutronvpnUtils.getNeutronPort(broker, extPortId);
     }
 
-    private Collection<String> getExternalInterfaces(Router router) {
+    private String getExternalInterface(Router router) {
         ExternalGatewayInfo extGatewayInfo = router.getExternalGatewayInfo();
+        String routerName = router.getUuid().getValue();
         if (extGatewayInfo == null) {
-            LOG.trace("External GW info missing for router {}", router.getUuid().getValue());
-            return Collections.emptyList();
+            LOG.trace("External GW info missing for router {}", routerName);
+            return null;
         }
 
         Uuid extNetworkId = extGatewayInfo.getExternalNetworkId();
         if (extNetworkId == null) {
-            LOG.trace("External network id missing for router {}", router.getUuid().getValue());
-            return Collections.emptyList();
+            LOG.trace("External network id missing for router {}", routerName);
+            return null;
         }
 
-        return elanService.getExternalElanInterfaces(extNetworkId.getValue());
+        BigInteger primarySwitch = cswitchProvider.getPrimarySwitchForRouter(routerName);
+        if (primarySwitch == null || BigInteger.ZERO.equals(primarySwitch)) {
+            LOG.trace("Primary switch has not been allocated for router {}", routerName);
+            return null;
+        }
+
+        return elanService.getExternalElanInterface(extNetworkId.getValue(), primarySwitch);
     }
 
     private IpAddress getExternalGwIpAddress(Uuid subnetId) {
