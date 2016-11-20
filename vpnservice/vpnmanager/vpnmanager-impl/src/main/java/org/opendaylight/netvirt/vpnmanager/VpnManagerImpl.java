@@ -14,13 +14,16 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
+import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.netvirt.fibmanager.api.IFibManager;
 import org.opendaylight.netvirt.fibmanager.api.RouteOrigin;
 import org.opendaylight.netvirt.vpnmanager.api.IVpnManager;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.CreateIdPoolInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.CreateIdPoolInputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.IdManagerService;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ext.routers.Routers;
 import org.opendaylight.yangtools.yang.common.RpcError;
 import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.slf4j.Logger;
@@ -144,5 +147,33 @@ public class VpnManagerImpl implements IVpnManager {
                                               int addOrRemove) {
         VpnUtil.setupSubnetMacIntoVpnInstance(dataBroker, mdsalManager, vpnName, srcMacAddress,
                 dpnId, writeTx, addOrRemove);
+    }
+
+    @Override
+    public void setupRouterGwMacFlow(String routerName, String routerGwMac, Uuid extNetworkId,
+            BigInteger primarySwitchId, int addOrRemove) {
+        if (routerGwMac == null) {
+            LOG.warn("Failed to handle router GW flow in GW-MAC table. MAC address is missing for router-id {}",
+                    routerName);
+            return;
+        }
+
+        if (BigInteger.ZERO.equals(primarySwitchId)) {
+            LOG.error("Failed to handle router GW flow in GW-MAC table. Primary switch-id is missing for router-id",
+                    routerName);
+            return;
+        }
+
+        Uuid vpnId = VpnUtil.getExternalNetworkVpnId(dataBroker, extNetworkId);
+        if (vpnId == null) {
+            LOG.warn("Network {} is not associated with VPN", extNetworkId.getValue());
+            return;
+        }
+
+        LOG.debug("{} router Gw flows for router-id {} on switch {}",
+                addOrRemove == NwConstants.ADD_FLOW ? "Installing" : "Removing", routerName, primarySwitchId);
+        WriteTransaction writeTx = dataBroker.newWriteOnlyTransaction();
+        setupSubnetMacIntoVpnInstance(vpnId.getValue(), routerGwMac, primarySwitchId, writeTx, addOrRemove);
+        writeTx.submit();
     }
 }
