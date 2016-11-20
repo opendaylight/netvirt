@@ -128,6 +128,7 @@
     <argument ref="naptEventHandler" />
     <argument ref="naptPacketInHandler" />
     <argument ref="fibManager" />
+    <argument ref="vpnManager"/>
   </bean>
 
   <bean id="externalNetworksChangeListener"
