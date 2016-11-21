@@ -10,3 +10,4 @@ Contents:
    :maxdepth: 1
 
    Design Specification Template <specs-template>
+   l3vpn-over-vxlan-with-evpn-rt5
