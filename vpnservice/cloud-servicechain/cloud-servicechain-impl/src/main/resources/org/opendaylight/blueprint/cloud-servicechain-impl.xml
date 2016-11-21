@@ -47,7 +47,8 @@
     </bean>
     <odl:notification-listener ref="vpnToDpnListener" />
 
-    <bean id="nodeListener" class="org.opendaylight.netvirt.cloudservicechain.listeners.NodeListener"
+    <bean id="vpn2ElanFallbackNodeListener"
+          class="org.opendaylight.netvirt.cloudservicechain.listeners.VpnToElanFallbackNodeListener"
           init-method="init" destroy-method="close">
         <argument ref="dataBroker" />
         <argument ref="mdsalManager" />
