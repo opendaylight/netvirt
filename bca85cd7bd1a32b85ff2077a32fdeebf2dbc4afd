@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3a65312a_886f15c5",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 255,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-11-21T04:30:29Z",
+      "side": 1,
+      "message": "Best to write a method that returns a boolean and use that here ..\n\nWill be useful in the long run too:\n\nisControllerManagedRoute() {\nreturn true if STATIC/CONNECTED/LOCAL/INTERVPNLINK\n}\n\nisControllerManagedNonInterVpnLinkRoute() {\nreturn true if STATIC/CONNECTED/LOCAL\n}\n\nIn the above case you will invoke isControllerManagedNonInterVpnLinkRoute().",
+      "revId": "bca85cd7bd1a32b85ff2077a32fdeebf2dbc4afd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
