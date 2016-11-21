@@ -383,8 +383,6 @@ public class NatUtil {
     }
 
 
-
-
     /*
         getNaptSwitchesDpnIdsfromRouterId() returns the primary-switch-id and the secondary-switch-id in a array using the router-id; as the key.
             container napt-switches {
