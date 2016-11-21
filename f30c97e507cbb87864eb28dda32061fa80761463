@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3a65312a_036da698",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 704,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-11-21T11:59:16Z",
+      "side": 1,
+      "message": "This is hiding way down..\n\nCan we please re-arrange such that the following comes before line 620:\n\nif (!adjacencies.isPresent()) {\n    addVpnInterfaceToOperational(..., null, writeOperexxx);\n}\n\n/* Adjacencies are available */\n..continue with line 621..",
+      "revId": "f30c97e507cbb87864eb28dda32061fa80761463",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a65312a_e3feaaad",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 1324,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-11-21T11:59:16Z",
+      "side": 1,
+      "message": "fix the trailing space.",
+      "revId": "f30c97e507cbb87864eb28dda32061fa80761463",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
