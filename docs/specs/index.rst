@@ -11,3 +11,4 @@ Contents:
 
    Design Specification Template <specs-template>
    Temporary SMAC Learning <temporary-smac-learning>
+   l3vpn-over-vxlan-with-evpn-rt5
