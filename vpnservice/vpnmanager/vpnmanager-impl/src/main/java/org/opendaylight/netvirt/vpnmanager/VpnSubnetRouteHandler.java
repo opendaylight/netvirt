@@ -740,11 +740,11 @@ public class VpnSubnetRouteHandler implements NeutronvpnListener {
                             }
                         }
                     }
+                    subOpEntry = subOpBuilder.build();
+                    MDSALUtil.syncWrite(dataBroker, LogicalDatastoreType.OPERATIONAL, subOpIdentifier, subOpEntry);
+                    logger.info("updateSubnetRouteOnTunnelUpEvent: Updated subnetopdataentry to OP Datastore tunnel up on dpn {} for subnet {}",
+                            dpnId.toString(), subnetId.getValue());
                 }
-                subOpEntry = subOpBuilder.build();
-                MDSALUtil.syncWrite(dataBroker, LogicalDatastoreType.OPERATIONAL, subOpIdentifier, subOpEntry);
-                logger.info("updateSubnetRouteOnTunnelUpEvent: Updated subnetopdataentry to OP Datastore tunnel up on dpn {} for subnet {}",
-                        dpnId.toString(), subnetId.getValue());
             } catch (Exception ex) {
                 logger.error("Creation of SubnetOpDataEntry for subnet " +
                         subnetId.getValue() + " failed {}" + ex);
@@ -820,11 +820,11 @@ public class VpnSubnetRouteHandler implements NeutronvpnListener {
                             subOpBuilder.setRouteAdvState(TaskState.Pending);
                         }
                     }
+                    subOpEntry = subOpBuilder.build();
+                    MDSALUtil.syncWrite(dataBroker, LogicalDatastoreType.OPERATIONAL, subOpIdentifier, subOpEntry);
+                    logger.info("updateSubnetRouteOnTunnelDownEvent: Updated subnetopdataentry to OP Datastore tunnnel down on dpn {} for subnet {}",
+                            dpnId.toString(), subnetId.getValue());
                 }
-                subOpEntry = subOpBuilder.build();
-                MDSALUtil.syncWrite(dataBroker, LogicalDatastoreType.OPERATIONAL, subOpIdentifier, subOpEntry);
-                logger.info("updateSubnetRouteOnTunnelDownEvent: Updated subnetopdataentry to OP Datastore tunnnel down on dpn {} for subnet {}",
-                        dpnId.toString(), subnetId.getValue());
             } catch (Exception ex) {
                 logger.error("Updation of SubnetOpDataEntry for subnet " +
                         subnetId.getValue() + " failed {}" + ex);
@@ -855,7 +855,7 @@ public class VpnSubnetRouteHandler implements NeutronvpnListener {
             try {
                 // BGPManager (inside ODL) requires a withdraw followed by advertise
                 // due to bugs with ClusterDataChangeListener used by BGPManager.
-                //bgpManager.withdrawPrefix(rd, subnetIp);
+                bgpManager.withdrawPrefix(rd, subnetIp);
                 bgpManager.advertisePrefix(rd, subnetIp, Arrays.asList(nexthopIp), label);
             } catch (Exception e) {
                 logger.error("Fail: Subnet route not advertised for rd {} subnetIp {}", rd, subnetIp, e);
