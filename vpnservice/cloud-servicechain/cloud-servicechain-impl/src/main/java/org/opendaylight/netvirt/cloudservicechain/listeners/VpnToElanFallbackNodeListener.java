@@ -12,10 +12,8 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.binding.api.DataChangeListener;
-import org.opendaylight.controller.md.sal.common.api.data.AsyncDataBroker.DataChangeScope;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.genius.mdsalutil.AbstractDataChangeListener;
+import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.mdsalutil.MatchFieldType;
 import org.opendaylight.genius.mdsalutil.MatchInfo;
@@ -24,14 +22,18 @@ import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.genius.utils.ServiceIndex;
 import org.opendaylight.netvirt.cloudservicechain.CloudServiceChainConstants;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Uri;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.FlowId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.tables.table.Flow;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.tables.table.FlowBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.instruction.list.Instruction;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeId;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.Nodes;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.Node;
-import org.opendaylight.yangtools.concepts.ListenerRegistration;
+import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.NetworkTopology;
+import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.NodeId;
+import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.TopologyId;
+import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.Topology;
+import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.TopologyKey;
+import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Node;
+
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,53 +41,58 @@ import org.slf4j.LoggerFactory;
 // Rationale: for vpn-servicechain and elan-servicechain to coexist in the same deployment, it is necessary a flow
 // in LPortDispatcher that sets SI to ELAN in case that VPN does not apply
 /**
- * Listens for Node Up events in order to install the L2 to L3 default
+ * Listens for Node Up/Down events in order to install the L2 to L3 default
  * fallback flow. This flow, with minimum priority, consists on matching on
  * SI=2 and sets SI=3.
  *
  */
-public class NodeListener extends AbstractDataChangeListener<Node> implements AutoCloseable {
+public class VpnToElanFallbackNodeListener extends AsyncDataTreeChangeListenerBase<Node, VpnToElanFallbackNodeListener>
+                                           implements AutoCloseable {
 
-    private static final Logger LOG = LoggerFactory.getLogger(NodeListener.class);
+    private static final Logger LOG = LoggerFactory.getLogger(VpnToElanFallbackNodeListener.class);
     private static final String L3_TO_L2_DEFAULT_FLOW_REF = "L3VPN_to_Elan_Fallback_Default_Rule";
 
-    private ListenerRegistration<DataChangeListener> listenerRegistration;
     private final DataBroker broker;
     private final IMdsalApiManager mdsalMgr;
 
+    // TODO: Remove when included in ovsdb's SouthboundUtils
+    public static final TopologyId FLOW_TOPOLOGY_ID = new TopologyId(new Uri("flow:1"));
 
-    public NodeListener(final DataBroker db, final IMdsalApiManager mdsalManager) {
-        super(Node.class);
+    public VpnToElanFallbackNodeListener(final DataBroker db, final IMdsalApiManager mdsalManager) {
+        super(Node.class, VpnToElanFallbackNodeListener.class);
         this.broker = db;
         this.mdsalMgr = mdsalManager;
     }
 
+    @Override
     public void init() {
-        registerListener(broker);
+        LOG.info("{} start", getClass().getSimpleName());
+        registerListener(LogicalDatastoreType.OPERATIONAL, broker);
     }
 
-    private void registerListener(final DataBroker db) {
-        listenerRegistration = db.registerDataChangeListener(LogicalDatastoreType.OPERATIONAL,
-                                                             InstanceIdentifier.create(Nodes.class).child(Node.class),
-                                                             NodeListener.this, DataChangeScope.SUBTREE);
+
+    @Override
+    protected InstanceIdentifier<Node> getWildCardPath() {
+        return InstanceIdentifier.create(NetworkTopology.class)
+                                 .child(Topology.class, new TopologyKey(FLOW_TOPOLOGY_ID))
+                                 .child(Node.class);
     }
 
     @Override
-    public void close() throws Exception {
-        if (listenerRegistration != null) {
-            listenerRegistration.close();
-            listenerRegistration = null;
-        }
-        LOG.debug("VpnManager's NodeListener Closed");
+    protected VpnToElanFallbackNodeListener getDataTreeChangeListener() {
+        return VpnToElanFallbackNodeListener.this;
     }
 
     @Override
     protected void remove(InstanceIdentifier<Node> identifier, Node del) {
-        BigInteger dpnId = getDpnIdFromNodeId(del.getId());
+        BigInteger dpnId = getDpnIdFromNodeId(del.getNodeId());
         if ( dpnId == null ) {
             return;
         }
-        LOG.debug("Removing L3VPN to ELAN default Fallback flow in LPortDispatcher table");
+
+        LOG.debug("Removing L3VPN to ELAN default Fallback flow in LPortDispatcher table from Dpn {}",
+                  del.getNodeId());
+
         Flow flowToRemove = new FlowBuilder().setFlowName(L3_TO_L2_DEFAULT_FLOW_REF)
                 .setId(new FlowId(L3_TO_L2_DEFAULT_FLOW_REF))
                 .setTableId(NwConstants.LPORT_DISPATCHER_TABLE).build();
@@ -98,12 +105,13 @@ public class NodeListener extends AbstractDataChangeListener<Node> implements Au
 
     @Override
     protected void add(InstanceIdentifier<Node> identifier, Node add) {
-        BigInteger dpnId = getDpnIdFromNodeId(add.getId());
+        BigInteger dpnId = getDpnIdFromNodeId(add.getNodeId());
         if ( dpnId == null ) {
             return;
         }
 
-        LOG.debug("Installing L3VPN to ELAN default Fallback flow in LPortDispatcher table");
+        LOG.debug("Installing L3VPN to ELAN default Fallback flow in LPortDispatcher table on Dpn {}",
+                  add.getNodeId());
         BigInteger[] metadataToMatch = new BigInteger[] {
             MetaDataUtil.getServiceIndexMetaData(ServiceIndex.getIndex(NwConstants.L3VPN_SERVICE_NAME,
                                                                        NwConstants.L3VPN_SERVICE_INDEX)),
