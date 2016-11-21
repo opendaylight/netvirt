@@ -39,12 +39,13 @@ public interface IFibManager {
     void writeConfTransTypeConfigDS();
     String getReqTransType();
     String getTransportTypeStr(String tunType);
-    void handleRemoteRoute(boolean action, BigInteger localDpnId,
-                           BigInteger remoteDpnId, long vpnId,
-                           String rd, String destPrefix,
-                           String localNextHopIp,
-                           String remoteNextHopIP);
 
+    void manageRemoteRouteOnDPN(final boolean action,
+                                BigInteger localDpnId,
+                                long vpnId,
+                                String  rd,
+                                String destPrefix,
+                                String destTepIp);
 
     void addOrUpdateFibEntry(DataBroker broker, String rd, String prefix, List<String> nextHopList,
                              int label, RouteOrigin origin, WriteTransaction writeConfigTxn);
