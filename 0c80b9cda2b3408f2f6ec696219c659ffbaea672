@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3a65312a_6871d9df",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 253,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-11-21T10:28:44Z",
+      "side": 1,
+      "message": "Idea is not to clog this file as we are refactoring this in the next patch..\n\nPlease put these methods into FibUtil.",
+      "revId": "0c80b9cda2b3408f2f6ec696219c659ffbaea672",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
