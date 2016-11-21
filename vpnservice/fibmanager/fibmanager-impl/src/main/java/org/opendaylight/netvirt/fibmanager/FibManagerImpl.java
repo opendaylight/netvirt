@@ -139,11 +139,13 @@ public class FibManagerImpl implements IFibManager {
     }
 
     @Override
-    public void handleRemoteRoute(boolean action, BigInteger localDpnId, BigInteger remoteDpnId,
-                                  long vpnId, String rd, String destPrefix, String localNextHopIp,
-                                  String remoteNextHopIP) {
-        vrfEntryListener.handleRemoteRoute(action, localDpnId, remoteDpnId, vpnId, rd, destPrefix,
-                localNextHopIp, remoteNextHopIP);
+    public void manageRemoteRouteOnDPN(boolean action,
+                                       BigInteger DpnId,
+                                       long vpnId,
+                                       String  rd,
+                                       String destPrefix,
+                                       String destTepIp) {
+        vrfEntryListener.manageRemoteRouteOnDPN(action, DpnId, vpnId,rd, destPrefix, destTepIp);
     }
 
     @Override
