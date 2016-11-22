@@ -1,0 +1,208 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3a65312a_ceaab2d1",
+        "filename": "vpnservice/vpnmanager/vpnmanager-api/src/main/yang/odl-l3vpn.yang",
+        "patchSetId": 20
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-11-22T09:11:00Z",
+      "side": 1,
+      "message": "trail whitespace",
+      "revId": "5e86a7464b6d56e17f624b0cd45ea7b6ee8595de",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a65312a_0eb5ca30",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/ArpNotificationHandler.java",
+        "patchSetId": 20
+      },
+      "lineNbr": 168,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-11-22T09:11:00Z",
+      "side": 1,
+      "message": "unnecessary tab !",
+      "revId": "5e86a7464b6d56e17f624b0cd45ea7b6ee8595de",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a65312a_4e0982dc",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 20
+      },
+      "lineNbr": 1927,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-11-22T09:11:00Z",
+      "side": 1,
+      "message": "If a gateway mac address appears from Openstack after the VMs are spinned off, does that result in ARP Responder flow here being modified?",
+      "revId": "5e86a7464b6d56e17f624b0cd45ea7b6ee8595de",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a65312a_2e0406bf",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 20
+      },
+      "lineNbr": 1934,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-11-22T09:11:00Z",
+      "side": 1,
+      "message": "Also can we please batch in this flow with the writeInv object shipped from VpnInterfaceManager and InterfaceStateChangeListener ?\n\nThe comment here applies for removal lifecycle also..",
+      "revId": "5e86a7464b6d56e17f624b0cd45ea7b6ee8595de",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a65312a_aede563d",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnNodeListener.java",
+        "patchSetId": 20
+      },
+      "lineNbr": 176,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-11-22T09:11:00Z",
+      "side": 1,
+      "message": "Please see for comments in ArpResponder utils..\n\nThe method here is not obvious enogh to say tablemiss flows are installed in the ARP Responder Table.",
+      "revId": "5e86a7464b6d56e17f624b0cd45ea7b6ee8595de",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a65312a_cee2b200",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnNodeListener.java",
+        "patchSetId": 20
+      },
+      "lineNbr": 180,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-11-22T09:11:00Z",
+      "side": 1,
+      "message": "Please see for comments on this method in the ArpResponderUtils.",
+      "revId": "5e86a7464b6d56e17f624b0cd45ea7b6ee8595de",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a65312a_4ea502b4",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnNodeListener.java",
+        "patchSetId": 20
+      },
+      "lineNbr": 185,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-11-22T09:11:00Z",
+      "side": 1,
+      "message": "You may run into the problem here where creation of the Group will appear later than the creation of the flow...  Thereby the flow in GWMAC table won\u0027t get created at scale :)\n\nPlease check this out :)",
+      "revId": "5e86a7464b6d56e17f624b0cd45ea7b6ee8595de",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a65312a_ae277663",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/arp/responder/ArpResponderConstant.java",
+        "patchSetId": 20
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-11-22T09:11:00Z",
+      "side": 1,
+      "message": "RESPONDER spell check.",
+      "revId": "5e86a7464b6d56e17f624b0cd45ea7b6ee8595de",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a65312a_ce1bd21a",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/arp/responder/ArpResponderUtil.java",
+        "patchSetId": 20
+      },
+      "lineNbr": 95,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-11-22T09:11:00Z",
+      "side": 1,
+      "message": "Let name this method as getArpResponderTableMissFlow() and fix up invocations in VpnNodeListener accordingly.",
+      "revId": "5e86a7464b6d56e17f624b0cd45ea7b6ee8595de",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a65312a_2e1b661c",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/arp/responder/ArpResponderUtil.java",
+        "patchSetId": 20
+      },
+      "lineNbr": 128,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-11-22T09:11:00Z",
+      "side": 1,
+      "message": "You can just accept a list of tables and a punt-to-controller flag..\n\nBased on that you can devise this as a generic method..",
+      "revId": "5e86a7464b6d56e17f624b0cd45ea7b6ee8595de",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a65312a_0e166af1",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/arp/responder/ArpResponderUtil.java",
+        "patchSetId": 20
+      },
+      "lineNbr": 409,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-11-22T09:11:00Z",
+      "side": 1,
+      "message": "Better to name this again as:\n\nretrieveStandardArpResponderGroupId(IdManagerService idManager);\n\nwhich pool you use can be abstracted within this method..",
+      "revId": "5e86a7464b6d56e17f624b0cd45ea7b6ee8595de",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a65312a_6ed43e20",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/arp/responder/ArpResponderUtil.java",
+        "patchSetId": 20
+      },
+      "lineNbr": 420,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-11-22T09:11:00Z",
+      "side": 1,
+      "message": "you may want to print what key was used for allocation here.",
+      "revId": "5e86a7464b6d56e17f624b0cd45ea7b6ee8595de",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}

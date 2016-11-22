@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3a65312a_ae7db670",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/ArpNotificationHandler.java",
+        "patchSetId": 20
+      },
+      "lineNbr": 157,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-11-22T09:11:00Z",
+      "side": 0,
+      "message": "Since this is removed, if there is no router internal gateway port, how do we keep the traffic unaffected for external-vpn associate network use-case for L3VPN?",
+      "revId": "5df518d174ce82a042f20dbec752c27bb7b8fe38",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
