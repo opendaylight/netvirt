@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3a65312a_2e824694",
+        "filename": "vpnservice/bgpmanager/bgpmanager-impl/src/main/java/org/opendaylight/netvirt/bgpmanager/BgpConfigurationManager.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 1565,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-11-22T10:32:23Z",
+      "side": 1,
+      "message": "See here that we moved the bgp route leak logic in here from VrfEntryListener?\n\nOr was this movement part of some other earlier review?",
+      "revId": "e1110778c4b65bf24750553bf82ed360b5927137",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a65312a_0e54aa1f",
+        "filename": "vpnservice/vpnmanager/vpnmanager-api/src/main/java/org/opendaylight/netvirt/vpnmanager/api/intervpnlink/InterVpnLinkDataComposite.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 225,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-11-22T10:32:23Z",
+      "side": 1,
+      "message": "This doesnt\u0027t seem to have the logic to leak the routes !\n\nIs this boilerplate for a future review?",
+      "revId": "e1110778c4b65bf24750553bf82ed360b5927137",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
