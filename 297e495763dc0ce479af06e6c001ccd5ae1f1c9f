@@ -1,0 +1,123 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3a65312a_eec4ce93",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/FibUtil.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 599,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2016-11-22T10:48:53Z",
+      "side": 1,
+      "message": "nit: updateFibEntry",
+      "revId": "297e495763dc0ce479af06e6c001ccd5ae1f1c9f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a65312a_2ebfe6fc",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/FibUtil.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 613,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2016-11-22T10:48:53Z",
+      "side": 1,
+      "message": "Is there a possibility to lose augmentations here?\nWhy not use VrfEntryBuilder(entry).setNextHopAddressList to preserve the other members/augmentations",
+      "revId": "297e495763dc0ce479af06e6c001ccd5ae1f1c9f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a65312a_296360dd",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 1862,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2016-11-22T10:48:53Z",
+      "side": 1,
+      "message": "synchronized block called from the context of the DjC can hold back other jobs in the queue... wouldn\u0027t it be possible to use the job key to create this synchronization?",
+      "revId": "297e495763dc0ce479af06e6c001ccd5ae1f1c9f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a65312a_2efd263b",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/TunnelInterfaceStateListener.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 162,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2016-11-22T10:48:53Z",
+      "side": 1,
+      "message": "argument name is confusing since stateTunnelList actually represents state of a single tunnel",
+      "revId": "297e495763dc0ce479af06e6c001ccd5ae1f1c9f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a65312a_ee77aed2",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/TunnelInterfaceStateListener.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 172,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2016-11-22T10:48:53Z",
+      "side": 1,
+      "message": "This method is very long\nIt would be much easier to understand if you split the functionality by calling handleTunnelAddEvent/handleTunnelDeleteEvent etc. from within it",
+      "revId": "297e495763dc0ce479af06e6c001ccd5ae1f1c9f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a65312a_4e4ea297",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/TunnelInterfaceStateListener.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 185,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2016-11-22T10:48:53Z",
+      "side": 1,
+      "message": "typo () -\u003e {}",
+      "revId": "297e495763dc0ce479af06e6c001ccd5ae1f1c9f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a65312a_4e086291",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 789,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2016-11-22T10:48:53Z",
+      "side": 1,
+      "message": "Check if vpnInterface.getAugmentation is not null before accessing the list",
+      "revId": "297e495763dc0ce479af06e6c001ccd5ae1f1c9f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
