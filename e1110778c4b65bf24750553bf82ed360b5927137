@@ -33,6 +33,24 @@
       "revId": "e1110778c4b65bf24750553bf82ed360b5927137",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a65312a_c9fd8c3d",
+        "filename": "vpnservice/vpnmanager/vpnmanager-api/src/main/java/org/opendaylight/netvirt/vpnmanager/api/intervpnlink/InterVpnLinkDataComposite.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 225,
+      "author": {
+        "id": 5350
+      },
+      "writtenOn": "2016-11-22T13:47:16Z",
+      "side": 1,
+      "message": "You are right, this commit started as a WIP for taking the route leaking out of the VrfEntryListener, and was reused to fix the bug.\nI\u0027ve taken out all the WIP code and put it in a separate commit",
+      "parentUuid": "3a65312a_0e54aa1f",
+      "revId": "e1110778c4b65bf24750553bf82ed360b5927137",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
