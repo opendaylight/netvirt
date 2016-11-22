@@ -16,6 +16,24 @@
       "revId": "6f6c4ace0ff338698cc5d8261c8f18015701b0da",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a65312a_1f35f2d9",
+        "filename": "vpnservice/bgpmanager/bgpmanager-impl/src/main/java/org/opendaylight/netvirt/bgpmanager/BgpUtil.java",
+        "patchSetId": 10
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5350
+      },
+      "writtenOn": "2016-11-22T18:16:11Z",
+      "side": 1,
+      "message": "for some reason the permission flags changed.\nI tried to put it back to 644, but git doesn\u0027t consider that alone as a change  :-(",
+      "parentUuid": "3a65312a_843ff9d5",
+      "revId": "6f6c4ace0ff338698cc5d8261c8f18015701b0da",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
