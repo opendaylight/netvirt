@@ -7,11 +7,9 @@
  */
 package org.opendaylight.netvirt.elan.l2gw.listeners;
 
-import org.opendaylight.controller.md.sal.binding.api.ClusteredDataChangeListener;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.clustering.EntityOwnershipService;
-import org.opendaylight.controller.md.sal.common.api.data.AsyncDataBroker;
-import org.opendaylight.genius.datastoreutils.AsyncClusteredDataChangeListenerBase;
+import org.opendaylight.genius.datastoreutils.hwvtep.HwvtepClusteredDataTreeChangeListener;
 import org.opendaylight.genius.utils.hwvtep.HwvtepSouthboundUtils;
 import org.opendaylight.netvirt.elan.l2gw.jobs.LogicalSwitchAddedJob;
 import org.opendaylight.netvirt.elan.l2gw.utils.ElanL2GatewayMulticastUtils;
@@ -36,7 +34,7 @@ import org.slf4j.LoggerFactory;
  * @see LogicalSwitches
  */
 public class HwvtepLogicalSwitchListener extends
-    AsyncClusteredDataChangeListenerBase<LogicalSwitches, HwvtepLogicalSwitchListener> {
+        HwvtepClusteredDataTreeChangeListener<LogicalSwitches, HwvtepLogicalSwitchListener> {
 
     /** The Constant LOG. */
     private static final Logger LOG = LoggerFactory.getLogger(HwvtepLogicalSwitchListener.class);
@@ -112,28 +110,9 @@ public class HwvtepLogicalSwitchListener extends
                 new HwvtepNodeName(logicalSwitchName));
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see
-     * org.opendaylight.genius.datastoreutils.AsyncClusteredDataChangeListenerBase#
-     * getDataChangeListener()
-     */
     @Override
-    protected ClusteredDataChangeListener getDataChangeListener() {
-        return HwvtepLogicalSwitchListener.this;
-    }
-
-    /*
-     * (non-Javadoc)
-     *
-     * @see
-     * org.opendaylight.genius.datastoreutils.AsyncClusteredDataChangeListenerBase#
-     * getDataChangeScope()
-     */
-    @Override
-    protected AsyncDataBroker.DataChangeScope getDataChangeScope() {
-        return AsyncDataBroker.DataChangeScope.BASE;
+    protected HwvtepLogicalSwitchListener getDataTreeChangeListener() {
+        return this;
     }
 
     /*
@@ -145,7 +124,7 @@ public class HwvtepLogicalSwitchListener extends
      * org.opendaylight.yangtools.yang.binding.DataObject)
      */
     @Override
-    protected void remove(InstanceIdentifier<LogicalSwitches> identifier, LogicalSwitches deletedLogicalSwitch) {
+    protected void removed(InstanceIdentifier<LogicalSwitches> identifier, LogicalSwitches deletedLogicalSwitch) {
         LOG.trace("Received Remove DataChange Notification for identifier: {}, LogicalSwitches: {}", identifier,
                 deletedLogicalSwitch);
     }
@@ -160,7 +139,7 @@ public class HwvtepLogicalSwitchListener extends
      * org.opendaylight.yangtools.yang.binding.DataObject)
      */
     @Override
-    protected void update(InstanceIdentifier<LogicalSwitches> identifier, LogicalSwitches logicalSwitchOld,
+    protected void updated(InstanceIdentifier<LogicalSwitches> identifier, LogicalSwitches logicalSwitchOld,
             LogicalSwitches logicalSwitchNew) {
         LOG.trace("Received Update DataChange Notification for identifier: {}, LogicalSwitches old: {}, new: {}."
                 + "No Action Performed.", identifier, logicalSwitchOld, logicalSwitchNew);
@@ -168,7 +147,7 @@ public class HwvtepLogicalSwitchListener extends
 
     @Override
     @SuppressWarnings("checkstyle:IllegalCatch")
-    protected void add(InstanceIdentifier<LogicalSwitches> identifier, LogicalSwitches logicalSwitchNew) {
+    protected void added(InstanceIdentifier<LogicalSwitches> identifier, LogicalSwitches logicalSwitchNew) {
         LOG.debug("Received Add DataChange Notification for identifier: {}, LogicalSwitches: {}", identifier,
                 logicalSwitchNew);
         try {

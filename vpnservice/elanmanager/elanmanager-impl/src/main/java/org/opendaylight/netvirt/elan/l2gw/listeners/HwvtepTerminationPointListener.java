@@ -14,13 +14,11 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import org.opendaylight.controller.md.sal.binding.api.ClusteredDataChangeListener;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.DataChangeListener;
 import org.opendaylight.controller.md.sal.common.api.clustering.EntityOwnershipService;
-import org.opendaylight.controller.md.sal.common.api.data.AsyncDataBroker.DataChangeScope;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.genius.datastoreutils.AsyncClusteredDataChangeListenerBase;
+import org.opendaylight.genius.datastoreutils.hwvtep.HwvtepClusteredDataTreeChangeListener;
 import org.opendaylight.genius.utils.hwvtep.HwvtepSouthboundConstants;
 import org.opendaylight.genius.utils.hwvtep.HwvtepSouthboundUtils;
 import org.opendaylight.genius.utils.hwvtep.HwvtepUtils;
@@ -40,7 +38,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hw
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.NetworkTopology;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.NodeId;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.Topology;
-import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.TopologyKey;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Node;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.node.TerminationPoint;
 import org.opendaylight.yangtools.concepts.ListenerRegistration;
@@ -53,7 +50,7 @@ import org.slf4j.LoggerFactory;
  * Listener for physical locator presence in operational datastore.
  */
 public class HwvtepTerminationPointListener
-        extends AsyncClusteredDataChangeListenerBase<TerminationPoint, HwvtepTerminationPointListener>
+        extends HwvtepClusteredDataTreeChangeListener<TerminationPoint, HwvtepTerminationPointListener>
         implements AutoCloseable {
 
     private static final Logger LOG = LoggerFactory.getLogger(HwvtepTerminationPointListener.class);
@@ -70,7 +67,7 @@ public class HwvtepTerminationPointListener
         this.broker = broker;
         this.elanL2GatewayUtils = elanUtils.getElanL2GatewayUtils();
         this.entityOwnershipService = entityOwnershipService;
-        registerListener();
+        registerListener(LogicalDatastoreType.OPERATIONAL, broker);
         LOG.debug("created HwvtepTerminationPointListener");
     }
 
@@ -95,13 +92,6 @@ public class HwvtepTerminationPointListener
         }
     }
 
-    protected void registerListener() {
-        lstnerRegistration = this.broker.registerDataChangeListener(LogicalDatastoreType.OPERATIONAL,
-                InstanceIdentifier.create(NetworkTopology.class).child(Topology.class,
-                        new TopologyKey(HwvtepSouthboundConstants.HWVTEP_TOPOLOGY_ID)).child(Node.class)
-                .child(TerminationPoint.class), this, DataChangeScope.BASE);
-    }
-
     @Override
     @SuppressWarnings("checkstyle:IllegalCatch")
     public void close() throws Exception {
@@ -117,19 +107,19 @@ public class HwvtepTerminationPointListener
     }
 
     @Override
-    protected void remove(InstanceIdentifier<TerminationPoint> identifier, TerminationPoint del) {
+    protected void removed(InstanceIdentifier<TerminationPoint> identifier, TerminationPoint del) {
         LOG.trace("physical locator removed {}", identifier);
         teps.remove(identifier);
     }
 
     @Override
-    protected void update(InstanceIdentifier<TerminationPoint> identifier, TerminationPoint original,
+    protected void updated(InstanceIdentifier<TerminationPoint> identifier, TerminationPoint original,
             TerminationPoint update) {
         LOG.trace("physical locator available {}", identifier);
     }
 
     @Override
-    protected void add(InstanceIdentifier<TerminationPoint> identifier, final TerminationPoint add) {
+    protected void added(InstanceIdentifier<TerminationPoint> identifier, final TerminationPoint add) {
         final HwvtepPhysicalPortAugmentation portAugmentation =
                 add.getAugmentation(HwvtepPhysicalPortAugmentation.class);
         if (portAugmentation != null) {
@@ -163,13 +153,8 @@ public class HwvtepTerminationPointListener
     }
 
     @Override
-    protected ClusteredDataChangeListener getDataChangeListener() {
-        return HwvtepTerminationPointListener.this;
-    }
-
-    @Override
-    protected DataChangeScope getDataChangeScope() {
-        return DataChangeScope.BASE;
+    protected HwvtepTerminationPointListener getDataTreeChangeListener() {
+        return this;
     }
 
     private List<ListenableFuture<Void>> handlePortAdded(HwvtepPhysicalPortAugmentation portAugmentation,
