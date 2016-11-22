@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "3a65312a_e4b06d8d",
+        "filename": "vpnservice/cloud-servicechain/cloud-servicechain-impl/src/test/java/org/opendaylight/netvirt/cloudservicechain/VPNServiceChainHandlerTest.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 5350
+      },
+      "writtenOn": "2016-11-22T17:28:52Z",
+      "side": 1,
+      "message": "not needed anymore. I\u0027ll remove it in some other commit in order to not delay this one even more.",
+      "parentUuid": "3a65312a_09bae409",
+      "range": {
+        "startLine": 50,
+        "startChar": 0,
+        "endLine": 50,
+        "endChar": 93
+      },
+      "revId": "a7779d591a9e2b05f20ff048a09d68b89d44464d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "3a65312a_c9bf4cfb",
         "filename": "vpnservice/cloud-servicechain/cloud-servicechain-impl/src/test/java/org/opendaylight/netvirt/cloudservicechain/VPNServiceChainHandlerTest.java",
         "patchSetId": 4
