@@ -12,12 +12,10 @@ import com.google.common.util.concurrent.ListenableFuture;
 import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.atomic.AtomicBoolean;
-import org.opendaylight.controller.md.sal.binding.api.ClusteredDataChangeListener;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.common.api.data.AsyncDataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.genius.datastoreutils.AsyncClusteredDataChangeListenerBase;
 import org.opendaylight.genius.datastoreutils.DataStoreJobCoordinator;
+import org.opendaylight.genius.datastoreutils.hwvtep.HwvtepClusteredDataTreeChangeListener;
 import org.opendaylight.genius.utils.SystemPropertyReader;
 import org.opendaylight.genius.utils.hwvtep.HwvtepSouthboundUtils;
 import org.opendaylight.netvirt.elan.l2gw.utils.ElanL2GatewayUtils;
@@ -39,7 +37,7 @@ import org.slf4j.LoggerFactory;
  * @see RemoteMcastMacs
  */
 public class HwvtepRemoteMcastMacListener
-        extends AsyncClusteredDataChangeListenerBase<RemoteMcastMacs, HwvtepRemoteMcastMacListener> {
+        extends HwvtepClusteredDataTreeChangeListener<RemoteMcastMacs, HwvtepRemoteMcastMacListener> {
 
     /** The Constant LOG. */
     private static final Logger LOG = LoggerFactory.getLogger(HwvtepRemoteMcastMacListener.class);
@@ -123,30 +121,25 @@ public class HwvtepRemoteMcastMacListener
     }
 
     @Override
-    protected ClusteredDataChangeListener getDataChangeListener() {
-        return HwvtepRemoteMcastMacListener.this;
+    protected HwvtepRemoteMcastMacListener getDataTreeChangeListener() {
+        return this;
     }
 
     @Override
-    protected AsyncDataBroker.DataChangeScope getDataChangeScope() {
-        return AsyncDataBroker.DataChangeScope.BASE;
-    }
-
-    @Override
-    protected void remove(InstanceIdentifier<RemoteMcastMacs> identifier, RemoteMcastMacs deleted) {
+    protected void removed(InstanceIdentifier<RemoteMcastMacs> identifier, RemoteMcastMacs deleted) {
         LOG.trace("Received Remove DataChange Notification for identifier: {}, RemoteMcastMacs: {}", identifier,
                 deleted);
     }
 
     @Override
-    protected void update(InstanceIdentifier<RemoteMcastMacs> identifier, RemoteMcastMacs old,
+    protected void updated(InstanceIdentifier<RemoteMcastMacs> identifier, RemoteMcastMacs old,
             RemoteMcastMacs newdata) {
         LOG.trace("Received Update DataChange Notification for identifier: {}, RemoteMcastMacs old: {}, new: {}."
                 + "No Action Performed.", identifier, old, newdata);
     }
 
     @Override
-    protected void add(InstanceIdentifier<RemoteMcastMacs> identifier, RemoteMcastMacs mcastMac) {
+    protected void added(InstanceIdentifier<RemoteMcastMacs> identifier, RemoteMcastMacs mcastMac) {
         LOG.debug("Received Add DataChange Notification for identifier: {}, RemoteMcastMacs: {}", identifier, mcastMac);
         // No isDataPresentInOpDs check is done as assuming all the expected phy
         // locator ips will be available during add
