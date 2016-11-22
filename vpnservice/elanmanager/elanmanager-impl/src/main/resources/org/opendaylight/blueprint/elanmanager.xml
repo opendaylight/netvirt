@@ -175,6 +175,24 @@
     <argument ref="entityOwnershipService" />
   </bean>
 
+  <bean id="haEventHandler" class="org.opendaylight.netvirt.elan.l2gw.ha.handlers.HAEventHandler">
+    <argument ref="dataBroker" />
+  </bean>
+
+  <bean id="haConfigNodeListener" class="org.opendaylight.netvirt.elan.l2gw.ha.listeners.HAConfigNodeListener">
+    <argument ref="dataBroker" />
+    <argument ref="haEventHandler" />
+  </bean>
+
+  <bean id="haOpClusteredListener" class="org.opendaylight.netvirt.elan.l2gw.ha.listeners.HAOpClusteredListener">
+    <argument ref="dataBroker" />
+  </bean>
+
+  <bean id="haOpNodeListener" class="org.opendaylight.netvirt.elan.l2gw.ha.listeners.HAOpNodeListener">
+    <argument ref="dataBroker" />
+    <argument ref="haEventHandler" />
+  </bean>
+
   <odl:clustered-app-config id="elanConfig"
                             binding-class="org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.config.rev150710.ElanConfig">
   </odl:clustered-app-config>
