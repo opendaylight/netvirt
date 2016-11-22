@@ -8,14 +8,22 @@
 
 package org.opendaylight.netvirt.elan.cli.l2gw;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.PrintStream;
+import java.util.Map;
 import java.util.concurrent.ConcurrentMap;
 import org.apache.karaf.shell.commands.Command;
 import org.apache.karaf.shell.commands.Option;
 import org.apache.karaf.shell.console.OsgiCommandSupport;
 import org.opendaylight.genius.utils.cache.CacheUtil;
+import org.opendaylight.genius.utils.hwvtep.HwvtepHACache;
 import org.opendaylight.netvirt.elanmanager.utils.ElanL2GwCacheUtils;
 import org.opendaylight.netvirt.neutronvpn.api.l2gw.L2GatewayDevice;
 import org.opendaylight.netvirt.neutronvpn.api.l2gw.utils.L2GatewayCacheUtils;
+import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Node;
+import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -34,11 +42,13 @@ public class L2GwUtilsCacheCli extends OsgiCommandSupport {
     String elanName;
 
     @Override
-    protected Object doExecute() throws Exception {
+    protected Object doExecute() {
         if (cacheName == null) {
             session.getConsole().println("Available caches");
             session.getConsole().println(ElanL2GwCacheUtils.L2GATEWAY_CONN_CACHE_NAME);
             session.getConsole().println(L2GatewayCacheUtils.L2GATEWAY_CACHE_NAME);
+            session.getConsole().println("HA");
+            session.getConsole().println("HA_EVENTS");
             return null;
         }
         switch (cacheName) {
@@ -48,10 +58,65 @@ public class L2GwUtilsCacheCli extends OsgiCommandSupport {
             case L2GatewayCacheUtils.L2GATEWAY_CACHE_NAME:
                 dumpL2GwCache();
                 break;
+            case "HA":
+                dumpHACache(session.getConsole());
+                break;
+            case "HA_EVENTS":
+                dumpHACacheEvents();
+                break;
             default:
-                session.getConsole().println("Unknown cache name: " + cacheName);
+                break;
         }
         return null;
+    }
+
+    private void dumpHACacheEvents() {
+        try {
+            File file = new File("hwvtep.events.txt");
+            session.getConsole().println("Dumping to file hwvtep.events.txt");
+            PrintStream fos = new PrintStream(new FileOutputStream(file));
+            dumpHACache(fos);
+            /*
+            ArrayList<Pair<Long, String>> nodeEvents = HwvtepHACache.getInstance().getNodeEvents();
+            for (Pair<Long, String> event : nodeEvents) {
+                fos.print(new Date(event.getLeft()).toString());
+                fos.print(" ");
+                fos.println(event.getRight());
+            }
+            */
+            fos.close();
+            session.getConsole().println("Dumped to file " + file.getAbsolutePath());
+        } catch (FileNotFoundException e) {
+            session.getConsole().println(e.getMessage());
+            session.getConsole().println(e);
+        }
+    }
+
+    private void dumpHACache(PrintStream printStream) {
+
+        printStream.println("HA enabled nodes");
+        for (InstanceIdentifier<Node> id : HwvtepHACache.getInstance().getHAChildNodes()) {
+            String nodeId = id.firstKeyOf(Node.class).getNodeId().getValue();
+            printStream.println(nodeId);
+        }
+
+        printStream.println("HA parent nodes");
+        for (InstanceIdentifier<Node> id : HwvtepHACache.getInstance().getHAParentNodes()) {
+            String nodeId = id.firstKeyOf(Node.class).getNodeId().getValue();
+            printStream.println(nodeId);
+            for (InstanceIdentifier<Node> childId : HwvtepHACache.getInstance().getChildrenForHANode(id)) {
+                nodeId = childId.firstKeyOf(Node.class).getNodeId().getValue();
+                printStream.println("    " + nodeId);
+            }
+        }
+
+        printStream.println("Connected Nodes");
+        Map<String, Boolean> nodes = HwvtepHACache.getInstance().getConnectedNodes();
+        for (String nodeId : nodes.keySet()) {
+            printStream.print(nodeId);
+            printStream.print("    : connected : ");
+            printStream.println(nodes.get(nodeId));
+        }
     }
 
     private void dumpL2GwCache() {
