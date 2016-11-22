@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3a65312a_09bae409",
+        "filename": "vpnservice/cloud-servicechain/cloud-servicechain-impl/src/test/java/org/opendaylight/netvirt/cloudservicechain/VPNServiceChainHandlerTest.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 6584
+      },
+      "writtenOn": "2016-11-22T11:20:51Z",
+      "side": 1,
+      "message": "Perhaps this is no longer needed",
+      "range": {
+        "startLine": 50,
+        "startChar": 0,
+        "endLine": 50,
+        "endChar": 93
+      },
+      "revId": "a7779d591a9e2b05f20ff048a09d68b89d44464d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a65312a_c9bf4cfb",
+        "filename": "vpnservice/cloud-servicechain/cloud-servicechain-impl/src/test/java/org/opendaylight/netvirt/cloudservicechain/VPNServiceChainHandlerTest.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 95,
+      "author": {
+        "id": 6584
+      },
+      "writtenOn": "2016-11-22T11:20:51Z",
+      "side": 1,
+      "message": "Is this line needed? I think it can be removed",
+      "range": {
+        "startLine": 95,
+        "startChar": 4,
+        "endLine": 95,
+        "endChar": 38
+      },
+      "revId": "a7779d591a9e2b05f20ff048a09d68b89d44464d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
