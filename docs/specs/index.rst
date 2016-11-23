@@ -10,3 +10,4 @@ Contents:
    :maxdepth: 1
 
    Design Specification Template <specs-template>
+   router-independent-ipv6-ipam
