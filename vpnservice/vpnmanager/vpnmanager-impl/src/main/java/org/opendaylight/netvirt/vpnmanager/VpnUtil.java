@@ -1338,9 +1338,15 @@ public class VpnUtil {
     static Optional<IpAddress> getGatewayIpAddressFromInterface(String srcInterface,
             INeutronVpnManager neutronVpnService, DataBroker dataBroker) {
         Optional <IpAddress> gatewayIp = Optional.absent();
-        Port port = neutronVpnService.getNeutronPort(srcInterface);
-        //TODO(Gobinath): Need to fix this as assuming port will belong to only one Subnet would be incorrect"
-        gatewayIp = Optional.of(neutronVpnService.getNeutronSubnet(port.getFixedIps().get(0).getSubnetId()).getGatewayIp());
+        if (neutronVpnService != null) {
+            //TODO(Gobinath): Need to fix this as assuming port will belong to only one Subnet would be incorrect"
+            Port port = neutronVpnService.getNeutronPort(srcInterface);
+            if (port != null && port.getFixedIps() != null && port.getFixedIps().get(0) != null && port.getFixedIps().get(0).getSubnetId() != null) {
+                gatewayIp = Optional.of(neutronVpnService.getNeutronSubnet(port.getFixedIps().get(0).getSubnetId()).getGatewayIp());
+            }
+        } else {
+            LOG.debug("neutron vpn service is not configured");
+        }
         return gatewayIp;
     }
 
