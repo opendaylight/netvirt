@@ -36,6 +36,24 @@
     },
     {
       "key": {
+        "uuid": "3a65312a_3f642e48",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/FibUtil.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 613,
+      "author": {
+        "id": 6154
+      },
+      "writtenOn": "2016-11-23T03:55:31Z",
+      "side": 1,
+      "message": "No , there is no possibility of loosing augmentation. subnet route is one such example of augmentation. I have tested it and see that such info is not lost.",
+      "parentUuid": "3a65312a_2ebfe6fc",
+      "revId": "297e495763dc0ce479af06e6c001ccd5ae1f1c9f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "3a65312a_296360dd",
         "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
         "patchSetId": 8
@@ -104,6 +122,24 @@
     },
     {
       "key": {
+        "uuid": "3a65312a_9f5bc286",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/TunnelInterfaceStateListener.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 185,
+      "author": {
+        "id": 6154
+      },
+      "writtenOn": "2016-11-23T03:55:31Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "3a65312a_4e4ea297",
+      "revId": "297e495763dc0ce479af06e6c001ccd5ae1f1c9f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "3a65312a_4e086291",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
         "patchSetId": 8
@@ -115,6 +151,24 @@
       "writtenOn": "2016-11-22T10:48:53Z",
       "side": 1,
       "message": "Check if vpnInterface.getAugmentation is not null before accessing the list",
+      "revId": "297e495763dc0ce479af06e6c001ccd5ae1f1c9f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a65312a_44cb211e",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 789,
+      "author": {
+        "id": 6154
+      },
+      "writtenOn": "2016-11-23T03:55:31Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "3a65312a_4e086291",
       "revId": "297e495763dc0ce479af06e6c001ccd5ae1f1c9f",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
