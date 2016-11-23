@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3a65312a_7a451416",
+        "filename": "docs/specs/neutron-router-independent-ipv6-ipam.rst",
+        "patchSetId": 2
+      },
+      "lineNbr": 5,
+      "author": {
+        "id": 3276
+      },
+      "writtenOn": "2016-11-23T08:42:43Z",
+      "side": 1,
+      "message": "I\u0027d prefer this link to point to the topic branch so all patches, including spec and code, can be seen in one shot.",
+      "range": {
+        "startLine": 5,
+        "startChar": 0,
+        "endLine": 5,
+        "endChar": 46
+      },
+      "revId": "e4ba445afab74a1b8bb190ee5f09d2800aeb5fc0",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a65312a_da4b8829",
+        "filename": "docs/specs/neutron-router-independent-ipv6-ipam.rst",
+        "patchSetId": 2
+      },
+      "lineNbr": 203,
+      "author": {
+        "id": 3276
+      },
+      "writtenOn": "2016-11-23T08:42:43Z",
+      "side": 1,
+      "message": "Can you also retain the creative common license from the template for now?",
+      "revId": "e4ba445afab74a1b8bb190ee5f09d2800aeb5fc0",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
