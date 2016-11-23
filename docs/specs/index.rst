@@ -16,3 +16,4 @@ Contents:
    ACL Statistics <acl-stats>
    Hairpinning of floating IPs in flat/VLAN provider networks <hairpinning-flat-vlan>
    Quality of Service <qos>
+   VNI based L2 switching, L3 forwarding and NATing <vni-based-l2-switching-l3-forwarding-and-NATing>
