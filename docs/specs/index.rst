@@ -7,7 +7,8 @@ various NetVirt features.
 Contents:
 
 .. toctree::
-   :maxdepth: 1
+   :maxdepth: 2
 
    Design Specification Template <specs-template>
    Temporary SMAC Learning <temporary-smac-learning>
+   VNI based L2 switching and L3 router forwarding <vni-based-l2-switching-and-l3-router-forwarding>
