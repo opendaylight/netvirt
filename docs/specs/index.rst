@@ -18,3 +18,4 @@ Contents:
    Quality of Service <qos>
    Conntrack Based SNAT <conntrack-based-snat>
    ECMP Support for BGP based L3VPN <ecmp-bgp-l3vpn>
+   VNI based L2 switching, L3 forwarding and NATing <vni-based-l2-switching-l3-forwarding-and-NATing>
