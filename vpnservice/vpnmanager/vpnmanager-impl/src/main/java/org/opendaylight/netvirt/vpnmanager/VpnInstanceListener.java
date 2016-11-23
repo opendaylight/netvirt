@@ -475,16 +475,18 @@ public class VpnInstanceListener extends AsyncDataTreeChangeListenerBase<VpnInst
             List<String> ertList = new ArrayList<String>();
             List<String> irtList = new ArrayList<String>();
 
-            for (VpnTarget vpnTarget : vpnTargetList) {
-                if (vpnTarget.getVrfRTType() == VpnTarget.VrfRTType.ExportExtcommunity) {
-                    ertList.add(vpnTarget.getVrfRTValue());
-                }
-                if (vpnTarget.getVrfRTType() == VpnTarget.VrfRTType.ImportExtcommunity) {
-                    irtList.add(vpnTarget.getVrfRTValue());
-                }
-                if (vpnTarget.getVrfRTType() == VpnTarget.VrfRTType.Both) {
-                    ertList.add(vpnTarget.getVrfRTValue());
-                    irtList.add(vpnTarget.getVrfRTValue());
+            if (vpnTargetList != null) {
+                for (VpnTarget vpnTarget : vpnTargetList) {
+                    if (vpnTarget.getVrfRTType() == VpnTarget.VrfRTType.ExportExtcommunity) {
+                        ertList.add(vpnTarget.getVrfRTValue());
+                    }
+                    if (vpnTarget.getVrfRTType() == VpnTarget.VrfRTType.ImportExtcommunity) {
+                        irtList.add(vpnTarget.getVrfRTValue());
+                    }
+                    if (vpnTarget.getVrfRTType() == VpnTarget.VrfRTType.Both) {
+                        ertList.add(vpnTarget.getVrfRTValue());
+                        irtList.add(vpnTarget.getVrfRTValue());
+                    }
                 }
             }
 
