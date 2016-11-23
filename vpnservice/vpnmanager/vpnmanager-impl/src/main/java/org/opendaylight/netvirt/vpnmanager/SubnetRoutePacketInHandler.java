@@ -57,6 +57,10 @@ public class SubnetRoutePacketInHandler implements PacketProcessingListener {
 
         short tableId = notification.getTableId().getValue();
         byte[] data = notification.getPayload();
+        if (notification.getMatch() == null || notification.getMatch().getMetadata() == null) {
+            LOG.debug("on packet received where the match or metadata are null");
+            return;
+        }
         BigInteger metadata = notification.getMatch().getMetadata().getMetadata();
         Ethernet res = new Ethernet();
 
