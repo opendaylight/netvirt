@@ -14,3 +14,4 @@ Contents:
    Setup Source-MAC-Address for routed packets to virtual endpoints <setup-smac-for-routed-packets-to-virt-endpoints>
    Support of VXLAN based connectivity across Datacenters <l3vpn-over-vxlan-with-evpn-rt5>
    ACL Statistics <acl-stats>
+   VNI based L2 switching and L3 router forwarding <vni-based-l2-switching-and-l3-router-forwarding>
