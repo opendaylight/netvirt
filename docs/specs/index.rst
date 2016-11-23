@@ -15,3 +15,4 @@ Contents:
    Support of VXLAN based connectivity across Datacenters <l3vpn-over-vxlan-with-evpn-rt5>
    ACL Statistics <acl-stats>
    Hairpinning of floating IPs in flat/VLAN provider networks <hairpinning-flat-vlan>
+   VNI based L2 switching and L3 router forwarding <vni-based-l2-switching-and-l3-router-forwarding>
