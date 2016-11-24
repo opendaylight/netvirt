@@ -1,0 +1,159 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3a65312a_8036c2e5",
+        "filename": "docs/specs/index.rst",
+        "patchSetId": 5
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 3276
+      },
+      "writtenOn": "2016-11-24T03:16:30Z",
+      "side": 1,
+      "message": "By default it will pick link name from title of document. If this is the only EVPN spec, fine. If there are going to be more, might be good idea to have something like EVPN: Support for VxLan across Data Centers. Just a suggestion, we\u0027re still learning and evolving the spec process.",
+      "range": {
+        "startLine": 13,
+        "startChar": 3,
+        "endLine": 13,
+        "endChar": 33
+      },
+      "revId": "c538826f67314d92cba9c243754a0583d2690d7b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a65312a_204fee6c",
+        "filename": "docs/specs/l3vpn-over-vxlan-with-evpn-rt5.rst",
+        "patchSetId": 5
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 3276
+      },
+      "writtenOn": "2016-11-24T03:16:30Z",
+      "side": 1,
+      "message": "This is not needed. This should be assumed/implied.",
+      "range": {
+        "startLine": 7,
+        "startChar": 0,
+        "endLine": 8,
+        "endChar": 26
+      },
+      "revId": "c538826f67314d92cba9c243754a0583d2690d7b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a65312a_6059e635",
+        "filename": "docs/specs/l3vpn-over-vxlan-with-evpn-rt5.rst",
+        "patchSetId": 5
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 3276
+      },
+      "writtenOn": "2016-11-24T03:16:30Z",
+      "side": 1,
+      "message": "trailing whitespaces at multiple points in document.",
+      "range": {
+        "startLine": 42,
+        "startChar": 53,
+        "endLine": 42,
+        "endChar": 54
+      },
+      "revId": "c538826f67314d92cba9c243754a0583d2690d7b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a65312a_00791293",
+        "filename": "docs/specs/l3vpn-over-vxlan-with-evpn-rt5.rst",
+        "patchSetId": 5
+      },
+      "lineNbr": 53,
+      "author": {
+        "id": 3276
+      },
+      "writtenOn": "2016-11-24T03:16:30Z",
+      "side": 1,
+      "message": "Not proper RST format. Take a look at generated output, this is not showing up as proper bullet list.",
+      "range": {
+        "startLine": 48,
+        "startChar": 0,
+        "endLine": 53,
+        "endChar": 37
+      },
+      "revId": "c538826f67314d92cba9c243754a0583d2690d7b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a65312a_a042de3b",
+        "filename": "docs/specs/l3vpn-over-vxlan-with-evpn-rt5.rst",
+        "patchSetId": 5
+      },
+      "lineNbr": 104,
+      "author": {
+        "id": 3276
+      },
+      "writtenOn": "2016-11-24T03:16:30Z",
+      "side": 1,
+      "message": "tabs.",
+      "range": {
+        "startLine": 104,
+        "startChar": 2,
+        "endLine": 104,
+        "endChar": 3
+      },
+      "revId": "c538826f67314d92cba9c243754a0583d2690d7b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a65312a_40730ab1",
+        "filename": "docs/specs/l3vpn-over-vxlan-with-evpn-rt5.rst",
+        "patchSetId": 5
+      },
+      "lineNbr": 115,
+      "author": {
+        "id": 3276
+      },
+      "writtenOn": "2016-11-24T03:16:30Z",
+      "side": 1,
+      "message": "Headings are not proper format. Please refer RST doc on how to give sub headings etc.",
+      "range": {
+        "startLine": 115,
+        "startChar": 0,
+        "endLine": 115,
+        "endChar": 19
+      },
+      "revId": "c538826f67314d92cba9c243754a0583d2690d7b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a65312a_2076cea4",
+        "filename": "docs/specs/l3vpn-over-vxlan-with-evpn-rt5.rst",
+        "patchSetId": 5
+      },
+      "lineNbr": 450,
+      "author": {
+        "id": 3276
+      },
+      "writtenOn": "2016-11-24T03:16:30Z",
+      "side": 1,
+      "message": "missing creative common license from template",
+      "revId": "c538826f67314d92cba9c243754a0583d2690d7b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
