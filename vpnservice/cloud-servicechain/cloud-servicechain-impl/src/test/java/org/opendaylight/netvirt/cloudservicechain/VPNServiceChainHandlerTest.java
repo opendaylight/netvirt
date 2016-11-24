@@ -20,7 +20,6 @@ import com.google.common.util.concurrent.CheckedFuture;
 import java.math.BigInteger;
 import java.util.Collections;
 import java.util.List;
-import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
@@ -137,14 +136,14 @@ public class VPNServiceChainHandlerTest {
         };
     }
 
-    private void stubGetRouteDistinguisher(String vpnName, String rd) throws InterruptedException, ExecutionException {
+    private void stubGetRouteDistinguisher(String vpnName, String rd) throws Exception {
         VpnInstance instance = new VpnInstanceBuilder().setKey(new VpnInstanceKey(vpnName)).setVrfId(rd)
                                                        .setVpnInstanceName(vpnName).build();
 
         InstanceIdentifier<VpnInstance> id = VpnServiceChainUtils.getVpnInstanceToVpnIdIdentifier(vpnName);
         CheckedFuture chkdFuture = mock(CheckedFuture.class);
 
-        when(chkdFuture.get()).thenReturn(Optional.of(instance));
+        when(chkdFuture.checkedGet()).thenReturn(Optional.of(instance));
         // when(readTx.read(eq(LogicalDatastoreType.CONFIGURATION), eq(id))).thenReturn(chkdFuture);
         when(readTx.read(eq(LogicalDatastoreType.CONFIGURATION),
                          argThat(isIIdType(VpnInstance.class)))).thenReturn(chkdFuture);
@@ -153,7 +152,7 @@ public class VPNServiceChainHandlerTest {
 
     private void stubNoRdForVpnName(String vpnName) throws Exception {
         CheckedFuture<Optional<VpnInstance>, ReadFailedException> chkdFuture = mock(CheckedFuture.class);
-        when(chkdFuture.get()).thenReturn(Optional.absent());
+        when(chkdFuture.checkedGet()).thenReturn(Optional.absent());
         when(readTx.read(eq(LogicalDatastoreType.CONFIGURATION),
                          eq(VpnServiceChainUtils.getVpnInstanceToVpnIdIdentifier(vpnName))))
             .thenReturn(chkdFuture);
@@ -161,7 +160,7 @@ public class VPNServiceChainHandlerTest {
 
     private void stubNoVpnInstanceForRD(String rd) throws Exception {
         CheckedFuture<Optional<VpnInstanceOpDataEntry>, ReadFailedException> chkdFuture = mock(CheckedFuture.class);
-        when(chkdFuture.get()).thenReturn(Optional.absent());
+        when(chkdFuture.checkedGet()).thenReturn(Optional.absent());
 
         InstanceIdentifier<VpnInstanceOpDataEntry> id = InstanceIdentifier.create(VpnInstanceOpData.class)
                 .child(VpnInstanceOpDataEntry.class, new VpnInstanceOpDataEntryKey(rd));
@@ -169,7 +168,7 @@ public class VPNServiceChainHandlerTest {
         when(readTx.read(eq(LogicalDatastoreType.OPERATIONAL), eq(id))).thenReturn(chkdFuture);
     }
 
-    private void stubGetVpnInstance(String rd) throws InterruptedException, ExecutionException {
+    private void stubGetVpnInstance(String rd) throws Exception {
 
         IpAddresses ipAddr =
             new IpAddressesBuilder().setIpAddress("1.3.4.5").setKey(new IpAddressesKey("1.3.4.5")).build();
@@ -187,7 +186,7 @@ public class VPNServiceChainHandlerTest {
                                                .setVpnToDpnList(Collections.singletonList(vtdlb.build()))
                                                .setVrfId("1").build();
         CheckedFuture chkdFuture = mock(CheckedFuture.class);
-        when(chkdFuture.get()).thenReturn(Optional.of(vpnInstanceOpDataEntry));
+        when(chkdFuture.checkedGet()).thenReturn(Optional.of(vpnInstanceOpDataEntry));
         when(readTx.read(eq(LogicalDatastoreType.OPERATIONAL),
                          eq(VpnServiceChainUtils.getVpnInstanceOpDataIdentifier(rd)))).thenReturn(chkdFuture);
     }
@@ -199,19 +198,19 @@ public class VPNServiceChainHandlerTest {
     }
 
     private void stubGetVrfEntries(String rd, List<VrfEntry> vrfEntryList)
-        throws InterruptedException, ExecutionException {
+        throws Exception {
 
         VrfTables tables = new VrfTablesBuilder().setKey(new VrfTablesKey(rd)).setRouteDistinguisher(rd)
                                                  .setVrfEntry(vrfEntryList).build();
         CheckedFuture chkdFuture = mock(CheckedFuture.class);
-        when(chkdFuture.get()).thenReturn(Optional.of(tables));
+        when(chkdFuture.checkedGet()).thenReturn(Optional.of(tables));
         when(readTx.read(eq(LogicalDatastoreType.CONFIGURATION), eq(VpnServiceChainUtils.buildVrfId(rd))))
                 .thenReturn(chkdFuture);
 
     }
 
     private void stubReadVpnToDpnList(String rd, BigInteger dpnId, List<String> vpnIfacesOnDpn)
-        throws InterruptedException, ExecutionException {
+        throws Exception {
 
         List<VpnInterfaces> vpnIfacesList =
             vpnIfacesOnDpn.stream()
@@ -220,7 +219,7 @@ public class VPNServiceChainHandlerTest {
                           .collect(Collectors.toList());
 
         CheckedFuture chkdFuture = mock(CheckedFuture.class);
-        when(chkdFuture.get()).thenReturn(Optional.of(vpnIfacesList));
+        when(chkdFuture.checkedGet()).thenReturn(Optional.of(vpnIfacesList));
         when(readTx.read(eq(LogicalDatastoreType.OPERATIONAL),
                          eq(VpnServiceChainUtils.getVpnToDpnListIdentifier(rd, dpnId))))
              .thenReturn(chkdFuture);
