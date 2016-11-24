@@ -109,8 +109,8 @@ public class BgpUtil {
             return (Optional<T>) result.get();
         } catch (Exception e) {
             LOG.error("DataStore  read exception {} ", e);
+            throw e;
         }
-        return Optional.absent();
     }
 
     public static <T extends DataObject> void syncWrite(DataBroker broker, LogicalDatastoreType datastoreType,

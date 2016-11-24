@@ -1718,14 +1718,6 @@ public class BgpConfigurationManager {
                 }
             }
 
-            List<Neighbors> n = config.getNeighbors();
-            if (n != null) {
-                LOG.error("configuring existing Neighbors present for replay total neighbors {}", n.size());
-                replayNbrConfig(n, br);
-            } else {
-                LOG.error("no Neighbors present for replay config ");
-            }
-
             List<Vrfs> v = config.getVrfs();
             if (v != null) {
                 for (Vrfs vrf : v) {
@@ -1756,6 +1748,13 @@ public class BgpConfigurationManager {
                         LOG.error("Replay:addPfx() received exception: \"" + e + "\"");
                     }
                 }
+            }
+            List<Neighbors> n = config.getNeighbors();
+            if (n != null) {
+                LOG.error("configuring existing Neighbors present for replay total neighbors {}", n.size());
+                replayNbrConfig(n, br);
+            } else {
+                LOG.error("no Neighbors present for replay config ");
             }
         }
     }
