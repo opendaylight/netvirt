@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3a65312a_af276911",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryHelper.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 113,
+      "author": {
+        "id": 5350
+      },
+      "writtenOn": "2016-11-24T17:49:36Z",
+      "side": 1,
+      "message": "This method should not be static because:\n\n + Implements business logic (and, since it is static, it cannot be overriden)\n + It changes the state of the system (it writes to MDSAL)\n + It is a headache for JUnits",
+      "range": {
+        "startLine": 113,
+        "startChar": 16,
+        "endLine": 113,
+        "endChar": 34
+      },
+      "revId": "a5bf3d908fbc3d09fb632b906f0ec925e470115c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a65312a_0f177da4",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryHelper.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 191,
+      "author": {
+        "id": 5350
+      },
+      "writtenOn": "2016-11-24T17:49:36Z",
+      "side": 1,
+      "message": "This is a perfect candidate for a static method because:\n\n 1. It always return the same for the same input\n 2. Does not change the state of the system\n 3. It doesnt have any side effects, like sending out messages to other components, etc.",
+      "range": {
+        "startLine": 191,
+        "startChar": 16,
+        "endLine": 191,
+        "endChar": 28
+      },
+      "revId": "a5bf3d908fbc3d09fb632b906f0ec925e470115c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
