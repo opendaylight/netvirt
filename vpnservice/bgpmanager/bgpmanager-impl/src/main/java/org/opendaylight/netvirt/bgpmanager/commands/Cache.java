@@ -141,8 +141,8 @@ public class Cache extends OsgiCommandSupport {
                 s = g.getStalepathTime().intValue();
             }
             ps.printf("\nBGP Router\n");
-            ps.printf("\t%-15s  %d\n\t%-15s  %s\n\t%-15s  %d\n\t%-15s  %s\n",
-                      ASSTR, asNum, RISTR, rid, SPSTR, (s!=0?s:"default"), FBSTR, bit);
+            ps.printf("\t%-15s  %d\n\t%-15s  %s\n\t%-15s  %s\n\t%-15s  %s\n",
+                      ASSTR, asNum, RISTR, rid, SPSTR, (s!=0?Integer.toString(s):"default"), FBSTR, bit);
         }
 
         Logging l = config.getLogging();
