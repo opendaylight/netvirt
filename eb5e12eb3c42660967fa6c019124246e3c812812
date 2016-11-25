@@ -2,6 +2,23 @@
   "comments": [
     {
       "key": {
+        "uuid": "3a65312a_f5abee1a",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2016-11-25T11:58:47Z",
+      "side": 1,
+      "message": "nit: please add a line break in Line number 8.",
+      "revId": "eb5e12eb3c42660967fa6c019124246e3c812812",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "3a65312a_35be0666",
         "filename": "/COMMIT_MSG",
         "patchSetId": 1
