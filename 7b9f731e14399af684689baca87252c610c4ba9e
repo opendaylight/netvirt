@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3a65312a_4a0b2025",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnSubnetRouteHandler.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 886,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-11-25T18:46:32Z",
+      "side": 1,
+      "message": "I donot see electNewDpnForSubnetRoute() method here at all?\n\nWoudl that come in as another review?",
+      "revId": "7b9f731e14399af684689baca87252c610c4ba9e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
