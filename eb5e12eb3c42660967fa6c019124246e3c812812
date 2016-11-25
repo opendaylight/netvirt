@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "3a65312a_b55fb640",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 869
+      },
+      "writtenOn": "2016-11-25T12:10:01Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "3a65312a_f5abee1a",
+      "revId": "eb5e12eb3c42660967fa6c019124246e3c812812",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "3a65312a_35be0666",
         "filename": "/COMMIT_MSG",
         "patchSetId": 1
@@ -30,6 +48,24 @@
       "writtenOn": "2016-11-25T11:55:43Z",
       "side": 1,
       "message": "Does it mean that OpenStack is setting port security as true for router and dhcp ports? If so, it should ideally be fixed on the OpenStack side. \n\nPlease elaborate the issue you are facing.",
+      "revId": "eb5e12eb3c42660967fa6c019124246e3c812812",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a65312a_f582ce92",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 869
+      },
+      "writtenOn": "2016-11-25T12:10:01Z",
+      "side": 1,
+      "message": "issue discussed in below mail thread.\nhttps://lists.opendaylight.org/pipermail/netvirt-dev/2016-November/002114.html",
+      "parentUuid": "3a65312a_35be0666",
       "revId": "eb5e12eb3c42660967fa6c019124246e3c812812",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
