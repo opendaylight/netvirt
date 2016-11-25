@@ -637,7 +637,7 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
             // create extra route adjacency
             if (rtr != null && rtr.getRoutes() != null) {
                 List<Routes> routeList = rtr.getRoutes();
-                List<Adjacency> erAdjList = addAdjacencyforExtraRoute(vpnId, routeList);
+                List<Adjacency> erAdjList = addAdjacencyforExtraRoute(vpnId, routeList, ipValue);
                 if (erAdjList != null && !erAdjList.isEmpty()) {
                     adjList.addAll(erAdjList);
                 }
@@ -1325,8 +1325,41 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
                         && interVpnLink.getFirstEndpoint().getIpAddress().getValue().equals(nexthop)) );
     }
 
-    protected List<Adjacency> addAdjacencyforExtraRoute(Uuid vpnId, List<Routes> routeList) {
+    protected List<Adjacency> addAdjacencyforExtraRoute(Uuid vpnId, List<Routes> routeList, String fixedIp) {
         List<Adjacency> adjList = new ArrayList<>();
+        Map<String, List<String>> adjMap = new HashMap<>();
+        for (Routes route : routeList) {
+            if (route == null || route.getNexthop() == null || route.getDestination() == null) {
+                LOG.error("Incorrect input received for extra route. {}", route);
+            } else {
+                String nextHop = String.valueOf(route.getNexthop().getValue());
+                String destination = String.valueOf(route.getDestination().getValue());
+                if (!nextHop.equals(fixedIp)) {
+                    LOG.error("FixedIP {} is not extra route nexthop for destination {}", fixedIp, destination);
+                    continue;
+                }
+                LOG.trace("Adding extra route for destination {} onto vpn {} with nexthop {} ", destination,
+                        vpnId.getValue(), nextHop);
+                List<String> hops = adjMap.get(destination);
+                if (hops == null) {
+                    hops = new ArrayList<>();
+                    adjMap.put(destination, hops);
+                }
+                if (!hops.contains(nextHop)) {
+                    hops.add(nextHop);
+                }
+            }
+        }
+
+        for (String destination : adjMap.keySet()) {
+            Adjacency erAdj = new AdjacencyBuilder().setIpAddress(destination).setNextHopIpList(adjMap.get
+                    (destination)).setKey(new AdjacencyKey(destination)).build();
+            adjList.add(erAdj);
+        }
+        return  adjList;
+    }
+
+    protected void updateAdjacencyforExtraRoute(Uuid vpnId, List<Routes> routeList) {
         Map<String, List<String>> adjMap = new HashMap<>();
         for (Routes route : routeList) {
             if (route == null || route.getNexthop() == null || route.getDestination() == null) {
@@ -1342,27 +1375,24 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
                     // Proceed to process the next extra-route
                     continue;
                 }
-                LOG.trace("Adding extra route for destination {} onto vpn {} with nexthop {} and infName {}", destination,
+                LOG.trace("Updating extra route for destination {} onto vpn {} with nexthop {} and infName {}", destination,
                         vpnId.getValue(), nextHop, infName);
                 List<String> hops = adjMap.get(destination);
-                if (hops == null){
+                if (hops == null) {
                     hops = new ArrayList<>();
                     adjMap.put(destination, hops);
                 }
-                if (! hops.contains(nextHop)) {
+                if (!hops.contains(nextHop)) {
                     hops.add(nextHop);
                 }
             }
         }
 
         for (String destination : adjMap.keySet()) {
-            Adjacency erAdj = new AdjacencyBuilder().setIpAddress(destination).setNextHopIpList(adjMap.get
-                    (destination)).setKey(new AdjacencyKey(destination)).build();
-            adjList.add(erAdj);
-        }
-
-        for (Adjacency adj : adjList) {
-            for(String nextHop : adj.getNextHopIpList()) {
+            List<String> nextHopList = adjMap.get(destination);
+            Iterator<String> nextHopItr = nextHopList.iterator();
+            while (nextHopItr.hasNext()) {
+                String nextHop = nextHopItr.next();
                 String infName = NeutronvpnUtils.getNeutronPortNameFromVpnPortFixedIp(dataBroker, vpnId.getValue(),
                         nextHop);
                 if (infName != null) {
@@ -1373,11 +1403,17 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
                         Optional<VpnInterface> optionalVpnInterface =
                                 NeutronvpnUtils.read(dataBroker, LogicalDatastoreType.CONFIGURATION, vpnIfIdentifier);
                         if (optionalVpnInterface.isPresent()) {
-                            Adjacency newAdj = new AdjacencyBuilder(adj).setNextHopIpList(Arrays.asList(nextHop))
-                                    .build();
-                            Adjacencies erAdjs = new AdjacenciesBuilder().setAdjacency(Arrays.asList(newAdj)).build();
+                            InstanceIdentifier<Adjacencies> adjPath = vpnIfIdentifier.augmentation(Adjacencies.class);
+                            Optional<Adjacencies> optAdjacencies = NeutronvpnUtils.read(dataBroker, LogicalDatastoreType.CONFIGURATION, adjPath);
+                            /*Assuming that VM adj will already be there*/
+                            List<Adjacency> adjacencies = optAdjacencies.get().getAdjacency();
+                            /*Construct extra route adj and add it to existing adjlist*/
+                            Adjacency erAdj = new AdjacencyBuilder().setIpAddress(destination).setNextHopIpList(Arrays.asList(nextHop)).
+                                    setKey(new AdjacencyKey(destination)).build();
+                            adjacencies.add(erAdj);
+                            Adjacencies aug = new AdjacenciesBuilder().setAdjacency(adjacencies).build();
                             VpnInterface vpnIf = new VpnInterfaceBuilder().setKey(new VpnInterfaceKey(infName))
-                                    .addAugmentation(Adjacencies.class, erAdjs).build();
+                                    .addAugmentation(Adjacencies.class, aug).build();
                             isLockAcquired = NeutronvpnUtils.lock(infName);
                             MDSALUtil.syncUpdate(dataBroker, LogicalDatastoreType.CONFIGURATION, vpnIfIdentifier, vpnIf);
                         } else {
@@ -1385,8 +1421,7 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
                                     infName);
                         }
                     } catch (Exception e) {
-                        LOG.error("exception in adding extra route with destination: {}, next hop: {}", adj
-                                .getIpAddress(), nextHop, e);
+                        LOG.error("exception in adding extra route with destination: {}, next hop: {}", destination, nextHop, e);
                     } finally {
                         if (isLockAcquired) {
                             NeutronvpnUtils.unlock(infName);
@@ -1397,7 +1432,6 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
                 }
             }
         }
-        return adjList;
     }
 
     protected void removeAdjacencyforExtraRoute(Uuid vpnId, List<Routes> routeList) {
