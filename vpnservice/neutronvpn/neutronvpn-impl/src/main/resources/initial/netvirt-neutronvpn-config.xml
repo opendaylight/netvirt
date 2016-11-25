@@ -1,3 +1,4 @@
 <neutronvpn-config xmlns="urn:opendaylight:netvirt:neutronvpn:config">
   <use-transport-zone>true</use-transport-zone>
+  <use-of-tunnels>false</use-of-tunnels>
 </neutronvpn-config>

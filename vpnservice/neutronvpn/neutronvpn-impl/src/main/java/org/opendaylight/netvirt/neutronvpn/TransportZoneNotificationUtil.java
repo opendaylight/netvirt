@@ -262,6 +262,7 @@ public class TransportZoneNotificationUtil {
         vtepsBuilder.setDpnId(dpnId);
         vtepsBuilder.setIpAddress(nodeIp);
         vtepsBuilder.setPortname(TUNNEL_PORT);
+        vtepsBuilder.setOptionOfTunnel(neutronvpnConfig.isUseOfTunnels());
 
         subnets.getVteps().add(vtepsBuilder.build());
 
