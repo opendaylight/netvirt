@@ -7,22 +7,43 @@
  */
 package org.opendaylight.netvirt.vpnmanager;
 
-import com.google.common.base.Optional;
+import java.math.BigInteger;
+import java.util.Arrays;
+import java.util.List;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
+
+import org.apache.commons.lang3.tuple.ImmutablePair;
+import org.apache.commons.lang3.tuple.Pair;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
+import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.mdsalutil.MetaDataUtil;
 import org.opendaylight.netvirt.elanmanager.api.IElanService;
 import org.opendaylight.netvirt.vpnmanager.utilities.InterfaceUtils;
-import org.opendaylight.genius.mdsalutil.MDSALUtil;
+import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.VpnAfConfig;
+import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.VpnInterfaces;
+import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.interfaces.VpnInterface;
+import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.interfaces.VpnInterfaceBuilder;
+import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.interfaces.VpnInterfaceKey;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.MacAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.PhysAddress;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.arputil.rev160406.ArpRequestReceived;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.arputil.rev160406.ArpResponseReceived;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.arputil.rev160406.MacChanged;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.arputil.rev160406.OdlArputilListener;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.arputil.rev160406.OdlArputilService;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.arputil.rev160406.SendArpResponseInput;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.arputil.rev160406.SendArpResponseInputBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.IdManagerService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.OdlInterfaceRpcService;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.Adjacencies;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.adjacency.list.Adjacency;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.adjacency.list.AdjacencyBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.adjacency.list.AdjacencyKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.id.to.vpn.instance.VpnIds;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.neutron.vpn.portip.port.data.VpnPortipToPort;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l3.rev150712.floatingips.attributes.Floatingips;
@@ -34,34 +55,26 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.rev150712.Neutron;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.subnets.rev150712.subnets.attributes.Subnets;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.subnets.rev150712.subnets.attributes.subnets.Subnet;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.subnets.rev150712.subnets.attributes.subnets.SubnetKey;
-import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.IdManagerService;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.arputil.rev160406.OdlArputilService;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.arputil.rev160406.SendArpResponseInput;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.arputil.rev160406.SendArpResponseInputBuilder;
-import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.VpnInterfaces;
-import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.interfaces.VpnInterface;
-import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.interfaces.VpnInterfaceBuilder;
-import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.interfaces.VpnInterfaceKey;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.Adjacencies;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.adjacency.list.Adjacency;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.adjacency.list.AdjacencyBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.adjacency.list.AdjacencyKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.vpn.config.rev161130.VpnConfig;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.common.RpcResult;
-import com.google.common.util.concurrent.FutureCallback;
-import com.google.common.util.concurrent.Futures;
-import com.google.common.util.concurrent.JdkFutureAdapters;
-import java.util.concurrent.Future;
-import java.util.Arrays;
-import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.math.BigInteger;
+import com.google.common.base.Optional;
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
+import com.google.common.collect.Maps;
+import com.google.common.util.concurrent.FutureCallback;
+import com.google.common.util.concurrent.Futures;
+import com.google.common.util.concurrent.JdkFutureAdapters;
+
 
 public class ArpNotificationHandler implements OdlArputilListener {
     private static final Logger LOG = LoggerFactory.getLogger(ArpNotificationHandler.class);
+    // temp where Key is VPNInstance+IP and value is timestamp
+    private final Cache<Pair<String, String>, BigInteger> migrateArpReqCache;
+
     DataBroker dataBroker;
     VpnInterfaceManager vpnIfManager;
     IdManagerService idManager;
@@ -70,11 +83,13 @@ public class ArpNotificationHandler implements OdlArputilListener {
     ArpMonitoringHandler arpScheduler;
     OdlInterfaceRpcService ifaceMgrRpcService;
     IInterfaceManager interfaceManager;
+    private final VpnConfig config;
+
 
     public ArpNotificationHandler(DataBroker dataBroker, VpnInterfaceManager vpnIfMgr,
             final IElanService elanService, IdManagerService idManager, OdlArputilService arpManager,
             ArpMonitoringHandler arpScheduler, OdlInterfaceRpcService ifaceMgrRpcService,
-                                  IInterfaceManager interfaceManager) {
+            IInterfaceManager interfaceManager, VpnConfig vpnConfig) {
         this.dataBroker = dataBroker;
         vpnIfManager = vpnIfMgr;
         this.elanService = elanService;
@@ -83,6 +98,12 @@ public class ArpNotificationHandler implements OdlArputilListener {
         this.arpScheduler = arpScheduler;
         this.ifaceMgrRpcService = ifaceMgrRpcService;
         this.interfaceManager = interfaceManager;
+        this.config = vpnConfig;
+
+        long duration = config.getArpLearnTimeout() * 10;
+        long cacheSize = config.getArpCacheSize().longValue();
+        migrateArpReqCache =
+                CacheBuilder.newBuilder().maximumSize(cacheSize).expireAfterWrite(duration, TimeUnit.MILLISECONDS).build();
     }
 
     @Override
@@ -119,7 +140,8 @@ public class ArpNotificationHandler implements OdlArputilListener {
                 String ipToQuery = notification.getSrcIpaddress().getIpv4Address().getValue();
                 LOG.trace("ArpRequest being processed for Source IP {}", ipToQuery);
                 VpnPortipToPort vpnPortipToPort = VpnUtil.getNeutronPortFromVpnPortFixedIp(dataBroker, vpnName, ipToQuery);
-                if (vpnPortipToPort != null) {
+                boolean isGarp = srcIP.equals(targetIP);
+                if (isGarp && vpnPortipToPort != null) {
                     String oldPortName = vpnPortipToPort.getPortName();
                     String oldMac = vpnPortipToPort.getMacAddress();
                     if (!oldMac.equalsIgnoreCase(srcMac.getValue())) {
@@ -130,10 +152,8 @@ public class ArpNotificationHandler implements OdlArputilListener {
                             synchronized ((vpnName + ipToQuery).intern()) {
                                 removeMipAdjacency(vpnName, oldPortName, srcIP);
                                 VpnUtil.removeVpnPortFixedIpToPort(dataBroker, vpnName, ipToQuery);
-                            }
-                            try {
-                                Thread.sleep(2000);
-                            } catch (Exception e) {
+
+                                putVpnIpToMigrateArpCache(vpnName, ipToQuery, srcMac);
                             }
                         } else {
                             //MAC mismatch for a Neutron learned IP
@@ -142,7 +162,7 @@ public class ArpNotificationHandler implements OdlArputilListener {
                             return;
                         }
                     }
-                } else {
+                } else if (isGarp && shouldLearnMacFromArpPackets(vpnName, ipToQuery)) {
                     learnMacFromArpPackets(vpnName, srcInterface, srcIP, srcMac);
                 }
                 if (elanService.isExternalInterface(srcInterface)) {
@@ -230,10 +250,8 @@ public class ArpNotificationHandler implements OdlArputilListener {
                             synchronized ((vpnName + ipToQuery).intern()) {
                                 removeMipAdjacency(vpnName, oldPortName, srcIP);
                                 VpnUtil.removeVpnPortFixedIpToPort(dataBroker, vpnName, ipToQuery);
-                            }
-                            try {
-                                Thread.sleep(2000);
-                            } catch (Exception e) {
+
+                                putVpnIpToMigrateArpCache(vpnName, ipToQuery, srcMac);
                             }
                         } else {
                             //MAC mismatch for a Neutron learned IP set learnt back to false
@@ -241,7 +259,7 @@ public class ArpNotificationHandler implements OdlArputilListener {
                                     srcInterface, oldMac, ipToQuery, srcMac.getValue());
                         }
                     }
-                } else {
+                } else if (shouldLearnMacFromArpPackets(vpnName, ipToQuery)) {
                     learnMacFromArpPackets(vpnName, srcInterface, srcIP, srcMac);
                 }
             }
@@ -399,5 +417,38 @@ public class ArpNotificationHandler implements OdlArputilListener {
             }
         }
         return null;
+    }
+
+    private void putVpnIpToMigrateArpCache(String vpnName, String ipToQuery, PhysAddress srcMac) {
+        long cacheSize = config.getArpCacheSize().longValue();
+        if (migrateArpReqCache.size() >= cacheSize) {
+            LOG.error("ARP_MIGRATE_CACHE: cache size {} overrun happens", cacheSize);
+            return;
+        }
+        LOG.debug("ARP_MIGRATE_CACHE: add to dirty cache IP {} vpnName {} with MAC {}", ipToQuery, vpnName, srcMac);
+        migrateArpReqCache.put(new ImmutablePair<>(vpnName, ipToQuery),
+                new BigInteger(String.valueOf(System.currentTimeMillis())));
+    }
+
+    private boolean shouldLearnMacFromArpPackets(String vpnName, String ipToQuery) {
+        if (migrateArpReqCache == null || migrateArpReqCache.size() == 0) {
+            return true;
+        }
+        Pair<String, String> keyPair = new ImmutablePair<>(vpnName, ipToQuery);
+        BigInteger prevTimeStampCached = migrateArpReqCache.getIfPresent(keyPair);
+        if (prevTimeStampCached == null) {
+            LOG.debug("ARP_MIGRATE_CACHE: there is no IP {} vpnName {} in dirty cache, so learn it",
+                    ipToQuery, vpnName);
+            return true;
+        }
+        if (System.currentTimeMillis() > prevTimeStampCached.longValue() + config.getArpLearnTimeout()) {
+            LOG.debug("ARP_MIGRATE_CACHE: older than timeout value - remove from dirty cache IP {} vpnName {}",
+                    ipToQuery, vpnName);
+            migrateArpReqCache.invalidate(keyPair);
+            return true;
+        }
+        LOG.debug("ARP_MIGRATE_CACHE: younger than timeout value - ignore learning IP {} vpnName {}",
+                ipToQuery, vpnName);
+        return false;
     }
 }
