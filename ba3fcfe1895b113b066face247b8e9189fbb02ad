@@ -1,0 +1,89 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1a622d24_f33370f4",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/cli/l2gw/L2GwUtilsCacheCli.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 75,
+      "author": {
+        "id": 5357
+      },
+      "writtenOn": "2016-11-27T07:18:10Z",
+      "side": 1,
+      "message": "Nit: Why not use try (File file \u003d, etc) and take advatage of auto-close?",
+      "revId": "ba3fcfe1895b113b066face247b8e9189fbb02ad",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_93367ce6",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/cli/l2gw/L2GwUtilsCacheCli.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 79,
+      "author": {
+        "id": 5357
+      },
+      "writtenOn": "2016-11-27T07:18:10Z",
+      "side": 1,
+      "message": "Nit: erase this commented out code?",
+      "revId": "ba3fcfe1895b113b066face247b8e9189fbb02ad",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_d330f4ea",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/cli/l2gw/NetworkL2gwDeviceInfoCli.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 53,
+      "author": {
+        "id": 5357
+      },
+      "writtenOn": "2016-11-27T07:18:10Z",
+      "side": 1,
+      "message": "While the name of this class is rather descriptive the class should still have javadoc that explains what the class\u0027s responsibilities are and why it exists.",
+      "revId": "ba3fcfe1895b113b066face247b8e9189fbb02ad",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_535ce425",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/cli/l2gw/NetworkL2gwDeviceInfoCli.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 187,
+      "author": {
+        "id": 5357
+      },
+      "writtenOn": "2016-11-27T07:18:10Z",
+      "side": 1,
+      "message": "Calling a void function that prints something getXyz rubs me the wrong way. Why not call it printXyz or outputXyz or something? This is especially true since other functions in this class are called getXyz because they return Xyz.\n\nSame for the other functions like this.",
+      "revId": "ba3fcfe1895b113b066face247b8e9189fbb02ad",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_13526c13",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/cli/l2gw/NetworkL2gwDeviceInfoCli.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 197,
+      "author": {
+        "id": 5357
+      },
+      "writtenOn": "2016-11-27T07:18:10Z",
+      "side": 1,
+      "message": "http://wiki.c2.com/?ArrowAntiPattern\n\n\"comprehension decreases beyond three levels of nested \u0027if\u0027 blocks, according to 1986 study by NoamChomsky and GeraldWeinberg.\"\n\nNote that you can simply reverse the logic on the first ifs and return if the condition is true. This would flatten the function and increase readability.\n\nSame comment for a number of places below",
+      "revId": "ba3fcfe1895b113b066face247b8e9189fbb02ad",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
