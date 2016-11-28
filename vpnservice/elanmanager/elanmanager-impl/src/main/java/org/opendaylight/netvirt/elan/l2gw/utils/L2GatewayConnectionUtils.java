@@ -170,26 +170,22 @@ public class L2GatewayConnectionUtils {
         LOG.info("Deleting L2gateway Connection with ID: {}", input.getKey().getUuid());
 
         Uuid networkUuid = input.getNetworkId();
-        ElanInstance elanInstance = elanInstanceManager.getElanInstanceByName(networkUuid.getValue());
-        if (elanInstance == null) {
-            LOG.error("Neutron network with id {} is not present", networkUuid.getValue());
-        } else {
-            Uuid l2GatewayId = input.getL2gatewayId();
-            L2gateway l2Gateway = L2GatewayConnectionUtils.getNeutronL2gateway(broker, l2GatewayId);
-            if (l2Gateway == null) {
-                LOG.error("L2Gateway with id {} is not present", l2GatewayId.getValue());
-            } else {
-                disAssociateHwvtepsFromElan(elanInstance, l2Gateway, input);
-            }
-        }
+        String elanName = networkUuid.getValue();
+        Uuid l2GatewayId = input.getL2gatewayId();
+        disAssociateHwvtepsFromElan(elanName, input);
     }
 
-    private void disAssociateHwvtepsFromElan(ElanInstance elanInstance, L2gateway l2Gateway,
-            L2gatewayConnection input) {
-        String elanName = elanInstance.getElanInstanceName();
+    private void disAssociateHwvtepsFromElan(String elanName, L2gatewayConnection input) {
         Integer defaultVlan = input.getSegmentId();
-        List<Devices> l2Devices = l2Gateway.getDevices();
-        for (Devices l2Device : l2Devices) {
+        List<L2GatewayDevice> l2Devices = ElanL2GwCacheUtils.getAllElanDevicesFromCache();
+        List<Devices> l2gwDevicesToBeDeleted = new ArrayList<>();
+        for (L2GatewayDevice elanL2gwDevice : l2Devices) {
+            if (elanL2gwDevice.getL2GatewayIds().contains(input.getKey().getUuid())) {
+                l2gwDevicesToBeDeleted.addAll(elanL2gwDevice.getL2gwConnectionIdToDevices()
+                        .get(input.getKey().getUuid()));
+            }
+        }
+        for (Devices l2Device : l2gwDevicesToBeDeleted) {
             String l2DeviceName = l2Device.getDeviceName();
             L2GatewayDevice l2GatewayDevice = L2GatewayCacheUtils.getL2DeviceFromCache(l2DeviceName);
             String hwvtepNodeId = l2GatewayDevice.getHwvtepNodeId();
@@ -209,7 +205,7 @@ public class L2GatewayConnectionUtils {
 
             DisAssociateHwvtepFromElanJob disAssociateHwvtepToElanJob =
                     new DisAssociateHwvtepFromElanJob(broker, elanL2GatewayUtils, elanL2GatewayMulticastUtils,
-                            elanL2GwDevice, elanInstance,
+                            elanL2GwDevice, elanName,
                             l2Device, defaultVlan, isLastL2GwConnDeleted);
             ElanClusterUtils.runOnlyInLeaderNode(entityOwnershipService, disAssociateHwvtepToElanJob.getJobKey(),
                     "remove l2gw connection job ", disAssociateHwvtepToElanJob);
@@ -255,7 +251,7 @@ public class L2GatewayConnectionUtils {
                     hwVTEPLogicalSwitchListener.registerListener(LogicalDatastoreType.OPERATIONAL, broker);
                     createLogicalSwitch = true;
                 } else {
-                    addL2DeviceToElanL2GwCache(elanName, l2GatewayDevice, l2GwConnId);
+                    addL2DeviceToElanL2GwCache(elanName, l2GatewayDevice, l2GwConnId, l2Device);
                     createLogicalSwitch = false;
                 }
                 AssociateHwvtepToElanJob associateHwvtepToElanJob = new AssociateHwvtepToElanJob(broker,
@@ -273,7 +269,7 @@ public class L2GatewayConnectionUtils {
     }
 
     public static L2GatewayDevice addL2DeviceToElanL2GwCache(String elanName, L2GatewayDevice l2GatewayDevice,
-            Uuid l2GwConnId) {
+            Uuid l2GwConnId, Devices l2Device) {
         String l2gwDeviceNodeId = l2GatewayDevice.getHwvtepNodeId();
         L2GatewayDevice elanL2GwDevice = ElanL2GwCacheUtils.getL2GatewayDeviceFromCache(elanName, l2gwDeviceNodeId);
         if (elanL2GwDevice == null) {
@@ -288,6 +284,10 @@ public class L2GatewayConnectionUtils {
                     l2gwDeviceNodeId, l2GwConnId);
         }
         elanL2GwDevice.addL2GatewayId(l2GwConnId);
+        if (elanL2GwDevice.getL2gwConnectionIdToDevices().get(l2GwConnId) == null) {
+            elanL2GwDevice.getL2gwConnectionIdToDevices().put(l2GwConnId, new ArrayList<Devices>());
+        }
+        elanL2GwDevice.getL2gwConnectionIdToDevices().get(l2GwConnId).add(l2Device);
 
         LOG.trace("Elan L2GwConn cache updated with below details: {}", elanL2GwDevice);
         return elanL2GwDevice;

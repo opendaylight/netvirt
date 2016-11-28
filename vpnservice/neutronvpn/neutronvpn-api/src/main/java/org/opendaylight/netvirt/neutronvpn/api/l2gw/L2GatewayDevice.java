@@ -13,14 +13,17 @@ import com.google.common.collect.Lists;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l2gateways.rev150712.l2gateway.attributes.Devices;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.hwvtep.global.attributes.LocalUcastMacs;
 
 /**
@@ -45,6 +48,9 @@ public class L2GatewayDevice {
 
     /** the status of this device connectin */
     AtomicBoolean connected = new AtomicBoolean(false);
+
+    /** Connection Id to Devices */
+    Map<Uuid,List<Devices>> l2gwConnectionIdToDevices = new HashMap<>();
 
     /**
      * VTEP device name mentioned with L2 Gateway.
@@ -91,6 +97,14 @@ public class L2GatewayDevice {
      */
     public Set<IpAddress> getTunnelIps() {
         return tunnelIps;
+    }
+
+    public Map<Uuid, List<Devices>> getL2gwConnectionIdToDevices() {
+        return l2gwConnectionIdToDevices;
+    }
+
+    public void setL2gwConnectionIdToDevices(Map<Uuid, List<Devices>> l2gwConnectionIdToDevices) {
+        this.l2gwConnectionIdToDevices = l2gwConnectionIdToDevices;
     }
 
     /**
