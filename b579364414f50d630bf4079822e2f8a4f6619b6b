@@ -1,0 +1,188 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1a622d24_76e74ee5",
+        "filename": "docs/specs/l3vpn-over-vxlan-with-evpn-rt5.rst",
+        "patchSetId": 16
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 6773
+      },
+      "writtenOn": "2016-11-28T13:52:44Z",
+      "side": 1,
+      "message": "I believe that the correct terminology is \"overlay\". The underlay is the IP network these tunnels travel over. The virtual networks (elan/Neutron networks) are connected using these overlays.",
+      "range": {
+        "startLine": 14,
+        "startChar": 47,
+        "endLine": 14,
+        "endChar": 56
+      },
+      "revId": "b579364414f50d630bf4079822e2f8a4f6619b6b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_d99bf370",
+        "filename": "docs/specs/l3vpn-over-vxlan-with-evpn-rt5.rst",
+        "patchSetId": 16
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 6773
+      },
+      "writtenOn": "2016-11-28T13:52:44Z",
+      "side": 1,
+      "message": "no \"a\" and \"b\" marks...",
+      "range": {
+        "startLine": 52,
+        "startChar": 5,
+        "endLine": 52,
+        "endChar": 12
+      },
+      "revId": "b579364414f50d630bf4079822e2f8a4f6619b6b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_b97b9728",
+        "filename": "docs/specs/l3vpn-over-vxlan-with-evpn-rt5.rst",
+        "patchSetId": 16
+      },
+      "lineNbr": 68,
+      "author": {
+        "id": 6773
+      },
+      "writtenOn": "2016-11-28T13:52:44Z",
+      "side": 1,
+      "message": "For the sake of clarity it may be worth mentioning that this would normally be MPLS based",
+      "range": {
+        "startLine": 67,
+        "startChar": 0,
+        "endLine": 68,
+        "endChar": 25
+      },
+      "revId": "b579364414f50d630bf4079822e2f8a4f6619b6b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_59036373",
+        "filename": "docs/specs/l3vpn-over-vxlan-with-evpn-rt5.rst",
+        "patchSetId": 16
+      },
+      "lineNbr": 108,
+      "author": {
+        "id": 6773
+      },
+      "writtenOn": "2016-11-28T13:52:44Z",
+      "side": 1,
+      "message": "If I understand correctly then the subnet route is associated with a single L3VNI which is used by the DCGW when sending the VXLAN tunneled packet to a compute host. The specific compute host is selected by the DCGW based on a FIB (VRF) with exact IP addresses of VMs. Therefore, the L3VNI corresponds to the VPNID and could theoretically be the segmentation id of the relevant elan. Is this correct? I would appreciate some elaboration on the relationships between the above mentioned ID\u0027s.",
+      "range": {
+        "startLine": 100,
+        "startChar": 0,
+        "endLine": 108,
+        "endChar": 9
+      },
+      "revId": "b579364414f50d630bf4079822e2f8a4f6619b6b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_b9d0b7f8",
+        "filename": "docs/specs/l3vpn-over-vxlan-with-evpn-rt5.rst",
+        "patchSetId": 16
+      },
+      "lineNbr": 743,
+      "author": {
+        "id": 6773
+      },
+      "writtenOn": "2016-11-28T13:52:44Z",
+      "side": 1,
+      "message": "03 has been published",
+      "range": {
+        "startLine": 743,
+        "startChar": 74,
+        "endLine": 743,
+        "endChar": 76
+      },
+      "revId": "b579364414f50d630bf4079822e2f8a4f6619b6b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_79e73fe5",
+        "filename": "docs/specs/l3vpn-over-vxlan-with-evpn-rt5.rst",
+        "patchSetId": 16
+      },
+      "lineNbr": 745,
+      "author": {
+        "id": 6773
+      },
+      "writtenOn": "2016-11-28T13:52:44Z",
+      "side": 1,
+      "message": "06 has been published",
+      "range": {
+        "startLine": 745,
+        "startChar": 57,
+        "endLine": 745,
+        "endChar": 59
+      },
+      "revId": "b579364414f50d630bf4079822e2f8a4f6619b6b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_d9c0132d",
+        "filename": "docs/specs/l3vpn-over-vxlan-with-evpn-rt5.rst",
+        "patchSetId": 16
+      },
+      "lineNbr": 747,
+      "author": {
+        "id": 6773
+      },
+      "writtenOn": "2016-11-28T13:52:44Z",
+      "side": 1,
+      "message": "has been replaced by draft-ietf-bess-evpn-inter-subnet-forwarding-01",
+      "range": {
+        "startLine": 747,
+        "startChar": 4,
+        "endLine": 747,
+        "endChar": 91
+      },
+      "revId": "b579364414f50d630bf4079822e2f8a4f6619b6b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_79b0dfdd",
+        "filename": "docs/specs/l3vpn-over-vxlan-with-evpn-rt5.rst",
+        "patchSetId": 16
+      },
+      "lineNbr": 749,
+      "author": {
+        "id": 6773
+      },
+      "writtenOn": "2016-11-28T13:52:44Z",
+      "side": 1,
+      "message": "02 has been published",
+      "range": {
+        "startLine": 749,
+        "startChar": 62,
+        "endLine": 749,
+        "endChar": 64
+      },
+      "revId": "b579364414f50d630bf4079822e2f8a4f6619b6b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
