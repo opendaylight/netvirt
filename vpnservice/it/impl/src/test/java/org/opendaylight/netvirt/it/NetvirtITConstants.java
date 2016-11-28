@@ -38,6 +38,9 @@ public final class NetvirtITConstants {
     public static final String INTEGRATION_BRIDGE_NAME = "br-int";
     public static final String OPENFLOW_CONNECTION_PROTOCOL = "tcp";
     public static final int GATEWAY_SUFFIX = 254;
+    public static final int IPV6_GATEWAY_SUFFIX = 1;
+
+    public static final String IPV6_SLAAC_SUBNET_PREFIX = "/64";
     public static final Class<EthertypeV4> ETHER_TYPE_V4 = EthertypeV4.class;
     public static final Class<EthertypeV6> ETHER_TYPE_V6 = EthertypeV6.class;
     public static final String PROTOCOL_ICMP = "icmp";
@@ -45,6 +48,10 @@ public final class NetvirtITConstants {
     public static final String PROTOCOL_UDP = "udp";
     public static final String PROTOCOL_ICMPV6 = "icmpv6";
     public static final String PREFIX_ALL_NETWORK = "0.0.0.0/0";
+    public static final String PREFIX_ALL_IPV6_NETWORK = "::/0";
+
+    public static final int IPV4 = 4;
+    public static final int IPV6 = 6;
 
     public enum DefaultFlow {
         DHCP_EXTERNAL_TUNNEL("DHCPTableMissFlowForExternalTunnel", NwConstants.DHCP_TABLE_EXTERNAL_TUNNEL),

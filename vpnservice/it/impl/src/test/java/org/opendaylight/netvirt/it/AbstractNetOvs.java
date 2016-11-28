@@ -9,6 +9,7 @@ package org.opendaylight.netvirt.it;
 
 import com.google.common.collect.Maps;
 import java.io.IOException;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -17,12 +18,14 @@ import org.opendaylight.ovsdb.utils.mdsal.utils.MdsalUtils;
 import org.opendaylight.ovsdb.utils.ovsdb.it.utils.DockerOvs;
 import org.opendaylight.ovsdb.utils.southbound.utils.SouthboundUtils;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.constants.rev150712.IpVersionV4;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.networks.rev150712.NetworkTypeBase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.networks.rev150712.NetworkTypeFlat;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.networks.rev150712.NetworkTypeVxlan;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.ports.attributes.Ports;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.ports.attributes.ports.Port;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.ports.attributes.ports.PortBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.subnets.rev150712.subnets.attributes.subnets.Subnet;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Node;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
@@ -38,6 +41,7 @@ public class AbstractNetOvs implements NetOvs {
     protected Map<String, PortInfo> portInfoByName = new HashMap<>();
     protected Map<String, NeutronNetwork> neutronNetworkByName = new HashMap<>();
     protected Map<String, NeutronRouter> neutronRouterByName = new HashMap<>();
+    protected Map<String, String> ipPfxSubnetIdMap = new HashMap<>();
 
     AbstractNetOvs(final DockerOvs dockerOvs, final Boolean isUserSpace, final MdsalUtils mdsalUtils,
                    SouthboundUtils southboundUtils) {
@@ -50,22 +54,31 @@ public class AbstractNetOvs implements NetOvs {
     }
 
     @Override
-    public String createNetwork(String networkName, String segId, String ipPfx) {
-        return createNetwork(networkName, segId, ipPfx, NetworkTypeVxlan.class, null);
+    public String createNetwork(String networkName, String segId) {
+        return createNetwork(networkName, segId, NetworkTypeVxlan.class, null);
     }
 
-    private String createNetwork(String networkName, String segId, String ipPfx,
+    private String createNetwork(String networkName, String segId,
                                  Class<? extends NetworkTypeBase> netType, String physNet) {
-        NeutronNetwork neutronNetwork = new NeutronNetwork(mdsalUtils, segId, ipPfx, netType, physNet);
+        NeutronNetwork neutronNetwork = new NeutronNetwork(mdsalUtils, segId, netType, physNet);
         neutronNetwork.createNetwork(networkName);
-        neutronNetwork.createSubnet(networkName + "subnet");
         putNeutronNetwork(networkName, neutronNetwork);
         return networkName;
     }
 
     @Override
-    public String createFlatNetwork(String networkName, String segId, String ipPfx, String providerNet) {
-        return createNetwork(networkName, segId, ipPfx, NetworkTypeFlat.class, providerNet);
+    public String createSubnet(String networkName, int ipVersion, String ipPfx) {
+        NeutronNetwork neutronNetwork = getNeutronNetwork(networkName);
+        String subnetId = neutronNetwork.createSubnet(networkName + "subnet_v" + ipVersion, ipVersion, ipPfx);
+        if (subnetId != null) {
+            ipPfxSubnetIdMap.put(ipPfx, subnetId);
+        }
+        return subnetId;
+    }
+
+    @Override
+    public String createFlatNetwork(String networkName, String segId, String providerNet) {
+        return createNetwork(networkName, segId, NetworkTypeFlat.class, providerNet);
     }
 
     @Override
@@ -88,21 +101,38 @@ public class AbstractNetOvs implements NetOvs {
         return neutronNetworkByName.get(networkName);
     }
 
-    protected String getNetworkId(String name) {
-        return neutronNetworkByName.get(name).getNetworkId();
+    protected Collection<Subnet> getNeutronSubnets(String networkName) {
+        return getNeutronNetwork(networkName).getSubnets();
     }
 
-    protected String getSubnetId(String name) {
-        return neutronNetworkByName.get(name).getSubnetId();
+    protected String getSubnetIpPfx(String subnetId) {
+        for (String ipPfx: ipPfxSubnetIdMap.keySet()) {
+            if (subnetId.equals(ipPfxSubnetIdMap.get(ipPfx))) {
+                return ipPfx;
+            }
+        }
+        return null;
+    }
+
+    protected String getNetworkId(String name) {
+        return neutronNetworkByName.get(name).getNetworkId();
     }
 
     protected String getRouterId(String name) {
         return neutronRouterByName.get(name).getRouterId();
     }
 
-    protected PortInfo buildPortInfo(int ovsInstance, String ipPfx) {
+    protected PortInfo buildPortInfo(int ovsInstance, String networkName) {
         long idx = portInfoByName.size() + 1;
-        return new PortInfo(ovsInstance, idx, ipPfx);
+        PortInfo portInfo = new PortInfo(ovsInstance, idx);
+        for (Subnet subnet: getNeutronSubnets(networkName)) {
+            // Allocate an IPAddress from each of the subnet that is part of the network.
+            int ipVersion = (subnet.getIpVersion() == IpVersionV4.class) ? NetvirtITConstants.IPV4 :
+                    NetvirtITConstants.IPV6;
+            portInfo.allocateFixedIp(ipVersion, getSubnetIpPfx(subnet.getUuid().getValue()),
+                    subnet.getUuid().getValue());
+        }
+        return portInfo;
     }
 
     protected void putPortInfo(PortInfo portInfo) {
@@ -116,18 +146,23 @@ public class AbstractNetOvs implements NetOvs {
     }
 
     @Override
-    public String createRouterInterface(String routerName, String networkName) {
-        PortInfo portInfo = new PortInfo(-1, NetvirtITConstants.GATEWAY_SUFFIX,
-                getNeutronNetwork(networkName).getIpPfx());
-        LOG.info("createRouterInterface enter: router: {}, network: {}, port: {}",
-                routerName, networkName, portInfo.name);
-        NeutronPort neutronPort = new NeutronPort(mdsalUtils, getNetworkId(networkName), getSubnetId(networkName));
-        neutronPort.createPort(portInfo, "network:router_interface", getRouterId(routerName), false, null);
+    public void createRouterInterface(String routerName, String networkName) {
+        for (Subnet subnet: getNeutronSubnets(networkName)) {
+            // Neutron creates separate router ports for IPv4 and IPv6 subnets.
+            PortInfo portInfo = new PortInfo(-1, NetvirtITConstants.GATEWAY_SUFFIX);
+            int ipVersion = (subnet.getIpVersion() == IpVersionV4.class) ? NetvirtITConstants.IPV4 :
+                    NetvirtITConstants.IPV6;
+            portInfo.allocateFixedIp(ipVersion, getSubnetIpPfx(subnet.getUuid().getValue()),
+                    subnet.getUuid().getValue());
+            LOG.info("createRouterInterface enter: router: {}, network: {}, port: {}",
+                    routerName, networkName, portInfo.name);
+            NeutronPort neutronPort = new NeutronPort(mdsalUtils, getNetworkId(networkName));
+            neutronPort.createPort(portInfo, "network:router_interface", getRouterId(routerName), false, null);
 
-        portInfoByName.put(portInfo.name, portInfo);
-        LOG.info("createRouterInterface exit: router: {}, network: {}, port: {}",
-                routerName, networkName, portInfo.name);
-        return portInfo.name;
+            portInfoByName.put(portInfo.name, portInfo);
+            LOG.info("createRouterInterface : router: {}, network: {}, port: {}",
+                    routerName, networkName, portInfo.name);
+        }
     }
 
     @Override
@@ -163,10 +198,11 @@ public class AbstractNetOvs implements NetOvs {
         neutronRouterByName.clear();
 
         for (NeutronNetwork neutronNetwork : neutronNetworkByName.values()) {
-            neutronNetwork.deleteSubnet();
+            neutronNetwork.deleteSubnets();
             neutronNetwork.deleteNetwork();
         }
         neutronNetworkByName.clear();
+        ipPfxSubnetIdMap.clear();
     }
 
     @Override
@@ -175,6 +211,11 @@ public class AbstractNetOvs implements NetOvs {
 
     @Override
     public int ping(String fromPort, String toPort) throws InterruptedException, IOException {
+        return 0;
+    }
+
+    @Override
+    public int ping6(String fromPort, String toPort) throws InterruptedException, IOException {
         return 0;
     }
 

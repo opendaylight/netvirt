@@ -306,10 +306,12 @@ public class NetvirtIT extends AbstractMdsalTestBase {
     private static final String NETWORK1_NAME = "net1";
     private static final String NETWORK1_SEGID = "101";
     private static final String NETWORK1_IPPFX = "10.1.1.";
+    private static final String NETWORK1_IPV6_PREFIX = "2001:db8:1111::";
 
     private static final String NETWORK2_NAME = "net2";
     private static final String NETWORK2_SEGID = "201";
     private static final String NETWORK2_IPPFX = "20.1.1.";
+    private static final String NETWORK2_IPV6_PREFIX = "2001:db8:2222::";
 
     private static final String ROUTER1_NAME = "router1";
 
@@ -327,7 +329,8 @@ public class NetvirtIT extends AbstractMdsalTestBase {
             Boolean isUserSpace = userSpaceEnabled.equals("yes");
             LOG.info("isUserSpace: {}, usingExternalDocker: {}", isUserSpace, ovs.usingExternalDocker());
             NetOvs netOvs = getNetOvs(ovs, isUserSpace);
-            netOvs.createNetwork(NETWORK1_NAME, NETWORK1_SEGID, NETWORK1_IPPFX);
+            netOvs.createNetwork(NETWORK1_NAME, NETWORK1_SEGID);
+            netOvs.createSubnet(NETWORK1_NAME, NetvirtITConstants.IPV4, NETWORK1_IPPFX);
 
             //Creating default SG
             LOG.info("Installing default SG");
@@ -353,6 +356,48 @@ public class NetvirtIT extends AbstractMdsalTestBase {
         }
     }
 
+    /**
+     * Test a basic neutron use case. This test constructs a Neutron network, IPv6 subnet, two "vm" ports
+     * and validates that pings from one VM port to the other are successful.
+     * @throws InterruptedException if we're interrupted while waiting for some mdsal operation to complete
+     */
+    @Test
+    @SuppressWarnings("checkstyle:IllegalCatch")
+    public void testNeutronIpv6L2Connectivity() throws InterruptedException {
+        int ovs1 = 1;
+        System.getProperties().setProperty(ItConstants.DOCKER_COMPOSE_FILE_NAME, OVS_ONE_NODE_YML);
+        try (DockerOvs ovs = new DockerOvs()) {
+            Boolean isUserSpace = userSpaceEnabled.equals("yes");
+            LOG.info("isUserSpace: {}, usingExternalDocker: {}", isUserSpace, ovs.usingExternalDocker());
+            NetOvs netOvs = getNetOvs(ovs, isUserSpace);
+
+            netOvs.createNetwork(NETWORK1_NAME, NETWORK1_SEGID);
+            netOvs.createSubnet(NETWORK1_NAME, NetvirtITConstants.IPV6, NETWORK1_IPV6_PREFIX);
+
+            LOG.info("Installing default SG");
+            List<Uuid> sgList = new ArrayList<>();
+            sgList.add(neutronSecurityGroupUtils.createDefaultSG());
+
+            NodeInfo nodeInfo = connectOvs(netOvs, ovs1, ovs);
+            String port1 = addPort(netOvs, nodeInfo, ovs1, NETWORK1_NAME, sgList);
+            String port2 = addPort(netOvs, nodeInfo, ovs1, NETWORK1_NAME, sgList);
+
+            int rc = netOvs.ping6(port1, port2);
+            LOG.info("Ping6 status rc: {}, ignored for isUserSpace: {}", rc, isUserSpace);
+            netOvs.logState(ovs1, "node 1 after ping");
+            assertTrue("L2Connectivity (Ping6) failed from VM1 to VM2", rc == 0);
+            if (!isUserSpace) {
+                LOG.info("Ping6 status rc: {}", rc);
+            }
+
+            destroyOvs(netOvs);
+            disconnectOvs(nodeInfo);
+        } catch (Exception e) {
+            LOG.error("testNeutronIpv6L2Connectivity: Exception thrown by OvsDocker.OvsDocker()", e);
+            fail("testNeutronIpv6L2Connectivity: Exception thrown by OvsDocker.OvsDocker() : " + e.getMessage());
+        }
+    }
+
     @Test
     @SuppressWarnings("checkstyle:IllegalCatch")
     public void testNeutronNetL3() throws InterruptedException {
@@ -364,8 +409,11 @@ public class NetvirtIT extends AbstractMdsalTestBase {
             NetOvs netOvs = getNetOvs(ovs, isUserSpace);
 
             //create 2 networks
-            netOvs.createNetwork(NETWORK1_NAME, NETWORK1_SEGID, NETWORK1_IPPFX);
-            netOvs.createNetwork(NETWORK2_NAME, NETWORK2_SEGID, NETWORK2_IPPFX);
+            netOvs.createNetwork(NETWORK1_NAME, NETWORK1_SEGID);
+            netOvs.createSubnet(NETWORK1_NAME, NetvirtITConstants.IPV4, NETWORK1_IPPFX);
+
+            netOvs.createNetwork(NETWORK2_NAME, NETWORK2_SEGID);
+            netOvs.createSubnet(NETWORK2_NAME, NetvirtITConstants.IPV4, NETWORK2_IPPFX);
 
             //Creating default SG
             LOG.info("Installing default SG");
@@ -398,6 +446,59 @@ public class NetvirtIT extends AbstractMdsalTestBase {
         }
     }
 
+    /**
+     * Test IPv6 East West Routing support for a tenant network. This test creates two Neutron networks with an
+     * IPv6 subnet each. Both the networks are associated to a Neutron Tenant Router and a VM is spawned in each of
+     * the network. We then verify that ping6 from VM1 to VM2 is successful.
+     * @throws InterruptedException if we're interrupted while waiting for some mdsal operation to complete
+     */
+    @Test
+    @SuppressWarnings("checkstyle:IllegalCatch")
+    public void testNeutronIpv6EastWestConnectivity() throws InterruptedException {
+        int ovs1 = 1;
+        System.getProperties().setProperty(ItConstants.DOCKER_COMPOSE_FILE_NAME, OVS_ONE_NODE_YML);
+        try (DockerOvs ovs = new DockerOvs()) {
+            Boolean isUserSpace = userSpaceEnabled.equals("yes");
+            LOG.info("isUserSpace: {}, usingExternalDocker: {}", isUserSpace, ovs.usingExternalDocker());
+            NetOvs netOvs = getNetOvs(ovs, isUserSpace);
+
+            //create 2 networks
+            netOvs.createNetwork(NETWORK1_NAME, NETWORK1_SEGID);
+            netOvs.createSubnet(NETWORK1_NAME, NetvirtITConstants.IPV6, NETWORK1_IPV6_PREFIX);
+
+            netOvs.createNetwork(NETWORK2_NAME, NETWORK2_SEGID);
+            netOvs.createSubnet(NETWORK2_NAME, NetvirtITConstants.IPV6, NETWORK2_IPV6_PREFIX);
+
+            LOG.info("Installing default Security Group");
+            List<Uuid> sgList = new ArrayList<>();
+            sgList.add(neutronSecurityGroupUtils.createDefaultSG());
+
+            NodeInfo nodeInfo = connectOvs(netOvs, ovs1, ovs);
+            //create 2 "vms" ports
+            String port1 = addPort(netOvs, nodeInfo, ovs1, NETWORK1_NAME, sgList);
+            String port2 = addPort(netOvs, nodeInfo, ovs1, NETWORK2_NAME, sgList);
+
+            int rc = netOvs.ping6(port1, port2);
+            netOvs.logState(ovs1, "after ping6 without router");
+            assertTrue("Ping6 should fail without router", rc != 0);
+
+            //create neutron router and add the networks
+            addRouter(netOvs, ROUTER1_NAME);
+            netOvs.createRouterInterface(ROUTER1_NAME, NETWORK1_NAME);
+            netOvs.createRouterInterface(ROUTER1_NAME, NETWORK2_NAME);
+
+            rc = netOvs.ping6(port1, port2);
+            netOvs.logState(ovs1, "after ping with router");
+            assertTrue("Ping6 with router", rc == 0);
+
+            destroyOvs(netOvs);
+            disconnectOvs(nodeInfo);
+        } catch (Exception e) {
+            LOG.error("testNeutronIpv6EastWestConnectivity: Exception thrown by OvsDocker.OvsDocker()", e);
+            fail("testNeutronIpv6EastWestConnectivity: Exception thrown by OvsDocker.OvsDocker() : " + e.getMessage());
+        }
+    }
+
     // This test requires ovs kernel modules to be loaded which is not in jenkins yet.
     @Test
     @SuppressWarnings("checkstyle:IllegalCatch")
@@ -410,7 +511,8 @@ public class NetvirtIT extends AbstractMdsalTestBase {
             LOG.info("isUserSpace: {}, usingExternalDocker: {}", isUserSpace, ovs.usingExternalDocker());
             NetOvs netOvs = getNetOvs(ovs, isUserSpace);
 
-            netOvs.createNetwork(NETWORK1_NAME, NETWORK1_SEGID, NETWORK1_IPPFX);
+            netOvs.createNetwork(NETWORK1_NAME, NETWORK1_SEGID);
+            netOvs.createSubnet(NETWORK1_NAME, NetvirtITConstants.IPV4, NETWORK1_IPPFX);
 
             //Creating default SG
             LOG.info("Installing default SG");
@@ -466,7 +568,8 @@ public class NetvirtIT extends AbstractMdsalTestBase {
             NodeInfo nodeInfo = connectOvs(netOvs, ovs1, ovs);
             NodeInfo nodeInfo2 = connectOvs(netOvs, ovs2, ovs);
 
-            netOvs.createFlatNetwork(NETWORK1_NAME, NETWORK1_SEGID, NETWORK1_IPPFX, PHYSNET);
+            netOvs.createFlatNetwork(NETWORK1_NAME, NETWORK1_SEGID, PHYSNET);
+            netOvs.createSubnet(NETWORK1_NAME, NetvirtITConstants.IPV4, NETWORK1_IPPFX);
 
             String port1 = addPort(netOvs, nodeInfo, ovs1, NETWORK1_NAME, null);
             String port2 = addPort(netOvs, nodeInfo2, ovs2, NETWORK1_NAME, null);
@@ -510,8 +613,11 @@ public class NetvirtIT extends AbstractMdsalTestBase {
             sgList.add(neutronSecurityGroupUtils.createDefaultSG());
 
             //create 2 networks
-            netOvs.createNetwork(NETWORK1_NAME, NETWORK1_SEGID, NETWORK1_IPPFX);
-            netOvs.createNetwork(NETWORK2_NAME, NETWORK2_SEGID, NETWORK2_IPPFX);
+            netOvs.createNetwork(NETWORK1_NAME, NETWORK1_SEGID);
+            netOvs.createSubnet(NETWORK1_NAME, NetvirtITConstants.IPV4, NETWORK1_IPPFX);
+
+            netOvs.createNetwork(NETWORK2_NAME, NETWORK2_SEGID);
+            netOvs.createSubnet(NETWORK2_NAME, NetvirtITConstants.IPV4, NETWORK2_IPPFX);
 
             NodeInfo nodeInfo = connectOvs(netOvs, ovs1, ovs);
             NodeInfo nodeInfo2 = connectOvs(netOvs, ovs2, ovs);
