@@ -28,9 +28,9 @@ public class RealNetOvsImpl extends AbstractNetOvs {
     @Override
     public String createPort(int ovsInstance, Node bridgeNode, String networkName ,List<Uuid> securityGroupList)
             throws InterruptedException, IOException {
-        PortInfo portInfo = buildPortInfo(0, getNeutronNetwork(networkName).getIpPfx());
+        PortInfo portInfo = buildPortInfo(0, networkName);
 
-        NeutronPort neutronPort = new NeutronPort(mdsalUtils, getNetworkId(networkName), getSubnetId(networkName));
+        NeutronPort neutronPort = new NeutronPort(mdsalUtils, getNetworkId(networkName));
         neutronPort.createPort(portInfo, "compute:None", null, true, securityGroupList);
         addTerminationPoint(portInfo, bridgeNode, "internal");
         putPortInfo(portInfo);

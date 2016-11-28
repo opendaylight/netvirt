@@ -29,7 +29,7 @@ public class DockerNetOvsImpl extends AbstractNetOvs {
     @Override
     public String createPort(int ovsInstance, Node bridgeNode, String networkName ,List<Uuid> securityGroupList)
             throws InterruptedException, IOException {
-        PortInfo portInfo = buildPortInfo(ovsInstance, getNeutronNetwork(networkName).getIpPfx());
+        PortInfo portInfo = buildPortInfo(ovsInstance, networkName);
 
         // userspace requires adding vm port as a special tap port
         // kernel mode uses the port as created by ovs
@@ -37,7 +37,7 @@ public class DockerNetOvsImpl extends AbstractNetOvs {
             dockerOvs.runInContainer(DEFAULT_WAIT, ovsInstance, "ip", "tuntap", "add", portInfo.name, "mode", "tap");
         }
 
-        NeutronPort neutronPort = new NeutronPort(mdsalUtils, getNetworkId(networkName), getSubnetId(networkName));
+        NeutronPort neutronPort = new NeutronPort(mdsalUtils, getNetworkId(networkName));
 
         neutronPort.createPort(portInfo, "compute:None", null, true ,securityGroupList);
         // Not sure if tap really matters. ovs 2.4.0 fails anyways because group chaining
@@ -61,12 +61,22 @@ public class DockerNetOvsImpl extends AbstractNetOvs {
         PortInfo portInfo = portInfoByName.get(portName);
         dockerOvs.runInContainer(DEFAULT_WAIT, portInfo.ovsInstance, "ip", "netns", "add", nsName);
         dockerOvs.runInContainer(DEFAULT_WAIT, portInfo.ovsInstance, "ip", "link", "set", portName, "netns", nsName);
-        dockerOvs.runInContainer(DEFAULT_WAIT, portInfo.ovsInstance, "ip", "netns", "exec", nsName, "ip", "addr",
-                "add", "dev", portName, portInfo.ip + "/24");
         dockerOvs.runInContainer(DEFAULT_WAIT, portInfo.ovsInstance, "ip", "netns", "exec", nsName, "ip", "link",
                 "set", "dev", portName, "up");
-        dockerOvs.runInContainer(DEFAULT_WAIT, portInfo.ovsInstance, "ip", "netns", "exec", nsName, "ip", "route",
-                "add", "default", "via", portInfo.ipPfx + NetvirtITConstants.GATEWAY_SUFFIX);
+
+        for (PortInfo.PortIp portIp: portInfo.getPortFixedIps()) {
+            if (NetvirtITConstants.IPV4 == portIp.getIpVersion()) {
+                dockerOvs.runInContainer(DEFAULT_WAIT, portInfo.ovsInstance, "ip", "netns", "exec", nsName,
+                        "ip", "addr", "add", "dev", portName, portIp.getIpAddress() + "/24");
+                dockerOvs.runInContainer(DEFAULT_WAIT, portInfo.ovsInstance, "ip", "netns", "exec", nsName, "ip",
+                        "route", "add", "default", "via", portIp.getIpPrefix() + NetvirtITConstants.GATEWAY_SUFFIX);
+            } else {
+                // IPv6 Default route is auto-discovered from the Router Advt.
+                dockerOvs.runInContainer(DEFAULT_WAIT, portInfo.ovsInstance, "ip", "netns", "exec",
+                        nsName, "ip", "-6", "addr", "add", "dev", portName,
+                        portIp.getIpAddress() + NetvirtITConstants.IPV6_SLAAC_SUBNET_PREFIX);
+            }
+        }
     }
 
     /**
@@ -79,7 +89,30 @@ public class DockerNetOvsImpl extends AbstractNetOvs {
      */
     public int ping(String fromPort, String toPort) throws InterruptedException, IOException {
         PortInfo portInfo = portInfoByName.get(toPort);
-        return pingIp(fromPort, portInfo.ip);
+        for (PortInfo.PortIp portIp: portInfo.getPortFixedIps()) {
+            if (NetvirtITConstants.IPV4 == portIp.getIpVersion()) {
+                return pingIp(fromPort, portIp.getIpAddress(), NetvirtITConstants.IPV4);
+            }
+        }
+        return -1;
+    }
+
+    /**
+     * Ping from one port to the other.
+     *
+     * @param fromPort name of the port to ping from. This is the name you used for createPort.
+     * @param toPort   name of the port to ping to. This is the name you used for createPort.
+     * @throws IOException          if an IO error occurs with one of the spawned procs
+     * @throws InterruptedException because we sleep
+     */
+    public int ping6(String fromPort, String toPort) throws InterruptedException, IOException {
+        PortInfo portInfo = portInfoByName.get(toPort);
+        for (PortInfo.PortIp portIp: portInfo.getPortFixedIps()) {
+            if (NetvirtITConstants.IPV6 == portIp.getIpVersion()) {
+                return pingIp(fromPort, portIp.getIpAddress(), NetvirtITConstants.IPV6);
+            }
+        }
+        return -1;
     }
 
     /**
@@ -90,11 +123,18 @@ public class DockerNetOvsImpl extends AbstractNetOvs {
      * @throws IOException          if an IO error occurs with one of the spawned procs
      * @throws InterruptedException because we sleep
      */
-    public int pingIp(String fromPort, String ip) throws IOException, InterruptedException {
+    public int pingIp(String fromPort, String ip, int ipVersion) throws IOException, InterruptedException {
         String fromNs = "ns-" + fromPort;
+        int ret;
         PortInfo portInfo = portInfoByName.get(fromPort);
-        return dockerOvs.runInContainer(0, DEFAULT_WAIT, portInfo.ovsInstance,
-                "ip", "netns", "exec", fromNs, "ping", "-c", "4", ip);
+        if (ipVersion == NetvirtITConstants.IPV4) {
+            ret = dockerOvs.runInContainer(0, DEFAULT_WAIT, portInfo.ovsInstance,
+                    "ip", "netns", "exec", fromNs, "ping", "-c", "4", ip);
+        } else {
+            ret = dockerOvs.runInContainer(0, DEFAULT_WAIT, portInfo.ovsInstance,
+                    "ip", "netns", "exec", fromNs, "ping6", "-c", "4", ip);
+        }
+        return ret;
     }
 
     @Override
@@ -109,6 +149,7 @@ public class DockerNetOvsImpl extends AbstractNetOvs {
             dockerOvs.tryInContainer(logText, 5000, dockerInstance, "ip", "netns", "exec", ns, "ip", "link");
             dockerOvs.tryInContainer(logText, 5000, dockerInstance, "ip", "netns", "exec", ns, "ip", "addr");
             dockerOvs.tryInContainer(logText, 5000, dockerInstance, "ip", "netns", "exec", ns, "ip", "route");
+            dockerOvs.tryInContainer(logText, 5000, dockerInstance, "ip", "netns", "exec", ns, "ip", "-6", "route");
         }
         dockerOvs.tryInContainer(logText, 5000, dockerInstance, "ovs-vsctl", "show");
         dockerOvs.tryInContainer(logText, 5000, dockerInstance, "ovs-vsctl", "list", "Open_vSwitch");

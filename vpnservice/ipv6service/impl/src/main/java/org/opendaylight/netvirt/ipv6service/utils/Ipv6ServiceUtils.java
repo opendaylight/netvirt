@@ -9,6 +9,7 @@
 package org.opendaylight.netvirt.ipv6service.utils;
 
 import com.google.common.base.Optional;
+import com.google.common.net.InetAddresses;
 import java.math.BigInteger;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
@@ -293,7 +294,9 @@ public class Ipv6ServiceUtils {
         interfaceID.append(Integer.toHexString(0xFF & octets[4]));
         interfaceID.append(StringUtils.leftPad(Integer.toHexString(0xFF & octets[5]), 2, "0"));
 
-        Ipv6Address ipv6LLA = new Ipv6Address("fe80:0:0:0:" + interfaceID.toString());
+        // Return the address in its fully expanded format.
+        Ipv6Address ipv6LLA = new Ipv6Address(InetAddresses.forString(
+                "fe80:0:0:0:" + interfaceID.toString()).getHostAddress());
         return ipv6LLA;
     }
 
