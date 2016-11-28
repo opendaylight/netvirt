@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1a622d24_79ca9fa2",
+        "filename": "vpnservice/it/impl/src/test/java/org/opendaylight/netvirt/it/NetvirtIT.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 342,
+      "author": {
+        "id": 5357
+      },
+      "writtenOn": "2016-11-28T13:17:19Z",
+      "side": 1,
+      "message": "The comment here says the status is ignored...",
+      "revId": "7ab5daafc90533ec0a90c08d1aa55390305d8a24",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
