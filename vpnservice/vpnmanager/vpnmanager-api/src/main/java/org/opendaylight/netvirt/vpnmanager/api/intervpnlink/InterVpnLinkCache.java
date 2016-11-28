@@ -8,6 +8,8 @@
 
 package org.opendaylight.netvirt.vpnmanager.api.intervpnlink;
 
+import java.util.Collections;
+import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
@@ -169,6 +171,10 @@ public class InterVpnLinkCache {
     private static void addToEndpointCache(InterVpnLinkDataComposite iVpnLink) {
         ConcurrentHashMap<String, InterVpnLinkDataComposite> cache =
             (ConcurrentHashMap<String, InterVpnLinkDataComposite>) CacheUtil.getCache(ENDPOINT_2_IVPNLINK_CACHE_NAME);
+        if ( cache == null ) {
+            LOG.warn("Cache {} is not ready", ENDPOINT_2_IVPNLINK_CACHE_NAME);
+            return;
+        }
         if ( iVpnLink.getFirstEndpointIpAddr().isPresent() ) {
             cache.put(iVpnLink.getFirstEndpointIpAddr().get(), iVpnLink);
         }
@@ -180,6 +186,10 @@ public class InterVpnLinkCache {
     private static void addToVpnUuidCache(InterVpnLinkDataComposite iVpnLink) {
         ConcurrentHashMap<String, InterVpnLinkDataComposite> cache =
             (ConcurrentHashMap<String, InterVpnLinkDataComposite>) CacheUtil.getCache(UUID_2_IVPNLINK_CACHE_NAME);
+        if ( cache == null ) {
+            LOG.warn("Cache {} is not ready", UUID_2_IVPNLINK_CACHE_NAME);
+            return;
+        }
         if ( iVpnLink.getFirstEndpointVpnUuid().isPresent() ) {
             cache.put(iVpnLink.getFirstEndpointVpnUuid().get(), iVpnLink);
         }
@@ -191,6 +201,10 @@ public class InterVpnLinkCache {
     private static void addToIVpnLinkNameCache(InterVpnLinkDataComposite iVpnLink) {
         ConcurrentHashMap<String, InterVpnLinkDataComposite> cache =
             (ConcurrentHashMap<String, InterVpnLinkDataComposite>) CacheUtil.getCache(IVPNLINK_NAME_2_IVPNLINK_CACHE_NAME);
+        if ( cache == null ) {
+            LOG.warn("Cache {} is not ready", IVPNLINK_NAME_2_IVPNLINK_CACHE_NAME);
+            return;
+        }
         cache.put(iVpnLink.getInterVpnLinkName(), iVpnLink);
         if ( iVpnLink.getSecondEndpointIpAddr().isPresent() ) {
             cache.put(iVpnLink.getSecondEndpointIpAddr().get(), iVpnLink);
@@ -200,13 +214,21 @@ public class InterVpnLinkCache {
     public static void removeInterVpnLinkFromCache(InterVpnLink iVpnLink) {
         ConcurrentHashMap<String, InterVpnLink> cache =
             (ConcurrentHashMap<String, InterVpnLink>) CacheUtil.getCache(ENDPOINT_2_IVPNLINK_CACHE_NAME);
-        cache.remove(iVpnLink.getFirstEndpoint().getIpAddress().getValue());
-        cache.remove(iVpnLink.getSecondEndpoint().getIpAddress().getValue());
+        if ( cache != null ) {
+            cache.remove(iVpnLink.getFirstEndpoint().getIpAddress().getValue());
+            cache.remove(iVpnLink.getSecondEndpoint().getIpAddress().getValue());
+        } else {
+            LOG.warn("Cache {} is not ready", ENDPOINT_2_IVPNLINK_CACHE_NAME);
+        }
 
         ConcurrentHashMap<String, InterVpnLink> cache2 =
             (ConcurrentHashMap<String, InterVpnLink>) CacheUtil.getCache(UUID_2_IVPNLINK_CACHE_NAME);
-        cache2.remove(iVpnLink.getFirstEndpoint().getVpnUuid().getValue());
-        cache2.remove(iVpnLink.getSecondEndpoint().getVpnUuid().getValue());
+        if ( cache2 != null ) {
+            cache2.remove(iVpnLink.getFirstEndpoint().getVpnUuid().getValue());
+            cache2.remove(iVpnLink.getSecondEndpoint().getVpnUuid().getValue());
+        } else {
+            LOG.warn("Cache {} is not ready", UUID_2_IVPNLINK_CACHE_NAME);
+        }
     }
 
 
@@ -225,13 +247,21 @@ public class InterVpnLinkCache {
     private static void removeFromInterVpnLinkNameCache(InterVpnLinkDataComposite iVpnLinkComposite) {
         ConcurrentHashMap<String, InterVpnLinkDataComposite> cache =
             (ConcurrentHashMap<String, InterVpnLinkDataComposite>) CacheUtil.getCache(IVPNLINK_NAME_2_IVPNLINK_CACHE_NAME);
-        cache.remove(iVpnLinkComposite.getInterVpnLinkName());
+        if ( cache != null ) {
+            cache.remove(iVpnLinkComposite.getInterVpnLinkName());
+        } else {
+            LOG.warn("removeFromInterVpnLinkNameCache: Cache {} is not ready", IVPNLINK_NAME_2_IVPNLINK_CACHE_NAME);
+        }
     }
 
 
     private static void removeFromVpnUuidCache(InterVpnLinkDataComposite iVpnLinkComposite) {
         ConcurrentHashMap<String, InterVpnLink> cache =
             (ConcurrentHashMap<String, InterVpnLink>) CacheUtil.getCache(UUID_2_IVPNLINK_CACHE_NAME);
+        if ( cache == null ) {
+            LOG.warn("removeFromVpnUuidCache: Cache {} is not ready", UUID_2_IVPNLINK_CACHE_NAME);
+            return;
+        }
         Optional<String> opt1stEndpointUuid = iVpnLinkComposite.getFirstEndpointVpnUuid();
         if ( opt1stEndpointUuid.isPresent() ) {
             cache.remove(opt1stEndpointUuid.get());
@@ -244,6 +274,10 @@ public class InterVpnLinkCache {
     private static void removeFromEndpointIpAddressCache(InterVpnLinkDataComposite iVpnLinkComposite) {
         ConcurrentHashMap<String, InterVpnLink> cache =
             (ConcurrentHashMap<String, InterVpnLink>) CacheUtil.getCache(ENDPOINT_2_IVPNLINK_CACHE_NAME);
+        if ( cache == null ) {
+            LOG.warn("removeFromVpnUuidCache: Cache {} is not ready", ENDPOINT_2_IVPNLINK_CACHE_NAME);
+            return;
+        }
         Optional<String> opt1stEndpointIpAddr = iVpnLinkComposite.getFirstEndpointIpAddr();
         if ( opt1stEndpointIpAddr.isPresent() ) {
             cache.remove(opt1stEndpointIpAddr.get());
@@ -260,24 +294,29 @@ public class InterVpnLinkCache {
     public static Optional<InterVpnLinkDataComposite> getInterVpnLinkByName(String iVpnLinkName) {
         ConcurrentHashMap<String, InterVpnLinkDataComposite> cache =
             (ConcurrentHashMap<String, InterVpnLinkDataComposite>) CacheUtil.getCache(IVPNLINK_NAME_2_IVPNLINK_CACHE_NAME);
-        InterVpnLinkDataComposite iVpnLink = cache.get(iVpnLinkName);
-        return (iVpnLink == null) ? Optional.<InterVpnLinkDataComposite>absent() : Optional.of(iVpnLink);
+        return (cache == null) ? Optional.<InterVpnLinkDataComposite>absent()
+                               : Optional.of(cache.get(iVpnLinkName));
     }
 
     public static Optional<InterVpnLinkDataComposite> getInterVpnLinkByEndpoint(String endpointIp) {
         LOG.trace("Checking if {} is configured as an InterVpnLink endpoint", endpointIp);
         ConcurrentHashMap<String, InterVpnLinkDataComposite> cache =
             (ConcurrentHashMap<String, InterVpnLinkDataComposite>) CacheUtil.getCache(ENDPOINT_2_IVPNLINK_CACHE_NAME);
-        InterVpnLinkDataComposite iVpnLink = cache.get(endpointIp);
-        LOG.trace("_XX IP {} is configured for InterVpnLink {}", endpointIp, iVpnLink);
-        return (iVpnLink == null) ? Optional.<InterVpnLinkDataComposite>absent() : Optional.of(iVpnLink);
+        return (cache == null) ? Optional.<InterVpnLinkDataComposite>absent()
+                               : Optional.of(cache.get(endpointIp));
     }
 
     public static Optional<InterVpnLinkDataComposite> getInterVpnLinkByVpnId(String vpnId) {
-        ConcurrentHashMap<String, InterVpnLinkDataComposite> cache2 =
+        ConcurrentHashMap<String, InterVpnLinkDataComposite> cache =
             (ConcurrentHashMap<String, InterVpnLinkDataComposite>) CacheUtil.getCache(UUID_2_IVPNLINK_CACHE_NAME);
-        InterVpnLinkDataComposite iVpnLink = cache2.get(vpnId);
-        return (iVpnLink == null) ? Optional.<InterVpnLinkDataComposite>absent() : Optional.of(iVpnLink);
+        return (cache == null) ? Optional.<InterVpnLinkDataComposite>absent() : Optional.of(cache.get(vpnId));
+    }
+
+    public static List<InterVpnLinkDataComposite> getAllInterVpnLinks() {
+        ConcurrentHashMap<String, InterVpnLinkDataComposite> cache =
+            (ConcurrentHashMap<String, InterVpnLinkDataComposite>) CacheUtil.getCache(UUID_2_IVPNLINK_CACHE_NAME);
+        return (cache == null) ? Collections.<InterVpnLinkDataComposite>emptyList()
+                               : Collections.list(cache.elements());
     }
 
 }
