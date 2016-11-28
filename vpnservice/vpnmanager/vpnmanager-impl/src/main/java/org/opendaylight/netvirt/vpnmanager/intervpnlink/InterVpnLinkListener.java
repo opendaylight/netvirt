@@ -19,10 +19,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
-import java.util.concurrent.TimeoutException;
-import java.util.Arrays;
-import java.util.concurrent.Callable;
-import java.lang.StringBuffer;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.NotificationPublishService;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
@@ -30,7 +26,6 @@ import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
 import org.opendaylight.genius.datastoreutils.DataStoreJobCoordinator;
 import org.opendaylight.genius.datastoreutils.InvalidJobException;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.genius.datastoreutils.DataStoreJobCoordinator;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
@@ -79,12 +74,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.netvirt.
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.common.RpcResult;
 
-import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l3.rev150712.routers.attributes.Routers;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l3.rev150712.routers.attributes.routers.Router;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l3.rev150712.l3.attributes.Routes;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l3.rev150712.routers.attributes.routers.RouterBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.rev150712.Neutron;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -92,9 +81,10 @@ public class InterVpnLinkListener extends AsyncDataTreeChangeListenerBase<InterV
         implements  AutoCloseable {
 
     private static final Logger LOG = LoggerFactory.getLogger(InterVpnLinkListener.class);
-    private static final String NBR_OF_DPNS_PROPERTY_NAME = "vpnservice.intervpnlink.number.dpns";
+
     private static final long INVALID_ID = 0;
 
+    private final InterVpnLinkService ivpnLinkService;
     private final DataBroker dataBroker;
     private final IMdsalApiManager mdsalManager;
     private final IdManagerService idManager;
@@ -108,11 +98,13 @@ public class InterVpnLinkListener extends AsyncDataTreeChangeListenerBase<InterV
     private InterVpnLinkStateCacheFeeder iVpnLinkStateCacheFeeder;
 
 
-    public InterVpnLinkListener(final DataBroker dataBroker, final IdManagerService idManager,
+    public InterVpnLinkListener(final InterVpnLinkService interVpnLinkService,
+                                final DataBroker dataBroker, final IdManagerService idManager,
                                 final IMdsalApiManager mdsalManager, final IBgpManager bgpManager,
                                 final IFibManager fibManager, final NotificationPublishService notifService,
                                 final VpnFootprintService vpnFootprintService) {
         super(InterVpnLink.class, InterVpnLinkListener.class);
+        this.ivpnLinkService = interVpnLinkService;
         this.dataBroker = dataBroker;
         this.idManager = idManager;
         this.mdsalManager = mdsalManager;
@@ -187,8 +179,7 @@ public class InterVpnLinkListener extends AsyncDataTreeChangeListenerBase<InterV
 
         InterVpnLinkCache.addInterVpnLinkToCaches(add);
 
-        int numberOfDpns = Integer.getInteger(NBR_OF_DPNS_PROPERTY_NAME, 1);
-        List<BigInteger> firstDpnList = VpnUtil.pickRandomDPNs(dataBroker, numberOfDpns, null);
+        List<BigInteger> firstDpnList = ivpnLinkService.selectSuitableDpns(add);
         if (firstDpnList != null && !firstDpnList.isEmpty()) {
             List<BigInteger> secondDpnList = firstDpnList;
 

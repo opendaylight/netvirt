@@ -655,7 +655,7 @@ public class VpnUtil {
                 .setInterfaceName(interfaceName).setRouterName(routerName).build();
     }
 
-    static VpnInstanceOpDataEntry getVpnInstanceOpData(DataBroker broker, String rd) {
+    public static VpnInstanceOpDataEntry getVpnInstanceOpData(DataBroker broker, String rd) {
         InstanceIdentifier<VpnInstanceOpDataEntry> id = VpnUtil.getVpnInstanceOpDataIdentifier(rd);
         Optional<VpnInstanceOpDataEntry> vpnInstanceOpData = read(broker, LogicalDatastoreType.OPERATIONAL, id);
         if (vpnInstanceOpData.isPresent()) {
@@ -1052,47 +1052,6 @@ public class VpnUtil {
             if (nodeId != null) {
                 BigInteger dpnId = MDSALUtil.getDpnIdFromNodeName(nodeId);
                 result.add(dpnId);
-            }
-        }
-        return result;
-    }
-
-    /**
-     * Retrieves a list of randomly selected DPNs, as many as specified.
-     *
-     * @param dataBroker dataBroker service reference
-     * @param numberOfDPNs Specifies how many Operative DPNs must be found
-     * @param excludingDPNs Specifies a blacklist of DPNs
-     * @return the list of DPN Ids
-     */
-    public static List<BigInteger> pickRandomDPNs(DataBroker dataBroker, int numberOfDPNs,
-                                                  List<BigInteger> excludingDPNs) {
-        List<BigInteger> dpnIdPool = getOperativeDPNs(dataBroker);
-        int poolSize = dpnIdPool.size();
-        if (poolSize <= numberOfDPNs) {
-            // You requested more than there is, I give you all I have.
-            return dpnIdPool;
-        }
-
-        // Random reorder
-        Collections.shuffle(dpnIdPool);
-        List<BigInteger> result = new ArrayList<BigInteger>();
-
-        for (BigInteger dpId : dpnIdPool) {
-            if (excludingDPNs == null || !excludingDPNs.contains(dpId)) {
-                result.add(dpId);
-                if (result.size() == numberOfDPNs)
-                    break;
-            }
-        }
-
-        if (result.size() < numberOfDPNs) {
-            // We still don't have all we need, so we have to pick up among the "prohibited" ones
-            dpnIdPool.removeAll(result);
-
-            int nbrOfProhibitedDpnsToPick = numberOfDPNs - result.size();
-            for (int i = 0; i < nbrOfProhibitedDpnsToPick; i++) {
-                result.add(dpnIdPool.get(i));
             }
         }
         return result;

@@ -115,6 +115,14 @@ public class InterVpnLinkDataComposite {
         return Optional.of(this.interVpnLinkCfg.getFirstEndpoint().getIpAddress().getValue());
     }
 
+    public Optional<List<BigInteger>> getFirstEndpointDpns() {
+        if ( this.interVpnLinkState == null ) {
+            return Optional.absent();
+        }
+
+        return Optional.of(this.interVpnLinkState.getFirstEndpointState().getDpId());
+    }
+
     public Optional<String> getSecondEndpointVpnUuid() {
         if ( !isComplete() ) {
             return Optional.absent();
@@ -127,6 +135,14 @@ public class InterVpnLinkDataComposite {
             return Optional.absent();
         }
         return Optional.of(this.interVpnLinkCfg.getSecondEndpoint().getIpAddress().getValue());
+    }
+
+    public Optional<List<BigInteger>> getSecondEndpointDpns() {
+        if ( this.interVpnLinkState == null ) {
+            return Optional.absent();
+        }
+
+        return Optional.of(this.interVpnLinkState.getSecondEndpointState().getDpId());
     }
 
     public Optional<Long> getEndpointLportTagByIpAddr(String endpointIp) {
