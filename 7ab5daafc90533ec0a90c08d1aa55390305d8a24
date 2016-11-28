@@ -16,6 +16,24 @@
       "revId": "7ab5daafc90533ec0a90c08d1aa55390305d8a24",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_795a9f84",
+        "filename": "vpnservice/it/impl/src/test/java/org/opendaylight/netvirt/it/NetvirtIT.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 342,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2016-11-28T14:02:51Z",
+      "side": 1,
+      "message": "Can you please share some details.\n\nIf we are not asserting the return value, then what is this test-case validating?",
+      "parentUuid": "1a622d24_79ca9fa2",
+      "revId": "7ab5daafc90533ec0a90c08d1aa55390305d8a24",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
