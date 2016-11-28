@@ -107,7 +107,7 @@ public class ElanL2GatewayUtils {
 
     private final DataStoreJobCoordinator dataStoreJobCoordinator = DataStoreJobCoordinator.getInstance();
     private static Timer LogicalSwitchDeleteJobTimer = new Timer();
-    private static final int LOGICAL_SWITCH_DELETE_DELAY = 120000;
+    private static final int LOGICAL_SWITCH_DELETE_DELAY = 20000;
     private final ConcurrentMap<Pair<NodeId, String>, TimerTask> logicalSwitchDeletedTasks = new ConcurrentHashMap<>();
 
     public ElanL2GatewayUtils(DataBroker broker, ItmRpcService itmRpcService, ElanUtils elanUtils,
