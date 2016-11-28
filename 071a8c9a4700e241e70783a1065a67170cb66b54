@@ -1,0 +1,106 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1a622d24_5349848a",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/ArpNotificationHandler.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 148,
+      "author": {
+        "id": 670
+      },
+      "writtenOn": "2016-11-28T09:04:44Z",
+      "side": 1,
+      "message": "nit: not sure why but migr is a pretty annoying abbreviation IMO.. can just write migrate (func names, log debugs)",
+      "revId": "071a8c9a4700e241e70783a1065a67170cb66b54",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_334a0884",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/ArpNotificationHandler.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 151,
+      "author": {
+        "id": 670
+      },
+      "writtenOn": "2016-11-28T09:04:44Z",
+      "side": 1,
+      "message": "I know WIP but remember to remove commented lines :)",
+      "revId": "071a8c9a4700e241e70783a1065a67170cb66b54",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_d302b40a",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/ArpNotificationHandler.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 163,
+      "author": {
+        "id": 670
+      },
+      "writtenOn": "2016-11-28T09:04:44Z",
+      "side": 1,
+      "message": "Question for Vivek - why do we learn from ARP requests at all?\nI saw your thread with Koby, I understand we need to learn from GARPs/ARP responses, but why should we learn from any ARP request? If we cut this down to GARPs only, we could simplify various flows..",
+      "revId": "071a8c9a4700e241e70783a1065a67170cb66b54",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_935afc4e",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/ArpNotificationHandler.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 438,
+      "author": {
+        "id": 670
+      },
+      "writtenOn": "2016-11-28T09:04:44Z",
+      "side": 1,
+      "message": "nit: isLearnMacFromArpPackets -\u003e shouldLearnMacFromArpPacket",
+      "revId": "071a8c9a4700e241e70783a1065a67170cb66b54",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_f357f024",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/ArpNotificationHandler.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 440,
+      "author": {
+        "id": 670
+      },
+      "writtenOn": "2016-11-28T09:04:44Z",
+      "side": 1,
+      "message": "if { }, one liners are error prone..",
+      "revId": "071a8c9a4700e241e70783a1065a67170cb66b54",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_1336ec03",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/ArpNotificationHandler.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 445,
+      "author": {
+        "id": 670
+      },
+      "writtenOn": "2016-11-28T09:04:44Z",
+      "side": 1,
+      "message": "for clarity, you can keep going with same convention like earlier in function.. \n\nif (prevTimestampCached \u003d\u003d null) {\n    return true;\n}\n\nif (System.currentTimeMillis() \u003e prevTimeStampCached.longValue() + 2000) {\n    migrArpCache.invalidate(keyPair);\n    return true;\n}\n\nthen no need for nesting, and at end of function can just return false.",
+      "revId": "071a8c9a4700e241e70783a1065a67170cb66b54",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
