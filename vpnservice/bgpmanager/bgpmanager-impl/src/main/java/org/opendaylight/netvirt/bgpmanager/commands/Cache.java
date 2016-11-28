@@ -38,12 +38,12 @@ public class Cache extends OsgiCommandSupport {
     private String action = null;
 
     @Option(name=LST, aliases={"-l"},
-            description="list vrfs and/or networks", 
+            description="list vrfs and/or networks",
             required=false, multiValued=true)
     private List<String> list = null;
 
-    @Option(name=OFL, aliases={"-o"}, 
-            description="output file", 
+    @Option(name=OFL, aliases={"-o"},
+            description="output file",
             required=false, multiValued=false)
     private String ofile = null;
 
@@ -75,7 +75,7 @@ public class Cache extends OsgiCommandSupport {
 
     public Object show() throws Exception {
         return doExecute();
-    } 
+    }
 
     @Override
     protected Object doExecute() throws Exception {
@@ -101,13 +101,13 @@ public class Cache extends OsgiCommandSupport {
         if (list != null) {
             for (String item : list) {
                 switch (item) {
-                    case "vrfs" : 
+                    case "vrfs" :
                         list_vrfs = true;
                         break;
-                    case "networks" : 
+                    case "networks" :
                         list_nets = true;
                         break;
-                    default: 
+                    default:
                         System.err.println("error: unknown value for "+LST+": "+item);
                     return null;
                 }
@@ -116,11 +116,11 @@ public class Cache extends OsgiCommandSupport {
         // we'd normally read this directly from 'config' but
         // legacy behaviour forces to check for a connection
         // that's initiated by default at startup without
-        // writing to config. 
+        // writing to config.
         String cHost = Commands.getBgpManager().getConfigHost();
         int cPort = Commands.getBgpManager().getConfigPort();
         ps.printf("\nConfiguration Server\n\t%s  %s\n\t%s  %d\n",
-                  HTSTR, cHost, PTSTR, cPort); 
+                  HTSTR, cHost, PTSTR, cPort);
         if (config == null) {
             return null;
         }
@@ -141,16 +141,16 @@ public class Cache extends OsgiCommandSupport {
                 s = g.getStalepathTime().intValue();
             }
             ps.printf("\nBGP Router\n");
-            ps.printf("\t%-15s  %d\n\t%-15s  %s\n\t%-15s  %d\n\t%-15s  %s\n",
-                      ASSTR, asNum, RISTR, rid, SPSTR, (s!=0?s:"default"), FBSTR, bit);
+            ps.printf("\t%-15s  %d\n\t%-15s  %s\n\t%-15s  %s\n\t%-15s  %s\n",
+                      ASSTR, asNum, RISTR, rid, SPSTR, (s!=0?Integer.toString(s):"default"), FBSTR, bit);
         }
 
         Logging l = config.getLogging();
         if (l != null) {
-            ps.printf("\t%-15s  %s\n\t%-15s  %s\n", LFSTR, l.getFile(), 
+            ps.printf("\t%-15s  %s\n\t%-15s  %s\n", LFSTR, l.getFile(),
             LLSTR, l.getLevel());
         }
-                                                                                
+
         List<Neighbors> n = config.getNeighbors();
         if (n != null)  {
             ps.printf("\nNeighbors\n");
@@ -169,7 +169,7 @@ public class Cache extends OsgiCommandSupport {
                 List<AddressFamilies> afs = nbr.getAddressFamilies();
                 if (afs != null) {
                     for (AddressFamilies af : afs) {
-                        ps.printf(" %s", af.getSafi().intValue() == 4 ? 
+                        ps.printf(" %s", af.getSafi().intValue() == 4 ?
                                             "IPv4-Labeled-Unicast" : "Unknown");
                     }
                 }
@@ -180,20 +180,20 @@ public class Cache extends OsgiCommandSupport {
         if (list_vrfs) {
             List<Vrfs> v = config.getVrfs();
             if (v != null) {
-                ps.printf("\nVRFs\n"); 
+                ps.printf("\nVRFs\n");
                 for (Vrfs vrf : v)  {
                     ps.printf("\t%s\n",vrf.getRd());
                     ps.printf("\t\t%s  ", IRSTR);
-                    for (String rt : vrf.getImportRts()) 
+                    for (String rt : vrf.getImportRts())
                     ps.printf("%s ", rt);
                     ps.printf("\n\t\t%s  ", ERSTR);
-                    for (String rt : vrf.getExportRts()) 
+                    for (String rt : vrf.getExportRts())
                     ps.printf("%s ", rt);
                     ps.printf("\n");
                 }
             }
         }
-     
+
         if (list_nets) {
             List<Networks> ln = config.getNetworks();
             if (ln != null) {
