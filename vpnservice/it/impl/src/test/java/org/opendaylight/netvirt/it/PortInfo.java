@@ -7,28 +7,30 @@
  */
 package org.opendaylight.netvirt.it;
 
+import java.util.Collection;
+import java.util.HashMap;
 import java.util.Random;
 import java.util.UUID;
 
 public class PortInfo {
     public String id;
     public String name;
-    public String ip;
-    public String ipPfx;
+    private HashMap<String, PortIp> fixedIpList;
     public String mac;
     public long ofPort;
     public String macPfx = "f4:00:00:0f:00:";
     private NeutronPort neutronPort;
     protected int ovsInstance;
+    private static Ipv6Utils ipv6Utils;
 
-    PortInfo(int ovsInstance, long ofPort, String ipPfx) {
+    PortInfo(int ovsInstance, long ofPort) {
         this.ovsInstance = ovsInstance;
         this.ofPort = ofPort;
-        this.ipPfx = ipPfx;
-        this.ip = ipFor(ipPfx, ofPort);
         this.mac = macFor(ofPort);
         this.id = UUID.randomUUID().toString();
         this.name = "tap" + id.substring(0, 11);
+        this.fixedIpList = new HashMap<String, PortIp>();
+        ipv6Utils = new Ipv6Utils();
     }
 
     public void setNeutronPort(NeutronPort neutronPort) {
@@ -37,6 +39,25 @@ public class PortInfo {
 
     public NeutronPort getNeutronPort() {
         return neutronPort;
+    }
+
+    public PortIp allocateFixedIp(int ipVersion, String ipPfx, String subnetId) {
+        PortIp portIp = fixedIpList.get(ipPfx);
+        if (portIp == null) {
+            portIp = new PortIp(ipVersion, ipPfx, subnetId);
+            fixedIpList.put(ipPfx, portIp);
+        }
+
+        if (NetvirtITConstants.IPV4 == ipVersion) {
+            portIp.setFixedIp(ipFor(ipPfx, ofPort));
+        } else {
+            portIp.setFixedIp(ipv6Utils.getIpv6AddressUsingEui64(ipPfx, mac));
+        }
+        return portIp;
+    }
+
+    public Collection<PortIp> getPortFixedIps() {
+        return fixedIpList.values();
     }
 
     /**
@@ -70,7 +91,49 @@ public class PortInfo {
                 + ", ofPort=" + ofPort
                 + ", id=" + id
                 + ", mac=" + mac
-                + ", ip=" + ip
+                + ", fixedIpList=" + fixedIpList
                 + "]";
+    }
+
+    public class PortIp {
+        private int ipVersion;
+        private String ipPfx;
+        private String ip;
+        private String subnetId;
+
+        PortIp(int ipVersion, String ipPfx, String subnetId) {
+            this.ipVersion = ipVersion;
+            this.ipPfx = ipPfx;
+            this.subnetId = subnetId;
+        }
+
+        public void setFixedIp(String fixedIp) {
+            this.ip = fixedIp;
+        }
+
+        public int getIpVersion() {
+            return ipVersion;
+        }
+
+        public String getIpAddress() {
+            return ip;
+        }
+
+        public String getIpPrefix() {
+            return ipPfx;
+        }
+
+        public String getSubnetId() {
+            return subnetId;
+        }
+
+        @Override
+        public String toString() {
+            return "PortIp [ipVersion=" + ipVersion
+                    + ", ipPfx=" + ipPfx
+                    + ", ip=" + ip
+                    + ", subnetId=" + subnetId
+                    + "]";
+        }
     }
 }

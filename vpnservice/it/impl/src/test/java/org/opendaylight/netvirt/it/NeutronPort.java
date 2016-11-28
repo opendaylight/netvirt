@@ -14,6 +14,7 @@ import org.opendaylight.netvirt.neutronvpn.api.utils.NeutronConstants;
 import org.opendaylight.ovsdb.utils.mdsal.utils.MdsalUtils;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv6Address;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.MacAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.binding.rev150712.PortBindingExtension;
@@ -30,24 +31,28 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 public class NeutronPort {
     private final MdsalUtils mdsalUtils;
     private final String networkId;
-    private final String subnetId;
     private Port port;
 
-    NeutronPort(final MdsalUtils mdsalUtils, final String networkId, final String subnetId) {
+    NeutronPort(final MdsalUtils mdsalUtils, final String networkId) {
         this.mdsalUtils = mdsalUtils;
         this.networkId = networkId;
-        this.subnetId = subnetId;
     }
 
     void createPort(PortInfo portInfo, String owner, String deviceId, boolean portSecurity,
             List<Uuid> securityGroupList) {
-        // fixed ips
-        IpAddress ipv4 = new IpAddress(new Ipv4Address(portInfo.ip));
         FixedIpsBuilder fib = new FixedIpsBuilder();
-        fib.setIpAddress(ipv4);
-        fib.setSubnetId(new Uuid(subnetId));
         List<FixedIps> fixedIps = new ArrayList<>();
-        fixedIps.add(fib.build());
+        for (PortInfo.PortIp portIp: portInfo.getPortFixedIps()) {
+            IpAddress ipAddress;
+            if (NetvirtITConstants.IPV4 == portIp.getIpVersion()) {
+                ipAddress = new IpAddress(new Ipv4Address(portIp.getIpAddress()));
+            } else {
+                ipAddress = new IpAddress(new Ipv6Address(portIp.getIpAddress()));
+            }
+            fib.setIpAddress(ipAddress);
+            fib.setSubnetId(new Uuid(portIp.getSubnetId()));
+            fixedIps.add(fib.build());
+        }
 
         PortBindingExtensionBuilder portBindingExtensionBuilder = new PortBindingExtensionBuilder();
         portBindingExtensionBuilder.setVifType(NeutronConstants.VIF_TYPE_OVS);
