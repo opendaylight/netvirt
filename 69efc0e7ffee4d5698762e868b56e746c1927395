@@ -22,6 +22,108 @@
       "revId": "69efc0e7ffee4d5698762e868b56e746c1927395",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_e7ed6af1",
+        "filename": "docs/specs/router-independent-ipv6-ipam.rst",
+        "patchSetId": 3
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2016-11-28T18:28:26Z",
+      "side": 1,
+      "message": "This looks like a provider network use-case where we spawn VMs directly on the external network that maps to the physical infrastructure. \n\nIn such situations, we can create IPv6 SLAAC subnets that use the same subnet CIDR as advertised by the IPv6 external (i.e., non-openstack) router.",
+      "revId": "69efc0e7ffee4d5698762e868b56e746c1927395",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_47ba5ee2",
+        "filename": "docs/specs/router-independent-ipv6-ipam.rst",
+        "patchSetId": 3
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2016-11-28T18:28:26Z",
+      "side": 1,
+      "message": "Are you looking at SLAAC use-case alone or all the IPv6 addressing modes?",
+      "revId": "69efc0e7ffee4d5698762e868b56e746c1927395",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_278da232",
+        "filename": "docs/specs/router-independent-ipv6-ipam.rst",
+        "patchSetId": 3
+      },
+      "lineNbr": 45,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2016-11-28T18:28:26Z",
+      "side": 1,
+      "message": "Is this a tenant network or an external network? \nIf this is an external network, please note that in normal situations, tenants cannot create external networks/subnets (its an admin operation).\n\nOn the other hand, if its a tenant network, without a router in picture, how will the traffic from VMs reach external DC-GW?\n\nThere is an open bug in OpenStack for IPAM support in isolated networks. Its not same as the use-case discussed here, but its related to IPAM functionality in isolated networks - https://bugs.launchpad.net/neutron/+bug/1498987",
+      "revId": "69efc0e7ffee4d5698762e868b56e746c1927395",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_c794ae46",
+        "filename": "docs/specs/router-independent-ipv6-ipam.rst",
+        "patchSetId": 3
+      },
+      "lineNbr": 53,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2016-11-28T18:28:26Z",
+      "side": 1,
+      "message": "Irrespective of the IPv6 IPAM mode, the default route is learnt from the LLA of the Router Advertisement. \n\nSo, if the default route has to point to the DC-GW, then DC-GW should be advertising the Router Advts (and Neutron should simply use the same prefix as advertised by the DC-GW, so that appropriate ACL/Anti-spoofing rules can be programmed).",
+      "revId": "69efc0e7ffee4d5698762e868b56e746c1927395",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_478ffe23",
+        "filename": "docs/specs/router-independent-ipv6-ipam.rst",
+        "patchSetId": 3
+      },
+      "lineNbr": 64,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2016-11-28T18:28:26Z",
+      "side": 1,
+      "message": "I\u0027m afraid without a router interface (which is created only when a subnet is associated to the router), there will not be any virtual port from which the RAs can be generated.",
+      "revId": "69efc0e7ffee4d5698762e868b56e746c1927395",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_87991671",
+        "filename": "docs/specs/router-independent-ipv6-ipam.rst",
+        "patchSetId": 3
+      },
+      "lineNbr": 95,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2016-11-28T18:28:26Z",
+      "side": 1,
+      "message": "If the physical (DC-GW) is going to advertise the RA (along with the prefix) what is the need for OpenStack to advertise the same RA (with a lifetime of 0)?",
+      "revId": "69efc0e7ffee4d5698762e868b56e746c1927395",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
