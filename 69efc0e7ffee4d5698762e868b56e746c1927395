@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1a622d24_d69bc270",
+        "filename": "docs/specs/router-independent-ipv6-ipam.rst",
+        "patchSetId": 3
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 6773
+      },
+      "writtenOn": "2016-11-28T10:11:14Z",
+      "side": 1,
+      "message": "Is IPv4 different in this respect? Can an L2 network be associated with DHCPv4 without a router in Neutron?\nFor completeness, it would be nice if this could be clarified in the text.",
+      "range": {
+        "startLine": 7,
+        "startChar": 0,
+        "endLine": 8,
+        "endChar": 65
+      },
+      "revId": "69efc0e7ffee4d5698762e868b56e746c1927395",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
