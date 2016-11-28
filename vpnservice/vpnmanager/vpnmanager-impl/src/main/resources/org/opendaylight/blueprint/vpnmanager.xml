@@ -205,6 +205,11 @@
   <service ref="vpnRpcServiceImpl"
            interface="org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.vpn.rpc.rev160201.VpnRpcService" />
 
+  <bean id="interVpnLinkService"
+        class="org.opendaylight.netvirt.vpnmanager.intervpnlink.InterVpnLinkService">
+    <argument ref="dataBroker" />
+  </bean>
+
   <bean id="interVpnLinkListener"
         class="org.opendaylight.netvirt.vpnmanager.intervpnlink.InterVpnLinkListener"
         init-method="start" destroy-method="close">
@@ -214,6 +219,7 @@
     <argument ref="bgpmanager" />
     <argument ref="fibManager" />
     <argument ref="notificationPublishService" />
+    <argument ref="interVpnLinkService" />
     <argument ref="vpnFootprintService" />
   </bean>
 
