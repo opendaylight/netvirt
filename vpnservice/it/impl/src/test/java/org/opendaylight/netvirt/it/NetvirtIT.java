@@ -342,10 +342,11 @@ public class NetvirtIT extends AbstractMdsalTestBase {
             String port2 = addPort(netOvs, nodeInfo, ovs1, NETWORK1_NAME, sgList);
 
             int rc = netOvs.ping(port1, port2);
-            LOG.info("Ping status rc: {}, ignored for isUserSpace: {}", rc, isUserSpace);
             netOvs.logState(ovs1, "node 1 after ping");
-            if (!isUserSpace) {
-                LOG.info("Ping status rc: {}", rc);
+            if (isUserSpace) {
+                LOG.info("Ping status rc: {}, ignored for UserSpace", rc);
+            } else {
+                assertTrue("Ping failed between VM1 and VM2", rc == 0);
             }
 
             destroyOvs(netOvs);
@@ -385,9 +386,10 @@ public class NetvirtIT extends AbstractMdsalTestBase {
             int rc = netOvs.ping6(port1, port2);
             LOG.info("Ping6 status rc: {}, ignored for isUserSpace: {}", rc, isUserSpace);
             netOvs.logState(ovs1, "node 1 after ping");
-            assertTrue("L2Connectivity (Ping6) failed from VM1 to VM2", rc == 0);
-            if (!isUserSpace) {
-                LOG.info("Ping6 status rc: {}", rc);
+            if (isUserSpace) {
+                LOG.info("Ping status rc: {}, ignored for UserSpace", rc);
+            } else {
+                assertTrue("L2Connectivity (Ping6) failed from VM1 to VM2", rc == 0);
             }
 
             destroyOvs(netOvs);
@@ -436,7 +438,11 @@ public class NetvirtIT extends AbstractMdsalTestBase {
 
             rc = netOvs.ping(port1, port2);
             netOvs.logState(ovs1, "after ping with router");
-            assertTrue("Ping with router", rc == 0);
+            if (isUserSpace) {
+                LOG.info("Ping status rc: {}, ignored for UserSpace", rc);
+            } else {
+                assertTrue("Ping (with router) failed between VM1 and VM2", rc == 0);
+            }
 
             destroyOvs(netOvs);
             disconnectOvs(nodeInfo);
@@ -489,7 +495,11 @@ public class NetvirtIT extends AbstractMdsalTestBase {
 
             rc = netOvs.ping6(port1, port2);
             netOvs.logState(ovs1, "after ping with router");
-            assertTrue("Ping6 with router", rc == 0);
+            if (isUserSpace) {
+                LOG.info("Ping6 status rc: {}, ignored for UserSpace", rc);
+            } else {
+                assertTrue("Ping6 (with router) failed between VM1 and VM2", rc == 0);
+            }
 
             destroyOvs(netOvs);
             disconnectOvs(nodeInfo);
@@ -525,11 +535,12 @@ public class NetvirtIT extends AbstractMdsalTestBase {
             String port2 = addPort(netOvs, nodeInfo2, ovs2, NETWORK1_NAME, sgList);
 
             int rc = netOvs.ping(port1, port2);
-            LOG.info("Ping status rc: {}, ignored for isUserSpace: {}", rc, isUserSpace);
             netOvs.logState(ovs1, "node 1 after ping");
             netOvs.logState(ovs2, "node 2 after ping");
-            if (!isUserSpace) {
-                LOG.info("Ping status rc: {}", rc);
+            if (isUserSpace) {
+                LOG.info("Ping status rc: {}, ignored for UserSpace", rc);
+            } else {
+                assertTrue("Ping failed between VM1 and VM2", rc == 0);
             }
 
             destroyOvs(netOvs);
@@ -575,11 +586,12 @@ public class NetvirtIT extends AbstractMdsalTestBase {
             String port2 = addPort(netOvs, nodeInfo2, ovs2, NETWORK1_NAME, null);
 
             int rc = netOvs.ping(port1, port2);
-            LOG.info("Ping status rc: {}, ignored for isUserSpace: {}", rc, isUserSpace);
             netOvs.logState(ovs1, "node 1 after ping");
             netOvs.logState(ovs2, "node 2 after ping");
-            if (!isUserSpace) {
-                LOG.info("Ping status rc: {}", rc);
+            if (isUserSpace) {
+                LOG.info("Ping status rc: {}, ignored for UserSpace", rc);
+            } else {
+                assertTrue("Ping failed between VM1 and VM2", rc == 0);
             }
 
             destroyOvs(netOvs);
@@ -639,8 +651,10 @@ public class NetvirtIT extends AbstractMdsalTestBase {
             rc = netOvs.ping(port1, port2);
             netOvs.logState(ovs1, "node 1 after ping with router");
             netOvs.logState(ovs2, "node 2 after ping with router");
-            if (!isUserSpace) {
-                assertTrue("Ping with router", rc == 0);
+            if (isUserSpace) {
+                LOG.info("Ping status rc: {}, ignored for UserSpace", rc);
+            } else {
+                assertTrue("Ping (with router) failed between VM1 and VM2", rc == 0);
             }
 
             destroyOvs(netOvs);
