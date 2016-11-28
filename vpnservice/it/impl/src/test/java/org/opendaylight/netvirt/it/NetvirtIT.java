@@ -341,6 +341,7 @@ public class NetvirtIT extends AbstractMdsalTestBase {
             int rc = netOvs.ping(port1, port2);
             LOG.info("Ping status rc: {}, ignored for isUserSpace: {}", rc, isUserSpace);
             netOvs.logState(ovs1, "node 1 after ping");
+            assertTrue("Ping failed between VM1 and VM2", rc == 0);
             if (!isUserSpace) {
                 LOG.info("Ping status rc: {}", rc);
             }
