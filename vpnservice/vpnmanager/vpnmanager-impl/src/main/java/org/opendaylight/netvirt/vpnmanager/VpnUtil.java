@@ -646,13 +646,9 @@ public class VpnUtil {
                 .setInterfaceName(interfaceName).setRouterName(routerName).build();
     }
 
-    static VpnInstanceOpDataEntry getVpnInstanceOpData(DataBroker broker, String rd) {
+    public static VpnInstanceOpDataEntry getVpnInstanceOpData(DataBroker broker, String rd) {
         InstanceIdentifier<VpnInstanceOpDataEntry> id = VpnUtil.getVpnInstanceOpDataIdentifier(rd);
-        Optional<VpnInstanceOpDataEntry> vpnInstanceOpData = read(broker, LogicalDatastoreType.OPERATIONAL, id);
-        if (vpnInstanceOpData.isPresent()) {
-            return vpnInstanceOpData.get();
-        }
-        return null;
+        return read(broker, LogicalDatastoreType.OPERATIONAL, id).orNull();
     }
 
     static VpnInstanceOpDataEntry getVpnInstanceOpDataFromCache(DataBroker broker, String rd) {
