@@ -42,6 +42,47 @@
     },
     {
       "key": {
+        "uuid": "1a622d24_fc805d8d",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/ArpNotificationHandler.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 74,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-11-28T16:56:22Z",
+      "side": 1,
+      "message": "Expire can be less lie 10x the wait \u003d 20 seconds.\n\nIn that way we may reduce overrun of cache when a flurry of ARP packets come in.\n\nWe should log an ERROR message when cache overrun happens.",
+      "parentUuid": "1a622d24_fcc33d36",
+      "range": {
+        "startLine": 74,
+        "startChar": 50,
+        "endLine": 74,
+        "endChar": 55
+      },
+      "revId": "b3266ff946bd678b0ad16a4c0290ec2bcdee6a44",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_7c444d74",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/ArpNotificationHandler.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 76,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-11-28T16:56:22Z",
+      "side": 1,
+      "message": "Further, do we need two different caches?",
+      "revId": "b3266ff946bd678b0ad16a4c0290ec2bcdee6a44",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_fcacdd8e",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/ArpNotificationHandler.java",
         "patchSetId": 3
@@ -53,6 +94,23 @@
       "writtenOn": "2016-11-28T16:14:28Z",
       "side": 1,
       "message": "should we have a configure option for the 2s timeout?",
+      "revId": "b3266ff946bd678b0ad16a4c0290ec2bcdee6a44",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_7cb60d8c",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/ArpNotificationHandler.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 446,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-11-28T16:56:22Z",
+      "side": 1,
+      "message": "I think we should allow learning the latest MAC-IP mapping within the 2 seconds window here..\n\nAllowing learning within the 2 second window is not exactly the same as earlier behaviour, but allowing so will help us save transitionary datastore updates that are costly.",
       "revId": "b3266ff946bd678b0ad16a4c0290ec2bcdee6a44",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
