@@ -43,6 +43,10 @@ public class Ipv6ServiceUtilsTest {
         expectedLinkLocalAddress = new Ipv6Address("fe80:0:0:0:816:3ff:fe04:80c");
         assertEquals(expectedLinkLocalAddress, instance.getIpv6LinkLocalAddressFromMac(mac));
 
+        mac = new MacAddress("f4:00:00:0f:00:6b");
+        expectedLinkLocalAddress = new Ipv6Address("fe80:0:0:0:f600:ff:fe0f:6b");
+        assertEquals(expectedLinkLocalAddress, instance.getIpv6LinkLocalAddressFromMac(mac));
+
         mac = new MacAddress("50:7B:9D:78:54:F3");
         expectedLinkLocalAddress = new Ipv6Address("fe80:0:0:0:527b:9dff:fe78:54f3");
         assertEquals(expectedLinkLocalAddress, instance.getIpv6LinkLocalAddressFromMac(mac));
