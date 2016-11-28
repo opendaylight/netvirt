@@ -99,6 +99,24 @@
     },
     {
       "key": {
+        "uuid": "1a622d24_6725daaa",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/ArpNotificationHandler.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 163,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-11-28T17:10:48Z",
+      "side": 1,
+      "message": "GARPs might not be generated in all environment.. There are some environments which i was educated that on a MIP migration, the receiving interface of MIP will not do a pro-active GARP..\n\nIn that case, ARP Response is what we bank on... Now you can ask how do we get the ARP response without ARP request..  A review went in about 2 - 3 weeks back where an ARP request is generated periodically to trigger ARP responses from MIP, so that their new locations can be learned..\n\nHere is that review: https://git.opendaylight.org/gerrit/#/c/45410/",
+      "parentUuid": "1a622d24_d302b40a",
+      "revId": "071a8c9a4700e241e70783a1065a67170cb66b54",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_93083c2f",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/ArpNotificationHandler.java",
         "patchSetId": 2
