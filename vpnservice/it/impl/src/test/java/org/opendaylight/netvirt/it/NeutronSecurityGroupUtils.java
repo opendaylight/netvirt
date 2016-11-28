@@ -52,6 +52,8 @@ public class NeutronSecurityGroupUtils {
         String sgUuid = generateUuid();
         syncSg(createIpv4EtherRule(sgUuid, "ingress", null, sgUuid),true);
         syncSg(createIpv4EtherRule(sgUuid, "egress", NetvirtITConstants.PREFIX_ALL_NETWORK, null), true);
+        syncSg(createIpv6EtherRule(sgUuid, "ingress", null, sgUuid),true);
+        syncSg(createIpv6EtherRule(sgUuid, "egress", NetvirtITConstants.PREFIX_ALL_IPV6_NETWORK, null), true);
         return new Uuid(sgUuid);
 
     }
@@ -62,6 +64,16 @@ public class NeutronSecurityGroupUtils {
         SecurityRuleBuilder secRule = createCommonAttr(sgUuid, direction, remoteIpPrefix, remoteSgUuid);
         secRule.setDirection(directionMap.get(direction));
         secRule.setEthertype(NetvirtITConstants.ETHER_TYPE_V4);
+        secRule.setProtocol(null);
+        return secRule.build();
+    }
+
+    public SecurityRule createIpv6EtherRule(String sgUuid, String direction, String remoteIpPrefix,
+                                            String remoteSgUuid) {
+
+        SecurityRuleBuilder secRule = createCommonAttr(sgUuid, direction, remoteIpPrefix, remoteSgUuid);
+        secRule.setDirection(directionMap.get(direction));
+        secRule.setEthertype(NetvirtITConstants.ETHER_TYPE_V6);
         secRule.setProtocol(null);
         return secRule.build();
     }
@@ -98,7 +110,7 @@ public class NeutronSecurityGroupUtils {
             secRule.setRemoteGroupId(new Uuid(remoteSgUuid));
         }
         if (null != remoteIpPrefix) {
-            secRule.setRemoteIpPrefix(new IpPrefix(NetvirtITConstants.PREFIX_ALL_NETWORK.toCharArray()));
+            secRule.setRemoteIpPrefix(new IpPrefix(remoteIpPrefix.toCharArray()));
         }
         secRule.setUuid(new Uuid(generateUuid()));
         return secRule;
