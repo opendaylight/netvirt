@@ -14,12 +14,12 @@ import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
-
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.NotificationPublishService;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
@@ -83,9 +83,10 @@ public class InterVpnLinkListener extends AsyncDataTreeChangeListenerBase<InterV
         implements  AutoCloseable {
 
     private static final Logger LOG = LoggerFactory.getLogger(InterVpnLinkListener.class);
-    private static final String NBR_OF_DPNS_PROPERTY_NAME = "vpnservice.intervpnlink.number.dpns";
+
     private static final long INVALID_ID = 0;
 
+    private final InterVpnLinkService ivpnLinkService;
     private final DataBroker dataBroker;
     private final IMdsalApiManager mdsalManager;
     private final IdManagerService idManager;
@@ -104,7 +105,9 @@ public class InterVpnLinkListener extends AsyncDataTreeChangeListenerBase<InterV
     public InterVpnLinkListener(final DataBroker dataBroker, final IdManagerService idManager,
                                 final IMdsalApiManager mdsalManager, final IBgpManager bgpManager,
                                 final IFibManager fibManager, final NotificationPublishService notifService,
-                                final VpnFootprintService vpnFootprintService, final VpnOpDataSyncer vpnOpDataSyncer) {
+                                final InterVpnLinkService interVpnLinkService,
+                                final VpnFootprintService vpnFootprintService,
+                                final VpnOpDataSyncer vpnOpDataSyncer) {
         super(InterVpnLink.class, InterVpnLinkListener.class);
         this.dataBroker = dataBroker;
         this.idManager = idManager;
@@ -112,6 +115,7 @@ public class InterVpnLinkListener extends AsyncDataTreeChangeListenerBase<InterV
         this.bgpManager = bgpManager;
         this.fibManager = fibManager;
         this.notificationsService = notifService;
+        this.ivpnLinkService = interVpnLinkService;
         this.vpnFootprintService = vpnFootprintService;
         this.vpnOpDataSyncer = vpnOpDataSyncer;
     }
@@ -254,9 +258,11 @@ public class InterVpnLinkListener extends AsyncDataTreeChangeListenerBase<InterV
             Long firstVpnLportTag = allocateVpnLinkLportTag(key.getName() + vpn1Name);
             Long secondVpnLportTag = allocateVpnLinkLportTag(key.getName() + vpn2Name);
             FirstEndpointState firstEndPointState =
-                new FirstEndpointStateBuilder().setVpnUuid(vpn1Uuid).setLportTag(firstVpnLportTag).build();
+                new FirstEndpointStateBuilder().setVpnUuid(vpn1Uuid).setLportTag(firstVpnLportTag)
+                                               .setDpId(Collections.emptyList()).build();
             SecondEndpointState secondEndPointState =
-                new SecondEndpointStateBuilder().setVpnUuid(vpn2Uuid).setLportTag(secondVpnLportTag).build();
+                new SecondEndpointStateBuilder().setVpnUuid(vpn2Uuid).setLportTag(secondVpnLportTag)
+                                                .setDpId(Collections.emptyList()).build();
             InterVpnLinkUtil.updateInterVpnLinkState(dataBroker, add.getName(), InterVpnLinkState.State.Error,
                                                      firstEndPointState, secondEndPointState);
         }
@@ -289,6 +295,10 @@ public class InterVpnLinkListener extends AsyncDataTreeChangeListenerBase<InterV
         // Retrieving all Routers
         InstanceIdentifier<Routers> routersIid = InstanceIdentifier.builder(Neutron.class).child(Routers.class).build();
         Optional<Routers> routerOpData = MDSALUtil.read(dataBroker, LogicalDatastoreType.CONFIGURATION, routersIid);
+        if ( !routerOpData.isPresent() ) {
+
+            return;
+        }
         List<Router> routers = routerOpData.get().getRouter();
         for ( Router router : routers ) {
             String vpnId = routerXL3VpnMap.get(router.getUuid().getValue());
@@ -296,8 +306,11 @@ public class InterVpnLinkListener extends AsyncDataTreeChangeListenerBase<InterV
                 LOG.warn("Could not find suitable VPN for router {}", router.getUuid());
                 continue; // with next router
             }
-            for ( Routes route : router.getRoutes() ) {
-                handleStaticRoute(vpnId, route, iVpnLink);
+            List<Routes> routerRoutes = router.getRoutes();
+            if ( routerRoutes != null ) {
+                for ( Routes route : routerRoutes ) {
+                    handleStaticRoute(vpnId, route, iVpnLink);
+                }
             }
         }
     }
