@@ -342,10 +342,11 @@ public class NetvirtIT extends AbstractMdsalTestBase {
             String port2 = addPort(netOvs, nodeInfo, ovs1, NETWORK1_NAME, sgList);
 
             int rc = netOvs.ping(port1, port2);
-            LOG.info("Ping status rc: {}, ignored for isUserSpace: {}", rc, isUserSpace);
             netOvs.logState(ovs1, "node 1 after ping");
-            if (!isUserSpace) {
-                LOG.info("Ping status rc: {}", rc);
+            if (isUserSpace) {
+                LOG.info("Ping status rc: {}, ignored for UserSpace", rc);
+            } else {
+                assertTrue("Ping failed between VM1 and VM2", rc == 0);
             }
 
             destroyOvs(netOvs);
@@ -385,9 +386,10 @@ public class NetvirtIT extends AbstractMdsalTestBase {
             int rc = netOvs.ping6(port1, port2);
             LOG.info("Ping6 status rc: {}, ignored for isUserSpace: {}", rc, isUserSpace);
             netOvs.logState(ovs1, "node 1 after ping");
-            assertTrue("L2Connectivity (Ping6) failed from VM1 to VM2", rc == 0);
-            if (!isUserSpace) {
-                LOG.info("Ping6 status rc: {}", rc);
+            if (isUserSpace) {
+                LOG.info("Ping status rc: {}, ignored for UserSpace", rc);
+            } else {
+                assertTrue("L2Connectivity (Ping6) failed from VM1 to VM2", rc == 0);
             }
 
             destroyOvs(netOvs);
@@ -398,6 +400,23 @@ public class NetvirtIT extends AbstractMdsalTestBase {
         }
     }
 
+    /**
+     * Test for IPv4 East West Routing support in netvirt.
+     * <pre>The test will:
+     * - connect to an OVSDB node and verify it is added to operational
+     * - create two Neutron networks with an IPv4 subnet in each of the network
+     * - associate a default security group
+     * - spawn (using namespaces) a VM in each of the network
+     * - verify that ping fails (as there is no Neutron Router to route the traffic)
+     * - create a Neutron router and associate both the subnets to the router
+     * - verify that ping is successful after associating the subnets to the router.
+     * - remove the bridge
+     * - remove the node and verify it is not in operational
+     * - Note: Currently security groups are not validated and the test-cases are executed in
+     *   transparent security-group mode as the necessary kernel modules are missing in Jenkins.
+     * </pre>
+     * @throws InterruptedException if we're interrupted while waiting for some mdsal operation to complete
+     */
     @Test
     @SuppressWarnings("checkstyle:IllegalCatch")
     public void testNeutronNetL3() throws InterruptedException {
@@ -436,7 +455,11 @@ public class NetvirtIT extends AbstractMdsalTestBase {
 
             rc = netOvs.ping(port1, port2);
             netOvs.logState(ovs1, "after ping with router");
-            assertTrue("Ping with router", rc == 0);
+            if (isUserSpace) {
+                LOG.info("Ping status rc: {}, ignored for UserSpace", rc);
+            } else {
+                assertTrue("Ping (with router) failed between VM1 and VM2", rc == 0);
+            }
 
             destroyOvs(netOvs);
             disconnectOvs(nodeInfo);
@@ -447,9 +470,20 @@ public class NetvirtIT extends AbstractMdsalTestBase {
     }
 
     /**
-     * Test IPv6 East West Routing support for a tenant network. This test creates two Neutron networks with an
-     * IPv6 subnet each. Both the networks are associated to a Neutron Tenant Router and a VM is spawned in each of
-     * the network. We then verify that ping6 from VM1 to VM2 is successful.
+     * Test for IPv6 East West Routing support in netvirt.
+     * <pre>The test will:
+     * - connect to an OVSDB node and verify it is added to operational
+     * - create two Neutron networks with an IPv6 subnet in each of the network
+     * - associate a default security group
+     * - spawn (using namespaces) a VM in each of the network
+     * - verify that ping6 fails (as there is no Neutron Router to route the traffic)
+     * - create a Neutron router and associate both the subnets to the router
+     * - verify that ping is successful after associating the subnets to the router.
+     * - remove the bridge
+     * - remove the node and verify it is not in operational
+     * - Note: Currently security groups are not validated and the test-cases are executed in
+     *   transparent security-group mode as the necessary kernel modules are missing in Jenkins.
+     * </pre>
      * @throws InterruptedException if we're interrupted while waiting for some mdsal operation to complete
      */
     @Test
@@ -489,7 +523,11 @@ public class NetvirtIT extends AbstractMdsalTestBase {
 
             rc = netOvs.ping6(port1, port2);
             netOvs.logState(ovs1, "after ping with router");
-            assertTrue("Ping6 with router", rc == 0);
+            if (isUserSpace) {
+                LOG.info("Ping6 status rc: {}, ignored for UserSpace", rc);
+            } else {
+                assertTrue("Ping6 (with router) failed between VM1 and VM2", rc == 0);
+            }
 
             destroyOvs(netOvs);
             disconnectOvs(nodeInfo);
@@ -499,7 +537,21 @@ public class NetvirtIT extends AbstractMdsalTestBase {
         }
     }
 
-    // This test requires ovs kernel modules to be loaded which is not in jenkins yet.
+    /**
+     * Test IPv4 multi-node use-case in netvirt.
+     * <pre>The test will:
+     * - create two nodes and verify it is added to operational
+     * - create a Neutron network with an IPv4 subnet
+     * - associate a default security group
+     * - spawn (using namespaces) a VM in each of the node
+     * - verify that ping is successful between the VMs spread across two nodes
+     * - remove the bridge
+     * - remove the node and verify it is not in operational
+     * - Note: Currently security groups are not validated and the test-cases are executed in
+     *   transparent security-group mode as the necessary kernel modules are missing in Jenkins.
+     * </pre>
+     * @throws InterruptedException if we're interrupted while waiting for some mdsal operation to complete
+     */
     @Test
     @SuppressWarnings("checkstyle:IllegalCatch")
     public void testNeutronNetTwoNodes() throws InterruptedException {
@@ -525,11 +577,12 @@ public class NetvirtIT extends AbstractMdsalTestBase {
             String port2 = addPort(netOvs, nodeInfo2, ovs2, NETWORK1_NAME, sgList);
 
             int rc = netOvs.ping(port1, port2);
-            LOG.info("Ping status rc: {}, ignored for isUserSpace: {}", rc, isUserSpace);
             netOvs.logState(ovs1, "node 1 after ping");
             netOvs.logState(ovs2, "node 2 after ping");
-            if (!isUserSpace) {
-                LOG.info("Ping status rc: {}", rc);
+            if (isUserSpace) {
+                LOG.info("Ping status rc: {}, ignored for UserSpace", rc);
+            } else {
+                assertTrue("Ping failed between VM1 and VM2", rc == 0);
             }
 
             destroyOvs(netOvs);
@@ -541,6 +594,18 @@ public class NetvirtIT extends AbstractMdsalTestBase {
         }
     }
 
+    /**
+     * Test VM connectivity on a provider network.
+     * <pre>The test will:
+     * - create two nodes and verify it is added to operational
+     * - create a Flat external neutron network with an IPv4 subnet
+     * - spawn (using namespaces) a VM in each of the node
+     * - verify that ping is successful between the VMs spread across two nodes
+     * - remove the bridge
+     * - remove the node and verify it is not in operational
+     * </pre>
+     * @throws InterruptedException if we're interrupted while waiting for some mdsal operation to complete
+     */
     @Test
     @SuppressWarnings("checkstyle:IllegalCatch")
     public void testProviderNetTwoNodes() throws InterruptedException {
@@ -575,11 +640,12 @@ public class NetvirtIT extends AbstractMdsalTestBase {
             String port2 = addPort(netOvs, nodeInfo2, ovs2, NETWORK1_NAME, null);
 
             int rc = netOvs.ping(port1, port2);
-            LOG.info("Ping status rc: {}, ignored for isUserSpace: {}", rc, isUserSpace);
             netOvs.logState(ovs1, "node 1 after ping");
             netOvs.logState(ovs2, "node 2 after ping");
-            if (!isUserSpace) {
-                LOG.info("Ping status rc: {}", rc);
+            if (isUserSpace) {
+                LOG.info("Ping status rc: {}, ignored for UserSpace", rc);
+            } else {
+                assertTrue("Ping failed between VM1 and VM2", rc == 0);
             }
 
             destroyOvs(netOvs);
@@ -595,7 +661,25 @@ public class NetvirtIT extends AbstractMdsalTestBase {
         }
     }
 
-    // This test requires ovs kernel modules to be loaded which is not in jenkins yet.
+    /**
+     * Test for IPv4 East West Routing support in a multi-node setup.
+     * <pre>The test will:
+     * - create two nodes and verify it is added to operational
+     * - create two Neutron networks with an IPv4 subnet in each of the network
+     * - associate a default security group
+     * - spawn (using namespaces) a VM in network1 on node1
+     * - spawn a second VM in network2 on node2
+     * - verify that ping fails (as there is no Neutron Router to route the traffic)
+     * - create a Neutron router and associate both the subnets to the router
+     * - verify that tunnels are created between the two nodes
+     * - verify that ping is successful after associating the subnets to the router.
+     * - remove the bridge
+     * - remove the node and verify it is not in operational
+     * - Note: Currently security groups are not validated and the test-cases are executed in
+     *   transparent security-group mode as the necessary kernel modules are missing in Jenkins.
+     * </pre>
+     * @throws InterruptedException if we're interrupted while waiting for some mdsal operation to complete
+     */
     @Test
     @SuppressWarnings("checkstyle:IllegalCatch")
     public void testNeutronNetL3TwoNodes() throws InterruptedException {
@@ -639,8 +723,10 @@ public class NetvirtIT extends AbstractMdsalTestBase {
             rc = netOvs.ping(port1, port2);
             netOvs.logState(ovs1, "node 1 after ping with router");
             netOvs.logState(ovs2, "node 2 after ping with router");
-            if (!isUserSpace) {
-                assertTrue("Ping with router", rc == 0);
+            if (isUserSpace) {
+                LOG.info("Ping status rc: {}, ignored for UserSpace", rc);
+            } else {
+                assertTrue("Ping (with router) failed between VM1 and VM2", rc == 0);
             }
 
             destroyOvs(netOvs);
