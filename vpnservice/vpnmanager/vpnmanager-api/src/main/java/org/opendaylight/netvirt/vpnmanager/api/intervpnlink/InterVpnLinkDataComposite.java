@@ -11,6 +11,7 @@ package org.opendaylight.netvirt.vpnmanager.api.intervpnlink;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Predicate;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.netvirt.inter.vpn.link.rev160311.inter.vpn.link.states.InterVpnLinkState;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.netvirt.inter.vpn.link.rev160311.inter.vpn.links.InterVpnLink;
 import org.slf4j.Logger;
@@ -115,6 +116,14 @@ public class InterVpnLinkDataComposite {
         return Optional.of(this.interVpnLinkCfg.getFirstEndpoint().getIpAddress().getValue());
     }
 
+    public Optional<List<BigInteger>> getFirstEndpointDpns() {
+        if ( this.interVpnLinkState == null ) {
+            return Optional.absent();
+        }
+
+        return Optional.of(this.interVpnLinkState.getFirstEndpointState().getDpId());
+    }
+
     public Optional<String> getSecondEndpointVpnUuid() {
         if ( !isComplete() ) {
             return Optional.absent();
@@ -127,6 +136,14 @@ public class InterVpnLinkDataComposite {
             return Optional.absent();
         }
         return Optional.of(this.interVpnLinkCfg.getSecondEndpoint().getIpAddress().getValue());
+    }
+
+    public Optional<List<BigInteger>> getSecondEndpointDpns() {
+        if ( this.interVpnLinkState == null ) {
+            return Optional.absent();
+        }
+
+        return Optional.of(this.interVpnLinkState.getSecondEndpointState().getDpId());
     }
 
     public Optional<Long> getEndpointLportTagByIpAddr(String endpointIp) {

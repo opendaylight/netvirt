@@ -8,6 +8,10 @@
 
 package org.opendaylight.netvirt.vpnmanager.api.intervpnlink;
 
+import java.util.Collections;
+import java.util.Enumeration;
+import java.util.List;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
@@ -278,6 +282,12 @@ public class InterVpnLinkCache {
             (ConcurrentHashMap<String, InterVpnLinkDataComposite>) CacheUtil.getCache(UUID_2_IVPNLINK_CACHE_NAME);
         InterVpnLinkDataComposite iVpnLink = cache2.get(vpnId);
         return (iVpnLink == null) ? Optional.<InterVpnLinkDataComposite>absent() : Optional.of(iVpnLink);
+    }
+
+    public static List<InterVpnLinkDataComposite> getAllInterVpnLinks() {
+        ConcurrentHashMap<String, InterVpnLinkDataComposite> cache =
+            (ConcurrentHashMap<String, InterVpnLinkDataComposite>) CacheUtil.getCache(UUID_2_IVPNLINK_CACHE_NAME);
+        return Collections.list(cache.elements());
     }
 
 }
