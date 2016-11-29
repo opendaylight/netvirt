@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "1a622d24_a8785f2c",
+        "filename": "vpnservice/vpnmanager/vpnmanager-api/src/main/java/org/opendaylight/netvirt/vpnmanager/api/intervpnlink/InterVpnLinkDataComposite.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 121,
+      "author": {
+        "id": 5350
+      },
+      "writtenOn": "2016-11-29T14:47:24Z",
+      "side": 1,
+      "message": "I\u0027ve run checkstyle on the file and didn\u0027t find anything wrong here. \nIt did find some other faults that I took the change to fix",
+      "parentUuid": "1a622d24_28d8cf52",
+      "revId": "082cd33654d2aadc3318169369aadd7d33b2bf5d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_28e28fd5",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnUtil.java",
         "patchSetId": 4
@@ -30,6 +48,24 @@
       "writtenOn": "2016-11-29T14:29:06Z",
       "side": 1,
       "message": "I know this is existing code, but for future, look at using this return - it will help us move off a reliance for Guava optional and to java optional.\n\nreturn read(broker, LogicalDatastoreType.OPERATIONAL, id).orNull();",
+      "revId": "082cd33654d2aadc3318169369aadd7d33b2bf5d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_28172fa5",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnUtil.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 661,
+      "author": {
+        "id": 5350
+      },
+      "writtenOn": "2016-11-29T14:47:24Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1a622d24_28e28fd5",
       "revId": "082cd33654d2aadc3318169369aadd7d33b2bf5d",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -53,6 +89,24 @@
     },
     {
       "key": {
+        "uuid": "1a622d24_e8725748",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/intervpnlink/InterVpnLinkListener.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 101,
+      "author": {
+        "id": 5350
+      },
+      "writtenOn": "2016-11-29T14:47:24Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1a622d24_4888ab22",
+      "revId": "082cd33654d2aadc3318169369aadd7d33b2bf5d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_68b007f5",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/intervpnlink/InterVpnLinkService.java",
         "patchSetId": 4
@@ -64,6 +118,24 @@
       "writtenOn": "2016-11-29T14:01:09Z",
       "side": 1,
       "message": "Do you think this will be needed? If so add a comment. If not, just remove it so it is not forgotten.",
+      "revId": "082cd33654d2aadc3318169369aadd7d33b2bf5d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_488f0b24",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/intervpnlink/InterVpnLinkService.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 36,
+      "author": {
+        "id": 5350
+      },
+      "writtenOn": "2016-11-29T14:47:24Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1a622d24_68b007f5",
       "revId": "082cd33654d2aadc3318169369aadd7d33b2bf5d",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -87,6 +159,24 @@
     },
     {
       "key": {
+        "uuid": "1a622d24_c8d03bfa",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/intervpnlink/InterVpnLinkService.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 60,
+      "author": {
+        "id": 5350
+      },
+      "writtenOn": "2016-11-29T14:47:24Z",
+      "side": 1,
+      "message": "This code path is going to be very seldomly executed, almost never. Only when an InterVpnLink is being created in that\u0027s a rare operation.\n\nAnyway, out of curiosity, I took some measures comparing shuffle with sort:\n\nShuffle:\n 10 elements   -\u003e  0.0371 millis\n million elems -\u003e 74.9828 millis\n\nSort:\n 10 elems      -\u003e    0.0805 millis\n million elems -\u003e 1171.0187 millis",
+      "parentUuid": "1a622d24_88b483f3",
+      "revId": "082cd33654d2aadc3318169369aadd7d33b2bf5d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_08f193cd",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/intervpnlink/InterVpnLinkService.java",
         "patchSetId": 4
@@ -98,6 +188,24 @@
       "writtenOn": "2016-11-29T14:01:09Z",
       "side": 1,
       "message": "javadoc likely wants a parameter and description",
+      "revId": "082cd33654d2aadc3318169369aadd7d33b2bf5d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_88fe436a",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/intervpnlink/InterVpnLinkService.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 92,
+      "author": {
+        "id": 5350
+      },
+      "writtenOn": "2016-11-29T14:47:24Z",
+      "side": 1,
+      "message": "Since method is private, the above is not javadoc (only one * at the beginning) in order to avoid javadoc complaining.\nAnyway, since it could eventually become public, I\u0027ve added some descriptions.",
+      "parentUuid": "1a622d24_08f193cd",
       "revId": "082cd33654d2aadc3318169369aadd7d33b2bf5d",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
