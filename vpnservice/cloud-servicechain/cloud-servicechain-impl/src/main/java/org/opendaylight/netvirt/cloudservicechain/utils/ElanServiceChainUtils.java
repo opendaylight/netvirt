@@ -162,7 +162,7 @@ public class ElanServiceChainUtils {
 
             Flow flow =
                     MDSALUtil.buildFlowNew(NwConstants.LPORT_DISPATCHER_TABLE, flowRef,
-                            CloudServiceChainConstants.DEFAULT_LPORT_DISPATCHER_FLOW_PRIORITY,
+                            CloudServiceChainConstants.DEFAULT_SCF_FLOW_PRIORITY,
                             flowRef, 0, 0,
                             CloudServiceChainConstants.COOKIE_LPORT_DISPATCHER_BASE.add(BigInteger.valueOf(elanTag)),
                             matches, instructions);
