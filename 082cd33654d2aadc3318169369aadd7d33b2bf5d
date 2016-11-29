@@ -19,6 +19,23 @@
     },
     {
       "key": {
+        "uuid": "1a622d24_28e28fd5",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnUtil.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 661,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2016-11-29T14:29:06Z",
+      "side": 1,
+      "message": "I know this is existing code, but for future, look at using this return - it will help us move off a reliance for Guava optional and to java optional.\n\nreturn read(broker, LogicalDatastoreType.OPERATIONAL, id).orNull();",
+      "revId": "082cd33654d2aadc3318169369aadd7d33b2bf5d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_4888ab22",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/intervpnlink/InterVpnLinkListener.java",
         "patchSetId": 4
