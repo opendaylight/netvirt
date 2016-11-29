@@ -1,0 +1,89 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1a622d24_28d8cf52",
+        "filename": "vpnservice/vpnmanager/vpnmanager-api/src/main/java/org/opendaylight/netvirt/vpnmanager/api/intervpnlink/InterVpnLinkDataComposite.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 121,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2016-11-29T14:01:09Z",
+      "side": 1,
+      "message": "checkstyle might complain about the space here",
+      "revId": "082cd33654d2aadc3318169369aadd7d33b2bf5d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_4888ab22",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/intervpnlink/InterVpnLinkListener.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 101,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2016-11-29T14:01:09Z",
+      "side": 1,
+      "message": "Very nitpicky... move this down to the bottom of the list so that the listener stays consistent. databroker is usually the first parameter.",
+      "revId": "082cd33654d2aadc3318169369aadd7d33b2bf5d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_68b007f5",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/intervpnlink/InterVpnLinkService.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 36,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2016-11-29T14:01:09Z",
+      "side": 1,
+      "message": "Do you think this will be needed? If so add a comment. If not, just remove it so it is not forgotten.",
+      "revId": "082cd33654d2aadc3318169369aadd7d33b2bf5d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_88b483f3",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/intervpnlink/InterVpnLinkService.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 60,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2016-11-29T14:01:09Z",
+      "side": 1,
+      "message": "What is the performance of this method? Does it depend on the size of the collection? Is this a recurring code path?",
+      "revId": "082cd33654d2aadc3318169369aadd7d33b2bf5d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_08f193cd",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/intervpnlink/InterVpnLinkService.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 92,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2016-11-29T14:01:09Z",
+      "side": 1,
+      "message": "javadoc likely wants a parameter and description",
+      "revId": "082cd33654d2aadc3318169369aadd7d33b2bf5d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
