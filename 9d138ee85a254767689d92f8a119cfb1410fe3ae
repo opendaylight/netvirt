@@ -1,0 +1,135 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1a622d24_3fd5a243",
+        "filename": "vpnservice/vpnmanager/vpnmanager-api/src/main/java/org/opendaylight/netvirt/vpnmanager/api/intervpnlink/InterVpnLinkCache.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 286,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2016-11-30T05:54:36Z",
+      "side": 1,
+      "message": "Doesn\u0027t CacheUtil.getCache(...) return null by any chance for UUID_2_IVPNLINK_CACHE_NAME ? So it is always better guard it against null value (may be with return Optional.ofNullable(cache).map(c -\u003e Collections.list(c.elements()));",
+      "revId": "9d138ee85a254767689d92f8a119cfb1410fe3ae",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_7fcf1ab1",
+        "filename": "vpnservice/vpnmanager/vpnmanager-api/src/main/java/org/opendaylight/netvirt/vpnmanager/api/intervpnlink/InterVpnLinkDataComposite.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 120,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2016-11-30T05:54:36Z",
+      "side": 1,
+      "message": "You can make return type as Optional\u003cList\u003cBigInteger\u003e\u003e and Optional.empty() if the below ?: expression is true (to avoid creation of empty list unless you need this)",
+      "revId": "9d138ee85a254767689d92f8a119cfb1410fe3ae",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_dfc3ce88",
+        "filename": "vpnservice/vpnmanager/vpnmanager-api/src/main/java/org/opendaylight/netvirt/vpnmanager/api/intervpnlink/InterVpnLinkDataComposite.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 140,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2016-11-30T05:54:36Z",
+      "side": 1,
+      "message": "same comment as before.",
+      "revId": "9d138ee85a254767689d92f8a119cfb1410fe3ae",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_bfc0927d",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/intervpnlink/InterVpnLinkService.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 64,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2016-11-30T05:54:36Z",
+      "side": 1,
+      "message": "you could also leverage stream here like below.\ndpnIdPool.stream().filter(dpId -\u003e excludingDPNs !\u003dnull \u0026\u0026 !excludingDPNs.contains(dpId)).limit(numberOfDpns).collect(Collectors.toList());",
+      "range": {
+        "startLine": 64,
+        "startChar": 0,
+        "endLine": 64,
+        "endChar": 8
+      },
+      "revId": "9d138ee85a254767689d92f8a119cfb1410fe3ae",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_1fbee6ff",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/intervpnlink/InterVpnLinkService.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 72,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2016-11-30T05:54:36Z",
+      "side": 1,
+      "message": "you can retrieve result.size() once and use it",
+      "revId": "9d138ee85a254767689d92f8a119cfb1410fe3ae",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_ffba0a09",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/intervpnlink/InterVpnLinkService.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 77,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2016-11-30T05:54:36Z",
+      "side": 1,
+      "message": "use dpnIdPool.subList here",
+      "range": {
+        "startLine": 77,
+        "startChar": 23,
+        "endLine": 77,
+        "endChar": 24
+      },
+      "revId": "9d138ee85a254767689d92f8a119cfb1410fe3ae",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_ff516ad9",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/intervpnlink/InterVpnLinkService.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 139,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2016-11-30T05:54:36Z",
+      "side": 1,
+      "message": "you could simply use irts1.sort(null) and irts2.sort(null)",
+      "revId": "9d138ee85a254767689d92f8a119cfb1410fe3ae",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
