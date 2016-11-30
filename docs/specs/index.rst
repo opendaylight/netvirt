@@ -10,3 +10,4 @@ Contents:
    :maxdepth: 1
 
    Design Specification Template <specs-template>
+   Temporary SMAC Learning <temporary-smac-learning>
