@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1a622d24_32bb19c6",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/AbstractDataChangeListener.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 68,
+      "author": {
+        "id": 5867
+      },
+      "writtenOn": "2016-11-30T11:48:14Z",
+      "side": 1,
+      "message": "didn\u0027t you just loose the \"if (clazz.equals(key.getTargetType()))\" here??  Unless that\u0027s intentional, but I doubt it - I think this would break all listeners, no?",
+      "revId": "8d141f5804e7b7b587add223b40eb838eff4a15f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
