@@ -37,6 +37,24 @@
     },
     {
       "key": {
+        "uuid": "1a622d24_52c7b512",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/AbstractEgressAclServiceImpl.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 142,
+      "author": {
+        "id": 4540
+      },
+      "writtenOn": "2016-11-30T12:37:50Z",
+      "side": 1,
+      "message": "If we drop the warning (which is useless really):\n\n            AclServiceUtils.getAcl(dataBroker, sgUuid.getValue()).asSet().forEach(\n                    acl -\u003e acl.getAccessListEntries().getAce().forEach(\n                            ace -\u003e programAceRule(dpId, lportTag, addOrRemove, acl.getAclName(), ace, portId, null)\n                    )\n            );\n\n(with Guava Optional).",
+      "parentUuid": "1a622d24_f2ed21f1",
+      "revId": "837fb03c08c6bb92b8fadfeb4b9cedab110aec60",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_5f2b3eeb",
         "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/AbstractIngressAclServiceImpl.java",
         "patchSetId": 2
@@ -119,6 +137,23 @@
       "side": 1,
       "message": "I had actually tried it before replying, so yes, you can use Supplier instead. (You can specify Supplier\u003cVoid\u003e if you want.)",
       "parentUuid": "1a622d24_f2c40161",
+      "revId": "837fb03c08c6bb92b8fadfeb4b9cedab110aec60",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_d253c56a",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/utils/AclServiceUtils.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 621,
+      "author": {
+        "id": 4540
+      },
+      "writtenOn": "2016-11-30T12:37:50Z",
+      "side": 1,
+      "message": "Right, being able to use flatMap() here nearly justifies the use of java.util.Optional; there\u0027s no straightforward way of doing this with Guava\u0027s Optional. It\u0027s a shame the external API ends up using both variants though :-(.",
       "revId": "837fb03c08c6bb92b8fadfeb4b9cedab110aec60",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
