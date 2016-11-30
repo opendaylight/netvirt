@@ -18,5 +18,10 @@ module elan-config {
             type boolean;
             default true;
         }
+        leaf temp-smac-learn-timeout {
+            description "Temporary source MAC learning timeout";
+            type uint16;
+            default 10;
+        }
     }
 }
