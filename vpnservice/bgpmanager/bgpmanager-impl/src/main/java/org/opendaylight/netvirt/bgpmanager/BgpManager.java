@@ -66,7 +66,7 @@ public class BgpManager implements AutoCloseable, IBgpManager {
     }
 
     public void addNeighbor(String ipAddress, long asNum) throws TException {
-        bcm.addNeighbor(ipAddress, (int) asNum);
+        bcm.addNeighbor(ipAddress, asNum);
     }
 
     public void addEbgpMultihop(String ipAddress, int nhops) throws TException {
@@ -144,7 +144,7 @@ public class BgpManager implements AutoCloseable, IBgpManager {
         bcm.delLogging();
     }
 
-    public void startBgp(int asn, String routerId, int spt, boolean fbit) {
+    public void startBgp(long asn, String routerId, int spt, boolean fbit) {
         bcm.startBgp(asn, routerId, spt, fbit);
     }
 

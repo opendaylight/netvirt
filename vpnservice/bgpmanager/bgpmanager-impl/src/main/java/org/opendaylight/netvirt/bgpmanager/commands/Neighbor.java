@@ -77,13 +77,13 @@ public class Neighbor extends OsgiCommandSupport {
                     System.err.println("error: Bgp config is not present");
                     return null;
                 }
-                int asn = bm.getConfig().getAsId().getLocalAs().intValue();
+                long asn = 0;
                 int hops = 0;
-                if (!Commands.isValid(nbrIp, Commands.IPADDR, IP)) {
+                if (!Commands.isValid(nbrIp, Commands.Validators.IPADDR, IP)) {
                     return null;
                 }
                 if (asNum != null) {
-                    if (!Commands.isValid(asNum, Commands.INT, AS)) {
+                    if (!Commands.isValid(asNum, Commands.Validators.INT, AS)) {
                         return null;
                     } else {
                         asn = Integer.valueOf(asNum);
@@ -91,7 +91,7 @@ public class Neighbor extends OsgiCommandSupport {
                 }
                 bm.addNeighbor(nbrIp, asn);
                 if (nHops != null) {
-                    if (!Commands.isValid(nHops, Commands.INT, MH)) {
+                    if (!Commands.isValid(nHops, Commands.Validators.INT, MH)) {
                         return null;
                     } else {
                         hops = Integer.valueOf(nHops);
@@ -99,7 +99,7 @@ public class Neighbor extends OsgiCommandSupport {
                     bm.addEbgpMultihop(nbrIp, hops);
                 }
                 if (srcIp != null) { 
-                    if (!Commands.isValid(srcIp, Commands.IPADDR, US)) {
+                    if (!Commands.isValid(srcIp, Commands.Validators.IPADDR, US)) {
                         return null;
                     }
                     bm.addUpdateSource(nbrIp, srcIp);
@@ -119,7 +119,7 @@ public class Neighbor extends OsgiCommandSupport {
                     System.err.println("error: "+IP+" needed");
                     return null;
                 }
-                if (!Commands.isValid(nbrIp, Commands.IPADDR, IP)) {
+                if (!Commands.isValid(nbrIp, Commands.Validators.IPADDR, IP)) {
                     return null;
                 }
                 if (asNum != null || nHops != null || srcIp != null

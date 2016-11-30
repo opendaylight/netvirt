@@ -52,8 +52,8 @@ public class Connect extends OsgiCommandSupport {
                     System.err.println("error: "+HOST+" and "+PORT+" needed");
                     return null;
                 }
-                if (!Commands.isValid(host, Commands.IPADDR, HOST) 
-                    || !Commands.isValid(port, Commands.INT, PORT)) {
+                if (!Commands.isValid(host, Commands.Validators.IPADDR, HOST)
+                    || !Commands.isValid(port, Commands.Validators.INT, PORT)) {
                     return null;
                 }
                 // check: already connected?

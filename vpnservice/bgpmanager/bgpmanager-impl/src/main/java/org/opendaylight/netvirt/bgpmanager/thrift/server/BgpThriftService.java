@@ -128,7 +128,7 @@ public class BgpThriftService {
             }
         }
 
-        public void onUpdateWithdrawRoute(String rd, String prefix, int plen) {
+        public void onUpdateWithdrawRoute(String rd, String prefix, int plen, String nexthop) {
             LOGGER.debug("Route del ** {} ** {}/{} ", rd, prefix, plen);
             try {
                 LOGGER.info("REMOVE: Removing Fib entry rd {} prefix {}", rd, prefix);
