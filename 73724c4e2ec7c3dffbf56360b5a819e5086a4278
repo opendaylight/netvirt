@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1a622d24_3f65a245",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 640,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-11-30T08:59:40Z",
+      "side": 1,
+      "message": "make sure both updateSubnetInVpn() and addSubnetToVpn() both invoke this method, so that the fixed-ip handling is homogenous.",
+      "revId": "73724c4e2ec7c3dffbf56360b5a819e5086a4278",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_7f11daab",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 1338,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-11-30T08:59:40Z",
+      "side": 1,
+      "message": "We should not be logging this error.. Trace is acceptable.",
+      "revId": "73724c4e2ec7c3dffbf56360b5a819e5086a4278",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_df258e0b",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 1380,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-11-30T08:59:40Z",
+      "side": 1,
+      "message": "This we will address in a different review.  Let us not burden this review from landing.",
+      "parentUuid": "3a65312a_27bb7d73",
+      "revId": "73724c4e2ec7c3dffbf56360b5a819e5086a4278",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_df6c6e39",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 1408,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-11-30T08:59:40Z",
+      "side": 1,
+      "message": "Better to check if adjacencies are present before doing get().getAdjacency().\n\nAlso please handle the else case to construct a list with that current adjacency and set the list into setAdjacency()",
+      "revId": "73724c4e2ec7c3dffbf56360b5a819e5086a4278",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
