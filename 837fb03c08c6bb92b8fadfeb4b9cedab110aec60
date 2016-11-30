@@ -104,6 +104,24 @@
       "revId": "837fb03c08c6bb92b8fadfeb4b9cedab110aec60",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_1249bdd0",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/infra/Optionals.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 47,
+      "author": {
+        "id": 4540
+      },
+      "writtenOn": "2016-11-30T11:56:00Z",
+      "side": 1,
+      "message": "I had actually tried it before replying, so yes, you can use Supplier instead. (You can specify Supplier\u003cVoid\u003e if you want.)",
+      "parentUuid": "1a622d24_f2c40161",
+      "revId": "837fb03c08c6bb92b8fadfeb4b9cedab110aec60",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
