@@ -82,7 +82,7 @@ public class Misc extends OsgiCommandSupport {
         BgpManager bm = Commands.getBgpManager();
         switch (action) {
             case "add" : 
-                if (spt != null && Commands.isValid(spt, Commands.INT, SP)) {
+                if (spt != null && Commands.isValid(spt, Commands.Validators.INT, SP)) {
                     int s = Integer.valueOf(spt);
                     bm.configureGR(s);
                 }
