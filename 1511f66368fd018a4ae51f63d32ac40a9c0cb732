@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1a622d24_95b017df",
+        "filename": "vpnservice/it/impl/src/test/java/org/opendaylight/netvirt/it/AbstractNetOvs.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 70,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2016-11-30T23:05:01Z",
+      "side": 1,
+      "message": "would a constant enum with conversion be more readable?",
+      "revId": "1511f66368fd018a4ae51f63d32ac40a9c0cb732",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_b5c6f347",
+        "filename": "vpnservice/it/impl/src/test/java/org/opendaylight/netvirt/it/AbstractNetOvs.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 76,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2016-11-30T23:05:01Z",
+      "side": 1,
+      "message": "toString shouldn\u0027t be needed",
+      "revId": "1511f66368fd018a4ae51f63d32ac40a9c0cb732",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_8bf8f8e6",
+        "filename": "vpnservice/it/impl/src/test/java/org/opendaylight/netvirt/it/Ipv6Utils.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2016-11-30T23:05:01Z",
+      "side": 1,
+      "message": "are any of these utils already in the ipv6 impl code and can be reused?",
+      "revId": "1511f66368fd018a4ae51f63d32ac40a9c0cb732",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
