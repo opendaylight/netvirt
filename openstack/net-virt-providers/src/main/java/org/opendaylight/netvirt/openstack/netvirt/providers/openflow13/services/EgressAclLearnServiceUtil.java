@@ -18,6 +18,7 @@ import org.opendaylight.netvirt.openstack.netvirt.providers.ConfigInterface;
 import org.opendaylight.netvirt.openstack.netvirt.api.L2ForwardingLearnProvider;
 import org.opendaylight.netvirt.openstack.netvirt.api.LearnConstants;
 import org.opendaylight.netvirt.openstack.netvirt.api.LearnConstants.LearnFlowModsType;
+import org.opendaylight.netvirt.openstack.netvirt.providers.NetvirtProvidersProvider;
 import org.opendaylight.netvirt.utils.mdsal.openflow.ActionUtils;
 import org.opendaylight.netvirt.utils.mdsal.openflow.FlowUtils;
 import org.opendaylight.netvirt.utils.mdsal.openflow.MatchUtils;
@@ -69,8 +70,8 @@ public class EgressAclLearnServiceUtil {
      * (Table:EgressAclLearnService) EgressACL Learning
      * Match: reg6 = LearnConstants.NxmOfFieldType.NXM_NX_REG6
      * Action: learn and resubmit to next table
-     * "table=40,dl_src=fa:16:3e:d3:bb:8a,tcp,priority=61002,tcp_dst=22,actions=learn(table=39,idle_timeout=18000,fin_idle_timeout=60,
-     * fin_hard_timeout=60,priority=61010, cookie=0x6900000,eth_type=0x800,nw_proto=6, NXM_OF_IP_SRC[]=NXM_OF_IP_DST[],NXM_OF_IP_DST[]=NXM_OF_IP_SRC[],
+     * "table=40,dl_src=fa:16:3e:d3:bb:8a,tcp,priority=61002,tcp_dst=22,actions=learn(table=39,idle_timeout=18000,fin_idle_timeout=300,
+     * fin_hard_timeout=0,priority=61010, cookie=0x6900000,eth_type=0x800,nw_proto=6, NXM_OF_IP_SRC[]=NXM_OF_IP_DST[],NXM_OF_IP_DST[]=NXM_OF_IP_SRC[],
      * NXM_OF_TCP_SRC[]=NXM_OF_TCP_DST[],NXM_OF_TCP_DST[]=NXM_OF_TCP_SRC[],load:0x1->NXM_NX_REG6[0..7]),resubmit(,50)"
      */
     public static FlowBuilder programEgressAclLearnRuleForTcp(FlowBuilder flowBuilder, InstructionBuilder instructionBuilder, short learnTableId, short resubmitId) {
@@ -86,17 +87,17 @@ public class EgressAclLearnServiceUtil {
          * 0 1 2 3 learnFlowModType srcField dstField FlowModNumBits
          */
         /*String[] header = new String[] {
-                "18000", "300", "61010", "0", "0", "39", "60", "60"
+                "18000", "0", "61010", "0", "0", "39", "300", "0"
         };*/
         String[] header = new String[] {
-         "18000",
-         "18000",
-         "61010",
-         "0",
-         "0",
-         String.valueOf(learnTableId),
-         "60",
-         "60"
+            String.valueOf(NetvirtProvidersProvider.getSecurityGroupTcpIdleTimeout()),
+            String.valueOf(NetvirtProvidersProvider.getSecurityGroupTcpHardTimeout()),
+            LearnConstants.LEARN_PRIORITY,
+            "0",
+            "0",
+            String.valueOf(learnTableId),
+            String.valueOf(NetvirtProvidersProvider.getSecurityGroupTcpFinIdleTimeout()),
+            String.valueOf(NetvirtProvidersProvider.getSecurityGroupTcpFinHardTimeout())
         };
 
         String[][] flowMod = new String[8][];
@@ -168,8 +169,8 @@ public class EgressAclLearnServiceUtil {
      * (Table:EgressAclLearnService) EgressACL Learning
      * Match: reg6 = LearnConstants.NxmOfFieldType.NXM_NX_REG6
      * Action: learn and resubmit to next table
-     * "table=40,dl_src=fa:16:3e:d3:bb:8a,tcp,priority=61002,tcp_dst=22,actions=learn(table=39,idle_timeout=18000,fin_idle_timeout=60,
-     * fin_hard_timeout=60,priority=61010, cookie=0x6900000,eth_type=0x800,nw_proto=6, NXM_OF_IP_SRC[]=NXM_OF_IP_DST[],NXM_OF_IP_DST[]=NXM_OF_IP_SRC[],
+     * "table=40,dl_src=fa:16:3e:d3:bb:8a,tcp,priority=61002,tcp_dst=22,actions=learn(table=39,idle_timeout=300,fin_idle_timeout=0,
+     * fin_hard_timeout=0,priority=61010, cookie=0x6900000,eth_type=0x800,nw_proto=6, NXM_OF_IP_SRC[]=NXM_OF_IP_DST[],NXM_OF_IP_DST[]=NXM_OF_IP_SRC[],
      * NXM_OF_UDP_SRC[]=NXM_OF_UDP_DST[],NXM_OF_UDP_DST[]=NXM_OF_UDP_SRC[],load:0x1->NXM_NX_REG6[0..7]),resubmit(,50)"
      */
     public static FlowBuilder programEgressAclLearnRuleForUdp(FlowBuilder flowBuilder, InstructionBuilder instructionBuilder,short learnTableId, short resubmitId) {
@@ -183,17 +184,17 @@ public class EgressAclLearnServiceUtil {
          * 0 1 2 3 learnFlowModType srcField dstField FlowModNumBits
          */
         /*String[] header = new String[] {
-                "18000", "300", "61010", "0", "0", "39", "60", "60"
+                "300", "0", "61010", "0", "0", "39", "0", "0"
         };*/
         String[] header = new String[] {
-         "60",
-         "60",
-         "61010",
-         "0",
-         "0",
-         String.valueOf(learnTableId),
-         "0",
-         "0"
+            String.valueOf(NetvirtProvidersProvider.getSecurityGroupUdpIdleTimeout()),
+            String.valueOf(NetvirtProvidersProvider.getSecurityGroupUdpHardTimeout()),
+            LearnConstants.LEARN_PRIORITY,
+            "0",
+            "0",
+            String.valueOf(learnTableId),
+            "0",
+            "0"
         };
 
         String[][] flowMod = new String[8][];
@@ -265,22 +266,22 @@ public class EgressAclLearnServiceUtil {
      * (Table:EgressAclLearnService) EgressACL Learning
      * Match: reg6 = LearnConstants.NxmOfFieldType.NXM_NX_REG6
      * Action: learn and resubmit to next table
-     * "table=40,dl_src=fa:16:3e:d3:bb:8a,tcp,priority=61002,tcp_dst=22,actions=learn(table=39,idle_timeout=18000,fin_idle_timeout=60,
-     * fin_hard_timeout=60,priority=61010, cookie=0x6900000,eth_type=0x800,nw_proto=6, NXM_OF_IP_SRC[]=NXM_OF_IP_DST[],NXM_OF_IP_DST[]=NXM_OF_IP_SRC[],
+     * "table=40,dl_src=fa:16:3e:d3:bb:8a,tcp,priority=61002,tcp_dst=22,actions=learn(table=39,idle_timeout=300,fin_idle_timeout=0,
+     * fin_hard_timeout=0,priority=61010, cookie=0x6900000,eth_type=0x800,nw_proto=6, NXM_OF_IP_SRC[]=NXM_OF_IP_DST[],NXM_OF_IP_DST[]=NXM_OF_IP_SRC[],
      * NXM_OF_UDP_SRC[]=NXM_OF_UDP_DST[],NXM_OF_UDP_DST[]=NXM_OF_UDP_SRC[],load:0x1->NXM_NX_REG6[0..7]),resubmit(,50)"
      */
     public static FlowBuilder programEgressAclLearnRuleForIcmp(FlowBuilder flowBuilder, InstructionBuilder instructionBuilder, String icmpType, String icmpCode,short learnTableId, short resubmitId) {
         List<Action> listAction = new ArrayList<>();
 
         String[] header = new String[] {
-         "3600",
-         "3600",
-         "61010",
-         "0",
-         "0",
-         String.valueOf(learnTableId),
-         "0",
-         "0"
+            String.valueOf(NetvirtProvidersProvider.getSecurityGroupDefaultIdleTimeout()),
+            String.valueOf(NetvirtProvidersProvider.getSecurityGroupDefaultHardTimeout()),
+            LearnConstants.LEARN_PRIORITY,
+            "0",
+            "0",
+            String.valueOf(learnTableId),
+            "0",
+            "0"
         };
 
         String[][] flowMod = new String[7][];
@@ -349,22 +350,22 @@ public class EgressAclLearnServiceUtil {
      * (Table:EgressAclLearnService) EgressACL Learning
      * Match: reg6 = LearnConstants.NxmOfFieldType.NXM_NX_REG6
      * Action: learn and resubmit to next table
-     * "table=40,dl_src=fa:16:3e:d3:bb:8a,priority=61003,icmp,dl_src=fa:16:3e:55:71:d1,actions=learn(table=39,idle_timeout=18000,fin_idle_timeout=60,
-     * fin_hard_timeout=60,priority=61010, cookie=0x6900000,eth_type=0x800,nw_proto=6, NXM_OF_IP_SRC[]=NXM_OF_IP_DST[],NXM_OF_IP_DST[]=NXM_OF_IP_SRC[],
+     * "table=40,dl_src=fa:16:3e:d3:bb:8a,priority=61003,icmp,dl_src=fa:16:3e:55:71:d1,actions=learn(table=39,idle_timeout=300,fin_idle_timeout=0,
+     * fin_hard_timeout=0,priority=61010, cookie=0x6900000,eth_type=0x800,nw_proto=6, NXM_OF_IP_SRC[]=NXM_OF_IP_DST[],NXM_OF_IP_DST[]=NXM_OF_IP_SRC[],
      * NXM_OF_ICMP_TYPE=NXM_OF_ICMP_TYPE,NXM_OF_ICMP_CODE=NXM_OF_ICMP_CODE,load:0x1->NXM_NX_REG6[0..7]),resubmit(,50)"
      */
     public static FlowBuilder programEgressAclLearnRuleForIcmpAll(FlowBuilder flowBuilder, InstructionBuilder instructionBuilder, short learnTableId, short resubmitId) {
         List<Action> listAction = new ArrayList<>();
 
         String[] header = new String[] {
-         "3600",
-         "3600",
-         "61010",
-         "0",
-         "0",
-         String.valueOf(learnTableId),
-         "0",
-         "0"
+            String.valueOf(NetvirtProvidersProvider.getSecurityGroupDefaultIdleTimeout()),
+            String.valueOf(NetvirtProvidersProvider.getSecurityGroupDefaultHardTimeout()),
+            LearnConstants.LEARN_PRIORITY,
+            "0",
+            "0",
+            String.valueOf(learnTableId),
+            "0",
+            "0"
         };
 
         String[][] flowMod = new String[7][];
