@@ -106,6 +106,30 @@ public class NetvirtProvidersConfigImpl implements AutoCloseable, ConfigInterfac
         if (netvirtProvidersConfig.getTableOffset() != null) {
             NetvirtProvidersProvider.setTableOffset(netvirtProvidersConfig.getTableOffset());
         }
+        if (netvirtProvidersConfig.getSecurityGroupTcpIdleTimeout() != null) {
+            NetvirtProvidersProvider.setSecurityGroupTcpIdleTimeout(netvirtProvidersConfig.getSecurityGroupTcpIdleTimeout());
+        }
+        if (netvirtProvidersConfig.getSecurityGroupTcpHardTimeout() != null) {
+            NetvirtProvidersProvider.setSecurityGroupTcpHardTimeout(netvirtProvidersConfig.getSecurityGroupTcpHardTimeout());
+        }
+        if (netvirtProvidersConfig.getSecurityGroupTcpFinIdleTimeout() != null) {
+            NetvirtProvidersProvider.setSecurityGroupTcpFinIdleTimeout(netvirtProvidersConfig.getSecurityGroupTcpFinIdleTimeout());
+        }
+        if (netvirtProvidersConfig.getSecurityGroupTcpFinHardTimeout() != null) {
+            NetvirtProvidersProvider.setSecurityGroupTcpFinHardTimeout(netvirtProvidersConfig.getSecurityGroupTcpFinHardTimeout());
+        }
+        if (netvirtProvidersConfig.getSecurityGroupUdpIdleTimeout() != null) {
+            NetvirtProvidersProvider.setSecurityGroupUdpIdleTimeout(netvirtProvidersConfig.getSecurityGroupUdpIdleTimeout());
+        }
+        if (netvirtProvidersConfig.getSecurityGroupUdpHardTimeout() != null) {
+            NetvirtProvidersProvider.setSecurityGroupUdpHardTimeout(netvirtProvidersConfig.getSecurityGroupUdpHardTimeout());
+        }
+        if (netvirtProvidersConfig.getSecurityGroupDefaultIdleTimeout() != null) {
+            NetvirtProvidersProvider.setSecurityGroupDefaultIdleTimeout(netvirtProvidersConfig.getSecurityGroupDefaultIdleTimeout());
+        }
+        if (netvirtProvidersConfig.getSecurityGroupDefaultHardTimeout() != null) {
+            NetvirtProvidersProvider.setSecurityGroupDefaultHardTimeout(netvirtProvidersConfig.getSecurityGroupDefaultHardTimeout());
+        }
     }
 
     @Override

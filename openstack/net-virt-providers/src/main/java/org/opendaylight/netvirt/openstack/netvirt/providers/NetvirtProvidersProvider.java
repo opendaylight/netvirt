@@ -44,6 +44,14 @@ public class NetvirtProvidersProvider implements AutoCloseable {
     private final NotificationProviderService notificationProviderService;
     private final PacketProcessingService packetProcessingService;
     private final SalFlowService salFlowService;
+    private static long securityGroupTcpIdleTimeout;
+    private static long securityGroupTcpHardTimeout;
+    private static long securityGroupTcpFinIdleTimeout;
+    private static long securityGroupTcpFinHardTimeout;
+    private static long securityGroupUdpIdleTimeout;
+    private static long securityGroupUdpHardTimeout;
+    private static long securityGroupDefaultIdleTimeout;
+    private static long securityGroupDefaultHardTimeout;
 
     public NetvirtProvidersProvider(final DataBroker dataBroker,
                                     final EntityOwnershipService eos,
@@ -80,6 +88,86 @@ public class NetvirtProvidersProvider implements AutoCloseable {
 
     public static short getTableOffset() {
         return tableOffset;
+    }
+
+    public static void setSecurityGroupTcpIdleTimeout(long timeout) {
+        LOG.info("setSecurityGroupTcpIdleTimeout: changing from {} to {}",
+                NetvirtProvidersProvider.securityGroupTcpIdleTimeout, timeout);
+        NetvirtProvidersProvider.securityGroupTcpIdleTimeout = timeout;
+    }
+
+    public static long getSecurityGroupTcpIdleTimeout() {
+        return securityGroupTcpIdleTimeout;
+    }
+
+    public static void setSecurityGroupTcpHardTimeout(long timeout) {
+        LOG.info("setSecurityGroupTcpHardTimeout: changing from {} to {}",
+                NetvirtProvidersProvider.securityGroupTcpHardTimeout, timeout);
+        NetvirtProvidersProvider.securityGroupTcpHardTimeout = timeout;
+    }
+
+    public static long getSecurityGroupTcpHardTimeout() {
+        return securityGroupTcpHardTimeout;
+    }
+
+    public static void setSecurityGroupTcpFinIdleTimeout(long timeout) {
+        LOG.info("setSecurityGroupTcpFinIdleTimeout: changing from {} to {}",
+                NetvirtProvidersProvider.securityGroupTcpFinIdleTimeout, timeout);
+        NetvirtProvidersProvider.securityGroupTcpFinIdleTimeout = timeout;
+    }
+
+    public static long getSecurityGroupTcpFinIdleTimeout() {
+        return securityGroupTcpFinIdleTimeout;
+    }
+
+    public static void setSecurityGroupTcpFinHardTimeout(long timeout) {
+        LOG.info("setSecurityGroupTcpFinHardTimeout: changing from {} to {}",
+                NetvirtProvidersProvider.securityGroupTcpFinHardTimeout, timeout);
+        NetvirtProvidersProvider.securityGroupTcpFinHardTimeout = timeout;
+    }
+
+    public static long getSecurityGroupTcpFinHardTimeout() {
+        return securityGroupTcpFinHardTimeout;
+    }
+
+    public static void setSecurityGroupUdpIdleTimeout(long timeout) {
+        LOG.info("setSecurityGroupUdpIdleTimeout: changing from {} to {}",
+                NetvirtProvidersProvider.securityGroupUdpIdleTimeout, timeout);
+        NetvirtProvidersProvider.securityGroupUdpIdleTimeout = timeout;
+    }
+
+    public static long getSecurityGroupUdpIdleTimeout() {
+        return securityGroupUdpIdleTimeout;
+    }
+
+    public static void setSecurityGroupUdpHardTimeout(long timeout) {
+        LOG.info("setSecurityGroupUdpHardTimeout: changing from {} to {}",
+                NetvirtProvidersProvider.securityGroupUdpHardTimeout, timeout);
+        NetvirtProvidersProvider.securityGroupUdpHardTimeout = timeout;
+    }
+
+    public static long getSecurityGroupUdpHardTimeout() {
+        return securityGroupUdpHardTimeout;
+    }
+
+    public static void setSecurityGroupDefaultIdleTimeout(long timeout) {
+        LOG.info("setSecurityGroupDefaultIdleTimeout: changing from {} to {}",
+                NetvirtProvidersProvider.securityGroupDefaultIdleTimeout, timeout);
+        NetvirtProvidersProvider.securityGroupDefaultIdleTimeout = timeout;
+    }
+
+    public static long getSecurityGroupDefaultIdleTimeout() {
+        return securityGroupDefaultIdleTimeout;
+    }
+
+    public static void setSecurityGroupDefaultHardTimeout(long timeout) {
+        LOG.info("setSecurityGroupDefaultHardTimeout: changing from {} to {}",
+                NetvirtProvidersProvider.securityGroupDefaultHardTimeout, timeout);
+        NetvirtProvidersProvider.securityGroupDefaultHardTimeout = timeout;
+    }
+
+    public static long getSecurityGroupDefaultHardTimeout() {
+        return securityGroupDefaultHardTimeout;
     }
 
     @Override
