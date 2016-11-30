@@ -37,6 +37,24 @@
     },
     {
       "key": {
+        "uuid": "1a622d24_dc711c79",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/StatefulIngressAclServiceImpl.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 90,
+      "author": {
+        "id": 5867
+      },
+      "writtenOn": "2016-11-30T11:05:31Z",
+      "side": 1,
+      "message": "Aswin, yes my plan is to enforce this, but that\u0027s for later.. ;-)\n\nStephen, I\u0027m proposing to use Java 8 Optional with the functional APIs - how do you like how this looks in the new patch set?",
+      "parentUuid": "5a682502_fb9227f5",
+      "revId": "24df16582e3eddddb86585027c660edb705c150a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "5a682502_db8f6bcb",
         "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/listeners/AclInterfaceStateListener.java",
         "patchSetId": 1
@@ -48,6 +66,24 @@
       "writtenOn": "2016-10-24T08:10:32Z",
       "side": 1,
       "message": "Don\u0027t we need an .isPresent() check first?",
+      "revId": "24df16582e3eddddb86585027c660edb705c150a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_92414d0e",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/listeners/AclInterfaceStateListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 127,
+      "author": {
+        "id": 5867
+      },
+      "writtenOn": "2016-11-30T11:05:31Z",
+      "side": 1,
+      "message": "Aswin, could you confirm that functionally this is the right thing to do? Like is it even valid for an Interface state to not have a dpId, and skip the setDpId, but do the rest, as if everything was OK - like that can actually happen, and should behave like that?  Because if not, then we\u0027re just having fun with Optional here, but actually really should not return Optional but throw an Exception... just thought I would ask.\n\nStephen, OK, yes of course, we should.. how do like it functional Gangnam style, as proposed in new patch set?",
+      "parentUuid": "5a682502_db8f6bcb",
       "revId": "24df16582e3eddddb86585027c660edb705c150a",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -71,6 +107,24 @@
     },
     {
       "key": {
+        "uuid": "1a622d24_b247291d",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/utils/AclServiceOFFlowBuilder.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 47,
+      "author": {
+        "id": 5867
+      },
+      "writtenOn": "2016-11-30T11:05:31Z",
+      "side": 1,
+      "message": "NOK, not my fault, ignoring existing bad code, can\u0027t fix the world in one Gerrit... ;-)",
+      "parentUuid": "5a682502_1bc1e3e4",
+      "revId": "24df16582e3eddddb86585027c660edb705c150a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "5a682502_7bb6178c",
         "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/utils/AclServiceUtils.java",
         "patchSetId": 1
@@ -82,6 +136,24 @@
       "writtenOn": "2016-10-24T08:10:32Z",
       "side": 1,
       "message": "Why not Optional here?",
+      "revId": "24df16582e3eddddb86585027c660edb705c150a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_12553dc6",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/utils/AclServiceUtils.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 622,
+      "author": {
+        "id": 5867
+      },
+      "writtenOn": "2016-11-30T11:05:31Z",
+      "side": 1,
+      "message": "OK, done",
+      "parentUuid": "5a682502_7bb6178c",
       "revId": "24df16582e3eddddb86585027c660edb705c150a",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
