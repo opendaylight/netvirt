@@ -51,6 +51,24 @@
       "revId": "358129dfd1d22257de8132e53734b9fdd484b4a5",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_b0572102",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 1356,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-11-30T16:33:30Z",
+      "side": 1,
+      "message": "We should have used a Set then (though I meant list)...\n\nBut this can become part of the review that removes nextHopList from Adjacency.",
+      "parentUuid": "1a622d24_9244ad75",
+      "revId": "358129dfd1d22257de8132e53734b9fdd484b4a5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
