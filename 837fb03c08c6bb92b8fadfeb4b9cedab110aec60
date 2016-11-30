@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "1a622d24_f2ed21f1",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/AbstractEgressAclServiceImpl.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 142,
+      "author": {
+        "id": 5867
+      },
+      "writtenOn": "2016-11-30T11:05:31Z",
+      "side": 1,
+      "message": "OK, done something like (incl. using my elseDo() approach).  FYI I\u0027ve tried to do this one full functional style, more for my own learning, and came up with below, which doens\u0027t work because you can\u0027t get to the outer acl for getAclName() form the inner ace - do you know of any trick for how this could be done? More our of curiosity than becaues we should do it here (as I anway fear this may be loosing some people in understanding functional style):\n\nAclServiceUtils.getAcl(dataBroker, sgUuid.getValue())\n  .transform(acl -\u003e acl.getAccessListEntries().getAce())\n  .or(Collections.emptyList())\n  .forEach(ace -\u003e {\n      programAceRule(dpId, lportTag, addOrRemove, \n         acl.getAclName(), ace, portId, null);\n  });",
+      "parentUuid": "1a622d24_1ff2669a",
+      "revId": "837fb03c08c6bb92b8fadfeb4b9cedab110aec60",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_5f2b3eeb",
         "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/AbstractIngressAclServiceImpl.java",
         "patchSetId": 2
@@ -36,6 +54,24 @@
     },
     {
       "key": {
+        "uuid": "1a622d24_b2ca896c",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/AbstractIngressAclServiceImpl.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 154,
+      "author": {
+        "id": 5867
+      },
+      "writtenOn": "2016-11-30T11:05:31Z",
+      "side": 1,
+      "message": "OK, done as previously.",
+      "parentUuid": "1a622d24_5f2b3eeb",
+      "revId": "837fb03c08c6bb92b8fadfeb4b9cedab110aec60",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_5f633e1a",
         "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/infra/Optionals.java",
         "patchSetId": 2
@@ -47,6 +83,24 @@
       "writtenOn": "2016-11-30T09:53:39Z",
       "side": 1,
       "message": "You can use Supplier instead.",
+      "revId": "837fb03c08c6bb92b8fadfeb4b9cedab110aec60",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_f2c40161",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/infra/Optionals.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 47,
+      "author": {
+        "id": 5867
+      },
+      "writtenOn": "2016-11-30T11:05:31Z",
+      "side": 1,
+      "message": "NOK, a java.util.function.Supplier gets a result, whereas a Procedure applies a block of code (without returning a result)",
+      "parentUuid": "1a622d24_5f633e1a",
       "revId": "837fb03c08c6bb92b8fadfeb4b9cedab110aec60",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
