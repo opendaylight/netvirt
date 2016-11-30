@@ -33,6 +33,24 @@
       "revId": "358129dfd1d22257de8132e53734b9fdd484b4a5",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_9244ad75",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 1356,
+      "author": {
+        "id": 6154
+      },
+      "writtenOn": "2016-11-30T13:35:58Z",
+      "side": 1,
+      "message": "If we dont use hashmap , we will end up creating multile Adjacency entries for the same \"destination\" and a different nexthop.",
+      "parentUuid": "1a622d24_f24a41ab",
+      "revId": "358129dfd1d22257de8132e53734b9fdd484b4a5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
