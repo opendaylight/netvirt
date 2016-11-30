@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1a622d24_f094f945",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 29
+      },
+      "lineNbr": 846,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-11-30T17:35:59Z",
+      "side": 1,
+      "message": "Better to add  validation that the read VNI is non-zero.",
+      "revId": "e9dc03c1d76df101cd1b460b30e614dca7ad6b9a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_7088e922",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 29
+      },
+      "lineNbr": 2091,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-11-30T17:35:59Z",
+      "side": 1,
+      "message": "is there a need to give full class path here?",
+      "revId": "e9dc03c1d76df101cd1b460b30e614dca7ad6b9a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_d09f3d4f",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnUtils.java",
+        "patchSetId": 29
+      },
+      "lineNbr": 1136,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-11-30T17:35:59Z",
+      "side": 1,
+      "message": "Please uncheckout this file",
+      "revId": "e9dc03c1d76df101cd1b460b30e614dca7ad6b9a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
