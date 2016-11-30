@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1a622d24_d56c4f39",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/ArpNotificationHandler.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 424,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-11-30T15:11:26Z",
+      "side": 1,
+      "message": "Is there a way to clear the migrateArpReqCache just in case a overrun happened and learning remains stuck up ?",
+      "revId": "ed90eb05d09b4b2c3b9979066b95e384cf27922b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_357e63e5",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/ArpNotificationHandler.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 425,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-11-30T15:11:26Z",
+      "side": 1,
+      "message": "can add \"when trying to add ipToQuery vpnName with MAC \"",
+      "revId": "ed90eb05d09b4b2c3b9979066b95e384cf27922b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
