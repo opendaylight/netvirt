@@ -1,0 +1,72 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1a622d24_70ff4902",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/listeners/AclInterfaceListener.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 93,
+      "author": {
+        "id": 4540
+      },
+      "writtenOn": "2016-11-30T16:19:42Z",
+      "side": 1,
+      "message": "This is exactly what we wanted to avoid — having to deal with both types of Optional is rather frustrating!",
+      "revId": "e561a8a092874739e7f5d933c853f1bcf95170ba",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_b009e12e",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/listeners/AclInterfaceStateListener.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 125,
+      "author": {
+        "id": 4540
+      },
+      "writtenOn": "2016-11-30T16:19:42Z",
+      "side": 1,
+      "message": "This doesn\u0027t clear dpId if none is present.",
+      "revId": "e561a8a092874739e7f5d933c853f1bcf95170ba",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_900e6533",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/utils/AclServiceOFFlowBuilder.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 45,
+      "author": {
+        "id": 4540
+      },
+      "writtenOn": "2016-11-30T16:19:42Z",
+      "side": 1,
+      "message": "Do all existing callers honour the \"matches !\u003d null\" assumption?",
+      "revId": "e561a8a092874739e7f5d933c853f1bcf95170ba",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_f0123957",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/utils/AclServiceUtils.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 118,
+      "author": {
+        "id": 4540
+      },
+      "writtenOn": "2016-11-30T16:19:42Z",
+      "side": 1,
+      "message": "This is an API change compared to Boron.",
+      "revId": "e561a8a092874739e7f5d933c853f1bcf95170ba",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
