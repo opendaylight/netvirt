@@ -29,6 +29,9 @@ public class ConfigureBgpCli extends OsgiCommandSupport {
 
     private static BgpManager bgpManager;
 
+    private static final long AS_MIN=0;
+    private static final long AS_MAX=4294967295L;//2^32-1
+
     public static void setBgpManager(BgpManager mgr) {
         bgpManager = mgr;
     }
@@ -221,24 +224,7 @@ public class ConfigureBgpCli extends OsgiCommandSupport {
             System.out.println("bgp is already started please use stop-bgp-server and start again");
             return;
         }
-        try {
-            long asno = Long.valueOf(asNumber);
-            switch((int)asno) {
-            case 0:
-            case 65535:
-            case 23456:
-                System.out.println("reserved as number supplied ");
-                printStartBgpHelp();
-                return;
-            }
-            if (asno <= 0 || asno > Integer.MAX_VALUE) {
-                System.out.println("invalid as number , supported range [1,"+Integer.MAX_VALUE+"]");
-                printStartBgpHelp();
-                return;
-            }
-        } catch (Exception e) {
-            System.out.println("invalid as number ");
-            printStartBgpHelp();
+        if(!validateAsNumber(asNumber)) {
             return;
         }
         validRouterId = validateIp(routerId);
@@ -259,26 +245,10 @@ public class ConfigureBgpCli extends OsgiCommandSupport {
     }
 
     protected void addNeighbor() throws Exception {
-        try {
-            long asno = Long.valueOf(asNumber);
-            switch((int)asno) {
-            case 0:
-            case 65535:
-            case 23456:
-                System.out.println("reserved as number supplied ");
-                printStartBgpHelp();
-                return;
-            }
-            if (asno <= 0 || asno > Integer.MAX_VALUE) {
-                System.out.println("invalid as number , supported range [1,"+Integer.MAX_VALUE+"]");
-                printAddNeighborHelp();
-                return;
-            }
-        } catch (Exception e) {
-            System.out.println("invalid as number");
-            printAddNeighborHelp();
+        if(!validateAsNumber(asNumber)) {
             return;
         }
+
         boolean validIp = validateIp(ip);
         if (!validIp) {
             System.out.println("invalid neighbor ip");
@@ -384,5 +354,30 @@ public class ConfigureBgpCli extends OsgiCommandSupport {
             return;
         }
         bgpManager.setQbgpLog(logFile, logLevel);
+    }
+
+    private boolean validateAsNumber(String strAsnum){
+
+        try {
+            long asNum = Long.valueOf(strAsnum);
+            switch((int)asNum) {
+                case 0:
+                case 65535:
+                case 23456:
+                    System.out.println("reserved AS Number supplied ");
+                    printStartBgpHelp();
+                    return false;
+            }
+            if (asNum <= AS_MIN || asNum > AS_MAX) {
+                System.out.println("invalid AS Number , supported range [1,"+AS_MAX+"]");
+                printStartBgpHelp();
+                return false;
+            }
+        } catch (Exception e) {
+            System.out.println("invalid AS Number ");
+            printStartBgpHelp();
+            return false;
+        }
+        return true;
     }
 }

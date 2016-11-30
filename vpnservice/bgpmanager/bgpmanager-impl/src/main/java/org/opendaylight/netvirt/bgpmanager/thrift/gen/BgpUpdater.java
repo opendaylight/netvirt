@@ -17,7 +17,7 @@ import org.apache.thrift.protocol.TProtocolException;
 import org.apache.thrift.EncodingUtils;
 import org.apache.thrift.TException;
 import org.apache.thrift.async.AsyncMethodCallback;
-import org.apache.thrift.server.AbstractNonblockingServer.AsyncFrameBuffer;
+import org.apache.thrift.server.AbstractNonblockingServer.*;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Map;
@@ -30,8 +30,6 @@ import java.util.Collections;
 import java.util.BitSet;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
-
-import org.apache.thrift.server.AbstractNonblockingServer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -41,7 +39,7 @@ public class BgpUpdater {
 
     public void onUpdatePushRoute(String rd, String prefix, int prefixlen, String nexthop, int label) throws org.apache.thrift.TException;
 
-    public void onUpdateWithdrawRoute(String rd, String prefix, int prefixlen) throws org.apache.thrift.TException;
+    public void onUpdateWithdrawRoute(String rd, String prefix, int prefixlen, String nexthop) throws org.apache.thrift.TException;
 
     public void onStartConfigResyncNotification() throws org.apache.thrift.TException;
 
@@ -53,7 +51,7 @@ public class BgpUpdater {
 
     public void onUpdatePushRoute(String rd, String prefix, int prefixlen, String nexthop, int label, org.apache.thrift.async.AsyncMethodCallback resultHandler) throws org.apache.thrift.TException;
 
-    public void onUpdateWithdrawRoute(String rd, String prefix, int prefixlen, org.apache.thrift.async.AsyncMethodCallback resultHandler) throws org.apache.thrift.TException;
+    public void onUpdateWithdrawRoute(String rd, String prefix, int prefixlen, String nexthop, org.apache.thrift.async.AsyncMethodCallback resultHandler) throws org.apache.thrift.TException;
 
     public void onStartConfigResyncNotification(org.apache.thrift.async.AsyncMethodCallback resultHandler) throws org.apache.thrift.TException;
 
@@ -97,17 +95,18 @@ public class BgpUpdater {
       sendBase("onUpdatePushRoute", args);
     }
 
-    public void onUpdateWithdrawRoute(String rd, String prefix, int prefixlen) throws org.apache.thrift.TException
+    public void onUpdateWithdrawRoute(String rd, String prefix, int prefixlen, String nexthop) throws org.apache.thrift.TException
     {
-      send_onUpdateWithdrawRoute(rd, prefix, prefixlen);
+      send_onUpdateWithdrawRoute(rd, prefix, prefixlen, nexthop);
     }
 
-    public void send_onUpdateWithdrawRoute(String rd, String prefix, int prefixlen) throws org.apache.thrift.TException
+    public void send_onUpdateWithdrawRoute(String rd, String prefix, int prefixlen, String nexthop) throws org.apache.thrift.TException
     {
       onUpdateWithdrawRoute_args args = new onUpdateWithdrawRoute_args();
       args.setRd(rd);
       args.setPrefix(prefix);
       args.setPrefixlen(prefixlen);
+      args.setNexthop(nexthop);
       sendBase("onUpdateWithdrawRoute", args);
     }
 
@@ -197,9 +196,9 @@ public class BgpUpdater {
       }
     }
 
-    public void onUpdateWithdrawRoute(String rd, String prefix, int prefixlen, org.apache.thrift.async.AsyncMethodCallback resultHandler) throws org.apache.thrift.TException {
+    public void onUpdateWithdrawRoute(String rd, String prefix, int prefixlen, String nexthop, org.apache.thrift.async.AsyncMethodCallback resultHandler) throws org.apache.thrift.TException {
       checkReady();
-      onUpdateWithdrawRoute_call method_call = new onUpdateWithdrawRoute_call(rd, prefix, prefixlen, resultHandler, this, ___protocolFactory, ___transport);
+      onUpdateWithdrawRoute_call method_call = new onUpdateWithdrawRoute_call(rd, prefix, prefixlen, nexthop, resultHandler, this, ___protocolFactory, ___transport);
       this.___currentMethod = method_call;
       ___manager.call(method_call);
     }
@@ -208,11 +207,13 @@ public class BgpUpdater {
       private String rd;
       private String prefix;
       private int prefixlen;
-      public onUpdateWithdrawRoute_call(String rd, String prefix, int prefixlen, org.apache.thrift.async.AsyncMethodCallback resultHandler, org.apache.thrift.async.TAsyncClient client, org.apache.thrift.protocol.TProtocolFactory protocolFactory, org.apache.thrift.transport.TNonblockingTransport transport) throws org.apache.thrift.TException {
+      private String nexthop;
+      public onUpdateWithdrawRoute_call(String rd, String prefix, int prefixlen, String nexthop, org.apache.thrift.async.AsyncMethodCallback resultHandler, org.apache.thrift.async.TAsyncClient client, org.apache.thrift.protocol.TProtocolFactory protocolFactory, org.apache.thrift.transport.TNonblockingTransport transport) throws org.apache.thrift.TException {
         super(client, protocolFactory, transport, resultHandler, true);
         this.rd = rd;
         this.prefix = prefix;
         this.prefixlen = prefixlen;
+        this.nexthop = nexthop;
       }
 
       public void write_args(org.apache.thrift.protocol.TProtocol prot) throws org.apache.thrift.TException {
@@ -221,6 +222,7 @@ public class BgpUpdater {
         args.setRd(rd);
         args.setPrefix(prefix);
         args.setPrefixlen(prefixlen);
+        args.setNexthop(nexthop);
         args.write(prot);
         prot.writeMessageEnd();
       }
@@ -352,7 +354,7 @@ public class BgpUpdater {
       }
 
       public org.apache.thrift.TBase getResult(I iface, onUpdateWithdrawRoute_args args) throws org.apache.thrift.TException {
-        iface.onUpdateWithdrawRoute(args.rd, args.prefix, args.prefixlen);
+        iface.onUpdateWithdrawRoute(args.rd, args.prefix, args.prefixlen, args.nexthop);
         return null;
       }
     }
@@ -426,7 +428,7 @@ public class BgpUpdater {
 
       public AsyncMethodCallback<Void> getResultHandler(final AsyncFrameBuffer fb, final int seqid) {
         final org.apache.thrift.AsyncProcessFunction fcall = this;
-        return new AsyncMethodCallback<Void>() { 
+        return new AsyncMethodCallback<Void>() {
           public void onComplete(Void o) {
           }
           public void onError(Exception e) {
@@ -454,7 +456,7 @@ public class BgpUpdater {
 
       public AsyncMethodCallback<Void> getResultHandler(final AsyncFrameBuffer fb, final int seqid) {
         final org.apache.thrift.AsyncProcessFunction fcall = this;
-        return new AsyncMethodCallback<Void>() { 
+        return new AsyncMethodCallback<Void>() {
           public void onComplete(Void o) {
           }
           public void onError(Exception e) {
@@ -467,7 +469,7 @@ public class BgpUpdater {
       }
 
       public void start(I iface, onUpdateWithdrawRoute_args args, org.apache.thrift.async.AsyncMethodCallback<Void> resultHandler) throws TException {
-        iface.onUpdateWithdrawRoute(args.rd, args.prefix, args.prefixlen,resultHandler);
+        iface.onUpdateWithdrawRoute(args.rd, args.prefix, args.prefixlen, args.nexthop,resultHandler);
       }
     }
 
@@ -482,7 +484,7 @@ public class BgpUpdater {
 
       public AsyncMethodCallback<Void> getResultHandler(final AsyncFrameBuffer fb, final int seqid) {
         final org.apache.thrift.AsyncProcessFunction fcall = this;
-        return new AsyncMethodCallback<Void>() { 
+        return new AsyncMethodCallback<Void>() {
           public void onComplete(Void o) {
           }
           public void onError(Exception e) {
@@ -510,7 +512,7 @@ public class BgpUpdater {
 
       public AsyncMethodCallback<Void> getResultHandler(final AsyncFrameBuffer fb, final int seqid) {
         final org.apache.thrift.AsyncProcessFunction fcall = this;
-        return new AsyncMethodCallback<Void>() { 
+        return new AsyncMethodCallback<Void>() {
           public void onComplete(Void o) {
           }
           public void onError(Exception e) {
@@ -627,16 +629,16 @@ public class BgpUpdater {
     public static final Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> metaDataMap;
     static {
       Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<_Fields, org.apache.thrift.meta_data.FieldMetaData>(_Fields.class);
-      tmpMap.put(_Fields.RD, new org.apache.thrift.meta_data.FieldMetaData("rd", org.apache.thrift.TFieldRequirementType.DEFAULT, 
-          new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING)));
-      tmpMap.put(_Fields.PREFIX, new org.apache.thrift.meta_data.FieldMetaData("prefix", org.apache.thrift.TFieldRequirementType.DEFAULT, 
-          new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING)));
-      tmpMap.put(_Fields.PREFIXLEN, new org.apache.thrift.meta_data.FieldMetaData("prefixlen", org.apache.thrift.TFieldRequirementType.DEFAULT, 
-          new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I32)));
-      tmpMap.put(_Fields.NEXTHOP, new org.apache.thrift.meta_data.FieldMetaData("nexthop", org.apache.thrift.TFieldRequirementType.DEFAULT, 
-          new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING)));
-      tmpMap.put(_Fields.LABEL, new org.apache.thrift.meta_data.FieldMetaData("label", org.apache.thrift.TFieldRequirementType.DEFAULT, 
-          new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I32)));
+      tmpMap.put(_Fields.RD, new org.apache.thrift.meta_data.FieldMetaData("rd", org.apache.thrift.TFieldRequirementType.DEFAULT,
+              new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING)));
+      tmpMap.put(_Fields.PREFIX, new org.apache.thrift.meta_data.FieldMetaData("prefix", org.apache.thrift.TFieldRequirementType.DEFAULT,
+              new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING)));
+      tmpMap.put(_Fields.PREFIXLEN, new org.apache.thrift.meta_data.FieldMetaData("prefixlen", org.apache.thrift.TFieldRequirementType.DEFAULT,
+              new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I32)));
+      tmpMap.put(_Fields.NEXTHOP, new org.apache.thrift.meta_data.FieldMetaData("nexthop", org.apache.thrift.TFieldRequirementType.DEFAULT,
+              new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING)));
+      tmpMap.put(_Fields.LABEL, new org.apache.thrift.meta_data.FieldMetaData("label", org.apache.thrift.TFieldRequirementType.DEFAULT,
+              new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I32)));
       metaDataMap = Collections.unmodifiableMap(tmpMap);
       org.apache.thrift.meta_data.FieldMetaData.addStructMetaDataMap(onUpdatePushRoute_args.class, metaDataMap);
     }
@@ -645,11 +647,11 @@ public class BgpUpdater {
     }
 
     public onUpdatePushRoute_args(
-      String rd,
-      String prefix,
-      int prefixlen,
-      String nexthop,
-      int label)
+            String rd,
+            String prefix,
+            int prefixlen,
+            String nexthop,
+            int label)
     {
       this();
       this.rd = rd;
@@ -814,65 +816,65 @@ public class BgpUpdater {
 
     public void setFieldValue(_Fields field, Object value) {
       switch (field) {
-      case RD:
-        if (value == null) {
-          unsetRd();
-        } else {
-          setRd((String)value);
-        }
-        break;
+        case RD:
+          if (value == null) {
+            unsetRd();
+          } else {
+            setRd((String)value);
+          }
+          break;
 
-      case PREFIX:
-        if (value == null) {
-          unsetPrefix();
-        } else {
-          setPrefix((String)value);
-        }
-        break;
+        case PREFIX:
+          if (value == null) {
+            unsetPrefix();
+          } else {
+            setPrefix((String)value);
+          }
+          break;
 
-      case PREFIXLEN:
-        if (value == null) {
-          unsetPrefixlen();
-        } else {
-          setPrefixlen((Integer)value);
-        }
-        break;
+        case PREFIXLEN:
+          if (value == null) {
+            unsetPrefixlen();
+          } else {
+            setPrefixlen((Integer)value);
+          }
+          break;
 
-      case NEXTHOP:
-        if (value == null) {
-          unsetNexthop();
-        } else {
-          setNexthop((String)value);
-        }
-        break;
+        case NEXTHOP:
+          if (value == null) {
+            unsetNexthop();
+          } else {
+            setNexthop((String)value);
+          }
+          break;
 
-      case LABEL:
-        if (value == null) {
-          unsetLabel();
-        } else {
-          setLabel((Integer)value);
-        }
-        break;
+        case LABEL:
+          if (value == null) {
+            unsetLabel();
+          } else {
+            setLabel((Integer)value);
+          }
+          break;
 
       }
     }
 
     public Object getFieldValue(_Fields field) {
       switch (field) {
-      case RD:
-        return getRd();
+        case RD:
+          return getRd();
 
-      case PREFIX:
-        return getPrefix();
+        case PREFIX:
+          return getPrefix();
 
-      case PREFIXLEN:
-        return Integer.valueOf(getPrefixlen());
+        case PREFIXLEN:
+          return Integer.valueOf(getPrefixlen());
 
-      case NEXTHOP:
-        return getNexthop();
+        case NEXTHOP:
+          return getNexthop();
 
-      case LABEL:
-        return Integer.valueOf(getLabel());
+        case LABEL:
+          return Integer.valueOf(getLabel());
 
       }
       throw new IllegalStateException();
@@ -885,16 +887,16 @@ public class BgpUpdater {
       }
 
       switch (field) {
-      case RD:
-        return isSetRd();
-      case PREFIX:
-        return isSetPrefix();
-      case PREFIXLEN:
-        return isSetPrefixlen();
-      case NEXTHOP:
-        return isSetNexthop();
-      case LABEL:
-        return isSetLabel();
+        case RD:
+          return isSetRd();
+        case PREFIX:
+          return isSetPrefix();
+        case PREFIXLEN:
+          return isSetPrefixlen();
+        case NEXTHOP:
+          return isSetNexthop();
+        case LABEL:
+          return isSetLabel();
       }
       throw new IllegalStateException();
     }
@@ -1115,7 +1117,7 @@ public class BgpUpdater {
         while (true)
         {
           schemeField = iprot.readFieldBegin();
-          if (schemeField.type == org.apache.thrift.protocol.TType.STOP) { 
+          if (schemeField.type == org.apache.thrift.protocol.TType.STOP) {
             break;
           }
           switch (schemeField.id) {
@@ -1123,7 +1125,7 @@ public class BgpUpdater {
               if (schemeField.type == org.apache.thrift.protocol.TType.STRING) {
                 struct.rd = iprot.readString();
                 struct.setRdIsSet(true);
-              } else { 
+              } else {
                 org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
               }
               break;
@@ -1131,7 +1133,7 @@ public class BgpUpdater {
               if (schemeField.type == org.apache.thrift.protocol.TType.STRING) {
                 struct.prefix = iprot.readString();
                 struct.setPrefixIsSet(true);
-              } else { 
+              } else {
                 org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
               }
               break;
@@ -1139,7 +1141,7 @@ public class BgpUpdater {
               if (schemeField.type == org.apache.thrift.protocol.TType.I32) {
                 struct.prefixlen = iprot.readI32();
                 struct.setPrefixlenIsSet(true);
-              } else { 
+              } else {
                 org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
               }
               break;
@@ -1147,7 +1149,7 @@ public class BgpUpdater {
               if (schemeField.type == org.apache.thrift.protocol.TType.STRING) {
                 struct.nexthop = iprot.readString();
                 struct.setNexthopIsSet(true);
-              } else { 
+              } else {
                 org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
               }
               break;
@@ -1155,7 +1157,7 @@ public class BgpUpdater {
               if (schemeField.type == org.apache.thrift.protocol.TType.I32) {
                 struct.label = iprot.readI32();
                 struct.setLabelIsSet(true);
-              } else { 
+              } else {
                 org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
               }
               break;
@@ -1281,6 +1283,7 @@ public class BgpUpdater {
     private static final org.apache.thrift.protocol.TField RD_FIELD_DESC = new org.apache.thrift.protocol.TField("rd", org.apache.thrift.protocol.TType.STRING, (short)1);
     private static final org.apache.thrift.protocol.TField PREFIX_FIELD_DESC = new org.apache.thrift.protocol.TField("prefix", org.apache.thrift.protocol.TType.STRING, (short)2);
     private static final org.apache.thrift.protocol.TField PREFIXLEN_FIELD_DESC = new org.apache.thrift.protocol.TField("prefixlen", org.apache.thrift.protocol.TType.I32, (short)3);
+    private static final org.apache.thrift.protocol.TField NEXTHOP_FIELD_DESC = new org.apache.thrift.protocol.TField("nexthop", org.apache.thrift.protocol.TType.STRING, (short)4);
 
     private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<Class<? extends IScheme>, SchemeFactory>();
     static {
@@ -1291,12 +1294,14 @@ public class BgpUpdater {
     public String rd; // required
     public String prefix; // required
     public int prefixlen; // required
+    public String nexthop; // required
 
     /** The set of fields this struct contains, along with convenience methods for finding and manipulating them. */
     public enum _Fields implements org.apache.thrift.TFieldIdEnum {
       RD((short)1, "rd"),
       PREFIX((short)2, "prefix"),
-      PREFIXLEN((short)3, "prefixlen");
+      PREFIXLEN((short)3, "prefixlen"),
+      NEXTHOP((short)4, "nexthop");
 
       private static final Map<String, _Fields> byName = new HashMap<String, _Fields>();
 
@@ -1317,6 +1322,8 @@ public class BgpUpdater {
             return PREFIX;
           case 3: // PREFIXLEN
             return PREFIXLEN;
+          case 4: // NEXTHOP
+            return NEXTHOP;
           default:
             return null;
         }
@@ -1362,12 +1369,14 @@ public class BgpUpdater {
     public static final Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> metaDataMap;
     static {
       Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<_Fields, org.apache.thrift.meta_data.FieldMetaData>(_Fields.class);
-      tmpMap.put(_Fields.RD, new org.apache.thrift.meta_data.FieldMetaData("rd", org.apache.thrift.TFieldRequirementType.DEFAULT, 
-          new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING)));
-      tmpMap.put(_Fields.PREFIX, new org.apache.thrift.meta_data.FieldMetaData("prefix", org.apache.thrift.TFieldRequirementType.DEFAULT, 
-          new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING)));
-      tmpMap.put(_Fields.PREFIXLEN, new org.apache.thrift.meta_data.FieldMetaData("prefixlen", org.apache.thrift.TFieldRequirementType.DEFAULT, 
-          new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I32)));
+      tmpMap.put(_Fields.RD, new org.apache.thrift.meta_data.FieldMetaData("rd", org.apache.thrift.TFieldRequirementType.DEFAULT,
+              new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING)));
+      tmpMap.put(_Fields.PREFIX, new org.apache.thrift.meta_data.FieldMetaData("prefix", org.apache.thrift.TFieldRequirementType.DEFAULT,
+              new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING)));
+      tmpMap.put(_Fields.PREFIXLEN, new org.apache.thrift.meta_data.FieldMetaData("prefixlen", org.apache.thrift.TFieldRequirementType.DEFAULT,
+              new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.I32)));
+      tmpMap.put(_Fields.NEXTHOP, new org.apache.thrift.meta_data.FieldMetaData("nexthop", org.apache.thrift.TFieldRequirementType.DEFAULT,
+              new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING)));
       metaDataMap = Collections.unmodifiableMap(tmpMap);
       org.apache.thrift.meta_data.FieldMetaData.addStructMetaDataMap(onUpdateWithdrawRoute_args.class, metaDataMap);
     }
@@ -1376,15 +1385,17 @@ public class BgpUpdater {
     }
 
     public onUpdateWithdrawRoute_args(
-      String rd,
-      String prefix,
-      int prefixlen)
+            String rd,
+            String prefix,
+            int prefixlen,
+            String nexthop)
     {
       this();
       this.rd = rd;
       this.prefix = prefix;
       this.prefixlen = prefixlen;
       setPrefixlenIsSet(true);
+      this.nexthop = nexthop;
     }
 
     /**
@@ -1399,6 +1410,9 @@ public class BgpUpdater {
         this.prefix = other.prefix;
       }
       this.prefixlen = other.prefixlen;
+      if (other.isSetNexthop()) {
+        this.nexthop = other.nexthop;
+      }
     }
 
     public onUpdateWithdrawRoute_args deepCopy() {
@@ -1411,6 +1425,7 @@ public class BgpUpdater {
       this.prefix = null;
       setPrefixlenIsSet(false);
       this.prefixlen = 0;
+      this.nexthop = null;
     }
 
     public String getRd() {
@@ -1484,45 +1499,80 @@ public class BgpUpdater {
       __isset_bitfield = EncodingUtils.setBit(__isset_bitfield, __PREFIXLEN_ISSET_ID, value);
     }
 
+    public String getNexthop() {
+      return this.nexthop;
+    }
+
+    public onUpdateWithdrawRoute_args setNexthop(String nexthop) {
+      this.nexthop = nexthop;
+      return this;
+    }
+
+    public void unsetNexthop() {
+      this.nexthop = null;
+    }
+
+    /** Returns true if field nexthop is set (has been assigned a value) and false otherwise */
+    public boolean isSetNexthop() {
+      return this.nexthop != null;
+    }
+
+    public void setNexthopIsSet(boolean value) {
+      if (!value) {
+        this.nexthop = null;
+      }
+    }
+
     public void setFieldValue(_Fields field, Object value) {
       switch (field) {
-      case RD:
-        if (value == null) {
-          unsetRd();
-        } else {
-          setRd((String)value);
-        }
-        break;
+        case RD:
+          if (value == null) {
+            unsetRd();
+          } else {
+            setRd((String)value);
+          }
+          break;
 
-      case PREFIX:
-        if (value == null) {
-          unsetPrefix();
-        } else {
-          setPrefix((String)value);
-        }
-        break;
+        case PREFIX:
+          if (value == null) {
+            unsetPrefix();
+          } else {
+            setPrefix((String)value);
+          }
+          break;
 
-      case PREFIXLEN:
-        if (value == null) {
-          unsetPrefixlen();
-        } else {
-          setPrefixlen((Integer)value);
-        }
-        break;
+        case PREFIXLEN:
+          if (value == null) {
+            unsetPrefixlen();
+          } else {
+            setPrefixlen((Integer)value);
+          }
+          break;
+
+        case NEXTHOP:
+          if (value == null) {
+            unsetNexthop();
+          } else {
+            setNexthop((String)value);
+          }
+          break;
 
       }
     }
 
     public Object getFieldValue(_Fields field) {
       switch (field) {
-      case RD:
-        return getRd();
+        case RD:
+          return getRd();
 
-      case PREFIX:
-        return getPrefix();
+        case PREFIX:
+          return getPrefix();
 
-      case PREFIXLEN:
-        return Integer.valueOf(getPrefixlen());
+        case PREFIXLEN:
+          return Integer.valueOf(getPrefixlen());
+
+        case NEXTHOP:
+          return getNexthop();
 
       }
       throw new IllegalStateException();
@@ -1535,12 +1585,14 @@ public class BgpUpdater {
       }
 
       switch (field) {
-      case RD:
-        return isSetRd();
-      case PREFIX:
-        return isSetPrefix();
-      case PREFIXLEN:
-        return isSetPrefixlen();
+        case RD:
+          return isSetRd();
+        case PREFIX:
+          return isSetPrefix();
+        case PREFIXLEN:
+          return isSetPrefixlen();
+        case NEXTHOP:
+          return isSetNexthop();
       }
       throw new IllegalStateException();
     }
@@ -1582,6 +1634,15 @@ public class BgpUpdater {
         if (!(this_present_prefixlen && that_present_prefixlen))
           return false;
         if (this.prefixlen != that.prefixlen)
+          return false;
+      }
+
+      boolean this_present_nexthop = true && this.isSetNexthop();
+      boolean that_present_nexthop = true && that.isSetNexthop();
+      if (this_present_nexthop || that_present_nexthop) {
+        if (!(this_present_nexthop && that_present_nexthop))
+          return false;
+        if (!this.nexthop.equals(that.nexthop))
           return false;
       }
 
@@ -1631,6 +1692,16 @@ public class BgpUpdater {
           return lastComparison;
         }
       }
+      lastComparison = Boolean.valueOf(isSetNexthop()).compareTo(other.isSetNexthop());
+      if (lastComparison != 0) {
+        return lastComparison;
+      }
+      if (isSetNexthop()) {
+        lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.nexthop, other.nexthop);
+        if (lastComparison != 0) {
+          return lastComparison;
+        }
+      }
       return 0;
     }
 
@@ -1669,6 +1740,14 @@ public class BgpUpdater {
       if (!first) sb.append(", ");
       sb.append("prefixlen:");
       sb.append(this.prefixlen);
+      first = false;
+      if (!first) sb.append(", ");
+      sb.append("nexthop:");
+      if (this.nexthop == null) {
+        sb.append("null");
+      } else {
+        sb.append(this.nexthop);
+      }
       first = false;
       sb.append(")");
       return sb.toString();
@@ -1711,7 +1790,7 @@ public class BgpUpdater {
         while (true)
         {
           schemeField = iprot.readFieldBegin();
-          if (schemeField.type == org.apache.thrift.protocol.TType.STOP) { 
+          if (schemeField.type == org.apache.thrift.protocol.TType.STOP) {
             break;
           }
           switch (schemeField.id) {
@@ -1719,7 +1798,7 @@ public class BgpUpdater {
               if (schemeField.type == org.apache.thrift.protocol.TType.STRING) {
                 struct.rd = iprot.readString();
                 struct.setRdIsSet(true);
-              } else { 
+              } else {
                 org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
               }
               break;
@@ -1727,7 +1806,7 @@ public class BgpUpdater {
               if (schemeField.type == org.apache.thrift.protocol.TType.STRING) {
                 struct.prefix = iprot.readString();
                 struct.setPrefixIsSet(true);
-              } else { 
+              } else {
                 org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
               }
               break;
@@ -1735,7 +1814,15 @@ public class BgpUpdater {
               if (schemeField.type == org.apache.thrift.protocol.TType.I32) {
                 struct.prefixlen = iprot.readI32();
                 struct.setPrefixlenIsSet(true);
-              } else { 
+              } else {
+                org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
+              }
+              break;
+            case 4: // NEXTHOP
+              if (schemeField.type == org.apache.thrift.protocol.TType.STRING) {
+                struct.nexthop = iprot.readString();
+                struct.setNexthopIsSet(true);
+              } else {
                 org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
               }
               break;
@@ -1767,6 +1854,11 @@ public class BgpUpdater {
         oprot.writeFieldBegin(PREFIXLEN_FIELD_DESC);
         oprot.writeI32(struct.prefixlen);
         oprot.writeFieldEnd();
+        if (struct.nexthop != null) {
+          oprot.writeFieldBegin(NEXTHOP_FIELD_DESC);
+          oprot.writeString(struct.nexthop);
+          oprot.writeFieldEnd();
+        }
         oprot.writeFieldStop();
         oprot.writeStructEnd();
       }
@@ -1794,7 +1886,10 @@ public class BgpUpdater {
         if (struct.isSetPrefixlen()) {
           optionals.set(2);
         }
-        oprot.writeBitSet(optionals, 3);
+        if (struct.isSetNexthop()) {
+          optionals.set(3);
+        }
+        oprot.writeBitSet(optionals, 4);
         if (struct.isSetRd()) {
           oprot.writeString(struct.rd);
         }
@@ -1804,12 +1899,15 @@ public class BgpUpdater {
         if (struct.isSetPrefixlen()) {
           oprot.writeI32(struct.prefixlen);
         }
+        if (struct.isSetNexthop()) {
+          oprot.writeString(struct.nexthop);
+        }
       }
 
       @Override
       public void read(org.apache.thrift.protocol.TProtocol prot, onUpdateWithdrawRoute_args struct) throws org.apache.thrift.TException {
         TTupleProtocol iprot = (TTupleProtocol) prot;
-        BitSet incoming = iprot.readBitSet(3);
+        BitSet incoming = iprot.readBitSet(4);
         if (incoming.get(0)) {
           struct.rd = iprot.readString();
           struct.setRdIsSet(true);
@@ -1821,6 +1919,10 @@ public class BgpUpdater {
         if (incoming.get(2)) {
           struct.prefixlen = iprot.readI32();
           struct.setPrefixlenIsSet(true);
+        }
+        if (incoming.get(3)) {
+          struct.nexthop = iprot.readString();
+          struct.setNexthopIsSet(true);
         }
       }
     }
@@ -1840,7 +1942,7 @@ public class BgpUpdater {
 
     /** The set of fields this struct contains, along with convenience methods for finding and manipulating them. */
     public enum _Fields implements org.apache.thrift.TFieldIdEnum {
-;
+      ;
 
       private static final Map<String, _Fields> byName = new HashMap<String, _Fields>();
 
@@ -2027,7 +2129,7 @@ public class BgpUpdater {
         while (true)
         {
           schemeField = iprot.readFieldBegin();
-          if (schemeField.type == org.apache.thrift.protocol.TType.STOP) { 
+          if (schemeField.type == org.apache.thrift.protocol.TType.STOP) {
             break;
           }
           switch (schemeField.id) {
@@ -2161,12 +2263,12 @@ public class BgpUpdater {
     public static final Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> metaDataMap;
     static {
       Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<_Fields, org.apache.thrift.meta_data.FieldMetaData>(_Fields.class);
-      tmpMap.put(_Fields.PREFIX, new org.apache.thrift.meta_data.FieldMetaData("prefix", org.apache.thrift.TFieldRequirementType.DEFAULT, 
-          new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING)));
-      tmpMap.put(_Fields.ERR_CODE, new org.apache.thrift.meta_data.FieldMetaData("errCode", org.apache.thrift.TFieldRequirementType.DEFAULT, 
-          new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.BYTE)));
-      tmpMap.put(_Fields.ERR_SUBCODE, new org.apache.thrift.meta_data.FieldMetaData("errSubcode", org.apache.thrift.TFieldRequirementType.DEFAULT, 
-          new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.BYTE)));
+      tmpMap.put(_Fields.PREFIX, new org.apache.thrift.meta_data.FieldMetaData("prefix", org.apache.thrift.TFieldRequirementType.DEFAULT,
+              new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.STRING)));
+      tmpMap.put(_Fields.ERR_CODE, new org.apache.thrift.meta_data.FieldMetaData("errCode", org.apache.thrift.TFieldRequirementType.DEFAULT,
+              new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.BYTE)));
+      tmpMap.put(_Fields.ERR_SUBCODE, new org.apache.thrift.meta_data.FieldMetaData("errSubcode", org.apache.thrift.TFieldRequirementType.DEFAULT,
+              new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.BYTE)));
       metaDataMap = Collections.unmodifiableMap(tmpMap);
       org.apache.thrift.meta_data.FieldMetaData.addStructMetaDataMap(onNotificationSendEvent_args.class, metaDataMap);
     }
@@ -2175,9 +2277,9 @@ public class BgpUpdater {
     }
 
     public onNotificationSendEvent_args(
-      String prefix,
-      byte errCode,
-      byte errSubcode)
+            String prefix,
+            byte errCode,
+            byte errSubcode)
     {
       this();
       this.prefix = prefix;
@@ -2284,43 +2386,43 @@ public class BgpUpdater {
 
     public void setFieldValue(_Fields field, Object value) {
       switch (field) {
-      case PREFIX:
-        if (value == null) {
-          unsetPrefix();
-        } else {
-          setPrefix((String)value);
-        }
-        break;
+        case PREFIX:
+          if (value == null) {
+            unsetPrefix();
+          } else {
+            setPrefix((String)value);
+          }
+          break;
 
-      case ERR_CODE:
-        if (value == null) {
-          unsetErrCode();
-        } else {
-          setErrCode((Byte)value);
-        }
-        break;
+        case ERR_CODE:
+          if (value == null) {
+            unsetErrCode();
+          } else {
+            setErrCode((Byte)value);
+          }
+          break;
 
-      case ERR_SUBCODE:
-        if (value == null) {
-          unsetErrSubcode();
-        } else {
-          setErrSubcode((Byte)value);
-        }
-        break;
+        case ERR_SUBCODE:
+          if (value == null) {
+            unsetErrSubcode();
+          } else {
+            setErrSubcode((Byte)value);
+          }
+          break;
 
       }
     }
 
     public Object getFieldValue(_Fields field) {
       switch (field) {
-      case PREFIX:
-        return getPrefix();
+        case PREFIX:
+          return getPrefix();
 
-      case ERR_CODE:
-        return Byte.valueOf(getErrCode());
+        case ERR_CODE:
+          return Byte.valueOf(getErrCode());
 
-      case ERR_SUBCODE:
-        return Byte.valueOf(getErrSubcode());
+        case ERR_SUBCODE:
+          return Byte.valueOf(getErrSubcode());
 
       }
       throw new IllegalStateException();
@@ -2333,12 +2435,12 @@ public class BgpUpdater {
       }
 
       switch (field) {
-      case PREFIX:
-        return isSetPrefix();
-      case ERR_CODE:
-        return isSetErrCode();
-      case ERR_SUBCODE:
-        return isSetErrSubcode();
+        case PREFIX:
+          return isSetPrefix();
+        case ERR_CODE:
+          return isSetErrCode();
+        case ERR_SUBCODE:
+          return isSetErrSubcode();
       }
       throw new IllegalStateException();
     }
@@ -2505,7 +2607,7 @@ public class BgpUpdater {
         while (true)
         {
           schemeField = iprot.readFieldBegin();
-          if (schemeField.type == org.apache.thrift.protocol.TType.STOP) { 
+          if (schemeField.type == org.apache.thrift.protocol.TType.STOP) {
             break;
           }
           switch (schemeField.id) {
@@ -2513,7 +2615,7 @@ public class BgpUpdater {
               if (schemeField.type == org.apache.thrift.protocol.TType.STRING) {
                 struct.prefix = iprot.readString();
                 struct.setPrefixIsSet(true);
-              } else { 
+              } else {
                 org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
               }
               break;
@@ -2521,7 +2623,7 @@ public class BgpUpdater {
               if (schemeField.type == org.apache.thrift.protocol.TType.BYTE) {
                 struct.errCode = iprot.readByte();
                 struct.setErrCodeIsSet(true);
-              } else { 
+              } else {
                 org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
               }
               break;
@@ -2529,7 +2631,7 @@ public class BgpUpdater {
               if (schemeField.type == org.apache.thrift.protocol.TType.BYTE) {
                 struct.errSubcode = iprot.readByte();
                 struct.setErrSubcodeIsSet(true);
-              } else { 
+              } else {
                 org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
               }
               break;

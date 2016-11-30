@@ -81,12 +81,12 @@ public class Network extends OsgiCommandSupport {
                 }
                 //TODO: syntactic validation of prefix
                 for (String nextHop : nh) {
-                    if (!Commands.isValid(nextHop, Commands.IPADDR, NH)) {
+                    if (!Commands.isValid(nextHop, Commands.Validators.IPADDR, NH)) {
                         return null;
                     }
                 }
                 if (lbl != null) {
-                    if (!Commands.isValid(lbl, Commands.INT, LB)) {
+                    if (!Commands.isValid(lbl, Commands.Validators.INT, LB)) {
                         return null;
                     } else {
                         label = Integer.valueOf(lbl);
