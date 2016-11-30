@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1a622d24_32f31975",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/StatefulIngressAclServiceImpl.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 99,
+      "author": {
+        "id": 3511
+      },
+      "writtenOn": "2016-11-30T12:57:09Z",
+      "side": 1,
+      "message": "foud -\u003e found \nthis spelling mistake occur in all classes that was copy \u0026 paste this log",
+      "revId": "fa9726237d3adb2761fa8f7ee73af42bc9a16092",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_52ee958c",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/infra/Optionals.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 3511
+      },
+      "writtenOn": "2016-11-30T12:57:09Z",
+      "side": 1,
+      "message": "why isn\u0027t this class in infrautil project?",
+      "revId": "fa9726237d3adb2761fa8f7ee73af42bc9a16092",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
