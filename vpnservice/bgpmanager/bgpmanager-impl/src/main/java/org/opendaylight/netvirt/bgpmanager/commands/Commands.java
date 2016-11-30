@@ -13,8 +13,12 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.
 
 public class Commands {
     private static BgpManager bm;
-    public static final int IPADDR = 1;
-    public static final int INT = 2;
+    private static final long AS_MIN=0;
+    private static final long AS_MAX=4294967295L;//2^32-1
+
+    enum Validators {
+        IPADDR, INT, ASNUM;
+    }
 
     public Commands(BgpManager bgpm) {
         bm = bgpm;
@@ -24,7 +28,7 @@ public class Commands {
         return bm;
     }
 
-    public static boolean isValid(String val, int type, String name) {
+    public static boolean isValid(String val, Validators type, String name) {
         switch (type) {
             case INT : 
                 try {
@@ -42,6 +46,11 @@ public class Commands {
                     return false;
                 }
                 break;
+            case ASNUM:
+                if(!validateAsNumber(val)){
+                    return false;
+                }
+                break;
             default:
                 return false;
         }
@@ -51,6 +60,28 @@ public class Commands {
     public static boolean bgpRunning() {
         if (getBgpManager() == null) {
             System.err.println("error: cannot run command, BgpManager not started");
+            return false;
+        }
+        return true;
+    }
+
+    private static boolean validateAsNumber(String strAsnum){
+
+        try {
+            long asNum = Long.valueOf(strAsnum);
+            switch((int)asNum) {
+                case 0:
+                case 65535:
+                case 23456:
+                    System.out.println("Reserved AS Number supplied ");
+                    return false;
+            }
+            if (asNum <= AS_MIN || asNum > AS_MAX) {
+                System.out.println("Invalid AS Number , supported range [1,"+AS_MAX+"]");
+                return false;
+            }
+        } catch (Exception e) {
+            System.out.println("Invalid AS Number ");
             return false;
         }
         return true;

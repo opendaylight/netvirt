@@ -146,17 +146,17 @@ public class BgpRouter {
             case START:
                 setStartTS(System.currentTimeMillis());
                 LOGGER.debug("startBgp thrift call for AsId {}",op.asNumber);
-                result = bgpClient.startBgp(op.ints[0], op.strs[0],
-                        op.ignore, op.ignore, op.ignore, op.ints[1], op.add);
+                result = bgpClient.startBgp(op.asNumber, op.strs[0],
+                        op.ignore, op.ignore, op.ignore, op.ints[0], op.add);
                 LOGGER.debug("Result of startBgp thrift call for AsId {} : {}",op.asNumber,result);
                 startBGPresult = result;
                 break;
             case STOP:
-                result = bgpClient.stopBgp(op.ints[0]);
+                result = bgpClient.stopBgp(op.asNumber);
                 break;
             case NBR:
                 result = bop.add ?
-                        bgpClient.createPeer(op.strs[0], op.ints[0])
+                        bgpClient.createPeer(op.strs[0], op.asNumber)
                         : bgpClient.deletePeer(op.strs[0]);
                 break;
             case VRF:
@@ -204,30 +204,30 @@ public class BgpRouter {
         }
     }
 
-    public synchronized void startBgp(int asNum, String rtrId, int stalepathTime, boolean announceFbit)
+    public synchronized void startBgp(long asNum, String rtrId, int stalepathTime, boolean announceFbit)
             throws TException, BgpRouterException {
         bop.type = Optype.START;
         bop.add = announceFbit;
-        bop.ints[0] = asNum;
-        bop.ints[1] = stalepathTime;
+        bop.asNumber = asNum;
+        bop.ints[0] = stalepathTime;
         bop.strs[0] = rtrId;
         LOGGER.debug("Starting BGP with as number {} and router ID {} StalePathTime: {}", asNum, rtrId, stalepathTime);
         dispatch(bop);
     }
 
-    public synchronized void stopBgp(int asNum)
+    public synchronized void stopBgp(long asNum)
             throws TException, BgpRouterException {
         bop.type = Optype.STOP;
-        bop.ints[0] = asNum;
+        bop.asNumber = asNum;
         LOGGER.debug("Stopping BGP with as number {}", asNum);
         dispatch(bop);
     }
 
-    public synchronized void addNeighbor(String nbrIp, int nbrAsNum) throws TException, BgpRouterException {
+    public synchronized void addNeighbor(String nbrIp, long nbrAsNum) throws TException, BgpRouterException {
         bop.type = Optype.NBR;
         bop.add = true;
         bop.strs[0] = nbrIp;
-        bop.ints[0] = nbrAsNum;
+        bop.asNumber = nbrAsNum;
         LOGGER.debug("Adding BGP Neighbor {} with as number {} ", nbrIp, nbrAsNum);
         dispatch(bop);
     }

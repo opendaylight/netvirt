@@ -62,23 +62,23 @@ public class Router extends OsgiCommandSupport {
         switch (action) {
             case "add" : 
                 // check: rtr already running?
-                int asn = 0;
+                long asn = 0;
                 int s = 0;
                 boolean fb = false; 
                 if (asNum == null) {
                     System.err.println("error: "+AS+" is needed");
                     return null;
                 }
-                if (!Commands.isValid(asNum, Commands.INT, AS)) {
+                if (!Commands.isValid(asNum, Commands.Validators.INT, AS)) {
                     return null;
                 }
-                asn = Integer.valueOf(asNum);
+                asn = Long.valueOf(asNum);
                 if (rid != null && 
-                !Commands.isValid(rid, Commands.IPADDR, RID)) {
+                !Commands.isValid(rid, Commands.Validators.IPADDR, RID)) {
                     return null;
                 }
                 if (spt != null) {
-                    if (!Commands.isValid(spt, Commands.INT, SP)) {
+                    if (!Commands.isValid(spt, Commands.Validators.INT, SP)) {
                         return null;
                     } else {
                         s = Integer.valueOf(spt);
