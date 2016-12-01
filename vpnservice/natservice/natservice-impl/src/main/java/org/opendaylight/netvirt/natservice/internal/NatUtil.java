@@ -14,12 +14,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 
 import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
-import org.opendaylight.genius.mdsalutil.MDSALUtil;
-import org.opendaylight.genius.mdsalutil.NwConstants;
-import org.opendaylight.genius.mdsalutil.ActionInfo;
-import org.opendaylight.genius.mdsalutil.ActionType;
-import org.opendaylight.genius.mdsalutil.FlowEntity;
-import org.opendaylight.genius.mdsalutil.MatchInfo;
+import org.opendaylight.genius.mdsalutil.*;
 import org.opendaylight.netvirt.fibmanager.api.IFibManager;
 import org.opendaylight.netvirt.fibmanager.api.RouteOrigin;
 import org.opendaylight.netvirt.neutronvpn.api.utils.NeutronConstants;
@@ -27,6 +22,7 @@ import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev14081
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.interfaces.VpnInterface;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.interfaces.VpnInterfaceKey;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpPrefix;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.action.types.rev131112.action.list.ActionKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeConnectorId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.VpnInstanceOpData;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.VpnInstanceToVpnId;
@@ -151,6 +147,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.Dpn
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.Interfaces;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.InterfaceKey;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface;
+
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -1581,5 +1578,167 @@ public class NatUtil {
                                 new org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.InterfaceKey(interfaceName));
         InstanceIdentifier<Interface> id = idBuilder.build();
         return id;
+    }
+
+    /**
+     * Get IP Address in Long from String
+     *
+     * @param address
+     *            IP Address that to be converted to long
+     * @return Long value of the IP Address
+     */
+    static long ipTolong(String address) {
+
+        // Parse IP parts into an int array
+        long[] ip = new long[4];
+        String[] parts = address.split("\\.");
+
+        for (int i = 0; i < 4; i++) {
+            ip[i] = Long.parseLong(parts[i]);
+        }
+        // Add the above IP parts into an int number representing your IP
+        // in a 32-bit binary form
+        long ipNumbers = 0;
+        for (int i = 0; i < 4; i++) {
+            ipNumbers += ip[i] << (24 - (8 * i));
+        }
+        return ipNumbers;
+
+    }
+
+    /**
+     * Get List of actions for ARP Responder Flows
+     *
+     * Actions consists of all the ARP actions from
+     * {@link ActionType} and Egress Actions Retrieved
+     *
+     * @param ifaceMgrRpcService
+     *            Interface manager RPC reference to invoke RPC to get Egress
+     *            actions for the interface
+     * @param vpnInterface
+     *            VPN Interface for which flow to be installed
+     * @param ipAddress
+     *            Gateway IP Address
+     * @param macAddress
+     *            Gateway MacAddress
+     * @return List of ARP Responder Actions actions
+     */
+    static List<Action> getActionsFloatingIp(
+            final OdlInterfaceRpcService ifaceMgrRpcService,
+            final String vpnInterface, final String ipAddress,
+            final String macAddress) {
+
+        final List<Action> actions = new ArrayList<>();
+        int actionCounter = 0;
+        actions.add(new ActionInfo(ActionType.move_src_dst_eth, new String[] {},
+                actionCounter++).buildAction());
+        actions.add(new ActionInfo(ActionType.set_field_eth_src,
+                new String[] { macAddress }, actionCounter++)
+                .buildAction());
+        actions.add(new ActionInfo(ActionType.set_arp_op,
+                new String[] { String.valueOf(NwConstants.ARP_REPLY) },
+                actionCounter++).buildAction());
+        actions.add(new ActionInfo(ActionType.move_sha_to_tha, new String[] {},
+                actionCounter++).buildAction());
+        actions.add(new ActionInfo(ActionType.move_spa_to_tpa, new String[] {},
+                actionCounter++).buildAction());
+        actions.add(new ActionInfo(ActionType.load_mac_to_sha,
+                new String[] { macAddress }, actionCounter++)
+                .buildAction());
+        actions.add(new ActionInfo(ActionType.load_ip_to_spa,
+                new String[] { ipAddress }, actionCounter++).buildAction());
+        //A temporary fix until to send packet to incoming port by loading IN_PORT with zero, until in_port is overridden in table=0
+        actions.add(new ActionInfo(ActionType.nx_load_in_port,
+                new BigInteger[] { BigInteger.ZERO }, actionCounter++)
+                .buildAction());
+        actions.addAll(getEgressActionsForInterfaceFloatingIp(ifaceMgrRpcService,
+                vpnInterface, actionCounter));
+
+        LOG.trace("Total Number of actions is {}", actionCounter);
+        return actions;
+
+    }
+
+    /**
+     * Get List of Egress Action for the VPN interface
+     *
+     * @param ifaceMgrRpcService
+     *            Interface Manager RPC reference that invokes API to retrieve
+     *            Egress Action
+     * @param ifName
+     *            VPN Interface for which Egress Action to be retrieved
+     * @param actionCounter
+     *            Action Key
+     * @return List of Egress Actions
+     */
+    public static List<Action> getEgressActionsForInterfaceFloatingIp(
+            final OdlInterfaceRpcService ifaceMgrRpcService, String ifName,
+            int actionCounter) {
+        final List<Action> listActions = new ArrayList<>();
+        try {
+            final RpcResult<GetEgressActionsForInterfaceOutput> result = ifaceMgrRpcService
+                    .getEgressActionsForInterface(
+                            new GetEgressActionsForInterfaceInputBuilder()
+                                    .setIntfName(ifName).build())
+                    .get();
+            if (result.isSuccessful()) {
+                final List<org.opendaylight.yang.gen.v1.urn.opendaylight.action.types.rev131112.action.list.Action> actions = result
+                        .getResult().getAction();
+                for (final Action action : actions) {
+
+                    listActions
+                            .add(new org.opendaylight.yang.gen.v1.urn.opendaylight.action.types.rev131112.action.list.ActionBuilder(
+                                    action).setKey(new ActionKey(actionCounter))
+                                    .setOrder(actionCounter++).build());
+
+                }
+            } else {
+                LOG.warn(
+                        "RPC Call to Get egress actions for interface {} returned with Errors {}",
+                        ifName, result.getErrors());
+            }
+        } catch (InterruptedException | ExecutionException e) {
+            LOG.warn("Exception when egress actions for interface {}", ifName,
+                    e);
+        }
+        return listActions;
+    }
+
+    /**
+     * Get Match Criteria for the ARP Responder Flow
+     * <p>
+     * List of Match Criteria for ARP Responder
+     * </p>
+     * <ul>
+     * <li>Packet is ARP</li>
+     * <li>Packet is ARP Request</li>
+     * <li>The ARP packet is requesting for Gateway IP</li>
+     * <li>Metadata which is generated by using Service
+     * Index({@link NwConstants#L3VPN_SERVICE_INDEX}) Lport Tag
+     * ({@link MetaDataUtil#METADATA_MASK_LPORT_TAG}) and VRF
+     * ID({@link MetaDataUtil#METADATA_MASK_VRFID})</li>
+     * </ul>
+     *
+     * @param vpnId
+     *            VPN ID
+     * @param ipAddress
+     *            Gateway IP
+     * @return List of Match criteria
+     */
+    static List<MatchInfo> getMatchCriteriaFloatingIp(final long vpnId, final String ipAddress) {
+
+        final List<MatchInfo> matches = new ArrayList<MatchInfo>();
+
+        matches.add(new MatchInfo(MatchFieldType.metadata, new BigInteger[] {
+                MetaDataUtil.getVpnIdMetadata(vpnId), MetaDataUtil.METADATA_MASK_VRFID }));
+
+        // Matching Arp request flows
+        matches.add(new MatchInfo(MatchFieldType.eth_type,
+                new long[] { NwConstants.ETHTYPE_ARP }));
+        matches.add(new MatchInfo(MatchFieldType.arp_op,
+                new long[] { ArpReplyOrRequestFloatingIp.REQUEST.getArpOperation() }));
+        matches.add(new MatchInfo(MatchFieldType.arp_tpa,
+                new String[] { ipAddress, "32" }));
+        return matches;
     }
 }
