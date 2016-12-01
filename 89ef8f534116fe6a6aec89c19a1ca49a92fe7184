@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1a622d24_486c219d",
+        "filename": "docs/specs/temporary-smac-learning.rst",
+        "patchSetId": 4
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-12-01T18:02:46Z",
+      "side": 1,
+      "message": "Since all the flows in Table 49 are learned flows, will they be auto-expired via the idle-timeout mechanism?",
+      "revId": "89ef8f534116fe6a6aec89c19a1ca49a92fe7184",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_48f1c1cc",
+        "filename": "docs/specs/temporary-smac-learning.rst",
+        "patchSetId": 4
+      },
+      "lineNbr": 56,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-12-01T18:02:46Z",
+      "side": 1,
+      "message": "If two packets are entering back to back and both srcmac have to be learned, will the second one still be punted to controller by this type of flow?\n\nThe first packet will set the reg4 to 1 and the second packet will come to table 50 and match the first reg4\u003d0x1 and won\u0027t be punted at all... or am i missing something?",
+      "revId": "89ef8f534116fe6a6aec89c19a1ca49a92fe7184",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
