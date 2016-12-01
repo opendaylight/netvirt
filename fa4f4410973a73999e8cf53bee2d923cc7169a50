@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1a622d24_45fc0c3f",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 1222,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2016-12-01T16:09:56Z",
+      "side": 1,
+      "message": "Nit: Just to avoid null checks, Can you make getVpnSubnetGatewayIp(...) to return java.util.Optional\u003cString\u003e and apply the logic with gwIpOptional.ifPresent(logicToApply);",
+      "revId": "fa4f4410973a73999e8cf53bee2d923cc7169a50",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_659ae815",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 1244,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2016-12-01T16:09:56Z",
+      "side": 1,
+      "message": "same comment as before.",
+      "revId": "fa4f4410973a73999e8cf53bee2d923cc7169a50",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
