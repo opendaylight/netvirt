@@ -132,4 +132,14 @@ public class AclDataUtil {
         }
         return priority;
     }
+
+    /**
+     * Indicates whether the interface has port security enabled.
+     * @param aclInterface the interface.
+     * @return true if port is security enabled.
+     */
+    public boolean isOfInterest(AclInterface aclInterface) {
+        return aclInterface != null && aclInterface.getPortSecurityEnabled() != null
+                && aclInterface.isPortSecurityEnabled();
+    }
 }
