@@ -16,6 +16,24 @@
       "revId": "82041f7792672d2cafa67a5851b231f8f520776f",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_01032910",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/ArpNotificationHandler.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 426,
+      "author": {
+        "id": 670
+      },
+      "writtenOn": "2016-12-01T14:08:42Z",
+      "side": 1,
+      "message": "my issue with it being WARN is if eviction only happens at max size, won\u0027t we always hit this as migrateArpReqCache.size() \u003d\u003d cacheSize and then the put simply does an evict+put?\n\ncorner case anyways, but I wouldn\u0027t want a repetitive WARN",
+      "parentUuid": "1a622d24_0155e91c",
+      "revId": "82041f7792672d2cafa67a5851b231f8f520776f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
