@@ -329,28 +329,24 @@ public class NeutronvpnUtils {
     }
 
     /**
-     * Is port_security_enabled with the port.
-     *
-     * @param port the port
-     * @return whether port_security_enabled is set to TRUE
-     */
-    protected static boolean isPortSecurityEnabled(Port port) {
-        PortSecurityExtension portSecurity = port.getAugmentation(PortSecurityExtension.class);
-        return portSecurity != null && portSecurity.isPortSecurityEnabled() != null;
-    }
-
-    /**
      * Returns port_security_enabled status with the port.
      *
      * @param port the port
      * @return port_security_enabled status
      */
     protected static Boolean getPortSecurityEnabled(Port port) {
+        String deviceOwner = port.getDeviceOwner();
+        if (deviceOwner != null && deviceOwner.startsWith("network:")) {
+            // port with device owner of network:xxx is created by
+            // neutorn for its internal use. So security group doesn't apply.
+            // router interface, dhcp port and floating ip.
+            return false;
+        }
         PortSecurityExtension portSecurity = port.getAugmentation(PortSecurityExtension.class);
         if (portSecurity != null) {
             return portSecurity.isPortSecurityEnabled();
         }
-        return null;
+        return false;
     }
 
     /**
