@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1a622d24_a65a4b81",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/ArpNotificationHandler.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 427,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-12-01T10:23:02Z",
+      "side": 1,
+      "message": "We need not return here.. ie., not required \"//return;\"\n\nIt will be good to have a queue type processing here.. On a overrun, we pop off the oldest entry in the cache to give way for this new entry..\n\nBut that change can be a different (or) subsequent review.",
+      "revId": "4aebff7c1298f40b3859cfd19601ca8e8bdc2587",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
