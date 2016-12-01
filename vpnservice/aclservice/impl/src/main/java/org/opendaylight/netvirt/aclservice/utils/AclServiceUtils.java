@@ -769,4 +769,14 @@ public final class AclServiceUtils {
             LOG.warn("Exception when releasing Id for key {}", idKey, e);
         }
     }
+
+    /**
+     * Indicates whether the interface has port security enabled.
+     * @param aclInterface the interface.
+     * @return true if port is security enabled.
+     */
+    public static boolean isOfInterest(AclInterface aclInterface) {
+        return aclInterface != null && aclInterface.getPortSecurityEnabled() != null
+                && aclInterface.isPortSecurityEnabled();
+    }
 }
