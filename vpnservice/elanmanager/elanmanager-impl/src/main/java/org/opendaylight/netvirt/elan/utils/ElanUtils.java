@@ -18,6 +18,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
@@ -227,6 +228,10 @@ public class ElanUtils {
 
     public static ElanInstance getElanInstanceFromCache(String elanInstanceName) {
         return elanInstanceLocalCache.get(elanInstanceName);
+    }
+
+    public static Set<String> getAllElanNames() {
+        return elanInstanceLocalCache.keySet();
     }
 
     public static void addElanInterfaceIntoCache(String interfaceName, ElanInterface elanInterface) {
@@ -651,6 +656,10 @@ public class ElanUtils {
             return existingElanForwardingList.get();
         }
         return null;
+    }
+
+    public static long getElanRemoteBroadCastGroupID(long elanTag) {
+        return ElanConstants.ELAN_GID_MIN + (((elanTag % ElanConstants.ELAN_GID_MIN) * 2));
     }
 
     /**
