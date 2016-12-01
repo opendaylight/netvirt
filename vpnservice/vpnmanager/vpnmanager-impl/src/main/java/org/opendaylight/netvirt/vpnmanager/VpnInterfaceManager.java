@@ -60,6 +60,7 @@ import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev14081
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.InterfacesState;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.PhysAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.action.types.rev131112.action.list.Action;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.instruction.list.Instruction;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.arputil.rev160406.OdlArputilService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.arputil.rev160406.SendArpResponseInput;
@@ -1118,9 +1119,10 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                     (gwPort != null && gwPort.isSubnetIp())?"Router":"Connected", subNetGwMac);
             final String flowId = ArpResponderUtil.getFlowID(lPortTag, gwIp);
             long vpnId = VpnUtil.getVpnId(dataBroker, vpnName);
+            List<Action> actions = ArpResponderUtil.getActions(ifaceMgrRpcService, ifName, gwIp, subNetGwMac);
             ArpResponderUtil.installFlow(mdsalManager, writeInvTxn, dpId, flowId, flowId, NwConstants.DEFAULT_ARP_FLOW_PRIORITY,
                     ArpResponderUtil.generateCookie(lPortTag, gwIp), ArpResponderUtil.getMatchCriteria(lPortTag, vpnId, gwIp),
-                    ArpResponderUtil.getActions(ifaceMgrRpcService, ifName, gwIp, subNetGwMac));
+                    Arrays.asList(MDSALUtil.buildApplyActionsInstruction(actions)));
             LOG.trace("Installed the ARP Responder flow for VPN Interface {}", ifName);
         }
     }
