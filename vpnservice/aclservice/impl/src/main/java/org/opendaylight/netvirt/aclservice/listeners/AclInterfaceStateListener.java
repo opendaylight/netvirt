@@ -70,18 +70,7 @@ public class AclInterfaceStateListener extends AsyncDataTreeChangeListenerBase<I
 
     @Override
     protected void remove(InstanceIdentifier<Interface> key, Interface dataObjectModification) {
-        String interfaceId = dataObjectModification.getName();
-        AclInterface aclInterface = AclInterfaceCacheUtil.getAclInterfaceFromCache(interfaceId);
-        if (isOfInterest(aclInterface)) {
-            if (aclClusterUtil.isEntityOwner()) {
-                aclServiceManger.notify(aclInterface, null, Action.REMOVE);
-            }
-            List<Uuid> aclList = aclInterface.getSecurityGroups();
-            if (aclList != null) {
-                aclDataUtil.removeAclInterfaceMap(aclList, aclInterface);
-            }
-            AclInterfaceCacheUtil.removeAclInterfaceFromCache(interfaceId);
-        }
+        AclInterfaceCacheUtil.removeAclInterfaceFromCache(dataObjectModification.getName());
     }
 
     @Override
@@ -96,7 +85,7 @@ public class AclInterfaceStateListener extends AsyncDataTreeChangeListenerBase<I
     @Override
     protected void add(InstanceIdentifier<Interface> key, Interface dataObjectModification) {
         AclInterface aclInterface = updateAclInterfaceCache(dataObjectModification);
-        if (isOfInterest(aclInterface)) {
+        if (aclDataUtil.isOfInterest(aclInterface)) {
             List<Uuid> aclList = aclInterface.getSecurityGroups();
             if (aclList != null) {
                 aclDataUtil.addAclInterfaceMap(aclList, aclInterface);
@@ -105,11 +94,6 @@ public class AclInterfaceStateListener extends AsyncDataTreeChangeListenerBase<I
                 aclServiceManger.notify(aclInterface, null, Action.ADD);
             }
         }
-    }
-
-    private boolean isOfInterest(AclInterface aclInterface) {
-        return aclInterface != null && aclInterface.getPortSecurityEnabled() != null
-                && aclInterface.isPortSecurityEnabled();
     }
 
     @Override

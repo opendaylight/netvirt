@@ -16,6 +16,7 @@ import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
 import org.opendaylight.netvirt.aclservice.api.AclServiceManager;
+import org.opendaylight.netvirt.aclservice.api.AclServiceManager.Action;
 import org.opendaylight.netvirt.aclservice.api.utils.AclInterface;
 import org.opendaylight.netvirt.aclservice.api.utils.AclInterfaceCacheUtil;
 import org.opendaylight.netvirt.aclservice.utils.AclClusterUtil;
@@ -65,7 +66,20 @@ public class AclInterfaceListener extends AsyncDataTreeChangeListenerBase<Interf
 
     @Override
     protected void remove(InstanceIdentifier<Interface> key, Interface port) {
-        AclInterfaceCacheUtil.removeAclInterfaceFromCache(port.getName());
+
+        String interfaceId = port.getName();
+        AclInterface aclInterface = AclInterfaceCacheUtil.getAclInterfaceFromCache(interfaceId);
+        if (aclDataUtil.isOfInterest(aclInterface)) {
+            AclInterfaceCacheUtil.removeAclInterfaceFromCache(interfaceId);
+            if (aclClusterUtil.isEntityOwner()) {
+                aclServiceManager.notify(aclInterface, null, Action.REMOVE);
+            }
+            List<Uuid> aclList = aclInterface.getSecurityGroups();
+            if (aclList != null) {
+                aclDataUtil.removeAclInterfaceMap(aclList, aclInterface);
+            }
+
+        }
     }
 
     @Override
