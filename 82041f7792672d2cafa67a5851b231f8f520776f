@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1a622d24_0155e91c",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/ArpNotificationHandler.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 426,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-12-01T13:55:35Z",
+      "side": 1,
+      "message": "this should be WARN (though the condition might not trigger)..",
+      "revId": "82041f7792672d2cafa67a5851b231f8f520776f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
