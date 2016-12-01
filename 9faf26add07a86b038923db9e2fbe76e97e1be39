@@ -1,0 +1,123 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1a622d24_e8924d9e",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnConstants.java",
+        "patchSetId": 21
+      },
+      "lineNbr": 56,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-12-01T17:30:24Z",
+      "side": 1,
+      "message": "please use de:ad:be:ef:00:01 , i.e., DEADBEEF mac address.",
+      "revId": "9faf26add07a86b038923db9e2fbe76e97e1be39",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_288d657c",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInstanceListener.java",
+        "patchSetId": 21
+      },
+      "lineNbr": 413,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-12-01T17:30:24Z",
+      "side": 1,
+      "message": "L3VNI is applicable only for L3VPN and not for normal L3 forwarding.. So you need to do builder.setL3vni() only in the else case for (rd \u003d\u003d null) below.",
+      "revId": "9faf26add07a86b038923db9e2fbe76e97e1be39",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_a8cfb5af",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 21
+      },
+      "lineNbr": 659,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-12-01T17:30:24Z",
+      "side": 1,
+      "message": "How many reads are we planning for getting l3vni :) ?\n\nOne in Line 657 and again one more in Line 660..\n\nSimilar, can you pull of this code into a OOP practice..",
+      "revId": "9faf26add07a86b038923db9e2fbe76e97e1be39",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_883759b0",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 21
+      },
+      "lineNbr": 740,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-12-01T17:30:24Z",
+      "side": 1,
+      "message": "Same case here.. please make this pattern on encapType..",
+      "revId": "9faf26add07a86b038923db9e2fbe76e97e1be39",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_c841510d",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 21
+      },
+      "lineNbr": 874,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-12-01T17:30:24Z",
+      "side": 1,
+      "message": "I hope this method will change as we progress with router associate to an L3VNI-BASED-L3VPN..\n\nPlease move this into VPNUtil.",
+      "revId": "9faf26add07a86b038923db9e2fbe76e97e1be39",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_a8469521",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 21
+      },
+      "lineNbr": 1053,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-12-01T17:30:24Z",
+      "side": 1,
+      "message": "I believe another review will",
+      "revId": "9faf26add07a86b038923db9e2fbe76e97e1be39",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_485541c5",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnUtil.java",
+        "patchSetId": 21
+      },
+      "lineNbr": 1381,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-12-01T17:30:24Z",
+      "side": 1,
+      "message": "better to check nonNull and nonZero",
+      "revId": "9faf26add07a86b038923db9e2fbe76e97e1be39",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
