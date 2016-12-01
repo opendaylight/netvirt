@@ -16,6 +16,29 @@
       "revId": "179d774592e247f4190582a906b3221d909dc89c",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_81d619c4",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/utils/AclDataUtil.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 144,
+      "author": {
+        "id": 5346
+      },
+      "writtenOn": "2016-12-01T13:23:13Z",
+      "side": 1,
+      "message": "This method needs to be moved to AclServiceUtils as AclDataUtil only deals with the cache related methods.",
+      "range": {
+        "startLine": 136,
+        "startChar": 4,
+        "endLine": 144,
+        "endChar": 5
+      },
+      "revId": "179d774592e247f4190582a906b3221d909dc89c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
