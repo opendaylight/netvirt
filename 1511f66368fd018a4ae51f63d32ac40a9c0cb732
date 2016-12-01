@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "1a622d24_662cb34b",
+        "filename": "vpnservice/it/impl/src/test/java/org/opendaylight/netvirt/it/AbstractNetOvs.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 70,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2016-12-01T09:18:25Z",
+      "side": 1,
+      "message": "Currently ipVersion is a constant and is defined here[1] and in the calling context [2]. I feel this is fine, but if you think that an enum would be more readable, can you please give an example. Thanks.\n\n[1] https://git.opendaylight.org/gerrit/#/c/48728/1/vpnservice/it/impl/src/test/java/org/opendaylight/netvirt/it/NetvirtITConstants.java\n[2] fe., netOvs.createSubnet(NETWORK1_NAME, NetvirtITConstants.IPV4, NETWORK1_IPPFX);",
+      "parentUuid": "1a622d24_95b017df",
+      "revId": "1511f66368fd018a4ae51f63d32ac40a9c0cb732",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_b5c6f347",
         "filename": "vpnservice/it/impl/src/test/java/org/opendaylight/netvirt/it/AbstractNetOvs.java",
         "patchSetId": 1
@@ -36,6 +54,24 @@
     },
     {
       "key": {
+        "uuid": "1a622d24_a626cb66",
+        "filename": "vpnservice/it/impl/src/test/java/org/opendaylight/netvirt/it/AbstractNetOvs.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 76,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2016-12-01T09:18:25Z",
+      "side": 1,
+      "message": "Agree, it can be removed. I\u0027ll update it when I re-spin the patch.",
+      "parentUuid": "1a622d24_b5c6f347",
+      "revId": "1511f66368fd018a4ae51f63d32ac40a9c0cb732",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_8bf8f8e6",
         "filename": "vpnservice/it/impl/src/test/java/org/opendaylight/netvirt/it/Ipv6Utils.java",
         "patchSetId": 1
@@ -47,6 +83,24 @@
       "writtenOn": "2016-11-30T23:05:01Z",
       "side": 1,
       "message": "are any of these utils already in the ipv6 impl code and can be reused?",
+      "revId": "1511f66368fd018a4ae51f63d32ac40a9c0cb732",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_e6e60316",
+        "filename": "vpnservice/it/impl/src/test/java/org/opendaylight/netvirt/it/Ipv6Utils.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2016-12-01T09:18:25Z",
+      "side": 1,
+      "message": "We have something similar but not the same API. The API in IPv6Service generates a Link Local Address, whereas this api takes the ipPrefix and generates the EUI-64 address.\n\nI\u0027m actually planning to propose the IPv6 utility apis in GENIUS (something like [*]) and then modify the NetVirt code (in some future patch) to use the APIs from GENIUS. Hope it is fine?\n\n[*] https://git.opendaylight.org/gerrit/#/c/48039/",
+      "parentUuid": "1a622d24_8bf8f8e6",
       "revId": "1511f66368fd018a4ae51f63d32ac40a9c0cb732",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
