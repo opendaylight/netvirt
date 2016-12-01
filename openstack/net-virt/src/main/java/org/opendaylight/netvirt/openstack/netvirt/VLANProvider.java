@@ -21,6 +21,7 @@ import org.opendaylight.netvirt.openstack.netvirt.translator.Neutron_IPs;
 import org.opendaylight.netvirt.utils.servicehelper.ServiceHelper;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.rev150105.OvsdbTerminationPointAugmentation;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Node;
+import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.node.TerminationPoint;
 import org.osgi.framework.ServiceReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -48,8 +49,8 @@ public class VLANProvider implements ConfigInterface {
             final String portNameExt = configurationService.getPatchPortName(new ImmutablePair<>(brExt, brInt));
             Long ofPort = port.getOfport();
             String macAddress = neutronPort.getMacAddress();
-            final Long dpIdInt = getDpidForIntegrationBridge(envNode);
-            final Long dpIdExt = getDpidForExternalBridge(envNode);
+            final Long dpIdInt = getDpidForIntegrationBridge(portNameInt);
+            final Long dpIdExt = getDpidForExternalBridge();
             Long patchIntPort = getPatchPort(dpIdInt, portNameInt);
             Long patchExtPort = getPatchPort(dpIdExt, portNameExt);
             Preconditions.checkNotNull(dpIdInt);
@@ -75,7 +76,7 @@ public class VLANProvider implements ConfigInterface {
                 return (terminationPointOfBridge == null) ? null : terminationPointOfBridge.getOfport();
             }
         }
-        return -1L;
+        return null;
     }
 
     @Override
@@ -97,12 +98,19 @@ public class VLANProvider implements ConfigInterface {
         }
     }
 
-    private Long getDpidForIntegrationBridge(Node node) {
-        List<Long> dpids =  nodeCacheManager.getBridgeDpids(configurationService.getIntegrationBridgeName());
-        return dpids.get(0);
+    private Long getDpidForIntegrationBridge(final String portName) {
+        for (Node bridgeNode : nodeCacheManager.getBridgeNodes()) {
+            TerminationPoint tp = southbound.readTerminationPoint(bridgeNode, null, portName);
+            if (tp != null) {
+              final long dpid = southbound.getDataPathId(bridgeNode);
+              LOG.debug("getDpidForIntegrationBridge: dpId: {} nodeId: {} ", dpid, bridgeNode.getNodeId().getValue());
+              return dpid;
+            }
+        }
+        return null;
     }
 
-    private Long getDpidForExternalBridge(Node node) {
+    private Long getDpidForExternalBridge() {
         List<Long> dpids =  nodeCacheManager.getBridgeDpids(configurationService.getExternalBridgeName());
         return dpids.get(0);
     }
