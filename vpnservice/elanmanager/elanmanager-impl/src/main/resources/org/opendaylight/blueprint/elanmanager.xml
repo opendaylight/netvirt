@@ -205,4 +205,12 @@
     <argument ref="elanBridgeManager" />
     <argument ref="elanService" />
   </bean>
+
+  <bean id="elanGroupListener"
+        class="org.opendaylight.netvirt.elan.l2gw.listeners.ElanGroupListener">
+    <argument ref="elanInterfaceManager" />
+    <argument ref="dataBroker" />
+    <argument ref="elanUtils" />
+    <argument ref="entityOwnershipService" />
+  </bean>
 </blueprint>
