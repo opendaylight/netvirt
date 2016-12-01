@@ -34,6 +34,24 @@
       "revId": "7ab5daafc90533ec0a90c08d1aa55390305d8a24",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_a81175ae",
+        "filename": "vpnservice/it/impl/src/test/java/org/opendaylight/netvirt/it/NetvirtIT.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 342,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2016-12-01T19:26:15Z",
+      "side": 1,
+      "message": "I might have done this because when this asserts it blows up all the following tests because the node is still connected. I guess we should just assert and ignore the subsequent tests.\n\nLater we should fix the IT to clean up after each test so the next starts clean.",
+      "parentUuid": "1a622d24_795a9f84",
+      "revId": "7ab5daafc90533ec0a90c08d1aa55390305d8a24",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
