@@ -652,7 +652,7 @@ public class NeutronPortChangeListener extends AsyncDataTreeChangeListenerBase<P
         interfaceBuilder.setEnabled(true).setName(interfaceName).setType(L2vlan.class)
                 .addAugmentation(IfL2vlan.class, ifL2vlanBuilder.build());
 
-        if (NeutronvpnUtils.isPortSecurityEnabled(port)) {
+        if (NeutronvpnUtils.getPortSecurityEnabled(port)) {
             InterfaceAclBuilder interfaceAclBuilder = new InterfaceAclBuilder();
             interfaceAclBuilder.setPortSecurityEnabled(true);
             NeutronvpnUtils.populateInterfaceAclBuilder(interfaceAclBuilder, port);
