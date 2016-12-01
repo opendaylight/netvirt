@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "1a622d24_2b03a4b9",
+        "filename": "docs/specs/router-independent-ipv6-ipam.rst",
+        "patchSetId": 3
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 5661
+      },
+      "writtenOn": "2016-12-01T03:04:05Z",
+      "side": 1,
+      "message": "Yes, in case of IPv4, L2 networks can be orchestrated without associated with a neutron router.\n\nOk, I will add some description to the blueprint",
+      "parentUuid": "1a622d24_d69bc270",
+      "range": {
+        "startLine": 7,
+        "startChar": 0,
+        "endLine": 8,
+        "endChar": 65
+      },
+      "revId": "69efc0e7ffee4d5698762e868b56e746c1927395",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_e7ed6af1",
         "filename": "docs/specs/router-independent-ipv6-ipam.rst",
         "patchSetId": 3
