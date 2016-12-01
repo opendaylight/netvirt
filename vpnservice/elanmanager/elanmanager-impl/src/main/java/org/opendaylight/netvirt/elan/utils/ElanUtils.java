@@ -723,13 +723,13 @@ public class ElanUtils {
      */
     public void setupMacFlows(ElanInstance elanInfo, InterfaceInfo interfaceInfo, long macTimeout,
             String macAddress, boolean configureRemoteFlows, WriteTransaction writeFlowGroupTx) throws ElanException {
-        synchronized (macAddress) {
+    //    synchronized (macAddress) {
             LOG.debug("Acquired lock for mac : " + macAddress + ". Proceeding with install operation.");
             setupKnownSmacFlow(elanInfo, interfaceInfo, macTimeout, macAddress, mdsalManager,
                     writeFlowGroupTx);
             setupOrigDmacFlows(elanInfo, interfaceInfo, macAddress, configureRemoteFlows, mdsalManager,
                     broker, writeFlowGroupTx);
-        }
+      //  }
     }
 
     /**
