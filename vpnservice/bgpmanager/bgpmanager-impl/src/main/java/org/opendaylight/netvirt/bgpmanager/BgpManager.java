@@ -86,12 +86,12 @@ public class BgpManager implements AutoCloseable, IBgpManager {
     }
 
     @Override
-    public void addVrf(String rd, Collection<String> importRts, Collection<String> exportRts) throws Exception {
+    public void addVrf(String rd, Collection<String> importRts, Collection<String> exportRts) {
         bcm.addVrf(rd, new ArrayList<>(importRts), new ArrayList<>(exportRts));
     }
 
     @Override
-    public void deleteVrf(String rd, boolean removeFibTable) throws Exception {
+    public void deleteVrf(String rd, boolean removeFibTable) {
         if (removeFibTable) {
             fibDSWriter.removeVrfFromDS(rd);
         }
@@ -99,15 +99,13 @@ public class BgpManager implements AutoCloseable, IBgpManager {
     }
 
     @Override
-    public void addPrefix(String rd, String prefix, List<String> nextHopList, int vpnLabel, RouteOrigin origin)
-            throws Exception {
+    public void addPrefix(String rd, String prefix, List<String> nextHopList, int vpnLabel, RouteOrigin origin) {
         fibDSWriter.addFibEntryToDS(rd, prefix, nextHopList, vpnLabel, origin);
         bcm.addPrefix(rd, prefix, nextHopList, vpnLabel);
     }
 
     @Override
-    public void addPrefix(String rd, String prefix, String nextHop, int vpnLabel, RouteOrigin origin)
-            throws Exception {
+    public void addPrefix(String rd, String prefix, String nextHop, int vpnLabel, RouteOrigin origin) {
         addPrefix(rd, prefix, Arrays.asList(nextHop), vpnLabel, origin);
     }
 
@@ -118,7 +116,7 @@ public class BgpManager implements AutoCloseable, IBgpManager {
     }
 
     @Override
-    public void advertisePrefix(String rd, String prefix, List<String> nextHopList, int vpnLabel) throws Exception {
+    public void advertisePrefix(String rd, String prefix, List<String> nextHopList, int vpnLabel) {
         bcm.addPrefix(rd, prefix, nextHopList, vpnLabel);
     }
 
@@ -130,7 +128,7 @@ public class BgpManager implements AutoCloseable, IBgpManager {
     }
 
     @Override
-    public void withdrawPrefix(String rd, String prefix) throws Exception {
+    public void withdrawPrefix(String rd, String prefix) {
         LOG.info("WITHDRAW: Removing Prefix rd {} prefix {}", rd, prefix);
         bcm.delPrefix(rd, prefix);
         LOG.info("WITHDRAW: Removed Prefix rd {} prefix {}", rd, prefix);
