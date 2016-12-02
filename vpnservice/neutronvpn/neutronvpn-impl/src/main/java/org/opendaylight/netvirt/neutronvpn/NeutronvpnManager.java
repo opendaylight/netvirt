@@ -1192,6 +1192,9 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
                         isBeingAssociated);
             }
         }
+        // Update the association of router-interface to external vpn
+        updateVpnInterface(vpnId, oldVpnId, NeutronvpnUtils.getNeutronPort(dataBroker, sn.getRouterInterfaceName()),
+                isBeingAssociated);
     }
 
     public InstanceIdentifier<RouterInterfaces> getRouterInterfacesId(Uuid routerId) {
