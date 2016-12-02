@@ -73,6 +73,24 @@
     },
     {
       "key": {
+        "uuid": "1a622d24_abedef8d",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2016-12-02T09:19:27Z",
+      "side": 1,
+      "message": "Thanks @Stephen for your review comments.\n\n@all, I had a brief chat with Stephen on this topic. As he said, the checkstyle rules enforce alphabetical ordering in ODL (and this patch is adhering to this).\nSince we have not enabled checkstyle on vpnmanager, this is currently not enforced on this codebase.\nI guess, at some appropriate time, we will enable checkstyle in vpnmanager, so I\u0027ll retain this ordering.",
+      "parentUuid": "1a622d24_2b743ffc",
+      "revId": "fa4f4410973a73999e8cf53bee2d923cc7169a50",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_45fc0c3f",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
         "patchSetId": 1
