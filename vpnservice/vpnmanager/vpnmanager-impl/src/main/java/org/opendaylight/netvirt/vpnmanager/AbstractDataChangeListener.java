@@ -27,36 +27,39 @@ public abstract class AbstractDataChangeListener<T extends DataObject> implement
     protected final Class<T> clazz;
 
     private static final Logger LOG = LoggerFactory.getLogger(AbstractDataChangeListener.class);
+
     /**
-     * 
-     * @param clazz - for which the data change event is received
+     * Creates an instance.
+     *
+     * @param clazz The class for which the data change event is received.
      */
     public AbstractDataChangeListener(Class<T> clazz) {
         this.clazz = Preconditions.checkNotNull(clazz, "Class can not be null!");
     }
 
     @Override
+    // TODO Clean up the exception handling
+    @SuppressWarnings("checkstyle:IllegalCatch")
     public void onDataChanged(final AsyncDataChangeEvent<InstanceIdentifier<?>, DataObject> changeEvent) {
         try {
-        Preconditions.checkNotNull(changeEvent,"Async ChangeEvent can not be null!");
+            Preconditions.checkNotNull(changeEvent, "Async ChangeEvent can not be null!");
 
-        /* All DataObjects for create */
-        final Map<InstanceIdentifier<?>, DataObject> createdData = changeEvent.getCreatedData() != null
-                ? changeEvent.getCreatedData() : Collections.emptyMap();
-        /* All DataObjects for remove */
-        final Set<InstanceIdentifier<?>> removeData = changeEvent.getRemovedPaths() != null
-                ? changeEvent.getRemovedPaths() : Collections.emptySet();
-        /* All DataObjects for updates */
-        final Map<InstanceIdentifier<?>, DataObject> updateData = changeEvent.getUpdatedData() != null
-                ? changeEvent.getUpdatedData() : Collections.emptyMap();
-        /* All Original DataObjects */
-        final Map<InstanceIdentifier<?>, DataObject> originalData = changeEvent.getOriginalData() != null
-                ? changeEvent.getOriginalData() : Collections.emptyMap();
+            /* All DataObjects for create */
+            final Map<InstanceIdentifier<?>, DataObject> createdData = changeEvent.getCreatedData() != null
+                    ? changeEvent.getCreatedData() : Collections.emptyMap();
+            /* All DataObjects for remove */
+            final Set<InstanceIdentifier<?>> removeData = changeEvent.getRemovedPaths() != null
+                    ? changeEvent.getRemovedPaths() : Collections.emptySet();
+            /* All DataObjects for updates */
+            final Map<InstanceIdentifier<?>, DataObject> updateData = changeEvent.getUpdatedData() != null
+                    ? changeEvent.getUpdatedData() : Collections.emptyMap();
+            /* All Original DataObjects */
+            final Map<InstanceIdentifier<?>, DataObject> originalData = changeEvent.getOriginalData() != null
+                    ? changeEvent.getOriginalData() : Collections.emptyMap();
 
-        this.createData(createdData);
-        this.updateData(updateData, originalData);
-        this.removeData(removeData, originalData);
-        
+            this.createData(createdData);
+            this.updateData(updateData, originalData);
+            this.removeData(removeData, originalData);
         } catch (Throwable e) {
             LOG.error("failed to handle dcn ", e);
         }
@@ -93,13 +96,13 @@ public abstract class AbstractDataChangeListener<T extends DataObject> implement
 
     @SuppressWarnings("unchecked")
     private void removeData(final Set<InstanceIdentifier<?>> removeData,
-            final Map<InstanceIdentifier<?>, DataObject> originalData) {
+        final Map<InstanceIdentifier<?>, DataObject> originalData) {
 
         for (InstanceIdentifier<?> key : removeData) {
             if (clazz.equals(key.getTargetType())) {
                 final InstanceIdentifier<T> ident = key.firstIdentifierOf(clazz);
                 final DataObject removeValue = originalData.get(key);
-                this.remove(ident, (T)removeValue);
+                this.remove(ident, (T) removeValue);
             }
         }
     }

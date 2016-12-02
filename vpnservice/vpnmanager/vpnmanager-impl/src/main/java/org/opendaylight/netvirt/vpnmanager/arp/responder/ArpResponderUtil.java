@@ -15,7 +15,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
-
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.genius.mdsalutil.BucketInfo;
 import org.opendaylight.genius.mdsalutil.FlowEntity;
@@ -43,7 +42,6 @@ import org.opendaylight.genius.mdsalutil.matches.MatchArpOp;
 import org.opendaylight.genius.mdsalutil.matches.MatchArpTpa;
 import org.opendaylight.genius.mdsalutil.matches.MatchEthernetType;
 import org.opendaylight.genius.mdsalutil.matches.MatchMetadata;
-import org.opendaylight.netvirt.vpnmanager.ArpReplyOrRequest;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.MacAddress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.action.types.rev131112.action.list.Action;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.action.types.rev131112.action.list.ActionKey;
@@ -63,45 +61,36 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Arp Responder Utility Class
- *
- *
+ * Arp Responder Utility Class.
  */
 public class ArpResponderUtil {
 
-    private final static Logger LOG = LoggerFactory
-            .getLogger(ArpResponderUtil.class);
+    private static final Logger LOG = LoggerFactory.getLogger(ArpResponderUtil.class);
 
     private static final long WAIT_TIME_FOR_SYNC_INSTALL = Long.getLong("wait.time.sync.install", 300L);
 
     /**
-     * A Utility class
+     * A Utility class.
      */
     private ArpResponderUtil() {
 
     }
 
     /**
-     * Install Group flow on the DPN
+     * Install Group flow on the DPN.
      *
-     * @param mdSalManager
-     *            Reference of MDSAL API RPC that provides API for installing
-     *            group flow
-     * @param dpnId
-     *            DPN on which group flow to be installed
-     * @param groupdId
-     *            Uniquely identifiable Group Id for the group flow
-     * @param groupName
-     *            Name of the group flow
-     * @param buckets
-     *            List of the bucket actions for the group flow
+     * @param mdSalManager Reference of MDSAL API RPC that provides API for installing group flow
+     * @param dpnId DPN on which group flow to be installed
+     * @param groupdId Uniquely identifiable Group Id for the group flow
+     * @param groupName Name of the group flow
+     * @param buckets List of the bucket actions for the group flow
      */
     public static void installGroup(final IMdsalApiManager mdSalManager,
-            final BigInteger dpnId, final long groupdId, final String groupName,
-            final List<BucketInfo> buckets) {
+        final BigInteger dpnId, final long groupdId, final String groupName,
+        final List<BucketInfo> buckets) {
         LOG.trace("Installing group flow on dpn {}", dpnId);
         final GroupEntity groupEntity = MDSALUtil.buildGroupEntity(dpnId,
-                groupdId, groupName, GroupTypes.GroupAll, buckets);
+            groupdId, groupName, GroupTypes.GroupAll, buckets);
         mdSalManager.syncInstallGroup(groupEntity, WAIT_TIME_FOR_SYNC_INSTALL);
         try {
             Thread.sleep(WAIT_TIME_FOR_SYNC_INSTALL);
@@ -111,11 +100,9 @@ public class ArpResponderUtil {
     }
 
     /**
-     * Get Default ARP Responder Drop flow on the DPN
+     * Get Default ARP Responder Drop flow on the DPN.
      *
-     * @param dpnId
-     *            DPN on which group flow to be installed
-     *
+     * @param dpnId DPN on which group flow to be installed
      */
     public static FlowEntity getArpResponderTableMissFlow(final BigInteger dpnId) {
         return MDSALUtil.buildFlowEntity(dpnId, NwConstants.ARP_RESPONDER_TABLE,
@@ -128,10 +115,9 @@ public class ArpResponderUtil {
     }
 
     /**
-     * Get Bucket Actions for ARP Responder Group Flow
+     * Get Bucket Actions for ARP Responder Group Flow.
      *
-     * <p>
-     * Install Default Groups, Group has 3 Buckets
+     * <p>Install Default Groups, Group has 3 Buckets
      * </p>
      * <ul>
      * <li>Punt to controller</li>
@@ -141,14 +127,12 @@ public class ArpResponderUtil {
      * Auto response from DPN itself</li>
      * </ul>
      *
-     * @param resubmitTableId
-     *            Resubmit Flow Table Id
-     * @param resubmitTableId2
-     *            Resubmit Flow Table Id
+     * @param resubmitTableId Resubmit Flow Table Id
+     * @param resubmitTableId2 Resubmit Flow Table Id
      * @return List of bucket actions
      */
     public static List<BucketInfo> getDefaultBucketInfos(
-            final short resubmitTableId, final short resubmitTableId2) {
+        final short resubmitTableId, final short resubmitTableId2) {
         final List<BucketInfo> buckets = new ArrayList<>();
         buckets.add(new BucketInfo(Collections.singletonList(new ActionPuntToController())));
         buckets.add(new BucketInfo(Collections.singletonList(new ActionNxResubmit(resubmitTableId))));
@@ -157,9 +141,9 @@ public class ArpResponderUtil {
     }
 
     /**
-     * Get Match Criteria for the ARP Responder Flow
-     * <p>
-     * List of Match Criteria for ARP Responder
+     * Get Match Criteria for the ARP Responder Flow.
+     *
+     * <p>List of Match Criteria for ARP Responder
      * </p>
      * <ul>
      * <li>Packet is ARP</li>
@@ -171,26 +155,23 @@ public class ArpResponderUtil {
      * ID({@link MetaDataUtil#METADATA_MASK_VRFID})</li>
      * </ul>
      *
-     * @param lPortTag
-     *            LPort Tag
-     * @param vpnId
-     *            VPN ID
-     * @param ipAddress
-     *            Gateway IP
+     * @param lportTag LPort Tag
+     * @param vpnId VPN ID
+     * @param ipAddress Gateway IP
      * @return List of Match criteria
      */
-    public static List<MatchInfo> getMatchCriteria(final int lPortTag,
-            final long vpnId, final String ipAddress) {
+    public static List<MatchInfo> getMatchCriteria(final int lportTag,
+        final long vpnId, final String ipAddress) {
 
         final List<MatchInfo> matches = new ArrayList<MatchInfo>();
-        short mIndex = NwConstants.L3VPN_SERVICE_INDEX;
+        short matchIndex = NwConstants.L3VPN_SERVICE_INDEX;
         final BigInteger metadata = MetaDataUtil.getMetaDataForLPortDispatcher(
-                lPortTag, ++mIndex, MetaDataUtil.getVpnIdMetadata(vpnId));
+            lportTag, ++matchIndex, MetaDataUtil.getVpnIdMetadata(vpnId));
         final BigInteger metadataMask = MetaDataUtil
-                .getMetaDataMaskForLPortDispatcher(
-                        MetaDataUtil.METADATA_MASK_SERVICE_INDEX,
-                        MetaDataUtil.METADATA_MASK_LPORT_TAG,
-                        MetaDataUtil.METADATA_MASK_VRFID);
+            .getMetaDataMaskForLPortDispatcher(
+                MetaDataUtil.METADATA_MASK_SERVICE_INDEX,
+                MetaDataUtil.METADATA_MASK_LPORT_TAG,
+                MetaDataUtil.METADATA_MASK_VRFID);
 
         // Matching Arp request flows
         matches.add(MatchEthernetType.ARP);
@@ -202,26 +183,21 @@ public class ArpResponderUtil {
     }
 
     /**
-     * Get List of actions for ARP Responder Flows
+     * Get List of actions for ARP Responder Flows.
      *
-     * Actions consists of all the ARP actions from
+     * <p>Actions consists of all the ARP actions from
      * and Egress Actions Retrieved
      *
-     * @param ifaceMgrRpcService
-     *            Interface manager RPC reference to invoke RPC to get Egress
-     *            actions for the interface
-     * @param vpnInterface
-     *            VPN Interface for which flow to be installed
-     * @param ipAddress
-     *            Gateway IP Address
-     * @param macAddress
-     *            Gateway MacAddress
+     * @param ifaceMgrRpcService Interface manager RPC reference to invoke RPC to get Egress actions for the interface
+     * @param vpnInterface VPN Interface for which flow to be installed
+     * @param ipAddress Gateway IP Address
+     * @param macAddress Gateway MacAddress
      * @return List of ARP Responder Actions actions
      */
     public static List<Action> getActions(
-            final OdlInterfaceRpcService ifaceMgrRpcService,
-            final String vpnInterface, final String ipAddress,
-            final String macAddress) {
+        final OdlInterfaceRpcService ifaceMgrRpcService,
+        final String vpnInterface, final String ipAddress,
+        final String macAddress) {
 
         final List<Action> actions = new ArrayList<>();
         int actionCounter = 0;
@@ -232,11 +208,11 @@ public class ArpResponderUtil {
         actions.add(new ActionMoveSpaToTpa().buildAction(actionCounter++));
         actions.add(new ActionLoadMacToSha(new MacAddress(macAddress)).buildAction(actionCounter++));
         actions.add(new ActionLoadIpToSpa(ipAddress).buildAction(actionCounter++));
-        //A temporary fix until to send packet to incoming port by loading IN_PORT with zero, until in_port is overridden in table=0
+        // A temporary fix until to send packet to incoming port by loading IN_PORT with zero, until in_port is
+        // overridden in table=0
         actions.add(new ActionNxLoadInPort(BigInteger.ZERO).buildAction(actionCounter++));
 
-        actions.addAll(getEgressActionsForInterface(ifaceMgrRpcService,
-                vpnInterface, actionCounter));
+        actions.addAll(getEgressActionsForInterface(ifaceMgrRpcService, vpnInterface, actionCounter));
         LOG.trace("Total Number of actions is {}", actionCounter);
         return actions;
 
@@ -250,12 +226,6 @@ public class ArpResponderUtil {
      * egress table drop flow.<br>
      * In order to allow write-metadata in the ARP responder table the resubmit
      * action needs to be replaced with goto instruction.
-     *
-     * @param ifaceMgrRpcService
-     * @param extInterfaceName
-     * @param ipAddress
-     * @param macAddress
-     * @return
      */
     public static List<Instruction> getExtInterfaceInstructions(final OdlInterfaceRpcService ifaceMgrRpcService,
             final String extInterfaceName, final String ipAddress, final String macAddress) {
@@ -293,7 +263,7 @@ public class ArpResponderUtil {
     }
 
     /**
-     * Install ARP Responder FLOW
+     * Install ARP Responder FLOW.
      *
      * @param mdSalManager
      *            Reference of MDSAL API RPC that provides API for installing
@@ -328,68 +298,57 @@ public class ArpResponderUtil {
     }
 
     /**
-     * Remove flow form DPN
+     * Remove flow form DPN.
      *
-     * @param mdSalManager
-     *            Reference of MDSAL API RPC that provides API for installing
-     *            flow
-     * @param writeInvTxn
-     *            Write Transaction to write the flow
-     * @param dpnId
-     *            DPN form which flow to be removed
-     * @param flowId
-     *            Uniquely Identifiable Arp Responder Table flow Id that is to
-     *            be removed
+     * @param mdSalManager Reference of MDSAL API RPC that provides API for installing flow
+     * @param writeInvTxn Write Transaction to write the flow
+     * @param dpnId DPN form which flow to be removed
+     * @param flowId Uniquely Identifiable Arp Responder Table flow Id that is to be removed
      */
     public static void removeFlow(final IMdsalApiManager mdSalManager,
-            final WriteTransaction writeInvTxn,
-            final BigInteger dpnId, final String flowId) {
+        final WriteTransaction writeInvTxn,
+        final BigInteger dpnId, final String flowId) {
         final Flow flowEntity = MDSALUtil
-                .buildFlow(NwConstants.ARP_RESPONDER_TABLE, flowId);
+            .buildFlow(NwConstants.ARP_RESPONDER_TABLE, flowId);
         mdSalManager.removeFlowToTx(dpnId, flowEntity, writeInvTxn);
     }
 
     /**
-     * Creates Uniquely Identifiable flow Id
-     * <p>
-     * <b>Refer:</b> {@link ArpResponderConstant#FLOW_ID_FORMAT}
+     * Creates Uniquely Identifiable flow Id.
      *
-     * @param lportTag
-     *            LportTag of the flow
-     * @param gwIp
-     *            Gateway IP for which ARP Response flow to be installed
+     * <p><b>Refer:</b> {@link ArpResponderConstant#FLOW_ID_FORMAT}
+     *
+     * @param lportTag LportTag of the flow
+     * @param gwIp Gateway IP for which ARP Response flow to be installed
      * @return Unique Flow Id
      */
     public static String getFlowID(final int lportTag, final String gwIp) {
         return MessageFormat.format(ArpResponderConstant.FLOW_ID_FORMAT.value(),
-                NwConstants.ARP_RESPONDER_TABLE, lportTag, gwIp);
+            NwConstants.ARP_RESPONDER_TABLE, lportTag, gwIp);
     }
 
     /**
-     * Generate Cookie per flow
-     * <p>
-     * Cookie is generated by Summation of
+     * Generate Cookie per flow.
+     *
+     * <p>Cookie is generated by Summation of
      * {@link NwConstants#COOKIE_ARP_RESPONDER} + 1 + lportTag + Gateway IP
      *
-     * @param lportTag
-     *            Lport Tag of the flow
-     * @param gwIp
-     *            Gateway IP for which ARP Response flow to be installed
+     * @param lportTag Lport Tag of the flow
+     * @param gwIp Gateway IP for which ARP Response flow to be installed
      * @return Cookie
      */
     public static BigInteger generateCookie(final long lportTag,
-            final String gwIp) {
+        final String gwIp) {
         LOG.trace("IPAddress in long {}", gwIp);
         return NwConstants.COOKIE_ARP_RESPONDER.add(BigInteger.ONE)
-                .add(BigInteger.valueOf(lportTag))
-                .add(BigInteger.valueOf(ipTolong(gwIp)));
+            .add(BigInteger.valueOf(lportTag))
+            .add(BigInteger.valueOf(ipTolong(gwIp)));
     }
 
     /**
-     * Get IP Address in Long from String
+     * Get IP Address in Long from String.
      *
-     * @param address
-     *            IP Address that to be converted to long
+     * @param address IP Address that to be converted to long
      * @return Long value of the IP Address
      */
     private static long ipTolong(String address) {
@@ -412,46 +371,45 @@ public class ArpResponderUtil {
     }
 
     /**
-     * Get List of Egress Action for the VPN interface
+     * Get List of Egress Action for the VPN interface.
      *
-     * @param ifaceMgrRpcService
-     *            Interface Manager RPC reference that invokes API to retrieve
-     *            Egress Action
-     * @param ifName
-     *            VPN Interface for which Egress Action to be retrieved
-     * @param actionCounter
-     *            Action Key
+     * @param ifaceMgrRpcService Interface Manager RPC reference that invokes API to retrieve Egress Action
+     * @param ifName VPN Interface for which Egress Action to be retrieved
+     * @param actionCounter Action Key
      * @return List of Egress Actions
      */
     public static List<Action> getEgressActionsForInterface(
-            final OdlInterfaceRpcService ifaceMgrRpcService, String ifName,
-            int actionCounter) {
+        final OdlInterfaceRpcService ifaceMgrRpcService, String ifName,
+        int actionCounter) {
         final List<Action> listActions = new ArrayList<>();
         try {
             final RpcResult<GetEgressActionsForInterfaceOutput> result = ifaceMgrRpcService
-                    .getEgressActionsForInterface(
-                            new GetEgressActionsForInterfaceInputBuilder()
-                                    .setIntfName(ifName).build())
-                    .get();
+                .getEgressActionsForInterface(
+                    new GetEgressActionsForInterfaceInputBuilder()
+                        .setIntfName(ifName).build())
+                .get();
             if (result.isSuccessful()) {
-                final List<org.opendaylight.yang.gen.v1.urn.opendaylight.action.types.rev131112.action.list.Action> actions = result
-                        .getResult().getAction();
+                final List<org.opendaylight.yang.gen.v1.urn.opendaylight.action.types.rev131112.action.list.Action>
+                    actions = result
+                    .getResult().getAction();
                 for (final Action action : actions) {
 
                     listActions
-                            .add(new org.opendaylight.yang.gen.v1.urn.opendaylight.action.types.rev131112.action.list.ActionBuilder(
-                                    action).setKey(new ActionKey(actionCounter))
-                                            .setOrder(actionCounter++).build());
+                        .add(
+                            new org.opendaylight.yang.gen.v1.urn.opendaylight.action.types.rev131112.action.list
+                                .ActionBuilder(
+                                action).setKey(new ActionKey(actionCounter))
+                                .setOrder(actionCounter++).build());
 
                 }
             } else {
                 LOG.warn(
-                        "RPC Call to Get egress actions for interface {} returned with Errors {}",
-                        ifName, result.getErrors());
+                    "RPC Call to Get egress actions for interface {} returned with Errors {}",
+                    ifName, result.getErrors());
             }
         } catch (InterruptedException | ExecutionException e) {
             LOG.warn("Exception when egress actions for interface {}", ifName,
-                    e);
+                e);
         }
         return listActions;
     }
@@ -459,13 +417,13 @@ public class ArpResponderUtil {
     /**
      * Uses the IdManager to retrieve ARP Responder GroupId from ELAN pool.
      *
-     * @param idManager
-     *            the id manager
+     * @param idManager the id manager
      * @return the integer
      */
     public static Long retrieveStandardArpResponderGroupId(IdManagerService idManager) {
 
-        AllocateIdInput getIdInput = new AllocateIdInputBuilder().setPoolName(ArpResponderConstant.ELAN_ID_POOL_NAME.value())
+        AllocateIdInput getIdInput =
+            new AllocateIdInputBuilder().setPoolName(ArpResponderConstant.ELAN_ID_POOL_NAME.value())
                 .setIdKey(ArpResponderConstant.ARP_RESPONDER_GROUP_ID.value()).build();
 
         try {

@@ -67,17 +67,18 @@ public class DpnInVpnChangeListener implements OdlL3vpnListener {
         final String vpnName = eventData.getVpnName();
         BigInteger dpnId = eventData.getDpnId();
 
-        LOG.trace("Remove Dpn Event notification received for rd {} VpnName {} DpnId {}", rd , vpnName, dpnId);
+        LOG.trace("Remove Dpn Event notification received for rd {} VpnName {} DpnId {}", rd, vpnName, dpnId);
 
         synchronized (vpnName.intern()) {
             InstanceIdentifier<VpnInstanceOpDataEntry> id = VpnUtil.getVpnInstanceOpDataIdentifier(rd);
-            Optional<VpnInstanceOpDataEntry> vpnOpValue = VpnUtil.read(dataBroker, LogicalDatastoreType.OPERATIONAL, id);
+            Optional<VpnInstanceOpDataEntry> vpnOpValue =
+                VpnUtil.read(dataBroker, LogicalDatastoreType.OPERATIONAL, id);
 
             if (vpnOpValue.isPresent()) {
                 VpnInstanceOpDataEntry vpnInstOpData = vpnOpValue.get();
                 List<VpnToDpnList> vpnToDpnList = vpnInstOpData.getVpnToDpnList();
                 boolean flushDpnsOnVpn = true;
-                for (VpnToDpnList dpn: vpnToDpnList) {
+                for (VpnToDpnList dpn : vpnToDpnList) {
                     if (dpn.getDpnState() == VpnToDpnList.DpnState.Active) {
                         flushDpnsOnVpn = false;
                         break;
@@ -85,7 +86,7 @@ public class DpnInVpnChangeListener implements OdlL3vpnListener {
                 }
                 if (flushDpnsOnVpn) {
                     WriteTransaction writeTxn = dataBroker.newWriteOnlyTransaction();
-                    deleteDpn(vpnToDpnList , rd , writeTxn);
+                    deleteDpn(vpnToDpnList, rd, writeTxn);
                     CheckedFuture<Void, TransactionCommitFailedException> futures = writeTxn.submit();
                     try {
                         futures.get();
@@ -101,8 +102,8 @@ public class DpnInVpnChangeListener implements OdlL3vpnListener {
 
     protected void deleteDpn(Collection<VpnToDpnList> vpnToDpnList, String rd, WriteTransaction writeTxn) {
         for (final VpnToDpnList curDpn : vpnToDpnList) {
-            InstanceIdentifier<VpnToDpnList> VpnToDpnId = VpnUtil.getVpnToDpnListIdentifier(rd, curDpn.getDpnId());
-            writeTxn.delete(LogicalDatastoreType.OPERATIONAL, VpnToDpnId);
+            InstanceIdentifier<VpnToDpnList> vpnToDpnId = VpnUtil.getVpnToDpnListIdentifier(rd, curDpn.getDpnId());
+            writeTxn.delete(LogicalDatastoreType.OPERATIONAL, vpnToDpnId);
         }
     }
 }

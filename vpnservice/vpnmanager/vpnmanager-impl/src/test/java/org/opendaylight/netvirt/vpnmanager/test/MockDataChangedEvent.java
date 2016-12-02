@@ -16,38 +16,38 @@ import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
 class MockDataChangedEvent implements AsyncDataChangeEvent<InstanceIdentifier<?>, DataObject> {
-  Map<InstanceIdentifier<?>,DataObject> created = new HashMap<>();
-  Map<InstanceIdentifier<?>,DataObject> updated = new HashMap<>();
-  Map<InstanceIdentifier<?>,DataObject> original = new HashMap<>();
-  Set<InstanceIdentifier<?>> removed = new HashSet<>();
+    Map<InstanceIdentifier<?>, DataObject> created = new HashMap<>();
+    Map<InstanceIdentifier<?>, DataObject> updated = new HashMap<>();
+    Map<InstanceIdentifier<?>, DataObject> original = new HashMap<>();
+    Set<InstanceIdentifier<?>> removed = new HashSet<>();
 
-  @Override
-  public Map<InstanceIdentifier<?>, DataObject> getCreatedData() {
-      return created;
-  }
+    @Override
+    public Map<InstanceIdentifier<?>, DataObject> getCreatedData() {
+        return created;
+    }
 
-  @Override
-  public Map<InstanceIdentifier<?>, DataObject> getUpdatedData() {
-      return updated;
-  }
+    @Override
+    public Map<InstanceIdentifier<?>, DataObject> getUpdatedData() {
+        return updated;
+    }
 
-  @Override
-  public Set<InstanceIdentifier<?>> getRemovedPaths() {
-      return removed;
-  }
+    @Override
+    public Set<InstanceIdentifier<?>> getRemovedPaths() {
+        return removed;
+    }
 
-  @Override
-  public Map<InstanceIdentifier<?>, DataObject> getOriginalData() {
-      return original;
-  }
+    @Override
+    public Map<InstanceIdentifier<?>, DataObject> getOriginalData() {
+        return original;
+    }
 
-  @Override
-  public DataObject getOriginalSubtree() {
-      throw new UnsupportedOperationException("Not implemented by mock");
-  }
+    @Override
+    public DataObject getOriginalSubtree() {
+        throw new UnsupportedOperationException("Not implemented by mock");
+    }
 
-  @Override
-  public DataObject getUpdatedSubtree() {
-      throw new UnsupportedOperationException("Not implemented by mock");
-  }
+    @Override
+    public DataObject getUpdatedSubtree() {
+        throw new UnsupportedOperationException("Not implemented by mock");
+    }
 }

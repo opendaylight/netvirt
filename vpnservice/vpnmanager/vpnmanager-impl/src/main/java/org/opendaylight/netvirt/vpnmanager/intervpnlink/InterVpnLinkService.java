@@ -166,10 +166,10 @@ public class InterVpnLinkService {
             return new ArrayList<>();
         }
         return vpnTargets.stream()
-                         .filter(target-> target.getVrfRTType().equals(rtType) ||
-                                          target.getVrfRTType().equals(VpnTarget.VrfRTType.Both))
-                         .map(target-> target.getVrfRTValue())
-                         .collect(Collectors.toList());
+            .filter(target -> target.getVrfRTType().equals(rtType)
+                || target.getVrfRTType().equals(VpnTarget.VrfRTType.Both))
+            .map(VpnTarget::getVrfRTValue)
+            .collect(Collectors.toList());
     }
 
     private List<String> getIRTsByVpnName(String vpnName) {
@@ -229,10 +229,10 @@ public class InterVpnLinkService {
             (vpnMap) -> vpnMap.getRouterId() != null
                         && ! vpnMap.getVpnId().getValue().equalsIgnoreCase(vpnMap.getRouterId().getValue());
 
-        return optVpnMaps.get().getVpnMap().stream()
-                                           .filter(isExternalVpn)
-                                           .collect(Collectors.toMap(v -> v.getRouterId().getValue(),
-                                                                     v -> v.getVpnId().getValue()));
+        return optVpnMaps.get().getVpnMap()
+                .stream()
+                .filter(isExternalVpn)
+                .collect(Collectors.toMap(v -> v.getRouterId().getValue(), v -> v.getVpnId().getValue()));
     }
 
     /*
@@ -240,7 +240,7 @@ public class InterVpnLinkService {
      * InterVpnLink's endpoints. Goes through all routers checking if they have
      * a route whose nexthop is an InterVpnLink endpoint
      */
-    public void handleStaticRoutes(InterVpnLinkDataComposite iVpnLink) {
+    public void handleStaticRoutes(InterVpnLinkDataComposite interVpnLink) {
         // Map that corresponds a routerId with the L3VPN that it's been assigned to.
         Map<String, String> routerXL3VpnMap = buildRouterXL3VPNMap();
 
@@ -261,22 +261,23 @@ public class InterVpnLinkService {
             List<Routes> routerRoutes = router.getRoutes();
             if ( routerRoutes != null ) {
                 for ( Routes route : routerRoutes ) {
-                    handleStaticRoute(vpnId, route, iVpnLink);
+                    handleStaticRoute(vpnId, route, interVpnLink);
                 }
             }
         }
     }
 
-    /*
+    /**
      * Takes care of an static route to see if flows related to interVpnLink
-     * must be installed in tables 20 and 17
+     * must be installed in tables 20 and 17.
      *
      * @param vpnId Vpn to which the route belongs
      * @param route Route to handle. Will only be considered if its nexthop is the VPN's endpoint IpAddress
      *              at the other side of the InterVpnLink
-     * @param iVpnLink
      */
-    private void handleStaticRoute(String vpnId, Routes route, InterVpnLinkDataComposite iVpnLink) {
+    // TODO Clean up exception handling
+    @SuppressWarnings("checkstyle:IllegalCatch")
+    private void handleStaticRoute(String vpnId, Routes route, InterVpnLinkDataComposite interVpnLink) {
 
         IpAddress nhIpAddr = route.getNexthop();
         String routeNextHop = (nhIpAddr.getIpv4Address() != null) ? nhIpAddr.getIpv4Address().getValue()
@@ -284,7 +285,7 @@ public class InterVpnLinkService {
         String destination = String.valueOf(route.getDestination().getValue());
 
         // is nexthop the other endpoint's IP
-        String otherEndpoint = iVpnLink.getOtherEndpoint(vpnId);
+        String otherEndpoint = interVpnLink.getOtherEndpoint(vpnId);
         if ( !routeNextHop.equals(otherEndpoint) ) {
             LOG.debug("VPN {}: Route to {} nexthop={} points to an InterVpnLink endpoint, but its not "
                       + "the other endpoint. Other endpoint is {}",
@@ -303,11 +304,11 @@ public class InterVpnLinkService {
                                         VpnUtil.getNextHopLabelKey(vpnId, destination));
 
         try {
-            InterVpnLinkUtil.handleStaticRoute(iVpnLink, vpnId, destination, routeNextHop, label,
+            InterVpnLinkUtil.handleStaticRoute(interVpnLink, vpnId, destination, routeNextHop, label,
                                                dataBroker, fibManager, bgpManager);
         } catch (Exception e) {
             LOG.warn("InterVpnLink [{}]: Could not handle static route [vpn={} prefix={} nexthop={} label={}]",
-                     iVpnLink.getInterVpnLinkName(), vpnId, destination, routeNextHop, label, e);
+                     interVpnLink.getInterVpnLinkName(), vpnId, destination, routeNextHop, label, e);
         }
     }
 

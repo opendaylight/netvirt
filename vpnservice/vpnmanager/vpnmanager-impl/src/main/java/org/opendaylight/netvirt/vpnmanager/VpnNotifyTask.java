@@ -11,12 +11,12 @@ package org.opendaylight.netvirt.vpnmanager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-class VpnNotifyTask implements Runnable{
-    private static final Logger logger = LoggerFactory.getLogger(VpnNotifyTask.class);
+class VpnNotifyTask implements Runnable {
+    private static final Logger LOG = LoggerFactory.getLogger(VpnNotifyTask.class);
 
     @Override
     public void run() {
-        logger.debug("Notify Task is running for the task {}", this);
+        LOG.debug("Notify Task is running for the task {}", this);
         synchronized (this) {
             notifyAll();
         }

@@ -10,8 +10,8 @@ package org.opendaylight.netvirt.vpnmanager;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
-
 import org.opendaylight.controller.liblldp.EtherTypes;
+import org.opendaylight.controller.liblldp.PacketException;
 import org.opendaylight.genius.mdsalutil.ActionInfo;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.mdsalutil.NWUtil;
@@ -27,21 +27,21 @@ public class ArpUtils {
     private static final Logger LOG = LoggerFactory.getLogger(ArpUtils.class);
 
     public static TransmitPacketInput createArpRequestInput(BigInteger dpnId, long groupId, byte[] abySenderMAC,
-            byte[] abySenderIpAddress, byte[] abyTargetIpAddress) {
+        byte[] abySenderIpAddress, byte[] abyTargetIpAddress) {
         return createArpRequestInput(dpnId, groupId, abySenderMAC, abySenderIpAddress, abyTargetIpAddress, null);
     }
 
     public static TransmitPacketInput createArpRequestInput(BigInteger dpnId, byte[] abySenderMAC,
-            byte[] abySenderIpAddress, byte[] abyTargetIpAddress, NodeConnectorRef ingress) {
+        byte[] abySenderIpAddress, byte[] abyTargetIpAddress, NodeConnectorRef ingress) {
         return createArpRequestInput(dpnId, null, abySenderMAC, (byte[]) null, abySenderIpAddress, abyTargetIpAddress,
-                ingress, new ArrayList<ActionInfo>());
+            ingress, new ArrayList<ActionInfo>());
     }
 
     public static TransmitPacketInput createArpRequestInput(BigInteger dpnId, Long groupId, byte[] abySenderMAC,
-            byte[] abySenderIpAddress, byte[] abyTargetIpAddress, NodeConnectorRef ingress) {
+        byte[] abySenderIpAddress, byte[] abyTargetIpAddress, NodeConnectorRef ingress) {
         List<ActionInfo> lstActionInfo = new ArrayList<ActionInfo>();
         return createArpRequestInput(dpnId, groupId, abySenderMAC, null, abySenderIpAddress, abyTargetIpAddress,
-                ingress, lstActionInfo);
+            ingress, lstActionInfo);
     }
 
     public static TransmitPacketInput createArpRequestInput(BigInteger dpnId, Long groupId, byte[] abySenderMAC,
@@ -95,16 +95,16 @@ public class ArpUtils {
             ethernet.setEtherType(EtherTypes.ARP.shortValue());
             ethernet.setRawPayload(arp);
             rawEthPkt = ethernet.serialize();
-        } catch (Exception ex) {
+        } catch (PacketException ex) {
             LOG.error(
-                    "VPNUtil:  Serialized Ethernet packet with sourceMacAddress {} targetMacAddress {} exception ",
-                    sourceMAC, targetMAC, ex);
+                "VPNUtil:  Serialized Ethernet packet with sourceMacAddress {} targetMacAddress {} exception ",
+                sourceMAC, targetMAC, ex);
         }
         return rawEthPkt;
     }
 
     private static byte[] createARPPacket(short opCode, byte[] senderMacAddress, byte[] senderIP,
-            byte[] targetMacAddress, byte[] targetIP) {
+        byte[] targetMacAddress, byte[] targetIP) {
         ARP arp = new ARP();
         byte[] rawArpPkt = null;
         try {
@@ -118,9 +118,9 @@ public class ArpUtils {
             arp.setTargetHardwareAddress(targetMacAddress);
             arp.setTargetProtocolAddress(targetIP);
             rawArpPkt = arp.serialize();
-        } catch (Exception ex) {
+        } catch (PacketException ex) {
             LOG.error("VPNUtil:  Serialized ARP packet with senderIp {} targetIP {} exception ", senderIP,
-                    targetIP, ex);
+                targetIP, ex);
         }
 
         return rawArpPkt;

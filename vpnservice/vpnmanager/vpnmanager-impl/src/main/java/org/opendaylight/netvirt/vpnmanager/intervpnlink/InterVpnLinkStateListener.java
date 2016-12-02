@@ -21,8 +21,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Class responsible for listening to changes in the State of an InterVpnLink,
- * specially for when the InterVpnLink becomes active
- *
+ * specially for when the InterVpnLink becomes active.
  */
 public class InterVpnLinkStateListener
     extends AsyncDataTreeChangeListenerBase<InterVpnLinkState, InterVpnLinkStateListener> {
