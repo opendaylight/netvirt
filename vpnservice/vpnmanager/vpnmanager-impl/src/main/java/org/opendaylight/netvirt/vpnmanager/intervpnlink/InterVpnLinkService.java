@@ -9,7 +9,6 @@ package org.opendaylight.netvirt.vpnmanager.intervpnlink;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -143,10 +142,10 @@ public class InterVpnLinkService {
             return new ArrayList<>();
         }
         return vpnTargets.stream()
-                         .filter(target-> target.getVrfRTType().equals(rtType) ||
-                                          target.getVrfRTType().equals(VpnTarget.VrfRTType.Both))
-                         .map(target-> target.getVrfRTValue())
-                         .collect(Collectors.toList());
+            .filter(target -> target.getVrfRTType().equals(rtType)
+                || target.getVrfRTType().equals(VpnTarget.VrfRTType.Both))
+            .map(VpnTarget::getVrfRTValue)
+            .collect(Collectors.toList());
     }
 
     private List<String> getIRTsByVpnName(String vpnName) {

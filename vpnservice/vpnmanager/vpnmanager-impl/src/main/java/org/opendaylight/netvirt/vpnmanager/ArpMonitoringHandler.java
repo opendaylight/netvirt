@@ -7,9 +7,10 @@
  */
 package org.opendaylight.netvirt.vpnmanager;
 
+import com.google.common.base.Optional;
 import java.math.BigInteger;
 import java.net.InetAddress;
-
+import java.net.UnknownHostException;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
@@ -30,8 +31,6 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.base.Optional;
-
 public class ArpMonitoringHandler extends AsyncDataTreeChangeListenerBase<VpnPortipToPort, ArpMonitoringHandler> {
     private static final Logger LOG = LoggerFactory.getLogger(ArpMonitoringHandler.class);
     private final DataBroker dataBroker;
@@ -43,8 +42,8 @@ public class ArpMonitoringHandler extends AsyncDataTreeChangeListenerBase<VpnPor
     private Long arpMonitorProfileId = 0L;
 
     public ArpMonitoringHandler(final DataBroker dataBroker, final OdlInterfaceRpcService interfaceRpc,
-            IMdsalApiManager mdsalManager, AlivenessMonitorService alivenessManager, INeutronVpnManager neutronVpnService,
-            IInterfaceManager interfaceManager) {
+        IMdsalApiManager mdsalManager, AlivenessMonitorService alivenessManager, INeutronVpnManager neutronVpnService,
+        IInterfaceManager interfaceManager) {
         super(VpnPortipToPort.class, ArpMonitoringHandler.class);
         this.dataBroker = dataBroker;
         this.interfaceRpc = interfaceRpc;
@@ -55,10 +54,10 @@ public class ArpMonitoringHandler extends AsyncDataTreeChangeListenerBase<VpnPor
     }
 
     public void start() {
-        Optional <Long> profileIdOptional = AlivenessMonitorUtils.allocateProfile(alivenessManager,
-                ArpConstants.FAILURE_THRESHOLD, ArpConstants.ARP_CACHE_TIMEOUT_MILLIS, ArpConstants.MONITORING_WINDOW,
-                EtherTypes.Arp);
-        if(profileIdOptional.isPresent()) {
+        Optional<Long> profileIdOptional = AlivenessMonitorUtils.allocateProfile(alivenessManager,
+            ArpConstants.FAILURE_THRESHOLD, ArpConstants.ARP_CACHE_TIMEOUT_MILLIS, ArpConstants.MONITORING_WINDOW,
+            EtherTypes.Arp);
+        if (profileIdOptional.isPresent()) {
             arpMonitorProfileId = profileIdOptional.get();
         } else {
             LOG.error("Error while allocating Profile Id", profileIdOptional);
@@ -71,9 +70,10 @@ public class ArpMonitoringHandler extends AsyncDataTreeChangeListenerBase<VpnPor
         return InstanceIdentifier.create(NeutronVpnPortipPortData.class).child(VpnPortipToPort.class);
     }
 
-    public static InstanceIdentifier<VpnPortipToPort> getVpnPortipToPortInstanceOpDataIdentifier(String ip, String vpnName) {
+    public static InstanceIdentifier<VpnPortipToPort> getVpnPortipToPortInstanceOpDataIdentifier(String ip,
+        String vpnName) {
         return InstanceIdentifier.builder(NeutronVpnPortipPortData.class)
-                .child(VpnPortipToPort.class, new VpnPortipToPortKey(ip, vpnName)).build();
+            .child(VpnPortipToPort.class, new VpnPortipToPortKey(ip, vpnName)).build();
     }
 
     @Override
@@ -81,22 +81,25 @@ public class ArpMonitoringHandler extends AsyncDataTreeChangeListenerBase<VpnPor
         return this;
     }
 
+    // TODO Clean up the exception handling
+    @SuppressWarnings("checkstyle:IllegalCatch")
     @Override
     protected void update(InstanceIdentifier<VpnPortipToPort> id, VpnPortipToPort value,
-            VpnPortipToPort dataObjectModificationAfter) {
+        VpnPortipToPort dataObjectModificationAfter) {
         try {
             Boolean islearnt = value.isLearnt();
-            if(value.getMacAddress() == null || dataObjectModificationAfter.getMacAddress() == null) {
-                LOG.warn("The Macaddress received is null for VpnPortipToPort {}, ignoring the DTCN", dataObjectModificationAfter);
+            if (value.getMacAddress() == null || dataObjectModificationAfter.getMacAddress() == null) {
+                LOG.warn("The Macaddress received is null for VpnPortipToPort {}, ignoring the DTCN",
+                    dataObjectModificationAfter);
                 return;
             }
-            if(islearnt) {
+            if (islearnt) {
                 remove(id, value);
                 add(id, dataObjectModificationAfter);
             }
         } catch (Exception e) {
-            LOG.error("Error in handling update to vpnPortIpToPort for vpnName {} and IP Address {}", value.getVpnName() , value.getPortFixedip());
-            e.printStackTrace();
+            LOG.error("Error in handling update to vpnPortIpToPort for vpnName {} and IP Address {}",
+                value.getVpnName(), value.getPortFixedip(), e);
         }
     }
 
@@ -105,28 +108,28 @@ public class ArpMonitoringHandler extends AsyncDataTreeChangeListenerBase<VpnPor
         try {
             InetAddress srcInetAddr = InetAddress.getByName(value.getPortFixedip());
             String macAddress = value.getMacAddress();
-            if(value.getMacAddress() == null) {
+            if (value.getMacAddress() == null) {
                 LOG.warn("The Macaddress received is null for VpnPortipToPort {}, ignoring the DTCN", value);
                 return;
             }
             MacAddress srcMacAddress = MacAddress.getDefaultInstance(value.getMacAddress());
-            String vpnName =  value.getVpnName();
-            String interfaceName =  value.getPortName();
+            String vpnName = value.getVpnName();
+            String interfaceName = value.getPortName();
             Boolean islearnt = value.isLearnt();
             if (islearnt) {
                 MacEntry macEntry = new MacEntry(vpnName, srcMacAddress, srcInetAddr, interfaceName);
                 DataStoreJobCoordinator coordinator = DataStoreJobCoordinator.getInstance();
                 coordinator.enqueueJob(buildJobKey(srcInetAddr.toString(), vpnName),
-                        new ArpMonitorStartTask(macEntry, arpMonitorProfileId, dataBroker, alivenessManager,
-                                interfaceRpc, neutronVpnService, interfaceManager));
+                    new ArpMonitorStartTask(macEntry, arpMonitorProfileId, dataBroker, alivenessManager,
+                        interfaceRpc, neutronVpnService, interfaceManager));
             }
             if (value.isSubnetIp()) {
                 WriteTransaction writeTx = dataBroker.newWriteOnlyTransaction();
                 VpnUtil.setupSubnetMacIntoVpnInstance(dataBroker, mdsalManager, vpnName,
-                        macAddress, BigInteger.ZERO /* On all DPNs */, writeTx, NwConstants.ADD_FLOW);
+                    macAddress, BigInteger.ZERO /* On all DPNs */, writeTx, NwConstants.ADD_FLOW);
                 writeTx.submit();
             }
-        } catch (Exception e) {
+        } catch (UnknownHostException e) {
             LOG.error("Error in deserializing packet {} with exception {}", value, e);
         }
     }
@@ -136,27 +139,27 @@ public class ArpMonitoringHandler extends AsyncDataTreeChangeListenerBase<VpnPor
         try {
             InetAddress srcInetAddr = InetAddress.getByName(value.getPortFixedip());
             String macAddress = value.getMacAddress();
-            if(value.getMacAddress() == null) {
+            if (value.getMacAddress() == null) {
                 LOG.warn("The Macaddress received is null for VpnPortipToPort {}, ignoring the DTCN", value);
                 return;
             }
             MacAddress srcMacAddress = MacAddress.getDefaultInstance(value.getMacAddress());
-            String vpnName =  value.getVpnName();
-            String interfaceName =  value.getPortName();
+            String vpnName = value.getVpnName();
+            String interfaceName = value.getPortName();
             Boolean islearnt = value.isLearnt();
             if (islearnt) {
                 MacEntry macEntry = new MacEntry(vpnName, srcMacAddress, srcInetAddr, interfaceName);
                 DataStoreJobCoordinator coordinator = DataStoreJobCoordinator.getInstance();
                 coordinator.enqueueJob(buildJobKey(srcInetAddr.toString(), vpnName),
-                        new ArpMonitorStopTask(macEntry, dataBroker, alivenessManager));
+                    new ArpMonitorStopTask(macEntry, dataBroker, alivenessManager));
             }
             if (value.isSubnetIp()) {
                 WriteTransaction writeTx = dataBroker.newWriteOnlyTransaction();
                 VpnUtil.setupSubnetMacIntoVpnInstance(dataBroker, mdsalManager, vpnName,
-                        macAddress, BigInteger.ZERO /* On all DPNs */, writeTx, NwConstants.DEL_FLOW);
+                    macAddress, BigInteger.ZERO /* On all DPNs */, writeTx, NwConstants.DEL_FLOW);
                 writeTx.submit();
             }
-        } catch (Exception e) {
+        } catch (UnknownHostException e) {
             LOG.error("Error in deserializing packet {} with exception {}", value, e);
         }
     }

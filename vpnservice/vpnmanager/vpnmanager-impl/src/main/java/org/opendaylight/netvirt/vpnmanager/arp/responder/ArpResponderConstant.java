@@ -10,62 +10,61 @@ package org.opendaylight.netvirt.vpnmanager.arp.responder;
 public enum ArpResponderConstant {
 
     /**
-     * ARP Responder table name
-     * <P>
-     * Value:<b>Arp_Responder_Table</b>
+     * ARP Responder table name.
+     *
+     * <p>Value:<b>Arp_Responder_Table</b>
      */
     TABLE_NAME("Arp_Responder_Table"),
     /**
-     * ARP Responder group table name
-     * <P>
-     * Value:<b>Arp_Responder_Group_Flow</b>
+     * ARP Responder group table name.
+     *
+     * <p>Value:<b>Arp_Responder_Group_Flow</b>
      */
     GROUP_FLOW_NAME("Arp_Responder_Group_Flow"),
     /**
-     * ARP Responder Drop Flow name
-     * <P>
-     * Value:<b>Arp_Responder_Drop_Flow</b>
+     * ARP Responder Drop Flow name.
+     *
+     * <p>Value:<b>Arp_Responder_Drop_Flow</b>
      */
     DROP_FLOW_NAME("Arp_Responder_Drop_Flow"),
     /**
-     * ARP Responder Flow ID
-     * <P>
-     * Value:<b>Arp:tbl_{0}:lport_{1}:gw_{2}</b>
+     * ARP Responder Flow ID.
+     *
+     * <p>Value:<b>Arp:tbl_{0}:lport_{1}:gw_{2}</b>
      * <ul><li>0: Table Id</li>
      * <li>1: LPort Tag</li>
      * <li>2: Gateway IP in String</li></ul>
      */
     FLOW_ID_FORMAT("Arp:tbl_{0}:lport_{1}:gw_{2}"),
     /**
-     * Pool name from which group id to be generated
-     * <P>
-     * Value:<b>elan.ids.pool</b>
+     * Pool name from which group id to be generated.
+     *
+     * <p>Value:<b>elan.ids.pool</b>
      */
     ELAN_ID_POOL_NAME("elan.ids.pool"),
     /**
-     * Name of the group id for the pool entry
-     * <p>
-     * Value:<b>arp.responder.group.id</b>
+     * Name of the group id for the pool entry.
+     *
+     * <p>Value:<b>arp.responder.group.id</b>
      */
     ARP_RESPONDER_GROUP_ID("arp.responder.group.id");
 
     /**
-     * enum value holder
+     * enum value holder.
      */
     private final String value;
 
     /**
-     * Constructor with single argument
+     * Constructor with single argument.
      *
-     * @param value
-     *            String enum value
+     * @param value String enum value
      */
     ArpResponderConstant(final String value) {
         this.value = value;
     }
 
     /**
-     * Get value for enum
+     * Get value for enum.
      *
      * @return {@link #value}
      */
