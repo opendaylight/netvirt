@@ -68,6 +68,7 @@
     <argument ref="odlInterfaceRpcService" />
     <argument ref="vpnFootprintService" />
     <argument ref="vpnOpDataSyncer" />
+    <argument ref="neutronVpnService" />
   </bean>
 
   <bean id="interfaceStateChangeListener"
