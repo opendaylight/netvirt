@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "1a622d24_ab14cff5",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 29
+      },
+      "lineNbr": 846,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2016-12-02T07:19:19Z",
+      "side": 1,
+      "message": "Not required as l3vni is already initialized to zero.",
+      "parentUuid": "1a622d24_f094f945",
+      "revId": "e9dc03c1d76df101cd1b460b30e614dca7ad6b9a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_7088e922",
         "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
         "patchSetId": 29
@@ -30,6 +48,24 @@
       "writtenOn": "2016-11-30T17:35:59Z",
       "side": 1,
       "message": "is there a need to give full class path here?",
+      "revId": "e9dc03c1d76df101cd1b460b30e614dca7ad6b9a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_6b0ab7d3",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 29
+      },
+      "lineNbr": 2091,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2016-12-02T07:19:19Z",
+      "side": 1,
+      "message": "Yes Required.",
+      "parentUuid": "1a622d24_7088e922",
       "revId": "e9dc03c1d76df101cd1b460b30e614dca7ad6b9a",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
