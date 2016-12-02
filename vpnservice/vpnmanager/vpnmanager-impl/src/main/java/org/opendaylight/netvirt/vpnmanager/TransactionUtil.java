@@ -35,18 +35,20 @@ public class TransactionUtil {
 
         public void onFailure(Throwable error) {
             LOG.error("Error in Datastore operation", error);
-        };
+        }
+
+        ;
     };
 
     public static <T extends DataObject> Optional<T> read(DataBroker dataBroker, LogicalDatastoreType datastoreType,
-                                                    InstanceIdentifier<T> path) {
+        InstanceIdentifier<T> path) {
 
         ReadOnlyTransaction tx = dataBroker.newReadOnlyTransaction();
 
         Optional<T> result;
         try {
             result = tx.read(datastoreType, path).get();
-        } catch (Exception e) {
+        } catch (InterruptedException | ExecutionException e) {
             throw new RuntimeException(e);
         }
 
@@ -54,16 +56,16 @@ public class TransactionUtil {
     }
 
     public static <T extends DataObject> void asyncWrite(DataBroker dataBroker, LogicalDatastoreType datastoreType,
-                                                   InstanceIdentifier<T> path, T data,
-                                                   FutureCallback<Void> callback) {
+        InstanceIdentifier<T> path, T data,
+        FutureCallback<Void> callback) {
         WriteTransaction tx = dataBroker.newWriteOnlyTransaction();
         tx.put(datastoreType, path, data, true);
         Futures.addCallback(tx.submit(), callback);
     }
 
     public static <T extends DataObject> void syncWrite(DataBroker dataBroker, LogicalDatastoreType datastoreType,
-                                                  InstanceIdentifier<T> path,
-                                                  T data, FutureCallback<Void> callback) {
+        InstanceIdentifier<T> path,
+        T data, FutureCallback<Void> callback) {
         WriteTransaction tx = dataBroker.newWriteOnlyTransaction();
         tx.put(datastoreType, path, data, true);
         CheckedFuture<Void, TransactionCommitFailedException> futures = tx.submit();
