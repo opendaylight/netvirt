@@ -9,6 +9,7 @@
 package org.opendaylight.netvirt.openstack.netvirt.impl;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyLong;
 import static org.mockito.Matchers.anyString;
@@ -110,25 +111,17 @@ public class DistributedArpServiceTest {
      */
     @Test
     public void testHandlePortEvent() throws Exception {
-        NeutronPort neutronPortOne = PowerMockito.mock(NeutronPort.class);
-        NeutronPort neutronPortTwo = PowerMockito.mock(NeutronPort.class);
-        List<NeutronPort> list_neutronPort = new ArrayList<>();
-        list_neutronPort.add(neutronPortOne);
-        list_neutronPort.add(neutronPortTwo);
-        INeutronPortCRUD neutronPortCache = PowerMockito.mock(INeutronPortCRUD.class);
-        MemberModifier.field(DistributedArpService.class, "neutronPortCache").set(distributedArpService, neutronPortCache);
-        PowerMockito.when(neutronPortCache, "getAllPorts").thenReturn(list_neutronPort);
+        NeutronPort neutronPort = PowerMockito.mock(NeutronPort.class);
 
         // Suppress the called to these functions.
         MemberModifier.suppress(MemberMatcher.method(DistributedArpService.class, "handleNeutronPortForArp", NeutronPort.class, Action.class));
 
-        //Case 1: Delete Action.
-        Whitebox.invokeMethod(distributedArpService, "handlePortEvent", neutronPortOne, Action.DELETE);
+        Whitebox.invokeMethod(distributedArpService, "handlePortEvent", neutronPort, Action.ADD);
+        PowerMockito.verifyPrivate(distributedArpService, times(1)).invoke("handleNeutronPortForArp", any(NeutronPort.class), eq(Action.ADD));
+        
+      //Case 1: Delete Action.
+        Whitebox.invokeMethod(distributedArpService, "handlePortEvent", neutronPort, Action.DELETE);
         PowerMockito.verifyPrivate(distributedArpService, times(1)).invoke("handleNeutronPortForArp", any(NeutronPort.class), eq(Action.DELETE));
-
-        //Case 2: Add Action.
-        Whitebox.invokeMethod(distributedArpService, "handlePortEvent", neutronPortOne, Action.ADD);
-        PowerMockito.verifyPrivate(distributedArpService, times(2)).invoke("handleNeutronPortForArp", any(NeutronPort.class), eq(Action.ADD));
     }
 
     /**
@@ -173,6 +166,7 @@ public class DistributedArpServiceTest {
      */
     @Test
     public void testHandleNeutornPortForArp() throws Exception {
+        Southbound southbound = mock(Southbound.class);
         Neutron_IPs neutronIp = mock(Neutron_IPs.class);
         when(neutronIp.getIpAddress()).thenReturn(FIXED_IP_ADDRESS);
         List<Neutron_IPs> neutronIps = new ArrayList<>();
@@ -200,15 +194,17 @@ public class DistributedArpServiceTest {
         // Suppress the called to these functions.
         MemberModifier.suppress(MemberMatcher.method(DistributedArpService.class, "programStaticRuleStage1", Long.class, String.class, String.class, String.class, Action.class));
 
-        //Case 1: Add Action.
+        List<OvsdbTerminationPointAugmentation> ports = new ArrayList<>();
+        ports.add(mock(OvsdbTerminationPointAugmentation.class));
+        PowerMockito.when(southbound.readTerminationPointAugmentations(any(Node.class))).thenReturn(ports);
+
+        PowerMockito.doReturn(true).when(distributedArpService, "getNeutronPortsForNode", any(Node.class), any(List.class), anyString());
         Whitebox.invokeMethod(distributedArpService, "handleNeutronPortForArp", neutronPort, Action.ADD);
         PowerMockito.verifyPrivate(distributedArpService, times(1)).invoke("getDatapathIdIntegrationBridge", any(Node.class));
-        Mockito.verify(distributedArpService, times(1)).programStaticRuleStage1(anyLong(), anyString(), anyString(), anyString(), eq(Action.ADD));
 
-        //Case 2: Delete Action.
+        // Case 2: Delete Action.
         Whitebox.invokeMethod(distributedArpService, "handleNeutronPortForArp", neutronPort, Action.DELETE);
         PowerMockito.verifyPrivate(distributedArpService, times(2)).invoke("getDatapathIdIntegrationBridge", any(Node.class));
-        Mockito.verify(distributedArpService, times(1)).programStaticRuleStage1(anyLong(), anyString(), anyString(), anyString(), eq(Action.DELETE));
     }
 
     /**
@@ -310,9 +306,11 @@ public class DistributedArpServiceTest {
         assertEquals("Error, did not return the correct object", getField("arpProvider"), arpProvider);
     }
 
+
     private Object getField(String fieldName) throws Exception {
         Field field = DistributedArpService.class.getDeclaredField(fieldName);
         field.setAccessible(true);
         return field.get(distributedArpService);
     }
+
 }
