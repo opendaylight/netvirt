@@ -10,8 +10,12 @@ package org.opendaylight.netvirt.openstack.netvirt.impl;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.RejectedExecutionException;
 
 import com.google.common.base.Preconditions;
 
@@ -56,7 +60,8 @@ public class DistributedArpService implements ConfigInterface {
     private Southbound southbound;
     private Boolean flgDistributedARPEnabled = true;
 
-    private HashMap<String, List<Neutron_IPs>> dhcpPortIpCache = new HashMap();
+    static ExecutorService executor = Executors.newFixedThreadPool(5);
+
 
     private void initMembers() {
         Preconditions.checkNotNull(configurationService);
@@ -76,13 +81,7 @@ public class DistributedArpService implements ConfigInterface {
      */
     public void handlePortEvent(NeutronPort neutronPort, Action action) {
         LOG.debug("neutronPort Event {} action event {} ", neutronPort, action);
-        if (action == Action.DELETE) {
-            this.handleNeutronPortForArp(neutronPort, action);
-        } else {
-            for (NeutronPort neutronPort1 : neutronPortCache.getAllPorts()) {
-               this.handleNeutronPortForArp(neutronPort1, action);
-            }
-        }
+        this.handleNeutronPortForArp(neutronPort, action);
     }
 
      /**
@@ -152,6 +151,7 @@ public class DistributedArpService implements ConfigInterface {
 
         final String networkUUID = neutronPort.getNetworkUUID();
         NeutronNetwork neutronNetwork = neutronNetworkCache.getNetwork(networkUUID);
+        String owner = neutronPort.getDeviceOwner();
         if (null == neutronNetwork) {
             neutronNetwork = neutronL3Adapter.getNetworkFromCleanupCache(networkUUID);
         }
@@ -167,72 +167,72 @@ public class DistributedArpService implements ConfigInterface {
         List<Node> nodes = nodeCacheManager.getBridgeNodes();
         if (nodes.isEmpty()) {
             LOG.trace("updateL3ForNeutronPort has no nodes to work with");
-            //Do not exit, we still may need to clean up this entry from the dhcpPortToIpCache
         }
-
-        //Neutron removes the DHCP port's IP before deleting it. As such,
-        //when it comes time to delete the port, the ARP rule can not
-        //be removed because we simply don't know the IP. To mitigate this,
-        //we cache the dhcp ports IPs (BUG 5408).
-        String owner = neutronPort.getDeviceOwner();
-        boolean isDhcpPort = owner != null && owner.equals(DHCP_DEVICE_OWNER);
-        List<Neutron_IPs> fixedIps = neutronPort.getFixedIPs();
-        if((null == fixedIps || fixedIps.isEmpty())
-                        && actionToPerform == Action.DELETE && isDhcpPort){
-            fixedIps = dhcpPortIpCache.get(neutronPort.getPortUUID());
-            if(fixedIps == null) {
-                return;
-            }
-        }
-
-        List<Neutron_IPs> network_Ips = neutronPort.getFixedIPs();
         for (Node node : nodes) {
             // Arp rule is only needed when segmentation exists in the given node (bug 4752)
             // or in case the port is a router interface
             boolean isRouterInterface = owner != null && owner.equals(ROUTER_INTERFACE_DEVICE_OWNER);
-            boolean arpNeeded = isRouterInterface ||
-                    tenantNetworkManager.isTenantNetworkPresentInNode(node, providerSegmentationId);
+            List <NeutronPort> neutronPortList = new ArrayList();
+            boolean isTenantNetworkPresentInNode = getNeutronPortsForNode(node, neutronPortList, providerSegmentationId);
+            boolean arpNeeded = isRouterInterface || isTenantNetworkPresentInNode;
             final Action actionForNode = arpNeeded ? actionToPerform : Action.DELETE;
             final Long dpid = getDatapathIdIntegrationBridge(node);
             if (dpid == null) {
                 continue;
             }
-
-            for (Neutron_IPs neutronIP : fixedIps) {
-                final String ipAddress = neutronIP.getIpAddress();
-                if (ipAddress.isEmpty()) {
-                    continue;
+            NeutronPort tempPort = null;
+            if (neutronPortList.size() == 1) {
+                tempPort = neutronPortList.get(0);
+            }
+            if (arpNeeded) {
+                // For a node Arp rule is added for all ports only when the list of termination point size is 1.
+                // If not Arp is added for the current port only (bug 6998)
+                if (neutronPortList.size() == 1  && (tempPort != null && neutronPort.getPortUUID().equalsIgnoreCase(tempPort.getPortUUID()))) {
+                    for (NeutronPort port1 : neutronPortCache.getAllPorts()) {
+                        final String portMacAddress = port1.getMacAddress();
+                        for (Neutron_IPs neutronIPAddr : port1.getFixedIPs()) {
+                            final String portIpAddress = neutronIPAddr.getIpAddress();
+                            try {
+                                executor.submit(() -> programStaticRuleStage1(dpid, providerSegmentationId, portMacAddress, portIpAddress, actionForNode));
+                            } catch (RejectedExecutionException ree) {
+                                programStaticRuleStage1(dpid, providerSegmentationId, portMacAddress, portIpAddress, actionForNode);
+                            }
+                        }
+                    }
+                } else {
+                    final String macAddress1 = neutronPort.getMacAddress();
+                    for (Neutron_IPs neutronIPAddr : neutronPort.getFixedIPs()) {
+                        final String ipAddress = neutronIPAddr.getIpAddress();
+                        try {
+                            executor.submit(() -> programStaticRuleStage1(dpid, providerSegmentationId, macAddress1, ipAddress, actionForNode));
+                        } catch (RejectedExecutionException ree1) {
+                            programStaticRuleStage1(dpid, providerSegmentationId, macAddress1, ipAddress, actionForNode);
+                        }
+                    }
                 }
-
-                // Arp rules for dhcp port should be removed from compute node
-                // when delete the last VM instance belongs to the network (bug 5456)
-                if (!arpNeeded && Action.DELETE == actionForNode && null != network_Ips && !network_Ips.isEmpty()) {
-                    for (NeutronPort port : neutronPortCache.getAllPorts()) {
-                         if (!port.getDeviceOwner().equalsIgnoreCase(ROUTER_INTERFACE_DEVICE_OWNER)) {
-                             final String portMacAddress = port.getMacAddress();
-                             if ( null == portMacAddress || portMacAddress.isEmpty()) {
+            } else {
+                if (neutronPortList.size() == 0 || neutronPortList.isEmpty()) {
+                    for (NeutronPort port1 : neutronPortCache.getAllPorts()) {
+                         if (!port1.getDeviceOwner().equalsIgnoreCase(ROUTER_INTERFACE_DEVICE_OWNER)) {
+                             final String delMacAddress = port1.getMacAddress();
+                             if ( null == delMacAddress || delMacAddress.isEmpty()) {
                                 continue;
                              }
-                             for (Neutron_IPs neutronIPAddr : port.getFixedIPs()) {
-                                 final String portIPAddress = neutronIPAddr.getIpAddress();
-                                 if (null == portIPAddress || portIPAddress.isEmpty()) {
+                             for (Neutron_IPs neutronIPAddr : port1.getFixedIPs()) {
+                                 final String delIpAddress = neutronIPAddr.getIpAddress();
+                                 if (null == delIpAddress || delIpAddress.isEmpty()) {
                                      continue;
                                  }
-                             programStaticRuleStage1(dpid, providerSegmentationId, portMacAddress, portIPAddress, Action.DELETE);
+                                 try {
+                                    executor.submit(() -> programStaticRuleStage1(dpid, providerSegmentationId, delMacAddress, delIpAddress, Action.DELETE));
+                                 } catch (RejectedExecutionException ree2) {
+                                    programStaticRuleStage1(dpid, providerSegmentationId, delMacAddress, delIpAddress, Action.DELETE);
+                                 }
                              }
                           }
                     }
-                 } else {
-                     programStaticRuleStage1(dpid, providerSegmentationId, macAddress, ipAddress, actionForNode);
-              }
-              }
-          }
-
-        //use action instead of actionToPerform - only write to the cache when the port is created
-        if(isDhcpPort && action == Action.ADD){
-            dhcpPortIpCache.put(neutronPort.getPortUUID(), fixedIps);
-        } else if (isDhcpPort && action == Action.DELETE) {
-            dhcpPortIpCache.remove(neutronPort.getPortUUID());
+                }
+            }
         }
     }
 
@@ -293,6 +293,40 @@ public class DistributedArpService implements ConfigInterface {
         } else if (impl instanceof ArpProvider) {
             arpProvider = (ArpProvider)impl;
         }
+    }
+
+    private boolean isInterfacePresentInTenantNetwork (String portId, String networkId) {
+        NeutronPort neutronPort = neutronPortCache.getPort(portId);
+        return neutronPort != null && neutronPort.getNetworkUUID().equalsIgnoreCase(networkId);
+    }
+
+    /**
+     * Populates the list of neutron ports for node and 
+     * check whether the segId is available on node or not.
+     *
+     * @param Node An instance of Node object.
+     * @param List<neutronPort> An instances list of NeutronPort object.
+     * @param String  value for segmentationId.
+     */
+    private  boolean getNeutronPortsForNode(Node node, List<NeutronPort> neutronPortList, String segmentationId) {
+        List<OvsdbTerminationPointAugmentation> ports = southbound.readTerminationPointAugmentations(node);
+        boolean isTenantNetworkPresentInNode = false;
+        String networkId = tenantNetworkManager.getNetworkId(segmentationId);
+        for (OvsdbTerminationPointAugmentation port : ports) {  
+            if (networkId != null) {
+                String ifaceId = southbound.getInterfaceExternalIdsValue(port, "iface-id");
+                if (ifaceId != null && isInterfacePresentInTenantNetwork(ifaceId, networkId)) {
+                    LOG.debug("Tenant Network {} with Segmentation-id {} is present in Node {} / Interface {}",
+                        networkId, segmentationId, node, port);
+                    isTenantNetworkPresentInNode = true;
+                }
+            }
+            NeutronPort neutronPort = tenantNetworkManager.getTenantPort(port);
+            if (neutronPort != null) {
+                neutronPortList.add(neutronPort);
+            }
+        }
+        return isTenantNetworkPresentInNode;
     }
 
 }

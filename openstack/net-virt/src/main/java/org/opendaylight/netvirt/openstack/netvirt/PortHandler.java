@@ -94,7 +94,6 @@ public class PortHandler extends AbstractHandler implements INeutronPortAware, N
             }
         }
 
-        distributedArpService.handlePortEvent(neutronPort, Action.ADD);
         neutronL3Adapter.handleNeutronPortEvent(neutronPort, Action.ADD);
     }
 
@@ -125,7 +124,6 @@ public class PortHandler extends AbstractHandler implements INeutronPortAware, N
     }
     private void doNeutronPortUpdated(NeutronPort neutronPort) {
         LOG.debug("Handling neutron update port {}", neutronPort);
-        distributedArpService.handlePortEvent(neutronPort, Action.UPDATE);
         neutronL3Adapter.handleNeutronPortEvent(neutronPort, Action.UPDATE);
     }
 
@@ -152,7 +150,6 @@ public class PortHandler extends AbstractHandler implements INeutronPortAware, N
     }
     private void doNeutronPortDeleted(NeutronPort neutronPort) {
         LOG.debug("Handling neutron delete port {}", neutronPort);
-        distributedArpService.handlePortEvent(neutronPort, Action.DELETE);
         neutronL3Adapter.handleNeutronPortEvent(neutronPort, Action.DELETE);
 
         //TODO: Need to implement getNodes
