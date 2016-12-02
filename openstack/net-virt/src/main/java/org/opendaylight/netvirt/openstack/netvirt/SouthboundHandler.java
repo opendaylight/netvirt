@@ -93,7 +93,7 @@ public class SouthboundHandler extends AbstractHandler
                 ovsdbTypeToSouthboundEventType(ovsdbType), action));
     }
 
-    private void handleInterfaceUpdate (Node node, OvsdbTerminationPointAugmentation tp) {
+    private void handleInterfaceUpdate (Node node, OvsdbTerminationPointAugmentation tp, Action action) {
         NeutronNetwork network = tenantNetworkManager.getTenantNetwork(tp);
         if (network != null && !network.getRouterExternal()) {
             LOG.trace("InterfaceUpdate for OVS Node :{} OvsdbTerminationPointAugmentation :"        + " {} for the network : {}", node, tp, network.getNetworkUUID());
@@ -103,7 +103,9 @@ public class SouthboundHandler extends AbstractHandler
         } else {
             LOG.debug("No tenant network found on node : {} for interface: {}", node, tp);
         }
-        distributedArpService.processInterfaceEvent(node, tp, network, Action.UPDATE);
+        if (action.equals(Action.UPDATE)) {
+            distributedArpService.processInterfaceEvent(node, tp, network, action);
+        }
         neutronL3Adapter.handleInterfaceEvent(node, tp, network, Action.UPDATE);
     }
 
@@ -340,7 +342,7 @@ public class SouthboundHandler extends AbstractHandler
         if (network != null) {
             final NeutronPort neutronPort = tenantNetworkManager.getTenantPort(port);
             if (!network.getRouterExternal()) {
-                handleInterfaceUpdate(node, port);
+                handleInterfaceUpdate(node, port, action);
             } else if (action != null && action.equals(Action.UPDATE)) {
                 programVLANNetworkFlowProvider(node, port, network, neutronPort, true);
             }
