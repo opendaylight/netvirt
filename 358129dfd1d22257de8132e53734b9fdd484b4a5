@@ -69,6 +69,24 @@
       "revId": "358129dfd1d22257de8132e53734b9fdd484b4a5",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_59523114",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 1417,
+      "author": {
+        "id": 6154
+      },
+      "writtenOn": "2016-12-02T13:55:13Z",
+      "side": 1,
+      "message": "Hi Abinva ,\n\nWhat do you suggest ? If VpnInterface is not there , shall we just log error in else block and return ?",
+      "parentUuid": "1a622d24_cb582bfd",
+      "revId": "358129dfd1d22257de8132e53734b9fdd484b4a5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
