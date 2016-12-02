@@ -55,9 +55,9 @@ public class VpnFootprintService {
     private final NotificationPublishService notificationPublishService;
 
     public VpnFootprintService(final DataBroker dataBroker,
-                               final IFibManager fibManager,
-                               final OdlInterfaceRpcService ifaceRpcService,
-                               final NotificationPublishService notificationPublishService) {
+        final IFibManager fibManager,
+        final OdlInterfaceRpcService ifaceRpcService,
+        final NotificationPublishService notificationPublishService) {
         this.dataBroker = dataBroker;
         this.fibManager = fibManager;
         this.ifaceMgrRpcService = ifaceRpcService;
@@ -69,8 +69,8 @@ public class VpnFootprintService {
         if (dpId == null) {
             dpId = InterfaceUtils.getDpnForInterface(ifaceMgrRpcService, interfaceName);
         }
-        if(!dpId.equals(BigInteger.ZERO)) {
-            if(add) {
+        if (!dpId.equals(BigInteger.ZERO)) {
+            if (add) {
                 createOrUpdateVpnToDpnList(vpnId, dpId, interfaceName, vpnName);
             } else {
                 removeOrUpdateVpnToDpnList(vpnId, dpId, interfaceName, vpnName);
@@ -129,7 +129,7 @@ public class VpnFootprintService {
         if (newDpnOnVpn) {
             LOG.debug("Sending populateFib event for new dpn {} in VPN {}", dpnId, vpnName);
             fibManager.populateFibOnNewDpn(dpnId, vpnId, rd, new DpnEnterExitVpnWorker(dpnId, vpnName, rd,
-                                                                                       true /* entered */));
+                true /* entered */));
         }
     }
 
@@ -150,16 +150,16 @@ public class VpnFootprintService {
                         if (ipAddresses == null || ipAddresses.isEmpty()) {
                             VpnToDpnListBuilder dpnInVpnBuilder =
                                 new VpnToDpnListBuilder(dpnInVpn.get()).setDpnState(VpnToDpnList.DpnState.Inactive)
-                                                                       .setVpnInterfaces(null);
+                                    .setVpnInterfaces(null);
                             writeTxn.put(LogicalDatastoreType.OPERATIONAL, id, dpnInVpnBuilder.build(), true);
                             lastDpnOnVpn = Boolean.TRUE;
                         } else {
                             LOG.warn("vpn interfaces are empty but ip addresses are present for the vpn {} in dpn {}",
-                                     vpnName, dpnId);
+                                vpnName, dpnId);
                         }
                     } else {
                         writeTxn.delete(LogicalDatastoreType.OPERATIONAL, id.child(VpnInterfaces.class,
-                                                                                   new VpnInterfacesKey(intfName)));
+                            new VpnInterfacesKey(intfName)));
                     }
                 }
             }
@@ -174,7 +174,7 @@ public class VpnFootprintService {
         if (lastDpnOnVpn) {
             LOG.debug("Sending cleanup event for dpn {} in VPN {}", dpnId, vpnName);
             fibManager.cleanUpDpnForVpn(dpnId, vpnId, rd, new DpnEnterExitVpnWorker(dpnId, vpnName, rd,
-                                                                                    false /* exited */));
+                false /* exited */));
         }
     }
 
@@ -225,7 +225,7 @@ public class VpnFootprintService {
         String rd;
         boolean entered;
 
-        public DpnEnterExitVpnWorker(BigInteger dpnId, String vpnName, String rd, boolean entered) {
+        DpnEnterExitVpnWorker(BigInteger dpnId, String vpnName, String rd, boolean entered) {
             this.entered = entered;
             this.dpnId = dpnId;
             this.vpnName = vpnName;
@@ -233,7 +233,6 @@ public class VpnFootprintService {
         }
 
         /**
-         * @param voids
          * This implies that all the future instances have returned success. -- TODO: Confirm this
          */
         @Override
@@ -246,8 +245,6 @@ public class VpnFootprintService {
         }
 
         /**
-         *
-         * @param throwable
          * This method is used to handle failure callbacks.
          * If more retry needed, the retrycount is decremented and mainworker is executed again.
          * After retries completed, rollbackworker is executed.

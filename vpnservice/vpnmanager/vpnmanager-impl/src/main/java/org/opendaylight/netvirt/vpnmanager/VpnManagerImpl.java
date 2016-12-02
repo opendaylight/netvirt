@@ -37,11 +37,11 @@ public class VpnManagerImpl implements IVpnManager {
     private final VpnFootprintService vpnFootprintService;
 
     public VpnManagerImpl(final DataBroker dataBroker,
-                          final IdManagerService idManagerService,
-                          final VpnInstanceListener vpnInstanceListener,
-                          final VpnInterfaceManager vpnInterfaceManager,
-                          final IMdsalApiManager mdsalManager,
-                          final VpnFootprintService vpnFootprintService) {
+        final IdManagerService idManagerService,
+        final VpnInstanceListener vpnInstanceListener,
+        final VpnInterfaceManager vpnInterfaceManager,
+        final IMdsalApiManager mdsalManager,
+        final VpnFootprintService vpnFootprintService) {
         this.dataBroker = dataBroker;
         this.vpnInterfaceManager = vpnInterfaceManager;
         this.vpnInstanceListener = vpnInstanceListener;
@@ -57,25 +57,25 @@ public class VpnManagerImpl implements IVpnManager {
 
     private void createIdPool() {
         CreateIdPoolInput createPool = new CreateIdPoolInputBuilder()
-                .setPoolName(VpnConstants.VPN_IDPOOL_NAME)
-                .setLow(VpnConstants.VPN_IDPOOL_START)
-                .setHigh(new BigInteger(VpnConstants.VPN_IDPOOL_SIZE).longValue())
-                .build();
+            .setPoolName(VpnConstants.VPN_IDPOOL_NAME)
+            .setLow(VpnConstants.VPN_IDPOOL_START)
+            .setHigh(new BigInteger(VpnConstants.VPN_IDPOOL_SIZE).longValue())
+            .build();
         try {
             Future<RpcResult<Void>> result = idManager.createIdPool(createPool);
             if (result != null && result.get().isSuccessful()) {
                 LOG.info("Created IdPool for VPN Service");
             }
         } catch (InterruptedException | ExecutionException e) {
-            LOG.error("Failed to create idPool for VPN Service",e);
+            LOG.error("Failed to create idPool for VPN Service", e);
         }
 
         // Now an IdPool for InterVpnLink endpoint's pseudo ports
         CreateIdPoolInput createPseudoLporTagPool =
-                new CreateIdPoolInputBuilder().setPoolName(VpnConstants.PSEUDO_LPORT_TAG_ID_POOL_NAME)
-                        .setLow(VpnConstants.LOWER_PSEUDO_LPORT_TAG)
-                        .setHigh(VpnConstants.UPPER_PSEUDO_LPORT_TAG)
-                        .build();
+            new CreateIdPoolInputBuilder().setPoolName(VpnConstants.PSEUDO_LPORT_TAG_ID_POOL_NAME)
+                .setLow(VpnConstants.LOWER_PSEUDO_LPORT_TAG)
+                .setHigh(VpnConstants.UPPER_PSEUDO_LPORT_TAG)
+                .build();
         try {
             Future<RpcResult<Void>> result = idManager.createIdPool(createPseudoLporTagPool);
             if (result != null && result.get().isSuccessful()) {
@@ -83,13 +83,13 @@ public class VpnManagerImpl implements IVpnManager {
             } else {
                 Collection<RpcError> errors = result.get().getErrors();
                 StringBuilder errMsg = new StringBuilder();
-                for ( RpcError err : errors ) {
+                for (RpcError err : errors) {
                     errMsg.append(err.getMessage()).append("\n");
                 }
                 LOG.error("IdPool creation for PseudoPort tags failed. Reasons: {}", errMsg);
             }
         } catch (InterruptedException | ExecutionException e) {
-            LOG.error("Failed to create idPool for Pseudo Port tags",e);
+            LOG.error("Failed to create idPool for Pseudo Port tags", e);
         }
     }
 
@@ -100,11 +100,11 @@ public class VpnManagerImpl implements IVpnManager {
 
     @Override
     public void addExtraRoute(String destination, String nextHop, String rd, String routerID, int label,
-                              RouteOrigin origin) {
+        RouteOrigin origin) {
         LOG.info("Adding extra route with destination {}, nextHop {}, label{} and origin {}",
-                 destination, nextHop, label, origin);
+            destination, nextHop, label, origin);
         vpnInterfaceManager.addExtraRoute(destination, nextHop, rd, routerID, label, origin, /*intfName*/ null,
-                                          null, null);
+            null, null);
     }
 
     @Override
@@ -140,9 +140,9 @@ public class VpnManagerImpl implements IVpnManager {
 
     @Override
     public void setupSubnetMacIntoVpnInstance(String vpnName, String srcMacAddress,
-                                              BigInteger dpnId, WriteTransaction writeTx,
-                                              int addOrRemove) {
+        BigInteger dpnId, WriteTransaction writeTx,
+        int addOrRemove) {
         VpnUtil.setupSubnetMacIntoVpnInstance(dataBroker, mdsalManager, vpnName, srcMacAddress,
-                dpnId, writeTx, addOrRemove);
+            dpnId, writeTx, addOrRemove);
     }
 }
