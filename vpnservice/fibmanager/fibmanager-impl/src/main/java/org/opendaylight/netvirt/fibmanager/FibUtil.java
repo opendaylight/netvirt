@@ -29,6 +29,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.ReleaseIdInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.ReleaseIdInputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.FibEntries;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.RouterInterface;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.fibentries.VrfTables;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.fibentries.VrfTablesKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.fibentries.VrfTablesBuilder;
@@ -68,6 +69,7 @@ import org.slf4j.LoggerFactory;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
@@ -475,6 +477,7 @@ public class FibUtil {
             throw new RuntimeException(e.getMessage());
         }
     }
+
     public static void addOrUpdateFibEntry(DataBroker broker, String rd, String prefix, List<String> nextHopList,
                                            int label, RouteOrigin origin, WriteTransaction writeConfigTxn) {
         if (rd == null || rd.isEmpty() ) {
@@ -518,6 +521,40 @@ public class FibUtil {
                 }
                 LOG.debug("Updated vrfEntry for {} nexthop {} label {}", prefix, nh, label);
             }
+        } catch (Exception e) {
+            LOG.error("addFibEntryToDS: error ", e);
+        }
+    }
+
+    public static void addFibEntryForRouterInterface(DataBroker broker,
+                                                     String rd,
+                                                     String prefix,
+                                                     RouterInterface routerInterface,
+                                                     long label,
+                                                     WriteTransaction writeConfigTxn) {
+        if (rd == null || rd.isEmpty() ) {
+            LOG.error("Prefix {} not associated with vpn", prefix);
+            return;
+        }
+
+        try{
+            InstanceIdentifier<VrfEntry> vrfEntryId =
+                    InstanceIdentifier.builder(FibEntries.class)
+                            .child(VrfTables.class, new VrfTablesKey(rd))
+                            .child(VrfEntry.class, new VrfEntryKey(prefix)).build();
+
+            VrfEntry vrfEntry = new VrfEntryBuilder().setKey(new VrfEntryKey(prefix)).setDestPrefix(prefix)
+                    .setNextHopAddressList(Arrays.asList(""))
+                    .setLabel(label)
+                    .setOrigin(RouteOrigin.LOCAL.getValue())
+                    .addAugmentation(RouterInterface.class, routerInterface).build();
+
+            if (writeConfigTxn != null) {
+                writeConfigTxn.merge(LogicalDatastoreType.CONFIGURATION, vrfEntryId, vrfEntry, true);
+            } else {
+                MDSALUtil.syncUpdate(broker, LogicalDatastoreType.CONFIGURATION, vrfEntryId, vrfEntry);
+            }
+            LOG.debug("Created vrfEntry for router-interface-prefix {} rd {} label {}", prefix, rd, label);
         } catch (Exception e) {
             LOG.error("addFibEntryToDS: error ", e);
         }

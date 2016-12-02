@@ -9,6 +9,8 @@ package org.opendaylight.netvirt.vpnmanager;
 
 import java.math.BigInteger;
 import java.net.InetAddress;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
@@ -19,10 +21,14 @@ import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
 import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.netvirt.neutronvpn.interfaces.INeutronVpnManager;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.MacAddress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.alivenessmonitor.rev160411.AlivenessMonitorService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.alivenessmonitor.rev160411.EtherTypes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.OdlInterfaceRpcService;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.VpnInstanceOpDataEntry;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.vpn.instance.op.data.entry.VpnToDpnList;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.vpn.instance.op.data.entry.vpn.to.dpn.list.VpnInterfaces;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.NeutronVpnPortipPortData;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.neutron.vpn.portip.port.data.VpnPortipToPort;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.neutron.vpn.portip.port.data.VpnPortipToPortKey;
@@ -95,8 +101,7 @@ public class ArpMonitoringHandler extends AsyncDataTreeChangeListenerBase<VpnPor
                 add(id, dataObjectModificationAfter);
             }
         } catch (Exception e) {
-            LOG.error("Error in handling update to vpnPortIpToPort for vpnName {} and IP Address {}", value.getVpnName() , value.getPortFixedip());
-            e.printStackTrace();
+            LOG.error("Error in handling update to vpnPortIpToPort for vpnName {} and IP Address {}", value.getVpnName() , value.getPortFixedip(), e);
         }
     }
 
@@ -120,14 +125,38 @@ public class ArpMonitoringHandler extends AsyncDataTreeChangeListenerBase<VpnPor
                         new ArpMonitorStartTask(macEntry, arpMonitorProfileId, dataBroker, alivenessManager,
                                 interfaceRpc, neutronVpnService, interfaceManager));
             }
-            if (value.isSubnetIp()) {
-                WriteTransaction writeTx = dataBroker.newWriteOnlyTransaction();
-                VpnUtil.setupSubnetMacIntoVpnInstance(dataBroker, mdsalManager, vpnName,
-                        macAddress, BigInteger.ZERO /* On all DPNs */, writeTx, NwConstants.ADD_FLOW);
-                writeTx.submit();
+            if (!value.isSubnetIp()) {
+                return;
             }
+            WriteTransaction writeTx = dataBroker.newWriteOnlyTransaction();
+            VpnUtil.setupSubnetMacIntoVpnInstance(dataBroker, mdsalManager, vpnName,
+                    macAddress, BigInteger.ZERO /* On all DPNs */, writeTx, NwConstants.ADD_FLOW);
+            String rd = VpnUtil.getVpnRd(dataBroker, vpnName);
+            // The following logic is to remove any interface mac is programmed before router association.
+            VpnInstanceOpDataEntry vpnOpValue = VpnUtil.read(dataBroker, LogicalDatastoreType.OPERATIONAL,
+                    VpnUtil.getVpnInstanceOpDataIdentifier(rd)).orNull();
+            if (vpnOpValue != null) {
+                List<VpnToDpnList> vpnToDpnList = java.util.Optional.ofNullable(vpnOpValue.getVpnToDpnList())
+                        .orElse(new ArrayList<VpnToDpnList>());
+                vpnToDpnList.stream().forEach(vpnToDpn -> {
+                    BigInteger dpId = vpnToDpn.getDpnId();
+                    List<VpnInterfaces> vpnInterfaces = java.util.Optional.ofNullable(vpnToDpn.getVpnInterfaces())
+                            .orElse(new ArrayList<VpnInterfaces>());
+                    vpnInterfaces.stream().forEach( vpnInterface -> {
+                        String infName = vpnInterface.getInterfaceName();
+                        IpAddress gwIpAddress = VpnUtil.getGatewayIpAddressFromInterface(infName, neutronVpnService,
+                                dataBroker).orNull();
+                        if (gwIpAddress != null &&
+                                gwIpAddress.getIpv4Address().getValue().equals(srcInetAddr.toString())) {
+                            VpnUtil.setupGwMacIfExternalVpn(dataBroker, mdsalManager, dpId, infName,
+                                    vpnOpValue.getVpnId(), writeTx, NwConstants.DEL_FLOW);
+                        }
+                    });
+                });
+            }
+            writeTx.submit();
         } catch (Exception e) {
-            LOG.error("Error in deserializing packet {} with exception {}", value, e);
+            LOG.error("Error in handling add DCN for VpnPortipToPort {}", value, e);
         }
     }
 
@@ -157,7 +186,7 @@ public class ArpMonitoringHandler extends AsyncDataTreeChangeListenerBase<VpnPor
                 writeTx.submit();
             }
         } catch (Exception e) {
-            LOG.error("Error in deserializing packet {} with exception {}", value, e);
+            LOG.error("Error in handling remove DCN for VpnPortipToPort {}", value, e);
         }
     }
 
