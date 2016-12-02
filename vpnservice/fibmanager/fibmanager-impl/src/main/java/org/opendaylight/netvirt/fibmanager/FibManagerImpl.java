@@ -17,6 +17,7 @@ import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.netvirt.fibmanager.api.IFibManager;
 import org.opendaylight.netvirt.fibmanager.api.RouteOrigin;
 import org.opendaylight.netvirt.vpnmanager.api.IVpnManager;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.RouterInterface;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.VrfEntry;
 import org.opendaylight.netvirt.vpnmanager.api.intervpnlink.InterVpnLinkCache;
 import org.osgi.framework.BundleContext;
@@ -152,6 +153,12 @@ public class FibManagerImpl implements IFibManager {
     public void addOrUpdateFibEntry(DataBroker broker, String rd, String prefix, List<String> nextHopList,
                                     int label, RouteOrigin origin, WriteTransaction writeConfigTxn) {
         FibUtil.addOrUpdateFibEntry(broker, rd, prefix , nextHopList, label, origin, writeConfigTxn);
+    }
+
+    @Override
+    public void addFibEntryForRouterInterface(DataBroker broker, String rd, String prefix,
+                                              RouterInterface routerInterface, long label, WriteTransaction writeConfigTxn) {
+        FibUtil.addFibEntryForRouterInterface(broker, rd, prefix, routerInterface, label, writeConfigTxn);
     }
 
     @Override
