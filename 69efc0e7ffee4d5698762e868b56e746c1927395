@@ -148,6 +148,29 @@
       "revId": "69efc0e7ffee4d5698762e868b56e746c1927395",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_cb7cab75",
+        "filename": "docs/specs/router-independent-ipv6-ipam.rst",
+        "patchSetId": 3
+      },
+      "lineNbr": 204,
+      "author": {
+        "id": 3276
+      },
+      "writtenOn": "2016-12-02T05:50:10Z",
+      "side": 1,
+      "message": "@Andre: Do we want this as a note? Note shows up in generated doc. Shouldn\u0027t it be just a source file comment or we DO want it displayed in generated doc?",
+      "range": {
+        "startLine": 204,
+        "startChar": 0,
+        "endLine": 204,
+        "endChar": 9
+      },
+      "revId": "69efc0e7ffee4d5698762e868b56e746c1927395",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
