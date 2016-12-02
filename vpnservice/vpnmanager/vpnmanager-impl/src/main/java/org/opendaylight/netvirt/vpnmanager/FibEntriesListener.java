@@ -10,8 +10,8 @@ package org.opendaylight.netvirt.vpnmanager;
 import java.util.ArrayList;
 import java.util.List;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.FibEntries;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.fibentries.VrfTables;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.fibentries.VrfTablesKey;
@@ -23,7 +23,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class FibEntriesListener extends AsyncDataTreeChangeListenerBase<VrfEntry, FibEntriesListener>
-        implements AutoCloseable {
+    implements AutoCloseable {
     private static final Logger LOG = LoggerFactory.getLogger(FibEntriesListener.class);
     private final DataBroker dataBroker;
     private final VpnInstanceListener vpnInstanceListener;
@@ -52,24 +52,24 @@ public class FibEntriesListener extends AsyncDataTreeChangeListenerBase<VrfEntry
 
     @Override
     protected void remove(InstanceIdentifier<VrfEntry> identifier,
-                          VrfEntry del) {
+        VrfEntry del) {
         LOG.trace("Remove Fib event - Key : {}, value : {} ", identifier, del);
         final VrfTablesKey key = identifier.firstKeyOf(VrfTables.class, VrfTablesKey.class);
         String rd = key.getRouteDistinguisher();
         Long label = del.getLabel();
         VpnInstanceOpDataEntry vpnInstanceOpData = vpnInstanceListener.getVpnInstanceOpData(rd);
-        if(vpnInstanceOpData != null) {
+        if (vpnInstanceOpData != null) {
             List<Long> routeIds = vpnInstanceOpData.getRouteEntryId();
-            if(routeIds == null) {
+            if (routeIds == null) {
                 LOG.debug("Fib Route entry is empty.");
                 return;
             }
             LOG.debug("Removing label from vpn info - {}", label);
             routeIds.remove(label);
             TransactionUtil.asyncWrite(dataBroker, LogicalDatastoreType.OPERATIONAL,
-                    VpnUtil.getVpnInstanceOpDataIdentifier(rd),
-                    new VpnInstanceOpDataEntryBuilder(vpnInstanceOpData).setRouteEntryId(routeIds).build(),
-                    TransactionUtil.DEFAULT_CALLBACK);
+                VpnUtil.getVpnInstanceOpDataIdentifier(rd),
+                new VpnInstanceOpDataEntryBuilder(vpnInstanceOpData).setRouteEntryId(routeIds).build(),
+                TransactionUtil.DEFAULT_CALLBACK);
         } else {
             LOG.warn("No VPN Instance found for RD: {}", rd);
         }
@@ -77,30 +77,30 @@ public class FibEntriesListener extends AsyncDataTreeChangeListenerBase<VrfEntry
 
     @Override
     protected void update(InstanceIdentifier<VrfEntry> identifier,
-                          VrfEntry original, VrfEntry update) {
+        VrfEntry original, VrfEntry update) {
         // TODO Auto-generated method stub
 
     }
 
     @Override
     protected void add(InstanceIdentifier<VrfEntry> identifier,
-                       VrfEntry add) {
+        VrfEntry add) {
         LOG.trace("Add Vrf Entry event - Key : {}, value : {}", identifier, add);
         final VrfTablesKey key = identifier.firstKeyOf(VrfTables.class, VrfTablesKey.class);
         String rd = key.getRouteDistinguisher();
         Long label = add.getLabel();
         VpnInstanceOpDataEntry vpn = vpnInstanceListener.getVpnInstanceOpData(rd);
-        if(vpn != null) {
+        if (vpn != null) {
             List<Long> routeIds = vpn.getRouteEntryId();
-            if(routeIds == null) {
+            if (routeIds == null) {
                 routeIds = new ArrayList<>();
             }
             LOG.debug("Adding label to vpn info - {}", label);
             routeIds.add(label);
             TransactionUtil.asyncWrite(dataBroker, LogicalDatastoreType.OPERATIONAL,
-                    VpnUtil.getVpnInstanceOpDataIdentifier(rd),
-                    new VpnInstanceOpDataEntryBuilder(vpn).setRouteEntryId(routeIds).build(),
-                    TransactionUtil.DEFAULT_CALLBACK);
+                VpnUtil.getVpnInstanceOpDataIdentifier(rd),
+                new VpnInstanceOpDataEntryBuilder(vpn).setRouteEntryId(routeIds).build(),
+                TransactionUtil.DEFAULT_CALLBACK);
         } else {
             LOG.warn("No VPN Instance found for RD: {}", rd);
         }

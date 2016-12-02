@@ -22,10 +22,12 @@ public enum ArpReplyOrRequest {
         return this.name;
     }
 
-    public int getArpOperation(){
-        int arpOperation = (name == ArpReplyOrRequest.REQUEST.getName() ? NwConstants.ARP_REQUEST : NwConstants.ARP_REPLY);
+    public int getArpOperation() {
+        int arpOperation =
+            (name == ArpReplyOrRequest.REQUEST.getName() ? NwConstants.ARP_REQUEST : NwConstants.ARP_REPLY);
         return arpOperation;
     }
+
     public int calculateConsistentHashCode() {
         if (this.name != null) {
             return this.name.hashCode();

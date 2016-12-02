@@ -11,14 +11,12 @@ import com.google.common.util.concurrent.CheckedFuture;
 import com.google.common.util.concurrent.ListenableFuture;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.Callable;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
 import org.opendaylight.genius.datastoreutils.AbstractDataStoreJob;
 import org.opendaylight.genius.datastoreutils.InvalidJobException;
-import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.netvirt.inter.vpn.link.rev160311.inter.vpn.links.InterVpnLink;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
@@ -28,19 +26,20 @@ public class InterVpnLinkRemoverTask extends AbstractDataStoreJob {
 
     private static final Logger LOG = LoggerFactory.getLogger(InterVpnLinkRemoverTask.class);
 
-    private final InstanceIdentifier<InterVpnLink> iVpnLinkIid;
-    private final String iVpnLinkName;
+    private final InstanceIdentifier<InterVpnLink> interVpnLinkIid;
+    private final String interVpnLinkName;
     private final String jobKey;
     private final DataBroker dataBroker;
 
-    public InterVpnLinkRemoverTask(DataBroker dataBroker, InstanceIdentifier<InterVpnLink> iVpnLinkPath) {
-        this(dataBroker, iVpnLinkPath, "REMOVE.INTERVPNLINK." + iVpnLinkPath.firstKeyOf(InterVpnLink.class).getName());
+    public InterVpnLinkRemoverTask(DataBroker dataBroker, InstanceIdentifier<InterVpnLink> interVpnLinkPath) {
+        this(dataBroker, interVpnLinkPath,
+            "REMOVE.INTERVPNLINK." + interVpnLinkPath.firstKeyOf(InterVpnLink.class).getName());
     }
 
-    public InterVpnLinkRemoverTask(DataBroker dataBroker, InstanceIdentifier<InterVpnLink> iVpnLinkPath,
-                                   String specificJobKey) {
-        this.iVpnLinkIid = iVpnLinkPath;
-        this.iVpnLinkName = iVpnLinkPath.firstKeyOf(InterVpnLink.class).getName();
+    public InterVpnLinkRemoverTask(DataBroker dataBroker, InstanceIdentifier<InterVpnLink> interVpnLinkPath,
+        String specificJobKey) {
+        this.interVpnLinkIid = interVpnLinkPath;
+        this.interVpnLinkName = interVpnLinkPath.firstKeyOf(InterVpnLink.class).getName();
         this.jobKey = specificJobKey;
         this.dataBroker = dataBroker;
     }
@@ -58,10 +57,10 @@ public class InterVpnLinkRemoverTask extends AbstractDataStoreJob {
 
     @Override
     public List<ListenableFuture<Void>> call() throws Exception {
-        LOG.debug("Removing InterVpnLink {} from storage", iVpnLinkName);
+        LOG.debug("Removing InterVpnLink {} from storage", interVpnLinkName);
         List<ListenableFuture<Void>> result = new ArrayList<>();
         WriteTransaction removeTx = dataBroker.newWriteOnlyTransaction();
-        removeTx.delete(LogicalDatastoreType.CONFIGURATION, this.iVpnLinkIid);
+        removeTx.delete(LogicalDatastoreType.CONFIGURATION, this.interVpnLinkIid);
         CheckedFuture<Void, TransactionCommitFailedException> removalFuture = removeTx.submit();
         result.add(removalFuture);
         return result;
