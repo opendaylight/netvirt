@@ -1,0 +1,231 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1a622d24_0e2511c2",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-12-02T14:37:09Z",
+      "side": 1,
+      "message": "Can be rephrased as:\n\nThis fix introduces the ability to automatically respond to ARP requests coming for Floating IPs from the external network.  The fix builds further on the ARP responder infrastructure brought in via review \u003c \u003e which addressed Bug 6726.",
+      "revId": "562233e86c14b524b7a132c3a88b234feb1e77d2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_99468922",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/ArpReplyOrRequestFloatingIp.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-12-02T14:37:09Z",
+      "side": 1,
+      "message": "Please move existing ArpReplyOrRequest.java in vpnmanager-impl to vpnmanager-api package.\n\nAnd then use the same, instead of creating a brand-new file.",
+      "revId": "562233e86c14b524b7a132c3a88b234feb1e77d2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_4e06e921",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NatUtil.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-12-02T14:37:09Z",
+      "side": 1,
+      "message": "No * imports please...",
+      "revId": "562233e86c14b524b7a132c3a88b234feb1e77d2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_f9c33d88",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NatUtil.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 1589,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-12-02T14:37:09Z",
+      "side": 1,
+      "message": "This method should be already available somewhere :)\n\nLet us see if we can avoid duplication.",
+      "revId": "562233e86c14b524b7a132c3a88b234feb1e77d2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_d9c0017f",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NatUtil.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 1626,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-12-02T14:37:09Z",
+      "side": 1,
+      "message": "getArpResponderActionsForFloatingIp\n\nI would also suggest if you can reuse the equivalent method for constructing Actions already available in ArpResponderUtils.java.",
+      "revId": "562233e86c14b524b7a132c3a88b234feb1e77d2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_19bb990f",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NatUtil.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 1674,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-12-02T14:37:09Z",
+      "side": 1,
+      "message": "Again this method must be already available in ArpReponderUtils, please check.",
+      "revId": "562233e86c14b524b7a132c3a88b234feb1e77d2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_593cf193",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NatUtil.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 1728,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-12-02T14:37:09Z",
+      "side": 1,
+      "message": "getMatchCriteriaForArpResponderFloatingIp",
+      "revId": "562233e86c14b524b7a132c3a88b234feb1e77d2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_b97c2574",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/VpnFloatingIpHandler.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-12-02T14:37:09Z",
+      "side": 1,
+      "message": "same comment here.",
+      "revId": "562233e86c14b524b7a132c3a88b234feb1e77d2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_198d597c",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/VpnFloatingIpHandler.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 169,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-12-02T14:37:09Z",
+      "side": 1,
+      "message": "use writeTx for this method too.",
+      "revId": "562233e86c14b524b7a132c3a88b234feb1e77d2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_b9f38509",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/VpnFloatingIpHandler.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 312,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-12-02T14:37:09Z",
+      "side": 1,
+      "message": "Method names can be more meaningful:\n\nsetupArpResponderForFloatingIpPort()",
+      "range": {
+        "startLine": 312,
+        "startChar": 38,
+        "endLine": 312,
+        "endChar": 39
+      },
+      "revId": "562233e86c14b524b7a132c3a88b234feb1e77d2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_39e77542",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/VpnFloatingIpHandler.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 324,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-12-02T14:37:09Z",
+      "side": 1,
+      "message": "please get VpnId once in this method and re-use everywhere.",
+      "revId": "562233e86c14b524b7a132c3a88b234feb1e77d2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_f9dcdd76",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/VpnFloatingIpHandler.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 327,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-12-02T14:37:09Z",
+      "side": 1,
+      "message": "Last parameter \"Floating IP ARP Responder Entry\"",
+      "revId": "562233e86c14b524b7a132c3a88b234feb1e77d2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_19e4393a",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/VpnFloatingIpHandler.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 336,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-12-02T14:37:09Z",
+      "side": 1,
+      "message": "else to be placed on same line as }",
+      "revId": "562233e86c14b524b7a132c3a88b234feb1e77d2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
