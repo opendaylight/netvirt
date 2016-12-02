@@ -87,6 +87,24 @@
       "revId": "89ef8f534116fe6a6aec89c19a1ca49a92fe7184",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_ce6e79c9",
+        "filename": "docs/specs/temporary-smac-learning.rst",
+        "patchSetId": 4
+      },
+      "lineNbr": 56,
+      "author": {
+        "id": 6365
+      },
+      "writtenOn": "2016-12-02T10:47:27Z",
+      "side": 1,
+      "message": "I\u0027m Sorry, my explanation was not clear enough.\nThe skip rule is the same for all packets: match on reg4 and goto table 51.\nThe switch maintains, for each packet, it\u0027s own personal \"copy\" of all the registers (reg4,reg5,...). When a packet enters the switch, all registers are initialized to zero for that packet.\nIn our case, each packet has its own value for reg4.\nIf a packet has a mac address that is matched in table49, reg4 is set for that particular packet and in table50 we will pass it to table 51.\nIf a packet does not has a match in table49, reg4 for that packet is zero, and it will get punted in table50.",
+      "parentUuid": "1a622d24_0b5ea345",
+      "revId": "89ef8f534116fe6a6aec89c19a1ca49a92fe7184",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
