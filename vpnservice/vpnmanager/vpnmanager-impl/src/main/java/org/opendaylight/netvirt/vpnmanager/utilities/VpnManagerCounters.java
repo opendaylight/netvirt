@@ -16,11 +16,11 @@ public enum VpnManagerCounters {
     garp_sent,
     garp_sent_ipv6,
     garp_sent_failed,
-	garp_interface_rpc_failed;
+    garp_interface_rpc_failed;
 
     private OccurenceCounter counter;
 
-    private VpnManagerCounters() {
+    VpnManagerCounters() {
         counter = new OccurenceCounter(getClass().getSimpleName(), name(), name());
     }
 
