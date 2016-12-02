@@ -105,6 +105,24 @@
       "revId": "89ef8f534116fe6a6aec89c19a1ca49a92fe7184",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_eeab75d4",
+        "filename": "docs/specs/temporary-smac-learning.rst",
+        "patchSetId": 4
+      },
+      "lineNbr": 56,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-12-02T11:02:08Z",
+      "side": 1,
+      "message": "Thanks for clarifying this, helps a lot :) !",
+      "parentUuid": "1a622d24_ce6e79c9",
+      "revId": "89ef8f534116fe6a6aec89c19a1ca49a92fe7184",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
