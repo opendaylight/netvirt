@@ -173,10 +173,8 @@ public class SouthboundHandlerTest {
 
         when(ev.getAction()).thenReturn(Action.ADD);
         southboundHandler.processEvent(ev);
-        verify(distributedArpService, times(1)).processInterfaceEvent(any(Node.class), any(OvsdbTerminationPointAugmentation.class), any(NeutronNetwork.class), any(Action.class));
         verify(neutronL3Adapter, times(1)).handleInterfaceEvent(any(Node.class), any(OvsdbTerminationPointAugmentation.class), any(NeutronNetwork.class), any(Action.class));
         verify(networkingProvider, times(1)).handleInterfaceUpdate(any(NeutronNetwork.class), any(Node.class), any(OvsdbTerminationPointAugmentation.class));
-        Mockito.reset(distributedArpService);
         Mockito.reset(neutronL3Adapter);
         Mockito.reset(networkingProvider);
 
@@ -224,15 +222,6 @@ public class SouthboundHandlerTest {
         List<TerminationPoint> terminationPoints = new ArrayList<>();
         terminationPoints.add(mock(TerminationPoint.class));
         when(southbound.extractTerminationPoints(any(Node.class))).thenReturn(terminationPoints);
-
-        when(ev.getAction()).thenReturn(Action.ADD);
-        southboundHandler.processEvent(ev);
-        verify(distributedArpService, times(1)).processInterfaceEvent(any(Node.class), any(OvsdbTerminationPointAugmentation.class), any(NeutronNetwork.class), any(Action.class));
-        verify(neutronL3Adapter, times(1)).handleInterfaceEvent(any(Node.class), any(OvsdbTerminationPointAugmentation.class), any(NeutronNetwork.class), any(Action.class));
-        verify(networkingProvider, times(1)).handleInterfaceUpdate(any(NeutronNetwork.class), any(Node.class), any(OvsdbTerminationPointAugmentation.class));
-        Mockito.reset(distributedArpService);
-        Mockito.reset(neutronL3Adapter);
-        Mockito.reset(networkingProvider);
     }
 
     @Test
