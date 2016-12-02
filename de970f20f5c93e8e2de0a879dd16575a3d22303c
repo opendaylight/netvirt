@@ -16,6 +16,24 @@
       "revId": "de970f20f5c93e8e2de0a879dd16575a3d22303c",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_2ed8cd1c",
+        "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/VLANProvider.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 103,
+      "author": {
+        "id": 4018
+      },
+      "writtenOn": "2016-12-02T12:35:03Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1a622d24_08f989c8",
+      "revId": "de970f20f5c93e8e2de0a879dd16575a3d22303c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
