@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1a622d24_5f7e91e5",
+        "filename": "openstack/net-virt-providers/src/main/java/org/opendaylight/netvirt/openstack/netvirt/providers/openflow13/services/EgressAclLearnServiceUtil.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 97,
+      "author": {
+        "id": 670
+      },
+      "writtenOn": "2016-12-03T19:49:52Z",
+      "side": 1,
+      "message": "should probably add this to LearnConstants for clarity",
+      "revId": "4fdbbd64fbf1ecda74e412e7221f71101415e09d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
