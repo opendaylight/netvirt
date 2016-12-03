@@ -94,7 +94,7 @@ public class EgressAclLearnServiceUtil {
             String.valueOf(NetvirtProvidersProvider.getSecurityGroupTcpHardTimeout()),
             LearnConstants.LEARN_PRIORITY,
             "0",
-            "0",
+            LearnConstants.DELETE_LEARNED_FLAG_VALUE,
             String.valueOf(learnTableId),
             String.valueOf(NetvirtProvidersProvider.getSecurityGroupTcpFinIdleTimeout()),
             String.valueOf(NetvirtProvidersProvider.getSecurityGroupTcpFinHardTimeout())
@@ -191,7 +191,7 @@ public class EgressAclLearnServiceUtil {
             String.valueOf(NetvirtProvidersProvider.getSecurityGroupUdpHardTimeout()),
             LearnConstants.LEARN_PRIORITY,
             "0",
-            "0",
+            LearnConstants.DELETE_LEARNED_FLAG_VALUE,
             String.valueOf(learnTableId),
             "0",
             "0"
@@ -278,7 +278,7 @@ public class EgressAclLearnServiceUtil {
             String.valueOf(NetvirtProvidersProvider.getSecurityGroupDefaultHardTimeout()),
             LearnConstants.LEARN_PRIORITY,
             "0",
-            "0",
+            LearnConstants.DELETE_LEARNED_FLAG_VALUE,
             String.valueOf(learnTableId),
             "0",
             "0"
@@ -362,7 +362,7 @@ public class EgressAclLearnServiceUtil {
             String.valueOf(NetvirtProvidersProvider.getSecurityGroupDefaultHardTimeout()),
             LearnConstants.LEARN_PRIORITY,
             "0",
-            "0",
+            LearnConstants.DELETE_LEARNED_FLAG_VALUE,
             String.valueOf(learnTableId),
             "0",
             "0"
