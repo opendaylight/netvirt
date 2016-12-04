@@ -21,6 +21,7 @@ public class NeutronConstants {
     public static final String VIF_TYPE_BRIDGE = "bridge";
     public static final String VIF_TYPE_OTHER = "other";
     public static final String VIF_TYPE_MACVTAP = "macvtap";
+    public static final String PORT_LBAAS_OCTAVIA_HM_NAME = "octavia-health-manager-listen-port"; // FIXME Static?
     public static final String PREFIX_TAP = "tap";
     public static final String PREFIX_VHOSTUSER = "vhu";
     public static final String RD_IDPOOL_NAME = "RouteDistinguisherPool";
