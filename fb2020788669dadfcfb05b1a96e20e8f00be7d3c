@@ -1,0 +1,72 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1a622d24_ff5ddd49",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 2
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 670
+      },
+      "writtenOn": "2016-12-04T08:31:37Z",
+      "side": 1,
+      "message": "nit: typo dosen\u0027t-\u003edoesn\u0027t, also would change subject to explain change \"Modify auto-TZ to listen on ELAN instead of Neutron\"",
+      "revId": "fb2020788669dadfcfb05b1a96e20e8f00be7d3c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_9f49498e",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/resources/org/opendaylight/blueprint/elanmanager.xml",
+        "patchSetId": 2
+      },
+      "lineNbr": 190,
+      "author": {
+        "id": 670
+      },
+      "writtenOn": "2016-12-04T08:31:37Z",
+      "side": 1,
+      "message": "nit: indentation, please go through these files in gerrit view",
+      "revId": "fb2020788669dadfcfb05b1a96e20e8f00be7d3c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_bf440575",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/yang/elanmanager-config.yang",
+        "patchSetId": 2
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 670
+      },
+      "writtenOn": "2016-12-04T08:31:37Z",
+      "side": 1,
+      "message": "nit: indentation",
+      "revId": "fb2020788669dadfcfb05b1a96e20e8f00be7d3c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_5f4fb192",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/pom.xml",
+        "patchSetId": 2
+      },
+      "lineNbr": 45,
+      "author": {
+        "id": 670
+      },
+      "writtenOn": "2016-12-04T08:31:37Z",
+      "side": 1,
+      "message": "please refrain from cross project impl dependencies.. why do we need this dependency?",
+      "revId": "fb2020788669dadfcfb05b1a96e20e8f00be7d3c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
