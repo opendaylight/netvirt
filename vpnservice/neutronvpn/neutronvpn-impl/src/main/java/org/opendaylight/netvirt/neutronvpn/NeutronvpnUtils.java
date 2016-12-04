@@ -35,6 +35,7 @@ import com.google.common.collect.Sets;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.genius.interfacemanager.globals.IfmConstants;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.FloatingIpPortInfo;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ProviderTypes;
@@ -655,6 +656,12 @@ public class NeutronvpnUtils {
         String tapId = port.getUuid().getValue().substring(0, 11);
         String portNamePrefix = getPortNamePrefix(port);
         if (portNamePrefix != null) {
+            // special handling for Octavia Health Monitor port - expect static interface name
+            if (portNamePrefix.equals(NeutronConstants.PREFIX_TAP) &&
+                    port.getDeviceOwner().equals("") && port.getDeviceId().equals("") &&
+                    port.getName().equals(NeutronConstants.PORT_LBAAS_OCTAVIA_HM_NAME)) {
+                return new StringBuilder().append(IfmConstants.PORT_LBAAS_OCTAVIA_HM_INTERFACE).toString();
+            }
             return new StringBuilder().append(portNamePrefix).append(tapId).toString();
         }
         logger.debug("Failed to get prefix for port {}", port.getUuid());
