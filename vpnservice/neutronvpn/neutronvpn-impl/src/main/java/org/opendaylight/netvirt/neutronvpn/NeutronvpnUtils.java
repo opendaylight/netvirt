@@ -9,6 +9,8 @@
 package org.opendaylight.netvirt.neutronvpn;
 
 import com.google.common.base.Optional;
+import com.google.common.base.Strings;
+
 import java.util.Iterator;
 import java.math.BigInteger;
 import java.util.ArrayList;
@@ -35,6 +37,7 @@ import com.google.common.collect.Sets;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.genius.interfacemanager.globals.IfmConstants;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.VpnInstances;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.instances.VpnInstance;
@@ -654,13 +657,22 @@ public class NeutronvpnUtils {
             logger.warn("Invalid Neutron port {}", port);
             return null;
         }
-        String tapId = port.getUuid().getValue().substring(0, 11);
+
         String portNamePrefix = getPortNamePrefix(port);
-        if (portNamePrefix != null) {
-            return new StringBuilder().append(portNamePrefix).append(tapId).toString();
+        if (portNamePrefix == null) {
+            logger.debug("Failed to get prefix for port {}", port.getUuid());
+            return null;
         }
-        logger.debug("Failed to get prefix for port {}", port.getUuid());
-        return null;
+
+        // special handling for Octavia Health Monitor port - expect static interface name
+        if (portNamePrefix.equals(NeutronConstants.PREFIX_TAP) &&
+                Strings.isNullOrEmpty(port.getDeviceOwner()) && Strings.isNullOrEmpty(port.getDeviceId()) &&
+                port.getName().equals(NeutronConstants.PORT_LBAAS_OCTAVIA_HM_NAME)) {
+            return IfmConstants.PORT_LBAAS_OCTAVIA_HM_INTERFACE;
+        }
+
+        String tapId = port.getUuid().getValue().substring(0, 11);
+        return new StringBuilder().append(portNamePrefix).append(tapId).toString();
     }
 
     protected static String getPortNamePrefix(Port port) {
