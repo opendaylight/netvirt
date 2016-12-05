@@ -89,7 +89,7 @@ public class LearnIngressAclServiceImpl extends AbstractIngressAclServiceImpl {
             String.valueOf(this.aclServiceUtils.getConfig().getSecurityGroupDefaultHardTimeout()),
             AclConstants.PROTO_MATCH_PRIORITY.toString(),
             AclConstants.COOKIE_ACL_BASE.toString(),
-            "0",
+            AclConstants.LEARN_DELETE_LEARNED_FLAG_VALUE.toString(),
             Short.toString(NwConstants.INGRESS_LEARN_TABLE),
             "0",
             "0"
@@ -105,7 +105,7 @@ public class LearnIngressAclServiceImpl extends AbstractIngressAclServiceImpl {
             String.valueOf(this.aclServiceUtils.getConfig().getSecurityGroupTcpHardTimeout()),
             AclConstants.PROTO_MATCH_PRIORITY.toString(),
             AclConstants.COOKIE_ACL_BASE.toString(),
-            "0",
+            AclConstants.LEARN_DELETE_LEARNED_FLAG_VALUE.toString(),
             Short.toString(NwConstants.INGRESS_LEARN_TABLE),
             String.valueOf(this.aclServiceUtils.getConfig().getSecurityGroupTcpFinIdleTimeout()),
             String.valueOf(this.aclServiceUtils.getConfig().getSecurityGroupTcpFinHardTimeout())
@@ -121,7 +121,7 @@ public class LearnIngressAclServiceImpl extends AbstractIngressAclServiceImpl {
             String.valueOf(this.aclServiceUtils.getConfig().getSecurityGroupUdpHardTimeout()),
             AclConstants.PROTO_MATCH_PRIORITY.toString(),
             AclConstants.COOKIE_ACL_BASE.toString(),
-            "0",
+            AclConstants.LEARN_DELETE_LEARNED_FLAG_VALUE.toString(),
             Short.toString(NwConstants.INGRESS_LEARN_TABLE),
             "0",
             "0"

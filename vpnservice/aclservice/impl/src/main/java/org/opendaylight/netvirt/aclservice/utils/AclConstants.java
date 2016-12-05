@@ -80,6 +80,7 @@ public final class AclConstants {
     public static final String SECURITY_GROUP_UDP_HARD_TO_KEY = "security-group-udp-hard-timeout";
 
     public static final String LEARN_MATCH_REG_VALUE = "1";
+    public static final String LEARN_DELETE_LEARNED_FLAG_VALUE = "2";
 
     public static final String ACL_FLOW_PRIORITY_POOL_NAME = "acl.flow.priorities.pool";
     public static final long ACL_FLOW_PRIORITY_POOL_START = 1000L;
