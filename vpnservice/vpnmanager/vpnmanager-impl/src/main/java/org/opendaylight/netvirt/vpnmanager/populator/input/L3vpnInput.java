@@ -14,6 +14,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.adj
 
 public class L3vpnInput {
     private String rd;
+    private String primaryRd;
     private Adjacency nextHop;
     private String nextHopIp;
     private String gatewayMac;
@@ -25,6 +26,10 @@ public class L3vpnInput {
 
     public String getRd() {
         return rd;
+    }
+
+    public String getPrimaryRd() {
+        return primaryRd;
     }
 
     public Adjacency getNextHop() {
@@ -57,6 +62,11 @@ public class L3vpnInput {
 
     public VrfEntry.EncapType getEncapType() {
         return encapType;
+    }
+
+    public L3vpnInput setPrimaryRd(String primaryRd) {
+        this.primaryRd = primaryRd;
+        return this;
     }
 
     public L3vpnInput setRd(String rd) {

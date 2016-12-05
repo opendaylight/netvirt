@@ -9,8 +9,10 @@
 package org.opendaylight.netvirt.fibmanager.api;
 
 import com.google.common.util.concurrent.FutureCallback;
+
 import java.math.BigInteger;
 import java.util.List;
+
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.RouterInterface;
@@ -38,7 +40,7 @@ public interface IFibManager {
     List<String> printFibEntries();
 
     // TODO Feels like this method is not used anywhere
-    void addStaticRoute(String prefix, String nextHop, String rd, int label);
+    void addStaticRoute(String vpnName, String prefix, String nextHop, String rd, int label);
 
     void deleteStaticRoute(String prefix, String nextHop, String rd);
 
