@@ -98,6 +98,7 @@ import org.opendaylight.yangtools.yang.common.RpcResultBuilder;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.Future;
 
@@ -118,7 +119,8 @@ public class VpnSubnetRouteHandlerTest {
     SubnetDeletedFromVpn subnetDeletedFromVpn = null;
     SubnetToDpn subnetToDpn = null;
     String subnetIp = "10.1.1.24";
-    String routeDistinguisher = "100:1";
+    List<String> routeDistinguishers = Arrays.asList("100:1","100:2");
+    String primaryRd = "100:1";
     String nexthopIp = null;
     String poolName = null;
     String interfaceName = "VPN";
@@ -302,7 +304,7 @@ public class VpnSubnetRouteHandlerTest {
                 .setSubnetIp(subnetIp).setVpnName(interfaceName).setElanTag(elanTag).build();
         subnetOp = new SubnetOpDataEntryBuilder().setElanTag(elanTag).setNhDpnId(dpId).setSubnetCidr(subnetIp)
                 .setSubnetId(subnetId).setKey(new SubnetOpDataEntryKey(subnetId)).setVpnName(interfaceName)
-                .setVrfId(routeDistinguisher).setSubnetToDpn(subToDpn).setRouteAdvState(TaskState.Done).build();
+                .setVrfId(primaryRd).setSubnetToDpn(subToDpn).setRouteAdvState(TaskState.Done).build();
         vpnInstance = new VpnInstanceBuilder().setVpnId(elanTag).setVpnInstanceName(interfaceName).setVrfId
                 (interfaceName).setKey(new VpnInstanceKey(interfaceName)).build();
         subnetmap = new SubnetmapBuilder().setSubnetIp(subnetIp).setId(subnetId).setNetworkId(portId).setKey(new
@@ -314,7 +316,7 @@ public class VpnSubnetRouteHandlerTest {
         tunlEndPts = new TunnelEndPointsBuilder().setInterfaceName(interfaceName).setVLANID(10).setIpAddress
                 (ipAddress).build();
         tunnelEndPoints.add(tunlEndPts);
-        ipv4Family = new Ipv4FamilyBuilder().setRouteDistinguisher(routeDistinguisher).build();
+        ipv4Family = new Ipv4FamilyBuilder().setRouteDistinguisher(routeDistinguishers).build();
         vpnInstnce = new org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.instances
                 .VpnInstanceBuilder().setKey(new org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn
                 .rev140815.vpn.instances.VpnInstanceKey(interfaceName)).setVpnInstanceName(interfaceName)

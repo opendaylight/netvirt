@@ -24,6 +24,7 @@ module odl-l3vpn {
             leaf label { type uint32; config "false"; } /* optional */
             leaf mac_address {type string;} /* optional */
             leaf subnet_id {type yang:uuid;} /* optional */
+            leaf vrf-id {type string;}
         }
     }
 
@@ -62,25 +63,32 @@ module odl-l3vpn {
         }
     }
 
-    container vpn-to-extraroute {
+    container vpn-to-extraroutes {
         config false;
-        list vpn {
-           key vrf-id;
-           leaf vrf-id {
-              description
-                 "The vrf-id command configures a route distinguisher (RD)
-                  for the IPv4 or IPv6 address family of a VPN instance or
-                  vpn instance name for internal vpn case.";
-              type string;
+        list vpn-extraroutes {
+           key vpn-name;
+           leaf vpn-name {
+               type string;
+               description "VPN Instance name";
            }
-           list extraroute {
-              key prefix;
-              leaf prefix {type string;}
-              leaf-list nexthop-ip-list {
+           list extra-routes {
+               key vrf-id;
+               leaf vrf-id {
+                  description
+                     "The vrf-id configures unique route distinguisher (RD) for each ipv4
+                      or ipv6 prefix when its nexthop-ip-list connected to same compute node";
                   type string;
-              }
+               }
+               list routes {
+                  key prefix;
+                  leaf prefix {type string;}
+                  leaf-list nexthop-ip-list {
+                      type string;
+                  }
+               }
            }
         }
+
     }
 
     /* Data models to adhere to restart requirements */
