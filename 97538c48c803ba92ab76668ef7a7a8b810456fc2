@@ -1,0 +1,123 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1a622d24_24dbc9ee",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-12-05T17:30:57Z",
+      "side": 1,
+      "message": "We could reqote this as\n\nBug 7302: Enable Ping Responder for router interface IPs , on a BGPVPN that has this router associated.",
+      "revId": "97538c48c803ba92ab76668ef7a7a8b810456fc2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_04516d62",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-12-05T17:30:57Z",
+      "side": 1,
+      "message": "In fact this is the behaviour we intend right..\nWhy is this quoted as an issue?\n\nDid you want to mean \u0027is not moved\u0027 from internal VPN to BGPVPN?",
+      "revId": "97538c48c803ba92ab76668ef7a7a8b810456fc2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_644e61c3",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-12-05T17:30:57Z",
+      "side": 1,
+      "message": "This is right and an issue...",
+      "revId": "97538c48c803ba92ab76668ef7a7a8b810456fc2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_444b65b0",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-12-05T17:30:57Z",
+      "side": 1,
+      "message": "which is incorrect (not \u0027not required\u0027).",
+      "revId": "97538c48c803ba92ab76668ef7a7a8b810456fc2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_64e5c1a7",
+        "filename": "vpnservice/fibmanager/fibmanager-api/src/main/java/org/opendaylight/netvirt/fibmanager/api/IFibManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 55,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-12-05T17:30:57Z",
+      "side": 1,
+      "message": "indentation...",
+      "revId": "97538c48c803ba92ab76668ef7a7a8b810456fc2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_e46d5106",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/FibUtil.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 555,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-12-05T17:30:57Z",
+      "side": 1,
+      "message": "shouldn\u0027t this be syncUpdate?",
+      "revId": "97538c48c803ba92ab76668ef7a7a8b810456fc2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_a726bbb8",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 1829,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-12-05T17:30:57Z",
+      "side": 1,
+      "message": "you can remove this line..",
+      "revId": "97538c48c803ba92ab76668ef7a7a8b810456fc2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
