@@ -47,5 +47,14 @@ module elan-config {
             type boolean;
             default false;
         }
+        leaf auto-config-transport-zones {
+            description "Determines whether transport zones should be automatically created/updated";
+            type boolean;
+            default true;
+        }
+        leaf use-of-tunnels {
+            type boolean;
+            default false;
+        }
     }
 }

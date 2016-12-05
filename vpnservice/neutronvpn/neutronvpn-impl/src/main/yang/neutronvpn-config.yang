@@ -12,6 +12,7 @@ module neutronvpn-config {
     }
 
     container neutronvpn-config {
+        status deprecated;
         config true;
         leaf use-transport-zone {
             type boolean;
