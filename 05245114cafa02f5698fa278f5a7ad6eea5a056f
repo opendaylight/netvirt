@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "1a622d24_87bbbfc3",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/ArpReplyOrRequestFloatingIp.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 6473
+      },
+      "writtenOn": "2016-12-05T18:26:21Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1a622d24_8ebbdcc3",
+      "revId": "05245114cafa02f5698fa278f5a7ad6eea5a056f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_eeb090df",
         "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NatUtil.java",
         "patchSetId": 2
@@ -30,6 +48,24 @@
       "writtenOn": "2016-12-05T10:43:35Z",
       "side": 1,
       "message": "No * please..\n\nIn your IDE, please uncheck the \u0027Optimize Imports\u0027.",
+      "revId": "05245114cafa02f5698fa278f5a7ad6eea5a056f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_e7b0b3df",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NatUtil.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 6473
+      },
+      "writtenOn": "2016-12-05T18:26:21Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1a622d24_eeb090df",
       "revId": "05245114cafa02f5698fa278f5a7ad6eea5a056f",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -53,6 +89,24 @@
     },
     {
       "key": {
+        "uuid": "1a622d24_c7b5b7ce",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/VpnFloatingIpHandler.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 169,
+      "author": {
+        "id": 6473
+      },
+      "writtenOn": "2016-12-05T18:26:21Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1a622d24_0ed86cee",
+      "revId": "05245114cafa02f5698fa278f5a7ad6eea5a056f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_6ee5a0a7",
         "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/VpnFloatingIpHandler.java",
         "patchSetId": 2
@@ -64,6 +118,24 @@
       "writtenOn": "2016-12-05T10:43:35Z",
       "side": 1,
       "message": "ditto comment here.",
+      "revId": "05245114cafa02f5698fa278f5a7ad6eea5a056f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_27caab4f",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/VpnFloatingIpHandler.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 222,
+      "author": {
+        "id": 6473
+      },
+      "writtenOn": "2016-12-05T18:26:21Z",
+      "side": 1,
+      "message": "Need to Add this, will add this in PS4",
+      "parentUuid": "1a622d24_6ee5a0a7",
       "revId": "05245114cafa02f5698fa278f5a7ad6eea5a056f",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
