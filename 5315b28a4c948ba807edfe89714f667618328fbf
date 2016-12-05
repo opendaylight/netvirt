@@ -1,0 +1,40 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1a622d24_6eada088",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 635,
+      "author": {
+        "id": 6154
+      },
+      "writtenOn": "2016-12-05T16:23:53Z",
+      "side": 1,
+      "message": "Ya looks like rebase issue . With latest rebase it has come back .",
+      "parentUuid": "1a622d24_5a94df36",
+      "revId": "5315b28a4c948ba807edfe89714f667618328fbf",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_4eaa6471",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 1403,
+      "author": {
+        "id": 6154
+      },
+      "writtenOn": "2016-12-05T16:23:53Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1a622d24_9a9e7755",
+      "revId": "5315b28a4c948ba807edfe89714f667618328fbf",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
