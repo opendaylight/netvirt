@@ -45,9 +45,10 @@ public class L3vpnOverVxlanPopulator extends L3vpnPopulator {
     public void populateFib(L3vpnInput input, WriteTransaction writeConfigTxn,
                             WriteTransaction writeOperTxn) {
         String rd = input.getRd();
+        String primaryRd = input.getPrimaryRd();
         Adjacency nextHop = input.getNextHop();
         if (rd != null) {
-            addPrefixToBGP(rd, nextHop.getMacAddress(), nextHop.getIpAddress(), input.getNextHopIp(),
+            addPrefixToBGP(rd, primaryRd, nextHop.getMacAddress(), nextHop.getIpAddress(), input.getNextHopIp(),
                     input.getEncapType(), 0 /*label*/, Long.valueOf(input.getL3vni()), input.getGatewayMac(),
                     broker, writeConfigTxn);
         } else {
