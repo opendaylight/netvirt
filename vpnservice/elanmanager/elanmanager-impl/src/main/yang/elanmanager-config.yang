@@ -18,5 +18,10 @@ module elan-config {
             type boolean;
             default true;
         }
+        
+        leaf use-transport-zone {
+            type boolean;
+            default true;
+        }
     }
 }

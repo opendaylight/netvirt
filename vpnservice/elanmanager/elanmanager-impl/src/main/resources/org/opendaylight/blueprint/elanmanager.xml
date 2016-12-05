@@ -213,4 +213,37 @@
     <argument ref="elanUtils" />
     <argument ref="entityOwnershipService" />
   </bean>
+  
+  <bean id="ElanToTransportZoneListener"
+        class="org.opendaylight.netvirt.elan.internal.ElanToTransportZoneListener"
+        init-method="start" destroy-method="close">
+    <argument ref="dataBroker" />
+    <argument ref="interfaceManager" />
+    <argument ref="elanConfig" />
+  </bean>
+  
+  <bean id="InterfaceStateToTransportZoneListener"
+        class="org.opendaylight.netvirt.elan.internal.InterfaceStateToTransportZoneListener"
+        init-method="start" destroy-method="close">
+    <argument ref="dataBroker" />
+    <argument ref="interfaceManager" />
+    <argument ref="elanConfig" />
+  </bean>
+  
+  <bean id="BridgeRefEntryToTransportZoneListener"
+        class="org.opendaylight.netvirt.elan.internal.BridgeRefEntryToTransportZoneListener"
+        init-method="start" destroy-method="close">
+    <argument ref="dataBroker" />
+    <argument ref="interfaceManager" />
+    <argument ref="elanConfig" />
+  </bean>
+  
+  <bean id="VpnToTransportZoneListener"
+        class="org.opendaylight.netvirt.elan.internal.VpnToTransportZoneListener"
+        init-method="start" destroy-method="close">
+    <argument ref="dataBroker" />
+    <argument ref="interfaceManager" />
+    <argument ref="elanConfig" />
+  </bean>
+  
 </blueprint>
