@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "1a622d24_dacaaf6d",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 6473
+      },
+      "writtenOn": "2016-12-05T18:26:21Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1a622d24_0e2511c2",
+      "revId": "562233e86c14b524b7a132c3a88b234feb1e77d2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_99468922",
         "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/ArpReplyOrRequestFloatingIp.java",
         "patchSetId": 1
@@ -30,6 +48,24 @@
       "writtenOn": "2016-12-02T14:37:09Z",
       "side": 1,
       "message": "Please move existing ArpReplyOrRequest.java in vpnmanager-impl to vpnmanager-api package.\n\nAnd then use the same, instead of creating a brand-new file.",
+      "revId": "562233e86c14b524b7a132c3a88b234feb1e77d2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_a7dd1b17",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/ArpReplyOrRequestFloatingIp.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 6473
+      },
+      "writtenOn": "2016-12-05T18:26:21Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1a622d24_99468922",
       "revId": "562233e86c14b524b7a132c3a88b234feb1e77d2",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -53,6 +89,24 @@
     },
     {
       "key": {
+        "uuid": "1a622d24_07a04f8f",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NatUtil.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 6473
+      },
+      "writtenOn": "2016-12-05T18:26:21Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1a622d24_4e06e921",
+      "revId": "562233e86c14b524b7a132c3a88b234feb1e77d2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_f9c33d88",
         "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NatUtil.java",
         "patchSetId": 1
@@ -64,6 +118,24 @@
       "writtenOn": "2016-12-02T14:37:09Z",
       "side": 1,
       "message": "This method should be already available somewhere :)\n\nLet us see if we can avoid duplication.",
+      "revId": "562233e86c14b524b7a132c3a88b234feb1e77d2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_67766340",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NatUtil.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 1589,
+      "author": {
+        "id": 6473
+      },
+      "writtenOn": "2016-12-05T18:26:21Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1a622d24_f9c33d88",
       "revId": "562233e86c14b524b7a132c3a88b234feb1e77d2",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -87,6 +159,24 @@
     },
     {
       "key": {
+        "uuid": "1a622d24_bab413f3",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NatUtil.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 1626,
+      "author": {
+        "id": 6473
+      },
+      "writtenOn": "2016-12-05T18:26:21Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1a622d24_d9c0017f",
+      "revId": "562233e86c14b524b7a132c3a88b234feb1e77d2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_19bb990f",
         "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NatUtil.java",
         "patchSetId": 1
@@ -98,6 +188,24 @@
       "writtenOn": "2016-12-02T14:37:09Z",
       "side": 1,
       "message": "Again this method must be already available in ArpReponderUtils, please check.",
+      "revId": "562233e86c14b524b7a132c3a88b234feb1e77d2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_e799d36f",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NatUtil.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 1674,
+      "author": {
+        "id": 6473
+      },
+      "writtenOn": "2016-12-05T18:26:21Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1a622d24_19bb990f",
       "revId": "562233e86c14b524b7a132c3a88b234feb1e77d2",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -121,6 +229,24 @@
     },
     {
       "key": {
+        "uuid": "1a622d24_facdeb87",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NatUtil.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 1728,
+      "author": {
+        "id": 6473
+      },
+      "writtenOn": "2016-12-05T18:26:21Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1a622d24_593cf193",
+      "revId": "562233e86c14b524b7a132c3a88b234feb1e77d2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_b97c2574",
         "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/VpnFloatingIpHandler.java",
         "patchSetId": 1
@@ -138,6 +264,24 @@
     },
     {
       "key": {
+        "uuid": "1a622d24_67adc388",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/VpnFloatingIpHandler.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 6473
+      },
+      "writtenOn": "2016-12-05T18:26:21Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1a622d24_b97c2574",
+      "revId": "562233e86c14b524b7a132c3a88b234feb1e77d2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_198d597c",
         "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/VpnFloatingIpHandler.java",
         "patchSetId": 1
@@ -149,6 +293,24 @@
       "writtenOn": "2016-12-02T14:37:09Z",
       "side": 1,
       "message": "use writeTx for this method too.",
+      "revId": "562233e86c14b524b7a132c3a88b234feb1e77d2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_47aa4771",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/VpnFloatingIpHandler.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 169,
+      "author": {
+        "id": 6473
+      },
+      "writtenOn": "2016-12-05T18:26:21Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1a622d24_198d597c",
       "revId": "562233e86c14b524b7a132c3a88b234feb1e77d2",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -178,6 +340,30 @@
     },
     {
       "key": {
+        "uuid": "1a622d24_5aa69fc2",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/VpnFloatingIpHandler.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 312,
+      "author": {
+        "id": 6473
+      },
+      "writtenOn": "2016-12-05T18:26:21Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1a622d24_b9f38509",
+      "range": {
+        "startLine": 312,
+        "startChar": 38,
+        "endLine": 312,
+        "endChar": 39
+      },
+      "revId": "562233e86c14b524b7a132c3a88b234feb1e77d2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_39e77542",
         "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/VpnFloatingIpHandler.java",
         "patchSetId": 1
@@ -189,6 +375,24 @@
       "writtenOn": "2016-12-02T14:37:09Z",
       "side": 1,
       "message": "please get VpnId once in this method and re-use everywhere.",
+      "revId": "562233e86c14b524b7a132c3a88b234feb1e77d2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_baab7388",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/VpnFloatingIpHandler.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 324,
+      "author": {
+        "id": 6473
+      },
+      "writtenOn": "2016-12-05T18:26:21Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1a622d24_39e77542",
       "revId": "562233e86c14b524b7a132c3a88b234feb1e77d2",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -212,6 +416,24 @@
     },
     {
       "key": {
+        "uuid": "1a622d24_9ab037f6",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/VpnFloatingIpHandler.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 327,
+      "author": {
+        "id": 6473
+      },
+      "writtenOn": "2016-12-05T18:26:21Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1a622d24_f9dcdd76",
+      "revId": "562233e86c14b524b7a132c3a88b234feb1e77d2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_19e4393a",
         "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/VpnFloatingIpHandler.java",
         "patchSetId": 1
@@ -223,6 +445,24 @@
       "writtenOn": "2016-12-02T14:37:09Z",
       "side": 1,
       "message": "else to be placed on same line as }",
+      "revId": "562233e86c14b524b7a132c3a88b234feb1e77d2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_fa94cb45",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/VpnFloatingIpHandler.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 336,
+      "author": {
+        "id": 6473
+      },
+      "writtenOn": "2016-12-05T18:26:21Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1a622d24_19e4393a",
       "revId": "562233e86c14b524b7a132c3a88b234feb1e77d2",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
