@@ -20,7 +20,7 @@ public interface IBgpManager {
      * @param importRts
      * @param exportRts
      */
-    public void addVrf(String rd, Collection<String> importRts, Collection<String> exportRts) throws Exception;
+    public void addVrf(String rd, Collection<String> importRts, Collection<String> exportRts);
 
     /**
      *

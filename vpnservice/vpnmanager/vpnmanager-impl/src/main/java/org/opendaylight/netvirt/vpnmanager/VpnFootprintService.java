@@ -13,10 +13,12 @@ import com.google.common.util.concurrent.CheckedFuture;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
+
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
+
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.NotificationPublishService;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
@@ -89,13 +91,12 @@ public class VpnFootprintService {
     }
 
     private void createOrUpdateVpnToDpnList(long vpnId, BigInteger dpnId, String intfName, String vpnName) {
-        String routeDistinguisher = VpnUtil.getVpnRdFromVpnInstanceConfig(dataBroker, vpnName);
-        String rd = (routeDistinguisher == null) ? vpnName : routeDistinguisher;
+        String primaryRd = VpnUtil.getPrimaryRd(dataBroker, vpnName);
         Boolean newDpnOnVpn = Boolean.FALSE;
 
         synchronized (vpnName.intern()) {
             WriteTransaction writeTxn = dataBroker.newWriteOnlyTransaction();
-            InstanceIdentifier<VpnToDpnList> id = VpnUtil.getVpnToDpnListIdentifier(rd, dpnId);
+            InstanceIdentifier<VpnToDpnList> id = VpnUtil.getVpnToDpnListIdentifier(primaryRd, dpnId);
             Optional<VpnToDpnList> dpnInVpn = VpnUtil.read(dataBroker, LogicalDatastoreType.OPERATIONAL, id);
             VpnInterfaces vpnInterface = new VpnInterfacesBuilder().setInterfaceName(intfName).build();
 
@@ -136,10 +137,13 @@ public class VpnFootprintService {
         /*
          * Informing the Fib only after writeTxn is submitted successfuly.
          */
+        List<String> routeDistinguishers = VpnUtil.getVpnRdFromVpnInstanceConfig(dataBroker, vpnName);
         if (newDpnOnVpn) {
-            LOG.debug("Sending populateFib event for new dpn {} in VPN {}", dpnId, vpnName);
-            fibManager.populateFibOnNewDpn(dpnId, vpnId, rd, new DpnEnterExitVpnWorker(dpnId, vpnName, rd,
-                                                                                       true /* entered */));
+            for (String rd : routeDistinguishers) {
+                LOG.debug("Sending populateFib event for new dpn {} in VPN {}", dpnId, vpnName);
+                fibManager.populateFibOnNewDpn(dpnId, vpnId, rd, new DpnEnterExitVpnWorker(dpnId, vpnName, rd,
+                                                                                           true /* entered */));
+            }
         }
     }
 
