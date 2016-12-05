@@ -114,12 +114,12 @@ public class VpnManagerImpl implements IVpnManager {
     }
 
     @Override
-    public void addExtraRoute(String destination, String nextHop, String rd, String routerID, int label,
-        RouteOrigin origin) {
+    public void addExtraRoute(String vpnName, String destination, String nextHop, String rd, String routerID, int label,
+                              RouteOrigin origin) {
         LOG.info("Adding extra route with destination {}, nextHop {}, label{} and origin {}",
-            destination, nextHop, label, origin);
-        vpnInterfaceManager.addExtraRoute(destination, nextHop, rd, routerID, label, origin, /*intfName*/ null,
-            null, null);
+                 destination, nextHop, label, origin);
+        vpnInterfaceManager.addExtraRoute(vpnName, destination, nextHop, rd, routerID, label, origin, /*intfName*/ null,
+                                          null);
     }
 
     @Override
