@@ -128,7 +128,7 @@ public class LearnEgressAclServiceImplTest {
                     String.valueOf(0),
                     AclConstants.PROTO_MATCH_PRIORITY.toString(),
                     AclConstants.COOKIE_ACL_BASE.toString(),
-                    "0",
+                    AclConstants.LEARN_DELETE_LEARNED_FLAG_VALUE.toString(),
                     Short.toString(NwConstants.EGRESS_LEARN_TABLE),
                     String.valueOf(tcpFinIdleTimeoutValue),
                     "0"
@@ -182,7 +182,7 @@ public class LearnEgressAclServiceImplTest {
                     String.valueOf(0),
                     AclConstants.PROTO_MATCH_PRIORITY.toString(),
                     AclConstants.COOKIE_ACL_BASE.toString(),
-                    "0",
+                    AclConstants.LEARN_DELETE_LEARNED_FLAG_VALUE.toString(),
                     Short.toString(NwConstants.EGRESS_LEARN_TABLE),
                     "0",
                     "0"
