@@ -1,0 +1,225 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1a622d24_27262b17",
+        "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/SouthboundHandler.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 106,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2016-12-05T20:56:41Z",
+      "side": 1,
+      "message": "Is this a problem calling distributedArpService.processInterfaceEvent(UPDATE) for other action besides update action?",
+      "revId": "bc499e5e66561a24cf8815e265736242f62fadfe",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_2702ab3e",
+        "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/impl/DistributedArpService.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 63,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2016-12-05T20:56:41Z",
+      "side": 1,
+      "message": "- please avoid using magic number \u00275\u0027\n- please specify name of of the thread by passing in threadFactory \u003d new ThreadFactoryBuilder().setNameFormat(..)\nExecutors.newFixedThreadPool(NUM_THREADS, threadFactory)",
+      "revId": "bc499e5e66561a24cf8815e265736242f62fadfe",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_07868fb9",
+        "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/impl/DistributedArpService.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 144,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2016-12-05T20:56:41Z",
+      "side": 1,
+      "message": "this method is getting very big, please refactor changes into smaller methods that could be used for this methods",
+      "revId": "bc499e5e66561a24cf8815e265736242f62fadfe",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_c7d657c5",
+        "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/impl/DistributedArpService.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 183,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2016-12-05T20:56:41Z",
+      "side": 1,
+      "message": "please use meaningful variable name",
+      "revId": "bc499e5e66561a24cf8815e265736242f62fadfe",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_07516f62",
+        "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/impl/DistributedArpService.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 188,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2016-12-05T20:56:41Z",
+      "side": 1,
+      "message": "please explain why",
+      "revId": "bc499e5e66561a24cf8815e265736242f62fadfe",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_674e63c3",
+        "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/impl/DistributedArpService.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 190,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2016-12-05T20:56:41Z",
+      "side": 1,
+      "message": "- line too long\n- I think the condition \u0027neutronPortList.size() \u003d\u003d 1\u0027 is not needed because \u0027tempPort !\u003d null\u0027 implies it",
+      "revId": "bc499e5e66561a24cf8815e265736242f62fadfe",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_07d84fee",
+        "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/impl/DistributedArpService.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 191,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2016-12-05T20:56:41Z",
+      "side": 1,
+      "message": "please use meaning variable name rather then \u0027port1\u0027",
+      "revId": "bc499e5e66561a24cf8815e265736242f62fadfe",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_87cc5f37",
+        "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/impl/DistributedArpService.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 196,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2016-12-05T20:56:41Z",
+      "side": 1,
+      "message": "line too long",
+      "revId": "bc499e5e66561a24cf8815e265736242f62fadfe",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_e7d1d3ce",
+        "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/impl/DistributedArpService.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 198,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2016-12-05T20:56:41Z",
+      "side": 1,
+      "message": "- line too long\n- If task can not be executed then we should log error messages and not bother retrying in blocked mode",
+      "revId": "bc499e5e66561a24cf8815e265736242f62fadfe",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_47f9a74c",
+        "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/impl/DistributedArpService.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 203,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2016-12-05T20:56:41Z",
+      "side": 1,
+      "message": "please use meaningful variable name rather than \u0027macAddress1\u0027",
+      "revId": "bc499e5e66561a24cf8815e265736242f62fadfe",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_07ffaf35",
+        "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/impl/DistributedArpService.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 209,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2016-12-05T20:56:41Z",
+      "side": 1,
+      "message": "same comments above",
+      "revId": "bc499e5e66561a24cf8815e265736242f62fadfe",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_67fca33f",
+        "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/impl/DistributedArpService.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 230,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2016-12-05T20:56:41Z",
+      "side": 1,
+      "message": "same comment above",
+      "revId": "bc499e5e66561a24cf8815e265736242f62fadfe",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_e78393ca",
+        "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/impl/DistributedArpService.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 304,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2016-12-05T20:56:41Z",
+      "side": 1,
+      "message": "please remove white spaces here and line 315",
+      "revId": "bc499e5e66561a24cf8815e265736242f62fadfe",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
