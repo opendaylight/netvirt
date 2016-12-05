@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "1a622d24_116fed93",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/utils/ElanUtils.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 726,
+      "author": {
+        "id": 6791
+      },
+      "writtenOn": "2016-12-05T12:30:12Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1a622d24_1a00a7a9",
+      "range": {
+        "startLine": 726,
+        "startChar": 0,
+        "endLine": 726,
+        "endChar": 4
+      },
+      "revId": "5d4b5abe3c66fc1dfa394f34725d734c99523339",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_7a2c3b4b",
         "filename": "vpnservice/elanmanager/elanmanager-impl/src/test/java/org/opendaylight/netvirt/elan/utils/ElanTestData.java",
         "patchSetId": 1
@@ -36,6 +60,30 @@
       "writtenOn": "2016-12-05T04:33:25Z",
       "side": 1,
       "message": "Nit: remove tabs.",
+      "range": {
+        "startLine": 58,
+        "startChar": 0,
+        "endLine": 58,
+        "endChar": 1
+      },
+      "revId": "5d4b5abe3c66fc1dfa394f34725d734c99523339",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_910addd0",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/test/java/org/opendaylight/netvirt/elan/utils/ElanTestData.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 58,
+      "author": {
+        "id": 6791
+      },
+      "writtenOn": "2016-12-05T12:30:12Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1a622d24_7a2c3b4b",
       "range": {
         "startLine": 58,
         "startChar": 0,
@@ -65,6 +113,24 @@
     },
     {
       "key": {
+        "uuid": "1a622d24_f10fd1df",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/test/java/org/opendaylight/netvirt/elan/utils/ElanTestData.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 145,
+      "author": {
+        "id": 6791
+      },
+      "writtenOn": "2016-12-05T12:30:12Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1a622d24_5a317fa1",
+      "revId": "5d4b5abe3c66fc1dfa394f34725d734c99523339",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_ba26d366",
         "filename": "vpnservice/elanmanager/elanmanager-impl/src/test/java/org/opendaylight/netvirt/elan/utils/FlowEntityMatcher.java",
         "patchSetId": 1
@@ -76,6 +142,24 @@
       "writtenOn": "2016-12-05T04:33:25Z",
       "side": 1,
       "message": "remove these commented lines",
+      "revId": "5d4b5abe3c66fc1dfa394f34725d734c99523339",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_7103c1b8",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/test/java/org/opendaylight/netvirt/elan/utils/FlowEntityMatcher.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 48,
+      "author": {
+        "id": 6791
+      },
+      "writtenOn": "2016-12-05T12:30:12Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1a622d24_ba26d366",
       "revId": "5d4b5abe3c66fc1dfa394f34725d734c99523339",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
