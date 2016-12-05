@@ -1,0 +1,140 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1a622d24_47b6c73e",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/L3vpnVxlanVrfProcessor.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 55,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-12-05T17:49:18Z",
+      "side": 1,
+      "message": "L3VpnOverVxlanVRFEntryProgrammer",
+      "revId": "5451aedc7f3a06c002aa46a1b2960615ed84676a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_e758b3fc",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/L3vpnVxlanVrfProcessor.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 75,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-12-05T17:49:18Z",
+      "side": 1,
+      "message": "installFlows()",
+      "revId": "5451aedc7f3a06c002aa46a1b2960615ed84676a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_076faf93",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/L3vpnVxlanVrfProcessor.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 212,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-12-05T17:49:18Z",
+      "side": 1,
+      "message": "Is the above method required in future?",
+      "revId": "5451aedc7f3a06c002aa46a1b2960615ed84676a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_676ca39d",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/L3vpnVxlanVrfProcessor.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 288,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-12-05T17:49:18Z",
+      "side": 1,
+      "message": "removeFlows()",
+      "revId": "5451aedc7f3a06c002aa46a1b2960615ed84676a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_87873f61",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 199,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-12-05T17:49:18Z",
+      "side": 1,
+      "message": "Becoming more clumsier file to manage overall.\n\nCan use l3vpnovervxlanvrfentryprogrammer.installFlows().\n\nBetter to have a new method that services by encapsulationType..\nThat method will have case for VXLAN and MPLSOverGRE.\nFor each such case, there will be a BGP routeorigin check and according sub-methods should be called.\n\nPlease note that for even BGP imported VRF Entries, the EVPN flows will translate differently than the MPLSOverGRE flows.",
+      "revId": "5451aedc7f3a06c002aa46a1b2960615ed84676a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_c781374c",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 225,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-12-05T17:49:18Z",
+      "side": 1,
+      "message": "l3vpnovervxlanvrfentryprogrammer.removeFlows().\n\nComments ditto above in addFibEntries() apply here.",
+      "revId": "5451aedc7f3a06c002aa46a1b2960615ed84676a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_e7ca73a0",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 1331,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-12-05T17:49:18Z",
+      "side": 1,
+      "message": "put name after TODO like\n\nTODO(Kiran):",
+      "revId": "5451aedc7f3a06c002aa46a1b2960615ed84676a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_a75ebbe7",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 400,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-12-05T17:49:18Z",
+      "side": 1,
+      "message": "GWMAC flow management was inside bindService and unbindService method .. Can we please continue to retain so?",
+      "revId": "5451aedc7f3a06c002aa46a1b2960615ed84676a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
