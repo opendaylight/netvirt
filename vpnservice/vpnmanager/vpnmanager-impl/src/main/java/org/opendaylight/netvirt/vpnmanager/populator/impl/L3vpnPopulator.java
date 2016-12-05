@@ -49,14 +49,14 @@ public class L3vpnPopulator implements VpnPopulator {
     }
 
     @SuppressWarnings("checkstyle:IllegalCatch")
-    protected void addPrefixToBGP(String rd, String macAddress, String prefix, String nextHopIp,
+    protected void addPrefixToBGP(String rd, String primaryRd, String macAddress, String prefix, String nextHopIp,
                                   VrfEntry.EncapType encapType, long label, long l3vni, String gatewayMac,
                                   DataBroker broker, WriteTransaction writeConfigTxn) {
         try {
             List<String> nextHopList = Collections.singletonList(nextHopIp);
             LOG.info("ADD: Adding Fib entry rd {} prefix {} nextHop {} label {} l3vni {}", rd, prefix, nextHopIp,
                     label, l3vni);
-            fibManager.addOrUpdateFibEntry(broker, rd, macAddress, prefix, nextHopList,
+            fibManager.addOrUpdateFibEntry(broker, primaryRd, macAddress, prefix, nextHopList,
                     encapType, (int)label, l3vni, gatewayMac, RouteOrigin.LOCAL, writeConfigTxn);
             LOG.info("ADD: Added Fib entry rd {} prefix {} nextHop {} label {}, l3vni {}", rd, prefix, nextHopIp,
                     label, l3vni);

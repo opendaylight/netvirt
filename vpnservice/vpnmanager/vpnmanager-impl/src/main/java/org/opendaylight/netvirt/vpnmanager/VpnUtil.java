@@ -21,6 +21,7 @@ import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
+import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
@@ -79,7 +80,13 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.lockmanager.rev16041
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.ElanTagNameMap;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.tag.name.map.ElanTagName;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.tag.name.map.ElanTagNameKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.ExtrarouteRdsMap;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.FibEntries;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.extraroute.rds.map.ExtrarouteRds;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.extraroute.rds.map.ExtrarouteRdsKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.extraroute.rds.map.extraroute.rds.DestPrefixes;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.extraroute.rds.map.extraroute.rds.DestPrefixesBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.extraroute.rds.map.extraroute.rds.DestPrefixesKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.fibentries.VrfTables;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.fibentries.VrfTablesKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.VrfEntry;
@@ -95,7 +102,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.Rou
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.VpnIdToVpnInstance;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.VpnInstanceOpData;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.VpnInstanceToVpnId;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.VpnToExtraroute;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.VpnToExtraroutes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.adjacency.list.Adjacency;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.learnt.vpn.vip.to.port.data.LearntVpnVipToPort;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.learnt.vpn.vip.to.port.data.LearntVpnVipToPortBuilder;
@@ -114,12 +121,13 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.vpn.instance.op.data.entry.VpnToDpnList;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.vpn.instance.op.data.entry.VpnToDpnListKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.to.vpn.id.VpnInstanceBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.to.extraroute.Vpn;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.to.extraroute.VpnBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.to.extraroute.VpnKey;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.to.extraroute.vpn.Extraroute;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.to.extraroute.vpn.ExtrarouteBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.to.extraroute.vpn.ExtrarouteKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.to.extraroutes.Vpn;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.to.extraroutes.VpnKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.to.extraroutes.vpn.ExtraRoutes;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.to.extraroutes.vpn.ExtraRoutesKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.to.extraroutes.vpn.extra.routes.Routes;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.to.extraroutes.vpn.extra.routes.RoutesBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.to.extraroutes.vpn.extra.routes.RoutesKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ExtRouters;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ExternalNetworks;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.NaptSwitches;
@@ -192,19 +200,26 @@ public class VpnUtil {
             vpnInterfaceName).setIpAddress(ipPrefix).build();
     }
 
-    static InstanceIdentifier<Extraroute> getVpnToExtrarouteIdentifier(String vrfId, String ipPrefix) {
-        return InstanceIdentifier.builder(VpnToExtraroute.class)
-            .child(Vpn.class, new VpnKey(vrfId)).child(Extraroute.class,
-                new ExtrarouteKey(ipPrefix)).build();
+    static Optional<Prefixes> getPrefixToInterface(DataBroker broker, long vpnId, String ipPrefix) {
+        return read(broker, LogicalDatastoreType.OPERATIONAL,
+                getPrefixToInterfaceIdentifier(vpnId, getIpPrefix(ipPrefix)));
     }
 
-    static InstanceIdentifier<Vpn> getVpnToExtrarouteIdentifier(String vrfId) {
-        return InstanceIdentifier.builder(VpnToExtraroute.class)
-            .child(Vpn.class, new VpnKey(vrfId)).build();
+    static  InstanceIdentifier<Routes> getVpnToExtrarouteIdentifier(String vpnName, String vrfId, String ipPrefix) {
+        return InstanceIdentifier.builder(VpnToExtraroutes.class)
+                .child(Vpn.class, new VpnKey(vpnName)).child(ExtraRoutes.class,
+                        new ExtraRoutesKey(vrfId)).child(Routes.class, new RoutesKey(ipPrefix)).build();
     }
 
-    static Vpn getVpnToExtraRoute(String vrfId) {
-        return new VpnBuilder().setKey(new VpnKey(vrfId)).setVrfId(vrfId).build();
+    static  InstanceIdentifier<ExtraRoutes> getVpnToExtrarouteIdentifier(String vpnName, String vrfId) {
+        return InstanceIdentifier.builder(VpnToExtraroutes.class)
+                .child(Vpn.class, new VpnKey(vpnName)).child(ExtraRoutes.class,
+                        new ExtraRoutesKey(vrfId)).build();
+    }
+
+    static  InstanceIdentifier<Vpn> getVpnToExtrarouteIdentifier(String vpnName) {
+        return InstanceIdentifier.builder(VpnToExtraroutes.class)
+                .child(Vpn.class, new VpnKey(vpnName)).build();
     }
 
     /**
@@ -250,12 +265,14 @@ public class VpnUtil {
         return new ArrayList<>();
     }
 
-    static List<Extraroute> getAllExtraRoutes(DataBroker broker, String vrfId) {
-        Optional<Vpn> extraRoutes = read(broker, LogicalDatastoreType.OPERATIONAL, getVpnToExtrarouteIdentifier(vrfId));
+    static List<Routes> getAllExtraRoutes(DataBroker broker, String vpnName, String vrfId) {
+        Optional<ExtraRoutes> extraRoutes = read(broker,LogicalDatastoreType.OPERATIONAL,
+                getVpnToExtrarouteIdentifier(vpnName, vrfId));
+        List<Routes> extraRoutesList = new ArrayList<>();
         if (extraRoutes.isPresent()) {
-            return extraRoutes.get().getExtraroute();
+            extraRoutesList = extraRoutes.get().getRoutes();
         }
-        return new ArrayList<>();
+        return extraRoutesList;
     }
 
     /**
@@ -344,15 +361,37 @@ public class VpnUtil {
         return null;
     }
 
-    static Extraroute getVpnToExtraroute(String ipPrefix, List<String> nextHopList) {
-        return new ExtrarouteBuilder().setPrefix(ipPrefix).setNexthopIpList(nextHopList).build();
+    static  Routes getVpnToExtraroute(String ipPrefix, List<String> nextHopList) {
+        return new RoutesBuilder().setPrefix(ipPrefix).setNexthopIpList(nextHopList).build();
     }
 
-    public static List<Extraroute> getVpnExtraroutes(DataBroker broker, String vpnRd) {
-        InstanceIdentifier<Vpn> vpnExtraRoutesId =
-            InstanceIdentifier.builder(VpnToExtraroute.class).child(Vpn.class, new VpnKey(vpnRd)).build();
-        Optional<Vpn> vpnOpc = read(broker, LogicalDatastoreType.OPERATIONAL, vpnExtraRoutesId);
-        return vpnOpc.isPresent() ? vpnOpc.get().getExtraroute() : new ArrayList<>();
+    public static  List<Routes> getExtraRoutes(DataBroker broker, String vpnName, String vpnRd) {
+        InstanceIdentifier<ExtraRoutes> vpnExtraRoutesId = getVpnToExtrarouteIdentifier(vpnName, vpnRd);
+        Optional<ExtraRoutes> extraRoutes = read(broker, LogicalDatastoreType.OPERATIONAL, vpnExtraRoutesId);
+        return extraRoutes.isPresent() ? extraRoutes.get().getRoutes() : new ArrayList<Routes>();
+    }
+
+    public static Optional<Routes> getExtraRoutes(DataBroker broker, String vpnName,
+                                                     String vpnRd, String destPrefix) {
+        InstanceIdentifier<Routes> vpnExtraRoutesId = getVpnToExtrarouteIdentifier(vpnName, vpnRd, destPrefix);
+        return read(broker, LogicalDatastoreType.OPERATIONAL, vpnExtraRoutesId);
+    }
+
+    static  List<String> getUsedRds(DataBroker broker, long vpnId, String destPrefix) {
+        InstanceIdentifier<DestPrefixes> usedRdsId = getUsedRdsIdentifier(vpnId, destPrefix);
+        Optional<DestPrefixes> usedRds = read(broker, LogicalDatastoreType.OPERATIONAL, usedRdsId);
+        return usedRds.isPresent() ? usedRds.get().getRds() : new ArrayList<String>();
+    }
+
+    static  InstanceIdentifier<DestPrefixes> getUsedRdsIdentifier(long vpnId, String destPrefix) {
+        return InstanceIdentifier.builder(ExtrarouteRdsMap.class)
+                .child(ExtrarouteRds.class, new ExtrarouteRdsKey(vpnId))
+                .child(DestPrefixes.class, new DestPrefixesKey(destPrefix)).build();
+    }
+
+    static DestPrefixesBuilder getDestPrefixesBuilder(String destPrefix, List<String> rd) {
+        return new DestPrefixesBuilder().setKey(new DestPrefixesKey(destPrefix))
+                .setDestPrefix(destPrefix).setRds(rd);
     }
 
     static Adjacencies getVpnInterfaceAugmentation(List<Adjacency> nextHopList) {
@@ -491,6 +530,13 @@ public class VpnUtil {
             rd = vpnInstance.get().getVrfId();
         }
         return rd;
+    }
+
+    private static List<String> getVpnRdsFromVpnInstanceConfig(DataBroker broker, String vpnName) {
+        InstanceIdentifier<VpnInstance> id = InstanceIdentifier.builder(VpnInstances.class)
+            .child(VpnInstance.class, new VpnInstanceKey(vpnName)).build();
+        Optional<VpnInstance> vpnInstance = VpnUtil.read(broker, LogicalDatastoreType.CONFIGURATION, id);
+        return vpnInstance.isPresent() ? getListOfRdsFromVpnInstance(vpnInstance.get()) : new ArrayList<String>();
     }
 
     /**
@@ -910,11 +956,13 @@ public class VpnUtil {
             // Clean up VPNExtraRoutes Operational DS
             if (writeTxn != null) {
                 writeTxn.delete(LogicalDatastoreType.OPERATIONAL,
-                    InstanceIdentifier.builder(VpnToExtraroute.class).child(Vpn.class, new VpnKey(vpnName)).build());
+                        InstanceIdentifier.builder(VpnToExtraroutes.class)
+                                .child(Vpn.class, new VpnKey(vpnName)).build());
             } else {
                 delete(broker, LogicalDatastoreType.OPERATIONAL,
-                    InstanceIdentifier.builder(VpnToExtraroute.class).child(Vpn.class, new VpnKey(vpnName)).build(),
-                    DEFAULT_CALLBACK);
+                        InstanceIdentifier.builder(VpnToExtraroutes.class)
+                                .child(Vpn.class, new VpnKey(vpnName)).build(),
+                        DEFAULT_CALLBACK);
             }
         } catch (Exception e) {
             LOG.error("Exception during cleanup of VPNToExtraRoute for VPN {}", vpnName, e);
@@ -1450,5 +1498,52 @@ public class VpnUtil {
 
     public static boolean isBgpVpn(String vpnName, String primaryRd) {
         return !vpnName.equals(primaryRd);
+    }
+
+    static java.util.Optional<String> allocateRdForExtraRouteAndUpdateUsedRdsMap(
+            DataBroker dataBroker, long vpnId, String prefix, String vpnName,
+            BigInteger dpnId, Adjacency adjacency, WriteTransaction writeOperTxn) {
+        List<String> usedRds = getUsedRds(dataBroker, vpnId, prefix);
+        //Check if rd is already allocated for the same prefix. Use same rd if extra route is behind same CSS.
+        java.util.Optional<String> rdToAllocate = usedRds.stream()
+                .map(usedRd -> {
+                    Optional<Routes> vpnExtraRoutes = getExtraRoutes(dataBroker, vpnName, usedRd, prefix);
+                    return vpnExtraRoutes.isPresent() ? new ImmutablePair<String, String>(
+                            vpnExtraRoutes.get().getNexthopIpList().get(0),
+                            usedRd) : new ImmutablePair<String, String>("", "");
+                })
+                .filter(pair -> {
+                    if (pair.getLeft().isEmpty()) {
+                        return false;
+                    }
+                    Optional<Prefixes> prefixToInterface = getPrefixToInterface(dataBroker, vpnId, pair.getLeft());
+                    return prefixToInterface.isPresent() ? dpnId.equals(prefixToInterface.get().getDpnId()) : false;
+                }).map(pair -> pair.getRight()).findFirst();
+        if (rdToAllocate.isPresent()) {
+            return rdToAllocate;
+        }
+        List<String> availableRds = getVpnRdsFromVpnInstanceConfig(dataBroker, vpnName);
+        if (availableRds.isEmpty()) {
+            LOG.debug("Internal vpn. Returning vpn name {} as rd", vpnName);
+            return java.util.Optional.ofNullable(vpnName);
+        }
+        LOG.trace(
+                "Removing used rds {} from available rds {} vpnid {} . prefix is {} , vpname- {}, dpnId- {}, adj - {}",
+                usedRds, availableRds, vpnId, prefix, vpnName, dpnId, adjacency);
+        availableRds.removeAll(usedRds);
+        if (availableRds.isEmpty()) {
+            LOG.error("No rd available from VpnInstance to allocate for new adjacency{}", adjacency);
+            return java.util.Optional.empty();
+        }
+        // If rd is not allocated for this prefix or if extra route is behind different CSS, select a new rd.
+        String rd = availableRds.get(0);
+        usedRds.add(rd);
+        syncUpdate(dataBroker, LogicalDatastoreType.OPERATIONAL, getUsedRdsIdentifier(vpnId, prefix),
+                getDestPrefixesBuilder(prefix, usedRds).build());
+        return java.util.Optional.ofNullable(rd);
+    }
+
+    static String getVpnNamePrefixKey(String vpnName, String prefix) {
+        return vpnName + VpnConstants.SEPARATOR + prefix;
     }
 }
