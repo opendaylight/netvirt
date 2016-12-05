@@ -2,6 +2,29 @@
   "comments": [
     {
       "key": {
+        "uuid": "1a622d24_2e89e8ca",
+        "filename": "docs/specs/temporary-smac-learning.rst",
+        "patchSetId": 4
+      },
+      "lineNbr": 5,
+      "author": {
+        "id": 3276
+      },
+      "writtenOn": "2016-12-05T10:56:45Z",
+      "side": 1,
+      "message": "Replace this with https://git.opendaylight.org/gerrit/#/q/topic:temp-smac-learning\n\nUse \u0027temp-smac-learning\u0027 in all patches,Genius+Netirt+anything-else. Clicking on this link will then provide all patches for this feature.",
+      "range": {
+        "startLine": 4,
+        "startChar": 0,
+        "endLine": 5,
+        "endChar": 50
+      },
+      "revId": "89ef8f534116fe6a6aec89c19a1ca49a92fe7184",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_486c219d",
         "filename": "docs/specs/temporary-smac-learning.rst",
         "patchSetId": 4
