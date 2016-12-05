@@ -27,7 +27,7 @@ public class ElanConstants {
     public static final BigInteger COOKIE_ELAN_UNKNOWN_DMAC = new BigInteger("8700000", 16);
     public static final BigInteger COOKIE_ELAN_KNOWN_SMAC = new BigInteger("8050000", 16);
     public static final BigInteger COOKIE_ELAN_KNOWN_DMAC = new BigInteger("8030000", 16);
-    public static final long DEFAULT_MAC_TIME_OUT = 30;
+    public static final long DEFAULT_MAC_TIME_OUT = 300;
     public static final BigInteger COOKIE_ELAN_FILTER_EQUALS = new BigInteger("8800000", 16);
 
     public static final String L2GATEWAY_DS_JOB_NAME = "L2GW";
