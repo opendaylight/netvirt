@@ -70,6 +70,23 @@
     },
     {
       "key": {
+        "uuid": "1a622d24_276d8b33",
+        "filename": "vpnservice/fibmanager/fibmanager-api/src/main/java/org/opendaylight/netvirt/fibmanager/api/IFibManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 54,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2016-12-05T19:34:48Z",
+      "side": 1,
+      "message": "I think the FibManager API would be cleaner if the RouterInterface augmentation will be created along with the VrfEntry inside this method rather than provided as an argument",
+      "revId": "97538c48c803ba92ab76668ef7a7a8b810456fc2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_64e5c1a7",
         "filename": "vpnservice/fibmanager/fibmanager-api/src/main/java/org/opendaylight/netvirt/fibmanager/api/IFibManager.java",
         "patchSetId": 1
