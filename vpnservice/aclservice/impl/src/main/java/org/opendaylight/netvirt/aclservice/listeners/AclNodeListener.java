@@ -134,7 +134,7 @@ public class AclNodeListener extends AsyncDataTreeChangeListenerBase<FlowCapable
      *
      * @param dpId the dp id
      */
-    private void addIngressAclTableMissFlow(BigInteger dpId) {
+    private void addEgressAclTableMissFlow(BigInteger dpId) {
         List<MatchInfo> mkMatches = new ArrayList<>();
         List<InstructionInfo> mkInstructions = new ArrayList<>();
         List<ActionInfo> actionsInfos = new ArrayList<>();
@@ -314,7 +314,7 @@ public class AclNodeListener extends AsyncDataTreeChangeListenerBase<FlowCapable
      *
      * @param dpId the dp id
      */
-    private void addStatelessIngressAclTableMissFlow(BigInteger dpId) {
+    private void addStatelessEgressAclTableMissFlow(BigInteger dpId) {
         List<MatchInfo> synMatches = new ArrayList<>();
         synMatches.add(new MatchInfo(MatchFieldType.eth_type,
                 new long[] { NwConstants.ETHTYPE_IPV4 }));
@@ -380,7 +380,7 @@ public class AclNodeListener extends AsyncDataTreeChangeListenerBase<FlowCapable
      *
      * @param dpId the dp id
      */
-    private void addStatelessEgressAclTableMissFlow(BigInteger dpId) {
+    private void addStatelessIngressAclTableMissFlow(BigInteger dpId) {
         List<InstructionInfo> allowAllInstructions = new ArrayList<>();
         allowAllInstructions.add(
                 new InstructionInfo(InstructionType.goto_table, new long[] { NwConstants.INGRESS_ACL_FILTER_TABLE }));
@@ -443,7 +443,7 @@ public class AclNodeListener extends AsyncDataTreeChangeListenerBase<FlowCapable
      *
      * @param dpId the dp id
      */
-    private void addEgressAclTableMissFlow(BigInteger dpId) {
+    private void addIngressAclTableMissFlow(BigInteger dpId) {
         List<MatchInfo> mkMatches = new ArrayList<>();
         List<InstructionInfo> mkInstructions = new ArrayList<>();
         List<ActionInfo> actionsInfos = new ArrayList<>();
