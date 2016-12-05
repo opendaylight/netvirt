@@ -1994,6 +1994,11 @@ public class ElanUtils {
                 && elanInstance.getSegmentationId() != null && elanInstance.getSegmentationId() != 0;
     }
 
+    public static boolean isVxlanNetwork(DataBroker broker, String elanInstanceName) {
+        ElanInstance elanInstance = getElanInstanceByName(broker, elanInstanceName);
+        return (elanInstance != null && isVxlan(elanInstance));
+    }
+
     public static boolean isVxlanSegment(ElanInstance elanInstance) {
         if (elanInstance != null) {
             List<ElanSegments> elanSegments = elanInstance.getElanSegments();
