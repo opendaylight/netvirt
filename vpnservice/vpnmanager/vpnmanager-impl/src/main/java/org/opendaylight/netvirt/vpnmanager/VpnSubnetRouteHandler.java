@@ -9,6 +9,7 @@ package org.opendaylight.netvirt.vpnmanager;
 
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
+
 import java.math.BigInteger;
 import java.util.*;
 
@@ -148,12 +149,13 @@ public class VpnSubnetRouteHandler implements NeutronvpnListener {
                 SubnetOpDataEntryBuilder subOpBuilder = new SubnetOpDataEntryBuilder().setKey(new SubnetOpDataEntryKey(subnetId));
                 subOpBuilder.setSubnetId(subnetId);
                 subOpBuilder.setSubnetCidr(subnetIp);
-                String rd = VpnUtil.getVpnRdFromVpnInstanceConfig(dataBroker, vpnName);
-                if (rd == null) {
+                List<String> rds = VpnUtil.getVpnRdFromVpnInstanceConfig(dataBroker, vpnName);
+                String primaryRd = VpnUtil.getPrimaryRd(rds);
+                if (primaryRd == null) {
                     logger.error("onSubnetAddedToVpn: The VPN Instance name " + notification.getVpnName() + " does not have RD ");
                     return;
                 }
-                subOpBuilder.setVrfId(rd);
+                subOpBuilder.setVrfId(primaryRd);
                 subOpBuilder.setVpnName(vpnName);
                 subOpBuilder.setSubnetToDpn(new ArrayList<SubnetToDpn>());
                 subOpBuilder.setRouteAdvState(TaskState.Na);
@@ -200,19 +202,19 @@ public class VpnSubnetRouteHandler implements NeutronvpnListener {
                 }
 
                 if (nhDpnId != null) {
-                    logger.info("Next-Hop dpn {} is available for rd {} subnetIp {} vpn {}", nhDpnId, rd, subnetIp, vpnName);
+                    logger.info("Next-Hop dpn {} is available for rd {} subnetIp {} vpn {}", nhDpnId, primaryRd, subnetIp, vpnName);
                     subOpBuilder.setNhDpnId(nhDpnId);
                     try {
                         /*
                         Write the subnet route entry to the FIB.
                         And also advertise the subnet route entry via BGP.
                         */
-                        int label = getLabel(rd, subnetIp);
+                        int label = getLabel(primaryRd, subnetIp);
                         if (label == 0) {
                             logger.error("Unable to fetch label from Id Manager. Bailing out of handling addition of subnet {} to vpn {}", subnetIp, vpnName);
                             return;
                         }
-                        isRouteAdvertised = addSubnetRouteToFib(rd, subnetIp, nhDpnId, vpnName, elanTag, label, subnetId);
+                        isRouteAdvertised = addSubnetRouteToFib(primaryRd, subnetIp, nhDpnId, vpnName, elanTag, label, subnetId);
                         if (isRouteAdvertised) {
                             subOpBuilder.setRouteAdvState(TaskState.Done);
                         } else {
@@ -225,7 +227,7 @@ public class VpnSubnetRouteHandler implements NeutronvpnListener {
                         subOpBuilder.setRouteAdvState(TaskState.Pending);
                     }
                 }else{
-                    logger.info("Next-Hop dpn is unavailable for rd {} subnetIp {} vpn {}", rd, subnetIp, vpnName);
+                    logger.info("Next-Hop dpn is unavailable for rd {} subnetIp {} vpn {}", primaryRd, subnetIp, vpnName);
                 }
 
                 subOpEntry = subOpBuilder.build();
