@@ -251,6 +251,24 @@
       "revId": "a9b57699034f3efd2c6018f2d26d45c3ff2fb1c4",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_8ecc7c37",
+        "filename": "vpnservice/vpnmanager/vpnmanager-api/src/main/yang/odl-l3vpn.yang",
+        "patchSetId": 30
+      },
+      "lineNbr": 184,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-12-05T10:41:36Z",
+      "side": 1,
+      "message": "OOps thanks !",
+      "parentUuid": "1a622d24_0ec7cc46",
+      "revId": "a9b57699034f3efd2c6018f2d26d45c3ff2fb1c4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
