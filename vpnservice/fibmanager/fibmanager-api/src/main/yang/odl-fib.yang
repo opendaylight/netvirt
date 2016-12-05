@@ -103,4 +103,25 @@ module odl-fib {
             leaf parent-vpn-rd { type string; }
          }
     }
+
+    container extraroute-routedistinguishers-map {
+        config true;
+        list extraroute-routedistingueshers {
+            description
+                "List of route distinguishers used to create a unique NLRI for the destination prefix";
+            key "vpnid";
+            leaf vpnid {
+                type uint32;
+            }
+            list dest-prefixes {
+                key "dest-prefix";
+                leaf dest-prefix {
+                    type string;
+                }
+                leaf-list route-distinguishers {
+                   type string;
+                }
+            }
+        }
+   }
 }
