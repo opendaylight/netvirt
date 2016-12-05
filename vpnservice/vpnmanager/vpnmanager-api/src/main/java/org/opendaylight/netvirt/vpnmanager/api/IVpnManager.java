@@ -11,12 +11,13 @@ package org.opendaylight.netvirt.vpnmanager.api;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.netvirt.fibmanager.api.IFibManager;
 import org.opendaylight.netvirt.fibmanager.api.RouteOrigin;
+
 import java.math.BigInteger;
 import java.util.List;
 
 public interface IVpnManager {
     void setFibManager(IFibManager fibManager);
-    void addExtraRoute(String destination, String nextHop, String rd, String routerID, int label, RouteOrigin origin);
+    void addExtraRoute(String vpnName, String destination, String nextHop, String rd, String routerID, int label, RouteOrigin origin);
     void delExtraRoute(String destination, String nextHop, String rd, String routerID);
 
     /**
