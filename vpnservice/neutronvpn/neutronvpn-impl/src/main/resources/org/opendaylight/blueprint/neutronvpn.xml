@@ -153,27 +153,6 @@
         <argument ref="neutronvpnManager" />
   </bean>
 
-  <bean id="InterfaceStateToTransportZoneListener"
-        class="org.opendaylight.netvirt.neutronvpn.InterfaceStateToTransportZoneListener"
-        init-method="start" destroy-method="close">
-    <argument ref="dataBroker" />
-    <argument ref="neutronvpnManager" />
-  </bean>
-
-  <bean id="BridgeRefEntryToTransportZoneListener"
-        class="org.opendaylight.netvirt.neutronvpn.BridgeRefEntryToTransportZoneListener"
-        init-method="start" destroy-method="close">
-    <argument ref="dataBroker" />
-    <argument ref="neutronvpnManager" />
-  </bean>
-
-  <bean id="NeutronRouterDpnsToTransportZoneListener"
-        class="org.opendaylight.netvirt.neutronvpn.NeutronRouterDpnsToTransportZoneListener"
-        init-method="start" destroy-method="close">
-    <argument ref="dataBroker" />
-    <argument ref="neutronvpnManager" />
-  </bean>
-
   <service ref="neutronvpnManagerImpl" odl:type="default"
            interface="org.opendaylight.netvirt.neutronvpn.interfaces.INeutronVpnManager" />
 </blueprint>
