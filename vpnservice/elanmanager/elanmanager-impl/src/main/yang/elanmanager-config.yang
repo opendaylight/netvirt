@@ -47,5 +47,9 @@ module elan-config {
             type boolean;
             default false;
         }
+        leaf auto-config-transport-zones {
+            type boolean;
+            default true;
+        }
     }
 }
