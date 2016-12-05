@@ -20,7 +20,7 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.
 public interface IVpnManager {
     void setFibManager(IFibManager fibManager);
 
-    void addExtraRoute(String destination, String nextHop, String rd, String routerID, int label, RouteOrigin origin);
+    void addExtraRoute(String vpnName, String destination, String nextHop, String rd, String routerID, int label, RouteOrigin origin);
 
     void delExtraRoute(String destination, String nextHop, String rd, String routerID);
 

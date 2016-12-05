@@ -11,7 +11,9 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -75,9 +77,9 @@ public class VpnServiceTest {
 
         VpnTargets vpnTargets = new VpnTargetsBuilder().setVpnTarget(vpnTargetList).build();
 
-        Ipv4Family ipv4Family = new Ipv4FamilyBuilder().setRouteDistinguisher("100:1").setVpnTargets(vpnTargets)
-            .setApplyLabel(new ApplyLabelBuilder().setApplyLabelMode(
-                new PerRouteBuilder().setApplyLabelPerRoute(true).build()).build()).build();
+        Ipv4Family ipv4Family = new Ipv4FamilyBuilder().setRouteDistinguisher(Arrays.asList("100:1","100:2:"))
+            .setVpnTargets(vpnTargets).setApplyLabel(new ApplyLabelBuilder().setApplyLabelMode(
+                        new PerRouteBuilder().setApplyLabelPerRoute(true).build()).build()).build();
 
         VpnInstanceBuilder builder =
             new VpnInstanceBuilder().setKey(new VpnInstanceKey("Vpn1")).setIpv4Family(ipv4Family);
