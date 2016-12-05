@@ -22,12 +22,12 @@ public class ElanConstants {
     public static final int STATIC_MAC_TIMEOUT = 0;
     public static final long DELAY_TIME_IN_MILLISECOND = 5000;
     public static final BigInteger INVALID_DPN = BigInteger.valueOf(-1);
-    public static final BigInteger COOKIE_ELAN_PRETEMP_SMAC = new BigInteger("8500000", 16);
-    public static final BigInteger COOKIE_ELAN_TEMP_SMAC = new BigInteger("8600000", 16);
+    public static final BigInteger COOKIE_ELAN_BASE_SMAC = new BigInteger("8500000", 16);
+    public static final BigInteger COOKIE_ELAN_LEARNED_SMAC = new BigInteger("8600000", 16);
     public static final BigInteger COOKIE_ELAN_UNKNOWN_DMAC = new BigInteger("8700000", 16);
     public static final BigInteger COOKIE_ELAN_KNOWN_SMAC = new BigInteger("8050000", 16);
     public static final BigInteger COOKIE_ELAN_KNOWN_DMAC = new BigInteger("8030000", 16);
-    public static final long DEFAULT_MAC_TIME_OUT = 30;
+    public static final long DEFAULT_MAC_TIME_OUT = 300;
     public static final BigInteger COOKIE_ELAN_FILTER_EQUALS = new BigInteger("8800000", 16);
 
     public static final String L2GATEWAY_DS_JOB_NAME = "L2GW";
