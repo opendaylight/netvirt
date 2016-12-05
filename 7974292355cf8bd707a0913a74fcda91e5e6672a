@@ -1,0 +1,89 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1a622d24_ae817d4c",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 6
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-12-05T11:38:37Z",
+      "side": 1,
+      "message": "Fix this commit message.. \n\nYou are only going to publish RT5 for L3VPN with VXLAN as the overlay and not L2 VPN.",
+      "revId": "7974292355cf8bd707a0913a74fcda91e5e6672a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_4e90a995",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 6
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-12-05T11:38:37Z",
+      "side": 1,
+      "message": "routes belonging to IP-VRF Table of an EVPN.",
+      "revId": "7974292355cf8bd707a0913a74fcda91e5e6672a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_713461de",
+        "filename": "vpnservice/bgpmanager/bgpmanager-impl/src/main/java/org/opendaylight/netvirt/bgpmanager/BgpConfigurationManager.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 1962,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-12-05T11:38:37Z",
+      "side": 1,
+      "message": "I think you should set the l3vni here instead of label?",
+      "revId": "7974292355cf8bd707a0913a74fcda91e5e6672a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_b14d5975",
+        "filename": "vpnservice/bgpmanager/bgpmanager-impl/src/main/java/org/opendaylight/netvirt/bgpmanager/BgpConfigurationManager.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 1963,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-12-05T11:38:37Z",
+      "side": 1,
+      "message": "Where is l3vni used here?",
+      "revId": "7974292355cf8bd707a0913a74fcda91e5e6672a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_9152dd11",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/pom.xml",
+        "patchSetId": 6
+      },
+      "lineNbr": 100,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-12-05T11:38:37Z",
+      "side": 1,
+      "message": "Is this package still available :) ?",
+      "revId": "7974292355cf8bd707a0913a74fcda91e5e6672a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
