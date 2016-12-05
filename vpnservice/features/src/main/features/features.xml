@@ -79,7 +79,6 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
     <configfile finalname="etc/opendaylight/datastore/initial/config/netvirt-aclservice-config.xml">mvn:org.opendaylight.netvirt/aclservice-impl/{{VERSION}}/xml/config</configfile>
     <configfile finalname="etc/opendaylight/datastore/initial/config/netvirt-dhcpservice-config.xml">mvn:org.opendaylight.netvirt/dhcpservice-impl/{{VERSION}}/xml/config</configfile>
     <configfile finalname="etc/opendaylight/datastore/initial/config/netvirt-elanmanager-config.xml">mvn:org.opendaylight.netvirt/elanmanager-impl/{{VERSION}}/xml/config</configfile>
-    <configfile finalname="etc/opendaylight/datastore/initial/config/netvirt-neutronvpn-config.xml">mvn:org.opendaylight.netvirt/neutronvpn-impl/{{VERSION}}/xml/config</configfile>
   </feature>
 
   <feature name='odl-netvirt-openstack' version='${project.version}' description='OpenDaylight :: NetVirt :: OpenStack'>
