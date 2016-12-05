@@ -38,6 +38,7 @@ import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev14081
 import org.opendaylight.yangtools.concepts.ListenerRegistration;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier.InstanceIdentifierBuilder;
+import java.util.Arrays;
 
 @RunWith(MockitoJUnitRunner.class)
 public class VpnServiceTest {
@@ -75,9 +76,9 @@ public class VpnServiceTest {
 
         VpnTargets vpnTargets = new VpnTargetsBuilder().setVpnTarget(vpnTargetList).build();
 
-        Ipv4Family ipv4Family = new Ipv4FamilyBuilder().setRouteDistinguisher("100:1").setVpnTargets(vpnTargets)
-            .setApplyLabel(new ApplyLabelBuilder().setApplyLabelMode(
-                new PerRouteBuilder().setApplyLabelPerRoute(true).build()).build()).build();
+        Ipv4Family ipv4Family = new Ipv4FamilyBuilder().setRouteDistinguisher(Arrays.asList("100:1","100:2:"))
+            .setVpnTargets(vpnTargets).setApplyLabel(new ApplyLabelBuilder().setApplyLabelMode(
+                        new PerRouteBuilder().setApplyLabelPerRoute(true).build()).build()).build();
 
         VpnInstanceBuilder builder =
             new VpnInstanceBuilder().setKey(new VpnInstanceKey("Vpn1")).setIpv4Family(ipv4Family);
