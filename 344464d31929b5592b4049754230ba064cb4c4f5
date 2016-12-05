@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1a622d24_c72bf72e",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInstanceListener.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 492,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-12-05T17:55:00Z",
+      "side": 1,
+      "message": "use LOG.error and return false here.",
+      "revId": "344464d31929b5592b4049754230ba064cb4c4f5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_4717e7ed",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnUtil.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 1349,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-12-05T17:55:00Z",
+      "side": 1,
+      "message": "move this comment above L1343.",
+      "revId": "344464d31929b5592b4049754230ba064cb4c4f5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
