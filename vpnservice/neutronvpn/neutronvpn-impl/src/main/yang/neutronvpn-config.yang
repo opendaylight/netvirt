@@ -1,7 +1,7 @@
-module neutronvpn-config {
+module neutronvpn-config {	
     yang-version 1;
     namespace "urn:opendaylight:netvirt:neutronvpn:config";
-    prefix "neutronvpn-config";
+    prefix "neutronvpn-config";    
     
     description
         "Configuration for neutronvpn-impl.";
@@ -12,6 +12,7 @@ module neutronvpn-config {
     }
 
     container neutronvpn-config {
+    	status deprecated;
         config true;
         leaf use-transport-zone {
             type boolean;
