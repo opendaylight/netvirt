@@ -33,30 +33,30 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rev
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rev160406.IfTunnelBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rev160406.ParentRefs;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rev160406.ParentRefsBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rev160406.TunnelTypeBase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rev160406.TunnelTypeVxlan;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeConnectorId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.l2.types.rev130827.VlanId;
 
 /**
- * Gathers information about a simulated topology consisting in 2 CSSs and 2 TORs with 2 ports each.
+ * Gathers information about a simulated topology consisting in 2 CSSs and 2
+ * TORs with 2 ports each.
  */
 public class ElanTestTopo {
 
     // Topology stuff
-    public static final BigInteger dpn1Id     = BigInteger.valueOf(1L);
-    public static final BigInteger dpn2Id     = BigInteger.valueOf(2L);
-    public static final String     dpn1TepIp  = "10.10.10.51";
-    public static final String     dpn2TepIp  = "10.10.10.52";
-    public static final String     gwIp       = "20.20.20.1";
-    public static final NodeId     dpn1NodeId = new NodeId("openflow:1");
-    public static final NodeId     dpn2NodeId = new NodeId("openflow:2");
+    public static final BigInteger DPN1ID = BigInteger.valueOf(1L);
+    public static final BigInteger DPN2ID = BigInteger.valueOf(2L);
+    public static final String DPN1TEPIP = "10.10.10.51";
+    public static final String DPN2TEPIP = "10.10.10.52";
+    public static final String GWIP = "20.20.20.1";
+    public static final NodeId DPN1NODEID = new NodeId("openflow:1");
+    public static final NodeId DPN2NODEID = new NodeId("openflow:2");
 
-    public static final NodeId     tor1NodeId = new NodeId("hwvtep:1");
-    public static final String     tor1TepIp  = "10.10.10.40";
-    public static final NodeId     tor2NodeId = new NodeId("hwvtep:2");
-    public static final String     tor2TepIp  = "10.10.10.45";
+    public static final NodeId TOR1NODEID = new NodeId("hwvtep:1");
+    public static final String TOR1TEPIP = "10.10.10.40";
+    public static final NodeId TOR2NODEID = new NodeId("hwvtep:2");
+    public static final String TOR2TEPIP = "10.10.10.45";
 
     // Interfaces Stuff
     public static final String TAP_PORT1_NAME = uuidToTapPortName("007d796a-4aea-43ea-9e16-5ffad29aeee5");
@@ -66,169 +66,166 @@ public class ElanTestTopo {
     public static final String TAP_PORT5_NAME = uuidToTapPortName("90a8a8c8-11c8-4434-9d3d-95f20a21e422");
     public static final String TAP_PORT6_NAME = uuidToTapPortName("2edd69aa-c234-46f4-bc0a-979f04d47ea0");
 
-    public static final String dpn11IfaceName           =  "dpn1.1";
-    public static final String dpn12IfaceName           =  "dpn1.2";
-    public static final String dpn21IfaceName           =  "dpn2.1";
-    public static final String dpn22IfaceName           =  "dpn2.2";
-    public static final String dpn1ToDpn2TrunkIfaceName = "INT-TUNNEL12";
-    public static final String dpn2ToDpn1TrunkIfaceName = "INT-TUNNEL21";
-    public static final String dpn1ToTor1TrunkIfaceName = "EXT-TUNNEL11";
-    public static final String dpn1ToTor2TrunkIfaceName = "EXT-TUNNEL12";
-    public static final String dpn2ToTor1TrunkIfaceName = "EXT-TUNNEL21";
-    public static final String dpn2ToTor2TrunkIfaceName = "EXT-TUNNEL22";
-
+    public static final String DPN11IFACENAME = "dpn1.1";
+    public static final String DPN12IFACENAME = "dpn1.2";
+    public static final String DPN21IFACENAME = "dpn2.1";
+    public static final String DPN22IFACENAME = "dpn2.2";
+    public static final String DPN1TODPN2TRUNKIFACENAME = "INT-TUNNEL12";
+    public static final String DPN2TODPN1TRUNKIFACENAME = "INT-TUNNEL21";
+    public static final String DPN1TOTOR1TRUNKIFACENAME = "EXT-TUNNEL11";
+    public static final String DPN1TOTOR2TRUNKIFACENAME = "EXT-TUNNEL12";
+    public static final String DPN2TOTOR1TRUNKIFACENAME = "EXT-TUNNEL21";
+    public static final String DPN2TOTOR2TRUNKIFACENAME = "EXT-TUNNEL22";
 
     public static HashMap<String, Integer> lportTagsPerName = new HashMap<String, Integer>();
+
     static {
-        lportTagsPerName.put(dpn11IfaceName, 10);
-        lportTagsPerName.put(dpn12IfaceName, 11);
-        lportTagsPerName.put(dpn21IfaceName, 12);
-        lportTagsPerName.put(dpn22IfaceName, 13);
-        lportTagsPerName.put(dpn1ToDpn2TrunkIfaceName, 20);
-        lportTagsPerName.put(dpn2ToDpn1TrunkIfaceName, 21);
-        lportTagsPerName.put(dpn1ToTor1TrunkIfaceName, 22);
-        lportTagsPerName.put(dpn1ToTor2TrunkIfaceName, 23);
-        lportTagsPerName.put(dpn2ToTor1TrunkIfaceName, 24);
-        lportTagsPerName.put(dpn2ToTor2TrunkIfaceName, 25);
+        lportTagsPerName.put(DPN11IFACENAME, 10);
+        lportTagsPerName.put(DPN12IFACENAME, 11);
+        lportTagsPerName.put(DPN21IFACENAME, 12);
+        lportTagsPerName.put(DPN22IFACENAME, 13);
+        lportTagsPerName.put(DPN1TODPN2TRUNKIFACENAME, 20);
+        lportTagsPerName.put(DPN2TODPN1TRUNKIFACENAME, 21);
+        lportTagsPerName.put(DPN1TOTOR1TRUNKIFACENAME, 22);
+        lportTagsPerName.put(DPN1TOTOR2TRUNKIFACENAME, 23);
+        lportTagsPerName.put(DPN2TOTOR1TRUNKIFACENAME, 24);
+        lportTagsPerName.put(DPN2TOTOR2TRUNKIFACENAME, 25);
     }
 
-    public static final Interface dpn11Iface = createVlanInterface(dpn1Id, 1, TAP_PORT1_NAME, dpn11IfaceName, null, true);
-    public static final Interface dpn12Iface = createVlanInterface(dpn1Id, 2, TAP_PORT2_NAME, dpn12IfaceName, null, true);
-    public static final Interface dpn21Iface = createVlanInterface(dpn2Id, 1, TAP_PORT3_NAME, dpn21IfaceName, null, true);
-    public static final Interface dpn22Iface = createVlanInterface(dpn2Id, 2, TAP_PORT4_NAME, dpn22IfaceName, null, true);
+    public static final Interface DPN11IFACE = createVlanInterface(DPN1ID, 1, TAP_PORT1_NAME, DPN11IFACENAME, null,
+            true);
+    public static final Interface DPN12IFACE = createVlanInterface(DPN1ID, 2, TAP_PORT2_NAME, DPN12IFACENAME, null,
+            true);
+    public static final Interface DPN21IFACE = createVlanInterface(DPN2ID, 1, TAP_PORT3_NAME, DPN21IFACENAME, null,
+            true);
+    public static final Interface DPN22IFACE = createVlanInterface(DPN2ID, 2, TAP_PORT4_NAME, DPN22IFACENAME, null,
+            true);
 
-    public static final InterfaceInfo dpn11Info = createVlanInterfaceInfo(dpn11Iface);
-    public static final InterfaceInfo dpn12Info = createVlanInterfaceInfo(dpn12Iface);
-    public static final InterfaceInfo dpn21Info = createVlanInterfaceInfo(dpn21Iface);
-    public static final InterfaceInfo dpn22Info = createVlanInterfaceInfo(dpn22Iface);
+    public static final InterfaceInfo DPN11INFO = createVlanInterfaceInfo(DPN11IFACE);
+    public static final InterfaceInfo DPN12INFO = createVlanInterfaceInfo(DPN12IFACE);
+    public static final InterfaceInfo DPN21INFO = createVlanInterfaceInfo(DPN21IFACE);
+    public static final InterfaceInfo DPN22INFO = createVlanInterfaceInfo(DPN22IFACE);
 
-    public static final Interface dpn1ToDpn2TunnelIf = createTunnelIface(dpn1Id, dpn1TepIp, dpn2TepIp,
-                                                                         dpn1ToDpn2TrunkIfaceName, 0, /*internal*/true,
-                                                                         3);
-    public static final InterfaceInfo dpn1ToDpn2TunnelIfInfo = createTunnelIfInfo(dpn1Id, dpn1ToDpn2TunnelIf,
-                                                                                  dpn1ToDpn2TrunkIfaceName );
+    public static final Interface DPN1TODPN2TUNNELIF = createTunnelIface(DPN1ID, DPN1TEPIP, DPN2TEPIP,
+            DPN1TODPN2TRUNKIFACENAME, 0, /* internal */true, 3);
+    public static final InterfaceInfo DPN1TODPN2TUNNELINFO = createTunnelIfInfo(DPN1ID, DPN1TODPN2TUNNELIF,
+            DPN1TODPN2TRUNKIFACENAME);
 
-    public static final Interface dpn2ToDpn1TunnelIf = createTunnelIface(dpn2Id, dpn2TepIp, dpn1TepIp,
-                                                                         dpn2ToDpn1TrunkIfaceName, 0, /*internal*/true,
-                                                                         3);
-    public static final InterfaceInfo dpn2ToDpn1TunnelIfInfo = createTunnelIfInfo(dpn2Id, dpn2ToDpn1TunnelIf,
-                                                                                  dpn2ToDpn1TrunkIfaceName );
+    public static final Interface DPN2TODPN1TUNNELIF = createTunnelIface(DPN2ID, DPN2TEPIP, DPN1TEPIP,
+            DPN2TODPN1TRUNKIFACENAME, 0, /* internal */true, 3);
+    public static final InterfaceInfo DPN2TODPN1TUNNELIFINFO = createTunnelIfInfo(DPN2ID, DPN2TODPN1TUNNELIF,
+            DPN2TODPN1TRUNKIFACENAME);
 
+    public static final Interface DPN1TOTOR1TUNNELIF = createTunnelIface(DPN1ID, DPN1TEPIP, TOR1TEPIP,
+            DPN1TOTOR1TRUNKIFACENAME, 0, /* internal */false, 5);
+    public static final InterfaceInfo DPN1TOTOR1TUNNELIFINFO = createTunnelIfInfo(DPN1ID, DPN1TOTOR1TUNNELIF,
+            DPN1TOTOR1TRUNKIFACENAME);
 
-    public static final Interface dpn1ToTor1TunnelIf = createTunnelIface(dpn1Id, dpn1TepIp, tor1TepIp,
-                                                                         dpn1ToTor1TrunkIfaceName, 0, /*internal*/false,
-                                                                         5);
-    public static final InterfaceInfo dpn1ToTor1TunnelIfInfo = createTunnelIfInfo(dpn1Id, dpn1ToTor1TunnelIf,
-                                                                                  dpn1ToTor1TrunkIfaceName );
+    public static final Interface DPN1TOTOR2TUNNELIF = createTunnelIface(DPN1ID, DPN1TEPIP, TOR1TEPIP,
+            DPN1TOTOR2TRUNKIFACENAME, 0, /* internal */false, 6);
+    public static final InterfaceInfo DPN1TOTOR2TUNNELIFINFO = createTunnelIfInfo(DPN1ID, DPN1TOTOR2TUNNELIF,
+            DPN1TOTOR2TRUNKIFACENAME);
 
-    public static final Interface dpn1ToTor2TunnelIf = createTunnelIface(dpn1Id, dpn1TepIp, tor1TepIp,
-                                                                         dpn1ToTor2TrunkIfaceName, 0, /*internal*/false,
-                                                                         6);
-    public static final InterfaceInfo dpn1ToTor2TunnelIfInfo = createTunnelIfInfo(dpn1Id, dpn1ToTor2TunnelIf,
-                                                                                  dpn1ToTor2TrunkIfaceName );
+    public static final HashMap<String, InterfaceInfo> INTERFACEINFOMAP = new HashMap<String, InterfaceInfo>();
 
-
-
-
-
-
-    public static final HashMap<String, InterfaceInfo> interfaceInfoMap = new HashMap<String, InterfaceInfo>();
     static {
-        interfaceInfoMap.put(dpn11IfaceName,           dpn11Info);
-        interfaceInfoMap.put(dpn12IfaceName,           dpn12Info);
-        interfaceInfoMap.put(dpn21IfaceName,           dpn21Info);
-        interfaceInfoMap.put(dpn22IfaceName,           dpn22Info);
-        interfaceInfoMap.put(dpn1ToDpn2TrunkIfaceName, dpn1ToDpn2TunnelIfInfo);
-        interfaceInfoMap.put(dpn2ToDpn1TrunkIfaceName, dpn2ToDpn1TunnelIfInfo);
+        INTERFACEINFOMAP.put(DPN11IFACENAME, DPN11INFO);
+        INTERFACEINFOMAP.put(DPN12IFACENAME, DPN12INFO);
+        INTERFACEINFOMAP.put(DPN21IFACENAME, DPN21INFO);
+        INTERFACEINFOMAP.put(DPN22IFACENAME, DPN22INFO);
+        INTERFACEINFOMAP.put(DPN1TODPN2TRUNKIFACENAME, DPN1TODPN2TUNNELINFO);
+        INTERFACEINFOMAP.put(DPN2TODPN1TRUNKIFACENAME, DPN2TODPN1TUNNELIFINFO);
     }
-
 
     // Default Egress Actions for regular Interfaces
-    public static Action dpn11EgressAction1 = new ActionInfo(ActionType.output, new String[] {String.valueOf(dpn11Info.getPortNo())}, 0).buildAction();
+    public static Action dpn11EgressAction1 = new ActionInfo(ActionType.output,
+            new String[] { String.valueOf(DPN11INFO.getPortNo()) }, 0).buildAction();
     public static List<Action> dpn11EgressActions = Arrays.asList(dpn11EgressAction1);
-    public static Action dpn12EgressAction1 = new ActionInfo(ActionType.output, new String[] {String.valueOf(dpn12Info.getPortNo())}, 0).buildAction();
+    public static Action dpn12EgressAction1 = new ActionInfo(ActionType.output,
+            new String[] { String.valueOf(DPN12INFO.getPortNo()) }, 0).buildAction();
     public static List<Action> dpn12EgressActions = Arrays.asList(dpn12EgressAction1);
-    public static Action dpn21EgressAction1 = new ActionInfo(ActionType.output, new String[] {String.valueOf(dpn21Info.getPortNo())}, 0).buildAction();
+    public static Action dpn21EgressAction1 = new ActionInfo(ActionType.output,
+            new String[] { String.valueOf(DPN21INFO.getPortNo()) }, 0).buildAction();
     public static List<Action> dpn21EgressActions = Arrays.asList(dpn21EgressAction1);
-    public static Action dpn22EgressAction1 = new ActionInfo(ActionType.output, new String[] {String.valueOf(dpn22Info.getPortNo())}, 0).buildAction();
+    public static Action dpn22EgressAction1 = new ActionInfo(ActionType.output,
+            new String[] { String.valueOf(DPN22INFO.getPortNo()) }, 0).buildAction();
     public static List<Action> dpn22EgressActions = Arrays.asList(dpn21EgressAction1);
 
-    public static final HashMap<String, List<Action>> localIfActionsMap = new HashMap<String, List<Action>>();
+    public static final HashMap<String, List<Action>> LOCALIFACTIONMAP = new HashMap<String, List<Action>>();
+
     static {
-        localIfActionsMap.put(dpn11IfaceName, dpn11EgressActions);
-        localIfActionsMap.put(dpn12IfaceName, dpn12EgressActions);
-        localIfActionsMap.put(dpn21IfaceName, dpn21EgressActions);
-        localIfActionsMap.put(dpn22IfaceName, dpn22EgressActions);
+        LOCALIFACTIONMAP.put(DPN11IFACENAME, dpn11EgressActions);
+        LOCALIFACTIONMAP.put(DPN12IFACENAME, dpn12EgressActions);
+        LOCALIFACTIONMAP.put(DPN21IFACENAME, dpn21EgressActions);
+        LOCALIFACTIONMAP.put(DPN22IFACENAME, dpn22EgressActions);
     }
 
     // Default Egress Actions for Trunk Interfaces
-//    result.add(new ActionInfo(ActionType.set_field_tunnel_id,
-//            new BigInteger[] { BigInteger.valueOf(tunnelKey.longValue()) },
-//            actionKeyStart) );
-//    result.add(new ActionInfo(ActionType.output, new String[] { portNo}, actionKeyStart));
+    // result.add(new ActionInfo(ActionType.set_field_tunnel_id,
+    // new BigInteger[] { BigInteger.valueOf(tunnelKey.longValue()) },
+    // actionKeyStart) );
+    // result.add(new ActionInfo(ActionType.output, new String[] { portNo},
+    // actionKeyStart));
 
-    /* ************************************************************************************************
-     *   Utilities
+    /*
+     * *************************************************************************
+     * *********************** Utilities
      **************************************************************************************************/
 
-
     /**
-     * Egress actions when the lportTag of the remote Interface is the tunnelKey to be used through the tunnel.
-     * That is, for inter-CSSs tunnels (Internal tunnels).
-     * @param tunnelIfName
-     * @param remoteIfName
-     * @return
+     * Egress actions when the lportTag of the remote Interface is the tunnelKey
+     * to be used through the tunnel. That is, for inter-CSSs tunnels (Internal
+     * tunnels).
+     *
+     * @param tunnelIfName tunnel interface name
+     * @param remoteIfName remote interface name
+     * @return list of actions
      */
     public static List<Action> getTrunkEgressActions(String tunnelIfName, String remoteIfName) {
-        InterfaceInfo remoteIfInfo = interfaceInfoMap.get(remoteIfName);
+        InterfaceInfo remoteIfInfo = INTERFACEINFOMAP.get(remoteIfName);
         return getTrunkEgressActions(tunnelIfName, Long.valueOf(remoteIfInfo.getInterfaceTag()));
     }
 
     public static List<Action> getTrunkEgressActions(String tunnelIfName, Long tunnelKey) {
-        InterfaceInfo trunkIfInfo = interfaceInfoMap.get(tunnelIfName);
+        InterfaceInfo trunkIfInfo = INTERFACEINFOMAP.get(tunnelIfName);
         List<Action> result = new ArrayList<Action>();
-        result.add(new ActionInfo(ActionType.set_field_tunnel_id,
-                                  new BigInteger[] {BigInteger.valueOf(tunnelKey) }, 0)
-                        .buildAction() );
+        result.add(new ActionInfo(ActionType.set_field_tunnel_id, new BigInteger[] { BigInteger.valueOf(tunnelKey) }, 0)
+                .buildAction());
         result.add(new ActionInfo(ActionType.output, new String[] { Integer.toString(trunkIfInfo.getPortNo()) }, 1)
-                         .buildAction() );
+                .buildAction());
 
         return result;
     }
 
     public static final InterfaceInfo getInterfaceInfo(String ifaceName) {
-        return interfaceInfoMap.get(ifaceName);
+        return INTERFACEINFOMAP.get(ifaceName);
     }
 
     private static String uuidToTapPortName(String uuid) {
         return new StringBuilder().append("tap").append(uuid.substring(0, 11)).toString();
     }
 
-    public static Interface createTunnelIface(BigInteger srcDpnId, String srcTepIp, String dstTepIp,
-                                              String ifName, int vlanId, boolean internal, int portNo ) {
+    public static Interface createTunnelIface(BigInteger srcDpnId, String srcTepIp, String dstTepIp, String ifName,
+            int vlanId, boolean internal, int portNo) {
         InterfaceBuilder builder = new InterfaceBuilder().setKey(new InterfaceKey(ifName)).setName(ifName)
-                                                         .setDescription(ifName).setEnabled(true).setType(Tunnel.class)
-                                                         .addAugmentation(BaseIds.class, new BaseIdsBuilder()
-                                                                              .setOfPortId(new NodeConnectorId(Integer.toString(portNo)))
-                                                                              .build());
+                .setDescription(ifName).setEnabled(true).setType(Tunnel.class).addAugmentation(BaseIds.class,
+                        new BaseIdsBuilder().setOfPortId(new NodeConnectorId(Integer.toString(portNo))).build());
         ParentRefs parentRefs = new ParentRefsBuilder().setDatapathNodeIdentifier(srcDpnId).build();
         builder.addAugmentation(ParentRefs.class, parentRefs);
-        if( vlanId > 0) {
+        if (vlanId > 0) {
             IfL2vlan l2vlan = new IfL2vlanBuilder().setVlanId(new VlanId(vlanId)).build();
             builder.addAugmentation(IfL2vlan.class, l2vlan);
         }
-		IfTunnel tunnel = new IfTunnelBuilder().setTunnelDestination(IpAddressBuilder.getDefaultInstance(dstTepIp))
-                                               .setTunnelGateway(IpAddressBuilder.getDefaultInstance(gwIp))
-                                               .setTunnelSource(IpAddressBuilder.getDefaultInstance(srcTepIp))
-                                               .setTunnelInterfaceType(TunnelTypeVxlan.class).setInternal(internal)
-                                               .build();
+        IfTunnel tunnel = new IfTunnelBuilder().setTunnelDestination(IpAddressBuilder.getDefaultInstance(dstTepIp))
+                .setTunnelGateway(IpAddressBuilder.getDefaultInstance(GWIP))
+                .setTunnelSource(IpAddressBuilder.getDefaultInstance(srcTepIp))
+                .setTunnelInterfaceType(TunnelTypeVxlan.class).setInternal(internal).build();
         builder.addAugmentation(IfTunnel.class, tunnel);
         return builder.build();
     }
 
-
     public static InterfaceInfo createTunnelIfInfo(BigInteger dpId, Interface tunnelIf, String ifaceName) {
-        InterfaceInfo result = new InterfaceInfo(dpId, "port_" + ifaceName );
+        InterfaceInfo result = new InterfaceInfo(dpId, "port_" + ifaceName);
         result.setInterfaceName(ifaceName);
         result.setInterfaceTag(lportTagsPerName.get(ifaceName));
         result.setAdminState(InterfaceAdminState.ENABLED);
@@ -239,48 +236,41 @@ public class ElanTestTopo {
     }
 
     public static Interface createVlanInterface(BigInteger dpId, int portNo, String parentPort, String ifaceName,
-                                                Integer vlanId, boolean isVlanTransparent ) {
+            Integer vlanId, boolean isVlanTransparent) {
 
         IfL2vlanBuilder ifL2vlanBuilder = new IfL2vlanBuilder();
 
-        IfL2vlan.L2vlanMode l2VlanMode =
-                ( isVlanTransparent) ? IfL2vlan.L2vlanMode.Transparent : IfL2vlan.L2vlanMode.Trunk;
+        IfL2vlan.L2vlanMode l2VlanMode = (isVlanTransparent) ? IfL2vlan.L2vlanMode.Transparent
+                : IfL2vlan.L2vlanMode.Trunk;
 
-        if ( !isVlanTransparent ) {
+        if (!isVlanTransparent) {
             l2VlanMode = IfL2vlan.L2vlanMode.TrunkMember;
             ifL2vlanBuilder.setVlanId(new VlanId(vlanId));
         }
         ifL2vlanBuilder.setL2vlanMode(l2VlanMode);
 
-        Interface result  =
-                new InterfaceBuilder().setEnabled(true).setName(ifaceName).setType(L2vlan.class)
-                                      .addAugmentation(BaseIds.class, new BaseIdsBuilder()
-                                                                              .setOfPortId(new NodeConnectorId(Integer.toString(portNo)))
-                                                                              .build())
-                                      .addAugmentation(IfL2vlan.class, ifL2vlanBuilder.build())
-                                      .addAugmentation(ParentRefs.class,
-                                                       new ParentRefsBuilder().setParentInterface(parentPort)
-                                                                              .setDatapathNodeIdentifier(dpId)
-                                                                              .build())
-                                      .build();
+        Interface result = new InterfaceBuilder().setEnabled(true).setName(ifaceName).setType(L2vlan.class)
+                .addAugmentation(BaseIds.class,
+                        new BaseIdsBuilder().setOfPortId(new NodeConnectorId(Integer.toString(portNo))).build())
+                .addAugmentation(IfL2vlan.class, ifL2vlanBuilder.build())
+                .addAugmentation(ParentRefs.class,
+                        new ParentRefsBuilder().setParentInterface(parentPort).setDatapathNodeIdentifier(dpId).build())
+                .build();
 
         return result;
     }
 
     public static InterfaceInfo createVlanInterfaceInfo(Interface iface) {
         return createVlanInterfaceInfo(iface.getAugmentation(ParentRefs.class).getDatapathNodeIdentifier(),
-                                       iface.getAugmentation(ParentRefs.class).getParentInterface(),
-                                       iface.getName(), InterfaceInfo.InterfaceAdminState.ENABLED,
-                                       InterfaceInfo.InterfaceOpState.UP,
-                                       Integer.parseInt(iface.getAugmentation(BaseIds.class).getOfPortId().getValue()));
+                iface.getAugmentation(ParentRefs.class).getParentInterface(), iface.getName(),
+                InterfaceInfo.InterfaceAdminState.ENABLED, InterfaceInfo.InterfaceOpState.UP,
+                Integer.parseInt(iface.getAugmentation(BaseIds.class).getOfPortId().getValue()));
 
     }
 
     public static InterfaceInfo createVlanInterfaceInfo(BigInteger dpId, String portName, String interfaceName,
-                                                        InterfaceInfo.InterfaceAdminState adminState,
-                                                        InterfaceInfo.InterfaceOpState opState,
-                                                        int portNo) {
-        InterfaceInfo result = new InterfaceInfo(dpId, portName );
+            InterfaceInfo.InterfaceAdminState adminState, InterfaceInfo.InterfaceOpState opState, int portNo) {
+        InterfaceInfo result = new InterfaceInfo(dpId, portName);
         result.setInterfaceName(interfaceName);
         result.setInterfaceTag(lportTagsPerName.get(interfaceName));
         result.setAdminState(adminState);

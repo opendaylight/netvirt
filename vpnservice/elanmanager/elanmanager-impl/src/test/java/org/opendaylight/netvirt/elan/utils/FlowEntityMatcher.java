@@ -45,11 +45,7 @@ public class FlowEntityMatcher extends ArgumentMatcher<FlowEntity> {
             && flow.getFlowBuilder().getInstructions().equals(expectedFlow.getFlowBuilder().getInstructions())
             && flow.getFlowBuilder().getTableId().equals(expectedFlow.getFlowBuilder().getTableId())
             && flow.getFlowBuilder().getPriority().equals(expectedFlow.getFlowBuilder().getPriority());
-//                flow.getId() != null && flow.getId().equals(expectedFlow.getId() )
-//                && flow.getTableId() == expectedFlow.getTableId()
-//                && StringUtils.equals(flow.getFlowName(), expectedFlow.getFlowName() )
-//                && sameInstructions(flow.getInstructions(), expectedFlow.getInstructions())
-//                && sameMatch(flow.getMatch(), expectedFlow.getMatch() );
+
 
         return result;
     }
