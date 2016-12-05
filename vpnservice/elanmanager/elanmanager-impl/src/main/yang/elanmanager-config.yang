@@ -42,5 +42,10 @@ module elan-config {
             type uint16;
             default 10;
         }
+
+        leaf use-transport-zone {
+            type boolean;
+            default true;
+        }
     }
 }

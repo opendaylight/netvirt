@@ -28,11 +28,6 @@
   <odl:rpc-service id="odlArputilService"
                    interface="org.opendaylight.yang.gen.v1.urn.opendaylight.genius.arputil.rev160406.OdlArputilService" />
 
-  <odl:clustered-app-config id="neutronvpnConfig"
-                            binding-class="org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.config.rev160806.NeutronvpnConfig"
-                            default-config-file-name="netvirt-neutronvpn-config.xml">
-  </odl:clustered-app-config>
-
   <bean id="neutronvpnNatManager"
         class="org.opendaylight.netvirt.neutronvpn.NeutronvpnNatManager"
         destroy-method="close">
@@ -53,7 +48,6 @@
     <argument ref="vpnRpcService" />
     <argument ref="elanService" />
     <argument ref="neutronFloatingToFixedIpMappingChangeListener" />
-    <argument ref="neutronvpnConfig" />
   </bean>
   <odl:rpc-implementation ref="neutronvpnManager" />
 
@@ -157,27 +151,6 @@
   <bean id="neutronvpnManagerImpl"
         class="org.opendaylight.netvirt.neutronvpn.NeutronvpnManagerImpl">
         <argument ref="neutronvpnManager" />
-  </bean>
-
-  <bean id="InterfaceToTransportZoneListener"
-        class="org.opendaylight.netvirt.neutronvpn.InterfaceToTransportZoneListener"
-        init-method="start" destroy-method="close">
-    <argument ref="dataBroker" />
-    <argument ref="neutronvpnManager" />
-  </bean>
-
-  <bean id="BridgeRefEntryToTransportZoneListener"
-        class="org.opendaylight.netvirt.neutronvpn.BridgeRefEntryToTransportZoneListener"
-        init-method="start" destroy-method="close">
-    <argument ref="dataBroker" />
-    <argument ref="neutronvpnManager" />
-  </bean>
-
-  <bean id="NeutronRouterDpnsToTransportZoneListener"
-        class="org.opendaylight.netvirt.neutronvpn.NeutronRouterDpnsToTransportZoneListener"
-        init-method="start" destroy-method="close">
-    <argument ref="dataBroker" />
-    <argument ref="neutronvpnManager" />
   </bean>
 
   <service ref="neutronvpnManagerImpl" odl:type="default"
