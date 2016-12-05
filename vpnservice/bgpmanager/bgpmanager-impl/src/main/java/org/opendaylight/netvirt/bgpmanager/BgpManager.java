@@ -86,7 +86,7 @@ public class BgpManager implements AutoCloseable, IBgpManager {
     }
 
     @Override
-    public void addVrf(String rd, Collection<String> importRts, Collection<String> exportRts) throws Exception {
+    public void addVrf(String rd, Collection<String> importRts, Collection<String> exportRts) throws Exception{
         bcm.addVrf(rd, new ArrayList<>(importRts), new ArrayList<>(exportRts));
     }
 

@@ -12,6 +12,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
+
 import java.math.BigInteger;
 import java.net.Inet4Address;
 import java.net.InetAddress;
@@ -25,6 +26,7 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.LinkedBlockingQueue;
+
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
@@ -96,7 +98,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3nexthop.rev150409
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.Adjacencies;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.PrefixToInterface;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.VpnInstanceOpData;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.VpnToExtraroute;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.VpnToExtraroutes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.prefix.to._interface.VpnIds;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.prefix.to._interface.VpnIdsKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.prefix.to._interface.vpn.ids.Prefixes;
@@ -108,10 +110,12 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.vpn.instance.op.data.entry.vpn.to.dpn.list.VpnInterfaces;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.vpn.instance.op.data.entry.vpn.to.dpn.list.VpnInterfacesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.vpn.instance.op.data.entry.vpn.to.dpn.list.VpnInterfacesKey;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.to.extraroute.Vpn;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.to.extraroute.VpnKey;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.to.extraroute.vpn.Extraroute;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.to.extraroute.vpn.ExtrarouteKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.to.extraroutes.VpnExtraroutes;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.to.extraroutes.VpnExtraroutesKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.to.extraroutes.vpn.extraroutes.ExtraRoutes;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.to.extraroutes.vpn.extraroutes.ExtraRoutesKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.to.extraroutes.vpn.extraroutes.extra.routes.Routes;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.to.extraroutes.vpn.extraroutes.extra.routes.RoutesKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.netvirt.inter.vpn.link.rev160311.inter.vpn.link.states.InterVpnLinkState;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.netvirt.inter.vpn.link.rev160311.inter.vpn.link.states.InterVpnLinkState.State;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.netvirt.inter.vpn.link.rev160311.inter.vpn.links.InterVpnLink;
@@ -747,7 +751,7 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
 
         if (localNextHopInfo == null) {
             //Is this fib route an extra route? If yes, get the nexthop which would be an adjacency in the vpn
-            Extraroute extraRoute = getVpnToExtraroute(rd, vrfEntry.getDestPrefix());
+            Routes extraRoute = getVpnToExtraroute(dataBroker, rd, vrfEntry.getDestPrefix());
             if (extraRoute != null) {
                 for (String nextHopIp : extraRoute.getNexthopIpList()) {
                     LOG.debug("NextHop IP for destination {} is {}", vrfEntry.getDestPrefix(), nextHopIp);
@@ -773,7 +777,7 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
 
         if (localNextHopInfo == null) {
             //Is this fib route an extra route? If yes, get the nexthop which would be an adjacency in the vpn
-            Extraroute extraRoute = getVpnToExtraroute(rd, vrfEntry.getDestPrefix());
+            Routes extraRoute = getVpnToExtraroute(dataBroker, rd, vrfEntry.getDestPrefix());
             if (extraRoute != null) {
                 for (String nextHopIp : extraRoute.getNexthopIpList()) {
                     LOG.debug("NextHop IP for destination {} is {}", vrfEntry.getDestPrefix(), nextHopIp);
@@ -989,7 +993,7 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
 
         if (localNextHopInfo == null) {
             //Is this fib route an extra route? If yes, get the nexthop which would be an adjacency in the vpn
-            Extraroute extra_route = getVpnToExtraroute(rd, vrfEntry.getDestPrefix());
+            Routes extra_route = getVpnToExtraroute(dataBroker, rd, vrfEntry.getDestPrefix());
             if (extra_route != null) {
                 for (String nextHopIp : extra_route.getNexthopIpList()) {
                     LOG.debug("NextHop IP for destination {} is {}", vrfEntry.getDestPrefix(), nextHopIp);
@@ -1062,17 +1066,20 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
         return BigInteger.ZERO;
     }
 
-    private InstanceIdentifier<Extraroute> getVpnToExtrarouteIdentifier(String vrfId, String ipPrefix) {
-        return InstanceIdentifier.builder(VpnToExtraroute.class)
-                .child(Vpn.class, new VpnKey(vrfId)).child(Extraroute.class,
-                        new ExtrarouteKey(ipPrefix)).build();
+    static  InstanceIdentifier<Routes> getVpnToExtrarouteIdentifier(String vpnName, String vrfId, String ipPrefix) {
+        return InstanceIdentifier.builder(VpnToExtraroutes.class)
+                .child(VpnExtraroutes.class, new VpnExtraroutesKey(vpnName)).child(ExtraRoutes.class,
+                        new ExtraRoutesKey(vrfId)).child(Routes.class, new RoutesKey(ipPrefix)).build();
     }
 
-    private Extraroute getVpnToExtraroute(String rd, String ipPrefix) {
-        Optional<Extraroute> extraRouteInfo =
-                FibUtil.read(dataBroker, LogicalDatastoreType.OPERATIONAL, getVpnToExtrarouteIdentifier(rd, ipPrefix));
-        return  extraRouteInfo.isPresent() ? extraRouteInfo.get() : null;
-
+    public Routes getVpnToExtraroute(DataBroker broker, String vpnRd, String destPrefix) {
+        Optional<String> optVpnName = FibUtil.getVpnNameFromRd(broker, vpnRd);
+        if(optVpnName.isPresent()) {
+            InstanceIdentifier<Routes> vpnExtraRoutesId = getVpnToExtrarouteIdentifier(optVpnName.get(), vpnRd, destPrefix);
+            Optional<Routes> vpnOpc = FibUtil.read(broker, LogicalDatastoreType.OPERATIONAL, vpnExtraRoutesId);
+            return vpnOpc.orNull();
+        }
+        return null;
     }
 
     private Class<? extends TunnelTypeBase> getTunnelType(String ifName) {
@@ -1221,9 +1228,9 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
      */
         LOG.debug("Cleanup of prefix {} in VPN {}", vrfEntry.getDestPrefix(), vpnId);
         Prefixes prefixInfo = FibUtil.getPrefixToInterface(dataBroker, vpnId, vrfEntry.getDestPrefix());
-        Extraroute extraRoute = null;
+        Routes extraRoute = null;
         if (prefixInfo == null) {
-            extraRoute = getVpnToExtraroute(rd, vrfEntry.getDestPrefix());
+            extraRoute = getVpnToExtraroute(dataBroker, rd, vrfEntry.getDestPrefix());
             if(extraRoute != null) {
                 for (String nextHopIp : extraRoute.getNexthopIpList()) {
                     LOG.debug("NextHop IP for destination {} is {}", vrfEntry.getDestPrefix(), nextHopIp);
@@ -1254,7 +1261,7 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
     }
 
     private void checkCleanUpOpDataForFib(final Prefixes prefixInfo, final Long vpnId, final String rd,
-                                          final VrfEntry vrfEntry, final Extraroute extraRoute) {
+                                          final VrfEntry vrfEntry, final Routes extraRoute) {
 
         if (prefixInfo == null) {
             LOG.debug("Cleanup VPN Data Failed as unable to find prefix Info for prefix {}", vrfEntry.getDestPrefix());
@@ -1272,10 +1279,10 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
         Long vpnId;
         String rd;
         VrfEntry vrfEntry;
-        Extraroute extraRoute;
+        Routes extraRoute;
 
         public CleanupVpnInterfaceWorker(final Prefixes prefixInfo, final Long vpnId, final String rd,
-                                         final VrfEntry vrfEntry, final Extraroute extraRoute) {
+                                         final VrfEntry vrfEntry, final Routes extraRoute) {
             this.prefixInfo = prefixInfo;
             this.vpnId = vpnId;
             this.rd= rd;
@@ -1325,8 +1332,11 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
                 }
             }
             if (extraRoute != null) {
-                FibUtil.delete(dataBroker, LogicalDatastoreType.OPERATIONAL,
-                        FibUtil.getVpnToExtrarouteIdentifier(rd, vrfEntry.getDestPrefix()));
+                Optional<String> optVpnName = FibUtil.getVpnNameFromRd(dataBroker, rd);
+                if(optVpnName.isPresent()) {
+                    FibUtil.delete(dataBroker, LogicalDatastoreType.OPERATIONAL,
+                            getVpnToExtrarouteIdentifier(optVpnName.get(), rd, vrfEntry.getDestPrefix()));
+                }
             }
             Optional<Adjacencies> optAdjacencies = FibUtil.read(dataBroker, LogicalDatastoreType.OPERATIONAL,
                     FibUtil.getAdjListPath(ifName));
@@ -1535,7 +1545,7 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
 
         // below two reads are kept as is, until best way is found to identify dpnID
         VpnNexthop localNextHopInfo = nextHopManager.getVpnNexthop(vpnId, vrfEntry.getDestPrefix());
-        Extraroute extraRoute = getVpnToExtraroute(rd, vrfEntry.getDestPrefix());
+        Routes extraRoute = getVpnToExtraroute(dataBroker, rd, vrfEntry.getDestPrefix());
 
         if (localNextHopInfo == null && extraRoute != null) {
             // Is this fib route an extra route? If yes, get the nexthop which would be an adjacency in the vpn
@@ -2070,12 +2080,12 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
                 remoteDpnId, vpnId, vrfEntry);
         try {
             if (RouteOrigin.value(vrfEntry.getOrigin()) != RouteOrigin.BGP) {
-                Extraroute extra_route = getVpnToExtraroute(rd, vrfEntry.getDestPrefix());
-                if (extra_route == null) {
+                Routes extraRoute = getVpnToExtraroute(dataBroker, rd, vrfEntry.getDestPrefix());
+                if (extraRoute == null) {
                     prefixIpList = Arrays.asList(vrfEntry.getDestPrefix());
                 } else {
                     prefixIpList = new ArrayList<>();
-                    for (String extraRouteIp : extra_route.getNexthopIpList()) {
+                    for (String extraRouteIp : extraRoute.getNexthopIpList()) {
                         prefixIpList.add(extraRouteIp + "/32");
                     }
                 }
