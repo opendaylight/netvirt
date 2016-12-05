@@ -7,4 +7,6 @@
   <controller-max-backoff>5000</controller-max-backoff>
   <controller-inactivity-probe>5000</controller-inactivity-probe>
   -->
+  <auto-config-transport-zones>true</auto-config-transport-zones>
+  <use-of-tunnels>false</use-of-tunnels>
 </elanmanager-config>
