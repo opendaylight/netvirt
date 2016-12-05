@@ -110,7 +110,7 @@ public class ElanNodeListener extends AbstractDataChangeListener<Node> implement
             String.valueOf(0),
             String.valueOf(tempSmacLearnTimeout),
             BigInteger.ZERO.toString(),
-            ElanConstants.COOKIE_ELAN_TEMP_SMAC.toString(),
+            ElanConstants.COOKIE_ELAN_LEARNED_SMAC.toString(),
             "0",
             Short.toString(NwConstants.ELAN_SMAC_LEARNED_TABLE),
             String.valueOf(0),
@@ -145,7 +145,7 @@ public class ElanNodeListener extends AbstractDataChangeListener<Node> implement
         FlowEntity doubleResubmitTable = MDSALUtil.buildFlowEntity(dpId, NwConstants.ELAN_BASE_TABLE,
                 getTableMissFlowRef(NwConstants.ELAN_BASE_TABLE),
                 0, "Elan sMac resubmit table", 0, 0,
-                ElanConstants.COOKIE_ELAN_PRETEMP_SMAC, mkMatch, mkInstruct);
+                ElanConstants.COOKIE_ELAN_BASE_SMAC, mkMatch, mkInstruct);
         mdsalManager.installFlow(doubleResubmitTable);
     }
 
