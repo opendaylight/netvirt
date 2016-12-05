@@ -16,6 +16,24 @@
       "revId": "9d6216709e76872832568e2efff9983116f512de",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_9a14b7f6",
+        "filename": "vpnservice/it/impl/src/test/java/org/opendaylight/netvirt/it/NetvirtIT.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 343,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2016-12-05T04:13:56Z",
+      "side": 1,
+      "message": "Thank you @Sam. I\u0027m aware of the dpdk behavior. I think some additional changes are required, let me re-spin to get your updated review comments.",
+      "parentUuid": "1a622d24_ff015d3a",
+      "revId": "9d6216709e76872832568e2efff9983116f512de",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
