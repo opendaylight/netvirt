@@ -1,0 +1,3 @@
+<elanmanager-config xmlns="urn:opendaylight:netvirt:elanmanager:config">
+  <use-transport-zone>true</use-transport-zone>
+</elanmanager-config>
