@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1a622d24_18026a3e",
+        "filename": "vpnservice/it/impl/src/test/java/org/opendaylight/netvirt/it/NetvirtIT.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 512,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2016-12-06T13:27:07Z",
+      "side": 1,
+      "message": "@Sam, Josh: Do we still have this issue in Jenkins?",
+      "revId": "d22c790f4030aaf1d5a74e9bf6062a838e122d21",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
