@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1a622d24_9363fd19",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInstanceListener.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 492,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-12-06T17:59:27Z",
+      "side": 1,
+      "message": "would be good to add for which VRF you were not able to find the target list in the error message:\n\ncannot add BGP VPN {} RD {}, this.vpnName, rd);",
+      "revId": "c13458fa323cbe545f0220241543de44e42d0b81",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
