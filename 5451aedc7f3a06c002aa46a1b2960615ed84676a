@@ -36,6 +36,24 @@
     },
     {
       "key": {
+        "uuid": "1a622d24_bdf888e6",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/L3vpnVxlanVrfProcessor.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 55,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-12-06T08:50:04Z",
+      "side": 1,
+      "message": "Thought about this further, and I suggest that we name this file as EVPNVrfEntryProcessor as the file can be re-used in phase 2.",
+      "parentUuid": "1a622d24_47b6c73e",
+      "revId": "5451aedc7f3a06c002aa46a1b2960615ed84676a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_e758b3fc",
         "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/L3vpnVxlanVrfProcessor.java",
         "patchSetId": 4
