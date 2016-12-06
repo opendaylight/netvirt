@@ -39,7 +39,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn
 
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.vpn.instance.op.data.entry.vpntargets.VpnTargetBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.vpn.instance.op.data.entry.vpntargets.VpnTargetKey;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.to.extraroute.Vpn;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.to.extraroutes.vpn.extraroutes.ExtraRoutes;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -246,8 +246,8 @@ public class VpnInstanceListener extends AsyncDataTreeChangeListenerBase<VpnInst
                 }
 
                 // Clean up VPNExtraRoutes Operational DS
-                InstanceIdentifier<Vpn> vpnToExtraroute = VpnUtil.getVpnToExtrarouteIdentifier(rd);
-                Optional<Vpn> optVpnToExtraroute = VpnUtil.read(broker, LogicalDatastoreType.OPERATIONAL, vpnToExtraroute);
+                InstanceIdentifier<ExtraRoutes> vpnToExtraroute = VpnUtil.getVpnToExtrarouteIdentifier(vpnName, rd);
+                Optional<ExtraRoutes> optVpnToExtraroute = VpnUtil.read(broker, LogicalDatastoreType.OPERATIONAL, vpnToExtraroute);
                 if (optVpnToExtraroute.isPresent()) {
                     VpnUtil.removeVpnExtraRouteForVpn(broker, rd, writeTxn);
                 }
@@ -260,12 +260,11 @@ public class VpnInstanceListener extends AsyncDataTreeChangeListenerBase<VpnInst
                     fibManager.removeVrfTable(broker, vpnName, null);
                 }
                 // Clean up VPNExtraRoutes Operational DS
-                InstanceIdentifier<Vpn> vpnToExtraroute = VpnUtil.getVpnToExtrarouteIdentifier(vpnName);
-                Optional<Vpn> optVpnToExtraroute = VpnUtil.read(broker, LogicalDatastoreType.OPERATIONAL, vpnToExtraroute);
+                InstanceIdentifier<ExtraRoutes> vpnToExtraroute = VpnUtil.getVpnToExtrarouteIdentifier(vpnName, rd);
+                Optional<ExtraRoutes> optVpnToExtraroute = VpnUtil.read(broker, LogicalDatastoreType.OPERATIONAL, vpnToExtraroute);
                 if (optVpnToExtraroute.isPresent()) {
                     VpnUtil.removeVpnExtraRouteForVpn(broker, vpnName, writeTxn);
                 }
-
                 // Clean up VPNInstanceOpDataEntry
                 VpnUtil.removeVpnOpInstance(broker, vpnName, writeTxn);
             }
