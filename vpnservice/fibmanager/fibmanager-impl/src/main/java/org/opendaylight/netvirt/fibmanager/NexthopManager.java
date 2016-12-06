@@ -85,6 +85,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rev
 
 import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
@@ -324,7 +325,7 @@ public class NexthopManager implements AutoCloseable {
                 if (macAddress != null) {
                     int actionKey = listActionInfo.size();
                     listActionInfo.add(new ActionInfo(ActionType.set_field_eth_dest,
-                        new String[]{macAddress}, actionKey));
+                            new String[]{macAddress}, actionKey));
                     //listActionInfo.add(0, new ActionInfo(ActionType.pop_mpls, new String[]{}));
                 } else {
                     //FIXME: Log message here.
@@ -456,6 +457,14 @@ public class NexthopManager implements AutoCloseable {
         syncDelete(LogicalDatastoreType.OPERATIONAL, id);
     }
 
+    public void removeLoadBalancingNextHop(BigInteger dpnId, Long vpnId, String ipNextHopAddress, String ipPrefixAddress ) {
+        long groupId = createNextHopPointer(getNextHopKey(vpnId, ipPrefixAddress));
+        GroupEntity groupEntity = MDSALUtil.buildGroupEntity(
+                dpnId, groupId, ipPrefixAddress, GroupTypes.GroupSelect, null);
+        // remove Group ...
+        mdsalApiManager.removeGroup(groupEntity);
+        }
+
     public void removeLocalNextHop(BigInteger dpnId, Long vpnId, String ipNextHopAddress, String ipPrefixAddress ) {
         String ipPrefixStr = new String(vpnId + ipPrefixAddress);
         VpnNexthop prefixNh = null;
@@ -583,9 +592,9 @@ public class NexthopManager implements AutoCloseable {
     public String getReqTransType() {
         if (configuredTransportTypeL3VPN == L3VPNTransportTypes.Invalid) {
             /*
-            * Restart scenario, Read from the ConfigDS.
-            * if the value is Unset, cache value as VxLAN.
-            */
+             * Restart scenario, Read from the ConfigDS.
+             * if the value is Unset, cache value as VxLAN.
+             */
             LOG.trace("configureTransportType is not yet set.");
             Optional<ConfTransportTypeL3vpn>  configuredTransTypeFromConfig =
                     FibUtil.read(dataBroker, LogicalDatastoreType.CONFIGURATION, getConfTransportTypeIdentifier());
@@ -745,5 +754,26 @@ public class NexthopManager implements AutoCloseable {
             }
             return result;
         }
+    }
+
+    public long createLoadBalancingNextHop(Long parentVpnId, BigInteger dpnId,
+            String destPrefix, List<BucketInfo> listBucketInfo) {
+        long groupId = createNextHopPointer(getNextHopKey(parentVpnId, destPrefix));
+        if (groupId == 0) {
+            LOG.error("Unable to allocate groupId for vpnId {} , prefix {}", parentVpnId, destPrefix);
+            return groupId;
+        }
+        GroupEntity groupEntity = MDSALUtil.buildGroupEntity(
+                dpnId, groupId, destPrefix, GroupTypes.GroupSelect, listBucketInfo);
+        // install Group
+        mdsalApiManager.syncInstallGroup(groupEntity, FIXED_DELAY_IN_MILLISECONDS);
+        try {
+            LOG.info("Sleeping for {} to wait for the groups to get programmed.", waitTimeForSyncInstall);
+            Thread.sleep(waitTimeForSyncInstall);
+        } catch(InterruptedException error) {
+            LOG.warn("Error while waiting for group {} to install.", groupId);
+            LOG.debug("{}", error);
+        }
+        return groupId;
     }
 }

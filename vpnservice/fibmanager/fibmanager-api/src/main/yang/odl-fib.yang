@@ -87,4 +87,25 @@ module odl-fib {
             leaf parent-vpn-rd { type string; }
          }
     }
+
+    container extraroute-routedistinguishers-map {
+        config true;
+        list extraroute-routedistingueshers {
+            key "vpnid";
+            leaf vpnid {
+                type uint32;
+            }
+            list dest-prefixes {
+                key "dest-prefix";
+                leaf dest-prefix {
+                    type string;
+                    mandatory true;
+                }
+                leaf-list route-distinguishers {
+                   type string;
+                }
+            }
+        }
+   }
+
 }
