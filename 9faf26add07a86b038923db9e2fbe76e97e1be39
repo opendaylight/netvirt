@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "1a622d24_0bcea383",
+        "filename": "vpnservice/fibmanager/fibmanager-api/src/main/yang/odl-fib.yang",
+        "patchSetId": 21
+      },
+      "lineNbr": 80,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2016-12-06T18:36:12Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1a622d24_885e39e8",
+      "revId": "9faf26add07a86b038923db9e2fbe76e97e1be39",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_e8924d9e",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnConstants.java",
         "patchSetId": 21
@@ -30,6 +48,24 @@
       "writtenOn": "2016-12-01T17:30:24Z",
       "side": 1,
       "message": "please use de:ad:be:ef:00:01 , i.e., DEADBEEF mac address.",
+      "revId": "9faf26add07a86b038923db9e2fbe76e97e1be39",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_abb04ff5",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnConstants.java",
+        "patchSetId": 21
+      },
+      "lineNbr": 56,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2016-12-06T18:36:12Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1a622d24_e8924d9e",
       "revId": "9faf26add07a86b038923db9e2fbe76e97e1be39",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -53,6 +89,24 @@
     },
     {
       "key": {
+        "uuid": "1a622d24_cb994b70",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInstanceListener.java",
+        "patchSetId": 21
+      },
+      "lineNbr": 413,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2016-12-06T18:36:12Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1a622d24_288d657c",
+      "revId": "9faf26add07a86b038923db9e2fbe76e97e1be39",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_a8cfb5af",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
         "patchSetId": 21
@@ -64,6 +118,24 @@
       "writtenOn": "2016-12-01T17:30:24Z",
       "side": 1,
       "message": "How many reads are we planning for getting l3vni :) ?\n\nOne in Line 657 and again one more in Line 660..\n\nSimilar, can you pull of this code into a OOP practice..",
+      "revId": "9faf26add07a86b038923db9e2fbe76e97e1be39",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_6e048515",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 21
+      },
+      "lineNbr": 659,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2016-12-06T18:36:12Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1a622d24_a8cfb5af",
       "revId": "9faf26add07a86b038923db9e2fbe76e97e1be39",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -87,6 +159,24 @@
     },
     {
       "key": {
+        "uuid": "1a622d24_534e85c2",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 21
+      },
+      "lineNbr": 740,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2016-12-06T18:36:12Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1a622d24_883759b0",
+      "revId": "9faf26add07a86b038923db9e2fbe76e97e1be39",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_c841510d",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
         "patchSetId": 21
@@ -98,6 +188,24 @@
       "writtenOn": "2016-12-01T17:30:24Z",
       "side": 1,
       "message": "I hope this method will change as we progress with router associate to an L3VNI-BASED-L3VPN..\n\nPlease move this into VPNUtil.",
+      "revId": "9faf26add07a86b038923db9e2fbe76e97e1be39",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_6b9ab715",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 21
+      },
+      "lineNbr": 874,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2016-12-06T18:36:12Z",
+      "side": 1,
+      "message": "Done. Yes it will change",
+      "parentUuid": "1a622d24_c841510d",
       "revId": "9faf26add07a86b038923db9e2fbe76e97e1be39",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -121,6 +229,24 @@
     },
     {
       "key": {
+        "uuid": "1a622d24_6eb9202e",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 21
+      },
+      "lineNbr": 1053,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2016-12-06T18:36:12Z",
+      "side": 1,
+      "message": "Yes. another review addresses the advertisePrefix() API",
+      "parentUuid": "1a622d24_a8469521",
+      "revId": "9faf26add07a86b038923db9e2fbe76e97e1be39",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_485541c5",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnUtil.java",
         "patchSetId": 21
@@ -132,6 +258,24 @@
       "writtenOn": "2016-12-01T17:30:24Z",
       "side": 1,
       "message": "better to check nonNull and nonZero",
+      "revId": "9faf26add07a86b038923db9e2fbe76e97e1be39",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_4bad3b88",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnUtil.java",
+        "patchSetId": 21
+      },
+      "lineNbr": 1381,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2016-12-06T18:36:12Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1a622d24_485541c5",
       "revId": "9faf26add07a86b038923db9e2fbe76e97e1be39",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
