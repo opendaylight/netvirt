@@ -8,18 +8,21 @@
 package org.opendaylight.netvirt.fibmanager;
 
 import com.google.common.util.concurrent.FutureCallback;
+
 import io.netty.util.concurrent.GlobalEventExecutor;
+
 import java.math.BigInteger;
 import java.util.List;
+
 import org.opendaylight.controller.config.api.osgi.WaitingServiceTracker;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.netvirt.fibmanager.api.IFibManager;
 import org.opendaylight.netvirt.fibmanager.api.RouteOrigin;
 import org.opendaylight.netvirt.vpnmanager.api.IVpnManager;
+import org.opendaylight.netvirt.vpnmanager.api.intervpnlink.InterVpnLinkCache;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.RouterInterface;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.VrfEntry;
-import org.opendaylight.netvirt.vpnmanager.api.intervpnlink.InterVpnLinkCache;
 import org.osgi.framework.BundleContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -172,8 +175,9 @@ public class FibManagerImpl implements IFibManager {
         FibUtil.removeFibEntry(broker, rd, prefix, writeConfigTxn);
     }
 
-    public void updateFibEntry(DataBroker broker, String rd, String prefix , List<String> nextHopList, WriteTransaction writeConfigTxn) {
-        FibUtil.updateFibEntry(broker, rd, prefix , nextHopList, writeConfigTxn);
+    @Override
+    public void updateFibEntry(DataBroker broker, String rd, String prefix , List<String> nextHopList, long label, WriteTransaction writeConfigTxn) {
+        FibUtil.updateFibEntry(broker, rd, prefix , nextHopList, label, writeConfigTxn);
     }
 
     @Override
