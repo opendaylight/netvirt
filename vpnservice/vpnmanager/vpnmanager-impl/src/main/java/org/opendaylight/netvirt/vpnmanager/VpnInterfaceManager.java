@@ -583,8 +583,8 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                 writeOperTxn.merge(
                         LogicalDatastoreType.OPERATIONAL,
                         VpnUtil.getVpnToExtrarouteIdentifier(
-                                (rd != null) ? rd : vpnName, nextHop.getIpAddress()),
-                        VpnUtil.getVpnToExtraroute(nextHop.getIpAddress(), nextHop.getNextHopIpList()), true);
+                                vpnName,(rd != null) ? rd : vpnName, nextHop.getIpAddress()),
+                        VpnUtil.getVpnToExtraroute(rd,nextHop.getIpAddress(), nextHop.getNextHopIpList()), true);
             }
         }
 
@@ -1615,8 +1615,8 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
         //add extra route to vpn mapping; advertise with nexthop as tunnel ip
         writeOperTxn.merge(
                 LogicalDatastoreType.OPERATIONAL,
-                VpnUtil.getVpnToExtrarouteIdentifier( (rd != null) ? rd : routerID, destination),
-                VpnUtil.getVpnToExtraroute(destination, Arrays.asList(nextHop)), true);
+                VpnUtil.getVpnToExtrarouteIdentifier(VpnUtil.getVpnNameFromRd(dataBroker, rd), (rd != null) ? rd : routerID, destination),
+                VpnUtil.getVpnToExtraroute(rd, destination, Arrays.asList(nextHop)), true);
 
         BigInteger dpnId = null;
         if (intfName != null && !intfName.isEmpty()) {

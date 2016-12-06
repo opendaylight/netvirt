@@ -94,7 +94,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.Rou
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.VpnIdToVpnInstance;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.VpnInstanceOpData;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.VpnInstanceToVpnId;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.VpnToExtraroute;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.VpnToExtraroutes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.adjacency.list.Adjacency;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.prefix.to._interface.VpnIds;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.prefix.to._interface.VpnIdsBuilder;
@@ -110,12 +110,13 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.vpn.instance.op.data.entry.VpnToDpnList;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.vpn.instance.op.data.entry.VpnToDpnListKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.to.vpn.id.VpnInstanceBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.to.extraroute.Vpn;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.to.extraroute.VpnBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.to.extraroute.VpnKey;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.to.extraroute.vpn.Extraroute;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.to.extraroute.vpn.ExtrarouteBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.to.extraroute.vpn.ExtrarouteKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.to.extraroutes.VpnExtraroutes;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.to.extraroutes.VpnExtraroutesKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.to.extraroutes.vpn.extraroutes.ExtraRoutes;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.to.extraroutes.vpn.extraroutes.ExtraRoutesKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.to.extraroutes.vpn.extraroutes.extra.routes.Routes;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.to.extraroutes.vpn.extraroutes.extra.routes.RoutesBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.to.extraroutes.vpn.extraroutes.extra.routes.RoutesKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ExtRouters;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ExternalNetworks;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ext.routers.Routers;
@@ -188,19 +189,20 @@ public class VpnUtil {
                 vpnInterfaceName).setIpAddress(ipPrefix).build();
     }
 
-    static InstanceIdentifier<Extraroute> getVpnToExtrarouteIdentifier(String vrfId, String ipPrefix) {
-        return InstanceIdentifier.builder(VpnToExtraroute.class)
-                .child(Vpn.class, new VpnKey(vrfId)).child(Extraroute.class,
-                        new ExtrarouteKey(ipPrefix)).build();
+    static InstanceIdentifier<Routes> getVpnToExtrarouteIdentifier(String vpnName, String vrfId, String ipPrefix) {
+        return InstanceIdentifier.builder(VpnToExtraroutes.class)
+                .child(VpnExtraroutes.class, new VpnExtraroutesKey(vpnName)).child(ExtraRoutes.class,
+                        new ExtraRoutesKey(vrfId)).child(Routes.class,new RoutesKey(ipPrefix)).build();
     }
 
-    static InstanceIdentifier<Vpn> getVpnToExtrarouteIdentifier(String vrfId) {
-        return InstanceIdentifier.builder(VpnToExtraroute.class)
-                .child(Vpn.class, new VpnKey(vrfId)).build();
+    static InstanceIdentifier<ExtraRoutes> getVpnToExtrarouteIdentifier(String vpnName, String vrfId) {
+        return InstanceIdentifier.builder(VpnToExtraroutes.class)
+                .child(VpnExtraroutes.class, new VpnExtraroutesKey(vpnName)).child(ExtraRoutes.class, new ExtraRoutesKey(vrfId)).build();
     }
 
-    static Vpn getVpnToExtraRoute(String vrfId) {
-        return new VpnBuilder().setKey(new VpnKey(vrfId)).setVrfId(vrfId).build();
+    static Routes getVpnToExtraroute(String vrfId, String ipPrefix, List<String> nextHopList) {
+        Routes routes = new RoutesBuilder().setKey(new RoutesKey(ipPrefix)).setNexthopIpList(nextHopList).build();
+        return routes;
     }
 
     /**
@@ -247,13 +249,6 @@ public class VpnUtil {
         return new ArrayList<Prefixes>();
     }
 
-    static List<Extraroute> getAllExtraRoutes(DataBroker broker, String vrfId) {
-        Optional<Vpn> extraRoutes = read(broker, LogicalDatastoreType.OPERATIONAL, getVpnToExtrarouteIdentifier(vrfId));
-        if (extraRoutes.isPresent()) {
-            return extraRoutes.get().getExtraroute();
-        }
-        return new ArrayList<Extraroute>();
-    }
 
     /**
      * Retrieves all the VrfEntries that belong to a given VPN searching by its
@@ -343,17 +338,6 @@ public class VpnUtil {
             return nextHops;
         }
         return null;
-    }
-
-    static Extraroute getVpnToExtraroute(String ipPrefix, List<String> nextHopList) {
-        return new ExtrarouteBuilder().setPrefix(ipPrefix).setNexthopIpList(nextHopList).build();
-    }
-
-    public static List<Extraroute> getVpnExtraroutes(DataBroker broker, String vpnRd) {
-        InstanceIdentifier<Vpn> vpnExtraRoutesId =
-                InstanceIdentifier.builder(VpnToExtraroute.class).child(Vpn.class, new VpnKey(vpnRd)).build();
-        Optional<Vpn> vpnOpc = read(broker, LogicalDatastoreType.OPERATIONAL, vpnExtraRoutesId);
-        return vpnOpc.isPresent() ? vpnOpc.get().getExtraroute() : new ArrayList<Extraroute>();
     }
 
     static Adjacencies getVpnInterfaceAugmentation(List<Adjacency> nextHopList) {
@@ -920,10 +904,10 @@ public class VpnUtil {
             // Clean up VPNExtraRoutes Operational DS
             if (writeTxn != null) {
                 writeTxn.delete(LogicalDatastoreType.OPERATIONAL,
-                        InstanceIdentifier.builder(VpnToExtraroute.class).child(Vpn.class, new VpnKey(vpnName)).build());
+                        InstanceIdentifier.builder(VpnToExtraroutes.class).child(VpnExtraroutes.class, new VpnExtraroutesKey(vpnName)).build());
             } else {
                 delete(broker, LogicalDatastoreType.OPERATIONAL,
-                        InstanceIdentifier.builder(VpnToExtraroute.class).child(Vpn.class, new VpnKey(vpnName)).build(),
+                        InstanceIdentifier.builder(VpnToExtraroutes.class).child(VpnExtraroutes.class, new VpnExtraroutesKey(vpnName)).build(),
                         DEFAULT_CALLBACK);
             }
         } catch (Exception e) {
