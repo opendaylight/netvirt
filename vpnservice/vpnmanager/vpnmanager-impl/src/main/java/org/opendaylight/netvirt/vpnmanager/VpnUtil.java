@@ -80,6 +80,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev15033
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.VrfEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.VrfEntryBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.VrfEntryKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.vrfentry.RoutePaths;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.PrefixToInterface;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.VpnToExtraroute;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.VpnIdToVpnInstance;
@@ -557,8 +558,10 @@ public class VpnUtil {
         if (vrfTablesOpc.isPresent()) {
             VrfTables vrfTables = vrfTablesOpc.get();
             for (VrfEntry vrfEntry : vrfTables.getVrfEntry()) {
-                if (vrfEntry.getNextHopAddressList() != null && vrfEntry.getNextHopAddressList().contains(nexthop)) {
-                    matches.add(vrfEntry);
+                for (RoutePaths routePaths : vrfEntry.getRoutePaths()) {
+                    if (routePaths.getNextHopAddressList() != null && routePaths.getNextHopAddressList().contains(nexthop)) {
+                        matches.add(vrfEntry);
+                    }
                 }
             }
         }

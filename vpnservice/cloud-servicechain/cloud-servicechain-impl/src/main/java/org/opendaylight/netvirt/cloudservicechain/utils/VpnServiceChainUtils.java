@@ -7,7 +7,6 @@
  */
 package org.opendaylight.netvirt.cloudservicechain.utils;
 
-import com.google.common.base.Optional;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -41,6 +40,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev15033
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.fibentries.VrfTables;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.fibentries.VrfTablesKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.VrfEntry;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.vrfentry.RoutePaths;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.VpnInstanceOpData;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.VpnInstanceToVpnId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.VpnInstanceOpDataEntry;
@@ -52,6 +52,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.google.common.base.Optional;
 
 public class VpnServiceChainUtils {
 
@@ -333,18 +335,24 @@ public class VpnServiceChainUtils {
      */
     public static void programLFibEntriesForSCF(IMdsalApiManager mdsalMgr, BigInteger dpId, List<VrfEntry> vrfEntries,
                                                 int lportTag, int addOrRemove) {
-        for (VrfEntry vrfEntry : vrfEntries) {
-            Long label = vrfEntry.getLabel();
-            for (String nexthop : vrfEntry.getNextHopAddressList()) {
-                FlowEntity flowEntity = buildLFibVpnPseudoPortFlow(dpId, label, nexthop, lportTag);
-                if (addOrRemove == NwConstants.ADD_FLOW) {
-                    mdsalMgr.installFlow(flowEntity);
-                } else {
-                    mdsalMgr.removeFlow(flowEntity);
+        List <RoutePaths> routePaths;
+        for(VrfEntry vrfEntry:vrfEntries)
+        {
+            routePaths = vrfEntry.getRoutePaths();
+            for (RoutePaths route : routePaths) {
+                Long label = route.getLabel();
+                for (String nexthop : route.getNextHopAddressList()) {
+                    FlowEntity flowEntity = buildLFibVpnPseudoPortFlow(dpId, label, nexthop, lportTag);
+                    if (addOrRemove == NwConstants.ADD_FLOW) {
+                        mdsalMgr.installFlow(flowEntity);
+                    } else {
+                        mdsalMgr.removeFlow(flowEntity);
+                    }
+                    LOG.debug("LFIB Entry for label={}, destination={}, nexthop={} {} successfully in dpn={}",
+                            label, vrfEntry.getDestPrefix(), nexthop,
+                            addOrRemove == NwConstants.DEL_FLOW ? "removed" : "installed", dpId);
+
                 }
-                LOG.debug("LFIB Entry for label={}, destination={}, nexthop={} {} successfully in dpn={}",
-                          label, vrfEntry.getDestPrefix(), vrfEntry.getNextHopAddressList(),
-                          addOrRemove == NwConstants.DEL_FLOW ? "removed" : "installed", dpId);
             }
         }
     }

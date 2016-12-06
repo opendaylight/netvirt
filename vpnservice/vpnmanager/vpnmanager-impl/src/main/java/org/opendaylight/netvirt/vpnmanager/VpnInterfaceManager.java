@@ -33,6 +33,7 @@ import java.util.concurrent.Future;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
+
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
@@ -83,6 +84,9 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev15033
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.VrfEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.VrfEntryBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.VrfEntryKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.vrfentry.RoutePaths;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.vrfentry.RoutePathsBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.vrfentry.RoutePathsKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.Adjacencies;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.NeutronRouterDpns;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.adjacency.list.Adjacency;
@@ -626,7 +630,7 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
         List<Adjacency> adjList = (adjacencies != null) ? adjacencies.getAdjacency() : new ArrayList<Adjacency>();
         String prefix = null;
         long label = 0;
-        List<String> nhList = new ArrayList<String>();
+        List<String> nhList = new ArrayList<>();
         boolean nextHopAdded = false;
         long vpnId = VpnUtil.getVpnId(dataBroker, vpnInterface.getVpnInstanceName());
 
@@ -666,7 +670,7 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                     updateLabelMapper(label, nhList);
 
                     // Update the VRF entry with nextHop
-                    fibManager.updateFibEntry(dataBroker, rd, prefix, nhList, null);
+                    fibManager.updateFibEntry(dataBroker, rd, prefix, nhList, label, null);
 
                     //Get the list of VPN's importing this route(prefix) .
                     // Then update the VRF entry with nhList
@@ -675,7 +679,7 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                         String vpnRd = vpn.getVrfId();
                         if (vpnRd != null) {
                             LOG.debug("Exporting route with rd {} prefix {} nhList {} label {} to VPN {}", vpnRd, prefix, nhList, label, vpn);
-                            fibManager.updateFibEntry(dataBroker, vpnRd, prefix, nhList, null);
+                            fibManager.updateFibEntry(dataBroker, vpnRd, prefix, nhList, label, null);
                         }
                     }
                     // Advertise the prefix to BGP only for external vpn
@@ -733,7 +737,7 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                     updateLabelMapper(label, nhList);
 
                     // Update the VRF entry with emtpy nextHop
-                    fibManager.updateFibEntry(dataBroker, rd, prefix, new ArrayList<String>() /* empty */, null);
+                    fibManager.updateFibEntry(dataBroker, rd, prefix, new ArrayList<String>() /* empty */, label, null);
 
                     //Get the list of VPN's importing this route(prefix) .
                     // Then update the VRF entry with nhList
@@ -741,8 +745,9 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                     for (VpnInstanceOpDataEntry vpn : vpnsToImportRoute) {
                         String vpnRd = vpn.getVrfId();
                         if (vpnRd != null) {
+                            // TODO [KK] : where is nhList populated.
                             LOG.debug("Exporting route with rd {} prefix {} nhList {} label {} to VPN {}", vpnRd, prefix, nhList, label, vpn);
-                            fibManager.updateFibEntry(dataBroker, vpnRd, prefix, nhList, null);
+                            fibManager.updateFibEntry(dataBroker, vpnRd, prefix, nhList, label, null);
                         }
                     }
 
@@ -881,8 +886,10 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                             continue;
                         }
                         String prefix = vrfEntry.getDestPrefix();
-                        long label = vrfEntry.getLabel();
-                        List<String> nextHops = vrfEntry.getNextHopAddressList();
+                        // TODO [KK] : Static hence only one path.
+                        RoutePaths routePaths = vrfEntry.getRoutePaths().get(0);
+                        long label = routePaths.getLabel();
+                        List<String> nextHops = routePaths.getNextHopAddressList();
                         SubnetRoute route = vrfEntry.getAugmentation(SubnetRoute.class);
                         for (String nh : nextHops) {
                             if (route != null) {
@@ -895,7 +902,7 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                             }
                         }
                     } catch (Exception e) {
-                        LOG.error("Exception occurred while importing route with prefix {} label {} nexthop {} from vpn {} to vpn {}", vrfEntry.getDestPrefix(), vrfEntry.getLabel(), vrfEntry.getNextHopAddressList(), vpn.getVpnInstanceName(), vpnName);
+                        LOG.error("Exception occurred while importing route with prefix {} route-path {} from vpn {} to vpn {}", vrfEntry.getDestPrefix(), vrfEntry.getRoutePaths(), vpn.getVpnInstanceName(), vpnName);
                     }
                 }
                 writeConfigTxn.submit();
@@ -1402,8 +1409,10 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                                                         long elantag, BigInteger dpnId, WriteTransaction writeTxn) {
         SubnetRoute route = new SubnetRouteBuilder().setElantag(elantag).build();
         RouteOrigin origin = RouteOrigin.CONNECTED; // Only case when a route is considered as directly connected
-        VrfEntry vrfEntry = new VrfEntryBuilder().setDestPrefix(prefix).setNextHopAddressList(Arrays.asList(nextHop))
-                .setLabel((long)label).setOrigin(origin.getValue())
+        RoutePaths routePaths = new RoutePathsBuilder().setLabel((long) label).setNextHopAddressList(Arrays.asList(nextHop)).setKey(new RoutePathsKey((long)label)).build();
+
+        VrfEntry vrfEntry = new VrfEntryBuilder().setDestPrefix(prefix).setRoutePaths(Arrays.asList(routePaths))
+                .setOrigin(origin.getValue())
                 .addAugmentation(SubnetRoute.class, route).build();
 
         LOG.debug("Created vrfEntry for {} nexthop {} label {} and elantag {}", prefix, nextHop, label, elantag);
@@ -1443,8 +1452,8 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
 
         List<VpnInstanceOpDataEntry> vpnsToImportRoute = getVpnsImportingMyRoute(vpnName);
         if (vpnsToImportRoute.size() > 0) {
-            VrfEntry importingVrfEntry = new VrfEntryBuilder().setDestPrefix(prefix).setNextHopAddressList(Arrays.asList(nextHop))
-                    .setLabel((long) label).setOrigin(RouteOrigin.SELF_IMPORTED.getValue())
+            VrfEntry importingVrfEntry = new VrfEntryBuilder().setDestPrefix(prefix).setRoutePaths(Arrays.asList(routePaths))
+                    .setOrigin(RouteOrigin.SELF_IMPORTED.getValue())
                     .addAugmentation(SubnetRoute.class, route).build();
             List<VrfEntry> importingVrfEntryList = Arrays.asList(importingVrfEntry);
             for (VpnInstanceOpDataEntry vpnInstance : vpnsToImportRoute) {
@@ -1465,8 +1474,9 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                                                         SubnetRoute route, WriteTransaction writeConfigTxn) {
 
         RouteOrigin origin = RouteOrigin.SELF_IMPORTED;
-        VrfEntry vrfEntry = new VrfEntryBuilder().setDestPrefix(prefix).setNextHopAddressList(Arrays.asList(nextHop))
-                .setLabel((long)label).setOrigin(origin.getValue())
+        RoutePaths routePaths = new RoutePathsBuilder().setLabel((long) label).setNextHopAddressList(Arrays.asList(nextHop)).setKey(new RoutePathsKey((long)label)).build();
+        VrfEntry vrfEntry = new VrfEntryBuilder().setDestPrefix(prefix).setRoutePaths(Arrays.asList(routePaths))
+                .setOrigin(origin.getValue())
                 .addAugmentation(SubnetRoute.class, route).build();
         LOG.debug("Created vrfEntry for {} nexthop {} label {} and elantag {}", prefix, nextHop, label, route.getElantag());
         List<VrfEntry> vrfEntryList = Arrays.asList(vrfEntry);
@@ -1808,10 +1818,10 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
 
                 RouterInterface routerInt = new RouterInterfaceBuilder().setUuid(vpnName)
                         .setMacAddress(macAddress).setIpAddress(primaryInterfaceIp).build();
+                RoutePaths routePaths = new RoutePathsBuilder().setLabel(label).setNextHopAddressList(Arrays.asList("")).setKey(new RoutePathsKey(label)).build();
 
                 VrfEntry vrfEntry = new VrfEntryBuilder().setKey(new VrfEntryKey(prefix)).setDestPrefix(prefix)
-                        .setNextHopAddressList(Arrays.asList(""))
-                        .setLabel(label)
+                        .setRoutePaths(Arrays.asList(routePaths))
                         .setOrigin(RouteOrigin.LOCAL.getValue())
                         .addAugmentation(RouterInterface.class, routerInt).build();
 

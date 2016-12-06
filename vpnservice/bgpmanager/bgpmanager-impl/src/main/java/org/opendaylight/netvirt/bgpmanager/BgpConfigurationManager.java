@@ -89,6 +89,7 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.FibEntries;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.fibentries.VrfTables;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.VrfEntry;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.vrfentry.RoutePaths;
 import org.opendaylight.yangtools.concepts.ListenerRegistration;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
@@ -1872,8 +1873,8 @@ public class BgpConfigurationManager {
     }
 
     public synchronized void
-    addPrefix(String rd, String pfx, List<String> nhList, int lbl) {
-        for (String nh : nhList) {
+    addPrefix(String rd, String pfx, List<String> nextHopList, int lbl) {
+        for (String nh : nextHopList) {
             Ipv4Address nexthop = new Ipv4Address(nh);
             Long label = (long) lbl;
             InstanceIdentifier<Networks> iid = InstanceIdentifier.builder(Bgp.class)
@@ -2071,8 +2072,10 @@ public class BgpConfigurationManager {
                         }
                         totalStaledCount++;
                         //Create MAP from stale_vrfTables.
-                        for (String nextHop : vrfEntry.getNextHopAddressList()) {
-                            stale_fib_ent_map.put(vrfEntry.getDestPrefix(), nextHop + "/" + vrfEntry.getLabel());
+                        for (RoutePaths routes : vrfEntry.getRoutePaths()) {
+                            //TODO [KK] What is this used for... ? But from what they are doing won't the map entry be overwritten.
+                            // Or is it like all the time it will be size = 1 since its from bgp?
+                            stale_fib_ent_map.put(vrfEntry.getDestPrefix(), routes.getNextHopAddressList().get(0) + "/" + routes.getLabel());
                         }
                     }
                     staledFibEntriesMap.put(vrfTable.getRouteDistinguisher(), stale_fib_ent_map);

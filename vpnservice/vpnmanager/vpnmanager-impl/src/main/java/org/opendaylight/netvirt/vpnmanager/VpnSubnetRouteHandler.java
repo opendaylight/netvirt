@@ -7,10 +7,13 @@
  */
 package org.opendaylight.netvirt.vpnmanager;
 
-import com.google.common.base.Optional;
-import com.google.common.base.Preconditions;
 import java.math.BigInteger;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
@@ -51,6 +54,9 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev15060
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.google.common.base.Optional;
+import com.google.common.base.Preconditions;
 
 public class VpnSubnetRouteHandler implements NeutronvpnListener {
     private static final Logger logger = LoggerFactory.getLogger(VpnSubnetRouteHandler.class);
