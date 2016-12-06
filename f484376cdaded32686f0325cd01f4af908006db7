@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1a622d24_589fc25f",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanPacketInHandler.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 84,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2016-12-06T12:39:52Z",
+      "side": 1,
+      "message": "job key should be on elaninstanceName(or elanTag)+\"MAC-\" + macAddress since MAC can be duplicated across ELAN instances. \nThere is a reentrant lock on mac address in ElanUtils.setupMacFlows, you could safely remove it.",
+      "revId": "f484376cdaded32686f0325cd01f4af908006db7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_38aac670",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanPacketInHandler.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 95,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2016-12-06T12:39:52Z",
+      "side": 1,
+      "message": "Do you want to return from here with Collections.emptyList(); ? :)",
+      "revId": "f484376cdaded32686f0325cd01f4af908006db7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_78bb9ec4",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanPacketInHandler.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 103,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2016-12-06T12:39:52Z",
+      "side": 1,
+      "message": "same comment as above.",
+      "revId": "f484376cdaded32686f0325cd01f4af908006db7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
