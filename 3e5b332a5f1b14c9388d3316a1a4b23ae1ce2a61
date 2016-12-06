@@ -1,0 +1,225 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1a622d24_f85a0e4f",
+        "filename": "docs/specs/flow-based-snat.rst",
+        "patchSetId": 1
+      },
+      "lineNbr": 5,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2016-12-06T14:21:12Z",
+      "side": 1,
+      "message": "nit: Please use the topic:snat_conntrack",
+      "revId": "3e5b332a5f1b14c9388d3316a1a4b23ae1ce2a61",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_d320d59d",
+        "filename": "docs/specs/flow-based-snat.rst",
+        "patchSetId": 1
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2016-12-06T14:21:12Z",
+      "side": 1,
+      "message": "nit: /s/connection/connections",
+      "revId": "3e5b332a5f1b14c9388d3316a1a4b23ae1ce2a61",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_b32559ad",
+        "filename": "docs/specs/flow-based-snat.rst",
+        "patchSetId": 1
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2016-12-06T14:21:12Z",
+      "side": 1,
+      "message": "nit:/s/vm/vms\n\nPlease include: \"Also\" the current implementation....",
+      "revId": "3e5b332a5f1b14c9388d3316a1a4b23ae1ce2a61",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_333149ed",
+        "filename": "docs/specs/flow-based-snat.rst",
+        "patchSetId": 1
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2016-12-06T14:21:12Z",
+      "side": 1,
+      "message": "Shall we rephrase \"vm inside the DC\" as \"VM in a tenant network\" as a VM can be spawned directly on a provider network, whereas this use-case is for a tenant VM sitting behind the neutron virtual router.",
+      "revId": "3e5b332a5f1b14c9388d3316a1a4b23ae1ce2a61",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_7352a114",
+        "filename": "docs/specs/flow-based-snat.rst",
+        "patchSetId": 1
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2016-12-06T14:21:12Z",
+      "side": 1,
+      "message": "nit: please delete makes\nnit: /s/framework do/framework to do\n\nAlso, on the first occurrence of NAPT, can you please elaborate it \"i.e., NAPT (Network Address Port Translation)\"",
+      "revId": "3e5b332a5f1b14c9388d3316a1a4b23ae1ce2a61",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_b35c3927",
+        "filename": "docs/specs/flow-based-snat.rst",
+        "patchSetId": 1
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2016-12-06T14:21:12Z",
+      "side": 1,
+      "message": "Does this require any specific version of OVS? If so, can you please include it.",
+      "revId": "3e5b332a5f1b14c9388d3316a1a4b23ae1ce2a61",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_534b2559",
+        "filename": "docs/specs/flow-based-snat.rst",
+        "patchSetId": 1
+      },
+      "lineNbr": 58,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2016-12-06T14:21:12Z",
+      "side": 1,
+      "message": "Any specific reason why you want to update the metadata again to the same value?",
+      "revId": "3e5b332a5f1b14c9388d3316a1a4b23ae1ce2a61",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_f33d11bd",
+        "filename": "docs/specs/flow-based-snat.rst",
+        "patchSetId": 1
+      },
+      "lineNbr": 59,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2016-12-06T14:21:12Z",
+      "side": 1,
+      "message": "metadata\u003dmetadata\u003d0x222e0/0xfffffffe ?\nLooks like metadata is repeated.",
+      "revId": "3e5b332a5f1b14c9388d3316a1a4b23ae1ce2a61",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_331ae96e",
+        "filename": "docs/specs/flow-based-snat.rst",
+        "patchSetId": 1
+      },
+      "lineNbr": 93,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2016-12-06T14:21:12Z",
+      "side": 1,
+      "message": "Ideally, we should avoid introducing new config knobs as it creates maintenance issues going forward. \n\nA question in this regard: In case we have a working implementation of SNAT using conntrack, do we have any use-case where we will be using the controller based SNAT (i.e., for older versions OVS, dpdk etc)?",
+      "revId": "3e5b332a5f1b14c9388d3316a1a4b23ae1ce2a61",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_3348295b",
+        "filename": "docs/specs/flow-based-snat.rst",
+        "patchSetId": 1
+      },
+      "lineNbr": 97,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2016-12-06T14:21:12Z",
+      "side": 1,
+      "message": "I think you can remove these statements and include \"N/A or leave it empty\" if the section does not apply.\n\nSame for some of the other sections below.",
+      "revId": "3e5b332a5f1b14c9388d3316a1a4b23ae1ce2a61",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_93749d9d",
+        "filename": "docs/specs/flow-based-snat.rst",
+        "patchSetId": 1
+      },
+      "lineNbr": 103,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2016-12-06T14:21:12Z",
+      "side": 1,
+      "message": "If we require any specific version of OVS, we can capture it here.",
+      "revId": "3e5b332a5f1b14c9388d3316a1a4b23ae1ce2a61",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_73790193",
+        "filename": "docs/specs/flow-based-snat.rst",
+        "patchSetId": 1
+      },
+      "lineNbr": 124,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2016-12-06T14:21:12Z",
+      "side": 1,
+      "message": "nit: /s/document/implementation",
+      "revId": "3e5b332a5f1b14c9388d3316a1a4b23ae1ce2a61",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_f364f1e6",
+        "filename": "docs/specs/flow-based-snat.rst",
+        "patchSetId": 1
+      },
+      "lineNbr": 212,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2016-12-06T14:21:12Z",
+      "side": 1,
+      "message": "Please remove references that are not applicable for this implementation.",
+      "revId": "3e5b332a5f1b14c9388d3316a1a4b23ae1ce2a61",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
