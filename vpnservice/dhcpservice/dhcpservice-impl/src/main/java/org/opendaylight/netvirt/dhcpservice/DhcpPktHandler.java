@@ -149,9 +149,14 @@ public class DhcpPktHandler implements PacketProcessingListener {
         } else {
             port = getNeutronPort(interfaceName);
         }
-        Subnet subnet = getNeutronSubnet(port);
-        DhcpInfo dhcpInfo = getDhcpInfo(port, subnet);
-        LOG.trace("NeutronPort: {} \n NeutronSubnet: {}, dhcpInfo{}", port, subnet, dhcpInfo);
+        DhcpInfo dhcpInfo = null;
+        if (port != null) {
+            Subnet subnet = getNeutronSubnet(port);
+            dhcpInfo = getDhcpInfo(port, subnet);
+            LOG.trace("NeutronPort: {} \n NeutronSubnet: {}, dhcpInfo{}", port, subnet, dhcpInfo);
+        } else {
+            dhcpInfo = handleNonNeutronDhcp(dhcpPkt, interfaceName, macAddress);
+        }
         DHCP reply = null;
         if (dhcpInfo != null) {
             if (msgType == DHCPConstants.MSG_DISCOVER) {
@@ -162,6 +167,11 @@ public class DhcpPktHandler implements PacketProcessingListener {
         }
 
         return reply;
+    }
+
+    private DhcpInfo handleNonNeutronDhcp(DHCP dhcpPkt, String interfaceName, String macAddress) {
+        // TODO Auto-generated method stub
+        return null;
     }
 
     private DhcpInfo getDhcpInfo(Port port, Subnet subnet) {
