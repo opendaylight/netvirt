@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "1a622d24_c2b5a5ce",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 6154
+      },
+      "writtenOn": "2016-12-06T05:01:11Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1a622d24_24dbc9ee",
+      "revId": "97538c48c803ba92ab76668ef7a7a8b810456fc2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_04516d62",
         "filename": "/COMMIT_MSG",
         "patchSetId": 1
@@ -30,6 +48,24 @@
       "writtenOn": "2016-12-05T17:30:57Z",
       "side": 1,
       "message": "In fact this is the behaviour we intend right..\nWhy is this quoted as an issue?\n\nDid you want to mean \u0027is not moved\u0027 from internal VPN to BGPVPN?",
+      "revId": "97538c48c803ba92ab76668ef7a7a8b810456fc2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_82bbadc3",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 6154
+      },
+      "writtenOn": "2016-12-06T05:01:11Z",
+      "side": 1,
+      "message": "Yes , i wanted to mean \"is not moved\" , typo . I will correct it.",
+      "parentUuid": "1a622d24_04516d62",
       "revId": "97538c48c803ba92ab76668ef7a7a8b810456fc2",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -70,6 +106,24 @@
     },
     {
       "key": {
+        "uuid": "1a622d24_e2b0a1df",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 6154
+      },
+      "writtenOn": "2016-12-06T05:01:11Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1a622d24_444b65b0",
+      "revId": "97538c48c803ba92ab76668ef7a7a8b810456fc2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_276d8b33",
         "filename": "vpnservice/fibmanager/fibmanager-api/src/main/java/org/opendaylight/netvirt/fibmanager/api/IFibManager.java",
         "patchSetId": 1
@@ -81,6 +135,24 @@
       "writtenOn": "2016-12-05T19:34:48Z",
       "side": 1,
       "message": "I think the FibManager API would be cleaner if the RouterInterface augmentation will be created along with the VrfEntry inside this method rather than provided as an argument",
+      "revId": "97538c48c803ba92ab76668ef7a7a8b810456fc2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_62c49140",
+        "filename": "vpnservice/fibmanager/fibmanager-api/src/main/java/org/opendaylight/netvirt/fibmanager/api/IFibManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 54,
+      "author": {
+        "id": 6154
+      },
+      "writtenOn": "2016-12-06T05:01:11Z",
+      "side": 1,
+      "message": "But we can avoid passing more number of arguments to the API, by just passing routerInterface Alone.",
+      "parentUuid": "1a622d24_276d8b33",
       "revId": "97538c48c803ba92ab76668ef7a7a8b810456fc2",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -104,6 +176,24 @@
     },
     {
       "key": {
+        "uuid": "1a622d24_02c79d46",
+        "filename": "vpnservice/fibmanager/fibmanager-api/src/main/java/org/opendaylight/netvirt/fibmanager/api/IFibManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 55,
+      "author": {
+        "id": 6154
+      },
+      "writtenOn": "2016-12-06T05:01:11Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1a622d24_64e5c1a7",
+      "revId": "97538c48c803ba92ab76668ef7a7a8b810456fc2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_e46d5106",
         "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/FibUtil.java",
         "patchSetId": 1
@@ -121,6 +211,24 @@
     },
     {
       "key": {
+        "uuid": "1a622d24_42c1952d",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/FibUtil.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 555,
+      "author": {
+        "id": 6154
+      },
+      "writtenOn": "2016-12-06T05:01:11Z",
+      "side": 1,
+      "message": "Yes it has to be syncUpdate()",
+      "parentUuid": "1a622d24_e46d5106",
+      "revId": "97538c48c803ba92ab76668ef7a7a8b810456fc2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_a726bbb8",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
         "patchSetId": 1
@@ -132,6 +240,24 @@
       "writtenOn": "2016-12-05T17:30:57Z",
       "side": 1,
       "message": "you can remove this line..",
+      "revId": "97538c48c803ba92ab76668ef7a7a8b810456fc2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_a2dd0917",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 1829,
+      "author": {
+        "id": 6154
+      },
+      "writtenOn": "2016-12-06T05:01:11Z",
+      "side": 1,
+      "message": "Where is the line here ? Did you mean to give one line gap ?",
+      "parentUuid": "1a622d24_a726bbb8",
       "revId": "97538c48c803ba92ab76668ef7a7a8b810456fc2",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
