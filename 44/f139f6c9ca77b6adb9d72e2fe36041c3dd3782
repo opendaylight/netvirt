@@ -1,0 +1,8 @@
+Verified+1: jenkins-releng <jenkins-releng@opendaylight.org>
+Code-Review+2: Vivekanandan Narasimhan <n.vivekanandan@ericsson.com>
+Code-Review+2: Sam Hague <shague@redhat.com>
+Submitted-by: Sam Hague <shague@redhat.com>
+Submitted-at: Tue, 06 Dec 2016 18:16:08 +0000
+Reviewed-on: https://git.opendaylight.org/gerrit/49045
+Project: netvirt
+Branch: refs/heads/stable/boron
