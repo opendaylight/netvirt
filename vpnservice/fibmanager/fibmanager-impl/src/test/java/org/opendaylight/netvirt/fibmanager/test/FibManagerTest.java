@@ -13,6 +13,7 @@ import static org.mockito.Mockito.when;
 import java.math.BigInteger;
 import java.util.Collections;
 import java.util.List;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -28,6 +29,7 @@ import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.netvirt.fibmanager.VrfEntryListener;
 import org.opendaylight.netvirt.fibmanager.api.RouteOrigin;
 import org.opendaylight.netvirt.vpnmanager.api.IVpnManager;
+import org.opendaylight.netvirt.vpnmanager.api.VpnHelper;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.FibEntries;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.fibentries.VrfTables;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.fibentries.VrfTablesKey;
@@ -99,9 +101,7 @@ public class FibManagerTest {
     }
 
     private VrfEntry buildVrfEntry(String rd, String prefix, List<String> nextHopList, int label, RouteOrigin origin) {
-
-        return new VrfEntryBuilder().setDestPrefix(prefix).setNextHopAddressList(nextHopList)
-            .setLabel((long) label).setOrigin(origin.getValue()).build();
+    return VpnHelper.buildVrfEntry(prefix, label, nextHopList, origin);
     }
 
     public static InstanceIdentifier<VrfTables> buildVrfTableId(String rd) {

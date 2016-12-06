@@ -187,7 +187,7 @@ public class NexthopManager implements AutoCloseable {
         return "nexthop." + ifName + ipAddress;
     }
 
-    protected long createNextHopPointer(String nexthopKey) {
+    protected long getNextHopPointer(String nexthopKey) {
         AllocateIdInput getIdInput = new AllocateIdInputBuilder()
             .setPoolName(NEXTHOP_ID_POOL_NAME).setIdKey(nexthopKey)
             .build();
@@ -310,7 +310,7 @@ public class NexthopManager implements AutoCloseable {
         String macAddress = FibUtil.getMacAddressFromPrefix(dataBroker, ifName, ipPrefixAddress);
         String ipAddress = (macAddress != null) ? ipPrefixAddress : ipNextHopAddress;
 
-        long groupId = createNextHopPointer(getNextHopKey(vpnId, ipAddress));
+        long groupId = getNextHopPointer(getNextHopKey(vpnId, ipAddress));
         if (groupId == 0) {
             LOG.error("Unable to allocate groupId for vpnId {} , prefix {}", vpnId, ipAddress);
             return groupId;

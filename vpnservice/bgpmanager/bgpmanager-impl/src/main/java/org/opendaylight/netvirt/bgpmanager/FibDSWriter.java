@@ -7,18 +7,21 @@
  */
 package org.opendaylight.netvirt.bgpmanager;
 
-import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
+
+import java.util.ArrayList;
 import java.util.List;
+
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.netvirt.fibmanager.api.RouteOrigin;
+import org.opendaylight.netvirt.vpnmanager.api.VpnHelper;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.FibEntries;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.fibentries.VrfTables;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.fibentries.VrfTablesKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.VrfEntry;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.VrfEntryBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.VrfEntryKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.vrfentry.RoutePaths;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier.InstanceIdentifierBuilder;
 import org.slf4j.Logger;
@@ -33,19 +36,22 @@ public class FibDSWriter {
     }
 
     public synchronized void addFibEntryToDS(String rd, String prefix, List<String> nextHopList,
-                                             int label, RouteOrigin origin) {
+            int label, RouteOrigin origin) {
         if (rd == null || rd.isEmpty() ) {
             logger.error("Prefix {} not associated with vpn", prefix);
             return;
         }
 
         Preconditions.checkNotNull(nextHopList, "NextHopList can't be null");
+        List<RoutePaths> routePaths = new ArrayList<>();
 
         for ( String nextHop: nextHopList){
             if (nextHop == null || nextHop.isEmpty()){
+
                 logger.error("nextHop list contains null element");
                 return;
             }
+            routePaths.add(VpnHelper.buildRoutePath(nextHop, label));
             logger.debug("Created vrfEntry for {} nexthop {} label {}", prefix, nextHop, label);
 
         }
@@ -56,12 +62,11 @@ public class FibDSWriter {
                     InstanceIdentifier.builder(FibEntries.class)
                             .child(VrfTables.class, new VrfTablesKey(rd))
                             .child(VrfEntry.class, new VrfEntryKey(prefix)).build();
-            Optional<VrfEntry> entry = BgpUtil.read(dataBroker, LogicalDatastoreType.CONFIGURATION, vrfEntryId);
 
-            VrfEntry vrfEntry = new VrfEntryBuilder().setDestPrefix(prefix).setNextHopAddressList(nextHopList)
-                                                     .setLabel((long)label).setOrigin(origin.getValue()).build();
+            VrfEntry vrfEntry = VpnHelper.buildVrfEntry(prefix, routePaths, origin);
 
-            BgpUtil.write(dataBroker, LogicalDatastoreType.CONFIGURATION, vrfEntryId, vrfEntry);
+            BgpUtil.update(dataBroker, LogicalDatastoreType.CONFIGURATION, vrfEntryId, vrfEntry);
+
         } catch (Exception e) {
             logger.error("addFibEntryToDS: error ", e);
         }
@@ -91,6 +96,21 @@ public class FibDSWriter {
         InstanceIdentifier<VrfTables> vrfTableId = idBuilder.build();
 
         BgpUtil.delete(dataBroker, LogicalDatastoreType.CONFIGURATION, vrfTableId);
+
+    }
+
+    public synchronized void removeFibEntryFromDS(String rd, String prefix, String nextHop) {
+
+        if (rd == null || rd.isEmpty()) {
+            logger.error("Prefix {} not associated with vpn", prefix);
+            return;
+        }
+        logger.debug("Removing fib entry with destination prefix {} from vrf table for rd {}",
+                prefix, rd);
+
+        // TODO [KK] : If its the last route should we delete the entire prefix?
+        InstanceIdentifier<RoutePaths> routePathId = VpnHelper.buildRoutePathId(rd, prefix, nextHop);
+        BgpUtil.delete(dataBroker, LogicalDatastoreType.CONFIGURATION, routePathId);
 
     }
 }

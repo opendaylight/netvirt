@@ -8,6 +8,7 @@
 package org.opendaylight.netvirt.cloudservicechain.utils;
 
 import com.google.common.base.Optional;
+
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -328,20 +329,23 @@ public class VpnServiceChainUtils {
      */
     public static void programLFibEntriesForSCF(IMdsalApiManager mdsalMgr, BigInteger dpId, List<VrfEntry> vrfEntries,
                                                 int lportTag, int addOrRemove) {
-        for (VrfEntry vrfEntry : vrfEntries) {
-            Long label = vrfEntry.getLabel();
-            for (String nexthop : vrfEntry.getNextHopAddressList()) {
-                FlowEntity flowEntity = buildLFibVpnPseudoPortFlow(dpId, label, nexthop, lportTag);
-                if (addOrRemove == NwConstants.ADD_FLOW) {
-                    mdsalMgr.installFlow(flowEntity);
-                } else {
-                    mdsalMgr.removeFlow(flowEntity);
-                }
-                LOG.debug("LFIB Entry for label={}, destination={}, nexthop={} {} successfully in dpn={}",
-                          label, vrfEntry.getDestPrefix(), vrfEntry.getNextHopAddressList(),
-                          addOrRemove == NwConstants.DEL_FLOW ? "removed" : "installed", dpId);
-            }
+        if (vrfEntries == null || vrfEntries.isEmpty()) {
+            return;
         }
+        vrfEntries.stream().forEach(vrfEntry -> vrfEntry.getRoutePaths().stream()
+                .forEach(routePath -> {
+                            Long label = routePath.getLabel();
+                            String nextHop = routePath.getNexthopAddress();
+                            FlowEntity flowEntity = buildLFibVpnPseudoPortFlow(dpId, label, nextHop, lportTag);
+                            if (addOrRemove == NwConstants.ADD_FLOW) {
+                                mdsalMgr.installFlow(flowEntity);
+                            } else {
+                                mdsalMgr.removeFlow(flowEntity);
+                            }
+                            LOG.debug("LFIB Entry for label={}, destination={}, nexthop={} {} successfully in dpn={}",
+                                    label, vrfEntry.getDestPrefix(), nextHop,
+                                    addOrRemove == NwConstants.DEL_FLOW ? "removed" : "installed", dpId);
+                        } ));
     }
 
     /**

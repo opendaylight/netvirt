@@ -10,6 +10,8 @@ package org.opendaylight.netvirt.cloudservicechain.listeners;
 import com.google.common.base.Optional;
 import java.math.BigInteger;
 import java.util.Collection;
+import java.util.List;
+
 import java.util.Collections;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.DataChangeListener;
@@ -23,6 +25,7 @@ import org.opendaylight.netvirt.cloudservicechain.utils.VpnServiceChainUtils;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.FibEntries;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.fibentries.VrfTables;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.VrfEntry;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.vrfentry.RoutePaths;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.VpnInstanceOpDataEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.vpn.instance.op.data.entry.VpnToDpnList;
 import org.opendaylight.yangtools.concepts.ListenerRegistration;
@@ -77,18 +80,20 @@ public class VrfListener extends AbstractDataChangeListener<VrfEntry> implements
 
     @Override
     protected void remove(InstanceIdentifier<VrfEntry> identifier, VrfEntry vrfEntryDeleted) {
-        LOG.debug("VrfEntry removed: id={}  vrfEntry=[ destination={}, nexthops=[{}],  label={} ]",
-                  identifier, vrfEntryDeleted.getDestPrefix(), vrfEntryDeleted.getNextHopAddressList(),
-                  vrfEntryDeleted.getLabel());
+        LOG.debug("VrfEntry removed: id={}  vrfEntry=[ destination={}, route-paths=[{}]]",
+                  identifier, vrfEntryDeleted.getDestPrefix(), vrfEntryDeleted.getRoutePaths());
         String vpnRd = identifier.firstKeyOf(VrfTables.class).getRouteDistinguisher();
         programLabelInAllVpnDpns(vpnRd, vrfEntryDeleted, NwConstants.DEL_FLOW);
     }
 
     @Override
     protected void update(InstanceIdentifier<VrfEntry> identifier, VrfEntry original, VrfEntry update) {
-        LOG.debug("VrfEntry updated: id={}  vrfEntry=[ destination={}, nexthops=[{}],  label={} ]",
-                  identifier, update.getDestPrefix(), update.getNextHopAddressList(), update.getLabel());
-        if ( original.getLabel() != update.getLabel() ) {
+        LOG.debug("VrfEntry updated: id={}  vrfEntry=[ destination={}, route-paths=[{}]]",
+                identifier, update.getDestPrefix(), update.getRoutePaths());
+        String vpnRd = identifier.firstKeyOf(VrfTables.class).getRouteDistinguisher();
+        List<RoutePaths> originalRoutes = original.getRoutePaths();
+        List<RoutePaths> updatedRoutes = update.getRoutePaths();
+        if (originalRoutes.size() != updatedRoutes.size()) {
             remove(identifier, original);
             add(identifier, update);
         }
@@ -96,9 +101,9 @@ public class VrfListener extends AbstractDataChangeListener<VrfEntry> implements
 
     @Override
     protected void add(InstanceIdentifier<VrfEntry> identifier, VrfEntry vrfEntryAdded) {
-        LOG.debug("VrfEntry added: id={}  vrfEntry=[ destination={}, nexthops=[{}],  label={} ]",
-                  identifier, vrfEntryAdded.getDestPrefix(), vrfEntryAdded.getNextHopAddressList(),
-                  vrfEntryAdded.getLabel());
+        LOG.debug("VrfEntry added: id={}  vrfEntry=[ destination={}, routes=[{}] ]",
+                identifier, vrfEntryAdded.getDestPrefix(), vrfEntryAdded.getRoutePaths());
+
         String vpnRd = identifier.firstKeyOf(VrfTables.class).getRouteDistinguisher();
         programLabelInAllVpnDpns(vpnRd, vrfEntryAdded, NwConstants.ADD_FLOW);
     }
