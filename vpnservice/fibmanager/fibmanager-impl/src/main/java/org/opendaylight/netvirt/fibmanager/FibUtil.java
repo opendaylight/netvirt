@@ -28,7 +28,12 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.IdManagerService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.ReleaseIdInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.ReleaseIdInputBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.ExtrarouteRoutedistinguishersMap;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.FibEntries;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.extraroute.routedistinguishers.map.ExtrarouteRoutedistingueshers;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.extraroute.routedistinguishers.map.ExtrarouteRoutedistingueshersKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.extraroute.routedistinguishers.map.extraroute.routedistingueshers.DestPrefixes;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.extraroute.routedistinguishers.map.extraroute.routedistingueshers.DestPrefixesKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.fibentries.VrfTables;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.fibentries.VrfTablesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.fibentries.VrfTablesKey;
@@ -43,6 +48,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.Adj
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.VpnIdToVpnInstance;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.VpnInstanceOpData;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.VpnInstanceToVpnId;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.VpnToExtraroutes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.adjacency.list.Adjacency;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.prefix.to._interface.vpn.ids.Prefixes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.id.to.vpn.instance.VpnIds;
@@ -50,6 +56,12 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.VpnInstanceOpDataEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.VpnInstanceOpDataEntryKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.vpn.instance.op.data.entry.VpnToDpnList;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.to.extraroutes.VpnExtraroutes;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.to.extraroutes.VpnExtraroutesKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.to.extraroutes.vpn.extraroutes.ExtraRoutes;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.to.extraroutes.vpn.extraroutes.ExtraRoutesKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.to.extraroutes.vpn.extraroutes.extra.routes.Routes;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.to.extraroutes.vpn.extraroutes.extra.routes.RoutesKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.netvirt.inter.vpn.link.rev160311.InterVpnLinkStates;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.netvirt.inter.vpn.link.rev160311.InterVpnLinks;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.netvirt.inter.vpn.link.rev160311.inter.vpn.link.states.InterVpnLinkState;
@@ -70,7 +82,7 @@ import com.google.common.util.concurrent.Futures;
 public class FibUtil {
     private static final Logger LOG = LoggerFactory.getLogger(FibUtil.class);
     public static <T extends DataObject> Optional<T> read(DataBroker broker, LogicalDatastoreType datastoreType,
-                                                          InstanceIdentifier<T> path) {
+            InstanceIdentifier<T> path) {
 
         ReadOnlyTransaction tx = broker.newReadOnlyTransaction();
 
@@ -85,14 +97,14 @@ public class FibUtil {
     }
 
     static <T extends DataObject> void asyncWrite(DataBroker broker, LogicalDatastoreType datastoreType,
-                                                  InstanceIdentifier<T> path, T data, FutureCallback<Void> callback) {
+            InstanceIdentifier<T> path, T data, FutureCallback<Void> callback) {
         WriteTransaction tx = broker.newWriteOnlyTransaction();
         tx.merge(datastoreType, path, data, true);
         Futures.addCallback(tx.submit(), callback);
     }
 
     static <T extends DataObject> void syncWrite(DataBroker broker, LogicalDatastoreType datastoreType,
-                                                 InstanceIdentifier<T> path, T data, FutureCallback<Void> callback) {
+            InstanceIdentifier<T> path, T data, FutureCallback<Void> callback) {
         WriteTransaction tx = broker.newWriteOnlyTransaction();
         tx.put(datastoreType, path, data, true);
         CheckedFuture<Void, TransactionCommitFailedException> futures = tx.submit();
@@ -127,7 +139,7 @@ public class FibUtil {
         return InstanceIdentifier.builder(org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.PrefixToInterface.class)
                 .child(org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.prefix.to._interface
                         .VpnIds.class, new org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.prefix.to._interface.VpnIdsKey(vpnId)).child(org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.prefix.to._interface.vpn.ids.Prefixes.class,
-                        new org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.prefix.to._interface.vpn.ids.PrefixesKey(ipPrefix)).build();
+                                new org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.prefix.to._interface.vpn.ids.PrefixesKey(ipPrefix)).build();
     }
 
     static InstanceIdentifier<VpnInterface> getVpnInterfaceIdentifier(String vpnInterfaceName) {
@@ -141,13 +153,10 @@ public class FibUtil {
                 .child(org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.vpn.instance.op.data.entry.VpnToDpnList.class, new org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.vpn.instance.op.data.entry.VpnToDpnListKey(dpnId)).build();
     }
 
-    static InstanceIdentifier<org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.to.extraroute.vpn.Extraroute> getVpnToExtrarouteIdentifier(String vrfId, String ipPrefix) {
-        return InstanceIdentifier.builder(org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.VpnToExtraroute.class)
-                .child(org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.to.extraroute.Vpn
-                        .class, new org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.to
-                        .extraroute.VpnKey(vrfId)).child(org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn
-                        .rev130911.vpn.to.extraroute.vpn.Extraroute.class,
-                        new org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.to.extraroute.vpn.ExtrarouteKey(ipPrefix)).build();
+    static InstanceIdentifier<Routes> getVpnToExtrarouteIdentifier(String vpnName, String vrfId, String ipPrefix) {
+        return InstanceIdentifier.builder(VpnToExtraroutes.class).child(VpnExtraroutes.class,
+                new VpnExtraroutesKey(vpnName)).child(ExtraRoutes.class, new ExtraRoutesKey(vrfId))
+                .child(Routes.class, new RoutesKey(ipPrefix)).build();
     }
 
     static InstanceIdentifier<VpnInstanceOpDataEntry> getVpnInstanceOpDataIdentifier(String rd) {
@@ -199,13 +208,10 @@ public class FibUtil {
 
     public static long getVpnId(DataBroker broker, String vpnName) {
 
-        InstanceIdentifier<org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.to.vpn.id
-                .VpnInstance> id
-                = getVpnInstanceToVpnIdIdentifier(vpnName);
-        Optional<org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.to.vpn.id
-                .VpnInstance> vpnInstance
-                = read(broker, LogicalDatastoreType.CONFIGURATION, id);
-
+        InstanceIdentifier<org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.to.vpn.id.VpnInstance>
+        id = getVpnInstanceToVpnIdIdentifier(vpnName);
+        Optional<org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.to.vpn.id.VpnInstance>
+        vpnInstance = read(broker, LogicalDatastoreType.CONFIGURATION, id);
         long vpnId = -1;
         if(vpnInstance.isPresent()) {
             vpnId = vpnInstance.get().getVpnId();
@@ -230,10 +236,10 @@ public class FibUtil {
         InstanceIdentifier<InterVpnLinks> interVpnLinksIid = InstanceIdentifier.builder(InterVpnLinks.class).build();
 
         Optional<InterVpnLinks> interVpnLinksOpData = MDSALUtil.read(broker, LogicalDatastoreType.CONFIGURATION,
-                                                                     interVpnLinksIid);
+                interVpnLinksIid);
 
         return interVpnLinksOpData.isPresent() ? interVpnLinksOpData.get().getInterVpnLink()
-                                               : new ArrayList<>();
+                : new ArrayList<>();
     }
 
     /**
@@ -377,11 +383,11 @@ public class FibUtil {
      */
     public static String getVpnRd(DataBroker broker, String vpnName) {
         InstanceIdentifier<org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.to.vpn.id
-                .VpnInstance> id
-                = getVpnInstanceToVpnIdIdentifier(vpnName);
+        .VpnInstance> id
+        = getVpnInstanceToVpnIdIdentifier(vpnName);
         Optional<org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.to.vpn.id
-                .VpnInstance> vpnInstance
-                = read(broker, LogicalDatastoreType.CONFIGURATION, id);
+        .VpnInstance> vpnInstance
+        = read(broker, LogicalDatastoreType.CONFIGURATION, id);
 
         String rd = null;
         if(vpnInstance.isPresent()) {
@@ -427,23 +433,23 @@ public class FibUtil {
 
     static final FutureCallback<Void> DEFAULT_CALLBACK =
             new FutureCallback<Void>() {
-                @Override
-                public void onSuccess(Void result) {
-                    LOG.debug("Success in Datastore operation");
-                }
+        @Override
+        public void onSuccess(Void result) {
+            LOG.debug("Success in Datastore operation");
+        }
 
-                @Override
-                public void onFailure(Throwable error) {
-                    LOG.error("Error in Datastore operation", error);
-                };
-            };
+        @Override
+        public void onFailure(Throwable error) {
+            LOG.error("Error in Datastore operation", error);
+        };
+    };
 
     public static String getVpnNameFromId(DataBroker broker, long vpnId) {
 
         InstanceIdentifier<VpnIds> id
-                = getVpnIdToVpnInstanceIdentifier(vpnId);
+        = getVpnIdToVpnInstanceIdentifier(vpnId);
         Optional<VpnIds> vpnInstance
-                = read(broker, LogicalDatastoreType.CONFIGURATION, id);
+        = read(broker, LogicalDatastoreType.CONFIGURATION, id);
 
         String vpnName = null;
         if (vpnInstance.isPresent()) {
@@ -459,7 +465,7 @@ public class FibUtil {
     }
 
     public static <T extends DataObject> void syncUpdate(DataBroker broker, LogicalDatastoreType datastoreType,
-                                                         InstanceIdentifier<T> path, T data) {
+            InstanceIdentifier<T> path, T data) {
         WriteTransaction tx = broker.newWriteOnlyTransaction();
         tx.put(datastoreType, path, data, true);
         CheckedFuture<Void, TransactionCommitFailedException> futures = tx.submit();
@@ -471,7 +477,7 @@ public class FibUtil {
         }
     }
     public static void addOrUpdateFibEntry(DataBroker broker, String rd, String prefix, List<NexthopAddresses> nextHopList,
-                                           int label, RouteOrigin origin, WriteTransaction writeConfigTxn) {
+            int label, RouteOrigin origin, WriteTransaction writeConfigTxn) {
         if (rd == null || rd.isEmpty() ) {
             LOG.error("Prefix {} not associated with vpn", prefix);
             return;
@@ -482,8 +488,8 @@ public class FibUtil {
         try{
             InstanceIdentifier<VrfEntry> vrfEntryId =
                     InstanceIdentifier.builder(FibEntries.class)
-                            .child(VrfTables.class, new VrfTablesKey(rd))
-                            .child(VrfEntry.class, new VrfEntryKey(prefix)).build();
+                    .child(VrfTables.class, new VrfTablesKey(rd))
+                    .child(VrfEntry.class, new VrfEntryKey(prefix)).build();
             Optional<VrfEntry> entry = MDSALUtil.read(broker, LogicalDatastoreType.CONFIGURATION, vrfEntryId);
 
             if (! entry.isPresent()) {
@@ -560,14 +566,14 @@ public class FibUtil {
      *           If null or empty, then the whole VrfEntry is removed
      */
     public static void removeOrUpdateFibEntry(DataBroker broker, String rd, String prefix, String nextHopToRemove,
-                                              WriteTransaction writeConfigTxn) {
+            WriteTransaction writeConfigTxn) {
 
         LOG.debug("Removing fib entry with destination prefix {} from vrf table for rd {}", prefix, rd);
 
         // Looking for existing prefix in MDSAL database
         InstanceIdentifier<VrfEntry> vrfEntryId =
                 InstanceIdentifier.builder(FibEntries.class).child(VrfTables.class, new VrfTablesKey(rd))
-                        .child(VrfEntry.class, new VrfEntryKey(prefix)).build();
+                .child(VrfEntry.class, new VrfEntryKey(prefix)).build();
         Optional<VrfEntry> entry = MDSALUtil.read(broker, LogicalDatastoreType.CONFIGURATION, vrfEntryId);
 
         if ( entry.isPresent() ) {
@@ -619,14 +625,14 @@ public class FibUtil {
     }
 
     public static void updateFibEntry(DataBroker broker, String rd, String prefix, List<NexthopAddresses> nextHopList, long label,
-                                      WriteTransaction writeConfigTxn) {
+            WriteTransaction writeConfigTxn) {
 
         LOG.debug("Updating fib entry for prefix {} with nextHopList {} for rd {}", prefix, nextHopList, rd);
 
         // Looking for existing prefix in MDSAL database
         InstanceIdentifier<RoutePaths> routePathId =
                 InstanceIdentifier.builder(FibEntries.class).child(VrfTables.class, new VrfTablesKey(rd))
-                        .child(VrfEntry.class, new VrfEntryKey(prefix)).child(RoutePaths.class, new RoutePathsKey(label)).build();
+                .child(VrfEntry.class, new VrfEntryKey(prefix)).child(RoutePaths.class, new RoutePathsKey(label)).build();
         Optional<RoutePaths> entry = MDSALUtil.read(broker, LogicalDatastoreType.CONFIGURATION, routePathId);
 
         if ( entry.isPresent() ) {
@@ -634,7 +640,7 @@ public class FibUtil {
             // TODO [KK] : Will this affect the DCNs since we write directly the routePath?
             RoutePaths routePaths =
                     new RoutePathsBuilder(entry.get()).setNexthopAddresses(nextHopList)
-                            .setKey(new RoutePathsKey(label)).build();
+                    .setKey(new RoutePathsKey(label)).build();
             if(nextHopList.isEmpty()) {
                 if (writeConfigTxn != null) {
                     writeConfigTxn.put(LogicalDatastoreType.CONFIGURATION, routePathId, routePaths, true);
@@ -703,5 +709,17 @@ public class FibUtil {
 
     public static String getJobKey(String tunnelInterfaceName) {
         return new StringBuilder().append(FibConstants.JOB_KEY_PREFIX).append(tunnelInterfaceName).toString();
+    }
+
+    static  List<String> getUsedRds(DataBroker broker, long vpnId, String destPrefix) {
+        InstanceIdentifier<DestPrefixes> usedRdsId = getUsedRdsIdentifier(vpnId, destPrefix);
+        Optional<DestPrefixes> vpnOpc = read(broker, LogicalDatastoreType.OPERATIONAL, usedRdsId);
+        return vpnOpc.isPresent() ? vpnOpc.get().getRouteDistinguishers() : new ArrayList<String>();
+    }
+
+    static  InstanceIdentifier<DestPrefixes> getUsedRdsIdentifier(long vpnId, String destPrefix) {
+        return InstanceIdentifier.builder(ExtrarouteRoutedistinguishersMap.class)
+        .child(ExtrarouteRoutedistingueshers.class, new ExtrarouteRoutedistingueshersKey(vpnId)).child(DestPrefixes.class,
+                new DestPrefixesKey(destPrefix)).build();
     }
 }

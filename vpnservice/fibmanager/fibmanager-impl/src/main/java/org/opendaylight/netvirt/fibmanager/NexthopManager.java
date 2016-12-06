@@ -85,6 +85,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rev
 
 import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
@@ -108,15 +109,15 @@ public class NexthopManager implements AutoCloseable {
 
     private static final FutureCallback<Void> DEFAULT_CALLBACK =
             new FutureCallback<Void>() {
-                @Override
-                public void onSuccess(Void result) {
-                    LOG.debug("Success in Datastore write operation");
-                }
-                @Override
-                public void onFailure(Throwable error) {
-                    LOG.error("Error in Datastore write operation", error);
-                };
-            };
+        @Override
+        public void onSuccess(Void result) {
+            LOG.debug("Success in Datastore write operation");
+        }
+        @Override
+        public void onFailure(Throwable error) {
+            LOG.error("Error in Datastore write operation", error);
+        };
+    };
 
     /**
      * Provides nexthop functions
@@ -129,11 +130,11 @@ public class NexthopManager implements AutoCloseable {
      * @param itmManager - itmManager reference
      */
     public NexthopManager(final DataBroker dataBroker,
-                          final IMdsalApiManager mdsalApiManager,
-                          final IdManagerService idManager,
-                          final OdlInterfaceRpcService interfaceManager,
-                          final ItmRpcService itmManager,
-                          final IElanService elanService) {
+            final IMdsalApiManager mdsalApiManager,
+            final IdManagerService idManager,
+            final OdlInterfaceRpcService interfaceManager,
+            final ItmRpcService itmManager,
+            final IElanService elanService) {
         this.dataBroker = dataBroker;
         this.mdsalApiManager = mdsalApiManager;
         this.idManager = idManager;
@@ -240,14 +241,14 @@ public class NexthopManager implements AutoCloseable {
                     } else if (actionClass instanceof NxActionResubmitRpcAddGroupCase) {
                         Short tableId = ((NxActionResubmitRpcAddGroupCase)actionClass).getNxResubmit().getTable();
                         listActionInfo.add(new ActionInfo(ActionType.nx_resubmit,
-                            new String[] { tableId.toString() }, action.getKey().getOrder() + 1));
+                                new String[] { tableId.toString() }, action.getKey().getOrder() + 1));
                     } else if (actionClass instanceof NxActionRegLoadNodesNodeTableFlowApplyActionsCase) {
                         NxRegLoad nxRegLoad =
-                            ((NxActionRegLoadNodesNodeTableFlowApplyActionsCase)actionClass).getNxRegLoad();
+                                ((NxActionRegLoadNodesNodeTableFlowApplyActionsCase)actionClass).getNxRegLoad();
                         listActionInfo.add(new ActionInfo(ActionType.nx_load_reg_6,
-                            new String[] { nxRegLoad.getDst().getStart().toString(),
-                                nxRegLoad.getDst().getEnd().toString(),
-                                nxRegLoad.getValue().toString(10)}, action.getKey().getOrder() + 1));
+                                new String[] { nxRegLoad.getDst().getStart().toString(),
+                                        nxRegLoad.getDst().getEnd().toString(),
+                                        nxRegLoad.getValue().toString(10)}, action.getKey().getOrder() + 1));
                     }
                 }
             }
@@ -300,7 +301,7 @@ public class NexthopManager implements AutoCloseable {
     }
 
     public long createLocalNextHop(long vpnId, BigInteger dpnId,
-                                   String ifName, String ipNextHopAddress, String ipPrefixAddress) {
+            String ifName, String ipNextHopAddress, String ipPrefixAddress) {
         String macAddress = FibUtil.getMacAddressFromPrefix(dataBroker, ifName, ipPrefixAddress);
         String ipAddress = (macAddress != null) ? ipPrefixAddress: ipNextHopAddress;
 
@@ -324,7 +325,7 @@ public class NexthopManager implements AutoCloseable {
                 if (macAddress != null) {
                     int actionKey = listActionInfo.size();
                     listActionInfo.add(new ActionInfo(ActionType.set_field_eth_dest,
-                        new String[]{macAddress}, actionKey));
+                            new String[]{macAddress}, actionKey));
                     //listActionInfo.add(0, new ActionInfo(ActionType.pop_mpls, new String[]{}));
                 } else {
                     //FIXME: Log message here.
@@ -456,6 +457,14 @@ public class NexthopManager implements AutoCloseable {
         syncDelete(LogicalDatastoreType.OPERATIONAL, id);
     }
 
+    public void removeLoadBalancingNextHop(BigInteger dpnId, Long vpnId, String ipNextHopAddress, String ipPrefixAddress ) {
+        long groupId = createNextHopPointer(getNextHopKey(vpnId, ipPrefixAddress));
+        GroupEntity groupEntity = MDSALUtil.buildGroupEntity(
+                dpnId, groupId, ipPrefixAddress, GroupTypes.GroupSelect, null);
+        // remove Group ...
+        mdsalApiManager.removeGroup(groupEntity);
+        }
+
     public void removeLocalNextHop(BigInteger dpnId, Long vpnId, String ipNextHopAddress, String ipPrefixAddress ) {
         String ipPrefixStr = new String(vpnId + ipPrefixAddress);
         VpnNexthop prefixNh = null;
@@ -495,7 +504,7 @@ public class NexthopManager implements AutoCloseable {
 
 
     private <T extends DataObject> Optional<T> read(LogicalDatastoreType datastoreType,
-                                                    InstanceIdentifier<T> path) {
+            InstanceIdentifier<T> path) {
 
         ReadOnlyTransaction tx = dataBroker.newReadOnlyTransaction();
 
@@ -510,16 +519,16 @@ public class NexthopManager implements AutoCloseable {
     }
 
     private <T extends DataObject> void asyncWrite(LogicalDatastoreType datastoreType,
-                                                   InstanceIdentifier<T> path, T data,
-                                                   FutureCallback<Void> callback) {
+            InstanceIdentifier<T> path, T data,
+            FutureCallback<Void> callback) {
         WriteTransaction tx = dataBroker.newWriteOnlyTransaction();
         tx.merge(datastoreType, path, data, true);
         Futures.addCallback(tx.submit(), callback);
     }
 
     private <T extends DataObject> void syncWrite(LogicalDatastoreType datastoreType,
-                                                  InstanceIdentifier<T> path, T data,
-                                                  FutureCallback<Void> callback) {
+            InstanceIdentifier<T> path, T data,
+            FutureCallback<Void> callback) {
         WriteTransaction tx = dataBroker.newWriteOnlyTransaction();
         tx.merge(datastoreType, path, data, true);
         CheckedFuture<Void, TransactionCommitFailedException> futures = tx.submit();
@@ -583,9 +592,9 @@ public class NexthopManager implements AutoCloseable {
     public String getReqTransType() {
         if (configuredTransportTypeL3VPN == L3VPNTransportTypes.Invalid) {
             /*
-            * Restart scenario, Read from the ConfigDS.
-            * if the value is Unset, cache value as VxLAN.
-            */
+             * Restart scenario, Read from the ConfigDS.
+             * if the value is Unset, cache value as VxLAN.
+             */
             LOG.trace("configureTransportType is not yet set.");
             Optional<ConfTransportTypeL3vpn>  configuredTransTypeFromConfig =
                     FibUtil.read(dataBroker, LogicalDatastoreType.CONFIGURATION, getConfTransportTypeIdentifier());
@@ -658,7 +667,7 @@ public class NexthopManager implements AutoCloseable {
                 // here use the config for tunnel type param
                 return getTunnelInterfaceName(remoteDpnId,
                         org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddressBuilder
-                                .getDefaultInstance(nextHopIp));
+                        .getDefaultInstance(nextHopIp));
             } catch (Exception ex) {
                 LOG.error("Error while retrieving nexthop pointer for nexthop {} : ", nextHopIp, ex);
             }
@@ -745,5 +754,26 @@ public class NexthopManager implements AutoCloseable {
             }
             return result;
         }
+    }
+
+    public long createLoadBalancingNextHop(Long parentVpnId, BigInteger dpnId,
+            String destPrefix, List<BucketInfo> listBucketInfo) {
+        long groupId = createNextHopPointer(getNextHopKey(parentVpnId, destPrefix));
+        if (groupId == 0) {
+            LOG.error("Unable to allocate groupId for vpnId {} , prefix {}", parentVpnId, destPrefix);
+            return groupId;
+        }
+        GroupEntity groupEntity = MDSALUtil.buildGroupEntity(
+                dpnId, groupId, destPrefix, GroupTypes.GroupSelect, listBucketInfo);
+        // install Group
+        mdsalApiManager.syncInstallGroup(groupEntity, FIXED_DELAY_IN_MILLISECONDS);
+        try {
+            LOG.info("Sleeping for {} to wait for the groups to get programmed.", waitTimeForSyncInstall);
+            Thread.sleep(waitTimeForSyncInstall);
+        } catch(InterruptedException error) {
+            LOG.warn("Error while waiting for group {} to install.", groupId);
+            LOG.debug("{}", error);
+        }
+        return groupId;
     }
 }
