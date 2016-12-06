@@ -16,6 +16,24 @@
       "revId": "d22c790f4030aaf1d5a74e9bf6062a838e122d21",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_f8216eb5",
+        "filename": "vpnservice/it/impl/src/test/java/org/opendaylight/netvirt/it/NetvirtIT.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 512,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2016-12-06T13:46:38Z",
+      "side": 1,
+      "message": "This is a little different now. Now we use transparent mode in the jenkins so this passes. But we still don\u0027t have kernel modules loaded in jenkins. You can leave this for now and we can reword it in another patch. We probably should have a javadocs comments at the beginning of the file to describe all the nuances of the tests.",
+      "parentUuid": "1a622d24_18026a3e",
+      "revId": "d22c790f4030aaf1d5a74e9bf6062a838e122d21",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
