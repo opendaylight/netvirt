@@ -22,6 +22,30 @@
       "revId": "f74fab15667a9d1e22b861cd329810da6036c5a4",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_d399f56f",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NaptEventHandler.java",
+        "patchSetId": 12
+      },
+      "lineNbr": 240,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2016-12-06T15:47:22Z",
+      "side": 1,
+      "message": "Why? when there is no traffic we end up with outbound NATP rule expiring after 5min and the matching inbound NAPT rule left in T44. Is there a use case that can benefit from this asymmetric pipeline?",
+      "parentUuid": "1a622d24_b3f8b9e6",
+      "range": {
+        "startLine": 240,
+        "startChar": 8,
+        "endLine": 240,
+        "endChar": 65
+      },
+      "revId": "f74fab15667a9d1e22b861cd329810da6036c5a4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
