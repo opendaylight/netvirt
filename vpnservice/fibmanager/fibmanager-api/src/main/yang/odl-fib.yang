@@ -16,19 +16,12 @@ module odl-fib {
         }
     }
 
-    grouping vrfEntries{
+    grouping vrfEntries {
         list vrfEntry{
             key  "destPrefix";
             leaf destPrefix {
                 type string;
                 mandatory true;
-            }
-            leaf label {
-                type uint32;
-            }
-            leaf-list nextHopAddressList {
-                type string;
-                min-elements "1";
             }
             leaf origin {
                 type string;
@@ -60,6 +53,16 @@ module odl-fib {
                type string;
             }
 
+            list route-paths {
+                key "nexthop-address";
+                leaf nexthop-address {
+                    type string;
+                    mandatory true;
+                }
+                leaf label {
+                    type uint32;
+                }
+            }
         }
     }
 

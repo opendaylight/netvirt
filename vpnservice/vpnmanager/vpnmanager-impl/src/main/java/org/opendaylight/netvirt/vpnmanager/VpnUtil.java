@@ -91,6 +91,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev15033
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.fibentries.VrfTablesKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.VrfEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.VrfEntryKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.vrfentry.RoutePaths;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3nexthop.rev150409.L3nexthop;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3nexthop.rev150409.l3nexthop.VpnNexthops;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3nexthop.rev150409.l3nexthop.VpnNexthopsKey;
@@ -580,8 +581,10 @@ public class VpnUtil {
         if (vrfTablesOpc.isPresent()) {
             VrfTables vrfTables = vrfTablesOpc.get();
             for (VrfEntry vrfEntry : vrfTables.getVrfEntry()) {
-                if (vrfEntry.getNextHopAddressList() != null && vrfEntry.getNextHopAddressList().contains(nexthop)) {
-                    matches.add(vrfEntry);
+                for (RoutePaths routePath : vrfEntry.getRoutePaths()) {
+                    if (routePath.getNexthopAddress() != null && routePath.getNexthopAddress().equals(nexthop)) {
+                        matches.add(vrfEntry);
+                    }
                 }
             }
         }
@@ -605,8 +608,8 @@ public class VpnUtil {
             try {
                 bgpManager.withdrawPrefix(rd, vrfEntry.getDestPrefix());
             } catch (Exception e) {
-                LOG.error("Could not withdraw route to {} with nextHop {} in VpnRd {}",
-                          vrfEntry.getDestPrefix(), vrfEntry.getNextHopAddressList(), rd);
+                LOG.error("Could not withdraw route to {} with route-paths {} in VpnRd {}",
+                          vrfEntry.getDestPrefix(), vrfEntry.getRoutePaths(), rd);
             }
         });
     }

@@ -8,9 +8,12 @@
 package org.opendaylight.netvirt.fibmanager;
 
 import com.google.common.util.concurrent.FutureCallback;
+
 import io.netty.util.concurrent.GlobalEventExecutor;
+
 import java.math.BigInteger;
 import java.util.List;
+
 import org.opendaylight.controller.config.api.osgi.WaitingServiceTracker;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
@@ -170,9 +173,9 @@ public class FibManagerImpl implements IFibManager {
         FibUtil.removeFibEntry(broker, rd, prefix, writeConfigTxn);
     }
 
-    public void updateFibEntry(DataBroker broker, String rd, String prefix, List<String> nextHopList,
+    public void updateFibEntry(DataBroker broker, String rd, String prefix, List<String> nextHopList, long label,
                                WriteTransaction writeConfigTxn) {
-        FibUtil.updateFibEntry(broker, rd, prefix, nextHopList, writeConfigTxn);
+        FibUtil.updateFibEntry(broker, rd, prefix, nextHopList, label, writeConfigTxn);
     }
 
     @Override
