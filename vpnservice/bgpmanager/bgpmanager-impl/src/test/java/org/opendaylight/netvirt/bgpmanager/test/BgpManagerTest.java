@@ -7,20 +7,20 @@
  */
 package org.opendaylight.netvirt.bgpmanager.test;
 
+import static org.junit.Assert.assertEquals;
+
 import java.util.Arrays;
 import java.util.List;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-
 import org.mockito.runners.MockitoJUnitRunner;
-import org.opendaylight.netvirt.bgpmanager.BgpUtil;
-import org.opendaylight.netvirt.bgpmanager.FibDSWriter;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.test.AbstractDataBrokerTest;
+import org.opendaylight.netvirt.bgpmanager.BgpUtil;
+import org.opendaylight.netvirt.bgpmanager.FibDSWriter;
 import org.opendaylight.netvirt.fibmanager.api.RouteOrigin;
-
-import static org.junit.Assert.assertEquals;
 
 @RunWith(MockitoJUnitRunner.class)
 

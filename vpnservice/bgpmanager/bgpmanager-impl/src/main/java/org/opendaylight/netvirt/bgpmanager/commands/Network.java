@@ -8,6 +8,8 @@
 
 package org.opendaylight.netvirt.bgpmanager.commands;
 
+import java.util.List;
+
 import org.apache.karaf.shell.commands.Argument;
 import org.apache.karaf.shell.commands.Command;
 import org.apache.karaf.shell.commands.Option;
@@ -17,8 +19,6 @@ import org.opendaylight.netvirt.bgpmanager.thrift.gen.qbgpConstants;
 import org.opendaylight.netvirt.fibmanager.api.RouteOrigin;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.List;
 
 @Command(scope = "odl", name = "bgp-network",
          description = "Add or delete BGP static routes")
