@@ -8,7 +8,9 @@
 package org.opendaylight.netvirt.bgpmanager;
 
 import com.google.common.base.Optional;
+
 import io.netty.util.concurrent.GlobalEventExecutor;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
@@ -34,6 +36,7 @@ import java.util.concurrent.Future;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicBoolean;
+
 import org.opendaylight.controller.config.api.osgi.WaitingServiceTracker;
 import org.opendaylight.controller.md.sal.binding.api.ClusteredDataTreeChangeListener;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
@@ -89,6 +92,7 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.FibEntries;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.fibentries.VrfTables;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.VrfEntry;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.vrfentry.RoutePaths;
 import org.opendaylight.yangtools.concepts.ListenerRegistration;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
@@ -96,7 +100,9 @@ import org.opendaylight.genius.utils.batching.DefaultBatchHandler;
 import org.osgi.framework.BundleContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import java.util.concurrent.atomic.AtomicInteger;
+
 import org.opendaylight.yangtools.yang.binding.DataObject;
 
 public class BgpConfigurationManager {
@@ -186,7 +192,7 @@ public class BgpConfigurationManager {
     private static String cPortStartup;
     private static CountDownLatch initer = new CountDownLatch(1);
     //static IITMProvider itmProvider;
-    //map<rd, map<prefix/len, nexthop/label>>
+    //map<rd, map<prefix/len:label, nexthop>>
     private static Map<String, Map<String, String>> staledFibEntriesMap = new ConcurrentHashMap<>();
 
     static final String BGP_ENTITY_TYPE_FOR_OWNERSHIP = "bgp";
@@ -1500,7 +1506,6 @@ public class BgpConfigurationManager {
             Iterator<Update> updates = routes.getUpdatesIterator();
             while (updates.hasNext()) {
                 Update u = updates.next();
-                Map<String, Map<String, String>> stale_fib_rd_map = BgpConfigurationManager.getStaledFibEntriesMap();
                 String rd = u.getRd();
                 String nexthop = u.getNexthop();
                 int label = u.getLabel();
@@ -1532,17 +1537,13 @@ public class BgpConfigurationManager {
             // restart Scenario, as MAP is not empty.
             Map<String, String> map = stale_fib_rd_map.get(rd);
             if (map != null) {
-                String nexthoplabel = map.get(prefix + "/" + plen);
-                if (null == nexthoplabel) {
+                String prefixLabel = appendLabelToPrefix(prefix + "/" + plen, label);
+                String nexthop = map.get(prefixLabel);
+                if (null == nexthop) {
                     // New Entry, which happened to be added during restart.
                     addroute = true;
                 } else {
-                    map.remove(prefix + "/" + plen);
-                    if (isRouteModified(nextHop, label, nexthoplabel)) {
-                        LOG.debug("Route add ** {} ** {}/{} ** {} ** {} ", rd, prefix, plen, nextHop, label);
-                        // Existing entry, where in Nexthop/Label got modified during restart
-                        addroute = true;
-                    }
+                    map.remove(prefixLabel);
                 }
             }
         } else {
@@ -1554,10 +1555,6 @@ public class BgpConfigurationManager {
             fibDSWriter.addFibEntryToDS(rd, prefix + "/" + plen, Arrays.asList(nextHop), label, RouteOrigin.BGP);
             LOG.info("ADD: Added Fib entry rd {} prefix {} nexthop {} label {}", rd, prefix, nextHop, label);
         }
-    }
-
-    private static boolean isRouteModified(String nexthop, int label, String nexthoplabel) {
-        return !nexthoplabel.isEmpty() && !nexthoplabel.equals(nexthop + "/" + label);
     }
 
     static private void replayNbrConfig(List<Neighbors> n, BgpRouter br) {
@@ -1872,8 +1869,8 @@ public class BgpConfigurationManager {
     }
 
     public synchronized void
-    addPrefix(String rd, String pfx, List<String> nhList, int lbl) {
-        for (String nh : nhList) {
+    addPrefix(String rd, String pfx, List<String> nextHopList, int lbl) {
+        for (String nh : nextHopList) {
             Ipv4Address nexthop = new Ipv4Address(nh);
             Long label = (long) lbl;
             InstanceIdentifier<Networks> iid = InstanceIdentifier.builder(Bgp.class)
@@ -2003,16 +2000,18 @@ public class BgpConfigurationManager {
                         }
                         Map<String, String> map = staledFibEntriesMap.get(rd);
                         if (map != null) {
-                            for (String prefix : map.keySet()) {
+                            for (String key : map.keySet()) {
                                 if (Thread.interrupted()) {
                                     return 0;
                                 }
+                                String prefix = extractPrefix(key);
+                                long label = extractLabel(key);
                                 try {
                                     totalCleared++;
-                                    LOG.debug("BGP: RouteCleanup deletePrefix called for : rd:{}, prefix{}" + rd.toString() + prefix);
-                                    fibDSWriter.removeFibEntryFromDS(rd, prefix);
+                                    LOG.debug("BGP: RouteCleanup deletePrefix called for : rd:{}, prefix:{}, label:{}", rd.toString(), prefix, label);
+                                    fibDSWriter.removeFibEntryFromDS(rd, prefix, label);
                                 } catch (Exception e) {
-                                    LOG.error("BGP: RouteCleanup deletePrefix failed rd:{}, prefix{}" + rd.toString() + prefix);
+                                    LOG.error("BGP: RouteCleanup deletePrefix failed rd:{}, prefix:{}, label:{}", rd.toString(), prefix, label);
                                 }
                             }
                         }
@@ -2071,8 +2070,8 @@ public class BgpConfigurationManager {
                         }
                         totalStaledCount++;
                         //Create MAP from stale_vrfTables.
-                        for (String nextHop : vrfEntry.getNextHopAddressList()) {
-                            stale_fib_ent_map.put(vrfEntry.getDestPrefix(), nextHop + "/" + vrfEntry.getLabel());
+                        for (RoutePaths routes : vrfEntry.getRoutePaths()) {
+                            stale_fib_ent_map.put(appendLabelToPrefix(vrfEntry.getDestPrefix(), routes.getLabel()), routes.getNexthopAddressList().get(0));
                         }
                     }
                     staledFibEntriesMap.put(vrfTable.getRouteDistinguisher(), stale_fib_ent_map);
@@ -2086,8 +2085,8 @@ public class BgpConfigurationManager {
         LOG.error("created {} staled entries ", totalStaledCount);
     }
 
-    //map<rd, map<prefix/len, nexthop/label>>
-    public static Map<String, Map<String, String>> getStaledFibEntriesMap() {
+    //map<rd, map<prefix/len:label, nexthop>>
+    private static Map<String, Map<String, String>> getStaledFibEntriesMap() {
         return staledFibEntriesMap;
     }
 
@@ -2191,4 +2190,15 @@ public class BgpConfigurationManager {
         return bgpAlarms;
     }
 
+    private static String appendLabelToPrefix(String prefix, long routeLabel) {
+        return prefix + ":" + routeLabel;
+    }
+
+    private static String extractPrefix(String prefixLabel) {
+        return prefixLabel.split(":")[0];
+    }
+
+    private static long extractLabel(String prefixLabel) {
+        return Long.valueOf(prefixLabel.split(":")[1]);
+    }
 }
