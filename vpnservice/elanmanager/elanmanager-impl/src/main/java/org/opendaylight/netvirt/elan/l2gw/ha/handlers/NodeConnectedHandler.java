@@ -14,7 +14,6 @@ import com.google.common.base.Optional;
 import com.google.common.collect.Sets;
 import java.util.List;
 import java.util.Set;
-import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
@@ -94,17 +93,19 @@ public class NodeConnectedHandler {
                  as it is expecting the logical switch to be already present in operational ds
                  (created in the device )
                  */
-                HAJobScheduler.getInstance().submitJob(new Callable<Void>() {
-                    @Override
-                    public Void call() throws InterruptedException, ExecutionException, ReadFailedException,
-                            TransactionCommitFailedException {
-                        hwvtepHACache.updateConnectedNodeStatus(childNodePath);
-                        LOG.info("HA child reconnected handleNodeReConnected {}",
-                                childNode.getNodeId().getValue());
-                        ReadWriteTransaction tx = db.newReadWriteTransaction();
-                        copyHAPSConfigToChildPS(haPSCfg.get(), childNodePath, tx);
-                        tx.submit().checkedGet();
-                        return null;
+                HAJobScheduler.getInstance().submitJob(new Runnable() {
+                    public void run() {
+                        try {
+                            hwvtepHACache.updateConnectedNodeStatus(childNodePath);
+                            LOG.info("HA child reconnected handleNodeReConnected {}",
+                                    childNode.getNodeId().getValue());
+                            ReadWriteTransaction tx = db.newReadWriteTransaction();
+                            copyHAPSConfigToChildPS(haPSCfg.get(), childNodePath, tx);
+                            tx.submit().checkedGet();
+                        } catch (InterruptedException | ExecutionException | ReadFailedException
+                                | TransactionCommitFailedException e) {
+                            LOG.error("Failed to process ", e);
+                        }
                     }
                 });
 

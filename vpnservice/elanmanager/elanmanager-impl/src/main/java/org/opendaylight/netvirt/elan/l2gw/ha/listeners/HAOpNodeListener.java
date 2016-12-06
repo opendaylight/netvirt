@@ -19,7 +19,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.DataTreeChangeListener;
@@ -253,15 +252,17 @@ public class HAOpNodeListener extends HwvtepNodeBaseListener implements DataTree
     void handleNodeConnected(final InstanceIdentifier<Node> childPath,
                              final Node childNode,
                              final InstanceIdentifier<Node> haNodePath) {
-        HAJobScheduler.getInstance().submitJob(new Callable<Void>() {
-            @Override
-            public Void call() throws InterruptedException, ExecutionException, ReadFailedException,
-                    TransactionCommitFailedException {
-                LOG.info("Ha child connected handleNodeConnected {}", childNode.getNodeId().getValue());
-                ReadWriteTransaction tx = getTx();
-                haEventHandler.handleChildNodeConnected(childNode, childPath, haNodePath, tx);
-                tx.submit().checkedGet();
-                return null;
+        HAJobScheduler.getInstance().submitJob(new Runnable() {
+            public void run() {
+                try {
+                    LOG.info("Ha child connected handleNodeConnected {}", childNode.getNodeId().getValue());
+                    ReadWriteTransaction tx = getTx();
+                    haEventHandler.handleChildNodeConnected(childNode, childPath, haNodePath, tx);
+                    tx.submit().checkedGet();
+                } catch (InterruptedException | ExecutionException | ReadFailedException
+                        | TransactionCommitFailedException e) {
+                    LOG.error("Failed to process ", e);
+                }
             }
         });
     }
@@ -271,16 +272,18 @@ public class HAOpNodeListener extends HwvtepNodeBaseListener implements DataTree
                                final InstanceIdentifier<Node> haNodePath,
                                final Optional<Node> haGlobalCfg,
                                final Optional<Node> haPSCfg) {
-        HAJobScheduler.getInstance().submitJob(new Callable<Void>() {
-            @Override
-            public Void call() throws InterruptedException, ExecutionException, ReadFailedException,
-                    TransactionCommitFailedException {
-                LOG.info("Ha child reconnected handleNodeReConnected {}", childNode.getNodeId().getValue());
-                ReadWriteTransaction tx = getTx();
-                haEventHandler.handleChildNodeReConnected(childNode, childPath,
-                        haNodePath, haGlobalCfg, haPSCfg, tx);
-                tx.submit().checkedGet();
-                return null;
+        HAJobScheduler.getInstance().submitJob(new Runnable() {
+            public void run() {
+                try {
+                    LOG.info("Ha child reconnected handleNodeReConnected {}", childNode.getNodeId().getValue());
+                    ReadWriteTransaction tx = getTx();
+                    haEventHandler.handleChildNodeReConnected(childNode, childPath,
+                            haNodePath, haGlobalCfg, haPSCfg, tx);
+                    tx.submit().checkedGet();
+                } catch (InterruptedException | ExecutionException | ReadFailedException
+                        | TransactionCommitFailedException e) {
+                    LOG.error("Failed to process ", e);
+                }
             }
         });
     }
