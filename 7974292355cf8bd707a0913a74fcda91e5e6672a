@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "1a622d24_175998fe",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 6
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2016-12-06T20:29:17Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1a622d24_ae817d4c",
+      "revId": "7974292355cf8bd707a0913a74fcda91e5e6672a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_4e90a995",
         "filename": "/COMMIT_MSG",
         "patchSetId": 6
@@ -30,6 +48,24 @@
       "writtenOn": "2016-12-05T11:38:37Z",
       "side": 1,
       "message": "routes belonging to IP-VRF Table of an EVPN.",
+      "revId": "7974292355cf8bd707a0913a74fcda91e5e6672a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_f75dfcea",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 6
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2016-12-06T20:29:17Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1a622d24_4e90a995",
       "revId": "7974292355cf8bd707a0913a74fcda91e5e6672a",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -53,6 +89,24 @@
     },
     {
       "key": {
+        "uuid": "1a622d24_17423810",
+        "filename": "vpnservice/bgpmanager/bgpmanager-impl/src/main/java/org/opendaylight/netvirt/bgpmanager/BgpConfigurationManager.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 1962,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2016-12-06T20:29:17Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1a622d24_713461de",
+      "revId": "7974292355cf8bd707a0913a74fcda91e5e6672a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_b14d5975",
         "filename": "vpnservice/bgpmanager/bgpmanager-impl/src/main/java/org/opendaylight/netvirt/bgpmanager/BgpConfigurationManager.java",
         "patchSetId": 6
@@ -70,6 +124,24 @@
     },
     {
       "key": {
+        "uuid": "1a622d24_f7469c22",
+        "filename": "vpnservice/bgpmanager/bgpmanager-impl/src/main/java/org/opendaylight/netvirt/bgpmanager/BgpConfigurationManager.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 1963,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2016-12-06T20:29:17Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1a622d24_b14d5975",
+      "revId": "7974292355cf8bd707a0913a74fcda91e5e6672a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_9152dd11",
         "filename": "vpnservice/neutronvpn/neutronvpn-impl/pom.xml",
         "patchSetId": 6
@@ -81,6 +153,24 @@
       "writtenOn": "2016-12-05T11:38:37Z",
       "side": 1,
       "message": "Is this package still available :) ?",
+      "revId": "7974292355cf8bd707a0913a74fcda91e5e6672a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_97b92831",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/pom.xml",
+        "patchSetId": 6
+      },
+      "lineNbr": 100,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2016-12-06T20:29:17Z",
+      "side": 1,
+      "message": "No.. Removed.",
+      "parentUuid": "1a622d24_9152dd11",
       "revId": "7974292355cf8bd707a0913a74fcda91e5e6672a",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
