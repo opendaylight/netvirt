@@ -16,6 +16,8 @@ import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import java.math.BigInteger;
 import java.util.List;
 
+import org.opendaylight.controller.md.sal.binding.api.DataBroker;
+import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.RouterInterface;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.VrfEntry;
 
@@ -57,7 +59,7 @@ public interface IFibManager {
                                         RouterInterface routerInterface, long label, WriteTransaction writeConfigTxn);
     void removeOrUpdateFibEntry(DataBroker broker, String rd, String prefix, String nextHopToRemove, WriteTransaction writeConfigTxn);
     void removeFibEntry(DataBroker broker, String rd, String prefix, WriteTransaction writeConfigTxn);
-    void updateFibEntry(DataBroker broker, String rd, String prefix , List<String> nextHopList, WriteTransaction writeConfigTxn);
+    void updateFibEntry(DataBroker broker, String rd, String prefix , List<String> nextHopList, long label, WriteTransaction writeConfigTxn);
     void addVrfTable(DataBroker broker, String rd, WriteTransaction writeConfigTxn);
     void removeVrfTable(DataBroker broker, String rd, WriteTransaction writeConfigTxn);
     void removeInterVPNLinkRouteFlows(final String interVpnLinkName,
