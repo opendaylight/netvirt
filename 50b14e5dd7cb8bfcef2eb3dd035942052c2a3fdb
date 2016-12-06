@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1a622d24_37c13481",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/VpnFloatingIpHandler.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 320,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2016-12-06T19:52:15Z",
+      "side": 1,
+      "message": "Vivek/Hari,\nAs this flow and its code seems completely identical to IVpnManager.setupRouterGwArpResponderFlows() from https://git.opendaylight.org/gerrit/#/c/48867 \nWould it be ok if I will rename this method to a more generic name to reflect both router-gw+fip responder flows and then you can cherry pick your commit on top of mine?\n\nThan you can inject IvpnManager using BP and avoid all the ArpResponderUtil logic transfer to vpnmanager-api\n\nWDYT?",
+      "revId": "50b14e5dd7cb8bfcef2eb3dd035942052c2a3fdb",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
