@@ -7,9 +7,9 @@
  */
 package org.opendaylight.netvirt.cloudservicechain;
 
+import static org.mockito.Matchers.anyObject;
 import static org.mockito.Matchers.argThat;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.anyObject;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -17,10 +17,13 @@ import static org.mockito.Mockito.when;
 
 import com.google.common.base.Optional;
 import com.google.common.util.concurrent.CheckedFuture;
+
 import java.math.BigInteger;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
+
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
 import org.hamcrest.TypeSafeMatcher;
@@ -45,6 +48,7 @@ import org.opendaylight.netvirt.cloudservicechain.matchers.FlowEntityMatcher;
 import org.opendaylight.netvirt.cloudservicechain.matchers.FlowMatcher;
 import org.opendaylight.netvirt.cloudservicechain.utils.VpnServiceChainUtils;
 import org.opendaylight.netvirt.vpnmanager.api.IVpnManager;
+import org.opendaylight.netvirt.vpnmanager.api.VpnHelper;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.tables.table.Flow;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.fibentries.VrfTables;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.fibentries.VrfTablesBuilder;
@@ -52,6 +56,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev15033
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.VrfEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.VrfEntryBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.VrfEntryKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.vrfentry.RoutePaths;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.VpnInstanceOpData;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.VpnInstanceOpDataEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.VpnInstanceOpDataEntryBuilder;
@@ -191,8 +196,9 @@ public class VPNServiceChainHandlerTest {
 
 
     private VrfEntry buildVrfEntry(long label, String prefix, String nextop) {
-        return new VrfEntryBuilder().setKey(new VrfEntryKey(prefix)).setDestPrefix(prefix).setLabel(label)
-                                    .setNextHopAddressList(Collections.singletonList(nextop)).build();
+        RoutePaths routePaths = VpnHelper.buildRoutePath(Collections.singletonList(nextop), label);
+        return new VrfEntryBuilder().setKey(new VrfEntryKey(prefix)).setDestPrefix(prefix)
+                .setRoutePaths(Arrays.asList(routePaths)).build();
     }
 
     private void stubGetVrfEntries(String rd, List<VrfEntry> vrfEntryList)
@@ -327,8 +333,9 @@ public class VPNServiceChainHandlerTest {
         assert (installedFlowsCaptured.size() == 2);
 
         FlowEntity expectedLFibFlowEntity =
-            VpnServiceChainUtils.buildLFibVpnPseudoPortFlow(DPN_ID, vrfEntry.getLabel(),
-                                                            vrfEntry.getNextHopAddressList().get(0), LPORT_TAG);
+                VpnServiceChainUtils.buildLFibVpnPseudoPortFlow(DPN_ID, vrfEntry.getRoutePaths()
+                        .get(0).getLabel(), vrfEntry.getRoutePaths().get(0).getNexthopAddressList()
+                        .get(0), LPORT_TAG);
         assert (new FlowEntityMatcher(expectedLFibFlowEntity).matches(installedFlowsCaptured.get(0)));
 
         FlowEntity expectedLPortDispatcher =
