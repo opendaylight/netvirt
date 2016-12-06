@@ -9,22 +9,23 @@ package org.opendaylight.netvirt.elan.l2gw.ha.listeners;
 
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 
-import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
 import java.util.concurrent.ThreadFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
-public class HAJobScheduler {
+public class HAJobScheduler implements Thread.UncaughtExceptionHandler {
 
+    private static final Logger LOG = LoggerFactory.getLogger(HAOpClusteredListener.class);
     ExecutorService executorService;
 
     static HAJobScheduler instance = new HAJobScheduler();
 
     private HAJobScheduler() {
         ThreadFactory threadFact = new ThreadFactoryBuilder()
-                    .setNameFormat("hwvtep-ha-task-%d").build();
+                .setNameFormat("hwvtep-ha-task-%d").setUncaughtExceptionHandler(this).build();
         executorService = Executors.newSingleThreadScheduledExecutor(threadFact);
     }
 
@@ -36,11 +37,12 @@ public class HAJobScheduler {
         executorService = service;
     }
 
-    public Future<Void> submitJob(Callable<Void> callable) {
-        return executorService.submit(callable);
+    public void submitJob(Runnable runnable) {
+        executorService.execute(runnable);
     }
 
-    public void submitJob(Runnable runnable) {
-        executorService.submit(runnable);
+    @Override
+    public void uncaughtException(Thread thread, Throwable throwable) {
+        LOG.error("Failed to execute task", throwable);
     }
 }
