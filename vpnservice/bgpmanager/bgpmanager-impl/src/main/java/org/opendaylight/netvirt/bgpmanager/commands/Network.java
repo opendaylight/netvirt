@@ -8,6 +8,8 @@
 
 package org.opendaylight.netvirt.bgpmanager.commands;
 
+import java.util.List;
+
 import org.apache.karaf.shell.commands.Argument;
 import org.apache.karaf.shell.commands.Command;
 import org.apache.karaf.shell.commands.Option;
@@ -15,10 +17,9 @@ import org.apache.karaf.shell.console.OsgiCommandSupport;
 import org.opendaylight.netvirt.bgpmanager.BgpManager;
 import org.opendaylight.netvirt.bgpmanager.thrift.gen.qbgpConstants;
 import org.opendaylight.netvirt.fibmanager.api.RouteOrigin;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.vrfentry.route.paths.NexthopAddresses;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.List;
 
 @Command(scope = "odl", name = "bgp-network",
          description = "Add or delete BGP static routes")
@@ -46,7 +47,7 @@ public class Network extends OsgiCommandSupport {
     @Option(name=NH, aliases={"-n"},
             description="Nexthop",
             required=false, multiValued=true)
-    private List<String> nh = null;
+    private List<NexthopAddresses> nh = null;
 
     @Option(name=LB, aliases={"-l"},
             description="Label",
@@ -80,8 +81,8 @@ public class Network extends OsgiCommandSupport {
                     return null;
                 }
                 //TODO: syntactic validation of prefix
-                for (String nextHop : nh) {
-                    if (!Commands.isValid(nextHop, Commands.Validators.IPADDR, NH)) {
+                for (NexthopAddresses nextHop : nh) {
+                    if (!Commands.isValid(nextHop.getIpAddress(), Commands.Validators.IPADDR, NH)) {
                         return null;
                     }
                 }

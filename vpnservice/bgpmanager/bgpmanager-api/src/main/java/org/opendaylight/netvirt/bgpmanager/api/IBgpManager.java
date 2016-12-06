@@ -9,6 +9,7 @@
 package org.opendaylight.netvirt.bgpmanager.api;
 
 import org.opendaylight.netvirt.fibmanager.api.RouteOrigin;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.vrfentry.route.paths.NexthopAddresses;
 import java.util.Collection;
 import java.util.List;
 
@@ -38,7 +39,7 @@ public interface IBgpManager {
      * @param nextHopList
      * @param vpnLabel
      */
-    public void addPrefix(String rd, String prefix, List<String> nextHopList, int vpnLabel, RouteOrigin origin) throws Exception;
+    public void addPrefix(String rd, String prefix, List<NexthopAddresses> nextHopList, int vpnLabel, RouteOrigin origin) throws Exception;
 
     /**
      * Adds a route in a BGP neighbour. It persists the VrfEntry in Datastore and sends the BGP message
@@ -74,7 +75,7 @@ public interface IBgpManager {
      * @param nextHopList
      * @param vpnLabel
      */
-    public void advertisePrefix(String rd, String prefix, List<String> nextHopList, int vpnLabel) throws Exception;
+    public void advertisePrefix(String rd, String prefix, List<NexthopAddresses> nextHopList, int vpnLabel) throws Exception;
 
     /**
      * Advertises a Prefix to a BGP neighbour. Only sends the BGP messages, no writing to MD-SAL

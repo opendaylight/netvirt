@@ -19,6 +19,9 @@ import org.opendaylight.netvirt.bgpmanager.FibDSWriter;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.test.AbstractDataBrokerTest;
 import org.opendaylight.netvirt.fibmanager.api.RouteOrigin;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.vrfentry.route.paths.NexthopAddresses;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.vrfentry.route.paths.NexthopAddressesBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.vrfentry.route.paths.NexthopAddressesKey;
 
 import static org.junit.Assert.assertEquals;
 
@@ -41,7 +44,7 @@ public class BgpManagerTest extends AbstractDataBrokerTest {
     public void testAddSinglePrefix() {
         String rd = "101";
         String prefix = "10.10.10.10/32";
-        List<String> nexthop = Arrays.asList("100.100.100.100");
+        List<NexthopAddresses> nexthop = Arrays.asList(new NexthopAddressesBuilder().setKey(new NexthopAddressesKey("100.100.100.100")).setIpAddress("100.100.100.100").build());
         int label = 1234;
 
         bgpFibWriter.addFibEntryToDS(rd, prefix, nexthop, label, RouteOrigin.LOCAL);

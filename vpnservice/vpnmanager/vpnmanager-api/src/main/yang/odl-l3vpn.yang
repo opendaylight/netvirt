@@ -407,4 +407,25 @@ module odl-l3vpn {
             leaf router-name { type string; }
         }
     }
+
+    container l3vpn-lb-nexthops {
+        config false;
+        list nexthops {
+            key "nexthop-key";
+            leaf group-id { type string; }
+            leaf nexthop-key { type string; }
+            leaf-list target-device-id { type string; /*dpId or ip-address*/ }
+        }
+    }
+
+    container dpid-l3vpn-lb-nexthops {
+        config false;
+        list dp-ids {
+            key "src-dp-id dst-device-id";
+            leaf src-dp-id { type uint64; }
+            leaf dst-device-id { type string; /*dpId or ip-address*/ }
+            leaf nexthop-key { type string; }
+        }
+    }
+
 }

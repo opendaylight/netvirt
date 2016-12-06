@@ -44,6 +44,12 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev15033
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.VrfEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.VrfEntryBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.VrfEntryKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.vrfentry.RoutePaths;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.vrfentry.RoutePathsBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.vrfentry.RoutePathsKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.vrfentry.route.paths.NexthopAddresses;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.vrfentry.route.paths.NexthopAddressesBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.vrfentry.route.paths.NexthopAddressesKey;
 import org.opendaylight.yangtools.concepts.ListenerRegistration;
 import org.opendaylight.yangtools.yang.binding.Augmentation;
 import org.opendaylight.yangtools.yang.binding.DataContainer;
@@ -88,7 +94,7 @@ public class FibManagerTest {
   private void SetupMocks() {
     Dpn = BigInteger.valueOf(100000L);
     identifier = buildVrfEntryId(testRd, prefix);
-    vrfEntry = buildVrfEntry(testRd, prefix, Arrays.asList(nexthop), label, origin);
+    vrfEntry = buildVrfEntry(testRd, prefix, Arrays.asList(new NexthopAddressesBuilder().setKey(new NexthopAddressesKey(nexthop)).setIpAddress(nexthop).build()), label, origin);
     when(vrfTableKey.getRouteDistinguisher()).thenReturn(testRd);
   }
 
@@ -110,10 +116,11 @@ public class FibManagerTest {
     //Mockito.verify(mdsalManager, Mockito.times(2)).installFlow(any(FlowEntity.class));
   }
 
-  private VrfEntry buildVrfEntry(String rd, String prefix, List<String> nextHopList, int label, RouteOrigin origin) {
-
-    return new VrfEntryBuilder().setDestPrefix(prefix).setNextHopAddressList(nextHopList)
-            .setLabel((long) label).setOrigin(origin.getValue()).build();
+  private VrfEntry buildVrfEntry(String rd, String prefix, List<NexthopAddresses> nextHopList, int label, RouteOrigin origin) {
+    RoutePaths routes = new RoutePathsBuilder().setKey(new RoutePathsKey((long)label)).setNexthopAddresses(nextHopList).build();
+    List<RoutePaths> routePaths = new ArrayList<>();
+    routePaths.add(routes);
+    return new VrfEntryBuilder().setKey(new VrfEntryKey(prefix)).setOrigin(origin.getValue()).setRoutePaths(routePaths).build();
   }
 
   public static InstanceIdentifier<VrfTables> buildVrfTableId(String rd) {

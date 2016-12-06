@@ -7,8 +7,13 @@
  */
 package org.opendaylight.netvirt.vpnmanager.intervpnlink;
 
-import com.google.common.base.Optional;
-import com.google.common.base.Preconditions;
+import java.math.BigInteger;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.stream.Collectors;
+
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
@@ -36,6 +41,12 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev15033
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.VrfEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.VrfEntryBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.VrfEntryKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.vrfentry.RoutePaths;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.vrfentry.RoutePathsBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.vrfentry.RoutePathsKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.vrfentry.route.paths.NexthopAddresses;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.vrfentry.route.paths.NexthopAddressesBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.vrfentry.route.paths.NexthopAddressesKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.netvirt.inter.vpn.link.rev160311.InterVpnLinkStates;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.netvirt.inter.vpn.link.rev160311.InterVpnLinks;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.netvirt.inter.vpn.link.rev160311.inter.vpn.link.states.InterVpnLinkState;
@@ -49,13 +60,9 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.base.Optional;
+import com.google.common.base.Preconditions;
 import com.google.common.util.concurrent.ListenableFuture;
-import java.math.BigInteger;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.stream.Collectors;
 
 
 /**
@@ -474,9 +481,9 @@ public class InterVpnLinkUtil {
 
         String endpointIp = destinationIs1stEndpoint ? interVpnLink.getSecondEndpoint().getIpAddress().getValue()
                 : interVpnLink.getFirstEndpoint().getIpAddress().getValue();
-
+        List<RoutePaths> routesList = Arrays.asList(new RoutePathsBuilder().setKey(new RoutePathsKey(label)).setLabel(label).setNexthopAddresses(Arrays.asList(new NexthopAddressesBuilder().setKey(new NexthopAddressesKey(endpointIp)).build())).build());
         VrfEntry newVrfEntry = new VrfEntryBuilder().setKey(new VrfEntryKey(prefix)).setDestPrefix(prefix)
-                .setLabel(label).setNextHopAddressList(Arrays.asList(endpointIp))
+                .setRoutePaths(routesList)
                 .setOrigin(RouteOrigin.INTERVPN.getValue())
                 .build();
 
@@ -496,14 +503,15 @@ public class InterVpnLinkUtil {
             InterVpnLinkState vpnLinkState = optVpnLinkState.get();
             List<BigInteger> dpnIdList = destinationIs1stEndpoint ? vpnLinkState.getFirstEndpointState().getDpId()
                     : vpnLinkState.getSecondEndpointState().getDpId();
-            List<String> nexthops = new ArrayList<String>();
+            List<NexthopAddresses> nextHopAddList = new ArrayList<>();
             for (BigInteger dpnId : dpnIdList) {
-                nexthops.add(InterfaceUtils.getEndpointIpAddressForDPN(broker, dpnId));
+                String ipAddress = InterfaceUtils.getEndpointIpAddressForDPN(broker, dpnId);
+                nextHopAddList.add(new NexthopAddressesBuilder().setIpAddress(ipAddress).setKey(new NexthopAddressesKey(ipAddress)).build());
             }
             try {
                 LOG.debug("Advertising route in VPN={} [prefix={} label={}  nexthops={}] to DC-GW",
-                        dstVpnRd, newVrfEntry.getDestPrefix(), label.intValue(), nexthops);
-                bgpManager.advertisePrefix(dstVpnRd, newVrfEntry.getDestPrefix(), nexthops, label.intValue());
+                        dstVpnRd, newVrfEntry.getDestPrefix(), label.intValue(), nextHopAddList);
+                bgpManager.advertisePrefix(dstVpnRd, newVrfEntry.getDestPrefix(), nextHopAddList, label.intValue());
             } catch (Exception exc) {
                 LOG.error("Could not advertise prefix {} with label {} to VPN rd={}",
                         newVrfEntry.getDestPrefix(), label.intValue(), dstVpnRd);
@@ -529,16 +537,21 @@ public class InterVpnLinkUtil {
         }
         LOG.debug("Writing FibEntry to DS:  vpnRd={}, prefix={}, label={}, nexthop={} (interVpnLink)",
                   vpnRd, destination, label, nexthop);
-        fibManager.addOrUpdateFibEntry(dataBroker, vpnRd, destination, Collections.singletonList(nexthop), label,
+        NexthopAddresses nextHopAddress = new NexthopAddressesBuilder().setIpAddress(nexthop).setKey(new NexthopAddressesKey(nexthop)).build();
+        fibManager.addOrUpdateFibEntry(dataBroker, vpnRd, destination, Collections.singletonList(nextHopAddress), label,
                                        RouteOrigin.STATIC, null);
 
         // Now advertise to BGP. The nexthop that must be advertised to BGP are the IPs of the DPN where the
         // VPN's endpoint have been instantiated
         // List<String> nexthopList = new ArrayList<>(); // The nexthops to be advertised to BGP
         List<BigInteger> endpointDpns = iVpnLink.getEndpointDpnsByVpnName(vpnName);
-        List<String> nexthopList =
-            endpointDpns.stream().map(dpnId -> InterfaceUtils.getEndpointIpAddressForDPN(dataBroker, dpnId))
-                                 .collect(Collectors.toList());
+        List<NexthopAddresses> nexthopList =
+                endpointDpns.stream().map(dpnId -> {
+                            String nexthopsIp =InterfaceUtils.getEndpointIpAddressForDPN(dataBroker, dpnId);
+                            return new NexthopAddressesBuilder()
+                                    .setKey(new NexthopAddressesKey(nexthopsIp))
+                                    .setIpAddress(nexthopsIp).build();
+                        }).collect(Collectors.toList());
         LOG.debug("advertising IVpnLink route to BGP:  vpnRd={}, prefix={}, label={}, nexthops={}",
                   vpnRd, destination, label, nexthopList);
         bgpManager.advertisePrefix(vpnRd, destination, nexthopList, label);

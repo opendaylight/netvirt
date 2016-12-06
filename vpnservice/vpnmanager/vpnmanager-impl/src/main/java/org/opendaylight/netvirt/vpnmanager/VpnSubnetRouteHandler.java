@@ -7,10 +7,13 @@
  */
 package org.opendaylight.netvirt.vpnmanager;
 
-import com.google.common.base.Optional;
-import com.google.common.base.Preconditions;
 import java.math.BigInteger;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
@@ -23,6 +26,8 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.IdManagerService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.lockmanager.rev160413.LockManagerService;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.vrfentry.route.paths.NexthopAddressesBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.vrfentry.route.paths.NexthopAddressesKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.PortOpData;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.SubnetOpData;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.TaskState;
@@ -51,6 +56,9 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev15060
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.google.common.base.Optional;
+import com.google.common.base.Preconditions;
 
 public class VpnSubnetRouteHandler implements NeutronvpnListener {
     private static final Logger logger = LoggerFactory.getLogger(VpnSubnetRouteHandler.class);
@@ -852,7 +860,7 @@ public class VpnSubnetRouteHandler implements NeutronvpnListener {
             try {
                 //BGP manager will handle withdraw and advertise internally if prefix
                 //already exist
-                bgpManager.advertisePrefix(rd, subnetIp, Arrays.asList(nexthopIp), label);
+                bgpManager.advertisePrefix(rd, subnetIp, Arrays.asList(new NexthopAddressesBuilder().setIpAddress(nexthopIp).setKey(new NexthopAddressesKey(nexthopIp)).build()), label);
             } catch (Exception e) {
                 logger.error("Fail: Subnet route not advertised for rd {} subnetIp {}", rd, subnetIp, e);
                 throw e;
