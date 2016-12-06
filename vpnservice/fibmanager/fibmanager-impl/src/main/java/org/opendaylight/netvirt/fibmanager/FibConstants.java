@@ -8,6 +8,15 @@
 package org.opendaylight.netvirt.fibmanager;
 
 import java.math.BigInteger;
+import java.util.HashMap;
+import java.util.Map;
+
+import org.opendaylight.yang.gen.v1.urn.opendaylight.openflowjava.nx.match.rev140421.NxmNxReg;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.openflowjava.nx.match.rev140421.NxmNxReg0;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.openflowjava.nx.match.rev140421.NxmNxReg1;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.openflowjava.nx.match.rev140421.NxmNxReg2;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.openflowjava.nx.match.rev140421.NxmNxReg3;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.openflowjava.nx.match.rev140421.NxmNxReg4;
 
 public class FibConstants {
     static final BigInteger COOKIE_TUNNEL = new BigInteger("9000000", 16);
@@ -16,4 +25,10 @@ public class FibConstants {
     static final String FLOWID_PREFIX = "L3.";
     static final String VPN_IDPOOL_NAME = "vpnservices";
     static final String SEPARATOR = ".";
+    static final String DC_GW_LB_GROUP_POOL = "dcgwlbgroup";
+    static final Map<Integer,  Class<? extends NxmNxReg>> nxmRegMapping = new HashMap<>();
+    static {
+        nxmRegMapping.put(0, NxmNxReg0.class);
+        nxmRegMapping.put(1, NxmNxReg1.class);
+    }
 }

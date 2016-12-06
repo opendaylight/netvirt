@@ -14,6 +14,13 @@ import com.google.common.util.concurrent.CheckedFuture;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 
+import java.math.BigInteger;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
+
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
@@ -21,6 +28,7 @@ import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.netvirt.fibmanager.api.RouteOrigin;
+import org.opendaylight.netvirt.vpnmanager.api.VpnHelper;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.interfaces.VpnInterface;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.AllocateIdInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.AllocateIdInputBuilder;
@@ -31,11 +39,13 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.FibEntries;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.RouterInterface;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.fibentries.VrfTables;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.fibentries.VrfTablesKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.fibentries.VrfTablesBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.fibentries.VrfTablesKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.VrfEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.VrfEntryBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.VrfEntryKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.vrfentry.RoutePaths;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.vrfentry.RoutePathsKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.Adjacencies;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.VpnIdToVpnInstance;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.VpnInstanceOpData;
@@ -44,35 +54,19 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.adj
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.prefix.to._interface.vpn.ids.Prefixes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.id.to.vpn.instance.VpnIds;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.id.to.vpn.instance.VpnIdsKey;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data
-        .VpnInstanceOpDataEntry;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data
-        .VpnInstanceOpDataEntryKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.VpnInstanceOpDataEntry;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.VpnInstanceOpDataEntryKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.vpn.instance.op.data.entry.VpnToDpnList;
-
-
-
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.netvirt.inter.vpn.link.rev160311
-        .InterVpnLinkStates;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.netvirt.inter.vpn.link.rev160311.InterVpnLinkStates;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.netvirt.inter.vpn.link.rev160311.InterVpnLinks;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.netvirt.inter.vpn.link.rev160311.inter.vpn
-        .link.states.InterVpnLinkState;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.netvirt.inter.vpn.link.rev160311.inter.vpn
-        .link.states.InterVpnLinkStateKey;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.netvirt.inter.vpn.link.rev160311.inter.vpn
-        .links.InterVpnLink;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.netvirt.inter.vpn.link.rev160311.inter.vpn.link.states.InterVpnLinkState;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.netvirt.inter.vpn.link.rev160311.inter.vpn.link.states.InterVpnLinkStateKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.netvirt.inter.vpn.link.rev160311.inter.vpn.links.InterVpnLink;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.math.BigInteger;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
 
 public class FibUtil {
     private static final Logger LOG = LoggerFactory.getLogger(FibUtil.class);
@@ -495,8 +489,11 @@ public class FibUtil {
             Optional<VrfEntry> entry = MDSALUtil.read(broker, LogicalDatastoreType.CONFIGURATION, vrfEntryId);
 
             if (! entry.isPresent()) {
-                VrfEntry vrfEntry = new VrfEntryBuilder().setDestPrefix(prefix).setNextHopAddressList(nextHopList)
-                        .setLabel((long)label).setOrigin(origin.getValue()).build();
+                List<RoutePaths> routes = new ArrayList<>();
+                RoutePaths route = VpnHelper.buildRoutePath(null, nextHopList, label);
+                routes.add(route);
+                VrfEntry vrfEntry = new VrfEntryBuilder().setDestPrefix(prefix).setRoutePaths(routes)
+                        .setOrigin(origin.getValue()).build();
 
                 if (writeConfigTxn != null) {
                     writeConfigTxn.merge(LogicalDatastoreType.CONFIGURATION, vrfEntryId, vrfEntry, true);
@@ -505,21 +502,34 @@ public class FibUtil {
                 }
                 LOG.debug("Created vrfEntry for {} nexthop {} label {}", prefix, nextHopList, label);
             } else { // Found in MDSAL database
-                List<String> nh = entry.get().getNextHopAddressList();
-                for (String nextHop : nextHopList) {
-                    if (!nh.contains(nextHop)) {
-                        nh.add(nextHop);
+                List<RoutePaths> routes = entry.get().getRoutePaths();
+                java.util.Optional<RoutePaths> optRoutePath = routes.stream().filter(route -> route.getLabel().equals(label)).findAny();
+                VrfEntry vrfEntry;
+                if (!optRoutePath.isPresent()) {
+                    RoutePaths newRoute = VpnHelper.buildRoutePath(null, nextHopList, label);
+                    routes.add(newRoute);
+                    vrfEntry = new VrfEntryBuilder().setDestPrefix(prefix).setRoutePaths(routes)
+                            .setOrigin(origin.getValue()).build();
+                } else {
+                    final RoutePaths routePaths = optRoutePath.get();
+                    List<String> nh = routePaths.getNextHopAddressList();
+                    for (String nextHop : nextHopList) {
+                        if (!nh.contains(nextHop)) {
+                            nh.add(nextHop);
+                        }
                     }
-                }
-                VrfEntry vrfEntry = new VrfEntryBuilder().setDestPrefix(prefix).setNextHopAddressList(nh)
-                        .setLabel((long) label).setOrigin(origin.getValue()).build();
+                    RoutePaths newRoute = VpnHelper.buildRoutePath(routePaths, nextHopList, label);
+                    routes.add(newRoute);
+                    vrfEntry = new VrfEntryBuilder().setDestPrefix(prefix).setRoutePaths(routes)
+                            .setOrigin(origin.getValue()).build();
 
+                }
                 if (writeConfigTxn != null) {
                     writeConfigTxn.merge(LogicalDatastoreType.CONFIGURATION, vrfEntryId, vrfEntry, true);
                 } else {
                     MDSALUtil.syncUpdate(broker, LogicalDatastoreType.CONFIGURATION, vrfEntryId, vrfEntry);
                 }
-                LOG.debug("Updated vrfEntry for {} nexthop {} label {}", prefix, nh, label);
+                LOG.debug("Updated vrfEntry for {} nexthop {} label {}", prefix, nextHopList, label);
             }
         } catch (Exception e) {
             LOG.error("addFibEntryToDS: error ", e);
@@ -543,9 +553,9 @@ public class FibUtil {
                             .child(VrfTables.class, new VrfTablesKey(rd))
                             .child(VrfEntry.class, new VrfEntryKey(prefix)).build();
 
+            List<RoutePaths> routePaths = Arrays.asList(VpnHelper.buildRoutePath(null, Arrays.asList(""), label));
             VrfEntry vrfEntry = new VrfEntryBuilder().setKey(new VrfEntryKey(prefix)).setDestPrefix(prefix)
-                    .setNextHopAddressList(Arrays.asList(""))
-                    .setLabel(label)
+                    .setRoutePaths(routePaths)
                     .setOrigin(RouteOrigin.LOCAL.getValue())
                     .addAugmentation(RouterInterface.class, routerInterface).build();
 
@@ -599,67 +609,80 @@ public class FibUtil {
                         .child(VrfEntry.class, new VrfEntryKey(prefix)).build();
         Optional<VrfEntry> entry = MDSALUtil.read(broker, LogicalDatastoreType.CONFIGURATION, vrfEntryId);
 
-        if ( entry.isPresent() ) {
-            List<String> nhListRead = new ArrayList<>();
-            if ( nextHopToRemove != null && !nextHopToRemove.isEmpty()) {
-                nhListRead = entry.get().getNextHopAddressList();
+        if (!entry.isPresent()) {
+            LOG.warn("Could not find VrfEntry for Route-Distinguisher={} and prefix={}", rd, prefix);
+            return;
+        }
+        List<String> nhListRead = new ArrayList<>();
+        final List<RoutePaths> routePaths = entry.get().getRoutePaths();
+        int noOfRoutes = routePaths.size();
+        for (RoutePaths routes : routePaths) {
+            InstanceIdentifier<RoutePaths> routesId =
+                    InstanceIdentifier.builder(FibEntries.class).child(VrfTables.class, new VrfTablesKey(rd))
+                    .child(VrfEntry.class, new VrfEntryKey(prefix)).child(RoutePaths.class, routes.getKey()).build();
+            if (nextHopToRemove != null && !nextHopToRemove.isEmpty()) {
+                nhListRead = routes.getNextHopAddressList();
                 if (nhListRead.contains(nextHopToRemove)) {
                     nhListRead.remove(nextHopToRemove);
                 }
             }
-
             if (nhListRead.isEmpty()) {
-                // Remove the whole entry
-                if (writeConfigTxn != null) {
-                    writeConfigTxn.delete(LogicalDatastoreType.CONFIGURATION, vrfEntryId);
+                if (noOfRoutes == 1) {
+                    // Remove the whole entry
+                    if (writeConfigTxn != null) {
+                        writeConfigTxn.delete(LogicalDatastoreType.CONFIGURATION, vrfEntryId);
+                    } else {
+                        MDSALUtil.syncDelete(broker, LogicalDatastoreType.CONFIGURATION, vrfEntryId);
+                    }
+                    LOG.info("Removed Fib Entry rd {} prefix {}", rd, prefix);
                 } else {
-                    MDSALUtil.syncDelete(broker, LogicalDatastoreType.CONFIGURATION, vrfEntryId);
+                    // Remove route
+                    if (writeConfigTxn != null) {
+                        writeConfigTxn.delete(LogicalDatastoreType.CONFIGURATION, routesId);
+                    } else {
+                        MDSALUtil.syncDelete(broker, LogicalDatastoreType.CONFIGURATION, routesId);
+                    }
+                    LOG.info("Removed Route Entry rd {} prefix {}, label {}", rd, prefix, routes.getLabel());
+                    break;
                 }
-                LOG.info("Removed Fib Entry rd {} prefix {}", rd, prefix);
             } else {
                 // An update must be done, not including the current next hop
-                VrfEntry vrfEntry =
-                        new VrfEntryBuilder(entry.get()).setDestPrefix(prefix).setNextHopAddressList(nhListRead)
-                                .setKey(new VrfEntryKey(prefix)).build();
+                RoutePaths newRoutes = VpnHelper.buildRoutePath(routes, nhListRead, routes.getLabel());
                 if (writeConfigTxn != null) {
-                    writeConfigTxn.merge(LogicalDatastoreType.CONFIGURATION, vrfEntryId, vrfEntry, true);
+                    writeConfigTxn.merge(LogicalDatastoreType.CONFIGURATION, routesId, newRoutes, true);
                 } else {
-                    MDSALUtil.syncUpdate(broker, LogicalDatastoreType.CONFIGURATION, vrfEntryId, vrfEntry);
+                    MDSALUtil.syncUpdate(broker, LogicalDatastoreType.CONFIGURATION, routesId, newRoutes);
                 }
                 LOG.info("Removed Nexthop {} from Fib Entry rd {} prefix {}", nextHopToRemove, rd, prefix);
             }
-        } else {
-            LOG.warn("Could not find VrfEntry for Route-Distinguisher={} and prefix={}", rd, prefix);
         }
     }
 
-    public static void updateFibEntry(DataBroker broker, String rd, String prefix, List<String> nextHopList,
+    public static void updateFibEntry(DataBroker broker, String rd, String prefix, List<String> nextHopList, long label,
                                       WriteTransaction writeConfigTxn) {
 
         LOG.debug("Updating fib entry for prefix {} with nextHopList {} for rd {}", prefix, nextHopList, rd);
 
         // Looking for existing prefix in MDSAL database
-        InstanceIdentifier<VrfEntry> vrfEntryId =
+        InstanceIdentifier<RoutePaths> routePathId =
                 InstanceIdentifier.builder(FibEntries.class).child(VrfTables.class, new VrfTablesKey(rd))
-                        .child(VrfEntry.class, new VrfEntryKey(prefix)).build();
-        Optional<VrfEntry> entry = MDSALUtil.read(broker, LogicalDatastoreType.CONFIGURATION, vrfEntryId);
+                        .child(VrfEntry.class, new VrfEntryKey(prefix)).child(RoutePaths.class, new RoutePathsKey(label)).build();
+        Optional<RoutePaths> entry = MDSALUtil.read(broker, LogicalDatastoreType.CONFIGURATION, routePathId);
 
         if ( entry.isPresent() ) {
             // Update the VRF entry with nextHopList
-            VrfEntry vrfEntry =
-                    new VrfEntryBuilder(entry.get()).setDestPrefix(prefix).setNextHopAddressList(nextHopList)
-                            .setKey(new VrfEntryKey(prefix)).build();
+            RoutePaths routePaths = VpnHelper.buildRoutePath(entry.get(), nextHopList, label);
             if(nextHopList.isEmpty()) {
                 if (writeConfigTxn != null) {
-                    writeConfigTxn.put(LogicalDatastoreType.CONFIGURATION, vrfEntryId, vrfEntry, true);
+                    writeConfigTxn.put(LogicalDatastoreType.CONFIGURATION, routePathId, routePaths, true);
                 } else {
-                    MDSALUtil.syncWrite(broker, LogicalDatastoreType.CONFIGURATION, vrfEntryId, vrfEntry);
+                    MDSALUtil.syncWrite(broker, LogicalDatastoreType.CONFIGURATION, routePathId, routePaths);
                 }
             } else {
                 if (writeConfigTxn != null) {
-                    writeConfigTxn.merge(LogicalDatastoreType.CONFIGURATION, vrfEntryId, vrfEntry, true);
+                    writeConfigTxn.merge(LogicalDatastoreType.CONFIGURATION, routePathId, routePaths, true);
                 } else {
-                    MDSALUtil.syncUpdate(broker, LogicalDatastoreType.CONFIGURATION, vrfEntryId, vrfEntry);
+                    MDSALUtil.syncUpdate(broker, LogicalDatastoreType.CONFIGURATION, routePathId, routePaths);
                 }
             }
             LOG.debug("Updated fib entry for prefix {} with nextHopList {} for rd {}", prefix, nextHopList, rd);

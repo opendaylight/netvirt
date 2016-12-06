@@ -8,7 +8,9 @@
 package org.opendaylight.netvirt.bgpmanager;
 
 import com.google.common.base.Optional;
+
 import io.netty.util.concurrent.GlobalEventExecutor;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
@@ -34,6 +36,7 @@ import java.util.concurrent.Future;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicBoolean;
+
 import org.opendaylight.controller.config.api.osgi.WaitingServiceTracker;
 import org.opendaylight.controller.md.sal.binding.api.ClusteredDataTreeChangeListener;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
@@ -89,6 +92,7 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.FibEntries;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.fibentries.VrfTables;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.VrfEntry;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.vrfentry.RoutePaths;
 import org.opendaylight.yangtools.concepts.ListenerRegistration;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
@@ -96,7 +100,9 @@ import org.opendaylight.genius.utils.batching.DefaultBatchHandler;
 import org.osgi.framework.BundleContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import java.util.concurrent.atomic.AtomicInteger;
+
 import org.opendaylight.yangtools.yang.binding.DataObject;
 
 public class BgpConfigurationManager {
@@ -1500,7 +1506,6 @@ public class BgpConfigurationManager {
             Iterator<Update> updates = routes.getUpdatesIterator();
             while (updates.hasNext()) {
                 Update u = updates.next();
-                Map<String, Map<String, String>> stale_fib_rd_map = BgpConfigurationManager.getStaledFibEntriesMap();
                 String rd = u.getRd();
                 String nexthop = u.getNexthop();
                 int label = u.getLabel();
@@ -1532,7 +1537,7 @@ public class BgpConfigurationManager {
             // restart Scenario, as MAP is not empty.
             Map<String, String> map = stale_fib_rd_map.get(rd);
             if (map != null) {
-                String nexthoplabel = map.get(prefix + "/" + plen);
+                String nexthoplabel = map.get(appendLabelToPrefix(prefix + "/" + plen, label));
                 if (null == nexthoplabel) {
                     // New Entry, which happened to be added during restart.
                     addroute = true;
@@ -1872,8 +1877,8 @@ public class BgpConfigurationManager {
     }
 
     public synchronized void
-    addPrefix(String rd, String pfx, List<String> nhList, int lbl) {
-        for (String nh : nhList) {
+    addPrefix(String rd, String pfx, List<String> nextHopList, int lbl) {
+        for (String nh : nextHopList) {
             Ipv4Address nexthop = new Ipv4Address(nh);
             Long label = (long) lbl;
             InstanceIdentifier<Networks> iid = InstanceIdentifier.builder(Bgp.class)
@@ -2003,10 +2008,11 @@ public class BgpConfigurationManager {
                         }
                         Map<String, String> map = staledFibEntriesMap.get(rd);
                         if (map != null) {
-                            for (String prefix : map.keySet()) {
+                            for (String key : map.keySet()) {
                                 if (Thread.interrupted()) {
                                     return 0;
                                 }
+                                String prefix = extractPrefix(key);
                                 try {
                                     totalCleared++;
                                     LOG.debug("BGP: RouteCleanup deletePrefix called for : rd:{}, prefix{}" + rd.toString() + prefix);
@@ -2071,8 +2077,8 @@ public class BgpConfigurationManager {
                         }
                         totalStaledCount++;
                         //Create MAP from stale_vrfTables.
-                        for (String nextHop : vrfEntry.getNextHopAddressList()) {
-                            stale_fib_ent_map.put(vrfEntry.getDestPrefix(), nextHop + "/" + vrfEntry.getLabel());
+                        for (RoutePaths routes : vrfEntry.getRoutePaths()) {
+                            stale_fib_ent_map.put(appendLabelToPrefix(vrfEntry.getDestPrefix(), routes.getLabel()), routes.getNextHopAddressList().get(0) + "/" + routes.getLabel());
                         }
                     }
                     staledFibEntriesMap.put(vrfTable.getRouteDistinguisher(), stale_fib_ent_map);
@@ -2191,4 +2197,11 @@ public class BgpConfigurationManager {
         return bgpAlarms;
     }
 
+    private static String appendLabelToPrefix(String prefix, long routeLabel) {
+        return prefix + ":" + routeLabel;
+    }
+
+    private static String extractPrefix(String key) {
+        return key.split(":")[0];
+    }
 }
