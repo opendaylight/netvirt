@@ -1,0 +1,72 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1a622d24_0688481e",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/test/java/org/opendaylight/netvirt/elan/utils/ElanUtilsTest.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 89,
+      "author": {
+        "id": 5867
+      },
+      "writtenOn": "2016-12-07T23:24:27Z",
+      "side": 1,
+      "message": "I\u0027m against creating new tests in this style, which mock half of the world, and would invite you to instead write a real \"component\" test, like we now have in aclservice (ask Ashwin) and in interfacemanager (ask Faseela).  If, after having looked at the AclServiceTest \u0026 InterfaceManagerConfigurationTest you like the idea, but don\u0027t know how to get started, and would like me to help you write a skeleton of a similar test for elanmanager, which you would have to complete later, please let me know, and I would be happy to.",
+      "revId": "99d37434c4722e9a5a4c2114381439d9d0dd15b8",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_869c586b",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/test/java/org/opendaylight/netvirt/elan/utils/FlowEntityMatcher.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 5867
+      },
+      "writtenOn": "2016-12-07T23:24:27Z",
+      "side": 1,
+      "message": "as FlowEntity implements equals(), I do not think this class is needed at all",
+      "revId": "99d37434c4722e9a5a4c2114381439d9d0dd15b8",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_e688ac24",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/test/java/org/opendaylight/netvirt/elan/utils/FlowEntityMatcher.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 5867
+      },
+      "writtenOn": "2016-12-07T23:24:27Z",
+      "side": 1,
+      "message": ":-(",
+      "revId": "99d37434c4722e9a5a4c2114381439d9d0dd15b8",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_c68db033",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/test/java/org/opendaylight/netvirt/elan/utils/FlowEntityMatcher.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 30,
+      "author": {
+        "id": 5867
+      },
+      "writtenOn": "2016-12-07T23:24:27Z",
+      "side": 1,
+      "message": ":-(",
+      "revId": "99d37434c4722e9a5a4c2114381439d9d0dd15b8",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
