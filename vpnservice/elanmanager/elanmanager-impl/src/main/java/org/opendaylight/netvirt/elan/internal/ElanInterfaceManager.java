@@ -927,13 +927,12 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
                             MDSALUtil.buildBucketLists(remoteListBucketInfo));
                     mdsalManager.syncInstallGroup(dpnInterface.getDpId(), group,
                             ElanConstants.DELAY_TIME_IN_MILLISECOND);
-                    try {
-                        Thread.sleep(WAIT_TIME_FOR_SYNC_INSTALL);
-                    } catch (InterruptedException e1) {
-                        LOG.warn("Error while waiting for remote BC group on other DPNs for ELAN {} to install",
-                                elanInfo);
-                    }
                 }
+            }
+            try {
+                Thread.sleep(WAIT_TIME_FOR_SYNC_INSTALL);
+            } catch (InterruptedException e1) {
+                LOG.warn("Error while waiting for remote BC group on other DPNs for ELAN {} to install", elanInfo);
             }
         }
     }
