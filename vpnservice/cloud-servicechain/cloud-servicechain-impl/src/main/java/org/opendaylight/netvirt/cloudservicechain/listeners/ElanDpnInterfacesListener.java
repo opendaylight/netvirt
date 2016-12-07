@@ -12,10 +12,8 @@ import java.math.BigInteger;
 import java.util.List;
 
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.binding.api.DataChangeListener;
-import org.opendaylight.controller.md.sal.common.api.data.AsyncDataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.genius.mdsalutil.AbstractDataChangeListener;
+import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
 import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.netvirt.cloudservicechain.utils.ElanServiceChainUtils;
@@ -25,46 +23,53 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.Elan
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.dpn.interfaces.ElanDpnInterfacesList;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.dpn.interfaces.elan.dpn.interfaces.list.DpnInterfaces;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.instances.ElanInstance;
-import org.opendaylight.yangtools.concepts.ListenerRegistration;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class ElanDpnInterfacesListener extends AbstractDataChangeListener<DpnInterfaces> implements AutoCloseable {
+/**
+ * Listener responsible for maintaining the Elan-Pseudo ports installed
+ * wherever the ELAN is. Listens for ElanInterfaces being added/removed
+ * to/from a DPN so that Elan2Scf and Scf2Elan flows are installed/removed
+ * from that DPN
+ */
+public class ElanDpnInterfacesListener extends AsyncDataTreeChangeListenerBase<DpnInterfaces, ElanDpnInterfacesListener>
+                                       implements AutoCloseable {
 
     private static final Logger LOG = LoggerFactory.getLogger(ElanDpnInterfacesListener.class);
 
-    private ListenerRegistration<DataChangeListener> listenerRegistration;
     private final DataBroker broker;
     private final IMdsalApiManager mdsalManager;
 
     public ElanDpnInterfacesListener(final DataBroker db, final IMdsalApiManager mdsalMgr) {
-        super(DpnInterfaces.class);
+        super(DpnInterfaces.class, ElanDpnInterfacesListener.class);
         this.broker = db;
         this.mdsalManager = mdsalMgr;
     }
 
+    @Override
     public void init() {
-        registerListener(broker);
+        LOG.info("{} start", getClass().getSimpleName());
+        registerListener(LogicalDatastoreType.OPERATIONAL, broker);
     }
 
-    private void registerListener(final DataBroker db) {
-        listenerRegistration = db.registerDataChangeListener(LogicalDatastoreType.OPERATIONAL,
-                                                             getWildCardPath(),
-                                                             ElanDpnInterfacesListener.this,
-                                                             AsyncDataBroker.DataChangeScope.SUBTREE);
-    }
-
+    @Override
     public InstanceIdentifier<DpnInterfaces> getWildCardPath() {
         return InstanceIdentifier.builder(ElanDpnInterfaces.class).child(ElanDpnInterfacesList.class)
                 .child(DpnInterfaces.class).build();
     }
 
     @Override
+    protected ElanDpnInterfacesListener getDataTreeChangeListener() {
+        return ElanDpnInterfacesListener.this;
+    }
+
+    @Override
     protected void add(InstanceIdentifier<DpnInterfaces> identifier, final DpnInterfaces dpnInterfaces) {
         final String elanName = getElanName(identifier);
         BigInteger addDpnId = dpnInterfaces.getDpId();
+        LOG.debug("ELAN interfaces {} added on DPN {} for Elan {}", dpnInterfaces.getInterfaces(), addDpnId, elanName);
         Optional<ElanServiceChainState> elanServiceChainState = ElanServiceChainUtils
                 .getElanServiceChainState(broker, elanName);
         if (elanServiceChainState.isPresent()) {
@@ -77,7 +82,7 @@ public class ElanDpnInterfacesListener extends AbstractDataChangeListener<DpnInt
                     handleUpdate(addDpnId, elanName, tableId, elanLportTag.intValue() /*21 bit*/ ,
                                  scfTag, NwConstants.ADD_FLOW);
                 } else {
-                    LOG.debug("Could not find lportTag for elan={}", elanName);
+                    LOG.debug("Could not find lportTag for ELAN={}", elanName);
                 }
             }
         }
@@ -87,6 +92,8 @@ public class ElanDpnInterfacesListener extends AbstractDataChangeListener<DpnInt
     protected void remove(InstanceIdentifier<DpnInterfaces> identifier, final DpnInterfaces dpnInterfaces) {
         final String elanName = getElanName(identifier);
         BigInteger removeDpnId = dpnInterfaces.getDpId();
+        LOG.debug("ELAN interfaces {} removed from on DPN {} for ELAN {}",
+                  dpnInterfaces.getInterfaces(), removeDpnId, elanName);
         Optional<ElanServiceChainState> elanServiceChainState = ElanServiceChainUtils
                 .getElanServiceChainState(broker, elanName);
         if (elanServiceChainState.isPresent()) {
@@ -99,7 +106,7 @@ public class ElanDpnInterfacesListener extends AbstractDataChangeListener<DpnInt
                                  elanLportTag.intValue() /*21 bit*/ , 0 /* scfTag, ignored in removals */,
                                  NwConstants.DEL_FLOW);
                 } else {
-                    LOG.debug("One of scfTag or lPortTag is null for elan={}:  scfTag={}  lportTag={}",
+                    LOG.debug("One of scfTag or lPortTag is null for ELAN={}:  scfTag={}  lportTag={}",
                               elanName, scfTag, elanLportTag);
                 }
             }
@@ -112,15 +119,6 @@ public class ElanDpnInterfacesListener extends AbstractDataChangeListener<DpnInt
 
     }
 
-    @Override
-    public void close() {
-        if (listenerRegistration != null) {
-            listenerRegistration.close();
-            listenerRegistration = null;
-        }
-        LOG.info("ElanDpnInterfaces listener Closed");
-    }
-
     private String getElanName(InstanceIdentifier<DpnInterfaces> identifier) {
         return identifier.firstKeyOf(ElanDpnInterfacesList.class).getElanInstanceName();
     }
@@ -129,7 +127,7 @@ public class ElanDpnInterfacesListener extends AbstractDataChangeListener<DpnInt
                               int addOrRemove) {
         Optional<ElanInstance> elanInstance = ElanServiceChainUtils.getElanInstanceByName(broker, elanName);
         if ( !elanInstance.isPresent() ) {
-            LOG.debug("Could not find an Elan Instance with name={}", elanName);
+            LOG.debug("Could not find an ELAN Instance with name={}", elanName);
             return;
         }
 
@@ -141,4 +139,5 @@ public class ElanDpnInterfacesListener extends AbstractDataChangeListener<DpnInt
         ElanServiceChainUtils.programLPortDispatcherFromScf(mdsalManager, dpnId, elanLportTag, elanTag, addOrRemove);
         ElanServiceChainUtils.programExternalTunnelTable(mdsalManager, dpnId, elanLportTag, vni, elanTag, addOrRemove);
     }
+
 }
