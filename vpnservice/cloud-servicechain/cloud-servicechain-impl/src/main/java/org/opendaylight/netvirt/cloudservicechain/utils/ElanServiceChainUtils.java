@@ -290,7 +290,7 @@ public class ElanServiceChainUtils {
                 .child(ElanInstance.class, new ElanInstanceKey(elanInstanceName))
                 .augmentation(ElanServiceChainState.class).build();
         Optional<ElanServiceChainState> elanServiceChainStateOpc =
-            MDSALUtil.read(broker,LogicalDatastoreType.OPERATIONAL,path);
+            MDSALUtil.read(broker,LogicalDatastoreType.CONFIGURATION, path);
 
         return elanServiceChainStateOpc;
 
