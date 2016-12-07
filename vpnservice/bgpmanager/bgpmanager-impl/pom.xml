@@ -85,12 +85,6 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
 	</exclusion>
 	</exclusions>
    </dependency>
- <dependency>
-        <groupId>com.codahale.metrics</groupId>
-        <artifactId>metrics-core</artifactId>
-		<version>3.0.1</version>
-        
-    </dependency>
 	<dependency>
         <groupId>com.codahale.metrics</groupId>
         <artifactId>metrics-graphite</artifactId>

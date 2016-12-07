@@ -1472,6 +1472,7 @@ public class NatUtil {
         }
         return ret;
     }
+
     public static boolean isIPv6Subnet(String prefix) {
         IpPrefix ipPrefix = new IpPrefix(prefix.toCharArray());
         if (ipPrefix.getIpv6Prefix() != null) {
