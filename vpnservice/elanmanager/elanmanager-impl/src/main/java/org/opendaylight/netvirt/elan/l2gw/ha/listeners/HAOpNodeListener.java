@@ -95,7 +95,7 @@ public class HAOpNodeListener extends HwvtepNodeBaseListener implements DataTree
         return false;
     }
 
-    public HAOpNodeListener(DataBroker db, HAEventHandler haEventHandler) {
+    public HAOpNodeListener(DataBroker db, HAEventHandler haEventHandler) throws Exception {
         super(OPERATIONAL, db);
         this.haEventHandler = haEventHandler;
         LOG.info("Registering HwvtepDataChangeListener for operational nodes");
