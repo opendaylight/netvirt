@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1a622d24_e62c2c4d",
+        "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/PortSecurityHandler.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 159,
+      "author": {
+        "id": 5444
+      },
+      "writtenOn": "2016-12-07T22:51:03Z",
+      "side": 1,
+      "message": "may be good to insert a comma separator between \"syncSecurityGroup\" and \"port\"",
+      "revId": "254ce3a21736bc00012f797c9d1ddfca8577989a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_c63130a4",
+        "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/PortSecurityHandler.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 161,
+      "author": {
+        "id": 5444
+      },
+      "writtenOn": "2016-12-07T22:51:03Z",
+      "side": 1,
+      "message": "can you add the {} placeholder for \"port\" value here. thanks",
+      "revId": "254ce3a21736bc00012f797c9d1ddfca8577989a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
