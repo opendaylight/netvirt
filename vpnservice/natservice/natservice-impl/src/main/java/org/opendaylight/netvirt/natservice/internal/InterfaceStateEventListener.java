@@ -55,22 +55,20 @@ public class InterfaceStateEventListener extends AsyncDataTreeChangeListenerBase
     private final FloatingIPListener floatingIPListener;
     private final NaptManager naptManager;
     private final NeutronvpnService neutronVpnService;
-    private final NaptSwitchHA naptSwitchHA;
 
     public InterfaceStateEventListener(final DataBroker dataBroker, final IMdsalApiManager mdsalManager,
                                        final FloatingIPListener floatingIPListener,
                                        final NaptManager naptManager,
-                                       final NeutronvpnService neutronvpnService,
-                                       final NaptSwitchHA naptSwitchHA){
+                                       final NeutronvpnService neutronvpnService){
         super(Interface.class, InterfaceStateEventListener.class);
         this.dataBroker = dataBroker;
         this.mdsalManager = mdsalManager;
         this.floatingIPListener = floatingIPListener;
         this.naptManager = naptManager;
         this.neutronVpnService = neutronvpnService;
-        this.naptSwitchHA = naptSwitchHA;
     }
 
+    @Override
     public void init() {
         LOG.info("{} init", getClass().getSimpleName());
         registerListener(LogicalDatastoreType.OPERATIONAL, dataBroker);
@@ -162,67 +160,8 @@ public class InterfaceStateEventListener extends AsyncDataTreeChangeListenerBase
             if (routerId != null) {
                 processInterfaceAdded(interfaceName);
             }
-            if (Tunnel.class.equals(intrf.getType())) {
-                updateNaptTunnelsGroups(intrf);
-            }
         } catch (Exception ex) {
             LOG.error("NAT Service : Exception caught in Interface Operational State Up event: {}", ex);
-        }
-    }
-
-    private void updateNaptTunnelsGroups(Interface intrf) {
-        // get tunnel's DPN
-        String interfaceName = intrf.getName();
-        BigInteger tunnelDpnId;
-        try {
-            tunnelDpnId = NatUtil.getDpIdFromInterface(intrf);
-        } catch (Exception e) {
-            LOG.warn("NAT Service : Unable to retrieve DPNID from Interface operational data store for " +
-                    "Interface {}. Fetching from VPN Interface op data store. ", intrf.getName(), e);
-            InstanceIdentifier<VpnInterface> id = NatUtil.getVpnInterfaceIdentifier(interfaceName);
-            Optional<VpnInterface> optVpnInterface = NatUtil.read(dataBroker, LogicalDatastoreType
-                    .OPERATIONAL, id);
-            if (!optVpnInterface.isPresent()) {
-                LOG.debug("NAT Service : Interface {} is not a VPN Interface, ignoring.", intrf.getName());
-                return;
-            }
-            final VpnInterface vpnInterface = optVpnInterface.get();
-            tunnelDpnId = vpnInterface.getDpnId();
-        }
-        if(tunnelDpnId == null || tunnelDpnId.equals(BigInteger.ZERO)){
-            LOG.debug("NAT Service : Unable to retrieve DPN ID for tunnel interface {}, update NAPT tunnel group " +
-                    "table failed", interfaceName);
-            return;
-        }
-
-        // get tunnel DPN's routers
-        Set<RouterDpnList> allRouterDpnList = NatUtil.getAllRouterDpnList(dataBroker, tunnelDpnId);
-
-        // for all routers in DPN
-        for (RouterDpnList routerDpnList : allRouterDpnList) {
-             String routerName = routerDpnList.getRouterId();
-             Long dpnRouterId = NatUtil.getVpnId(dataBroker, routerName);
-
-             if (dpnRouterId != NatConstants.INVALID_ID) {
-                 BigInteger naptSwitch = NatUtil.getPrimaryNaptfromRouterId(dataBroker, dpnRouterId);
-
-                 if (naptSwitch == null) {
-                     LOG.debug("NAPT switch is undefined for router id {} and dpnId {}", dpnRouterId, tunnelDpnId);
-                     continue;
-                 }
-
-                 // if the interface is of a neighbor dpn (not on the NAPT switch) update the router's group table
-                 if (!tunnelDpnId.equals(naptSwitch)) {
-                     List<BucketInfo> bucketInfo = naptSwitchHA.handleGroupInNeighborSwitches(tunnelDpnId,
-                             routerName, naptSwitch);
-                     if (bucketInfo.isEmpty()) {
-                         LOG.debug("Failed to populate bucketInfo for dpnId {} routername {} naptSwitch {}",
-                                 tunnelDpnId, dpnRouterId, naptSwitch);
-                         continue;
-                     }
-                     naptSwitchHA.installSnatGroupEntry(tunnelDpnId, bucketInfo, routerName);
-                 }
-             }
         }
     }
 
