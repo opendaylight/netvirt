@@ -30,7 +30,7 @@ public class HAOpClusteredListener extends HwvtepNodeBaseListener implements Clu
     private static DataBroker dataBroker;
     private ListenerRegistration<HAOpClusteredListener> registration;
 
-    public HAOpClusteredListener(DataBroker db) {
+    public HAOpClusteredListener(DataBroker db) throws Exception {
         super(LogicalDatastoreType.OPERATIONAL, db);
         LOG.info("Registering HAOpClusteredListener");
     }
