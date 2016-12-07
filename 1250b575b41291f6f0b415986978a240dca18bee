@@ -1,0 +1,656 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1a622d24_97f2c898",
+        "filename": "vpnservice/bgpmanager/bgpmanager-impl/src/main/java/org/opendaylight/netvirt/bgpmanager/BgpConfigurationManager.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 2076,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2016-12-07T04:55:59Z",
+      "side": 1,
+      "message": "Looks like staledFibEntriesMap is being used to clean up vrfTable during BGP restart scenarios.\nThis map works fine if destprefix having only one nexthop. but it will not work for destprefix with two route paths. you may have to change map key accordingly (may be append route label along ip prefix to make unique string). Look at onUpdatePushRoute on how this map getting used.",
+      "revId": "1250b575b41291f6f0b415986978a240dca18bee",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_77ef2cb1",
+        "filename": "vpnservice/bgpmanager/bgpmanager-impl/src/main/java/org/opendaylight/netvirt/bgpmanager/FibDSWriter.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 68,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2016-12-07T04:55:59Z",
+      "side": 1,
+      "message": "do (long) label) only once, assign it to a varibale and use it",
+      "revId": "1250b575b41291f6f0b415986978a240dca18bee",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_b730a457",
+        "filename": "vpnservice/cloud-servicechain/cloud-servicechain-impl/src/main/java/org/opendaylight/netvirt/cloudservicechain/listeners/VrfListener.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 97,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2016-12-07T04:55:59Z",
+      "side": 1,
+      "message": "Do the deep clone of route paths. Also for original and update. they are not intended for modification in DCN handling methods.",
+      "revId": "1250b575b41291f6f0b415986978a240dca18bee",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_373c942f",
+        "filename": "vpnservice/cloud-servicechain/cloud-servicechain-impl/src/main/java/org/opendaylight/netvirt/cloudservicechain/listeners/VrfListener.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 99,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2016-12-07T04:55:59Z",
+      "side": 1,
+      "message": "you can simply call remove/add if routepaths size are different. This can happen only in BGP route scenarios. For static routes, we just simply update nexthop list without modifying label in routepath.",
+      "revId": "1250b575b41291f6f0b415986978a240dca18bee",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_d71280b3",
+        "filename": "vpnservice/cloud-servicechain/cloud-servicechain-impl/src/main/java/org/opendaylight/netvirt/cloudservicechain/utils/VpnServiceChainUtils.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 339,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2016-12-07T04:55:59Z",
+      "side": 1,
+      "message": "check for vrfEntries is null and return it immediately.",
+      "revId": "1250b575b41291f6f0b415986978a240dca18bee",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_b71704a3",
+        "filename": "vpnservice/cloud-servicechain/cloud-servicechain-impl/src/main/java/org/opendaylight/netvirt/cloudservicechain/utils/VpnServiceChainUtils.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 340,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2016-12-07T04:55:59Z",
+      "side": 1,
+      "message": "Can you make use of vrfEntries.stream.forEach( vrfEntry -\u003e vrfEntry.getRoutePaths().stream().forEach(route -\u003e \u003capply logic) ?",
+      "range": {
+        "startLine": 340,
+        "startChar": 8,
+        "endLine": 340,
+        "endChar": 9
+      },
+      "revId": "1250b575b41291f6f0b415986978a240dca18bee",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_57267017",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/FibConstants.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2016-12-07T04:55:59Z",
+      "side": 1,
+      "message": "do we really required this Map now? At most we would be using Reg0 and Reg1 is being used.",
+      "revId": "1250b575b41291f6f0b415986978a240dca18bee",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_771d6cbd",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/FibUtil.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 490,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2016-12-07T04:55:59Z",
+      "side": 1,
+      "message": "same comment as before.\nWhy can\u0027t you have helper method to construct vrfEntry with RoutePaths for the reuse purpose.",
+      "revId": "1250b575b41291f6f0b415986978a240dca18bee",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_97776802",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/FibUtil.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 577,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2016-12-07T04:55:59Z",
+      "side": 1,
+      "message": "you can have local variable for routePaths since it is being used in multiple places.",
+      "revId": "1250b575b41291f6f0b415986978a240dca18bee",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_175b5888",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/FibUtil.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 596,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2016-12-07T04:55:59Z",
+      "side": 1,
+      "message": "you can simply break from for loop.",
+      "revId": "1250b575b41291f6f0b415986978a240dca18bee",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_b7654447",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/FibUtil.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 606,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2016-12-07T04:55:59Z",
+      "side": 1,
+      "message": "why do you need noOfRoutes-- ?",
+      "revId": "1250b575b41291f6f0b415986978a240dca18bee",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_f75fbc70",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/FibUtil.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 638,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2016-12-07T04:55:59Z",
+      "side": 1,
+      "message": "Please validate this triggers DCN for vrfEntry.",
+      "revId": "1250b575b41291f6f0b415986978a240dca18bee",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_17d238d2",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 408,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2016-12-07T04:55:59Z",
+      "side": 1,
+      "message": "I think it is always have one next hop (since this is fake ip for interlinking vpn\u0027s added from northbound (or) leaked from BGP). Anyway this nexthop value is not being used to program fib/lfib entries.",
+      "revId": "1250b575b41291f6f0b415986978a240dca18bee",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_37d814ef",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 545,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2016-12-07T04:55:59Z",
+      "side": 1,
+      "message": "This is not for BGP routes and it should for adding subnet routes.",
+      "revId": "1250b575b41291f6f0b415986978a240dca18bee",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_5702f03e",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 581,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2016-12-07T04:55:59Z",
+      "side": 1,
+      "message": "Nit: provide space after ,",
+      "revId": "1250b575b41291f6f0b415986978a240dca18bee",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_97fc8840",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 799,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2016-12-07T04:55:59Z",
+      "side": 1,
+      "message": "I don\u0027t see BGP routes are getting imported into other VPNs. So this can be handled for routes having single label.\nIgnore if routePaths \u003e 1",
+      "revId": "1250b575b41291f6f0b415986978a240dca18bee",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_77f9ec4c",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 800,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2016-12-07T04:55:59Z",
+      "side": 1,
+      "message": "change variable name into routePath",
+      "revId": "1250b575b41291f6f0b415986978a240dca18bee",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_d79560e5",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 820,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2016-12-07T04:55:59Z",
+      "side": 1,
+      "message": "do the enough unit testing for self imported use cases work with these changes.",
+      "revId": "1250b575b41291f6f0b415986978a240dca18bee",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_b79a6412",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 1021,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2016-12-07T04:55:59Z",
+      "side": 1,
+      "message": "why do you have TODO ? Anyway it\u0027s for static/self imported routes.",
+      "revId": "1250b575b41291f6f0b415986978a240dca18bee",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_f7a4dc58",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 1141,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2016-12-07T04:55:59Z",
+      "side": 1,
+      "message": "If gre tunnels are created later, then tunnelstatelistener creates lb group with required combinations, then whenever vrfEntry is created remote fib has to updated based on route paths. You can\u0027t have vrfEntry for tunnels which doesn\u0027t exist.",
+      "revId": "1250b575b41291f6f0b415986978a240dca18bee",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_378654ba",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 1147,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2016-12-07T04:55:59Z",
+      "side": 1,
+      "message": "we can\u0027t simply use index++ for regload. this might work if we have only two DC Gws. but if we support multiple DC GWs, it can be N number of combinations. so we should have mapping b/w DC-GW ip and reg.",
+      "revId": "1250b575b41291f6f0b415986978a240dca18bee",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_7790ccec",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 1415,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2016-12-07T04:55:59Z",
+      "side": 1,
+      "message": "change the variable name to staticRoutePath. so that we can easily distinguish b/w static and bgp route paths. similarly use bgpRoutePath when you deal with bgp routes.",
+      "revId": "1250b575b41291f6f0b415986978a240dca18bee",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_d7bc406f",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 1817,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2016-12-07T04:55:59Z",
+      "side": 1,
+      "message": "Yes, you are correct.",
+      "revId": "1250b575b41291f6f0b415986978a240dca18bee",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_37adb432",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 1868,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2016-12-07T04:55:59Z",
+      "side": 1,
+      "message": "once you find remoteNextHopIp\u003cgwip\u003e, you have to call createRemoteFibEntry and break from here. moreover you can apply vrfEntry.stream().map(routepaths.stream().forEach() to achieve parallelism. But make sure it doesn\u0027t lead to other regressions",
+      "revId": "1250b575b41291f6f0b415986978a240dca18bee",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_97aac817",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 1904,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2016-12-07T04:55:59Z",
+      "side": 1,
+      "message": "same comment as above.",
+      "revId": "1250b575b41291f6f0b415986978a240dca18bee",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_77a72c50",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 1951,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2016-12-07T04:55:59Z",
+      "side": 1,
+      "message": "This method is called for handling local adjacency while handling internal vxlan tunnel add state. But we should already have pre-created vrfEntry with one route path (without nexthop list if tep is not present).",
+      "revId": "1250b575b41291f6f0b415986978a240dca18bee",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_d763a018",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 1958,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2016-12-07T04:55:59Z",
+      "side": 1,
+      "message": "I don\u0027t see modVrfEntry is commited into DS.",
+      "revId": "1250b575b41291f6f0b415986978a240dca18bee",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_f7721ce4",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 2000,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2016-12-07T04:55:59Z",
+      "side": 1,
+      "message": "remove TODO",
+      "revId": "1250b575b41291f6f0b415986978a240dca18bee",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_577790d4",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 2055,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2016-12-07T04:55:59Z",
+      "side": 1,
+      "message": "same comment as before. you have to break it once you remove remote fib.",
+      "revId": "1250b575b41291f6f0b415986978a240dca18bee",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_97812892",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 2092,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2016-12-07T04:55:59Z",
+      "side": 1,
+      "message": "same here.",
+      "revId": "1250b575b41291f6f0b415986978a240dca18bee",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_f7497c8c",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 2159,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2016-12-07T04:55:59Z",
+      "side": 1,
+      "message": "Use streams to construct List\u003cAdjacencyResult\u003e",
+      "revId": "1250b575b41291f6f0b415986978a240dca18bee",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_77556c1c",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 2361,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2016-12-07T04:55:59Z",
+      "side": 1,
+      "message": "No. In case of bgp leaked route, you might have multiple route-path for a prefix. \nMiguel can confirm it.",
+      "revId": "1250b575b41291f6f0b415986978a240dca18bee",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_173cf8e1",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 2411,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2016-12-07T04:55:59Z",
+      "side": 1,
+      "message": "Yes, move it to VpnUtils",
+      "revId": "1250b575b41291f6f0b415986978a240dca18bee",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_f7405c58",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/FibEntriesListener.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 84,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2016-12-07T04:55:59Z",
+      "side": 1,
+      "message": "Yes, this is needed to BGP routes since same prefix have multiple labels.",
+      "revId": "1250b575b41291f6f0b415986978a240dca18bee",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_3722d4b9",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 748,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2016-12-07T04:55:59Z",
+      "side": 1,
+      "message": "it should be local tep ip.",
+      "revId": "1250b575b41291f6f0b415986978a240dca18bee",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_7703ac0f",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 1412,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2016-12-07T04:55:59Z",
+      "side": 1,
+      "message": "use helper method here",
+      "revId": "1250b575b41291f6f0b415986978a240dca18bee",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_b71d4476",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 1821,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2016-12-07T04:55:59Z",
+      "side": 1,
+      "message": "you can use Collections.EmptyList() here",
+      "revId": "1250b575b41291f6f0b415986978a240dca18bee",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_ba040916",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/intervpnlink/InterVpnLinkUtil.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 505,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2016-12-07T04:55:59Z",
+      "side": 1,
+      "message": "why do you need ipAddress here ?",
+      "revId": "1250b575b41291f6f0b415986978a240dca18bee",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
