@@ -7,7 +7,6 @@
  */
 package org.opendaylight.netvirt.vpnmanager;
 
-import com.google.common.base.Function;
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Predicate;
@@ -248,7 +247,7 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                 LOG.error("Unable to retrieve dpnId from interface operational data store for interface {}. ", interfaceName, e);
                 return;
             }
-        } else if (vpnInterface.isIsRouterInterface()) {
+        } else if (Boolean.TRUE.equals(vpnInterface.isIsRouterInterface())) {
             DataStoreJobCoordinator dataStoreCoordinator = DataStoreJobCoordinator.getInstance();
             dataStoreCoordinator.enqueueJob("VPNINTERFACE-" + vpnInterface.getName(),
                     new Callable<List<ListenableFuture<Void>>>() {
@@ -1004,7 +1003,7 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                         }
                     });
 
-        } else if (vpnInterface.isIsRouterInterface()) {
+        } else if (Boolean.TRUE.equals(vpnInterface.isIsRouterInterface())) {
             DataStoreJobCoordinator dataStoreCoordinator = DataStoreJobCoordinator.getInstance();
             dataStoreCoordinator.enqueueJob("VPNINTERFACE-" + vpnInterface.getName(),
                     new Callable<List<ListenableFuture<Void>>>() {
