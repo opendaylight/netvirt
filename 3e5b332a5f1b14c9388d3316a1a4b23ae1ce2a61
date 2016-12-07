@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "1a622d24_fd467b22",
+        "filename": "docs/specs/flow-based-snat.rst",
+        "patchSetId": 1
+      },
+      "lineNbr": 5,
+      "author": {
+        "id": 4269
+      },
+      "writtenOn": "2016-12-07T12:04:22Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1a622d24_f85a0e4f",
+      "revId": "3e5b332a5f1b14c9388d3316a1a4b23ae1ce2a61",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_d320d59d",
         "filename": "docs/specs/flow-based-snat.rst",
         "patchSetId": 1
@@ -30,6 +48,24 @@
       "writtenOn": "2016-12-06T14:21:12Z",
       "side": 1,
       "message": "nit: /s/connection/connections",
+      "revId": "3e5b332a5f1b14c9388d3316a1a4b23ae1ce2a61",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_5d4b2f2b",
+        "filename": "docs/specs/flow-based-snat.rst",
+        "patchSetId": 1
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 4269
+      },
+      "writtenOn": "2016-12-07T12:04:22Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1a622d24_d320d59d",
       "revId": "3e5b332a5f1b14c9388d3316a1a4b23ae1ce2a61",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -53,6 +89,24 @@
     },
     {
       "key": {
+        "uuid": "1a622d24_3d48f32c",
+        "filename": "docs/specs/flow-based-snat.rst",
+        "patchSetId": 1
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 4269
+      },
+      "writtenOn": "2016-12-07T12:04:22Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1a622d24_b32559ad",
+      "revId": "3e5b332a5f1b14c9388d3316a1a4b23ae1ce2a61",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_333149ed",
         "filename": "docs/specs/flow-based-snat.rst",
         "patchSetId": 1
@@ -64,6 +118,24 @@
       "writtenOn": "2016-12-06T14:21:12Z",
       "side": 1,
       "message": "Shall we rephrase \"vm inside the DC\" as \"VM in a tenant network\" as a VM can be spawned directly on a provider network, whereas this use-case is for a tenant VM sitting behind the neutron virtual router.",
+      "revId": "3e5b332a5f1b14c9388d3316a1a4b23ae1ce2a61",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_dd5e1fe9",
+        "filename": "docs/specs/flow-based-snat.rst",
+        "patchSetId": 1
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 4269
+      },
+      "writtenOn": "2016-12-07T12:04:22Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1a622d24_333149ed",
       "revId": "3e5b332a5f1b14c9388d3316a1a4b23ae1ce2a61",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -87,6 +159,24 @@
     },
     {
       "key": {
+        "uuid": "1a622d24_dd057fc3",
+        "filename": "docs/specs/flow-based-snat.rst",
+        "patchSetId": 1
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 4269
+      },
+      "writtenOn": "2016-12-07T12:04:22Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1a622d24_7352a114",
+      "revId": "3e5b332a5f1b14c9388d3316a1a4b23ae1ce2a61",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_b35c3927",
         "filename": "docs/specs/flow-based-snat.rst",
         "patchSetId": 1
@@ -98,6 +188,24 @@
       "writtenOn": "2016-12-06T14:21:12Z",
       "side": 1,
       "message": "Does this require any specific version of OVS? If so, can you please include it.",
+      "revId": "3e5b332a5f1b14c9388d3316a1a4b23ae1ce2a61",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_7deeebed",
+        "filename": "docs/specs/flow-based-snat.rst",
+        "patchSetId": 1
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 4269
+      },
+      "writtenOn": "2016-12-07T12:04:22Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1a622d24_b35c3927",
       "revId": "3e5b332a5f1b14c9388d3316a1a4b23ae1ce2a61",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -121,6 +229,24 @@
     },
     {
       "key": {
+        "uuid": "1a622d24_9df147d0",
+        "filename": "docs/specs/flow-based-snat.rst",
+        "patchSetId": 1
+      },
+      "lineNbr": 58,
+      "author": {
+        "id": 4269
+      },
+      "writtenOn": "2016-12-07T12:04:22Z",
+      "side": 1,
+      "message": "Existing flows uses this structure.",
+      "parentUuid": "1a622d24_534b2559",
+      "revId": "3e5b332a5f1b14c9388d3316a1a4b23ae1ce2a61",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_f33d11bd",
         "filename": "docs/specs/flow-based-snat.rst",
         "patchSetId": 1
@@ -132,6 +258,24 @@
       "writtenOn": "2016-12-06T14:21:12Z",
       "side": 1,
       "message": "metadata\u003dmetadata\u003d0x222e0/0xfffffffe ?\nLooks like metadata is repeated.",
+      "revId": "3e5b332a5f1b14c9388d3316a1a4b23ae1ce2a61",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_1d109700",
+        "filename": "docs/specs/flow-based-snat.rst",
+        "patchSetId": 1
+      },
+      "lineNbr": 59,
+      "author": {
+        "id": 4269
+      },
+      "writtenOn": "2016-12-07T12:04:22Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1a622d24_f33d11bd",
       "revId": "3e5b332a5f1b14c9388d3316a1a4b23ae1ce2a61",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -155,6 +299,24 @@
     },
     {
       "key": {
+        "uuid": "1a622d24_fde2fb01",
+        "filename": "docs/specs/flow-based-snat.rst",
+        "patchSetId": 1
+      },
+      "lineNbr": 93,
+      "author": {
+        "id": 4269
+      },
+      "writtenOn": "2016-12-07T12:04:22Z",
+      "side": 1,
+      "message": "This needs be discussed, may be this knob shall be removed when the implementation matures and make this the default.",
+      "parentUuid": "1a622d24_331ae96e",
+      "revId": "3e5b332a5f1b14c9388d3316a1a4b23ae1ce2a61",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_3348295b",
         "filename": "docs/specs/flow-based-snat.rst",
         "patchSetId": 1
@@ -166,6 +328,24 @@
       "writtenOn": "2016-12-06T14:21:12Z",
       "side": 1,
       "message": "I think you can remove these statements and include \"N/A or leave it empty\" if the section does not apply.\n\nSame for some of the other sections below.",
+      "revId": "3e5b332a5f1b14c9388d3316a1a4b23ae1ce2a61",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_5d204f49",
+        "filename": "docs/specs/flow-based-snat.rst",
+        "patchSetId": 1
+      },
+      "lineNbr": 97,
+      "author": {
+        "id": 4269
+      },
+      "writtenOn": "2016-12-07T12:04:22Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1a622d24_3348295b",
       "revId": "3e5b332a5f1b14c9388d3316a1a4b23ae1ce2a61",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -189,6 +369,24 @@
     },
     {
       "key": {
+        "uuid": "1a622d24_9d1ae715",
+        "filename": "docs/specs/flow-based-snat.rst",
+        "patchSetId": 1
+      },
+      "lineNbr": 103,
+      "author": {
+        "id": 4269
+      },
+      "writtenOn": "2016-12-07T12:04:22Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1a622d24_93749d9d",
+      "revId": "3e5b332a5f1b14c9388d3316a1a4b23ae1ce2a61",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_73790193",
         "filename": "docs/specs/flow-based-snat.rst",
         "patchSetId": 1
@@ -206,6 +404,24 @@
     },
     {
       "key": {
+        "uuid": "1a622d24_5de7af12",
+        "filename": "docs/specs/flow-based-snat.rst",
+        "patchSetId": 1
+      },
+      "lineNbr": 124,
+      "author": {
+        "id": 4269
+      },
+      "writtenOn": "2016-12-07T12:04:22Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1a622d24_73790193",
+      "revId": "3e5b332a5f1b14c9388d3316a1a4b23ae1ce2a61",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_f364f1e6",
         "filename": "docs/specs/flow-based-snat.rst",
         "patchSetId": 1
@@ -217,6 +433,24 @@
       "writtenOn": "2016-12-06T14:21:12Z",
       "side": 1,
       "message": "Please remove references that are not applicable for this implementation.",
+      "revId": "3e5b332a5f1b14c9388d3316a1a4b23ae1ce2a61",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_3de4730c",
+        "filename": "docs/specs/flow-based-snat.rst",
+        "patchSetId": 1
+      },
+      "lineNbr": 212,
+      "author": {
+        "id": 4269
+      },
+      "writtenOn": "2016-12-07T12:04:22Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1a622d24_f364f1e6",
       "revId": "3e5b332a5f1b14c9388d3316a1a4b23ae1ce2a61",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
