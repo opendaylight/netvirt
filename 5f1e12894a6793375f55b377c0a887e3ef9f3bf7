@@ -1,0 +1,106 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1a622d24_d7b600dc",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/listeners/AclNodeListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 133,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2016-12-07T00:07:14Z",
+      "side": 1,
+      "message": "Please change reference to \u0027egress\u0027",
+      "revId": "5f1e12894a6793375f55b377c0a887e3ef9f3bf7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_b7bb84c3",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/listeners/AclNodeListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 313,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2016-12-07T00:07:14Z",
+      "side": 1,
+      "message": "Please change reference to egress",
+      "revId": "5f1e12894a6793375f55b377c0a887e3ef9f3bf7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_f7b5fccd",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/listeners/AclNodeListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 317,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2016-12-07T00:07:14Z",
+      "side": 1,
+      "message": "there are some \u0027ingress\u0027 reference in this method. Are they correct?",
+      "revId": "5f1e12894a6793375f55b377c0a887e3ef9f3bf7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_17b198e1",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/listeners/AclNodeListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 379,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2016-12-07T00:07:14Z",
+      "side": 1,
+      "message": "please change reference to \u0027ingress\u0027",
+      "revId": "5f1e12894a6793375f55b377c0a887e3ef9f3bf7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_57caf04f",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/listeners/AclNodeListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 383,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2016-12-07T00:07:14Z",
+      "side": 1,
+      "message": "there are some \u0027egress\u0027 reference in this method. Are they correct?",
+      "revId": "5f1e12894a6793375f55b377c0a887e3ef9f3bf7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_37c77447",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/listeners/AclNodeListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 442,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2016-12-07T00:07:14Z",
+      "side": 1,
+      "message": "there are some \u0027egress\u0027 reference heer and in the body of this method. Are they correct?",
+      "revId": "5f1e12894a6793375f55b377c0a887e3ef9f3bf7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
