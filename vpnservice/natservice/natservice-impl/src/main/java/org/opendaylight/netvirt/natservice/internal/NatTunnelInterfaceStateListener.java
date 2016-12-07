@@ -258,15 +258,10 @@ public class NatTunnelInterfaceStateListener extends AsyncDataTreeChangeListener
             String tunnelType = stateTunnelList.getTransportType().toString();
             String tunnelName = stateTunnelList.getTunnelInterfaceName();
 
-            if(tunTypeVal == NatConstants.ITMTunnelLocType.Internal.getValue()){
-                LOG.debug("NAT Service : Ignoring TEP event {} for the DPN {} " +
-                        "since its a INTERNAL TUNNEL TYPE {} b/w SRC IP {} and DST IP {} and " +
-                        "TUNNEL NAME {} ", tunnelAction, srcTepId, tunnelType, srcTepIp, destTepIp, tunnelName);
-                return;
-            }else if(tunTypeVal == NatConstants.ITMTunnelLocType.Invalid.getValue()){
-                LOG.warn("NAT Service : Ignoring TEP event {} for the DPN {} " +
-                        "since its a INVALID TUNNEL TYPE {} b/w SRC IP {} and DST IP {} and " +
-                        "TUNNEL NAME {} ", tunnelAction, srcTepId, tunnelType, srcTepIp, destTepIp, tunnelName);
+            if (tunTypeVal == NatConstants.ITMTunnelLocType.Invalid.getValue()) {
+                LOG.warn("NAT Service : Ignoring TEP event {} for the DPN {} "
+                        + "since its a INVALID TUNNEL TYPE {} b/w SRC IP {} and DST IP {} and " + "TUNNEL NAME {} ",
+                        tunnelAction, srcTepId, tunnelType, srcTepIp, destTepIp, tunnelName);
                 return;
             }
 
@@ -412,7 +407,7 @@ public class NatTunnelInterfaceStateListener extends AsyncDataTreeChangeListener
             2) Install the group which forward packet to the tunnel port for the NAPT switch.
             3) Install the flow 26 which forwards the packet to the group.
             */
-            if (!hndlTepAddOnNonNaptSwitch(srcDpnId, tunnelType, srcTepIp, destTepIp, tunnelName, routerName, routerId)){
+            if (!hndlTepAddOnNonNaptSwitch(srcDpnId, naptId, tunnelType, srcTepIp, destTepIp, tunnelName, routerName, routerId)){
                 LOG.debug("NAT Service : Unable to process the TEP add event on NON-NAPT switch {}", srcDpnId);
                 return;
             }
@@ -425,8 +420,8 @@ public class NatTunnelInterfaceStateListener extends AsyncDataTreeChangeListener
         return;
     }
 
-    private boolean hndlTepAddOnNonNaptSwitch(BigInteger srcDpnId, String tunnelType, String srcTepIp, String destTepIp,
-                                                String tunnelName, String routerName, long routerId){
+    private boolean hndlTepAddOnNonNaptSwitch(BigInteger srcDpnId, BigInteger primaryDpnId, String tunnelType,
+            String srcTepIp, String destTepIp, String tunnelName, String routerName, long routerId) {
 
         /*
         1) Install default NAT rule from table 21 to 26
@@ -452,9 +447,9 @@ public class NatTunnelInterfaceStateListener extends AsyncDataTreeChangeListener
                     " vpn {}...", srcDpnId,routerName,vpnId);
             defaultRouteProgrammer.installDefNATRouteInDPN(srcDpnId, vpnId);
 
-            LOG.debug("NAT Service : SNAT -> Install the group which forward packet to the tunnel port for the NAPT switch" +
-                    " and the flow 26 which forwards to group");
-            externalRouterListner.handleSwitches(srcDpnId, routerName, srcDpnId);
+            LOG.debug("NAT Service : SNAT -> Install the group which forward packet to the tunnel port for the NAPT switch {}" +
+                    " and the flow 26 which forwards to group", primaryDpnId);
+            externalRouterListner.handleSwitches(srcDpnId, routerName, primaryDpnId);
         } else {
             LOG.debug("NAT Service : SNAT -> External BGP VPN (Private BGP) associated to router {}",routerId);
             vpnId = NatUtil.getVpnId(dataBroker, vpnName.getValue());

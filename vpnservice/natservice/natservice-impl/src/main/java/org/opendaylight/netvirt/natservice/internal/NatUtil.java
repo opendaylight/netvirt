@@ -129,7 +129,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.id.to.vpn.instance.VpnIdsKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.VpnInstanceOpDataEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.VpnInstanceOpDataEntryKey;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.vpn.instance.op.data.entry.VpnToDpnList;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.op.rev160406.DpnEndpoints;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.op.rev160406.dpn.endpoints.DPNTEPsInfo;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.op.rev160406.dpn.endpoints.DPNTEPsInfoKey;
@@ -1450,27 +1449,6 @@ public class NatUtil {
         }
 
         return portIpToPortOpt.get().getMacAddress();
-    }
-
-    public static Set<RouterDpnList> getAllRouterDpnList(DataBroker broker, BigInteger dpid) {
-        Set<RouterDpnList> ret = new HashSet<>();
-        InstanceIdentifier<NeutronRouterDpns> routerDpnId = InstanceIdentifier.create(NeutronRouterDpns.class);
-        Optional<NeutronRouterDpns> neutronRouterDpnsOpt = MDSALUtil.read(broker, LogicalDatastoreType.OPERATIONAL,
-                routerDpnId);
-        if (neutronRouterDpnsOpt.isPresent()) {
-            NeutronRouterDpns neutronRouterDpns = neutronRouterDpnsOpt.get();
-            List<RouterDpnList> routerDpnLists = neutronRouterDpns.getRouterDpnList();
-            for (RouterDpnList routerDpnList : routerDpnLists) {
-                if (routerDpnList.getDpnVpninterfacesList() != null) {
-                    for (DpnVpninterfacesList dpnInterfaceList : routerDpnList.getDpnVpninterfacesList()) {
-                        if (dpnInterfaceList.getDpnId().equals(dpid)) {
-                            ret.add(routerDpnList);
-                        }
-                    }
-                }
-            }
-        }
-        return ret;
     }
 
     public static boolean isIPv6Subnet(String prefix) {

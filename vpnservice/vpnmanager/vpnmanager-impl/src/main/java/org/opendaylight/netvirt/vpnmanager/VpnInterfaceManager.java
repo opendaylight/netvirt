@@ -241,7 +241,7 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                 LOG.error("Unable to retrieve dpnId from interface operational data store for interface {}. ", interfaceName, e);
                 return;
             }
-        } else if (vpnInterface.isIsRouterInterface()) {
+        } else if (Boolean.TRUE.equals(vpnInterface.isIsRouterInterface())) {
             createVpnInterfaceForRouter(vpnInterface, interfaceName);
 
         } else {
@@ -971,7 +971,7 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                         }
                     });
 
-        } else if (vpnInterface.isIsRouterInterface()) {
+        } else if (Boolean.TRUE.equals(vpnInterface.isIsRouterInterface())) {
 
             List<Adjacency> adjsList = new ArrayList<>();
             Adjacencies adjs = vpnInterface.getAugmentation(Adjacencies.class);

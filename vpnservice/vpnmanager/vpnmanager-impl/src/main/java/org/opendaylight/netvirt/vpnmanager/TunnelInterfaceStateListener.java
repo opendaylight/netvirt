@@ -274,7 +274,9 @@ public class TunnelInterfaceStateListener extends AsyncDataTreeChangeListenerBas
                 intfName = interfacelistIter.next();
                 final VpnInterface vpnInterface = VpnUtil.getOperationalVpnInterface(dataBroker, intfName);
                 if (vpnInterface != null) {
-                    List<Adjacency> adjList = vpnInterface.getAugmentation(Adjacencies.class).getAdjacency();
+                    Adjacencies adjacencies = vpnInterface.getAugmentation(Adjacencies.class);
+                    List<Adjacency> adjList = adjacencies != null ? adjacencies.getAdjacency()
+                            : Collections.emptyList();
                     String prefix = null;
                     long vpnId = VpnUtil.getVpnId(dataBroker, vpnInterface.getVpnInstanceName());
                     if (vpnIdRdMap.containsKey(vpnId)) {
@@ -354,6 +356,7 @@ public class TunnelInterfaceStateListener extends AsyncDataTreeChangeListenerBas
             this.isTepDeletedOnDpn = isTepDeletedOnDpn;
         }
 
+        @Override
         public List<ListenableFuture<Void>> call() throws Exception {
 
             if(tunnelAction == TunnelAction.TUNNEL_EP_ADD) {
