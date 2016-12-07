@@ -75,7 +75,7 @@ public class SecurityGroupCacheManagerImpl implements ConfigInterface, SecurityG
 
     @Override
     public void addToCache(String remoteSgUuid, String portUuid) {
-        LOG.debug("In addToCache remoteSgUuid:" + remoteSgUuid + "portUuid:" + portUuid);
+        LOG.debug("In addToCache remoteSgUuid:" + remoteSgUuid + " portUuid:" + portUuid);
         Set<String> portList = securityGroupCache.get(remoteSgUuid);
         if (null == portList) {
             portList = new HashSet<>();
