@@ -144,6 +144,52 @@
     },
     {
       "key": {
+        "uuid": "1a622d24_7d31cbeb",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/FibUtil.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 503,
+      "author": {
+        "id": 5350
+      },
+      "writtenOn": "2016-12-07T11:55:36Z",
+      "side": 1,
+      "message": "if you are only going to use \u0027get\u0027 or \u0027isPresent\u0027, I think it is better to stick to guava\u0027s Optional. \nOtoh, you could use the \u0027ifPresent\u0027 and \u0027orElse\u0027.\n\nIf you pretend to introduce java.util.Optional, contact Stephen Kitt and Michael Vorburger. They are debating if we should introduce it now or wait.\n\nAlso, I think that the non-written convention for optional vbles is to be called \u0027optWhatever\u0027",
+      "range": {
+        "startLine": 503,
+        "startChar": 47,
+        "endLine": 503,
+        "endChar": 64
+      },
+      "revId": "1250b575b41291f6f0b415986978a240dca18bee",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_5d416f38",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/FibUtil.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 511,
+      "author": {
+        "id": 5350
+      },
+      "writtenOn": "2016-12-07T11:55:36Z",
+      "side": 1,
+      "message": "execute the \u0027.get()\u0027 just once and assign it to a variable",
+      "range": {
+        "startLine": 511,
+        "startChar": 60,
+        "endLine": 511,
+        "endChar": 83
+      },
+      "revId": "1250b575b41291f6f0b415986978a240dca18bee",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_97776802",
         "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/FibUtil.java",
         "patchSetId": 3
@@ -212,6 +258,29 @@
     },
     {
       "key": {
+        "uuid": "1a622d24_1d27f765",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 5350
+      },
+      "writtenOn": "2016-12-07T11:55:36Z",
+      "side": 1,
+      "message": "java8\u0027s String already have a \u0027join\u0027 method. You can have a look to see if this 3rd party dependency can be avoided\n\nhttps://docs.oracle.com/javase/8/docs/api/java/lang/String.html#join-java.lang.CharSequence-java.lang.Iterable-",
+      "range": {
+        "startLine": 26,
+        "startChar": 32,
+        "endLine": 26,
+        "endChar": 43
+      },
+      "revId": "1250b575b41291f6f0b415986978a240dca18bee",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_17d238d2",
         "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
         "patchSetId": 3
@@ -223,6 +292,52 @@
       "writtenOn": "2016-12-07T04:55:59Z",
       "side": 1,
       "message": "I think it is always have one next hop (since this is fake ip for interlinking vpn\u0027s added from northbound (or) leaked from BGP). Anyway this nexthop value is not being used to program fib/lfib entries.",
+      "revId": "1250b575b41291f6f0b415986978a240dca18bee",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_9d55c7c8",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 413,
+      "author": {
+        "id": 5350
+      },
+      "writtenOn": "2016-12-07T11:55:36Z",
+      "side": 1,
+      "message": "since vrfEntry is already a param, vrfEntry.getRoutePaths().get(0) is not necessary",
+      "range": {
+        "startLine": 413,
+        "startChar": 90,
+        "endLine": 413,
+        "endChar": 121
+      },
+      "revId": "1250b575b41291f6f0b415986978a240dca18bee",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_bd3c0395",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 414,
+      "author": {
+        "id": 5350
+      },
+      "writtenOn": "2016-12-07T11:55:36Z",
+      "side": 1,
+      "message": "same",
+      "range": {
+        "startLine": 414,
+        "startChar": 51,
+        "endLine": 414,
+        "endChar": 92
+      },
       "revId": "1250b575b41291f6f0b415986978a240dca18bee",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -308,6 +423,29 @@
       "writtenOn": "2016-12-07T04:55:59Z",
       "side": 1,
       "message": "do the enough unit testing for self imported use cases work with these changes.",
+      "revId": "1250b575b41291f6f0b415986978a240dca18bee",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_fd5ddbea",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 860,
+      "author": {
+        "id": 5350
+      },
+      "writtenOn": "2016-12-07T11:55:36Z",
+      "side": 1,
+      "message": "I guess you can assign this to a local \u0027label\u0027 variable",
+      "range": {
+        "startLine": 860,
+        "startChar": 71,
+        "endLine": 860,
+        "endChar": 113
+      },
       "revId": "1250b575b41291f6f0b415986978a240dca18bee",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -569,6 +707,29 @@
     },
     {
       "key": {
+        "uuid": "1a622d24_5df96fc7",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 2412,
+      "author": {
+        "id": 5350
+      },
+      "writtenOn": "2016-12-07T11:55:36Z",
+      "side": 1,
+      "message": "I think it is better to have your own RoutePathsByIpAddrComparator, and sort the list with \n \n routePathsList.sort(myRoutePathsByIpAddrComparator)",
+      "range": {
+        "startLine": 2412,
+        "startChar": 17,
+        "endLine": 2412,
+        "endChar": 30
+      },
+      "revId": "1250b575b41291f6f0b415986978a240dca18bee",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_f7405c58",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/FibEntriesListener.java",
         "patchSetId": 3
@@ -631,6 +792,29 @@
       "writtenOn": "2016-12-07T04:55:59Z",
       "side": 1,
       "message": "you can use Collections.EmptyList() here",
+      "revId": "1250b575b41291f6f0b415986978a240dca18bee",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_1ad25dd2",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/intervpnlink/InterVpnLinkListener.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 82,
+      "author": {
+        "id": 5350
+      },
+      "writtenOn": "2016-12-07T11:55:36Z",
+      "side": 1,
+      "message": "imports must be lexicographically ordered. Checkstyle will complain about this",
+      "range": {
+        "startLine": 78,
+        "startChar": 0,
+        "endLine": 82,
+        "endChar": 57
+      },
       "revId": "1250b575b41291f6f0b415986978a240dca18bee",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
