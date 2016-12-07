@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "1a622d24_e0d09455",
+        "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/SouthboundHandler.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 106,
+      "author": {
+        "id": 4030
+      },
+      "writtenOn": "2016-12-07T14:53:10Z",
+      "side": 1,
+      "message": "When a VM is created , SouthBoundHandler receives 2 events , ADD and Update.\nAdd and Update events, both perform same action (installing ARP flows).\nTo avoid redundant installation,flows will be install only for the Update event and hence the change",
+      "parentUuid": "1a622d24_27262b17",
+      "revId": "bc499e5e66561a24cf8815e265736242f62fadfe",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_2702ab3e",
         "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/impl/DistributedArpService.java",
         "patchSetId": 2
@@ -30,6 +48,24 @@
       "writtenOn": "2016-12-05T20:56:41Z",
       "side": 1,
       "message": "- please avoid using magic number \u00275\u0027\n- please specify name of of the thread by passing in threadFactory \u003d new ThreadFactoryBuilder().setNameFormat(..)\nExecutors.newFixedThreadPool(NUM_THREADS, threadFactory)",
+      "revId": "bc499e5e66561a24cf8815e265736242f62fadfe",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_c0d59844",
+        "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/impl/DistributedArpService.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 63,
+      "author": {
+        "id": 4030
+      },
+      "writtenOn": "2016-12-07T14:53:10Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1a622d24_2702ab3e",
       "revId": "bc499e5e66561a24cf8815e265736242f62fadfe",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -53,6 +89,24 @@
     },
     {
       "key": {
+        "uuid": "1a622d24_20cbaca6",
+        "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/impl/DistributedArpService.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 144,
+      "author": {
+        "id": 4030
+      },
+      "writtenOn": "2016-12-07T14:53:10Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1a622d24_07868fb9",
+      "revId": "bc499e5e66561a24cf8815e265736242f62fadfe",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_c7d657c5",
         "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/impl/DistributedArpService.java",
         "patchSetId": 2
@@ -64,6 +118,24 @@
       "writtenOn": "2016-12-05T20:56:41Z",
       "side": 1,
       "message": "please use meaningful variable name",
+      "revId": "bc499e5e66561a24cf8815e265736242f62fadfe",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_60c48492",
+        "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/impl/DistributedArpService.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 183,
+      "author": {
+        "id": 4030
+      },
+      "writtenOn": "2016-12-07T14:53:10Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1a622d24_c7d657c5",
       "revId": "bc499e5e66561a24cf8815e265736242f62fadfe",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -87,6 +159,24 @@
     },
     {
       "key": {
+        "uuid": "1a622d24_6072c47d",
+        "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/impl/DistributedArpService.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 188,
+      "author": {
+        "id": 4030
+      },
+      "writtenOn": "2016-12-07T14:53:10Z",
+      "side": 1,
+      "message": "If (neutronPortList.size() \u003d\u003d 1 \u0026\u0026            neutronPort.getPortUUID().equalsIgnoreCase(existingPort.getPortUUID()))  {\n     For compute nodes, only when first VM being created , \n     to install arp flows from other control/compute nodes         (neutron port cache contains all ports for all nodes).\n     \n     For control node , only when creation of first network, to install arp flows  .\n } else {\n        Install arp flows for the current port.\n}",
+      "parentUuid": "1a622d24_07516f62",
+      "revId": "bc499e5e66561a24cf8815e265736242f62fadfe",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_674e63c3",
         "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/impl/DistributedArpService.java",
         "patchSetId": 2
@@ -98,6 +188,24 @@
       "writtenOn": "2016-12-05T20:56:41Z",
       "side": 1,
       "message": "- line too long\n- I think the condition \u0027neutronPortList.size() \u003d\u003d 1\u0027 is not needed because \u0027tempPort !\u003d null\u0027 implies it",
+      "revId": "bc499e5e66561a24cf8815e265736242f62fadfe",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_40c1887f",
+        "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/impl/DistributedArpService.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 190,
+      "author": {
+        "id": 4030
+      },
+      "writtenOn": "2016-12-07T14:53:10Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1a622d24_674e63c3",
       "revId": "bc499e5e66561a24cf8815e265736242f62fadfe",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -121,6 +229,24 @@
     },
     {
       "key": {
+        "uuid": "1a622d24_a0be9cfd",
+        "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/impl/DistributedArpService.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 191,
+      "author": {
+        "id": 4030
+      },
+      "writtenOn": "2016-12-07T14:53:10Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1a622d24_07d84fee",
+      "revId": "bc499e5e66561a24cf8815e265736242f62fadfe",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_87cc5f37",
         "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/impl/DistributedArpService.java",
         "patchSetId": 2
@@ -132,6 +258,24 @@
       "writtenOn": "2016-12-05T20:56:41Z",
       "side": 1,
       "message": "line too long",
+      "revId": "bc499e5e66561a24cf8815e265736242f62fadfe",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_80bba00d",
+        "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/impl/DistributedArpService.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 196,
+      "author": {
+        "id": 4030
+      },
+      "writtenOn": "2016-12-07T14:53:10Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1a622d24_87cc5f37",
       "revId": "bc499e5e66561a24cf8815e265736242f62fadfe",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -155,6 +299,24 @@
     },
     {
       "key": {
+        "uuid": "1a622d24_e00534c3",
+        "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/impl/DistributedArpService.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 198,
+      "author": {
+        "id": 4030
+      },
+      "writtenOn": "2016-12-07T14:53:10Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1a622d24_e7d1d3ce",
+      "revId": "bc499e5e66561a24cf8815e265736242f62fadfe",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_47f9a74c",
         "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/impl/DistributedArpService.java",
         "patchSetId": 2
@@ -172,6 +334,24 @@
     },
     {
       "key": {
+        "uuid": "1a622d24_e037f4ae",
+        "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/impl/DistributedArpService.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 203,
+      "author": {
+        "id": 4030
+      },
+      "writtenOn": "2016-12-07T14:53:10Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1a622d24_47f9a74c",
+      "revId": "bc499e5e66561a24cf8815e265736242f62fadfe",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_07ffaf35",
         "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/impl/DistributedArpService.java",
         "patchSetId": 2
@@ -183,6 +363,24 @@
       "writtenOn": "2016-12-05T20:56:41Z",
       "side": 1,
       "message": "same comments above",
+      "revId": "bc499e5e66561a24cf8815e265736242f62fadfe",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_c03c7896",
+        "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/impl/DistributedArpService.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 209,
+      "author": {
+        "id": 4030
+      },
+      "writtenOn": "2016-12-07T14:53:10Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1a622d24_07ffaf35",
       "revId": "bc499e5e66561a24cf8815e265736242f62fadfe",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
