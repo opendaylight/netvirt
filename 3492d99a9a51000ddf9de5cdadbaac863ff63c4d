@@ -2,6 +2,40 @@
   "comments": [
     {
       "key": {
+        "uuid": "1a622d24_9aadcd8b",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/FibUtil.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 152,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2016-12-07T10:58:05Z",
+      "side": 1,
+      "message": "Reduce the line length (max 80).",
+      "revId": "3492d99a9a51000ddf9de5cdadbaac863ff63c4d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_dadd8516",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/FibUtil.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 205,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2016-12-07T10:58:05Z",
+      "side": 1,
+      "message": "don\u0027t format the existing code. Just keep as it is.",
+      "revId": "3492d99a9a51000ddf9de5cdadbaac863ff63c4d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_ba652947",
         "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/FibUtil.java",
         "patchSetId": 2
@@ -19,6 +53,23 @@
         "endLine": 206,
         "endChar": 8
       },
+      "revId": "3492d99a9a51000ddf9de5cdadbaac863ff63c4d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_3aa0f98f",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/FibUtil.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 710,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2016-12-07T10:58:05Z",
+      "side": 1,
+      "message": "There is already a getVpnNameFromId method. Please reuse that.",
       "revId": "3492d99a9a51000ddf9de5cdadbaac863ff63c4d",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -48,6 +99,57 @@
     },
     {
       "key": {
+        "uuid": "1a622d24_da046580",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/NexthopManager.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 759,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2016-12-07T10:58:05Z",
+      "side": 1,
+      "message": "you can make createLoadBalancingNextHop to take List\u003cBucketInfo\u003e or List\u003cBucket\u003e so that it can be used for both local and remote nexthops.",
+      "revId": "3492d99a9a51000ddf9de5cdadbaac863ff63c4d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_ba09a997",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/NexthopManager.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 778,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2016-12-07T10:58:05Z",
+      "side": 1,
+      "message": "have space before and after curly braces.",
+      "revId": "3492d99a9a51000ddf9de5cdadbaac863ff63c4d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_5af8557c",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 760,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2016-12-07T10:58:05Z",
+      "side": 1,
+      "message": "I don\u0027t see this method is used anywhere. remove it.",
+      "revId": "3492d99a9a51000ddf9de5cdadbaac863ff63c4d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_da12a5b3",
         "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
         "patchSetId": 2
@@ -65,6 +167,176 @@
         "endLine": 766,
         "endChar": 69
       },
+      "revId": "3492d99a9a51000ddf9de5cdadbaac863ff63c4d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_da7905fe",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 789,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2016-12-07T10:58:05Z",
+      "side": 1,
+      "message": "Why do you read all the VpnExtraroutes ? have method like getVpnToExtraroute(vpnName, localNextHopIP). There is already a method VpnUtil in (https://git.opendaylight.org/gerrit/#/c/48967/) to retrieve usedRds which will help to get Routes for installing local fibs.",
+      "revId": "3492d99a9a51000ddf9de5cdadbaac863ff63c4d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_baf36972",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 790,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2016-12-07T10:58:05Z",
+      "side": 1,
+      "message": "If the route is only one with one nexthop, then set localNextHopInfo and call checkCreateLocalFibEntry. otherwise, iterate over routes call checkCreateLocalFibEntry with each route to program local fib accordingly in each DPN.",
+      "revId": "3492d99a9a51000ddf9de5cdadbaac863ff63c4d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_7a7431fd",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 802,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2016-12-07T10:58:05Z",
+      "side": 1,
+      "message": "In case of self-imported/static routes, there should be only one routepath. you don\u0027t need this iteration.",
+      "revId": "3492d99a9a51000ddf9de5cdadbaac863ff63c4d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_3a511963",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 807,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2016-12-07T10:58:05Z",
+      "side": 1,
+      "message": "why can\u0027t we simply use containsLriIpInNextHop ?",
+      "revId": "3492d99a9a51000ddf9de5cdadbaac863ff63c4d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_9a4e6dc0",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 823,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2016-12-07T10:58:05Z",
+      "side": 1,
+      "message": "same comment here. you don\u0027t have to iterate over all the extraRoutes.",
+      "revId": "3492d99a9a51000ddf9de5cdadbaac863ff63c4d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_1ae9bd80",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 845,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2016-12-07T10:58:05Z",
+      "side": 1,
+      "message": "with above comment, you don\u0027t need this change.",
+      "revId": "3492d99a9a51000ddf9de5cdadbaac863ff63c4d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_5a25f5c0",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 853,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2016-12-07T10:58:05Z",
+      "side": 1,
+      "message": "This is confusing. you can move this logic of creating local nexthops and lb nexthops (when list of nexthops present) to a new method which can return List\u003cInstructionInfo\u003e, then it can be used to create local fib/lfib/TS flow entries.",
+      "revId": "3492d99a9a51000ddf9de5cdadbaac863ff63c4d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_9a066d1f",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 872,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2016-12-07T10:58:05Z",
+      "side": 1,
+      "message": "This is not required at all.",
+      "revId": "3492d99a9a51000ddf9de5cdadbaac863ff63c4d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_fd25dbab",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 915,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2016-12-07T10:58:05Z",
+      "side": 1,
+      "message": "There are lot of duplication of code. The Fib/Lfib/TS programming is all based on retrieving instructions/lfibinstructions based on number of nexthops. once it is done, then handling is same for all cases.",
+      "revId": "3492d99a9a51000ddf9de5cdadbaac863ff63c4d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_1d6ff7c6",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 1079,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2016-12-07T10:58:05Z",
+      "side": 1,
+      "message": "change the variable to extraRoute and you have to get all the extra route with all the used Rds (as mentioned before) so that local fib is deleted from all dpns.",
       "revId": "3492d99a9a51000ddf9de5cdadbaac863ff63c4d",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
