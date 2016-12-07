@@ -37,7 +37,7 @@ public class EventDispatcher implements Runnable {
             try {
                 NAPTEntryEvent event = eventQueue.take();
                 naptEventHandler.handleEvent(event);
-            } catch (InterruptedException e) {
+            } catch (Exception e) {
                 LOG.error("NAT Service : EventDispatcher : Error in handling the event queue : ", e.getMessage());
                 e.printStackTrace();
             }
