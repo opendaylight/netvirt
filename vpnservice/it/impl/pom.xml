@@ -12,10 +12,6 @@
 
   <artifactId>it-impl</artifactId>
 
-  <properties>
-    <ovsdb.version>1.3.2-SNAPSHOT</ovsdb.version>
-  </properties>
-
   <dependencies>
     <dependency>
       <groupId>${project.groupId}</groupId>
