@@ -82,6 +82,7 @@
     <argument ref="neutronvpnNatManager" />
     <argument ref="elanService" />
     <argument ref="odlInterfaceRpcService" />
+    <argument ref="mdsalUtils" />
   </bean>
 
   <bean id="neutronQosPolicyChangeListener"
@@ -89,6 +90,14 @@
         init-method="start" destroy-method="close">
     <argument ref="dataBroker" />
     <argument ref="odlInterfaceRpcService" />
+    <argument ref="mdsalUtils"/>
+  </bean>
+
+  <bean id="neutronQosNodeListener"
+        class="org.opendaylight.netvirt.neutronvpn.NeutronQosNodeListener"
+        init-method="init" destroy-method="close">
+    <argument ref="dataBroker" />
+    <argument ref="mdsalUtils"/>
   </bean>
 
   <bean id="neutronSubnetChangeListener"
@@ -117,6 +126,7 @@
     <argument ref="neutronSubnetGwMacResolver" />
     <argument ref="odlInterfaceRpcService" />
     <argument ref="elanService" />
+    <argument ref="mdsalUtils" />
   </bean>
 
   <bean id="neutronvpnSubnetmapListener"
