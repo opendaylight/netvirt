@@ -2,6 +2,23 @@
   "comments": [
     {
       "key": {
+        "uuid": "1a622d24_cb63f9af",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/ArpMonitoringHandler.java",
+        "patchSetId": 9
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-12-07T18:43:44Z",
+      "side": 1,
+      "message": "It is convincing to me that this file should manage only ARPMonitoring. \n\nThe MYMAC Table filling/unfilling should be handled by CreateVpnRouterInterface/RemoveVpnRouterInterface logic within the VPNEngine.",
+      "revId": "b161b890cebdfba606c3d93044d19f630404d8b0",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_cbd5b944",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/ArpMonitoringHandler.java",
         "patchSetId": 9
