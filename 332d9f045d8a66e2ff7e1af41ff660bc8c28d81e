@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1a622d24_8055601f",
+        "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/impl/DistributedArpService.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2016-12-07T17:13:37Z",
+      "side": 1,
+      "message": "Please try to limit lines not exceeded 80 characters",
+      "revId": "332d9f045d8a66e2ff7e1af41ff660bc8c28d81e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_2013ac67",
+        "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/impl/DistributedArpService.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 192,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2016-12-07T17:13:37Z",
+      "side": 1,
+      "message": "A method should not have too many parameters (7). \nYou can add above lines 177-191 inside the method, that leaves you with just 4: node, neutronPort, providerSegmentationId, actionForNode",
+      "revId": "332d9f045d8a66e2ff7e1af41ff660bc8c28d81e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_ebffd5ff",
+        "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/impl/DistributedArpService.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 210,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2016-12-07T17:13:37Z",
+      "side": 1,
+      "message": "This should be error level since it implies serious system resource problem. Please also include the exception message and mention that we are retrying the operation",
+      "revId": "332d9f045d8a66e2ff7e1af41ff660bc8c28d81e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
