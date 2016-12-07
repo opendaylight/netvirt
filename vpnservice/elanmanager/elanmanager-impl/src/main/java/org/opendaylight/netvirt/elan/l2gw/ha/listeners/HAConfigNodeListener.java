@@ -33,7 +33,7 @@ public class HAConfigNodeListener extends HwvtepNodeBaseListener {
     IHAEventHandler haEventHandler;
     ConfigNodeUpdatedHandler configNodeUpdatedHandler = new ConfigNodeUpdatedHandler();
 
-    public HAConfigNodeListener(DataBroker db, HAEventHandler haEventHandler) {
+    public HAConfigNodeListener(DataBroker db, HAEventHandler haEventHandler) throws Exception {
         super(LogicalDatastoreType.CONFIGURATION, db);
         this.haEventHandler = haEventHandler;
     }

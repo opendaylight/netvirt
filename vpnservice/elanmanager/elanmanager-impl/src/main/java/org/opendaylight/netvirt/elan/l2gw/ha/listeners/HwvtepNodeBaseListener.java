@@ -19,6 +19,7 @@ import org.opendaylight.controller.md.sal.binding.api.DataTreeModification;
 import org.opendaylight.controller.md.sal.binding.api.ReadWriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
+import org.opendaylight.genius.datastoreutils.TaskRetryLooper;
 import org.opendaylight.genius.utils.hwvtep.HwvtepHACache;
 import org.opendaylight.genius.utils.hwvtep.HwvtepSouthboundConstants;
 import org.opendaylight.netvirt.elan.l2gw.ha.HwvtepHAUtil;
@@ -34,22 +35,24 @@ import org.slf4j.LoggerFactory;
 public abstract class HwvtepNodeBaseListener implements DataTreeChangeListener<Node>, AutoCloseable {
 
     public static final Logger LOG = LoggerFactory.getLogger(HwvtepNodeBaseListener.class);
+    private static final int STARTUP_LOOP_TICK = 500;
+    private static final int STARTUP_LOOP_MAX_RETRIES = 8;
 
     static HwvtepHACache hwvtepHACache = HwvtepHACache.getInstance();
 
     private ListenerRegistration<HwvtepNodeBaseListener> registration;
     DataBroker db;
 
-    public HwvtepNodeBaseListener(LogicalDatastoreType datastoreType, DataBroker dataBroker) {
+    public HwvtepNodeBaseListener(LogicalDatastoreType datastoreType, DataBroker dataBroker) throws Exception {
         db = dataBroker;
         registerListener(datastoreType, db);
     }
 
-    private void registerListener(LogicalDatastoreType datastoreType, final DataBroker db) {
-        final DataTreeIdentifier<Node> treeId =
-                new DataTreeIdentifier<Node>(datastoreType, getWildcardPath());
-        LOG.trace("Registering on path: {}", treeId);
-        registration = db.registerDataTreeChangeListener(treeId, HwvtepNodeBaseListener.this);
+    public void registerListener(LogicalDatastoreType dsType, final DataBroker db) throws Exception {
+        final DataTreeIdentifier<Node> treeId = new DataTreeIdentifier<>(dsType, getWildcardPath());
+        TaskRetryLooper looper = new TaskRetryLooper(STARTUP_LOOP_TICK, STARTUP_LOOP_MAX_RETRIES);
+        registration = looper.loopUntilNoException(() ->
+                db.registerDataTreeChangeListener(treeId, HwvtepNodeBaseListener.this));
     }
 
     @Override
