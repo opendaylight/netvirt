@@ -14,6 +14,7 @@ import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
+import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.netvirt.elanmanager.api.IElanService;
 import org.opendaylight.netvirt.neutronvpn.api.utils.NeutronUtils;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.OdlInterfaceRpcService;
@@ -41,16 +42,19 @@ public class NeutronNetworkChangeListener extends AsyncDataTreeChangeListenerBas
     private final NeutronvpnNatManager nvpnNatManager;
     private final IElanService elanService;
     private OdlInterfaceRpcService odlInterfaceRpcService;
+    private IMdsalApiManager mdsalApiManager;
 
     public NeutronNetworkChangeListener(final DataBroker dataBroker, final NeutronvpnManager nVpnMgr,
                                         final NeutronvpnNatManager nVpnNatMgr, final IElanService elanService,
-                                        OdlInterfaceRpcService odlInterfaceRpcService) {
+                                        OdlInterfaceRpcService odlInterfaceRpcService,
+                                        IMdsalApiManager mdsalApiManager) {
         super(Network.class, NeutronNetworkChangeListener.class);
         this.dataBroker = dataBroker;
         nvpnManager = nVpnMgr;
         nvpnNatManager = nVpnNatMgr;
         this.elanService = elanService;
         this.odlInterfaceRpcService = odlInterfaceRpcService;
+        this.mdsalApiManager = mdsalApiManager;
     }
 
     public void start() {
@@ -149,18 +153,18 @@ public class NeutronNetworkChangeListener extends AsyncDataTreeChangeListenerBas
             // qos policy add
             NeutronvpnUtils.addToQosNetworksCache(updateQos.getQosPolicyId(), update);
             NeutronQosUtils.handleNeutronNetworkQosUpdate(dataBroker, odlInterfaceRpcService,
-                    update, updateQos.getQosPolicyId());
+                    mdsalApiManager, update, updateQos.getQosPolicyId());
         } else if (originalQos != null && updateQos != null
                 && !originalQos.getQosPolicyId().equals(updateQos.getQosPolicyId())) {
             // qos policy update
             NeutronvpnUtils.removeFromQosNetworksCache(originalQos.getQosPolicyId(), original);
             NeutronvpnUtils.addToQosNetworksCache(updateQos.getQosPolicyId(), update);
             NeutronQosUtils.handleNeutronNetworkQosUpdate(dataBroker, odlInterfaceRpcService,
-                    update, updateQos.getQosPolicyId());
+                    mdsalApiManager, update, updateQos.getQosPolicyId());
         } else if (originalQos != null && updateQos == null) {
             // qos policy delete
             NeutronQosUtils.handleNeutronNetworkQosRemove(dataBroker, odlInterfaceRpcService,
-                    original, originalQos.getQosPolicyId());
+                    mdsalApiManager, original, originalQos.getQosPolicyId());
             NeutronvpnUtils.removeFromQosNetworksCache(originalQos.getQosPolicyId(), original);
         }
     }
