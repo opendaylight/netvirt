@@ -1,0 +1,142 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1a622d24_ba652947",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/FibUtil.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 206,
+      "author": {
+        "id": 5350
+      },
+      "writtenOn": "2016-12-07T09:54:28Z",
+      "side": 1,
+      "message": "bad indent",
+      "range": {
+        "startLine": 205,
+        "startChar": 8,
+        "endLine": 206,
+        "endChar": 8
+      },
+      "revId": "3492d99a9a51000ddf9de5cdadbaac863ff63c4d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_7a4b91b0",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/FibUtil.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 713,
+      "author": {
+        "id": 5350
+      },
+      "writtenOn": "2016-12-07T09:54:28Z",
+      "side": 1,
+      "message": "The preference when breaking a line is to break it after the equals. Also, the continutation line must have at least 4 indentation spaces:\n\nhttps://google.github.io/styleguide/javaguide.html#s4.5.1-line-wrapping-where-to-break",
+      "range": {
+        "startLine": 713,
+        "startChar": 8,
+        "endLine": 713,
+        "endChar": 9
+      },
+      "revId": "3492d99a9a51000ddf9de5cdadbaac863ff63c4d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_da12a5b3",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 766,
+      "author": {
+        "id": 5350
+      },
+      "writtenOn": "2016-12-07T09:54:28Z",
+      "side": 1,
+      "message": "this can return null",
+      "range": {
+        "startLine": 766,
+        "startChar": 51,
+        "endLine": 766,
+        "endChar": 69
+      },
+      "revId": "3492d99a9a51000ddf9de5cdadbaac863ff63c4d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_9a202df9",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 1166,
+      "author": {
+        "id": 5350
+      },
+      "writtenOn": "2016-12-07T09:54:28Z",
+      "side": 1,
+      "message": "there are 2 methods with the same name that return different things. I think you should change the name of one of them.",
+      "range": {
+        "startLine": 1166,
+        "startChar": 27,
+        "endLine": 1166,
+        "endChar": 45
+      },
+      "revId": "3492d99a9a51000ddf9de5cdadbaac863ff63c4d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_da60e537",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 1618,
+      "author": {
+        "id": 5350
+      },
+      "writtenOn": "2016-12-07T09:54:28Z",
+      "side": 1,
+      "message": "this could case NPE",
+      "range": {
+        "startLine": 1618,
+        "startChar": 53,
+        "endLine": 1618,
+        "endChar": 93
+      },
+      "revId": "3492d99a9a51000ddf9de5cdadbaac863ff63c4d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_3a6ab91a",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnUtil.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 205,
+      "author": {
+        "id": 5350
+      },
+      "writtenOn": "2016-12-07T09:54:28Z",
+      "side": 1,
+      "message": "just\n  \n return new RoutesB....",
+      "range": {
+        "startLine": 204,
+        "startChar": 8,
+        "endLine": 205,
+        "endChar": 22
+      },
+      "revId": "3492d99a9a51000ddf9de5cdadbaac863ff63c4d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
