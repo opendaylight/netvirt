@@ -36,6 +36,7 @@ import org.opendaylight.genius.mdsalutil.packet.IPProtocols;
 import org.opendaylight.genius.mdsalutil.packet.IPv4;
 import org.opendaylight.genius.mdsalutil.packet.TCP;
 import org.opendaylight.genius.mdsalutil.packet.UDP;
+import org.opendaylight.genius.mdsalutil.actions.ActionOutput;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rev160406.IfL2vlan;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.GetInterfaceFromIfIndexInput;
@@ -392,7 +393,7 @@ public class NaptEventHandler {
         // set in_port, and action as OFPP_TABLE so that it starts from table 0 (lowest table as per spec)
         actionInfos.add(new ActionInfo(ActionType.set_field_tunnel_id, new BigInteger[] {
                   BigInteger.valueOf(routerId)}, 2));
-        actionInfos.add(new ActionInfo(ActionType.output, new String[] { "0xfffffff9" }, 3));
+        actionInfos.add(new ActionOutput(3,Long.decode("0xfffffff9")));
         NodeConnectorRef in_port = MDSALUtil.getNodeConnRef(infInfo.getDpId(), String.valueOf(infInfo.getPortNo()));
         LOG.debug("NAT Service : in_port for packetout is being set to {}", String.valueOf(infInfo.getPortNo()));
         TransmitPacketInput output = MDSALUtil.getPacketOut(actionInfos, pktOut, infInfo.getDpId().longValue(), in_port);
