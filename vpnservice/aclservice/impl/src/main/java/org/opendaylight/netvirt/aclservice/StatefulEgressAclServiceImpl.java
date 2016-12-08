@@ -14,7 +14,6 @@ import java.util.Map;
 
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.genius.mdsalutil.ActionInfo;
-import org.opendaylight.genius.mdsalutil.ActionType;
 import org.opendaylight.genius.mdsalutil.InstructionInfo;
 import org.opendaylight.genius.mdsalutil.InstructionType;
 import org.opendaylight.genius.mdsalutil.MatchFieldType;
@@ -23,6 +22,7 @@ import org.opendaylight.genius.mdsalutil.MatchInfoBase;
 import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.genius.mdsalutil.NxMatchFieldType;
 import org.opendaylight.genius.mdsalutil.NxMatchInfo;
+import org.opendaylight.genius.mdsalutil.actions.ActionNxConntrack;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.netvirt.aclservice.api.AclServiceManager.Action;
 import org.opendaylight.netvirt.aclservice.api.AclServiceManager.MatchCriteria;
@@ -77,8 +77,7 @@ public class StatefulEgressAclServiceImpl extends AbstractEgressAclServiceImpl {
 
         Long elanId = AclServiceUtils.getElanIdFromInterface(portId, dataBroker);
         List<ActionInfo> actionsInfos = new ArrayList<>();
-        actionsInfos.add(new ActionInfo(ActionType.nx_conntrack,
-            new String[] {"1", "0", elanId.toString(), "255"}, 2));
+        actionsInfos.add(new ActionNxConntrack(2, 1, 0, elanId.intValue(), (short) 255));
         List<InstructionInfo> instructions = getDispatcherTableResubmitInstructions(actionsInfos);
 
         syncFlow(dpId, NwConstants.INGRESS_ACL_FILTER_TABLE, flowName, priority, "ACL", 0, 0,
@@ -113,9 +112,7 @@ public class StatefulEgressAclServiceImpl extends AbstractEgressAclServiceImpl {
             Long elanTag = AclServiceUtils.getElanIdFromInterface(portId, dataBroker);
             List<InstructionInfo> instructions = new ArrayList<>();
             List<ActionInfo> actionsInfos = new ArrayList<>();
-            actionsInfos.add(new ActionInfo(ActionType.nx_conntrack,
-                    new String[] {"0", "0", elanTag.toString(), Short.toString(
-                        NwConstants.INGRESS_ACL_FILTER_TABLE)}, 2));
+            actionsInfos.add(new ActionNxConntrack(2, 0, 0, elanTag.intValue(), NwConstants.INGRESS_ACL_FILTER_TABLE));
             instructions.add(new InstructionInfo(InstructionType.apply_actions, actionsInfos));
 
             String flowName = "Egress_Fixed_Conntrk_" + dpId + "_" + attachMac + "_"

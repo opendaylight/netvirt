@@ -33,8 +33,6 @@ import org.opendaylight.genius.datastoreutils.DataStoreJobCoordinator;
 import org.opendaylight.genius.interfacemanager.globals.InterfaceInfo;
 import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
 import org.opendaylight.genius.itm.globals.ITMConstants;
-import org.opendaylight.genius.mdsalutil.ActionInfo;
-import org.opendaylight.genius.mdsalutil.ActionType;
 import org.opendaylight.genius.mdsalutil.FlowEntity;
 import org.opendaylight.genius.mdsalutil.InstructionInfo;
 import org.opendaylight.genius.mdsalutil.InstructionType;
@@ -43,6 +41,10 @@ import org.opendaylight.genius.mdsalutil.MatchFieldType;
 import org.opendaylight.genius.mdsalutil.MatchInfo;
 import org.opendaylight.genius.mdsalutil.MetaDataUtil;
 import org.opendaylight.genius.mdsalutil.NwConstants;
+import org.opendaylight.genius.mdsalutil.actions.ActionDrop;
+import org.opendaylight.genius.mdsalutil.actions.ActionGroup;
+import org.opendaylight.genius.mdsalutil.actions.ActionNxResubmit;
+import org.opendaylight.genius.mdsalutil.actions.ActionSetFieldTunnelId;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.genius.utils.ServiceIndex;
 import org.opendaylight.netvirt.elan.ElanException;
@@ -261,9 +263,7 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
             int actionKey = 0;
             List<Bucket> listBuckets = new ArrayList<>();
             List<Action> listAction = new ArrayList<>();
-            listAction.add(new ActionInfo(ActionType.group,
-                    new String[] { String.valueOf(ElanUtils.getEtreeLeafLocalBCGId(etreeTag)) }, ++actionKey)
-                            .buildAction());
+            listAction.add(new ActionGroup(ElanUtils.getEtreeLeafLocalBCGId(etreeTag)).buildAction(++actionKey));
             listBuckets.add(MDSALUtil.buildBucket(listAction, MDSALUtil.GROUP_WEIGHT, bucketId, MDSALUtil.WATCH_PORT,
                     MDSALUtil.WATCH_GROUP));
             bucketId++;
@@ -886,9 +886,7 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
                         && dpnInterface.getInterfaces() != null && !dpnInterface.getInterfaces().isEmpty()) {
                     List<Action> listAction = new ArrayList<>();
                     int actionKey = 0;
-                    listAction.add(new ActionInfo(ActionType.group,
-                            new String[] { String.valueOf(ElanUtils.getElanLocalBCGId(elanTag)) }, ++actionKey)
-                                    .buildAction());
+                    listAction.add(new ActionGroup(ElanUtils.getElanLocalBCGId(elanTag)).buildAction(++actionKey));
                     remoteListBucketInfo.add(MDSALUtil.buildBucket(listAction, MDSALUtil.GROUP_WEIGHT, bucketId,
                             MDSALUtil.WATCH_PORT, MDSALUtil.WATCH_GROUP));
                     bucketId++;
@@ -953,7 +951,7 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
     private List<Instruction> getInstructionsForOutGroup(long groupId) {
         List<Instruction> mkInstructions = new ArrayList<>();
         List<Action> actions = new ArrayList<>();
-        actions.add(new ActionInfo(ActionType.group, new String[] { Long.toString(groupId) }).buildAction());
+        actions.add(new ActionGroup(groupId).buildAction());
         mkInstructions.add(MDSALUtil.getWriteActionsInstruction(actions, 0));
         return mkInstructions;
     }
@@ -1019,8 +1017,7 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
         int actionKey = 0;
         Long elanTag = elanInfo.getElanTag();
         List<Action> listAction = new ArrayList<>();
-        listAction.add(new ActionInfo(ActionType.group,
-                new String[] { String.valueOf(ElanUtils.getElanLocalBCGId(elanTag)) }, ++actionKey).buildAction());
+        listAction.add(new ActionGroup(ElanUtils.getElanLocalBCGId(elanTag)).buildAction(++actionKey));
         listBucket.add(MDSALUtil.buildBucket(listAction, MDSALUtil.GROUP_WEIGHT, bucketId, MDSALUtil.WATCH_PORT,
                 MDSALUtil.WATCH_GROUP));
         bucketId++;
@@ -1042,9 +1039,7 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
             int bucketId = 0;
             int actionKey = 0;
             List<Action> listAction = new ArrayList<>();
-            listAction.add(new ActionInfo(ActionType.group,
-                    new String[] { String.valueOf(ElanUtils.getEtreeLeafLocalBCGId(etreeLeafTag)) }, ++actionKey)
-                            .buildAction());
+            listAction.add(new ActionGroup(ElanUtils.getEtreeLeafLocalBCGId(etreeLeafTag)).buildAction(++actionKey));
             listBucket.add(MDSALUtil.buildBucket(listAction, MDSALUtil.GROUP_WEIGHT, bucketId, MDSALUtil.WATCH_PORT,
                     MDSALUtil.WATCH_GROUP));
             bucketId++;
@@ -1062,7 +1057,7 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
 
     private void createDropBucket(List<Bucket> listBucket) {
         List<Action> actionsInfos = new ArrayList<>();
-        actionsInfos.add(new ActionInfo(ActionType.drop_action, new String[] {}).buildAction());
+        actionsInfos.add(new ActionDrop().buildAction());
         Bucket dropBucket = MDSALUtil.buildBucket(actionsInfos, MDSALUtil.GROUP_WEIGHT, 0, MDSALUtil.WATCH_PORT,
                 MDSALUtil.WATCH_GROUP);
         listBucket.add(dropBucket);
@@ -1181,8 +1176,7 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
         Long elanTag = elanInfo.getElanTag();
         List<Bucket> listBuckets = new ArrayList<>();
         List<Action> listAction = new ArrayList<>();
-        listAction.add(new ActionInfo(ActionType.group,
-                new String[] { String.valueOf(ElanUtils.getElanLocalBCGId(elanTag)) }, ++actionKey).buildAction());
+        listAction.add(new ActionGroup(++actionKey, ElanUtils.getElanLocalBCGId(elanTag)).buildAction());
         listBuckets.add(MDSALUtil.buildBucket(listAction, MDSALUtil.GROUP_WEIGHT, bucketId, MDSALUtil.WATCH_PORT,
                 MDSALUtil.WATCH_GROUP));
         bucketId++;
@@ -1393,11 +1387,10 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
     private List<Action> getInterfacePortActions(InterfaceInfo interfaceInfo) {
         List<Action> listAction = new ArrayList<>();
         int actionKey = 0;
-        listAction.add(new ActionInfo(ActionType.set_field_tunnel_id,
-                new BigInteger[] { BigInteger.valueOf(interfaceInfo.getInterfaceTag()) }, actionKey).buildAction());
+        listAction.add(
+            new ActionSetFieldTunnelId(BigInteger.valueOf(interfaceInfo.getInterfaceTag())).buildAction(actionKey));
         actionKey++;
-        listAction.add(new ActionInfo(ActionType.nx_resubmit,
-                new String[] { String.valueOf(NwConstants.ELAN_FILTER_EQUALS_TABLE) }, actionKey).buildAction());
+        listAction.add(new ActionNxResubmit(NwConstants.ELAN_FILTER_EQUALS_TABLE).buildAction(actionKey));
         return listAction;
     }
 

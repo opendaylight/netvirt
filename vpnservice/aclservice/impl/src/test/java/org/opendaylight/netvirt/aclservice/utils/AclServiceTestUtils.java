@@ -9,6 +9,7 @@
 package org.opendaylight.netvirt.aclservice.utils;
 
 import static com.google.common.collect.Iterables.filter;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
@@ -25,15 +26,13 @@ import java.util.stream.Stream;
 
 import org.junit.Assert;
 import org.opendaylight.genius.mdsalutil.ActionInfo;
-import org.opendaylight.genius.mdsalutil.ActionType;
-import org.opendaylight.genius.mdsalutil.InstructionInfo;
-import org.opendaylight.genius.mdsalutil.InstructionType;
 import org.opendaylight.genius.mdsalutil.MatchFieldType;
 import org.opendaylight.genius.mdsalutil.MatchInfo;
 import org.opendaylight.genius.mdsalutil.MatchInfoBase;
 import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.genius.mdsalutil.NxMatchFieldType;
 import org.opendaylight.genius.mdsalutil.NxMatchInfo;
+import org.opendaylight.genius.mdsalutil.actions.ActionLearn;
 import org.opendaylight.genius.utils.cache.CacheUtil;
 import org.opendaylight.netvirt.aclservice.api.utils.AclInterface;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.Acl;
@@ -197,64 +196,27 @@ public class AclServiceTestUtils {
         return Stream.of(names).map(name -> new Uuid(name)).collect(Collectors.toList());
     }
 
-    public static void verifyActionTypeExist(List<ActionInfo> flowActions, ActionType actionType) {
-        Iterable<ActionInfo> actions = filter(flowActions, item -> item.getActionType().equals(actionType));
-        assertFalse(Iterables.isEmpty(actions));
+    public static void verifyActionTypeExist(List<ActionInfo> flowActions, Class<? extends ActionInfo> actionType) {
+        assertTrue(flowActions.stream().anyMatch(actionInfo -> actionInfo.getClass().equals(actionType)));
     }
 
-    public static void verifyActionInfo(List<ActionInfo> flowActions, ActionType actionType, String... params) {
-        Iterable<ActionInfo> actions = filter(flowActions, item -> item.getActionType().equals(actionType));
-        assertFalse(Iterables.isEmpty(actions));
-        for (ActionInfo action : actions) {
-            verifyActionValues(action, params);
-        }
+    public static void verifyActionInfo(List<ActionInfo> flowActions, ActionInfo actionInfo) {
+        assertTrue(flowActions.contains(actionInfo));
     }
 
-    private static void verifyActionValues(ActionInfo action, String[] params) {
-        switch (action.getActionType()) {
-            case drop_action:
-                break;
-            case goto_table:
-            case learn:
-            case nx_resubmit:
-                Assert.assertArrayEquals(params, action.getActionValues());
-                break;
-            default:
-                assertTrue("match type is not supported", false);
-                break;
-        }
-    }
-
-    public static void verifyLearnActionFlowModInfo(List<ActionInfo> flowActions,
-            NwConstants.LearnFlowModsType type, String... params) {
-        Iterable<ActionInfo> actions = filter(flowActions,
-            item -> item.getActionType().equals(ActionType.learn)
-                 && item.getActionValuesMatrix()[0].equals(type.name()));
-        assertFalse(Iterables.isEmpty(actions));
-        for (ActionInfo action : actions) {
-            verifyActionValues(action, params);
-        }
-    }
-
-    public static void verifyInstructionInfo(List<InstructionInfo> instructionInfoList, InstructionType type,
-            String ... params) {
-        Iterable<InstructionInfo> matches = filter(instructionInfoList, item -> item.getInstructionType().equals(type));
-        assertFalse(Iterables.isEmpty(matches));
-        for (InstructionInfo baseMatch : matches) {
-            verifyInstructionValues(baseMatch, params);
-        }
-
-    }
-
-    private static void verifyInstructionValues(InstructionInfo inst, String[] params) {
-        switch (inst.getInstructionType()) {
-            case goto_table:
-                long[] values = Arrays.stream(params).mapToLong(l -> Long.parseLong(l)).toArray();
-                Assert.assertArrayEquals(values, inst.getInstructionValues());
-                break;
-            default:
-                assertTrue("match type is not supported", false);
-                break;
+    public static void verifyActionLearn(List<ActionInfo> flowActions, ActionLearn actionLearn) {
+        for (ActionInfo actionInfo : flowActions) {
+            if (actionInfo instanceof ActionLearn) {
+                ActionLearn check = (ActionLearn) actionInfo;
+                assertEquals(actionLearn.getCookie(), check.getCookie());
+                assertEquals(actionLearn.getFinHardTimeout(), check.getFinHardTimeout());
+                assertEquals(actionLearn.getFinIdleTimeout(), check.getFinIdleTimeout());
+                assertEquals(actionLearn.getFlags(), check.getFlags());
+                assertEquals(actionLearn.getHardTimeout(), check.getHardTimeout());
+                assertEquals(actionLearn.getIdleTimeout(), check.getIdleTimeout());
+                assertEquals(actionLearn.getPriority(), check.getPriority());
+                assertEquals(actionLearn.getTableId(), check.getTableId());
+            }
         }
     }
 

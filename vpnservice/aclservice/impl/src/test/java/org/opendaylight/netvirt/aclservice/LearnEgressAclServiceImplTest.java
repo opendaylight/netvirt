@@ -19,6 +19,7 @@ import com.google.common.util.concurrent.Futures;
 import java.math.BigInteger;
 import java.util.Arrays;
 
+import java.util.Collections;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -29,11 +30,11 @@ import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.genius.mdsalutil.ActionType;
 import org.opendaylight.genius.mdsalutil.FlowEntity;
 import org.opendaylight.genius.mdsalutil.MatchFieldType;
 import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.genius.mdsalutil.NxMatchFieldType;
+import org.opendaylight.genius.mdsalutil.actions.ActionLearn;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.netvirt.aclservice.api.utils.AclInterface;
 import org.opendaylight.netvirt.aclservice.utils.AclConstants;
@@ -118,21 +119,20 @@ public class LearnEgressAclServiceImplTest {
         AclServiceTestUtils.verifyMatchInfo(flow.getMatchInfoList(),
                 NxMatchFieldType.nx_tcp_dst_with_mask, "80", "65535");
         AclServiceTestUtils.verifyActionTypeExist(flow.getInstructionInfoList().get(0).getActionInfos(),
-                ActionType.learn);
+                ActionLearn.class);
 
         // verify that tcpFinIdleTimeout is used for TCP
-        AclServiceTestUtils.verifyActionInfo(flow.getInstructionInfoList().get(0).getActionInfos(),
-                ActionType.learn,
-                new String[] {
-                    String.valueOf(0),
-                    String.valueOf(0),
-                    AclConstants.PROTO_MATCH_PRIORITY.toString(),
-                    AclConstants.COOKIE_ACL_BASE.toString(),
-                    AclConstants.LEARN_DELETE_LEARNED_FLAG_VALUE.toString(),
-                    Short.toString(NwConstants.EGRESS_LEARN_TABLE),
-                    String.valueOf(tcpFinIdleTimeoutValue),
-                    "0"
-                });
+        AclServiceTestUtils.verifyActionLearn(flow.getInstructionInfoList().get(0).getActionInfos(),
+                new ActionLearn(
+                        0,
+                        0,
+                        AclConstants.PROTO_MATCH_PRIORITY,
+                        AclConstants.COOKIE_ACL_BASE,
+                        AclConstants.LEARN_DELETE_LEARNED_FLAG_VALUE,
+                        NwConstants.EGRESS_LEARN_TABLE,
+                        tcpFinIdleTimeoutValue,
+                        0,
+                        Collections.emptyList()));
     }
 
     @Test
@@ -144,7 +144,7 @@ public class LearnEgressAclServiceImplTest {
 
         FlowEntity flow = (FlowEntity) installFlowValueSaver.getInvocationParams(6).get(0);
         AclServiceTestUtils.verifyActionTypeExist(flow.getInstructionInfoList().get(0).getActionInfos(),
-                ActionType.learn);
+                ActionLearn.class);
     }
 
     @Test
@@ -172,21 +172,20 @@ public class LearnEgressAclServiceImplTest {
         AclServiceTestUtils.verifyMatchInfo(flow.getMatchInfoList(),
                 NxMatchFieldType.nx_udp_dst_with_mask, "80", "65535");
         AclServiceTestUtils.verifyActionTypeExist(flow.getInstructionInfoList().get(0).getActionInfos(),
-                ActionType.learn);
+                ActionLearn.class);
 
         // verify that even though tcpFinIdleTimeout is set to non-zero, it is not used for UDP
-        AclServiceTestUtils.verifyActionInfo(flow.getInstructionInfoList().get(0).getActionInfos(),
-                ActionType.learn,
-                new String[] {
-                    String.valueOf(0),
-                    String.valueOf(0),
-                    AclConstants.PROTO_MATCH_PRIORITY.toString(),
-                    AclConstants.COOKIE_ACL_BASE.toString(),
-                    AclConstants.LEARN_DELETE_LEARNED_FLAG_VALUE.toString(),
-                    Short.toString(NwConstants.EGRESS_LEARN_TABLE),
-                    "0",
-                    "0"
-                });
+        AclServiceTestUtils.verifyActionLearn(flow.getInstructionInfoList().get(0).getActionInfos(),
+                new ActionLearn(
+                        0,
+                        0,
+                        AclConstants.PROTO_MATCH_PRIORITY,
+                        AclConstants.COOKIE_ACL_BASE,
+                        AclConstants.LEARN_DELETE_LEARNED_FLAG_VALUE,
+                        NwConstants.EGRESS_LEARN_TABLE,
+                        0,
+                        0,
+                        Collections.emptyList()));
     }
 
     @Test

@@ -20,7 +20,6 @@ import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
 import org.opendaylight.genius.mdsalutil.ActionInfo;
-import org.opendaylight.genius.mdsalutil.ActionType;
 import org.opendaylight.genius.mdsalutil.FlowEntity;
 import org.opendaylight.genius.mdsalutil.InstructionInfo;
 import org.opendaylight.genius.mdsalutil.InstructionType;
@@ -28,6 +27,8 @@ import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.mdsalutil.MatchFieldType;
 import org.opendaylight.genius.mdsalutil.MatchInfo;
 import org.opendaylight.genius.mdsalutil.NwConstants;
+import org.opendaylight.genius.mdsalutil.actions.ActionDrop;
+import org.opendaylight.genius.mdsalutil.actions.ActionPuntToController;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.genius.mdsalutil.packet.IPProtocols;
 import org.opendaylight.genius.utils.ServiceIndex;
@@ -79,8 +80,7 @@ public class DhcpServiceUtils {
         List<ActionInfo> actionsInfos = new ArrayList<>();
 
         // Punt to controller
-        actionsInfos.add(new ActionInfo(ActionType.punt_to_controller,
-                new String[] {}));
+        actionsInfos.add(new ActionPuntToController());
         instructions.add(new InstructionInfo(InstructionType.apply_actions,
                 actionsInfos));
         if (addOrRemove == NwConstants.DEL_FLOW) {
@@ -119,8 +119,7 @@ public class DhcpServiceUtils {
         List<InstructionInfo> instructions = new ArrayList<>();
         instructions.add(new InstructionInfo(InstructionType.apply_actions, actionsInfos));
         // Drop Action
-        actionsInfos.add(new ActionInfo(ActionType.drop_action,
-                new String[] {}));
+        actionsInfos.add(new ActionDrop());
         if (addOrRemove == NwConstants.DEL_FLOW) {
             FlowEntity flowEntity = MDSALUtil.buildFlowEntity(dpId, tableId,
                     getDhcpFlowRef(dpId, tableId, vmMacAddress),

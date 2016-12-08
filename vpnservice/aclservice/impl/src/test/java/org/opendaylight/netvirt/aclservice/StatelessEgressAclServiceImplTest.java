@@ -26,11 +26,11 @@ import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.genius.mdsalutil.ActionType;
 import org.opendaylight.genius.mdsalutil.FlowEntity;
 import org.opendaylight.genius.mdsalutil.MatchFieldType;
 import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.genius.mdsalutil.NxMatchFieldType;
+import org.opendaylight.genius.mdsalutil.actions.ActionNxResubmit;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.netvirt.aclservice.api.utils.AclInterface;
 import org.opendaylight.netvirt.aclservice.utils.AclDataUtil;
@@ -112,7 +112,7 @@ public class StatelessEgressAclServiceImplTest {
                 NxMatchFieldType.nx_tcp_dst_with_mask, "80", "65535");
         AclServiceTestUtils.verifyMatchInfo(firstRangeFlow.getMatchInfoList(), MatchFieldType.tcp_flags, "2");
         AclServiceTestUtils.verifyActionInfo(firstRangeFlow.getInstructionInfoList().get(0).getActionInfos(),
-                ActionType.nx_resubmit, "" + NwConstants.LPORT_DISPATCHER_TABLE);
+                new ActionNxResubmit(NwConstants.LPORT_DISPATCHER_TABLE));
 
     }
 
@@ -125,7 +125,7 @@ public class StatelessEgressAclServiceImplTest {
 
         FlowEntity firstRangeFlow = (FlowEntity) installFlowValueSaver.getInvocationParams(6).get(0);
         AclServiceTestUtils.verifyActionInfo(firstRangeFlow.getInstructionInfoList().get(0).getActionInfos(),
-                ActionType.nx_resubmit, "" + NwConstants.LPORT_DISPATCHER_TABLE);
+                new ActionNxResubmit(NwConstants.LPORT_DISPATCHER_TABLE));
     }
 
     @Test

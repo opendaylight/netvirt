@@ -15,13 +15,13 @@ import java.util.Map;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.mdsalutil.ActionInfo;
-import org.opendaylight.genius.mdsalutil.ActionType;
 import org.opendaylight.genius.mdsalutil.InstructionInfo;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.mdsalutil.MatchFieldType;
 import org.opendaylight.genius.mdsalutil.MatchInfo;
 import org.opendaylight.genius.mdsalutil.MatchInfoBase;
 import org.opendaylight.genius.mdsalutil.NwConstants;
+import org.opendaylight.genius.mdsalutil.actions.ActionDrop;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.genius.utils.ServiceIndex;
 import org.opendaylight.netvirt.aclservice.api.AclServiceManager.Action;
@@ -195,7 +195,7 @@ public abstract class AbstractEgressAclServiceImpl extends AbstractAclServiceImp
 
         List<InstructionInfo> instructions = new ArrayList<>();
         List<ActionInfo> actionsInfos = new ArrayList<>();
-        actionsInfos.add(new ActionInfo(ActionType.drop_action, new String[] {}));
+        actionsInfos.add(new ActionDrop());
         String flowName = "Egress_DHCP_Server_v4" + dpId + "_" + lportTag + "_" + dhcpMacAddress + "_Drop_";
         syncFlow(dpId, NwConstants.INGRESS_ACL_TABLE, flowName,
                 AclConstants.PROTO_DHCP_CLIENT_TRAFFIC_MATCH_PRIORITY, "ACL", 0,
@@ -217,7 +217,7 @@ public abstract class AbstractEgressAclServiceImpl extends AbstractAclServiceImp
 
         List<InstructionInfo> instructions = new ArrayList<>();
         List<ActionInfo> actionsInfos = new ArrayList<>();
-        actionsInfos.add(new ActionInfo(ActionType.drop_action, new String[] {}));
+        actionsInfos.add(new ActionDrop());
         String flowName = "Egress_DHCP_Server_v6" + "_" + dpId + "_" + lportTag + "_" + dhcpMacAddress + "_Drop_";
         syncFlow(dpId, NwConstants.INGRESS_ACL_TABLE, flowName,
                 AclConstants.PROTO_DHCP_CLIENT_TRAFFIC_MATCH_PRIORITY, "ACL", 0,
@@ -236,7 +236,7 @@ public abstract class AbstractEgressAclServiceImpl extends AbstractAclServiceImp
 
         List<InstructionInfo> instructions = new ArrayList<>();
         List<ActionInfo> actionsInfos = new ArrayList<>();
-        actionsInfos.add(new ActionInfo(ActionType.drop_action, new String[] {}));
+        actionsInfos.add(new ActionDrop());
         String flowName = "Egress_ICMPv6" + "_" + dpId + "_" + lportTag + "_" + AclConstants.ICMPV6_TYPE_RA + "_Drop_";
         syncFlow(dpId, NwConstants.INGRESS_ACL_TABLE, flowName, AclConstants.PROTO_IPV6_DROP_PRIORITY, "ACL", 0,
                 0, AclConstants.COOKIE_ACL_BASE, matches, instructions, addOrRemove);

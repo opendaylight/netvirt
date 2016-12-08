@@ -24,13 +24,14 @@ import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.mdsalutil.ActionInfo;
-import org.opendaylight.genius.mdsalutil.ActionType;
 import org.opendaylight.genius.mdsalutil.InstructionInfo;
 import org.opendaylight.genius.mdsalutil.InstructionType;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.mdsalutil.MatchFieldType;
 import org.opendaylight.genius.mdsalutil.MatchInfo;
 import org.opendaylight.genius.mdsalutil.NwConstants;
+import org.opendaylight.genius.mdsalutil.actions.ActionNxResubmit;
+import org.opendaylight.genius.mdsalutil.actions.ActionPopMpls;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.netvirt.bgpmanager.api.IBgpManager;
 import org.opendaylight.netvirt.elanmanager.api.IElanService;
@@ -144,7 +145,7 @@ public class VpnFloatingIpHandler implements FloatingIPHandler {
 
                     List<Instruction> instructions = new ArrayList<>();
                     List<ActionInfo> actionsInfos = new ArrayList<>();
-                    actionsInfos.add(new ActionInfo(ActionType.nx_resubmit, new String[] { Integer.toString(NwConstants.PDNAT_TABLE) }));
+                    actionsInfos.add(new ActionNxResubmit(NwConstants.PDNAT_TABLE));
                     instructions.add(new InstructionInfo(InstructionType.apply_actions, actionsInfos).buildInstruction(0));
                     makeTunnelTableEntry(dpnId, label, instructions);
 
@@ -321,7 +322,7 @@ public class VpnFloatingIpHandler implements FloatingIPHandler {
 
         List<Instruction> instructions = new ArrayList<>();
         List<ActionInfo> actionsInfos = new ArrayList<>();
-        actionsInfos.add(new ActionInfo(ActionType.pop_mpls, new String[]{}));
+        actionsInfos.add(new ActionPopMpls());
         Instruction writeInstruction = new InstructionInfo(InstructionType.apply_actions,
                 actionsInfos).buildInstruction(0);
         instructions.add(writeInstruction);

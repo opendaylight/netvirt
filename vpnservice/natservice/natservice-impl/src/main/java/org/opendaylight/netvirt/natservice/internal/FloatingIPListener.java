@@ -14,7 +14,6 @@ import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
 import org.opendaylight.genius.mdsalutil.ActionInfo;
-import org.opendaylight.genius.mdsalutil.ActionType;
 import org.opendaylight.genius.mdsalutil.FlowEntity;
 import org.opendaylight.genius.mdsalutil.InstructionInfo;
 import org.opendaylight.genius.mdsalutil.InstructionType;
@@ -23,7 +22,13 @@ import org.opendaylight.genius.mdsalutil.MatchInfo;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.mdsalutil.MetaDataUtil;
 import org.opendaylight.genius.mdsalutil.NwConstants;
+import org.opendaylight.genius.mdsalutil.actions.ActionGroup;
+import org.opendaylight.genius.mdsalutil.actions.ActionNxResubmit;
+import org.opendaylight.genius.mdsalutil.actions.ActionSetDestinationIp;
+import org.opendaylight.genius.mdsalutil.actions.ActionSetFieldEthernetSource;
+import org.opendaylight.genius.mdsalutil.actions.ActionSetSourceIp;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.MacAddress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.FloatingIpInfo;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.floating.ip.info.RouterPorts;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.floating.ip.info.router.ports.Ports;
@@ -138,7 +143,7 @@ public class FloatingIPListener extends AsyncDataTreeChangeListenerBase<Internal
 //                BigInteger.valueOf(vpnId), MetaDataUtil.METADATA_MASK_VRFID }));
 
         List<ActionInfo> actionsInfos = new ArrayList<>();
-        actionsInfos.add(new ActionInfo(ActionType.set_destination_ip, new String[]{ internalIp, "32" }));
+        actionsInfos.add(new ActionSetDestinationIp(internalIp, "32"));
 
         List<InstructionInfo> instructions = new ArrayList<>();
         instructions.add(new InstructionInfo(InstructionType.write_metadata,
@@ -176,12 +181,12 @@ public class FloatingIPListener extends AsyncDataTreeChangeListenerBase<Internal
                   internalIp, "32" }));
 
         List<ActionInfo> actionsInfos = new ArrayList<>();
-//        actionsInfos.add(new ActionInfo(ActionType.set_destination_ip, new String[]{ internalIp, "32" }));
+//        actionsInfos.add(new ActionSetDestinationIp(internalIp, "32"));
 
         List<InstructionInfo> instructions = new ArrayList<>();
 //        instructions.add(new InstructionInfo(InstructionType.write_metadata, new BigInteger[] { BigInteger.valueOf
 //                (routerId), MetaDataUtil.METADATA_MASK_VRFID }));
-        actionsInfos.add(new ActionInfo(ActionType.nx_resubmit, new String[] { Integer.toString(NwConstants.L3_FIB_TABLE) }));
+        actionsInfos.add(new ActionNxResubmit(NwConstants.L3_FIB_TABLE));
         instructions.add(new InstructionInfo(InstructionType.apply_actions, actionsInfos));
         //instructions.add(new InstructionInfo(InstructionType.goto_table, new long[] { NatConstants.L3_FIB_TABLE }));
 
@@ -215,7 +220,7 @@ public class FloatingIPListener extends AsyncDataTreeChangeListenerBase<Internal
                 MetaDataUtil.getVpnIdMetadata(segmentId), MetaDataUtil.METADATA_MASK_VRFID }));
 
         List<ActionInfo> actionsInfos = new ArrayList<>();
-        actionsInfos.add(new ActionInfo(ActionType.set_source_ip, new String[]{ externalIp, "32" }));
+        actionsInfos.add(new ActionSetSourceIp(externalIp, "32"));
 
         List<InstructionInfo> instructions = new ArrayList<>();
         instructions.add(new InstructionInfo(InstructionType.write_metadata,
@@ -259,8 +264,8 @@ public class FloatingIPListener extends AsyncDataTreeChangeListenerBase<Internal
         List<InstructionInfo> instructions = new ArrayList<InstructionInfo>();
 
         String macAddress = NatUtil.getFloatingIpPortMacFromFloatingIpId(dataBroker, floatingIpId);
-            if (macAddress != null) {
-            actionsInfo.add(new ActionInfo(ActionType.set_field_eth_src, new String[] {macAddress}));
+        if (macAddress != null) {
+            actionsInfo.add(new ActionSetFieldEthernetSource(new MacAddress(macAddress)));
         } else {
             LOG.warn("No MAC address found for floating IP {}", externalIp);
         }
@@ -269,13 +274,13 @@ public class FloatingIPListener extends AsyncDataTreeChangeListenerBase<Internal
             Uuid subnetId = NatUtil.getFloatingIpPortSubnetIdFromFloatingIpId(dataBroker, floatingIpId);
             if (subnetId != null) {
                 long groupId = NatUtil.createGroupId(NatUtil.getGroupIdKey(subnetId.getValue()), idManager);
-                actionsInfo.add(new ActionInfo(ActionType.group, new String[] {String.valueOf(groupId)}));
+                actionsInfo.add(new ActionGroup(groupId));
             } else {
                 LOG.warn("No neutron Subnet found for floating IP {}", externalIp);
             }
         } else {
             LOG.trace("NAT Service : External Network Provider Type is {}, resubmit to FIB", provType.toString());
-            actionsInfo.add(new ActionInfo(ActionType.nx_resubmit, new String[] { Integer.toString(NwConstants.L3_FIB_TABLE) }));
+            actionsInfo.add(new ActionNxResubmit(NwConstants.L3_FIB_TABLE));
         }
 
         instructions.add(new InstructionInfo(InstructionType.apply_actions, actionsInfo));
