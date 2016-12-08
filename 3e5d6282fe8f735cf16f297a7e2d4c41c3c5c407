@@ -1,0 +1,89 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1a622d24_31cbfca6",
+        "filename": "vpnservice/natservice/natservice-impl/pom.xml",
+        "patchSetId": 1
+      },
+      "lineNbr": 122,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-12-08T05:53:12Z",
+      "side": 1,
+      "message": "in general we should not depend on other modules impl.\n\nplease export what you want via IVPNManager and use vpnmanager-api as the dependency here.\n\nBut why is this required?",
+      "revId": "3e5d6282fe8f735cf16f297a7e2d4c41c3c5c407",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_7120d449",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NatUtil.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-12-08T05:53:12Z",
+      "side": 1,
+      "message": "is this change required?",
+      "revId": "3e5d6282fe8f735cf16f297a7e2d4c41c3c5c407",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_b11a6c15",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/VpnFloatingIpHandler.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 174,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-12-08T05:53:12Z",
+      "side": 1,
+      "message": "Please  invoke:\nsetupArpResponderFlowsToExternalNetworkIps()\ninstead of writing our own methods here.",
+      "revId": "3e5d6282fe8f735cf16f297a7e2d4c41c3c5c407",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_f1d34436",
+        "filename": "vpnservice/vpnmanager/vpnmanager-api/pom.xml",
+        "patchSetId": 1
+      },
+      "lineNbr": 78,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-12-08T05:53:12Z",
+      "side": 1,
+      "message": "why is this required?",
+      "revId": "3e5d6282fe8f735cf16f297a7e2d4c41c3c5c407",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_911770ed",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 56,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-12-08T05:53:12Z",
+      "side": 1,
+      "message": "This is not required.",
+      "revId": "3e5d6282fe8f735cf16f297a7e2d4c41c3c5c407",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
