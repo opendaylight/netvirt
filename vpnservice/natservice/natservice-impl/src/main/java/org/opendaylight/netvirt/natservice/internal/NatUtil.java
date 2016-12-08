@@ -15,11 +15,15 @@ import com.google.common.collect.Sets;
 
 import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
 import org.opendaylight.genius.mdsalutil.ActionInfo;
-import org.opendaylight.genius.mdsalutil.ActionType;
 import org.opendaylight.genius.mdsalutil.FlowEntity;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.mdsalutil.MatchInfo;
 import org.opendaylight.genius.mdsalutil.NwConstants;
+import org.opendaylight.genius.mdsalutil.actions.ActionNxResubmit;
+import org.opendaylight.genius.mdsalutil.actions.ActionOutput;
+import org.opendaylight.genius.mdsalutil.actions.ActionPushVlan;
+import org.opendaylight.genius.mdsalutil.actions.ActionRegLoad;
+import org.opendaylight.genius.mdsalutil.actions.ActionSetFieldVlanVid;
 import org.opendaylight.netvirt.fibmanager.api.IFibManager;
 import org.opendaylight.netvirt.fibmanager.api.RouteOrigin;
 import org.opendaylight.netvirt.neutronvpn.api.utils.NeutronConstants;
@@ -106,6 +110,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.rev150712.Neutron;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.subnets.rev150712.subnets.attributes.Subnets;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.subnets.rev150712.subnets.attributes.subnets.Subnet;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.subnets.rev150712.subnets.attributes.subnets.SubnetKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.openflowjava.nx.match.rev140421.NxmNxReg6;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.openflowplugin.extension.nicira.action.rev140714.add.group.input.buckets.bucket.action.action.NxActionResubmitRpcAddGroupCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.openflowplugin.extension.nicira.action.rev140714.nodes.node.table.flow.instructions.instruction.instruction.apply.actions._case.apply.actions.action.action.NxActionRegLoadNodesNodeTableFlowApplyActionsCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.openflowplugin.extension.nicira.action.rev140714.nx.action.reg.load.grouping.NxRegLoad;
@@ -1324,29 +1329,24 @@ public class NatUtil {
                     org.opendaylight.yang.gen.v1.urn.opendaylight.action.types.rev131112.action.Action actionClass = action
                             .getAction();
                     if (actionClass instanceof OutputActionCase) {
-                        listActionInfo
-                                .add(new ActionInfo(ActionType.output, new String[] { ((OutputActionCase) actionClass)
-                                        .getOutputAction().getOutputNodeConnector().getValue() }, pos++));
+                        listActionInfo.add(new ActionOutput(pos++,
+                            ((OutputActionCase) actionClass).getOutputAction().getOutputNodeConnector()));
                     } else if (actionClass instanceof PushVlanActionCase) {
-                        listActionInfo.add(new ActionInfo(ActionType.push_vlan, new String[] {}, pos++));
+                        listActionInfo.add(new ActionPushVlan(pos++));
                     } else if (actionClass instanceof SetFieldCase) {
                         if (((SetFieldCase) actionClass).getSetField().getVlanMatch() != null) {
                             int vlanVid = ((SetFieldCase) actionClass).getSetField().getVlanMatch().getVlanId()
                                     .getVlanId().getValue();
-                            listActionInfo.add(new ActionInfo(ActionType.set_field_vlan_vid,
-                                    new String[] { Long.toString(vlanVid) }, pos++));
+                            listActionInfo.add(new ActionSetFieldVlanVid(pos++, vlanVid));
                         }
                     } else if (actionClass instanceof NxActionResubmitRpcAddGroupCase) {
                         Short tableId = ((NxActionResubmitRpcAddGroupCase)actionClass).getNxResubmit().getTable();
-                        listActionInfo.add(new ActionInfo(ActionType.nx_resubmit,
-                            new String[] { tableId.toString() }, pos++));
+                        listActionInfo.add(new ActionNxResubmit(pos++, tableId));
                     } else if (actionClass instanceof NxActionRegLoadNodesNodeTableFlowApplyActionsCase) {
                         NxRegLoad nxRegLoad =
                             ((NxActionRegLoadNodesNodeTableFlowApplyActionsCase)actionClass).getNxRegLoad();
-                        listActionInfo.add(new ActionInfo(ActionType.nx_load_reg_6,
-                            new String[] { nxRegLoad.getDst().getStart().toString(),
-                                nxRegLoad.getDst().getEnd().toString(),
-                                nxRegLoad.getValue().toString(10)}, pos++));
+                        listActionInfo.add(new ActionRegLoad(pos++, NxmNxReg6.class, nxRegLoad.getDst().getStart(),
+                            nxRegLoad.getDst().getEnd(), nxRegLoad.getValue().longValue()));
                     }
                 }
             }

@@ -11,7 +11,6 @@ import com.google.common.base.Optional;
 import com.google.common.collect.Sets;
 
 import org.opendaylight.genius.mdsalutil.ActionInfo;
-import org.opendaylight.genius.mdsalutil.ActionType;
 import org.opendaylight.genius.mdsalutil.BucketInfo;
 import org.opendaylight.genius.mdsalutil.FlowEntity;
 import org.opendaylight.genius.mdsalutil.GroupEntity;
@@ -22,6 +21,9 @@ import org.opendaylight.genius.mdsalutil.MatchInfo;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.mdsalutil.MetaDataUtil;
 import org.opendaylight.genius.mdsalutil.NwConstants;
+import org.opendaylight.genius.mdsalutil.actions.ActionGroup;
+import org.opendaylight.genius.mdsalutil.actions.ActionNxResubmit;
+import org.opendaylight.genius.mdsalutil.actions.ActionSetFieldTunnelId;
 import org.opendaylight.netvirt.bgpmanager.api.IBgpManager;
 import org.opendaylight.netvirt.fibmanager.api.IFibManager;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
@@ -578,8 +580,7 @@ public class NaptSwitchHA {
     public List<BucketInfo> handleGroupInPrimarySwitch() {
         List<BucketInfo> listBucketInfo = new ArrayList<>();
         List<ActionInfo> listActionInfoPrimary = new ArrayList<>();
-        listActionInfoPrimary.add(new ActionInfo(ActionType.nx_resubmit,
-                new String[]{String.valueOf(NwConstants.INTERNAL_TUNNEL_TABLE)}));
+        listActionInfoPrimary.add(new ActionNxResubmit(NwConstants.INTERNAL_TUNNEL_TABLE));
         BucketInfo bucketPrimary = new BucketInfo(listActionInfoPrimary);
         listBucketInfo.add(bucketPrimary);
         return listBucketInfo;
@@ -689,11 +690,9 @@ public class NaptSwitchHA {
             List<InstructionInfo> instructions = new ArrayList<InstructionInfo>();
             List<ActionInfo> actionsInfo = new ArrayList<ActionInfo>();
 
-            ActionInfo actionSetField = new ActionInfo(ActionType.set_field_tunnel_id, new BigInteger[] {
-                    BigInteger.valueOf(routerVpnId)}) ;
-            actionsInfo.add(actionSetField);
+            actionsInfo.add(new ActionSetFieldTunnelId(BigInteger.valueOf(routerVpnId)));
             LOG.debug("Setting the tunnel to the list of action infos {}", actionsInfo);
-            actionsInfo.add(new ActionInfo(ActionType.group, new String[] {String.valueOf(groupId)}));
+            actionsInfo.add(new ActionGroup(groupId));
             instructions.add(new InstructionInfo(InstructionType.apply_actions, actionsInfo));
 
             flowEntity = MDSALUtil.buildFlowEntity(dpId, NwConstants.PSNAT_TABLE, flowRef,

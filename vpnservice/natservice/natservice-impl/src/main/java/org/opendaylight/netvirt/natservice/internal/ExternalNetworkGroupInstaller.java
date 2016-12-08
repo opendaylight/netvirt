@@ -16,12 +16,14 @@ import java.util.List;
 
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.genius.mdsalutil.ActionInfo;
-import org.opendaylight.genius.mdsalutil.ActionType;
 import org.opendaylight.genius.mdsalutil.BucketInfo;
 import org.opendaylight.genius.mdsalutil.GroupEntity;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
+import org.opendaylight.genius.mdsalutil.actions.ActionDrop;
+import org.opendaylight.genius.mdsalutil.actions.ActionSetFieldEthernetDestination;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.netvirt.elanmanager.api.IElanService;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.MacAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.IdManagerService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.OdlInterfaceRpcService;
@@ -201,11 +203,11 @@ public class ExternalNetworkGroupInstaller {
                         + "no egress actions were found for subnet {} extInterface {}",
                         groupId, subnetName, extInterface);
             }
-            actionList.add(new ActionInfo(ActionType.drop_action, new String[] {}));
+            actionList.add(new ActionDrop());
         } else {
             LOG.trace("Building ext-net group {} entry for subnet {} extInterface {} macAddress {}",
                       groupId, subnetName, extInterface, macAddress);
-            actionList.add(new ActionInfo(ActionType.set_field_eth_dest, new String[] { macAddress }, setFieldEthDestActionPos));
+            actionList.add(new ActionSetFieldEthernetDestination(setFieldEthDestActionPos, new MacAddress(macAddress)));
             actionList.addAll(egressActionList);
         }
 

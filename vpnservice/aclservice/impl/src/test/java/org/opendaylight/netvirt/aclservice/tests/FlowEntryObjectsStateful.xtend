@@ -7,8 +7,6 @@
  */
 package org.opendaylight.netvirt.aclservice.tests
 
-import org.opendaylight.genius.mdsalutil.ActionInfoBuilder
-import org.opendaylight.genius.mdsalutil.ActionType
 import org.opendaylight.genius.mdsalutil.FlowEntity
 import org.opendaylight.genius.mdsalutil.InstructionInfo
 import org.opendaylight.genius.mdsalutil.InstructionType
@@ -19,6 +17,8 @@ import org.opendaylight.genius.mdsalutil.NxMatchFieldType
 import org.opendaylight.genius.mdsalutil.NxMatchInfoBuilder
 
 import static extension org.opendaylight.mdsal.binding.testutils.XtendBuilderExtensions.operator_doubleGreaterThan
+import org.opendaylight.genius.mdsalutil.actions.ActionNxConntrack
+import org.opendaylight.genius.mdsalutil.actions.ActionNxResubmit
 
 class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
 
@@ -116,16 +116,7 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
             flowName = "ACL"
             instructionInfoList = #[
                 new InstructionInfo(InstructionType.apply_actions, #[
-                    new ActionInfoBuilder >> [
-                        actionKey = 2
-                        actionType = ActionType.nx_conntrack
-                        actionValues = #[
-                            "0",
-                    "0",
-                    "5000",
-                    "252"
-                        ]
-                    ]
+                    new ActionNxConntrack(2, 0, 0, 5000, 252 as short)
                 ])
             ]
             matchInfoList = #[
@@ -172,22 +163,8 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
                 flowName = "ACL"
                 instructionInfoList = #[
                     new InstructionInfo(InstructionType.apply_actions, #[
-                        new ActionInfoBuilder >> [
-                            actionKey = 2
-                            actionType = ActionType.nx_conntrack
-                            actionValues = #[
-                                "1",
-                                "0",
-                                "5000",
-                                "255"
-                            ]
-                        ],
-                        new ActionInfoBuilder >> [
-                            actionType = ActionType.nx_resubmit
-                            actionValues = #[
-                                "220"
-                            ]
-                        ]
+                        new ActionNxConntrack(2, 1, 0, 5000, 255 as short),
+                        new ActionNxResubmit(220 as short)
                     ])
                 ]
                 matchInfoList = #[
@@ -243,22 +220,8 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
                 flowName = "ACL"
                 instructionInfoList = #[
                     new InstructionInfo(InstructionType.apply_actions, #[
-                        new ActionInfoBuilder >> [
-                            actionKey = 2
-                            actionType = ActionType.nx_conntrack
-                            actionValues = #[
-                                "1",
-                                "0",
-                                "5000",
-                                "255"
-                            ]
-                        ],
-                        new ActionInfoBuilder >> [
-                            actionType = ActionType.nx_resubmit
-                            actionValues = #[
-                                "220"
-                            ]
-                        ]
+                        new ActionNxConntrack(2, 1, 0, 5000, 255 as short),
+                        new ActionNxResubmit(220 as short)
                     ])
                 ]
                 matchInfoList = #[
@@ -316,16 +279,7 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
                 flowName = "ACL"
                 instructionInfoList = #[
                     new InstructionInfo(InstructionType.apply_actions, #[
-                        new ActionInfoBuilder >> [
-                            actionKey = 2
-                            actionType = ActionType.nx_conntrack
-                            actionValues = #[
-                                "0",
-                                "0",
-                                "5000",
-                                "41"
-                            ]
-                        ]
+                        new ActionNxConntrack(2, 0, 0, 5000, 41 as short)
                     ])
                 ]
                 matchInfoList = #[
@@ -363,16 +317,7 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
                 flowName = "ACL"
                 instructionInfoList = #[
                     new InstructionInfo(InstructionType.apply_actions, #[
-                        new ActionInfoBuilder >> [
-                            actionKey = 2
-                            actionType = ActionType.nx_conntrack
-                            actionValues = #[
-                                "0",
-                                "0",
-                                "5000",
-                                "252"
-                            ]
-                        ]
+                        new ActionNxConntrack(2, 0, 0, 5000, 252 as short)
                     ])
                 ]
                 matchInfoList = #[
@@ -416,16 +361,7 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
                 flowName = "ACL"
                 instructionInfoList = #[
                     new InstructionInfo(InstructionType.apply_actions, #[
-                        new ActionInfoBuilder >> [
-                            actionKey = 2
-                            actionType = ActionType.nx_conntrack
-                            actionValues = #[
-                                "0",
-                                "0",
-                                "5000",
-                                "41"
-                            ]
-                        ]
+                        new ActionNxConntrack(2, 0, 0, 5000, 41 as short)
                     ])
                 ]
                 matchInfoList = #[
@@ -463,16 +399,7 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
                 flowName = "ACL"
                 instructionInfoList = #[
                     new InstructionInfo(InstructionType.apply_actions, #[
-                        new ActionInfoBuilder >> [
-                            actionKey = 2
-                            actionType = ActionType.nx_conntrack
-                            actionValues = #[
-                                "0",
-                                "0",
-                                "5000",
-                                "252"
-                            ]
-                        ]
+                        new ActionNxConntrack(2, 0, 0, 5000, 252 as short)
                     ])
                 ]
                 matchInfoList = #[
@@ -517,16 +444,7 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
                 flowName = "ACL"
                 instructionInfoList = #[
                     new InstructionInfo(InstructionType.apply_actions, #[
-                        new ActionInfoBuilder >> [
-                            actionKey = 2
-                            actionType = ActionType.nx_conntrack
-                            actionValues = #[
-                                "0",
-                                "0",
-                                "5000",
-                                "41"
-                            ]
-                        ]
+                        new ActionNxConntrack(2, 0, 0, 5000, 41 as short)
                     ])
                 ]
                 matchInfoList = #[
@@ -564,12 +482,7 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
                 flowName = "ACL"
                 instructionInfoList = #[
                     new InstructionInfo(InstructionType.apply_actions, #[
-                        new ActionInfoBuilder >> [
-                            actionType = ActionType.nx_resubmit
-                            actionValues = #[
-                                "17"
-                            ]
-                        ]
+                        new ActionNxResubmit(17 as short)
                     ])
                 ]
                 matchInfoList = #[
@@ -614,12 +527,7 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
                 flowName = "ACL"
                 instructionInfoList = #[
                     new InstructionInfo(InstructionType.apply_actions, #[
-                        new ActionInfoBuilder >> [
-                            actionType = ActionType.nx_resubmit
-                            actionValues = #[
-                                "17"
-                            ]
-                        ]
+                        new ActionNxResubmit(17 as short)
                     ])
                 ]
                 matchInfoList = #[
@@ -920,12 +828,7 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
                 flowName = "ACL"
                 instructionInfoList = #[
                     new InstructionInfo(InstructionType.apply_actions, #[
-                        new ActionInfoBuilder >> [
-                            actionType = ActionType.nx_resubmit
-                            actionValues = #[
-                                "17"
-                            ]
-                        ]
+                        new ActionNxResubmit(17 as short)
                     ])
                 ]
                 matchInfoList = #[
@@ -964,22 +867,8 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
                 flowName = "ACL"
                 instructionInfoList = #[
                     new InstructionInfo(InstructionType.apply_actions, #[
-                        new ActionInfoBuilder >> [
-                            actionKey = 2
-                            actionType = ActionType.nx_conntrack
-                            actionValues = #[
-                                "1",
-                                "0",
-                                "5000",
-                                "255"
-                            ]
-                        ],
-                        new ActionInfoBuilder >> [
-                            actionType = ActionType.nx_resubmit
-                            actionValues = #[
-                                "17"
-                            ]
-                        ]
+                        new ActionNxConntrack(2, 1, 0, 5000, 255 as short),
+                        new ActionNxResubmit(17 as short)
                     ])
                 ]
                 matchInfoList = #[
@@ -1024,22 +913,8 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
                 flowName = "ACL"
                 instructionInfoList = #[
                     new InstructionInfo(InstructionType.apply_actions, #[
-                        new ActionInfoBuilder >> [
-                            actionKey = 2
-                            actionType = ActionType.nx_conntrack
-                            actionValues = #[
-                                "1",
-                                "0",
-                                "5000",
-                                "255"
-                            ]
-                        ],
-                        new ActionInfoBuilder >> [
-                            actionType = ActionType.nx_resubmit
-                            actionValues = #[
-                                "17"
-                            ]
-                        ]
+                        new ActionNxConntrack(2, 1, 0, 5000, 255 as short),
+                        new ActionNxResubmit(17 as short)
                     ])
                 ]
                 matchInfoList = #[
@@ -1084,22 +959,8 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
                 flowName = "ACL"
                 instructionInfoList = #[
                     new InstructionInfo(InstructionType.apply_actions, #[
-                        new ActionInfoBuilder >> [
-                            actionKey = 2
-                            actionType = ActionType.nx_conntrack
-                            actionValues = #[
-                                "1",
-                                "0",
-                                "5000",
-                                "255"
-                            ]
-                        ],
-                        new ActionInfoBuilder >> [
-                            actionType = ActionType.nx_resubmit
-                            actionValues = #[
-                                "220"
-                            ]
-                        ]
+                        new ActionNxConntrack(2, 1, 0, 5000, 255 as short),
+                        new ActionNxResubmit(220 as short)
                     ])
                 ]
                 matchInfoList = #[
@@ -1157,22 +1018,8 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
                 flowName = "ACL"
                 instructionInfoList = #[
                     new InstructionInfo(InstructionType.apply_actions, #[
-                        new ActionInfoBuilder >> [
-                            actionKey = 2
-                            actionType = ActionType.nx_conntrack
-                            actionValues = #[
-                                "1",
-                                "0",
-                                "5000",
-                                "255"
-                            ]
-                        ],
-                        new ActionInfoBuilder >> [
-                            actionType = ActionType.nx_resubmit
-                            actionValues = #[
-                                "220"
-                            ]
-                        ]
+                        new ActionNxConntrack(2, 1, 0, 5000, 255 as short),
+                        new ActionNxResubmit(220 as short)
                     ])
                 ]
                 matchInfoList = #[
@@ -1233,22 +1080,8 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
                 flowName = "ACL"
                 instructionInfoList = #[
                     new InstructionInfo(InstructionType.apply_actions, #[
-                        new ActionInfoBuilder >> [
-                            actionKey = 2
-                            actionType = ActionType.nx_conntrack
-                            actionValues = #[
-                                "1",
-                                "0",
-                                "5000",
-                                "255"
-                            ]
-                        ],
-                        new ActionInfoBuilder >> [
-                            actionType = ActionType.nx_resubmit
-                            actionValues = #[
-                                "17"
-                            ]
-                        ]
+                        new ActionNxConntrack(2, 1, 0, 5000, 255 as short),
+                        new ActionNxResubmit(17 as short)
                     ])
                 ]
                 matchInfoList = #[
@@ -1314,22 +1147,8 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
                 flowName = "ACL"
                 instructionInfoList = #[
                     new InstructionInfo(InstructionType.apply_actions, #[
-                        new ActionInfoBuilder >> [
-                            actionKey = 2
-                            actionType = ActionType.nx_conntrack
-                            actionValues = #[
-                                "1",
-                                "0",
-                                "5000",
-                                "255"
-                            ]
-                        ],
-                        new ActionInfoBuilder >> [
-                            actionType = ActionType.nx_resubmit
-                            actionValues = #[
-                                "17"
-                            ]
-                        ]
+                        new ActionNxConntrack(2, 1, 0, 5000, 255 as short),
+                        new ActionNxResubmit(17 as short)
                     ])
                 ]
                 matchInfoList = #[
@@ -1400,22 +1219,8 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
                 flowName = "ACL"
                 instructionInfoList = #[
                     new InstructionInfo(InstructionType.apply_actions, #[
-                        new ActionInfoBuilder >> [
-                            actionKey = 2
-                            actionType = ActionType.nx_conntrack
-                            actionValues = #[
-                                "1",
-                                "0",
-                                "5000",
-                                "255"
-                            ]
-                        ],
-                        new ActionInfoBuilder >> [
-                            actionType = ActionType.nx_resubmit
-                            actionValues = #[
-                                "17"
-                            ]
-                        ]
+                        new ActionNxConntrack(2, 1, 0, 5000, 255 as short),
+                        new ActionNxResubmit(17 as short)
                     ])
                 ]
                 matchInfoList = #[
@@ -1476,22 +1281,8 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
                 flowName = "ACL"
                 instructionInfoList = #[
                     new InstructionInfo(InstructionType.apply_actions, #[
-                        new ActionInfoBuilder >> [
-                            actionKey = 2
-                            actionType = ActionType.nx_conntrack
-                            actionValues = #[
-                                "1",
-                                "0",
-                                "5000",
-                                "255"
-                            ]
-                        ],
-                        new ActionInfoBuilder >> [
-                            actionType = ActionType.nx_resubmit
-                            actionValues = #[
-                                "220"
-                            ]
-                        ]
+                        new ActionNxConntrack(2, 1, 0, 5000, 255 as short),
+                        new ActionNxResubmit(220 as short)
                     ])
                 ]
                 matchInfoList = #[
@@ -1557,22 +1348,8 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
                 flowName = "ACL"
                 instructionInfoList = #[
                     new InstructionInfo(InstructionType.apply_actions, #[
-                        new ActionInfoBuilder >> [
-                            actionKey = 2
-                            actionType = ActionType.nx_conntrack
-                            actionValues = #[
-                                "1",
-                                "0",
-                                "5000",
-                                "255"
-                            ]
-                        ],
-                        new ActionInfoBuilder >> [
-                            actionType = ActionType.nx_resubmit
-                            actionValues = #[
-                                "220"
-                            ]
-                        ]
+                        new ActionNxConntrack(2, 1, 0, 5000, 255 as short),
+                        new ActionNxResubmit(220 as short)
                     ])
                 ]
                 matchInfoList = #[
@@ -1643,22 +1420,8 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
                 flowName = "ACL"
                 instructionInfoList = #[
                     new InstructionInfo(InstructionType.apply_actions, #[
-                        new ActionInfoBuilder >> [
-                            actionKey = 2
-                            actionType = ActionType.nx_conntrack
-                            actionValues = #[
-                                "1",
-                                "0",
-                                "5000",
-                                "255"
-                            ]
-                        ],
-                        new ActionInfoBuilder >> [
-                            actionType = ActionType.nx_resubmit
-                            actionValues = #[
-                                "17"
-                            ]
-                        ]
+                        new ActionNxConntrack(2, 1, 0, 5000, 255 as short),
+                        new ActionNxResubmit(17 as short)
                     ])
                 ]
                 matchInfoList = #[
@@ -1716,22 +1479,8 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
                 flowName = "ACL"
                 instructionInfoList = #[
                     new InstructionInfo(InstructionType.apply_actions, #[
-                        new ActionInfoBuilder >> [
-                            actionKey = 2
-                            actionType = ActionType.nx_conntrack
-                            actionValues = #[
-                                "1",
-                                "0",
-                                "5000",
-                                "255"
-                            ]
-                        ],
-                        new ActionInfoBuilder >> [
-                            actionType = ActionType.nx_resubmit
-                            actionValues = #[
-                                "220"
-                            ]
-                        ]
+                        new ActionNxConntrack(2, 1, 0, 5000, 255 as short),
+                        new ActionNxResubmit(220 as short)
                     ])
                 ]
                 matchInfoList = #[
@@ -1789,22 +1538,8 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
                 flowName = "ACL"
                 instructionInfoList = #[
                     new InstructionInfo(InstructionType.apply_actions, #[
-                        new ActionInfoBuilder >> [
-                            actionKey = 2
-                            actionType = ActionType.nx_conntrack
-                            actionValues = #[
-                                "1",
-                                "0",
-                                "5000",
-                                "255"
-                            ]
-                        ],
-                        new ActionInfoBuilder >> [
-                            actionType = ActionType.nx_resubmit
-                            actionValues = #[
-                                "220"
-                            ]
-                        ]
+                        new ActionNxConntrack(2, 1, 0, 5000, 255 as short),
+                        new ActionNxResubmit(220 as short)
                     ])
                 ]
                 matchInfoList = #[
@@ -1865,22 +1600,8 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
                 flowName = "ACL"
                 instructionInfoList = #[
                     new InstructionInfo(InstructionType.apply_actions, #[
-                        new ActionInfoBuilder >> [
-                            actionKey = 2
-                            actionType = ActionType.nx_conntrack
-                            actionValues = #[
-                                "1",
-                                "0",
-                                "5000",
-                                "255"
-                            ]
-                        ],
-                        new ActionInfoBuilder >> [
-                            actionType = ActionType.nx_resubmit
-                            actionValues = #[
-                                "17"
-                            ]
-                        ]
+                        new ActionNxConntrack(2, 1, 0, 5000, 255 as short),
+                        new ActionNxResubmit(17 as short)
                     ])
                 ]
                 matchInfoList = #[
@@ -1949,22 +1670,8 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
                 flowName = "ACL"
                 instructionInfoList = #[
                     new InstructionInfo(InstructionType.apply_actions, #[
-                        new ActionInfoBuilder >> [
-                            actionKey = 2
-                            actionType = ActionType.nx_conntrack
-                            actionValues = #[
-                                "1",
-                                "0",
-                                "5000",
-                                "255"
-                            ]
-                        ],
-                        new ActionInfoBuilder >> [
-                            actionType = ActionType.nx_resubmit
-                            actionValues = #[
-                                "17"
-                            ]
-                        ]
+                        new ActionNxConntrack(2, 1, 0, 5000, 255 as short),
+                        new ActionNxResubmit(17 as short)
                     ])
                 ]
                 matchInfoList = #[
@@ -2035,22 +1742,8 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
                 flowName = "ACL"
                 instructionInfoList = #[
                     new InstructionInfo(InstructionType.apply_actions, #[
-                        new ActionInfoBuilder >> [
-                            actionKey = 2
-                            actionType = ActionType.nx_conntrack
-                            actionValues = #[
-                                "1",
-                                "0",
-                                "5000",
-                                "255"
-                            ]
-                        ],
-                        new ActionInfoBuilder >> [
-                            actionType = ActionType.nx_resubmit
-                            actionValues = #[
-                                "220"
-                            ]
-                        ]
+                        new ActionNxConntrack(2, 1, 0, 5000, 255 as short),
+                        new ActionNxResubmit(220 as short)
                     ])
                 ]
                 matchInfoList = #[
@@ -2108,22 +1801,8 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
                 flowName = "ACL"
                 instructionInfoList = #[
                     new InstructionInfo(InstructionType.apply_actions, #[
-                        new ActionInfoBuilder >> [
-                            actionKey = 2
-                            actionType = ActionType.nx_conntrack
-                            actionValues = #[
-                                "1",
-                                "0",
-                                "5000",
-                                "255"
-                            ]
-                        ],
-                        new ActionInfoBuilder >> [
-                            actionType = ActionType.nx_resubmit
-                            actionValues = #[
-                                "17"
-                            ]
-                        ]
+                        new ActionNxConntrack(2, 1, 0, 5000, 255 as short),
+                        new ActionNxResubmit(17 as short)
                     ])
                 ]
                 matchInfoList = #[
@@ -2176,22 +1855,8 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
                 flowName = "ACL"
                 instructionInfoList = #[
                     new InstructionInfo(InstructionType.apply_actions, #[
-                        new ActionInfoBuilder >> [
-                            actionKey = 2
-                            actionType = ActionType.nx_conntrack
-                            actionValues = #[
-                                "1",
-                                "0",
-                                "5000",
-                                "255"
-                            ]
-                        ],
-                        new ActionInfoBuilder >> [
-                            actionType = ActionType.nx_resubmit
-                            actionValues = #[
-                                "17"
-                            ]
-                        ]
+                        new ActionNxConntrack(2, 1, 0, 5000, 255 as short),
+                        new ActionNxResubmit(17 as short)
                     ])
                 ]
                 matchInfoList = #[
@@ -2244,22 +1909,8 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
                 flowName = "ACL"
                 instructionInfoList = #[
                     new InstructionInfo(InstructionType.apply_actions, #[
-                        new ActionInfoBuilder >> [
-                            actionKey = 2
-                            actionType = ActionType.nx_conntrack
-                            actionValues = #[
-                                "1",
-                                "0",
-                                "5000",
-                                "255"
-                            ]
-                        ],
-                        new ActionInfoBuilder >> [
-                            actionType = ActionType.nx_resubmit
-                            actionValues = #[
-                                "17"
-                            ]
-                        ]
+                        new ActionNxConntrack(2, 1, 0, 5000, 255 as short),
+                        new ActionNxResubmit(17 as short)
                     ])
                 ]
                 matchInfoList = #[
@@ -2312,22 +1963,8 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
                 flowName = "ACL"
                 instructionInfoList = #[
                     new InstructionInfo(InstructionType.apply_actions, #[
-                        new ActionInfoBuilder >> [
-                            actionKey = 2
-                            actionType = ActionType.nx_conntrack
-                            actionValues = #[
-                                "1",
-                                "0",
-                                "5000",
-                                "255"
-                            ]
-                        ],
-                        new ActionInfoBuilder >> [
-                            actionType = ActionType.nx_resubmit
-                            actionValues = #[
-                                "17"
-                            ]
-                        ]
+                        new ActionNxConntrack(2, 1, 0, 5000, 255 as short),
+                        new ActionNxResubmit(17 as short)
                     ])
                 ]
                 matchInfoList = #[
@@ -2380,22 +2017,8 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
                 flowName = "ACL"
                 instructionInfoList = #[
                     new InstructionInfo(InstructionType.apply_actions, #[
-                        new ActionInfoBuilder >> [
-                            actionKey = 2
-                            actionType = ActionType.nx_conntrack
-                            actionValues = #[
-                                "1",
-                                "0",
-                                "5000",
-                                "255"
-                            ]
-                        ],
-                        new ActionInfoBuilder >> [
-                            actionType = ActionType.nx_resubmit
-                            actionValues = #[
-                                "17"
-                            ]
-                        ]
+                        new ActionNxConntrack(2, 1, 0, 5000, 255 as short),
+                        new ActionNxResubmit(17 as short)
                     ])
                 ]
                 matchInfoList = #[
@@ -2448,22 +2071,8 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
                 flowName = "ACL"
                 instructionInfoList = #[
                     new InstructionInfo(InstructionType.apply_actions, #[
-                        new ActionInfoBuilder >> [
-                            actionKey = 2
-                            actionType = ActionType.nx_conntrack
-                            actionValues = #[
-                                "1",
-                                "0",
-                                "5000",
-                                "255"
-                            ]
-                        ],
-                        new ActionInfoBuilder >> [
-                            actionType = ActionType.nx_resubmit
-                            actionValues = #[
-                                "17"
-                            ]
-                        ]
+                        new ActionNxConntrack(2, 1, 0, 5000, 255 as short),
+                        new ActionNxResubmit(17 as short)
                     ])
                 ]
                 matchInfoList = #[
@@ -2516,22 +2125,8 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
                 flowName = "ACL"
                 instructionInfoList = #[
                     new InstructionInfo(InstructionType.apply_actions, #[
-                        new ActionInfoBuilder >> [
-                            actionKey = 2
-                            actionType = ActionType.nx_conntrack
-                            actionValues = #[
-                                "1",
-                                "0",
-                                "5000",
-                                "255"
-                            ]
-                        ],
-                        new ActionInfoBuilder >> [
-                            actionType = ActionType.nx_resubmit
-                            actionValues = #[
-                                "17"
-                            ]
-                        ]
+                        new ActionNxConntrack(2, 1, 0, 5000, 255 as short),
+                        new ActionNxResubmit(17 as short)
                     ])
                 ]
                 matchInfoList = #[
@@ -2584,22 +2179,8 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
                 flowName = "ACL"
                 instructionInfoList = #[
                     new InstructionInfo(InstructionType.apply_actions, #[
-                        new ActionInfoBuilder >> [
-                            actionKey = 2
-                            actionType = ActionType.nx_conntrack
-                            actionValues = #[
-                                "1",
-                                "0",
-                                "5000",
-                                "255"
-                            ]
-                        ],
-                        new ActionInfoBuilder >> [
-                            actionType = ActionType.nx_resubmit
-                            actionValues = #[
-                                "17"
-                            ]
-                        ]
+                        new ActionNxConntrack(2, 1, 0, 5000, 255 as short),
+                        new ActionNxResubmit(17 as short)
                     ])
                 ]
                 matchInfoList = #[
@@ -2657,22 +2238,8 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
                 flowName = "ACL"
                 instructionInfoList = #[
                     new InstructionInfo(InstructionType.apply_actions, #[
-                        new ActionInfoBuilder >> [
-                            actionKey = 2
-                            actionType = ActionType.nx_conntrack
-                            actionValues = #[
-                                "1",
-                                "0",
-                                "5000",
-                                "255"
-                            ]
-                        ],
-                        new ActionInfoBuilder >> [
-                            actionType = ActionType.nx_resubmit
-                            actionValues = #[
-                                "220"
-                            ]
-                        ]
+                        new ActionNxConntrack(2, 1, 0, 5000, 255 as short),
+                        new ActionNxResubmit(220 as short)
                     ])
                 ]
                 matchInfoList = #[
@@ -2723,22 +2290,8 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
                 flowName = "ACL"
                 instructionInfoList = #[
                     new InstructionInfo(InstructionType.apply_actions, #[
-                        new ActionInfoBuilder >> [
-                            actionKey = 2
-                            actionType = ActionType.nx_conntrack
-                            actionValues = #[
-                                "1",
-                                "0",
-                                "5000",
-                                "255"
-                            ]
-                        ],
-                        new ActionInfoBuilder >> [
-                            actionType = ActionType.nx_resubmit
-                            actionValues = #[
-                                "17"
-                            ]
-                        ]
+                        new ActionNxConntrack(2, 1, 0, 5000, 255 as short),
+                        new ActionNxResubmit(17 as short)
                     ])
                 ]
                 matchInfoList = #[
@@ -2790,22 +2343,8 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
                 flowName = "ACL"
                 instructionInfoList = #[
                     new InstructionInfo(InstructionType.apply_actions, #[
-                        new ActionInfoBuilder >> [
-                            actionKey = 2
-                            actionType = ActionType.nx_conntrack
-                            actionValues = #[
-                                "1",
-                                "0",
-                                "5000",
-                                "255"
-                            ]
-                        ],
-                        new ActionInfoBuilder >> [
-                            actionType = ActionType.nx_resubmit
-                            actionValues = #[
-                                "220"
-                            ]
-                        ]
+                        new ActionNxConntrack(2, 1, 0, 5000, 255 as short),
+                        new ActionNxResubmit(220 as short)
                     ])
                 ]
                 matchInfoList = #[
@@ -2858,22 +2397,8 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
                 flowName = "ACL"
                 instructionInfoList = #[
                     new InstructionInfo(InstructionType.apply_actions, #[
-                        new ActionInfoBuilder >> [
-                            actionKey = 2
-                            actionType = ActionType.nx_conntrack
-                            actionValues = #[
-                                "1",
-                                "0",
-                                "5000",
-                                "255"
-                            ]
-                        ],
-                        new ActionInfoBuilder >> [
-                            actionType = ActionType.nx_resubmit
-                            actionValues = #[
-                                "220"
-                            ]
-                        ]
+                        new ActionNxConntrack(2, 1, 0, 5000, 255 as short),
+                        new ActionNxResubmit(220 as short)
                     ])
                 ]
                 matchInfoList = #[
@@ -2931,22 +2456,8 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
                 flowName = "ACL"
                 instructionInfoList = #[
                     new InstructionInfo(InstructionType.apply_actions, #[
-                        new ActionInfoBuilder >> [
-                            actionKey = 2
-                            actionType = ActionType.nx_conntrack
-                            actionValues = #[
-                                "1",
-                                "0",
-                                "5000",
-                                "255"
-                            ]
-                        ],
-                        new ActionInfoBuilder >> [
-                            actionType = ActionType.nx_resubmit
-                            actionValues = #[
-                                "17"
-                            ]
-                        ]
+                        new ActionNxConntrack(2, 1, 0, 5000, 255 as short),
+                        new ActionNxResubmit(17 as short)
                     ])
                 ]
                 matchInfoList = #[
@@ -2999,22 +2510,8 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
                 flowName = "ACL"
                 instructionInfoList = #[
                     new InstructionInfo(InstructionType.apply_actions, #[
-                        new ActionInfoBuilder >> [
-                            actionKey = 2
-                            actionType = ActionType.nx_conntrack
-                            actionValues = #[
-                                "1",
-                                "0",
-                                "5000",
-                                "255"
-                            ]
-                        ],
-                        new ActionInfoBuilder >> [
-                            actionType = ActionType.nx_resubmit
-                            actionValues = #[
-                                "17"
-                            ]
-                        ]
+                        new ActionNxConntrack(2, 1, 0, 5000, 255 as short),
+                        new ActionNxResubmit(17 as short)
                     ])
                 ]
                 matchInfoList = #[
@@ -3073,12 +2570,7 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
                 flowName = "ACL"
                 instructionInfoList = #[
                     new InstructionInfo(InstructionType.apply_actions, #[
-                        new ActionInfoBuilder >> [
-                            actionType = ActionType.nx_resubmit
-                            actionValues = #[
-                                "220"
-                            ]
-                        ]
+                        new ActionNxResubmit(220 as short)
                     ])
                 ]
                 matchInfoList = #[
@@ -3123,12 +2615,7 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
                 flowName = "ACL"
                 instructionInfoList = #[
                     new InstructionInfo(InstructionType.apply_actions, #[
-                        new ActionInfoBuilder >> [
-                            actionType = ActionType.nx_resubmit
-                            actionValues = #[
-                                "220"
-                            ]
-                        ]
+                        new ActionNxResubmit(220 as short)
                     ])
                 ]
                 matchInfoList = #[
@@ -3173,12 +2660,7 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
                 flowName = "ACL"
                 instructionInfoList = #[
                     new InstructionInfo(InstructionType.apply_actions, #[
-                        new ActionInfoBuilder >> [
-                            actionType = ActionType.nx_resubmit
-                            actionValues = #[
-                                "220"
-                            ]
-                        ]
+                        new ActionNxResubmit(220 as short)
                     ])
                 ]
                 matchInfoList = #[
@@ -3218,12 +2700,7 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
                 flowName = "ACL"
                 instructionInfoList = #[
                     new InstructionInfo(InstructionType.apply_actions, #[
-                        new ActionInfoBuilder >> [
-                            actionType = ActionType.nx_resubmit
-                            actionValues = #[
-                                "220"
-                            ]
-                        ]
+                        new ActionNxResubmit(220 as short)
                     ])
                 ]
                 matchInfoList = #[
@@ -3263,12 +2740,7 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
                 flowName = "ACL"
                 instructionInfoList = #[
                     new InstructionInfo(InstructionType.apply_actions, #[
-                        new ActionInfoBuilder >> [
-                            actionType = ActionType.nx_resubmit
-                            actionValues = #[
-                                "220"
-                            ]
-                        ]
+                        new ActionNxResubmit(220 as short)
                     ])
                 ]
                 matchInfoList = #[
@@ -3308,12 +2780,7 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
                 flowName = "ACL"
                 instructionInfoList = #[
                     new InstructionInfo(InstructionType.apply_actions, #[
-                        new ActionInfoBuilder >> [
-                            actionType = ActionType.nx_resubmit
-                            actionValues = #[
-                                "220"
-                            ]
-                        ]
+                        new ActionNxResubmit(220 as short)
                     ])
                 ]
                 matchInfoList = #[
@@ -3340,12 +2807,7 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
                 flowName = "ACL"
                 instructionInfoList = #[
                     new InstructionInfo(InstructionType.apply_actions, #[
-                        new ActionInfoBuilder >> [
-                            actionType = ActionType.nx_resubmit
-                            actionValues = #[
-                                "17"
-                            ]
-                        ]
+                        new ActionNxResubmit(17 as short)
                     ])
                 ]
                 matchInfoList = #[
@@ -3390,12 +2852,7 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
                 flowName = "ACL"
                 instructionInfoList = #[
                     new InstructionInfo(InstructionType.apply_actions, #[
-                        new ActionInfoBuilder >> [
-                            actionType = ActionType.nx_resubmit
-                            actionValues = #[
-                                "17"
-                            ]
-                        ]
+                        new ActionNxResubmit(17 as short)
                     ])
                 ]
                 matchInfoList = #[

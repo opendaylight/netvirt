@@ -26,7 +26,6 @@ import org.opendaylight.controller.md.sal.binding.api.DataChangeListener;
 import org.opendaylight.controller.md.sal.common.api.data.AsyncDataBroker.DataChangeScope;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.mdsalutil.ActionInfo;
-import org.opendaylight.genius.mdsalutil.ActionType;
 import org.opendaylight.genius.mdsalutil.BucketInfo;
 import org.opendaylight.genius.mdsalutil.FlowEntity;
 import org.opendaylight.genius.mdsalutil.GroupEntity;
@@ -35,6 +34,8 @@ import org.opendaylight.genius.mdsalutil.InstructionType;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.mdsalutil.MatchFieldType;
 import org.opendaylight.genius.mdsalutil.MatchInfo;
+import org.opendaylight.genius.mdsalutil.actions.ActionGroup;
+import org.opendaylight.genius.mdsalutil.actions.ActionOutput;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.netvirt.bgpmanager.api.IBgpManager;
 import org.opendaylight.netvirt.natservice.internal.ExternalNetworksChangeListener;
@@ -42,6 +43,7 @@ import org.opendaylight.netvirt.natservice.internal.ExternalRoutersListener;
 import org.opendaylight.netvirt.natservice.internal.FloatingIPListener;
 import org.opendaylight.netvirt.natservice.internal.NaptManager;
 import org.opendaylight.netvirt.natservice.internal.NatUtil;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Uri;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.OdlInterfaceRpcService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fib.rpc.rev160121.FibRpcService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.vpn.rpc.rev160201.VpnRpcService;
@@ -102,12 +104,10 @@ public class ExternalNetworksChangeListenerTest {
         long groupId = 300;
         List<BucketInfo> bucketInfo = new ArrayList<>();
         List<ActionInfo> listActionInfoPrimary = new ArrayList<>();
-        listActionInfoPrimary.add(new ActionInfo(ActionType.output,
-                new String[] {"3"}));
+        listActionInfoPrimary.add(new ActionOutput(new Uri("3")));
         BucketInfo bucketPrimary = new BucketInfo(listActionInfoPrimary);
         List<ActionInfo> listActionInfoSecondary = new ArrayList<>();
-        listActionInfoSecondary.add(new ActionInfo(ActionType.output,
-                new String[] {"4"}));
+        listActionInfoSecondary.add(new ActionOutput(new Uri("4")));
         BucketInfo bucketSecondary = new BucketInfo(listActionInfoPrimary);
         bucketInfo.add(0, bucketPrimary);
         bucketInfo.add(1, bucketSecondary);
@@ -118,7 +118,7 @@ public class ExternalNetworksChangeListenerTest {
 
         List<InstructionInfo> instructions = new ArrayList<>();
         List<ActionInfo> actionsInfos = new ArrayList<>();
-        actionsInfos.add(new ActionInfo(ActionType.group, new String[] {String.valueOf(groupId)}));
+        actionsInfos.add(new ActionGroup(groupId));
         instructions.add(new InstructionInfo(InstructionType.apply_actions, actionsInfos));
 
 

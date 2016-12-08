@@ -14,7 +14,6 @@ import java.util.Map;
 
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.genius.mdsalutil.ActionInfo;
-import org.opendaylight.genius.mdsalutil.ActionType;
 import org.opendaylight.genius.mdsalutil.InstructionInfo;
 import org.opendaylight.genius.mdsalutil.InstructionType;
 import org.opendaylight.genius.mdsalutil.MatchFieldType;
@@ -23,6 +22,7 @@ import org.opendaylight.genius.mdsalutil.MatchInfoBase;
 import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.genius.mdsalutil.NxMatchFieldType;
 import org.opendaylight.genius.mdsalutil.NxMatchInfo;
+import org.opendaylight.genius.mdsalutil.actions.ActionNxConntrack;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.netvirt.aclservice.api.AclServiceManager.Action;
 import org.opendaylight.netvirt.aclservice.api.AclServiceManager.MatchCriteria;
@@ -88,8 +88,7 @@ public class StatefulIngressAclServiceImpl extends AbstractIngressAclServiceImpl
 
         Long elanTag = AclServiceUtils.getElanIdFromInterface(portId, dataBroker);
         List<ActionInfo> actionsInfos = new ArrayList<>();
-        actionsInfos.add(new ActionInfo(ActionType.nx_conntrack,
-            new String[] {"1", "0", elanTag.toString(), "255"}, 2));
+        actionsInfos.add(new ActionNxConntrack(2, 1, 0, elanTag.intValue(), (short) 255));
         List<InstructionInfo> instructions = getDispatcherTableResubmitInstructions(actionsInfos);
         int priority = this.aclDataUtil.getAclFlowPriority(aclName);
 
@@ -127,9 +126,7 @@ public class StatefulIngressAclServiceImpl extends AbstractIngressAclServiceImpl
             List<ActionInfo> actionsInfos = new ArrayList<>();
 
             Long elanTag = AclServiceUtils.getElanIdFromInterface(portId, dataBroker);
-            actionsInfos.add(new ActionInfo(ActionType.nx_conntrack,
-                    new String[] {"0", "0", elanTag.toString(), Short.toString(
-                        NwConstants.EGRESS_ACL_FILTER_TABLE)}, 2));
+            actionsInfos.add(new ActionNxConntrack(2, 0, 0, elanTag.intValue(), NwConstants.EGRESS_ACL_FILTER_TABLE));
             instructions.add(new InstructionInfo(InstructionType.apply_actions, actionsInfos));
             String flowName = "Ingress_Fixed_Conntrk_" + dpId + "_" + attachMac + "_"
                     + String.valueOf(attachIp.getValue()) + "_" + flowId;
