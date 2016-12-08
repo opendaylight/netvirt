@@ -1,0 +1,140 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1a622d24_03cb15a6",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/pom.xml",
+        "patchSetId": 3
+      },
+      "lineNbr": 111,
+      "author": {
+        "id": 670
+      },
+      "writtenOn": "2016-12-08T14:53:04Z",
+      "side": 1,
+      "message": "nit: trailing whitespace",
+      "revId": "e5377d96c8f2ffd464fc2adf4de93e58cc52884e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_23c1f180",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanToTransportZoneListener.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 670
+      },
+      "writtenOn": "2016-12-08T14:53:04Z",
+      "side": 1,
+      "message": "This message should be something more like - \"ELAN update detected, updating transport zones\"",
+      "revId": "e5377d96c8f2ffd464fc2adf4de93e58cc52884e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_83be05fe",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanToTransportZoneListener.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 71,
+      "author": {
+        "id": 670
+      },
+      "writtenOn": "2016-12-08T14:53:04Z",
+      "side": 1,
+      "message": "This message should be something more like - \"ELAN add detected, updating transport zones\"",
+      "revId": "e5377d96c8f2ffd464fc2adf4de93e58cc52884e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_63bbe90e",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/VpnToTransportZoneListener.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 61,
+      "author": {
+        "id": 670
+      },
+      "writtenOn": "2016-12-08T14:53:04Z",
+      "side": 1,
+      "message": "This message should be something more like - \"VPN update detected, updating transport zones\"",
+      "revId": "e5377d96c8f2ffd464fc2adf4de93e58cc52884e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_c3375daf",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/VpnToTransportZoneListener.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 66,
+      "author": {
+        "id": 670
+      },
+      "writtenOn": "2016-12-08T14:53:04Z",
+      "side": 1,
+      "message": "This message should be something more like - \"VPN add detected, updating transport zones\"",
+      "revId": "e5377d96c8f2ffd464fc2adf4de93e58cc52884e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_8376053d",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/utils/TransportZoneNotificationUtil.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 670
+      },
+      "writtenOn": "2016-12-08T14:53:04Z",
+      "side": 1,
+      "message": "It\u0027s a bit hard to review this file as it was renamed.\nCan I assume most of the logic here is the same as it was previously?",
+      "revId": "e5377d96c8f2ffd464fc2adf4de93e58cc52884e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_c38f5d22",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/resources/org/opendaylight/blueprint/elanmanager.xml",
+        "patchSetId": 3
+      },
+      "lineNbr": 217,
+      "author": {
+        "id": 670
+      },
+      "writtenOn": "2016-12-08T14:53:04Z",
+      "side": 1,
+      "message": "indentations throughout this file - look at it in gerrit and it pops out (the red blocks should usually be removed)",
+      "revId": "e5377d96c8f2ffd464fc2adf4de93e58cc52884e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_83ad658b",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/yang/elanmanager-config.yang",
+        "patchSetId": 3
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 670
+      },
+      "writtenOn": "2016-12-08T14:53:04Z",
+      "side": 1,
+      "message": "note this change will affect scripts and configurations for anyone disabling this. we probably need to do it for SR3 or only in Carbon to give a heads up.",
+      "revId": "e5377d96c8f2ffd464fc2adf4de93e58cc52884e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
