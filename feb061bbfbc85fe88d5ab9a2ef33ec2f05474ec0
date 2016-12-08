@@ -16,6 +16,24 @@
       "revId": "feb061bbfbc85fe88d5ab9a2ef33ec2f05474ec0",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_0cbce768",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/ArpMonitoringHandler.java",
+        "patchSetId": 10
+      },
+      "lineNbr": 159,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2016-12-08T09:32:10Z",
+      "side": 1,
+      "message": "Vivek, This change is not about sharing vpn-interface across multiple VPNs :)\n\nThere could be some timing issue b/w vpninterface and VpnPortipToPort add DCNs (may be due to async writes). This will resolve if vpninterface is already processed and VpnPortipToPort add DCN is triggered later. It handles that scenario.",
+      "parentUuid": "1a622d24_71d1f4fa",
+      "revId": "feb061bbfbc85fe88d5ab9a2ef33ec2f05474ec0",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
