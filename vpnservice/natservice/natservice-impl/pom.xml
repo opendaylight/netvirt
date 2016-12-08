@@ -115,7 +115,7 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
       <artifactId>counters-api</artifactId>
       <version>${infrautils.version}</version>
     </dependency>
-    </dependencies>
+  </dependencies>
 
     <!--
         Maven Site Configuration
