@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1a622d24_4ca09f90",
+        "filename": "vpnservice/dhcpservice/dhcpservice-impl/src/main/java/org/opendaylight/netvirt/dhcpservice/DhcpPktHandler.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 171,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2016-12-08T09:05:01Z",
+      "side": 1,
+      "message": "The fix looks relevant. Thanks.\n\nJust for an open discussion:\n1. We seem to assume that a port can have only one IPv4 address. AFAIU, in Neutron it is possible to do a port-update and add additional ips to the fixed_ips field.\n\n2. It would be useful to add a comment saying that IPv6 is currently not supported in Controller based DHCPServer.",
+      "revId": "95fb086724a747bb593811b7e07902e93ee8d035",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_2ce8c3b3",
+        "filename": "vpnservice/dhcpservice/dhcpservice-impl/src/main/java/org/opendaylight/netvirt/dhcpservice/DhcpPktHandler.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 172,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2016-12-08T09:05:01Z",
+      "side": 1,
+      "message": "In the calling context, you will have to ensure that \"subnet\" that is passed to this API is an IPv4 subnet. Currently getNeutronSubnet() in DhcpManager.java is returning [1] the subnet of the first fixedIP. This needs to be handled as well.\n\n[1] neutronVpnService.getNeutronSubnet(port.getFixedIps().get(0).getSubnetId());",
+      "revId": "95fb086724a747bb593811b7e07902e93ee8d035",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
