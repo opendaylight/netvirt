@@ -16,6 +16,24 @@
       "revId": "d230b18556546e082ca78c8f6598308169052a2e",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_f9a5e604",
+        "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/PortSecurityHandler.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 174,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2016-12-08T18:17:51Z",
+      "side": 1,
+      "message": "The problem happens when the first VM (port) is created with the an empty SG or with no remote SG rule. The  programPortSecurityGroup method is invoked but since the there is no remote SG rule yet, the securityGroupCacheManger.addToCache method is not called.\n\nThe fix here is to call the above method when the first remote SG rule is added to the VM associates with SG with no remote SG rule.",
+      "parentUuid": "1a622d24_8cf91750",
+      "revId": "d230b18556546e082ca78c8f6598308169052a2e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
