@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1a622d24_71d1f4fa",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/ArpMonitoringHandler.java",
+        "patchSetId": 10
+      },
+      "lineNbr": 159,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-12-08T09:13:22Z",
+      "side": 1,
+      "message": "Peri, we donot have a concept of a vpn-interface shared across multiple VPNs.\n\nCan you please let us know under what steps the above code bunch would provide value (Line 135 to Line 155)?\n\nOne set of steps thought of exciting above code is with the following steps:\n\ncreate a network\ncreate a subnet\ncreate a vm\nassociate network to bgpvpn\nnow create a router\nadd interface to router with the subnet earlier created.\n\nBut the above steps is not a valid use-case for us in L3VPN.\n\nSo can we please remove the above bunch.",
+      "revId": "feb061bbfbc85fe88d5ab9a2ef33ec2f05474ec0",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
