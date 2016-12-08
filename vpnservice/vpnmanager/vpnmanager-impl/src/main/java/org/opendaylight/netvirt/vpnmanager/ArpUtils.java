@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 Hewlett Packard Enterprise, Co. and others.  All rights reserved.
+ * Copyright © 2016, 2017 Hewlett Packard Enterprise, Co. and others.  All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
@@ -8,24 +8,18 @@
 package org.opendaylight.netvirt.vpnmanager;
 
 import java.math.BigInteger;
-import java.net.InetAddress;
-import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
 
 import org.opendaylight.controller.liblldp.EtherTypes;
 import org.opendaylight.genius.mdsalutil.ActionInfo;
-import org.opendaylight.genius.mdsalutil.ActionType;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.mdsalutil.NWUtil;
+import org.opendaylight.genius.mdsalutil.actions.ActionGroup;
 import org.opendaylight.genius.mdsalutil.packet.ARP;
 import org.opendaylight.genius.mdsalutil.packet.Ethernet;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.action.types.rev131112.action.list.Action;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeConnectorRef;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.service.rev130709.TransmitPacketInput;
-import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -66,7 +60,7 @@ public class ArpUtils {
             arpPacket = createARPPacket(ARP.REQUEST, abySenderMAC, abySenderIpAddress, targetMac, abyTargetIpAddress);
             ethPacket = createEthernetPacket(abySenderMAC, VpnConstants.EthernetDestination_Broadcast, arpPacket);
             if (groupId != null) {
-                lstActionInfo.add(new ActionInfo(ActionType.group, new String[] { String.valueOf(groupId) }));
+                lstActionInfo.add(new ActionGroup(groupId));
             }
             if (ingress != null) {
                 return MDSALUtil.getPacketOutFromController(lstActionInfo, ethPacket, dpnId.longValue(), ingress);
