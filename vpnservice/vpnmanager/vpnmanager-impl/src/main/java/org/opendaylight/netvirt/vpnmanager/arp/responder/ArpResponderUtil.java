@@ -10,15 +10,13 @@ package org.opendaylight.netvirt.vpnmanager.arp.responder;
 import java.math.BigInteger;
 import java.text.MessageFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
-import org.opendaylight.genius.mdsalutil.ActionInfo;
-import org.opendaylight.genius.mdsalutil.ActionType;
 import org.opendaylight.genius.mdsalutil.BucketInfo;
 import org.opendaylight.genius.mdsalutil.FlowEntity;
 import org.opendaylight.genius.mdsalutil.GroupEntity;
@@ -29,8 +27,20 @@ import org.opendaylight.genius.mdsalutil.MatchFieldType;
 import org.opendaylight.genius.mdsalutil.MatchInfo;
 import org.opendaylight.genius.mdsalutil.MetaDataUtil;
 import org.opendaylight.genius.mdsalutil.NwConstants;
+import org.opendaylight.genius.mdsalutil.actions.ActionDrop;
+import org.opendaylight.genius.mdsalutil.actions.ActionLoadIpToSpa;
+import org.opendaylight.genius.mdsalutil.actions.ActionLoadMacToSha;
+import org.opendaylight.genius.mdsalutil.actions.ActionMoveShaToTha;
+import org.opendaylight.genius.mdsalutil.actions.ActionMoveSourceDestinationEth;
+import org.opendaylight.genius.mdsalutil.actions.ActionMoveSpaToTpa;
+import org.opendaylight.genius.mdsalutil.actions.ActionNxLoadInPort;
+import org.opendaylight.genius.mdsalutil.actions.ActionNxResubmit;
+import org.opendaylight.genius.mdsalutil.actions.ActionPuntToController;
+import org.opendaylight.genius.mdsalutil.actions.ActionSetArpOp;
+import org.opendaylight.genius.mdsalutil.actions.ActionSetFieldEthernetSource;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.netvirt.vpnmanager.ArpReplyOrRequest;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.MacAddress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.action.types.rev131112.action.list.Action;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.action.types.rev131112.action.list.ActionKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.tables.table.Flow;
@@ -105,14 +115,13 @@ public class ArpResponderUtil {
      */
     public static FlowEntity getArpResponderTableMissFlow(final BigInteger dpnId) {
         return MDSALUtil.buildFlowEntity(dpnId, NwConstants.ARP_RESPONDER_TABLE,
-                String.valueOf(NwConstants.ARP_RESPONDER_TABLE),
-                NwConstants.TABLE_MISS_PRIORITY,
-                ArpResponderConstant.DROP_FLOW_NAME.value(), 0, 0,
-                NwConstants.COOKIE_ARP_RESPONDER,
-                new ArrayList<MatchInfo>(),
-                Arrays.asList(new InstructionInfo(InstructionType.apply_actions,
-                        Arrays.asList(new ActionInfo(ActionType.drop_action,
-                                new String[] {})))));
+            String.valueOf(NwConstants.ARP_RESPONDER_TABLE),
+            NwConstants.TABLE_MISS_PRIORITY,
+            ArpResponderConstant.DROP_FLOW_NAME.value(), 0, 0,
+            NwConstants.COOKIE_ARP_RESPONDER,
+            new ArrayList<MatchInfo>(),
+            Collections.singletonList(new InstructionInfo(InstructionType.apply_actions,
+                Collections.singletonList(new ActionDrop()))));
     }
 
     /**
@@ -138,14 +147,9 @@ public class ArpResponderUtil {
     public static List<BucketInfo> getDefaultBucketInfos(
             final short resubmitTableId, final short resubmitTableId2) {
         final List<BucketInfo> buckets = new ArrayList<>();
-        buckets.add(new BucketInfo(Arrays.asList(new ActionInfo(
-                ActionType.punt_to_controller, new String[] {}))));
-        buckets.add(new BucketInfo(
-                Arrays.asList(new ActionInfo(ActionType.nx_resubmit,
-                        new String[] { String.valueOf(resubmitTableId) }))));
-        buckets.add(new BucketInfo(
-                Arrays.asList(new ActionInfo(ActionType.nx_resubmit,
-                        new String[] { String.valueOf(resubmitTableId2) }))));
+        buckets.add(new BucketInfo(Collections.singletonList(new ActionPuntToController())));
+        buckets.add(new BucketInfo(Collections.singletonList(new ActionNxResubmit(resubmitTableId))));
+        buckets.add(new BucketInfo(Collections.singletonList(new ActionNxResubmit(resubmitTableId2))));
         return buckets;
     }
 
@@ -202,7 +206,7 @@ public class ArpResponderUtil {
      * Get List of actions for ARP Responder Flows
      *
      * Actions consists of all the ARP actions from
-     * {@link ActionType} and Egress Actions Retrieved
+     * and Egress Actions Retrieved
      *
      * @param ifaceMgrRpcService
      *            Interface manager RPC reference to invoke RPC to get Egress
@@ -222,27 +226,15 @@ public class ArpResponderUtil {
 
         final List<Action> actions = new ArrayList<>();
         int actionCounter = 0;
-        actions.add(new ActionInfo(ActionType.move_src_dst_eth, new String[] {},
-                actionCounter++).buildAction());
-        actions.add(new ActionInfo(ActionType.set_field_eth_src,
-                new String[] { macAddress }, actionCounter++)
-                        .buildAction());
-        actions.add(new ActionInfo(ActionType.set_arp_op,
-                new String[] { String.valueOf(NwConstants.ARP_REPLY) },
-                actionCounter++).buildAction());
-        actions.add(new ActionInfo(ActionType.move_sha_to_tha, new String[] {},
-                actionCounter++).buildAction());
-        actions.add(new ActionInfo(ActionType.move_spa_to_tpa, new String[] {},
-                actionCounter++).buildAction());
-        actions.add(new ActionInfo(ActionType.load_mac_to_sha,
-                new String[] { macAddress }, actionCounter++)
-                        .buildAction());
-        actions.add(new ActionInfo(ActionType.load_ip_to_spa,
-                new String[] { ipAddress }, actionCounter++).buildAction());
+        actions.add(new ActionMoveSourceDestinationEth().buildAction(actionCounter++));
+        actions.add(new ActionSetFieldEthernetSource(new MacAddress(macAddress)).buildAction(actionCounter++));
+        actions.add(new ActionSetArpOp(NwConstants.ARP_REPLY).buildAction(actionCounter++));
+        actions.add(new ActionMoveShaToTha().buildAction(actionCounter++));
+        actions.add(new ActionMoveSpaToTpa().buildAction(actionCounter++));
+        actions.add(new ActionLoadMacToSha(new MacAddress(macAddress)).buildAction(actionCounter++));
+        actions.add(new ActionLoadIpToSpa(ipAddress).buildAction(actionCounter++));
         //A temporary fix until to send packet to incoming port by loading IN_PORT with zero, until in_port is overridden in table=0
-        actions.add(new ActionInfo(ActionType.nx_load_in_port,
-                new BigInteger[] { BigInteger.ZERO }, actionCounter++)
-                        .buildAction());
+        actions.add(new ActionNxLoadInPort(BigInteger.ZERO).buildAction(actionCounter++));
 
         actions.addAll(getEgressActionsForInterface(ifaceMgrRpcService,
                 vpnInterface, actionCounter));
