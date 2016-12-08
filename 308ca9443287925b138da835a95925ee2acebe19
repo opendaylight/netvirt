@@ -16,6 +16,24 @@
       "revId": "308ca9443287925b138da835a95925ee2acebe19",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_e32539ac",
+        "filename": "vpnservice/dhcpservice/dhcpservice-impl/src/main/java/org/opendaylight/netvirt/dhcpservice/DhcpPktHandler.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 153,
+      "author": {
+        "id": 3276
+      },
+      "writtenOn": "2016-12-08T12:41:29Z",
+      "side": 1,
+      "message": "Got it. I was missing the point that both fixedIPs will be from different subnets.",
+      "parentUuid": "1a622d24_40e7c312",
+      "revId": "308ca9443287925b138da835a95925ee2acebe19",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
