@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "1a622d24_363f6d27",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/intervpnlink/InterVpnLinkListener.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 105,
+      "author": {
+        "id": 4540
+      },
+      "writtenOn": "2016-12-08T17:09:42Z",
+      "side": 1,
+      "message": "I didn\u0027t fix all ~1350 Checkstyle violations manually, I did a global reformat; this is what came out. I\u0027ve fixed the two instances you flagged.",
+      "parentUuid": "1a622d24_56ee69ed",
+      "revId": "162c1049e46eaeb565c8fcddbae4463b565f8985",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_36ce4d84",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/intervpnlink/InterVpnLinkListener.java",
         "patchSetId": 3
