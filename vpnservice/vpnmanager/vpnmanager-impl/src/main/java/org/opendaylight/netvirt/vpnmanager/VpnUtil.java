@@ -1108,27 +1108,6 @@ public class VpnUtil {
         }
     }
 
-    public static Port getNeutronPortForFloatingIp(DataBroker broker, IpAddress targetIP) {
-        InstanceIdentifier<Ports> portsIdentifier = InstanceIdentifier.create(Neutron.class).child(Ports.class);
-        Optional<Ports> portsOptional = VpnUtil.read(broker, LogicalDatastoreType.CONFIGURATION, portsIdentifier);
-        if (!portsOptional.isPresent() || portsOptional.get().getPort() == null) {
-            LOG.trace("No neutron ports found");
-            return null;
-        }
-
-        for (Port port : portsOptional.get().getPort()) {
-            if (NeutronConstants.DEVICE_OWNER_FLOATING_IP.equals(port.getDeviceOwner()) && port.getFixedIps() != null) {
-                for (FixedIps ip : port.getFixedIps()) {
-                    if (Objects.equals(ip.getIpAddress(), targetIP)) {
-                        return port;
-                    }
-                }
-            }
-        }
-
-        return null;
-    }
-
     public static boolean isNeutronPortConfigured(DataBroker broker, String portId,
                                                   org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress targetIP) {
         InstanceIdentifier<Port> portIdentifier = InstanceIdentifier.create(Neutron.class).
