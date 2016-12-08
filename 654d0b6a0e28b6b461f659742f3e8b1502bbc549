@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1a622d24_76c8c574",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/VpnFloatingIpHandler.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2016-12-08T16:41:55Z",
+      "side": 1,
+      "message": "unused import",
+      "revId": "654d0b6a0e28b6b461f659742f3e8b1502bbc549",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_56c5c959",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/VpnFloatingIpHandler.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 85,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2016-12-08T16:41:55Z",
+      "side": 1,
+      "message": "This dep is not required anymore",
+      "revId": "654d0b6a0e28b6b461f659742f3e8b1502bbc549",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
