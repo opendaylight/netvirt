@@ -16,6 +16,7 @@ import com.google.common.util.concurrent.ListenableFuture;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.Future;
 
@@ -29,15 +30,18 @@ import org.opendaylight.genius.mdsalutil.InstructionType;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.mdsalutil.MatchFieldType;
 import org.opendaylight.genius.mdsalutil.MatchInfo;
+import org.opendaylight.genius.mdsalutil.MetaDataUtil;
 import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.netvirt.bgpmanager.api.IBgpManager;
 import org.opendaylight.netvirt.elanmanager.api.IElanService;
 import org.opendaylight.netvirt.fibmanager.api.IFibManager;
 import org.opendaylight.netvirt.fibmanager.api.RouteOrigin;
+import org.opendaylight.netvirt.vpnmanager.arp.responder.ArpResponderUtil;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddressBuilder;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.PhysAddress;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface;
 import org.opendaylight.netvirt.vpnmanager.api.IVpnManager;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.tables.table.Flow;
@@ -47,6 +51,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.arputil.rev160406.Se
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.arputil.rev160406.SendArpRequestInputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.arputil.rev160406.interfaces.InterfaceAddress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.arputil.rev160406.interfaces.InterfaceAddressBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.OdlInterfaceRpcService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fib.rpc.rev160121.CreateFibEntryInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fib.rpc.rev160121.CreateFibEntryInputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fib.rpc.rev160121.FibRpcService;
@@ -79,6 +84,7 @@ public class VpnFloatingIpHandler implements FloatingIPHandler {
     private final IFibManager fibManager;
     private final OdlArputilService arpUtilService;
     private final IElanService elanService;
+    private final OdlInterfaceRpcService interfaceManager;
 
     static final BigInteger COOKIE_TUNNEL = new BigInteger("9000000", 16);
     static final String FLOWID_PREFIX = "NAT.";
@@ -91,7 +97,9 @@ public class VpnFloatingIpHandler implements FloatingIPHandler {
                                 final IFibManager fibManager,
                                 final OdlArputilService arputilService,
                                 final IVpnManager vpnManager,
-                                final IElanService elanService) {
+                                final IElanService elanService,
+                                final OdlInterfaceRpcService interfaceManager
+                                ) {
         this.dataBroker = dataBroker;
         this.mdsalManager = mdsalManager;
         this.vpnService = vpnService;
@@ -102,11 +110,12 @@ public class VpnFloatingIpHandler implements FloatingIPHandler {
         this.arpUtilService = arputilService;
         this.vpnManager = vpnManager;
         this.elanService = elanService;
+        this.interfaceManager = interfaceManager;
     }
 
     @Override
     public void onAddFloatingIp(final BigInteger dpnId, final String routerId,
-                                Uuid networkId, final String interfaceName, final InternalToExternalPortMap mapping) {
+                                final Uuid networkId, final String interfaceName, final InternalToExternalPortMap mapping) {
         String internalIp = mapping.getInternalIp();
         String externalIp = mapping.getExternalIp();
         Uuid floatingIpId = mapping.getExternalId();
@@ -148,23 +157,28 @@ public class VpnFloatingIpHandler implements FloatingIPHandler {
 
                     //Install custom FIB routes
                     List<Instruction> customInstructions = new ArrayList<>();
-                    customInstructions.add(new InstructionInfo(InstructionType.goto_table, new long[] { NwConstants.PDNAT_TABLE }).buildInstruction(0));
+                    customInstructions.add(new InstructionInfo(InstructionType.goto_table,
+                            new long[] { NwConstants.PDNAT_TABLE }).buildInstruction(0));
                     makeLFibTableEntry(dpnId, label, NwConstants.PDNAT_TABLE);
-                    CreateFibEntryInput input = new CreateFibEntryInputBuilder().setVpnName(vpnName).setSourceDpid(dpnId).setInstruction(customInstructions)
-                            .setIpAddress(externalIp + "/32").setServiceId(label).setInstruction(customInstructions).build();
+                    CreateFibEntryInput input = new CreateFibEntryInputBuilder().setVpnName(vpnName)
+                            .setSourceDpid(dpnId).setInstruction(customInstructions)
+                            .setIpAddress(externalIp + "/32").setServiceId(label)
+                            .setInstruction(customInstructions).build();
                     //Future<RpcResult<java.lang.Void>> createFibEntry(CreateFibEntryInput input);
                     Future<RpcResult<Void>> future = fibService.createFibEntry(input);
-                    WriteTransaction writeTx = dataBroker.newWriteOnlyTransaction();
                     LOG.debug("Add Floating Ip {} , found associated to fixed port {}", externalIp, interfaceName);
-
                     if (floatingIpPortMacAddress != null) {
+                        WriteTransaction writeTx = dataBroker.newWriteOnlyTransaction();
                         vpnManager.setupSubnetMacIntoVpnInstance(vpnName, floatingIpPortMacAddress, dpnId, writeTx,
                                 NwConstants.ADD_FLOW);
+                        setupArpResponderForFloatingIpPort(dpnId, vpnName, interfaceName, floatingIpPortMacAddress,
+                                label, externalIp, networkId, NwConstants.ADD_FLOW, writeTx);
+                        writeTx.submit();
                     }
-                    writeTx.submit();
                     return JdkFutureAdapters.listenInPoolThread(future);
                 } else {
-                    String errMsg = String.format("Could not retrieve the label for prefix %s in VPN %s, %s", externalIp, vpnName, result.getErrors());
+                    String errMsg = String.format("Could not retrieve the label for prefix %s in VPN %s, %s",
+                            externalIp, vpnName, result.getErrors());
                     LOG.error(errMsg);
                     return Futures.immediateFailedFuture(new RuntimeException(errMsg));
                 }
@@ -195,7 +209,7 @@ public class VpnFloatingIpHandler implements FloatingIPHandler {
     }
 
     @Override
-    public void onRemoveFloatingIp(final BigInteger dpnId, String routerId, Uuid networkId, InternalToExternalPortMap
+    public void onRemoveFloatingIp(final BigInteger dpnId, String routerId, final Uuid networkId, InternalToExternalPortMap
             mapping, final long label) {
         final String vpnName = NatUtil.getAssociatedVPN(dataBroker, networkId, LOG);
         String externalIp = mapping.getExternalIp();
@@ -206,15 +220,17 @@ public class VpnFloatingIpHandler implements FloatingIPHandler {
             return;
         }
         //Remove floating mac from mymac table
-        WriteTransaction writeTx = dataBroker.newWriteOnlyTransaction();
         LOG.debug("Removing FloatingIp {}", externalIp);
         String floatingIpPortMacAddress = NatUtil.getFloatingIpPortMacFromFloatingIpId(dataBroker, floatingIpId);
         if (floatingIpPortMacAddress != null) {
-            vpnManager.setupSubnetMacIntoVpnInstance(vpnName, floatingIpPortMacAddress, dpnId, writeTx, NwConstants
-                    .DEL_FLOW);
+            WriteTransaction writeTx = dataBroker.newWriteOnlyTransaction();
+            vpnManager.setupSubnetMacIntoVpnInstance(vpnName, floatingIpPortMacAddress, dpnId, writeTx,
+                    NwConstants.DEL_FLOW);
+            setupArpResponderForFloatingIpPort(dpnId, vpnName, null, floatingIpPortMacAddress, label,
+                    externalIp, networkId, NwConstants.DEL_FLOW, writeTx);
+            writeTx.submit();
         }
         removeFromFloatingIpPortInfo(floatingIpId);
-        writeTx.submit();
         cleanupFibEntries(dpnId, vpnName, externalIp, label);
     }
 
@@ -294,11 +310,76 @@ public class VpnFloatingIpHandler implements FloatingIPHandler {
         mkMatches.add(new MatchInfo(MatchFieldType.tunnel_id, new BigInteger[] {BigInteger.valueOf(serviceId)}));
 
         Flow terminatingServiceTableFlowEntity = MDSALUtil.buildFlowNew(NwConstants.INTERNAL_TUNNEL_TABLE,
-                getFlowRef(dpnId, NwConstants.INTERNAL_TUNNEL_TABLE, serviceId, ""), 5, String.format("%s:%d","TST Flow Entry ",serviceId),
+                getFlowRef(dpnId, NwConstants.INTERNAL_TUNNEL_TABLE, serviceId, ""), 5,
+                String.format("%s:%d","TST Flow Entry ",serviceId),
                 0, 0, COOKIE_TUNNEL.add(BigInteger.valueOf(serviceId)),mkMatches, customInstructions);
 
         mdsalManager.installFlow(dpnId, terminatingServiceTableFlowEntity);
     }
+
+    private void setupArpResponderForFloatingIpPort(BigInteger dpnId, String vpnName, String ifName,
+                                                    String floatingIpMac, long serviceId, String externalIp,
+                                                    Uuid extNetworkId, int addOrRemove, WriteTransaction writeTxn) {
+        boolean writeTxnCreated = false;
+        if (writeTxn == null) {
+            writeTxn = dataBroker.newWriteOnlyTransaction();
+            writeTxnCreated = true;
+        }
+        LOG.trace("arp responder for floating ip on DpnId = {} and serviceId = {} and externalIp = {}",
+                dpnId, serviceId, externalIp);
+        String extInterfaceName = elanService.getExternalElanInterface(extNetworkId.getValue(), dpnId);
+        if (extInterfaceName == null) {
+            LOG.warn("Failed to install FloatingIp ARP responder flow for {}. No external interface found for DPN id {}",
+                        externalIp, dpnId);
+            return;
+        }
+
+        Interface extInterfaceState = NatUtil.getInterfaceStateFromOperDS(dataBroker, extInterfaceName);
+        if (extInterfaceState == null) {
+            LOG.debug("No interface state found for interface {}. Delaying FloatingIp ARP responder flow for {}",
+                        extInterfaceName, externalIp);
+            return;
+        }
+
+        Integer lportTag = extInterfaceState.getIfIndex();
+        if (lportTag == null) {
+            LOG.debug("No Lport tag found for interface {}. Delaying FloatingIp ARP responder flow for {}",
+                       extInterfaceName, externalIp);
+            return;
+        }
+
+        long vpnId = NatUtil.getVpnId(dataBroker, vpnName);
+
+        if (NwConstants.ADD_FLOW == addOrRemove) {
+            installFloatingIpArpResponderFlow(dpnId, vpnId, extInterfaceName, lportTag, externalIp,
+                    floatingIpMac, writeTxn);
+            LOG.trace("Installed the ARP Responder flow for Floating Ip {}", externalIp);
+        } else {
+            removeFloatingIpArpResponderFlow(dpnId, lportTag, externalIp, writeTxn);
+            LOG.trace("ARP Responder removal for Floating Ip {}", externalIp);
+        }
+        if (writeTxnCreated) {
+            writeTxn.submit();
+        }
+    }
+
+    private void installFloatingIpArpResponderFlow(BigInteger dpnId, long vpnId, String extInterfaceName,
+                                                     Integer lportTag, String floatingIpMac, String floatingIp,
+                                                     WriteTransaction writeTx) {
+        String flowId = ArpResponderUtil.getFlowID(lportTag, floatingIp);
+        List<Instruction> instructions = ArpResponderUtil.getExtInterfaceInstructions(interfaceManager,
+                extInterfaceName, floatingIp, floatingIpMac);
+        ArpResponderUtil.installFlow(mdsalManager, writeTx, dpnId, flowId, flowId,
+                NwConstants.DEFAULT_ARP_FLOW_PRIORITY, ArpResponderUtil.generateCookie(lportTag, floatingIp),
+                ArpResponderUtil.getMatchCriteria(lportTag, vpnId, floatingIp), instructions);
+    }
+
+    private void removeFloatingIpArpResponderFlow(BigInteger dpnId, Integer lportTag, String floatingIp,
+                                                WriteTransaction writeTx) {
+        String flowId = ArpResponderUtil.getFlowID(lportTag, floatingIp);
+        ArpResponderUtil.removeFlow(mdsalManager, writeTx, dpnId, flowId);
+    }
+
 
     private void makeLFibTableEntry(BigInteger dpId, long serviceId, long tableId) {
         List<MatchInfo> matches = new ArrayList<>();
@@ -309,7 +390,8 @@ public class VpnFloatingIpHandler implements FloatingIPHandler {
         List<Instruction> instructions = new ArrayList<>();
         List<ActionInfo> actionsInfos = new ArrayList<>();
         actionsInfos.add(new ActionInfo(ActionType.pop_mpls, new String[]{}));
-        Instruction writeInstruction = new InstructionInfo(InstructionType.apply_actions, actionsInfos).buildInstruction(0);
+        Instruction writeInstruction = new InstructionInfo(InstructionType.apply_actions,
+                actionsInfos).buildInstruction(0);
         instructions.add(writeInstruction);
         instructions.add(new InstructionInfo(InstructionType.goto_table, new long[]{tableId}).buildInstruction(1));
 
