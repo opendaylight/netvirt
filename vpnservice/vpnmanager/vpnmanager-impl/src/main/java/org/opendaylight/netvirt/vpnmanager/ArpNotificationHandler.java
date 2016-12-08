@@ -20,7 +20,6 @@ import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.mdsalutil.MetaDataUtil;
-import org.opendaylight.netvirt.elanmanager.api.IElanService;
 import org.opendaylight.netvirt.vpnmanager.utilities.InterfaceUtils;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.VpnAfConfig;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.VpnInterfaces;
@@ -79,7 +78,6 @@ public class ArpNotificationHandler implements OdlArputilListener {
     VpnInterfaceManager vpnIfManager;
     IdManagerService idManager;
     OdlArputilService arpManager;
-    final IElanService elanService;
     ArpMonitoringHandler arpScheduler;
     OdlInterfaceRpcService ifaceMgrRpcService;
     IInterfaceManager interfaceManager;
@@ -87,12 +85,11 @@ public class ArpNotificationHandler implements OdlArputilListener {
 
 
     public ArpNotificationHandler(DataBroker dataBroker, VpnInterfaceManager vpnIfMgr,
-            final IElanService elanService, IdManagerService idManager, OdlArputilService arpManager,
+                                  IdManagerService idManager, OdlArputilService arpManager,
             ArpMonitoringHandler arpScheduler, OdlInterfaceRpcService ifaceMgrRpcService,
             IInterfaceManager interfaceManager, VpnConfig vpnConfig) {
         this.dataBroker = dataBroker;
         vpnIfManager = vpnIfMgr;
-        this.elanService = elanService;
         this.idManager = idManager;
         this.arpManager = arpManager;
         this.arpScheduler = arpScheduler;
@@ -164,10 +161,6 @@ public class ArpNotificationHandler implements OdlArputilListener {
                     }
                 } else if (isGarp && shouldLearnMacFromArpPackets(vpnName, ipToQuery)) {
                     learnMacFromArpPackets(vpnName, srcInterface, srcIP, srcMac);
-                }
-                if (elanService.isExternalInterface(srcInterface)) {
-                    handleArpRequestFromExternalInterface(srcInterface, srcIP, srcMac, targetIP);
-                    return;
                 }
             }
         }
@@ -278,35 +271,6 @@ public class ArpNotificationHandler implements OdlArputilListener {
                 addMipAdjacency(vpnName, srcInterface, srcIP, srcMac.getValue());
             }
         }
-    }
-
-    private void handleArpRequestFromExternalInterface(String srcInterface, IpAddress srcIP, PhysAddress srcMac,
-            IpAddress targetIP) {
-        Port port = VpnUtil.getNeutronPortForFloatingIp(dataBroker, targetIP);
-        String floatingIp = targetIP.getIpv4Address().getValue();
-        if (port == null) {
-            LOG.trace("No neutron port found for with floating ip {}", floatingIp);
-            return;
-        }
-
-        MacAddress targetMac = port.getMacAddress();
-        if (targetMac == null) {
-            LOG.trace("No mac address found for floating ip {}", floatingIp);
-            return;
-        }
-
-        // don't allow ARP responses if it arrives from different dpn
-        String localPortInterface = getFloatingInternalInterface(floatingIp);
-        if (localPortInterface != null && !localPortInterface.isEmpty()) {
-            BigInteger dpnIdSrc = InterfaceUtils.getDpnForInterface(ifaceMgrRpcService, srcInterface);
-            BigInteger dpnIdLocal = InterfaceUtils.getDpnForInterface(ifaceMgrRpcService, localPortInterface);
-            if (!dpnIdSrc.equals(dpnIdLocal)) {
-                LOG.trace("Not same dpnId, so don't respond for ARP - dpnIdSrc:{} dpnIdLocal:{}", dpnIdSrc, dpnIdLocal);
-                return;
-            }
-        }
-        LOG.trace("Target destination matches floating IP {} so respond for ARP", floatingIp);
-        vpnIfManager.processArpRequest(srcIP, srcMac, targetIP, new PhysAddress(targetMac.getValue()), srcInterface);
     }
 
     public void processArpRequest(IpAddress srcIP, PhysAddress srcMac, IpAddress targetIP, PhysAddress targetMac,
