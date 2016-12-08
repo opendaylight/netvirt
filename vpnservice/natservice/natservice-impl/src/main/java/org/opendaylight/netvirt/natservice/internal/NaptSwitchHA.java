@@ -787,8 +787,11 @@ public class NaptSwitchHA {
 
             //Install Fib entries for ExternalIps & program 36 -> 44
             List<String> externalIps = NatUtil.getExternalIpsForRouter(dataBroker,routerId);
+            String rd = NatUtil.getVpnRd(dataBroker, vpnName);
             if (externalIps != null) {
                 for (String externalIp : externalIps) {
+                    LOG.debug("NAT Service : Removing Fib entry rd {} prefix {}", rd, externalIp);
+                    fibManager.removeFibEntry(dataBroker, rd, externalIp, null);
                     LOG.debug("advToBgpAndInstallFibAndTsFlows in naptswitch id {} with vpnName {} and externalIp {}",
                             naptSwitch, vpnName, externalIp);
                     externalRouterListener.advToBgpAndInstallFibAndTsFlows(naptSwitch, NwConstants.INBOUND_NAPT_TABLE,
