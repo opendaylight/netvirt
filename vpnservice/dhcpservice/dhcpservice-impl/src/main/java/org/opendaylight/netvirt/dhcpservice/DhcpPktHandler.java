@@ -44,6 +44,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpc
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.GetInterfaceFromIfIndexInputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.GetInterfaceFromIfIndexOutput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.OdlInterfaceRpcService;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.port.attributes.FixedIps;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.ports.attributes.ports.Port;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.subnets.rev150712.subnet.attributes.HostRoutes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.subnets.rev150712.subnets.attributes.subnets.Subnet;
@@ -166,16 +167,40 @@ public class DhcpPktHandler implements PacketProcessingListener {
 
     private DhcpInfo getDhcpInfo(Port port, Subnet subnet) {
         DhcpInfo dhcpInfo = null;
-        if ((port != null) && (subnet != null)) {
-            String clientIp = port.getFixedIps().get(0).getIpAddress().getIpv4Address().getValue();
-            String serverIp = subnet.getGatewayIp().getIpv4Address().getValue();
-            List<IpAddress> dnsServers = subnet.getDnsNameservers();
-            dhcpInfo = new DhcpInfo();
-            dhcpInfo.setClientIp(clientIp).setServerIp(serverIp)
-                .setCidr(String.valueOf(subnet.getCidr().getValue())).setHostRoutes(subnet.getHostRoutes())
-                .setDnsServersIpAddrs(dnsServers).setGatewayIp(serverIp);
+        if (port != null && subnet != null) {
+            String clientIp = getIpv4Address(port);
+            String serverIp = null;
+            if (isIpv4Address(subnet.getGatewayIp())) {
+                serverIp = subnet.getGatewayIp().getIpv4Address().getValue();
+            }
+            if (clientIp != null && serverIp != null) {
+                List<IpAddress> dnsServers = subnet.getDnsNameservers();
+                dhcpInfo = new DhcpInfo();
+                dhcpInfo.setClientIp(clientIp).setServerIp(serverIp)
+                        .setCidr(String.valueOf(subnet.getCidr().getValue())).setHostRoutes(subnet.getHostRoutes())
+                        .setDnsServersIpAddrs(dnsServers).setGatewayIp(serverIp);
+            }
         }
         return dhcpInfo;
+    }
+
+    /* TODO:
+     * getIpv4Address and isIpv4Address
+     * Many other modules use/need similar methods. Should
+     * be refactored to a common NeutronUtils module.     *
+     */
+    private String getIpv4Address(Port port) {
+
+        for (FixedIps fixedIp : port.getFixedIps()) {
+            if (isIpv4Address(fixedIp.getIpAddress())) {
+                return fixedIp.getIpAddress().getIpv4Address().getValue();
+            }
+        }
+        return null;
+    }
+
+    private boolean isIpv4Address(IpAddress ip) {
+        return ip.getIpv4Address() != null;
     }
 
     private Subnet getNeutronSubnet(Port port) {
@@ -191,12 +216,13 @@ public class DhcpPktHandler implements PacketProcessingListener {
         if (ethPkt.getEtherType() == (short)NwConstants.ETHTYPE_802_1Q) {
             ethPkt = (Ethernet)ethPkt.getPayload();
         }
+        // Currently only IPv4 is supported
         if (ethPkt.getPayload() instanceof IPv4) {
             IPv4 ipPkt = (IPv4) ethPkt.getPayload();
             if (ipPkt.getPayload() instanceof UDP) {
                 UDP udpPkt = (UDP) ipPkt.getPayload();
-                if ((udpPkt.getSourcePort() == DhcpMConstants.DHCP_CLIENT_PORT)
-                        && (udpPkt.getDestinationPort() == DhcpMConstants.DHCP_SERVER_PORT)) {
+                if (udpPkt.getSourcePort() == DhcpMConstants.DHCP_CLIENT_PORT
+                        && udpPkt.getDestinationPort() == DhcpMConstants.DHCP_SERVER_PORT) {
                     LOG.trace("Matched DHCP_CLIENT_PORT and DHCP_SERVER_PORT");
                     byte[] rawDhcpPayload = udpPkt.getRawPayload();
                     DHCP reply = new DHCP();
@@ -358,28 +384,28 @@ public class DhcpPktHandler implements PacketProcessingListener {
 
         for (index = 0; index < inData.length - 1; index = index + 2) {
             // Skip, if the current bytes are checkSum bytes
-            wordData = ((inData[index] << 8) & 0xFF00) + (inData[index + 1] & 0xFF);
+            wordData = (inData[index] << 8 & 0xFF00) + (inData[index + 1] & 0xFF);
             sum = sum + wordData;
         }
 
         if (index < inData.length) {
-            wordData = ((inData[index] << 8) & 0xFF00) + (0 & 0xFF);
+            wordData = (inData[index] << 8 & 0xFF00) + (0 & 0xFF);
             sum = sum + wordData;
         }
 
         for (index = 0; index < 4; index = index + 2) {
-            wordData = ((srcAddr[index] << 8) & 0xFF00) + (srcAddr[index + 1] & 0xFF);
+            wordData = (srcAddr[index] << 8 & 0xFF00) + (srcAddr[index + 1] & 0xFF);
             sum = sum + wordData;
         }
 
         for (index = 0; index < 4; index = index + 2) {
-            wordData = ((destAddr[index] << 8) & 0xFF00) + (destAddr[index + 1] & 0xFF);
+            wordData = (destAddr[index] << 8 & 0xFF00) + (destAddr[index + 1] & 0xFF);
             sum = sum + wordData;
         }
         sum = sum + 17 + inData.length;
 
-        while ((sum >> 16) != 0) {
-            carry = (sum >> 16);
+        while (sum >> 16 != 0) {
+            carry = sum >> 16;
             sum = (sum & 0xFFFF) + carry;
         }
         short checkSum = (short) ~((short) sum & 0xFFFF);
@@ -424,7 +450,7 @@ public class DhcpPktHandler implements PacketProcessingListener {
                 pkt.unsetOption(DHCPConstants.OPT_SUBNET_MASK);
                 pkt.unsetOption(DHCPConstants.OPT_BROADCAST_ADDRESS);
             }
-            if ((dnServers != null) && (dnServers.size() > 0)) {
+            if (dnServers != null && dnServers.size() > 0) {
                 pkt.setOptionStrAddrs(DHCPConstants.OPT_DOMAIN_NAME_SERVERS, dnServers);
             } else {
                 pkt.unsetOption(DHCPConstants.OPT_DOMAIN_NAME_SERVERS);
@@ -437,8 +463,8 @@ public class DhcpPktHandler implements PacketProcessingListener {
 
     private void setParameterListOptions(DHCP req, DHCP reply, DhcpInfo dhcpInfo) {
         byte[] paramList = req.getOptionBytes(DHCPConstants.OPT_PARAMETER_REQUEST_LIST);
-        for (int i = 0; i < paramList.length; i++) {
-            switch (paramList[i]) {
+        for (byte element : paramList) {
+            switch (element) {
                 case DHCPConstants.OPT_SUBNET_MASK:
                 case DHCPConstants.OPT_ROUTERS:
                 case DHCPConstants.OPT_SERVER_IDENTIFIER:
@@ -451,16 +477,16 @@ public class DhcpPktHandler implements PacketProcessingListener {
                      * Setting these just to preserve order as
                      * specified in PARAMETER_REQUEST_LIST.
                      */
-                    reply.setOptionInt(paramList[i], 0);
+                    reply.setOptionInt(element, 0);
                     break;
                 case DHCPConstants.OPT_DOMAIN_NAME:
-                    reply.setOptionString(paramList[i], " ");
+                    reply.setOptionString(element, " ");
                     break;
                 case DHCPConstants.OPT_CLASSLESS_ROUTE:
                     setOptionClasslessRoute(reply, dhcpInfo);
                     break;
                 default:
-                    LOG.trace("DHCP Option code {} not supported yet", paramList[i]);
+                    LOG.trace("DHCP Option code {} not supported yet", element);
                     break;
             }
         }
@@ -496,7 +522,7 @@ public class DhcpPktHandler implements PacketProcessingListener {
 
     protected byte[] convertToClasslessRouteOption(String dest, String router) {
         ByteArrayOutputStream byteArray = new ByteArrayOutputStream();
-        if ((dest == null || router == null)) {
+        if (dest == null || router == null) {
             return null;
         }
 
@@ -529,7 +555,7 @@ public class DhcpPktHandler implements PacketProcessingListener {
     }
 
     private boolean isPktInReasonSendtoCtrl(Class<? extends PacketInReason> pktInReason) {
-        return (pktInReason == SendToController.class);
+        return pktInReason == SendToController.class;
     }
 
     private String getInterfaceNameFromTag(long portTag) {
