@@ -102,6 +102,7 @@
     <argument ref="odlArputilService" />
     <argument ref="vpnManager" />
     <argument ref="elanService" />
+    <argument ref="odlInterfaceRpcService" />
   </bean>
   <service ref="vpnFloatingIpHandler"
            interface="org.opendaylight.netvirt.natservice.internal.FloatingIPHandler" />

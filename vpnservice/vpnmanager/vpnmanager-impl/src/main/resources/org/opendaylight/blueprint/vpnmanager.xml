@@ -125,7 +125,6 @@
         class="org.opendaylight.netvirt.vpnmanager.ArpNotificationHandler">
     <argument ref="dataBroker" />
     <argument ref="vpnInterfaceManager" />
-    <argument ref="elanService" />
     <argument ref="idManagerService" />
     <argument ref="odlArputilService" />
     <argument ref="arpMonitoringHandler" />
