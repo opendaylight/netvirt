@@ -19,6 +19,7 @@ import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.Callable;
@@ -32,7 +33,6 @@ import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
 import org.opendaylight.genius.datastoreutils.DataStoreJobCoordinator;
 import org.opendaylight.genius.mdsalutil.ActionInfo;
-import org.opendaylight.genius.mdsalutil.ActionType;
 import org.opendaylight.genius.mdsalutil.FlowEntity;
 import org.opendaylight.genius.mdsalutil.InstructionInfo;
 import org.opendaylight.genius.mdsalutil.InstructionType;
@@ -41,6 +41,19 @@ import org.opendaylight.genius.mdsalutil.MatchFieldType;
 import org.opendaylight.genius.mdsalutil.MatchInfo;
 import org.opendaylight.genius.mdsalutil.MetaDataUtil;
 import org.opendaylight.genius.mdsalutil.NwConstants;
+import org.opendaylight.genius.mdsalutil.actions.ActionGroup;
+import org.opendaylight.genius.mdsalutil.actions.ActionMoveSourceDestinationEth;
+import org.opendaylight.genius.mdsalutil.actions.ActionMoveSourceDestinationIp;
+import org.opendaylight.genius.mdsalutil.actions.ActionNxLoadInPort;
+import org.opendaylight.genius.mdsalutil.actions.ActionNxResubmit;
+import org.opendaylight.genius.mdsalutil.actions.ActionPopMpls;
+import org.opendaylight.genius.mdsalutil.actions.ActionPushMpls;
+import org.opendaylight.genius.mdsalutil.actions.ActionSetFieldEthernetDestination;
+import org.opendaylight.genius.mdsalutil.actions.ActionSetFieldEthernetSource;
+import org.opendaylight.genius.mdsalutil.actions.ActionSetFieldMplsLabel;
+import org.opendaylight.genius.mdsalutil.actions.ActionSetFieldTunnelId;
+import org.opendaylight.genius.mdsalutil.actions.ActionSetIcmpType;
+import org.opendaylight.genius.mdsalutil.actions.ActionSetSourceIp;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.genius.mdsalutil.packet.IPProtocols;
 import org.opendaylight.genius.utils.ServiceIndex;
@@ -565,7 +578,7 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
             // reinitialize instructions list for LFIB Table
             final List<InstructionInfo> LFIBinstructions = new ArrayList<InstructionInfo>();
 
-            actionsInfos.add(new ActionInfo(ActionType.pop_mpls, new String[]{}));
+            actionsInfos.add(new ActionPopMpls());
             LFIBinstructions.add(new InstructionInfo(InstructionType.apply_actions, actionsInfos));
             LFIBinstructions.add(new InstructionInfo(InstructionType.write_metadata,  new BigInteger[] { subnetRouteMeta, MetaDataUtil.METADATA_MASK_SUBNET_ROUTE }));
             LFIBinstructions.add(new InstructionInfo(InstructionType.goto_table, new long[] { NwConstants.L3_SUBNET_ROUTE_TABLE }));
@@ -618,7 +631,7 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
                 LOG.trace("Installing flow in LFIB table for interVpnLink {}", interVpnLink.getName());
 
                 for ( BigInteger dpId : targetDpns ) {
-                    List<ActionInfo> actionsInfos = Arrays.asList(new ActionInfo(ActionType.pop_mpls, new String[]{}));
+                    List<ActionInfo> actionsInfos = Collections.singletonList(new ActionPopMpls());
 
                     BigInteger[] metadata = new BigInteger[] {
                             MetaDataUtil.getMetaDataForLPortDispatcher(lportTag.intValue(), ServiceIndex.getIndex(NwConstants.L3VPN_SERVICE_NAME, NwConstants.L3VPN_SERVICE_INDEX)),
@@ -837,13 +850,12 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
                         vrfEntry.getDestPrefix(), rd, localNextHopInfo.getVpnInterfaceName(), dpnId.toString());
                 return BigInteger.ZERO;
             }
-            List<ActionInfo> actionsInfos =
-                    Arrays.asList(new ActionInfo(ActionType.group, new String[] { String.valueOf(groupId)}));
-            final List<InstructionInfo> instructions =
-                    Arrays.asList(new InstructionInfo(InstructionType.apply_actions, actionsInfos));
-            actionsInfos = Arrays.asList(new ActionInfo(ActionType.pop_mpls, new String[]{}),
-                    new ActionInfo(ActionType.group, new String[] { String.valueOf(groupId) }) );
-            final List<InstructionInfo> lfibinstructions = Arrays.asList(new InstructionInfo(InstructionType.apply_actions, actionsInfos));
+            final List<InstructionInfo> instructions = Collections.singletonList(
+                new InstructionInfo(InstructionType.apply_actions,
+                    Collections.singletonList(new ActionGroup(groupId))));
+            final List<InstructionInfo> lfibinstructions = Collections.singletonList(
+                new InstructionInfo(InstructionType.apply_actions,
+                    Arrays.asList(new ActionPopMpls(), new ActionGroup(groupId))));
             if (RouteOrigin.value(vrfEntry.getOrigin()) != RouteOrigin.SELF_IMPORTED) {
                 LOG.debug("Installing tunnel table entry on dpn {} for interface {} with label {}",
                         dpnId, localNextHopInfo.getVpnInterfaceName(), vrfEntry.getLabel());
@@ -916,9 +928,7 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
 
     private void makeTunnelTableEntry(BigInteger dpId, long label, long groupId/*String egressInterfaceName*/,
                                       WriteTransaction tx) {
-        List<ActionInfo> actionsInfos = new ArrayList<ActionInfo>();
-        actionsInfos.add(new ActionInfo(ActionType.group, new String[] { String.valueOf(groupId) }));
-
+        List<ActionInfo> actionsInfos = Collections.singletonList(new ActionGroup(groupId));
 
         createTerminatingServiceActions(dpId, (int)label, actionsInfos, tx);
 
@@ -1160,31 +1170,30 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
             return;
         }
 
-        actionInfos.add(new ActionInfo(ActionType.set_field_eth_dest, new String[] { macAddress }, actionInfos.size()));
+        actionInfos.add(new ActionSetFieldEthernetDestination(actionInfos.size(), new MacAddress(macAddress)));
     }
 
     private void addTunnelInterfaceActions(String tunnelInterface, long vpnId, VrfEntry vrfEntry,
             List<ActionInfo> actionInfos) {
-        Class<? extends TunnelTypeBase> tunnel_type = getTunnelType(tunnelInterface);
-        if (tunnel_type.equals(TunnelTypeMplsOverGre.class)) {
+        Class<? extends TunnelTypeBase> tunnelType = getTunnelType(tunnelInterface);
+        if (tunnelType.equals(TunnelTypeMplsOverGre.class)) {
             LOG.debug("Push label action for prefix {}", vrfEntry.getDestPrefix());
-            actionInfos.add(new ActionInfo(ActionType.push_mpls, new String[] { null }));
-            actionInfos.add(new ActionInfo(ActionType.set_field_mpls_label,
-                    new String[] { Long.toString(vrfEntry.getLabel()) }));
-            actionInfos.add(new ActionInfo(ActionType.nx_load_in_port, new BigInteger[]{BigInteger.ZERO}));
+            actionInfos.add(new ActionPushMpls());
+            actionInfos.add(new ActionSetFieldMplsLabel(vrfEntry.getLabel()));
+            actionInfos.add(new ActionNxLoadInPort(BigInteger.ZERO));
         } else {
             int label = vrfEntry.getLabel().intValue();
             BigInteger tunnelId;
             // FIXME vxlan vni bit set is not working properly with OVS.need to
             // revisit
-            if (tunnel_type.equals(TunnelTypeVxlan.class)) {
+            if (tunnelType.equals(TunnelTypeVxlan.class)) {
                 tunnelId = BigInteger.valueOf(label);
             } else {
                 tunnelId = BigInteger.valueOf(label);
             }
 
             LOG.debug("adding set tunnel id action for label {}", label);
-            actionInfos.add(new ActionInfo(ActionType.set_field_tunnel_id, new BigInteger[] { tunnelId }));
+            actionInfos.add(new ActionSetFieldTunnelId(tunnelId));
             addRewriteDstMacAction(vpnId, vrfEntry, actionInfos);
         }
     }
@@ -2246,20 +2255,19 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
         List<ActionInfo> actionsInfos = new ArrayList<>();
 
         // Set Eth Src and Eth Dst
-        actionsInfos.add(new ActionInfo(ActionType.move_src_dst_eth, new String[] {}));
-        actionsInfos.add(new ActionInfo(ActionType.set_field_eth_src, new String[] { routerMac.getValue() }));
+        actionsInfos.add(new ActionMoveSourceDestinationEth());
+        actionsInfos.add(new ActionSetFieldEthernetSource(routerMac));
 
         // Move Ip Src to Ip Dst
-        actionsInfos.add(new ActionInfo(ActionType.move_src_dst_ip, new String[] {}));
-        actionsInfos.add(new ActionInfo(ActionType.set_source_ip, new String[] { subSplit[0], "32" }));
+        actionsInfos.add(new ActionMoveSourceDestinationIp());
+        actionsInfos.add(new ActionSetSourceIp(subSplit[0], "32"));
 
         // Set the ICMP type to 0 (echo reply)
-        actionsInfos.add(new ActionInfo(ActionType.set_icmp_type, new String[] { "0" }));
+        actionsInfos.add(new ActionSetIcmpType((short) 0));
 
-        actionsInfos.add(new ActionInfo(ActionType.nx_load_in_port, new BigInteger[]{ BigInteger.ZERO }));
+        actionsInfos.add(new ActionNxLoadInPort(BigInteger.ZERO));
 
-        actionsInfos.add(new ActionInfo(ActionType.nx_resubmit,
-                new String[] { Short.toString(NwConstants.L3_FIB_TABLE) }));
+        actionsInfos.add(new ActionNxResubmit(NwConstants.L3_FIB_TABLE));
 
         List<InstructionInfo> instructions = new ArrayList<>();
 

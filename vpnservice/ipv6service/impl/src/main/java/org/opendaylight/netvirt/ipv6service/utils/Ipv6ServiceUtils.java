@@ -25,7 +25,6 @@ import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.mdsalutil.ActionInfo;
-import org.opendaylight.genius.mdsalutil.ActionType;
 import org.opendaylight.genius.mdsalutil.FlowEntity;
 import org.opendaylight.genius.mdsalutil.InstructionInfo;
 import org.opendaylight.genius.mdsalutil.InstructionType;
@@ -34,6 +33,7 @@ import org.opendaylight.genius.mdsalutil.MatchFieldType;
 import org.opendaylight.genius.mdsalutil.MatchInfo;
 import org.opendaylight.genius.mdsalutil.MetaDataUtil;
 import org.opendaylight.genius.mdsalutil.NwConstants;
+import org.opendaylight.genius.mdsalutil.actions.ActionPuntToController;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.genius.mdsalutil.packet.IPProtocols;
 import org.opendaylight.genius.utils.ServiceIndex;
@@ -340,8 +340,7 @@ public class Ipv6ServiceUtils {
         List<MatchInfo> neighborSolicitationMatch = getIcmpv6NSMatch(elanTag, ipv6Address);
         List<InstructionInfo> instructions = new ArrayList<>();
         List<ActionInfo> actionsInfos = new ArrayList<>();
-        actionsInfos.add(new ActionInfo(ActionType.punt_to_controller,
-                new String[] {}));
+        actionsInfos.add(new ActionPuntToController());
         instructions.add(new InstructionInfo(InstructionType.apply_actions,
                 actionsInfos));
         FlowEntity rsFlowEntity = MDSALUtil.buildFlowEntity(dpId, tableId,
@@ -365,8 +364,7 @@ public class Ipv6ServiceUtils {
         List<InstructionInfo> instructions = new ArrayList<>();
         List<ActionInfo> actionsInfos = new ArrayList<>();
         // Punt to controller
-        actionsInfos.add(new ActionInfo(ActionType.punt_to_controller,
-                new String[] {}));
+        actionsInfos.add(new ActionPuntToController());
         instructions.add(new InstructionInfo(InstructionType.apply_actions,
                 actionsInfos));
         FlowEntity rsFlowEntity = MDSALUtil.buildFlowEntity(dpId, tableId,
