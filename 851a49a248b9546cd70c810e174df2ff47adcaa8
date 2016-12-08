@@ -16,6 +16,24 @@
       "revId": "851a49a248b9546cd70c810e174df2ff47adcaa8",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_a0e217d3",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/VpnFloatingIpHandler.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 280,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-12-08T11:05:56Z",
+      "side": 1,
+      "message": "Tali,\n\nThe other method you have referred here which uses extNetworkId as input, won\u0027t work for us in the BGPVPN use-case where the external network becomes part of a a special InternetVPN.\n\nThis is because you are retrieving VPNId with external network name.  Whereas in the BGPVPN use-case the VPNID will be equal to the BGPVPN that is holding the external network entity.\n\nSo let us retain this only for now !",
+      "parentUuid": "1a622d24_608d9f7b",
+      "revId": "851a49a248b9546cd70c810e174df2ff47adcaa8",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
