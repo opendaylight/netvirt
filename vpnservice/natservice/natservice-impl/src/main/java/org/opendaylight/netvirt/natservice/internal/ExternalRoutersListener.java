@@ -31,7 +31,6 @@ import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
 import org.opendaylight.genius.mdsalutil.ActionInfo;
-import org.opendaylight.genius.mdsalutil.ActionType;
 import org.opendaylight.genius.mdsalutil.BucketInfo;
 import org.opendaylight.genius.mdsalutil.FlowEntity;
 import org.opendaylight.genius.mdsalutil.GroupEntity;
@@ -42,6 +41,12 @@ import org.opendaylight.genius.mdsalutil.MatchFieldType;
 import org.opendaylight.genius.mdsalutil.MatchInfo;
 import org.opendaylight.genius.mdsalutil.MetaDataUtil;
 import org.opendaylight.genius.mdsalutil.NwConstants;
+import org.opendaylight.genius.mdsalutil.actions.ActionGroup;
+import org.opendaylight.genius.mdsalutil.actions.ActionNxLoadInPort;
+import org.opendaylight.genius.mdsalutil.actions.ActionNxResubmit;
+import org.opendaylight.genius.mdsalutil.actions.ActionPopMpls;
+import org.opendaylight.genius.mdsalutil.actions.ActionPuntToController;
+import org.opendaylight.genius.mdsalutil.actions.ActionSetFieldTunnelId;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.netvirt.bgpmanager.api.IBgpManager;
 import org.opendaylight.netvirt.fibmanager.api.IFibManager;
@@ -608,7 +613,7 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
 
         List<InstructionInfo> instructions = new ArrayList<>();
         List<ActionInfo> actionsInfos = new ArrayList<>();
-        actionsInfos.add(new ActionInfo(ActionType.punt_to_controller, new String[] {}));
+        actionsInfos.add(new ActionPuntToController());
         instructions.add(new InstructionInfo(InstructionType.apply_actions, actionsInfos));
         instructions.add(new InstructionInfo(InstructionType.write_metadata,
                 new BigInteger[] { MetaDataUtil.getVpnIdMetadata(routerId), MetaDataUtil.METADATA_MASK_VRFID }));
@@ -704,11 +709,9 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
         List<InstructionInfo> instructions = new ArrayList<>();
         List<ActionInfo> actionsInfo = new ArrayList<>();
 
-        ActionInfo actionSetField = new ActionInfo(ActionType.set_field_tunnel_id, new BigInteger[] {
-                        BigInteger.valueOf(routerId)}) ;
-        actionsInfo.add(actionSetField);
+        actionsInfo.add(new ActionSetFieldTunnelId(BigInteger.valueOf(routerId)));
         LOG.debug("NAT Service : Setting the tunnel to the list of action infos {}", actionsInfo);
-        actionsInfo.add(new ActionInfo(ActionType.group, new String[] {String.valueOf(groupId)}));
+        actionsInfo.add(new ActionGroup(groupId));
         instructions.add(new InstructionInfo(InstructionType.apply_actions, actionsInfo));
         String flowRef = getFlowRefSnat(dpId, NwConstants.PSNAT_TABLE, routerName);
         FlowEntity flowEntity = MDSALUtil.buildFlowEntity(dpId, NwConstants.PSNAT_TABLE, flowRef,
@@ -861,7 +864,7 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
 /*
             List<BucketInfo> listBucketInfo = new ArrayList<>();
             List<ActionInfo> listActionInfoPrimary = new ArrayList<>();
-            listActionInfoPrimary.add(new ActionInfo(ActionType.nx_resubmit, new String[]{String.valueOf(NatConstants.TERMINATING_SERVICE_TABLE)}));
+            listActionInfoPrimary.add(new ActionNxResubmit(NatConstants.TERMINATING_SERVICE_TABLE));
             BucketInfo bucketPrimary = new BucketInfo(listActionInfoPrimary);
             listBucketInfo.add(0, bucketPrimary);
 */
@@ -882,7 +885,7 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
     List<BucketInfo> getBucketInfoForPrimaryNaptSwitch(){
         List<BucketInfo> listBucketInfo = new ArrayList<>();
         List<ActionInfo> listActionInfoPrimary =  new ArrayList<>();
-        listActionInfoPrimary.add(new ActionInfo(ActionType.nx_resubmit, new String[]{String.valueOf(NwConstants.INTERNAL_TUNNEL_TABLE)}));
+        listActionInfoPrimary.add(new ActionNxResubmit(NwConstants.INTERNAL_TUNNEL_TABLE));
         BucketInfo bucketPrimary = new BucketInfo(listActionInfoPrimary);
         listBucketInfo.add(0, bucketPrimary);
         return listBucketInfo;
@@ -905,8 +908,8 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
 
         ArrayList<ActionInfo> listActionInfo = new ArrayList<>();
         ArrayList<InstructionInfo> instructionInfo = new ArrayList<>();
-        listActionInfo.add(new ActionInfo(ActionType.nx_load_in_port, new BigInteger[]{BigInteger.ZERO}));
-        listActionInfo.add(new ActionInfo(ActionType.nx_resubmit, new String[] { Integer.toString(NwConstants.L3_FIB_TABLE) }));
+        listActionInfo.add(new ActionNxLoadInPort(BigInteger.ZERO));
+        listActionInfo.add(new ActionNxResubmit(NwConstants.L3_FIB_TABLE));
         instructionInfo.add(new InstructionInfo(InstructionType.apply_actions, listActionInfo));
 
         String flowRef = getFlowRefTs(dpId, NwConstants.NAPT_PFIB_TABLE, segmentId);
@@ -1028,7 +1031,7 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
 
         List<Instruction> instructions = new ArrayList<>();
         List<ActionInfo> actionsInfos = new ArrayList<>();
-        actionsInfos.add(new ActionInfo(ActionType.pop_mpls, new String[]{}));
+        actionsInfos.add(new ActionPopMpls());
         Instruction writeInstruction = new InstructionInfo(InstructionType.apply_actions, actionsInfos).buildInstruction(0);
         instructions.add(writeInstruction);
         instructions.add(new InstructionInfo(InstructionType.goto_table, new long[]{tableId}).buildInstruction(1));
@@ -2204,11 +2207,9 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
         List<InstructionInfo> instructions = new ArrayList<>();
         List<ActionInfo> actionsInfo = new ArrayList<>();
 
-        ActionInfo actionSetField = new ActionInfo(ActionType.set_field_tunnel_id, new BigInteger[] {
-                BigInteger.valueOf(changedVpnId)}) ;
-        actionsInfo.add(actionSetField);
+        actionsInfo.add(new ActionSetFieldTunnelId(BigInteger.valueOf(changedVpnId)));
         LOG.debug("NAT Service : Setting the tunnel to the list of action infos {}", actionsInfo);
-        actionsInfo.add(new ActionInfo(ActionType.group, new String[] {String.valueOf(groupId)}));
+        actionsInfo.add(new ActionGroup(groupId));
         instructions.add(new InstructionInfo(InstructionType.apply_actions, actionsInfo));
         String flowRef = getFlowRefSnat(dpId, NwConstants.PSNAT_TABLE, routerName);
         FlowEntity flowEntity = MDSALUtil.buildFlowEntity(dpId, NwConstants.PSNAT_TABLE, flowRef,
@@ -2287,7 +2288,7 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
 
         List<InstructionInfo> instructions = new ArrayList<>();
         List<ActionInfo> actionsInfos = new ArrayList<>();
-        actionsInfos.add(new ActionInfo(ActionType.punt_to_controller, new String[] {}));
+        actionsInfos.add(new ActionPuntToController());
         instructions.add(new InstructionInfo(InstructionType.apply_actions, actionsInfos));
         instructions.add(new InstructionInfo(InstructionType.write_metadata,
                 new BigInteger[] { MetaDataUtil.getVpnIdMetadata(changedVpnId), MetaDataUtil.METADATA_MASK_VRFID }));
@@ -2314,7 +2315,7 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
         List<ActionInfo> actionsInfos = new ArrayList<>();
         instructions.add(new InstructionInfo(InstructionType.apply_actions, actionsInfos));
         long groupId = NatUtil.createGroupId(NatUtil.getGroupIdKey(subnetId.getValue()), idManager);
-        actionsInfos.add(new ActionInfo(ActionType.group, new String[] { String.valueOf(groupId) }));
+        actionsInfos.add(new ActionGroup(groupId));
 
         String flowRef = getFlowRefNaptFib(dpId, NwConstants.NAPT_PFIB_TABLE, extVpnId, externalIp);
         BigInteger cookie = getCookieOutboundFlow(extVpnId);
@@ -2341,8 +2342,8 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
 
         ArrayList<ActionInfo> listActionInfo = new ArrayList<>();
         ArrayList<InstructionInfo> instructionInfo = new ArrayList<>();
-        listActionInfo.add(new ActionInfo(ActionType.nx_load_in_port, new BigInteger[]{BigInteger.ZERO}));
-        listActionInfo.add(new ActionInfo(ActionType.nx_resubmit, new String[] { Integer.toString(NwConstants.L3_FIB_TABLE) }));
+        listActionInfo.add(new ActionNxLoadInPort(BigInteger.ZERO));
+        listActionInfo.add(new ActionNxResubmit(NwConstants.L3_FIB_TABLE));
         instructionInfo.add(new InstructionInfo(InstructionType.apply_actions, listActionInfo));
 
         String flowRef = getFlowRefTs(dpId, NwConstants.NAPT_PFIB_TABLE, segmentId);

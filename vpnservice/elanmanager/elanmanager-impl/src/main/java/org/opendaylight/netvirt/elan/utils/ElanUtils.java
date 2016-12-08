@@ -36,7 +36,6 @@ import org.opendaylight.genius.interfacemanager.globals.InterfaceServiceUtil;
 import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
 import org.opendaylight.genius.itm.globals.ITMConstants;
 import org.opendaylight.genius.mdsalutil.ActionInfo;
-import org.opendaylight.genius.mdsalutil.ActionType;
 import org.opendaylight.genius.mdsalutil.FlowEntity;
 import org.opendaylight.genius.mdsalutil.InstructionInfo;
 import org.opendaylight.genius.mdsalutil.InstructionType;
@@ -46,6 +45,7 @@ import org.opendaylight.genius.mdsalutil.MatchFieldType;
 import org.opendaylight.genius.mdsalutil.MatchInfo;
 import org.opendaylight.genius.mdsalutil.MetaDataUtil;
 import org.opendaylight.genius.mdsalutil.NwConstants;
+import org.opendaylight.genius.mdsalutil.actions.ActionNxResubmit;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.genius.utils.ServiceIndex;
 import org.opendaylight.netvirt.elan.ElanException;
@@ -2138,8 +2138,7 @@ public class ElanUtils {
         matches.add(new MatchInfo(MatchFieldType.eth_dst, new String[] { dstMacAddress }));
         List<InstructionInfo> instructions = new ArrayList<InstructionInfo>();
         List<ActionInfo> actions = new ArrayList<ActionInfo>();
-        actions.add(new ActionInfo(ActionType.nx_resubmit,
-                new String[] { String.valueOf(NwConstants.LPORT_DISPATCHER_TABLE) }));
+        actions.add(new ActionNxResubmit(NwConstants.LPORT_DISPATCHER_TABLE));
 
         instructions.add(new InstructionInfo(InstructionType.apply_actions, actions));
         String flowId = getKnownDynamicmacFlowRef(NwConstants.ELAN_DMAC_TABLE, dpId, dstMacAddress, elanTag);
