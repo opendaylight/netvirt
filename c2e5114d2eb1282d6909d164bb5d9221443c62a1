@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1a622d24_8c4bd7af",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NaptEventHandler.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 231,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-12-08T09:26:33Z",
+      "side": 1,
+      "message": "space around } catch",
+      "revId": "c2e5114d2eb1282d6909d164bb5d9221443c62a1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_0cd7c7c2",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NaptEventHandler.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 232,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-12-08T09:26:33Z",
+      "side": 1,
+      "message": "exception when servicing what event payload?\n\nput handleNaptEvent payload {}, naptEntryEvent, e);",
+      "revId": "c2e5114d2eb1282d6909d164bb5d9221443c62a1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
