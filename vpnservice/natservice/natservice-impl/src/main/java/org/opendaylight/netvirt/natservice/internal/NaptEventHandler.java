@@ -91,6 +91,7 @@ public class NaptEventHandler {
             3) Write the router ID to the metadata.
             5) Write the flow to the INBOUND NAPT Table and forward to FIB table for routing the traffic.
     */
+        try {
         Long routerId = naptEntryEvent.getRouterId();
         LOG.info("NAT Service : handleEvent() entry for IP {}, port {}, routerID {}", naptEntryEvent.getIpAddress(), naptEntryEvent.getPortNumber(), routerId);
 
@@ -227,6 +228,9 @@ public class NaptEventHandler {
         }
 
         LOG.info("NAT Service : handleNaptEvent() exited for IP, port, routerID : {}", naptEntryEvent.getIpAddress(), naptEntryEvent.getPortNumber(), routerId);
+        }catch (Exception e){
+            LOG.error("NAT Service :Exception in handleNaptEvent() {}", e);
+        }
     }
 
     public static void buildAndInstallNatFlows(BigInteger dpnId, short tableId, long vpnId, long routerId, long bgpVpnId, SessionAddress actualSourceAddress,
