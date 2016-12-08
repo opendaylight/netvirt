@@ -33,6 +33,23 @@
       "revId": "c2e5114d2eb1282d6909d164bb5d9221443c62a1",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_006f8bc6",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NaptSwitchHA.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 794,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2016-12-08T09:56:02Z",
+      "side": 1,
+      "message": "Is this issue relevant only for the bgpvpn use case? \nI see RD is always null in NAPT to ext-net scenarios so this should n\u0027t be affected. Right?",
+      "revId": "c2e5114d2eb1282d6909d164bb5d9221443c62a1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
