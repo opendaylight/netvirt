@@ -50,6 +50,24 @@
       "revId": "c2e5114d2eb1282d6909d164bb5d9221443c62a1",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_00cb0ba6",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NaptSwitchHA.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 794,
+      "author": {
+        "id": 6329
+      },
+      "writtenOn": "2016-12-08T10:18:12Z",
+      "side": 1,
+      "message": "SNAT code was implemented for the BGPVPN (Gre provider type) use-case. So if you look in the existing code you can see rd value already being used. So if you have any use cases other than bgpvpn use case, explicit code support has to be introduced.\n\nNaptSwitchHA -\u003e installSnatFlows() -\u003e externalRouterListener.advToBgpAndInstallFibAndTsFlows(): \n....\nString rd \u003d NatUtil.getVpnRd(dataBroker, vpnName);\n...\n...",
+      "parentUuid": "1a622d24_006f8bc6",
+      "revId": "c2e5114d2eb1282d6909d164bb5d9221443c62a1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
