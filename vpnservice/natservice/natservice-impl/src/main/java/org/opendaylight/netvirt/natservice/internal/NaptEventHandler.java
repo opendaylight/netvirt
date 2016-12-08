@@ -21,7 +21,6 @@ import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.genius.interfacemanager.globals.InterfaceInfo;
 import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
 import org.opendaylight.genius.mdsalutil.ActionInfo;
-import org.opendaylight.genius.mdsalutil.ActionType;
 import org.opendaylight.genius.mdsalutil.FlowEntity;
 import org.opendaylight.genius.mdsalutil.InstructionInfo;
 import org.opendaylight.genius.mdsalutil.InstructionType;
@@ -30,12 +29,23 @@ import org.opendaylight.genius.mdsalutil.MatchFieldType;
 import org.opendaylight.genius.mdsalutil.MatchInfo;
 import org.opendaylight.genius.mdsalutil.MetaDataUtil;
 import org.opendaylight.genius.mdsalutil.NwConstants;
+import org.opendaylight.genius.mdsalutil.actions.ActionOutput;
+import org.opendaylight.genius.mdsalutil.actions.ActionPushVlan;
+import org.opendaylight.genius.mdsalutil.actions.ActionSetDestinationIp;
+import org.opendaylight.genius.mdsalutil.actions.ActionSetFieldTunnelId;
+import org.opendaylight.genius.mdsalutil.actions.ActionSetFieldVlanVid;
+import org.opendaylight.genius.mdsalutil.actions.ActionSetSourceIp;
+import org.opendaylight.genius.mdsalutil.actions.ActionSetTcpDestinationPort;
+import org.opendaylight.genius.mdsalutil.actions.ActionSetTcpSourcePort;
+import org.opendaylight.genius.mdsalutil.actions.ActionSetUdpDestinationPort;
+import org.opendaylight.genius.mdsalutil.actions.ActionSetUdpSourcePort;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.genius.mdsalutil.packet.Ethernet;
 import org.opendaylight.genius.mdsalutil.packet.IPProtocols;
 import org.opendaylight.genius.mdsalutil.packet.IPv4;
 import org.opendaylight.genius.mdsalutil.packet.TCP;
 import org.opendaylight.genius.mdsalutil.packet.UDP;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Uri;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rev160406.IfL2vlan;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.GetInterfaceFromIfIndexInput;
@@ -173,7 +183,7 @@ public class NaptEventHandler {
             String interfaceName = getInterfaceNameFromTag(portTag);
             LOG.debug("NAT Service : interfaceName fetched from portTag is {}", interfaceName);
             org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface iface = null;
-            long vlanId =0;
+            int vlanId = 0;
             iface = interfaceManager.getInterfaceInfoFromConfigDataStore(interfaceName);
             if(iface == null) {
                 LOG.error("NAT Service : Unable to read interface {} from config DataStore", interfaceName);
@@ -200,9 +210,8 @@ public class NaptEventHandler {
                             LOG.debug("NAT Service : vlanId is {}", vlanId);
                             if(vlanId != 0) {
                                 // Push vlan
-                                actionInfos.add(new ActionInfo(ActionType.push_vlan, new String[] {}, 0));
-                                actionInfos.add(new ActionInfo(ActionType.set_field_vlan_vid,
-                                           new String[] { Long.toString(vlanId) }, 1));
+                                actionInfos.add(new ActionPushVlan(0));
+                                actionInfos.add(new ActionSetFieldVlanVid(1, vlanId));
                             } else {
                                 LOG.debug("NAT Service : No vlanId {}, may be untagged", vlanId);
                             }
@@ -240,7 +249,7 @@ public class NaptEventHandler {
         String actualIp = actualSourceAddress.getIpAddress();
         int actualPort = actualSourceAddress.getPortNumber();
         String translatedIp = translatedSourceAddress.getIpAddress();
-        String translatedPort = String.valueOf(translatedSourceAddress.getPortNumber());
+        int translatedPort = translatedSourceAddress.getPortNumber();
         int idleTimeout=0;
         if(tableId == NwConstants.OUTBOUND_NAPT_TABLE) {
             idleTimeout = NatConstants.DEFAULT_NAPT_IDLE_TIMEOUT;
@@ -316,18 +325,18 @@ public class NaptEventHandler {
         return matchInfo;
     }
 
-    private static List<InstructionInfo> buildAndGetSetActionInstructionInfo(String ipAddress, String port, long segmentId, long vpnId, short tableId, NAPTEntryEvent.Protocol protocol) {
+    private static List<InstructionInfo> buildAndGetSetActionInstructionInfo(String ipAddress, int port, long segmentId, long vpnId, short tableId, NAPTEntryEvent.Protocol protocol) {
         ActionInfo ipActionInfo = null;
         ActionInfo portActionInfo = null;
         ArrayList<ActionInfo> listActionInfo = new ArrayList<>();
         ArrayList<InstructionInfo> instructionInfo = new ArrayList<>();
 
         if(tableId == NwConstants.OUTBOUND_NAPT_TABLE){
-            ipActionInfo = new ActionInfo(ActionType.set_source_ip, new String[] {ipAddress});
+            ipActionInfo = new ActionSetSourceIp(ipAddress);
             if(protocol == NAPTEntryEvent.Protocol.TCP) {
-               portActionInfo = new ActionInfo( ActionType.set_tcp_source_port, new String[] {port});
+               portActionInfo = new ActionSetTcpSourcePort(port);
             } else if(protocol == NAPTEntryEvent.Protocol.UDP) {
-               portActionInfo = new ActionInfo( ActionType.set_udp_source_port, new String[] {port});
+               portActionInfo = new ActionSetUdpSourcePort(port);
             }
             // reset the split-horizon bit to allow traffic from tunnel to be
             // sent back to the provider port
@@ -335,11 +344,11 @@ public class NaptEventHandler {
                     new BigInteger[] { MetaDataUtil.getVpnIdMetadata(vpnId),
                             MetaDataUtil.METADATA_MASK_VRFID.or(MetaDataUtil.METADATA_MASK_SH_FLAG) }));
         }else{
-            ipActionInfo = new ActionInfo(ActionType.set_destination_ip, new String[] {ipAddress});
+            ipActionInfo = new ActionSetDestinationIp(ipAddress);
             if(protocol == NAPTEntryEvent.Protocol.TCP) {
-               portActionInfo = new ActionInfo( ActionType.set_tcp_destination_port, new String[] {port});
+               portActionInfo = new ActionSetTcpDestinationPort(port);
             } else if(protocol == NAPTEntryEvent.Protocol.UDP) {
-               portActionInfo = new ActionInfo( ActionType.set_udp_destination_port, new String[] {port});
+               portActionInfo = new ActionSetUdpDestinationPort(port);
             }
             instructionInfo.add(new InstructionInfo(InstructionType.write_metadata,
                     new BigInteger[] { MetaDataUtil.getVpnIdMetadata(segmentId), MetaDataUtil.METADATA_MASK_VRFID }));
@@ -396,13 +405,12 @@ public class NaptEventHandler {
 
     private void sendNaptPacketOut(byte[] pktOut, InterfaceInfo infInfo, List<ActionInfo> actionInfos, Long routerId) {
         LOG.trace("NAT Service: Sending packet out DpId {}, interfaceInfo {}", infInfo.getDpId(), infInfo);
-        // set in_port, and action as OFPP_TABLE so that it starts from table 0 (lowest table as per spec)
-        actionInfos.add(new ActionInfo(ActionType.set_field_tunnel_id, new BigInteger[] {
-                  BigInteger.valueOf(routerId)}, 2));
-        actionInfos.add(new ActionInfo(ActionType.output, new String[] { "0xfffffff9" }, 3));
-        NodeConnectorRef in_port = MDSALUtil.getNodeConnRef(infInfo.getDpId(), String.valueOf(infInfo.getPortNo()));
-        LOG.debug("NAT Service : in_port for packetout is being set to {}", String.valueOf(infInfo.getPortNo()));
-        TransmitPacketInput output = MDSALUtil.getPacketOut(actionInfos, pktOut, infInfo.getDpId().longValue(), in_port);
+        // set inPort, and action as OFPP_TABLE so that it starts from table 0 (lowest table as per spec)
+        actionInfos.add(new ActionSetFieldTunnelId(2, BigInteger.valueOf(routerId)));
+        actionInfos.add(new ActionOutput(3, new Uri("0xfffffff9")));
+        NodeConnectorRef inPort = MDSALUtil.getNodeConnRef(infInfo.getDpId(), String.valueOf(infInfo.getPortNo()));
+        LOG.debug("NAT Service : inPort for packetout is being set to {}", String.valueOf(infInfo.getPortNo()));
+        TransmitPacketInput output = MDSALUtil.getPacketOut(actionInfos, pktOut, infInfo.getDpId().longValue(), inPort);
         LOG.trace("NAT Service: Transmitting packet: {}",output);
         this.pktService.transmitPacket(output);
     }

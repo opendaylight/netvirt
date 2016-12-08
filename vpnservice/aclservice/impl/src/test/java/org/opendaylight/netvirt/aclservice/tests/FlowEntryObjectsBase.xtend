@@ -7,8 +7,7 @@
  */
 package org.opendaylight.netvirt.aclservice.tests
 
-import org.opendaylight.genius.mdsalutil.ActionInfoBuilder
-import org.opendaylight.genius.mdsalutil.ActionType
+import org.opendaylight.genius.mdsalutil.actions.ActionNxResubmit
 import org.opendaylight.genius.mdsalutil.FlowEntity
 import org.opendaylight.genius.mdsalutil.InstructionInfo
 import org.opendaylight.genius.mdsalutil.InstructionType
@@ -32,12 +31,7 @@ class FlowEntryObjectsBase {
             flowName = "ACL"
             instructionInfoList = #[
                 new InstructionInfo(InstructionType.apply_actions, #[
-                    new ActionInfoBuilder >> [
-                        actionType = ActionType.nx_resubmit
-                        actionValues = #[
-                            "220"
-                            ]
-                        ]
+                    new ActionNxResubmit(220 as short)
                     ])
                 ]
                 matchInfoList = #[
@@ -82,12 +76,7 @@ class FlowEntryObjectsBase {
             flowName = "ACL"
             instructionInfoList = #[
                 new InstructionInfo(InstructionType.apply_actions, #[
-                    new ActionInfoBuilder >> [
-                        actionType = ActionType.nx_resubmit
-                        actionValues = #[
-                            "220"
-                            ]
-                        ]
+                    new ActionNxResubmit(220 as short)
                     ])
                 ]
                 matchInfoList = #[
@@ -132,12 +121,7 @@ class FlowEntryObjectsBase {
             flowName = "ACL"
             instructionInfoList = #[
                 new InstructionInfo(InstructionType.apply_actions, #[
-                    new ActionInfoBuilder >> [
-                        actionType = ActionType.nx_resubmit
-                        actionValues = #[
-                            "220"
-                            ]
-                        ]
+                    new ActionNxResubmit(220 as short)
                     ])
                 ]
                 matchInfoList = #[
@@ -177,12 +161,7 @@ class FlowEntryObjectsBase {
             flowName = "ACL"
             instructionInfoList = #[
                 new InstructionInfo(InstructionType.apply_actions, #[
-                    new ActionInfoBuilder >> [
-                        actionType = ActionType.nx_resubmit
-                        actionValues = #[
-                            "220"
-                            ]
-                        ]
+                    new ActionNxResubmit(220 as short)
                     ])
                 ]
                 matchInfoList = #[
@@ -222,12 +201,7 @@ class FlowEntryObjectsBase {
             flowName = "ACL"
             instructionInfoList = #[
                 new InstructionInfo(InstructionType.apply_actions, #[
-                    new ActionInfoBuilder >> [
-                        actionType = ActionType.nx_resubmit
-                        actionValues = #[
-                            "220"
-                            ]
-                        ]
+                    new ActionNxResubmit(220 as short)
                     ])
                 ]
                 matchInfoList = #[
@@ -267,12 +241,7 @@ class FlowEntryObjectsBase {
             flowName = "ACL"
             instructionInfoList = #[
                 new InstructionInfo(InstructionType.apply_actions, #[
-                    new ActionInfoBuilder >> [
-                        actionType = ActionType.nx_resubmit
-                        actionValues = #[
-                            "220"
-                            ]
-                        ]
+                    new ActionNxResubmit(220 as short)
                     ])
                 ]
                 matchInfoList = #[
@@ -306,12 +275,7 @@ class FlowEntryObjectsBase {
                 flowName = "ACL"
                 instructionInfoList = #[
                     new InstructionInfo(InstructionType.apply_actions, #[
-                        new ActionInfoBuilder >> [
-                            actionType = ActionType.nx_resubmit
-                            actionValues = #[
-                                "17"
-                            ]
-                        ]
+                        new ActionNxResubmit(17 as short)
                     ])
                 ]
                 matchInfoList = #[
@@ -356,12 +320,7 @@ class FlowEntryObjectsBase {
                 flowName = "ACL"
                 instructionInfoList = #[
                     new InstructionInfo(InstructionType.apply_actions, #[
-                        new ActionInfoBuilder >> [
-                            actionType = ActionType.nx_resubmit
-                            actionValues = #[
-                                "17"
-                            ]
-                        ]
+                        new ActionNxResubmit(17 as short)
                     ])
                 ]
                 matchInfoList = #[
@@ -527,12 +486,7 @@ class FlowEntryObjectsBase {
                 flowName = "ACL"
                 instructionInfoList = #[
                     new InstructionInfo(InstructionType.apply_actions, #[
-                        new ActionInfoBuilder >> [
-                            actionType = ActionType.nx_resubmit
-                            actionValues = #[
-                                "17"
-                            ]
-                        ]
+                        new ActionNxResubmit(17 as short)
                     ])
                 ]
                 matchInfoList = #[
@@ -572,12 +526,7 @@ class FlowEntryObjectsBase {
                 flowName = "ACL"
                 instructionInfoList = #[
                     new InstructionInfo(InstructionType.apply_actions, #[
-                        new ActionInfoBuilder >> [
-                            actionType = ActionType.nx_resubmit
-                            actionValues = #[
-                                "17"
-                            ]
-                        ]
+                        new ActionNxResubmit(17 as short)
                     ])
                 ]
                 matchInfoList = #[
@@ -617,12 +566,7 @@ class FlowEntryObjectsBase {
                 flowName = "ACL"
                 instructionInfoList = #[
                     new InstructionInfo(InstructionType.apply_actions, #[
-                        new ActionInfoBuilder >> [
-                            actionType = ActionType.nx_resubmit
-                            actionValues = #[
-                                "17"
-                            ]
-                        ]
+                        new ActionNxResubmit(17 as short)
                     ])
                 ]
                 matchInfoList = #[
@@ -662,12 +606,7 @@ class FlowEntryObjectsBase {
                 flowName = "ACL"
                 instructionInfoList = #[
                     new InstructionInfo(InstructionType.apply_actions, #[
-                        new ActionInfoBuilder >> [
-                            actionType = ActionType.nx_resubmit
-                            actionValues = #[
-                                "17"
-                            ]
-                        ]
+                        new ActionNxResubmit(17 as short)
                     ])
                 ]
                 matchInfoList = #[
@@ -706,12 +645,7 @@ class FlowEntryObjectsBase {
                 flowName = "ACL"
                 instructionInfoList = #[
                     new InstructionInfo(InstructionType.apply_actions, #[
-                        new ActionInfoBuilder >> [
-                            actionType = ActionType.nx_resubmit
-                            actionValues = #[
-                                "220"
-                            ]
-                        ]
+                        new ActionNxResubmit(220 as short)
                     ])
                 ]
                 matchInfoList = #[
@@ -756,12 +690,7 @@ class FlowEntryObjectsBase {
                 flowName = "ACL"
                 instructionInfoList = #[
                     new InstructionInfo(InstructionType.apply_actions, #[
-                        new ActionInfoBuilder >> [
-                            actionType = ActionType.nx_resubmit
-                            actionValues = #[
-                                "220"
-                            ]
-                        ]
+                        new ActionNxResubmit(220 as short)
                     ])
                 ]
                 matchInfoList = #[
@@ -806,12 +735,7 @@ class FlowEntryObjectsBase {
                 flowName = "ACL"
                 instructionInfoList = #[
                     new InstructionInfo(InstructionType.apply_actions, #[
-                        new ActionInfoBuilder >> [
-                            actionType = ActionType.nx_resubmit
-                            actionValues = #[
-                                "220"
-                            ]
-                        ]
+                        new ActionNxResubmit(220 as short)
                     ])
                 ]
                 matchInfoList = #[
@@ -851,12 +775,7 @@ class FlowEntryObjectsBase {
                 flowName = "ACL"
                 instructionInfoList = #[
                     new InstructionInfo(InstructionType.apply_actions, #[
-                        new ActionInfoBuilder >> [
-                            actionType = ActionType.nx_resubmit
-                            actionValues = #[
-                                "220"
-                            ]
-                        ]
+                        new ActionNxResubmit(220 as short)
                     ])
                 ]
                 matchInfoList = #[
@@ -896,12 +815,7 @@ class FlowEntryObjectsBase {
                 flowName = "ACL"
                 instructionInfoList = #[
                     new InstructionInfo(InstructionType.apply_actions, #[
-                        new ActionInfoBuilder >> [
-                            actionType = ActionType.nx_resubmit
-                            actionValues = #[
-                                "220"
-                            ]
-                        ]
+                        new ActionNxResubmit(220 as short)
                     ])
                 ]
                 matchInfoList = #[
@@ -941,12 +855,7 @@ class FlowEntryObjectsBase {
                 flowName = "ACL"
                 instructionInfoList = #[
                     new InstructionInfo(InstructionType.apply_actions, #[
-                        new ActionInfoBuilder >> [
-                            actionType = ActionType.nx_resubmit
-                            actionValues = #[
-                                "220"
-                            ]
-                        ]
+                        new ActionNxResubmit(220 as short)
                     ])
                 ]
                 matchInfoList = #[
@@ -978,12 +887,7 @@ class FlowEntryObjectsBase {
                 flowName = "ACL"
                 instructionInfoList = #[
                     new InstructionInfo(InstructionType.apply_actions, #[
-                        new ActionInfoBuilder >> [
-                            actionType = ActionType.nx_resubmit
-                            actionValues = #[
-                                "17"
-                            ]
-                        ]
+                        new ActionNxResubmit(17 as short)
                     ])
                 ]
                 matchInfoList = #[
@@ -1028,12 +932,7 @@ class FlowEntryObjectsBase {
                 flowName = "ACL"
                 instructionInfoList = #[
                     new InstructionInfo(InstructionType.apply_actions, #[
-                        new ActionInfoBuilder >> [
-                            actionType = ActionType.nx_resubmit
-                            actionValues = #[
-                                "17"
-                            ]
-                        ]
+                        new ActionNxResubmit(17 as short)
                     ])
                 ]
                 matchInfoList = #[
@@ -1199,12 +1098,7 @@ class FlowEntryObjectsBase {
                 flowName = "ACL"
                 instructionInfoList = #[
                     new InstructionInfo(InstructionType.apply_actions, #[
-                        new ActionInfoBuilder >> [
-                            actionType = ActionType.nx_resubmit
-                            actionValues = #[
-                                "17"
-                            ]
-                        ]
+                        new ActionNxResubmit(17 as short)
                     ])
                 ]
                 matchInfoList = #[
@@ -1244,12 +1138,7 @@ class FlowEntryObjectsBase {
                 flowName = "ACL"
                 instructionInfoList = #[
                     new InstructionInfo(InstructionType.apply_actions, #[
-                        new ActionInfoBuilder >> [
-                            actionType = ActionType.nx_resubmit
-                            actionValues = #[
-                                "17"
-                            ]
-                        ]
+                        new ActionNxResubmit(17 as short)
                     ])
                 ]
                 matchInfoList = #[
@@ -1289,12 +1178,7 @@ class FlowEntryObjectsBase {
                 flowName = "ACL"
                 instructionInfoList = #[
                     new InstructionInfo(InstructionType.apply_actions, #[
-                        new ActionInfoBuilder >> [
-                            actionType = ActionType.nx_resubmit
-                            actionValues = #[
-                                "17"
-                            ]
-                        ]
+                        new ActionNxResubmit(17 as short)
                     ])
                 ]
                 matchInfoList = #[
@@ -1334,12 +1218,7 @@ class FlowEntryObjectsBase {
                 flowName = "ACL"
                 instructionInfoList = #[
                     new InstructionInfo(InstructionType.apply_actions, #[
-                        new ActionInfoBuilder >> [
-                            actionType = ActionType.nx_resubmit
-                            actionValues = #[
-                                "17"
-                            ]
-                        ]
+                        new ActionNxResubmit(17 as short)
                     ])
                 ]
                 matchInfoList = #[
@@ -1378,12 +1257,7 @@ class FlowEntryObjectsBase {
                 flowName = "ACL"
                 instructionInfoList = #[
                     new InstructionInfo(InstructionType.apply_actions, #[
-                        new ActionInfoBuilder >> [
-                            actionType = ActionType.nx_resubmit
-                            actionValues = #[
-                                "220"
-                            ]
-                        ]
+                        new ActionNxResubmit(220 as short)
                     ])
                 ]
                 matchInfoList = #[
@@ -1428,12 +1302,7 @@ class FlowEntryObjectsBase {
                 flowName = "ACL"
                 instructionInfoList = #[
                     new InstructionInfo(InstructionType.apply_actions, #[
-                        new ActionInfoBuilder >> [
-                            actionType = ActionType.nx_resubmit
-                            actionValues = #[
-                                "220"
-                            ]
-                        ]
+                        new ActionNxResubmit(220 as short)
                     ])
                 ]
                 matchInfoList = #[
@@ -1478,12 +1347,7 @@ class FlowEntryObjectsBase {
                 flowName = "ACL"
                 instructionInfoList = #[
                     new InstructionInfo(InstructionType.apply_actions, #[
-                        new ActionInfoBuilder >> [
-                            actionType = ActionType.nx_resubmit
-                            actionValues = #[
-                                "220"
-                            ]
-                        ]
+                        new ActionNxResubmit(220 as short)
                     ])
                 ]
                 matchInfoList = #[
@@ -1523,12 +1387,7 @@ class FlowEntryObjectsBase {
                 flowName = "ACL"
                 instructionInfoList = #[
                     new InstructionInfo(InstructionType.apply_actions, #[
-                        new ActionInfoBuilder >> [
-                            actionType = ActionType.nx_resubmit
-                            actionValues = #[
-                                "220"
-                            ]
-                        ]
+                        new ActionNxResubmit(17 as short)
                     ])
                 ]
                 matchInfoList = #[
@@ -1568,12 +1427,7 @@ class FlowEntryObjectsBase {
                 flowName = "ACL"
                 instructionInfoList = #[
                     new InstructionInfo(InstructionType.apply_actions, #[
-                        new ActionInfoBuilder >> [
-                            actionType = ActionType.nx_resubmit
-                            actionValues = #[
-                                "220"
-                            ]
-                        ]
+                        new ActionNxResubmit(17 as short)
                     ])
                 ]
                 matchInfoList = #[
@@ -1613,12 +1467,7 @@ class FlowEntryObjectsBase {
                 flowName = "ACL"
                 instructionInfoList = #[
                     new InstructionInfo(InstructionType.apply_actions, #[
-                        new ActionInfoBuilder >> [
-                            actionType = ActionType.nx_resubmit
-                            actionValues = #[
-                                "220"
-                            ]
-                        ]
+                        new ActionNxResubmit(17 as short)
                     ])
                 ]
                 matchInfoList = #[
@@ -1650,12 +1499,7 @@ class FlowEntryObjectsBase {
                 flowName = "ACL"
                 instructionInfoList = #[
                     new InstructionInfo(InstructionType.apply_actions, #[
-                        new ActionInfoBuilder >> [
-                            actionType = ActionType.nx_resubmit
-                            actionValues = #[
-                                "17"
-                            ]
-                        ]
+                        new ActionNxResubmit(17 as short)
                     ])
                 ]
                 matchInfoList = #[
@@ -1700,12 +1544,7 @@ class FlowEntryObjectsBase {
                 flowName = "ACL"
                 instructionInfoList = #[
                     new InstructionInfo(InstructionType.apply_actions, #[
-                        new ActionInfoBuilder >> [
-                            actionType = ActionType.nx_resubmit
-                            actionValues = #[
-                                "17"
-                            ]
-                        ]
+                        new ActionNxResubmit(17 as short)
                     ])
                 ]
                 matchInfoList = #[
@@ -1871,12 +1710,7 @@ class FlowEntryObjectsBase {
                 flowName = "ACL"
                 instructionInfoList = #[
                     new InstructionInfo(InstructionType.apply_actions, #[
-                        new ActionInfoBuilder >> [
-                            actionType = ActionType.nx_resubmit
-                            actionValues = #[
-                                "17"
-                            ]
-                        ]
+                        new ActionNxResubmit(17 as short)
                     ])
                 ]
                 matchInfoList = #[
@@ -1916,12 +1750,7 @@ class FlowEntryObjectsBase {
                 flowName = "ACL"
                 instructionInfoList = #[
                     new InstructionInfo(InstructionType.apply_actions, #[
-                        new ActionInfoBuilder >> [
-                            actionType = ActionType.nx_resubmit
-                            actionValues = #[
-                                "17"
-                            ]
-                        ]
+                        new ActionNxResubmit(17 as short)
                     ])
                 ]
                 matchInfoList = #[
@@ -1961,12 +1790,7 @@ class FlowEntryObjectsBase {
                 flowName = "ACL"
                 instructionInfoList = #[
                     new InstructionInfo(InstructionType.apply_actions, #[
-                        new ActionInfoBuilder >> [
-                            actionType = ActionType.nx_resubmit
-                            actionValues = #[
-                                "17"
-                            ]
-                        ]
+                        new ActionNxResubmit(17 as short)
                     ])
                 ]
                 matchInfoList = #[
@@ -2006,12 +1830,7 @@ class FlowEntryObjectsBase {
                 flowName = "ACL"
                 instructionInfoList = #[
                     new InstructionInfo(InstructionType.apply_actions, #[
-                        new ActionInfoBuilder >> [
-                            actionType = ActionType.nx_resubmit
-                            actionValues = #[
-                                "17"
-                            ]
-                        ]
+                        new ActionNxResubmit(17 as short)
                     ])
                 ]
                 matchInfoList = #[
@@ -2050,12 +1869,7 @@ class FlowEntryObjectsBase {
                 flowName = "ACL"
                 instructionInfoList = #[
                     new InstructionInfo(InstructionType.apply_actions, #[
-                        new ActionInfoBuilder >> [
-                            actionType = ActionType.nx_resubmit
-                            actionValues = #[
-                                "220"
-                            ]
-                        ]
+                        new ActionNxResubmit(220 as short)
                     ])
                 ]
                 matchInfoList = #[
@@ -2100,12 +1914,7 @@ class FlowEntryObjectsBase {
                 flowName = "ACL"
                 instructionInfoList = #[
                     new InstructionInfo(InstructionType.apply_actions, #[
-                        new ActionInfoBuilder >> [
-                            actionType = ActionType.nx_resubmit
-                            actionValues = #[
-                                "220"
-                            ]
-                        ]
+                        new ActionNxResubmit(220 as short)
                     ])
                 ]
                 matchInfoList = #[
@@ -2150,12 +1959,7 @@ class FlowEntryObjectsBase {
                 flowName = "ACL"
                 instructionInfoList = #[
                     new InstructionInfo(InstructionType.apply_actions, #[
-                        new ActionInfoBuilder >> [
-                            actionType = ActionType.nx_resubmit
-                            actionValues = #[
-                                "220"
-                            ]
-                        ]
+                        new ActionNxResubmit(220 as short)
                     ])
                 ]
                 matchInfoList = #[
@@ -2195,12 +1999,7 @@ class FlowEntryObjectsBase {
                 flowName = "ACL"
                 instructionInfoList = #[
                     new InstructionInfo(InstructionType.apply_actions, #[
-                        new ActionInfoBuilder >> [
-                            actionType = ActionType.nx_resubmit
-                            actionValues = #[
-                                "220"
-                            ]
-                        ]
+                        new ActionNxResubmit(220 as short)
                     ])
                 ]
                 matchInfoList = #[
@@ -2240,12 +2039,7 @@ class FlowEntryObjectsBase {
                 flowName = "ACL"
                 instructionInfoList = #[
                     new InstructionInfo(InstructionType.apply_actions, #[
-                        new ActionInfoBuilder >> [
-                            actionType = ActionType.nx_resubmit
-                            actionValues = #[
-                                "220"
-                            ]
-                        ]
+                        new ActionNxResubmit(220 as short)
                     ])
                 ]
                 matchInfoList = #[
@@ -2285,12 +2079,7 @@ class FlowEntryObjectsBase {
                 flowName = "ACL"
                 instructionInfoList = #[
                     new InstructionInfo(InstructionType.apply_actions, #[
-                        new ActionInfoBuilder >> [
-                            actionType = ActionType.nx_resubmit
-                            actionValues = #[
-                                "220"
-                            ]
-                        ]
+                        new ActionNxResubmit(220 as short)
                     ])
                 ]
                 matchInfoList = #[
@@ -2317,12 +2106,7 @@ class FlowEntryObjectsBase {
                 flowName = "ACL"
                 instructionInfoList = #[
                     new InstructionInfo(InstructionType.apply_actions, #[
-                        new ActionInfoBuilder >> [
-                            actionType = ActionType.nx_resubmit
-                            actionValues = #[
-                                "17"
-                            ]
-                        ]
+                        new ActionNxResubmit(17 as short)
                     ])
                 ]
                 matchInfoList = #[
@@ -2367,12 +2151,7 @@ class FlowEntryObjectsBase {
                 flowName = "ACL"
                 instructionInfoList = #[
                     new InstructionInfo(InstructionType.apply_actions, #[
-                        new ActionInfoBuilder >> [
-                            actionType = ActionType.nx_resubmit
-                            actionValues = #[
-                                "17"
-                            ]
-                        ]
+                        new ActionNxResubmit(17 as short)
                     ])
                 ]
                 matchInfoList = #[
@@ -2538,12 +2317,7 @@ class FlowEntryObjectsBase {
                 flowName = "ACL"
                 instructionInfoList = #[
                     new InstructionInfo(InstructionType.apply_actions, #[
-                        new ActionInfoBuilder >> [
-                            actionType = ActionType.nx_resubmit
-                            actionValues = #[
-                                "17"
-                            ]
-                        ]
+                        new ActionNxResubmit(17 as short)
                     ])
                 ]
                 matchInfoList = #[
@@ -2583,12 +2357,7 @@ class FlowEntryObjectsBase {
                 flowName = "ACL"
                 instructionInfoList = #[
                     new InstructionInfo(InstructionType.apply_actions, #[
-                        new ActionInfoBuilder >> [
-                            actionType = ActionType.nx_resubmit
-                            actionValues = #[
-                                "17"
-                            ]
-                        ]
+                        new ActionNxResubmit(17 as short)
                     ])
                 ]
                 matchInfoList = #[
@@ -2628,12 +2397,7 @@ class FlowEntryObjectsBase {
                 flowName = "ACL"
                 instructionInfoList = #[
                     new InstructionInfo(InstructionType.apply_actions, #[
-                        new ActionInfoBuilder >> [
-                            actionType = ActionType.nx_resubmit
-                            actionValues = #[
-                                "17"
-                            ]
-                        ]
+                        new ActionNxResubmit(17 as short)
                     ])
                 ]
                 matchInfoList = #[
