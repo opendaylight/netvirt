@@ -29,6 +29,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.constants.rev150712
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.constants.rev150712.ProtocolTcp;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.constants.rev150712.ProtocolUdp;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.rev150712.Neutron;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.secgroups.rev150712.SecurityRuleAttributes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.secgroups.rev150712.security.rules.attributes.SecurityRules;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.secgroups.rev150712.security.rules.attributes.security.rules.SecurityRule;
 import org.opendaylight.yangtools.concepts.ListenerRegistration;
@@ -150,7 +151,14 @@ public class NeutronSecurityRuleDataChangeListener implements ClusteredDataChang
                     rule.getRemoteIpPrefix().getIpv4Prefix().getValue():rule.getRemoteIpPrefix().getIpv6Prefix().getValue());
         }
         if (rule.getProtocol() != null) {
-            answer.setSecurityRuleProtocol(PROTOCOL_MAP.get(rule.getProtocol().getIdentityref()));
+            SecurityRuleAttributes.Protocol protocol = rule.getProtocol();
+            if (protocol.getUint8() != null) {
+                // uint8
+                answer.setSecurityRuleProtocol(protocol.getUint8().toString());
+            } else {
+               // symbolic protocol name
+               answer.setSecurityRuleProtocol(PROTOCOL_MAP.get(rule.getProtocol().getIdentityref()));
+            }
         }
         if (rule.getEthertype() != null) {
             answer.setSecurityRuleEthertype(ETHERTYPE_MAP.get(rule

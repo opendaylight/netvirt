@@ -179,7 +179,7 @@ public class IngressAclService extends AbstractServiceInstance implements Ingres
            }
         } else {
 
-            switch (portSecurityRule.getSecurityRuleProtocol()) {
+            switch (portSecurityRule.getSecurityRuleProtocol() == null ? "" : portSecurityRule.getSecurityRuleProtocol()) {
                 case MatchUtils.TCP:
                     LOG.debug("programPortSecurityRule: Rule matching TCP", portSecurityRule);
                     ingressAclTcp(dpid, segmentationId, attachedMac, portSecurityRule, ipaddress,
@@ -200,7 +200,7 @@ public class IngressAclService extends AbstractServiceInstance implements Ingres
                     LOG.info("programPortSecurityAcl: Protocol is not TCP/UDP/ICMP but other "
                             + "protocol = ", portSecurityRule.getSecurityRuleProtocol());
                     ingressOtherProtocolAclHandler(dpid, segmentationId, attachedMac, portSecurityRule,
-                        null, write, Constants.PROTO_PORT_PREFIX_MATCH_PRIORITY);
+                            ipaddress, write, Constants.PROTO_PORT_PREFIX_MATCH_PRIORITY, isIpv6);
                     break;
             }
         }
@@ -209,34 +209,78 @@ public class IngressAclService extends AbstractServiceInstance implements Ingres
 
     private void ingressOtherProtocolAclHandler(Long dpidLong, String segmentationId, String dstMac,
           NeutronSecurityRule portSecurityRule, String srcAddress,
-          boolean write, Integer protoPortMatchPriority) {
-        MatchBuilder matchBuilder = new MatchBuilder();
-        String flowId = "Ingress_Other_" + segmentationId + "_" + dstMac + "_";
-        matchBuilder = MatchUtils.createV4EtherMatchWithType(matchBuilder,null,dstMac,MatchUtils.ETHERTYPE_IPV4);
-        short proto = 0;
-        try {
-            Integer protocol = new Integer(portSecurityRule.getSecurityRuleProtocol());
-            proto = protocol.shortValue();
-            flowId = flowId + proto;
-        } catch (NumberFormatException e) {
-            LOG.error("Protocol vlaue conversion failure", e);
+          boolean write, Integer protoPortMatchPriority, boolean isIpv6) {
+        if(null == portSecurityRule.getSecurityRuleProtocol() || portSecurityRule.getSecurityRuleProtocol().equals(MatchUtils.ANY_PROTOCOL)) {
+            ingressAclIp(dpidLong, isIpv6, segmentationId, dstMac,
+                    portSecurityRule, srcAddress,
+                    write, Constants.PROTO_PORT_PREFIX_MATCH_PRIORITY - 1);
+            if(!isIpv6) {
+                portSecurityRule.setSecurityRuleProtocol(MatchUtils.TCP);
+                portSecurityRule.setSecurityRulePortMin(PORT_RANGE_MIN);
+                portSecurityRule.setSecurityRulePortMax(PORT_RANGE_MAX);
+                ingressAclTcp(dpidLong, segmentationId, dstMac, portSecurityRule, srcAddress,
+                        write, Constants.PROTO_PORT_PREFIX_MATCH_PRIORITY);
+                portSecurityRule.setSecurityRuleProtocol(MatchUtils.UDP);
+                ingressAclUdp(dpidLong, segmentationId, dstMac, portSecurityRule, srcAddress,
+                        write, Constants.PROTO_PORT_PREFIX_MATCH_PRIORITY);
+                portSecurityRule.setSecurityRuleProtocol(MatchUtils.ICMP);
+                portSecurityRule.setSecurityRulePortMin(null);
+                portSecurityRule.setSecurityRulePortMax(null);
+                ingressAclIcmp(dpidLong, segmentationId, dstMac, portSecurityRule, srcAddress,
+                        write, Constants.PROTO_PORT_PREFIX_MATCH_PRIORITY);
+                portSecurityRule.setSecurityRuleProtocol(null);
+            }
+        } else {
+            if (portSecurityRule.getSecurityRuleProtocol().equals(MatchUtils.TCP_PROTOCOL)) {
+                portSecurityRule.setSecurityRulePortMin(PORT_RANGE_MIN);
+                portSecurityRule.setSecurityRulePortMax(PORT_RANGE_MAX);
+                ingressAclTcp(dpidLong, segmentationId, dstMac, portSecurityRule, srcAddress,
+                        write, Constants.PROTO_PORT_PREFIX_MATCH_PRIORITY);
+            } else if (portSecurityRule.getSecurityRuleProtocol().equals(MatchUtils.UDP_PROTOCOL)) {
+                portSecurityRule.setSecurityRulePortMin(PORT_RANGE_MIN);
+                portSecurityRule.setSecurityRulePortMax(PORT_RANGE_MAX);
+                ingressAclUdp(dpidLong, segmentationId, dstMac, portSecurityRule, srcAddress,
+                        write, Constants.PROTO_PORT_PREFIX_MATCH_PRIORITY);
+            } else if (portSecurityRule.getSecurityRuleProtocol().equals(MatchUtils.ICMP_PROTOCOL)) {
+                ingressAclIcmp(dpidLong, segmentationId, dstMac, portSecurityRule, srcAddress,
+                        write, Constants.PROTO_PORT_PREFIX_MATCH_PRIORITY);
+            } else {
+                MatchBuilder matchBuilder = new MatchBuilder();
+                String flowId = "Ingress_Other_" + segmentationId + "_" + dstMac + "_";
+                matchBuilder = MatchUtils.createV4EtherMatchWithType(matchBuilder,null,dstMac,MatchUtils.ETHERTYPE_IPV4);
+                short proto = 0;
+                try {
+                    Integer protocol = new Integer(portSecurityRule.getSecurityRuleProtocol());
+                    proto = protocol.shortValue();
+                    flowId = flowId + proto;
+                } catch (NumberFormatException e) {
+                    LOG.error("Protocol vlaue conversion failure", e);
+                }
+                matchBuilder = MatchUtils.createIpProtocolAndEthMatch(matchBuilder, proto, null, dstMac);
+                if (null != srcAddress) {
+                    flowId = flowId + srcAddress;
+                    matchBuilder = MatchUtils.addRemoteIpPrefix(matchBuilder,
+                                                                MatchUtils.iPv4PrefixFromIPv4Address(srcAddress), null);
+                } else if (null != portSecurityRule.getSecurityRuleRemoteIpPrefix()) {
+                    flowId = flowId + portSecurityRule.getSecurityRuleRemoteIpPrefix();
+                    if(isIpv6) {
+                        matchBuilder = MatchUtils.addRemoteIpv6Prefix(matchBuilder,null,
+                                new Ipv6Prefix(portSecurityRule.getSecurityRuleRemoteIpPrefix()));
+                    } else {
+                        if (!portSecurityRule.getSecurityRuleRemoteIpPrefix().contains("/0")) {
+                            matchBuilder = MatchUtils.addRemoteIpPrefix(matchBuilder,
+                                    new Ipv4Prefix(portSecurityRule.getSecurityRuleRemoteIpPrefix()),null);
+                        }
+                    }
+                }
+                flowId = flowId + "_Permit";
+                NodeBuilder nodeBuilder = FlowUtils.createNodeBuilder(dpidLong);
+                FlowBuilder flowBuilder = FlowUtils.createFlowBuilder(flowId, protoPortMatchPriority,
+                                                                      matchBuilder, getTable());
+                addInstructionWithConntrackCommit(flowBuilder, false);
+                syncFlow(flowBuilder ,nodeBuilder, write);
+            }
         }
-        matchBuilder = MatchUtils.createIpProtocolMatch(matchBuilder, proto);
-        if (null != srcAddress) {
-            flowId = flowId + srcAddress;
-            matchBuilder = MatchUtils.addRemoteIpPrefix(matchBuilder,
-                                                        MatchUtils.iPv4PrefixFromIPv4Address(srcAddress), null);
-        } else if (null != portSecurityRule.getSecurityRuleRemoteIpPrefix()) {
-            flowId = flowId + portSecurityRule.getSecurityRuleRemoteIpPrefix();
-            matchBuilder = MatchUtils.addRemoteIpPrefix(matchBuilder,
-                                           new Ipv4Prefix(portSecurityRule.getSecurityRuleRemoteIpPrefix()),null);
-        }
-        flowId = flowId + "_Permit";
-        NodeBuilder nodeBuilder = FlowUtils.createNodeBuilder(dpidLong);
-        FlowBuilder flowBuilder = FlowUtils.createFlowBuilder(flowId, protoPortMatchPriority,
-                                                              matchBuilder, getTable());
-        addInstructionWithConntrackCommit(flowBuilder, false);
-        syncFlow(flowBuilder ,nodeBuilder, write);
     }
 
     @Override
@@ -867,11 +911,11 @@ public class IngressAclService extends AbstractServiceInstance implements Ingres
                     .createInstructionBuilder(ActionUtils.conntrackActionBuilder(conntrackAction), 1, false);
             return addPipelineInstruction(flowBuilder,instructionBuilder, false);
         }
-        if (portSecurityRule.getSecurityRuleProtocol().equalsIgnoreCase(MatchUtils.TCP)) {
+        if (portSecurityRule.getSecurityRuleProtocol().equalsIgnoreCase(MatchUtils.TCP) || portSecurityRule.getSecurityRuleProtocol().equalsIgnoreCase(MatchUtils.TCP_PROTOCOL)) {
             return IngressAclLearnServiceUtil.programIngressAclLearnRuleForTcp(flowBuilder,instructionBuilder,learnTableId,resubmitTableId);
-        } else if (portSecurityRule.getSecurityRuleProtocol().equalsIgnoreCase(MatchUtils.UDP)) {
+        } else if (portSecurityRule.getSecurityRuleProtocol().equalsIgnoreCase(MatchUtils.UDP) || portSecurityRule.getSecurityRuleProtocol().equalsIgnoreCase(MatchUtils.UDP_PROTOCOL)) {
             return IngressAclLearnServiceUtil.programIngressAclLearnRuleForUdp(flowBuilder,instructionBuilder,learnTableId,resubmitTableId);
-        } else if (portSecurityRule.getSecurityRuleProtocol().equalsIgnoreCase(MatchUtils.ICMP)) {
+        } else if (portSecurityRule.getSecurityRuleProtocol().equalsIgnoreCase(MatchUtils.ICMP) || portSecurityRule.getSecurityRuleProtocol().equalsIgnoreCase(MatchUtils.ICMP_PROTOCOL)) {
             return IngressAclLearnServiceUtil.programIngressAclLearnRuleForIcmp(flowBuilder,instructionBuilder, icmpType, icmpCode,learnTableId,resubmitTableId);
         }
         return flowBuilder;
