@@ -34,6 +34,24 @@
       "revId": "feb061bbfbc85fe88d5ab9a2ef33ec2f05474ec0",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_c074739e",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/ArpMonitoringHandler.java",
+        "patchSetId": 10
+      },
+      "lineNbr": 159,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-12-08T09:56:38Z",
+      "side": 1,
+      "message": "If you see the steps I have enlisted, you could see that the vpninterface is part of bgpvpn also and router also , which is invalid use-case.  That is the reason I mentioned about shared vpn-interfaces.\n\nI think you are referring here to some timing issue between vpnEngine and vpnportIpToPort which could result in staale flows.  All writes to neutronvpnportiptoport are synchronous in nature and so their events would always appear before vpnengine processes the vpninterface from Config.\n\nLet me update this review with the next PS and request you to review the same.",
+      "parentUuid": "1a622d24_0cbce768",
+      "revId": "feb061bbfbc85fe88d5ab9a2ef33ec2f05474ec0",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
