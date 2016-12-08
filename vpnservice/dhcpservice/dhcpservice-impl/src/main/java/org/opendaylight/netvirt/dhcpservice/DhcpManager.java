@@ -25,6 +25,7 @@ import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.netvirt.dhcpservice.api.DhcpMConstants;
 import org.opendaylight.netvirt.neutronvpn.interfaces.INeutronVpnManager;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.port.attributes.FixedIps;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.ports.attributes.ports.Port;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.subnets.rev150712.subnets.attributes.subnets.Subnet;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.dhcpservice.config.rev150710.DhcpserviceConfig;
@@ -111,7 +112,12 @@ public class DhcpManager {
 
     public Subnet getNeutronSubnet(Port port) {
         if (port != null) {
-            return neutronVpnService.getNeutronSubnet(port.getFixedIps().get(0).getSubnetId());
+            // DHCP Service is only interested in IPv4 IPs/Subnets
+            for (FixedIps fixedIp: port.getFixedIps()) {
+                if (fixedIp.getIpAddress().getIpv4Address() != null) {
+                    return neutronVpnService.getNeutronSubnet(fixedIp.getSubnetId());
+                }
+            }
         }
         return null;
     }
