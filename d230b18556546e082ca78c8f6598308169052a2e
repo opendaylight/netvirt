@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1a622d24_8cf91750",
+        "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/PortSecurityHandler.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 174,
+      "author": {
+        "id": 4269
+      },
+      "writtenOn": "2016-12-08T09:27:37Z",
+      "side": 1,
+      "message": "Dosent this happen in programPortSecurityGroup of Egress/IngressAclSerivce for even the first port? Is some exception preventing that from happening?",
+      "revId": "d230b18556546e082ca78c8f6598308169052a2e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
