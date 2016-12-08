@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1a622d24_608d9f7b",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/VpnFloatingIpHandler.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 280,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2016-12-08T10:06:30Z",
+      "side": 1,
+      "message": "You need to use the other method with the signature\n    void setupArpResponderFlowsToExternalNetworkIps(String routerName, Collection\u003cString\u003e fixedIps, String macAddress,\n            BigInteger dpnId, Uuid extNetworkId, WriteTransaction writeTx, int addOrRemove)\n\nand then most of the code you added in this class can be deleted as it is already done by VpnManager",
+      "revId": "851a49a248b9546cd70c810e174df2ff47adcaa8",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
