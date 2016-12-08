@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1a622d24_40e7c312",
+        "filename": "vpnservice/dhcpservice/dhcpservice-impl/src/main/java/org/opendaylight/netvirt/dhcpservice/DhcpPktHandler.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 153,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2016-12-08T10:45:40Z",
+      "side": 1,
+      "message": "I feel we will still have an issue with this patch. Let me explain.\n\n1. Say you have a port with two fixed_ips (first one from Ipv6 and the second one from IPv4 subnet).\n2. In line 153, getNeutronSubnet(port) will return the IPv6 subnet (and not IPv4).\n3. When we invoke getDhcpInfo (L154), we end up in a situation where we do NOT assign any address to the VM.\n\nSo, we should actually be updating the API getNeutronSubnet(port) to return the first IPv4 subnet (and skip all IPv6 subnets).",
+      "revId": "308ca9443287925b138da835a95925ee2acebe19",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
