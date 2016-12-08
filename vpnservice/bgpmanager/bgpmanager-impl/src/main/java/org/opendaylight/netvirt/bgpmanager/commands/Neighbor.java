@@ -86,7 +86,7 @@ public class Neighbor extends OsgiCommandSupport {
                     if (!Commands.isValid(asNum, Commands.Validators.INT, AS)) {
                         return null;
                     } else {
-                        asn = Integer.valueOf(asNum);
+                        asn = Long.valueOf(asNum);
                     }
                 }
                 bm.addNeighbor(nbrIp, asn);
