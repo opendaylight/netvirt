@@ -37,6 +37,24 @@
     },
     {
       "key": {
+        "uuid": "1a622d24_0c7347ea",
+        "filename": "vpnservice/dhcpservice/dhcpservice-impl/src/main/java/org/opendaylight/netvirt/dhcpservice/DhcpPktHandler.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 171,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2016-12-08T09:47:22Z",
+      "side": 1,
+      "message": "1. Generally multiple fixed_ips are used in the context of VRRP kind of use-cases. I\u0027ve to check the behavior with q-dhcp, don\u0027t have an immediate answer.\n2. A simple comment like a note/TODO will be sufficient IMO.",
+      "parentUuid": "1a622d24_ec79abfd",
+      "revId": "95fb086724a747bb593811b7e07902e93ee8d035",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_2ce8c3b3",
         "filename": "vpnservice/dhcpservice/dhcpservice-impl/src/main/java/org/opendaylight/netvirt/dhcpservice/DhcpPktHandler.java",
         "patchSetId": 1
