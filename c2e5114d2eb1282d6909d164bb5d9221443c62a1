@@ -68,6 +68,24 @@
       "revId": "c2e5114d2eb1282d6909d164bb5d9221443c62a1",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_4054e353",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NaptSwitchHA.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 794,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-12-08T11:38:50Z",
+      "side": 1,
+      "message": "Hi Tali/Satish,\n\nVPNInstanceToVpnId will alwyas return a valid RD.\nRD won\u0027t be null.. For a non-bgpvpn ie., basic L3 Router forwarding, RD returned here will be the router-id.  For a bgpvpn the RD value will be the VRF RD.",
+      "parentUuid": "1a622d24_00cb0ba6",
+      "revId": "c2e5114d2eb1282d6909d164bb5d9221443c62a1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
