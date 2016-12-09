@@ -63,6 +63,8 @@ public class DistributedArpService implements ConfigInterface {
     private Southbound southbound;
     private Boolean flgDistributedARPEnabled = true;
 
+    private HashMap<String, List<Neutron_IPs>> dhcpPortIpCache = new HashMap();
+
     static ThreadFactory threadFactory = new ThreadFactoryBuilder()
             .setNameFormat("DistributedArp-%d").build();
     static ExecutorService executor = Executors.newFixedThreadPool(NUM_THREADS, threadFactory);
@@ -156,15 +158,12 @@ public class DistributedArpService implements ConfigInterface {
 
         final String networkUUID = neutronPort.getNetworkUUID();
         NeutronNetwork neutronNetwork = neutronNetworkCache.getNetwork(networkUUID);
-        String owner = neutronPort.getDeviceOwner();
         if (null == neutronNetwork) {
             neutronNetwork = neutronL3Adapter.getNetworkFromCleanupCache(networkUUID);
         }
         final String providerSegmentationId = neutronNetwork != null ?
                                               neutronNetwork.getProviderSegmentationID() : null;
-        final String macAddress = neutronPort.getMacAddress();
-        if (providerSegmentationId == null || providerSegmentationId.isEmpty() ||
-            macAddress == null || macAddress.isEmpty()) {
+        if (providerSegmentationId == null || providerSegmentationId.isEmpty()) {
             // done: go no further w/out all the info needed...
             return;
         }
@@ -182,6 +181,15 @@ public class DistributedArpService implements ConfigInterface {
                 String providerSegmentationId, Action actionToPerform) {
         String owner = neutronPort.getDeviceOwner();
         boolean isRouterInterface = owner != null && owner.equals(ROUTER_INTERFACE_DEVICE_OWNER);
+        boolean isDhcpPort = owner != null && owner.equals(DHCP_DEVICE_OWNER);
+        List<Neutron_IPs> fixedIps = neutronPort.getFixedIPs();
+        if((null == fixedIps || fixedIps.isEmpty())
+                        && actionToPerform == Action.DELETE && isDhcpPort){
+            fixedIps = dhcpPortIpCache.get(neutronPort.getPortUUID());
+            if(fixedIps == null) {
+                return;
+            }
+        }
         List <NeutronPort> neutronPortList = new ArrayList();
         // Arp rule is only needed when segmentation exists in the given node (bug 4752)
         // or in case the port is a router interface
@@ -192,12 +200,17 @@ public class DistributedArpService implements ConfigInterface {
         if (neutronPortList.size() == 1) {
             existingPort = neutronPortList.get(0);
         }
+        final String macAddress = neutronPort.getMacAddress();
+        if (macAddress == null || macAddress.isEmpty()) {
+            // done: go no further w/out all the info needed...
+            return;
+        }
         final Long dpid = getDatapathIdIntegrationBridge(node);
         if (dpid == null) {
             return;
         }
         if (arpNeeded) {
-            // For a node Arp rule is added for all ports only when the list of NeutronPort List size is 1.
+            // For a node Arp rule is added for all ports only when the list of NeutronPorts size is 1.
             // If not Arp is added for the current port only (bug 6998)
             if (neutronPortList.size() == 1 && neutronPort.getPortUUID().equalsIgnoreCase(existingPort.getPortUUID())) {
                 for (NeutronPort port : neutronPortCache.getAllPorts()) {
@@ -209,14 +222,13 @@ public class DistributedArpService implements ConfigInterface {
                                     programStaticRuleStage1(dpid, providerSegmentationId, portMacAddress,
                                             portIpAddress, actionForNode));
                         } catch (RejectedExecutionException ex) {
-                            LOG.error("handleArpRule : unable to accept execution.", ex);
+                            LOG.error("handleArpRule : unable to accept execution." + ex);
                             programStaticRuleStage1(dpid, providerSegmentationId, portMacAddress,
                                     portIpAddress, actionForNode);
                         }
                     }
                 }
             } else {
-                final String macAddress = neutronPort.getMacAddress();
                 for (Neutron_IPs neutronIPAddr : neutronPort.getFixedIPs()) {
                     final String ipAddress = neutronIPAddr.getIpAddress();
                     try {
@@ -224,14 +236,33 @@ public class DistributedArpService implements ConfigInterface {
                                 programStaticRuleStage1(dpid, providerSegmentationId, macAddress,
                                         ipAddress, actionForNode));
                     } catch (RejectedExecutionException ex) {
-                        LOG.error("handleArpRule : unable to accept execution.", ex);
+                        LOG.error("handleArpRule : unable to accept execution." + ex);
                         programStaticRuleStage1(dpid, providerSegmentationId, macAddress,
                                 ipAddress, actionForNode);
                     }
                 }
             }
         } else {
-            if (neutronPortList.size() == 0 || neutronPortList.isEmpty()) {
+            if (actionToPerform == Action.DELETE) {
+                // Arp flows for DHCP port should remove from control node
+                // when network removed (bug 7333).
+                if (isDhcpPort) {
+                    for (Neutron_IPs neutronIP : fixedIps) {
+                        final String dhcpIpAddress = neutronIP.getIpAddress();
+                        if (dhcpIpAddress.isEmpty()) {
+                          continue;
+                        }
+                        try {
+                                executor.submit(() ->
+                                        programStaticRuleStage1(dpid, providerSegmentationId, macAddress,
+                                                dhcpIpAddress, actionToPerform));
+                            } catch (RejectedExecutionException ex) {
+                                LOG.error("handleArpRule : unable to accept execution." + ex);
+                                programStaticRuleStage1(dpid, providerSegmentationId, macAddress,
+                                        dhcpIpAddress, actionToPerform);
+                            }
+                    }
+                }
                 for (NeutronPort delPort : neutronPortCache.getAllPorts()) {
                     if (!delPort.getDeviceOwner().equalsIgnoreCase(ROUTER_INTERFACE_DEVICE_OWNER)) {
                         final String delMacAddress = delPort.getMacAddress();
@@ -246,16 +277,21 @@ public class DistributedArpService implements ConfigInterface {
                             try {
                                 executor.submit(() ->
                                         programStaticRuleStage1(dpid, providerSegmentationId, delMacAddress,
-                                                delIpAddress, Action.DELETE));
-                            } catch (RejectedExecutionException ree2) {
-                                LOG.error("handleArpRule : unable to accept execution.", ree2);
+                                                delIpAddress, actionToPerform));
+                            } catch (RejectedExecutionException ex) {
+                                LOG.error("handleArpRule : unable to accept execution." + ex);
                                 programStaticRuleStage1(dpid, providerSegmentationId, delMacAddress,
-                                        delIpAddress, Action.DELETE);
+                                        delIpAddress, actionToPerform);
                             }
                         }
                     }
                 }
             }
+        }
+        if(isDhcpPort && actionToPerform == Action.ADD){
+            dhcpPortIpCache.put(neutronPort.getPortUUID(), fixedIps);
+        } else if (isDhcpPort && actionToPerform == Action.DELETE) {
+            dhcpPortIpCache.remove(neutronPort.getPortUUID());
         }
     }
 
