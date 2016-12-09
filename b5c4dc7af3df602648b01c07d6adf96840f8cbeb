@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1a622d24_aa630eb0",
+        "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/impl/DistributedArpService.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 246,
+      "author": {
+        "id": 4269
+      },
+      "writtenOn": "2016-12-09T14:30:20Z",
+      "side": 1,
+      "message": "Dont we require the neutronPortListSize check to identify the last port before deleting all?",
+      "revId": "b5c4dc7af3df602648b01c07d6adf96840f8cbeb",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_8a6c529e",
+        "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/impl/DistributedArpService.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 247,
+      "author": {
+        "id": 4269
+      },
+      "writtenOn": "2016-12-09T14:30:20Z",
+      "side": 1,
+      "message": "nit /controle/control",
+      "range": {
+        "startLine": 247,
+        "startChar": 62,
+        "endLine": 247,
+        "endChar": 70
+      },
+      "revId": "b5c4dc7af3df602648b01c07d6adf96840f8cbeb",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
