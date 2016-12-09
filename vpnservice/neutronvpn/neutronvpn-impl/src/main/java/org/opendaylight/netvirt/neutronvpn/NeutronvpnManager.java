@@ -826,6 +826,7 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
 
         List<L3vpn> vpns = input.getL3vpn();
         for (L3vpn vpn : vpns) {
+            List<String> existingRDs = NeutronvpnUtils.getExistingRDs(dataBroker);
             RpcError error = null;
             String msg;
             if (vpn.getRouteDistinguisher() == null || vpn.getImportRT() == null || vpn.getExportRT() == null) {
@@ -840,6 +841,15 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
             if (vpn.getRouteDistinguisher().size() > 1) {
                 msg = String.format("Creation of L3VPN failed for VPN %s due to multiple RD input %s",
                         vpn.getId().getValue(), vpn.getRouteDistinguisher());
+                LOG.warn(msg);
+                error = RpcResultBuilder.newWarning(ErrorType.PROTOCOL, "invalid-input", msg);
+                errorList.add(error);
+                warningcount++;
+                continue;
+            }
+            if (existingRDs.contains(vpn.getRouteDistinguisher().get(0))) {
+                msg = String.format("Creation of L3VPN failed for VPN %s as another VPN with the same RD %s is already configured",
+                        vpn.getId().getValue(), vpn.getRouteDistinguisher().get(0));
                 LOG.warn(msg);
                 error = RpcResultBuilder.newWarning(ErrorType.PROTOCOL, "invalid-input", msg);
                 errorList.add(error);
