@@ -1,0 +1,106 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1a622d24_45022d3f",
+        "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/impl/DistributedArpService.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 184,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2016-12-09T18:45:03Z",
+      "side": 1,
+      "message": "should this newly added block be moved to above line 175? (according to the original version )",
+      "revId": "01e47d03db211fa0129ee39f76ba9146f360da82",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_e53a5935",
+        "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/impl/DistributedArpService.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 186,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2016-12-09T18:45:03Z",
+      "side": 1,
+      "message": "space after if",
+      "revId": "01e47d03db211fa0129ee39f76ba9146f360da82",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_854e05c0",
+        "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/impl/DistributedArpService.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 189,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2016-12-09T18:45:03Z",
+      "side": 1,
+      "message": "space after if",
+      "revId": "01e47d03db211fa0129ee39f76ba9146f360da82",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_a517c1a2",
+        "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/impl/DistributedArpService.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 225,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2016-12-09T18:45:03Z",
+      "side": 1,
+      "message": "I believe the commonly used invoke for LOG.error is LOG.error(String msg, Throwable t).\nPlease fix other places as well",
+      "revId": "01e47d03db211fa0129ee39f76ba9146f360da82",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_050dd590",
+        "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/impl/DistributedArpService.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 259,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2016-12-09T18:45:03Z",
+      "side": 1,
+      "message": "please fix indentation",
+      "revId": "01e47d03db211fa0129ee39f76ba9146f360da82",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_4526ad17",
+        "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/impl/DistributedArpService.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 291,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2016-12-09T18:45:03Z",
+      "side": 1,
+      "message": "space after if",
+      "revId": "01e47d03db211fa0129ee39f76ba9146f360da82",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
