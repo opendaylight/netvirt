@@ -1,0 +1,130 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1a622d24_3465a5e1",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/SubnetmapListener.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 61,
+      "author": {
+        "id": 5263
+      },
+      "writtenOn": "2016-12-09T05:05:20Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1a622d24_80e71b40",
+      "revId": "d6b6db75699ac760f25ceb2e638157e4aae90527",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_34ac85ed",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/SubnetmapListener.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 84,
+      "author": {
+        "id": 5263
+      },
+      "writtenOn": "2016-12-09T05:05:20Z",
+      "side": 1,
+      "message": "I have written one error LOG here. But I think, it could be something better. Please suggest.",
+      "parentUuid": "1a622d24_60e47f3b",
+      "revId": "d6b6db75699ac760f25ceb2e638157e4aae90527",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_9462b9d6",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/SubnetmapListener.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 105,
+      "author": {
+        "id": 5263
+      },
+      "writtenOn": "2016-12-09T05:05:20Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1a622d24_40c4e391",
+      "revId": "d6b6db75699ac760f25ceb2e638157e4aae90527",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_745f1d0f",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/SubnetmapListener.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 138,
+      "author": {
+        "id": 5263
+      },
+      "writtenOn": "2016-12-09T05:05:20Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1a622d24_80befbfd",
+      "revId": "d6b6db75699ac760f25ceb2e638157e4aae90527",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_d49b91c7",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/SubnetmapListener.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 145,
+      "author": {
+        "id": 5263
+      },
+      "writtenOn": "2016-12-09T05:05:20Z",
+      "side": 1,
+      "message": "This is okay. It will come inside else block when condition in if block is not satisfied, and so in that case return inside if block will not get executed.",
+      "parentUuid": "1a622d24_6052bfde",
+      "revId": "d6b6db75699ac760f25ceb2e638157e4aae90527",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_14a6a910",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/SubnetmapListener.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 150,
+      "author": {
+        "id": 5263
+      },
+      "writtenOn": "2016-12-09T05:05:20Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1a622d24_a06337b0",
+      "revId": "d6b6db75699ac760f25ceb2e638157e4aae90527",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_f4aa0dd3",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/SubnetmapListener.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 178,
+      "author": {
+        "id": 5263
+      },
+      "writtenOn": "2016-12-09T05:05:20Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1a622d24_806c3b9e",
+      "revId": "d6b6db75699ac760f25ceb2e638157e4aae90527",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
