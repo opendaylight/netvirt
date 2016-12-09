@@ -36,6 +36,8 @@ import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
+import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.VpnInstances;
+import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.instances.VpnInstance;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.FloatingIpPortInfo;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ProviderTypes;
 import org.opendaylight.netvirt.neutronvpn.api.utils.NeutronConstants;
@@ -1130,6 +1132,18 @@ public class NeutronvpnUtils {
             ret[i] = Integer.valueOf(octets[i], 16).byteValue();
         }
         return ret;
+    }
+
+    static List<String> getExistingRDs(DataBroker broker) {
+        List<String> existingRDs = new ArrayList<>();
+        InstanceIdentifier<VpnInstances> path = InstanceIdentifier.builder(VpnInstances.class).build();
+        Optional<VpnInstances> vpnInstancesOptional = NeutronvpnUtils.read(broker, LogicalDatastoreType.CONFIGURATION, path);
+        if (vpnInstancesOptional.isPresent() && vpnInstancesOptional.get().getVpnInstance() != null) {
+            for (VpnInstance vpnInstance : vpnInstancesOptional.get().getVpnInstance()) {
+                existingRDs.add(vpnInstance.getIpv4Family().getRouteDistinguisher());
+            }
+        }
+        return existingRDs;
     }
 
 }
