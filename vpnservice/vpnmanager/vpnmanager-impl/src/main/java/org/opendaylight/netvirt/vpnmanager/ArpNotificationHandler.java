@@ -47,7 +47,7 @@ import org.slf4j.LoggerFactory;
 public class ArpNotificationHandler implements OdlArputilListener {
     private static final Logger LOG = LoggerFactory.getLogger(ArpNotificationHandler.class);
     // temp where Key is VPNInstance+IP and value is timestamp
-    private final Cache<Pair<String, String>, BigInteger> migrateArpReqCache;
+    private final Cache<Pair<String, String>, BigInteger> migrateArpCache;
 
     DataBroker dataBroker;
     IdManagerService idManager;
@@ -64,7 +64,7 @@ public class ArpNotificationHandler implements OdlArputilListener {
 
         long duration = config.getArpLearnTimeout() * 10;
         long cacheSize = config.getArpCacheSize().longValue();
-        migrateArpReqCache =
+        migrateArpCache =
                 CacheBuilder.newBuilder().maximumSize(cacheSize).expireAfterWrite(duration, TimeUnit.MILLISECONDS).build();
     }
 
@@ -147,7 +147,7 @@ public class ArpNotificationHandler implements OdlArputilListener {
                             return;
                         }
                     }
-                } else if (shouldLearnMacFromArpPackets(vpnName, ipToQuery)) {
+                } else if (!isIpInArpMigrateCache(vpnName, ipToQuery)) {
                     learnMacFromArpPackets(vpnName, srcInterface, srcIP, srcMac);
                 }
             }
@@ -236,34 +236,34 @@ public class ArpNotificationHandler implements OdlArputilListener {
 
     private void putVpnIpToMigrateArpCache(String vpnName, String ipToQuery, PhysAddress srcMac) {
         long cacheSize = config.getArpCacheSize().longValue();
-        if (migrateArpReqCache.size() >= cacheSize) {
+        if (migrateArpCache.size() >= cacheSize) {
             LOG.debug("ARP_MIGRATE_CACHE: max size {} reached, assuming cache eviction we still put IP {}"
                     + " vpnName {} with MAC {}", cacheSize, ipToQuery, vpnName, srcMac);
         }
         LOG.debug("ARP_MIGRATE_CACHE: add to dirty cache IP {} vpnName {} with MAC {}", ipToQuery, vpnName, srcMac);
-        migrateArpReqCache.put(new ImmutablePair<>(vpnName, ipToQuery),
+        migrateArpCache.put(new ImmutablePair<>(vpnName, ipToQuery),
                 new BigInteger(String.valueOf(System.currentTimeMillis())));
     }
 
-    private boolean shouldLearnMacFromArpPackets(String vpnName, String ipToQuery) {
-        if (migrateArpReqCache == null || migrateArpReqCache.size() == 0) {
-            return true;
+    private boolean isIpInArpMigrateCache(String vpnName, String ipToQuery) {
+        if (migrateArpCache == null || migrateArpCache.size() == 0) {
+            return false;
         }
         Pair<String, String> keyPair = new ImmutablePair<>(vpnName, ipToQuery);
-        BigInteger prevTimeStampCached = migrateArpReqCache.getIfPresent(keyPair);
+        BigInteger prevTimeStampCached = migrateArpCache.getIfPresent(keyPair);
         if (prevTimeStampCached == null) {
             LOG.debug("ARP_MIGRATE_CACHE: there is no IP {} vpnName {} in dirty cache, so learn it",
                     ipToQuery, vpnName);
-            return true;
+            return false;
         }
         if (System.currentTimeMillis() > prevTimeStampCached.longValue() + config.getArpLearnTimeout()) {
             LOG.debug("ARP_MIGRATE_CACHE: older than timeout value - remove from dirty cache IP {} vpnName {}",
                     ipToQuery, vpnName);
-            migrateArpReqCache.invalidate(keyPair);
-            return true;
+            migrateArpCache.invalidate(keyPair);
+            return false;
         }
         LOG.debug("ARP_MIGRATE_CACHE: younger than timeout value - ignore learning IP {} vpnName {}",
                 ipToQuery, vpnName);
-        return false;
+        return true;
     }
 }
