@@ -125,11 +125,7 @@
   <bean id="arpNotificationHandler"
         class="org.opendaylight.netvirt.vpnmanager.ArpNotificationHandler">
     <argument ref="dataBroker" />
-    <argument ref="vpnInterfaceManager" />
     <argument ref="idManagerService" />
-    <argument ref="odlArputilService" />
-    <argument ref="arpMonitoringHandler" />
-    <argument ref="odlInterfaceRpcService" />
     <argument ref="interfaceManager"/>
     <argument ref="vpnConfig"/>
   </bean>
