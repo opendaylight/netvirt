@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1a622d24_6cd2b1d3",
+        "filename": "vpnservice/dhcpservice/dhcpservice-impl/src/main/java/org/opendaylight/netvirt/dhcpservice/DhcpPktHandler.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 192,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2016-12-10T15:40:13Z",
+      "side": 1,
+      "message": "nit: This patch looks good and can be merged. A small comment about the name of the API. When this api is moved to GENIUS, please rename it to getFirstIpv4Address() - as the port can have multiple IPv4 addresses.",
+      "revId": "bcbfd6d0d93289e03c67642ed505ae9168321a07",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_4cd7f5c1",
+        "filename": "vpnservice/dhcpservice/dhcpservice-impl/src/main/java/org/opendaylight/netvirt/dhcpservice/DhcpPktHandler.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 202,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2016-12-10T15:40:13Z",
+      "side": 1,
+      "message": "We have this api [1] in GENIUS. Feel free to decide if you want to update the current patch or we can do it in a follow-on patch (including any other changes from Netvirt).\n\n[1] https://github.com/opendaylight/genius/blob/master/mdsalutil/mdsalutil-api/src/main/java/org/opendaylight/genius/mdsalutil/NWUtil.java#L187",
+      "revId": "bcbfd6d0d93289e03c67642ed505ae9168321a07",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
