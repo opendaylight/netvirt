@@ -1336,32 +1336,6 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
         }
     }
 
-
-    public void processArpRequest(org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715
-                                          .IpAddress srcIP, PhysAddress srcMac, org.opendaylight.yang.gen.v1.urn.ietf
-            .params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress targetIP, PhysAddress targetMac, String srcInterface){
-        //Build ARP response with ARP requests TargetIp TargetMac as the Arp Response SrcIp and SrcMac
-        SendArpResponseInput input = new SendArpResponseInputBuilder().setInterface(srcInterface)
-                .setDstIpaddress(srcIP).setDstMacaddress(srcMac).setSrcIpaddress(targetIP).setSrcMacaddress(targetMac).build();
-        final String msgFormat = String.format("Send ARP Response on interface %s to destination %s", srcInterface, srcIP);
-        Future<RpcResult<Void>> future = arpManager.sendArpResponse(input);
-        Futures.addCallback(JdkFutureAdapters.listenInPoolThread(future), new FutureCallback<RpcResult<Void>>() {
-            @Override
-            public void onFailure(Throwable error) {
-                LOG.error("Error - {}", msgFormat, error);
-            }
-
-            @Override
-            public void onSuccess(RpcResult<Void> result) {
-                if(!result.isSuccessful()) {
-                    LOG.warn("Rpc call to {} failed", msgFormat, getErrorText(result.getErrors()));
-                } else {
-                    LOG.debug("Successful RPC Result - {}", msgFormat);
-                }
-            }
-        });
-    }
-
     private String getErrorText(Collection<RpcError> errors) {
         StringBuilder errorText = new StringBuilder();
         for(RpcError error : errors) {
