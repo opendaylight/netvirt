@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1a622d24_895bbf53",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryHelper.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 169,
+      "author": {
+        "id": 5866
+      },
+      "writtenOn": "2016-12-10T00:21:13Z",
+      "side": 1,
+      "message": "common to both if/else, can be placed outside check.",
+      "revId": "44d1f377ecbef52f41d61cd008af644e5ec4227a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_c955b71e",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryHelper.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 234,
+      "author": {
+        "id": 5866
+      },
+      "writtenOn": "2016-12-10T00:21:13Z",
+      "side": 1,
+      "message": "Suggestion: return false is redundant, can be removed.",
+      "revId": "44d1f377ecbef52f41d61cd008af644e5ec4227a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_e9819390",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 671,
+      "author": {
+        "id": 5866
+      },
+      "writtenOn": "2016-12-10T00:21:13Z",
+      "side": 1,
+      "message": "since lri.getPrefix() is in both if and else, it can be moved outside the check.",
+      "revId": "44d1f377ecbef52f41d61cd008af644e5ec4227a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
