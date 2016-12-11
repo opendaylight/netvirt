@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1a622d24_6ff463f2",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnUtils.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 661,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2016-12-11T10:20:59Z",
+      "side": 1,
+      "message": "Strings.isNullOrEmpty is safer",
+      "revId": "4bca88dba53944ac69dda6adfec08578b62f0bd7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_2fea6b0f",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnUtils.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 663,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2016-12-11T10:20:59Z",
+      "side": 1,
+      "message": "return IfmConstants.PORT_LBAAS_OCTAVIA_HM_INTERFACE",
+      "revId": "4bca88dba53944ac69dda6adfec08578b62f0bd7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
