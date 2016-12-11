@@ -10,7 +10,6 @@ package org.opendaylight.netvirt.elan.internal;
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.util.concurrent.ListenableFuture;
-
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -23,7 +22,6 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ConcurrentMap;
-
 import org.apache.commons.lang3.StringUtils;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
@@ -213,7 +211,7 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
         futures.add(ElanUtils.waitForTransactionToComplete(tx));
         futures.add(ElanUtils.waitForTransactionToComplete(deleteFlowGroupTx));
         if (isLastInterfaceOnDpn && dpId != null && ElanUtils.isVxlan(elanInfo)) {
-            setElanBCGrouponOtherDpns(elanInfo, dpId);
+            setElanAndEtreeBCGrouponOtherDpns(elanInfo, dpId);
         }
         DataStoreJobCoordinator coordinator = DataStoreJobCoordinator.getInstance();
         InterfaceRemoveWorkerOnElanInterface removeInterfaceWorker = new InterfaceRemoveWorkerOnElanInterface(
@@ -623,7 +621,7 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
         futures.add(ElanUtils.waitForTransactionToComplete(tx));
         if (isFirstInterfaceInDpn && ElanUtils.isVxlan(elanInstance)) {
             //update the remote-DPNs remoteBC group entry with Tunnels
-            setElanBCGrouponOtherDpns(elanInstance, dpId);
+            setElanAndEtreeBCGrouponOtherDpns(elanInstance, dpId);
         }
 
         DataStoreJobCoordinator coordinator = DataStoreJobCoordinator.getInstance();
@@ -809,7 +807,7 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
     }
 
     private int getNextAvailableBucketId(int bucketSize) {
-        return (bucketSize + 1);
+        return bucketSize + 1;
     }
 
     @SuppressWarnings("checkstyle:IllegalCatch")
@@ -872,10 +870,21 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
         return null;
     }
 
-    @SuppressWarnings("checkstyle:IllegalCatch")
-    private void setElanBCGrouponOtherDpns(ElanInstance elanInfo, BigInteger dpId) {
+    private void setElanAndEtreeBCGrouponOtherDpns(ElanInstance elanInfo, BigInteger dpId) {
         int elanTag = elanInfo.getElanTag().intValue();
         long groupId = ElanUtils.getElanRemoteBCGId(elanTag);
+        setBCGrouponOtherDpns(elanInfo, dpId, elanTag, groupId);
+        EtreeInstance etreeInstance = elanInfo.getAugmentation(EtreeInstance.class);
+        if (etreeInstance != null) {
+            int etreeLeafTag = etreeInstance.getEtreeLeafTagVal().getValue().intValue();
+            long etreeLeafGroupId = ElanUtils.getEtreeLeafRemoteBCGId(etreeLeafTag);
+            setBCGrouponOtherDpns(elanInfo, dpId, etreeLeafTag, etreeLeafGroupId);
+        }
+
+    }
+
+    @SuppressWarnings("checkstyle:IllegalCatch")
+    private void setBCGrouponOtherDpns(ElanInstance elanInfo, BigInteger dpId, int elanTag, long groupId) {
         int bucketId = 0;
         ElanDpnInterfacesList elanDpns = elanUtils.getElanDpnInterfacesList(elanInfo.getElanInstanceName());
         if (elanDpns != null) {
