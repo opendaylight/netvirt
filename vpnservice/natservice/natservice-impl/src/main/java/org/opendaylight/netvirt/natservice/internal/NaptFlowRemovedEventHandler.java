@@ -21,7 +21,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.service.rev130819.Node
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.service.rev130819.NodeExperimenterErrorNotification;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.service.rev130819.SalFlowListener;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.service.rev130819.SwitchFlowRemoved;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.RemovedReasonFlags;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.Node;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.model.match.types.rev131026.TcpMatchFields;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.model.match.types.rev131026.UdpMatchFields;
@@ -56,9 +55,27 @@ public class NaptFlowRemovedEventHandler implements SalFlowListener{
     }
 
     @Override
-    public void onSwitchFlowRemoved(SwitchFlowRemoved switchFlowRemoved) {
+    public void onSwitchFlowRemoved(SwitchFlowRemoved flowRemoved) {
 
-/*
+    }
+
+    private BigInteger getDpnId(String node) {
+        //openflow:1]
+        String temp[] = node.split(":");
+        BigInteger dpnId = new BigInteger(temp[1]);
+        return dpnId;
+
+    }
+
+    @Override
+    public void onFlowAdded(FlowAdded arg0) {
+        // TODO Auto-generated method stub
+
+    }
+
+    @Override
+    public void onFlowRemoved(FlowRemoved flowRemoved) {
+        /*
         If the removed flow is from the OUTBOUND NAPT table :
         1) Get the ActionInfo of the flow.
         2) From the ActionInfo of the flow get the internal IP address, port and the protocol.
@@ -70,15 +87,14 @@ public class NaptFlowRemovedEventHandler implements SalFlowListener{
         7) Place the NaptEntry event to the queue.
 */
 
-        short tableId = switchFlowRemoved.getTableId();
-        RemovedReasonFlags removedReasonFlag = switchFlowRemoved.getRemovedReason();
+        short tableId = flowRemoved.getTableId();
 
-        if (tableId == NwConstants.OUTBOUND_NAPT_TABLE && removedReasonFlag.isIDLETIMEOUT()) {
+        if (tableId == NwConstants.OUTBOUND_NAPT_TABLE) {
             LOG.info("NaptFlowRemovedEventHandler : onSwitchFlowRemoved() entry");
 
             //Get the internal internal IP address and the port number from the IPv4 match.
             Ipv4Prefix internalIpv4Address = null;
-            Layer3Match layer3Match = switchFlowRemoved.getMatch().getLayer3Match();
+            Layer3Match layer3Match = flowRemoved.getMatch().getLayer3Match();
             if (layer3Match instanceof Ipv4Match) {
                 Ipv4Match internalIpv4Match = (Ipv4Match) layer3Match;
                 internalIpv4Address = internalIpv4Match.getIpv4Source();
@@ -98,7 +114,7 @@ public class NaptFlowRemovedEventHandler implements SalFlowListener{
             //Get the protocol from the layer4 match
             NAPTEntryEvent.Protocol protocol = null;
             Integer internalPortNumber = null;
-            Layer4Match layer4Match = switchFlowRemoved.getMatch().getLayer4Match();
+            Layer4Match layer4Match = flowRemoved.getMatch().getLayer4Match();
             if (layer4Match instanceof TcpMatch) {
                 TcpMatchFields tcpMatchFields = (TcpMatchFields)layer4Match;
                 internalPortNumber = tcpMatchFields.getTcpSourcePort().getValue();
@@ -115,7 +131,7 @@ public class NaptFlowRemovedEventHandler implements SalFlowListener{
 
             //Get the router ID from the metadata.
             Long routerId;
-            BigInteger metadata = switchFlowRemoved.getMatch().getMetadata().getMetadata();
+            BigInteger metadata = flowRemoved.getMatch().getMetadata().getMetadata();
             if (MetaDataUtil.getNatRouterIdFromMetadata(metadata) != 0) {
                 routerId = MetaDataUtil.getNatRouterIdFromMetadata(metadata);
             } else {
@@ -152,7 +168,7 @@ public class NaptFlowRemovedEventHandler implements SalFlowListener{
             naptEventdispatcher.addNaptEvent(naptEntryEvent);
 
             //Get the DPN ID from the Node
-            InstanceIdentifier<Node> nodeRef = switchFlowRemoved.getNode().getValue().firstIdentifierOf(Node.class);
+            InstanceIdentifier<Node> nodeRef = flowRemoved.getNode().getValue().firstIdentifierOf(Node.class);
             String dpn = nodeRef.firstKeyOf(Node.class).getId().getValue();
             BigInteger dpnId = getDpnId(dpn);
             String switchFlowRef = NatUtil.getNaptFlowRef(dpnId, tableId, String.valueOf(routerId), internalIpv4HostAddress, internalPortNumber);
@@ -174,26 +190,6 @@ public class NaptFlowRemovedEventHandler implements SalFlowListener{
         }else {
             LOG.debug("Received flow removed notification due to flowdelete from switch for flowref");
         }
-
-    }
-
-    private BigInteger getDpnId(String node) {
-        //openflow:1]
-        String temp[] = node.split(":");
-        BigInteger dpnId = new BigInteger(temp[1]);
-        return dpnId;
-
-    }
-
-    @Override
-    public void onFlowAdded(FlowAdded arg0) {
-        // TODO Auto-generated method stub
-
-    }
-
-    @Override
-    public void onFlowRemoved(FlowRemoved arg0) {
-        // TODO Auto-generated method stub
 
     }
 
