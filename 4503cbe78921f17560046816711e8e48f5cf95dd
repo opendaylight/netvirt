@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1a622d24_ef5513c7",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/ArpNotificationHandler.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 48,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2016-12-11T12:20:50Z",
+      "side": 1,
+      "message": "used imports",
+      "revId": "4503cbe78921f17560046816711e8e48f5cf95dd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_af72fb79",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/ArpNotificationHandler.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 105,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2016-12-11T12:20:50Z",
+      "side": 1,
+      "message": "You can also clean up the following deps\nVpnInterfaceManager vpnIfManager\nOdlArputilService arpManage\nArpMonitoringHandler arpScheduler\nOdlInterfaceRpcService ifaceMgrRpcService",
+      "revId": "4503cbe78921f17560046816711e8e48f5cf95dd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_4f47e71f",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/ArpNotificationHandler.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 120,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2016-12-11T12:20:50Z",
+      "side": 1,
+      "message": "typo Gratuitous",
+      "revId": "4503cbe78921f17560046816711e8e48f5cf95dd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
