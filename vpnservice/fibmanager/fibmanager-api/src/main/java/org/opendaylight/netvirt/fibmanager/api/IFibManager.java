@@ -49,7 +49,7 @@ public interface IFibManager {
                                 String destPrefix,
                                 String destTepIp);
 
-    void addOrUpdateFibEntry(DataBroker broker, String rd, String prefix, List<String> nextHopList,
+    void addOrUpdateFibEntry(DataBroker broker, String rd, String prefix, String nextHopIp,
                              int label, RouteOrigin origin, WriteTransaction writeConfigTxn);
     void addFibEntryForRouterInterface(DataBroker broker, String rd, String prefix,
                                         RouterInterface routerInterface, long label, WriteTransaction writeConfigTxn);

@@ -478,14 +478,14 @@ public class FibUtil {
         }
     }
 
-    public static void addOrUpdateFibEntry(DataBroker broker, String rd, String prefix, List<String> nextHopList,
+    public static void addOrUpdateFibEntry(DataBroker broker, String rd, String prefix, String nextHopIp,
                                            int label, RouteOrigin origin, WriteTransaction writeConfigTxn) {
         if (rd == null || rd.isEmpty() ) {
             LOG.error("Prefix {} not associated with vpn", prefix);
             return;
         }
 
-        Preconditions.checkNotNull(nextHopList, "NextHopList can't be null");
+        Preconditions.checkNotNull(nextHopIp, "NextHopList can't be null");
 
         try{
             InstanceIdentifier<VrfEntry> vrfEntryId =
@@ -495,7 +495,7 @@ public class FibUtil {
             Optional<VrfEntry> entry = MDSALUtil.read(broker, LogicalDatastoreType.CONFIGURATION, vrfEntryId);
 
             if (! entry.isPresent()) {
-                VrfEntry vrfEntry = new VrfEntryBuilder().setDestPrefix(prefix).setNextHopAddressList(nextHopList)
+                VrfEntry vrfEntry = new VrfEntryBuilder().setDestPrefix(prefix).setNextHopAddressList(Arrays.asList(nextHopIp))
                         .setLabel((long)label).setOrigin(origin.getValue()).build();
 
                 if (writeConfigTxn != null) {
@@ -503,13 +503,11 @@ public class FibUtil {
                 } else {
                     MDSALUtil.syncWrite(broker, LogicalDatastoreType.CONFIGURATION, vrfEntryId, vrfEntry);
                 }
-                LOG.debug("Created vrfEntry for {} nexthop {} label {}", prefix, nextHopList, label);
+                LOG.debug("Created vrfEntry for {} nexthop {} label {}", prefix, nextHopIp, label);
             } else { // Found in MDSAL database
                 List<String> nh = entry.get().getNextHopAddressList();
-                for (String nextHop : nextHopList) {
-                    if (!nh.contains(nextHop)) {
-                        nh.add(nextHop);
-                    }
+                if (!nh.contains(nextHopIp)) {
+                    nh.add(nextHopIp);
                 }
                 VrfEntry vrfEntry = new VrfEntryBuilder().setDestPrefix(prefix).setNextHopAddressList(nh)
                         .setLabel((long) label).setOrigin(origin.getValue()).build();

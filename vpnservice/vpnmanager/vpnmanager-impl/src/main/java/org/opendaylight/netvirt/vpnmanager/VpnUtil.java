@@ -10,6 +10,7 @@ package org.opendaylight.netvirt.vpnmanager;
 
 import java.math.BigInteger;
 import java.net.InetAddress;
+import java.util.Arrays;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedList;
@@ -373,8 +374,8 @@ public class VpnUtil {
         return null;
     }
 
-    static Extraroute getVpnToExtraroute(String ipPrefix, List<String> nextHopList) {
-        return new ExtrarouteBuilder().setPrefix(ipPrefix).setNexthopIpList(nextHopList).build();
+    static Extraroute getVpnToExtraroute(String ipPrefix, String nextHopList) {
+        return new ExtrarouteBuilder().setPrefix(ipPrefix).setNexthopIpList(Arrays.asList(nextHopList)).build();
     }
 
     public static List<Extraroute> getVpnExtraroutes(DataBroker broker, String vpnRd) {

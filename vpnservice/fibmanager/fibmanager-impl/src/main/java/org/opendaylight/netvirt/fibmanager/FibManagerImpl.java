@@ -150,9 +150,9 @@ public class FibManagerImpl implements IFibManager {
     }
 
     @Override
-    public void addOrUpdateFibEntry(DataBroker broker, String rd, String prefix, List<String> nextHopList,
+    public void addOrUpdateFibEntry(DataBroker broker, String rd, String prefix, String nextHopIp,
                                     int label, RouteOrigin origin, WriteTransaction writeConfigTxn) {
-        FibUtil.addOrUpdateFibEntry(broker, rd, prefix , nextHopList, label, origin, writeConfigTxn);
+        FibUtil.addOrUpdateFibEntry(broker, rd, prefix , nextHopIp, label, origin, writeConfigTxn);
     }
 
     @Override
