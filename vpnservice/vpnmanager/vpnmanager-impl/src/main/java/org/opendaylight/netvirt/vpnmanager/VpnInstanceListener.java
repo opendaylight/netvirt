@@ -17,7 +17,6 @@ import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.binding.api.DataChangeListener;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
@@ -25,6 +24,7 @@ import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFaile
 import org.opendaylight.genius.datastoreutils.DataStoreJobCoordinator;
 import org.opendaylight.netvirt.bgpmanager.api.IBgpManager;
 import org.opendaylight.netvirt.fibmanager.api.IFibManager;
+import org.opendaylight.netvirt.vpnmanager.VpnOpDataSyncer.VpnOpDataType;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.VpnAfConfig;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.VpnInstances;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.af.config.VpnTargets;
@@ -544,5 +544,9 @@ public class VpnInstanceListener extends AsyncDataTreeChangeListenerBase<VpnInst
             return vpnInstanceOpData.get();
         }
         return null;
+    }
+
+    public void waitForVpnInstanceOpDataReady(String vpnName, long maxWaitInMs) {
+        vpnOpDataNotifier.waitForVpnDataReady(VpnOpDataType.vpnOpData, vpnName, maxWaitInMs);
     }
 }
