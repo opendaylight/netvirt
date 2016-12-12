@@ -281,4 +281,10 @@ public class VpnManagerImpl implements IVpnManager {
         return VpnUtil.getVpnId(dataBroker, vpnInstanceId.getValue());
     }
 
+    @Override
+    public void waitForVpnInstanceOpDataReady(String vpnName, long maxWaitInMs) {
+        vpnInstanceListener.waitForVpnInstanceOpDataReady(vpnName, maxWaitInMs);
+
+    }
+
 }

@@ -53,6 +53,15 @@ public interface IVpnManager {
      */
     void updateVpnFootprint(BigInteger dpId, String vpnName, String interfaceName, boolean add);
 
+    /**
+     * Waits for while in order to give some time to VpnManager to fully
+     * persist VPN's Operational Data.
+     *
+     * @param vpnName
+     * @param maxWaitInMs
+     */
+    void waitForVpnInstanceOpDataReady(String vpnName, long maxWaitInMs);
+
     void setupSubnetMacIntoVpnInstance(String vpnName, String srcMacAddress,
             BigInteger dpnId, WriteTransaction writeTx, int addOrRemove);
 
