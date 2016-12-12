@@ -78,7 +78,9 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.Elan
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.tag.name.map.ElanTagName;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.tag.name.map.ElanTagNameKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.FibEntries;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.VrfEntries;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.fibentries.VrfTables;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.fibentries.VrfTablesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.fibentries.VrfTablesKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.VrfEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.VrfEntryKey;
@@ -547,12 +549,17 @@ public class VpnUtil {
         Optional<VrfTables> vrfTablesOpc = read(broker, LogicalDatastoreType.CONFIGURATION, vpnVrfTableIid);
         if (vrfTablesOpc.isPresent()) {
             VrfTables vrfTables = vrfTablesOpc.get();
-            List<VrfEntry> newVrfEntries = new ArrayList<VrfEntry>();
+            List<VrfEntry> vrfEntriesToRemove = new ArrayList<VrfEntry>();
             for (VrfEntry vrfEntry : vrfTables.getVrfEntry()) {
                 if (origin == RouteOrigin.value(vrfEntry.getOrigin())) {
-                    delete(broker, LogicalDatastoreType.CONFIGURATION, vpnVrfTableIid.child(VrfEntry.class,
-                            vrfEntry.getKey()));
+                    vrfEntriesToRemove.add(vrfEntry);
                 }
+            }
+
+            if (vrfEntriesToRemove.size() > 0) {
+                VrfTables vrfTableToRemove = new VrfTablesBuilder().setKey(new VrfTablesKey(rd)).setRouteDistinguisher(rd).setVrfEntry(vrfEntriesToRemove).build();
+                InstanceIdentifier<VrfTables> vrfTableId = InstanceIdentifier.builder(FibEntries.class).child(VrfTables.class, vrfTableToRemove.getKey()).build();
+                delete(broker, LogicalDatastoreType.CONFIGURATION, vrfTableId);
             }
         }
     }
