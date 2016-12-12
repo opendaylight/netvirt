@@ -31,6 +31,7 @@ import org.opendaylight.genius.mdsalutil.MatchFieldType;
 import org.opendaylight.genius.mdsalutil.MatchInfo;
 import org.opendaylight.genius.mdsalutil.MetaDataUtil;
 import org.opendaylight.genius.mdsalutil.NwConstants;
+import org.opendaylight.genius.mdsalutil.NWUtil;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.genius.utils.cache.DataStoreCache;
 import org.opendaylight.netvirt.fibmanager.api.RouteOrigin;
@@ -1028,32 +1029,6 @@ public class VpnUtil {
     }
 
     /**
-     * Retrieves the ids of the currently operative DPNs
-     *
-     * @param dataBroker dataBroker service reference
-     * @return the list of DPNs currently operative
-     */
-    public static List<BigInteger> getOperativeDPNs(DataBroker dataBroker) {
-        List<BigInteger> result = new LinkedList<BigInteger>();
-        InstanceIdentifier<Nodes> nodesInstanceIdentifier = InstanceIdentifier.builder(Nodes.class).build();
-        Optional<Nodes> nodesOptional = MDSALUtil.read(dataBroker, LogicalDatastoreType.OPERATIONAL,
-                nodesInstanceIdentifier);
-        if (!nodesOptional.isPresent()) {
-            return result;
-        }
-        Nodes nodes = nodesOptional.get();
-        List<Node> nodeList = nodes.getNode();
-        for (Node node : nodeList) {
-            NodeId nodeId = node.getId();
-            if (nodeId != null) {
-                BigInteger dpnId = MDSALUtil.getDpnIdFromNodeName(nodeId);
-                result.add(dpnId);
-            }
-        }
-        return result;
-    }
-
-    /**
      * Retrieves a list of randomly selected DPNs, as many as specified.
      *
      * @param dataBroker dataBroker service reference
@@ -1063,7 +1038,7 @@ public class VpnUtil {
      */
     public static List<BigInteger> pickRandomDPNs(DataBroker dataBroker, int numberOfDPNs,
                                                   List<BigInteger> excludingDPNs) {
-        List<BigInteger> dpnIdPool = getOperativeDPNs(dataBroker);
+        List<BigInteger> dpnIdPool = NWUtil.getOperativeDPNs(dataBroker);
         int poolSize = dpnIdPool.size();
         if (poolSize <= numberOfDPNs) {
             // You requested more than there is, I give you all I have.
