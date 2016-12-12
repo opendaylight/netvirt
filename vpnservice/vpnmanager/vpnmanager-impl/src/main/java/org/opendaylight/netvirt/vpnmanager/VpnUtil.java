@@ -31,6 +31,7 @@ import org.opendaylight.genius.mdsalutil.MatchFieldType;
 import org.opendaylight.genius.mdsalutil.MatchInfo;
 import org.opendaylight.genius.mdsalutil.MetaDataUtil;
 import org.opendaylight.genius.mdsalutil.NwConstants;
+import org.opendaylight.genius.mdsalutil.NWUtil;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.genius.utils.cache.DataStoreCache;
 import org.opendaylight.netvirt.fibmanager.api.RouteOrigin;
@@ -1027,74 +1028,6 @@ public class VpnUtil {
         }
     }
 
-    /**
-     * Retrieves the ids of the currently operative DPNs
-     *
-     * @param dataBroker dataBroker service reference
-     * @return the list of DPNs currently operative
-     */
-    public static List<BigInteger> getOperativeDPNs(DataBroker dataBroker) {
-        List<BigInteger> result = new LinkedList<BigInteger>();
-        InstanceIdentifier<Nodes> nodesInstanceIdentifier = InstanceIdentifier.builder(Nodes.class).build();
-        Optional<Nodes> nodesOptional = MDSALUtil.read(dataBroker, LogicalDatastoreType.OPERATIONAL,
-                nodesInstanceIdentifier);
-        if (!nodesOptional.isPresent()) {
-            return result;
-        }
-        Nodes nodes = nodesOptional.get();
-        List<Node> nodeList = nodes.getNode();
-        for (Node node : nodeList) {
-            NodeId nodeId = node.getId();
-            if (nodeId != null) {
-                BigInteger dpnId = MDSALUtil.getDpnIdFromNodeName(nodeId);
-                result.add(dpnId);
-            }
-        }
-        return result;
-    }
-
-    /**
-     * Retrieves a list of randomly selected DPNs, as many as specified.
-     *
-     * @param dataBroker dataBroker service reference
-     * @param numberOfDPNs Specifies how many Operative DPNs must be found
-     * @param excludingDPNs Specifies a blacklist of DPNs
-     * @return the list of DPN Ids
-     */
-    public static List<BigInteger> pickRandomDPNs(DataBroker dataBroker, int numberOfDPNs,
-                                                  List<BigInteger> excludingDPNs) {
-        List<BigInteger> dpnIdPool = getOperativeDPNs(dataBroker);
-        int poolSize = dpnIdPool.size();
-        if (poolSize <= numberOfDPNs) {
-            // You requested more than there is, I give you all I have.
-            return dpnIdPool;
-        }
-
-        // Random reorder
-        Collections.shuffle(dpnIdPool);
-        List<BigInteger> result = new ArrayList<BigInteger>();
-
-        for (BigInteger dpId : dpnIdPool) {
-            if (excludingDPNs == null || !excludingDPNs.contains(dpId)) {
-                result.add(dpId);
-                if (result.size() == numberOfDPNs) {
-                    break;
-                }
-            }
-        }
-
-        if (result.size() < numberOfDPNs) {
-            // We still don't have all we need, so we have to pick up among the "prohibited" ones
-            dpnIdPool.removeAll(result);
-
-            int nbrOfProhibitedDpnsToPick = numberOfDPNs - result.size();
-            for (int i = 0; i < nbrOfProhibitedDpnsToPick; i++) {
-                result.add(dpnIdPool.get(i));
-            }
-        }
-        return result;
-    }
-
     public static void scheduleVpnInterfaceForRemoval(DataBroker broker,String interfaceName, BigInteger dpnId,
                                                       String vpnInstanceName, Boolean isScheduledToRemove,
                                                       WriteTransaction writeOperTxn){
@@ -1299,14 +1232,6 @@ public class VpnUtil {
 
     private static String getL3VpnGatewayFlowRef(short l3GwMacTable, BigInteger dpId, long vpnId, String gwMacAddress) {
         return gwMacAddress+NwConstants.FLOWID_SEPARATOR+vpnId+NwConstants.FLOWID_SEPARATOR+dpId+NwConstants.FLOWID_SEPARATOR+l3GwMacTable;
-    }
-
-    //TODO: How to handle the below code, its a copy paste from MDSALManager.java
-    public static Node buildDpnNode(BigInteger dpnId) {
-        NodeId nodeId = new NodeId("openflow:" + dpnId);
-        Node nodeDpn = new NodeBuilder().setId(nodeId).setKey(new NodeKey(nodeId)).build();
-
-        return nodeDpn;
     }
 
     public static void lockSubnet(LockManagerService lockManager, String subnetId) {
