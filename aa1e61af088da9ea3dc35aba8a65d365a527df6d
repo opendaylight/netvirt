@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1a622d24_d8345be0",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnUtil.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 562,
+      "author": {
+        "id": 5350
+      },
+      "writtenOn": "2016-12-12T11:56:24Z",
+      "side": 1,
+      "message": "Like this you are removing the whole vrfTable including VrfEntries that must not be removed.\n\nI was referring to something like this:\n\n WriteTransaction tx \u003d broker.newWriteOnlyTransaction();\n for (VrfEntry vrfEntry : vrfTables.getVrfEntry()) {\n   if (origin \u003d\u003d RouteOrigin.value(vrfEntry.getOrigin())) {\n   tx.delete(LogicalDatastoreType.CONFIGURATION,   \n             vpnVrfTableIid.child(VrfEntry.class,\n                               vrfEntry.getKey()));\n                }\n            }\n\n tx.submit()",
+      "range": {
+        "startLine": 562,
+        "startChar": 67,
+        "endLine": 562,
+        "endChar": 77
+      },
+      "revId": "aa1e61af088da9ea3dc35aba8a65d365a527df6d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
