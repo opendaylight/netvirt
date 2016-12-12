@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1a622d24_3d5d8122",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronPortChangeListener.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 151,
+      "author": {
+        "id": 6896
+      },
+      "writtenOn": "2016-12-12T12:04:19Z",
+      "side": 1,
+      "message": "Is the scenario when port does not have a policy directly attached to it but it needs to inherit from network ? Here the getAugmentation will fail.",
+      "revId": "a5dd3473d2c6c3dd82fe40beed1a01aaab026c36",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_7d3c1930",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronQosNodeListener.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 63,
+      "author": {
+        "id": 6896
+      },
+      "writtenOn": "2016-12-12T12:04:19Z",
+      "side": 1,
+      "message": "Do we need to check if the node is open-flow capable node before adding tableMissEntry ??",
+      "revId": "a5dd3473d2c6c3dd82fe40beed1a01aaab026c36",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
