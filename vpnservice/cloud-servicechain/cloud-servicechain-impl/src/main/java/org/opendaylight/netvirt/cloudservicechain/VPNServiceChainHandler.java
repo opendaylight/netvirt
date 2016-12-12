@@ -113,8 +113,13 @@ public class VPNServiceChainHandler implements AutoCloseable {
         }
         VpnInstanceOpDataEntry vpnInstance = getVpnInstance(rd);
         if ( vpnInstance == null ) {
-            LOG.warn("Could not find a suitable VpnInstance for Route-Distinguisher={}", rd);
-            return;
+            // Lets give some time to VpnManager to finish saving VPN's Operational data
+            vpnManager.waitForVpnInstanceOpDataReady(vpnName, /* MaxWaitInMillis */ 10000);
+            vpnInstance = getVpnInstance(rd);
+            if (vpnInstance == null) {
+                LOG.warn("Could not find a suitable VpnInstance for Route-Distinguisher={}", rd);
+                return;
+            }
         }
 
         // Find out the set of DPNs for the given VPN ID
@@ -174,43 +179,50 @@ public class VPNServiceChainHandler implements AutoCloseable {
                      vpnName);
             return;
         }
-
         VpnInstanceOpDataEntry vpnInstance = getVpnInstance(rd);
+        if (vpnInstance == null) {
+            // Lets give some time to VpnManager to finish saving VPN's Operational data
+            vpnManager.waitForVpnInstanceOpDataReady(vpnName, /* MaxWaitInMillis */ 10000);
+            vpnInstance = getVpnInstance(rd);
+            if (vpnInstance == null) {
+                LOG.warn("programScfToVpnPipeline: Could not find Operational Data for VPN {}. No further actions",
+                         vpnName);
+                return;
+            }
+        }
+
         LOG.debug("programScfToVpnPipeline: rd={}, lportTag={} ", rd, vpnPseudoLportTag);
         // Find out the set of DPNs for the given VPN ID
-        if (vpnInstance != null) {
+        if ( addOrRemove == NwConstants.ADD_FLOW
+               || (addOrRemove == NwConstants.DEL_FLOW && isLastServiceChain) ) {
 
-            if ( addOrRemove == NwConstants.ADD_FLOW
-                   || (addOrRemove == NwConstants.DEL_FLOW && isLastServiceChain) ) {
-
-                Long vpnId = vpnInstance.getVpnId();
-                List<VpnToDpnList> vpnToDpnList = vpnInstance.getVpnToDpnList();
-                if ( vpnToDpnList != null ) {
-                    List<BigInteger> dpns = new ArrayList<>();
-                    for (VpnToDpnList dpnInVpn : vpnToDpnList ) {
-                        dpns.add(dpnInVpn.getDpnId());
-                    }
-                    if ( !dpns.contains(dpnId) ) {
-                        LOG.debug("Dpn {} is not included in the current VPN Footprint", dpnId);
-                        dpns.add(BigInteger.valueOf(dpnId));
-                    }
-                    for ( BigInteger dpn : dpns ) {
-                        VpnServiceChainUtils.programLPortDispatcherFlowForScfToVpn(mdsalManager, vpnId, dpn,
-                                vpnPseudoLportTag, addOrRemove);
-                    }
-                } else {
-                    LOG.debug("Could not find VpnToDpn list for VPN {} with rd {}", vpnName, rd);
+            Long vpnId = vpnInstance.getVpnId();
+            List<VpnToDpnList> vpnToDpnList = vpnInstance.getVpnToDpnList();
+            if ( vpnToDpnList != null ) {
+                List<BigInteger> dpns = new ArrayList<>();
+                for (VpnToDpnList dpnInVpn : vpnToDpnList ) {
+                    dpns.add(dpnInVpn.getDpnId());
                 }
+                if ( !dpns.contains(BigInteger.valueOf(dpnId)) ) {
+                    LOG.debug("Dpn {} is not included in the current VPN Footprint", dpnId);
+                    dpns.add(BigInteger.valueOf(dpnId));
+                }
+                for ( BigInteger dpn : dpns ) {
+                    VpnServiceChainUtils.programLPortDispatcherFlowForScfToVpn(mdsalManager, vpnId, dpn,
+                            vpnPseudoLportTag, addOrRemove);
+                }
+            } else {
+                LOG.debug("Could not find VpnToDpn list for VPN {} with rd {}", vpnName, rd);
             }
-
-            // We need to keep a fake VpnInterface in the DPN where the last vSF (before the VpnPseudoPort) is
-            // located, because in case the last real VpnInterface is removed from that DPN, we still need
-            // the Fib table programmed there
-            String intfName = VpnServiceChainUtils.buildVpnPseudoPortIfName(dpnId, scfTag, servChainTag,
-                                                                            vpnPseudoLportTag);
-            vpnManager.updateVpnFootprint(BigInteger.valueOf(dpnId), vpnName, intfName,
-                                          (addOrRemove == NwConstants.ADD_FLOW) );
         }
+
+        // We need to keep a fake VpnInterface in the DPN where the last vSF (before the VpnPseudoPort) is
+        // located, because in case the last real VpnInterface is removed from that DPN, we still need
+        // the Fib table programmed there
+        String intfName = VpnServiceChainUtils.buildVpnPseudoPortIfName(dpnId, scfTag, servChainTag,
+                                                                        vpnPseudoLportTag);
+        vpnManager.updateVpnFootprint(BigInteger.valueOf(dpnId), vpnName, intfName,
+                                      (addOrRemove == NwConstants.ADD_FLOW) );
         LOG.info("L3VPN: Service Chaining programScfToVpnPipeline [End]");
     }
 
