@@ -79,7 +79,9 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.Elan
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.tag.name.map.ElanTagName;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.tag.name.map.ElanTagNameKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.FibEntries;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.VrfEntries;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.fibentries.VrfTables;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.fibentries.VrfTablesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.fibentries.VrfTablesKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.VrfEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.VrfEntryKey;
@@ -548,13 +550,13 @@ public class VpnUtil {
         Optional<VrfTables> vrfTablesOpc = read(broker, LogicalDatastoreType.CONFIGURATION, vpnVrfTableIid);
         if (vrfTablesOpc.isPresent()) {
             VrfTables vrfTables = vrfTablesOpc.get();
-            List<VrfEntry> newVrfEntries = new ArrayList<VrfEntry>();
+            WriteTransaction tx = broker.newWriteOnlyTransaction();
             for (VrfEntry vrfEntry : vrfTables.getVrfEntry()) {
                 if (origin == RouteOrigin.value(vrfEntry.getOrigin())) {
-                    delete(broker, LogicalDatastoreType.CONFIGURATION, vpnVrfTableIid.child(VrfEntry.class,
-                            vrfEntry.getKey()));
+                    tx.delete(LogicalDatastoreType.CONFIGURATION, vpnVrfTableIid.child(VrfEntry.class, vrfEntry.getKey()));
                 }
             }
+            tx.submit();
         }
     }
 
@@ -578,10 +580,11 @@ public class VpnUtil {
     public static void removeVrfEntries(DataBroker broker, String rd, List<VrfEntry> vrfEntries) {
         InstanceIdentifier<VrfTables> vpnVrfTableIid =
             InstanceIdentifier.builder(FibEntries.class).child(VrfTables.class, new VrfTablesKey(rd)).build();
+        WriteTransaction tx = broker.newWriteOnlyTransaction();
         for (VrfEntry vrfEntry : vrfEntries) {
-            delete(broker, LogicalDatastoreType.CONFIGURATION, vpnVrfTableIid.child(VrfEntry.class,
-                                                                                    vrfEntry.getKey()));
+            tx.delete(LogicalDatastoreType.CONFIGURATION, vpnVrfTableIid.child(VrfEntry.class, vrfEntry.getKey()));
         }
+        tx.submit();
     }
 
     static org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.to.vpn.id.VpnInstance
