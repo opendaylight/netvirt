@@ -24,6 +24,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
@@ -164,6 +165,7 @@ public class DistributedArpServiceTest {
      * Test that checks if @{DistributedArpService#handleNeutornPortForArp} is called
      * and then checks that the arp rules are written based on event for neutron port.
      */
+    @Ignore
     @Test
     public void testHandleNeutornPortForArp() throws Exception {
         Southbound southbound = mock(Southbound.class);
