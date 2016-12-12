@@ -1,0 +1,446 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1a622d24_9293e4a2",
+        "filename": "vpnservice/bgpmanager/bgpmanager-impl/src/main/java/org/opendaylight/netvirt/bgpmanager/BgpConfigurationManager.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 2015,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2016-12-12T08:24:17Z",
+      "side": 1,
+      "message": "Don\u0027t you need to remove only the corresponding routepath based on label value in the key ?",
+      "revId": "19a17ad1699873b734f095e208f560edd0568f5f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_32ead00f",
+        "filename": "vpnservice/bgpmanager/bgpmanager-impl/src/main/java/org/opendaylight/netvirt/bgpmanager/BgpConfigurationManager.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 2081,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2016-12-12T08:24:17Z",
+      "side": 1,
+      "message": "You don\u0027t label stored in the value. Because its already part of the map key.",
+      "revId": "19a17ad1699873b734f095e208f560edd0568f5f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_32d13058",
+        "filename": "vpnservice/bgpmanager/bgpmanager-impl/src/main/java/org/opendaylight/netvirt/bgpmanager/FibDSWriter.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 65,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2016-12-12T08:24:17Z",
+      "side": 1,
+      "message": "what is the use of entry here ?",
+      "revId": "19a17ad1699873b734f095e208f560edd0568f5f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_92dac476",
+        "filename": "vpnservice/bgpmanager/bgpmanager-impl/src/main/java/org/opendaylight/netvirt/bgpmanager/FibDSWriter.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 68,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2016-12-12T08:24:17Z",
+      "side": 1,
+      "message": "why can\u0027t you have method like buildRoutePath(routeLabel, nexthopList) ? and internally it can delegate it to buildRoutePath(routePaths, routeLabel, nexthopList).",
+      "revId": "19a17ad1699873b734f095e208f560edd0568f5f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_d2e43c3d",
+        "filename": "vpnservice/bgpmanager/bgpmanager-impl/src/main/java/org/opendaylight/netvirt/bgpmanager/FibDSWriter.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 69,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2016-12-12T08:24:17Z",
+      "side": 1,
+      "message": "Can\u0027t you have utility method like buildVrfEntry(prefix, routeLabel, nextHopList) if it can be reusable in multiple places ?",
+      "revId": "19a17ad1699873b734f095e208f560edd0568f5f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_52478c1f",
+        "filename": "vpnservice/cloud-servicechain/cloud-servicechain-impl/src/test/java/org/opendaylight/netvirt/cloudservicechain/VPNServiceChainHandlerTest.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 198,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2016-12-12T08:24:17Z",
+      "side": 1,
+      "message": "This method can be moved to a util method",
+      "revId": "19a17ad1699873b734f095e208f560edd0568f5f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_9248042f",
+        "filename": "vpnservice/fibmanager/fibmanager-api/src/main/yang/odl-fib.yang",
+        "patchSetId": 5
+      },
+      "lineNbr": 36,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2016-12-12T08:24:17Z",
+      "side": 1,
+      "message": "can you make it as nexthop-address-list ?",
+      "revId": "19a17ad1699873b734f095e208f560edd0568f5f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_b24b802a",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/FibConstants.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2016-12-12T08:24:17Z",
+      "side": 1,
+      "message": "Nit: remove unused imports",
+      "revId": "19a17ad1699873b734f095e208f560edd0568f5f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_f255f8c6",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/FibConstants.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2016-12-12T08:24:17Z",
+      "side": 1,
+      "message": "why do you need new group pool ? we can use existing id pool used to create local nexthop groups",
+      "revId": "19a17ad1699873b734f095e208f560edd0568f5f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_325f70e7",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/FibUtil.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 495,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2016-12-12T08:24:17Z",
+      "side": 1,
+      "message": "same comment as before.",
+      "revId": "19a17ad1699873b734f095e208f560edd0568f5f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_7259e8fd",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/FibUtil.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 505,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2016-12-12T08:24:17Z",
+      "side": 1,
+      "message": "what if routes is null ?",
+      "revId": "19a17ad1699873b734f095e208f560edd0568f5f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_b272607a",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/FibUtil.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 506,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2016-12-12T08:24:17Z",
+      "side": 1,
+      "message": "you can use findFirst since stream() is sequencial",
+      "revId": "19a17ad1699873b734f095e208f560edd0568f5f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_525e6ce7",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/FibUtil.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 523,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2016-12-12T08:24:17Z",
+      "side": 1,
+      "message": "Make vrfEntry build logic with single helper method as i mentioned before in both if and else",
+      "revId": "19a17ad1699873b734f095e208f560edd0568f5f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_926f6492",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/FibUtil.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 619,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2016-12-12T08:24:17Z",
+      "side": 1,
+      "message": "This is the candidate for applying stream to find routepath which has nextHopToRemove and remove it accordingly.",
+      "revId": "19a17ad1699873b734f095e208f560edd0568f5f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_d2c55c5c",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 547,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2016-12-12T08:24:17Z",
+      "side": 1,
+      "message": "change the variable to routePath",
+      "revId": "19a17ad1699873b734f095e208f560edd0568f5f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_9292c455",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 1134,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2016-12-12T08:24:17Z",
+      "side": 1,
+      "message": "Can you move this block to a new method like programRemoteFibBgpPrefix(...) ?",
+      "revId": "19a17ad1699873b734f095e208f560edd0568f5f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_32893027",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 1217,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2016-12-12T08:24:17Z",
+      "side": 1,
+      "message": "vrfEntry.getRoutePaths().get(0).getLabel() is being used for both vxlan and gre tunnels. keep a local variable above if loop for it.\nAlso have precondition like vrfEntry.getRoutePaths().size() should be \u003d\u003d 1",
+      "revId": "19a17ad1699873b734f095e208f560edd0568f5f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_d2739c4b",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 1267,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2016-12-12T08:24:17Z",
+      "side": 1,
+      "message": "same as above. have a precondition.\nAlso change the variable name to staticRoutePaths",
+      "revId": "19a17ad1699873b734f095e208f560edd0568f5f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_92a00492",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 2055,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2016-12-12T08:24:17Z",
+      "side": 1,
+      "message": "just combine both predicates",
+      "revId": "19a17ad1699873b734f095e208f560edd0568f5f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_529f8c52",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 2376,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2016-12-12T08:24:17Z",
+      "side": 1,
+      "message": "combine both filter with single one.",
+      "revId": "19a17ad1699873b734f095e208f560edd0568f5f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_b2a3809d",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 2378,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2016-12-12T08:24:17Z",
+      "side": 1,
+      "message": "use firstFirst()",
+      "revId": "19a17ad1699873b734f095e208f560edd0568f5f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_d2aa7c6f",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 2389,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2016-12-12T08:24:17Z",
+      "side": 1,
+      "message": "same comment as above",
+      "revId": "19a17ad1699873b734f095e208f560edd0568f5f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_12bcf4ba",
+        "filename": "vpnservice/vpnmanager/vpnmanager-api/src/main/java/org/opendaylight/netvirt/vpnmanager/api/VpnHelper.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2016-12-12T08:24:17Z",
+      "side": 1,
+      "message": "Don\u0027t use static helper. just make VpnHelper as singleton like IdUtils",
+      "revId": "19a17ad1699873b734f095e208f560edd0568f5f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_52894cea",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/FibEntriesListener.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 80,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2016-12-12T08:24:17Z",
+      "side": 1,
+      "message": "just do copy constructor on original.getRoutePaths() and update.getRoutePaths()",
+      "revId": "19a17ad1699873b734f095e208f560edd0568f5f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_d2743cff",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 1798,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2016-12-12T08:24:17Z",
+      "side": 1,
+      "message": "why do you need this below logic ? you can make relavant changes in addFibEntryForRouterInterface itself.",
+      "revId": "19a17ad1699873b734f095e208f560edd0568f5f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_b2db80ec",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnUtil.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 545,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2016-12-12T08:24:17Z",
+      "side": 1,
+      "message": "change it to routePath",
+      "revId": "19a17ad1699873b734f095e208f560edd0568f5f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
