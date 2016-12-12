@@ -1,0 +1,89 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1a622d24_b8735f4c",
+        "filename": "docs/specs/acl-stats.rst",
+        "patchSetId": 3
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 4269
+      },
+      "writtenOn": "2016-12-12T14:25:35Z",
+      "side": 1,
+      "message": "nitpick Wrap the line at least at 100 characters.",
+      "revId": "ddb1e8126acb879457b20ad36c2c9972e00cb62e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_1889b326",
+        "filename": "docs/specs/acl-stats.rst",
+        "patchSetId": 3
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 4269
+      },
+      "writtenOn": "2016-12-12T14:25:35Z",
+      "side": 1,
+      "message": "nitpick remove tabs",
+      "revId": "ddb1e8126acb879457b20ad36c2c9972e00cb62e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_38046f7a",
+        "filename": "docs/specs/acl-stats.rst",
+        "patchSetId": 3
+      },
+      "lineNbr": 69,
+      "author": {
+        "id": 4269
+      },
+      "writtenOn": "2016-12-12T14:25:35Z",
+      "side": 1,
+      "message": "the flow changes can be mentioned here.",
+      "revId": "ddb1e8126acb879457b20ad36c2c9972e00cb62e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_f8c157e5",
+        "filename": "docs/specs/acl-stats.rst",
+        "patchSetId": 3
+      },
+      "lineNbr": 203,
+      "author": {
+        "id": 4269
+      },
+      "writtenOn": "2016-12-12T14:25:35Z",
+      "side": 1,
+      "message": "May be the new drop can be per port as it is of low priority but we can think of  making  inv drop common and do the math as above?",
+      "revId": "ddb1e8126acb879457b20ad36c2c9972e00cb62e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_98b0238d",
+        "filename": "docs/specs/acl-stats.rst",
+        "patchSetId": 3
+      },
+      "lineNbr": 397,
+      "author": {
+        "id": 4269
+      },
+      "writtenOn": "2016-12-12T14:25:35Z",
+      "side": 1,
+      "message": "The task for rework of existing UT need to be added as well due to the new flows.",
+      "revId": "ddb1e8126acb879457b20ad36c2c9972e00cb62e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
