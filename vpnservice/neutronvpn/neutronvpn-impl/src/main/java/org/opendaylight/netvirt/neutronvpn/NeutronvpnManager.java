@@ -1361,8 +1361,8 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
         }
 
         for (String destination : adjMap.keySet()) {
-            Adjacency erAdj = new AdjacencyBuilder().setIpAddress(destination).setNextHopIpList(adjMap.get
-                    (destination)).setKey(new AdjacencyKey(destination)).build();
+            Adjacency erAdj = new AdjacencyBuilder().setIpAddress(destination).setNextHopIp(adjMap.get
+                    (destination).get(0)).setKey(new AdjacencyKey(destination)).build();
             adjList.add(erAdj);
         }
         return  adjList;
@@ -1386,7 +1386,7 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
                                 .child(VpnInterface.class, new VpnInterfaceKey(infName)).build();
                         InstanceIdentifier<Adjacency> path = identifier.augmentation(Adjacencies.class).
                                 child(Adjacency.class, new AdjacencyKey(destination));
-                        Adjacency erAdj = new AdjacencyBuilder().setIpAddress(destination).setNextHopIpList(Arrays.asList(nextHop)).
+                        Adjacency erAdj = new AdjacencyBuilder().setIpAddress(destination).setNextHopIp(nextHop).
                                 setKey(new AdjacencyKey(destination)).build();
                         isLockAcquired = NeutronvpnUtils.lock(infName);
                         MDSALUtil.syncWrite(dataBroker, LogicalDatastoreType.CONFIGURATION, path, erAdj);
@@ -1436,9 +1436,9 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
                 boolean updateNextHops = false;
                 List<String> nextHopList = new ArrayList<>();
                 if (adjacency.isPresent()) {
-                    List<String> nhListRead = adjacency.get().getNextHopIpList();
-                    if (nhListRead.size() > 1) { // ECMP case
-                        for (String nextHopRead : nhListRead) {
+                    String nhListRead = adjacency.get().getNextHopIp();
+                    if (nhListRead != null) { // ECMP case
+                        for (String nextHopRead : Arrays.asList(nhListRead)) {
                             if (nextHopRead.equals(nextHop)) {
                                 updateNextHops = true;
                             } else {
@@ -1455,7 +1455,7 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
                         InstanceIdentifier<VpnInterface> vpnIfIdentifier = InstanceIdentifier.builder(
                                 VpnInterfaces.class).child(VpnInterface.class, new VpnInterfaceKey(infName)).build();
                         Adjacency newAdj = new AdjacencyBuilder(adjacency.get()).setIpAddress(destination)
-                                .setNextHopIpList(nextHopList)
+                                .setNextHopIp(nextHopList.get(0))
                                 .setKey(new AdjacencyKey(destination))
                                 .build();
                         Adjacencies erAdjs = new AdjacenciesBuilder().setAdjacency(Arrays.asList(newAdj)).build();
