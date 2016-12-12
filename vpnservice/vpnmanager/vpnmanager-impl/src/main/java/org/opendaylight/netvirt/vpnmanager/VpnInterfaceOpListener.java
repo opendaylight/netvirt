@@ -11,6 +11,7 @@ import com.google.common.base.Optional;
 import com.google.common.util.concurrent.CheckedFuture;
 import com.google.common.util.concurrent.ListenableFuture;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentHashMap;
@@ -127,7 +128,7 @@ public class VpnInterfaceOpListener extends AsyncDataTreeChangeListenerBase<VpnI
                     prefixToInterface.add(prefix.get());
                 }
                 if (prefixToInterface.isEmpty()) {
-                    for (String nh : adjacency.getNextHopIpList()) {
+                    for (String nh : Arrays.asList(adjacency.getNextHopIp())) {
                         prefix = VpnUtil.read(dataBroker, LogicalDatastoreType.OPERATIONAL,
                                 VpnUtil.getPrefixToInterfaceIdentifier(vpnInstOp.getVpnId(),
                                         VpnUtil.getIpPrefix(nh)));
@@ -218,7 +219,7 @@ public class VpnInterfaceOpListener extends AsyncDataTreeChangeListenerBase<VpnI
                 if (prefixToInterface.isPresent()) {
                     prefixToInterfaceList.add(prefixToInterface.get());
                 } else {
-                    for (String adj : adjacency.getNextHopIpList()) {
+                    for (String adj : Arrays.asList(adjacency.getNextHopIp())) {
                         prefixToInterface = VpnUtil.read(dataBroker, LogicalDatastoreType.OPERATIONAL,
                                 VpnUtil.getPrefixToInterfaceIdentifier(vpnInstOp.getVpnId(),
                                         VpnUtil.getIpPrefix(adj)));
