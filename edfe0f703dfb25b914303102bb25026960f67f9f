@@ -1,0 +1,259 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1a622d24_6ce91180",
+        "filename": "docs/specs/router-independent-ipv6-ipam.rst",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2016-12-13T12:40:54Z",
+      "side": 1,
+      "message": "nit: Please remove the white spaces in the patch.",
+      "revId": "edfe0f703dfb25b914303102bb25026960f67f9f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_4ceed589",
+        "filename": "docs/specs/router-independent-ipv6-ipam.rst",
+        "patchSetId": 4
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2016-12-13T12:40:54Z",
+      "side": 1,
+      "message": "nit: communicate \"with\" each other.",
+      "revId": "edfe0f703dfb25b914303102bb25026960f67f9f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_28d7fcc2",
+        "filename": "docs/specs/router-independent-ipv6-ipam.rst",
+        "patchSetId": 4
+      },
+      "lineNbr": 102,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2016-12-13T12:40:54Z",
+      "side": 1,
+      "message": "nit: \"the\" is repeated",
+      "revId": "edfe0f703dfb25b914303102bb25026960f67f9f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_28eedc88",
+        "filename": "docs/specs/router-independent-ipv6-ipam.rst",
+        "patchSetId": 4
+      },
+      "lineNbr": 127,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2016-12-13T12:40:54Z",
+      "side": 1,
+      "message": "Please remove OpenDaylight here as \"Controller based DHCP service currently does not support IPv6\". This is just to avoid confusion as you mentioned \"use cases supported\" in Line108.",
+      "revId": "edfe0f703dfb25b914303102bb25026960f67f9f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_48b7d886",
+        "filename": "docs/specs/router-independent-ipv6-ipam.rst",
+        "patchSetId": 4
+      },
+      "lineNbr": 151,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2016-12-13T12:40:54Z",
+      "side": 1,
+      "message": "L2GW appears like a use-case, but I\u0027m afraid VLAN provider network cannot be connected to the tenant network (referenced in Line 143) without a Neutron router. Since you are talking about an external IPv6 router here, please remove VLAN provider network/use tenant or provider network in L143/create two different use-cases. Please rephrase accordingly.",
+      "revId": "edfe0f703dfb25b914303102bb25026960f67f9f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_c8812891",
+        "filename": "docs/specs/router-independent-ipv6-ipam.rst",
+        "patchSetId": 4
+      },
+      "lineNbr": 153,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2016-12-13T12:40:54Z",
+      "side": 1,
+      "message": "IMO, only when using SLAAC we can have some seamless/working behavior as the IPv6 address that is assigned in this case is based on MAC address and is fixed (irrespective of external router or the ODL ipv6service advertising the prefix). \n\nSay, we created a dhcpv6-stateful subnet, who will be acting as the DHCPv6 server? Is it neutron dhcp-agent or external dhcpv6 server?",
+      "revId": "edfe0f703dfb25b914303102bb25026960f67f9f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_6bac4eee",
+        "filename": "docs/specs/router-independent-ipv6-ipam.rst",
+        "patchSetId": 4
+      },
+      "lineNbr": 174,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2016-12-13T12:40:54Z",
+      "side": 1,
+      "message": "Well...I\u0027m afraid, we cannot compare IPv4 and IPv6 in this manner. In case of IPv4, IPAM works even without a router via the dhcp protocol. This is not the case for IPv6. Irrespective of the type of IPv6 subnet, we always use an Router advt to specify the kind of addressing that is used in the network. \n\nAnyways, lets continue with the use-case :)",
+      "revId": "edfe0f703dfb25b914303102bb25026960f67f9f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_6b93aea3",
+        "filename": "docs/specs/router-independent-ipv6-ipam.rst",
+        "patchSetId": 4
+      },
+      "lineNbr": 182,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2016-12-13T12:40:54Z",
+      "side": 1,
+      "message": "The configuration has to be aligned for a working setup. Even if ODL is performing IPAM, and external router is acting as a default IPv6 router, it has to know the prefix that is used on its internal network so that it can appropriately route the traffic when required.",
+      "revId": "edfe0f703dfb25b914303102bb25026960f67f9f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_6b10ce4e",
+        "filename": "docs/specs/router-independent-ipv6-ipam.rst",
+        "patchSetId": 4
+      },
+      "lineNbr": 198,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2016-12-13T12:40:54Z",
+      "side": 1,
+      "message": "Are you interested in deploying a network with dhcpv6-stateful/stateless subnets as well?",
+      "revId": "edfe0f703dfb25b914303102bb25026960f67f9f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_0b279ab7",
+        "filename": "docs/specs/router-independent-ipv6-ipam.rst",
+        "patchSetId": 4
+      },
+      "lineNbr": 208,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2016-12-13T12:40:54Z",
+      "side": 1,
+      "message": "Currently when ODL ipv6service advertises the RA/NA, it uses the neutron router interface port details. In the absence of a neutron router port, what MAC/IPAddress should the RA use?",
+      "revId": "edfe0f703dfb25b914303102bb25026960f67f9f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_8b13aa5b",
+        "filename": "docs/specs/router-independent-ipv6-ipam.rst",
+        "patchSetId": 4
+      },
+      "lineNbr": 216,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2016-12-13T12:40:54Z",
+      "side": 1,
+      "message": "What additional info does this RA consist of? Should it not include the same prefix that is advertised by OpenDaylight ipv6service RA?\n\nIf so, what benefit are we getting out of it for SLAAC use-case? However, I see one use-case for dhcpv6-stateful subnets wherein if we are using the external DHCPv6 Server, the address information might mis-match with the address info assigned by neutron.",
+      "revId": "edfe0f703dfb25b914303102bb25026960f67f9f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_eb521e12",
+        "filename": "docs/specs/router-independent-ipv6-ipam.rst",
+        "patchSetId": 4
+      },
+      "lineNbr": 243,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2016-12-13T12:40:54Z",
+      "side": 1,
+      "message": "\"None if other than SLAAC is used\" - Please elaborate this.\n\nDo you mean that if we created a dhcpv6-stateful subnet, the RA should not include the prefix?",
+      "revId": "edfe0f703dfb25b914303102bb25026960f67f9f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_2b5d3622",
+        "filename": "docs/specs/router-independent-ipv6-ipam.rst",
+        "patchSetId": 4
+      },
+      "lineNbr": 269,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2016-12-13T12:40:54Z",
+      "side": 1,
+      "message": "Do you think that a plain RA with a non-zero lifetime would be sufficient or should the RA also include the same Prefix that is used in the network/subnet?\n\nMay be a simple RA with a non-zero lifetime would be sufficient, but I\u0027ve not tried this use-case - hence the question :)",
+      "revId": "edfe0f703dfb25b914303102bb25026960f67f9f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_8b68cabb",
+        "filename": "docs/specs/router-independent-ipv6-ipam.rst",
+        "patchSetId": 4
+      },
+      "lineNbr": 282,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2016-12-13T12:40:54Z",
+      "side": 1,
+      "message": "Just to be aligned. So the RAs that are advertised are basically \"Periodic RAs\" and not \"Router Advts for explicitly solicited Router Solicitations\". Is this the requirement you are looking at?",
+      "revId": "edfe0f703dfb25b914303102bb25026960f67f9f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_4ba6b211",
+        "filename": "docs/specs/router-independent-ipv6-ipam.rst",
+        "patchSetId": 4
+      },
+      "lineNbr": 356,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2016-12-13T12:40:54Z",
+      "side": 1,
+      "message": "Please add some test-cases when you respin the patch.",
+      "revId": "edfe0f703dfb25b914303102bb25026960f67f9f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
