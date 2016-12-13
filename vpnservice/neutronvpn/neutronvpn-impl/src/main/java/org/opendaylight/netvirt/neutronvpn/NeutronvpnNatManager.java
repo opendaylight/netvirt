@@ -273,7 +273,7 @@ public class NeutronvpnNatManager implements AutoCloseable {
         try {
             Network input = NeutronvpnUtils.getNeutronNetwork(dataBroker, extNetId);
             ProviderTypes providerNwType = NeutronvpnUtils.getProviderNetworkType(input);
-            if(providerNwType == null){
+            if (providerNwType == null) {
                 LOG.error("Unable to get Network Provider Type for network {} and uuid {}", input.getName(), input.getUuid());
                 return;
             }
@@ -413,7 +413,7 @@ public class NeutronvpnNatManager implements AutoCloseable {
         }
     }
 
-    private void addExternalRouter(Router update, DataBroker broker) {
+    public void addExternalRouter(Router update, DataBroker broker) {
         Uuid routerId = update.getUuid();
         Uuid extNetId = update.getExternalGatewayInfo().getExternalNetworkId();
         Uuid gatewayPortId = update.getGatewayPortId();
@@ -426,7 +426,7 @@ public class NeutronvpnNatManager implements AutoCloseable {
         try {
             Network input = NeutronvpnUtils.getNeutronNetwork(dataBroker, extNetId);
             ProviderTypes providerNwType = NeutronvpnUtils.getProviderNetworkType(input);
-            if(providerNwType == null){
+            if (providerNwType == null) {
                 LOG.error("Unable to get Network Provider Type for network {} and uuid{}", input.getName(), input.getUuid());
                 return;
             }
@@ -459,7 +459,7 @@ public class NeutronvpnNatManager implements AutoCloseable {
             if (gatewayPortId != null) {
                 LOG.trace("Setting/Updating gateway Mac for router {}", routerId.getValue());
                 Port port = NeutronvpnUtils.getNeutronPort(broker, gatewayPortId);
-                if (port.getDeviceOwner().equals(NeutronConstants.DEVICE_OWNER_GATEWAY_INF)) {
+                if (port != null && port.getDeviceOwner().equals(NeutronConstants.DEVICE_OWNER_GATEWAY_INF)) {
                     builder.setExtGwMacAddress(port.getMacAddress().getValue());
                 }
             }
