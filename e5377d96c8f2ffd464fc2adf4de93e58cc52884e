@@ -104,6 +104,24 @@
     },
     {
       "key": {
+        "uuid": "1a622d24_364bed2c",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/utils/TransportZoneNotificationUtil.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 6071
+      },
+      "writtenOn": "2016-12-13T10:37:27Z",
+      "side": 1,
+      "message": "Yes except the updateTransportZone(List\u003cstring\u003e elanInterfaces) method",
+      "parentUuid": "1a622d24_8376053d",
+      "revId": "e5377d96c8f2ffd464fc2adf4de93e58cc52884e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_c38f5d22",
         "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/resources/org/opendaylight/blueprint/elanmanager.xml",
         "patchSetId": 3
