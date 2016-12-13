@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1a622d24_cbf122cf",
+        "filename": "docs/specs/qos.rst",
+        "patchSetId": 2
+      },
+      "lineNbr": 61,
+      "author": {
+        "id": 4534
+      },
+      "writtenOn": "2016-12-13T13:12:22Z",
+      "side": 1,
+      "message": "we should probably use the requirements of the neutron model as a start, and then make it more generic in this spec review. one potential generalization, is applying QoS based on acl rules, instead of for all traffic from a neutron port. another might be applying QoS on wildcarded acl rules, and also on ingress and/or egress. perhaps this section can also cover what capabilities of the ovs can be leveraged, because we will be limited by that.",
+      "range": {
+        "startLine": 61,
+        "startChar": 41,
+        "endLine": 61,
+        "endChar": 42
+      },
+      "revId": "3538f332353da2b677a7adde3be1cba2412a6ede",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_abee66ea",
+        "filename": "docs/specs/qos.rst",
+        "patchSetId": 2
+      },
+      "lineNbr": 65,
+      "author": {
+        "id": 4534
+      },
+      "writtenOn": "2016-12-13T13:12:22Z",
+      "side": 1,
+      "message": "dscp support needs pipeline changes, should capture the same here.",
+      "range": {
+        "startLine": 65,
+        "startChar": 67,
+        "endLine": 65,
+        "endChar": 68
+      },
+      "revId": "3538f332353da2b677a7adde3be1cba2412a6ede",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
