@@ -69,6 +69,24 @@
       "revId": "aafbecae391acfc685dde129296301e32f3377ed",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_86a3a19d",
+        "filename": "docs/specs/flow-based-snat.rst",
+        "patchSetId": 2
+      },
+      "lineNbr": 175,
+      "author": {
+        "id": 670
+      },
+      "writtenOn": "2016-12-13T15:17:44Z",
+      "side": 1,
+      "message": "For ODL? Not yet, Aswin was going to do it next.. for OpenStack i\u0027m not sure, it was mentioned here - https://assafmuller.com/2015/04/15/distributed-virtual-routing-snat/ - Tali is going to look into DVR",
+      "parentUuid": "1a622d24_26260db8",
+      "revId": "aafbecae391acfc685dde129296301e32f3377ed",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
