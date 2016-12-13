@@ -1171,6 +1171,7 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
             actionInfos.add(new ActionInfo(ActionType.push_mpls, new String[] { null }));
             actionInfos.add(new ActionInfo(ActionType.set_field_mpls_label,
                     new String[] { Long.toString(vrfEntry.getLabel()) }));
+            actionInfos.add(new ActionInfo(ActionType.nx_load_in_port, new BigInteger[]{BigInteger.ZERO}));
         } else {
             int label = vrfEntry.getLabel().intValue();
             BigInteger tunnelId;
