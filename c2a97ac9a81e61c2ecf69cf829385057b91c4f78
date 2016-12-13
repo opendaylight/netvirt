@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "1a622d24_0b383a9f",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/FloatingIPListener.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 218,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-12-13T12:45:50Z",
+      "side": 1,
+      "message": "You are right.  It is not required to be set here at all.",
+      "parentUuid": "1a622d24_55e9317f",
+      "revId": "c2a97ac9a81e61c2ecf69cf829385057b91c4f78",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_c8c80877",
         "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NaptEventHandler.java",
         "patchSetId": 4
@@ -30,6 +48,24 @@
       "writtenOn": "2016-12-13T10:11:57Z",
       "side": 1,
       "message": "Could you explain why we need to set the dst-mac of the VM here? Usually it is being set in the local next-hop group.\nIs there a scenario where inbound NAPT traffic will not end up in the LNH group?",
+      "revId": "c2a97ac9a81e61c2ecf69cf829385057b91c4f78",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_2bf9b6e9",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NaptEventHandler.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 355,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-12-13T12:45:50Z",
+      "side": 1,
+      "message": "Yes, here we need not set the dst mac.  It will be set by Table 21 flows (Fib-Table) before the packet is sent to the VM regardless of whether that VM is on the NAPT switch (or) in a different Non-NAPT switch.",
+      "parentUuid": "1a622d24_c8c80877",
       "revId": "c2a97ac9a81e61c2ecf69cf829385057b91c4f78",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
