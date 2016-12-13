@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1a622d24_cb1ac216",
+        "filename": "docs/specs/flow-based-snat.rst",
+        "patchSetId": 2
+      },
+      "lineNbr": 118,
+      "author": {
+        "id": 670
+      },
+      "writtenOn": "2016-12-13T13:01:00Z",
+      "side": 1,
+      "message": "I think decentralized SNAT shouldn\u0027t be mentioned here, it\u0027s just confusing IMHO, as it is not an alternative at all.",
+      "revId": "aafbecae391acfc685dde129296301e32f3377ed",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_ebd85e55",
+        "filename": "docs/specs/flow-based-snat.rst",
+        "patchSetId": 2
+      },
+      "lineNbr": 175,
+      "author": {
+        "id": 670
+      },
+      "writtenOn": "2016-12-13T13:01:00Z",
+      "side": 1,
+      "message": "same, remove this reference.. should discuss decentralized SNAT in a separate spec (perhaps within DVR spec which Tali will be working on)",
+      "revId": "aafbecae391acfc685dde129296301e32f3377ed",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
