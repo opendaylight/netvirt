@@ -190,6 +190,98 @@
     },
     {
       "key": {
+        "uuid": "1a622d24_a6e21d9d",
+        "filename": "docs/specs/l3vpn-over-vxlan-with-evpn-rt5.rst",
+        "patchSetId": 16
+      },
+      "lineNbr": 226,
+      "author": {
+        "id": 3502
+      },
+      "writtenOn": "2016-12-13T18:36:28Z",
+      "side": 1,
+      "message": "we should allign this with the \u0027technique\u0027 attribute as defined in http://docs.openstack.org/developer/networking-bgpvpn/future/attributes.html",
+      "range": {
+        "startLine": 226,
+        "startChar": 9,
+        "endLine": 226,
+        "endChar": 13
+      },
+      "revId": "b579364414f50d630bf4079822e2f8a4f6619b6b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_21ed57c4",
+        "filename": "docs/specs/l3vpn-over-vxlan-with-evpn-rt5.rst",
+        "patchSetId": 16
+      },
+      "lineNbr": 346,
+      "author": {
+        "id": 3502
+      },
+      "writtenOn": "2016-12-13T18:36:28Z",
+      "side": 1,
+      "message": "are we not using label field to store l3vni in case of vxlan encapsulation?",
+      "range": {
+        "startLine": 346,
+        "startChar": 7,
+        "endLine": 346,
+        "endChar": 12
+      },
+      "revId": "b579364414f50d630bf4079822e2f8a4f6619b6b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_017adbf0",
+        "filename": "docs/specs/l3vpn-over-vxlan-with-evpn-rt5.rst",
+        "patchSetId": 16
+      },
+      "lineNbr": 394,
+      "author": {
+        "id": 3502
+      },
+      "writtenOn": "2016-12-13T18:36:28Z",
+      "side": 1,
+      "message": "I am wondering how it is different from the FIB entry?",
+      "range": {
+        "startLine": 394,
+        "startChar": 5,
+        "endLine": 394,
+        "endChar": 18
+      },
+      "revId": "b579364414f50d630bf4079822e2f8a4f6619b6b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_c120e3f9",
+        "filename": "docs/specs/l3vpn-over-vxlan-with-evpn-rt5.rst",
+        "patchSetId": 16
+      },
+      "lineNbr": 590,
+      "author": {
+        "id": 3502
+      },
+      "writtenOn": "2016-12-13T18:36:28Z",
+      "side": 1,
+      "message": "add the thrift interafce/BGP Manager API chanes.",
+      "range": {
+        "startLine": 590,
+        "startChar": 2,
+        "endLine": 590,
+        "endChar": 18
+      },
+      "revId": "b579364414f50d630bf4079822e2f8a4f6619b6b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_b9d0b7f8",
         "filename": "docs/specs/l3vpn-over-vxlan-with-evpn-rt5.rst",
         "patchSetId": 16
