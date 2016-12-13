@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "1a622d24_8b89eacc",
+        "filename": "docs/specs/flow-based-snat.rst",
+        "patchSetId": 2
+      },
+      "lineNbr": 118,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2016-12-13T14:29:38Z",
+      "side": 1,
+      "message": "+1.\n\nYou can mention that this Spec targets Centralized SNAT (in the proposed change section) and decentralized SNAT is out of scope and will be taken up in a future patch.",
+      "parentUuid": "1a622d24_cb1ac216",
+      "revId": "aafbecae391acfc685dde129296301e32f3377ed",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_ebd85e55",
         "filename": "docs/specs/flow-based-snat.rst",
         "patchSetId": 2
@@ -30,6 +48,24 @@
       "writtenOn": "2016-12-13T13:01:00Z",
       "side": 1,
       "message": "same, remove this reference.. should discuss decentralized SNAT in a separate spec (perhaps within DVR spec which Tali will be working on)",
+      "revId": "aafbecae391acfc685dde129296301e32f3377ed",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_26260db8",
+        "filename": "docs/specs/flow-based-snat.rst",
+        "patchSetId": 2
+      },
+      "lineNbr": 175,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2016-12-13T14:29:38Z",
+      "side": 1,
+      "message": "Alon, is there any draft for the distributed SNAt/DVR spec? If so, can you please point it to me.",
+      "parentUuid": "1a622d24_ebd85e55",
       "revId": "aafbecae391acfc685dde129296301e32f3377ed",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
