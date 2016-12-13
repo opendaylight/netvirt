@@ -1,0 +1,548 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1a622d24_f5631daf",
+        "filename": "vpnservice/fibmanager/fibmanager-api/src/main/yang/odl-fib.yang",
+        "patchSetId": 5
+      },
+      "lineNbr": 93,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2016-12-13T07:29:03Z",
+      "side": 1,
+      "message": "add the appropriate description for this container.",
+      "revId": "489d4161a4cfeb187d6eac594a159d970bb56d28",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_555931fd",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/FibUtil.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 156,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2016-12-13T07:29:03Z",
+      "side": 1,
+      "message": "These new utility methods are already exists in VpnUtils too (added by Manu). So I think you could move these methods into VpnHelper (https://git.opendaylight.org/gerrit/#/c/49010/) so that it can be used in both VPN and FIB modules.",
+      "revId": "489d4161a4cfeb187d6eac594a159d970bb56d28",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_355e35e7",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/FibUtil.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 720,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2016-12-13T07:29:03Z",
+      "side": 1,
+      "message": "what if vpnOpc.get().getRouteDistinguishers() return null ?",
+      "revId": "489d4161a4cfeb187d6eac594a159d970bb56d28",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_d56c219f",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/NexthopManager.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 460,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2016-12-13T07:29:03Z",
+      "side": 1,
+      "message": "remove this method.",
+      "revId": "489d4161a4cfeb187d6eac594a159d970bb56d28",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_756f0d93",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/NexthopManager.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 759,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2016-12-13T07:29:03Z",
+      "side": 1,
+      "message": "why can\u0027t we have this method like setupLoadBalancingNextHop with additional argument addOrRemove so that it can be used for both add/remove.",
+      "revId": "489d4161a4cfeb187d6eac594a159d970bb56d28",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_f50afdd0",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/NexthopManager.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 771,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2016-12-13T07:29:03Z",
+      "side": 1,
+      "message": "is this logging necessary ? remove it.",
+      "revId": "489d4161a4cfeb187d6eac594a159d970bb56d28",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_150699ce",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/NexthopManager.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 773,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2016-12-13T07:29:03Z",
+      "side": 1,
+      "message": "change the variable name from error to e. This is not a error and it happens when some other thread interrupts current one which is unlikely to happen.",
+      "revId": "489d4161a4cfeb187d6eac594a159d970bb56d28",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_b569a58d",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/NexthopManager.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 775,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2016-12-13T07:29:03Z",
+      "side": 1,
+      "message": "remove this debug log",
+      "revId": "489d4161a4cfeb187d6eac594a159d970bb56d28",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_55101101",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 263,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2016-12-13T07:29:03Z",
+      "side": 1,
+      "message": "remove unwanted white spaces in your changes.",
+      "revId": "489d4161a4cfeb187d6eac594a159d970bb56d28",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_351595f1",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 764,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2016-12-13T07:29:03Z",
+      "side": 1,
+      "message": "change the variable to prefixIp. localNextHopIP is confusing",
+      "revId": "489d4161a4cfeb187d6eac594a159d970bb56d28",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_95f909cb",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 769,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2016-12-13T07:29:03Z",
+      "side": 1,
+      "message": "is this null check necessary ?",
+      "revId": "489d4161a4cfeb187d6eac594a159d970bb56d28",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_b50085ab",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 770,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2016-12-13T07:29:03Z",
+      "side": 1,
+      "message": "change the variable from extraRoutes to extraRoute",
+      "revId": "489d4161a4cfeb187d6eac594a159d970bb56d28",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_75f6edd8",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 771,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2016-12-13T07:29:03Z",
+      "side": 1,
+      "message": "this check is not required.",
+      "revId": "489d4161a4cfeb187d6eac594a159d970bb56d28",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_f5d83d55",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 801,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2016-12-13T07:29:03Z",
+      "side": 1,
+      "message": "remove the null check.",
+      "revId": "489d4161a4cfeb187d6eac594a159d970bb56d28",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_75e42d0d",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 818,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2016-12-13T07:29:03Z",
+      "side": 1,
+      "message": "You could move this method to VpnHelper class.",
+      "revId": "489d4161a4cfeb187d6eac594a159d970bb56d28",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_152df946",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 833,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2016-12-13T07:29:03Z",
+      "side": 1,
+      "message": "Now this check is valid for VM prefixes.",
+      "revId": "489d4161a4cfeb187d6eac594a159d970bb56d28",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_d5f1c1ce",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 840,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2016-12-13T07:29:03Z",
+      "side": 1,
+      "message": "groupId \u003d\u003d 0 check should be common for both cases. so you can move it after else block.",
+      "revId": "489d4161a4cfeb187d6eac594a159d970bb56d28",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_15bb39e6",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 849,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2016-12-13T07:29:03Z",
+      "side": 1,
+      "message": "why did you change it to write_actions ?",
+      "revId": "489d4161a4cfeb187d6eac594a159d970bb56d28",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_f5bf9dce",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 860,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2016-12-13T07:29:03Z",
+      "side": 1,
+      "message": "keep the same job key.",
+      "revId": "489d4161a4cfeb187d6eac594a159d970bb56d28",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_b5eec5ea",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 867,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2016-12-13T07:29:03Z",
+      "side": 1,
+      "message": "routepath should should be always with size \u003d\u003d 1. so you don\u0027t need for loop.",
+      "revId": "489d4161a4cfeb187d6eac594a159d970bb56d28",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_55b5b1ec",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 882,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2016-12-13T07:29:03Z",
+      "side": 1,
+      "message": "move this method to NexthopManager",
+      "revId": "489d4161a4cfeb187d6eac594a159d970bb56d28",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_75926d58",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 884,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2016-12-13T07:29:03Z",
+      "side": 1,
+      "message": "It can be done with parallel stream and collect all local nexthop groupids to a list with non-zero value.",
+      "revId": "489d4161a4cfeb187d6eac594a159d970bb56d28",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_75cb8d72",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 888,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2016-12-13T07:29:03Z",
+      "side": 1,
+      "message": "this check should be above for loop",
+      "revId": "489d4161a4cfeb187d6eac594a159d970bb56d28",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_15897926",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 894,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2016-12-13T07:29:03Z",
+      "side": 1,
+      "message": "This check should be after collecting groupIds from the stream.",
+      "revId": "489d4161a4cfeb187d6eac594a159d970bb56d28",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_3588f51e",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 902,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2016-12-13T07:29:03Z",
+      "side": 1,
+      "message": "just do listBucketInfo.forEach",
+      "revId": "489d4161a4cfeb187d6eac594a159d970bb56d28",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_957c6922",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 1033,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2016-12-13T07:29:03Z",
+      "side": 1,
+      "message": "make sure getAllVpnExtraRoute return empty list if routes are not available and avoid this null check",
+      "revId": "489d4161a4cfeb187d6eac594a159d970bb56d28",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_7579cd2e",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 1035,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2016-12-13T07:29:03Z",
+      "side": 1,
+      "message": "move { to the above line.",
+      "revId": "489d4161a4cfeb187d6eac594a159d970bb56d28",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_15905942",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 1036,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2016-12-13T07:29:03Z",
+      "side": 1,
+      "message": "what is the need for iterating over extraRoute.getNexthopIpList() ? you shouldn\u0027t delete localnexthop, just need to delete only lb group",
+      "revId": "489d4161a4cfeb187d6eac594a159d970bb56d28",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_f594bd38",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 1111,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2016-12-13T07:29:03Z",
+      "side": 1,
+      "message": "these methods are already exists in VpnUtil. Try to use it from VpnHelper",
+      "revId": "489d4161a4cfeb187d6eac594a159d970bb56d28",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_d5db8119",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 1306,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2016-12-13T07:29:03Z",
+      "side": 1,
+      "message": "Looks like this method is used to cleanup ds entries (via CleanupVpnInterfaceWorker) related to vrfEntry.getDestPrefix(). So you have to handle it irrespective of primary rd (rd).",
+      "revId": "489d4161a4cfeb187d6eac594a159d970bb56d28",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_55ff7167",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 1624,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2016-12-13T07:29:03Z",
+      "side": 1,
+      "message": "This check has to be done for all the rds in the extra-route. not only based on primary rd",
+      "revId": "489d4161a4cfeb187d6eac594a159d970bb56d28",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_3504757a",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 586,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2016-12-13T07:29:03Z",
+      "side": 1,
+      "message": "have space after ,",
+      "revId": "489d4161a4cfeb187d6eac594a159d970bb56d28",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
