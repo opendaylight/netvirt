@@ -273,7 +273,7 @@ public class NeutronvpnNatManager implements AutoCloseable {
         try {
             Network input = NeutronvpnUtils.getNeutronNetwork(dataBroker, extNetId);
             ProviderTypes providerNwType = NeutronvpnUtils.getProviderNetworkType(input);
-            if(providerNwType == null){
+            if (providerNwType == null) {
                 LOG.error("Unable to get Network Provider Type for network {} and uuid {}", input.getName(), input.getUuid());
                 return;
             }
@@ -413,7 +413,7 @@ public class NeutronvpnNatManager implements AutoCloseable {
         }
     }
 
-    private void addExternalRouter(Router update, DataBroker broker) {
+    public void addExternalRouter(Router update, DataBroker broker) {
         Uuid routerId = update.getUuid();
         Uuid extNetId = update.getExternalGatewayInfo().getExternalNetworkId();
         Uuid gatewayPortId = update.getGatewayPortId();
@@ -426,7 +426,7 @@ public class NeutronvpnNatManager implements AutoCloseable {
         try {
             Network input = NeutronvpnUtils.getNeutronNetwork(dataBroker, extNetId);
             ProviderTypes providerNwType = NeutronvpnUtils.getProviderNetworkType(input);
-            if(providerNwType == null){
+            if (providerNwType == null) {
                 LOG.error("Unable to get Network Provider Type for network {} and uuid{}", input.getName(), input.getUuid());
                 return;
             }
@@ -440,26 +440,20 @@ public class NeutronvpnNatManager implements AutoCloseable {
             } else {
                 builder = new RoutersBuilder().setKey(new RoutersKey(routerId.getValue()));
             }
-            if (builder != null) {
-                builder.setRouterName(routerId.getValue());
+            builder.setRouterName(routerId.getValue());
+            builder.setNetworkId(extNetId);
+            builder.setEnableSnat(update.getExternalGatewayInfo().isEnableSnat());
+
+            ArrayList<String> ext_fixed_ips = new ArrayList<String>();
+            for (ExternalFixedIps fixed_ips : update.getExternalGatewayInfo().getExternalFixedIps()) {
+                ext_fixed_ips.add(fixed_ips.getIpAddress().getIpv4Address().getValue());
             }
-            if (builder != null) {
-                builder.setNetworkId(extNetId);
-            }
-            if (builder != null) {
-                builder.setEnableSnat(update.getExternalGatewayInfo().isEnableSnat());
-            }
-            if (builder != null) {
-                ArrayList<String> ext_fixed_ips = new ArrayList<String>();
-                for (ExternalFixedIps fixed_ips : update.getExternalGatewayInfo().getExternalFixedIps()) {
-                    ext_fixed_ips.add(fixed_ips.getIpAddress().getIpv4Address().getValue());
-                }
-                builder.setExternalIps(ext_fixed_ips);
-            }
+            builder.setExternalIps(ext_fixed_ips);
+
             if (gatewayPortId != null) {
                 LOG.trace("Setting/Updating gateway Mac for router {}", routerId.getValue());
                 Port port = NeutronvpnUtils.getNeutronPort(broker, gatewayPortId);
-                if (port.getDeviceOwner().equals(NeutronConstants.DEVICE_OWNER_GATEWAY_INF)) {
+                if (port != null && port.getDeviceOwner().equals(NeutronConstants.DEVICE_OWNER_GATEWAY_INF)) {
                     builder.setExtGwMacAddress(port.getMacAddress().getValue());
                 }
             }
