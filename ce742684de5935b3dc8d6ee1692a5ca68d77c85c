@@ -34,6 +34,24 @@
       "revId": "ce742684de5935b3dc8d6ee1692a5ca68d77c85c",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_816d4b35",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnUtil.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 6584
+      },
+      "writtenOn": "2016-12-13T18:33:42Z",
+      "side": 1,
+      "message": "Done in commit:\n\nhttps://git.opendaylight.org/gerrit/49314/",
+      "parentUuid": "1a622d24_41105301",
+      "revId": "ce742684de5935b3dc8d6ee1692a5ca68d77c85c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
