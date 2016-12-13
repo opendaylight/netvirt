@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1a622d24_28825c4f",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/FibUtil.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 488,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2016-12-13T09:15:09Z",
+      "side": 1,
+      "message": "nit: please update the message (/s/NextHopList/NextHopIp)",
+      "revId": "aa5e332329119209742a1492e3c784f6fdb41a52",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_a88dcc7d",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 943,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2016-12-13T09:15:09Z",
+      "side": 1,
+      "message": "nit: same.",
+      "revId": "aa5e332329119209742a1492e3c784f6fdb41a52",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
