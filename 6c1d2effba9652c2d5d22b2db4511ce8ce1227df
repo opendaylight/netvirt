@@ -1,0 +1,142 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1a622d24_41f4d3f1",
+        "filename": "docs/specs/temporary-smac-learning.rst",
+        "patchSetId": 8
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 4534
+      },
+      "writtenOn": "2016-12-13T17:31:55Z",
+      "side": 1,
+      "message": "i think 48 is used by ipv6, so exact table numbers will need to be co-ordinated with genius and updated",
+      "range": {
+        "startLine": 31,
+        "startChar": 12,
+        "endLine": 31,
+        "endChar": 14
+      },
+      "revId": "6c1d2effba9652c2d5d22b2db4511ce8ce1227df",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_21471721",
+        "filename": "docs/specs/temporary-smac-learning.rst",
+        "patchSetId": 8
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 4534
+      },
+      "writtenOn": "2016-12-13T17:31:55Z",
+      "side": 1,
+      "message": "we need to capture which register is being used by which service in the pipeline in genius, at least statically for now, just as table ids are being tracked in 1 place",
+      "range": {
+        "startLine": 32,
+        "startChar": 15,
+        "endLine": 32,
+        "endChar": 18
+      },
+      "revId": "6c1d2effba9652c2d5d22b2db4511ce8ce1227df",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_e1d51f44",
+        "filename": "docs/specs/temporary-smac-learning.rst",
+        "patchSetId": 8
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 4534
+      },
+      "writtenOn": "2016-12-13T17:31:55Z",
+      "side": 1,
+      "message": "will the default flow ever get exercised in the new logic? wont all unknown mac flows hit the new flow that takes it to the dmac table",
+      "range": {
+        "startLine": 33,
+        "startChar": 12,
+        "endLine": 33,
+        "endChar": 14
+      },
+      "revId": "6c1d2effba9652c2d5d22b2db4511ce8ce1227df",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_814b8b2a",
+        "filename": "docs/specs/temporary-smac-learning.rst",
+        "patchSetId": 8
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 4534
+      },
+      "writtenOn": "2016-12-13T17:31:55Z",
+      "side": 1,
+      "message": "can you please also capture if the new flows are 1 per elan instance, or 1 across all elan instances, and why.",
+      "range": {
+        "startLine": 35,
+        "startChar": 31,
+        "endLine": 35,
+        "endChar": 34
+      },
+      "revId": "6c1d2effba9652c2d5d22b2db4511ce8ce1227df",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_015f7be6",
+        "filename": "docs/specs/temporary-smac-learning.rst",
+        "patchSetId": 8
+      },
+      "lineNbr": 46,
+      "author": {
+        "id": 4534
+      },
+      "writtenOn": "2016-12-13T17:31:55Z",
+      "side": 1,
+      "message": "what happens if the copy of the pkt sent to the controller was dropped for some reason (rate limiting, or node reboot or something else), would the new flows age out, and learning just get delayed by the age out timer?",
+      "range": {
+        "startLine": 46,
+        "startChar": 0,
+        "endLine": 46,
+        "endChar": 4
+      },
+      "revId": "6c1d2effba9652c2d5d22b2db4511ce8ce1227df",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_c15583c7",
+        "filename": "docs/specs/temporary-smac-learning.rst",
+        "patchSetId": 8
+      },
+      "lineNbr": 72,
+      "author": {
+        "id": 4534
+      },
+      "writtenOn": "2016-12-13T17:31:55Z",
+      "side": 1,
+      "message": "while the feature itself is very useful, would not vote for this level of change in boron.",
+      "range": {
+        "startLine": 72,
+        "startChar": 3,
+        "endLine": 72,
+        "endChar": 4
+      },
+      "revId": "6c1d2effba9652c2d5d22b2db4511ce8ce1227df",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
