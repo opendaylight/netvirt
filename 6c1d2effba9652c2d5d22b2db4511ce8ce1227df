@@ -71,6 +71,30 @@
     },
     {
       "key": {
+        "uuid": "1a622d24_e1099f96",
+        "filename": "docs/specs/temporary-smac-learning.rst",
+        "patchSetId": 8
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 4534
+      },
+      "writtenOn": "2016-12-13T18:08:34Z",
+      "side": 1,
+      "message": "i guess this could happen if for whatever reason, controller pkt is dropped, then the table 49 flow would have to exprire after a hard_timeout, and since controller has not yet learnt this mac, it will hit the default flow in table 50.",
+      "parentUuid": "1a622d24_e1d51f44",
+      "range": {
+        "startLine": 33,
+        "startChar": 12,
+        "endLine": 33,
+        "endChar": 14
+      },
+      "revId": "6c1d2effba9652c2d5d22b2db4511ce8ce1227df",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_814b8b2a",
         "filename": "docs/specs/temporary-smac-learning.rst",
         "patchSetId": 8
