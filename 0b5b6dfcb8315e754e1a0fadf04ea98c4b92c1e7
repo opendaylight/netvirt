@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "1a622d24_4bcb52a5",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnNatManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 446,
+      "author": {
+        "id": 6465
+      },
+      "writtenOn": "2016-12-13T12:50:27Z",
+      "side": 1,
+      "message": "no need I think.",
+      "parentUuid": "1a622d24_285edce6",
+      "revId": "0b5b6dfcb8315e754e1a0fadf04ea98c4b92c1e7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_085fa0e6",
         "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnNatManager.java",
         "patchSetId": 1
@@ -30,6 +48,24 @@
       "writtenOn": "2016-12-13T09:42:54Z",
       "side": 1,
       "message": "This is an existing code, but it looks like this needs a bit of cleanup. The checks in L452, L449, L446 and L443 are repeated. Can you please take a look at this? Thanks.",
+      "revId": "0b5b6dfcb8315e754e1a0fadf04ea98c4b92c1e7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_2bd0964f",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnNatManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 452,
+      "author": {
+        "id": 6465
+      },
+      "writtenOn": "2016-12-13T12:50:27Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1a622d24_085fa0e6",
       "revId": "0b5b6dfcb8315e754e1a0fadf04ea98c4b92c1e7",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
