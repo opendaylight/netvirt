@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1a622d24_0183fb56",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 1174,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-12-13T17:15:04Z",
+      "side": 1,
+      "message": "Doesn\u0027t this \u003d\u003d BGP a redundant check... \n\nOnly BGP Imported routes use MPLSOverGRE and not other routes anyway, isn\u0027t it?",
+      "revId": "0423f1bdbaee10a4651f24c911563f379d2c41b0",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
