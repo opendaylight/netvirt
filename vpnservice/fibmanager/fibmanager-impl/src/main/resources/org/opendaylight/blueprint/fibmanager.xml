@@ -47,6 +47,15 @@
     <argument ref="idManagerService" />
   </bean>
 
+  <bean id="SubnetRouteVrfHandler" class="org.opendaylight.netvirt.fibmanager.SubnetRouteVrfHandler">
+    <argument ref="dataBroker" />
+  </bean>
+
+  <bean id="ImportExportVrfHandler" class="org.opendaylight.netvirt.fibmanager.ImportExportVrfHandler">
+    <argument ref="dataBroker" />
+    <argument ref="idManagerService" />
+  </bean>
+
   <bean id="fibRpcServiceImpl" class="org.opendaylight.netvirt.fibmanager.FibRpcServiceImpl">
     <argument ref="dataBroker" />
     <argument ref="mdsalUtils" />

@@ -234,7 +234,7 @@ public class VpnInstanceListener extends AsyncDataTreeChangeListenerBase<VpnInst
             // Clean up VpnInstanceToVpnId from Config DS
             VpnUtil.removeVpnIdToVpnInstance(broker, vpnId, writeTxn);
             VpnUtil.removeVpnInstanceToVpnId(broker, vpnName, writeTxn);
-            LOG.trace("Removed vpnIdentifier for  rd{} vpnname {}", rd, vpnName);
+            LOG.trace("Removed vpnIdentifier for  rd {} vpnname {}", rd, vpnName);
             if (rd != null) {
                 synchronized (vpnName.intern()) {
                     fibManager.removeVrfTable(broker, rd, null);
