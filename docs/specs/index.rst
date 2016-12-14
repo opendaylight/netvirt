@@ -7,6 +7,6 @@ various NetVirt features.
 Contents:
 
 .. toctree::
-   :maxdepth: 1
+   :maxdepth: 2
 
    Design Specification Template <specs-template>
