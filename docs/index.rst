@@ -13,5 +13,10 @@ Contents:
 .. toctree::
    :maxdepth: 1
 
+   contributor-guide/index
+   developer-guide/index
+   getting-started-guide/index
+   openstack-guide/index
+   user-guide/index
    specs/index
 
