@@ -128,11 +128,9 @@ public class FloatingIPListener extends AsyncDataTreeChangeListenerBase<Internal
         LOG.debug("NAT Service : Segment id {} in build preDNAT Flow", segmentId);
 
         List<MatchInfo> matches = new ArrayList<>();
-        matches.add(new MatchInfo(MatchFieldType.eth_type,
-                new long[] { 0x0800L }));
+        matches.add(new MatchInfo(MatchFieldType.eth_type, new long[] { 0x0800L }));
 
-        matches.add(new MatchInfo(MatchFieldType.ipv4_destination, new String[] {
-                externalIp, "32" }));
+        matches.add(new MatchInfo(MatchFieldType.ipv4_destination, new String[] { externalIp, "32" }));
 
 //        matches.add(new MatchInfo(MatchFieldType.metadata, new BigInteger[] {
 //                BigInteger.valueOf(vpnId), MetaDataUtil.METADATA_MASK_VRFID }));
@@ -168,12 +166,9 @@ public class FloatingIPListener extends AsyncDataTreeChangeListenerBase<Internal
         matches.add(new MatchInfo(MatchFieldType.metadata, new BigInteger[] {
                 MetaDataUtil.getVpnIdMetadata(segmentId), MetaDataUtil.METADATA_MASK_VRFID }));
 
-        matches.add(new MatchInfo(MatchFieldType.eth_type,
-                new long[] { 0x0800L }));
+        matches.add(new MatchInfo(MatchFieldType.eth_type, new long[] { 0x0800L }));
 
-        matches.add(new MatchInfo(MatchFieldType.ipv4_destination, new String[] {
-        //        externalIp, "32" }));
-                  internalIp, "32" }));
+        matches.add(new MatchInfo(MatchFieldType.ipv4_destination, new String[] { internalIp, "32" }));
 
         List<ActionInfo> actionsInfos = new ArrayList<>();
 //        actionsInfos.add(new ActionInfo(ActionType.set_destination_ip, new String[]{ internalIp, "32" }));
@@ -185,7 +180,7 @@ public class FloatingIPListener extends AsyncDataTreeChangeListenerBase<Internal
         instructions.add(new InstructionInfo(InstructionType.apply_actions, actionsInfos));
         //instructions.add(new InstructionInfo(InstructionType.goto_table, new long[] { NatConstants.L3_FIB_TABLE }));
 
-        String flowRef = NatUtil.getFlowRef(dpId, NwConstants.DNAT_TABLE, routerId, externalIp);
+        String flowRef = NatUtil.getFlowRef(dpId, NwConstants.DNAT_TABLE, routerId, internalIp);
 
         FlowEntity flowEntity = MDSALUtil.buildFlowEntity(dpId, NwConstants.DNAT_TABLE, flowRef,
                 NatConstants.DEFAULT_DNAT_FLOW_PRIORITY, flowRef, 0, 0,
@@ -205,11 +200,9 @@ public class FloatingIPListener extends AsyncDataTreeChangeListenerBase<Internal
         LOG.debug("NAT Service : Segment id {} in build preSNAT flow", segmentId);
 
         List<MatchInfo> matches = new ArrayList<>();
-        matches.add(new MatchInfo(MatchFieldType.eth_type,
-                new long[] { 0x0800L }));
+        matches.add(new MatchInfo(MatchFieldType.eth_type, new long[] { 0x0800L }));
 
-        matches.add(new MatchInfo(MatchFieldType.ipv4_source, new String[] {
-                internalIp, "32" }));
+        matches.add(new MatchInfo(MatchFieldType.ipv4_source, new String[] { internalIp, "32" }));
 
         matches.add(new MatchInfo(MatchFieldType.metadata, new BigInteger[] {
                 MetaDataUtil.getVpnIdMetadata(segmentId), MetaDataUtil.METADATA_MASK_VRFID }));
@@ -240,7 +233,7 @@ public class FloatingIPListener extends AsyncDataTreeChangeListenerBase<Internal
         LOG.info("Building SNAT Flow entity for ip {} ", internalIp);
 
         ProviderTypes provType = NatUtil.getProviderTypefromNetworkId(dataBroker, externalNetworkId);
-        if (provType == null){
+        if (provType == null) {
             LOG.error("NAT Service : Unable to get Network Provider Type for network {}", externalNetworkId);
             return null;
         }
@@ -249,23 +242,21 @@ public class FloatingIPListener extends AsyncDataTreeChangeListenerBase<Internal
         matches.add(new MatchInfo(MatchFieldType.metadata, new BigInteger[] {
                 MetaDataUtil.getVpnIdMetadata(vpnId), MetaDataUtil.METADATA_MASK_VRFID }));
 
-        matches.add(new MatchInfo(MatchFieldType.eth_type,
-                new long[] { 0x0800L }));
+        matches.add(new MatchInfo(MatchFieldType.eth_type, new long[] { 0x0800L }));
 
-        matches.add(new MatchInfo(MatchFieldType.ipv4_source, new String[] {
-                  externalIp, "32" }));
+        matches.add(new MatchInfo(MatchFieldType.ipv4_source, new String[] { externalIp, "32" }));
 
         List<ActionInfo> actionsInfo = new ArrayList<>();
         List<InstructionInfo> instructions = new ArrayList<InstructionInfo>();
 
         String macAddress = NatUtil.getFloatingIpPortMacFromFloatingIpId(dataBroker, floatingIpId);
-            if (macAddress != null) {
+        if (macAddress != null) {
             actionsInfo.add(new ActionInfo(ActionType.set_field_eth_src, new String[] {macAddress}));
         } else {
             LOG.warn("No MAC address found for floating IP {}", externalIp);
         }
 
-        if (provType != ProviderTypes.GRE){
+        if (provType != ProviderTypes.GRE) {
             Uuid subnetId = NatUtil.getFloatingIpPortSubnetIdFromFloatingIpId(dataBroker, floatingIpId);
             if (subnetId != null) {
                 long groupId = NatUtil.createGroupId(NatUtil.getGroupIdKey(subnetId.getValue()), idManager);
@@ -279,7 +270,7 @@ public class FloatingIPListener extends AsyncDataTreeChangeListenerBase<Internal
         }
 
         instructions.add(new InstructionInfo(InstructionType.apply_actions, actionsInfo));
-        String flowRef = NatUtil.getFlowRef(dpId, NwConstants.SNAT_TABLE, vpnId, internalIp);
+        String flowRef = NatUtil.getFlowRef(dpId, NwConstants.SNAT_TABLE, vpnId, externalIp);
 
         FlowEntity flowEntity = MDSALUtil.buildFlowEntity(dpId, NwConstants.SNAT_TABLE, flowRef,
                 NatConstants.DEFAULT_DNAT_FLOW_PRIORITY, flowRef, 0, 0,
@@ -291,40 +282,38 @@ public class FloatingIPListener extends AsyncDataTreeChangeListenerBase<Internal
 
     private void createDNATTblEntry(BigInteger dpnId, InternalToExternalPortMap mapping, long routerId, long vpnId,
                                     long associatedVpnId) {
-        FlowEntity pFlowEntity = buildPreDNATFlowEntity(dpnId, mapping, routerId, associatedVpnId );
+        FlowEntity pFlowEntity = buildPreDNATFlowEntity(dpnId, mapping, routerId, associatedVpnId);
         mdsalManager.installFlow(pFlowEntity);
 
         FlowEntity flowEntity = buildDNATFlowEntity(dpnId, mapping, routerId, associatedVpnId);
         mdsalManager.installFlow(flowEntity);
     }
 
-    private void removeDNATTblEntry(BigInteger dpnId, String externalIp, long routerId) {
-        FlowEntity pFlowEntity = buildPreDNATDeleteFlowEntity(dpnId, externalIp, routerId );
+    private void removeDNATTblEntry(BigInteger dpnId, String internalIp, String externalIp, long routerId) {
+        FlowEntity pFlowEntity = buildPreDNATDeleteFlowEntity(dpnId, externalIp, routerId);
         mdsalManager.removeFlow(pFlowEntity);
 
-        FlowEntity flowEntity = buildDNATDeleteFlowEntity(dpnId, externalIp, routerId);
+        FlowEntity flowEntity = buildDNATDeleteFlowEntity(dpnId, internalIp, routerId);
         mdsalManager.removeFlow(flowEntity);
     }
 
     private void createSNATTblEntry(BigInteger dpnId, InternalToExternalPortMap mapping, long vpnId, long routerId,
                                     long associatedVpnId, Uuid externalNetworkId) {
-        FlowEntity pFlowEntity = buildPreSNATFlowEntity(dpnId, mapping.getInternalIp(), mapping.getExternalIp(), vpnId ,
+        FlowEntity pFlowEntity = buildPreSNATFlowEntity(dpnId, mapping.getInternalIp(), mapping.getExternalIp(), vpnId,
                 routerId,
                 associatedVpnId);
         mdsalManager.installFlow(pFlowEntity);
 
         FlowEntity flowEntity = buildSNATFlowEntity(dpnId, mapping, vpnId, externalNetworkId);
         mdsalManager.installFlow(flowEntity);
-
     }
 
-    private void removeSNATTblEntry(BigInteger dpnId, String internalIp, long routerId, long vpnId) {
+    private void removeSNATTblEntry(BigInteger dpnId, String internalIp, String externalIp, long routerId, long vpnId) {
         FlowEntity pFlowEntity = buildPreSNATDeleteFlowEntity(dpnId, internalIp, routerId);
         mdsalManager.removeFlow(pFlowEntity);
 
-        FlowEntity flowEntity = buildSNATDeleteFlowEntity(dpnId, internalIp, vpnId);
+        FlowEntity flowEntity = buildSNATDeleteFlowEntity(dpnId, externalIp, vpnId);
         mdsalManager.removeFlow(flowEntity);
-
     }
 
     private Uuid getExtNetworkId(final InstanceIdentifier<RouterPorts> pIdentifier, LogicalDatastoreType dataStoreType) {
@@ -534,7 +523,7 @@ public class FloatingIPListener extends AsyncDataTreeChangeListenerBase<Internal
         }
 
         //Delete the DNAT and SNAT table entries
-        removeDNATTblEntry(dpnId, externalIp, routerId);
+        removeDNATTblEntry(dpnId, internalIp, externalIp, routerId);
 
         Uuid extNwId = getExtNetworkId(pIdentifier, LogicalDatastoreType.OPERATIONAL);
         if(extNwId == null) {
@@ -547,7 +536,7 @@ public class FloatingIPListener extends AsyncDataTreeChangeListenerBase<Internal
                     extNwId, internalIp);
             return;
         }
-        removeSNATTblEntry(dpnId, internalIp, routerId, vpnId);
+        removeSNATTblEntry(dpnId, internalIp, externalIp, routerId, vpnId);
 
         long label = getOperationalIpMapping(routerName, interfaceName, internalIp);
         if(label < 0) {
@@ -574,9 +563,9 @@ public class FloatingIPListener extends AsyncDataTreeChangeListenerBase<Internal
         }
 
         //Delete the DNAT and SNAT table entries
-        removeDNATTblEntry(dpnId, externalIp, routerId);
+        removeDNATTblEntry(dpnId, internalIp, externalIp, routerId);
 
-        removeSNATTblEntry(dpnId, internalIp, routerId, vpnId);
+        removeSNATTblEntry(dpnId, internalIp, externalIp, routerId, vpnId);
 
         long label = getOperationalIpMapping(routerName, interfaceName, internalIp);
         if(label < 0) {
@@ -643,11 +632,11 @@ public class FloatingIPListener extends AsyncDataTreeChangeListenerBase<Internal
 
 
 
-    private FlowEntity buildDNATDeleteFlowEntity(BigInteger dpId, String externalIp, long routerId) {
+    private FlowEntity buildDNATDeleteFlowEntity(BigInteger dpId, String internalIp, long routerId) {
 
-        LOG.info("NAT Service : Bulding Delete DNAT Flow entity for ip {} ", externalIp);
+        LOG.info("NAT Service : Bulding Delete DNAT Flow entity for ip {} ", internalIp);
 
-        String flowRef = NatUtil.getFlowRef(dpId, NwConstants.DNAT_TABLE, routerId, externalIp);
+        String flowRef = NatUtil.getFlowRef(dpId, NwConstants.DNAT_TABLE, routerId, internalIp);
 
         FlowEntity flowEntity = MDSALUtil.buildFlowEntity(dpId, NwConstants.DNAT_TABLE, flowRef,
                 NatConstants.DEFAULT_DNAT_FLOW_PRIORITY, flowRef, 0, 0,
@@ -669,11 +658,11 @@ public class FloatingIPListener extends AsyncDataTreeChangeListenerBase<Internal
         return flowEntity;
     }
 
-    private FlowEntity buildSNATDeleteFlowEntity(BigInteger dpId, String internalIp, long routerId) {
+    private FlowEntity buildSNATDeleteFlowEntity(BigInteger dpId, String externalIp, long routerId) {
 
-        LOG.info("NAT Service : Building Delete SNAT Flow entity for ip {} ", internalIp);
+        LOG.info("NAT Service : Building Delete SNAT Flow entity for ip {} ", externalIp);
 
-        String flowRef = NatUtil.getFlowRef(dpId, NwConstants.SNAT_TABLE, routerId, internalIp);
+        String flowRef = NatUtil.getFlowRef(dpId, NwConstants.SNAT_TABLE, routerId, externalIp);
 
         FlowEntity flowEntity = MDSALUtil.buildFlowEntity(dpId, NwConstants.SNAT_TABLE, flowRef,
                 NatConstants.DEFAULT_DNAT_FLOW_PRIORITY, flowRef, 0, 0,
