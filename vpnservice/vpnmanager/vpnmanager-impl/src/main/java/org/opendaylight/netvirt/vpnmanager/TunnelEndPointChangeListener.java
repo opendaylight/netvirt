@@ -80,7 +80,8 @@ public class TunnelEndPointChangeListener
         DataStoreJobCoordinator dataStoreCoordinator = DataStoreJobCoordinator.getInstance();
 
         for (VpnInstance vpnInstance : vpnInstances) {
-            String vpnName = vpnInstance.getVpnInstanceName();
+            final String vpnName = vpnInstance.getVpnInstanceName();
+            final long vpnId = VpnUtil.getVpnId(broker, vpnName);
             LOG.trace("Handling TEP {} add for VPN instance {}", tep.getInterfaceName(), vpnName);
             List<VpnInterfaces> vpnInterfaces = VpnUtil.getDpnVpnInterfaces(broker, vpnInstance, dpnId);
             if (vpnInterfaces != null) {
@@ -99,7 +100,7 @@ public class TunnelEndPointChangeListener
                                             InterfaceUtils.getInterfaceStateFromOperDS(broker, vpnInterfaceName);
                                     final int lPortTag = interfaceState.getIfIndex();
                                     vpnInterfaceManager.processVpnInterfaceAdjacencies(dpnId, lPortTag, vpnName, vpnInterfaceName,
-                                            writeConfigTxn, writeOperTxn, writeInvTxn);
+                                            vpnId, writeConfigTxn, writeOperTxn, writeInvTxn);
                                     return Arrays.asList(writeOperTxn.submit(), writeConfigTxn.submit(), writeInvTxn.submit());
                                 }
                             });
