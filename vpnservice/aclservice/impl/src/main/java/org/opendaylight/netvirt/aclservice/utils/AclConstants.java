@@ -40,13 +40,17 @@ public final class AclConstants {
     public static final Integer PROTO_VM_IP_MAC_MATCH_PRIORITY = 36001;
     public static final Integer CT_STATE_UNTRACKED_PRIORITY = 62030;
     public static final Integer CT_STATE_TRACKED_EXIST_PRIORITY = 62020;
+    public static final Integer CT_STATE_TRACKED_INVALID_PRIORITY = 62015;
     public static final Integer CT_STATE_TRACKED_NEW_PRIORITY = 62010;
     public static final Integer CT_STATE_NEW_PRIORITY_DROP = 50;
+
     public static final short DHCP_CLIENT_PORT_IPV4 = 68;
     public static final short DHCP_SERVER_PORT_IPV4 = 67;
     public static final short DHCP_CLIENT_PORT_IPV6 = 546;
     public static final short DHCP_SERVER_PORT_IPV6 = 547;
+
     public static final BigInteger COOKIE_ACL_BASE = new BigInteger("6900000", 16);
+    public static final BigInteger COOKIE_ACL_DROP_FLOW = new BigInteger("6900001", 16);
 
     public static final int TRACKED_EST_CT_STATE = 0x22;
     public static final int TRACKED_REL_CT_STATE = 0x24;

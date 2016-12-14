@@ -13,10 +13,19 @@
 
   <odl:rpc-service id="idManagerService"
     interface="org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.IdManagerService" />
+  <odl:rpc-service id="odlDirectStatisticsService"
+    interface="org.opendaylight.yang.gen.v1.urn.opendaylight.direct.statistics.rev160511.OpendaylightDirectStatisticsService" />
 
   <odl:clustered-app-config id="aclserviceConfig"
                             binding-class="org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.config.rev160806.AclserviceConfig"
                             default-config-file-name="netvirt-aclservice-config.xml">
   </odl:clustered-app-config>
+
+  <bean id="aclLiveStatisticsRpcServiceImpl" class="org.opendaylight.netvirt.aclservice.stats.AclLiveStatisticsRpcServiceImpl">
+    <argument ref="aclserviceConfig" />
+    <argument ref="dataBroker" />
+    <argument ref="odlDirectStatisticsService" />
+  </bean>
+  <odl:rpc-implementation ref="aclLiveStatisticsRpcServiceImpl" />
 
 </blueprint>

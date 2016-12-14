@@ -21,9 +21,11 @@ import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.binding.test.DataBrokerTestModule;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.genius.mdsalutil.interfaces.testutils.TestIMdsalApiManager;
+import org.opendaylight.netvirt.aclservice.stats.TestOdlDirectStatisticsService;
 import org.opendaylight.netvirt.aclservice.tests.infra.SynchronousEachOperationNewWriteTransaction;
 import org.opendaylight.netvirt.aclservice.utils.AclClusterUtil;
 import org.opendaylight.netvirt.aclservice.utils.AclConstants;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.direct.statistics.rev160511.OpendaylightDirectStatisticsService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.AllocateIdInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.AllocateIdOutput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.AllocateIdOutputBuilder;
@@ -47,7 +49,7 @@ public class AclServiceTestModule extends AbstractModule {
 
     final SecurityGroupMode securityGroupMode;
 
-    AclServiceTestModule(SecurityGroupMode securityGroupMode) {
+    public AclServiceTestModule(SecurityGroupMode securityGroupMode) {
         super();
         this.securityGroupMode = securityGroupMode;
     }
@@ -66,6 +68,8 @@ public class AclServiceTestModule extends AbstractModule {
         bind(WriteTransaction.class).to(SynchronousEachOperationNewWriteTransaction.class);
 
         bind(IdManagerService.class).toInstance(Mockito.mock(TestIdManagerService.class, realOrException()));
+        bind(OpendaylightDirectStatisticsService.class)
+                .toInstance(Mockito.mock(TestOdlDirectStatisticsService.class, realOrException()));
     }
 
     private AclserviceConfig aclServiceConfig() {
