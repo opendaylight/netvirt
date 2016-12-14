@@ -144,6 +144,7 @@ public class NaptSwitchHA {
     protected void removeSnatFlowsInOldNaptSwitch(String routerName, BigInteger naptSwitch,HashMap<String,Long> externalIpmap) {
         externalIpsLabel = externalIpmap;
         //remove SNAT flows in old NAPT SWITCH
+        naptSwitchSelector.handleEnableSplitHorizon(naptSwitch, Boolean.FALSE);
         Long routerId = NatUtil.getVpnId(dataBroker, routerName);
         if (routerId == NatConstants.INVALID_ID) {
             LOG.error("Invalid routerId returned for routerName {}",routerName);

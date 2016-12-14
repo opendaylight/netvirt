@@ -61,6 +61,7 @@ public class NatTunnelInterfaceStateListener extends AsyncDataTreeChangeListener
     private OdlInterfaceRpcService interfaceService;
     private FloatingIPListener floatingIPListener;
     private FibRpcService fibRpcService;
+    private final NAPTSwitchSelector naptSwitchSelector;
 
     protected  enum TunnelAction {
         TUNNEL_EP_ADD,
@@ -93,7 +94,8 @@ public class NatTunnelInterfaceStateListener extends AsyncDataTreeChangeListener
                                            final ExternalRoutersListener externalRouterListner,
                                            final OdlInterfaceRpcService interfaceService,
                                            final FloatingIPListener floatingIPListener,
-                                           final FibRpcService fibRpcService) {
+                                           final FibRpcService fibRpcService,
+                                           final NAPTSwitchSelector naptSwitchSelector) {
         super(StateTunnelList.class, NatTunnelInterfaceStateListener.class);
         this.dataBroker = dataBroker;
         this.bgpManager = bgpManager;
@@ -106,6 +108,7 @@ public class NatTunnelInterfaceStateListener extends AsyncDataTreeChangeListener
         this.interfaceService = interfaceService;
         this.floatingIPListener = floatingIPListener;
         this.fibRpcService = fibRpcService;
+        this.naptSwitchSelector = naptSwitchSelector;
     }
 
     @Override
@@ -487,6 +490,7 @@ public class NatTunnelInterfaceStateListener extends AsyncDataTreeChangeListener
                 "its THE NAPT switch for the TUNNEL TYPE {} b/w SRC IP {} and DST IP {} " +
                 "and TUNNEL NAME {} ", srcDpnId, routerName, tunnelType, srcTepIp, destTepIp, tunnelName);
 
+        naptSwitchSelector.updateTepWithSplitHorizonConfig(tunnelName, Boolean.TRUE);
         Uuid networkId = routerData.get().getNetworkId();
         if (networkId == null) {
             LOG.warn("NAT Service : SNAT -> Ignoring TEP add since the router {} is not associated to the " +

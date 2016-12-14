@@ -15,10 +15,21 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
 
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.InterfaceBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rev160406.IfTunnel;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rev160406.SplitHorizon;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rev160406.SplitHorizonBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rev160406.TunnelTypeVxlan;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rpcs.rev160406.ItmRpcService;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rpcs.rev160406.ListTunnelInterfaceNamesForSourceDpnInputBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rpcs.rev160406.ListTunnelInterfaceNamesForSourceDpnOutput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.VpnInstanceOpData;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.VpnInstanceOpDataEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.VpnInstanceOpDataEntryKey;
@@ -30,6 +41,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev16011
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.napt.switches.RouterToNaptSwitchBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.napt.switches.RouterToNaptSwitchKey;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -39,8 +51,11 @@ public class NAPTSwitchSelector {
     private static final Logger LOG = LoggerFactory.getLogger(NAPTSwitchSelector.class);
 
     private DataBroker dataBroker;
-    public NAPTSwitchSelector(DataBroker dataBroker) {
+    private final ItmRpcService itmManager;
+
+    public NAPTSwitchSelector(final DataBroker dataBroker, final ItmRpcService itmManager) {
         this.dataBroker = dataBroker;
+        this.itmManager = itmManager;
     }
 
     BigInteger selectNewNAPTSwitch(String routerName) {
@@ -82,6 +97,7 @@ public class NAPTSwitchSelector {
                 MDSALUtil.syncWrite( dataBroker, LogicalDatastoreType.CONFIGURATION, getNaptSwitchesIdentifier(routerName), id);
 
                 LOG.debug( "NAT Service : successful addition of RouterToNaptSwitch to napt-switches container for single switch" );
+                handleEnableSplitHorizon(primarySwitch, Boolean.TRUE);
                 return primarySwitch;
             }
             else
@@ -96,6 +112,7 @@ public class NAPTSwitchSelector {
                 MDSALUtil.syncWrite( dataBroker, LogicalDatastoreType.CONFIGURATION, getNaptSwitchesIdentifier(routerName), id);
 
                 LOG.debug( "NAT Service : successful addition of RouterToNaptSwitch to napt-switches container");
+                handleEnableSplitHorizon(primarySwitch, Boolean.TRUE);
                 return primarySwitch;
             }
         } else {
@@ -103,12 +120,56 @@ public class NAPTSwitchSelector {
                 primarySwitch = BigInteger.ZERO;
 
                 LOG.debug("NAT Service : switchWeights empty, primarySwitch: {} ", primarySwitch);
+                handleEnableSplitHorizon(primarySwitch, Boolean.TRUE);
                 return primarySwitch;
         }
-
-
     }
 
+
+    public void handleEnableSplitHorizon(BigInteger primarySwitchId, boolean enableSplitHorizon) {
+        LOG.info("NAT Service : Setting split-horizon Protection - {} on all vxvlan Teps on NAPT switch - {}", enableSplitHorizon, primarySwitchId );
+        RpcResult<ListTunnelInterfaceNamesForSourceDpnOutput> rpcResult;
+        Future<RpcResult<ListTunnelInterfaceNamesForSourceDpnOutput>> result =
+                                                    itmManager.listTunnelInterfaceNamesForSourceDpn(new ListTunnelInterfaceNamesForSourceDpnInputBuilder()
+                                                          .setSourceDpn(primarySwitchId).build());
+        try {
+            rpcResult = result.get();
+            if(!rpcResult.isSuccessful()) {
+                LOG.warn("Didn't find any tunnel interface on the NAPT swtic - {}", rpcResult.getErrors());
+            } else {
+                List<String> tunnelList = rpcResult.getResult().getTunnelInterfaceName();
+                for(String tunnelPort:tunnelList) {
+                    updateTepWithSplitHorizonConfig(tunnelPort, enableSplitHorizon);
+
+                }
+            }
+        }  catch (InterruptedException | ExecutionException e) {
+            LOG.warn("NAT Service : Exception when getting tunnel interface for given dpnid -> {}",primarySwitchId );
+        }
+    }
+
+    public void updateTepWithSplitHorizonConfig (String tunnelPort, boolean enableSplitHorizon) {
+        Interface iface = NatUtil.getInterface(dataBroker, tunnelPort);
+        if (iface == null) return;
+        IfTunnel ifTunnel = iface.getAugmentation(IfTunnel.class);
+        if (ifTunnel != null && ifTunnel.getTunnelInterfaceType().isAssignableFrom(TunnelTypeVxlan.class)) {
+
+            SplitHorizon splitHorizon = iface.getAugmentation(SplitHorizon.class);
+            if ((splitHorizon == null && enableSplitHorizon) ||
+                    (splitHorizon != null && (enableSplitHorizon && !splitHorizon.isOverrideSplitHorizonProtection())) ||
+                    (splitHorizon != null && (!enableSplitHorizon && splitHorizon.isOverrideSplitHorizonProtection()))) {
+                final SplitHorizonBuilder splitHorizonBuilder = new SplitHorizonBuilder()
+                                                                    .setOverrideSplitHorizonProtection(enableSplitHorizon);
+                Interface updateIface = new InterfaceBuilder(iface)
+                                            .addAugmentation(SplitHorizon.class, splitHorizonBuilder.build()).build();
+
+                MDSALUtil.syncUpdate(dataBroker,
+                                    LogicalDatastoreType.CONFIGURATION,
+                                    NatUtil.getInterfaceIdentifier(tunnelPort),
+                                    updateIface);
+            }
+        }
+    }
     private Map<BigInteger, Integer> constructNAPTSwitches() {
         Optional<NaptSwitches> optNaptSwitches = MDSALUtil.read(dataBroker, LogicalDatastoreType.CONFIGURATION, getNaptSwitchesIdentifier());
         Map<BigInteger, Integer> switchWeights = new HashMap<>();
