@@ -109,6 +109,7 @@
   <bean id="nAPTSwitchSelector"
         class="org.opendaylight.netvirt.natservice.internal.NAPTSwitchSelector">
     <argument ref="dataBroker" />
+    <argument ref="itmRpcService" />
   </bean>
 
   <bean id="externalRoutersListener"
@@ -262,6 +263,7 @@
     <argument ref="odlInterfaceRpcService" />
     <argument ref="floatingIPListener" />
     <argument ref="fibRpcService" />
+    <argument ref="nAPTSwitchSelector" />
   </bean>
 
 </blueprint>
