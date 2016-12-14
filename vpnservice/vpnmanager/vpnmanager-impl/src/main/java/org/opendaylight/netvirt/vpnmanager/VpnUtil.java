@@ -1424,15 +1424,17 @@ public class VpnUtil {
         }
     }
 
-    public static Optional<VpnPortipToPort> getRouterInterfaceForVpnInterface(INeutronVpnManager neutronVpnService,
-            DataBroker dataBroker, String interfaceName, String vpnName) {
-        final Optional<String> gatewayIp = getVpnSubnetGatewayIp(dataBroker, neutronVpnService.getNeutronSubnet(
-                neutronVpnService.getNeutronPort(interfaceName)
-                .getFixedIps().get(0).getSubnetId()).getUuid());
+    public static Optional<VpnPortipToPort> getRouterInterfaceForVpnInterface(DataBroker dataBroker,
+                                                                              String interfaceName,
+                                                                              String vpnName,
+                                                                              Uuid subnetUuid) {
         Optional<VpnPortipToPort> gwPortOptional = Optional.absent();
-        if (gatewayIp.isPresent()) {
-            String gwIp = gatewayIp.get();
-            gwPortOptional = Optional.fromNullable(getNeutronPortFromVpnPortFixedIp(dataBroker, vpnName, gwIp));
+        if (subnetUuid != null) {
+            final Optional<String> gatewayIp = getVpnSubnetGatewayIp(dataBroker, subnetUuid);
+            if (gatewayIp.isPresent()) {
+                String gwIp = gatewayIp.get();
+                gwPortOptional = Optional.fromNullable(getNeutronPortFromVpnPortFixedIp(dataBroker, vpnName, gwIp));
+            }
         }
         return gwPortOptional;
     }
