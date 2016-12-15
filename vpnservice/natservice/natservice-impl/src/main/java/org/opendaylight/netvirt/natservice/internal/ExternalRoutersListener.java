@@ -179,30 +179,29 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
 
     @Override
     protected void add(InstanceIdentifier<Routers> identifier, Routers routers) {
-
-        LOG.info("NAT Service : Add external router event for {}", routers.getRouterName());
-
         // Populate the router-id-name container
         String routerName = routers.getRouterName();
+        LOG.info("NAT Service : Add external router event for {}", routerName);
         NatUtil.createRouterIdsConfigDS(dataBroker, routerName);
 
-        LOG.info("NAT Service : Installing NAT default route on all dpns part of router {}", routers.getRouterName());
+        LOG.info("NAT Service : Installing NAT default route on all dpns part of router {}", routerName);
         try {
-            addOrDelDefFibRouteToSNAT(routers.getRouterName(), true);
+            addOrDelDefFibRouteToSNAT(routerName, true);
         } catch (Exception ex) {
-            LOG.debug("NAT Service : Exception {} while Installing NAT default route on all dpns part of router {}",ex,routers.getRouterName());
+            LOG.debug("NAT Service : Exception {} while Installing NAT default route on all dpns part of router {}",
+                    ex, routerName);
         }
 
         long segmentId = NatUtil.getVpnId(dataBroker, routerName);
         // Allocate Primary Napt Switch for this router
         BigInteger primarySwitchId = getPrimaryNaptSwitch(routerName, segmentId);
-        if(primarySwitchId == null || primarySwitchId.equals(BigInteger.ZERO)){
+        if (primarySwitchId == null || primarySwitchId.equals(BigInteger.ZERO)) {
             LOG.error("NAT Service: Failed to get or allocated NAPT switch");
             return;
         }
 
         handleRouterGwFlows(routers, primarySwitchId, NwConstants.ADD_FLOW);
-        if( !routers.isEnableSnat()) {
+        if (!routers.isEnableSnat()) {
             LOG.info("NAT Service : SNAT is disabled for external router {} ", routerName);
             return;
         }
@@ -1087,6 +1086,10 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
     protected void update(InstanceIdentifier<Routers> identifier, Routers original, Routers update) {
         String routerName = original.getRouterName();
         Long routerId = NatUtil.getVpnId(dataBroker, routerName);
+        if (routerId == NatConstants.INVALID_ID) {
+            LOG.error("NAT Service : Update external router event - Invalid routerId for routerName {}", routerName);
+            return;
+        }
         BigInteger dpnId = NatUtil.getPrimaryNaptfromRouterName(dataBroker, routerName);
         Uuid networkId = original.getNetworkId();
 
@@ -1094,15 +1097,11 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
         boolean originalSNATEnabled = original.isEnableSnat();
         boolean updatedSNATEnabled = update.isEnableSnat();
         LOG.debug("NAT Service : update of externalRoutersListener called with originalFlag and updatedFlag as {} and {}", originalSNATEnabled, updatedSNATEnabled);
-        if(originalSNATEnabled != updatedSNATEnabled) {
+        if (originalSNATEnabled != updatedSNATEnabled) {
             if(originalSNATEnabled) {
                 //SNAT disabled for the router
                 Uuid networkUuid = original.getNetworkId();
                 LOG.info("NAT Service : SNAT disabled for Router {}", routerName);
-                if (routerId == NatConstants.INVALID_ID) {
-                    LOG.error("NAT Service : Invalid routerId returned for routerName {}", routerName);
-                    return;
-                }
                 List<String> externalIps = NatUtil.getExternalIpsForRouter(dataBroker,routerId);
                 handleDisableSnat(original, networkUuid, externalIps, false, null, dpnId);
             } else {
@@ -1467,7 +1466,7 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
             Uuid networkUuid = router.getNetworkId();
             Long routerId = NatUtil.getVpnId(dataBroker, routerName);
             if (routerId == NatConstants.INVALID_ID) {
-                LOG.error("NAT Service : Invalid routerId returned for routerName {}", routerName);
+                LOG.error("NAT Service : Remove external router event - Invalid routerId for routerName {}", routerName);
                 return;
             }
 
@@ -2065,7 +2064,7 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
                 // Get the allocated Primary NAPT Switch for this router
                 long routerId = NatUtil.getVpnId(dataBroker, routerName);
                 LOG.debug("Router ID value {} ", routerId);
-                BigInteger primarySwitchId = NatUtil.getPrimaryNaptfromRouterId(dataBroker, routerId);
+                BigInteger primarySwitchId = NatUtil.getPrimaryNaptfromRouterName(dataBroker, routerName);
 
                 LOG.debug("NAT Service : Update the Router ID {} to the BGP VPN ID {} ", routerId, bgpVpnId);
                 addOrDelDefaultFibRouteForSNATWIthBgpVpn(routerName, bgpVpnId, true);
@@ -2091,7 +2090,7 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
             // Get the allocated Primary NAPT Switch for this router
             long routerId = NatUtil.getVpnId(dataBroker, routerName);
             LOG.debug("Router ID value {} ", routerId);
-            BigInteger primarySwitchId = NatUtil.getPrimaryNaptfromRouterId(dataBroker, routerId);
+            BigInteger primarySwitchId = NatUtil.getPrimaryNaptfromRouterName(dataBroker, routerName);
 
             LOG.debug("NAT Service : Update the BGP VPN ID {} to the Router ID {}", bgpVpnId, routerId);
             addOrDelDefaultFibRouteForSNATWIthBgpVpn(routerName, NatConstants.INVALID_ID, true);
