@@ -13,12 +13,17 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.opendaylight.genius.mdsalutil.ActionInfo;
+import org.opendaylight.genius.mdsalutil.ActionType;
+import org.opendaylight.genius.mdsalutil.InstructionInfo;
+import org.opendaylight.genius.mdsalutil.InstructionType;
 import org.opendaylight.genius.mdsalutil.MatchFieldType;
 import org.opendaylight.genius.mdsalutil.MatchInfo;
 import org.opendaylight.genius.mdsalutil.MatchInfoBase;
 import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.genius.mdsalutil.NxMatchFieldType;
 import org.opendaylight.genius.mdsalutil.NxMatchInfo;
+import org.opendaylight.genius.mdsalutil.actions.ActionDrop;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.acl.access.list.entries.ace.Matches;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.acl.access.list.entries.ace.matches.ace.type.AceIp;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.acl.access.list.entries.ace.matches.ace.type.ace.ip.ace.ip.version.AceIpv4;
@@ -310,6 +315,30 @@ public class AclServiceOFFlowBuilder {
             }
         }
         return flowMatches;
+    }
+
+    /** Adds LPort matches to the flow.
+     * @param lportTag lport tag
+     * @param conntrackState conntrack state to be used with matches
+     * @param conntrackMask conntrack mask to be used with matches
+     * @return list of matches
+     */
+    public static List<MatchInfoBase> addLPortTagMatches(int lportTag, int conntrackState, int conntrackMask) {
+        List<MatchInfoBase> matches = new ArrayList<>();
+        matches.add(AclServiceUtils.buildLPortTagMatch(lportTag));
+        matches.add(new NxMatchInfo(NxMatchFieldType.ct_state, new long[] {conntrackState, conntrackMask}));
+        return matches;
+    }
+
+    /** Returns drop instruction info.
+     * @return drop list of InstructionInfo objects
+     */
+    public static List<InstructionInfo> getDropInstructionInfo() {
+        List<InstructionInfo> instructions = new ArrayList<>();
+        List<ActionInfo> actionsInfos = new ArrayList<>();
+        actionsInfos.add(new ActionDrop());
+        instructions.add(new InstructionInfo(InstructionType.apply_actions, actionsInfos));
+        return instructions;
     }
 
     /**
