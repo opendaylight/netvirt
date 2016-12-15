@@ -58,6 +58,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.por
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.ports.attributes.Ports;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.ports.attributes.ports.Port;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.qos.ext.rev160613.QosPortExtension;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.qos.ext.rev160613.QosNetworkExtension;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.rev150712.Neutron;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
@@ -275,6 +276,14 @@ public class NeutronPortChangeListener extends AsyncDataTreeChangeListenerBase<P
             NeutronQosUtils.handleNeutronPortQosRemove(dataBroker, odlInterfaceRpcService,
                     original, originalQos.getQosPolicyId());
             NeutronvpnUtils.removeFromQosPortsCache(originalQos.getQosPolicyId(), original);
+        } else{
+            // check for network qos to apply
+            if (network.getAugmentation(QosNetworkExtension.class) != null) {
+                Uuid networkQosUuid = network.getAugmentation(QosNetworkExtension.class).getQosPolicyId();
+                if (networkQosUuid != null) {
+                    NeutronQosUtils.handleNeutronPortQosUpdate(dataBroker, odlInterfaceRpcService, update, networkQosUuid);
+                }
+            }
         }
     }
 
