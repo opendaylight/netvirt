@@ -13,10 +13,14 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.opendaylight.genius.mdsalutil.ActionInfo;
+import org.opendaylight.genius.mdsalutil.InstructionInfo;
 import org.opendaylight.genius.mdsalutil.MatchInfoBase;
 import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.genius.mdsalutil.NxMatchFieldType;
 import org.opendaylight.genius.mdsalutil.NxMatchInfo;
+import org.opendaylight.genius.mdsalutil.actions.ActionDrop;
+import org.opendaylight.genius.mdsalutil.instructions.InstructionApplyActions;
 import org.opendaylight.genius.mdsalutil.matches.MatchEthernetType;
 import org.opendaylight.genius.mdsalutil.matches.MatchIcmpv4;
 import org.opendaylight.genius.mdsalutil.matches.MatchIcmpv6;
@@ -292,6 +296,30 @@ public class AclServiceOFFlowBuilder {
             }
         }
         return flowMatches;
+    }
+
+    /** Adds LPort matches to the flow.
+     * @param lportTag lport tag
+     * @param conntrackState conntrack state to be used with matches
+     * @param conntrackMask conntrack mask to be used with matches
+     * @return list of matches
+     */
+    public static List<MatchInfoBase> addLPortTagMatches(int lportTag, int conntrackState, int conntrackMask) {
+        List<MatchInfoBase> matches = new ArrayList<>();
+        matches.add(AclServiceUtils.buildLPortTagMatch(lportTag));
+        matches.add(new NxMatchInfo(NxMatchFieldType.ct_state, new long[] {conntrackState, conntrackMask}));
+        return matches;
+    }
+
+    /** Returns drop instruction info.
+     * @return drop list of InstructionInfo objects
+     */
+    public static List<InstructionInfo> getDropInstructionInfo() {
+        List<InstructionInfo> instructions = new ArrayList<>();
+        List<ActionInfo> actionsInfos = new ArrayList<>();
+        actionsInfos.add(new ActionDrop());
+        instructions.add(new InstructionApplyActions(actionsInfos));
+        return instructions;
     }
 
     /**
