@@ -157,6 +157,70 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
                 ]
                 priority = 61010
                 tableId = 251 as short
+            ],
+            new FlowEntity(123bi) => [
+                cookie = 110100481bi
+                flowId = "Ingress_Fixed_Conntrk_Drop123_987_Tracked_New"
+                flowName = "ACL"
+                instructionInfoList = #[
+                        new InstructionInfo(InstructionType.apply_actions, #[
+                        (new ActionInfoBuilder => [
+                            actionType = ActionType.drop_action
+                            actionValues = #[
+                            ]
+                        ]).build()
+                    ])
+                ]
+                matchInfoList = #[
+                    (new MatchInfoBuilder => [
+                        bigMatchValues = #[
+                            1085217976614912bi,
+                            1152920405095219200bi
+                        ]
+                        matchField = MatchFieldType.metadata
+                    ]).build(),
+                    (new NxMatchInfoBuilder => [
+                        matchField = NxMatchFieldType.ct_state
+                        matchValues = #[
+                            33L,
+                            33L
+                        ]
+                    ]).build()
+                ]
+                priority = 50
+                tableId = 41 as short
+            ],
+            new FlowEntity(123bi) => [
+                cookie = 110100481bi
+                flowId = "Ingress_Fixed_Conntrk_Drop123_987_Tracked_Invalid"
+                flowName = "ACL"
+                instructionInfoList = #[
+                    new InstructionInfo(InstructionType.apply_actions, #[
+                        (new ActionInfoBuilder => [
+                            actionType = ActionType.drop_action
+                            actionValues = #[
+                            ]
+                        ]).build()
+                    ])
+                ]
+                matchInfoList = #[
+                    (new MatchInfoBuilder => [
+                        bigMatchValues = #[
+                            1085217976614912bi,
+                            1152920405095219200bi
+                        ]
+                        matchField = MatchFieldType.metadata
+                    ]).build(),
+                    (new NxMatchInfoBuilder => [
+                        matchField = NxMatchFieldType.ct_state
+                        matchValues = #[
+                            48L,
+                            48L
+                        ]
+                    ]).build()
+                ]
+                priority = 62015
+                tableId = 41 as short
             ]
         ]
     }
@@ -351,6 +415,70 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
                 ]
                 priority = 61010
                 tableId = 40 as short
+            ],
+            new FlowEntity(123bi) => [
+                cookie = 110100481bi
+                flowId = "Egress_Fixed_Conntrk_Drop123_987_Tracked_New"
+                flowName = "ACL"
+                instructionInfoList = #[
+                    new InstructionInfo(InstructionType.apply_actions, #[
+                        (new ActionInfoBuilder => [
+                            actionType = ActionType.drop_action
+                            actionValues = #[
+                            ]
+                        ]).build()
+                    ])
+                ]
+                matchInfoList = #[
+                    (new MatchInfoBuilder => [
+                        bigMatchValues = #[
+                            1085217976614912bi,
+                            1152920405095219200bi
+                        ]
+                        matchField = MatchFieldType.metadata
+                    ]).build(),
+                    (new NxMatchInfoBuilder => [
+                        matchField = NxMatchFieldType.ct_state
+                        matchValues = #[
+                            33L,
+                            33L
+                        ]
+                    ]).build()
+                ]
+                priority = 50
+                tableId = 252 as short
+            ],
+            new FlowEntity(123bi) => [
+                cookie = 110100481bi
+                flowId = "Egress_Fixed_Conntrk_Drop123_987_Tracked_Invalid"
+                flowName = "ACL"
+                instructionInfoList = #[
+                    new InstructionInfo(InstructionType.apply_actions, #[
+                        (new ActionInfoBuilder => [
+                            actionType = ActionType.drop_action
+                            actionValues = #[
+                            ]
+                        ]).build()
+                    ])
+                ]
+                matchInfoList = #[
+                    (new MatchInfoBuilder => [
+                        bigMatchValues = #[
+                           1085217976614912bi,
+                           1152920405095219200bi
+                        ]
+                        matchField = MatchFieldType.metadata
+                    ]).build(),
+                    (new NxMatchInfoBuilder => [
+                        matchField = NxMatchFieldType.ct_state
+                        matchValues = #[
+                           48L,
+                           48L
+                        ]
+                    ]).build()
+                ]
+                priority = 62015
+                tableId = 252 as short
             ]
         ]
     }
@@ -404,6 +532,70 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
                 ]
                 priority = 61010
                 tableId = 251 as short
+            ],
+            new FlowEntity(123bi) => [
+                cookie = 110100481bi
+                flowId = "Ingress_Fixed_Conntrk_Drop123_987_Tracked_New"
+                flowName = "ACL"
+                instructionInfoList = #[
+                    new InstructionInfo(InstructionType.apply_actions, #[
+                        (new ActionInfoBuilder => [
+                            actionType = ActionType.drop_action
+                            actionValues = #[
+                            ]
+                        ]).build()
+                    ])
+                ]
+                matchInfoList = #[
+                    (new MatchInfoBuilder => [
+                        bigMatchValues = #[
+                            1085217976614912bi,
+                            1152920405095219200bi
+                        ]
+                        matchField = MatchFieldType.metadata
+                    ]).build(),
+                    (new NxMatchInfoBuilder => [
+                        matchField = NxMatchFieldType.ct_state
+                        matchValues = #[
+                            33L,
+                            33L
+                        ]
+                    ]).build()
+                ]
+                priority = 50
+                tableId = 41 as short
+            ],
+            new FlowEntity(123bi) => [
+                cookie = 110100481bi
+                flowId = "Ingress_Fixed_Conntrk_Drop123_987_Tracked_Invalid"
+                flowName = "ACL"
+                instructionInfoList = #[
+                    new InstructionInfo(InstructionType.apply_actions, #[
+                        (new ActionInfoBuilder => [
+                            actionType = ActionType.drop_action
+                            actionValues = #[
+                            ]
+                        ]).build()
+                    ])
+                ]
+                matchInfoList = #[
+                    (new MatchInfoBuilder => [
+                        bigMatchValues = #[
+                            1085217976614912bi,
+                            1152920405095219200bi
+                        ]
+                        matchField = MatchFieldType.metadata
+                    ]).build(),
+                    (new NxMatchInfoBuilder => [
+                        matchField = NxMatchFieldType.ct_state
+                        matchValues = #[
+                            48L,
+                            48L
+                        ]
+                    ]).build()
+                ]
+                priority = 62015
+                tableId = 41 as short
             ]
         ]
     }
@@ -451,6 +643,70 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
                 ]
                 priority = 61010
                 tableId = 40 as short
+            ],
+            new FlowEntity(123bi) => [
+                cookie = 110100481bi
+                flowId = "Egress_Fixed_Conntrk_Drop123_987_Tracked_New"
+                flowName = "ACL"
+                instructionInfoList = #[
+                    new InstructionInfo(InstructionType.apply_actions, #[
+                       (new ActionInfoBuilder => [
+                           actionType = ActionType.drop_action
+                           actionValues = #[
+                           ]
+                       ]).build()
+                    ])
+                ]
+                matchInfoList = #[
+                    (new MatchInfoBuilder => [
+                        bigMatchValues = #[
+                            1085217976614912bi,
+                            1152920405095219200bi
+                        ]
+                    matchField = MatchFieldType.metadata
+                    ]).build(),
+                    (new NxMatchInfoBuilder => [
+                        matchField = NxMatchFieldType.ct_state
+                        matchValues = #[
+                            33L,
+                            33L
+                        ]
+                    ]).build()
+                ]
+                priority = 50
+                tableId = 252 as short
+            ],
+            new FlowEntity(123bi) => [
+                cookie = 110100481bi
+                flowId = "Egress_Fixed_Conntrk_Drop123_987_Tracked_Invalid"
+                flowName = "ACL"
+                instructionInfoList = #[
+                    new InstructionInfo(InstructionType.apply_actions, #[
+                        (new ActionInfoBuilder => [
+                            actionType = ActionType.drop_action
+                            actionValues = #[
+                            ]
+                        ]).build()
+                    ])
+                ]
+                matchInfoList = #[
+                    (new MatchInfoBuilder => [
+                        bigMatchValues = #[
+                            1085217976614912bi,
+                            1152920405095219200bi
+                        ]
+                        matchField = MatchFieldType.metadata
+                    ]).build(),
+                    (new NxMatchInfoBuilder => [
+                        matchField = NxMatchFieldType.ct_state
+                        matchValues = #[
+                            48L,
+                            48L
+                        ]
+                    ]).build()
+                ]
+                priority = 62015
+                tableId = 252 as short
             ]
         ]
     }
@@ -504,9 +760,72 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
                 ]
                 priority = 61010
                 tableId = 251 as short
+            ],
+            new FlowEntity(123bi) => [
+                cookie = 110100481bi
+                flowId = "Ingress_Fixed_Conntrk_Drop123_987_Tracked_New"
+                flowName = "ACL"
+                instructionInfoList = #[
+                    new InstructionInfo(InstructionType.apply_actions, #[
+                        (new ActionInfoBuilder => [
+                            actionType = ActionType.drop_action
+                            actionValues = #[
+                            ]
+                        ]).build()
+                    ])
+                ]
+                matchInfoList = #[
+                    (new MatchInfoBuilder => [
+                        bigMatchValues = #[
+                            1085217976614912bi,
+                            1152920405095219200bi
+                        ]
+                        matchField = MatchFieldType.metadata
+                    ]).build(),
+                    (new NxMatchInfoBuilder => [
+                        matchField = NxMatchFieldType.ct_state
+                        matchValues = #[
+                            33L,
+                            33L
+                        ]
+                    ]).build()
+                ]
+                priority = 50
+                tableId = 41 as short
+            ],
+            new FlowEntity(123bi) => [
+                cookie = 110100481bi
+                flowId = "Ingress_Fixed_Conntrk_Drop123_987_Tracked_Invalid"
+                flowName = "ACL"
+                instructionInfoList = #[
+                    new InstructionInfo(InstructionType.apply_actions, #[
+                        (new ActionInfoBuilder => [
+                            actionType = ActionType.drop_action
+                            actionValues = #[
+                            ]
+                        ]).build()
+                    ])
+                ]
+                matchInfoList = #[
+                    (new MatchInfoBuilder => [
+                        bigMatchValues = #[
+                            1085217976614912bi,
+                            1152920405095219200bi
+                        ]
+                        matchField = MatchFieldType.metadata
+                    ]).build(),
+                    (new NxMatchInfoBuilder => [
+                        matchField = NxMatchFieldType.ct_state
+                        matchValues = #[
+                            48L,
+                            48L
+                        ]
+                    ]).build()
+                ]
+                priority = 62015
+                tableId = 41 as short
             ]
         ]
-
     }
 
     static def fixedConntrackEgressFlowsPort3() {
@@ -552,6 +871,70 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
                 ]
                 priority = 61010
                 tableId = 40 as short
+            ],
+            new FlowEntity(123bi) => [
+                cookie = 110100481bi
+                flowId = "Egress_Fixed_Conntrk_Drop123_987_Tracked_New"
+                flowName = "ACL"
+                instructionInfoList = #[
+                    new InstructionInfo(InstructionType.apply_actions, #[
+                        (new ActionInfoBuilder => [
+                            actionType = ActionType.drop_action
+                            actionValues = #[
+                            ]
+                        ]).build()
+                    ])
+                ]
+                matchInfoList = #[
+                    (new MatchInfoBuilder => [
+                        bigMatchValues = #[
+                            1085217976614912bi,
+                            1152920405095219200bi
+                        ]
+                        matchField = MatchFieldType.metadata
+                    ]).build(),
+                    (new NxMatchInfoBuilder => [
+                        matchField = NxMatchFieldType.ct_state
+                        matchValues = #[
+                            33L,
+                            33L
+                        ]
+                    ]).build()
+                ]
+                priority = 50
+                tableId = 252 as short
+            ],
+            new FlowEntity(123bi) => [
+                cookie = 110100481bi
+                flowId = "Egress_Fixed_Conntrk_Drop123_987_Tracked_Invalid"
+                flowName = "ACL"
+                instructionInfoList = #[
+                    new InstructionInfo(InstructionType.apply_actions, #[
+                        (new ActionInfoBuilder => [
+                            actionType = ActionType.drop_action
+                            actionValues = #[
+                            ]
+                        ]).build()
+                    ])
+                ]
+                matchInfoList = #[
+                    (new MatchInfoBuilder => [
+                        bigMatchValues = #[
+                            1085217976614912bi,
+                            1152920405095219200bi
+                        ]
+                        matchField = MatchFieldType.metadata
+                    ]).build(),
+                    (new NxMatchInfoBuilder => [
+                        matchField = NxMatchFieldType.ct_state
+                        matchValues = #[
+                            48L,
+                            48L
+                        ]
+                    ]).build()
+                ]
+                priority = 62015
+                tableId = 252 as short
             ]
         ]
     }
@@ -3200,6 +3583,70 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
                 tableId = 251 as short
             ],
             new FlowEntity(123bi) => [
+                cookie = 110100481bi
+                flowId = "Ingress_Fixed_Conntrk_Drop123_987_Tracked_New"
+                flowName = "ACL"
+                instructionInfoList = #[
+                    new InstructionInfo(InstructionType.apply_actions, #[
+                        (new ActionInfoBuilder => [
+                            actionType = ActionType.drop_action
+                            actionValues = #[
+                            ]
+                        ]).build()
+                    ])
+                ]
+                matchInfoList = #[
+                    (new MatchInfoBuilder => [
+                        bigMatchValues = #[
+                            1085217976614912bi,
+                            1152920405095219200bi
+                        ]
+                        matchField = MatchFieldType.metadata
+                    ]).build(),
+                    (new NxMatchInfoBuilder => [
+                        matchField = NxMatchFieldType.ct_state
+                        matchValues = #[
+                            33L,
+                            33L
+                        ]
+                    ]).build()
+                ]
+                priority = 50
+                tableId = 41 as short
+            ],
+            new FlowEntity(123bi) => [
+                cookie = 110100481bi
+                flowId = "Ingress_Fixed_Conntrk_Drop123_987_Tracked_Invalid"
+                flowName = "ACL"
+                instructionInfoList = #[
+                    new InstructionInfo(InstructionType.apply_actions, #[
+                        (new ActionInfoBuilder => [
+                            actionType = ActionType.drop_action
+                            actionValues = #[
+                            ]
+                        ]).build()
+                    ])
+                ]
+                matchInfoList = #[
+                    (new MatchInfoBuilder => [
+                        bigMatchValues = #[
+                            1085217976614912bi,
+                            1152920405095219200bi
+                        ]
+                        matchField = MatchFieldType.metadata
+                    ]).build(),
+                    (new NxMatchInfoBuilder => [
+                        matchField = NxMatchFieldType.ct_state
+                        matchValues = #[
+                            48L,
+                            48L
+                        ]
+                    ]).build()
+                ]
+                priority = 62015
+                tableId = 41 as short
+            ],
+            new FlowEntity(123bi) => [
                 cookie = 110100480bi
                 flowId = "Egress_DHCP_Client_v4123_987__Permit_"
                 flowName = "ACL"
@@ -3419,6 +3866,70 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
                 ]
                 priority = 63020
                 tableId = 40 as short
+            ],
+            new FlowEntity(123bi) => [
+                cookie = 110100481bi
+                flowId = "Egress_Fixed_Conntrk_Drop123_987_Tracked_New"
+                flowName = "ACL"
+                instructionInfoList = #[
+                    new InstructionInfo(InstructionType.apply_actions, #[
+                        (new ActionInfoBuilder => [
+                            actionType = ActionType.drop_action
+                            actionValues = #[
+                            ]
+                        ]).build()
+                    ])
+                ]
+                matchInfoList = #[
+                    (new MatchInfoBuilder => [
+                        bigMatchValues = #[
+                            1085217976614912bi,
+                            1152920405095219200bi
+                        ]
+                        matchField = MatchFieldType.metadata
+                    ]).build(),
+                    (new NxMatchInfoBuilder => [
+                        matchField = NxMatchFieldType.ct_state
+                        matchValues = #[
+                            33L,
+                            33L
+                        ]
+                    ]).build()
+                ]
+                priority = 50
+                tableId = 252 as short
+            ],
+            new FlowEntity(123bi) => [
+                cookie = 110100481bi
+                flowId = "Egress_Fixed_Conntrk_Drop123_987_Tracked_Invalid"
+                flowName = "ACL"
+                instructionInfoList = #[
+                    new InstructionInfo(InstructionType.apply_actions, #[
+                        (new ActionInfoBuilder => [
+                            actionType = ActionType.drop_action
+                            actionValues = #[
+                            ]
+                        ]).build()
+                    ])
+                ]
+                matchInfoList = #[
+                    (new MatchInfoBuilder => [
+                        bigMatchValues = #[
+                            1085217976614912bi,
+                            1152920405095219200bi
+                        ]
+                        matchField = MatchFieldType.metadata
+                    ]).build(),
+                    (new NxMatchInfoBuilder => [
+                        matchField = NxMatchFieldType.ct_state
+                        matchValues = #[
+                            48L,
+                            48L
+                        ]
+                    ]).build()
+                ]
+                priority = 62015
+                tableId = 252 as short
             ]
         ]
     }
