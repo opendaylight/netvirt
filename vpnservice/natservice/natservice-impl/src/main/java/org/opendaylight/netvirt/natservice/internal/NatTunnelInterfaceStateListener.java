@@ -392,7 +392,7 @@ public class NatTunnelInterfaceStateListener extends AsyncDataTreeChangeListener
         }
 
         long routerId = NatUtil.getVpnId(dataBroker, routerName);
-        BigInteger naptId = NatUtil.getPrimaryNaptfromRouterId(dataBroker, routerId);
+        BigInteger naptId = NatUtil.getPrimaryNaptfromRouterName(dataBroker, routerName);
         if (naptId == null || naptId.equals(BigInteger.ZERO)) {
             LOG.warn("NAT Service : SNAT -> Ignoring TEP add for the DPN {} having the router {} since" +
                     " the router is not part of the NAT service  - the TUNNEL TYPE {} b/w SRC IP {} and DST IP {} and" +
@@ -702,7 +702,7 @@ public class NatTunnelInterfaceStateListener extends AsyncDataTreeChangeListener
         }
 
         //Check if the DPN having the router is the NAPT switch
-        BigInteger naptId = NatUtil.getPrimaryNaptfromRouterId(dataBroker, routerId);
+        BigInteger naptId = NatUtil.getPrimaryNaptfromRouterName(dataBroker, routerName);
         if (naptId == null || naptId.equals(BigInteger.ZERO) || (!naptId.equals(dpnId))) {
             LOG.warn("NAT Service : SNAT -> Ignoring TEP delete for the DPN {} since" +
                     " its NOT a NAPT switch for the TUNNEL TYPE {} b/w SRC IP {} and DST IP {} and" +
