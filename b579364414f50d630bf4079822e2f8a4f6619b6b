@@ -213,6 +213,30 @@
     },
     {
       "key": {
+        "uuid": "1a622d24_8a5f1be5",
+        "filename": "docs/specs/l3vpn-over-vxlan-with-evpn-rt5.rst",
+        "patchSetId": 16
+      },
+      "lineNbr": 226,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2016-12-15T07:38:05Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1a622d24_a6e21d9d",
+      "range": {
+        "startLine": 226,
+        "startChar": 9,
+        "endLine": 226,
+        "endChar": 13
+      },
+      "revId": "b579364414f50d630bf4079822e2f8a4f6619b6b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_21ed57c4",
         "filename": "docs/specs/l3vpn-over-vxlan-with-evpn-rt5.rst",
         "patchSetId": 16
@@ -236,6 +260,30 @@
     },
     {
       "key": {
+        "uuid": "1a622d24_0ab02b42",
+        "filename": "docs/specs/l3vpn-over-vxlan-with-evpn-rt5.rst",
+        "patchSetId": 16
+      },
+      "lineNbr": 346,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2016-12-15T07:38:05Z",
+      "side": 1,
+      "message": "No.. Label will be used only for L3VPN Over MPLSGRE",
+      "parentUuid": "1a622d24_21ed57c4",
+      "range": {
+        "startLine": 346,
+        "startChar": 7,
+        "endLine": 346,
+        "endChar": 12
+      },
+      "revId": "b579364414f50d630bf4079822e2f8a4f6619b6b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_017adbf0",
         "filename": "docs/specs/l3vpn-over-vxlan-with-evpn-rt5.rst",
         "patchSetId": 16
@@ -247,6 +295,30 @@
       "writtenOn": "2016-12-13T18:36:28Z",
       "side": 1,
       "message": "I am wondering how it is different from the FIB entry?",
+      "range": {
+        "startLine": 394,
+        "startChar": 5,
+        "endLine": 394,
+        "endChar": 18
+      },
+      "revId": "b579364414f50d630bf4079822e2f8a4f6619b6b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_6a627fae",
+        "filename": "docs/specs/l3vpn-over-vxlan-with-evpn-rt5.rst",
+        "patchSetId": 16
+      },
+      "lineNbr": 394,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2016-12-15T07:38:05Z",
+      "side": 1,
+      "message": "This is needed to keep track of the list of inporting vpn intances, and this information will be required logn after the original FIB entry is gone in the delete scenarios.\nAlso, adding iRT info into Fib will bloat the existing Fib Model, which is already handling a lot of existing scenarios and make it harder to manage.",
+      "parentUuid": "1a622d24_017adbf0",
       "range": {
         "startLine": 394,
         "startChar": 5,
