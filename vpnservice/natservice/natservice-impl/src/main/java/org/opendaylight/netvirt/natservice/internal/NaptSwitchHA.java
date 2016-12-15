@@ -182,7 +182,7 @@ public class NaptSwitchHA {
                 for (String routerNameAssociated : routerNamesAssociated) {
                     if (!routerNameAssociated.equals(routerName)) {
                         Long routerIdAssociated = NatUtil.getVpnId(dataBroker,routerNameAssociated);
-                        BigInteger naptDpn = NatUtil.getPrimaryNaptfromRouterId(dataBroker,routerIdAssociated);
+                        BigInteger naptDpn = NatUtil.getPrimaryNaptfromRouterName(dataBroker, routerNameAssociated);
                         if (naptDpn != null && naptDpn.equals(naptSwitch)) {
                             LOG.debug("Napt switch {} is also acting as primary for router {}",routerIdAssociated);
                             switchSharedByRouters = true;
@@ -743,7 +743,7 @@ public class NaptSwitchHA {
     protected void installSnatFlows(String routerName,Long routerId,BigInteger naptSwitch,Long routerVpnId) {
 
         if(routerId.equals(routerVpnId)) {
-            LOG.debug("Installing flows for router with internalvpnId");
+            LOG.debug("Installing flows for router with internalvpnId {}", routerId);
             //36 -> 46 ..Install flow forwarding packet to table46 from table36
             LOG.debug("installTerminatingServiceTblEntry in naptswitch with dpnId {} for routerName {} with routerId {}",
                     naptSwitch, routerName,routerId);
@@ -826,7 +826,7 @@ public class NaptSwitchHA {
                 LOG.debug("ExternalIpLabel map is empty for router {}",routerName);
                 return;
             }
-            BigInteger naptSwitch = NatUtil.getPrimaryNaptfromRouterId(dataBroker, routerId);
+            BigInteger naptSwitch = NatUtil.getPrimaryNaptfromRouterName(dataBroker, routerName);
             if (naptSwitch == null || naptSwitch.equals(BigInteger.ZERO)) {
                 LOG.debug("No naptSwitch is selected for router {}", routerName);
                 return;

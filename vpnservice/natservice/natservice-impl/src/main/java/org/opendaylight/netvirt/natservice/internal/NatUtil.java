@@ -399,6 +399,14 @@ public class NatUtil {
     public static BigInteger getPrimaryNaptfromRouterId(DataBroker broker, Long routerId) {
         // convert routerId to Name
         String routerName = getRouterName(broker, routerId);
+        return getPrimaryNaptfromRouterName(broker, routerName);
+    }
+
+    public static BigInteger getPrimaryNaptfromRouterName(DataBroker broker, String routerName) {
+        if (routerName == null) {
+            LOG.error("getPrimaryNaptfromRouterName - empty routerName received");
+            return null;
+        }
         InstanceIdentifier id = buildNaptSwitchIdentifier(routerName);
         Optional<RouterToNaptSwitch> routerToNaptSwitchData = read(broker, LogicalDatastoreType.CONFIGURATION, id);
         if (routerToNaptSwitchData.isPresent()) {

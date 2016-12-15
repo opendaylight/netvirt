@@ -197,7 +197,7 @@ public class RouterDpnChangeListener extends AsyncDataTreeChangeListenerBase<Dpn
                 LOG.error("Invalid routerId returned for routerName {}", routerName);
                 return;
             }
-            BigInteger naptId = NatUtil.getPrimaryNaptfromRouterId(dataBroker, routerId);
+            BigInteger naptId = NatUtil.getPrimaryNaptfromRouterName(dataBroker, routerName);
             if (naptId == null || naptId.equals(BigInteger.ZERO) || !naptSwitchHA.getSwitchStatus(naptId)) {
                 LOG.debug("No NaptSwitch is selected for router {}", routerName);
 
@@ -271,7 +271,7 @@ public class RouterDpnChangeListener extends AsyncDataTreeChangeListenerBase<Dpn
         }
         externalIpCache = NatUtil.getExternalIpsForRouter(dataBroker,routerId);
         externalIpLabel = NatUtil.getExternalIpsLabelForRouter(dataBroker,routerId);
-        BigInteger naptSwitch = NatUtil.getPrimaryNaptfromRouterId(dataBroker, routerId);
+        BigInteger naptSwitch = NatUtil.getPrimaryNaptfromRouterName(dataBroker, routerName);
         if (naptSwitch == null || naptSwitch.equals(BigInteger.ZERO)) {
             LOG.debug("No naptSwitch is selected for router {}", routerName);
             return;
