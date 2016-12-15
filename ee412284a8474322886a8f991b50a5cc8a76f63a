@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1a622d24_6a2f1ff7",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NAPTSwitchSelector.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 45,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2016-12-15T09:26:59Z",
+      "side": 1,
+      "message": "So Tali, does it mean that the error message was essentially harmless? May i know, when this issue would be seen/reproduced? thanks.",
+      "revId": "ee412284a8474322886a8f991b50a5cc8a76f63a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
