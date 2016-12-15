@@ -8,7 +8,6 @@
 package org.opendaylight.netvirt.natservice.internal;
 
 import java.math.BigInteger;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -19,13 +18,7 @@ import java.util.TreeSet;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.VpnInstanceOpData;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.VpnInstanceOpDataEntry;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.VpnInstanceOpDataEntryKey;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.vpn.instance.op.data.entry.VpnToDpnList;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ExtRouters;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.NaptSwitches;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.NaptSwitchesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.napt.switches.RouterToNaptSwitch;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.napt.switches.RouterToNaptSwitchBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.napt.switches.RouterToNaptSwitchKey;
@@ -49,7 +42,7 @@ public class NAPTSwitchSelector {
         List<BigInteger> routerSwitches = getDpnsForVpn(routerName);
         if(routerSwitches == null || routerSwitches.isEmpty()) {
             LOG.debug("NAT Service : No switches are part of router {}", routerName);
-            LOG.error("NAT Service : NAPT SWITCH SELECTION STOPPED DUE TO NO DPNS SCENARIO FOR ROUTER {}", routerName);
+            LOG.info("NAT Service : Delaying NAPT switch selection due to no dpns scenario for router {}", routerName);
             return BigInteger.ZERO;
         }
 
@@ -188,7 +181,7 @@ public class NAPTSwitchSelector {
             return swich;
         }
 
-        public int getWeight() { 
+        public int getWeight() {
             return weight;
         }
 
