@@ -12,9 +12,12 @@ import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
 import org.opendaylight.netvirt.neutronvpn.interfaces.INeutronVpnManager;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.OdlInterfaceRpcService;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.networks.rev150712.networks.attributes.networks.Network;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.ports.attributes.Ports;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.ports.attributes.ports.Port;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.qos.ext.rev160613.QosNetworkExtension;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.qos.ext.rev160613.QosPortExtension;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.rev150712.Neutron;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
@@ -54,7 +57,17 @@ public class QosNeutronPortChangeListener extends AsyncDataTreeChangeListenerBas
 
     @Override
     protected void add(InstanceIdentifier<Port> instanceIdentifier, Port port) {
+        Network network =  neutronVpnManager.getNeutronNetwork(port.getNetworkId());
+
+        if (network.getAugmentation(QosNetworkExtension.class) != null) {
+            Uuid networkQosUuid = network.getAugmentation(QosNetworkExtension.class).getQosPolicyId();
+            if (networkQosUuid != null) {
+                QosNeutronUtils.handleNeutronPortQosUpdate(dataBroker,odlInterfaceRpcService, port, networkQosUuid);
+            }
+        }
     }
+
+
 
     @Override
     protected void remove(InstanceIdentifier<Port> instanceIdentifier, Port port) {
