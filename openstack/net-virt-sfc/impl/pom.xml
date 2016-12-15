@@ -14,20 +14,20 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
   <parent>
     <groupId>org.opendaylight.controller</groupId>
     <artifactId>config-parent</artifactId>
-    <version>0.5.2-SNAPSHOT</version>
+    <version>0.5.2-Boron-SR2</version>
     <relativePath/>
   </parent>
 
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.opendaylight.netvirt</groupId>
   <artifactId>openstack.net-virt-sfc-impl</artifactId>
-  <version>1.3.2-SNAPSHOT</version>
+  <version>1.3.2-Boron-SR2</version>
   <packaging>bundle</packaging>
 
   <properties>
-    <openflowplugin.version>0.3.2-SNAPSHOT</openflowplugin.version>
-    <ovsdb.version>1.3.2-SNAPSHOT</ovsdb.version>
-    <sfc.version>0.3.2-SNAPSHOT</sfc.version>
+    <openflowplugin.version>0.3.2-Boron-SR2</openflowplugin.version>
+    <ovsdb.version>1.3.2-Boron-SR2</ovsdb.version>
+    <sfc.version>0.3.2-Boron-SR2</sfc.version>
     <sonar.jacoco.itReportPath>../it/target/jacoco-it.exec</sonar.jacoco.itReportPath>
   </properties>
 
