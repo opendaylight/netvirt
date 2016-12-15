@@ -74,6 +74,13 @@
     <argument ref="dataBroker" />
   </bean>
 
+  <bean id="qosInterfaceStateChangeListener"
+        class="org.opendaylight.netvirt.neutronvpn.QosInterfaceStateChangeListener"
+        init-method="init" destroy-method="close">
+    <argument ref="dataBroker" />
+    <argument ref="odlInterfaceRpcService" />
+  </bean>
+
   <bean id="neutronNetworkChangeListener"
         class="org.opendaylight.netvirt.neutronvpn.NeutronNetworkChangeListener"
         init-method="start" destroy-method="close">
