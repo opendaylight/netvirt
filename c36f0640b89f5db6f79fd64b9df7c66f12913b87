@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1a622d24_a7ea0d0d",
+        "filename": "docs/specs/acl-stats.rst",
+        "patchSetId": 7
+      },
+      "lineNbr": 129,
+      "author": {
+        "id": 670
+      },
+      "writtenOn": "2016-12-15T17:56:14Z",
+      "side": 1,
+      "message": "What is this invalid-drop-count? How is it different than drop-count?\nUnless I missed it, it isn\u0027t mentioned in the spec..",
+      "revId": "c36f0640b89f5db6f79fd64b9df7c66f12913b87",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_87ed5128",
+        "filename": "docs/specs/acl-stats.rst",
+        "patchSetId": 7
+      },
+      "lineNbr": 396,
+      "author": {
+        "id": 670
+      },
+      "writtenOn": "2016-12-15T17:56:14Z",
+      "side": 1,
+      "message": "This doesn\u0027t necessarily have to be part of this spec, but it would be nice to enhance our CLI with interesting REST commands like this.",
+      "revId": "c36f0640b89f5db6f79fd64b9df7c66f12913b87",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
