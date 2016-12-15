@@ -36,4 +36,13 @@
         <argument ref="neutronvpnManager" />
         <argument ref="odlInterfaceRpcService" />
     </bean>
+
+    <bean id="QosInterfaceStateChangeListener"
+          class="org.opendaylight.netvirt.qosservice.QosInterfaceStateChangeListener"
+          init-method="init" destroy-method="close">
+        <argument ref="dataBroker" />
+        <argument ref="odlInterfaceRpcService" />
+        <argument ref="neutronvpnManager" />
+    </bean>
+
 </blueprint>
