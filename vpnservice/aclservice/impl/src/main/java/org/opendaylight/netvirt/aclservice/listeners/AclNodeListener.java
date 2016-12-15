@@ -453,11 +453,6 @@ public class AclNodeListener extends AsyncDataTreeChangeListenerBase<FlowCapable
             dispatcherTableId, tableId, write );
         programConntrackForwardRule(dpnId, AclConstants.CT_STATE_TRACKED_EXIST_PRIORITY,"Tracked_Related", AclConstants
             .TRACKED_REL_CT_STATE, AclConstants.TRACKED_REL_CT_STATE_MASK, dispatcherTableId, tableId, write );
-        programConntrackDropRule(dpnId, AclConstants.CT_STATE_NEW_PRIORITY_DROP,"Tracked_New",
-            AclConstants.TRACKED_NEW_CT_STATE, AclConstants.TRACKED_NEW_CT_STATE_MASK, tableId, write );
-        programConntrackDropRule(dpnId, AclConstants.CT_STATE_TRACKED_EXIST_PRIORITY, "Tracked_Invalid",
-            AclConstants.TRACKED_INV_CT_STATE, AclConstants.TRACKED_INV_CT_STATE_MASK, tableId, write );
-
     }
 
     /**
@@ -482,32 +477,6 @@ public class AclNodeListener extends AsyncDataTreeChangeListenerBase<FlowCapable
             new ArrayList<>(),dispatcherTableId);
 
         flowId = "Fixed_Conntrk_Trk_" + dpId + "_" + flowId + dispatcherTableId;
-        syncFlow(dpId, tableId, flowId, priority, "ACL", 0, 0,
-                AclConstants.COOKIE_ACL_BASE, matches, instructions, addOrRemove);
-    }
-
-    /**
-     * Adds the rule to drop the unknown/invalid packets .
-     *
-     * @param dpId the dpId
-     * @param priority the priority of the flow
-     * @param flowId the flowId
-     * @param conntrackState the conntrack state of the packets thats should be
-     *        send
-     * @param conntrackMask the conntrack mask
-     * @param tableId the table id
-     * @param addOrRemove whether to add or remove the flow
-     */
-    private void programConntrackDropRule(BigInteger dpId, Integer priority, String flowId,
-            int conntrackState, int conntrackMask, short tableId, int addOrRemove) {
-        List<MatchInfoBase> matches = new ArrayList<>();
-        matches.add(new NxMatchInfo(NxMatchFieldType.ct_state, new long[] {conntrackState, conntrackMask}));
-
-        List<InstructionInfo> instructions = new ArrayList<>();
-        List<ActionInfo> actionsInfos = new ArrayList<>();
-        actionsInfos.add(new ActionDrop());
-        instructions.add(new InstructionApplyActions(actionsInfos));
-        flowId = "Fixed_Conntrk_NewDrop_" + dpId + "_" + flowId + tableId;
         syncFlow(dpId, tableId, flowId, priority, "ACL", 0, 0,
                 AclConstants.COOKIE_ACL_BASE, matches, instructions, addOrRemove);
     }
