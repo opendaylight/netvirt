@@ -208,7 +208,9 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
         // Allocate Primary Napt Switch for this router
         BigInteger primarySwitchId = getPrimaryNaptSwitch(routerName, segmentId);
         if (primarySwitchId == null || primarySwitchId.equals(BigInteger.ZERO)) {
-            LOG.error("NAT Service: Failed to get or allocated NAPT switch");
+            LOG.info(
+                    "NAT Service: Failed to get or allocate NAPT switch for router {}. NAPT flow installation will be delayed",
+                    routerName);
             return;
         }
 
@@ -284,7 +286,7 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
         primarySwitchId = naptSwitchSelector.selectNewNAPTSwitch(routerName);
         LOG.debug("NAT Service : Primary NAPT switch DPN ID {}", primarySwitchId);
         if (primarySwitchId == null || primarySwitchId.equals(BigInteger.ZERO)) {
-            LOG.error("NAT Service : Unable to to select the primary NAPT switch");
+            LOG.info("NAT Service : Unable to to select the primary NAPT switch for router {}", routerName);
         }
 
         return primarySwitchId;
