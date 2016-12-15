@@ -65,13 +65,13 @@ public abstract class TestOdlDirectStatisticsService implements OpendaylightDire
         LOG.info("getFlowStatistics rpc input = {}", input);
 
         List<FlowAndStatisticsMapList> flowStatsList = new ArrayList<>();
-        FlowAndStatisticsMapList portIngressFlowStats1 =
-                buildFlowStats(NwConstants.EGRESS_ACL_FILTER_TABLE, AclConstants.CT_STATE_NEW_PRIORITY_DROP, 1, 5, 5);
+        FlowAndStatisticsMapList portIngressFlowStats1 = buildFlowStats(NwConstants.EGRESS_ACL_FILTER_TABLE,
+                AclConstants.CT_STATE_TRACKED_NEW_DROP_PRIORITY, 1, 5, 5);
         FlowAndStatisticsMapList portIngressFlowStats2 = buildFlowStats(NwConstants.EGRESS_ACL_FILTER_TABLE,
                 AclConstants.CT_STATE_TRACKED_INVALID_PRIORITY, 1, 10, 10);
 
         FlowAndStatisticsMapList portEgressFlowStats1 = buildFlowStats(NwConstants.INGRESS_ACL_FILTER_TABLE,
-                AclConstants.CT_STATE_NEW_PRIORITY_DROP, 1, 15, 15);
+                AclConstants.CT_STATE_TRACKED_NEW_DROP_PRIORITY, 1, 15, 15);
         FlowAndStatisticsMapList portEgressFlowStats2 = buildFlowStats(NwConstants.INGRESS_ACL_FILTER_TABLE,
                 AclConstants.CT_STATE_TRACKED_INVALID_PRIORITY, 1, 20, 20);
 

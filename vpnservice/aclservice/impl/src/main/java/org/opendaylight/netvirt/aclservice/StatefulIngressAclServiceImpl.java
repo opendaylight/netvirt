@@ -28,6 +28,7 @@ import org.opendaylight.netvirt.aclservice.api.AclServiceManager.Action;
 import org.opendaylight.netvirt.aclservice.api.AclServiceManager.MatchCriteria;
 import org.opendaylight.netvirt.aclservice.utils.AclConstants;
 import org.opendaylight.netvirt.aclservice.utils.AclDataUtil;
+import org.opendaylight.netvirt.aclservice.utils.AclServiceOFFlowBuilder;
 import org.opendaylight.netvirt.aclservice.utils.AclServiceUtils;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.acl.access.list.entries.Ace;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.MacAddress;
@@ -75,7 +76,7 @@ public class StatefulIngressAclServiceImpl extends AbstractIngressAclServiceImpl
     @Override
     protected void programSpecificFixedRules(BigInteger dpid, String dhcpMacAddress,
             List<AllowedAddressPairs> allowedAddresses, int lportTag, String portId, Action action, int addOrRemove) {
-        programIngressAclFixedConntrackRule(dpid, allowedAddresses, portId, action, addOrRemove);
+        programIngressAclFixedConntrackRule(dpid, lportTag, allowedAddresses, portId, action, addOrRemove);
     }
 
     @Override
@@ -140,14 +141,54 @@ public class StatefulIngressAclServiceImpl extends AbstractIngressAclServiceImpl
      * Programs the default connection tracking rules.
      *
      * @param dpid the dp id
+     * @param lportTag the lport tag
      * @param allowedAddresses the allowed addresses
      * @param portId the portId
      * @param write whether to add or remove the flow.
      */
-    private void programIngressAclFixedConntrackRule(BigInteger dpid, List<AllowedAddressPairs> allowedAddresses,
-            String portId, Action action, int write) {
+    private void programIngressAclFixedConntrackRule(BigInteger dpid, int lportTag,
+            List<AllowedAddressPairs> allowedAddresses, String portId, Action action, int write) {
         programConntrackRecircRules(dpid, allowedAddresses, AclConstants.CT_STATE_UNTRACKED_PRIORITY,
             "Recirc",portId, write);
+        programIngressConntrackDropRules(dpid, lportTag, write);
         LOG.info("programIngressAclFixedConntrackRule :  default connection tracking rule are added.");
+    }
+
+    /**
+     * Adds the rule to drop the unknown/invalid packets .
+     *
+     * @param dpId the dpId
+     * @param lportTag the lport tag
+     * @param priority the priority of the flow
+     * @param flowId the flowId
+     * @param conntrackState the conntrack state of the packets thats should be
+     *        send
+     * @param conntrackMask the conntrack mask
+     * @param tableId table id
+     * @param addOrRemove whether to add or remove the flow
+     */
+    private void programConntrackDropRule(BigInteger dpId, int lportTag, Integer priority, String flowId,
+            int conntrackState, int conntrackMask, int addOrRemove) {
+        List<MatchInfoBase> matches = AclServiceOFFlowBuilder.addLPortTagMatches(lportTag, conntrackState,
+                conntrackMask);
+        List<InstructionInfo> instructions = AclServiceOFFlowBuilder.getDropInstructionInfo();
+
+        flowId = "Ingress_Fixed_Conntrk_Drop" + dpId + "_" + lportTag + "_" + flowId;
+        syncFlow(dpId, NwConstants.INGRESS_ACL_FILTER_TABLE, flowId, priority, "ACL", 0, 0,
+                AclConstants.COOKIE_ACL_DROP_FLOW, matches, instructions, addOrRemove);
+    }
+
+    /**
+     * Adds the rules to drop the unknown/invalid packets .
+     *
+     * @param dpId the dpId
+     * @param lportTag the lport tag
+     * @param addOrRemove whether to add or remove the flow
+     */
+    private void programIngressConntrackDropRules(BigInteger dpId, int lportTag, int addOrRemove) {
+        programConntrackDropRule(dpId, lportTag, AclConstants.CT_STATE_TRACKED_NEW_DROP_PRIORITY, "Tracked_New",
+                AclConstants.TRACKED_NEW_CT_STATE, AclConstants.TRACKED_NEW_CT_STATE_MASK, addOrRemove);
+        programConntrackDropRule(dpId, lportTag, AclConstants.CT_STATE_TRACKED_INVALID_PRIORITY, "Tracked_Invalid",
+                AclConstants.TRACKED_INV_CT_STATE, AclConstants.TRACKED_INV_CT_STATE_MASK, addOrRemove);
     }
 }

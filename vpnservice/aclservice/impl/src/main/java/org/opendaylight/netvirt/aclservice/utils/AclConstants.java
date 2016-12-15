@@ -42,7 +42,7 @@ public final class AclConstants {
     public static final Integer CT_STATE_TRACKED_EXIST_PRIORITY = 62020;
     public static final Integer CT_STATE_TRACKED_INVALID_PRIORITY = 62015;
     public static final Integer CT_STATE_TRACKED_NEW_PRIORITY = 62010;
-    public static final Integer CT_STATE_NEW_PRIORITY_DROP = 50;
+    public static final Integer CT_STATE_TRACKED_NEW_DROP_PRIORITY = 50;
 
     public static final short DHCP_CLIENT_PORT_IPV4 = 68;
     public static final short DHCP_SERVER_PORT_IPV4 = 67;
