@@ -48,8 +48,7 @@ public class NAPTSwitchSelector {
         Map<BigInteger, Integer> naptSwitchWeights = constructNAPTSwitches();
         List<BigInteger> routerSwitches = getDpnsForVpn(routerName);
         if(routerSwitches == null || routerSwitches.isEmpty()) {
-            LOG.debug("NAT Service : No switches are part of router {}", routerName);
-            LOG.error("NAT Service : NAPT SWITCH SELECTION STOPPED DUE TO NO DPNS SCENARIO FOR ROUTER {}", routerName);
+            LOG.info("NAT Service : Delaying NAPT switch selection due to no dpns scenario for router {}", routerName);
             return BigInteger.ZERO;
         }
 
