@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1a622d24_6e560ad4",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NaptSwitchHA.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 185,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-12-16T18:26:40Z",
+      "side": 1,
+      "message": "Why are you using the routerName here instead of routerId?",
+      "revId": "7a00f38db9fb8eef2c34b99463b6fa7297a3eb6d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
