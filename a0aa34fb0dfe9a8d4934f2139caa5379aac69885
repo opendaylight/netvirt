@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1a622d24_8e03a60c",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/ExternalRoutersListener.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 204,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-12-16T17:28:15Z",
+      "side": 1,
+      "message": "How do we differentiate if this was really an error ?\n\nIn production environment, they turn ON only ERROR.\n\nso we may need to retain this as error...",
+      "revId": "a0aa34fb0dfe9a8d4934f2139caa5379aac69885",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_ee0a1a20",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/ExternalRoutersListener.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 368,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-12-16T17:28:15Z",
+      "side": 1,
+      "message": "ditto comment here.",
+      "revId": "a0aa34fb0dfe9a8d4934f2139caa5379aac69885",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
