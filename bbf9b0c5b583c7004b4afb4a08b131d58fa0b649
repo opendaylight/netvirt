@@ -1,0 +1,72 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1a622d24_5aa02c9f",
+        "filename": "docs/specs/l3vpn-over-vxlan-with-evpn-rt5.rst",
+        "patchSetId": 20
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 3276
+      },
+      "writtenOn": "2016-12-16T06:40:20Z",
+      "side": 1,
+      "message": "Create subtitles with \u0027In scope\u0027 and \u0027Not included in scope\u0027 to call out.",
+      "revId": "bbf9b0c5b583c7004b4afb4a08b131d58fa0b649",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_9a892429",
+        "filename": "docs/specs/l3vpn-over-vxlan-with-evpn-rt5.rst",
+        "patchSetId": 20
+      },
+      "lineNbr": 60,
+      "author": {
+        "id": 3276
+      },
+      "writtenOn": "2016-12-16T06:40:20Z",
+      "side": 1,
+      "message": "Check generated doc. Output is not what you expected it to be. General guideline, don\u0027t use bullette/numbered lists. They work better in word documents coz they auto format but not in RST.",
+      "revId": "bbf9b0c5b583c7004b4afb4a08b131d58fa0b649",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_7a8c0836",
+        "filename": "docs/specs/l3vpn-over-vxlan-with-evpn-rt5.rst",
+        "patchSetId": 20
+      },
+      "lineNbr": 77,
+      "author": {
+        "id": 3276
+      },
+      "writtenOn": "2016-12-16T06:40:20Z",
+      "side": 1,
+      "message": "Formatting of this whole section is incorrect.",
+      "revId": "bbf9b0c5b583c7004b4afb4a08b131d58fa0b649",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_ba86a011",
+        "filename": "docs/specs/l3vpn-over-vxlan-with-evpn-rt5.rst",
+        "patchSetId": 20
+      },
+      "lineNbr": 100,
+      "author": {
+        "id": 3276
+      },
+      "writtenOn": "2016-12-16T06:40:20Z",
+      "side": 1,
+      "message": "Formatting",
+      "revId": "bbf9b0c5b583c7004b4afb4a08b131d58fa0b649",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
