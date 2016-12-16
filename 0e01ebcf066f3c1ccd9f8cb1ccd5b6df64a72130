@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1a622d24_1acb5454",
+        "filename": "docs/specs/specs-template.rst",
+        "patchSetId": 1
+      },
+      "lineNbr": 4,
+      "author": {
+        "id": 817
+      },
+      "writtenOn": "2016-12-16T07:08:22Z",
+      "side": 1,
+      "message": "you will be doing it for genius and infrautils as well? Let me know if you need any help",
+      "revId": "0e01ebcf066f3c1ccd9f8cb1ccd5b6df64a72130",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
