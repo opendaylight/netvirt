@@ -1,0 +1,175 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1a622d24_7abec8d5",
+        "filename": "docs/specs/qos.rst",
+        "patchSetId": 3
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 3276
+      },
+      "writtenOn": "2016-12-16T06:23:48Z",
+      "side": 1,
+      "message": "Can we add the NeutronNorthbound QoS api? Maybe the yang model or sample JSON? Code in netvirt will be listening on NN data changes so should be captured here as it informs the implementation.",
+      "range": {
+        "startLine": 18,
+        "startChar": 19,
+        "endLine": 18,
+        "endChar": 38
+      },
+      "revId": "42da469f265de08239c07a4c32cb583477b8e608",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_3a1610f2",
+        "filename": "docs/specs/qos.rst",
+        "patchSetId": 3
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 3276
+      },
+      "writtenOn": "2016-12-16T06:23:48Z",
+      "side": 1,
+      "message": "Can you look at generated doc. I personally like those vertical bars to the left in generated doc, I think they show up in nested lists or multiple levels of indentation. Add an empty line before this and try a bulleted list, should take care of it.",
+      "range": {
+        "startLine": 21,
+        "startChar": 0,
+        "endLine": 22,
+        "endChar": 14
+      },
+      "revId": "42da469f265de08239c07a4c32cb583477b8e608",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_9ad48421",
+        "filename": "docs/specs/qos.rst",
+        "patchSetId": 3
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 3276
+      },
+      "writtenOn": "2016-12-16T06:23:48Z",
+      "side": 1,
+      "message": "This whole section is indented strangely. Take a look at generated doc and fix the issues.",
+      "revId": "42da469f265de08239c07a4c32cb583477b8e608",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_dadefc3e",
+        "filename": "docs/specs/qos.rst",
+        "patchSetId": 3
+      },
+      "lineNbr": 58,
+      "author": {
+        "id": 3276
+      },
+      "writtenOn": "2016-12-16T06:23:48Z",
+      "side": 1,
+      "message": "I haven\u0027t settled on how to capture pipeline changes in individual specs, but am leaning towards a table that mentions Table, Matches and Actions. Could you try it out?",
+      "revId": "42da469f265de08239c07a4c32cb583477b8e608",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_1ae874e1",
+        "filename": "docs/specs/qos.rst",
+        "patchSetId": 3
+      },
+      "lineNbr": 101,
+      "author": {
+        "id": 3276
+      },
+      "writtenOn": "2016-12-16T06:23:48Z",
+      "side": 1,
+      "message": "Should capture how to enable. devstack/local.conf or neutron.conf changes can be captured here. Purpose of this section is to provide information for user guide and test folks.",
+      "revId": "42da469f265de08239c07a4c32cb583477b8e608",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_bae18000",
+        "filename": "docs/specs/qos.rst",
+        "patchSetId": 3
+      },
+      "lineNbr": 114,
+      "author": {
+        "id": 3276
+      },
+      "writtenOn": "2016-12-16T06:23:48Z",
+      "side": 1,
+      "message": "I\u0027d like to see OpenStack QoS CLI captured here. Would be useful when writing user guide.",
+      "revId": "42da469f265de08239c07a4c32cb583477b8e608",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_5af2ecd2",
+        "filename": "docs/specs/qos.rst",
+        "patchSetId": 3
+      },
+      "lineNbr": 121,
+      "author": {
+        "id": 3276
+      },
+      "writtenOn": "2016-12-16T06:23:48Z",
+      "side": 1,
+      "message": "Can we call out CSIT contributor, if identified, for this?",
+      "revId": "42da469f265de08239c07a4c32cb583477b8e608",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_fa1bf819",
+        "filename": "docs/specs/qos.rst",
+        "patchSetId": 3
+      },
+      "lineNbr": 180,
+      "author": {
+        "id": 3276
+      },
+      "writtenOn": "2016-12-16T06:23:48Z",
+      "side": 1,
+      "message": "remove the descriptive text from template.",
+      "range": {
+        "startLine": 174,
+        "startChar": 0,
+        "endLine": 180,
+        "endChar": 33
+      },
+      "revId": "42da469f265de08239c07a4c32cb583477b8e608",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_3aed70f0",
+        "filename": "docs/specs/qos.rst",
+        "patchSetId": 3
+      },
+      "lineNbr": 182,
+      "author": {
+        "id": 3276
+      },
+      "writtenOn": "2016-12-16T06:23:48Z",
+      "side": 1,
+      "message": "I\u0027d also like link to neutron northbound patches in ODL that added QoS support, esp yang ones as those are more relevant for this.",
+      "revId": "42da469f265de08239c07a4c32cb583477b8e608",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
