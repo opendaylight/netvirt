@@ -1,13 +1,15 @@
 ..
- TODO:Copyright? We're using OpenStack one as reference, do we need to retain
- their copyright?
-
  Key points to consider:
   * Use RST format. For help with syntax refer http://sphinx-doc.org/rest.html
+  * Use http://rst.ninjs.org/ a web based WYSIWYG RST editor.
   * For diagrams, you can use http://asciiflow.com to make ascii diagrams.
-  * Read `OpenDaylight Documentation Guide <http://docs.opendaylight.org/en/latest/documentation.html>`__
+  * MUST READ http://docs.opendaylight.org/en/latest/documentation.html and follow guidelines.
   * Use same topic branch name for all patches related to this feature.
   * All sections should be retained, but can be marked None or N.A.
+  * Set depth in ToC as per your doc requirements. Should be at least 2.
+
+.. contents:: Table of Contents
+      :depth: 3
 
 =====================
 Title of the feature
@@ -172,11 +174,13 @@ Add any useful references. Some examples:
 
 [1] http://docs.opendaylight.org/en/latest/documentation.html
 
-[2] https://specs.openstack.org/openstack/nova-specs/specs/kilo/template.html
+[2] `OpenDaylight Documentation Guide <http://docs.opendaylight.org/en/latest/documentation.html>`__
+
+[3] https://specs.openstack.org/openstack/nova-specs/specs/kilo/template.html
 
 .. note::
 
-  This template was derived from [2], and has been modified to support our project.
+  This template was derived from [3], and has been modified to support our project.
 
   This work is licensed under a Creative Commons Attribution 3.0 Unported License.
   http://creativecommons.org/licenses/by/3.0/legalcode
