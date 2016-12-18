@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "1a622d24_cdf923ca",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NaptSwitchHA.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 185,
+      "author": {
+        "id": 6465
+      },
+      "writtenOn": "2016-12-18T06:38:44Z",
+      "side": 1,
+      "message": "Hi. \nI just tried to fix NPE in right way and replaced the function call by some reasons:\n- the func getPrimaryNaptfromRouterId() looks for a router name in DS, but we already have the name in most cases, so it seems just not rational to read the router name from DS;\n- NatUtil.getRouterName() uses \"odl-nat/router-id-name/routerIds\" model which ExternalRoutersListener.add() has to add to DS, but it doesn\u0027t add the data, because NatUtil.getVpnId() returns INVALID_ID of the router, i.e. sometimes the DS \"odl-l3vpn/vpn-instance-to-vpn-id\" is missed at moment when  ExternalRoutersListener receives the add event",
+      "parentUuid": "1a622d24_6e560ad4",
+      "revId": "7a00f38db9fb8eef2c34b99463b6fa7297a3eb6d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_2e737281",
         "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NaptSwitchHA.java",
         "patchSetId": 1
@@ -30,6 +48,30 @@
       "writtenOn": "2016-12-16T18:28:37Z",
       "side": 1,
       "message": "ditto comment here",
+      "revId": "7a00f38db9fb8eef2c34b99463b6fa7297a3eb6d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_6d13af0d",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NatUtil.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 401,
+      "author": {
+        "id": 6465
+      },
+      "writtenOn": "2016-12-18T06:38:44Z",
+      "side": 1,
+      "message": "You are right, ExternalRoutersListener has to add, but it doesn\u0027t execute this because the function NatUtil.getVpnId() returns INVALID_ID of the router, i.e. sometimes the DS \"odl-l3vpn/vpn-instance-to-vpn-id\" is missed at moment when  ExternalRoutersListener receives the add event.",
+      "parentUuid": "1a622d24_c93f58d5",
+      "range": {
+        "startLine": 401,
+        "startChar": 28,
+        "endLine": 401,
+        "endChar": 59
+      },
       "revId": "7a00f38db9fb8eef2c34b99463b6fa7297a3eb6d",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
