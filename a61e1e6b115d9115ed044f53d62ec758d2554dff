@@ -1,0 +1,89 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1a622d24_cd8923cc",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/EVPNVrfEntryProcessor.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 100,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2016-12-18T17:12:44Z",
+      "side": 1,
+      "message": "I think it was decided to use apply_actions rather than write_actions throughout the pipeline.\nAny specific reason why write_actions is needed here?",
+      "revId": "a61e1e6b115d9115ed044f53d62ec758d2554dff",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_ad84a7b1",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/EVPNVrfEntryProcessor.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 191,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2016-12-18T17:12:44Z",
+      "side": 1,
+      "message": "ditto",
+      "revId": "a61e1e6b115d9115ed044f53d62ec758d2554dff",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_0d94bbe0",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/EVPNVrfEntryProcessor.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 208,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2016-12-18T17:12:44Z",
+      "side": 1,
+      "message": "ditto",
+      "revId": "a61e1e6b115d9115ed044f53d62ec758d2554dff",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_6da3af4f",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/FibUtil.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 742,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2016-12-18T17:12:44Z",
+      "side": 1,
+      "message": "You need to utilize genius cache here by calling IInterfaceManager.getInterfaceInfoFromOperationalDataStore() instead of accessing the ietf-interface oper DS directly",
+      "revId": "a61e1e6b115d9115ed044f53d62ec758d2554dff",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_2d99b71f",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 198,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2016-12-18T17:12:44Z",
+      "side": 1,
+      "message": "The semantics and instantiation of this class looks pretty weird to me.\nWhy not create EVPNVrfEntryProcessor as a service initialized using BP and inject its required dependencies like dataBroker, vrfEntryListener etc.\nThen create a POJO called something like EVPNVrfEntry and call EVPNVrfEntryProcessor.processEvent() with this entry as parameter",
+      "revId": "a61e1e6b115d9115ed044f53d62ec758d2554dff",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
