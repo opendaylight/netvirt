@@ -11,3 +11,4 @@ Contents:
 
    Design Specification Template <specs-template>
    Temporary SMAC Learning <temporary-smac-learning>
+   Hairpinning of floating IPs in flat/VLAN provider networks <hairpinning-flat-vlan>
