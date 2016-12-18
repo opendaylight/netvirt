@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "1a622d24_6d2a8f2d",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/ExternalRoutersListener.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 204,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2016-12-18T09:06:31Z",
+      "side": 1,
+      "message": "I think that if the ODL is capable to recover from this situation by choosing NAPT switch and installing the same set of flows from RouterDpnChangeListener than this shouldn\u0027t be marked as an error.\nIs there a use case that ExternalRoutersListener is called while dpn-vpninterfaces-list is still empty and it never gets filled but we will still need to use the flows associated to NAPT selection?",
+      "parentUuid": "1a622d24_8e03a60c",
+      "revId": "a0aa34fb0dfe9a8d4934f2139caa5379aac69885",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_ee0a1a20",
         "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/ExternalRoutersListener.java",
         "patchSetId": 2
