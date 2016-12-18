@@ -13,3 +13,4 @@ Contents:
    Temporary SMAC Learning <temporary-smac-learning>
    Setup Source-MAC-Address for routed packets to virtual endpoints <setup-smac-for-routed-packets-to-virt-endpoints>
    Support of VXLAN based connectivity across Datacenters <l3vpn-over-vxlan-with-evpn-rt5>
+   Hairpinning of floating IPs in flat/VLAN provider networks <hairpinning-flat-vlan>
