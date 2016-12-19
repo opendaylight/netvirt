@@ -938,32 +938,31 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
                 // get all vpns
                 InstanceIdentifier<VpnInstances> vpnsIdentifier = InstanceIdentifier.builder(VpnInstances.class)
                         .build();
-                Optional<VpnInstances> optionalVpns = NeutronvpnUtils.read(dataBroker,
-                        LogicalDatastoreType.CONFIGURATION,
-                        vpnsIdentifier);
-                if (optionalVpns.isPresent() && optionalVpns.get().getVpnInstance() != null) {
+                Optional<VpnInstances> optionalVpns = NeutronvpnUtils.read(dataBroker, LogicalDatastoreType
+                        .CONFIGURATION, vpnsIdentifier);
+                if (optionalVpns.isPresent() && !optionalVpns.get().getVpnInstance().isEmpty()) {
                     for (VpnInstance vpn : optionalVpns.get().getVpnInstance()) {
-                        // eliminating internal VPNs from getL3VPN output
+                        // eliminating implicitly created (router and VLAN provider external network specific) VPNs
+                        // from getL3VPN output
                         if (vpn.getIpv4Family().getRouteDistinguisher() != null) {
                             vpns.add(vpn);
                         }
                     }
                 } else {
                     // No VPN present
-                    result.set(RpcResultBuilder.<GetL3VPNOutput>failed().withWarning(ErrorType.PROTOCOL, "", "No VPN " +
-                            "is present").build());
+                    result.set(RpcResultBuilder.<GetL3VPNOutput> success().withResult(opBuilder.build()).build());
                     return result;
                 }
             } else {
                 String name = inputVpnId.getValue();
                 InstanceIdentifier<VpnInstance> vpnIdentifier = InstanceIdentifier.builder(VpnInstances.class)
-                        .child(VpnInstance.class,
-                                new VpnInstanceKey(name))
-                        .build();
+                        .child(VpnInstance.class, new VpnInstanceKey(name)).build();
                 // read VpnInstance Info
                 Optional<VpnInstance> optionalVpn = NeutronvpnUtils.read(dataBroker, LogicalDatastoreType.CONFIGURATION,
                         vpnIdentifier);
-                if (optionalVpn.isPresent()) {
+                // eliminating implicitly created (router or VLAN provider external network specific) VPN from
+                // getL3VPN output
+                if (optionalVpn.isPresent() && optionalVpn.get().getIpv4Family().getRouteDistinguisher() != null) {
                     vpns.add(optionalVpn.get());
                 } else {
                     String message = String.format("GetL3VPN failed because VPN %s is not present", name);
