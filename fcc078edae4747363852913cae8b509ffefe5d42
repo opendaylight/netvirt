@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1a622d24_70ec2490",
+        "filename": "docs/specs/hairpinning-flat-vlan.rst",
+        "patchSetId": 7
+      },
+      "lineNbr": 69,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2016-12-19T09:49:19Z",
+      "side": 1,
+      "message": "AFAIU, in the current pipeline in SNAT FIB table we update the SMAC to Floatingip MAC and send it to the subnet-id group. Here the flow seems to hit FIB table again. \n\nIs this intentional or am I missing something?\nAlso, can you please elaborate the actions in SNAT-FIB table.",
+      "revId": "fcc078edae4747363852913cae8b509ffefe5d42",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_b0fd1c3e",
+        "filename": "docs/specs/hairpinning-flat-vlan.rst",
+        "patchSetId": 7
+      },
+      "lineNbr": 80,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2016-12-19T09:49:19Z",
+      "side": 1,
+      "message": "Please include the action \"dst-ip is updated to VM ip\" in PDNAT Table(25).\nAlso, match \"dst-ip\u003d\u003dVM-ip\" in Table27.\n\nSimilarly for any other sections below. This will be helpful and serve as a good reference for the various use-cases.",
+      "revId": "fcc078edae4747363852913cae8b509ffefe5d42",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
