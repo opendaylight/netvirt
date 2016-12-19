@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1a622d24_b6f4f4cf",
+        "filename": "docs/specs/hairpinning-flat-vlan.rst",
+        "patchSetId": 8
+      },
+      "lineNbr": 63,
+      "author": {
+        "id": 670
+      },
+      "writtenOn": "2016-12-19T14:45:17Z",
+      "side": 1,
+      "message": "Though showing the new pipeline is informative, I think we should add some details on what\u0027s actually changing - otherwise it\u0027s required to understand the current pipeline just to know what changed.\n\ne.g. \"Loop back to FIB table from SNAT table after changing source IP, instead of outputting straight to the external network group\"",
+      "revId": "fd59e19469cf38c834b78fec0eeea2719b5b7257",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
