@@ -2,6 +2,23 @@
   "comments": [
     {
       "key": {
+        "uuid": "1a622d24_a1bf90fb",
+        "filename": "docs/specs/hairpinning-flat-vlan.rst",
+        "patchSetId": 8
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-12-19T17:54:52Z",
+      "side": 1,
+      "message": "the provider-type is a network property.  All the subnets in that network will share that same network property.\n\nI believe you are using subnet id in the VPN Metadata, so that you can uniquely direct all the traffic to a group that can be destined one each, representing a specific external-subnet-gateway-mac ?",
+      "revId": "fd59e19469cf38c834b78fec0eeea2719b5b7257",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_b6f4f4cf",
         "filename": "docs/specs/hairpinning-flat-vlan.rst",
         "patchSetId": 8
@@ -30,6 +47,57 @@
       "writtenOn": "2016-12-19T16:58:50Z",
       "side": 1,
       "message": "better to explicitly state what is being changed in the pipeline in addition to showing the flow of packet below..\n\nI updated similar information in the other spec for EVPN.",
+      "revId": "fd59e19469cf38c834b78fec0eeea2719b5b7257",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_61af3895",
+        "filename": "docs/specs/hairpinning-flat-vlan.rst",
+        "patchSetId": 8
+      },
+      "lineNbr": 74,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-12-19T17:54:52Z",
+      "side": 1,
+      "message": "for example in the above, the change is only in PRESNAT_TABLE SNAT_TABLE and FIB_TABLE",
+      "revId": "fd59e19469cf38c834b78fec0eeea2719b5b7257",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_41067ccf",
+        "filename": "docs/specs/hairpinning-flat-vlan.rst",
+        "patchSetId": 8
+      },
+      "lineNbr": 96,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-12-19T17:54:52Z",
+      "side": 1,
+      "message": "Table 47 is NAPT_PFIB_TABLE",
+      "revId": "fd59e19469cf38c834b78fec0eeea2719b5b7257",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_41b79cd8",
+        "filename": "docs/specs/hairpinning-flat-vlan.rst",
+        "patchSetId": 8
+      },
+      "lineNbr": 298,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-12-19T17:54:52Z",
+      "side": 1,
+      "message": "as part of this you will remove the creation of vpn-instances with external network ids right?",
       "revId": "fd59e19469cf38c834b78fec0eeea2719b5b7257",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
