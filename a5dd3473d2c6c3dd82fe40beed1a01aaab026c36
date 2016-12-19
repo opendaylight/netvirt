@@ -51,6 +51,24 @@
       "revId": "a5dd3473d2c6c3dd82fe40beed1a01aaab026c36",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_30510c0f",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronQosNodeListener.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 63,
+      "author": {
+        "id": 6892
+      },
+      "writtenOn": "2016-12-19T05:25:16Z",
+      "side": 1,
+      "message": "In the latest patch, changed it has flowcapable node",
+      "parentUuid": "1a622d24_7d3c1930",
+      "revId": "a5dd3473d2c6c3dd82fe40beed1a01aaab026c36",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
