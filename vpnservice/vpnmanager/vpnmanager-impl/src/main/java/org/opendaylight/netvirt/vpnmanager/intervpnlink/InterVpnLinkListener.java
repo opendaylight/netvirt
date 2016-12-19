@@ -435,8 +435,8 @@ public class InterVpnLinkListener extends AsyncDataTreeChangeListenerBase<InterV
                               vpnLink.getName(), vpn1Rd, vrfEntry.getDestPrefix());
                     continue;
                 }
-                InterVpnLinkUtil.leakRoute(dataBroker, bgpManager, vpnLink, vpn2Uuid, vpn1Uuid, vrfEntry.getDestPrefix(),
-                                           label, RouteOrigin.value(vrfEntry.getOrigin()));
+                InterVpnLinkUtil.leakRoute(dataBroker, bgpManager, vpnLink, vpn2Uuid, vpn1Uuid,
+                                           vrfEntry.getDestPrefix(), label, RouteOrigin.value(vrfEntry.getOrigin()));
             }
         }
     }
@@ -467,20 +467,19 @@ public class InterVpnLinkListener extends AsyncDataTreeChangeListenerBase<InterV
         // Remove the corresponding entries in InterVpnLinkState
 
         // For each endpoint, remove all routes that have been learnt by intervpnLink
-
-
-
         String vpn1Uuid = del.getFirstEndpoint().getVpnUuid().getValue();
         String rd1 = VpnUtil.getVpnRdFromVpnInstanceConfig(dataBroker, vpn1Uuid);
         LOG.debug("Removing leaked routes in VPN {}  rd={}", vpn1Uuid, rd1);
         VpnUtil.removeVrfEntriesByOrigin(dataBroker, rd1, RouteOrigin.INTERVPN);
-        List<VrfEntry> vrfEntriesSecondEndpoint = VpnUtil.findVrfEntriesByNexthop(dataBroker, rd1, del.getSecondEndpoint().getIpAddress().getValue());
+        List<VrfEntry> vrfEntriesSecondEndpoint =
+            VpnUtil.findVrfEntriesByNexthop(dataBroker, rd1, del.getSecondEndpoint().getIpAddress().getValue());
 
         String vpn2Uuid = del.getSecondEndpoint().getVpnUuid().getValue();
         String rd2 = VpnUtil.getVpnRdFromVpnInstanceConfig(dataBroker, vpn2Uuid);
         LOG.debug("Removing leaked routes in VPN {}  rd={}", vpn2Uuid, rd2);
         VpnUtil.removeVrfEntriesByOrigin(dataBroker, rd2, RouteOrigin.INTERVPN);
-        List<VrfEntry> vrfEntriesFirstEndpoint = VpnUtil.findVrfEntriesByNexthop(dataBroker, rd2, del.getFirstEndpoint().getIpAddress().getValue());
+        List<VrfEntry> vrfEntriesFirstEndpoint =
+            VpnUtil.findVrfEntriesByNexthop(dataBroker, rd2, del.getFirstEndpoint().getIpAddress().getValue());
 
         Optional<InterVpnLinkState> optIVpnLinkState = InterVpnLinkUtil.getInterVpnLinkState(dataBroker, del.getName());
         if ( optIVpnLinkState.isPresent() ) {
@@ -513,6 +512,8 @@ public class InterVpnLinkListener extends AsyncDataTreeChangeListenerBase<InterV
 
         VpnUtil.removeVrfEntries(dataBroker, rd1, vrfEntriesSecondEndpoint);
         VpnUtil.removeVrfEntries(dataBroker, rd2, vrfEntriesFirstEndpoint);
+        VpnUtil.withdrawRoutes(bgpManager, rd1, vrfEntriesSecondEndpoint);
+        VpnUtil.withdrawRoutes(bgpManager, rd2, vrfEntriesFirstEndpoint);
 
         // Release idManager with LPortTag associated to endpoints
         LOG.debug("Releasing InterVpnLink {} endpoints LportTags", del.getName());
@@ -528,13 +529,14 @@ public class InterVpnLinkListener extends AsyncDataTreeChangeListenerBase<InterV
         // Remove it in that case.
 
         // Removing the InterVpnLinkState
-        InstanceIdentifier<InterVpnLinkState> interVpnLinkStateIid = InterVpnLinkUtil.getInterVpnLinkStateIid(del.getName());
+        InstanceIdentifier<InterVpnLinkState> interVpnLinkStateIid =
+            InterVpnLinkUtil.getInterVpnLinkStateIid(del.getName());
         VpnUtil.delete(dataBroker, LogicalDatastoreType.CONFIGURATION, interVpnLinkStateIid);
     }
 
     private void removeVpnLinkEndpointFlows(InterVpnLink del, String vpnUuid, List<BigInteger> dpns,
-                                            int otherEndpointLportTag, String otherEndpointIpAddr, List<VrfEntry> vrfEntries,
-                                            final boolean isVpnFirstEndPoint) {
+                                            int otherEndpointLportTag, String otherEndpointIpAddr,
+                                            List<VrfEntry> vrfEntries, final boolean isVpnFirstEndPoint) {
 
         String iVpnLinkName = del.getName();
         LOG.debug("Removing endpoint flows for vpn {}.  InterVpnLink={}.  OtherEndpointLportTag={}",

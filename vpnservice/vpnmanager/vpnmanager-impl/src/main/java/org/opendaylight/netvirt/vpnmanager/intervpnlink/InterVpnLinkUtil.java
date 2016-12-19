@@ -496,7 +496,7 @@ public class InterVpnLinkUtil {
             InterVpnLinkState vpnLinkState = optVpnLinkState.get();
             List<BigInteger> dpnIdList = destinationIs1stEndpoint ? vpnLinkState.getFirstEndpointState().getDpId()
                     : vpnLinkState.getSecondEndpointState().getDpId();
-            List<String> nexthops = new ArrayList<String>();
+            List<String> nexthops = new ArrayList<>();
             for (BigInteger dpnId : dpnIdList) {
                 nexthops.add(InterfaceUtils.getEndpointIpAddressForDPN(broker, dpnId));
             }

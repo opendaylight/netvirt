@@ -34,6 +34,7 @@ import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.genius.mdsalutil.NWUtil;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.genius.utils.cache.DataStoreCache;
+import org.opendaylight.netvirt.bgpmanager.api.IBgpManager;
 import org.opendaylight.netvirt.fibmanager.api.RouteOrigin;
 import org.opendaylight.netvirt.neutronvpn.api.utils.NeutronConstants;
 import org.opendaylight.netvirt.neutronvpn.interfaces.INeutronVpnManager;
@@ -582,6 +583,17 @@ public class VpnUtil {
             delete(broker, LogicalDatastoreType.CONFIGURATION, vpnVrfTableIid.child(VrfEntry.class,
                                                                                     vrfEntry.getKey()));
         }
+    }
+
+    public static void withdrawRoutes(IBgpManager bgpManager, String rd, List<VrfEntry> vrfEntries) {
+        vrfEntries.forEach(vrfEntry -> {
+            try {
+                bgpManager.withdrawPrefix(rd, vrfEntry.getDestPrefix());
+            } catch (Exception e) {
+                LOG.info("Could not withdwar route to {} with nexthop {} in VpnRd {}",
+                         vrfEntry.getDestPrefix(), vrfEntry.getNextHopAddressList(), rd);
+            }
+        });
     }
 
     static org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.to.vpn.id.VpnInstance
