@@ -27,6 +27,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.qos.rev160613.qos.a
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.qos.rev160613.qos.attributes.qos.policies.QosPolicy;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.qos.rev160613.qos.attributes.qos.policies.qos.policy.BandwidthLimitRules;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.qos.rev160613.qos.attributes.qos.policies.qos.policy.BandwidthLimitRulesBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.qos.rev160613.qos.attributes.qos.policies.qos.policy.DscpmarkingRules;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.qos.rev160613.qos.attributes.qos.policies.qos.policy.DscpmarkingRulesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.rev150712.Neutron;
 import org.opendaylight.yangtools.concepts.ListenerRegistration;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
@@ -76,6 +78,7 @@ public class NeutronQosPolicyChangeListener implements ClusteredDataTreeChangeLi
     public void onDataTreeChanged(@Nonnull Collection<DataTreeModification<QosPolicy>> changes) {
         handleQosPolicyChanges(changes);
         handleBandwidthLimitRulesChanges(changes);
+        handleDscpRuleChanges(changes);
     }
 
     private void handleQosPolicyChanges(Collection<DataTreeModification<QosPolicy>> changes) {
@@ -115,6 +118,29 @@ public class NeutronQosPolicyChangeListener implements ClusteredDataTreeChangeLi
         }
     }
 
+    private void handleDscpRuleChanges(Collection<DataTreeModification<QosPolicy>> changes) {
+        Map<InstanceIdentifier<DscpmarkingRules>, DscpmarkingRules> dscpOriginalMap =
+                ChangeUtils.extractOriginal(changes, DscpmarkingRules.class);
+
+        for (Entry<InstanceIdentifier<DscpmarkingRules>, DscpmarkingRules> dscpMapEntry :
+            ChangeUtils.extractCreated(changes, DscpmarkingRules.class).entrySet()) {
+            add(dscpMapEntry.getKey(), dscpMapEntry.getValue());
+        }
+
+        for (Entry<InstanceIdentifier<DscpmarkingRules>, DscpmarkingRules> dscpMapEntry :
+                ChangeUtils.extractUpdated(changes, DscpmarkingRules.class).entrySet()) {
+            update(dscpMapEntry.getKey(), dscpOriginalMap.get(dscpMapEntry.getKey()),
+                    dscpMapEntry.getValue());
+        }
+
+        for (InstanceIdentifier<DscpmarkingRules> dscpRuleIid:
+                ChangeUtils.extractRemoved(changes, DscpmarkingRules.class)) {
+            remove(dscpRuleIid, dscpOriginalMap.get(dscpRuleIid));
+        }
+    }
+
+
+
     private void add(InstanceIdentifier<QosPolicy> identifier, QosPolicy input) {
         LOG.trace("Adding  QosPolicy : key: {}, value={}", identifier, input);
         NeutronvpnUtils.addToQosPolicyCache(input);
@@ -139,6 +165,25 @@ public class NeutronQosPolicyChangeListener implements ClusteredDataTreeChangeLi
         }
     }
 
+    private void add(InstanceIdentifier<DscpmarkingRules> identifier, DscpmarkingRules input) {
+        LOG.trace("Adding DscpMarkingRules: Key: {}, value: {}", identifier, input);
+
+        Uuid qosUuid = identifier.firstKeyOf(QosPolicy.class).getUuid();
+        if (NeutronvpnUtils.qosNetworksMap.get(qosUuid) != null &&
+                !NeutronvpnUtils.qosNetworksMap.get(qosUuid).isEmpty()) {
+            for (Network network: NeutronvpnUtils.qosNetworksMap.get(qosUuid).values()) {
+                NeutronQosUtils.handleNeutronNetworkQosUpdate(dataBroker, odlInterfaceRpcService, network, qosUuid);
+            }
+        }
+
+        if (NeutronvpnUtils.qosPortsMap.get(qosUuid) != null &&
+                !NeutronvpnUtils.qosPortsMap.get(qosUuid).isEmpty()) {
+            for (Port port: NeutronvpnUtils.qosPortsMap.get(qosUuid).values()) {
+                NeutronQosUtils.setPortDscpMark(dataBroker, odlInterfaceRpcService, port, input);
+            }
+        }
+    }
+
     private void remove(InstanceIdentifier<QosPolicy> identifier, QosPolicy input) {
         LOG.trace("Removing QosPolicy : key: {}, value={}", identifier, input);
         NeutronvpnUtils.removeFromQosPolicyCache(input);
@@ -155,7 +200,8 @@ public class NeutronQosPolicyChangeListener implements ClusteredDataTreeChangeLi
         if (NeutronvpnUtils.qosNetworksMap.get(qosUuid) != null
                 && !NeutronvpnUtils.qosNetworksMap.get(qosUuid).isEmpty()) {
             for (Network network : NeutronvpnUtils.qosNetworksMap.get(qosUuid).values()) {
-                NeutronQosUtils.handleNeutronNetworkQosRemove(dataBroker, odlInterfaceRpcService, network, qosUuid);
+                NeutronQosUtils.handleNeutronNetworkQosBwRuleRemove(dataBroker, odlInterfaceRpcService,
+                        network, zeroBwLimitRule);
             }
         }
 
@@ -163,6 +209,26 @@ public class NeutronQosPolicyChangeListener implements ClusteredDataTreeChangeLi
                 && !NeutronvpnUtils.qosPortsMap.get(qosUuid).isEmpty()) {
             for (Port port : NeutronvpnUtils.qosPortsMap.get(qosUuid).values()) {
                 NeutronQosUtils.setPortBandwidthLimits(dataBroker, odlInterfaceRpcService, port, zeroBwLimitRule);
+            }
+        }
+    }
+
+    private void remove(InstanceIdentifier<DscpmarkingRules> identifier, DscpmarkingRules input) {
+        LOG.trace("Removing dscp marking rule: key {}, value {}", identifier, input);
+
+        Uuid qosUuid = identifier.firstKeyOf(QosPolicy.class).getUuid();
+
+        if (NeutronvpnUtils.qosNetworksMap.get(qosUuid) != null &&
+                !NeutronvpnUtils.qosNetworksMap.get(qosUuid).isEmpty()) {
+            for (Network network: NeutronvpnUtils.qosNetworksMap.get(qosUuid).values()) {
+                NeutronQosUtils.handleNeutronNetworkQosDscpRuleRemove(dataBroker, odlInterfaceRpcService, network);
+            }
+        }
+
+        if (NeutronvpnUtils.qosPortsMap.get(qosUuid) != null &&
+                !NeutronvpnUtils.qosPortsMap.get(qosUuid).isEmpty()) {
+            for (Port port: NeutronvpnUtils.qosPortsMap.get(qosUuid).values()) {
+                NeutronQosUtils.unsetPortDscpMark(dataBroker, odlInterfaceRpcService, port);
             }
         }
     }
@@ -188,6 +254,27 @@ public class NeutronQosPolicyChangeListener implements ClusteredDataTreeChangeLi
                 && !NeutronvpnUtils.qosPortsMap.get(qosUuid).isEmpty()) {
             for (Port port : NeutronvpnUtils.qosPortsMap.get(qosUuid).values()) {
                 NeutronQosUtils.setPortBandwidthLimits(dataBroker, odlInterfaceRpcService, port, update);
+            }
+        }
+    }
+
+    private void update(InstanceIdentifier<DscpmarkingRules> identifier, DscpmarkingRules original,
+                        DscpmarkingRules update) {
+        LOG.trace("Updating dscp marking rule: key: {}, original value: {}, updated value: {}",
+                identifier, original, update);
+
+        Uuid qosUuid = identifier.firstKeyOf(QosPolicy.class).getUuid();
+        if (NeutronvpnUtils.qosNetworksMap.get(qosUuid) != null &&
+                !NeutronvpnUtils.qosNetworksMap.get(qosUuid).isEmpty()) {
+            for (Network network: NeutronvpnUtils.qosNetworksMap.get(qosUuid).values()) {
+                NeutronQosUtils.handleNeutronNetworkQosUpdate(dataBroker, odlInterfaceRpcService, network, qosUuid);
+            }
+        }
+
+        if (NeutronvpnUtils.qosPortsMap.get(qosUuid) != null &&
+                !NeutronvpnUtils.qosPortsMap.get(qosUuid).isEmpty()) {
+            for (Port port: NeutronvpnUtils.qosPortsMap.get(qosUuid).values()) {
+                NeutronQosUtils.setPortDscpMark(dataBroker, odlInterfaceRpcService, port, update);
             }
         }
     }
