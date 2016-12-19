@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "1a622d24_730d4e37",
+        "filename": "docs/specs/hairpinning-flat-vlan.rst",
+        "patchSetId": 7
+      },
+      "lineNbr": 69,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2016-12-19T12:22:03Z",
+      "side": 1,
+      "message": "Yes. This is the change required to support hairpinning.\nIf the traffic will be sent directly to the subnet-id group after SNAT we won\u0027t be able to route traffic destined to floating ips internally.\nInstead, we will preserve the subnet-id of src-fip as the vpn-id in the metadata and traverse the FIB table again. If a flow matching the dst fip will be found - the traffic will be directed to the compute holding the VM associated with that fip. Otherwise, lower priority flow containing only the subnet-id of the src fip will be matched against and packets will be sent to the subnet-id group",
+      "parentUuid": "1a622d24_70ec2490",
+      "revId": "fcc078edae4747363852913cae8b509ffefe5d42",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_b0fd1c3e",
         "filename": "docs/specs/hairpinning-flat-vlan.rst",
         "patchSetId": 7
@@ -30,6 +48,24 @@
       "writtenOn": "2016-12-19T09:49:19Z",
       "side": 1,
       "message": "Please include the action \"dst-ip is updated to VM ip\" in PDNAT Table(25).\nAlso, match \"dst-ip\u003d\u003dVM-ip\" in Table27.\n\nSimilarly for any other sections below. This will be helpful and serve as a good reference for the various use-cases.",
+      "revId": "fcc078edae4747363852913cae8b509ffefe5d42",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_f3715e45",
+        "filename": "docs/specs/hairpinning-flat-vlan.rst",
+        "patchSetId": 7
+      },
+      "lineNbr": 80,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2016-12-19T12:22:03Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1a622d24_b0fd1c3e",
       "revId": "fcc078edae4747363852913cae8b509ffefe5d42",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
