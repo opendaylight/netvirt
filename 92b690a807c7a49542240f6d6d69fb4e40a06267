@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1a622d24_50de4812",
+        "filename": "docs/specs/specs-template.rst",
+        "patchSetId": 2
+      },
+      "lineNbr": 177,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2016-12-19T08:44:48Z",
+      "side": 1,
+      "message": "This is same as [1]. Can we remove [1] and update any references accordingly?",
+      "revId": "92b690a807c7a49542240f6d6d69fb4e40a06267",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
