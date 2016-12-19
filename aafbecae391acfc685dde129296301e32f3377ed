@@ -156,6 +156,24 @@
       "revId": "aafbecae391acfc685dde129296301e32f3377ed",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_70026470",
+        "filename": "docs/specs/flow-based-snat.rst",
+        "patchSetId": 2
+      },
+      "lineNbr": 175,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2016-12-19T08:52:23Z",
+      "side": 1,
+      "message": "I don\u0027t think OpenStack supports distributed SNAT currently.",
+      "parentUuid": "1a622d24_6e1baa1b",
+      "revId": "aafbecae391acfc685dde129296301e32f3377ed",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
