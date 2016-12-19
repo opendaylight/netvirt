@@ -9,6 +9,7 @@ package org.opendaylight.netvirt.neutronvpn;
 
 import com.google.common.base.Optional;
 import java.math.BigInteger;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
@@ -35,10 +36,15 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.qos.ext.rev160613.Q
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.qos.rev160613.qos.attributes.qos.policies.QosPolicy;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.qos.rev160613.qos.attributes.qos.policies.qos.policy.BandwidthLimitRules;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.qos.rev160613.qos.attributes.qos.policies.qos.policy.BandwidthLimitRulesBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.qos.rev160613.qos.attributes.qos.policies.qos.policy.DscpmarkingRules;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.rev150105.OvsdbBridgeRef;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.rev150105.OvsdbPortInterfaceAttributes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.rev150105.OvsdbTerminationPointAugmentation;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.rev150105.OvsdbTerminationPointAugmentationBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.rev150105.ovsdb.port._interface.attributes.InterfaceExternalIds;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.rev150105.ovsdb.port._interface.attributes.Options;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.rev150105.ovsdb.port._interface.attributes.OptionsBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.rev150105.ovsdb.port._interface.attributes.OptionsKey;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.NetworkTopology;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.Topology;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.TopologyKey;
@@ -63,10 +69,17 @@ public class NeutronQosUtils {
 
         // handle Bandwidth Limit Rules update
         QosPolicy qosPolicy = NeutronvpnUtils.qosPolicyMap.get(qosUuid);
-        if (qosPolicy != null && qosPolicy.getBandwidthLimitRules() != null
-                && !qosPolicy.getBandwidthLimitRules().isEmpty()) {
-            setPortBandwidthLimits(db, odlInterfaceRpcService, port,
-                    qosPolicy.getBandwidthLimitRules().get(0));
+        if (qosPolicy != null) {
+            if (qosPolicy.getBandwidthLimitRules() != null
+                    && !qosPolicy.getBandwidthLimitRules().isEmpty()) {
+                setPortBandwidthLimits(db, odlInterfaceRpcService, port,
+                        qosPolicy.getBandwidthLimitRules().get(0));
+            }
+            if (qosPolicy.getDscpmarkingRules() != null &&
+                    !qosPolicy.getDscpmarkingRules().isEmpty()) {
+                setPortDscpMark(db, odlInterfaceRpcService, port,
+                        qosPolicy.getDscpmarkingRules().get(0));
+            }
         }
     }
 
@@ -76,11 +89,17 @@ public class NeutronQosUtils {
 
         // handle Bandwidth Limit Rules removal
         QosPolicy qosPolicy = NeutronvpnUtils.qosPolicyMap.get(qosUuid);
-        if (qosPolicy != null && qosPolicy.getBandwidthLimitRules() != null
-                && !qosPolicy.getBandwidthLimitRules().isEmpty()) {
-            BandwidthLimitRulesBuilder bwLimitBuilder = new BandwidthLimitRulesBuilder();
-            setPortBandwidthLimits(db, odlInterfaceRpcService, port,
-                    bwLimitBuilder.setMaxBurstKbps(BigInteger.ZERO).setMaxKbps(BigInteger.ZERO).build());
+        if (qosPolicy != null) {
+            if (qosPolicy.getBandwidthLimitRules() != null
+                    && !qosPolicy.getBandwidthLimitRules().isEmpty()) {
+                BandwidthLimitRulesBuilder bwLimitBuilder = new BandwidthLimitRulesBuilder();
+                setPortBandwidthLimits(db, odlInterfaceRpcService, port,
+                        bwLimitBuilder.setMaxBurstKbps(BigInteger.ZERO).setMaxKbps(BigInteger.ZERO).build());
+            }
+            if (qosPolicy.getDscpmarkingRules() != null &&
+                    !qosPolicy.getDscpmarkingRules().isEmpty()) {
+                unsetPortDscpMark(db, odlInterfaceRpcService, port);
+            }
         }
 
         // check for network qos to apply
@@ -97,8 +116,9 @@ public class NeutronQosUtils {
             Network network, Uuid qosUuid) {
         LOG.trace("Handling Network QoS update: net: {} qos: {}", network.getUuid(), qosUuid);
         QosPolicy qosPolicy = NeutronvpnUtils.qosPolicyMap.get(qosUuid);
-        if (qosPolicy == null || qosPolicy.getBandwidthLimitRules() == null
-                || qosPolicy.getBandwidthLimitRules().isEmpty()) {
+        if (qosPolicy == null || ((qosPolicy.getBandwidthLimitRules() == null
+                || qosPolicy.getBandwidthLimitRules().isEmpty()) &&
+                (qosPolicy.getDscpmarkingRules() == null || qosPolicy.getDscpmarkingRules().isEmpty()))) {
             return;
         }
         List<Uuid> subnetIds = NeutronvpnUtils.getSubnetIdsFromNetworkId(db, network.getUuid());
@@ -110,8 +130,16 @@ public class NeutronQosUtils {
                         Port port = NeutronvpnUtils.portMap.get(portId);
                         if (port != null && (port.getAugmentation(QosPortExtension.class) == null
                                 || port.getAugmentation(QosPortExtension.class).getQosPolicyId() == null)) {
-                            setPortBandwidthLimits(db, odlInterfaceRpcService, port,
-                                    qosPolicy.getBandwidthLimitRules().get(0));
+                            if (qosPolicy.getBandwidthLimitRules() != null &&
+                                    !qosPolicy.getBandwidthLimitRules().isEmpty()) {
+                                setPortBandwidthLimits(db, odlInterfaceRpcService, port,
+                                        qosPolicy.getBandwidthLimitRules().get(0));
+                            }
+                            if (qosPolicy.getDscpmarkingRules() != null &&
+                                    !qosPolicy.getDscpmarkingRules().isEmpty()) {
+                                setPortDscpMark(db, odlInterfaceRpcService, port,
+                                        qosPolicy.getDscpmarkingRules().get(0));
+                            }
                         }
                     }
                 }
@@ -123,6 +151,7 @@ public class NeutronQosUtils {
             Network network, Uuid qosUuid) {
         LOG.trace("Handling Network QoS removal: net: {} qos: {}", network.getUuid(), qosUuid);
 
+        QosPolicy qosPolicy = NeutronvpnUtils.qosPolicyMap.get(qosUuid);
         List<Uuid> subnetIds = NeutronvpnUtils.getSubnetIdsFromNetworkId(db, network.getUuid());
         if (subnetIds != null) {
             for (Uuid subnetId : subnetIds) {
@@ -132,10 +161,61 @@ public class NeutronQosUtils {
                         Port port = NeutronvpnUtils.portMap.get(portId);
                         if (port != null && (port.getAugmentation(QosPortExtension.class) == null
                                 || port.getAugmentation(QosPortExtension.class).getQosPolicyId() == null)) {
-                            BandwidthLimitRulesBuilder bwLimitBuilder = new BandwidthLimitRulesBuilder();
-                            setPortBandwidthLimits(db, odlInterfaceRpcService, port,
-                                    bwLimitBuilder.setMaxBurstKbps(BigInteger.ZERO)
-                                    .setMaxKbps(BigInteger.ZERO).build());
+                            if (qosPolicy.getBandwidthLimitRules() != null &&
+                                    !qosPolicy.getBandwidthLimitRules().isEmpty()) {
+                                BandwidthLimitRulesBuilder bwLimitBuilder = new BandwidthLimitRulesBuilder();
+                                setPortBandwidthLimits(db, odlInterfaceRpcService, port,
+                                        bwLimitBuilder.setMaxBurstKbps(BigInteger.ZERO)
+                                                .setMaxKbps(BigInteger.ZERO).build());
+                            }
+                            if (qosPolicy.getDscpmarkingRules() != null &&
+                                    !qosPolicy.getDscpmarkingRules().isEmpty()) {
+                                unsetPortDscpMark(db, odlInterfaceRpcService, port);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    public static void handleNeutronNetworkQosBwRuleRemove(DataBroker db, OdlInterfaceRpcService odlInterfaceRpcService,
+                                                           Network network, BandwidthLimitRules zeroBwRule) {
+        LOG.trace("Handling Qos Bandwidth Rule removal, net: {}", network.getUuid());
+
+        List<Uuid> subnetIds = NeutronvpnUtils.getSubnetIdsFromNetworkId(db, network.getUuid());
+
+        if (subnetIds != null) {
+            for (Uuid subnetId : subnetIds) {
+                List<Uuid> portIds = NeutronvpnUtils.getPortIdsFromSubnetId(db, subnetId);
+                if (portIds != null) {
+                    for (Uuid portId : portIds) {
+                        Port port = NeutronvpnUtils.portMap.get(portId);
+                        if (port != null && (port.getAugmentation(QosPortExtension.class) == null ||
+                                port.getAugmentation(QosPortExtension.class).getQosPolicyId() == null)) {
+                            setPortBandwidthLimits(db, odlInterfaceRpcService, port, zeroBwRule);
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    public static void handleNeutronNetworkQosDscpRuleRemove(DataBroker db, OdlInterfaceRpcService odlInterfaceRpcService,
+                                                          Network network) {
+        LOG.trace("Handling Qos Dscp Rule removal, net: {}", network.getUuid());
+
+        List<Uuid> subnetIds = NeutronvpnUtils.getSubnetIdsFromNetworkId(db, network.getUuid());
+
+        if (subnetIds != null) {
+            for (Uuid subnetId : subnetIds) {
+                List<Uuid> portIds = NeutronvpnUtils.getPortIdsFromSubnetId(db, subnetId);
+                if (portIds != null) {
+                    for (Uuid portId : portIds) {
+                        Port port = NeutronvpnUtils.portMap.get(portId);
+                        if (port != null && (port.getAugmentation(QosPortExtension.class) == null ||
+                                port.getAugmentation(QosPortExtension.class).getQosPolicyId() == null)) {
+                            unsetPortDscpMark(db, odlInterfaceRpcService, port);
                         }
                     }
                 }
@@ -174,6 +254,69 @@ public class NeutronQosUtils {
                 .child(Topology.class, new TopologyKey(SouthboundUtils.OVSDB_TOPOLOGY_ID))
                 .child(Node.class, bridgeNode.get().getKey())
                 .child(TerminationPoint.class, new TerminationPointKey(tp.getKey())), tpBuilder.build());
+    }
+
+    public static void setPortDscpMark(DataBroker db, OdlInterfaceRpcService odlInterfaceRpcService,
+                                       Port port, DscpmarkingRules dscpMark) {
+        LOG.trace("Setting dscp rule {} for port {}", dscpMark, port);
+
+        BigInteger dpnId = getDpnForInterface(odlInterfaceRpcService, port.getUuid().getValue());
+        if (dpnId.equals(BigInteger.ZERO)) {
+            LOG.info("DPN ID for port {} not found", port.getUuid().getValue());
+            return;
+        }
+
+        OvsdbBridgeRef bridgeRefEntry = getBridgeRefEntryFromOperDS(dpnId, db);
+        Optional<Node> bridgeNode = MDSALUtil.read(LogicalDatastoreType.OPERATIONAL,
+                bridgeRefEntry.getValue().firstIdentifierOf(Node.class), db);
+
+        TerminationPoint tp = getTerminationPoint(bridgeNode.get(), port.getUuid().getValue());
+        OvsdbTerminationPointAugmentation ovsdbTp = tp.getAugmentation(OvsdbTerminationPointAugmentation.class);
+
+        OvsdbTerminationPointAugmentationBuilder tpAugmentationBuilder = new OvsdbTerminationPointAugmentationBuilder();
+        tpAugmentationBuilder.setName(ovsdbTp.getName());
+
+        List<Options> options = new ArrayList<>();
+        OptionsBuilder optionBuilder = new OptionsBuilder();
+        optionBuilder.setKey(new OptionsKey("tos"));
+        optionBuilder.setOption("tos");
+        optionBuilder.setValue("inherit");
+        options.add(optionBuilder.build());
+
+        tpAugmentationBuilder.setOptions(options);
+
+        TerminationPointBuilder tpBuilder = new TerminationPointBuilder();
+        tpBuilder.setKey(tp.getKey());
+        tpBuilder.addAugmentation(OvsdbTerminationPointAugmentation.class, tpAugmentationBuilder.build());
+        MDSALUtil.syncUpdate(db, LogicalDatastoreType.CONFIGURATION, InstanceIdentifier
+                .create(NetworkTopology.class)
+                .child(Topology.class, new TopologyKey(SouthboundUtils.OVSDB_TOPOLOGY_ID))
+                .child(Node.class, bridgeNode.get().getKey())
+                .child(TerminationPoint.class, new TerminationPointKey(tp.getKey())), tpBuilder.build());
+    }
+
+    public static void unsetPortDscpMark(DataBroker db, OdlInterfaceRpcService odlInterfaceRpcService,
+                                         Port port) {
+        LOG.trace("Removing dscp marking rule from Port {}", port);
+
+        BigInteger dpnId = getDpnForInterface(odlInterfaceRpcService, port.getUuid().getValue());
+        if (dpnId.equals(BigInteger.ZERO)) {
+            LOG.info("DPN ID for port {} not found", port);
+            return;
+        }
+
+        OvsdbBridgeRef bridgeRefEntry = getBridgeRefEntryFromOperDS(dpnId, db);
+        Optional<Node> bridgeNode = MDSALUtil.read(LogicalDatastoreType.OPERATIONAL,
+                bridgeRefEntry.getValue().firstIdentifierOf(Node.class), db);
+
+        TerminationPoint tp = getTerminationPoint(bridgeNode.get(), port.getUuid().getValue());
+
+        MDSALUtil.syncDelete(db, LogicalDatastoreType.CONFIGURATION, InstanceIdentifier
+                .create(NetworkTopology.class)
+                .child(Topology.class, new TopologyKey(SouthboundUtils.OVSDB_TOPOLOGY_ID))
+                .child(Node.class, bridgeNode.get().getKey())
+                .child(TerminationPoint.class, new TerminationPointKey(tp.getKey()))
+                .augmentation(OvsdbTerminationPointAugmentation.class).child(Options.class, new OptionsKey("tos")));
     }
 
     private static TerminationPoint getTerminationPoint(Node bridgeNode, String interfaceName) {
