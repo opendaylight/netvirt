@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1a622d24_0a5134d8",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronQosUtils.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 283,
+      "author": {
+        "id": 856
+      },
+      "writtenOn": "2016-12-20T19:04:31Z",
+      "side": 1,
+      "message": "Doesn\u0027t the \u0027tos:inherit\u0027 option get applied to the tunnel port?  This is the vm port - right?",
+      "revId": "5545d8d3889af018b4f997617322eab7d70bc589",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
