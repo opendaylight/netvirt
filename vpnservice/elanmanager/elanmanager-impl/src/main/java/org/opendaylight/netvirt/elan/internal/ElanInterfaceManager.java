@@ -640,7 +640,7 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
         WriteTransaction tx = broker.newWriteOnlyTransaction();
         BigInteger dpId = interfaceInfo.getDpId();
         WriteTransaction writeFlowGroupTx = broker.newWriteOnlyTransaction();
-        installEntriesForElanInterface(elanInstance, interfaceInfo, isFirstInterfaceInDpn, tx, writeFlowGroupTx);
+        installEntriesForElanInterface(elanInstance, elanInterface, interfaceInfo, isFirstInterfaceInDpn, tx, writeFlowGroupTx);
         List<PhysAddress> staticMacAddresses = elanInterface.getStaticMacEntries();
         if (staticMacAddresses != null) {
             boolean isInterfaceOperational = isOperational(interfaceInfo);
@@ -702,7 +702,7 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
                 .child(MacEntry.class, new MacEntryKey(physAddress)).build();
     }
 
-    private void installEntriesForElanInterface(ElanInstance elanInstance, InterfaceInfo interfaceInfo,
+    private void installEntriesForElanInterface(ElanInstance elanInstance, ElanInterface elanInterface, InterfaceInfo interfaceInfo,
             boolean isFirstInterfaceInDpn, WriteTransaction tx, WriteTransaction writeFlowGroupTx)
             throws ElanException {
         if (!isOperational(interfaceInfo)) {
@@ -724,8 +724,7 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
             programRemoteDmacFlow(elanInstance, interfaceInfo, writeFlowGroupTx);
         }
         // bind the Elan service to the Interface
-        bindService(elanInstance,
-                ElanUtils.getElanInterfaceByElanInterfaceName(broker, interfaceInfo.getInterfaceName()), tx);
+        bindService(elanInstance, elanInterface, tx);
     }
 
     public void installEntriesForFirstInterfaceonDpn(ElanInstance elanInfo, InterfaceInfo interfaceInfo,
