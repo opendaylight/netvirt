@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1a622d24_3c756398",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronPortChangeListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 284,
+      "author": {
+        "id": 856
+      },
+      "writtenOn": "2016-12-20T01:36:52Z",
+      "side": 1,
+      "message": "I don\u0027t think this line should be here since the qos in this case is a network qos and not a port qos.",
+      "revId": "b74d6b7a8622d33333cfbc72ce0df81b0acb2abb",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
