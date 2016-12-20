@@ -99,9 +99,7 @@ public class ElanForwardingEntriesHandler {
         InstanceIdentifier<MacEntry> macEntryId = ElanUtils.getMacEntryOperationalDataPath(elanName,
                 mac.getMacAddress());
         MacEntry existingMacEntry = elanUtils.getMacEntryFromElanMacId(macEntryId);
-        if (existingMacEntry != null) {
-            // Fix for TR HU71400.
-            // ElanUtils.delete(broker, LogicalDatastoreType.OPERATIONAL, macEntryId);
+        if (existingMacEntry != null && elanUtils.getElanMacTable(elanName) != null) {
             MacEntry newMacEntry = new MacEntryBuilder().setInterface(interfaceName).setIsStaticAddress(true)
                     .setMacAddress(mac.getMacAddress()).setKey(new MacEntryKey(mac.getMacAddress())).build();
             tx.put(LogicalDatastoreType.OPERATIONAL, macEntryId, newMacEntry);
@@ -112,7 +110,7 @@ public class ElanForwardingEntriesHandler {
         InstanceIdentifier<MacEntry> macEntryId = ElanUtils.getMacEntryOperationalDataPath(elanName,
                 macEntry.getMacAddress());
         Optional<MacEntry> existingMacEntry = elanUtils.read(broker, LogicalDatastoreType.OPERATIONAL, macEntryId);
-        if (!existingMacEntry.isPresent()) {
+        if (!existingMacEntry.isPresent() && elanUtils.getElanMacTable(elanName) != null) {
             tx.put(LogicalDatastoreType.OPERATIONAL, macEntryId, macEntry);
         }
     }
