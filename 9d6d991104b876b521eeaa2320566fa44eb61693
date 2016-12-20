@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1a622d24_0aff74ab",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/intervpnlink/InterVpnLinkListener.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 281,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-12-20T19:54:22Z",
+      "side": 1,
+      "message": "vpnMaps may also contain vlanprovidernetwork based vpn instances also..\n\nFor a vlanproviderexternalnetowrk, the vpnid will be different from router-id (as router-id doesn\u0027t exist for that).. \n\nso this check is not sufficient upstrea... will need to relook tomorrow at this.",
+      "revId": "9d6d991104b876b521eeaa2320566fa44eb61693",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_6a2d4846",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/intervpnlink/InterVpnLinkListener.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 286,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-12-20T19:54:22Z",
+      "side": 1,
+      "message": "what does this do?",
+      "revId": "9d6d991104b876b521eeaa2320566fa44eb61693",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
