@@ -194,21 +194,11 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
                     builder = new SubnetmapBuilder().setKey(new SubnetmapKey(subnetId)).setId(subnetId);
                     LOG.debug("WithRouterFixedIPs: creating new subnetmap node for subnet ID {}", subnetId.getValue());
                 }
-                if (routerId != null) {
-                    builder.setRouterId(routerId);
-                } else {
-                    builder.setRouterId(null);
-                }
-                if (routerInterfaceName != null) {
-                    builder.setRouterInterfaceName(routerInterfaceName);
-                } else {
-                    builder.setRouterInterfaceName(null);
-                }
-                if (routerIntfMacAddress != null) {
-                    builder.setRouterIntfMacAddress(routerIntfMacAddress);
-                } else {
-                    builder.setRouterIntfMacAddress(null);
-                }
+
+                builder.setRouterId(routerId);
+                builder.setRouterInterfaceName(routerInterfaceName);
+                builder.setRouterIntfMacAddress(routerIntfMacAddress);
+
                 if (fixedIp != null) {
                     List<String> fixedIps = builder.getRouterInterfaceFixedIps();
                     if (fixedIps == null) {
