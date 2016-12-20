@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "1a622d24_ccaabcd1",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/pom.xml",
+        "patchSetId": 3
+      },
+      "lineNbr": 111,
+      "author": {
+        "id": 6248
+      },
+      "writtenOn": "2016-12-20T13:49:28Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1a622d24_03cb15a6",
+      "revId": "e5377d96c8f2ffd464fc2adf4de93e58cc52884e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_23c1f180",
         "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanToTransportZoneListener.java",
         "patchSetId": 3
@@ -30,6 +48,24 @@
       "writtenOn": "2016-12-08T14:53:04Z",
       "side": 1,
       "message": "This message should be something more like - \"ELAN update detected, updating transport zones\"",
+      "revId": "e5377d96c8f2ffd464fc2adf4de93e58cc52884e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_0cb5d430",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanToTransportZoneListener.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 6248
+      },
+      "writtenOn": "2016-12-20T13:49:28Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1a622d24_23c1f180",
       "revId": "e5377d96c8f2ffd464fc2adf4de93e58cc52884e",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -53,6 +89,24 @@
     },
     {
       "key": {
+        "uuid": "1a622d24_8c80c447",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanToTransportZoneListener.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 71,
+      "author": {
+        "id": 6248
+      },
+      "writtenOn": "2016-12-20T13:49:28Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1a622d24_83be05fe",
+      "revId": "e5377d96c8f2ffd464fc2adf4de93e58cc52884e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_63bbe90e",
         "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/VpnToTransportZoneListener.java",
         "patchSetId": 3
@@ -70,6 +124,24 @@
     },
     {
       "key": {
+        "uuid": "1a622d24_cc911c9c",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/VpnToTransportZoneListener.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 61,
+      "author": {
+        "id": 6248
+      },
+      "writtenOn": "2016-12-20T13:49:28Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1a622d24_63bbe90e",
+      "revId": "e5377d96c8f2ffd464fc2adf4de93e58cc52884e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_c3375daf",
         "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/VpnToTransportZoneListener.java",
         "patchSetId": 3
@@ -81,6 +153,24 @@
       "writtenOn": "2016-12-08T14:53:04Z",
       "side": 1,
       "message": "This message should be something more like - \"VPN add detected, updating transport zones\"",
+      "revId": "e5377d96c8f2ffd464fc2adf4de93e58cc52884e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_ec969893",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/VpnToTransportZoneListener.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 66,
+      "author": {
+        "id": 6248
+      },
+      "writtenOn": "2016-12-20T13:49:28Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1a622d24_c3375daf",
       "revId": "e5377d96c8f2ffd464fc2adf4de93e58cc52884e",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -133,6 +223,24 @@
       "writtenOn": "2016-12-08T14:53:04Z",
       "side": 1,
       "message": "indentations throughout this file - look at it in gerrit and it pops out (the red blocks should usually be removed)",
+      "revId": "e5377d96c8f2ffd464fc2adf4de93e58cc52884e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_2c91b099",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/resources/org/opendaylight/blueprint/elanmanager.xml",
+        "patchSetId": 3
+      },
+      "lineNbr": 217,
+      "author": {
+        "id": 6248
+      },
+      "writtenOn": "2016-12-20T13:49:28Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1a622d24_c38f5d22",
       "revId": "e5377d96c8f2ffd464fc2adf4de93e58cc52884e",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
