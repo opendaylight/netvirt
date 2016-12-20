@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "1a622d24_ec6df833",
+        "filename": "docs/specs/acl-stats.rst",
+        "patchSetId": 7
+      },
+      "lineNbr": 129,
+      "author": {
+        "id": 5882
+      },
+      "writtenOn": "2016-12-20T14:32:22Z",
+      "side": 1,
+      "message": "Added description for this element and provided detailed  explanation in introduction section",
+      "parentUuid": "1a622d24_a7ea0d0d",
+      "revId": "c36f0640b89f5db6f79fd64b9df7c66f12913b87",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_87ed5128",
         "filename": "docs/specs/acl-stats.rst",
         "patchSetId": 7
