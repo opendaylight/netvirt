@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "1a622d24_d959dc5c",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/utils/TransportZoneNotificationUtil.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 217,
+      "author": {
+        "id": 6248
+      },
+      "writtenOn": "2016-12-20T13:44:04Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1a622d24_4d907343",
+      "revId": "b6cb7912a099a1db3778bbb6b818befc5a83bbce",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_2d937750",
         "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/utils/TransportZoneNotificationUtil.java",
         "patchSetId": 5
@@ -30,6 +48,24 @@
       "writtenOn": "2016-12-18T11:40:25Z",
       "side": 1,
       "message": "physPortId is the UUID of the port and the parent.getParentInterface() is a name.\nThey can never be the equal.",
+      "revId": "b6cb7912a099a1db3778bbb6b818befc5a83bbce",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_3959f05a",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/utils/TransportZoneNotificationUtil.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 276,
+      "author": {
+        "id": 6248
+      },
+      "writtenOn": "2016-12-20T13:44:04Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1a622d24_2d937750",
       "revId": "b6cb7912a099a1db3778bbb6b818befc5a83bbce",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
