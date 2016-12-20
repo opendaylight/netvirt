@@ -23,6 +23,7 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ConcurrentMap;
+import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
@@ -321,33 +322,29 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
             Optional<ElanInterfaceMac> existingElanInterfaceMac = elanUtils.read(broker,
                     LogicalDatastoreType.OPERATIONAL, elanInterfaceId);
             if (existingElanInterfaceMac.isPresent()) {
-                List<PhysAddress> macAddresses = new ArrayList<>();
                 List<MacEntry> existingMacEntries = existingElanInterfaceMac.get().getMacEntry();
                 List<MacEntry> macEntries = new ArrayList<>();
                 if (existingMacEntries != null && !existingMacEntries.isEmpty()) {
                     macEntries.addAll(existingMacEntries);
                 }
-                if (!macEntries.isEmpty()) {
-                    for (MacEntry macEntry : macEntries) {
-                        LOG.debug("removing the  mac-entry:{} present on elanInterface:{}",
-                                macEntry.getMacAddress().getValue(), interfaceName);
-                        InstanceIdentifier<MacTable> elanMacTableId = ElanUtils
-                                .getElanMacTableOperationalDataPath(elanName);
-                        Optional<MacTable> existingElanMacTable =
-                                elanUtils.read(broker, LogicalDatastoreType.OPERATIONAL, elanMacTableId);
-                        if (!isLastElanInterface && existingElanMacTable.isPresent()) {
-                            tx.delete(LogicalDatastoreType.OPERATIONAL,
-                                    ElanUtils.getMacEntryOperationalDataPath(elanName, macEntry.getMacAddress()));
-                        }
-                        elanUtils.deleteMacFlows(elanInfo, interfaceInfo, macEntry, deleteFlowGroupTx);
-                        macAddresses.add(macEntry.getMacAddress());
+                List<PhysAddress> macAddresses = macEntries.stream().map(macEntry -> {
+                    PhysAddress macAddress = macEntry.getMacAddress();
+                    LOG.debug("removing the  mac-entry:{} present on elanInterface:{}",
+                            macAddress.getValue(), interfaceName);
+                    Optional<MacEntry> macEntryOptional = elanUtils.getMacEntryForElanInstance(elanName,
+                            macAddress);
+                    if (!isLastElanInterface && macEntryOptional.isPresent()) {
+                        tx.delete(LogicalDatastoreType.OPERATIONAL,
+                                ElanUtils.getMacEntryOperationalDataPath(elanName, macAddress));
                     }
+                    elanUtils.deleteMacFlows(elanInfo, interfaceInfo, macEntry, deleteFlowGroupTx);
+                    return macAddress;
+                } ).collect(Collectors.toList());
 
-                    // Removing all those MACs from External Devices belonging
-                    // to this ELAN
-                    if (ElanUtils.isVxlan(elanInfo)) {
-                        elanL2GatewayUtils.removeMacsFromElanExternalDevices(elanInfo, macAddresses);
-                    }
+                // Removing all those MACs from External Devices belonging
+                // to this ELAN
+                if (ElanUtils.isVxlan(elanInfo) && ! macAddresses.isEmpty()) {
+                    elanL2GatewayUtils.removeMacsFromElanExternalDevices(elanInfo, macAddresses);
                 }
             }
             removeDefaultTermFlow(interfaceInfo.getDpId(), interfaceInfo.getInterfaceTag());
@@ -358,10 +355,15 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
             ElanInterfaceMac elanInterfaceMac = elanUtils.getElanInterfaceMacByInterfaceName(interfaceName);
             if (elanInterfaceMac != null && elanInterfaceMac.getMacEntry() != null) {
                 List<MacEntry> macEntries = elanInterfaceMac.getMacEntry();
-                for (MacEntry macEntry : macEntries) {
-                    tx.delete(LogicalDatastoreType.OPERATIONAL,
-                            ElanUtils.getMacEntryOperationalDataPath(elanName, macEntry.getMacAddress()));
-                }
+                macEntries.stream().forEach(macEntry -> {
+                    PhysAddress macAddress = macEntry.getMacAddress();
+                    Optional<MacEntry> macEntryOptional = elanUtils.getMacEntryForElanInstance(elanName,
+                            macAddress);
+                    if (macEntryOptional.isPresent()) {
+                        tx.delete(LogicalDatastoreType.OPERATIONAL,
+                                ElanUtils.getMacEntryOperationalDataPath(elanName, macAddress));
+                    }
+                } );
             }
         }
         tx.delete(LogicalDatastoreType.OPERATIONAL, elanInterfaceId);
@@ -640,7 +642,8 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
         WriteTransaction tx = broker.newWriteOnlyTransaction();
         BigInteger dpId = interfaceInfo.getDpId();
         WriteTransaction writeFlowGroupTx = broker.newWriteOnlyTransaction();
-        installEntriesForElanInterface(elanInstance, interfaceInfo, isFirstInterfaceInDpn, tx, writeFlowGroupTx);
+        installEntriesForElanInterface(elanInstance, elanInterface, interfaceInfo,
+                isFirstInterfaceInDpn, tx, writeFlowGroupTx);
         List<PhysAddress> staticMacAddresses = elanInterface.getStaticMacEntries();
         if (staticMacAddresses != null) {
             boolean isInterfaceOperational = isOperational(interfaceInfo);
@@ -702,9 +705,9 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
                 .child(MacEntry.class, new MacEntryKey(physAddress)).build();
     }
 
-    private void installEntriesForElanInterface(ElanInstance elanInstance, InterfaceInfo interfaceInfo,
-            boolean isFirstInterfaceInDpn, WriteTransaction tx, WriteTransaction writeFlowGroupTx)
-            throws ElanException {
+    private void installEntriesForElanInterface(ElanInstance elanInstance, ElanInterface elanInterface,
+            InterfaceInfo interfaceInfo, boolean isFirstInterfaceInDpn, WriteTransaction tx,
+            WriteTransaction writeFlowGroupTx) throws ElanException {
         if (!isOperational(interfaceInfo)) {
             return;
         }
@@ -724,8 +727,7 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
             programRemoteDmacFlow(elanInstance, interfaceInfo, writeFlowGroupTx);
         }
         // bind the Elan service to the Interface
-        bindService(elanInstance,
-                ElanUtils.getElanInterfaceByElanInterfaceName(broker, interfaceInfo.getInterfaceName()), tx);
+        bindService(elanInstance, elanInterface, tx);
     }
 
     public void installEntriesForFirstInterfaceonDpn(ElanInstance elanInfo, InterfaceInfo interfaceInfo,
