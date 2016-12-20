@@ -329,18 +329,17 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
                 }
                 if (!macEntries.isEmpty()) {
                     for (MacEntry macEntry : macEntries) {
+                        PhysAddress macAddress = macEntry.getMacAddress();
                         LOG.debug("removing the  mac-entry:{} present on elanInterface:{}",
-                                macEntry.getMacAddress().getValue(), interfaceName);
-                        InstanceIdentifier<MacTable> elanMacTableId = ElanUtils
-                                .getElanMacTableOperationalDataPath(elanName);
-                        Optional<MacTable> existingElanMacTable =
-                                elanUtils.read(broker, LogicalDatastoreType.OPERATIONAL, elanMacTableId);
-                        if (!isLastElanInterface && existingElanMacTable.isPresent()) {
-                            tx.delete(LogicalDatastoreType.OPERATIONAL,
-                                    ElanUtils.getMacEntryOperationalDataPath(elanName, macEntry.getMacAddress()));
+                                macAddress.getValue(), interfaceName);
+                        InstanceIdentifier<MacEntry> elanMacEntryIdentifier =
+                                ElanUtils.getMacEntryOperationalDataPath(elanName, macAddress);
+                        Optional<MacEntry> macEntryOptional = elanUtils.read(broker, LogicalDatastoreType.OPERATIONAL, elanMacEntryIdentifier);
+                        if (!isLastElanInterface && macEntryOptional.isPresent()) {
+                            tx.delete(LogicalDatastoreType.OPERATIONAL, elanMacEntryIdentifier);
                         }
                         elanUtils.deleteMacFlows(elanInfo, interfaceInfo, macEntry, deleteFlowGroupTx);
-                        macAddresses.add(macEntry.getMacAddress());
+                        macAddresses.add(macAddress);
                     }
 
                     // Removing all those MACs from External Devices belonging
@@ -640,7 +639,8 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
         WriteTransaction tx = broker.newWriteOnlyTransaction();
         BigInteger dpId = interfaceInfo.getDpId();
         WriteTransaction writeFlowGroupTx = broker.newWriteOnlyTransaction();
-        installEntriesForElanInterface(elanInstance, interfaceInfo, isFirstInterfaceInDpn, tx, writeFlowGroupTx);
+        installEntriesForElanInterface(elanInstance, elanInterface, interfaceInfo,
+                isFirstInterfaceInDpn, tx, writeFlowGroupTx);
         List<PhysAddress> staticMacAddresses = elanInterface.getStaticMacEntries();
         if (staticMacAddresses != null) {
             boolean isInterfaceOperational = isOperational(interfaceInfo);
@@ -702,9 +702,9 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
                 .child(MacEntry.class, new MacEntryKey(physAddress)).build();
     }
 
-    private void installEntriesForElanInterface(ElanInstance elanInstance, InterfaceInfo interfaceInfo,
-            boolean isFirstInterfaceInDpn, WriteTransaction tx, WriteTransaction writeFlowGroupTx)
-            throws ElanException {
+    private void installEntriesForElanInterface(ElanInstance elanInstance, ElanInterface elanInterface,
+            InterfaceInfo interfaceInfo, boolean isFirstInterfaceInDpn, WriteTransaction tx,
+            WriteTransaction writeFlowGroupTx) throws ElanException {
         if (!isOperational(interfaceInfo)) {
             return;
         }
@@ -724,8 +724,7 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
             programRemoteDmacFlow(elanInstance, interfaceInfo, writeFlowGroupTx);
         }
         // bind the Elan service to the Interface
-        bindService(elanInstance,
-                ElanUtils.getElanInterfaceByElanInterfaceName(broker, interfaceInfo.getInterfaceName()), tx);
+        bindService(elanInstance, elanInterface, tx);
     }
 
     public void installEntriesForFirstInterfaceonDpn(ElanInstance elanInfo, InterfaceInfo interfaceInfo,
