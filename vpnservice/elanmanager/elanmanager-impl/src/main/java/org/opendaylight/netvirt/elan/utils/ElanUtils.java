@@ -423,14 +423,9 @@ public class ElanUtils {
     }
 
     // elan-forwarding-tables Operational container
-    public MacEntry getMacTableByElanName(String elanName, PhysAddress physAddress) {
+    public Optional<MacEntry> getMacEntryForElanInstance(String elanName, PhysAddress physAddress) {
         InstanceIdentifier<MacEntry> macId = getMacEntryOperationalDataPath(elanName, physAddress);
-        Optional<MacEntry> existingElanMacEntry = read(broker,
-                LogicalDatastoreType.OPERATIONAL, macId);
-        if (existingElanMacEntry.isPresent()) {
-            return existingElanMacEntry.get();
-        }
-        return null;
+        return read(broker, LogicalDatastoreType.OPERATIONAL, macId);
     }
 
     public MacEntry getMacEntryFromElanMacId(InstanceIdentifier identifier) {
