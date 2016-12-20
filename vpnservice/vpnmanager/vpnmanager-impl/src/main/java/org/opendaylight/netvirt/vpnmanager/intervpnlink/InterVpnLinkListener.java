@@ -20,6 +20,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.NotificationPublishService;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
@@ -268,17 +270,21 @@ public class InterVpnLinkListener extends AsyncDataTreeChangeListenerBase<InterV
     }
 
     private Map<String, String> buildRouterXL3VPNMap() {
-        Map<String, String> result = new HashMap<>();
         InstanceIdentifier<VpnMaps> vpnMapsIdentifier = InstanceIdentifier.builder(VpnMaps.class).build();
         Optional<VpnMaps> optVpnMaps =
             MDSALUtil.read(dataBroker, LogicalDatastoreType.CONFIGURATION, vpnMapsIdentifier);
-        if (optVpnMaps.isPresent() && optVpnMaps.get().getVpnMap() != null) {
-            for ( VpnMap vpnMap : optVpnMaps.get().getVpnMap() ) {
-                result.put(vpnMap.getRouterId().getValue(), vpnMap.getVpnId().getValue());
-            }
+        if (!optVpnMaps.isPresent()) {
+            LOG.info("Could not retrieve VpnMaps object from Configurational DS");
+            return new HashMap<>();
         }
+        Predicate<VpnMap> isExternalVpn =
+            (vpnMap) -> vpnMap.getRouterId() != null
+                        && ! vpnMap.getVpnId().getValue().equalsIgnoreCase(vpnMap.getRouterId().getValue());
 
-        return result;
+        return optVpnMaps.get().getVpnMap().stream()
+                                           .filter(isExternalVpn)
+                                           .collect(Collectors.toMap(v -> v.getRouterId().getValue(),
+                                                                     v -> v.getVpnId().getValue()));
     }
 
 
