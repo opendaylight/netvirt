@@ -75,6 +75,30 @@
       "revId": "7a00f38db9fb8eef2c34b99463b6fa7297a3eb6d",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_25c9c378",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NatUtil.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 401,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-12-21T09:16:46Z",
+      "side": 1,
+      "message": "you can apply this patch for now in teh add() method of ExternalRoutersListener (not here):\nvpnOpDataSyncer.waitForVpnDataReady(VpnOpDataSyncer.VpnOpDataType.vpnInstanceToId, vpnName,\n                                                    VpnConstants.PER_VPN_INSTANCE_MAX_WAIT_TIME_IN_MILLISECONDS);\n\n                vpnId \u003d VpnUtil.getVpnId(dataBroker, vpnName);\n                if (vpnId \u003d\u003d VpnConstants.INVALID_ID) {\n                    LOG.error(\"VpnInstance to VPNId mapping not yet available for VpnName {} processing vpninterface {}\"\n                              + \", bailing out now.\", vpnName, interfaceName);\n                    return;\n                }",
+      "parentUuid": "1a622d24_6d13af0d",
+      "range": {
+        "startLine": 401,
+        "startChar": 28,
+        "endLine": 401,
+        "endChar": 59
+      },
+      "revId": "7a00f38db9fb8eef2c34b99463b6fa7297a3eb6d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
