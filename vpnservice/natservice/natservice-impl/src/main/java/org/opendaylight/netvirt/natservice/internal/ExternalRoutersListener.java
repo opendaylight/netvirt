@@ -371,11 +371,30 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
 
     private void installNaptPfibExternalOutputFlow(Routers routers, BigInteger dpnId) {
         Long extVpnId = NatUtil.getVpnId(dataBroker, routers.getNetworkId().getValue());
-
         String ip = getExternalIpFromRouter(routers);
-        Uuid subnetId = getSubnetIdOfIp(ip);
+        installNaptPfibExternalOutputFlow(dpnId, extVpnId, ip);
+    }
 
+    protected void installNaptPfibExternalOutputFlow(String routerName, Long routerId, BigInteger dpnId) {
+        Long extVpnId = NatUtil.getVpnId(dataBroker, routerId);
+        if (extVpnId == null || extVpnId == NatConstants.INVALID_ID) {
+            LOG.debug("installNaptPfibExternalOutputFlow - not found extVpnId for router {}", routerId);
+            extVpnId = routerId;
+        }
+        List<String> externalIps = NatUtil.getExternalIpsFromRouter(dataBroker, routerName);
+        if (externalIps == null || externalIps.size() == 0) {
+            LOG.debug("installNaptPfibExternalOutputFlow - empty external Ips list for router {}", routerName);
+            return;
+        }
+        String ip = externalIps.get(0);
+        installNaptPfibExternalOutputFlow(dpnId, extVpnId, ip);
+    }
+
+    private void installNaptPfibExternalOutputFlow(BigInteger dpnId, Long extVpnId, String ip) {
+        Uuid subnetId = getSubnetIdOfIp(ip);
         if (subnetId != null) {
+            LOG.debug("installNaptPfibExternalOutputFlow - dpnId {} extVpnId {} subnetId {} ip {}",
+                    dpnId, extVpnId, subnetId, ip);
             FlowEntity postNaptFlowEntity = buildNaptFibExternalOutputFlowEntity(dpnId, extVpnId, subnetId, ip);
             mdsalManager.installFlow(postNaptFlowEntity);
         }
@@ -664,7 +683,7 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
     }
 
     protected void installSnatMissEntryForPrimrySwch(BigInteger dpnId, String routerName) {
-        LOG.debug("NAT Service : installSnatMissEntry called for for the primary NAOT switch dpnId {} ", dpnId);
+        LOG.debug("NAT Service : installSnatMissEntry called for for the primary NAPT switch dpnId {} ", dpnId);
         // Install miss entry pointing to group
         FlowEntity flowEntity = buildSnatFlowEntityForPrmrySwtch(dpnId, routerName);
         mdsalManager.installFlow(flowEntity);
@@ -990,7 +1009,7 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
                     makeLFibTableEntry(dpnId, label, tableId);
 
                     CreateFibEntryInput input = new CreateFibEntryInputBuilder().setVpnName(vpnName).setSourceDpid(dpnId)
-                            .setIpAddress(externalIp).setServiceId(label).setInstruction(customInstructions).build();
+                            .setIpAddress(externalIp + "/32").setServiceId(label).setInstruction(customInstructions).build();
                     Future<RpcResult<Void>> future = fibService.createFibEntry(input);
                     return JdkFutureAdapters.listenInPoolThread(future);
                 } else {
@@ -1655,10 +1674,15 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
         }
     }
 
-    private void removeNaptFibExternalOutputFlows(long routerId, BigInteger dpnId, List<String> externalIps) {
+    protected void removeNaptFibExternalOutputFlows(long routerId, BigInteger dpnId, List<String> externalIps) {
+        Long extVpnId = NatUtil.getVpnId(dataBroker, routerId);
+        if (extVpnId == null || extVpnId == NatConstants.INVALID_ID) {
+            LOG.debug("removeNaptFibExternalOutputFlows - extVpnId not found for routerId {}", routerId);
+            extVpnId = routerId;
+        }
         for (String ip : externalIps) {
             String extIp = removeMaskFromIp(ip);
-            String postNaptFlowRef = getFlowRefNaptFib(dpnId, NwConstants.NAPT_PFIB_TABLE, routerId, extIp);
+            String postNaptFlowRef = getFlowRefNaptFib(dpnId, NwConstants.NAPT_PFIB_TABLE, extVpnId, extIp);
             LOG.info("NAT Service : Remove the flow in the " + NwConstants.NAPT_PFIB_TABLE + " for the active switch with the DPN ID {} and router ID {} and IP {}", dpnId, routerId, extIp);
             mdsalManager.removeFlow(NatUtil.buildFlowEntity(dpnId,NwConstants.NAPT_PFIB_TABLE, postNaptFlowRef));
         }
@@ -2294,7 +2318,7 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
     }
 
     protected FlowEntity buildNaptFibExternalOutputFlowEntity(BigInteger dpId, long extVpnId, Uuid subnetId, String externalIp) {
-        LOG.debug("NAT Service : buildPostSnatFlowEntity called for dpId {}, routerId {}, srcIp {}", dpId, extVpnId,
+        LOG.debug("NAT Service : buildNaptFibExternalOutputFlowEntity called for dpId {}, routerId {}, srcIp {}", dpId, extVpnId,
                 externalIp);
 
         List<MatchInfo> matches = new ArrayList<>();

@@ -301,6 +301,14 @@ public class NatUtil {
     */
     static Uuid getNetworkIdFromRouterId(DataBroker broker, long routerId) {
         String routerName = getRouterName(broker, routerId);
+        return getNetworkIdFromRouterName(broker, routerName);
+    }
+
+    static Uuid getNetworkIdFromRouterName(DataBroker broker, String routerName) {
+        if (routerName == null) {
+            LOG.error("getNetworkIdFromRouterName - empty routerName received");
+            return null;
+        }
         InstanceIdentifier id = buildRouterIdentifier(routerName);
         Optional<Routers> routerData = read(broker, LogicalDatastoreType.CONFIGURATION, id);
         if (routerData.isPresent()) {
@@ -876,6 +884,15 @@ public class NatUtil {
             Set<String> uniqueExternalIps = Sets.newHashSet(externalIps);
             externalIps = Lists.newArrayList(uniqueExternalIps);
             return externalIps;
+        }
+        return null;
+    }
+
+    public static List<String> getExternalIpsFromRouter(DataBroker dataBroker, String routerName) {
+        InstanceIdentifier<Routers> routerIdentifier = NatUtil.buildRouterIdentifier(routerName);
+        Optional<Routers> routerData = NatUtil.read(dataBroker, LogicalDatastoreType.CONFIGURATION, routerIdentifier);
+        if (routerData.isPresent()) {
+            return routerData.get().getExternalIps();
         }
         return null;
     }
