@@ -391,12 +391,6 @@ public class InterVpnLinkListener extends AsyncDataTreeChangeListenerBase<InterV
             // 2nd Endpoint ==> 1st endpoint
             leakRoutes(vpnLink, vpn2Uuid, vpn1Uuid, originsToConsider);
         }
-
-        // Static routes in Vpn1 pointing to Vpn2's endpoint
-        leakExtraRoutesToVpnEndpoint(vpnLink, vpn1Uuid, vpn2Uuid);
-
-        // Static routes in Vpn2 pointing to Vpn1's endpoint
-        leakExtraRoutesToVpnEndpoint(vpnLink, vpn2Uuid, vpn1Uuid);
     }
 
     private void leakRoutes(InterVpnLink vpnLink, String srcVpnUuid, String dstVpnUuid,
@@ -414,36 +408,6 @@ public class InterVpnLinkListener extends AsyncDataTreeChangeListenerBase<InterV
             }
             InterVpnLinkUtil.leakRoute(dataBroker, bgpManager, vpnLink, srcVpnUuid, dstVpnUuid,
                                        vrfEntry.getDestPrefix(), label);
-        }
-    }
-
-    /*
-     * Checks if there are static routes in Vpn1 whose nexthop is Vpn2's endpoint. Those routes must be leaked to Vpn1.
-     *
-     * @param vpnLink
-     * @param vpn1Uuid
-     * @param vpn2Uuid
-     */
-    private void leakExtraRoutesToVpnEndpoint(InterVpnLink vpnLink, String vpn1Uuid, String vpn2Uuid) {
-
-        String vpn1Rd = VpnUtil.getVpnRd(dataBroker, vpn1Uuid);
-        String vpn2Endpoint = vpnLink.getSecondEndpoint().getIpAddress().getValue();
-        List<VrfEntry> allVpnVrfEntries = VpnUtil.getAllVrfEntries(dataBroker, vpn1Rd);
-        for ( VrfEntry vrfEntry : allVpnVrfEntries ) {
-            if ( vrfEntry.getNextHopAddressList() != null
-                && vrfEntry.getNextHopAddressList().contains(vpn2Endpoint) ) {
-                // Vpn1 has a route pointing to Vpn2's endpoint. Forcing the leaking of the route will update the
-                // BGP accordingly
-                long label = VpnUtil.getUniqueId(idManager, VpnConstants.VPN_IDPOOL_NAME,
-                                                  VpnUtil.getNextHopLabelKey(vpn1Rd, vrfEntry.getDestPrefix()));
-                if (label == VpnConstants.INVALID_LABEL) {
-                    LOG.error("Unable to fetch label from Id Manager. Bailing out of leaking extra routes for InterVpnLink {} rd {} prefix {}",
-                              vpnLink.getName(), vpn1Rd, vrfEntry.getDestPrefix());
-                    continue;
-                }
-                InterVpnLinkUtil.leakRoute(dataBroker, bgpManager, vpnLink, vpn2Uuid, vpn1Uuid, vrfEntry.getDestPrefix(),
-                                           label, RouteOrigin.value(vrfEntry.getOrigin()));
-            }
         }
     }
 
