@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.Arrays;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
@@ -905,6 +906,7 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
 
         ArrayList<ActionInfo> listActionInfo = new ArrayList<>();
         ArrayList<InstructionInfo> instructionInfo = new ArrayList<>();
+        listActionInfo.add(new ActionInfo(ActionType.nx_load_in_port, new BigInteger[]{BigInteger.ZERO}));
         listActionInfo.add(new ActionInfo(ActionType.nx_resubmit, new String[] { Integer.toString(NwConstants.L3_FIB_TABLE) }));
         instructionInfo.add(new InstructionInfo(InstructionType.apply_actions, listActionInfo));
 
@@ -2334,6 +2336,7 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
 
         ArrayList<ActionInfo> listActionInfo = new ArrayList<>();
         ArrayList<InstructionInfo> instructionInfo = new ArrayList<>();
+        listActionInfo.add(new ActionInfo(ActionType.nx_load_in_port, new BigInteger[]{BigInteger.ZERO}));
         listActionInfo.add(new ActionInfo(ActionType.nx_resubmit, new String[] { Integer.toString(NwConstants.L3_FIB_TABLE) }));
         instructionInfo.add(new InstructionInfo(InstructionType.apply_actions, listActionInfo));
 
