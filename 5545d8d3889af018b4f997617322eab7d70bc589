@@ -34,6 +34,24 @@
       "revId": "5545d8d3889af018b4f997617322eab7d70bc589",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_25e6e3b4",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronQosUtils.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 283,
+      "author": {
+        "id": 6648
+      },
+      "writtenOn": "2016-12-21T08:37:35Z",
+      "side": 1,
+      "message": "Ignore my previous comment. It should be applied on the tunnel port.",
+      "parentUuid": "1a622d24_e5c4eb93",
+      "revId": "5545d8d3889af018b4f997617322eab7d70bc589",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
