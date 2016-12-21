@@ -415,6 +415,10 @@ public class NeutronvpnNatManager implements AutoCloseable {
 
     public void addExternalRouter(Router update, DataBroker broker) {
         Uuid routerId = update.getUuid();
+        if (update.getExternalGatewayInfo() == null) {
+            LOG.debug("addExternalRouter - router has no external info {}", update);
+            return;
+        }
         Uuid extNetId = update.getExternalGatewayInfo().getExternalNetworkId();
         Uuid gatewayPortId = update.getGatewayPortId();
 

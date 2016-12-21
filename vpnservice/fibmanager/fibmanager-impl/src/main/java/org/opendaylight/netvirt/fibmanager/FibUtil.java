@@ -571,6 +571,10 @@ public class FibUtil {
         InstanceIdentifier.InstanceIdentifierBuilder<VrfEntry> idBuilder =
                 InstanceIdentifier.builder(FibEntries.class).child(VrfTables.class, new VrfTablesKey(rd)).child(VrfEntry.class, new VrfEntryKey(prefix));
         InstanceIdentifier<VrfEntry> vrfEntryId = idBuilder.build();
+        Optional<VrfEntry> entry = MDSALUtil.read(broker, LogicalDatastoreType.CONFIGURATION, vrfEntryId);
+        if (!entry.isPresent()) {
+            return;
+        }
         if (writeConfigTxn != null) {
             writeConfigTxn.delete(LogicalDatastoreType.CONFIGURATION, vrfEntryId);
         } else {
