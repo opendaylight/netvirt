@@ -57,22 +57,19 @@ public abstract class HwvtepNodeBaseListener implements DataTreeChangeListener<N
 
     @Override
     public void onDataTreeChanged(final Collection<DataTreeModification<Node>> changes) {
-        HAJobScheduler.getInstance().submitJob(new Runnable() {
-            @Override
-            public void run() {
-                ReadWriteTransaction tx = getTx();
-                try {
-                    processConnectedNodes(changes, tx);
-                    processUpdatedNodes(changes, tx);
-                    processDisconnectedNodes(changes, tx);
-                    tx.submit().get();
-                } catch (InterruptedException e) {
-                    LOG.error("InterruptedException " + e.getMessage());
-                } catch (ExecutionException e) {
-                    LOG.error("ExecutionException" + e.getMessage());
-                } catch (ReadFailedException e) {
-                    LOG.error("ReadFailedException" + e.getMessage());
-                }
+        HAJobScheduler.getInstance().submitJob(() -> {
+            ReadWriteTransaction tx = getTx();
+            try {
+                processConnectedNodes(changes, tx);
+                processUpdatedNodes(changes, tx);
+                processDisconnectedNodes(changes, tx);
+                tx.submit().get();
+            } catch (InterruptedException e1) {
+                LOG.error("InterruptedException " + e1.getMessage());
+            } catch (ExecutionException e2) {
+                LOG.error("ExecutionException" + e2.getMessage());
+            } catch (ReadFailedException e3) {
+                LOG.error("ReadFailedException" + e3.getMessage());
             }
         });
     }
@@ -122,7 +119,7 @@ public abstract class HwvtepNodeBaseListener implements DataTreeChangeListener<N
     void processConnectedNodes(Collection<DataTreeModification<Node>> changes,
                                ReadWriteTransaction tx)
             throws ReadFailedException, ExecutionException,
-    InterruptedException {
+        InterruptedException {
         Map<String, Boolean> processedNodes = new HashMap<>();
         for (DataTreeModification<Node> change : changes) {
             InstanceIdentifier<Node> key = change.getRootPath().getRootIdentifier();
