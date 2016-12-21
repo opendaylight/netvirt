@@ -905,6 +905,7 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
 
         ArrayList<ActionInfo> listActionInfo = new ArrayList<>();
         ArrayList<InstructionInfo> instructionInfo = new ArrayList<>();
+        listActionInfo.add(new ActionInfo(ActionType.nx_load_in_port, new BigInteger[]{BigInteger.ZERO}));
         listActionInfo.add(new ActionInfo(ActionType.nx_resubmit, new String[] { Integer.toString(NwConstants.L3_FIB_TABLE) }));
         instructionInfo.add(new InstructionInfo(InstructionType.apply_actions, listActionInfo));
 
@@ -2334,6 +2335,7 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
 
         ArrayList<ActionInfo> listActionInfo = new ArrayList<>();
         ArrayList<InstructionInfo> instructionInfo = new ArrayList<>();
+        listActionInfo.add(new ActionInfo(ActionType.nx_load_in_port, new BigInteger[]{BigInteger.ZERO}));
         listActionInfo.add(new ActionInfo(ActionType.nx_resubmit, new String[] { Integer.toString(NwConstants.L3_FIB_TABLE) }));
         instructionInfo.add(new InstructionInfo(InstructionType.apply_actions, listActionInfo));
 
