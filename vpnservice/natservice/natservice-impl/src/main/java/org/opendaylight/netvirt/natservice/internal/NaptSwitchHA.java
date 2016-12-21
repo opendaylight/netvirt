@@ -34,6 +34,11 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.Nodes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.Node;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.NodeKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fib.rpc.rev160121.FibRpcService;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.FibEntries;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.fibentries.VrfTables;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.fibentries.VrfTablesKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.VrfEntry;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.VrfEntryKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.IdManagerService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rev160406.TunnelTypeBase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rev160406.TunnelTypeGre;
@@ -44,6 +49,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rpcs.rev160406.G
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rpcs.rev160406.ItmRpcService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ExternalNetworks;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ProtocolTypes;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ext.routers.Routers;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.external.networks.Networks;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.external.networks.NetworksKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.intext.ip.port.map.IpPortMapping;
@@ -207,11 +213,11 @@ public class NaptSwitchHA {
         }
 
         //Remove Fib entries,tables 20->44 ,36-> 44
-        String vpnName = getExtNetworkVpnName(routerId);
+        String vpnName = getExtNetworkVpnName(routerName);
         if (vpnName == null) {
             LOG.debug("Vpn is not associated to externalN/w of router {}",routerName);
         } else {
-            if (externalIpsLabel != null) {
+            if (externalIpsLabel != null && externalIpsLabel.size() > 0) {
                 for (String externalIp : externalIpsLabel.keySet()) {
                     Long label = externalIpsLabel.get(externalIp);
                     externalRouterListener.delFibTsAndReverseTraffic(naptSwitch, routerId, externalIp, vpnName,label);
@@ -219,9 +225,9 @@ public class NaptSwitchHA {
                             naptSwitch, routerId,externalIp,label);
                 }
             } else {
-                List<String> externalIps = NatUtil.getExternalIpsForRouter(dataBroker,routerId);
+                List<String> externalIps = NatUtil.getExternalIpsFromRouter(dataBroker,routerName);
                 if (externalIps != null) {
-                    Uuid networkId = NatUtil.getNetworkIdFromRouterId(dataBroker, routerId);
+                    Uuid networkId = NatUtil.getNetworkIdFromRouterName(dataBroker, routerName);
                     if (networkId != null) {
                         externalRouterListener.clearFibTsAndReverseTraffic(naptSwitch, routerId, networkId, externalIps, null);
                         LOG.debug("Successfully removed fib entries in old naptswitch {} for router {} with networkId {} and externalIps {}",
@@ -229,6 +235,8 @@ public class NaptSwitchHA {
                     } else {
                         LOG.debug("External network not associated to router {}", routerId);
                     }
+                    externalRouterListener.removeNaptFibExternalOutputFlows(routerId, naptSwitch, externalIps);
+
                 } else {
                     LOG.debug("ExternalIps not found for router {}",routerName);
                 }
@@ -336,7 +344,7 @@ public class NaptSwitchHA {
             }
             //clearBgpRoutes
             if (externalIpsCache != null) {
-                String vpnName = getExtNetworkVpnName(routerId);
+                String vpnName = getExtNetworkVpnName(routerName);
                 if (vpnName != null) {
                     //List<String> externalIps = NatUtil.getExternalIpsForRouter(dataBroker, routerId);
                     //if (externalIps != null) {
@@ -408,19 +416,19 @@ public class NaptSwitchHA {
         return true;
     }
 
-    private String getExtNetworkVpnName(long routerId) {
-        Uuid networkId = NatUtil.getNetworkIdFromRouterId(dataBroker, routerId);
-        if(networkId == null) {
-            LOG.error("networkId is null for the router ID {}", routerId);
+    private String getExtNetworkVpnName(String routerName) {
+        Uuid networkId = NatUtil.getNetworkIdFromRouterName(dataBroker, routerName);
+        if (networkId == null) {
+            LOG.error("networkId is null for the router ID {}", routerName);
         } else {
             final String vpnName = NatUtil.getAssociatedVPN(dataBroker, networkId, LOG);
             if (vpnName != null) {
                 LOG.debug("retrieved vpn name {} associated with ext nw {} in router {}",
-                        vpnName,networkId,routerId);
+                        vpnName, networkId, routerName);
                 return vpnName;
             } else {
                 LOG.error("No VPN associated with ext nw {} belonging to routerId {}",
-                        networkId, routerId);
+                        networkId, routerName);
             }
         }
         return null;
@@ -743,46 +751,50 @@ public class NaptSwitchHA {
     protected void installSnatFlows(String routerName,Long routerId,BigInteger naptSwitch,Long routerVpnId) {
 
         if(routerId.equals(routerVpnId)) {
-            LOG.debug("Installing flows for router with internalvpnId");
+            LOG.debug("NAT Service : Installing flows for router with internalvpnId");
             //36 -> 46 ..Install flow forwarding packet to table46 from table36
-            LOG.debug("installTerminatingServiceTblEntry in naptswitch with dpnId {} for routerName {} with routerId {}",
+            LOG.debug("NAT Service : installTerminatingServiceTblEntry in naptswitch with dpnId {} for routerName {} with routerId {}",
                     naptSwitch, routerName,routerId);
             externalRouterListener.installTerminatingServiceTblEntry(naptSwitch, routerName);
 
             //Install default flows punting to controller in table 46(OutBoundNapt table)
-            LOG.debug("installOutboundMissEntry in naptswitch with dpnId {} for routerName {} with routerId {}",
+            LOG.debug("NAT Service : installOutboundMissEntry in naptswitch with dpnId {} for routerName {} with routerId {}",
                     naptSwitch, routerName, routerId);
             externalRouterListener.createOutboundTblEntry(naptSwitch, routerId);
 
             //Table 47 point to table 21 for inbound traffic
-            LOG.debug("installNaptPfibEntry in naptswitch with dpnId {} for router {}", naptSwitch, routerId);
+            LOG.debug("NAT Service : installNaptPfibEntry in naptswitch with dpnId {} for router {}", naptSwitch, routerId);
             externalRouterListener.installNaptPfibEntry(naptSwitch, routerId);
+
+            //Table 47 point to group
+            LOG.debug("NAT Service : installNaptPfibExternalOutputFlow in naptswitch with dpnId {} for router {}", naptSwitch, routerId);
+            externalRouterListener.installNaptPfibExternalOutputFlow(routerName, routerId, naptSwitch);
         } else {
             //36 -> 46 ..Install flow forwarding packet to table46 from table36
-            LOG.debug("installTerminatingServiceTblEntry in naptswitch with dpnId {} for routerName {} with BgpVpnId {}",
+            LOG.debug("NAT Service : installTerminatingServiceTblEntry in naptswitch with dpnId {} for routerName {} with BgpVpnId {}",
                     naptSwitch, routerName, routerVpnId);
             externalRouterListener.installTerminatingServiceTblEntryWithUpdatedVpnId(naptSwitch, routerName, routerVpnId);
 
             //Install default flows punting to controller in table 46(OutBoundNapt table)
-            LOG.debug("installOutboundMissEntry in naptswitch with dpnId {} for routerName {} with BgpVpnId {}",
+            LOG.debug("NAT Service : installOutboundMissEntry in naptswitch with dpnId {} for routerName {} with BgpVpnId {}",
                     naptSwitch, routerName, routerVpnId);
             externalRouterListener.createOutboundTblEntryWithBgpVpn(naptSwitch, routerId, routerVpnId);
 
             //Table 47 point to table 21 for inbound traffic
-            LOG.debug("installNaptPfibEntry in naptswitch with dpnId {} for router {} with BgpVpnId {}",
+            LOG.debug("NAT Service : installNaptPfibEntry in naptswitch with dpnId {} for router {} with BgpVpnId {}",
                     naptSwitch, routerId, routerVpnId);
             externalRouterListener.installNaptPfibEntryWithBgpVpn(naptSwitch, routerId, routerVpnId);
         }
 
-        String vpnName = getExtNetworkVpnName(routerId);
-        if(vpnName != null) {
+        String vpnName = getExtNetworkVpnName(routerName);
+        if (vpnName != null) {
             //Table 47 point to table 21 for outbound traffic
             long vpnId = NatUtil.getVpnId(dataBroker, vpnName);
-            if(vpnId > 0) {
-                LOG.debug("installNaptPfibEntry fin naptswitch with dpnId {} for BgpVpnId {}", naptSwitch, vpnId);
+            if (vpnId > 0) {
+                LOG.debug("NAT Service : installNaptPfibEntry fin naptswitch with dpnId {} for BgpVpnId {}", naptSwitch, vpnId);
                 externalRouterListener.installNaptPfibEntry(naptSwitch, vpnId);
             } else {
-                LOG.debug("Associated BgpvpnId not found for router {}",routerId);
+                LOG.debug("NAT Service : Associated BgpvpnId not found for router {}",routerId);
             }
 
             //Install Fib entries for ExternalIps & program 36 -> 44
@@ -790,20 +802,19 @@ public class NaptSwitchHA {
             String rd = NatUtil.getVpnRd(dataBroker, vpnName);
             if (externalIps != null) {
                 for (String externalIp : externalIps) {
-                    LOG.debug("NAT Service : Removing Fib entry rd {} prefix {}", rd, externalIp);
-                    fibManager.removeFibEntry(dataBroker, rd, externalIp, null);
-                    LOG.debug("advToBgpAndInstallFibAndTsFlows in naptswitch id {} with vpnName {} and externalIp {}",
+                    removeFibEntry(rd, externalIp);
+                    LOG.debug("NAT Service : advToBgpAndInstallFibAndTsFlows in naptswitch id {} with vpnName {} and externalIp {}",
                             naptSwitch, vpnName, externalIp);
                     externalRouterListener.advToBgpAndInstallFibAndTsFlows(naptSwitch, NwConstants.INBOUND_NAPT_TABLE,
                             vpnName, routerId, externalIp, vpnService, fibService, bgpManager, dataBroker, LOG);
-                    LOG.debug("Successfully added fib entries in naptswitch {} for router {} with external IP {}", naptSwitch,
+                    LOG.debug("NAT Service : Successfully added fib entries in naptswitch {} for router {} with external IP {}", naptSwitch,
                             routerId, externalIp);
                 }
             } else {
-                LOG.debug("External Ip not found for routerId {}",routerId);
+                LOG.debug("NAT Service : External Ip not found for routerId {}",routerId);
             }
         } else {
-            LOG.debug("Associated vpnName not found for router {}",routerId);
+            LOG.debug("NAT Service : Associated vpnName not found for router {}",routerId);
         }
     }
 
@@ -817,7 +828,7 @@ public class NaptSwitchHA {
                 LOG.debug("No external Ip needed to be removed in bestEffortDeletion method for router {}",routerName);
                 return;
             }
-            String vpnName = getExtNetworkVpnName(routerId);
+            String vpnName = getExtNetworkVpnName(routerName);
             if (vpnName == null) {
                 LOG.debug("Vpn is not associated to externalN/w of router {}",routerName);
                 return;
@@ -848,5 +859,21 @@ public class NaptSwitchHA {
         } else {
             LOG.debug("No external IP found for router {}",routerId);
         }
+    }
+
+    private void removeFibEntry(String rd, String prefix) {
+        InstanceIdentifier.InstanceIdentifierBuilder<VrfEntry> idBuilder =
+                InstanceIdentifier.builder(FibEntries.class).child(VrfTables.class, new VrfTablesKey(rd))
+                .child(VrfEntry.class, new VrfEntryKey(prefix));
+        InstanceIdentifier<VrfEntry> vrfEntryId = idBuilder.build();
+        Optional<VrfEntry> ent = MDSALUtil.read(dataBroker, LogicalDatastoreType.CONFIGURATION, vrfEntryId);
+        if (ent.isPresent()) {
+            LOG.debug("NAT Service : Removing Fib entry rd {} prefix {}", rd, prefix);
+            fibManager.removeFibEntry(dataBroker, rd, prefix, null);
+        }
+    }
+
+    protected void subnetRegisterMapping(Routers routerEntry,Long segmentId) {
+        externalRouterListener.subnetRegisterMapping(routerEntry, segmentId);
     }
 }
