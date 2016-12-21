@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1a622d24_ff4e3395",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 7
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 670
+      },
+      "writtenOn": "2016-12-21T20:12:42Z",
+      "side": 1,
+      "message": "Yair could you please change subject typo (dosen\u0027t) and rename to something like \"Support auto-tz for non-neutron northbounds (unimgr)\"",
+      "revId": "a2a1cb0e23e96300de38653106fab4d9ee1f2013",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_1f4ccf9d",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 7
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 670
+      },
+      "writtenOn": "2016-12-21T20:12:42Z",
+      "side": 1,
+      "message": "nit: break this line into two",
+      "revId": "a2a1cb0e23e96300de38653106fab4d9ee1f2013",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
