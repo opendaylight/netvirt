@@ -197,7 +197,7 @@ public class RouterDpnChangeListener extends AsyncDataTreeChangeListenerBase<Dpn
                 LOG.error("Invalid routerId returned for routerName {}", routerName);
                 return;
             }
-            BigInteger naptId = NatUtil.getPrimaryNaptfromRouterId(dataBroker, routerId);
+            BigInteger naptId = NatUtil.getPrimaryNaptfromRouterName(dataBroker, routerName);
             if (naptId == null || naptId.equals(BigInteger.ZERO) || !naptSwitchHA.getSwitchStatus(naptId)) {
                 LOG.debug("No NaptSwitch is selected for router {}", routerName);
 
@@ -209,6 +209,11 @@ public class RouterDpnChangeListener extends AsyncDataTreeChangeListenerBase<Dpn
                 }
                 LOG.debug("Switch {} is elected as NaptSwitch for router {}", dpnId, routerName);
 
+                Routers extRouters = NatUtil.getRoutersFromConfigDS(dataBroker, routerName);
+                if (extRouters != null) {
+                    NatUtil.createRouterIdsConfigDS(dataBroker, routerName);
+                    naptSwitchHA.subnetRegisterMapping(extRouters, routerId);
+                }
                 naptSwitchHA.installSnatFlows(routerName, routerId, naptSwitch, routerVpnId);
 
                 // Install miss entry (table 26) pointing to table 46
