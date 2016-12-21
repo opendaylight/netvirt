@@ -59,7 +59,7 @@ import org.slf4j.LoggerFactory;
 public class FlowITUtil {
     private static final Logger LOG = LoggerFactory.getLogger(FlowITUtil.class);
     private static final String OPENFLOW = "openflow";
-    private DataBroker dataBroker;
+    private final DataBroker dataBroker;
 
     public FlowITUtil(DataBroker dataBroker) {
         this.dataBroker = dataBroker;
@@ -230,12 +230,13 @@ public class FlowITUtil {
                 verifyFlowByFields(datapathId, flowId, tableId);
                 return;
             } catch (AssertionError e) {
-                if ((System.currentTimeMillis() - start) >= waitFor) {
+                if (System.currentTimeMillis() - start >= waitFor) {
                     throw e;
                 }
                 Thread.sleep(1000);
             }
-        } while (true);
+        }
+        while (true);
     }
 
     /**
