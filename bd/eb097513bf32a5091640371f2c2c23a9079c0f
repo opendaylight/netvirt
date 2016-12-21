@@ -1,0 +1,7 @@
+Code-Review+2: Alon Kochba <alonko@hpe.com>
+Verified+1: Alon Kochba <alonko@hpe.com>
+Submitted-by: Alon Kochba <alonko@hpe.com>
+Submitted-at: Wed, 21 Dec 2016 15:37:37 +0000
+Reviewed-on: https://git.opendaylight.org/gerrit/49417
+Project: netvirt
+Branch: refs/heads/stable/boron
