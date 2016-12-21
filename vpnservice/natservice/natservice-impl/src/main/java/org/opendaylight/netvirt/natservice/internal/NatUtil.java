@@ -73,6 +73,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev16011
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.intext.ip.port.map.ip.port.mapping.intext.ip.protocol.type.IpPortMapKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.intext.ip.port.map.ip.port.mapping.intext.ip.protocol.type.ip.port.map.IpPortExternal;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.router.id.name.RouterIds;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.router.id.name.RouterIdsBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.router.id.name.RouterIdsKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.router.to.vpn.mapping.Routermapping;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.router.to.vpn.mapping.RoutermappingKey;
@@ -301,6 +302,14 @@ public class NatUtil {
     */
     static Uuid getNetworkIdFromRouterId(DataBroker broker, long routerId) {
         String routerName = getRouterName(broker, routerId);
+        return getNetworkIdFromRouterName(broker, routerName);
+    }
+
+    static Uuid getNetworkIdFromRouterName(DataBroker broker, String routerName) {
+        if (routerName == null) {
+            LOG.error("getNetworkIdFromRouterName - empty routerName received");
+            return null;
+        }
         InstanceIdentifier id = buildRouterIdentifier(routerName);
         Optional<Routers> routerData = read(broker, LogicalDatastoreType.CONFIGURATION, id);
         if (routerData.isPresent()) {
@@ -399,6 +408,14 @@ public class NatUtil {
     public static BigInteger getPrimaryNaptfromRouterId(DataBroker broker, Long routerId) {
         // convert routerId to Name
         String routerName = getRouterName(broker, routerId);
+        return getPrimaryNaptfromRouterName(broker, routerName);
+    }
+
+    public static BigInteger getPrimaryNaptfromRouterName(DataBroker broker, String routerName) {
+        if (routerName == null) {
+            LOG.error("getPrimaryNaptfromRouterName - empty routerName received");
+            return null;
+        }
         InstanceIdentifier id = buildNaptSwitchIdentifier(routerName);
         Optional<RouterToNaptSwitch> routerToNaptSwitchData = read(broker, LogicalDatastoreType.CONFIGURATION, id);
         if (routerToNaptSwitchData.isPresent()) {
@@ -878,6 +895,11 @@ public class NatUtil {
             return externalIps;
         }
         return null;
+    }
+
+    public static List<String> getExternalIpsFromRouter(DataBroker dataBroker, String routerName) {
+        Routers routerData = NatUtil.getRoutersFromConfigDS(dataBroker, routerName);
+        return (routerData != null) ? routerData.getExternalIps() : Collections.emptyList();
     }
 
     public static HashMap<String,Long> getExternalIpsLabelForRouter(DataBroker dataBroker,Long routerId) {
@@ -1560,5 +1582,21 @@ public class NatUtil {
                                 new org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.InterfaceKey(interfaceName));
         InstanceIdentifier<Interface> id = idBuilder.build();
         return id;
+    }
+
+    public static Routers getRoutersFromConfigDS(DataBroker dataBroker, String routerName) {
+        InstanceIdentifier<Routers> routerIdentifier = NatUtil.buildRouterIdentifier(routerName);
+        Optional<Routers> routerData = NatUtil.read(dataBroker, LogicalDatastoreType.CONFIGURATION, routerIdentifier);
+        if (routerData.isPresent()) {
+            return routerData.get();
+        }
+        return null;
+    }
+
+    static void createRouterIdsConfigDS(DataBroker dataBroker, String routerName) {
+        Long routerId = NatUtil.getVpnId(dataBroker, routerName);
+        RouterIds rtrs = new RouterIdsBuilder().setKey(new RouterIdsKey(routerId))
+                .setRouterId(routerId).setRouterName(routerName).build();
+        MDSALUtil.syncWrite(dataBroker, LogicalDatastoreType.CONFIGURATION, buildRouterIdentifier(routerId), rtrs);
     }
 }
