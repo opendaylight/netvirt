@@ -50,8 +50,7 @@ public class ServiceFunctionUtils extends AbstractUtils {
                 .setSfDataPlaneLocator(sfDataPlaneLocatorList)
                 .setName(new SfName(sfName))
                 .setIpMgmtAddress(new IpAddress(ip.toCharArray()))
-                .setType(type)
-                .setNshAware(true);
+                .setType(type);
     }
 
     public ServiceFunctionsBuilder serviceFunctionsBuilder(ServiceFunctionsBuilder serviceFunctionsBuilder,

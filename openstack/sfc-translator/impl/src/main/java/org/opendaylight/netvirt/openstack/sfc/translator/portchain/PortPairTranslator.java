@@ -50,7 +50,6 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 public class PortPairTranslator {
     private static final Logger LOG = LoggerFactory.getLogger(PortPairTranslator.class);
-    private static final String NSH_AWARE_PARAM = "nsh-aware";
     private static final String SF_TYPE_PARAM = "type";
     private static final String DPL_SUFFIX_PARAM = "-dpl";
     private static final String DPL_TRANSPORT_PARAM = "dpl-transport";
@@ -90,10 +89,6 @@ public class PortPairTranslator {
         //Set SF Type. Setting it to PortPairGroup Type, this will be overridden if user pass
         //it through service_function_params
         serviceFunctionBuilder.setType(SftTypeName.getDefaultInstance(portPairGroup.getName()));
-
-        //Set NSH Aware to true, later it will be overridden if user specified otherwise
-        //in service_function_parameters
-        serviceFunctionBuilder.setNshAware(true);
 
         //Set data path locator name and key
         sfDataPlaneLocatorBuilder.setName(new SfDataPlaneLocatorName(portPair.getName() + DPL_SUFFIX_PARAM));
@@ -143,9 +138,6 @@ public class PortPairTranslator {
         //But if user pass specific param using service_function_parameters, set/override it accordingly
         if (sfParams != null) {
             for(ServiceFunctionParameters sfParam : sfParams) {
-                if (sfParam.getServiceFunctionParameter().equals(NSH_AWARE_PARAM)) {
-                    serviceFunctionBuilder.setNshAware(new Boolean(sfParam.getServiceFunctionParameterValue()));
-                }
                 //There is by default type set to port pair group name, override it if user pass it specific type
                 if (sfParam.getServiceFunctionParameter().equals(SF_TYPE_PARAM)) {
                     serviceFunctionBuilder.setType(new SftTypeName(sfParam.getServiceFunctionParameterValue()));
