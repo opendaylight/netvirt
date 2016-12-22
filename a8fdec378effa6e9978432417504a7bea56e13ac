@@ -1,0 +1,89 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1a622d24_c573aa13",
+        "filename": "docs/specs/l3vpn-over-vxlan-with-evpn-rt5.rst",
+        "patchSetId": 28
+      },
+      "lineNbr": 168,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2016-12-22T09:41:12Z",
+      "side": 1,
+      "message": "This is quite confusing since the vni-based-switching spec https://git.opendaylight.org/gerrit/#/c/48640/7/docs/specs/vni-based-l2-switching-and-i3-router-forwarding.rst\nuses the tunnel id of the VxLAN network\n\nThis note refers to the entire spec and not only to this UC",
+      "revId": "a8fdec378effa6e9978432417504a7bea56e13ac",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_a555ce51",
+        "filename": "docs/specs/l3vpn-over-vxlan-with-evpn-rt5.rst",
+        "patchSetId": 28
+      },
+      "lineNbr": 173,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2016-12-22T09:41:12Z",
+      "side": 1,
+      "message": "Would it still be possible to bypass the dispatcher table in this case? I figured after tunnel service-binding all ingress traffic would have to pass through the dispatcher table first.",
+      "revId": "a8fdec378effa6e9978432417504a7bea56e13ac",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_a5030e41",
+        "filename": "docs/specs/l3vpn-over-vxlan-with-evpn-rt5.rst",
+        "patchSetId": 28
+      },
+      "lineNbr": 259,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2016-12-22T09:41:12Z",
+      "side": 1,
+      "message": "Contradicts with sentence from line #246\n\n\"The packets coming from External VXLAN Tunnels (note: not Internal VXLAN Tunnels), would be punted\nto this new table from the LPORT_DISPATCHER_TABLE\"\n\nSo which one is correct?",
+      "revId": "a8fdec378effa6e9978432417504a7bea56e13ac",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_a58aeebc",
+        "filename": "docs/specs/l3vpn-over-vxlan-with-evpn-rt5.rst",
+        "patchSetId": 28
+      },
+      "lineNbr": 291,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2016-12-22T09:41:12Z",
+      "side": 1,
+      "message": "apply_actions",
+      "revId": "a8fdec378effa6e9978432417504a7bea56e13ac",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_c5a60a53",
+        "filename": "docs/specs/l3vpn-over-vxlan-with-evpn-rt5.rst",
+        "patchSetId": 28
+      },
+      "lineNbr": 317,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2016-12-22T09:41:12Z",
+      "side": 1,
+      "message": "Could you emphasize on this flow? What is the FIB dst-ip match? What is the dst-mac rewrite?",
+      "revId": "a8fdec378effa6e9978432417504a7bea56e13ac",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
