@@ -192,6 +192,23 @@
       "revId": "a8fdec378effa6e9978432417504a7bea56e13ac",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_73e9bcb7",
+        "filename": "docs/specs/l3vpn-over-vxlan-with-evpn-rt5.rst",
+        "patchSetId": 28
+      },
+      "lineNbr": 483,
+      "author": {
+        "id": 670
+      },
+      "writtenOn": "2016-12-22T15:27:56Z",
+      "side": 1,
+      "message": "Does this pre-date the standard VNIs spec, or will a non-OpenStack (VRF) VNI be used in this usecase?\n\nHow will the demux tables work, meaning how do they know to map VNI-\u003eVPN ID between two DCs? Is this info passed via BGP?",
+      "revId": "a8fdec378effa6e9978432417504a7bea56e13ac",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
