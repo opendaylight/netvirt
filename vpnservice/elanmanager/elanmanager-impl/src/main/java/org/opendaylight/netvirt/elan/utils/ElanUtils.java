@@ -729,35 +729,15 @@ public class ElanUtils {
      *            the flow group tx
      * @throws ElanException in case of issues creating the flow objects
      */
-    public void setupMacFlows(ElanInstance elanInfo, InterfaceInfo interfaceInfo, long macTimeout,
-            String macAddress, boolean configureRemoteFlows, WriteTransaction writeFlowGroupTx) throws ElanException {
-        synchronized (macAddress) {
-            LOG.debug("Acquired lock for mac : " + macAddress + ". Proceeding with install operation.");
+    public void setupMacFlows(ElanInstance elanInfo, InterfaceInfo interfaceInfo,
+                              long macTimeout, String macAddress, boolean configureRemoteFlows,
+                              WriteTransaction writeFlowGroupTx) throws ElanException {
+        synchronized (getElanMacJobKey(elanInfo.getElanTag(), macAddress)) {
             setupKnownSmacFlow(elanInfo, interfaceInfo, macTimeout, macAddress, mdsalManager,
-                    writeFlowGroupTx);
+                writeFlowGroupTx);
             setupOrigDmacFlows(elanInfo, interfaceInfo, macAddress, configureRemoteFlows, mdsalManager,
-                    broker, writeFlowGroupTx);
+                broker, writeFlowGroupTx);
         }
-    }
-
-    /**
-     * Setting INTERNAL_TUNNEL_TABLE, SMAC, DMAC, UDMAC in this DPN and on other DPNs.
-     *
-     * @param elanInfo
-     *            the elan info
-     * @param interfaceInfo
-     *            the interface info
-     * @param macTimeout
-     *            the mac timeout
-     * @param macAddress
-     *            the mac address
-     * @param writeFlowGroupTx
-     *            the flow group tx
-     * @throws ElanException in case of issues creating the flow objects
-     */
-    public void setupMacFlows(ElanInstance elanInfo, InterfaceInfo interfaceInfo, long macTimeout,
-                              String macAddress, WriteTransaction writeFlowGroupTx) throws ElanException {
-        setupMacFlows(elanInfo, interfaceInfo, macTimeout, macAddress, true, writeFlowGroupTx);
     }
 
     public void setupDMacFlowonRemoteDpn(ElanInstance elanInfo, InterfaceInfo interfaceInfo, BigInteger dstDpId,
@@ -1196,8 +1176,7 @@ public class ElanUtils {
             return;
         }
         String macAddress = macEntry.getMacAddress().getValue();
-        synchronized (macAddress) {
-            LOG.debug("Acquired lock for mac : " + macAddress + ". Proceeding with remove operation.");
+        synchronized (getElanMacJobKey(elanInfo.getElanTag(), macAddress)) {
             deleteMacFlows(elanInfo, interfaceInfo, macAddress, /* alsoDeleteSMAC */ true, deleteFlowGroupTx);
         }
     }
@@ -2188,7 +2167,7 @@ public class ElanUtils {
         InstanceIdentifier<MacEntry> elanMacEntryId = ElanUtils.getMacEntryOperationalDataPath(elanName, physAddress);
         tx.put(LogicalDatastoreType.OPERATIONAL, elanMacEntryId, macEntry);
         ElanInstance elanInstance = ElanUtils.getElanInstanceByName(broker, elanName);
-        setupMacFlows(elanInstance, interfaceManager.getInterfaceInfo(interfaceName), macTimeOut, macAddress,
+        setupMacFlows(elanInstance, interfaceManager.getInterfaceInfo(interfaceName), macTimeOut, macAddress, true,
                 flowWritetx);
     }
 
@@ -2227,5 +2206,9 @@ public class ElanUtils {
 
         LOG.trace("Elan {} does not have any external interace attached to DPN {}", elanInstanceName, dpnId);
         return null;
+    }
+
+    public static String getElanMacJobKey(long elanTag, String macAddress) {
+        return ("MAC-" + macAddress + " ELAN_TAG-" + elanTag).intern();
     }
 }
