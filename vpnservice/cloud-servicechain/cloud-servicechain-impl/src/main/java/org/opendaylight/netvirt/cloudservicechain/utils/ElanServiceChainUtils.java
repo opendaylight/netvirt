@@ -12,15 +12,17 @@ import java.math.BigInteger;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.ArrayList;
 import java.util.List;
-
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.genius.mdsalutil.ActionInfo;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.mdsalutil.MatchFieldType;
 import org.opendaylight.genius.mdsalutil.MatchInfo;
 import org.opendaylight.genius.mdsalutil.MetaDataUtil;
 import org.opendaylight.genius.mdsalutil.NwConstants;
+import org.opendaylight.genius.mdsalutil.actions.ActionRegLoad;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.genius.utils.ServiceIndex;
 import org.opendaylight.netvirt.cloudservicechain.CloudServiceChainConstants;
@@ -39,10 +41,11 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.dpn.interfaces.elan.dpn.interfaces.list.DpnInterfaces;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.instances.ElanInstance;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.instances.ElanInstanceKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.openflowjava.nx.match.rev140421.NxmNxReg2;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 
 
 public class ElanServiceChainUtils {
@@ -107,11 +110,11 @@ public class ElanServiceChainUtils {
                                     ServiceIndex.getIndex(NwConstants.SCF_SERVICE_NAME, NwConstants.SCF_SERVICE_INDEX)),
                                     MetaDataUtil.getMetaDataMaskForLPortDispatcher() }));
             int instructionKey = 0;
-            List<Instruction> instructions = Arrays.asList(
-                    MDSALUtil.buildAndGetWriteMetadaInstruction(VpnServiceChainUtils.getMetadataSCF(scfTag),
-                            CloudServiceChainConstants.METADATA_MASK_SCF_WRITE,
-                            instructionKey++),
-                    MDSALUtil.buildAndGetGotoTableInstruction(tableId, instructionKey++) );
+            List<Instruction> instructions = new ArrayList<>();
+            List<ActionInfo> actionsInfos = new ArrayList<>();
+            actionsInfos.add( new ActionRegLoad(NxmNxReg2.class, 0, 31, scfTag));
+            instructions.add(MDSALUtil.buildApplyActionsInstruction(MDSALUtil.buildActions(actionsInfos)));
+            instructions.add(MDSALUtil.buildAndGetGotoTableInstruction(tableId, instructionKey++));
 
             Flow flow = MDSALUtil.buildFlowNew(NwConstants.LPORT_DISPATCHER_TABLE, flowRef,
                     CloudServiceChainConstants.DEFAULT_SCF_FLOW_PRIORITY, flowRef,
