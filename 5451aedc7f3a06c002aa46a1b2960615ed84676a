@@ -54,6 +54,24 @@
     },
     {
       "key": {
+        "uuid": "1a622d24_b7c40541",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/L3vpnVxlanVrfProcessor.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 55,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2016-12-22T15:15:50Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1a622d24_bdf888e6",
+      "revId": "5451aedc7f3a06c002aa46a1b2960615ed84676a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_e758b3fc",
         "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/L3vpnVxlanVrfProcessor.java",
         "patchSetId": 4
@@ -65,6 +83,24 @@
       "writtenOn": "2016-12-05T17:49:18Z",
       "side": 1,
       "message": "installFlows()",
+      "revId": "5451aedc7f3a06c002aa46a1b2960615ed84676a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_b749a5d2",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/L3vpnVxlanVrfProcessor.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 75,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2016-12-22T15:15:50Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1a622d24_e758b3fc",
       "revId": "5451aedc7f3a06c002aa46a1b2960615ed84676a",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -88,6 +124,24 @@
     },
     {
       "key": {
+        "uuid": "1a622d24_974629be",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/L3vpnVxlanVrfProcessor.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 212,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2016-12-22T15:15:50Z",
+      "side": 1,
+      "message": "No.. Removed.",
+      "parentUuid": "1a622d24_076faf93",
+      "revId": "5451aedc7f3a06c002aa46a1b2960615ed84676a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_676ca39d",
         "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/L3vpnVxlanVrfProcessor.java",
         "patchSetId": 4
@@ -99,6 +153,24 @@
       "writtenOn": "2016-12-05T17:49:18Z",
       "side": 1,
       "message": "removeFlows()",
+      "revId": "5451aedc7f3a06c002aa46a1b2960615ed84676a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_5723f104",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/L3vpnVxlanVrfProcessor.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 288,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2016-12-22T15:15:50Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1a622d24_676ca39d",
       "revId": "5451aedc7f3a06c002aa46a1b2960615ed84676a",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -122,6 +194,24 @@
     },
     {
       "key": {
+        "uuid": "1a622d24_d77ee1e3",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 199,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2016-12-22T15:15:50Z",
+      "side": 1,
+      "message": "Yes... Will be doing that in a new patchset",
+      "parentUuid": "1a622d24_87873f61",
+      "revId": "5451aedc7f3a06c002aa46a1b2960615ed84676a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_c781374c",
         "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
         "patchSetId": 4
@@ -133,6 +223,24 @@
       "writtenOn": "2016-12-05T17:49:18Z",
       "side": 1,
       "message": "l3vpnovervxlanvrfentryprogrammer.removeFlows().\n\nComments ditto above in addFibEntries() apply here.",
+      "revId": "5451aedc7f3a06c002aa46a1b2960615ed84676a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_776d4d32",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 225,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2016-12-22T15:15:50Z",
+      "side": 1,
+      "message": "Yes.. Will handle in new patchset",
+      "parentUuid": "1a622d24_c781374c",
       "revId": "5451aedc7f3a06c002aa46a1b2960615ed84676a",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -156,6 +264,24 @@
     },
     {
       "key": {
+        "uuid": "1a622d24_576ad11a",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 1331,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2016-12-22T15:15:50Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1a622d24_e7ca73a0",
+      "revId": "5451aedc7f3a06c002aa46a1b2960615ed84676a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_a75ebbe7",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
         "patchSetId": 4
@@ -167,6 +293,24 @@
       "writtenOn": "2016-12-05T17:49:18Z",
       "side": 1,
       "message": "GWMAC flow management was inside bindService and unbindService method .. Can we please continue to retain so?",
+      "revId": "5451aedc7f3a06c002aa46a1b2960615ed84676a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_9790e9ed",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 400,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2016-12-22T15:15:50Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1a622d24_a75ebbe7",
       "revId": "5451aedc7f3a06c002aa46a1b2960615ed84676a",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
