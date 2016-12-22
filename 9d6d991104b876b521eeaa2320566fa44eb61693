@@ -55,6 +55,24 @@
     },
     {
       "key": {
+        "uuid": "1a622d24_d32b7092",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/intervpnlink/InterVpnLinkListener.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 281,
+      "author": {
+        "id": 5350
+      },
+      "writtenOn": "2016-12-22T17:07:39Z",
+      "side": 1,
+      "message": "added a check for that",
+      "parentUuid": "1a622d24_f394ace3",
+      "revId": "9d6d991104b876b521eeaa2320566fa44eb61693",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_6a2d4846",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/intervpnlink/InterVpnLinkListener.java",
         "patchSetId": 2
