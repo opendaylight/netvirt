@@ -16,7 +16,7 @@ public enum ElanManagerCounters {
     unknown_smac_pktin_learned, //
     unknown_smac_pktin_ignored_due_protection, //
     unknown_smac_pktin_removed_for_relearned, //
-    unknown_smac_pktin_mac_migration_ignored_due_to_protection; //
+    unknown_smac_pktin_mac_migration_ignored_due_protection; //
 
     private OccurenceCounter counter;
 
