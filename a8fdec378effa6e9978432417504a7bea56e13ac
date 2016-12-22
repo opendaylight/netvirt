@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "1a622d24_a8148344",
+        "filename": "docs/specs/l3vpn-over-vxlan-with-evpn-rt5.rst",
+        "patchSetId": 28
+      },
+      "lineNbr": 168,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-12-22T10:29:09Z",
+      "side": 1,
+      "message": "This spec is a pre-cursor to the other spec and this spec is based on what is available today.\n\nThis spec and its implementation will continue to use LPortTags and the subsequent Spec will mention what changes will occur on top of this if there is relevance.....\n\nThe subsequent spec is the vni-based forwarding spec.",
+      "parentUuid": "1a622d24_c573aa13",
+      "revId": "a8fdec378effa6e9978432417504a7bea56e13ac",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_a555ce51",
         "filename": "docs/specs/l3vpn-over-vxlan-with-evpn-rt5.rst",
         "patchSetId": 28
@@ -30,6 +48,24 @@
       "writtenOn": "2016-12-22T09:41:12Z",
       "side": 1,
       "message": "Would it still be possible to bypass the dispatcher table in this case? I figured after tunnel service-binding all ingress traffic would have to pass through the dispatcher table first.",
+      "revId": "a8fdec378effa6e9978432417504a7bea56e13ac",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_c830dfea",
+        "filename": "docs/specs/l3vpn-over-vxlan-with-evpn-rt5.rst",
+        "patchSetId": 28
+      },
+      "lineNbr": 173,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-12-22T10:29:09Z",
+      "side": 1,
+      "message": "You are right that after tunnel-port service-binding feature all the traffic will flow through the LPORT_DISPATCHER_TABLE, but I don\u0027t see service-binding has taken off yet in GENIUS.\n\nSo my earlier premise applies :)\nOur spec and out implementation will continue to stick with what is available and working currently.\n\nWhen service-binding makes it in and is functional, we will update a patch for this spec (ton the merged one) and an equivalent patch for the change.",
+      "parentUuid": "1a622d24_a555ce51",
       "revId": "a8fdec378effa6e9978432417504a7bea56e13ac",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -53,6 +89,24 @@
     },
     {
       "key": {
+        "uuid": "1a622d24_c85e1f12",
+        "filename": "docs/specs/l3vpn-over-vxlan-with-evpn-rt5.rst",
+        "patchSetId": 28
+      },
+      "lineNbr": 259,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-12-22T10:29:09Z",
+      "side": 1,
+      "message": "Good catch and I will be fixing line 246..\n\nYou might have noticed that today without service binding feature for tunnel ports, if more than one service attempts to bind on a tunnel port, the highest priority service will get to Table 0 and subsequent services binding for that same tunnel port will go into LPORT_DISPATCHER_TABLE...",
+      "parentUuid": "1a622d24_a5030e41",
+      "revId": "a8fdec378effa6e9978432417504a7bea56e13ac",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_a58aeebc",
         "filename": "docs/specs/l3vpn-over-vxlan-with-evpn-rt5.rst",
         "patchSetId": 28
@@ -70,6 +124,24 @@
     },
     {
       "key": {
+        "uuid": "1a622d24_289d13bd",
+        "filename": "docs/specs/l3vpn-over-vxlan-with-evpn-rt5.rst",
+        "patchSetId": 28
+      },
+      "lineNbr": 291,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-12-22T10:29:09Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1a622d24_a58aeebc",
+      "revId": "a8fdec378effa6e9978432417504a7bea56e13ac",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_c5a60a53",
         "filename": "docs/specs/l3vpn-over-vxlan-with-evpn-rt5.rst",
         "patchSetId": 28
@@ -81,6 +153,24 @@
       "writtenOn": "2016-12-22T09:41:12Z",
       "side": 1,
       "message": "Could you emphasize on this flow? What is the FIB dst-ip match? What is the dst-mac rewrite?",
+      "revId": "a8fdec378effa6e9978432417504a7bea56e13ac",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_48cfafb0",
+        "filename": "docs/specs/l3vpn-over-vxlan-with-evpn-rt5.rst",
+        "patchSetId": 28
+      },
+      "lineNbr": 317,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-12-22T10:29:09Z",
+      "side": 1,
+      "message": "OK since the L3_FIB_TABLE appears two times, I notice it would cause confusion..\n\nI will update this with right hand side on the match and act..\n\nFirst L3_FIB_TABLE matches on the Internal VPNID (not matching any IP Address) and  moves the packet  down to the PSNAT_TABLE.\n\nThe second L3_FIB_TABLE matches on a well known remote FloatingIP Address off the external VPNID, and as part of action sets the destination mac address of that entity , L3VNI and sends the packet to the External VXLAN Tunnel port.",
+      "parentUuid": "1a622d24_c5a60a53",
       "revId": "a8fdec378effa6e9978432417504a7bea56e13ac",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
