@@ -8,25 +8,10 @@
 package org.opendaylight.netvirt.cloudservicechain.utils;
 
 import com.google.common.base.Optional;
-import java.math.BigInteger;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.genius.mdsalutil.ActionInfo;
-import org.opendaylight.genius.mdsalutil.ActionType;
-import org.opendaylight.genius.mdsalutil.FlowEntity;
-import org.opendaylight.genius.mdsalutil.InstructionInfo;
-import org.opendaylight.genius.mdsalutil.InstructionType;
-import org.opendaylight.genius.mdsalutil.MDSALDataStoreUtils;
-import org.opendaylight.genius.mdsalutil.MDSALUtil;
-import org.opendaylight.genius.mdsalutil.MatchFieldType;
-import org.opendaylight.genius.mdsalutil.MatchInfo;
-import org.opendaylight.genius.mdsalutil.MetaDataUtil;
-import org.opendaylight.genius.mdsalutil.NwConstants;
+import org.opendaylight.genius.mdsalutil.*;
+import org.opendaylight.genius.mdsalutil.actions.ActionRegLoad;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.genius.utils.ServiceIndex;
 import org.opendaylight.netvirt.cloudservicechain.CloudServiceChainConstants;
@@ -49,13 +34,22 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.vpn.instance.op.data.entry.VpnToDpnListKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.to.vpn.id.VpnInstance;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.to.vpn.id.VpnInstanceKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.openflowjava.nx.match.rev140421.NxmNxReg2;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.math.BigInteger;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+
 public class VpnServiceChainUtils {
 
     private static final Logger LOG = LoggerFactory.getLogger(VpnServiceChainUtils.class);
+    public static final String SOLUTION_OPERATION_MODE = "solution.operation.mode";
+    public static final String SOLUTION_OPERATION_VALUE = "Cloud";
 
 
     public static BigInteger getMetadataSCF(long scfTag) { // TODO: Move to a common place
@@ -252,6 +246,14 @@ public class VpnServiceChainUtils {
     }
 
     /**
+     *
+     * return true if it is cloud mode
+     * @return
+     */
+    public static final boolean isCloudEnv() {
+        return System.getProperty(SOLUTION_OPERATION_MODE).equals(SOLUTION_OPERATION_VALUE);
+    }
+    /**
      * Builds the Match for flows that must match on a given lportTag and
      * serviceIndex.
      *
@@ -379,9 +381,14 @@ public class VpnServiceChainUtils {
             buildMatchOnLportTagAndSI(lportTag, ServiceIndex.getIndex(NwConstants.SCF_SERVICE_NAME,
                                                                       NwConstants.SCF_SERVICE_INDEX));
         List<InstructionInfo> instructions = new ArrayList<>();
-        instructions.add(new InstructionInfo(InstructionType.write_metadata, new BigInteger[] {
-                VpnServiceChainUtils.getMetadataSCF(scfTag), CloudServiceChainConstants.METADATA_MASK_SCF_WRITE
-        }));
+        if(isCloudEnv()){
+            List<ActionInfo> actionsInfos = new ArrayList<ActionInfo>();
+            actionsInfos.add(new ActionRegLoad(NxmNxReg2.class, 0, 31, BigInteger.valueOf(scfTag).longValue()));
+            instructions.add(new InstructionInfo(InstructionType.apply_actions,actionsInfos));
+        } else {
+            instructions.add(new InstructionInfo(InstructionType.write_metadata, new BigInteger[] {
+                    VpnServiceChainUtils.getMetadataSCF(scfTag), CloudServiceChainConstants.METADATA_MASK_SCF_WRITE
+            }));}
         instructions.add(new InstructionInfo(InstructionType.goto_table, new long[] { gotoTableId }));
         String flowRef = getL3VpnToScfLportDispatcherFlowRef(lportTag);
 
