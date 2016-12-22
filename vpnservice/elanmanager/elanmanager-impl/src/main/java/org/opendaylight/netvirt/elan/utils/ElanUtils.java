@@ -19,6 +19,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
@@ -31,6 +32,7 @@ import org.opendaylight.controller.md.sal.common.api.clustering.EntityOwnershipS
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
+import org.opendaylight.genius.datastoreutils.DataStoreJobCoordinator;
 import org.opendaylight.genius.interfacemanager.globals.InterfaceInfo;
 import org.opendaylight.genius.interfacemanager.globals.InterfaceServiceUtil;
 import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
@@ -730,14 +732,11 @@ public class ElanUtils {
      * @throws ElanException in case of issues creating the flow objects
      */
     public void setupMacFlows(ElanInstance elanInfo, InterfaceInfo interfaceInfo, long macTimeout,
-            String macAddress, boolean configureRemoteFlows, WriteTransaction writeFlowGroupTx) throws ElanException {
-        synchronized (macAddress) {
-            LOG.debug("Acquired lock for mac : " + macAddress + ". Proceeding with install operation.");
-            setupKnownSmacFlow(elanInfo, interfaceInfo, macTimeout, macAddress, mdsalManager,
-                    writeFlowGroupTx);
-            setupOrigDmacFlows(elanInfo, interfaceInfo, macAddress, configureRemoteFlows, mdsalManager,
-                    broker, writeFlowGroupTx);
-        }
+                              String macAddress, boolean configureRemoteFlows, WriteTransaction writeFlowGroupTx) throws ElanException {
+        setupKnownSmacFlow(elanInfo, interfaceInfo, macTimeout, macAddress, mdsalManager,
+            writeFlowGroupTx);
+        setupOrigDmacFlows(elanInfo, interfaceInfo, macAddress, configureRemoteFlows, mdsalManager,
+            broker, writeFlowGroupTx);
     }
 
     /**
@@ -756,8 +755,10 @@ public class ElanUtils {
      * @throws ElanException in case of issues creating the flow objects
      */
     public void setupMacFlows(ElanInstance elanInfo, InterfaceInfo interfaceInfo, long macTimeout,
-                              String macAddress, WriteTransaction writeFlowGroupTx) throws ElanException {
-        setupMacFlows(elanInfo, interfaceInfo, macTimeout, macAddress, true, writeFlowGroupTx);
+                                   String macAddress, WriteTransaction writeFlowGroupTx) throws ElanException {
+        synchronized (getElanMacJobKey(elanInfo.getElanTag(), macAddress)) {
+            setupMacFlows(elanInfo, interfaceInfo, macTimeout, macAddress, true, writeFlowGroupTx);
+        }
     }
 
     public void setupDMacFlowonRemoteDpn(ElanInstance elanInfo, InterfaceInfo interfaceInfo, BigInteger dstDpId,
@@ -2227,5 +2228,9 @@ public class ElanUtils {
 
         LOG.trace("Elan {} does not have any external interace attached to DPN {}", elanInstanceName, dpnId);
         return null;
+    }
+
+    public static String getElanMacJobKey(long elanTag, String macAddress) {
+        return "MAC-" + macAddress + " ELAN_TAG-" + elanTag;
     }
 }
