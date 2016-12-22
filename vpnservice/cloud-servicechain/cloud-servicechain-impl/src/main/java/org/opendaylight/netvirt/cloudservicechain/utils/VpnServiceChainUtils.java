@@ -13,7 +13,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.mdsalutil.ActionInfo;
@@ -27,6 +26,7 @@ import org.opendaylight.genius.mdsalutil.MatchFieldType;
 import org.opendaylight.genius.mdsalutil.MatchInfo;
 import org.opendaylight.genius.mdsalutil.MetaDataUtil;
 import org.opendaylight.genius.mdsalutil.NwConstants;
+import org.opendaylight.genius.mdsalutil.actions.ActionRegLoad;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.genius.utils.ServiceIndex;
 import org.opendaylight.netvirt.cloudservicechain.CloudServiceChainConstants;
@@ -49,6 +49,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.vpn.instance.op.data.entry.VpnToDpnListKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.to.vpn.id.VpnInstance;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.to.vpn.id.VpnInstanceKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.openflowjava.nx.match.rev140421.NxmNxReg2;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -251,6 +252,7 @@ public class VpnServiceChainUtils {
         return result;
     }
 
+
     /**
      * Builds the Match for flows that must match on a given lportTag and
      * serviceIndex.
@@ -379,9 +381,9 @@ public class VpnServiceChainUtils {
             buildMatchOnLportTagAndSI(lportTag, ServiceIndex.getIndex(NwConstants.SCF_SERVICE_NAME,
                                                                       NwConstants.SCF_SERVICE_INDEX));
         List<InstructionInfo> instructions = new ArrayList<>();
-        instructions.add(new InstructionInfo(InstructionType.write_metadata, new BigInteger[] {
-                VpnServiceChainUtils.getMetadataSCF(scfTag), CloudServiceChainConstants.METADATA_MASK_SCF_WRITE
-        }));
+        List<ActionInfo> actionsInfos = new ArrayList<>();
+        actionsInfos.add(new ActionRegLoad(NxmNxReg2.class, 0, 31, scfTag));
+        instructions.add(new InstructionInfo(InstructionType.apply_actions,actionsInfos));
         instructions.add(new InstructionInfo(InstructionType.goto_table, new long[] { gotoTableId }));
         String flowRef = getL3VpnToScfLportDispatcherFlowRef(lportTag);
 
