@@ -45,6 +45,7 @@ import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
 
 public class ClassifierService extends AbstractServiceInstance implements ClassifierProvider, ConfigInterface {
+    public final static long REG_VALUE_FROM_LOCAL_0 = 0x0L;
     public final static long REG_VALUE_FROM_LOCAL = 0x1L;
     public final static long REG_VALUE_FROM_REMOTE = 0x2L;
     public static final Class<? extends NxmNxReg> REG_FIELD = NxmNxReg0.class;
