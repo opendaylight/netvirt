@@ -921,11 +921,11 @@ public class NeutronL3Adapter extends AbstractHandler implements GatewayMacResol
             List<NeutronSecurityGroup> deletedGroup = getsecurityGroupChanged(neutronPort.getOriginalPort(),
                                                                               neutronPort);
 
-            if (null != addedGroup && !addedGroup.isEmpty()) {
-                securityServicesManager.syncSecurityGroup(neutronPort,addedGroup,true);
-            }
             if (null != deletedGroup && !deletedGroup.isEmpty()) {
                 securityServicesManager.syncSecurityGroup(neutronPort,deletedGroup,false);
+            }
+            if (null != addedGroup && !addedGroup.isEmpty()) {
+                securityServicesManager.syncSecurityGroup(neutronPort,addedGroup,true);
             }
 
         } catch (Exception e) {
