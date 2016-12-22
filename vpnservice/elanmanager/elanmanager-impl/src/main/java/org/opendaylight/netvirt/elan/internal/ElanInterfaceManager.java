@@ -665,7 +665,7 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
                     // Setting SMAC, DMAC, UDMAC in this DPN and also in other
                     // DPNs
                     elanUtils.setupMacFlows(elanInstance, interfaceInfo, ElanConstants.STATIC_MAC_TIMEOUT,
-                            physAddress.getValue(), writeFlowGroupTx);
+                            physAddress.getValue(), true, writeFlowGroupTx);
                 }
             }
 
