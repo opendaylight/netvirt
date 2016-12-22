@@ -8,6 +8,7 @@
 
 package org.opendaylight.netvirt.openstack.netvirt.providers.openflow13.services;
 
+import java.math.BigInteger;
 import java.net.Inet4Address;
 import java.net.Inet6Address;
 import java.net.InetAddress;
@@ -165,21 +166,21 @@ public class IngressAclService extends AbstractServiceInstance implements Ingres
         if (null == portSecurityRule.getSecurityRuleProtocol() && securityGrp.getSecurityGroupName().equals("default")) {
             ingressAclIp(dpid, isIpv6, segmentationId, attachedMac,
                 portSecurityRule, ipaddress,
-                write, Constants.PROTO_PORT_MATCH_PRIORITY - 1);
+                write, Constants.PROTO_PORT_MATCH_PRIORITY - 1, false);
             if(!isIpv6) {
                 portSecurityRule.setSecurityRuleProtocol(MatchUtils.TCP);
                 portSecurityRule.setSecurityRulePortMin(PORT_RANGE_MIN);
                 portSecurityRule.setSecurityRulePortMax(PORT_RANGE_MAX);
                 ingressAclTcp(dpid, segmentationId, attachedMac, portSecurityRule, ipaddress,
-                        write, Constants.PROTO_PORT_MATCH_PRIORITY);
+                        write, Constants.PROTO_PORT_MATCH_PRIORITY, false);
                 portSecurityRule.setSecurityRuleProtocol(MatchUtils.UDP);
                 ingressAclUdp(dpid, segmentationId, attachedMac, portSecurityRule, ipaddress,
-                        write, Constants.PROTO_PORT_MATCH_PRIORITY);
+                        write, Constants.PROTO_PORT_MATCH_PRIORITY, false);
                 portSecurityRule.setSecurityRuleProtocol(MatchUtils.ICMP);
                 portSecurityRule.setSecurityRulePortMin(null);
                 portSecurityRule.setSecurityRulePortMax(null);
                 ingressAclIcmp(dpid, segmentationId, attachedMac, portSecurityRule, ipaddress,
-                        write, Constants.PROTO_PORT_MATCH_PRIORITY);
+                        write, Constants.PROTO_PORT_MATCH_PRIORITY, false);
                 portSecurityRule.setSecurityRuleProtocol(null);
             }
         } else {
@@ -188,18 +189,18 @@ public class IngressAclService extends AbstractServiceInstance implements Ingres
                 case MatchUtils.TCP:
                     LOG.debug("programPortSecurityRule: Rule matching TCP", portSecurityRule);
                     ingressAclTcp(dpid, segmentationId, attachedMac, portSecurityRule, ipaddress,
-                        write, Constants.PROTO_PORT_PREFIX_MATCH_PRIORITY);
+                        write, Constants.PROTO_PORT_PREFIX_MATCH_PRIORITY, false);
                     break;
                 case MatchUtils.UDP:
                     LOG.debug("programPortSecurityRule: Rule matching UDP", portSecurityRule);
                     ingressAclUdp(dpid, segmentationId, attachedMac, portSecurityRule, ipaddress,
-                        write, Constants.PROTO_PORT_PREFIX_MATCH_PRIORITY);
+                        write, Constants.PROTO_PORT_PREFIX_MATCH_PRIORITY, false);
                     break;
                 case MatchUtils.ICMP:
                 case MatchUtils.ICMPV6:
                     LOG.debug("programPortSecurityRule: Rule matching ICMP", portSecurityRule);
                     ingressAclIcmp(dpid, segmentationId, attachedMac, portSecurityRule, ipaddress,
-                        write, Constants.PROTO_PORT_PREFIX_MATCH_PRIORITY);
+                        write, Constants.PROTO_PORT_PREFIX_MATCH_PRIORITY, false);
                     break;
                 default:
                     LOG.info("programPortSecurityAcl: Protocol is not TCP/UDP/ICMP but other "
@@ -218,21 +219,21 @@ public class IngressAclService extends AbstractServiceInstance implements Ingres
         if(null == portSecurityRule.getSecurityRuleProtocol() || portSecurityRule.getSecurityRuleProtocol().equals(MatchUtils.ANY_PROTOCOL)) {
             ingressAclIp(dpidLong, isIpv6, segmentationId, dstMac,
                     portSecurityRule, srcAddress,
-                    write, Constants.PROTO_PORT_PREFIX_MATCH_PRIORITY - 1);
+                    write, Constants.PROTO_PORT_PREFIX_MATCH_PRIORITY - 1, true);
             if(!isIpv6) {
                 portSecurityRule.setSecurityRuleProtocol(MatchUtils.TCP);
                 portSecurityRule.setSecurityRulePortMin(PORT_RANGE_MIN);
                 portSecurityRule.setSecurityRulePortMax(PORT_RANGE_MAX);
                 ingressAclTcp(dpidLong, segmentationId, dstMac, portSecurityRule, srcAddress,
-                        write, Constants.PROTO_PORT_PREFIX_MATCH_PRIORITY);
+                        write, Constants.PROTO_PORT_PREFIX_MATCH_PRIORITY, true);
                 portSecurityRule.setSecurityRuleProtocol(MatchUtils.UDP);
                 ingressAclUdp(dpidLong, segmentationId, dstMac, portSecurityRule, srcAddress,
-                        write, Constants.PROTO_PORT_PREFIX_MATCH_PRIORITY);
+                        write, Constants.PROTO_PORT_PREFIX_MATCH_PRIORITY, true);
                 portSecurityRule.setSecurityRuleProtocol(MatchUtils.ICMP);
                 portSecurityRule.setSecurityRulePortMin(null);
                 portSecurityRule.setSecurityRulePortMax(null);
                 ingressAclIcmp(dpidLong, segmentationId, dstMac, portSecurityRule, srcAddress,
-                        write, Constants.PROTO_PORT_PREFIX_MATCH_PRIORITY);
+                        write, Constants.PROTO_PORT_PREFIX_MATCH_PRIORITY, true);
                 portSecurityRule.setSecurityRuleProtocol(null);
             }
         } else {
@@ -240,15 +241,15 @@ public class IngressAclService extends AbstractServiceInstance implements Ingres
                 portSecurityRule.setSecurityRulePortMin(PORT_RANGE_MIN);
                 portSecurityRule.setSecurityRulePortMax(PORT_RANGE_MAX);
                 ingressAclTcp(dpidLong, segmentationId, dstMac, portSecurityRule, srcAddress,
-                        write, Constants.PROTO_PORT_PREFIX_MATCH_PRIORITY);
+                        write, Constants.PROTO_PORT_PREFIX_MATCH_PRIORITY, false);
             } else if (portSecurityRule.getSecurityRuleProtocol().equals(MatchUtils.UDP_PROTOCOL)) {
                 portSecurityRule.setSecurityRulePortMin(PORT_RANGE_MIN);
                 portSecurityRule.setSecurityRulePortMax(PORT_RANGE_MAX);
                 ingressAclUdp(dpidLong, segmentationId, dstMac, portSecurityRule, srcAddress,
-                        write, Constants.PROTO_PORT_PREFIX_MATCH_PRIORITY);
+                        write, Constants.PROTO_PORT_PREFIX_MATCH_PRIORITY, false);
             } else if (portSecurityRule.getSecurityRuleProtocol().equals(MatchUtils.ICMP_PROTOCOL)) {
                 ingressAclIcmp(dpidLong, segmentationId, dstMac, portSecurityRule, srcAddress,
-                        write, Constants.PROTO_PORT_PREFIX_MATCH_PRIORITY);
+                        write, Constants.PROTO_PORT_PREFIX_MATCH_PRIORITY, false);
             } else {
                 MatchBuilder matchBuilder = new MatchBuilder();
                 String flowId = "Ingress_Other_" + segmentationId + "_" + dstMac + "_";
@@ -458,17 +459,23 @@ public class IngressAclService extends AbstractServiceInstance implements Ingres
      * @param segmentationId the segementation id
      * @param dstMac the destination mac address
      * @param write add or remove
+     * @param isRegMatchReq add Reg MAtch or not
      * @param protoPortMatchPriority the protocol match priority.
      */
     private void ingressAclIp(Long dpidLong, boolean isIpv6, String segmentationId, String dstMac,
                               NeutronSecurityRule portSecurityRule, String srcAddress,
-                              boolean write, Integer protoPortMatchPriority ) {
+                              boolean write, Integer protoPortMatchPriority, boolean isRegMatchReq ) {
         MatchBuilder matchBuilder = new MatchBuilder();
         String flowId = "Ingress_IP" + segmentationId + "_" + dstMac + "_Permit_";
         if (isIpv6) {
             matchBuilder = MatchUtils.createV6EtherMatchWithType(matchBuilder,null,dstMac);
         } else {
             matchBuilder = MatchUtils.createV4EtherMatchWithType(matchBuilder,null,dstMac,MatchUtils.ETHERTYPE_IPV4);
+        }
+        if (isRegMatchReq) {
+            flowId = flowId + "_regEx_";
+            MatchUtils.addNxRegMatch(matchBuilder,
+                    new MatchUtils.RegMatch(ClassifierService.REG_FIELD_6, ClassifierService.REG_VALUE_FROM_LOCAL_0));
         }
         if (null != srcAddress) {
             flowId = flowId + srcAddress;
@@ -478,6 +485,21 @@ public class IngressAclService extends AbstractServiceInstance implements Ingres
             } else {
                 matchBuilder = MatchUtils.addRemoteIpPrefix(matchBuilder,
                         MatchUtils.iPv4PrefixFromIPv4Address(srcAddress),null);
+            }
+        } else if (null != portSecurityRule.getSecurityRuleRemoteIpPrefix()) {
+            flowId = flowId + portSecurityRule.getSecurityRuleRemoteIpPrefix();
+            if (isIpv6) {
+                matchBuilder = MatchUtils.addRemoteIpv6Prefix(matchBuilder,
+                        new Ipv6Prefix(portSecurityRule
+                                       .getSecurityRuleRemoteIpPrefix()),null);
+            } else {
+                // Fix: Bug 6473
+                // IP match removed if CIDR created as 0.0.0.0/0 in openstack security rule
+                if (!portSecurityRule.getSecurityRuleRemoteIpPrefix().contains("/0")) {
+                    matchBuilder = MatchUtils.addRemoteIpPrefix(matchBuilder,
+                            new Ipv4Prefix(portSecurityRule
+                                       .getSecurityRuleRemoteIpPrefix()),null);
+                }
             }
         } else {
             if (isIpv6) {
@@ -503,11 +525,12 @@ public class IngressAclService extends AbstractServiceInstance implements Ingres
      * @param portSecurityRule the security rule in the SG
      * @param srcAddress the destination IP address
      * @param write add or delete
+     * @param isRegMatchReq add Reg MAtch or not
      * @param protoPortMatchPriority the protocol match priroty
      */
     private void ingressAclTcp(Long dpidLong, String segmentationId, String dstMac,
                                NeutronSecurityRule portSecurityRule, String srcAddress, boolean write,
-                               Integer protoPortMatchPriority ) {
+                               Integer protoPortMatchPriority, boolean isRegMatchReq) {
         boolean portRange = false;
         MatchBuilder matchBuilder = new MatchBuilder();
         String flowId = "Ingress_TCP_" + segmentationId + "_" + dstMac + "_";
@@ -516,6 +539,11 @@ public class IngressAclService extends AbstractServiceInstance implements Ingres
             matchBuilder = MatchUtils.createV6EtherMatchWithType(matchBuilder,null,dstMac);
         } else {
             matchBuilder = MatchUtils.createV4EtherMatchWithType(matchBuilder,null,dstMac,MatchUtils.ETHERTYPE_IPV4);
+        }
+        if (isRegMatchReq) {
+            flowId = flowId + "_regEx_";
+            MatchUtils.addNxRegMatch(matchBuilder,
+                    new MatchUtils.RegMatch(ClassifierService.REG_FIELD_6, ClassifierService.REG_VALUE_FROM_LOCAL_0));
         }
 
         /* Custom TCP Match*/
@@ -601,11 +629,12 @@ public class IngressAclService extends AbstractServiceInstance implements Ingres
      * @param portSecurityRule the security rule in the SG
      * @param srcAddress the destination IP address
      * @param write add or delete
+     * @param isRegMatchReq add Reg MAtch or not
      * @param protoPortMatchPriority the protocol match priroty
      */
     private void ingressAclUdp(Long dpidLong, String segmentationId, String dstMac,
                                NeutronSecurityRule portSecurityRule, String srcAddress,
-                               boolean write, Integer protoPortMatchPriority ) {
+                               boolean write, Integer protoPortMatchPriority, boolean isRegMatchReq ) {
         boolean portRange = false;
         boolean isIpv6 = NeutronSecurityRule.ETHERTYPE_IPV6.equals(portSecurityRule.getSecurityRuleEthertype());
         MatchBuilder matchBuilder = new MatchBuilder();
@@ -614,6 +643,11 @@ public class IngressAclService extends AbstractServiceInstance implements Ingres
             matchBuilder = MatchUtils.createV6EtherMatchWithType(matchBuilder,null,dstMac);
         } else {
             matchBuilder = MatchUtils.createV4EtherMatchWithType(matchBuilder,null,dstMac,MatchUtils.ETHERTYPE_IPV4);
+        }
+        if (isRegMatchReq) {
+            flowId = flowId + "_regEx_";
+            MatchUtils.addNxRegMatch(matchBuilder,
+                    new MatchUtils.RegMatch(ClassifierService.REG_FIELD_6, ClassifierService.REG_VALUE_FROM_LOCAL_0));
         }
 
         /* Custom UDP Match */
@@ -683,15 +717,15 @@ public class IngressAclService extends AbstractServiceInstance implements Ingres
 
     private void ingressAclIcmp(Long dpidLong, String segmentationId, String dstMac,
             NeutronSecurityRule portSecurityRule, String srcAddress,
-            boolean write, Integer protoPortMatchPriority) {
+            boolean write, Integer protoPortMatchPriority, boolean isRegMatchReq) {
 
         boolean isIpv6 = NeutronSecurityRule.ETHERTYPE_IPV6.equals(portSecurityRule.getSecurityRuleEthertype());
         if (isIpv6) {
             ingressAclIcmpV6(dpidLong, segmentationId, dstMac, portSecurityRule, srcAddress,
-                             write, protoPortMatchPriority);
+                             write, protoPortMatchPriority, isRegMatchReq);
         } else {
             ingressAclIcmpV4(dpidLong, segmentationId, dstMac, portSecurityRule, srcAddress,
-                             write, protoPortMatchPriority);
+                             write, protoPortMatchPriority, isRegMatchReq);
         }
     }
 
@@ -705,11 +739,12 @@ public class IngressAclService extends AbstractServiceInstance implements Ingres
      * @param portSecurityRule the security rule in the SG
      * @param srcAddress the destination IP address
      * @param write add or delete
+     * @param isRegMatchReq add Reg MAtch or not
      * @param protoPortMatchPriority the protocol match priority
      */
     private void ingressAclIcmpV4(Long dpidLong, String segmentationId, String dstMac,
                                   NeutronSecurityRule portSecurityRule, String srcAddress,
-                                  boolean write, Integer protoPortMatchPriority) {
+                                  boolean write, Integer protoPortMatchPriority, boolean isRegMatchReq) {
 
         MatchBuilder matchBuilder = new MatchBuilder();
         boolean isIcmpAll = false;
@@ -730,6 +765,13 @@ public class IngressAclService extends AbstractServiceInstance implements Ingres
             flowId = flowId + "all" + "_";
             matchBuilder = MatchUtils.createICMPv4Match(matchBuilder,MatchUtils.ALL_ICMP, MatchUtils.ALL_ICMP);
         }
+
+        if (isRegMatchReq) {
+            flowId = flowId + "_regEx_";
+            MatchUtils.addNxRegMatch(matchBuilder,
+                    new MatchUtils.RegMatch(ClassifierService.REG_FIELD_6, ClassifierService.REG_VALUE_FROM_LOCAL_0));
+        }
+
         if (null != srcAddress) {
             flowId = flowId + srcAddress;
             matchBuilder = MatchUtils.addRemoteIpPrefix(matchBuilder,
@@ -756,7 +798,7 @@ public class IngressAclService extends AbstractServiceInstance implements Ingres
                 addInstructionWithLearnConntrackCommit(portSecurityRule, flowBuilder, entry.getValue(), "0");
                 syncFlow(flowBuilder ,nodeBuilder, write);
             }
-            addIcmpFlow(nodeBuilder, portSecurityRule, segmentationId, dstMac, protoPortMatchPriority - 1, srcAddress, write);
+            addIcmpFlow(nodeBuilder, portSecurityRule, segmentationId, dstMac, protoPortMatchPriority - 1, srcAddress, write, isRegMatchReq);
         } else {
             flowId = flowId + "_Permit";
             addConntrackMatch(matchBuilder, MatchUtils.TRACKED_NEW_CT_STATE,MatchUtils.TRACKED_NEW_CT_STATE_MASK);
@@ -772,7 +814,7 @@ public class IngressAclService extends AbstractServiceInstance implements Ingres
     }
 
     private void addIcmpFlow(NodeBuilder nodeBuilder, NeutronSecurityRule portSecurityRule, String segmentationId, String dstMac,
-            Integer protoPortMatchPriority, String srcAddress, boolean write){
+            Integer protoPortMatchPriority, String srcAddress, boolean write, boolean isRegMatchReq) {
         MatchBuilder matchBuilder = new MatchBuilder();
         InstructionBuilder instructionBuilder = null;
         short learnTableId=getTable(Service.ACL_LEARN_SERVICE);
@@ -789,6 +831,11 @@ public class IngressAclService extends AbstractServiceInstance implements Ingres
                  matchBuilder = MatchUtils.addRemoteIpPrefix(matchBuilder,
                                           new Ipv4Prefix(portSecurityRule.getSecurityRuleRemoteIpPrefix()),null);
              }
+        }
+        if (isRegMatchReq) {
+            flowId = flowId + "_regEx_";
+            MatchUtils.addNxRegMatch(matchBuilder,
+                    new MatchUtils.RegMatch(ClassifierService.REG_FIELD_6, ClassifierService.REG_VALUE_FROM_LOCAL_0));
         }
         flowId = flowId + "all" + "_";
         matchBuilder = MatchUtils.createICMPv4Match(matchBuilder,MatchUtils.ALL_ICMP, MatchUtils.ALL_ICMP);
@@ -812,11 +859,12 @@ public class IngressAclService extends AbstractServiceInstance implements Ingres
      * @param portSecurityRule the security rule in the SG
      * @param srcAddress the destination IP address
      * @param write add or delete
+     * @param isRegMatchReq add Reg MAtch or not
      * @param protoPortMatchPriority the protocol match priority
      */
     private void ingressAclIcmpV6(Long dpidLong, String segmentationId, String dstMac,
                                   NeutronSecurityRule portSecurityRule, String srcAddress,
-                                  boolean write, Integer protoPortMatchPriority) {
+                                  boolean write, Integer protoPortMatchPriority, boolean isRegMatchReq) {
 
         MatchBuilder matchBuilder = new MatchBuilder();
         String flowId = "Ingress_ICMP_" + segmentationId + "_" + dstMac + "_";
@@ -834,6 +882,11 @@ public class IngressAclService extends AbstractServiceInstance implements Ingres
             /* All ICMP Match */
             flowId = flowId + "all" + "_";
             matchBuilder = MatchUtils.createICMPv6Match(matchBuilder,MatchUtils.ALL_ICMP, MatchUtils.ALL_ICMP);
+        }
+        if (isRegMatchReq) {
+            flowId = flowId + "_regEx_";
+            MatchUtils.addNxRegMatch(matchBuilder,
+                    new MatchUtils.RegMatch(ClassifierService.REG_FIELD_6, ClassifierService.REG_VALUE_FROM_LOCAL_0));
         }
         if (null != srcAddress) {
             flowId = flowId + srcAddress;
