@@ -79,13 +79,13 @@ public class ElanPacketInHandler implements PacketProcessingListener {
 
                 byte[] srcMac = res.getSourceMACAddress();
                 final String macAddress = NWUtil.toStringMacAddress(srcMac);
+                BigInteger metadata = notification.getMatch().getMetadata().getMetadata();
+                final long elanTag = MetaDataUtil.getElanTagFromMetadata(metadata);
 
                 final DataStoreJobCoordinator portDataStoreCoordinator = DataStoreJobCoordinator.getInstance();
                 portDataStoreCoordinator.enqueueJob("MAC-" + macAddress, new Callable<List<ListenableFuture<Void>>>() {
                     @Override
                     public List<ListenableFuture<Void>> call() throws Exception {
-                        BigInteger metadata = notification.getMatch().getMetadata().getMetadata();
-                        long elanTag = MetaDataUtil.getElanTagFromMetadata(metadata);
 
                         long portTag = MetaDataUtil.getLportFromMetadata(metadata).intValue();
 
