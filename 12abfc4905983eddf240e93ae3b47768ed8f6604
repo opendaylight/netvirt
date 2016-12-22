@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1a622d24_28bcf3db",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/FibUtil.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 577,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-12-22T11:34:08Z",
+      "side": 1,
+      "message": "Why would an entry you decided to remove not suddenly be present?\n\nThis is a widely used method by VPNEngine for subnetroute/routerinterfaces and will be used further where a forced removal of a FIBEntry is required.\n\nAdding a read here is expensive.\n\nIt wouldn\u0027t be a good approach to fix this method for NAT Service misbehaviour !",
+      "revId": "12abfc4905983eddf240e93ae3b47768ed8f6604",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_68b6ebfb",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/ExternalRoutersListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 389,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-12-22T11:34:08Z",
+      "side": 1,
+      "message": "here again it looks like we always use the first external fixed ip  of the router...\n\nI vaguely remember that we roundrobin if multiple external fixed ips are available with a given router !  Do we don\u0027t want that ?",
+      "revId": "12abfc4905983eddf240e93ae3b47768ed8f6604",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_68b26be7",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnNatManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 421,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-12-22T11:34:08Z",
+      "side": 1,
+      "message": "if a router has no external gateway set, then why is the router maintained in the externaroutersDS?",
+      "revId": "12abfc4905983eddf240e93ae3b47768ed8f6604",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
