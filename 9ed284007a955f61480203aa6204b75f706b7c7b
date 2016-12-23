@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "1a622d24_94643ee6",
+        "filename": "docs/specs/acl-stats.rst",
+        "patchSetId": 14
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 5882
+      },
+      "writtenOn": "2016-12-23T12:19:07Z",
+      "side": 1,
+      "message": "With the current ACL architecture it\u0027s not possible to support Allowed packets/bytes count without changing design of flows being added. So initially, retrieval of Drop packets count would be supported with minimal changes to existing ACL code. This would be updated subsequently to support allowed packets/bytes as well.\n\nBy looking at high (or) low drop count, operator can take remedial actions needed.",
+      "parentUuid": "1a622d24_59401f56",
+      "revId": "9ed284007a955f61480203aa6204b75f706b7c7b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_399723ee",
         "filename": "docs/specs/acl-stats.rst",
         "patchSetId": 14
@@ -30,6 +48,24 @@
       "writtenOn": "2016-12-23T10:11:25Z",
       "side": 1,
       "message": "will the below flows be in addition to the above flows, or will the below flows replace the above 2 flows?",
+      "revId": "9ed284007a955f61480203aa6204b75f706b7c7b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_f463f2d9",
+        "filename": "docs/specs/acl-stats.rst",
+        "patchSetId": 14
+      },
+      "lineNbr": 66,
+      "author": {
+        "id": 5882
+      },
+      "writtenOn": "2016-12-23T12:19:07Z",
+      "side": 1,
+      "message": "New flows added will replace existing DROP flows. This info. is also updated in Spec",
+      "parentUuid": "1a622d24_399723ee",
       "revId": "9ed284007a955f61480203aa6204b75f706b7c7b",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -53,6 +89,24 @@
     },
     {
       "key": {
+        "uuid": "1a622d24_d45eb611",
+        "filename": "docs/specs/acl-stats.rst",
+        "patchSetId": 14
+      },
+      "lineNbr": 104,
+      "author": {
+        "id": 5882
+      },
+      "writtenOn": "2016-12-23T12:19:07Z",
+      "side": 1,
+      "message": "For switch control path not reachable, \"503 Service Unavailable\" error would be returned from RPC",
+      "parentUuid": "1a622d24_79a19b46",
+      "revId": "9ed284007a955f61480203aa6204b75f706b7c7b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_99ac7737",
         "filename": "docs/specs/acl-stats.rst",
         "patchSetId": 14
@@ -64,6 +118,24 @@
       "writtenOn": "2016-12-23T10:11:25Z",
       "side": 1,
       "message": "the above two messages can be more operator-friendly.",
+      "revId": "9ed284007a955f61480203aa6204b75f706b7c7b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_54810649",
+        "filename": "docs/specs/acl-stats.rst",
+        "patchSetId": 14
+      },
+      "lineNbr": 403,
+      "author": {
+        "id": 5882
+      },
+      "writtenOn": "2016-12-23T12:19:07Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1a622d24_99ac7737",
       "revId": "9ed284007a955f61480203aa6204b75f706b7c7b",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -87,6 +159,24 @@
     },
     {
       "key": {
+        "uuid": "1a622d24_14a02ef3",
+        "filename": "docs/specs/acl-stats.rst",
+        "patchSetId": 14
+      },
+      "lineNbr": 404,
+      "author": {
+        "id": 5882
+      },
+      "writtenOn": "2016-12-23T12:19:07Z",
+      "side": 1,
+      "message": "Changed error message to \"Unable to retrieve drop counts due to error: \u003cdetailed error message\u003e\"",
+      "parentUuid": "1a622d24_d9a6ef52",
+      "revId": "9ed284007a955f61480203aa6204b75f706b7c7b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_196867f4",
         "filename": "docs/specs/acl-stats.rst",
         "patchSetId": 14
@@ -104,6 +194,24 @@
     },
     {
       "key": {
+        "uuid": "1a622d24_74a7e20c",
+        "filename": "docs/specs/acl-stats.rst",
+        "patchSetId": 14
+      },
+      "lineNbr": 405,
+      "author": {
+        "id": 5882
+      },
+      "writtenOn": "2016-12-23T12:19:07Z",
+      "side": 1,
+      "message": "Code will be updated to return error as in (c) with operator friendly error message",
+      "parentUuid": "1a622d24_196867f4",
+      "revId": "9ed284007a955f61480203aa6204b75f706b7c7b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_b97853c5",
         "filename": "docs/specs/acl-stats.rst",
         "patchSetId": 14
@@ -115,6 +223,24 @@
       "writtenOn": "2016-12-23T10:11:25Z",
       "side": 1,
       "message": "Unable to retrieve drop counts as interface not configured for statistics collection.",
+      "revId": "9ed284007a955f61480203aa6204b75f706b7c7b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_54aaa6d4",
+        "filename": "docs/specs/acl-stats.rst",
+        "patchSetId": 14
+      },
+      "lineNbr": 406,
+      "author": {
+        "id": 5882
+      },
+      "writtenOn": "2016-12-23T12:19:07Z",
+      "side": 1,
+      "message": "Changed error message to \"Unable to retrieve drop counts as interface not configured for statistics collection.\"",
+      "parentUuid": "1a622d24_b97853c5",
       "revId": "9ed284007a955f61480203aa6204b75f706b7c7b",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -155,6 +281,24 @@
     },
     {
       "key": {
+        "uuid": "1a622d24_d4b51632",
+        "filename": "docs/specs/acl-stats.rst",
+        "patchSetId": 14
+      },
+      "lineNbr": 442,
+      "author": {
+        "id": 5882
+      },
+      "writtenOn": "2016-12-23T12:19:07Z",
+      "side": 1,
+      "message": "Updated to add test case with different ACL Modes. Also, added new error message in yang details section above to specify error condition when mode is not \u0027Stateful\u0027",
+      "parentUuid": "1a622d24_b95fb340",
+      "revId": "9ed284007a955f61480203aa6204b75f706b7c7b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_995ab74e",
         "filename": "docs/specs/acl-stats.rst",
         "patchSetId": 14
@@ -172,6 +316,24 @@
     },
     {
       "key": {
+        "uuid": "1a622d24_34844a5d",
+        "filename": "docs/specs/acl-stats.rst",
+        "patchSetId": 14
+      },
+      "lineNbr": 471,
+      "author": {
+        "id": 5882
+      },
+      "writtenOn": "2016-12-23T12:19:07Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1a622d24_995ab74e",
+      "revId": "9ed284007a955f61480203aa6204b75f706b7c7b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_f9592b5b",
         "filename": "docs/specs/acl-stats.rst",
         "patchSetId": 14
@@ -183,6 +345,24 @@
       "writtenOn": "2016-12-23T10:11:25Z",
       "side": 1,
       "message": "The above too..",
+      "revId": "9ed284007a955f61480203aa6204b75f706b7c7b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_14878e62",
+        "filename": "docs/specs/acl-stats.rst",
+        "patchSetId": 14
+      },
+      "lineNbr": 475,
+      "author": {
+        "id": 5882
+      },
+      "writtenOn": "2016-12-23T12:19:07Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1a622d24_f9592b5b",
       "revId": "9ed284007a955f61480203aa6204b75f706b7c7b",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
