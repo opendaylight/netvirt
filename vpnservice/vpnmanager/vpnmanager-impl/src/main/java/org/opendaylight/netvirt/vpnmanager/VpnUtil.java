@@ -1398,4 +1398,8 @@ public class VpnUtil {
         return InstanceIdentifier.builder(VpnInterfaces.class).child(VpnInterface.class, new VpnInterfaceKey(vpnInterfaceName)).augmentation(
                         Adjacencies.class).child(Adjacency.class, new AdjacencyKey(ipAddress)).build();
     }
+
+    public static String getJobKey(String tunnelInterfaceName) {
+        return new StringBuilder().append(VpnConstants.JOB_KEY_PREFIX).append(tunnelInterfaceName).toString();
+    }
 }

@@ -20,6 +20,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
+import java.util.stream.Collectors;
 
 import org.antlr.v4.runtime.misc.Pair;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
@@ -811,4 +812,9 @@ public class FibUtil {
         }
         return nextHopIp;
       }
+
+    public static String getGreLbGroupKey(List<String> tunnelList) {
+        String key = tunnelList.stream().sorted().collect(Collectors.joining(":"));
+        return "gre-" + key;
+    }
 }

@@ -216,4 +216,13 @@ public class VpnHelper {
         return new DestPrefixesBuilder().setKey(new DestPrefixesKey(destPrefix)).setDestPrefix(destPrefix).setRouteDistinguishers(rd);
     }
 
+    public static java.util.Optional<Long> getLabelForNextHopIp(VrfEntry vrfEntry, String nextHopIp) {
+        return vrfEntry
+                .getRoutePaths()
+                .stream()
+                .filter(routePath -> routePath.getNexthopAddressList().stream()
+                                .filter(nextHopAddress -> nextHopIp.equals(nextHopAddress))
+                                .findFirst().isPresent())
+                .map(routePath -> routePath.getLabel()).findFirst();
+    }
 }

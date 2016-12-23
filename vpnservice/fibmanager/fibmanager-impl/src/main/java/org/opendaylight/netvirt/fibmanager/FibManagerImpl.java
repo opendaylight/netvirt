@@ -8,6 +8,7 @@
 package org.opendaylight.netvirt.fibmanager;
 
 import com.google.common.util.concurrent.FutureCallback;
+import com.google.common.util.concurrent.ListenableFuture;
 
 import io.netty.util.concurrent.GlobalEventExecutor;
 
@@ -21,6 +22,7 @@ import org.opendaylight.netvirt.fibmanager.api.IFibManager;
 import org.opendaylight.netvirt.fibmanager.api.RouteOrigin;
 import org.opendaylight.netvirt.vpnmanager.api.IVpnManager;
 import org.opendaylight.netvirt.vpnmanager.api.intervpnlink.InterVpnLinkCache;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.RouterInterface;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.VrfEntry;
 import org.osgi.framework.BundleContext;
@@ -206,5 +208,10 @@ public class FibManagerImpl implements IFibManager {
     @Override
     public void refreshFibTables(String rd, String prefix) {
         vrfEntryListener.refreshFibTables(rd, prefix);
+    }
+
+    @Override
+    public List<ListenableFuture<Void>> programDcGwLoadBalancingGroup(List<String> availableDcGws, BigInteger dpnId, int addOrRemove) {
+        return nexthopManager.programDcGwLoadBalancingGroup(availableDcGws, dpnId, addOrRemove);
     }
 }

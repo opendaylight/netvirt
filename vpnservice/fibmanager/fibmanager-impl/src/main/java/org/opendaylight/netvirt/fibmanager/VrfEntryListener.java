@@ -12,6 +12,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
+
 import java.math.BigInteger;
 import java.net.Inet4Address;
 import java.net.InetAddress;
@@ -1123,7 +1124,7 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
                     List<ActionInfo> actionInfos = new ArrayList<>();
                     String egressInterface = adjacencyResult.getInterfaceName();
                     if (Tunnel.class.equals(adjacencyResult.getInterfaceType())) {
-                        addTunnelInterfaceActions(egressInterface, vpnId, vrfEntry, actionInfos);
+                        addTunnelInterfaceActions(adjacencyResult, vpnId, vrfEntry, actionInfos);
                     } else {
                         addRewriteDstMacAction(vpnId, vrfEntry, actionInfos);
                     }
@@ -1156,7 +1157,7 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
         if (adjacencyResults.size() > 1) {
             // ECMP Use case, point to LB group. Move the mpls label accordingly.
             List<String> tunnelList = routePathLists.stream().map(routes -> routes.getNexthopAddressList().get(0)).collect(Collectors.toList());
-            String lbGroupKey = String.join(":", tunnelList);
+            String lbGroupKey = FibUtil.getGreLbGroupKey(tunnelList);
             long groupId = nextHopManager.getNextHopPointer(lbGroupKey);
             int index = 0;
             for (RoutePaths routePaths : routePathLists) {
@@ -1166,7 +1167,7 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
             actionInfos.add(new ActionInfo(ActionType.group, new String[]{Long.toString(groupId)}, index));
         }  else {
             String egressInterface = adjacencyResults.get(0).getInterfaceName();
-            addTunnelInterfaceActions(egressInterface, vpnId, vrfEntry, actionInfos);
+            addTunnelInterfaceActions(adjacencyResults.get(0), vpnId, vrfEntry, actionInfos);
             List<ActionInfo> egressActions = nextHopManager.getEgressActionsForInterface(egressInterface);
             if (egressActions.isEmpty()) {
                 LOG.error(
@@ -1203,11 +1204,18 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
         actionInfos.add(new ActionInfo(ActionType.set_field_eth_dest, new String[] { macAddress }, actionInfos.size()));
     }
 
-    private void addTunnelInterfaceActions(String tunnelInterface, long vpnId, VrfEntry vrfEntry,
+    private void addTunnelInterfaceActions(AdjacencyResult adjacencyResult, long vpnId, VrfEntry vrfEntry,
             List<ActionInfo> actionInfos) {
-        Preconditions.checkArgument(vrfEntry.getRoutePaths().size() == 1);
-        Class<? extends TunnelTypeBase> tunnelType = VpnHelper.getTunnelType(interfaceManager, tunnelInterface);
-        Long lbl = VpnHelper.getNonBgpRoutePath(vrfEntry).getLabel();
+        Class<? extends TunnelTypeBase> tunnelType = VpnHelper.getTunnelType(interfaceManager, adjacencyResult.getInterfaceName());
+        // TODO - For now have added nextHopIp into adjacencyResult so that we know for which
+        // nextHopIp this result is built for. If this is not possible construct a map which does
+        // the same.
+        java.util.Optional<Long> optionalLabel = VpnHelper.getLabelForNextHopIp(vrfEntry, adjacencyResult.getNextHopIp());
+        if (!optionalLabel.isPresent()) {
+            LOG.warn("Could not get the label for the nextHopIp. vrf {}, nextHopIp {}", vrfEntry, adjacencyResult.getNextHopIp());
+            return;
+        }
+        Long lbl = optionalLabel.get();
         if (tunnelType.equals(TunnelTypeMplsOverGre.class)) {
             LOG.debug("Push label action for prefix {}", vrfEntry.getDestPrefix());
             actionInfos.add(new ActionInfo(ActionType.push_mpls, new String[] { null }));
@@ -1642,9 +1650,22 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
         }
     }
 
-    private void deleteFibEntry(BigInteger remoteDpnId, long vpnId, VrfEntry vrfEntry, String rd, WriteTransaction tx){
-        makeConnectedRoute(remoteDpnId, vpnId, vrfEntry, rd, null, NwConstants.DEL_FLOW, tx);
-        LOG.debug("Successfully delete FIB entry: vrfEntry={}, vpnId={}", vrfEntry.getDestPrefix(), vpnId);
+    private void deleteFibEntry(BigInteger remoteDpnId, long vpnId, VrfEntry vrfEntry, String rd, WriteTransaction tx) {
+        if (RouteOrigin.value(vrfEntry.getOrigin()) == RouteOrigin.BGP) {
+            List<RoutePaths> routePathLists = vrfEntry.getRoutePaths();
+            VpnHelper.sortIpAddress(routePathLists);
+
+            List<AdjacencyResult> adjacencyResults = resolveAdjacency(remoteDpnId, vpnId, vrfEntry, rd, routePathLists);
+            if (adjacencyResults.isEmpty()) {
+                makeConnectedRoute(remoteDpnId, vpnId, vrfEntry, rd, null, NwConstants.DEL_FLOW, tx);
+                return;
+            }
+            programRemoteFibForBgpRoutes(remoteDpnId, vpnId, vrfEntry, tx, rd, routePathLists,
+                    adjacencyResults);
+        } else {
+            makeConnectedRoute(remoteDpnId, vpnId, vrfEntry, rd, null, NwConstants.DEL_FLOW, tx);
+            LOG.debug("Successfully delete FIB entry: vrfEntry={}, vpnId={}", vrfEntry.getDestPrefix(), vpnId);
+        }
     }
 
     private long get
