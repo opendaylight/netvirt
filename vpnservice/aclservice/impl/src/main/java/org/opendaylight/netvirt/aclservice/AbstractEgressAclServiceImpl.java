@@ -119,6 +119,7 @@ public abstract class AbstractEgressAclServiceImpl extends AbstractAclServiceImp
             egressAclDhcpDropServerTraffic(dpid, dhcpMacAddress, lportTag, addOrRemove);
             egressAclDhcpv6DropServerTraffic(dpid, dhcpMacAddress, lportTag, addOrRemove);
             egressAclIcmpv6DropRouterAdvts(dpid, lportTag, addOrRemove);
+            egressAclIcmpv6AllowedList(dpid, lportTag, addOrRemove);
         }
         programArpRule(dpid, allowedAddresses, lportTag, addOrRemove);
     }
@@ -240,6 +241,25 @@ public abstract class AbstractEgressAclServiceImpl extends AbstractAclServiceImp
         String flowName = "Egress_ICMPv6" + "_" + dpId + "_" + lportTag + "_" + AclConstants.ICMPV6_TYPE_RA + "_Drop_";
         syncFlow(dpId, NwConstants.INGRESS_ACL_TABLE, flowName, AclConstants.PROTO_IPV6_DROP_PRIORITY, "ACL", 0,
                 0, AclConstants.COOKIE_ACL_BASE, matches, instructions, addOrRemove);
+    }
+
+    /**
+     * Add rule to allow certain ICMPv6 traffic from VM ports.
+     *
+     * @param dpId the dpId
+     * @param lportTag the lport tag
+     * @param addOrRemove add/remove the flow.
+     */
+    private void egressAclIcmpv6AllowedList(BigInteger dpId, int lportTag, int addOrRemove) {
+        List<ActionInfo> actionsInfos = new ArrayList<>();
+        List<InstructionInfo> instructions = getDispatcherTableResubmitInstructions(actionsInfos);
+
+        for (Integer icmpv6Type: AclConstants.allowedIcmpv6NdList()) {
+            List<MatchInfoBase> matches = AclServiceUtils.buildIcmpV6Matches(icmpv6Type, 0, lportTag);
+            String flowName = "Egress_ICMPv6" + "_" + dpId + "_" + lportTag + "_" + icmpv6Type + "_Permit_";
+            syncFlow(dpId, NwConstants.INGRESS_ACL_TABLE, flowName, AclConstants.PROTO_IPV6_ALLOWED_PRIORITY,
+                    "ACL", 0, 0, AclConstants.COOKIE_ACL_BASE, matches, instructions, addOrRemove);
+        }
     }
 
     /**
