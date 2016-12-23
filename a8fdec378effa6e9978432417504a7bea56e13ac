@@ -209,6 +209,24 @@
       "revId": "a8fdec378effa6e9978432417504a7bea56e13ac",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_f9564bd1",
+        "filename": "docs/specs/l3vpn-over-vxlan-with-evpn-rt5.rst",
+        "patchSetId": 28
+      },
+      "lineNbr": 483,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-12-23T06:50:07Z",
+      "side": 1,
+      "message": "The standard VNIs spec put out by Abhinav will make in after this feature.  So yes, this one will pre-date the VNI spec.\n\nAnd the L3VNI here is non-openstack VNI as it stands today.\n\nEventually it will be available via Openstack in Ocata release.\nReview here:  https://review.openstack.org/#/c/332711/\n\nSo for now this feature will use only ODL APIs for managing this type of L3BGPVPN.\n\n \nVNI to VPN-ID is local to one specific ODL Cluster and its managed datapath.  In the Inter DC case, both the DCs will be managed by two different ODL Clusters.\n\nIn both the DCs, you should create the BGPVPN with the same name and configure the same RD for that BGPVPN.  The VPNID becomes irrelevant once the packet exits the hypervisor managed by the different ODL Clusters.",
+      "parentUuid": "1a622d24_73e9bcb7",
+      "revId": "a8fdec378effa6e9978432417504a7bea56e13ac",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
