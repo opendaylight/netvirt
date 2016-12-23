@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "1a622d24_d9726f48",
+        "filename": "docs/specs/flow-based-snat.rst",
+        "patchSetId": 2
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 4269
+      },
+      "writtenOn": "2016-12-23T08:25:31Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1a622d24_eede9a3e",
+      "revId": "aafbecae391acfc685dde129296301e32f3377ed",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_cee11e00",
         "filename": "docs/specs/flow-based-snat.rst",
         "patchSetId": 2
@@ -36,6 +54,24 @@
     },
     {
       "key": {
+        "uuid": "1a622d24_3991e347",
+        "filename": "docs/specs/flow-based-snat.rst",
+        "patchSetId": 2
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 4269
+      },
+      "writtenOn": "2016-12-23T08:25:31Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1a622d24_cee11e00",
+      "revId": "aafbecae391acfc685dde129296301e32f3377ed",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_0ecaf66d",
         "filename": "docs/specs/flow-based-snat.rst",
         "patchSetId": 2
@@ -47,6 +83,24 @@
       "writtenOn": "2016-12-16T18:52:00Z",
       "side": 1,
       "message": "Is there any # of zone limit enforced by the conntrack in linux?   Will mapping one router to one zone scale?",
+      "revId": "aafbecae391acfc685dde129296301e32f3377ed",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_19098795",
+        "filename": "docs/specs/flow-based-snat.rst",
+        "patchSetId": 2
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 4269
+      },
+      "writtenOn": "2016-12-23T08:25:31Z",
+      "side": 1,
+      "message": "It is uint 16, 65,535 should be possible, I think one zone per router should be fine as the finding the translation will be much easier if zone has less connection.",
+      "parentUuid": "1a622d24_0ecaf66d",
       "revId": "aafbecae391acfc685dde129296301e32f3377ed",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -81,6 +135,24 @@
       "writtenOn": "2016-12-13T14:29:38Z",
       "side": 1,
       "message": "+1.\n\nYou can mention that this Spec targets Centralized SNAT (in the proposed change section) and decentralized SNAT is out of scope and will be taken up in a future patch.",
+      "parentUuid": "1a622d24_cb1ac216",
+      "revId": "aafbecae391acfc685dde129296301e32f3377ed",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_1994e735",
+        "filename": "docs/specs/flow-based-snat.rst",
+        "patchSetId": 2
+      },
+      "lineNbr": 118,
+      "author": {
+        "id": 4269
+      },
+      "writtenOn": "2016-12-23T08:25:31Z",
+      "side": 1,
+      "message": "Done",
       "parentUuid": "1a622d24_cb1ac216",
       "revId": "aafbecae391acfc685dde129296301e32f3377ed",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
@@ -171,6 +243,24 @@
       "side": 1,
       "message": "I don\u0027t think OpenStack supports distributed SNAT currently.",
       "parentUuid": "1a622d24_6e1baa1b",
+      "revId": "aafbecae391acfc685dde129296301e32f3377ed",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_79007b67",
+        "filename": "docs/specs/flow-based-snat.rst",
+        "patchSetId": 2
+      },
+      "lineNbr": 175,
+      "author": {
+        "id": 4269
+      },
+      "writtenOn": "2016-12-23T08:25:31Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1a622d24_ebd85e55",
       "revId": "aafbecae391acfc685dde129296301e32f3377ed",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
