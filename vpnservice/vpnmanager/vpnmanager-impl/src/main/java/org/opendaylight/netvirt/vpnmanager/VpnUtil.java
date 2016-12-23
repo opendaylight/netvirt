@@ -1455,4 +1455,8 @@ public class VpnUtil {
                 getDestPrefixesBuilder(prefix, usedRds).build(), true);
         return java.util.Optional.ofNullable(rd);
     }
+
+    public static String getJobKey(String tunnelInterfaceName) {
+        return new StringBuilder().append(VpnConstants.JOB_KEY_PREFIX).append(tunnelInterfaceName).toString();
+    }
 }

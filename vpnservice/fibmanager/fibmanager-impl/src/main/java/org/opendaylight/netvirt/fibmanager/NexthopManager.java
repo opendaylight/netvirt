@@ -11,6 +11,7 @@ import com.google.common.base.Optional;
 import com.google.common.util.concurrent.CheckedFuture;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
+import com.google.common.util.concurrent.ListenableFuture;
 
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
@@ -22,6 +23,8 @@ import org.opendaylight.genius.mdsalutil.ActionType;
 import org.opendaylight.genius.mdsalutil.BucketInfo;
 import org.opendaylight.genius.mdsalutil.GroupEntity;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
+import org.opendaylight.genius.mdsalutil.actions.ActionPushMpls;
+import org.opendaylight.genius.mdsalutil.actions.ActionRegMove;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.netvirt.elanmanager.api.IElanService;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.VpnInterfaces;
@@ -29,12 +32,15 @@ import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev14081
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.interfaces.VpnInterfaceKey;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.iana._if.type.rev140508.L2vlan;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.iana._if.type.rev140508.Tunnel;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.InterfaceType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.action.types.rev131112.action.action.OutputActionCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.action.types.rev131112.action.action.PushVlanActionCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.action.types.rev131112.action.action.SetFieldCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.action.types.rev131112.action.list.Action;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.group.types.rev131018.GroupTypes;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.group.types.rev131018.group.buckets.Bucket;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.group.types.rev131018.groups.Group;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.instances.ElanInstance;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.Adjacencies;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.adjacency.list.Adjacency;
@@ -745,5 +751,50 @@ public class NexthopManager implements AutoCloseable {
             }
             return result;
         }
+    }
+
+    public void programDcGwLoadBalancingGroup(WriteTransaction tx,
+            List<ListenableFuture<Void>> futures, IpAddress dcGwIp, List<String> availableDcGws, BigInteger dpnId) {
+        int count = availableDcGws.size();
+        String groupIdKey = String.join(":", availableDcGws);
+        long groupId = getNextHopPointer(groupIdKey);
+        List<Bucket> listBucket = new ArrayList<>();
+        for (int index = 0; index < availableDcGws.size(); index++) {
+            int actionKey = 0;
+            List<Action> listAction = new ArrayList<>();
+            listAction.add(new ActionPushMpls().buildAction());
+            listAction.add(new ActionRegMove(actionKey++, FibConstants.nxmRegMapping
+                    .get(index), 0, 19).buildAction());
+            String tunnelInterfaceName = getTunnelInterfaceName(dpnId, dcGwIp);
+            listAction.addAll(getEgressActions(tunnelInterfaceName, actionKey++));
+            listBucket.add(MDSALUtil.buildBucket(listAction, MDSALUtil.GROUP_WEIGHT, index,
+                    MDSALUtil.WATCH_PORT, MDSALUtil.WATCH_GROUP));
+        }
+        Group group =
+                MDSALUtil.buildGroup(groupId, groupIdKey, GroupTypes.GroupSelect,
+                        MDSALUtil.buildBucketLists(listBucket));
+        LOG.trace("Installing the LB Group:{}", group);
+        mdsalApiManager.addGroupToTx(dpnId, group, tx);
+        futures.add(tx.submit());
+    }
+
+    private List<Action> getEgressActions(String interfaceName, int actionKey) {
+        List<Action> actions = null;
+        try {
+            GetEgressActionsForInterfaceInputBuilder egressAction =
+                    new GetEgressActionsForInterfaceInputBuilder().setIntfName(interfaceName).setActionKey(actionKey);
+            Future<RpcResult<GetEgressActionsForInterfaceOutput>> result =
+                    interfaceManager.getEgressActionsForInterface(egressAction.build());
+            RpcResult<GetEgressActionsForInterfaceOutput> rpcResult = result.get();
+            if (!rpcResult.isSuccessful()) {
+                LOG.warn("RPC Call to Get egress actions for interface {} returned with Errors {}",
+                        interfaceName, rpcResult.getErrors());
+            } else {
+                actions = rpcResult.getResult().getAction();
+            }
+        } catch (InterruptedException | ExecutionException e) {
+            LOG.warn("Exception when egress actions for interface {}", interfaceName, e);
+        }
+        return actions;
     }
 }

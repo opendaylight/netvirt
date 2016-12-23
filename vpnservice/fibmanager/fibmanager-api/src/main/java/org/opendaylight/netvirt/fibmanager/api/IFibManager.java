@@ -9,15 +9,14 @@
 package org.opendaylight.netvirt.fibmanager.api;
 
 import com.google.common.util.concurrent.FutureCallback;
-
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
+import com.google.common.util.concurrent.ListenableFuture;
 
 import java.math.BigInteger;
 import java.util.List;
 
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.RouterInterface;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.VrfEntry;
 
@@ -65,4 +64,6 @@ public interface IFibManager {
     void removeInterVPNLinkRouteFlows(final String interVpnLinkName,
                                       final boolean isVpnFirstEndPoint,
                                       final VrfEntry vrfEntry);
+    void programDcGwLoadBalancingGroup(WriteTransaction tx, List<ListenableFuture<Void>> futures,
+            IpAddress dcGwIp, List<String> availableDcGws, BigInteger dpnId);
 }
