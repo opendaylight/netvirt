@@ -9,8 +9,10 @@
 package org.opendaylight.netvirt.aclservice.utils;
 
 import java.math.BigInteger;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import org.opendaylight.ovsdb.utils.config.ConfigProperties;
 
@@ -87,6 +89,14 @@ public final class AclConstants {
     public static final long ACL_FLOW_PRIORITY_POOL_END = 60000L;
 
     private AclConstants() {
+    }
+
+    public static List<Integer> allowedIcmpv6NdList() {
+        List<Integer> icmpv6NdList = new ArrayList<>();
+        icmpv6NdList.add(ICMPV6_TYPE_RS);
+        icmpv6NdList.add(ICMPV6_TYPE_NS);
+        icmpv6NdList.add(ICMPV6_TYPE_NA);
+        return icmpv6NdList;
     }
 
     private static Map<String, Object> globalConf = Collections.synchronizedMap(new HashMap<>());
