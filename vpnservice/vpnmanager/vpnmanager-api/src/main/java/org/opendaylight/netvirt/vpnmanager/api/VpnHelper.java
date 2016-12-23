@@ -72,4 +72,16 @@ public class VpnHelper {
                         .child(RoutePaths.class, new RoutePathsKey(label));
         return idBuilder.build();
     }
+
+    public static Long getLabelForNextHopIp(VrfEntry vrfEntry, String nextHopIp) {
+        java.util.Optional<Long> label =
+        vrfEntry
+                .getRoutePaths()
+                .stream()
+                .filter(routePath -> routePath.getNexthopAddressList().stream()
+                                .filter(nextHopAddress -> nextHopIp.equals(nextHopAddress))
+                                .findFirst().isPresent())
+                .map(routePath -> routePath.getLabel()).findFirst();
+        return label.get();
+    }
 }

@@ -1444,4 +1444,8 @@ public class VpnUtil {
         syncUpdate(dataBroker, LogicalDatastoreType.OPERATIONAL, getUsedRdsIdentifier(vpnId, prefix), getDestPrefixesBuilder(prefix, usedRds).build());
         return java.util.Optional.ofNullable(rd);
     }
+
+    public static String getJobKey(String tunnelInterfaceName) {
+        return new StringBuilder().append(VpnConstants.JOB_KEY_PREFIX).append(tunnelInterfaceName).toString();
+    }
 }

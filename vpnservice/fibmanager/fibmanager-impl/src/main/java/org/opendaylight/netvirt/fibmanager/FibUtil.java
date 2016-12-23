@@ -20,6 +20,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
+import java.util.stream.Collectors;
 
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
@@ -736,5 +737,9 @@ public class FibUtil {
             return true;
         }
         return false;
+    }
+
+    public static String getLbGroupKey(List<String> tunnelList) {
+        return tunnelList.stream().sorted().collect(Collectors.joining(":"));
     }
 }
