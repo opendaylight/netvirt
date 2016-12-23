@@ -1,0 +1,191 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1a622d24_59401f56",
+        "filename": "docs/specs/acl-stats.rst",
+        "patchSetId": 14
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-12-23T10:11:25Z",
+      "side": 1,
+      "message": "In general since security-group-api was designed around Selective Permit semantic, am not sure how it will help to only show drop counts.\n\nWhat could be construed if the drop count is high (or) low ?",
+      "revId": "9ed284007a955f61480203aa6204b75f706b7c7b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_399723ee",
+        "filename": "docs/specs/acl-stats.rst",
+        "patchSetId": 14
+      },
+      "lineNbr": 66,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-12-23T10:11:25Z",
+      "side": 1,
+      "message": "will the below flows be in addition to the above flows, or will the below flows replace the above 2 flows?",
+      "revId": "9ed284007a955f61480203aa6204b75f706b7c7b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_79a19b46",
+        "filename": "docs/specs/acl-stats.rst",
+        "patchSetId": 14
+      },
+      "lineNbr": 104,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-12-23T10:11:25Z",
+      "side": 1,
+      "message": "If a switch control path is not reachable during the execution by the Operator, he would need to retry the RPC/REST API?\n\nWill he be informed in response like 503 Service Unavailable or something?\n\nOr will this show the last retrieved information available for interfaces as per the Operational DS?",
+      "revId": "9ed284007a955f61480203aa6204b75f706b7c7b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_99ac7737",
+        "filename": "docs/specs/acl-stats.rst",
+        "patchSetId": 14
+      },
+      "lineNbr": 403,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-12-23T10:11:25Z",
+      "side": 1,
+      "message": "the above two messages can be more operator-friendly.",
+      "revId": "9ed284007a955f61480203aa6204b75f706b7c7b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_d9a6ef52",
+        "filename": "docs/specs/acl-stats.rst",
+        "patchSetId": 14
+      },
+      "lineNbr": 404,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-12-23T10:11:25Z",
+      "side": 1,
+      "message": "May be we can say:\n\nUnable to retrieve drop counts due to error: \u003cdetailed error message\u003e",
+      "revId": "9ed284007a955f61480203aa6204b75f706b7c7b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_196867f4",
+        "filename": "docs/specs/acl-stats.rst",
+        "patchSetId": 14
+      },
+      "lineNbr": 405,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-12-23T10:11:25Z",
+      "side": 1,
+      "message": "not sure what is the use of this error message?",
+      "revId": "9ed284007a955f61480203aa6204b75f706b7c7b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_b97853c5",
+        "filename": "docs/specs/acl-stats.rst",
+        "patchSetId": 14
+      },
+      "lineNbr": 406,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-12-23T10:11:25Z",
+      "side": 1,
+      "message": "Unable to retrieve drop counts as interface not configured for statistics collection.",
+      "revId": "9ed284007a955f61480203aa6204b75f706b7c7b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_394c439e",
+        "filename": "docs/specs/acl-stats.rst",
+        "patchSetId": 14
+      },
+      "lineNbr": 418,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-12-23T10:11:25Z",
+      "side": 1,
+      "message": "Would be good to add test lead here too...",
+      "revId": "9ed284007a955f61480203aa6204b75f706b7c7b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_b95fb340",
+        "filename": "docs/specs/acl-stats.rst",
+        "patchSetId": 14
+      },
+      "lineNbr": 442,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-12-23T10:11:25Z",
+      "side": 1,
+      "message": "You may want to have a testcase with ACL Mode is transparent or stateless.. In that case, you may want to put out appropriate error message.",
+      "revId": "9ed284007a955f61480203aa6204b75f706b7c7b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_995ab74e",
+        "filename": "docs/specs/acl-stats.rst",
+        "patchSetId": 14
+      },
+      "lineNbr": 471,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-12-23T10:11:25Z",
+      "side": 1,
+      "message": "this can be removed.",
+      "revId": "9ed284007a955f61480203aa6204b75f706b7c7b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_f9592b5b",
+        "filename": "docs/specs/acl-stats.rst",
+        "patchSetId": 14
+      },
+      "lineNbr": 475,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-12-23T10:11:25Z",
+      "side": 1,
+      "message": "The above too..",
+      "revId": "9ed284007a955f61480203aa6204b75f706b7c7b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
