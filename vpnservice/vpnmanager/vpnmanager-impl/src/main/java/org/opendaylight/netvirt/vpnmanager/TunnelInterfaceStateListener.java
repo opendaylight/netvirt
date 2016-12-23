@@ -8,12 +8,14 @@
 package org.opendaylight.netvirt.vpnmanager;
 
 import com.google.common.base.Optional;
+
 import java.math.BigInteger;
 import java.util.*;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Future;
 
 import com.google.common.util.concurrent.ListenableFuture;
+
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
@@ -21,11 +23,13 @@ import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.DataStoreJobCoordinator;
 import org.opendaylight.netvirt.bgpmanager.api.IBgpManager;
 import org.opendaylight.netvirt.fibmanager.api.IFibManager;
+import org.opendaylight.netvirt.vpnmanager.jobs.TunnelStateAddJob;
 import org.opendaylight.netvirt.vpnmanager.utilities.InterfaceUtils;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.VpnInstances;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.instances.VpnInstance;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.interfaces.VpnInterface;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rev160406.TunnelTypeMplsOverGre;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.GetDpnInterfaceListInputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.GetDpnInterfaceListOutput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.OdlInterfaceRpcService;
@@ -142,16 +146,24 @@ public class TunnelInterfaceStateListener extends AsyncDataTreeChangeListenerBas
             LOG.trace("Returning from unsupported tunnelOperStatus {}", tunOpStatus);
             return;
         }
+        if (add.getDstInfo().getTepDeviceType() == TepTypeExternal.class
+                && add.getTransportType() == TunnelTypeMplsOverGre.class) {
+            TunnelStateAddJob job =
+                    new TunnelStateAddJob(dataBroker, add, fibManager);
+            DataStoreJobCoordinator.getInstance().enqueueJob(
+                    VpnUtil.getJobKey(add.getTunnelInterfaceName()), job, VpnConstants.RETRY_COUNT);
+        }
+
         boolean isTunnelUp = (tunOpStatus == TunnelOperStatus.Up);
         if (!isTunnelUp) {
-            LOG.trace("Tunnel {} is not yet UP.",
-                    add.getTunnelInterfaceName());
+            LOG.trace("Tunnel {} is not yet UP.", add.getTunnelInterfaceName());
             return;
         } else {
-            LOG.trace("ITM Tunnel ,type {} ,State is UP b/w src: {} and dest: {}",
-                    fibManager.getTransportTypeStr(add.getTransportType().toString()),
-                    add.getSrcInfo().getTepDeviceId(), add.getDstInfo().getTepDeviceId());
-            handleTunnelEventForDPN(add, UpdateRouteAction.ADVERTISE_ROUTE, TunnelAction.TUNNEL_EP_ADD);
+            LOG.trace("ITM Tunnel ,type {} ,State is UP b/w src: {} and dest: {}", fibManager
+                    .getTransportTypeStr(add.getTransportType().toString()), add.getSrcInfo()
+                    .getTepDeviceId(), add.getDstInfo().getTepDeviceId());
+            handleTunnelEventForDPN(add, UpdateRouteAction.ADVERTISE_ROUTE,
+                    TunnelAction.TUNNEL_EP_ADD);
         }
     }
 

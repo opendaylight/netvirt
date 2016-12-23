@@ -53,4 +53,6 @@ public class VpnConstants {
         DCGWPresentStatus(int id) { this.status = id; }
         public int getValue() { return status; }
     }
+    static final int RETRY_COUNT = 6;
+    static final String JOB_KEY_PREFIX = "dcgwjob";
 }
