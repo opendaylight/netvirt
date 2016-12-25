@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1a622d24_c878daf4",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/ExternalRoutersListener.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 407,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2016-12-25T15:10:56Z",
+      "side": 1,
+      "message": "method should be rename to getSubnetIdForFixedIp",
+      "revId": "e193208861bf2264ef1393ae2c24612da4d766cb",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_a873de13",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/ExternalRoutersListener.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 981,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2016-12-25T15:10:56Z",
+      "side": 1,
+      "message": "redundant check. contains is enough",
+      "revId": "e193208861bf2264ef1393ae2c24612da4d766cb",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_0862d23d",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/ExternalRoutersListener.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 991,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2016-12-25T15:10:56Z",
+      "side": 1,
+      "message": "pls change back to uppercase where needed",
+      "revId": "e193208861bf2264ef1393ae2c24612da4d766cb",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
