@@ -465,6 +465,7 @@ public class VpnInstanceListener extends AsyncDataTreeChangeListenerBase<VpnInst
             String rd = config.getRouteDistinguisher();
             if ((rd == null) || addBgpVrf(voids)) {
                 notifyTask();
+                vpnInterfaceManager.vpnInstanceIsReady(vpnName);
             }
         }
 
@@ -506,6 +507,7 @@ public class VpnInstanceListener extends AsyncDataTreeChangeListenerBase<VpnInst
             vpnOpDataNotifier.notifyVpnOpDataReady(VpnOpDataSyncer.VpnOpDataType.vpnInstanceToId, vpnName);
             vpnOpDataNotifier.notifyVpnOpDataReady(VpnOpDataSyncer.VpnOpDataType.vpnOpData, vpnName);
         }
+
         /**
          *
          * @param throwable
@@ -517,7 +519,8 @@ public class VpnInstanceListener extends AsyncDataTreeChangeListenerBase<VpnInst
 
         @Override
         public void onFailure(Throwable throwable) {
-            LOG.warn("Job: failed with exception: ", throwable);
+            LOG.error("Job for vpnInstance: {} failed with exception: {}", vpnName ,throwable);
+            vpnInterfaceManager.vpnInstanceFailed(vpnName);
         }
     }
 
