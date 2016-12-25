@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1a622d24_e8083693",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanInterfaceManager.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 362,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2016-12-25T13:35:35Z",
+      "side": 0,
+      "message": "We are hitting the same issue from this delete too. Could you pls apply the same code for this case as well?",
+      "revId": "0c0f74b78fbb94842ac4b366641e9ac95086be02",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
