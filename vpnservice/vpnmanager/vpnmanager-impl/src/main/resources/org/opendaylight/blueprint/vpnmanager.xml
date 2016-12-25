@@ -72,7 +72,6 @@
     <argument ref="fibManager" />
     <argument ref="odlInterfaceRpcService" />
     <argument ref="vpnFootprintService" />
-    <argument ref="vpnOpDataSyncer" />
     <argument ref="interfaceManager" />
     <argument ref="vpnManager" />
   </bean>
