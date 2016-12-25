@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "1a622d24_88c54290",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/FibUtil.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 577,
+      "author": {
+        "id": 6465
+      },
+      "writtenOn": "2016-12-25T14:28:15Z",
+      "side": 1,
+      "message": "It happens because of external-routers model is being updated in parallel with vpn-instance and vpn-to-dpn models and sometimes NAT flows not initialized because of the race.\nI\u0027ve added a method to NAT service to treat this.\nThanks.",
+      "parentUuid": "1a622d24_28bcf3db",
+      "revId": "12abfc4905983eddf240e93ae3b47768ed8f6604",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_68b6ebfb",
         "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/ExternalRoutersListener.java",
         "patchSetId": 1
@@ -36,6 +54,24 @@
     },
     {
       "key": {
+        "uuid": "1a622d24_e83b169a",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/ExternalRoutersListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 389,
+      "author": {
+        "id": 6465
+      },
+      "writtenOn": "2016-12-25T14:28:15Z",
+      "side": 1,
+      "message": "FIXED.\nThanks.",
+      "parentUuid": "1a622d24_68b6ebfb",
+      "revId": "12abfc4905983eddf240e93ae3b47768ed8f6604",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_68b26be7",
         "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnNatManager.java",
         "patchSetId": 1
@@ -47,6 +83,24 @@
       "writtenOn": "2016-12-22T11:34:08Z",
       "side": 1,
       "message": "if a router has no external gateway set, then why is the router maintained in the externaroutersDS?",
+      "revId": "12abfc4905983eddf240e93ae3b47768ed8f6604",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_68c0a67c",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnNatManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 421,
+      "author": {
+        "id": 6465
+      },
+      "writtenOn": "2016-12-25T14:28:15Z",
+      "side": 1,
+      "message": "Fixed.\nThanks.",
+      "parentUuid": "1a622d24_68b26be7",
       "revId": "12abfc4905983eddf240e93ae3b47768ed8f6604",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
