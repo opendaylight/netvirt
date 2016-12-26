@@ -22,6 +22,7 @@ public class FibConstants {
     static final String FLOWID_PREFIX = "L3.";
     static final String VPN_IDPOOL_NAME = "vpnservices";
     static final String SEPARATOR = ".";
+    static final int INVALID_GROUP_ID = 0;
     public static final Map<Integer,  Class<? extends NxmNxReg>> nxmRegMapping = new ConcurrentHashMap<>();
     static {
         nxmRegMapping.put(0, NxmNxReg0.class);
