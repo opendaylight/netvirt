@@ -11,3 +11,4 @@ Contents:
 
    Design Specification Template <specs-template>
    Temporary SMAC Learning <temporary-smac-learning>
+   Local Nexthopgroup SMAC population<nexthopgroup-smac-population>
