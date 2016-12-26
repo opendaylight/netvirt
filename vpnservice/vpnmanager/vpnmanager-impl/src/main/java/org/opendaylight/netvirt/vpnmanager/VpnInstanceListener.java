@@ -7,26 +7,20 @@
  */
 package org.opendaylight.netvirt.vpnmanager;
 
-import com.google.common.base.Optional;
-import com.google.common.util.concurrent.CheckedFuture;
-import com.google.common.util.concurrent.FutureCallback;
-import com.google.common.util.concurrent.Futures;
-import com.google.common.util.concurrent.ListenableFuture;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.binding.api.DataChangeListener;
-import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
+import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
 import org.opendaylight.genius.datastoreutils.DataStoreJobCoordinator;
 import org.opendaylight.netvirt.bgpmanager.api.IBgpManager;
 import org.opendaylight.netvirt.fibmanager.api.IFibManager;
+import org.opendaylight.netvirt.vpnmanager.api.VpnHelper;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.VpnAfConfig;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.VpnInstances;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.af.config.VpnTargets;
@@ -44,6 +38,12 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.google.common.base.Optional;
+import com.google.common.util.concurrent.CheckedFuture;
+import com.google.common.util.concurrent.FutureCallback;
+import com.google.common.util.concurrent.Futures;
+import com.google.common.util.concurrent.ListenableFuture;
 
 public class VpnInstanceListener extends AsyncDataTreeChangeListenerBase<VpnInstance, VpnInstanceListener>
         implements AutoCloseable {
@@ -242,7 +242,7 @@ public class VpnInstanceListener extends AsyncDataTreeChangeListenerBase<VpnInst
                 }
 
                 // Clean up VPNExtraRoutes Operational DS
-                InstanceIdentifier<VpnExtraroutes> vpnToExtraroute = VpnUtil.getVpnToExtrarouteIdentifier(vpnName);
+                InstanceIdentifier<VpnExtraroutes> vpnToExtraroute = VpnHelper.getVpnToExtrarouteIdentifier(vpnName);
                 Optional<VpnExtraroutes> optVpnToExtraroute = VpnUtil.read(broker, LogicalDatastoreType.OPERATIONAL, vpnToExtraroute);
                 if (optVpnToExtraroute.isPresent()) {
                     VpnUtil.removeVpnExtraRouteForVpn(broker, vpnName, writeTxn);
@@ -256,7 +256,7 @@ public class VpnInstanceListener extends AsyncDataTreeChangeListenerBase<VpnInst
                     fibManager.removeVrfTable(broker, vpnName, null);
                 }
                 // Clean up VPNExtraRoutes Operational DS
-                InstanceIdentifier<VpnExtraroutes> vpnToExtraroute = VpnUtil.getVpnToExtrarouteIdentifier(vpnName);
+                InstanceIdentifier<VpnExtraroutes> vpnToExtraroute = VpnHelper.getVpnToExtrarouteIdentifier(vpnName);
                 Optional<VpnExtraroutes> optVpnToExtraroute = VpnUtil.read(broker, LogicalDatastoreType.OPERATIONAL, vpnToExtraroute);
                 if (optVpnToExtraroute.isPresent()) {
                     VpnUtil.removeVpnExtraRouteForVpn(broker, vpnName, writeTxn);

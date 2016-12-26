@@ -603,9 +603,9 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                     adjacencyBuilder.setVrfId(rdToAllocate.get());
                     writeOperTxn.merge(
                             LogicalDatastoreType.OPERATIONAL,
-                            VpnUtil.getVpnToExtrarouteIdentifier(vpnName,
+                            VpnHelper.getVpnToExtrarouteIdentifier(vpnName,
                                     rdToAllocate.get(), nextHop.getIpAddress()),
-                            VpnUtil.getVpnToExtraroute(nextHop.getIpAddress(), nextHop.getNextHopIpList()), true);
+                            VpnHelper.getVpnToExtraroute(nextHop.getIpAddress(), nextHop.getNextHopIpList()), true);
                 } else {
                     LOG.error("No rds to allocate extraroute {}", prefix);
                     return;
@@ -624,7 +624,7 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
             if (rd != null) {
                 addToLabelMapper(label, dpnId, nextHop.getIpAddress(), nhList, vpnId,
                         interfaceName, null,false, primaryRd, writeOperTxn);
-                addPrefixToBGP(rd, nextHop.getIpAddress(), nhList, label, RouteOrigin.LOCAL, writeConfigTxn);
+                addPrefixToBGP(vpnName, rd, nextHop.getIpAddress(), nhList, label, RouteOrigin.LOCAL, writeConfigTxn);
                 //TODO: ERT - check for VPNs importing my route
                 for (VpnInstanceOpDataEntry vpn : vpnsToImportRoute) {
                     String vpnRd = vpn.getVrfId();
@@ -929,11 +929,11 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
         }
     }
 
-    private void addPrefixToBGP(String rd, String prefix, List<String> nextHopList, long label, RouteOrigin origin,
+    private void addPrefixToBGP(String vpnName, String rd, String prefix, List<String> nextHopList, long label, RouteOrigin origin,
                                 WriteTransaction writeConfigTxn) {
         try {
             LOG.info("ADD: Adding Fib entry rd {} prefix {} nextHop {} label {}", rd, prefix, nextHopList, label);
-            fibManager.addOrUpdateFibEntry(dataBroker, rd, prefix, nextHopList, (int)label, origin, writeConfigTxn);
+            fibManager.addOrUpdateFibEntry(dataBroker, VpnUtil.getPrimaryRd(dataBroker, vpnName), prefix, nextHopList, (int)label, origin, writeConfigTxn);
             LOG.info("ADD: Added Fib entry rd {} prefix {} nextHop {} label {}", rd, prefix, nextHopList, label);
             // Advertize the prefix to BGP only if nexthop ip is available
             if (nextHopList!= null && !nextHopList.isEmpty()) {
@@ -1601,8 +1601,8 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
         //add extra route to vpn mapping; advertise with nexthop as tunnel ip
         writeOperTxn.merge(
                 LogicalDatastoreType.OPERATIONAL,
-                VpnUtil.getVpnToExtrarouteIdentifier(vpnName, (rd != null) ? rd : routerID, destination),
-                VpnUtil.getVpnToExtraroute(destination, Arrays.asList(nextHop)), true);
+                VpnHelper.getVpnToExtrarouteIdentifier(vpnName, (rd != null) ? rd : routerID, destination),
+                VpnHelper.getVpnToExtraroute(destination, Arrays.asList(nextHop)), true);
 
         BigInteger dpnId = null;
         if (intfName != null && !intfName.isEmpty()) {
@@ -1647,7 +1647,7 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
             InterVpnLinkUtil.leakRoute(dataBroker, bgpManager, interVpnLink, srcVpnUuid, dstVpnUuid, destination, newLabel);
         } else {
             if (rd != null) {
-                addPrefixToBGP(rd, destination, nextHopIpList, label, origin, writeConfigTxn);
+                addPrefixToBGP(vpnName, rd, destination, nextHopIpList, label, origin, writeConfigTxn);
             } else {
                 // ### add FIB route directly
                 fibManager.addOrUpdateFibEntry(dataBroker, routerID, destination, nextHopIpList, label, origin, writeConfigTxn);
