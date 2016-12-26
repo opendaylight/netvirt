@@ -735,4 +735,16 @@ public class FibUtil {
         }
         return false;
     }
+
+    public static InstanceIdentifier<VrfEntry> getNextHopIdentifier(String rd, String prefix) {
+        return InstanceIdentifier.builder(FibEntries.class)
+                .child(VrfTables.class,new VrfTablesKey(rd)).child(VrfEntry.class,new VrfEntryKey(prefix)).build();
+    }
+
+    public static String getNextHopAddress(DataBroker broker, String rd, String prefix) {
+        InstanceIdentifier<VrfEntry> vrfEntryId = getNextHopIdentifier(rd, prefix);
+        Optional<VrfEntry> vrfEntry = read(broker, LogicalDatastoreType.CONFIGURATION, vrfEntryId);
+        return vrfEntry.get().getRoutePaths().get(0).getNexthopAddressList().get(0);
+    }
+
 }

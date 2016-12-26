@@ -85,7 +85,7 @@ module odl-fib {
 
     container extraroute-routedistinguishers-map {
         config true;
-        list extraroute-routedistingueshers {
+        list extraroute-routedistinguishers {
             key "vpnid";
             leaf vpnid {
                 type uint32;
