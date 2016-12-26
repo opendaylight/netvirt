@@ -1,0 +1,225 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1a622d24_6bd700c0",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-12-26T16:19:06Z",
+      "side": 1,
+      "message": "forwarded spell check",
+      "revId": "bc0a0a822999dcf0afc4253d00b5917540f2e2d3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_cbe614b4",
+        "filename": "docs/specs/nexthopgroup-smac-population.rst",
+        "patchSetId": 1
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-12-26T16:19:06Z",
+      "side": 1,
+      "message": "we can probably name this file as setup-srcmac-l3forwarded-packets and use that same name in the index.rst.",
+      "revId": "bc0a0a822999dcf0afc4253d00b5917540f2e2d3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_4b46847d",
+        "filename": "docs/specs/nexthopgroup-smac-population.rst",
+        "patchSetId": 1
+      },
+      "lineNbr": 5,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-12-26T16:19:06Z",
+      "side": 1,
+      "message": "Currently all L3 Routed packets..",
+      "revId": "bc0a0a822999dcf0afc4253d00b5917540f2e2d3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_abe1189c",
+        "filename": "docs/specs/nexthopgroup-smac-population.rst",
+        "patchSetId": 1
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-12-26T16:19:06Z",
+      "side": 1,
+      "message": "fix all the trailing whitespaces.",
+      "revId": "bc0a0a822999dcf0afc4253d00b5917540f2e2d3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_2b49888b",
+        "filename": "docs/specs/nexthopgroup-smac-population.rst",
+        "patchSetId": 1
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-12-26T16:19:06Z",
+      "side": 1,
+      "message": "Dittt comment above",
+      "revId": "bc0a0a822999dcf0afc4253d00b5917540f2e2d3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_6b5a6051",
+        "filename": "docs/specs/nexthopgroup-smac-population.rst",
+        "patchSetId": 1
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-12-26T16:19:06Z",
+      "side": 1,
+      "message": "in the frame of the L3 Routed packets before such frames are",
+      "revId": "bc0a0a822999dcf0afc4253d00b5917540f2e2d3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_ab547821",
+        "filename": "docs/specs/nexthopgroup-smac-population.rst",
+        "patchSetId": 1
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-12-26T16:19:06Z",
+      "side": 1,
+      "message": "on their instantiation in an OpenDaylight enabled cloud.",
+      "revId": "bc0a0a822999dcf0afc4253d00b5917540f2e2d3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_0b33ec14",
+        "filename": "docs/specs/nexthopgroup-smac-population.rst",
+        "patchSetId": 1
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-12-26T16:19:06Z",
+      "side": 1,
+      "message": "Intra-Datacenter L3 forwarded packets over Internal VXLAN Tunnels between two hypervisors in the datacenter.",
+      "revId": "bc0a0a822999dcf0afc4253d00b5917540f2e2d3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_eb35d0f7",
+        "filename": "docs/specs/nexthopgroup-smac-population.rst",
+        "patchSetId": 1
+      },
+      "lineNbr": 67,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-12-26T16:19:06Z",
+      "side": 1,
+      "message": "For all the use-cases listed in the USE-CASES section above, proper source mac address will be filled-up in the frame before it enters the virtual endpoint.",
+      "revId": "bc0a0a822999dcf0afc4253d00b5917540f2e2d3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_4b3de4dd",
+        "filename": "docs/specs/nexthopgroup-smac-population.rst",
+        "patchSetId": 1
+      },
+      "lineNbr": 75,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-12-26T16:19:06Z",
+      "side": 1,
+      "message": "Lands all routed packets from MPLSOverGRE tunnel into the virtual endpoint.",
+      "revId": "bc0a0a822999dcf0afc4253d00b5917540f2e2d3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_2b406855",
+        "filename": "docs/specs/nexthopgroup-smac-population.rst",
+        "patchSetId": 1
+      },
+      "lineNbr": 77,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-12-26T16:19:06Z",
+      "side": 1,
+      "message": "into the virtual endpoint.",
+      "revId": "bc0a0a822999dcf0afc4253d00b5917540f2e2d3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_8b26dccc",
+        "filename": "docs/specs/nexthopgroup-smac-population.rst",
+        "patchSetId": 1
+      },
+      "lineNbr": 79,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-12-26T16:19:06Z",
+      "side": 1,
+      "message": "into the virtual endpoint.",
+      "revId": "bc0a0a822999dcf0afc4253d00b5917540f2e2d3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_6b21c0b3",
+        "filename": "docs/specs/nexthopgroup-smac-population.rst",
+        "patchSetId": 1
+      },
+      "lineNbr": 85,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-12-26T16:19:06Z",
+      "side": 1,
+      "message": "NEXT HOP GROUP:",
+      "revId": "bc0a0a822999dcf0afc4253d00b5917540f2e2d3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
