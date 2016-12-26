@@ -85,7 +85,7 @@ module odl-fib {
 
     container extraroute-routedistinguishers-map {
         config true;
-        list extraroute-routedistingueshers {
+        list extraroute-routedistinguishers {
             description
                 "List of route distinguishers used to create a unique NLRI for the destination prefix";
             key "vpnid";

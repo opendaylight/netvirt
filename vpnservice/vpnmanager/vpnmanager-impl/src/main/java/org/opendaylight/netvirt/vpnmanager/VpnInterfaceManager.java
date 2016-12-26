@@ -606,9 +606,9 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                         VpnUtil.syncUpdate(
                                 dataBroker,
                                 LogicalDatastoreType.OPERATIONAL,
-                                VpnUtil.getVpnToExtrarouteIdentifier(vpnName,
+                                VpnHelper.getVpnToExtrarouteIdentifier(vpnName,
                                         rdToAllocate.get(), nextHop.getIpAddress()),
-                                VpnUtil.getVpnToExtraroute(nextHop.getIpAddress(), nextHop.getNextHopIpList()));
+                                VpnHelper.getVpnToExtraroute(nextHop.getIpAddress(), nextHop.getNextHopIpList()));
                     } else {
                         LOG.error("No rds to allocate extraroute {}", prefix);
                         return;
@@ -751,13 +751,14 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                 String rd = adj.getVrfId();
                 rd = (rd != null) ? rd : vpnInterface.getVpnInstanceName();
                 prefix = adj.getIpAddress();
+                label = adj.getLabel();
+
                 // If TEP is deleted , then only remove the nexthop from
                 // primary adjacency.
                 if (adj.getMacAddress() != null && !adj.getMacAddress().isEmpty()) {
                     List<String> nextHopList = adj.getNextHopIpList();
                     // If nextHopList is already cleaned , no need to modify again
                     if((nextHopList != null) & (!nextHopList.isEmpty())) {
-                        label = adj.getLabel();
                         isNextHopRemoveReqd = true;
                         value.add(new AdjacencyBuilder(adj).setNextHopIpList(nhList).build());
                         Adjacencies aug = VpnUtil.getVpnInterfaceAugmentation(value);
@@ -1600,8 +1601,8 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
         VpnUtil.syncUpdate(
                 dataBroker,
                 LogicalDatastoreType.OPERATIONAL,
-                VpnUtil.getVpnToExtrarouteIdentifier(vpnName, (rd != null) ? rd : routerID, destination),
-                VpnUtil.getVpnToExtraroute(destination, Arrays.asList(nextHop)));
+                VpnHelper.getVpnToExtrarouteIdentifier(vpnName, (rd != null) ? rd : routerID, destination),
+                VpnHelper.getVpnToExtraroute(destination, Arrays.asList(nextHop)));
 
         BigInteger dpnId = null;
         if (intfName != null && !intfName.isEmpty()) {
