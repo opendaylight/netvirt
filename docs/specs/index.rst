@@ -10,3 +10,5 @@ Contents:
    :maxdepth: 1
 
    Design Specification Template <specs-template>
+   Temporary SMAC Learning <temporary-smac-learning>
+   Setup Source-MAC-Address for routed packets to virtual endpoints <setup-smac-for-routed-packets-to-virt-endpoints>
