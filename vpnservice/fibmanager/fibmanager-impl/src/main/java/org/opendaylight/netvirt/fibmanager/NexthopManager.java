@@ -21,9 +21,11 @@ import org.opendaylight.genius.mdsalutil.ActionInfo;
 import org.opendaylight.genius.mdsalutil.ActionType;
 import org.opendaylight.genius.mdsalutil.BucketInfo;
 import org.opendaylight.genius.mdsalutil.GroupEntity;
+import org.opendaylight.genius.mdsalutil.InstructionInfo;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.netvirt.elanmanager.api.IElanService;
+import org.opendaylight.netvirt.vpnmanager.api.VpnHelper;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.VpnInterfaces;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.interfaces.VpnInterface;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.interfaces.VpnInterfaceKey;
@@ -40,6 +42,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.Adj
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.adjacency.list.Adjacency;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.adjacency.list.AdjacencyKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.prefix.to._interface.vpn.ids.Prefixes;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.vpn.instance.op.data.entry.VpnToDpnList;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.to.extraroutes.vpn.extraroutes.extra.routes.Routes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rpcs.rev160406.GetInternalOrExternalInterfaceNameInputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rpcs.rev160406.GetInternalOrExternalInterfaceNameOutput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rpcs.rev160406.GetTunnelInterfaceNameInputBuilder;
@@ -55,8 +59,12 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.ReleaseIdInputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.GetEgressActionsForInterfaceInputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.GetEgressActionsForInterfaceOutput;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.GetTunnelTypeInputBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.GetTunnelTypeOutput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.OdlInterfaceRpcService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.interfaces.ElanInterface;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.VrfEntry;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.vrfentry.RoutePaths;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.SegmentTypeBase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.SegmentTypeFlat;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.SegmentTypeVlan;
@@ -85,6 +93,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rev
 
 import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
@@ -583,9 +592,9 @@ public class NexthopManager implements AutoCloseable {
     public String getReqTransType() {
         if (configuredTransportTypeL3VPN == L3VPNTransportTypes.Invalid) {
             /*
-            * Restart scenario, Read from the ConfigDS.
-            * if the value is Unset, cache value as VxLAN.
-            */
+             * Restart scenario, Read from the ConfigDS.
+             * if the value is Unset, cache value as VxLAN.
+             */
             LOG.trace("configureTransportType is not yet set.");
             Optional<ConfTransportTypeL3vpn>  configuredTransTypeFromConfig =
                     FibUtil.read(dataBroker, LogicalDatastoreType.CONFIGURATION, getConfTransportTypeIdentifier());
@@ -745,5 +754,97 @@ public class NexthopManager implements AutoCloseable {
             }
             return result;
         }
+    }
+
+    public long setupLoadBalancingNextHop(Long parentVpnId, BigInteger dpnId,
+            String destPrefix, List<BucketInfo> listBucketInfo, boolean addOrRemove) {
+        long groupId = getNextHopPointer(getNextHopKey(parentVpnId, destPrefix));
+        if (groupId == 0) {
+            LOG.error("Unable to allocate/retrieve groupId for vpnId {} , prefix {}", parentVpnId, destPrefix);
+            return groupId;
+        }
+        GroupEntity groupEntity = MDSALUtil.buildGroupEntity(
+                dpnId, groupId, destPrefix, GroupTypes.GroupSelect, listBucketInfo);
+        if(addOrRemove == true) {
+            mdsalApiManager.syncInstallGroup(groupEntity, FIXED_DELAY_IN_MILLISECONDS);
+            try {
+                Thread.sleep(waitTimeForSyncInstall);
+            } catch(InterruptedException e) {
+                LOG.warn("Error while waiting for group {} to install.", groupId);
+            }
+        } else {
+            mdsalApiManager.removeGroup(groupEntity);
+        }
+        return groupId;
+    }
+
+    long createNextHopGroups(Long vpnId, String rd, BigInteger dpnId, VrfEntry vrfEntry,
+            Routes routes, List<Routes> vpnExtraRoutes) {
+        List<BucketInfo> listBucketInfo = new ArrayList<BucketInfo>();
+        List<Routes> clonedVpnExtraRoutes  = ((List<Routes>) ((ArrayList<Routes>) vpnExtraRoutes).clone());
+        if(clonedVpnExtraRoutes.contains(routes)) {
+            listBucketInfo.addAll(getBucketsForLocalNexthop(vpnId, dpnId, vrfEntry, routes));
+            clonedVpnExtraRoutes.remove(routes);
+        }
+        listBucketInfo.addAll(getBucketsForRemoteNexthop(vpnId, dpnId, vrfEntry, rd, clonedVpnExtraRoutes));
+        return setupLoadBalancingNextHop(vpnId, dpnId,
+                vrfEntry.getDestPrefix(), listBucketInfo, true);
+    }
+
+    List<BucketInfo> getBucketsForRemoteNexthop(Long vpnId, BigInteger dpnId, VrfEntry vrfEntry, String rd,
+            List<Routes> clonedVpnExtraRoutes) {
+        List<BucketInfo> listBucketInfo = new ArrayList<BucketInfo>();
+        for(Routes vpnExtraRoute : clonedVpnExtraRoutes) {
+            for(String remoteNextHopIp : vpnExtraRoute.getNexthopIpList()) {
+                String nextHopIp = remoteNextHopIp + "/32";
+                String tepIp = FibUtil.getNextHopAddress(dataBroker, rd, nextHopIp).get(0);
+                AdjacencyResult adjacencyResult = getRemoteNextHopPointer(dpnId, vpnId,
+                        vrfEntry.getDestPrefix(), tepIp);
+                if(adjacencyResult != null) {
+                    String egressInterface = adjacencyResult.getInterfaceName();
+                    if (Tunnel.class.equals(adjacencyResult.getInterfaceType())) {
+                        Class<? extends TunnelTypeBase> tunnelType = VpnHelper.getTunnelType(interfaceManager, egressInterface);
+                        int label = vrfEntry.getRoutePaths().get(0).getLabel().intValue();
+                        BigInteger tunnelId;
+                        tunnelId = BigInteger.valueOf(label);
+                        List<ActionInfo> actionInfos = new ArrayList<>();
+                        actionInfos.add(new ActionInfo(ActionType.set_field_tunnel_id, new BigInteger[] { tunnelId }));
+                        Prefixes prefixInfo = FibUtil.getPrefixToInterface(dataBroker, vpnId, nextHopIp);
+                        String ifName = prefixInfo.getVpnInterfaceName();
+                        String macAddress = FibUtil.getMacAddressFromPrefix(dataBroker, ifName, nextHopIp);
+                        actionInfos.add(new ActionInfo(ActionType.set_field_eth_dest, new String[] { macAddress }, actionInfos.size()));
+                        List<ActionInfo> egressActions = getEgressActionsForInterface(egressInterface);
+                        if (egressActions.isEmpty()) {
+                            LOG.error(
+                                    "Failed to retrieve egress action for prefix {} route-paths {} interface {}. Aborting remote FIB entry creation.",
+                                    vrfEntry.getDestPrefix(), vrfEntry.getRoutePaths(), egressInterface);
+                        }
+                        actionInfos.addAll(egressActions);
+                        BucketInfo bucket = new BucketInfo(actionInfos);
+                        bucket.setWeight(1);
+                        listBucketInfo.add(bucket);
+                    }
+                }
+            }
+        }
+        return listBucketInfo;
+    }
+
+    private List<BucketInfo> getBucketsForLocalNexthop(Long vpnId, BigInteger dpnId, VrfEntry vrfEntry, Routes routes) {
+        List<BucketInfo> listBucketInfo = new ArrayList<BucketInfo>();
+        for(String nextHopIp : routes.getNexthopIpList()) {
+            String localNextHopIP = nextHopIp + "/32";
+            Prefixes localNextHopInfo = FibUtil.getPrefixToInterface(dataBroker, vpnId, nextHopIp + "/32");
+            if (localNextHopInfo != null) {
+                long groupId = createLocalNextHop(vpnId, dpnId,
+                        localNextHopInfo.getVpnInterfaceName(), localNextHopIP, vrfEntry.getDestPrefix());
+                List<ActionInfo> actionsInfos =
+                        Arrays.asList(new ActionInfo(ActionType.group, new String[] { String.valueOf(groupId)}));
+                BucketInfo bucket = new BucketInfo(actionsInfos);
+                bucket.setWeight(1);
+                listBucketInfo.add(bucket);
+            }
+        }
+        return listBucketInfo;
     }
 }

@@ -606,9 +606,9 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                         VpnUtil.syncUpdate(
                                 dataBroker,
                                 LogicalDatastoreType.OPERATIONAL,
-                                VpnUtil.getVpnToExtrarouteIdentifier(vpnName,
+                                VpnHelper.getVpnToExtrarouteIdentifier(vpnName,
                                         rdToAllocate.get(), nextHop.getIpAddress()),
-                                VpnUtil.getVpnToExtraroute(nextHop.getIpAddress(), nextHop.getNextHopIpList()));
+                                VpnHelper.getVpnToExtraroute(nextHop.getIpAddress(), nextHop.getNextHopIpList()));
                     } else {
                         LOG.error("No rds to allocate extraroute {}", prefix);
                         return;
@@ -1600,8 +1600,8 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
         VpnUtil.syncUpdate(
                 dataBroker,
                 LogicalDatastoreType.OPERATIONAL,
-                VpnUtil.getVpnToExtrarouteIdentifier(vpnName, (rd != null) ? rd : routerID, destination),
-                VpnUtil.getVpnToExtraroute(destination, Arrays.asList(nextHop)));
+                VpnHelper.getVpnToExtrarouteIdentifier(vpnName, (rd != null) ? rd : routerID, destination),
+                VpnHelper.getVpnToExtraroute(destination, Arrays.asList(nextHop)));
 
         BigInteger dpnId = null;
         if (intfName != null && !intfName.isEmpty()) {
