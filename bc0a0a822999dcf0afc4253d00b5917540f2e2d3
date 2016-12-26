@@ -138,6 +138,23 @@
     },
     {
       "key": {
+        "uuid": "1a622d24_eb1cb079",
+        "filename": "docs/specs/nexthopgroup-smac-population.rst",
+        "patchSetId": 1
+      },
+      "lineNbr": 58,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-12-26T16:22:35Z",
+      "side": 1,
+      "message": "The above two bullet point lines are not formatted correctly in the end document.",
+      "revId": "bc0a0a822999dcf0afc4253d00b5917540f2e2d3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_eb35d0f7",
         "filename": "docs/specs/nexthopgroup-smac-population.rst",
         "patchSetId": 1
@@ -206,6 +223,23 @@
     },
     {
       "key": {
+        "uuid": "1a622d24_4b14c44d",
+        "filename": "docs/specs/nexthopgroup-smac-population.rst",
+        "patchSetId": 1
+      },
+      "lineNbr": 84,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-12-26T16:22:35Z",
+      "side": 1,
+      "message": "Flows bunch need to appear within\n\n.. code-block:: bash\n   cookie-xxxx, xxxx,yyyy",
+      "revId": "bc0a0a822999dcf0afc4253d00b5917540f2e2d3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_6b21c0b3",
         "filename": "docs/specs/nexthopgroup-smac-population.rst",
         "patchSetId": 1
@@ -217,6 +251,40 @@
       "writtenOn": "2016-12-26T16:19:06Z",
       "side": 1,
       "message": "NEXT HOP GROUP:",
+      "revId": "bc0a0a822999dcf0afc4253d00b5917540f2e2d3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_8b0d3c41",
+        "filename": "docs/specs/nexthopgroup-smac-population.rst",
+        "patchSetId": 1
+      },
+      "lineNbr": 146,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-12-26T16:22:35Z",
+      "side": 1,
+      "message": "not formatted correctly.",
+      "revId": "bc0a0a822999dcf0afc4253d00b5917540f2e2d3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_2b17c852",
+        "filename": "docs/specs/nexthopgroup-smac-population.rst",
+        "patchSetId": 1
+      },
+      "lineNbr": 163,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-12-26T16:22:35Z",
+      "side": 1,
+      "message": "this entire section not formatted correctly.",
       "revId": "bc0a0a822999dcf0afc4253d00b5917540f2e2d3",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
