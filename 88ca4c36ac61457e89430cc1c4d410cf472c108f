@@ -1,0 +1,64 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1a622d24_4b004467",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/ExternalRoutersListener.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 413,
+      "author": {
+        "id": 6465
+      },
+      "writtenOn": "2016-12-26T12:19:38Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1a622d24_4bade49b",
+      "revId": "88ca4c36ac61457e89430cc1c4d410cf472c108f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_2b87c810",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NaptSwitchHA.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 870,
+      "author": {
+        "id": 6465
+      },
+      "writtenOn": "2016-12-26T12:19:38Z",
+      "side": 1,
+      "message": "The external-routers model is being updated in parallel with\nvpn-instance and vpn-to-dpn models. Therefore, sometimes NAT related\nflows are not initialized because of the race.\nI think it\u0027s not really needed to treat an exception in this case.\nThanks.",
+      "parentUuid": "1a622d24_ebbe70d3",
+      "revId": "88ca4c36ac61457e89430cc1c4d410cf472c108f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_6b78a02b",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/RouterDpnChangeListener.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 215,
+      "author": {
+        "id": 6465
+      },
+      "writtenOn": "2016-12-26T12:19:38Z",
+      "side": 1,
+      "message": "Yes, you are right, the external-routers model is being updated in parallel with vpn-instance and vpn-to-dpn models. So we consciously added the code inside if \"unknown primary napt switch\" and only when the ext-routers DS model is empty.\nThanks.",
+      "parentUuid": "1a622d24_eb8cb037",
+      "range": {
+        "startLine": 215,
+        "startChar": 33,
+        "endLine": 215,
+        "endChar": 54
+      },
+      "revId": "88ca4c36ac61457e89430cc1c4d410cf472c108f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
