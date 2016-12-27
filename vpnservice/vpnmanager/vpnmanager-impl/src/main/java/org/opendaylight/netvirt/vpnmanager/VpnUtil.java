@@ -881,31 +881,6 @@ public class VpnUtil {
                 new ElanTagNameKey(elanTag)).build();
     }
 
-
-    // TODO: Move this to NwUtil
-    public static boolean isIpInSubnet(int ipAddress, String subnetCidr) {
-        String[] subSplit = subnetCidr.split("/");
-        if (subSplit.length < 2) {
-            return false;
-        }
-
-        String subnetStr = subSplit[0];
-        int subnet = 0;
-        try {
-            InetAddress subnetAddress = InetAddress.getByName(subnetStr);
-            subnet = Ints.fromByteArray(subnetAddress.getAddress());
-        } catch (Exception ex) {
-            LOG.error("Passed in Subnet IP string not convertible to InetAdddress " + subnetStr);
-            return false;
-        }
-        int prefixLength = Integer.valueOf(subSplit[1]);
-        int mask = -1 << (32 - prefixLength);
-        if ((subnet & mask) == (ipAddress & mask)) {
-            return true;
-        }
-        return false;
-    }
-
     /**
      * Returns the Path identifier to reach a specific interface in a specific DPN in a given VpnInstance
      *
