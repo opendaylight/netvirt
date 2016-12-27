@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1a622d24_5c112804",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-12-27T14:48:53Z",
+      "side": 1,
+      "message": "resets some provider_attributes prior to delete using a network-update.  This patch handles that update() by dealing with removing vpninterfaces on the external network.\n\nFor the case of network delete ...",
+      "revId": "e281d1ddaf0c7a02b389b4931ee3c5f4c3cd61a9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_1c07b0cb",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronNetworkChangeListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 146,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-12-27T14:48:53Z",
+      "side": 1,
+      "message": "better to have these methods\n\nisNetworkVlanOrFlat()\n\nisNetworkVxlan()\n\nisNetworkGre()\n\nand use them directly appropriately instead of multiple if \u0026\u0026 checks below.",
+      "revId": "e281d1ddaf0c7a02b389b4931ee3c5f4c3cd61a9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_3c142cf4",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronNetworkChangeListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 149,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-12-27T14:48:53Z",
+      "side": 1,
+      "message": "can you please batch the creation of external vpn interfaces since it is a Config DS write ?",
+      "revId": "e281d1ddaf0c7a02b389b4931ee3c5f4c3cd61a9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
