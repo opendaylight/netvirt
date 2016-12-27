@@ -1,0 +1,146 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1a622d24_0bb80cc7",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/NexthopManager.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 758,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2016-12-27T08:02:28Z",
+      "side": 1,
+      "message": "add precondition for availableDcGws not to be null.",
+      "revId": "7fc4be9a26d95d3ad50c61d2bde383125af6184c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_cb773439",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/NexthopManager.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 760,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2016-12-27T08:02:28Z",
+      "side": 1,
+      "message": "How do you ensure availableDcGws always in sorted order ?\nSo abstract it with getLbGroupKey(routePathList) in FibUtil which can take availableDcGwsand return groupIdKey. This can be reused in vrfEnryListener.",
+      "revId": "7fc4be9a26d95d3ad50c61d2bde383125af6184c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_2bb508cd",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/NexthopManager.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 777,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2016-12-27T08:02:28Z",
+      "side": 1,
+      "message": "is trace message needed here ?",
+      "revId": "7fc4be9a26d95d3ad50c61d2bde383125af6184c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_4bb204e7",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/NexthopManager.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 784,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2016-12-27T08:02:28Z",
+      "side": 1,
+      "message": "use Collections.emptyList() to initialize actions to ensure empty list is returned when getEgressActionsForInterface is not successful.",
+      "revId": "7fc4be9a26d95d3ad50c61d2bde383125af6184c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_41430514",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/TunnelInterfaceStateListener.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 165,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2016-12-27T08:02:28Z",
+      "side": 1,
+      "message": "Ensure this method is invoked after TunnelStateAddJob is complete. Because some remote fib entries might depend on lb group.",
+      "range": {
+        "startLine": 165,
+        "startChar": 12,
+        "endLine": 165,
+        "endChar": 35
+      },
+      "revId": "7fc4be9a26d95d3ad50c61d2bde383125af6184c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_215d29ea",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/jobs/TunnelStateAddJob.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 64,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2016-12-27T08:02:28Z",
+      "side": 1,
+      "message": "is there any reason for passing tx here ? Let fibManager create tx and use it.",
+      "revId": "7fc4be9a26d95d3ad50c61d2bde383125af6184c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_0160eda3",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/jobs/TunnelStateAddJob.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 73,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2016-12-27T08:02:28Z",
+      "side": 1,
+      "message": "use MDSALUtil.read(...).orNull()",
+      "revId": "7fc4be9a26d95d3ad50c61d2bde383125af6184c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_415ae5f3",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/jobs/TunnelStateAddJob.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 84,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2016-12-27T08:02:28Z",
+      "side": 1,
+      "message": "Collections.emptyList()",
+      "revId": "7fc4be9a26d95d3ad50c61d2bde383125af6184c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
