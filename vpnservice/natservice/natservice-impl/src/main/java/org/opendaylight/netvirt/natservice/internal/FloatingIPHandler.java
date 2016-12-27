@@ -20,4 +20,5 @@ public interface FloatingIPHandler {
     void onRemoveFloatingIp(BigInteger dpnId, String routerId, Uuid networkId, InternalToExternalPortMap mapping,
                             long label);
 
+    void cleanupFibEntries(final BigInteger dpnId, final String vpnName, final String externalIp, final long label);
 }

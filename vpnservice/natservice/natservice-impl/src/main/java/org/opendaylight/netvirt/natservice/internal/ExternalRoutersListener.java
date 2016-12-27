@@ -1094,8 +1094,14 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
                 List<String> externalIps = NatUtil.getExternalIpsForRouter(dataBroker,routerId);
                 handleDisableSnat(original, networkUuid, externalIps, false, null, dpnId);
             } else {
+                // Allocate Primary Napt Switch for existing router
+                BigInteger primarySwitchId = getPrimaryNaptSwitch(routerName, routerId);
+                if(primarySwitchId == null || primarySwitchId.equals(BigInteger.ZERO)){
+                    LOG.error("NAT Service: Failed to get or allocated NAPT switch in ExternalRouterListener.Update()");
+                    return;
+                }
                 LOG.info("NAT Service : SNAT enabled for Router {}", original.getRouterName());
-                handleEnableSnat(original, routerId, dpnId);
+                handleEnableSnat(original, routerId, primarySwitchId);
             }
         }
 
