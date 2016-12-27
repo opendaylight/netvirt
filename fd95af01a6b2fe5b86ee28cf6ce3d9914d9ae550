@@ -1,0 +1,181 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1a622d24_fe4bcc84",
+        "filename": "docs/specs/acl-stats.rst",
+        "patchSetId": 15
+      },
+      "lineNbr": 44,
+      "author": {
+        "id": 3276
+      },
+      "writtenOn": "2016-12-27T05:17:45Z",
+      "side": 1,
+      "message": "This is not a use case but implementation detail.",
+      "range": {
+        "startLine": 44,
+        "startChar": 0,
+        "endLine": 44,
+        "endChar": 1
+      },
+      "revId": "fd95af01a6b2fe5b86ee28cf6ce3d9914d9ae550",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_de4ed095",
+        "filename": "docs/specs/acl-stats.rst",
+        "patchSetId": 15
+      },
+      "lineNbr": 78,
+      "author": {
+        "id": 3276
+      },
+      "writtenOn": "2016-12-27T05:17:45Z",
+      "side": 1,
+      "message": "These will work better as \u0027text\u0027 than **test**.",
+      "range": {
+        "startLine": 78,
+        "startChar": 39,
+        "endLine": 78,
+        "endChar": 51
+      },
+      "revId": "fd95af01a6b2fe5b86ee28cf6ce3d9914d9ae550",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_3e46e47c",
+        "filename": "docs/specs/acl-stats.rst",
+        "patchSetId": 15
+      },
+      "lineNbr": 86,
+      "author": {
+        "id": 3276
+      },
+      "writtenOn": "2016-12-27T05:17:45Z",
+      "side": 1,
+      "message": "Doesn\u0027t need to be a bulletted list. Free form text works better than using lists all the time. Bulletted lists should be used to call out attention to or summarize specific points",
+      "revId": "fd95af01a6b2fe5b86ee28cf6ce3d9914d9ae550",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_be59545c",
+        "filename": "docs/specs/acl-stats.rst",
+        "patchSetId": 15
+      },
+      "lineNbr": 277,
+      "author": {
+        "id": 3276
+      },
+      "writtenOn": "2016-12-27T05:17:45Z",
+      "side": 1,
+      "message": "This is the old Asciidoc method. Parameters may work better as a table.",
+      "range": {
+        "startLine": 266,
+        "startChar": 0,
+        "endLine": 277,
+        "endChar": 31
+      },
+      "revId": "fd95af01a6b2fe5b86ee28cf6ce3d9914d9ae550",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_9e545822",
+        "filename": "docs/specs/acl-stats.rst",
+        "patchSetId": 15
+      },
+      "lineNbr": 400,
+      "author": {
+        "id": 3276
+      },
+      "writtenOn": "2016-12-27T05:17:45Z",
+      "side": 1,
+      "message": "This is ASciiDoc note, not RST note.",
+      "range": {
+        "startLine": 400,
+        "startChar": 0,
+        "endLine": 400,
+        "endChar": 8
+      },
+      "revId": "fd95af01a6b2fe5b86ee28cf6ce3d9914d9ae550",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_fe32ac0e",
+        "filename": "docs/specs/acl-stats.rst",
+        "patchSetId": 15
+      },
+      "lineNbr": 417,
+      "author": {
+        "id": 3276
+      },
+      "writtenOn": "2016-12-27T05:17:45Z",
+      "side": 1,
+      "message": "This should be on newline and indented.",
+      "revId": "fd95af01a6b2fe5b86ee28cf6ce3d9914d9ae550",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_de3530f8",
+        "filename": "docs/specs/acl-stats.rst",
+        "patchSetId": 15
+      },
+      "lineNbr": 419,
+      "author": {
+        "id": 3276
+      },
+      "writtenOn": "2016-12-27T05:17:45Z",
+      "side": 1,
+      "message": "Same as above.",
+      "revId": "fd95af01a6b2fe5b86ee28cf6ce3d9914d9ae550",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_3e3d44df",
+        "filename": "docs/specs/acl-stats.rst",
+        "patchSetId": 15
+      },
+      "lineNbr": 433,
+      "author": {
+        "id": 3276
+      },
+      "writtenOn": "2016-12-27T05:17:45Z",
+      "side": 1,
+      "message": "Add link.",
+      "revId": "fd95af01a6b2fe5b86ee28cf6ce3d9914d9ae550",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_1e404855",
+        "filename": "docs/specs/acl-stats.rst",
+        "patchSetId": 15
+      },
+      "lineNbr": 471,
+      "author": {
+        "id": 3276
+      },
+      "writtenOn": "2016-12-27T05:17:45Z",
+      "side": 1,
+      "message": "This is not needed. This section should have links relevant to the spec, this one is more for spec template.",
+      "revId": "fd95af01a6b2fe5b86ee28cf6ce3d9914d9ae550",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
