@@ -19,6 +19,7 @@ import org.opendaylight.controller.liblldp.Packet;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.mdsalutil.MetaDataUtil;
+import org.opendaylight.genius.mdsalutil.NWUtil;
 import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.genius.mdsalutil.packet.Ethernet;
 import org.opendaylight.genius.mdsalutil.packet.IPv4;
@@ -52,6 +53,7 @@ public class SubnetRoutePacketInHandler implements PacketProcessingListener {
         this.packetService =packetService;
     }
 
+    @Override
     public void onPacketReceived(PacketReceived notification) {
         LOG.trace("SubnetRoutePacketInHandler: PacketReceived invoked...");
 
@@ -159,7 +161,7 @@ public class SubnetRoutePacketInHandler implements PacketProcessingListener {
                 SubnetOpDataEntry subOpEntry = optionalSubs.get();
                 if (subOpEntry.getNhDpnId() != null) {
                     LOG.trace("SubnetRoutePacketInHandler: Viewing Subnet " + subnetId);
-                    boolean match = VpnUtil.isIpInSubnet(ipAddress, subOpEntry.getSubnetCidr());
+                    boolean match = NWUtil.isIpInSubnet(ipAddress, subOpEntry.getSubnetCidr());
                     LOG.trace("SubnetRoutePacketInHandler: Viewing Subnet " + subnetId + " matching " + match);
                     if (match) {
                         dpnid = subOpEntry.getNhDpnId();
