@@ -583,7 +583,7 @@ public class FloatingIPListener extends AsyncDataTreeChangeListenerBase<Internal
             LOG.error("NAT Service : Could not retrieve label for prefix {} in router {}", internalIp, routerId);
             return;
         }
-        ((VpnFloatingIpHandler) floatingIPHandler).cleanupFibEntries(dpnId, vpnName, externalIp, label);
+        floatingIPHandler.cleanupFibEntries(dpnId, vpnName, externalIp, label);
         removeOperationalDS(routerName, interfaceName, internalIp, externalIp);
     }
 
