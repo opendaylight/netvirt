@@ -16,6 +16,24 @@
       "revId": "675e7f03c4f06bf77dcb0bdcbc74f35b6f3207c9",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_1c917047",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronNetworkChangeListener.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 136,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2016-12-27T17:17:40Z",
+      "side": 1,
+      "message": "1. There will be nothing to delete in case the original network was not flat or vlan. this is symmetric to the remove case though\n2. if either of 3 the fields above change, this will probably affect the name of the elan interfaces and thus it must be reconsructed\n * segment type -  :flat or :\u003cvid\u003e\n * segmentation id - the vid is part of the vlan-member name\n * physical network - physnet is mapped to port-name/bridge-name which is part of the ext. interface name",
+      "parentUuid": "1a622d24_dc77f838",
+      "revId": "675e7f03c4f06bf77dcb0bdcbc74f35b6f3207c9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
