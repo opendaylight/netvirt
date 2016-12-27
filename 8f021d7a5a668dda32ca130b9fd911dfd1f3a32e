@@ -2,6 +2,40 @@
   "comments": [
     {
       "key": {
+        "uuid": "1a622d24_7cc0647c",
+        "filename": "docs/specs/index.rst",
+        "patchSetId": 2
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2016-12-27T15:17:44Z",
+      "side": 1,
+      "message": "Please update the link to \"setup-smac-l3forwarded-packets\"",
+      "revId": "8f021d7a5a668dda32ca130b9fd911dfd1f3a32e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_fc3bd499",
+        "filename": "docs/specs/setup-smac-l3forwarded-packets.rst",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2016-12-27T15:17:44Z",
+      "side": 1,
+      "message": "nit: remove the white spaces.",
+      "revId": "8f021d7a5a668dda32ca130b9fd911dfd1f3a32e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_7cf504ca",
         "filename": "docs/specs/setup-smac-l3forwarded-packets.rst",
         "patchSetId": 2
@@ -36,6 +70,23 @@
     },
     {
       "key": {
+        "uuid": "1a622d24_3c46ec23",
+        "filename": "docs/specs/setup-smac-l3forwarded-packets.rst",
+        "patchSetId": 2
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2016-12-27T15:17:44Z",
+      "side": 1,
+      "message": "You seem to have missed incorporating some comments from @Vivek, please take a close look at this comments.",
+      "revId": "8f021d7a5a668dda32ca130b9fd911dfd1f3a32e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_bcff9ca9",
         "filename": "docs/specs/setup-smac-l3forwarded-packets.rst",
         "patchSetId": 2
@@ -47,6 +98,74 @@
       "writtenOn": "2016-12-27T14:54:57Z",
       "side": 1,
       "message": "please fix the trailing spaces.",
+      "revId": "8f021d7a5a668dda32ca130b9fd911dfd1f3a32e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_bc683c88",
+        "filename": "docs/specs/setup-smac-l3forwarded-packets.rst",
+        "patchSetId": 2
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2016-12-27T15:17:44Z",
+      "side": 1,
+      "message": "Please rephrase this as follows based on the clarification from @Vivek.\n\n\"This spec makes sure proper source-mac is updated in the packet at the point where the packet is delivered to the VM, regardless of the tenant network type. On the actual datapath, there will be no change in the source mac-addresses and packets continue to use the same mechanism that is used today.\n\nAddressing the datapath requires unique MAC allocation per OVS Datapath, so that it can be used as the source MAC for all distributively routed packets of an ODL enabled cloud.  It would be handled in some future spec.\"",
+      "revId": "8f021d7a5a668dda32ca130b9fd911dfd1f3a32e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_5c43e813",
+        "filename": "docs/specs/setup-smac-l3forwarded-packets.rst",
+        "patchSetId": 2
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2016-12-27T15:17:44Z",
+      "side": 1,
+      "message": "This is repeated (L10 and L11)",
+      "revId": "8f021d7a5a668dda32ca130b9fd911dfd1f3a32e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_fc0914de",
+        "filename": "docs/specs/setup-smac-l3forwarded-packets.rst",
+        "patchSetId": 2
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2016-12-27T15:17:44Z",
+      "side": 1,
+      "message": "Can you add \"just\" in the statement.\n\ni.e., \"L3 Routed packets just before\"",
+      "revId": "8f021d7a5a668dda32ca130b9fd911dfd1f3a32e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_bceddcf1",
+        "filename": "docs/specs/setup-smac-l3forwarded-packets.rst",
+        "patchSetId": 2
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2016-12-27T15:17:44Z",
+      "side": 1,
+      "message": "Thanks for the explanation Vivek.\n\n@Vivek, i\u0027m looking into IPv6 North-South usecase and want to target a fully distributed IPv6 router (instead of a centralized one).\nOne challenge we have is that in ODL we do not have \"Host MAC\u0027s\" per compute node. As you know, in OpenStack DVR, the agents running on the Compute node request Neutron Server to allocate a Host MAC to it. Sadly, since we do not have a reverse channel from the ODL Controller to Neutron Server we cannot implement the same in ODL. \n\nIn the absence of Host_MACs, I\u0027m brainstorming to see if we can use the physical interface MAC (i.e., say eth1 is the external physical interface, so we use the MAC of eth1 for all the traffic that is going North).\nDo you think this approach would have any issues? Or any suggestions? Appreciate your feedback on this.",
       "revId": "8f021d7a5a668dda32ca130b9fd911dfd1f3a32e",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
