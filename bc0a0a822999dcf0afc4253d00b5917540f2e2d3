@@ -88,6 +88,24 @@
     },
     {
       "key": {
+        "uuid": "1a622d24_e17df1e8",
+        "filename": "docs/specs/nexthopgroup-smac-population.rst",
+        "patchSetId": 1
+      },
+      "lineNbr": 6,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-12-27T11:01:31Z",
+      "side": 1,
+      "message": "this spec only makes sure proper source-mac is available in the frame at the point where the frame is put into the VM.\n\nThe spec does not intend to make correct source mac available in the datapath of the cloud in general.\n\nIf we need to have a sourcemac in the datapath, we have to manage such source macs on a per hypervisor basis like how the Openstack DVR implementation manages in East-West Routing.",
+      "parentUuid": "1a622d24_e10971de",
+      "revId": "bc0a0a822999dcf0afc4253d00b5917540f2e2d3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_abe1189c",
         "filename": "docs/specs/nexthopgroup-smac-population.rst",
         "patchSetId": 1
@@ -190,6 +208,24 @@
     },
     {
       "key": {
+        "uuid": "1a622d24_4185c5ce",
+        "filename": "docs/specs/nexthopgroup-smac-population.rst",
+        "patchSetId": 1
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-12-27T11:01:31Z",
+      "side": 1,
+      "message": "the spec covers putting the right-source mac just before the frame reaches the VM regardless of the tenant network the VM belongs to.\n\nAs per this spec, when two tenant vlan networks are connected to the same router and when packets are exchanged between VM1 on vlan1 to VM2 on vlan2:\n\na. VM1 will receive frames with source mac of subnet gateway on vlan1 subnet (ie., router interface subnet1 mac) \n\nb. VM2 will receive frames with source mac of subnet gateway on vlan2 subnet (ie., router interface subnet2 mac).\n\nOn the datapath itself there will be no change in the mac-addresses and they will continue to be carried incorrectly.",
+      "parentUuid": "1a622d24_a1ff79a9",
+      "revId": "bc0a0a822999dcf0afc4253d00b5917540f2e2d3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_81735d7f",
         "filename": "docs/specs/nexthopgroup-smac-population.rst",
         "patchSetId": 1
@@ -207,6 +243,24 @@
     },
     {
       "key": {
+        "uuid": "1a622d24_e164d14a",
+        "filename": "docs/specs/nexthopgroup-smac-population.rst",
+        "patchSetId": 1
+      },
+      "lineNbr": 46,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-12-27T11:01:31Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1a622d24_81735d7f",
+      "revId": "bc0a0a822999dcf0afc4253d00b5917540f2e2d3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_e13051a0",
         "filename": "docs/specs/nexthopgroup-smac-population.rst",
         "patchSetId": 1
@@ -218,6 +272,24 @@
       "writtenOn": "2016-12-27T08:26:37Z",
       "side": 1,
       "message": "I agree that the current behavior where we are using the VM MAC as source MAC for east-west routing is incorrect, but at the same time I have some concerns on the suggested change.\n\nIf we are updating the source MAC to the router interface (i.e., subnet gateway address) as part of this change, this would create issues when using VLAN/FLAT tenant networks. \nThe problem is explained in the \"Host MACs\" section of this blog https://assafmuller.com/2015/04/15/distributed-virtual-routing-overview-and-eastwest-routing/\n\nI would like to hear your views on this.",
+      "revId": "bc0a0a822999dcf0afc4253d00b5917540f2e2d3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_c178b5f4",
+        "filename": "docs/specs/nexthopgroup-smac-population.rst",
+        "patchSetId": 1
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-12-27T11:01:31Z",
+      "side": 1,
+      "message": "As I said, we are not addressing fixing source MAC holistically.\nWhen the VM recieves the frame it will have the right source MAC.\n\nThe datapath itself will continue to carry inconsistent mac address as is today..\n\nAddressing that can be another spec, that manages unique MAC allocation per OVS Datapath and uses that as source MAC for all distributively routed packets on the datapath of an ODL enabled cloud.  But, as I said that will be a different initiative !",
+      "parentUuid": "1a622d24_e13051a0",
       "revId": "bc0a0a822999dcf0afc4253d00b5917540f2e2d3",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -253,6 +325,24 @@
       "side": 1,
       "message": "Regarding - \"The connected mac-address is nothing but the mac-address on the ovs-datapath for the VMs tapxxx/vhuxxx \nport of the hypervisor itself.\"\n\nCan you please elaborate this a bit? Do you mean the physical interface MAC (i.e., non-neutron allocated MAC) would be used?",
       "parentUuid": "1a622d24_eb1cb079",
+      "revId": "bc0a0a822999dcf0afc4253d00b5917540f2e2d3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_0162ad3d",
+        "filename": "docs/specs/nexthopgroup-smac-population.rst",
+        "patchSetId": 1
+      },
+      "lineNbr": 58,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-12-27T11:01:31Z",
+      "side": 1,
+      "message": "Sure..\n\nThe MAC is the MAC address of the interface on the OVS Datapath.\n\nWhen nova connects the VM to the OVS Datapath via a tapxxx port, that tapxxx port is a kernel port (where xxx represents initial digits of ID of neutron port used for that VM).  Now this tapxxx port a MAC assigned to that by Ubuntu as part of plugging it into the OVS Datapath.  It is this MAC Address of tapxxx port we refer to as \u0027Connected MAC Address\u0027.  The \u0027Connected MAC Address\u0027 will be from Ubuntu pool (if the hypervisor is Ubuntu) and it will be different from the MAC Address assigned to VM by Neutron itself.",
+      "parentUuid": "1a622d24_4184a50b",
       "revId": "bc0a0a822999dcf0afc4253d00b5917540f2e2d3",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
