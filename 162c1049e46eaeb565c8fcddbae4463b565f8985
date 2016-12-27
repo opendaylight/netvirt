@@ -37,6 +37,24 @@
     },
     {
       "key": {
+        "uuid": "1a622d24_545c6625",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/intervpnlink/InterVpnLinkListener.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 105,
+      "author": {
+        "id": 5350
+      },
+      "writtenOn": "2016-12-27T09:16:45Z",
+      "side": 1,
+      "message": "I wasnt referring to just these lines here, my question was generic. Why changing these type of lines that apparently look good?\n\nAlso, I guess this may be annoying for you in this commit: it must be in \"merge conflict\" most of the time.",
+      "parentUuid": "1a622d24_363f6d27",
+      "revId": "162c1049e46eaeb565c8fcddbae4463b565f8985",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_36ce4d84",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/intervpnlink/InterVpnLinkListener.java",
         "patchSetId": 3
