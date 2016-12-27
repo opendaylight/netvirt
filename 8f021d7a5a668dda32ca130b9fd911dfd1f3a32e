@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1a622d24_7cf504ca",
+        "filename": "docs/specs/setup-smac-l3forwarded-packets.rst",
+        "patchSetId": 2
+      },
+      "lineNbr": 5,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-12-27T14:54:57Z",
+      "side": 1,
+      "message": "better to have as:\n\nsetup source-mac-address on routed packets destined to virtual endpoints.\n\nbetter ot have filename as setup-smac-for-routed-packets-to-virt-endpoints.rst and fix the index.rst accordingly.",
+      "revId": "8f021d7a5a668dda32ca130b9fd911dfd1f3a32e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_dc0418c2",
+        "filename": "docs/specs/setup-smac-l3forwarded-packets.rst",
+        "patchSetId": 2
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-12-27T14:54:57Z",
+      "side": 1,
+      "message": "You should give a topic name... Please refer this review:\nhttps://git.opendaylight.org/gerrit/#/c/48524/\n\nits useful when you put multiple reviews to address this spec.",
+      "revId": "8f021d7a5a668dda32ca130b9fd911dfd1f3a32e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_bcff9ca9",
+        "filename": "docs/specs/setup-smac-l3forwarded-packets.rst",
+        "patchSetId": 2
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-12-27T14:54:57Z",
+      "side": 1,
+      "message": "please fix the trailing spaces.",
+      "revId": "8f021d7a5a668dda32ca130b9fd911dfd1f3a32e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
