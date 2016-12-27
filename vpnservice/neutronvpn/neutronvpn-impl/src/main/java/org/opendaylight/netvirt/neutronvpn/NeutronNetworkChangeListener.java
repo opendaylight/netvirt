@@ -22,8 +22,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.Segm
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.instances.ElanInstance;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.instances.ElanInstanceBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.instances.ElanInstanceKey;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.networks.rev150712.NetworkTypeFlat;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.networks.rev150712.NetworkTypeVlan;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.networks.rev150712.networks.attributes.Networks;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.networks.rev150712.networks.attributes.networks.Network;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.qos.ext.rev160613.QosNetworkExtension;
@@ -134,12 +132,21 @@ public class NeutronNetworkChangeListener extends AsyncDataTreeChangeListenerBas
         if (!Objects.equals(origSegmentType, updateSegmentType)
                 || !Objects.equals(origSegmentationId, updateSegmentationId)
                 || !Objects.equals(origPhysicalNetwork, updatePhysicalNetwork)) {
+            if (NeutronvpnUtils.getIsExternal(original)) {
+                nvpnManager.removeExternalVpnInterfaces(original.getUuid());
+            }
             ElanInstance elanInstance = elanService.getElanInstance(elanInstanceName);
             if (elanInstance != null) {
                 elanService.deleteExternalElanNetwork(elanInstance);
                 elanInstance = updateElanInstance(elanInstanceName, updateSegmentType, updateSegmentationId,
                         updatePhysicalNetwork);
                 elanService.createExternalElanNetwork(elanInstance);
+            }
+
+            ProviderTypes providerNwType = NeutronvpnUtils.getProviderNetworkType(update);
+            if (NeutronvpnUtils.getIsExternal(update) && providerNwType != null
+                    && !ProviderTypes.GRE.equals(providerNwType)) {
+                nvpnManager.createExternalVpnInterfaces(update.getUuid());
             }
         }
 
