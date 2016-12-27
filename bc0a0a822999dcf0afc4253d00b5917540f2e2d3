@@ -241,6 +241,24 @@
     },
     {
       "key": {
+        "uuid": "1a622d24_4184a50b",
+        "filename": "docs/specs/nexthopgroup-smac-population.rst",
+        "patchSetId": 1
+      },
+      "lineNbr": 58,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2016-12-27T09:50:11Z",
+      "side": 1,
+      "message": "Regarding - \"The connected mac-address is nothing but the mac-address on the ovs-datapath for the VMs tapxxx/vhuxxx \nport of the hypervisor itself.\"\n\nCan you please elaborate this a bit? Do you mean the physical interface MAC (i.e., non-neutron allocated MAC) would be used?",
+      "parentUuid": "1a622d24_eb1cb079",
+      "revId": "bc0a0a822999dcf0afc4253d00b5917540f2e2d3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_eb35d0f7",
         "filename": "docs/specs/nexthopgroup-smac-population.rst",
         "patchSetId": 1
