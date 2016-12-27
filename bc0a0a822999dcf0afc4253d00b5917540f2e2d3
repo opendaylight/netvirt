@@ -71,6 +71,23 @@
     },
     {
       "key": {
+        "uuid": "1a622d24_e10971de",
+        "filename": "docs/specs/nexthopgroup-smac-population.rst",
+        "patchSetId": 1
+      },
+      "lineNbr": 6,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2016-12-27T08:26:37Z",
+      "side": 1,
+      "message": "I hope you are talking about the east-west routing use-case?",
+      "revId": "bc0a0a822999dcf0afc4253d00b5917540f2e2d3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_abe1189c",
         "filename": "docs/specs/nexthopgroup-smac-population.rst",
         "patchSetId": 1
@@ -150,6 +167,57 @@
       "writtenOn": "2016-12-26T16:19:06Z",
       "side": 1,
       "message": "Intra-Datacenter L3 forwarded packets over Internal VXLAN Tunnels between two hypervisors in the datacenter.",
+      "revId": "bc0a0a822999dcf0afc4253d00b5917540f2e2d3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_a1ff79a9",
+        "filename": "docs/specs/nexthopgroup-smac-population.rst",
+        "patchSetId": 1
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2016-12-27T08:26:37Z",
+      "side": 1,
+      "message": "Does the spec not cover use-case where tenant networks are VLAN based?\ni.e., two tenant VLAN networks connected to same Neutron router?",
+      "revId": "bc0a0a822999dcf0afc4253d00b5917540f2e2d3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_81735d7f",
+        "filename": "docs/specs/nexthopgroup-smac-population.rst",
+        "patchSetId": 1
+      },
+      "lineNbr": 46,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2016-12-27T08:26:37Z",
+      "side": 1,
+      "message": "Please include (Table 220) for the EGRESS_LPORT_DISPATCHER_TABLE.",
+      "revId": "bc0a0a822999dcf0afc4253d00b5917540f2e2d3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_e13051a0",
+        "filename": "docs/specs/nexthopgroup-smac-population.rst",
+        "patchSetId": 1
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2016-12-27T08:26:37Z",
+      "side": 1,
+      "message": "I agree that the current behavior where we are using the VM MAC as source MAC for east-west routing is incorrect, but at the same time I have some concerns on the suggested change.\n\nIf we are updating the source MAC to the router interface (i.e., subnet gateway address) as part of this change, this would create issues when using VLAN/FLAT tenant networks. \nThe problem is explained in the \"Host MACs\" section of this blog https://assafmuller.com/2015/04/15/distributed-virtual-routing-overview-and-eastwest-routing/\n\nI would like to hear your views on this.",
       "revId": "bc0a0a822999dcf0afc4253d00b5917540f2e2d3",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
