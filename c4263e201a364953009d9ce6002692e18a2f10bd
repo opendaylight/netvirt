@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1a622d24_01974ded",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnUtil.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 880,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2016-12-27T11:21:12Z",
+      "side": 0,
+      "message": "Future TODO: We can consider enhancing this API to support IPv6 aswell.",
+      "revId": "c4263e201a364953009d9ce6002692e18a2f10bd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
