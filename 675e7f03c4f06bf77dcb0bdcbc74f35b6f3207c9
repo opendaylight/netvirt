@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1a622d24_dc77f838",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronNetworkChangeListener.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 136,
+      "author": {
+        "id": 670
+      },
+      "writtenOn": "2016-12-27T16:13:28Z",
+      "side": 1,
+      "message": "1. Is this if() intentionally not symmetric to the one below?\nWe delete for any external network (even if type isn\u0027t FlatOrVlan), and we add only for flatAndVlan?\n2. Should we delete and add the VPN interface if any of the fields above (segment type, segment ID and physical network) change? Or will we recreate the same exact ELAN interfaces in some of the cases?",
+      "revId": "675e7f03c4f06bf77dcb0bdcbc74f35b6f3207c9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
