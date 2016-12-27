@@ -22,13 +22,11 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.Segm
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.instances.ElanInstance;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.instances.ElanInstanceBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.instances.ElanInstanceKey;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.networks.rev150712.NetworkTypeFlat;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.networks.rev150712.NetworkTypeVlan;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ProviderTypes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.networks.rev150712.networks.attributes.Networks;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.networks.rev150712.networks.attributes.networks.Network;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.qos.ext.rev160613.QosNetworkExtension;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.rev150712.Neutron;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ProviderTypes;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -76,6 +74,7 @@ public class NeutronNetworkChangeListener extends AsyncDataTreeChangeListenerBas
             LOG.error("Neutronvpn doesn't support this network provider type for this network {} and uuid {}.", input.getName(), input.getUuid());
             return;
         }
+
         NeutronvpnUtils.addToNetworkCache(input);
         // Create ELAN instance for this network
         ElanInstance elanInstance = createElanInstance(input);
@@ -83,13 +82,13 @@ public class NeutronNetworkChangeListener extends AsyncDataTreeChangeListenerBas
         elanService.createExternalElanNetwork(elanInstance);
         if (NeutronvpnUtils.getIsExternal(input)) {
             ProviderTypes providerNwType = NeutronvpnUtils.getProviderNetworkType(input);
-            if(providerNwType == null){
+            if (providerNwType == null) {
                 LOG.error("Neutron Service : Unable to get Network Provider Type for network {}", input.getUuid());
                 return;
             }
             LOG.trace("Neutron Service : External Network Provider Type is {}", providerNwType.getName());
             nvpnNatManager.addExternalNetwork(input);
-            if (providerNwType != ProviderTypes.GRE) {
+            if (NeutronvpnUtils.isFlatOrVlanNetwork(input)) {
                 nvpnManager.createL3InternalVpn(input.getUuid(), null, null, null, null, null, null, null);
                 nvpnManager.createExternalVpnInterfaces(input.getUuid());
             }
@@ -134,12 +133,19 @@ public class NeutronNetworkChangeListener extends AsyncDataTreeChangeListenerBas
         if (!Objects.equals(origSegmentType, updateSegmentType)
                 || !Objects.equals(origSegmentationId, updateSegmentationId)
                 || !Objects.equals(origPhysicalNetwork, updatePhysicalNetwork)) {
+            if (NeutronvpnUtils.getIsExternal(original)) {
+                nvpnManager.removeExternalVpnInterfaces(original.getUuid());
+            }
             ElanInstance elanInstance = elanService.getElanInstance(elanInstanceName);
             if (elanInstance != null) {
                 elanService.deleteExternalElanNetwork(elanInstance);
                 elanInstance = updateElanInstance(elanInstanceName, updateSegmentType, updateSegmentationId,
                         updatePhysicalNetwork);
                 elanService.createExternalElanNetwork(elanInstance);
+            }
+
+            if (NeutronvpnUtils.getIsExternal(update) && NeutronvpnUtils.isFlatOrVlanNetwork(update)) {
+                nvpnManager.createExternalVpnInterfaces(update.getUuid());
             }
         }
 
