@@ -1024,6 +1024,19 @@ public class NeutronvpnUtils {
         return npe != null && type.isAssignableFrom(npe.getNetworkType());
     }
 
+    static boolean isVxlanNetwork(Network network) {
+        return network != null && isNetworkOfType(network, NetworkTypeVxlan.class);
+    }
+
+    static boolean isGreNetwork(Network network) {
+        return network != null && isNetworkOfType(network, NetworkTypeGre.class);
+    }
+
+    static boolean isFlatOrVlanNetwork(Network network) {
+        return network != null
+                && (isNetworkOfType(network, NetworkTypeVlan.class) || isNetworkOfType(network, NetworkTypeFlat.class));
+    }
+
     /**
      * Get inter-VPN link state
      *
