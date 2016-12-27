@@ -404,6 +404,24 @@
     },
     {
       "key": {
+        "uuid": "1a622d24_3cb9cce9",
+        "filename": "docs/specs/nexthopgroup-smac-population.rst",
+        "patchSetId": 1
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2016-12-27T15:18:40Z",
+      "side": 1,
+      "message": "Thanks very much @Vivek for the detailed explanation.",
+      "parentUuid": "1a622d24_c178b5f4",
+      "revId": "bc0a0a822999dcf0afc4253d00b5917540f2e2d3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_eb1cb079",
         "filename": "docs/specs/nexthopgroup-smac-population.rst",
         "patchSetId": 1
