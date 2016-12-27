@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1a622d24_81debd6b",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/ExternalRoutersListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 1097,
+      "author": {
+        "id": 6465
+      },
+      "writtenOn": "2016-12-27T07:28:38Z",
+      "side": 1,
+      "message": "I think it same as line 1076:\nLong routerId \u003d NatUtil.getVpnId(dataBroker, routerName);",
+      "range": {
+        "startLine": 1097,
+        "startChar": 21,
+        "endLine": 1097,
+        "endChar": 30
+      },
+      "revId": "1ed9f6ca5d6cbe8e5d77f47e70871cdd421bbaef",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
