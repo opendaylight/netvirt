@@ -70,6 +70,24 @@
     },
     {
       "key": {
+        "uuid": "1a622d24_d7dcf314",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 256,
+      "author": {
+        "id": 6365
+      },
+      "writtenOn": "2016-12-28T11:27:24Z",
+      "side": 1,
+      "message": "InterfaceStateChangeListener gets here before the vpn instance is ready, but as i understand, this is not an error. the vpn interface will be processed after the VpnInstanceListener will run.",
+      "parentUuid": "1a622d24_97defb6b",
+      "revId": "dff04282af13a9ba87cee68604952ae08fe601e5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_f7edaf26",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
         "patchSetId": 5
