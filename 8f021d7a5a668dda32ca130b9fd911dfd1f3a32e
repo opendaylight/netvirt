@@ -36,6 +36,24 @@
     },
     {
       "key": {
+        "uuid": "1a622d24_5743c313",
+        "filename": "docs/specs/setup-smac-l3forwarded-packets.rst",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 6321
+      },
+      "writtenOn": "2016-12-28T09:06:24Z",
+      "side": 1,
+      "message": "I hope to have taken care of all the whitespaces showing up.",
+      "parentUuid": "1a622d24_fc3bd499",
+      "revId": "8f021d7a5a668dda32ca130b9fd911dfd1f3a32e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_7cf504ca",
         "filename": "docs/specs/setup-smac-l3forwarded-packets.rst",
         "patchSetId": 2
@@ -53,6 +71,24 @@
     },
     {
       "key": {
+        "uuid": "1a622d24_d7bfd3f9",
+        "filename": "docs/specs/setup-smac-l3forwarded-packets.rst",
+        "patchSetId": 2
+      },
+      "lineNbr": 5,
+      "author": {
+        "id": 6321
+      },
+      "writtenOn": "2016-12-28T09:06:24Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1a622d24_7cf504ca",
+      "revId": "8f021d7a5a668dda32ca130b9fd911dfd1f3a32e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_dc0418c2",
         "filename": "docs/specs/setup-smac-l3forwarded-packets.rst",
         "patchSetId": 2
@@ -64,6 +100,24 @@
       "writtenOn": "2016-12-27T14:54:57Z",
       "side": 1,
       "message": "You should give a topic name... Please refer this review:\nhttps://git.opendaylight.org/gerrit/#/c/48524/\n\nits useful when you put multiple reviews to address this spec.",
+      "revId": "8f021d7a5a668dda32ca130b9fd911dfd1f3a32e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_b7ba1708",
+        "filename": "docs/specs/setup-smac-l3forwarded-packets.rst",
+        "patchSetId": 2
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 6321
+      },
+      "writtenOn": "2016-12-28T09:06:24Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1a622d24_dc0418c2",
       "revId": "8f021d7a5a668dda32ca130b9fd911dfd1f3a32e",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -121,6 +175,24 @@
     },
     {
       "key": {
+        "uuid": "1a622d24_f73bef99",
+        "filename": "docs/specs/setup-smac-l3forwarded-packets.rst",
+        "patchSetId": 2
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 6321
+      },
+      "writtenOn": "2016-12-28T09:06:24Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1a622d24_bc683c88",
+      "revId": "8f021d7a5a668dda32ca130b9fd911dfd1f3a32e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_5c43e813",
         "filename": "docs/specs/setup-smac-l3forwarded-packets.rst",
         "patchSetId": 2
@@ -149,6 +221,24 @@
       "writtenOn": "2016-12-27T15:17:44Z",
       "side": 1,
       "message": "Can you add \"just\" in the statement.\n\ni.e., \"L3 Routed packets just before\"",
+      "revId": "8f021d7a5a668dda32ca130b9fd911dfd1f3a32e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_17394ba4",
+        "filename": "docs/specs/setup-smac-l3forwarded-packets.rst",
+        "patchSetId": 2
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 6321
+      },
+      "writtenOn": "2016-12-28T09:06:24Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1a622d24_fc0914de",
       "revId": "8f021d7a5a668dda32ca130b9fd911dfd1f3a32e",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
