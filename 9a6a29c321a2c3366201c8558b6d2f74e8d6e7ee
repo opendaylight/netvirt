@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1a622d24_17078bcb",
+        "filename": "docs/specs/hairpinning-flat-vlan.rst",
+        "patchSetId": 9
+      },
+      "lineNbr": 363,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2016-12-28T09:09:29Z",
+      "side": 1,
+      "message": "nit: [1] and [2] are same and was updated recently in the Spec Template.",
+      "revId": "9a6a29c321a2c3366201c8558b6d2f74e8d6e7ee",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
