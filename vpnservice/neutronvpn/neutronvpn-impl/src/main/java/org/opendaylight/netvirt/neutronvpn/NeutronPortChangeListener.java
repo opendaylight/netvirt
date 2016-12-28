@@ -351,7 +351,9 @@ public class NeutronPortChangeListener extends AsyncDataTreeChangeListenerBase<P
             LOG.warn("No router found for router GW port {} router id {}", routerGwPort.getUuid(), routerId.getValue());
             return;
         }
-        nvpnNatManager.addExternalRouter(router, dataBroker);
+        if (router.getExternalGatewayInfo() != null) {
+            nvpnNatManager.addExternalRouter(router, dataBroker);
+        }
         gwMacResolver.sendArpRequestsToExtGateways(router);
     }
 
