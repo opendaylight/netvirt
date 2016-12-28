@@ -1,0 +1,89 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1a622d24_17eb0b14",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 143,
+      "author": {
+        "id": 6177
+      },
+      "writtenOn": "2016-12-28T08:35:40Z",
+      "side": 1,
+      "message": "nitpick: unproccessed",
+      "revId": "dff04282af13a9ba87cee68604952ae08fe601e5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_57f583ec",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 218,
+      "author": {
+        "id": 6177
+      },
+      "writtenOn": "2016-12-28T08:35:40Z",
+      "side": 1,
+      "message": "addToUnproccessedVpnInterfaces",
+      "revId": "dff04282af13a9ba87cee68604952ae08fe601e5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_37f8c7e4",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 219,
+      "author": {
+        "id": 6177
+      },
+      "writtenOn": "2016-12-28T08:35:40Z",
+      "side": 1,
+      "message": "UnprocessedVpnInterfaceData",
+      "revId": "dff04282af13a9ba87cee68604952ae08fe601e5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_97defb6b",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 256,
+      "author": {
+        "id": 6177
+      },
+      "writtenOn": "2016-12-28T08:35:40Z",
+      "side": 1,
+      "message": "Shouldn\u0027t this be an error now? We should never get to this state?",
+      "revId": "dff04282af13a9ba87cee68604952ae08fe601e5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_f7edaf26",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 1866,
+      "author": {
+        "id": 6177
+      },
+      "writtenOn": "2016-12-28T08:35:40Z",
+      "side": 1,
+      "message": "I think it\u0027d be more appropriate if this method will get the vpnInstance as an input, and do the vpnInterface.getVpnInstanceName from outside",
+      "revId": "dff04282af13a9ba87cee68604952ae08fe601e5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
