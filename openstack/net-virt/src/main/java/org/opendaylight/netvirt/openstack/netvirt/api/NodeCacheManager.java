@@ -24,6 +24,7 @@ import org.osgi.framework.ServiceReference;
 public interface NodeCacheManager {
     void nodeAdded(Node node);
     void nodeRemoved(Node node);
+    Node getNode(NodeId nodeId);
     List<Node> getNodes();
     Map<NodeId, Node> getOvsdbNodes();
     List<Node> getBridgeNodes();
