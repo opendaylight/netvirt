@@ -1053,6 +1053,7 @@ public class OF13Provider implements ConfigInterface, NetworkingProvider {
             LOG.info("Port security is not enabled" + intf);
             return;
         }
+        org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.NodeId nodeId = node.getNodeId();
         NeutronPort dhcpPort = securityServicesManager.getDhcpServerPort(intf);
         List<Neutron_IPs> srcAddressList = null;
         if (null != dhcpPort) {
@@ -1076,9 +1077,9 @@ public class OF13Provider implements ConfigInterface, NetworkingProvider {
                                                                            Constants.EXTERNAL_ID_INTERFACE_ID);
             for (NeutronSecurityGroup securityGroupInPort:securityGroupListInPort) {
                 ingressAclProvider.programPortSecurityGroup(dpid, segmentationId, attachedMac, localPort,
-                                                            securityGroupInPort, neutronPortId, write);
+                                                            securityGroupInPort, neutronPortId, nodeId, write);
                 egressAclProvider.programPortSecurityGroup(dpid, segmentationId, attachedMac, localPort,
-                                                           securityGroupInPort, neutronPortId, write);
+                                                           securityGroupInPort, neutronPortId, nodeId, write);
             }
 
         } else {
