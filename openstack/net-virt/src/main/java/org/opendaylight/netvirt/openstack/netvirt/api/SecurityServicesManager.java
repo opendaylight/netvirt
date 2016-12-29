@@ -14,6 +14,7 @@ import org.opendaylight.netvirt.openstack.netvirt.translator.NeutronSecurityRule
 import org.opendaylight.netvirt.openstack.netvirt.translator.Neutron_IPs;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.rev150105.OvsdbTerminationPointAugmentation;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Node;
+import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.NodeId;
 
 import java.util.List;
 
@@ -114,9 +115,10 @@ public interface SecurityServicesManager {
      * @param port the neutron port.
      * @param securityRule the security group associated with the port.
      * @param vmIp The list of remote vm ips.
+     * @param nodeId the NodeId of the node.
      * @param write whether to add/delete flow.
      */
-    void syncSecurityRule(NeutronPort port, NeutronSecurityRule securityRule,Neutron_IPs vmIp, boolean write);
+    void syncSecurityRule(NeutronPort port, NeutronSecurityRule securityRule,Neutron_IPs vmIp, NodeId nodeId, boolean write);
     /**
      * Is connection tracking enabled or not by the user (default is false).
      * @return whether connection tracking enabled.

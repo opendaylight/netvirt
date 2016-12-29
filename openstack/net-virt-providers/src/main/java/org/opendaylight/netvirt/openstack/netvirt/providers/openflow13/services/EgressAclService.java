@@ -47,6 +47,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.instru
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.NodeBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.model.match.types.rev131026.match.Icmpv4MatchBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.model.match.types.rev131026.match.Icmpv6MatchBuilder;
+import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Node;
+import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.NodeId;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
 import org.slf4j.Logger;
@@ -79,7 +81,7 @@ public class EgressAclService extends AbstractServiceInstance implements EgressA
 
     @Override
     public void programPortSecurityGroup(Long dpid, String segmentationId, String attachedMac, long localPort,
-                                       NeutronSecurityGroup securityGroup, String portUuid, boolean write) {
+                                       NeutronSecurityGroup securityGroup, String portUuid, NodeId nodeId, boolean write) {
 
         LOG.trace("programPortSecurityGroup: neutronSecurityGroup: {} ", securityGroup);
         if (securityGroup == null || getSecurityRulesforGroup(securityGroup) == null) {
@@ -118,7 +120,7 @@ public class EgressAclService extends AbstractServiceInstance implements EgressA
                                                     localPort, portSecurityRule, vmIp, write);
                         }
                         if (write) {
-                            securityGroupCacheManger.addToCache(portSecurityRule.getSecurityRemoteGroupID(), portUuid);
+                            securityGroupCacheManger.addToCache(portSecurityRule.getSecurityRemoteGroupID(), portUuid, nodeId);
                         } else {
                             securityGroupCacheManger.removeFromCache(portSecurityRule.getSecurityRemoteGroupID(),
                                                                      portUuid);
