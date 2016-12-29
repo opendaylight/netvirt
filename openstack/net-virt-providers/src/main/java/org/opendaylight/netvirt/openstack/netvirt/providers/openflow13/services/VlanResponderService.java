@@ -8,6 +8,7 @@
 package org.opendaylight.netvirt.openstack.netvirt.providers.openflow13.services;
 
 import java.util.Collections;
+import java.util.Map;
 
 import org.opendaylight.netvirt.openstack.netvirt.api.VlanResponderProvider;
 import org.opendaylight.netvirt.openstack.netvirt.providers.ConfigInterface;
@@ -81,10 +82,11 @@ public class VlanResponderService extends AbstractServiceInstance implements Vla
 
     /**
      * Write or remove the flows for POP VLAN instructions based on flag value actions.
-     * Sample flow: table=100, n_packets=218, n_bytes=15778, priority=4,in_port=3,dl_vlan=100 actions=pop_vlan,output:5
+     * Sample flow: table=100, n_packets=218, n_bytes=15778, priority=4,in_port=3,dl_vlan=100 actions=pop_vlan,NORMAL
      */
     @Override
-    public void programProviderNetworkPopVlan(Long dpidLong, String segmentationId, Long ofPort, Long patchPort, boolean write) {
+    public void programProviderNetworkPopVlan(Long dpidLong, String segmentationId, Long ofPort, Long patchPort, String macAddress,
+            Map<String, String> vlanProviderCache, boolean write) {
         try {
             String nodeName = OPENFLOW + dpidLong;
             NodeBuilder nodeBuilder = FlowUtils.createNodeBuilder(nodeName);
@@ -103,17 +105,17 @@ public class VlanResponderService extends AbstractServiceInstance implements Vla
                     .setPriority(4).setFlowName(flowName).setHardTimeout(0).setIdleTimeout(0);
             if (write) {
                 /* Strip vlan and store to tmp instruction space*/
-                Instruction stripVlanInstruction = InstructionUtils.createPopVlanInstructions(new InstructionBuilder())
+                Instruction popVlanInstruction = InstructionUtils.createPopVlanAndNormalInstructions(new InstructionBuilder())
                         .setOrder(0).setKey(new InstructionKey(0)).build();
-                // Set the Output Port/Iface
-                Instruction setOutputPortInstruction =
-                        InstructionUtils.addOutputPortInstructions(new InstructionBuilder(), dpidLong, ofPort,
-                        Collections.singletonList(stripVlanInstruction)).setOrder(1).setKey(new InstructionKey(0)).build();
                 // Add InstructionsBuilder to FlowBuilder
-                InstructionUtils.setFlowBuilderInstruction(flowBuilder, setOutputPortInstruction);
+                InstructionUtils.setFlowBuilderInstruction(flowBuilder, popVlanInstruction);
                 writeFlow(flowBuilder, nodeBuilder);
             } else {
-                removeFlow(flowBuilder, nodeBuilder);
+                vlanProviderCache.remove(macAddress);
+                boolean isSegmentationIdExist = vlanProviderCache.containsValue(segmentationId);
+                if (!isSegmentationIdExist) {
+                    removeFlow(flowBuilder, nodeBuilder);
+                }
             }
         } catch (Exception e) {
             LOG.error("Error while writing/removing pop vlan instruction flow. dpidLong = {}, patchPort={}, write = {}."
@@ -126,8 +128,8 @@ public class VlanResponderService extends AbstractServiceInstance implements Vla
      * Sample flow: cookie=0x0, duration=4831.827s, table=0, n_packets=1202, n_bytes=56476, priority=4,in_port=3, dl_src=fa:16:3e:74:a9:2e actions=push_vlan:0x8100,set_field:4196 vlan_vid,NORMAL
      */
     @Override
-    public void programProviderNetworkPushVlan(Long dpidLong, String segmentationId, Long patchExtPort,
-            String macAddress, boolean write) {
+        public void programProviderNetworkPushVlan(Long dpidLong, String segmentationId, Long patchExtPort,
+            String macAddress, Map<String, String> vlanProviderCache, boolean write) {
         try {
             String nodeName = OPENFLOW + dpidLong;
             NodeBuilder nodeBuilder = FlowUtils.createNodeBuilder(nodeName);
@@ -139,11 +141,13 @@ public class VlanResponderService extends AbstractServiceInstance implements Vla
             MatchUtils.createInPortMatch(matchBuilder, dpidLong, patchExtPort);
             flowBuilder.setMatch(matchBuilder.build());
             // Add Flow Attributes
-            String flowName = "ExternalBridge_pushVLAN_" + dpidLong + "_" + segmentationId;
+            String flowName = "ExternalBridge_pushVLAN_" + dpidLong + "_" + segmentationId + "_" + macAddress;
             final FlowId flowId = new FlowId(flowName);
             flowBuilder.setId(flowId).setBarrier(true).setTableId((short) 0).setKey(new FlowKey(flowId))
                     .setPriority(4).setFlowName(flowName).setHardTimeout(0).setIdleTimeout(0);
             if (write) {
+                LOG.debug("In programProviderNetworkPushVlan macAddress:" + macAddress + "segmentationId:" + segmentationId);
+                vlanProviderCache.put(macAddress, segmentationId);
                 InstructionBuilder ib = new InstructionBuilder();
                 // Set VLAN ID Instruction
                 InstructionUtils.createSetVlanAndNormalInstructions(ib, new VlanId(Integer.valueOf(segmentationId)));
@@ -166,7 +170,7 @@ public class VlanResponderService extends AbstractServiceInstance implements Vla
      * Sample flow: table=0, n_packets=0, n_bytes=0, priority=2,in_port=3 actions=drop
      */
     @Override
-    public void programProviderNetworkDrop(Long dpidLong, Long patchExtPort, boolean write) {
+    public void programProviderNetworkDrop(Long dpidLong, Long patchExtPort, Map<String, String> vlanProviderCache, boolean write) {
         try {
             String nodeName = OPENFLOW + dpidLong;
             NodeBuilder nodeBuilder = FlowUtils.createNodeBuilder(nodeName);
@@ -192,7 +196,9 @@ public class VlanResponderService extends AbstractServiceInstance implements Vla
                 InstructionUtils.setFlowBuilderInstruction(flowBuilder, dropInstruction);
                 writeFlow(flowBuilder, nodeBuilder);
             } else {
-                removeFlow(flowBuilder, nodeBuilder);
+                if (vlanProviderCache.isEmpty()) {
+                    removeFlow(flowBuilder, nodeBuilder);
+                }
             }
         } catch (Exception e) {
             LOG.error("Error while writing/removing drop instruction flow. dpidLong = {}, patchPort={}, write = {}."
