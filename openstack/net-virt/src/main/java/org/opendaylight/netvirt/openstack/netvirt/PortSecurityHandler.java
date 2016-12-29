@@ -11,11 +11,15 @@ package org.opendaylight.netvirt.openstack.netvirt;
 import java.net.HttpURLConnection;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.opendaylight.netvirt.openstack.netvirt.api.Action;
+import org.opendaylight.netvirt.openstack.netvirt.api.Constants;
 import org.opendaylight.netvirt.openstack.netvirt.api.EventDispatcher;
 import org.opendaylight.netvirt.openstack.netvirt.api.SecurityGroupCacheManger;
 import org.opendaylight.netvirt.openstack.netvirt.api.SecurityServicesManager;
+import org.opendaylight.netvirt.openstack.netvirt.api.Southbound;
 import org.opendaylight.netvirt.openstack.netvirt.translator.iaware.INeutronSecurityRuleAware;
 import org.opendaylight.netvirt.openstack.netvirt.translator.NeutronPort;
 import org.opendaylight.netvirt.openstack.netvirt.translator.NeutronSecurityGroup;
@@ -24,6 +28,9 @@ import org.opendaylight.netvirt.openstack.netvirt.translator.Neutron_IPs;
 import org.opendaylight.netvirt.openstack.netvirt.translator.crud.INeutronPortCRUD;
 import org.opendaylight.netvirt.openstack.netvirt.translator.iaware.INeutronSecurityGroupAware;
 import org.opendaylight.netvirt.utils.servicehelper.ServiceHelper;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.rev150105.OvsdbTerminationPointAugmentation;
+import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Node;
+import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.NodeId;
 import org.osgi.framework.ServiceReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,6 +42,7 @@ public class PortSecurityHandler extends AbstractHandler
         implements INeutronSecurityGroupAware, INeutronSecurityRuleAware, ConfigInterface {
 
     private static final Logger LOG = LoggerFactory.getLogger(PortSecurityHandler.class);
+    private volatile Southbound southbound;
     private volatile INeutronPortCRUD neutronPortCache;
     private volatile SecurityServicesManager securityServicesManager;
     private volatile SecurityGroupCacheManger securityGroupCacheManger;
@@ -142,19 +150,26 @@ public class PortSecurityHandler extends AbstractHandler
 
     private void processNeutronSecurityRuleAdded(NeutronSecurityRule neutronSecurityRule) {
         List<NeutronPort> portList = getPortWithSecurityGroup(neutronSecurityRule.getSecurityRuleGroupID());
-        for (NeutronPort port:portList) {
-            syncSecurityGroup(neutronSecurityRule, port, true);
+        Map<String, NodeId> portNodeCache = getPortNodeCache();
+        if (null != portNodeCache) {
+            for (NeutronPort port:portList) {
+                syncSecurityGroup(neutronSecurityRule, port, portNodeCache.get(port.getID()), true);
+            }
         }
+
     }
 
     private void processNeutronSecurityRuleDeleted(NeutronSecurityRule neutronSecurityRule) {
         List<NeutronPort> portList = getPortWithSecurityGroup(neutronSecurityRule.getSecurityRuleGroupID());
-        for (NeutronPort port:portList) {
-            syncSecurityGroup(neutronSecurityRule, port, false);
+        Map<String, NodeId> portNodeCache = getPortNodeCache();
+        if (null != portNodeCache) {
+            for (NeutronPort port:portList) {
+                syncSecurityGroup(neutronSecurityRule, port, portNodeCache.get(port.getID()), false);
+            }
         }
     }
 
-    private void syncSecurityGroup(NeutronSecurityRule securityRule, NeutronPort port,
+    private void syncSecurityGroup(NeutronSecurityRule securityRule, NeutronPort port, NodeId nodeId,
                                    boolean write) {
         LOG.debug("syncSecurityGroup {} port {} ", securityRule, port);
         if (!port.getPortSecurityEnabled()) {
@@ -171,18 +186,44 @@ public class PortSecurityHandler extends AbstractHandler
             // we need to add/remove from the remote security group cache accordingly
             if (vmIpList.isEmpty()) {
                 if (write) {
-                    securityGroupCacheManger.addToCache(securityRule.getSecurityRemoteGroupID(), port.getPortUUID());
+                    securityGroupCacheManger.addToCache(securityRule.getSecurityRemoteGroupID(), port.getPortUUID(), nodeId);
                 } else {
                     securityGroupCacheManger.removeFromCache(securityRule.getSecurityRemoteGroupID(), port.getPortUUID());
                 }
             } else {
                 for (Neutron_IPs vmIp : vmIpList) {
-                    securityServicesManager.syncSecurityRule(port, securityRule, vmIp, write);
+                    securityServicesManager.syncSecurityRule(port, securityRule, vmIp, nodeId, write);
                 }
             }
         } else {
-            securityServicesManager.syncSecurityRule(port, securityRule, null, write);
+            securityServicesManager.syncSecurityRule(port, securityRule, null, nodeId, write);
         }
+    }
+
+    private Map<String, NodeId> getPortNodeCache() {
+        Map<String, NodeId> portNodeCache = new HashMap();
+        List<Node> toplogyNodes = southbound.readOvsdbTopologyNodes();
+
+        for (Node topologyNode : toplogyNodes) {
+            try {
+                Node node = southbound.getBridgeNode(topologyNode,Constants.INTEGRATION_BRIDGE);
+                if (node == null) {
+                    LOG.error("getNode: br-int interface is not found for node:{}", topologyNode.getNodeId().getValue());
+                }
+                List<OvsdbTerminationPointAugmentation> ovsdbPorts = southbound.getTerminationPointsOfBridge(node);
+                for (OvsdbTerminationPointAugmentation ovsdbPort : ovsdbPorts) {
+                    String uuid = southbound.getInterfaceExternalIdsValue(ovsdbPort,
+                                                            Constants.EXTERNAL_ID_INTERFACE_ID);
+                    NodeId nodeId = node.getNodeId();
+                    if (null != uuid && null != nodeId) {
+                        portNodeCache.put(uuid, nodeId);
+                    }
+                }
+            } catch (Exception e) {
+                LOG.error("Exception during handlingNeutron network delete", e);
+            }
+        }
+        return portNodeCache;
     }
 
     private List<NeutronPort> getPortWithSecurityGroup(String securityGroupUuid) {
@@ -206,8 +247,9 @@ public class PortSecurityHandler extends AbstractHandler
         eventDispatcher =
                 (EventDispatcher) ServiceHelper.getGlobalInstance(EventDispatcher.class, this);
         eventDispatcher.eventHandlerAdded(serviceReference, this);
-        neutronPortCache =
-                (INeutronPortCRUD) ServiceHelper.getGlobalInstance(INeutronPortCRUD.class, this);
+        southbound =
+                (Southbound) ServiceHelper.getGlobalInstance(Southbound.class, this);
+        neutronPortCache = (INeutronPortCRUD) ServiceHelper.getGlobalInstance(INeutronPortCRUD.class, this);
         securityServicesManager =
                 (SecurityServicesManager) ServiceHelper.getGlobalInstance(SecurityServicesManager.class, this);
         securityGroupCacheManger =
