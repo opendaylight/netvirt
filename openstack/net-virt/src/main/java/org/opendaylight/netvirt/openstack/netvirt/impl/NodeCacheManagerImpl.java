@@ -53,6 +53,13 @@ public class NodeCacheManagerImpl extends AbstractHandler implements NodeCacheMa
         enqueueEvent(new NodeCacheManagerEvent(node, Action.DELETE));
     }
 
+
+    @Override
+    public Node getNode(NodeId nodeId) {
+        Node node = nodeCache.get(nodeId);
+        return node;
+    }
+
     // TODO SB_MIGRATION
     // might need to break this into two different events
     // notifyOvsdbNode, notifyBridgeNode or just make sure the
