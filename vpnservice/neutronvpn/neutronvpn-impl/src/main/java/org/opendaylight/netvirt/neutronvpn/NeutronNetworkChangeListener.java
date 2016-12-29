@@ -105,8 +105,11 @@ public class NeutronNetworkChangeListener extends AsyncDataTreeChangeListenerBas
             return;
         }
         if (NeutronvpnUtils.getIsExternal(input)) {
-            nvpnManager.removeExternalVpnInterfaces(input.getUuid());
-            nvpnManager.removeL3Vpn(input.getUuid());
+            ProviderTypes providerNwType = NeutronvpnUtils.getProviderNetworkType(input);
+            if (providerNwType != ProviderTypes.GRE) {
+                nvpnManager.removeExternalVpnInterfaces(input.getUuid());
+                nvpnManager.removeL3Vpn(input.getUuid());
+            }
             nvpnNatManager.removeExternalNetwork(input);
         }
         //Delete ELAN instance for this network
