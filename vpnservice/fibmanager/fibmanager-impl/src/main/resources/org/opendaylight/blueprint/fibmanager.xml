@@ -47,6 +47,12 @@
     <argument ref="idManagerService"/>
   </bean>
 
+  <bean id="BgpRouteVrfEntryHandler" class="org.opendaylight.netvirt.fibmanager.BgpRouteVrfEntryHandler"
+        init-method="start" destroy-method="close">
+    <argument ref="dataBroker" />
+    <argument ref="vfrEntryListener" />
+  </bean>
+
   <bean id="fibRpcServiceImpl" class="org.opendaylight.netvirt.fibmanager.FibRpcServiceImpl">
     <argument ref="dataBroker"/>
     <argument ref="mdsalUtils"/>
