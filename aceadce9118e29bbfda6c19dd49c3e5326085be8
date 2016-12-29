@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1a622d24_b2686588",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 143,
+      "author": {
+        "id": 6177
+      },
+      "writtenOn": "2016-12-29T09:54:01Z",
+      "side": 1,
+      "message": "typo : Unprocesses -\u003e Unprocessed (there are several occurrences)",
+      "revId": "aceadce9118e29bbfda6c19dd49c3e5326085be8",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
