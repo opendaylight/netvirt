@@ -1483,20 +1483,24 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
     protected void removeL3Vpn(Uuid id) {
         // read VPNMaps
         VpnMap vpnMap = NeutronvpnUtils.getVpnMap(dataBroker, id);
-        Uuid router = vpnMap.getRouterId();
-        // dissociate router
-        if (router != null) {
-            dissociateRouterFromVpn(id, router);
-        }
-        // dissociate networks
-        if (!id.equals(router)) {
-            dissociateNetworksFromVpn(id, vpnMap.getNetworkIds());
-        }
-        // remove entire vpnMaps node
-        deleteVpnMapsNode(id);
+        if (vpnMap != null) {
+            Uuid router = vpnMap.getRouterId();
+            // dissociate router
+            if (router != null) {
+                dissociateRouterFromVpn(id, router);
+            }
+            // dissociate networks
+            if (!id.equals(router)) {
+                dissociateNetworksFromVpn(id, vpnMap.getNetworkIds());
+            }
+            // remove entire vpnMaps node
+            deleteVpnMapsNode(id);
 
-        // remove vpn-instance
-        deleteVpnInstance(id);
+            // remove vpn-instance
+            deleteVpnInstance(id);
+        } else {
+            LOG.error("VPN Instance with id {} not found in VpnMaps DataStore.", id.getValue());
+        }
     }
 
     protected void removeSubnetFromVpn(final Uuid vpnId, Uuid subnet) {
