@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1a622d24_323a9536",
+        "filename": "docs/specs/setup-smac-for-routed-packets-to-virt-endpoints.rst",
+        "patchSetId": 5
+      },
+      "lineNbr": 68,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-12-29T12:04:36Z",
+      "side": 1,
+      "message": "the above para \u0027We need to note\u0027 can go as a separate par after line 74.",
+      "revId": "094cbc2c8f16d254cf24970b8665958aa5d49fb5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_9240c9a6",
+        "filename": "docs/specs/setup-smac-for-routed-packets-to-virt-endpoints.rst",
+        "patchSetId": 5
+      },
+      "lineNbr": 74,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-12-29T12:04:36Z",
+      "side": 1,
+      "message": "@Aswin:\n\nCan you please let us know if this way of filling in MAC in frames has impact on ConnTracking enabled traffic from VMs ?",
+      "revId": "094cbc2c8f16d254cf24970b8665958aa5d49fb5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
