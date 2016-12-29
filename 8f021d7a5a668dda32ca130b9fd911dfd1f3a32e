@@ -259,6 +259,24 @@
       "revId": "8f021d7a5a668dda32ca130b9fd911dfd1f3a32e",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_d707d31a",
+        "filename": "docs/specs/setup-smac-l3forwarded-packets.rst",
+        "patchSetId": 2
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2016-12-29T04:12:33Z",
+      "side": 1,
+      "message": "@Sridhar,\n\nIn a typical cloud, the data-network and the external-network need not share the same physical interface.  This is the reason why in the original Openstack DVR, I made changes to drive the MAC Allotment from the Neutron Server.\n\nThat said since the flows are programmed directly by ODL Controller in an ODL Deployment, can you let me know why you think the ODL can\u0027t allocate host mac\u0027s by itself (based on DPN-ID as the key in ODL-Case) and use that host mac when programming the Groups for ELAN and VPN ?\n\nIn that way we can build a distributed datapath viable routing regardless of tenant-network-type and that concept can be re-used for IPv4 as well as IPv6.",
+      "parentUuid": "1a622d24_bceddcf1",
+      "revId": "8f021d7a5a668dda32ca130b9fd911dfd1f3a32e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
