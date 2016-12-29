@@ -8,6 +8,8 @@
 package org.opendaylight.netvirt.openstack.netvirt.providers.openflow13.services;
 
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.opendaylight.netvirt.openstack.netvirt.api.VlanResponderProvider;
 import org.opendaylight.netvirt.openstack.netvirt.providers.ConfigInterface;
@@ -33,6 +35,7 @@ import org.slf4j.LoggerFactory;
 
 public class VlanResponderService extends AbstractServiceInstance implements VlanResponderProvider, ConfigInterface {
     private static final Logger LOG = LoggerFactory.getLogger(VlanResponderService.class);
+    private Map<String, String> vlanCache = new HashMap<>();
 
     public VlanResponderService() {
         super(Service.OUTBOUND_NAT);
@@ -81,10 +84,10 @@ public class VlanResponderService extends AbstractServiceInstance implements Vla
 
     /**
      * Write or remove the flows for POP VLAN instructions based on flag value actions.
-     * Sample flow: table=100, n_packets=218, n_bytes=15778, priority=4,in_port=3,dl_vlan=100 actions=pop_vlan,output:5
+     * Sample flow: table=100, n_packets=218, n_bytes=15778, priority=4,in_port=3,dl_vlan=100 actions=pop_vlan,NORMAL
      */
     @Override
-    public void programProviderNetworkPopVlan(Long dpidLong, String segmentationId, Long ofPort, Long patchPort, boolean write) {
+    public void programProviderNetworkPopVlan(Long dpidLong, String segmentationId, Long ofPort, Long patchPort, String macAddress, boolean write) {
         try {
             String nodeName = OPENFLOW + dpidLong;
             NodeBuilder nodeBuilder = FlowUtils.createNodeBuilder(nodeName);
@@ -103,17 +106,17 @@ public class VlanResponderService extends AbstractServiceInstance implements Vla
                     .setPriority(4).setFlowName(flowName).setHardTimeout(0).setIdleTimeout(0);
             if (write) {
                 /* Strip vlan and store to tmp instruction space*/
-                Instruction stripVlanInstruction = InstructionUtils.createPopVlanInstructions(new InstructionBuilder())
+                Instruction popVlanInstruction = InstructionUtils.createPopVlanAndNormalInstructions(new InstructionBuilder())
                         .setOrder(0).setKey(new InstructionKey(0)).build();
-                // Set the Output Port/Iface
-                Instruction setOutputPortInstruction =
-                        InstructionUtils.addOutputPortInstructions(new InstructionBuilder(), dpidLong, ofPort,
-                        Collections.singletonList(stripVlanInstruction)).setOrder(1).setKey(new InstructionKey(0)).build();
                 // Add InstructionsBuilder to FlowBuilder
-                InstructionUtils.setFlowBuilderInstruction(flowBuilder, setOutputPortInstruction);
+                InstructionUtils.setFlowBuilderInstruction(flowBuilder, popVlanInstruction);
                 writeFlow(flowBuilder, nodeBuilder);
             } else {
-                removeFlow(flowBuilder, nodeBuilder);
+                vlanCache.remove(macAddress);
+                Boolean isSegmentID = vlanCache.containsValue(segmentationId);
+                if (!isSegmentID) {
+                    removeFlow(flowBuilder, nodeBuilder);
+                }
             }
         } catch (Exception e) {
             LOG.error("Error while writing/removing pop vlan instruction flow. dpidLong = {}, patchPort={}, write = {}."
@@ -139,11 +142,12 @@ public class VlanResponderService extends AbstractServiceInstance implements Vla
             MatchUtils.createInPortMatch(matchBuilder, dpidLong, patchExtPort);
             flowBuilder.setMatch(matchBuilder.build());
             // Add Flow Attributes
-            String flowName = "ExternalBridge_pushVLAN_" + dpidLong + "_" + segmentationId;
+            String flowName = "ExternalBridge_pushVLAN_" + dpidLong + "_" + segmentationId + "_" + macAddress;
             final FlowId flowId = new FlowId(flowName);
             flowBuilder.setId(flowId).setBarrier(true).setTableId((short) 0).setKey(new FlowKey(flowId))
                     .setPriority(4).setFlowName(flowName).setHardTimeout(0).setIdleTimeout(0);
             if (write) {
+                vlanCache.put(macAddress, segmentationId);
                 InstructionBuilder ib = new InstructionBuilder();
                 // Set VLAN ID Instruction
                 InstructionUtils.createSetVlanAndNormalInstructions(ib, new VlanId(Integer.valueOf(segmentationId)));
@@ -192,7 +196,9 @@ public class VlanResponderService extends AbstractServiceInstance implements Vla
                 InstructionUtils.setFlowBuilderInstruction(flowBuilder, dropInstruction);
                 writeFlow(flowBuilder, nodeBuilder);
             } else {
-                removeFlow(flowBuilder, nodeBuilder);
+                if (vlanCache.isEmpty()) {
+                    removeFlow(flowBuilder, nodeBuilder);
+                }
             }
         } catch (Exception e) {
             LOG.error("Error while writing/removing drop instruction flow. dpidLong = {}, patchPort={}, write = {}."

@@ -27,9 +27,10 @@ public interface VlanResponderProvider {
      * @param segmentationId segmentation id
      * @param patchIntPort patch port of internal bridge
      * @param ofPortValue of port value
+     * @param macAddress mac address
      * @param write - flag to indicate the operation
      */
-    void programProviderNetworkPopVlan(Long dpidLong, String segmentationId, Long patchIntPort, Long ofPortValue, boolean write);
+    void programProviderNetworkPopVlan(Long dpidLong, String segmentationId, Long patchIntPort, Long ofPortValue, String macAddress, boolean write);
 
     /**
      * Creates flow for Push VLAN instruction.
