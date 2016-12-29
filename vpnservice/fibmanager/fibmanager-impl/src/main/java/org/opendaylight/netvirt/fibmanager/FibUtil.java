@@ -465,6 +465,15 @@ public class FibUtil {
                 .child(VpnIds.class, new VpnIdsKey(Long.valueOf(vpnId))).build();
     }
 
+    static VpnInstanceOpDataEntry getVpnInstance(DataBroker dataBroker, String rd) {
+        InstanceIdentifier<VpnInstanceOpDataEntry> id =
+                InstanceIdentifier.create(VpnInstanceOpData.class)
+                        .child(VpnInstanceOpDataEntry.class, new VpnInstanceOpDataEntryKey(rd));
+        Optional<VpnInstanceOpDataEntry> vpnInstanceOpData =
+                read(dataBroker, LogicalDatastoreType.OPERATIONAL, id);
+        return vpnInstanceOpData.isPresent() ? vpnInstanceOpData.get() : null;
+    }
+
     public static <T extends DataObject> void syncUpdate(DataBroker broker, LogicalDatastoreType datastoreType,
                                                          InstanceIdentifier<T> path, T data) {
         WriteTransaction tx = broker.newWriteOnlyTransaction();
