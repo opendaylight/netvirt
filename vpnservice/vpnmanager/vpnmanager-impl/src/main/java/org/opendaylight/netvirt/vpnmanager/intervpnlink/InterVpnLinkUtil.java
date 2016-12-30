@@ -136,21 +136,6 @@ public class InterVpnLinkUtil {
     }
 
     /**
-     * Retrieves the InterVpnLink object searching by its name
-     *
-     * @param broker dataBroker service reference
-     * @param vpnLinkName Name of the InterVpnLink
-     * @return the InterVpnLink or Optional.absent() if there is no
-     *     InterVpnLink with the specified name
-     */
-    public static Optional<InterVpnLink> getInterVpnLinkByName(DataBroker broker, String vpnLinkName) {
-        InstanceIdentifier<InterVpnLink> interVpnLinksIid =
-                InstanceIdentifier.builder(InterVpnLinks.class)
-                        .child(InterVpnLink.class, new InterVpnLinkKey(vpnLinkName)).build();
-        return  VpnUtil.read(broker, LogicalDatastoreType.CONFIGURATION, interVpnLinksIid);
-    }
-
-    /**
      * Updates inter-VPN link state
      *
      * @param broker dataBroker service reference
@@ -167,7 +152,7 @@ public class InterVpnLinkUtil {
         Optional<InterVpnLinkState> optOldVpnLinkState = getInterVpnLinkState(broker, vpnLinkName);
         if ( optOldVpnLinkState.isPresent() ) {
             InterVpnLinkState newVpnLinkState =
-                    new InterVpnLinkStateBuilder(optOldVpnLinkState.get()).setState(state)
+                new InterVpnLinkStateBuilder(optOldVpnLinkState.get()).setState(state)
                             .setFirstEndpointState(newFirstEndpointState)
                             .setSecondEndpointState(newSecondEndpointState)
                             .build();
@@ -195,7 +180,7 @@ public class InterVpnLinkUtil {
      *
      * @param broker dataBroker service reference
      * @param mdsalManager MDSAL API accessor
-     * @param interVpnLink Object that holds the needed information about both
+     * @param ivpnLinkName Object that holds the needed information about both
      *     endpoints of the InterVpnLink.
      * @param dpnList The list of DPNs where this flow must be installed
      * @param vpnUuidOtherEndpoint UUID of the other endpoint of the
@@ -207,15 +192,15 @@ public class InterVpnLinkUtil {
      */
     public static List<ListenableFuture<Void>> installLPortDispatcherTableFlow(DataBroker broker,
                                                                                IMdsalApiManager mdsalManager,
-                                                                               InterVpnLink interVpnLink,
+                                                                               String ivpnLinkName,
                                                                                List<BigInteger> dpnList,
-                                                                               Uuid vpnUuidOtherEndpoint,
+                                                                               String vpnUuidOtherEndpoint,
                                                                                Long lPortTagOfOtherEndpoint) {
         List<ListenableFuture<Void>> result = new ArrayList<>();
-        long vpnId = VpnUtil.getVpnId(broker, vpnUuidOtherEndpoint.getValue());
+        long vpnId = VpnUtil.getVpnId(broker, vpnUuidOtherEndpoint);
         for ( BigInteger dpnId : dpnList ) {
             // insert into LPortDispatcher table
-            Flow lPortDispatcherFlow = buildLPortDispatcherFlow(interVpnLink.getName(), vpnId,
+            Flow lPortDispatcherFlow = buildLPortDispatcherFlow(ivpnLinkName, vpnId,
                                                                 lPortTagOfOtherEndpoint.intValue());
             result.add(mdsalManager.installFlow(dpnId, lPortDispatcherFlow));
         }
@@ -309,62 +294,6 @@ public class InterVpnLinkUtil {
     }
 
     /**
-     * Checks if the specified InterVpnLink is currently Active
-     *
-     * @param broker dataBroker service reference
-     * @param iVpnLinkName The name of the InterVpnLink
-     * @return true if the InterVpnLink is Active
-     */
-    public static boolean isInterVpnLinkActive(DataBroker broker, String iVpnLinkName) {
-        Optional<InterVpnLinkState> optIVpnLinkState = getInterVpnLinkState(broker, iVpnLinkName);
-        if ( ! optIVpnLinkState.isPresent() ) {
-            return false;
-        }
-        InterVpnLinkState iVpnLinkState = optIVpnLinkState.get();
-        return iVpnLinkState.getState() == InterVpnLinkState.State.Active;
-    }
-
-    /**
-     * Retrieves an InterVpnLink by searching by one of its endpoint's IP.
-     *
-     * @param broker dataBroker service reference
-     * @param endpointIp IP to serch for.
-     * @return the InterVpnLink or null if no InterVpnLink can be found
-     */
-    public static Optional<InterVpnLink> getInterVpnLinkByEndpointIp(DataBroker broker, String endpointIp) {
-        List<InterVpnLink> allInterVpnLinks = InterVpnLinkUtil.getAllInterVpnLinks(broker);
-        for (InterVpnLink interVpnLink : allInterVpnLinks) {
-            if (interVpnLink.getFirstEndpoint().getIpAddress().getValue().equals(endpointIp)
-                    || interVpnLink.getSecondEndpoint().getIpAddress().getValue().equals(endpointIp)) {
-                return Optional.of(interVpnLink);
-            }
-        }
-        return Optional.absent();
-    }
-
-
-    /**
-     * Retrieves the InterVpnLink that has one of its 2 endpoints installed in
-     * the specified DpnId
-     *
-     * @param broker dataBroker service reference
-     * @param dpnId Id of the DPN
-     * @return The InterVpnLink object if found, Optional.absent() otherwise
-     */
-    public static Optional<InterVpnLink> getInterVpnLinkByDpnId(DataBroker broker, BigInteger dpnId) {
-        List<InterVpnLink> allInterVpnLinks = InterVpnLinkUtil.getAllInterVpnLinks(broker);
-        for (InterVpnLink interVpnLink : allInterVpnLinks) {
-            Optional<InterVpnLinkState> optInterVpnLinkState = getInterVpnLinkState(broker, interVpnLink.getName());
-            if ( optInterVpnLinkState.isPresent()
-                    && ( optInterVpnLinkState.get().getFirstEndpointState().getDpId().contains(dpnId)
-                    || optInterVpnLinkState.get().getSecondEndpointState().getDpId().contains(dpnId) ) ) {
-                return Optional.fromNullable(interVpnLink);
-            }
-        }
-        return Optional.absent();
-    }
-
-    /**
      * Retrieves all configured InterVpnLinks
      *
      * @param broker dataBroker service reference
@@ -379,51 +308,6 @@ public class InterVpnLinkUtil {
         return interVpnLinksOpData.isPresent() ? interVpnLinksOpData.get().getInterVpnLink()
                 : new ArrayList<>();
     }
-
-    /**
-     * Retrieves the list of DPNs where the endpoint of a VPN in an InterVPNLink was instantiated
-     *
-     * @param broker dataBroker service reference
-     * @param vpnLinkName the name of the InterVpnLink
-     * @param vpnUuid UUID of the VPN whose endpoint to be checked
-     * @return the list of DPN Ids
-     */
-    public static List<BigInteger> getVpnLinkEndpointDPNs(DataBroker broker, String vpnLinkName, String vpnUuid) {
-        Optional<InterVpnLinkState> interVpnLinkState = getInterVpnLinkState(broker, vpnLinkName);
-        if ( interVpnLinkState.isPresent()) {
-            if (interVpnLinkState.get().getFirstEndpointState().getVpnUuid().getValue().equals(vpnUuid)) {
-                return interVpnLinkState.get().getFirstEndpointState().getDpId();
-            } else {
-                return interVpnLinkState.get().getSecondEndpointState().getDpId();
-            }
-        } else {
-            LOG.trace("Could not find InterVpnLinkState for interVpnLink {}", vpnLinkName);
-            return new ArrayList<BigInteger>();
-        }
-    }
-
-    /**
-     * Retrieves the list of DPNs where the endpoint of a VPN in an InterVPNLink was instantiated
-     *
-     * @param broker dataBroker service reference
-     * @param endpointIp Ip of the endpoint specified in the InterVpnLink
-     * @return the list of DPN Ids
-     */
-    public static List<BigInteger> getVpnLinkEndpointDPNsByIp(DataBroker broker, String endpointIp) {
-        Optional<InterVpnLink> optIVpnLink = getInterVpnLinkByEndpointIp(broker, endpointIp);
-        if ( optIVpnLink.isPresent() ) {
-            InterVpnLink iVpnLink = optIVpnLink.get();
-            boolean isFirstEndpoint = iVpnLink.getFirstEndpoint().getIpAddress().getValue().equals(endpointIp);
-            return isFirstEndpoint ? getVpnLinkEndpointDPNs(broker, iVpnLink.getName(),
-                    iVpnLink.getFirstEndpoint().getVpnUuid().getValue())
-                    : getVpnLinkEndpointDPNs(broker, iVpnLink.getName(),
-                    iVpnLink.getSecondEndpoint().getVpnUuid().getValue());
-        } else {
-            LOG.trace("Could not find an InterVpnLink with endpoint IpAddr={}", endpointIp);
-            return new ArrayList<BigInteger>();
-        }
-    }
-
 
     /**
      * Leaks a route from one VPN to another. By default, the origin for this leaked route is INTERVPN

@@ -119,6 +119,12 @@ public class InterVpnLinkDataComposite {
         return Optional.of(this.interVpnLinkCfg.getFirstEndpoint().getIpAddress().getValue());
     }
 
+    public Optional<Long> getFirstEndpointLportTag() {
+        return ( !isComplete() || this.interVpnLinkState.getFirstEndpointState().getLportTag() == null )
+                   ? Optional.absent()
+                   : Optional.of(this.interVpnLinkState.getFirstEndpointState().getLportTag());
+    }
+
     public List<BigInteger> getFirstEndpointDpns() {
         return ( !isComplete() || this.interVpnLinkState.getFirstEndpointState().getDpId() == null )
                    ? Collections.<BigInteger>emptyList()
@@ -137,6 +143,12 @@ public class InterVpnLinkDataComposite {
             return Optional.absent();
         }
         return Optional.of(this.interVpnLinkCfg.getSecondEndpoint().getIpAddress().getValue());
+    }
+
+    public Optional<Long> getSecondEndpointLportTag() {
+        return (!isComplete() || this.interVpnLinkState.getSecondEndpointState().getLportTag() == null )
+            ? Optional.absent()
+            : Optional.of(this.interVpnLinkState.getSecondEndpointState().getLportTag());
     }
 
     public List<BigInteger> getSecondEndpointDpns() {
@@ -162,6 +174,17 @@ public class InterVpnLinkDataComposite {
 
         return isFirstEndpointVpnName(vpnName) ? Optional.of(interVpnLinkState.getSecondEndpointState().getLportTag())
                                                : Optional.of(interVpnLinkState.getFirstEndpointState().getLportTag());
+    }
+
+    public String getOtherVpnName(String vpnName) {
+        if ( !isFirstEndpointVpnName(vpnName) && !isSecondEndpointVpnName(vpnName)) {
+            LOG.debug("VPN {} does not participate in InterVpnLink {}", vpnName, getInterVpnLinkName());
+            return null;
+        }
+
+        Optional<String> optOtherVpnName = isFirstEndpointVpnName(vpnName) ? getSecondEndpointVpnUuid()
+                                                                           : getFirstEndpointVpnUuid();
+        return optOtherVpnName.orNull();
     }
 
     public String getOtherEndpoint(String vpnUuid) {
