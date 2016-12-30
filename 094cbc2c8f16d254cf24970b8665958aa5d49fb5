@@ -33,6 +33,24 @@
       "revId": "094cbc2c8f16d254cf24970b8665958aa5d49fb5",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_2daa38d4",
+        "filename": "docs/specs/setup-smac-for-routed-packets-to-virt-endpoints.rst",
+        "patchSetId": 5
+      },
+      "lineNbr": 74,
+      "author": {
+        "id": 4269
+      },
+      "writtenOn": "2016-12-30T11:01:03Z",
+      "side": 1,
+      "message": "Changing mac should not have any side effect. The connection tracking is based on the tuple (layer-3 protocol, source address, destination address, layer-4 protocol, layer-4 key).",
+      "parentUuid": "1a622d24_9240c9a6",
+      "revId": "094cbc2c8f16d254cf24970b8665958aa5d49fb5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
