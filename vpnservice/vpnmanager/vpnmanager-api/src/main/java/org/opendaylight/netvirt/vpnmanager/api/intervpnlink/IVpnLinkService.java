@@ -13,7 +13,7 @@ import org.opendaylight.netvirt.fibmanager.api.RouteOrigin;
 public interface IVpnLinkService {
 
     /**
-     * Leaks a route belonging to a L3VPN to other L3VPN if the neccessary
+     * Leaks a route belonging to a L3VPN to other L3VPN if the necessary
      * circumstances are met, like there is an InterVpnLink linking both L3VPNs
      * and the corresponding leaking flag is active (bgp/static/connected).
      *
