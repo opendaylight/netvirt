@@ -34,7 +34,6 @@ import org.opendaylight.netvirt.vpnmanager.VpnUtil;
 import org.opendaylight.netvirt.vpnmanager.api.intervpnlink.InterVpnLinkCache;
 import org.opendaylight.netvirt.vpnmanager.api.intervpnlink.InterVpnLinkDataComposite;
 import org.opendaylight.netvirt.vpnmanager.utilities.InterfaceUtils;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.tables.table.Flow;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.instruction.list.Instruction;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.FibEntries;
@@ -161,9 +160,9 @@ public class InterVpnLinkUtil {
         if (optOldVpnLinkState.isPresent()) {
             InterVpnLinkState newVpnLinkState =
                 new InterVpnLinkStateBuilder(optOldVpnLinkState.get()).setState(state)
-                    .setFirstEndpointState(newFirstEndpointState)
-                    .setSecondEndpointState(newSecondEndpointState)
-                    .build();
+                            .setFirstEndpointState(newFirstEndpointState)
+                            .setSecondEndpointState(newSecondEndpointState)
+                            .build();
             VpnUtil.syncUpdate(broker, LogicalDatastoreType.CONFIGURATION,
                 InterVpnLinkUtil.getInterVpnLinkStateIid(vpnLinkName), newVpnLinkState);
             InterVpnLinkCache.addInterVpnLinkStateToCaches(newVpnLinkState);
@@ -188,21 +187,24 @@ public class InterVpnLinkUtil {
      *
      * @param broker dataBroker service reference
      * @param mdsalManager MDSAL API accessor
-     * @param interVpnLink Object that holds the needed information about both endpoints of the InterVpnLink.
+     * @param interVpnLinkName Name of the InterVpnLink.
      * @param dpnList The list of DPNs where this flow must be installed
      * @param vpnUuidOtherEndpoint UUID of the other endpoint of the InterVpnLink
      * @param lportTagOfOtherEndpoint Dataplane identifier of the other endpoint of the InterVpnLink
      * @return the list of Futures for each and every flow that has been installed
      */
     public static List<ListenableFuture<Void>> installLPortDispatcherTableFlow(DataBroker broker,
-        IMdsalApiManager mdsalManager, InterVpnLink interVpnLink, List<BigInteger> dpnList, Uuid vpnUuidOtherEndpoint,
-        Long lportTagOfOtherEndpoint) {
+                                                                               IMdsalApiManager mdsalManager,
+                                                                               String interVpnLinkName,
+                                                                               List<BigInteger> dpnList,
+                                                                               String vpnUuidOtherEndpoint,
+                                                                               Long lportTagOfOtherEndpoint) {
         List<ListenableFuture<Void>> result = new ArrayList<>();
-        long vpnId = VpnUtil.getVpnId(broker, vpnUuidOtherEndpoint.getValue());
-        for (BigInteger dpnId : dpnList) {
+        long vpnId = VpnUtil.getVpnId(broker, vpnUuidOtherEndpoint);
+        for ( BigInteger dpnId : dpnList ) {
             // insert into LPortDispatcher table
-            Flow lportDispatcherFlow = buildLPortDispatcherFlow(interVpnLink.getName(), vpnId,
-                lportTagOfOtherEndpoint.intValue());
+            Flow lportDispatcherFlow = buildLPortDispatcherFlow(interVpnLinkName, vpnId,
+                                                                lportTagOfOtherEndpoint.intValue());
             result.add(mdsalManager.installFlow(dpnId, lportDispatcherFlow));
         }
 
@@ -350,6 +352,9 @@ public class InterVpnLinkUtil {
 
     /**
      * Retrieves all configured InterVpnLinks.
+=======
+     * Retrieves all configured InterVpnLinks
+>>>>>>> Cleanup ivpnLink unused code + small modifications
      *
      * @param broker dataBroker service reference
      * @return the list of InterVpnLinks
@@ -411,6 +416,9 @@ public class InterVpnLinkUtil {
 
     /**
      * Leaks a route from one VPN to another. By default, the origin for this leaked route is INTERVPN.
+=======
+     * Leaks a route from one VPN to another. By default, the origin for this leaked route is INTERVPN
+>>>>>>> Cleanup ivpnLink unused code + small modifications
      *
      * @param broker dataBroker service reference
      * @param bgpManager Used to advertise routes to the BGP Router
