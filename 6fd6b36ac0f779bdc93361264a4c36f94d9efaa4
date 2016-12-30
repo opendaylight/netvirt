@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1a622d24_12be7965",
+        "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/impl/DistributedArpService.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 267,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2016-12-30T01:12:47Z",
+      "side": 1,
+      "message": "Comment is used to provide clarification to the corresponding code block. This comment somehow doesn\u0027t give me any clue or context of the problem. I think you can remove it.",
+      "range": {
+        "startLine": 267,
+        "startChar": 0,
+        "endLine": 267,
+        "endChar": 16
+      },
+      "revId": "6fd6b36ac0f779bdc93361264a4c36f94d9efaa4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_f2c01de2",
+        "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/impl/SecurityServicesImpl.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 523,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2016-12-30T01:12:47Z",
+      "side": 1,
+      "message": "This seems like a brute force approach. \n- \u0027getALlNodes\u0027 would do blocking read for all bridge nodes. This is expensive\n- Some of the bridge nodes might not have any VMs, or if there are VMs on the node but they don\u0027t participate in the Security group/rule.\n\nI assume the problem occurs during bulk deletion of VMs.l  Due to the concurrency nature of deletion requests, the node value at line 519 is null because the given interface was deleted by another thread which services another port deletion request.\n\nI think we can resolve this issue by caching the node object associated with the Neutron port in the SecurityGroupCacheManagerImpl class.\n\nreplacing:\n\n private final Map\u003cString, String\u003e securityGroupCache \u003d new ConcurrentHashMap\u003c\u003e();\n\nwith:\n\nprivate final Map\u003cString, Map\u003cString, Node\u003e\u003e securityGroupCache \u003d new ConcurrentHashMap\u003c\u003e();\n\nand modified method: SecurityGroupCacheManger::addToCache(String remoteSgUuid, String portUuid, Node node)\n\nThe Node object that we need to cache is readily available when new interface is created. We simply need to pass it along the method invokes. \n\nThis way, we save a blocking call to mdsal get node if the cache is hit. Also we don\u0027t have to worry that some objects that we need were deleted by other threads.",
+      "revId": "6fd6b36ac0f779bdc93361264a4c36f94d9efaa4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
