@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1a622d24_2d17d852",
+        "filename": "openstack/net-virt-providers/src/main/java/org/opendaylight/netvirt/openstack/netvirt/providers/openflow13/services/VlanResponderService.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2016-12-30T18:54:28Z",
+      "side": 1,
+      "message": "1) Please use thread-safe ConcurrentHashMap.\nI think it is more intuitive to define the map have key as \u0027segmentationId\u0027 and value as set of macaddresses associationing with the segmentationId\nMap\u003cSegmentationId\u003e, Set\u003cMacAddress\u003e\u003e\n\n2) define as final\n\n3) The name \u0027vlanCache\u0027 is not very clear. A better name would be \u0027\u003cPurpose\u003eVlanCache\u0027",
+      "revId": "8d4165146849d54159cb6fec00dd2e9e3770ed86",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_71140a44",
+        "filename": "openstack/net-virt-providers/src/main/java/org/opendaylight/netvirt/openstack/netvirt/providers/openflow13/services/VlanResponderService.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 116,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2016-12-30T18:54:28Z",
+      "side": 1,
+      "message": "1) Please use native variable types (ie boolean) when possible\n2) variable name \u0027isSegmentID\u0027 is not very clear of the meaning.",
+      "revId": "8d4165146849d54159cb6fec00dd2e9e3770ed86",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_510f4e2e",
+        "filename": "openstack/net-virt-providers/src/main/java/org/opendaylight/netvirt/openstack/netvirt/providers/openflow13/services/VlanResponderService.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 199,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2016-12-30T18:54:28Z",
+      "side": 1,
+      "message": "should we check for empty vlancache for this segmentationId only?",
+      "revId": "8d4165146849d54159cb6fec00dd2e9e3770ed86",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
