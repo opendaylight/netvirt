@@ -654,9 +654,9 @@ public class NeutronvpnUtils {
             logger.warn("Invalid Neutron port {}", port);
             return null;
         }
-        String tapId = port.getUuid().getValue().substring(0, 11);
         String portNamePrefix = getPortNamePrefix(port);
         if (portNamePrefix != null) {
+            String tapId = port.getUuid().getValue().substring(0, 11);
             return new StringBuilder().append(portNamePrefix).append(tapId).toString();
         }
         logger.debug("Failed to get prefix for port {}", port.getUuid());

@@ -12,21 +12,26 @@ import static org.opendaylight.netvirt.neutronvpn.NeutronvpnUtils.buildfloatingI
 import com.google.common.base.Optional;
 import com.google.common.collect.Lists;
 import com.google.common.util.concurrent.ListenableFuture;
+
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.Callable;
+
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.NotificationPublishService;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
 import org.opendaylight.genius.datastoreutils.DataStoreJobCoordinator;
+import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.netvirt.elanmanager.api.IElanService;
 import org.opendaylight.netvirt.neutronvpn.api.utils.NeutronConstants;
 import org.opendaylight.netvirt.neutronvpn.api.utils.NeutronUtils;
+import org.opendaylight.ovsdb.utils.mdsal.utils.MdsalUtils;
+import org.opendaylight.ovsdb.utils.southbound.utils.SouthboundUtils;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.iana._if.type.rev140508.L2vlan;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.InterfaceBuilder;
@@ -37,6 +42,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rev
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rev160406.ParentRefs;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rev160406.ParentRefsBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.OdlInterfaceRpcService;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeConnectorId;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.node.NodeConnector;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.InterfaceAcl;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.InterfaceAclBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.interfaces._interface.AllowedAddressPairs;
@@ -59,6 +66,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.por
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.ports.attributes.ports.Port;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.qos.ext.rev160613.QosPortExtension;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.rev150712.Neutron;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.rev150105.OvsdbTerminationPointAugmentation;
+import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.node.TerminationPoint;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -73,13 +82,17 @@ public class NeutronPortChangeListener extends AsyncDataTreeChangeListenerBase<P
     private final NeutronSubnetGwMacResolver gwMacResolver;
     private OdlInterfaceRpcService odlInterfaceRpcService;
     private final IElanService elanService;
+    private final IInterfaceManager interfaceManager;
+    private final MdsalUtils mdsalUtils;
+    private final SouthboundUtils southboundUtils;
 
     public NeutronPortChangeListener(final DataBroker dataBroker,
                                      final NeutronvpnManager nVpnMgr, final NeutronvpnNatManager nVpnNatMgr,
                                      final NotificationPublishService notiPublishService,
                                      final NeutronSubnetGwMacResolver gwMacResolver,
                                      final OdlInterfaceRpcService odlInterfaceRpcService,
-                                     final IElanService elanService) {
+                                     final IElanService elanService,
+                                     final IInterfaceManager interfaceManager) {
         super(Port.class, NeutronPortChangeListener.class);
         this.dataBroker = dataBroker;
         nvpnManager = nVpnMgr;
@@ -88,6 +101,9 @@ public class NeutronPortChangeListener extends AsyncDataTreeChangeListenerBase<P
         this.gwMacResolver = gwMacResolver;
         this.odlInterfaceRpcService = odlInterfaceRpcService;
         this.elanService = elanService;
+        this.interfaceManager = interfaceManager;
+        this.mdsalUtils = new MdsalUtils(dataBroker);
+        this.southboundUtils = new SouthboundUtils(mdsalUtils);
     }
 
 
@@ -626,7 +642,7 @@ public class NeutronPortChangeListener extends AsyncDataTreeChangeListenerBase<P
             if (!optionalInf.isPresent()) {
                 wrtConfigTxn.put(LogicalDatastoreType.CONFIGURATION, interfaceIdentifier, inf);
             } else {
-                LOG.error("Interface {} is already present", infName);
+                LOG.warn("Interface {} is already present", infName);
             }
         } catch (Exception e) {
             LOG.error("failed to create interface {} due to the exception {} ", infName, e.getMessage());
@@ -635,17 +651,14 @@ public class NeutronPortChangeListener extends AsyncDataTreeChangeListenerBase<P
     }
 
     private Interface createInterface(Port port) {
-        String parentRefName = NeutronvpnUtils.getVifPortName(port);
         String interfaceName = port.getUuid().getValue();
         IfL2vlan.L2vlanMode l2VlanMode = IfL2vlan.L2vlanMode.Trunk;
         InterfaceBuilder interfaceBuilder = new InterfaceBuilder();
         IfL2vlanBuilder ifL2vlanBuilder = new IfL2vlanBuilder();
-
-        Network network = NeutronvpnUtils.getNeutronNetwork(dataBroker, port.getNetworkId());
         ifL2vlanBuilder.setL2vlanMode(l2VlanMode);
 
-        if(parentRefName != null) {
-            ParentRefsBuilder parentRefsBuilder = new ParentRefsBuilder().setParentInterface(parentRefName);
+        ParentRefsBuilder parentRefsBuilder = getParentRefsBuilder(port);
+        if (parentRefsBuilder != null) {
             interfaceBuilder.addAugmentation(ParentRefs.class, parentRefsBuilder.build());
         }
 
@@ -678,11 +691,30 @@ public class NeutronPortChangeListener extends AsyncDataTreeChangeListenerBase<P
         }
     }
 
-    private ParentRefsBuilder getParentRefsBuilder(Port update) {
-        String parentRefName = NeutronvpnUtils.getVifPortName(update);
+    private ParentRefsBuilder getParentRefsBuilder(Port port) {
+        String parentRefName = null;
+        String interfaceName = port.getName();
+        TerminationPoint tp = southboundUtils.getTerminationPointByExternalId(interfaceName);
+        if (tp != null) {
+            OvsdbTerminationPointAugmentation ovsdbTp = tp.getAugmentation(OvsdbTerminationPointAugmentation.class);
+            String dpnId = southboundUtils.getDatapathIdFromTerminationPoint(ovsdbTp);
+            if (dpnId == null) {
+                return null;
+            }
+            parentRefName = interfaceManager.getPortNameForInterfaceState(dpnId, ovsdbTp.getName());
+            LOG.debug("Building parent ref for neutron port {}, using parentRefName {} acquired by external ID",
+                    interfaceName, parentRefName);
+        } else {
+            // Attempt to guess the port name by VIF - generally supports tap/vhu without external IDs configured
+            parentRefName = NeutronvpnUtils.getVifPortName(port);
+            LOG.debug("Building parent ref for neutron port {}, using parentRefName {} deducted by VIF type",
+                    interfaceName, parentRefName);
+        }
+
         if (parentRefName != null) {
             return new ParentRefsBuilder().setParentInterface(parentRefName);
         }
+
         return null;
     }
 

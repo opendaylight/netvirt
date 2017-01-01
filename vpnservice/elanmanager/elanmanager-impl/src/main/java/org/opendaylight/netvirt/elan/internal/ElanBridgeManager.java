@@ -18,6 +18,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
+import org.opendaylight.genius.interfacemanager.commons.InterfaceManagerCommonUtils;
 import org.opendaylight.genius.interfacemanager.globals.IfmConstants;
 import org.opendaylight.ovsdb.utils.config.ConfigProperties;
 import org.opendaylight.ovsdb.utils.mdsal.utils.MdsalUtils;
@@ -449,8 +450,8 @@ public class ElanBridgeManager {
             return null;
         }
 
-        return dataPathId + IfmConstants.OF_URI_SEPARATOR
-                + getIntBridgePortNameFor(bridgeNode, providerMappingValue);
+        String portName = getIntBridgePortNameFor(bridgeNode, providerMappingValue);
+        return InterfaceManagerCommonUtils.getDpnPrefixedPortName(dataPathId, portName);
     }
 
     public boolean hasDatapathID(Node node) {
