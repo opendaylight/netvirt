@@ -79,11 +79,6 @@ public class NeutronvpnManagerImpl implements INeutronVpnManager {
     }
 
     @Override
-    public String getVifPortName(Port port) {
-        return NeutronvpnUtils.getVifPortName(port);
-    }
-
-    @Override
     public IpAddress getNeutronSubnetGateway(Uuid subnetId) {
         return nvManager.getNeutronSubnetGateway(subnetId);
     }
