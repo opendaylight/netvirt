@@ -8,9 +8,11 @@
 package org.opendaylight.netvirt.aclservice.listeners;
 
 import java.util.List;
+
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.inject.Singleton;
+
 import org.opendaylight.controller.md.sal.binding.api.ClusteredDataTreeChangeListener;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
@@ -22,11 +24,9 @@ import org.opendaylight.netvirt.aclservice.api.utils.AclInterfaceCacheUtil;
 import org.opendaylight.netvirt.aclservice.utils.AclClusterUtil;
 import org.opendaylight.netvirt.aclservice.utils.AclDataUtil;
 import org.opendaylight.netvirt.aclservice.utils.AclServiceUtils;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Uri;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.InterfacesState;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
-import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.TopologyId;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,9 +38,6 @@ public class AclInterfaceStateListener extends AsyncDataTreeChangeListenerBase<I
     private static final Logger LOG = LoggerFactory.getLogger(AclInterfaceStateListener.class);
 
     /** Our registration. */
-    public static final TopologyId OVSDB_TOPOLOGY_ID = new TopologyId(new Uri("ovsdb:1"));
-    public static final String EXTERNAL_ID_INTERFACE_ID = "iface-id";
-
     private final AclServiceManager aclServiceManger;
     private final AclClusterUtil aclClusterUtil;
     private final DataBroker dataBroker;
