@@ -37,6 +37,7 @@ public class NatInterfaceStateChangeListener
         this.interfaceManager = interfaceManager;
     }
 
+    @Override
     public void init() {
         LOG.info("{} init", getClass().getSimpleName());
         registerListener(LogicalDatastoreType.OPERATIONAL, dataBroker);
@@ -81,7 +82,7 @@ public class NatInterfaceStateChangeListener
                     }
                 }
             } else {
-                LOG.error("Unable to process add for interface {}, "
+                LOG.debug("Unable to process add for interface {} ,"
                     + "since Interface ConfigDS entry absent for the same", interfaceName);
             }
         } catch (Exception e) {
