@@ -16,3 +16,4 @@ Contents:
    ACL Statistics <acl-stats>
    Hairpinning of floating IPs in flat/VLAN provider networks <hairpinning-flat-vlan>
    Quality of Service <qos>
+   IPv6 L3 North-South support for Flat/VLAN based Provider Networks <ipv6-cvr-north-south>
