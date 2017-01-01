@@ -11,3 +11,4 @@ Contents:
 
    Design Specification Template <specs-template>
    Temporary SMAC Learning <temporary-smac-learning>
+   IPv6 Distributed Router for Flat/VLAN based Provider Networks <ipv6-distributed-router>
