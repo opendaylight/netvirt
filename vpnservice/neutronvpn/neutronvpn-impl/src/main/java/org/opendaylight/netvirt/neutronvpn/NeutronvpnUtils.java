@@ -649,45 +649,6 @@ public class NeutronvpnUtils {
         return subnetIdList;
     }
 
-    protected static String getVifPortName(Port port) {
-        if (port == null || port.getUuid() == null) {
-            logger.warn("Invalid Neutron port {}", port);
-            return null;
-        }
-        String tapId = port.getUuid().getValue().substring(0, 11);
-        String portNamePrefix = getPortNamePrefix(port);
-        if (portNamePrefix != null) {
-            return new StringBuilder().append(portNamePrefix).append(tapId).toString();
-        }
-        logger.debug("Failed to get prefix for port {}", port.getUuid());
-        return null;
-    }
-
-    protected static String getPortNamePrefix(Port port) {
-        PortBindingExtension portBinding = port.getAugmentation(PortBindingExtension.class);
-        if (portBinding == null || portBinding.getVifType() == null) {
-            return null;
-        }
-        switch (portBinding.getVifType()) {
-            case NeutronConstants.VIF_TYPE_VHOSTUSER:
-                return NeutronConstants.PREFIX_VHOSTUSER;
-            case NeutronConstants.VIF_TYPE_OVS:
-            case NeutronConstants.VIF_TYPE_DISTRIBUTED:
-            case NeutronConstants.VIF_TYPE_BRIDGE:
-            case NeutronConstants.VIF_TYPE_OTHER:
-            case NeutronConstants.VIF_TYPE_MACVTAP:
-                return NeutronConstants.PREFIX_TAP;
-            case NeutronConstants.VIF_TYPE_UNBOUND:
-            case NeutronConstants.VIF_TYPE_BINDING_FAILED:
-            default:
-                return null;
-        }
-    }
-
-    protected static boolean isPortVifTypeUpdated(Port original, Port updated) {
-        return getPortNamePrefix(original) == null && getPortNamePrefix(updated) != null;
-    }
-
     protected static boolean lock(String lockName) {
         if (locks.get(lockName) != null) {
             synchronized (locks) {
