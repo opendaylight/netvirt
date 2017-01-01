@@ -76,6 +76,11 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
       <version>${genius.version}</version>
     </dependency>
     <dependency>
+      <groupId>org.opendaylight.genius</groupId>
+      <artifactId>interfacemanager-api</artifactId>
+      <version>${genius.version}</version>
+    </dependency>
+    <dependency>
       <groupId>org.opendaylight.ovsdb</groupId>
       <artifactId>southbound-api</artifactId>
       <version>${vpns.ovsdb.version}</version>

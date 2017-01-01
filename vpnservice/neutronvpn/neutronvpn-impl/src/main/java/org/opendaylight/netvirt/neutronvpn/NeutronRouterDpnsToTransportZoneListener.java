@@ -53,13 +53,13 @@ public class NeutronRouterDpnsToTransportZoneListener extends AsyncDataTreeChang
 
     @Override
     protected void update(InstanceIdentifier<RouterDpnList> identifier, RouterDpnList original, RouterDpnList update) {
-        ism.updateTrasportZone(update);
+        ism.updateTransportZone(update);
     }
 
 
     @Override
     protected void add(InstanceIdentifier<RouterDpnList> identifier, RouterDpnList add) {
-        ism.updateTrasportZone(add);
+        ism.updateTransportZone(add);
     }
 
     @Override
