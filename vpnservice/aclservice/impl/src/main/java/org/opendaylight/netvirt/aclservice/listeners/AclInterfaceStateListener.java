@@ -38,9 +38,6 @@ public class AclInterfaceStateListener extends AsyncDataTreeChangeListenerBase<I
     private static final Logger LOG = LoggerFactory.getLogger(AclInterfaceStateListener.class);
 
     /** Our registration. */
-    public static final TopologyId OVSDB_TOPOLOGY_ID = new TopologyId(new Uri("ovsdb:1"));
-    public static final String EXTERNAL_ID_INTERFACE_ID = "iface-id";
-
     private final AclServiceManager aclServiceManger;
     private final AclClusterUtil aclClusterUtil;
     private final DataBroker dataBroker;
