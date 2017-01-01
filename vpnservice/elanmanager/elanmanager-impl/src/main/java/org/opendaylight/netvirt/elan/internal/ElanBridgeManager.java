@@ -7,18 +7,15 @@
  */
 package org.opendaylight.netvirt.elan.internal;
 
-import com.google.common.base.Optional;
-import com.google.common.base.Splitter;
-import com.google.common.base.Strings;
-
 import java.math.BigInteger;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
+
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.genius.interfacemanager.globals.IfmConstants;
+import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
 import org.opendaylight.ovsdb.utils.config.ConfigProperties;
 import org.opendaylight.ovsdb.utils.mdsal.utils.MdsalUtils;
 import org.opendaylight.ovsdb.utils.southbound.utils.SouthboundUtils;
@@ -28,6 +25,10 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.re
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Node;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.google.common.base.Optional;
+import com.google.common.base.Splitter;
+import com.google.common.base.Strings;
 
 /**
  * This class provides functions for creating bridges via OVSDB, specifically the br-int bridge.
@@ -44,16 +45,19 @@ public class ElanBridgeManager {
     private static final int MAX_LINUX_INTERFACE_NAME_LENGTH = 15;
 
     private final MdsalUtils mdsalUtils;
+    private final IInterfaceManager interfaceManager;
     final SouthboundUtils southboundUtils;
     private Random random;
+
 
     /**
      * Construct a new ElanBridgeManager.
      * @param dataBroker DataBroker
      */
-    public ElanBridgeManager(DataBroker dataBroker) {
+    public ElanBridgeManager(DataBroker dataBroker, IInterfaceManager interfaceManager) {
         //TODO: ClusterAware!!!??
         this.mdsalUtils = new MdsalUtils(dataBroker);
+        this.interfaceManager = interfaceManager;
         this.southboundUtils = new SouthboundUtils(mdsalUtils);
         this.random = new Random(System.currentTimeMillis());
     }
@@ -449,8 +453,9 @@ public class ElanBridgeManager {
             return null;
         }
 
-        return dataPathId + IfmConstants.OF_URI_SEPARATOR
-                + getIntBridgePortNameFor(bridgeNode, providerMappingValue);
+        String portName = getIntBridgePortNameFor(bridgeNode, providerMappingValue);
+        String dpIdStr = String.valueOf(dataPathId);
+        return interfaceManager.getPortNameForInterfaceDS(dpIdStr, portName);
     }
 
     public boolean hasDatapathID(Node node) {
