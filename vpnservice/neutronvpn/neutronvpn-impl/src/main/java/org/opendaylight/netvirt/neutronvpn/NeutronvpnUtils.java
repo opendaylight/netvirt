@@ -35,7 +35,6 @@ import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
-import org.opendaylight.netvirt.neutronvpn.api.utils.NeutronConstants;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.VpnInstances;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.VpnInterfaces;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.instances.VpnInstance;
@@ -88,7 +87,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev15060
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.subnetmaps.SubnetmapKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.vpnmaps.VpnMap;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.vpnmaps.VpnMapKey;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.binding.rev150712.PortBindingExtension;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l3.ext.rev150712.NetworkL3Extension;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l3.rev150712.routers.attributes.Routers;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l3.rev150712.routers.attributes.routers.Router;
@@ -651,45 +649,6 @@ public class NeutronvpnUtils {
         }
         LOG.debug("returning from getNeutronRouterSubnetIds for {}", routerId.getValue());
         return subnetIdList;
-    }
-
-    protected static String getVifPortName(Port port) {
-        if (port == null || port.getUuid() == null) {
-            LOG.warn("Invalid Neutron port {}", port);
-            return null;
-        }
-        String tapId = port.getUuid().getValue().substring(0, 11);
-        String portNamePrefix = getPortNamePrefix(port);
-        if (portNamePrefix != null) {
-            return new StringBuilder().append(portNamePrefix).append(tapId).toString();
-        }
-        LOG.debug("Failed to get prefix for port {}", port.getUuid());
-        return null;
-    }
-
-    protected static String getPortNamePrefix(Port port) {
-        PortBindingExtension portBinding = port.getAugmentation(PortBindingExtension.class);
-        if (portBinding == null || portBinding.getVifType() == null) {
-            return null;
-        }
-        switch (portBinding.getVifType()) {
-            case NeutronConstants.VIF_TYPE_VHOSTUSER:
-                return NeutronConstants.PREFIX_VHOSTUSER;
-            case NeutronConstants.VIF_TYPE_OVS:
-            case NeutronConstants.VIF_TYPE_DISTRIBUTED:
-            case NeutronConstants.VIF_TYPE_BRIDGE:
-            case NeutronConstants.VIF_TYPE_OTHER:
-            case NeutronConstants.VIF_TYPE_MACVTAP:
-                return NeutronConstants.PREFIX_TAP;
-            case NeutronConstants.VIF_TYPE_UNBOUND:
-            case NeutronConstants.VIF_TYPE_BINDING_FAILED:
-            default:
-                return null;
-        }
-    }
-
-    protected static boolean isPortVifTypeUpdated(Port original, Port updated) {
-        return getPortNamePrefix(original) == null && getPortNamePrefix(updated) != null;
     }
 
     // TODO Clean up the exception handling
