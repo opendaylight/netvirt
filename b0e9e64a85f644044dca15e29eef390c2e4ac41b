@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1a622d24_74a4f8a5",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/SubnetmapListener.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 139,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2017-01-01T13:37:55Z",
+      "side": 1,
+      "message": "You assume there would never be a case where ports will be added and removed at the same Subnetmap update. Is this assumption always correct?\nWouldn\u0027t it be safer to iterate over the results of\nnewPortList.removeAll(oldPortList)\noldPortList.removeAll(newPortList)\nand dispatch both PortAdded, PortRemoved notifications accordingly?",
+      "revId": "b0e9e64a85f644044dca15e29eef390c2e4ac41b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
