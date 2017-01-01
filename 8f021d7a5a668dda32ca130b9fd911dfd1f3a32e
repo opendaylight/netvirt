@@ -277,6 +277,24 @@
       "revId": "8f021d7a5a668dda32ca130b9fd911dfd1f3a32e",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_942b9493",
+        "filename": "docs/specs/setup-smac-l3forwarded-packets.rst",
+        "patchSetId": 2
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2017-01-01T19:31:53Z",
+      "side": 1,
+      "message": "Yes @Vivek, ODL can allocate the HOST_MAC just like how Neutron does. \nMy concern was about the uniqueness of the generated MAC addresses. \nOpenStack uses a default base_mac [1] from which MAC addresses are generated. \nDo you have any idea behind this default base_mac? Any similar base_mac that we can use in ODL? \n\n@Vivek, I\u0027ve proposed a spec [2] where the HOST_MAC is discussed. We can continue the discussion over there. \nAppreciate your review comments.\n\n[1] https://github.com/openstack/neutron/blob/master/neutron/conf/common.py#L43 \n[2] https://git.opendaylight.org/gerrit/#/c/49909/",
+      "parentUuid": "1a622d24_d707d31a",
+      "revId": "8f021d7a5a668dda32ca130b9fd911dfd1f3a32e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
