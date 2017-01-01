@@ -33,6 +33,7 @@
   <bean id="elanBridgeManager" class="org.opendaylight.netvirt.elan.internal.ElanBridgeManager">
     <argument ref="dataBroker" />
     <argument ref="elanConfig" />
+    <argument ref="interfaceManager" />
   </bean>
 
   <bean id="elanForwardingEntriesHandler" class="org.opendaylight.netvirt.elan.utils.ElanForwardingEntriesHandler">

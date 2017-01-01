@@ -51,13 +51,13 @@ public class InterfaceStateToTransportZoneListener
 
     @Override
     protected void update(InstanceIdentifier<Interface> identifier, Interface original, Interface update) {
-        ism.updateTrasportZone(update);
+        ism.updateTransportZone(update);
     }
 
 
     @Override
     protected void add(InstanceIdentifier<Interface> identifier, Interface add) {
-        ism.updateTrasportZone(add);
+        ism.updateTransportZone(add);
     }
 
     @Override

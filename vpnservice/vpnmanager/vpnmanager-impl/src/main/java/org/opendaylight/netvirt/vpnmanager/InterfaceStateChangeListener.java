@@ -22,6 +22,7 @@ import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev14081
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.iana._if.type.rev140508.Tunnel;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.InterfacesState;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface.OperStatus;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -59,11 +60,10 @@ public class InterfaceStateChangeListener
     // TODO Clean up the exception handling
     @SuppressWarnings("checkstyle:IllegalCatch")
     protected void add(InstanceIdentifier<Interface> identifier, Interface intrf) {
-        LOG.trace("Received interface {} add event", intrf);
-        LOG.info("Received interface {} add event", intrf.getName());
         try {
             final String interfaceName = intrf.getName();
-            LOG.info("Received interface add event for interface {} ", interfaceName);
+            LOG.info("Detected interface add event for interface {}", interfaceName);
+            LOG.trace("Detected interface add event for interface {} - {}", interfaceName, intrf);
             org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface
                     configInterface = InterfaceUtils.getInterface(dataBroker, interfaceName);
             if (configInterface != null) {
@@ -104,8 +104,8 @@ public class InterfaceStateChangeListener
                     }
                 }
             } else {
-                LOG.error("Unable to process add for interface {},"
-                    + "since Interface ConfigDS entry absent for the same", interfaceName);
+                LOG.debug("Unable to process add for interface {} ,"
+                        + "since Interface ConfigDS entry absent for the same", interfaceName);
             }
         } catch (Exception e) {
             LOG.error("Exception caught in Interface Operational State Up event", e);
@@ -117,10 +117,9 @@ public class InterfaceStateChangeListener
     @SuppressWarnings("checkstyle:IllegalCatch")
     protected void remove(InstanceIdentifier<Interface> identifier, Interface intrf) {
         final String interfaceName = intrf.getName();
-        LOG.trace("Received interface {} down event", intrf);
-        LOG.info("Received interface {} remove event", interfaceName);
+        LOG.info("Detected interface remove event for interface {}", interfaceName);
+        LOG.trace("Detected interface remove event for interface {} - {}", interfaceName, intrf);
         try {
-            LOG.info("Received port DOWN event for interface {} ", interfaceName);
             if (intrf != null && intrf.getType() != null && !intrf.getType().equals(Tunnel.class)) {
                 BigInteger dpId;
                 InstanceIdentifier<VpnInterface> id = VpnUtil.getVpnInterfaceIdentifier(interfaceName);
@@ -164,12 +163,17 @@ public class InterfaceStateChangeListener
     @Override
     protected void update(InstanceIdentifier<Interface> identifier,
         Interface original, Interface update) {
-        LOG.trace("Operation Interface update event - Old: {}, New: {}", original, update);
+        final String interfaceName = update.getName();
+        LOG.info("Detected interface update event for interface {}", interfaceName);
+        LOG.trace("Detected interface update event for interface {} - Old: {}, New: {}",
+                interfaceName, original, update);
         try {
-            final String interfaceName = update.getName();
-            if (original.getOperStatus().equals(Interface.OperStatus.Unknown)
-                || update.getOperStatus().equals(Interface.OperStatus.Unknown)) {
-                LOG.debug("Interface {} state change is from/to UNKNOWN. Ignoring the update event.", interfaceName);
+            OperStatus originalOperStatus = original.getOperStatus();
+            OperStatus updateOperStatus = update.getOperStatus();
+            if (originalOperStatus.equals(Interface.OperStatus.Unknown)
+                  || updateOperStatus.equals(Interface.OperStatus.Unknown)) {
+                LOG.debug("Interface {} state change is from/to null/UNKNOWN. Ignoring the update event.",
+                        interfaceName);
                 return;
             }
             final BigInteger dpnId = InterfaceUtils.getDpIdFromInterface(update);
