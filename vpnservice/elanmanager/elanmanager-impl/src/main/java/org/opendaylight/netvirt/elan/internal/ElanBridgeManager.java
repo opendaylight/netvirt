@@ -16,10 +16,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
-import javax.inject.Inject;
-import javax.inject.Singleton;
+
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.genius.interfacemanager.globals.IfmConstants;
+import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
 import org.opendaylight.ovsdb.utils.config.ConfigProperties;
 import org.opendaylight.ovsdb.utils.mdsal.utils.MdsalUtils;
 import org.opendaylight.ovsdb.utils.southbound.utils.SouthboundUtils;
@@ -35,7 +34,6 @@ import org.slf4j.LoggerFactory;
  * Note and TODO: br-ex is temporary. vpnservice does not require it but for the time being it is
  * left here because devstack expects it.
  */
-@Singleton
 public class ElanBridgeManager {
     private static final Logger LOG = LoggerFactory.getLogger(ElanBridgeManager.class);
 
@@ -46,17 +44,19 @@ public class ElanBridgeManager {
     private static final int MAX_LINUX_INTERFACE_NAME_LENGTH = 15;
 
     private final MdsalUtils mdsalUtils;
-    /* TODO private */ final SouthboundUtils southboundUtils;
+    private final IInterfaceManager interfaceManager;
+    final SouthboundUtils southboundUtils;
     private final Random random;
+
 
     /**
      * Construct a new ElanBridgeManager.
      * @param dataBroker DataBroker
      */
-    @Inject
-    public ElanBridgeManager(DataBroker dataBroker) {
+    public ElanBridgeManager(DataBroker dataBroker, IInterfaceManager interfaceManager) {
         //TODO: ClusterAware!!!??
         this.mdsalUtils = new MdsalUtils(dataBroker);
+        this.interfaceManager = interfaceManager;
         this.southboundUtils = new SouthboundUtils(mdsalUtils);
         this.random = new Random(System.currentTimeMillis());
     }
@@ -455,8 +455,9 @@ public class ElanBridgeManager {
             return null;
         }
 
-        return dataPathId + IfmConstants.OF_URI_SEPARATOR
-                + getIntBridgePortNameFor(bridgeNode, providerMappingValue);
+        String portName = getIntBridgePortNameFor(bridgeNode, providerMappingValue);
+        String dpIdStr = String.valueOf(dataPathId);
+        return interfaceManager.getPortNameForInterfaceDS(dpIdStr, portName);
     }
 
     public boolean hasDatapathID(Node node) {
