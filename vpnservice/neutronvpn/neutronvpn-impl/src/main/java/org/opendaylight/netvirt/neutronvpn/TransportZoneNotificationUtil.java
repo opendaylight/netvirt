@@ -11,6 +11,7 @@ import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
@@ -19,6 +20,7 @@ import org.opendaylight.ovsdb.utils.southbound.utils.SouthboundUtils;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpPrefix;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.Interfaces;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.InterfacesState;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.meta.rev160406.BridgeRefInfo;
@@ -52,6 +54,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.rev150712.Neutron;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.rev150105.OvsdbBridgeAugmentation;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Node;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.opendaylight.yangtools.yang.binding.InstanceIdentifier.InstanceIdentifierBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -87,7 +90,7 @@ public class TransportZoneNotificationUtil {
         BigInteger dpid = entry.getDpid();
         Set<RouterDpnList> allRouterDpnList = NeutronvpnUtils.getAllRouterDpnList(dataBroker, dpid);
         for (RouterDpnList routerDpnList : allRouterDpnList) {
-            updateTrasportZone(routerDpnList);
+            updateTransportZone(routerDpnList);
         }
     }
 
@@ -99,7 +102,7 @@ public class TransportZoneNotificationUtil {
      */
     // TODO Clean up the exception handling
     @SuppressWarnings("checkstyle:IllegalCatch")
-    public void updateTrasportZone(Interface inter) {
+    public void updateTransportZone(Interface inter) {
         List<Port> ports = getPortsFromInterface(inter);
         //supports VPN aware VMs (multiple ports for one interface)
         for (Port port : ports) {
@@ -110,8 +113,8 @@ public class TransportZoneNotificationUtil {
                 }
 
                 String subnetIp = ALL_SUBNETS;
-
                 BigInteger dpnId = getDpnIdFromInterfaceState(inter);
+
 
                 InstanceIdentifier<TransportZone> inst = InstanceIdentifier.create(TransportZones.class)
                         .child(TransportZone.class, new TransportZoneKey(port.getNetworkId().getValue()));
@@ -133,7 +136,7 @@ public class TransportZoneNotificationUtil {
 
     // TODO Clean up the exception handling
     @SuppressWarnings("checkstyle:IllegalCatch")
-    public void updateTrasportZone(RouterDpnList routerDpnList) {
+    public void updateTransportZone(RouterDpnList routerDpnList) {
         try {
             InstanceIdentifier<TransportZone> inst = InstanceIdentifier.create(TransportZones.class)
                 .child(TransportZone.class, new TransportZoneKey(routerDpnList.getRouterId()));

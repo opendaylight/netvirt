@@ -11,14 +11,17 @@ import static org.opendaylight.netvirt.neutronvpn.NeutronvpnUtils.buildfloatingI
 
 import com.google.common.base.Optional;
 import com.google.common.util.concurrent.ListenableFuture;
+
 import java.util.ArrayList;
 import java.util.List;
+
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.NotificationPublishService;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
 import org.opendaylight.genius.datastoreutils.DataStoreJobCoordinator;
+import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.netvirt.elanmanager.api.IElanService;
@@ -31,8 +34,6 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rev160406.IfL2vlan;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rev160406.IfL2vlanBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rev160406.ParentRefs;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rev160406.ParentRefsBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.OdlInterfaceRpcService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.InterfaceAcl;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.InterfaceAclBuilder;
@@ -189,13 +190,11 @@ public class NeutronPortChangeListener extends AsyncDataTreeChangeListenerBase<P
             }
         }
 
-        // check if VIF type updated as part of port binding
         // check if port security enabled/disabled as part of port update
-        boolean isPortVifTypeUpdated = NeutronvpnUtils.isPortVifTypeUpdated(original, update);
         boolean origSecurityEnabled = NeutronvpnUtils.getPortSecurityEnabled(original);
         boolean updatedSecurityEnabled = NeutronvpnUtils.getPortSecurityEnabled(update);
 
-        if (isPortVifTypeUpdated || origSecurityEnabled || updatedSecurityEnabled) {
+        if (origSecurityEnabled || updatedSecurityEnabled) {
             InstanceIdentifier interfaceIdentifier = NeutronvpnUtils.buildVlanInterfaceIdentifier(portName);
             final DataStoreJobCoordinator portDataStoreCoordinator = DataStoreJobCoordinator.getInstance();
             portDataStoreCoordinator.enqueueJob("PORT- " + portName, () -> {
@@ -205,10 +204,6 @@ public class NeutronPortChangeListener extends AsyncDataTreeChangeListenerBase<P
                             .CONFIGURATION, interfaceIdentifier);
                     if (optionalInf.isPresent()) {
                         InterfaceBuilder interfaceBuilder = new InterfaceBuilder(optionalInf.get());
-                        if (isPortVifTypeUpdated && getParentRefsBuilder(update) != null) {
-                            interfaceBuilder.addAugmentation(ParentRefs.class,
-                                getParentRefsBuilder(update).build());
-                        }
                         if (origSecurityEnabled || updatedSecurityEnabled) {
                             InterfaceAcl infAcl = handlePortSecurityUpdated(original, update,
                                     origSecurityEnabled, updatedSecurityEnabled, interfaceBuilder).build();
@@ -506,7 +501,7 @@ public class NeutronPortChangeListener extends AsyncDataTreeChangeListenerBase<P
             if (!optionalInf.isPresent()) {
                 wrtConfigTxn.put(LogicalDatastoreType.CONFIGURATION, interfaceIdentifier, inf);
             } else {
-                LOG.error("Interface {} is already present", infName);
+                LOG.warn("Interface {} is already present", infName);
             }
         } catch (Exception e) {
             LOG.error("failed to create interface {} due to the exception {} ", infName, e.getMessage());
@@ -515,19 +510,11 @@ public class NeutronPortChangeListener extends AsyncDataTreeChangeListenerBase<P
     }
 
     private Interface createInterface(Port port) {
-        String parentRefName = NeutronvpnUtils.getVifPortName(port);
         String interfaceName = port.getUuid().getValue();
         IfL2vlan.L2vlanMode l2VlanMode = IfL2vlan.L2vlanMode.Trunk;
         InterfaceBuilder interfaceBuilder = new InterfaceBuilder();
         IfL2vlanBuilder ifL2vlanBuilder = new IfL2vlanBuilder();
-
-        Network network = NeutronvpnUtils.getNeutronNetwork(dataBroker, port.getNetworkId());
         ifL2vlanBuilder.setL2vlanMode(l2VlanMode);
-
-        if (parentRefName != null) {
-            ParentRefsBuilder parentRefsBuilder = new ParentRefsBuilder().setParentInterface(parentRefName);
-            interfaceBuilder.addAugmentation(ParentRefs.class, parentRefsBuilder.build());
-        }
 
         interfaceBuilder.setEnabled(true).setName(interfaceName).setType(L2vlan.class)
                 .addAugmentation(IfL2vlan.class, ifL2vlanBuilder.build());
@@ -558,14 +545,6 @@ public class NeutronPortChangeListener extends AsyncDataTreeChangeListenerBase<P
         } catch (Exception e) {
             LOG.error("Failed to delete interface {} due to the exception {}", name, e.getMessage());
         }
-    }
-
-    private ParentRefsBuilder getParentRefsBuilder(Port update) {
-        String parentRefName = NeutronvpnUtils.getVifPortName(update);
-        if (parentRefName != null) {
-            return new ParentRefsBuilder().setParentInterface(parentRefName);
-        }
-        return null;
     }
 
     private void createElanInterface(Port port, String name, WriteTransaction wrtConfigTxn) {
