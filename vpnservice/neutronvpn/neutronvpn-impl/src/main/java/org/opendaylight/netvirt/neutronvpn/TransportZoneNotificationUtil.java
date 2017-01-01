@@ -11,6 +11,7 @@ import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
@@ -19,6 +20,7 @@ import org.opendaylight.ovsdb.utils.southbound.utils.SouthboundUtils;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpPrefix;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.Interfaces;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.InterfacesState;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.meta.rev160406.BridgeRefInfo;
@@ -40,12 +42,10 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeCon
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.neutron.router.dpns.RouterDpnList;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.neutron.router.dpns.router.dpn.list.DpnVpninterfacesList;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.config.rev160806.NeutronvpnConfig;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.subnetmaps.Subnetmap;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.networks.rev150712.NetworkTypeVxlan;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.networks.rev150712.networks.attributes.Networks;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.networks.rev150712.networks.attributes.networks.Network;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.networks.rev150712.networks.attributes.networks.NetworkKey;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.port.attributes.FixedIps;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.ports.attributes.Ports;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.ports.attributes.ports.Port;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.ports.attributes.ports.PortKey;
@@ -53,6 +53,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.rev150712.Neutron;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.rev150105.OvsdbBridgeAugmentation;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Node;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.opendaylight.yangtools.yang.binding.InstanceIdentifier.InstanceIdentifierBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -88,7 +89,7 @@ public class TransportZoneNotificationUtil {
         BigInteger dpid = entry.getDpid();
         Set<RouterDpnList> allRouterDpnList = NeutronvpnUtils.getAllRouterDpnList(dataBroker, dpid);
         for (RouterDpnList routerDpnList : allRouterDpnList) {
-            updateTrasportZone(routerDpnList);
+            updateTransportZone(routerDpnList);
         }
     }
 
@@ -98,39 +99,36 @@ public class TransportZoneNotificationUtil {
      * If the TEP of the port's node exists in the TZ, it will not be added.
      * @param inter - the interface to update
      */
-    public void updateTrasportZone(Interface inter) {
-        List<Port> ports = getPortsFromInterface(inter);
-        //supports VPN aware VMs (multiple ports for one interface)
-        for (Port port : ports) {
-            try {
-
-                if (!checkIfVxlanNetwork(port)) {
-                    continue;
-                }
-
-                String subnetIp = ALL_SUBNETS;
-
-                BigInteger dpnId = getDpnIdFromInterfaceState(inter);
-
-                InstanceIdentifier<TransportZone> inst = InstanceIdentifier.create(TransportZones.class)
-                        .child(TransportZone.class, new TransportZoneKey(port.getNetworkId().getValue()));
-                TransportZone zone = mdsalUtils.read(LogicalDatastoreType.CONFIGURATION, inst);
-
-                if (zone == null) {
-                    zone = createZone(subnetIp, port.getNetworkId().getValue());
-                }
-
-                if (addVtep(zone, subnetIp, dpnId) > 0) {
-                    addTransportZone(zone, inter.getName());
-                }
-
-            } catch (Exception e) {
-                LOG.warn("failed to add tunnels on interface added to subnet {}. ", inter, e);
+    public void updateTransportZone(Interface inter) {
+        Port port = getNeutronPortForInterface(inter);
+        // supports VPN aware VMs (multiple ports for one interface) since for each neutron port an interface-state
+        // with the same name will also be created
+        try {
+            if (!checkIfVxlanNetwork(port)) {
+                return;
             }
+
+            String subnetIp = ALL_SUBNETS;
+            BigInteger dpnId = getDpnIdFromInterfaceState(inter);
+
+            InstanceIdentifier<TransportZone> inst = InstanceIdentifier.create(TransportZones.class)
+                    .child(TransportZone.class, new TransportZoneKey(port.getNetworkId().getValue()));
+            TransportZone zone = mdsalUtils.read(LogicalDatastoreType.CONFIGURATION, inst);
+
+            if (zone == null) {
+                zone = createZone(subnetIp, port.getNetworkId().getValue());
+            }
+
+            if (addVtep(zone, subnetIp, dpnId) > 0) {
+                addTransportZone(zone, inter.getName());
+            }
+
+        } catch (Exception e) {
+            LOG.warn("failed to add tunnels on interface added to subnet {}. ", inter, e);
         }
     }
 
-    public void updateTrasportZone(RouterDpnList routerDpnList) {
+    public void updateTransportZone(RouterDpnList routerDpnList) {
         try{
             InstanceIdentifier<TransportZone> inst = InstanceIdentifier.create(TransportZones.class).
                     child(TransportZone.class, new TransportZoneKey(routerDpnList.getRouterId()));
@@ -189,41 +187,18 @@ public class TransportZoneNotificationUtil {
      * @param interfaceState - interface state to update
      * @return - list of ports bound to interface
      */
-    private List<Port> getPortsFromInterface(Interface interfaceState) {
-        String physPortId = getPortFromInterfaceName(interfaceState.getName());
-        List<Port> portsList = new ArrayList<>();
+    private Port getNeutronPortForInterface(Interface interfaceState) {
+        String portName = getPortFromInterfaceName(interfaceState.getName());
+        Uuid portUid = new Uuid(portName);
+        InstanceIdentifier<Port> pathPort = InstanceIdentifier.create(Neutron.class).child(Ports.class)
+                .child(Port.class, new PortKey(portUid));
+        Port port = mdsalUtils.read(LogicalDatastoreType.CONFIGURATION, pathPort);
 
-        InstanceIdentifier<Interfaces> interPath = InstanceIdentifier.create(Interfaces.class);
-        Interfaces interfaces = mdsalUtils.read(LogicalDatastoreType.CONFIGURATION, interPath);
-        if (interfaces == null) {
-            LOG.error("No interfaces in configuration");
-            return portsList;
-        }
-        List<org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces
-            .Interface> inters = interfaces.getInterface();
-
-        // take all interfaces with parent-interface with physPortId name
-        for (org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces
-                .Interface inter : inters) {
-            ParentRefs parent = inter.getAugmentation(ParentRefs.class);
-            if (parent == null || !physPortId.equals(parent.getParentInterface())) {
-                continue;
-            }
-            String parentInt = inter.getName();
-            Uuid portUid = new Uuid(parentInt);
-            InstanceIdentifier<Port> pathPort = InstanceIdentifier.create(Neutron.class).child(Ports.class)
-                    .child(Port.class, new PortKey(portUid));
-            Port port = mdsalUtils.read(LogicalDatastoreType.CONFIGURATION, pathPort);
-
-            if (port == null) {
-                LOG.debug("got Interface State of non NeutronPort instance " + physPortId);
-                continue;
-            }
-
-            portsList.add(port);
+        if (port == null) {
+            LOG.debug("got Interface State of non NeutronPort instance " + portName);
         }
 
-        return portsList;
+        return port;
     }
 
 
