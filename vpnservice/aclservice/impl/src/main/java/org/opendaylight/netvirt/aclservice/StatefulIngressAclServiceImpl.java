@@ -15,7 +15,6 @@ import java.util.Map;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.genius.mdsalutil.ActionInfo;
 import org.opendaylight.genius.mdsalutil.InstructionInfo;
-import org.opendaylight.genius.mdsalutil.InstructionType;
 import org.opendaylight.genius.mdsalutil.MatchFieldType;
 import org.opendaylight.genius.mdsalutil.MatchInfo;
 import org.opendaylight.genius.mdsalutil.MatchInfoBase;
@@ -23,6 +22,7 @@ import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.genius.mdsalutil.NxMatchFieldType;
 import org.opendaylight.genius.mdsalutil.NxMatchInfo;
 import org.opendaylight.genius.mdsalutil.actions.ActionNxConntrack;
+import org.opendaylight.genius.mdsalutil.instructions.InstructionApplyActions;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.netvirt.aclservice.api.AclServiceManager.Action;
 import org.opendaylight.netvirt.aclservice.api.AclServiceManager.MatchCriteria;
@@ -127,7 +127,7 @@ public class StatefulIngressAclServiceImpl extends AbstractIngressAclServiceImpl
 
             Long elanTag = AclServiceUtils.getElanIdFromInterface(portId, dataBroker);
             actionsInfos.add(new ActionNxConntrack(2, 0, 0, elanTag.intValue(), NwConstants.EGRESS_ACL_FILTER_TABLE));
-            instructions.add(new InstructionInfo(InstructionType.apply_actions, actionsInfos));
+            instructions.add(new InstructionApplyActions(actionsInfos));
             String flowName = "Ingress_Fixed_Conntrk_" + dpId + "_" + attachMac + "_"
                     + String.valueOf(attachIp.getValue()) + "_" + flowId;
             syncFlow(dpId, NwConstants.EGRESS_ACL_TABLE, flowName, AclConstants.PROTO_MATCH_PRIORITY, "ACL", 0, 0,

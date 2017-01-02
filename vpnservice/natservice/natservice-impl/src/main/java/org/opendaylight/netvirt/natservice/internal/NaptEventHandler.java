@@ -23,7 +23,6 @@ import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
 import org.opendaylight.genius.mdsalutil.ActionInfo;
 import org.opendaylight.genius.mdsalutil.FlowEntity;
 import org.opendaylight.genius.mdsalutil.InstructionInfo;
-import org.opendaylight.genius.mdsalutil.InstructionType;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.mdsalutil.MatchFieldType;
 import org.opendaylight.genius.mdsalutil.MatchInfo;
@@ -40,6 +39,9 @@ import org.opendaylight.genius.mdsalutil.actions.ActionSetTcpDestinationPort;
 import org.opendaylight.genius.mdsalutil.actions.ActionSetTcpSourcePort;
 import org.opendaylight.genius.mdsalutil.actions.ActionSetUdpDestinationPort;
 import org.opendaylight.genius.mdsalutil.actions.ActionSetUdpSourcePort;
+import org.opendaylight.genius.mdsalutil.instructions.InstructionApplyActions;
+import org.opendaylight.genius.mdsalutil.instructions.InstructionGotoTable;
+import org.opendaylight.genius.mdsalutil.instructions.InstructionWriteMetadata;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.genius.mdsalutil.packet.Ethernet;
 import org.opendaylight.genius.mdsalutil.packet.IPProtocols;
@@ -359,8 +361,8 @@ public class NaptEventHandler {
                     portActionInfo = new ActionSetUdpSourcePort(port);
                 }
                 // reset the split-horizon bit to allow traffic from tunnel to be sent back to the provider port
-                instructionInfo.add(new InstructionInfo(InstructionType.write_metadata,
-                        new BigInteger[]{MetaDataUtil.getVpnIdMetadata(vpnId), MetaDataUtil.METADATA_MASK_VRFID.or(MetaDataUtil.METADATA_MASK_SH_FLAG)}));
+                instructionInfo.add(new InstructionWriteMetadata(
+                        MetaDataUtil.getVpnIdMetadata(vpnId), MetaDataUtil.METADATA_MASK_VRFID.or(MetaDataUtil.METADATA_MASK_SH_FLAG)));
                 break;
 
             case NwConstants.INBOUND_NAPT_TABLE:
@@ -370,8 +372,8 @@ public class NaptEventHandler {
                 } else if (protocol == NAPTEntryEvent.Protocol.UDP) {
                     portActionInfo = new ActionSetUdpDestinationPort(port);
                 }
-                instructionInfo.add(new InstructionInfo(InstructionType.write_metadata,
-                        new BigInteger[]{MetaDataUtil.getVpnIdMetadata(segmentId), MetaDataUtil.METADATA_MASK_VRFID}));
+                instructionInfo.add(new InstructionWriteMetadata(
+                        MetaDataUtil.getVpnIdMetadata(segmentId), MetaDataUtil.METADATA_MASK_VRFID));
                 break;
 
             default:
@@ -385,8 +387,8 @@ public class NaptEventHandler {
             listActionInfo.add(macActionInfo);
             LOG.debug("NAT Service : External GW MAC Address {} is found  ", macActionInfo);
         }
-        instructionInfo.add(new InstructionInfo(InstructionType.apply_actions, listActionInfo));
-        instructionInfo.add(new InstructionInfo(InstructionType.goto_table, new long[] { NwConstants.NAPT_PFIB_TABLE}));
+        instructionInfo.add(new InstructionApplyActions(listActionInfo));
+        instructionInfo.add(new InstructionGotoTable(NwConstants.NAPT_PFIB_TABLE));
 
         return instructionInfo;
     }
