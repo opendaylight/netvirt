@@ -27,13 +27,13 @@ import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.mdsalutil.ActionInfo;
 import org.opendaylight.genius.mdsalutil.FlowEntity;
 import org.opendaylight.genius.mdsalutil.InstructionInfo;
-import org.opendaylight.genius.mdsalutil.InstructionType;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.mdsalutil.MatchFieldType;
 import org.opendaylight.genius.mdsalutil.MatchInfo;
 import org.opendaylight.genius.mdsalutil.MetaDataUtil;
 import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.genius.mdsalutil.actions.ActionPuntToController;
+import org.opendaylight.genius.mdsalutil.instructions.InstructionApplyActions;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.genius.mdsalutil.packet.IPProtocols;
 import org.opendaylight.genius.utils.ServiceIndex;
@@ -341,8 +341,7 @@ public class Ipv6ServiceUtils {
         List<InstructionInfo> instructions = new ArrayList<>();
         List<ActionInfo> actionsInfos = new ArrayList<>();
         actionsInfos.add(new ActionPuntToController());
-        instructions.add(new InstructionInfo(InstructionType.apply_actions,
-                actionsInfos));
+        instructions.add(new InstructionApplyActions(actionsInfos));
         FlowEntity rsFlowEntity = MDSALUtil.buildFlowEntity(dpId, tableId,
                 getIPv6FlowRef(dpId, elanTag, ipv6Address),Ipv6Constants.DEFAULT_FLOW_PRIORITY, "IPv6NS",
                 0, 0, NwConstants.COOKIE_IPV6_TABLE, neighborSolicitationMatch, instructions);
@@ -365,8 +364,7 @@ public class Ipv6ServiceUtils {
         List<ActionInfo> actionsInfos = new ArrayList<>();
         // Punt to controller
         actionsInfos.add(new ActionPuntToController());
-        instructions.add(new InstructionInfo(InstructionType.apply_actions,
-                actionsInfos));
+        instructions.add(new InstructionApplyActions(actionsInfos));
         FlowEntity rsFlowEntity = MDSALUtil.buildFlowEntity(dpId, tableId,
                 getIPv6FlowRef(dpId, elanTag, "IPv6RS"),Ipv6Constants.DEFAULT_FLOW_PRIORITY, "IPv6RS", 0, 0,
                 NwConstants.COOKIE_IPV6_TABLE, routerSolicitationMatch, instructions);

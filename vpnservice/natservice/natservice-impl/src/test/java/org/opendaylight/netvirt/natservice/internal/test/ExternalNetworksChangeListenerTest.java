@@ -30,12 +30,12 @@ import org.opendaylight.genius.mdsalutil.BucketInfo;
 import org.opendaylight.genius.mdsalutil.FlowEntity;
 import org.opendaylight.genius.mdsalutil.GroupEntity;
 import org.opendaylight.genius.mdsalutil.InstructionInfo;
-import org.opendaylight.genius.mdsalutil.InstructionType;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.mdsalutil.MatchFieldType;
 import org.opendaylight.genius.mdsalutil.MatchInfo;
 import org.opendaylight.genius.mdsalutil.actions.ActionGroup;
 import org.opendaylight.genius.mdsalutil.actions.ActionOutput;
+import org.opendaylight.genius.mdsalutil.instructions.InstructionApplyActions;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.netvirt.bgpmanager.api.IBgpManager;
 import org.opendaylight.netvirt.natservice.internal.ExternalNetworksChangeListener;
@@ -119,7 +119,7 @@ public class ExternalNetworksChangeListenerTest {
         List<InstructionInfo> instructions = new ArrayList<>();
         List<ActionInfo> actionsInfos = new ArrayList<>();
         actionsInfos.add(new ActionGroup(groupId));
-        instructions.add(new InstructionInfo(InstructionType.apply_actions, actionsInfos));
+        instructions.add(new InstructionApplyActions(actionsInfos));
 
 
         String flowRef =  new StringBuffer().append(SNAT_FLOWID_PREFIX).append(dpnId).append(FLOWID_SEPARATOR).
