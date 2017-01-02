@@ -1492,9 +1492,21 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
         String routerName = router.getRouterName();
         try {
             Long routerId = NatUtil.getVpnId(dataBroker, routerName);
+            //Use the NaptMananager removeMapping API to remove the entire list of IP addresses maintained for the router ID.
+            LOG.debug("NAT Service : Remove the Internal to external IP address maintained for the router ID {} in the DS", routerId);
+            naptManager.removeMapping(routerId);
+
+            if (routerFlag) {
+                removeNaptSwitch(routerName);
+            } else {
+                updateNaptSwitch(routerName, BigInteger.ZERO);
+            }
+
+            LOG.debug("NAT Service : Remove the ExternalCounter model for the router ID {}", routerId);
+            naptManager.removeExternalCounter(routerId);
 
             LOG.debug("NAT Service : got primarySwitch as dpnId {}", naptSwitchDpnId);
-            if (naptSwitchDpnId == null || naptSwitchDpnId.equals(BigInteger.ZERO)){
+            if (naptSwitchDpnId == null || naptSwitchDpnId.equals(BigInteger.ZERO)) {
                 LOG.error("NAT Service : Unable to retrieve the primary NAPT switch for the router ID {} from RouterNaptSwitch model", routerId);
                 return;
             }
@@ -1506,18 +1518,6 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
                 LOG.debug("Failed to remove fib entries for routerId {} in naptSwitchDpnId {} : {}", routerId, naptSwitchDpnId,ex);
             }
 
-            //Use the NaptMananager removeMapping API to remove the entire list of IP addresses maintained for the router ID.
-            LOG.debug("NAT Service : Remove the Internal to external IP address maintained for the router ID {} in the DS", routerId);
-            naptManager.removeMapping(routerId);
-
-            if(routerFlag) {
-                removeNaptSwitch(routerName);
-            } else {
-                updateNaptSwitch(routerName, BigInteger.ZERO);
-            }
-
-            LOG.debug("NAT Service : Remove the ExternalCounter model for the router ID {}", routerId);
-            naptManager.removeExternalCounter(routerId);
         } catch (Exception ex) {
             LOG.error("Exception while handling disableSNAT : {}", ex);
         }
