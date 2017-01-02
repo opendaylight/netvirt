@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1a622d24_65972491",
+        "filename": "docs/specs/acl-stats.rst",
+        "patchSetId": 18
+      },
+      "lineNbr": 382,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2017-01-02T13:27:31Z",
+      "side": 1,
+      "message": "This could be a bit misleading @Shashi as you are returning some valid data for one interface and for the other interface you are returning an error message saying that \"ACL is in Transparent mode\" which is a global configuration.\n\nPlease update the error message to some other message like - \"Interface not found in datastore.\"",
+      "revId": "0e87d26c8d5ac52b965a61f78d24bf3653246291",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
