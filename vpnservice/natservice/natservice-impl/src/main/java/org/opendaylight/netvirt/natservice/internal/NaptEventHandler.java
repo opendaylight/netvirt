@@ -227,7 +227,7 @@ public class NaptEventHandler {
             removeNatFlows(dpnId, NwConstants.INBOUND_NAPT_TABLE, routerId, naptEntryEvent.getIpAddress(), naptEntryEvent.getPortNumber());
         }
 
-        LOG.info("NAT Service : handleNaptEvent() exited for IP, port, routerID : {}", naptEntryEvent.getIpAddress(), naptEntryEvent.getPortNumber(), routerId);
+        LOG.info("NAT Service : handleNaptEvent() exited for IP {}, port {}, routerID : {}", naptEntryEvent.getIpAddress(), naptEntryEvent.getPortNumber(), routerId);
         } catch (Exception e){
             LOG.error("NAT Service :Exception in NaptEventHandler.handleEvent() payload {}", naptEntryEvent,e);
         }
