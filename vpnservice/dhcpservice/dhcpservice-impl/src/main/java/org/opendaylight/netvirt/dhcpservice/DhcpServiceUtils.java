@@ -22,13 +22,13 @@ import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFaile
 import org.opendaylight.genius.mdsalutil.ActionInfo;
 import org.opendaylight.genius.mdsalutil.FlowEntity;
 import org.opendaylight.genius.mdsalutil.InstructionInfo;
-import org.opendaylight.genius.mdsalutil.InstructionType;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.mdsalutil.MatchFieldType;
 import org.opendaylight.genius.mdsalutil.MatchInfo;
 import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.genius.mdsalutil.actions.ActionDrop;
 import org.opendaylight.genius.mdsalutil.actions.ActionPuntToController;
+import org.opendaylight.genius.mdsalutil.instructions.InstructionApplyActions;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.genius.mdsalutil.packet.IPProtocols;
 import org.opendaylight.genius.utils.ServiceIndex;
@@ -81,8 +81,7 @@ public class DhcpServiceUtils {
 
         // Punt to controller
         actionsInfos.add(new ActionPuntToController());
-        instructions.add(new InstructionInfo(InstructionType.apply_actions,
-                actionsInfos));
+        instructions.add(new InstructionApplyActions(actionsInfos));
         if (addOrRemove == NwConstants.DEL_FLOW) {
             FlowEntity flowEntity = MDSALUtil.buildFlowEntity(dpId, tableId,
                     getDhcpFlowRef(dpId, tableId, vmMacAddress),
@@ -117,7 +116,7 @@ public class DhcpServiceUtils {
 
         List<ActionInfo> actionsInfos = new ArrayList<>();
         List<InstructionInfo> instructions = new ArrayList<>();
-        instructions.add(new InstructionInfo(InstructionType.apply_actions, actionsInfos));
+        instructions.add(new InstructionApplyActions(actionsInfos));
         // Drop Action
         actionsInfos.add(new ActionDrop());
         if (addOrRemove == NwConstants.DEL_FLOW) {
