@@ -2,6 +2,57 @@
   "comments": [
     {
       "key": {
+        "uuid": "1a622d24_fad10f58",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 5
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2017-01-02T10:27:00Z",
+      "side": 1,
+      "message": "nit: please remove this in your next patch.",
+      "revId": "094cbc2c8f16d254cf24970b8665958aa5d49fb5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_5a47631d",
+        "filename": "docs/specs/setup-smac-for-routed-packets-to-virt-endpoints.rst",
+        "patchSetId": 5
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2017-01-02T10:27:00Z",
+      "side": 1,
+      "message": "This should be\n\nhttps://git.opendaylight.org/gerrit/#/q/topic:SMAC_virt_endpoints",
+      "revId": "094cbc2c8f16d254cf24970b8665958aa5d49fb5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_ba5677d0",
+        "filename": "docs/specs/setup-smac-for-routed-packets-to-virt-endpoints.rst",
+        "patchSetId": 5
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2017-01-02T10:27:00Z",
+      "side": 1,
+      "message": "nit: trailing white space.",
+      "revId": "094cbc2c8f16d254cf24970b8665958aa5d49fb5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_323a9536",
         "filename": "docs/specs/setup-smac-for-routed-packets-to-virt-endpoints.rst",
         "patchSetId": 5
@@ -48,6 +99,23 @@
       "side": 1,
       "message": "Changing mac should not have any side effect. The connection tracking is based on the tuple (layer-3 protocol, source address, destination address, layer-4 protocol, layer-4 key).",
       "parentUuid": "1a622d24_9240c9a6",
+      "revId": "094cbc2c8f16d254cf24970b8665958aa5d49fb5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_1a5debe9",
+        "filename": "docs/specs/setup-smac-for-routed-packets-to-virt-endpoints.rst",
+        "patchSetId": 5
+      },
+      "lineNbr": 162,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2017-01-02T10:27:00Z",
+      "side": 1,
+      "message": "Please add in one or two lines the action items involved in implementing this feature. As an example, you can take a look at some of the other SPECs which are under review.\n\nExample: https://git.opendaylight.org/gerrit/#/c/49524/10/docs/specs/hairpinning-flat-vlan.rst",
       "revId": "094cbc2c8f16d254cf24970b8665958aa5d49fb5",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
