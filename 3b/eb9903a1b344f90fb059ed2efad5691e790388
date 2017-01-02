@@ -1,0 +1,9 @@
+Verified+1: jenkins-releng <jenkins-releng@opendaylight.org>
+Code-Review+1: Abhinav Gupta <abhinav.gupta@ericsson.com>
+Code-Review+2: Vivekanandan Narasimhan <n.vivekanandan@ericsson.com>
+Code-Review+2: Alon Kochba <alonko@hpe.com>
+Submitted-by: Alon Kochba <alonko@hpe.com>
+Submitted-at: Mon, 02 Jan 2017 16:14:50 +0000
+Reviewed-on: https://git.opendaylight.org/gerrit/48310
+Project: netvirt
+Branch: refs/heads/master
