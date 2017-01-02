@@ -20,7 +20,6 @@ import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
 import org.opendaylight.genius.mdsalutil.ActionInfo;
 import org.opendaylight.genius.mdsalutil.FlowEntity;
 import org.opendaylight.genius.mdsalutil.InstructionInfo;
-import org.opendaylight.genius.mdsalutil.InstructionType;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.mdsalutil.MatchFieldType;
 import org.opendaylight.genius.mdsalutil.MatchInfo;
@@ -30,6 +29,8 @@ import org.opendaylight.genius.mdsalutil.NxMatchFieldType;
 import org.opendaylight.genius.mdsalutil.NxMatchInfo;
 import org.opendaylight.genius.mdsalutil.actions.ActionDrop;
 import org.opendaylight.genius.mdsalutil.actions.ActionNxResubmit;
+import org.opendaylight.genius.mdsalutil.instructions.InstructionApplyActions;
+import org.opendaylight.genius.mdsalutil.instructions.InstructionGotoTable;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.genius.mdsalutil.packet.IPProtocols;
 import org.opendaylight.netvirt.aclservice.utils.AclConstants;
@@ -140,7 +141,7 @@ public class AclNodeListener extends AsyncDataTreeChangeListenerBase<FlowCapable
         List<InstructionInfo> mkInstructions = new ArrayList<>();
         List<ActionInfo> actionsInfos = new ArrayList<>();
         actionsInfos.add(new ActionDrop());
-        mkInstructions.add(new InstructionInfo(InstructionType.apply_actions, actionsInfos));
+        mkInstructions.add(new InstructionApplyActions(actionsInfos));
 
         FlowEntity flowEntity = MDSALUtil.buildFlowEntity(dpId, NwConstants.EGRESS_ACL_TABLE,
                 getTableMissFlowId(NwConstants.EGRESS_ACL_TABLE), 0, "Ingress ACL Table Miss Flow", 0, 0,
@@ -160,7 +161,7 @@ public class AclNodeListener extends AsyncDataTreeChangeListenerBase<FlowCapable
         List<ActionInfo> actionsInfos = new ArrayList<>();
         actionsInfos.add(new ActionNxResubmit(NwConstants.EGRESS_LEARN_TABLE));
         actionsInfos.add(new ActionNxResubmit(NwConstants.EGRESS_LEARN2_TABLE));
-        mkInstructions.add(new InstructionInfo(InstructionType.apply_actions, actionsInfos));
+        mkInstructions.add(new InstructionApplyActions(actionsInfos));
 
         List<MatchInfo> mkMatches = new ArrayList<>();
         FlowEntity doubleResubmitTable = MDSALUtil.buildFlowEntity(dpId, NwConstants.EGRESS_ACL_TABLE,
@@ -173,7 +174,7 @@ public class AclNodeListener extends AsyncDataTreeChangeListenerBase<FlowCapable
         mkInstructions = new ArrayList<>();
         actionsInfos = new ArrayList<>();
         actionsInfos.add(new ActionDrop());
-        mkInstructions.add(new InstructionInfo(InstructionType.apply_actions, actionsInfos));
+        mkInstructions.add(new InstructionApplyActions(actionsInfos));
 
         FlowEntity flowEntity = MDSALUtil.buildFlowEntity(dpId, NwConstants.EGRESS_LEARN2_TABLE,
                 "LEARN-" + getTableMissFlowId(NwConstants.EGRESS_LEARN2_TABLE), 0,
@@ -188,7 +189,7 @@ public class AclNodeListener extends AsyncDataTreeChangeListenerBase<FlowCapable
         short dispatcherTableId = NwConstants.EGRESS_LPORT_DISPATCHER_TABLE;
         List<InstructionInfo> instructions = new ArrayList<>();
         actionsInfos.add(new ActionNxResubmit(dispatcherTableId));
-        instructions.add(new InstructionInfo(InstructionType.apply_actions, actionsInfos));
+        instructions.add(new InstructionApplyActions(actionsInfos));
 
         flowEntity = MDSALUtil.buildFlowEntity(dpId, NwConstants.EGRESS_LEARN2_TABLE,
                 "LEARN2-REG-" + getTableMissFlowId(NwConstants.EGRESS_LEARN2_TABLE),
@@ -203,7 +204,7 @@ public class AclNodeListener extends AsyncDataTreeChangeListenerBase<FlowCapable
         List<ActionInfo> actionsInfos = new ArrayList<>();
         actionsInfos.add(new ActionNxResubmit(NwConstants.INGRESS_LEARN_TABLE));
         actionsInfos.add(new ActionNxResubmit(NwConstants.INGRESS_LEARN2_TABLE));
-        mkInstructions.add(new InstructionInfo(InstructionType.apply_actions, actionsInfos));
+        mkInstructions.add(new InstructionApplyActions(actionsInfos));
 
         List<MatchInfo> mkMatches = new ArrayList<>();
         FlowEntity doubleResubmitTable = MDSALUtil.buildFlowEntity(dpId, NwConstants.INGRESS_ACL_TABLE,
@@ -216,7 +217,7 @@ public class AclNodeListener extends AsyncDataTreeChangeListenerBase<FlowCapable
         mkInstructions = new ArrayList<>();
         actionsInfos = new ArrayList<>();
         actionsInfos.add(new ActionDrop());
-        mkInstructions.add(new InstructionInfo(InstructionType.apply_actions, actionsInfos));
+        mkInstructions.add(new InstructionApplyActions(actionsInfos));
 
         FlowEntity flowEntity = MDSALUtil.buildFlowEntity(dpId, NwConstants.INGRESS_LEARN2_TABLE,
                 "LEARN-" + getTableMissFlowId(NwConstants.INGRESS_LEARN2_TABLE), 0,
@@ -231,7 +232,7 @@ public class AclNodeListener extends AsyncDataTreeChangeListenerBase<FlowCapable
         short dispatcherTableId = NwConstants.LPORT_DISPATCHER_TABLE;
         List<InstructionInfo> instructions = new ArrayList<>();
         actionsInfos.add(new ActionNxResubmit(dispatcherTableId));
-        instructions.add(new InstructionInfo(InstructionType.apply_actions, actionsInfos));
+        instructions.add(new InstructionApplyActions(actionsInfos));
 
         flowEntity = MDSALUtil.buildFlowEntity(dpId, NwConstants.INGRESS_LEARN2_TABLE,
                 "LEARN2-REG-" + getTableMissFlowId(NwConstants.INGRESS_LEARN2_TABLE),
@@ -250,9 +251,7 @@ public class AclNodeListener extends AsyncDataTreeChangeListenerBase<FlowCapable
     private void addTransparentIngressAclTableMissFlow(BigInteger dpId) {
         List<MatchInfo> mkMatches = new ArrayList<>();
         List<InstructionInfo> allowAllInstructions = new ArrayList<>();
-        allowAllInstructions.add(
-            new InstructionInfo(InstructionType.goto_table,
-                    new long[] { NwConstants.INGRESS_ACL_FILTER_TABLE }));
+        allowAllInstructions.add(new InstructionGotoTable(NwConstants.INGRESS_ACL_FILTER_TABLE));
 
         FlowEntity nextTblFlowEntity = MDSALUtil.buildFlowEntity(dpId, NwConstants.INGRESS_ACL_TABLE,
                 getTableMissFlowId(NwConstants.INGRESS_ACL_TABLE), 0, "Ingress ACL Table allow all Flow",
@@ -264,7 +263,7 @@ public class AclNodeListener extends AsyncDataTreeChangeListenerBase<FlowCapable
         List<ActionInfo> actionsInfos = new ArrayList<>();
         List<InstructionInfo> dispatcherInstructions = new ArrayList<>();
         actionsInfos.add(new ActionNxResubmit(dispatcherTableId));
-        dispatcherInstructions.add(new InstructionInfo(InstructionType.apply_actions, actionsInfos));
+        dispatcherInstructions.add(new InstructionApplyActions(actionsInfos));
 
         nextTblFlowEntity = MDSALUtil.buildFlowEntity(dpId, NwConstants.INGRESS_ACL_FILTER_TABLE,
                 getTableMissFlowId(NwConstants.INGRESS_ACL_FILTER_TABLE), 0, "Ingress ACL Filter Table allow all Flow",
@@ -282,9 +281,7 @@ public class AclNodeListener extends AsyncDataTreeChangeListenerBase<FlowCapable
     private void addTransparentEgressAclTableMissFlow(BigInteger dpId) {
         List<MatchInfo> mkMatches = new ArrayList<>();
         List<InstructionInfo> allowAllInstructions = new ArrayList<>();
-        allowAllInstructions.add(
-            new InstructionInfo(InstructionType.goto_table,
-                    new long[] { NwConstants.EGRESS_ACL_FILTER_TABLE }));
+        allowAllInstructions.add(new InstructionGotoTable(NwConstants.EGRESS_ACL_FILTER_TABLE));
 
         FlowEntity nextTblFlowEntity = MDSALUtil.buildFlowEntity(dpId, NwConstants.EGRESS_ACL_TABLE,
                 getTableMissFlowId(NwConstants.EGRESS_ACL_TABLE), 0, "Egress ACL Table allow all Flow",
@@ -296,7 +293,7 @@ public class AclNodeListener extends AsyncDataTreeChangeListenerBase<FlowCapable
         List<ActionInfo> actionsInfos = new ArrayList<>();
         List<InstructionInfo> instructions = new ArrayList<>();
         actionsInfos.add(new ActionNxResubmit(dispatcherTableId));
-        instructions.add(new InstructionInfo(InstructionType.apply_actions, actionsInfos));
+        instructions.add(new InstructionApplyActions(actionsInfos));
 
         nextTblFlowEntity = MDSALUtil.buildFlowEntity(dpId, NwConstants.EGRESS_ACL_FILTER_TABLE,
                 getTableMissFlowId(NwConstants.EGRESS_ACL_FILTER_TABLE), 0, "Egress ACL Filter Table allow all Flow",
@@ -323,7 +320,7 @@ public class AclNodeListener extends AsyncDataTreeChangeListenerBase<FlowCapable
         List<ActionInfo> dropActionsInfos = new ArrayList<>();
         dropActionsInfos.add(new ActionDrop());
         List<InstructionInfo> synInstructions = new ArrayList<>();
-        synInstructions.add(new InstructionInfo(InstructionType.apply_actions, dropActionsInfos));
+        synInstructions.add(new InstructionApplyActions(dropActionsInfos));
 
         FlowEntity synFlowEntity = MDSALUtil.buildFlowEntity(dpId, NwConstants.EGRESS_ACL_TABLE,
                 "SYN-" + getTableMissFlowId(NwConstants.EGRESS_ACL_TABLE),
@@ -339,9 +336,7 @@ public class AclNodeListener extends AsyncDataTreeChangeListenerBase<FlowCapable
         synMatches.add(new MatchInfo(MatchFieldType.tcp_flags, new long[] { AclConstants.TCP_FLAG_SYN_ACK }));
 
         List<InstructionInfo> allowAllInstructions = new ArrayList<>();
-        allowAllInstructions.add(
-            new InstructionInfo(InstructionType.goto_table,
-                    new long[] { NwConstants.EGRESS_ACL_FILTER_TABLE }));
+        allowAllInstructions.add(new InstructionGotoTable(NwConstants.EGRESS_ACL_FILTER_TABLE));
 
         FlowEntity synAckFlowEntity = MDSALUtil.buildFlowEntity(dpId, NwConstants.EGRESS_ACL_TABLE,
                 "SYN-ACK-ALLOW-" + getTableMissFlowId(NwConstants.EGRESS_ACL_TABLE),
@@ -361,7 +356,7 @@ public class AclNodeListener extends AsyncDataTreeChangeListenerBase<FlowCapable
         List<ActionInfo> actionsInfos = new ArrayList<>();
         List<InstructionInfo> instructions = new ArrayList<>();
         actionsInfos.add(new ActionNxResubmit(dispatcherTableId));
-        instructions.add(new InstructionInfo(InstructionType.apply_actions, actionsInfos));
+        instructions.add(new InstructionApplyActions(actionsInfos));
 
         FlowEntity nextTblFlowEntity = MDSALUtil.buildFlowEntity(dpId, NwConstants.EGRESS_ACL_FILTER_TABLE,
                 getTableMissFlowId(NwConstants.EGRESS_ACL_FILTER_TABLE), 0,
@@ -379,8 +374,7 @@ public class AclNodeListener extends AsyncDataTreeChangeListenerBase<FlowCapable
      */
     private void addStatelessEgressAclTableMissFlow(BigInteger dpId) {
         List<InstructionInfo> allowAllInstructions = new ArrayList<>();
-        allowAllInstructions.add(
-                new InstructionInfo(InstructionType.goto_table, new long[] { NwConstants.INGRESS_ACL_FILTER_TABLE }));
+        allowAllInstructions.add(new InstructionGotoTable(NwConstants.INGRESS_ACL_FILTER_TABLE));
 
         List<MatchInfo> synMatches = new ArrayList<>();
         synMatches.add(new MatchInfo(MatchFieldType.eth_type,
@@ -392,7 +386,7 @@ public class AclNodeListener extends AsyncDataTreeChangeListenerBase<FlowCapable
         List<ActionInfo> synActionsInfos = new ArrayList<>();
         synActionsInfos.add(new ActionDrop());
         List<InstructionInfo> synInstructions = new ArrayList<>();
-        synInstructions.add(new InstructionInfo(InstructionType.apply_actions, synActionsInfos));
+        synInstructions.add(new InstructionApplyActions(synActionsInfos));
 
         FlowEntity synFlowEntity = MDSALUtil.buildFlowEntity(dpId, NwConstants.INGRESS_ACL_TABLE,
                 "SYN-" + getTableMissFlowId(NwConstants.INGRESS_ACL_TABLE),
@@ -424,7 +418,7 @@ public class AclNodeListener extends AsyncDataTreeChangeListenerBase<FlowCapable
         List<ActionInfo> actionsInfos = new ArrayList<>();
         List<InstructionInfo> dispatcherInstructions = new ArrayList<>();
         actionsInfos.add(new ActionNxResubmit(dispatcherTableId));
-        dispatcherInstructions.add(new InstructionInfo(InstructionType.apply_actions, actionsInfos));
+        dispatcherInstructions.add(new InstructionApplyActions(actionsInfos));
 
         FlowEntity nextTblFlowEntity = MDSALUtil.buildFlowEntity(dpId, NwConstants.INGRESS_ACL_FILTER_TABLE,
                 getTableMissFlowId(NwConstants.INGRESS_ACL_FILTER_TABLE), 0,
@@ -445,7 +439,7 @@ public class AclNodeListener extends AsyncDataTreeChangeListenerBase<FlowCapable
         List<InstructionInfo> mkInstructions = new ArrayList<>();
         List<ActionInfo> actionsInfos = new ArrayList<>();
         actionsInfos.add(new ActionDrop());
-        mkInstructions.add(new InstructionInfo(InstructionType.apply_actions, actionsInfos));
+        mkInstructions.add(new InstructionApplyActions(actionsInfos));
 
         FlowEntity flowEntity = MDSALUtil.buildFlowEntity(dpId, NwConstants.INGRESS_ACL_TABLE,
                 getTableMissFlowId(NwConstants.INGRESS_ACL_TABLE), 0, "Egress ACL Table Miss Flow", 0, 0,
@@ -519,7 +513,7 @@ public class AclNodeListener extends AsyncDataTreeChangeListenerBase<FlowCapable
         List<InstructionInfo> instructions = new ArrayList<>();
         List<ActionInfo> actionsInfos = new ArrayList<>();
         actionsInfos.add(new ActionDrop());
-        instructions.add(new InstructionInfo(InstructionType.apply_actions, actionsInfos));
+        instructions.add(new InstructionApplyActions(actionsInfos));
         flowId = "Fixed_Conntrk_NewDrop_" + dpId + "_" + flowId + tableId;
         syncFlow(dpId, tableId, flowId, priority, "ACL", 0, 0,
                 AclConstants.COOKIE_ACL_BASE, matches, instructions, addOrRemove);
@@ -536,7 +530,7 @@ public class AclNodeListener extends AsyncDataTreeChangeListenerBase<FlowCapable
                                                                          short dispatcherTableId) {
         List<InstructionInfo> instructions = new ArrayList<>();
         actionsInfos.add(new ActionNxResubmit(dispatcherTableId));
-        instructions.add(new InstructionInfo(InstructionType.apply_actions, actionsInfos));
+        instructions.add(new InstructionApplyActions(actionsInfos));
         return instructions;
     }
 

@@ -8,13 +8,12 @@
 package org.opendaylight.netvirt.aclservice.tests
 
 import org.opendaylight.genius.mdsalutil.FlowEntity
-import org.opendaylight.genius.mdsalutil.InstructionInfo
-import org.opendaylight.genius.mdsalutil.InstructionType
 import org.opendaylight.genius.mdsalutil.MatchFieldType
 import org.opendaylight.genius.mdsalutil.MatchInfoBuilder
 import org.opendaylight.genius.mdsalutil.MetaDataUtil
 import org.opendaylight.genius.mdsalutil.NxMatchFieldType
 import org.opendaylight.genius.mdsalutil.NxMatchInfoBuilder
+import org.opendaylight.genius.mdsalutil.instructions.InstructionApplyActions
 
 import static extension org.opendaylight.mdsal.binding.testutils.XtendBuilderExtensions.operator_doubleGreaterThan
 import org.opendaylight.genius.mdsalutil.actions.ActionNxConntrack
@@ -115,7 +114,7 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
                 flowId = "Ingress_Fixed_Conntrk_123_0D:AA:D8:42:30:F3_10.0.0.1/24_Recirc"
             flowName = "ACL"
             instructionInfoList = #[
-                new InstructionInfo(InstructionType.apply_actions, #[
+                new InstructionApplyActions(#[
                     new ActionNxConntrack(2, 0, 0, 5000, 252 as short)
                 ])
             ]
@@ -162,7 +161,7 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
                         +"Ingress98785cc3048-abc3-43cc-89b3-377341426ac7"
                 flowName = "ACL"
                 instructionInfoList = #[
-                    new InstructionInfo(InstructionType.apply_actions, #[
+                    new InstructionApplyActions(#[
                         new ActionNxConntrack(2, 1, 0, 5000, 255 as short),
                         new ActionNxResubmit(220 as short)
                     ])
@@ -219,7 +218,7 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
                         +"Ingress98785cc3048-abc3-43cc-89b3-377341426ac7"
                 flowName = "ACL"
                 instructionInfoList = #[
-                    new InstructionInfo(InstructionType.apply_actions, #[
+                    new InstructionApplyActions(#[
                         new ActionNxConntrack(2, 1, 0, 5000, 255 as short),
                         new ActionNxResubmit(220 as short)
                     ])
@@ -278,7 +277,7 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
                 flowId = "Egress_Fixed_Conntrk_123_0D:AA:D8:42:30:F3_10.0.0.1/24_Recirc"
                 flowName = "ACL"
                 instructionInfoList = #[
-                    new InstructionInfo(InstructionType.apply_actions, #[
+                    new InstructionApplyActions(#[
                         new ActionNxConntrack(2, 0, 0, 5000, 41 as short)
                     ])
                 ]
@@ -316,7 +315,7 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
                 flowId = "Ingress_Fixed_Conntrk_123_0D:AA:D8:42:30:F4_10.0.0.2/24_Recirc"
                 flowName = "ACL"
                 instructionInfoList = #[
-                    new InstructionInfo(InstructionType.apply_actions, #[
+                    new InstructionApplyActions(#[
                         new ActionNxConntrack(2, 0, 0, 5000, 252 as short)
                     ])
                 ]
@@ -360,7 +359,7 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
                 flowId = "Egress_Fixed_Conntrk_123_0D:AA:D8:42:30:F4_10.0.0.2/24_Recirc"
                 flowName = "ACL"
                 instructionInfoList = #[
-                    new InstructionInfo(InstructionType.apply_actions, #[
+                    new InstructionApplyActions(#[
                         new ActionNxConntrack(2, 0, 0, 5000, 41 as short)
                     ])
                 ]
@@ -398,7 +397,7 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
                 flowId = "Ingress_Fixed_Conntrk_123_0D:AA:D8:42:30:F5_10.0.0.3/24_Recirc"
                 flowName = "ACL"
                 instructionInfoList = #[
-                    new InstructionInfo(InstructionType.apply_actions, #[
+                    new InstructionApplyActions(#[
                         new ActionNxConntrack(2, 0, 0, 5000, 252 as short)
                     ])
                 ]
@@ -443,7 +442,7 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
                 flowId = "Egress_Fixed_Conntrk_123_0D:AA:D8:42:30:F5_10.0.0.3/24_Recirc"
                 flowName = "ACL"
                 instructionInfoList = #[
-                    new InstructionInfo(InstructionType.apply_actions, #[
+                    new InstructionApplyActions(#[
                         new ActionNxConntrack(2, 0, 0, 5000, 41 as short)
                     ])
                 ]
@@ -481,7 +480,7 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
                 flowId = "Egress_DHCP_Client_v4123_987__Permit_"
                 flowName = "ACL"
                 instructionInfoList = #[
-                    new InstructionInfo(InstructionType.apply_actions, #[
+                    new InstructionApplyActions(#[
                         new ActionNxResubmit(17 as short)
                     ])
                 ]
@@ -526,7 +525,7 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
                 flowId = "Egress_DHCP_Client_v6_123_987__Permit_"
                 flowName = "ACL"
                 instructionInfoList = #[
-                    new InstructionInfo(InstructionType.apply_actions, #[
+                    new InstructionApplyActions(#[
                         new ActionNxResubmit(17 as short)
                     ])
                 ]
@@ -692,7 +691,7 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
                 flowId = "Egress_ICMPv6_123_987_133_Permit_"
                 flowName = "ACL"
                 instructionInfoList = #[
-                    new InstructionInfo(InstructionType.apply_actions, #[
+                    new InstructionApplyActions(#[
                         new ActionNxResubmit(17 as short)
                     ])
                 ]
@@ -732,7 +731,7 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
                 flowId = "Egress_ICMPv6_123_987_135_Permit_"
                 flowName = "ACL"
                 instructionInfoList = #[
-                    new InstructionInfo(InstructionType.apply_actions, #[
+                    new InstructionApplyActions(#[
                         new ActionNxResubmit(17 as short)
                     ])
                 ]
@@ -772,7 +771,7 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
                 flowId = "Egress_ICMPv6_123_987_136_Permit_"
                 flowName = "ACL"
                 instructionInfoList = #[
-                    new InstructionInfo(InstructionType.apply_actions, #[
+                    new InstructionApplyActions(#[
                         new ActionNxResubmit(17 as short)
                     ])
                 ]
@@ -812,7 +811,7 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
                 flowId = "Egress_ARP_123_0D:AA:D8:42:30:F4"
                 flowName = "ACL"
                 instructionInfoList = #[
-                    new InstructionInfo(InstructionType.apply_actions, #[
+                    new InstructionApplyActions(#[
                         new ActionNxResubmit(17 as short)
                     ])
                 ]
@@ -851,7 +850,7 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
                 flowId = "ETHERnullEgress98785cc3048-abc3-43cc-89b3-377341426ac6"
                 flowName = "ACL"
                 instructionInfoList = #[
-                    new InstructionInfo(InstructionType.apply_actions, #[
+                    new InstructionApplyActions(#[
                         new ActionNxConntrack(2, 1, 0, 5000, 255 as short),
                         new ActionNxResubmit(17 as short)
                     ])
@@ -897,7 +896,7 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
                 flowId = "ETHERnullEgress98785cc3048-abc3-43cc-89b3-377341426ac6"
                 flowName = "ACL"
                 instructionInfoList = #[
-                    new InstructionInfo(InstructionType.apply_actions, #[
+                    new InstructionApplyActions(#[
                         new ActionNxConntrack(2, 1, 0, 5000, 255 as short),
                         new ActionNxResubmit(17 as short)
                     ])
@@ -943,7 +942,7 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
                 flowId = "TCP_DESTINATION_80_65535Ingress98785cc3048-abc3-43cc-89b3-377341426ac7"
                 flowName = "ACL"
                 instructionInfoList = #[
-                    new InstructionInfo(InstructionType.apply_actions, #[
+                    new InstructionApplyActions(#[
                         new ActionNxConntrack(2, 1, 0, 5000, 255 as short),
                         new ActionNxResubmit(220 as short)
                     ])
@@ -1002,7 +1001,7 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
                 flowId = "TCP_DESTINATION_80_65535Ingress98785cc3048-abc3-43cc-89b3-377341426ac7"
                 flowName = "ACL"
                 instructionInfoList = #[
-                    new InstructionInfo(InstructionType.apply_actions, #[
+                    new InstructionApplyActions(#[
                         new ActionNxConntrack(2, 1, 0, 5000, 255 as short),
                         new ActionNxResubmit(220 as short)
                     ])
@@ -1064,7 +1063,7 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
                         +"Egress98785cc3048-abc3-43cc-89b3-377341426ac6"
                 flowName = "ACL"
                 instructionInfoList = #[
-                    new InstructionInfo(InstructionType.apply_actions, #[
+                    new InstructionApplyActions(#[
                         new ActionNxConntrack(2, 1, 0, 5000, 255 as short),
                         new ActionNxResubmit(17 as short)
                     ])
@@ -1131,7 +1130,7 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
                 flowId = "TCP_DESTINATION_80_65535_ipv4_remoteACL_interface_aap_AllowedAddressPairsKey [_macAddress=MacAddress [_value=0D:AA:D8:42:30:F4], _ipAddress=IpPrefixOrAddress [_ipPrefix=IpPrefix [_ipv4Prefix=Ipv4Prefix [_value=10.0.0.2/24]]]]Egress98785cc3048-abc3-43cc-89b3-377341426ac6"
                 flowName = "ACL"
                 instructionInfoList = #[
-                    new InstructionInfo(InstructionType.apply_actions, #[
+                    new InstructionApplyActions(#[
                         new ActionNxConntrack(2, 1, 0, 5000, 255 as short),
                         new ActionNxResubmit(17 as short)
                     ])
@@ -1203,7 +1202,7 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
                 flowId = "UDP_DESTINATION_80_65535Egress98785cc3048-abc3-43cc-89b3-377341426ac6"
                 flowName = "ACL"
                 instructionInfoList = #[
-                    new InstructionInfo(InstructionType.apply_actions, #[
+                    new InstructionApplyActions(#[
                         new ActionNxConntrack(2, 1, 0, 5000, 255 as short),
                         new ActionNxResubmit(17 as short)
                     ])
@@ -1265,7 +1264,7 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
                         +"Ingress98785cc3048-abc3-43cc-89b3-377341426ac7"
                 flowName = "ACL"
                 instructionInfoList = #[
-                    new InstructionInfo(InstructionType.apply_actions, #[
+                    new InstructionApplyActions(#[
                         new ActionNxConntrack(2, 1, 0, 5000, 255 as short),
                         new ActionNxResubmit(220 as short)
                     ])
@@ -1332,7 +1331,7 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
                 flowId = "UDP_DESTINATION_80_65535_ipv4_remoteACL_interface_aap_AllowedAddressPairsKey [_macAddress=MacAddress [_value=0D:AA:D8:42:30:F4], _ipAddress=IpPrefixOrAddress [_ipPrefix=IpPrefix [_ipv4Prefix=Ipv4Prefix [_value=10.0.0.2/24]]]]Ingress98785cc3048-abc3-43cc-89b3-377341426ac7"
                 flowName = "ACL"
                 instructionInfoList = #[
-                    new InstructionInfo(InstructionType.apply_actions, #[
+                    new InstructionApplyActions(#[
                         new ActionNxConntrack(2, 1, 0, 5000, 255 as short),
                         new ActionNxResubmit(220 as short)
                     ])
@@ -1404,7 +1403,7 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
                 flowId = "UDP_DESTINATION_80_65535Egress98785cc3048-abc3-43cc-89b3-377341426ac6"
                 flowName = "ACL"
                 instructionInfoList = #[
-                    new InstructionInfo(InstructionType.apply_actions, #[
+                    new InstructionApplyActions(#[
                         new ActionNxConntrack(2, 1, 0, 5000, 255 as short),
                         new ActionNxResubmit(17 as short)
                     ])
@@ -1463,7 +1462,7 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
                 flowId = "ICMP_V4_DESTINATION_23_Ingress98785cc3048-abc3-43cc-89b3-377341426ac7"
                 flowName = "ACL"
                 instructionInfoList = #[
-                    new InstructionInfo(InstructionType.apply_actions, #[
+                    new InstructionApplyActions(#[
                         new ActionNxConntrack(2, 1, 0, 5000, 255 as short),
                         new ActionNxResubmit(220 as short)
                     ])
@@ -1522,7 +1521,7 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
                 flowId = "ICMP_V4_DESTINATION_23_Ingress98785cc3048-abc3-43cc-89b3-377341426ac7"
                 flowName = "ACL"
                 instructionInfoList = #[
-                    new InstructionInfo(InstructionType.apply_actions, #[
+                    new InstructionApplyActions(#[
                         new ActionNxConntrack(2, 1, 0, 5000, 255 as short),
                         new ActionNxResubmit(220 as short)
                     ])
@@ -1584,7 +1583,7 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
                         +"Egress98785cc3048-abc3-43cc-89b3-377341426ac6"
                 flowName = "ACL"
                 instructionInfoList = #[
-                    new InstructionInfo(InstructionType.apply_actions, #[
+                    new InstructionApplyActions(#[
                         new ActionNxConntrack(2, 1, 0, 5000, 255 as short),
                         new ActionNxResubmit(17 as short)
                     ])
@@ -1654,7 +1653,7 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
                         +"Egress98785cc3048-abc3-43cc-89b3-377341426ac6"
                 flowName = "ACL"
                 instructionInfoList = #[
-                    new InstructionInfo(InstructionType.apply_actions, #[
+                    new InstructionApplyActions(#[
                         new ActionNxConntrack(2, 1, 0, 5000, 255 as short),
                         new ActionNxResubmit(17 as short)
                     ])
@@ -1726,7 +1725,7 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
                 flowId = "UDP_DESTINATION_2000_65532Ingress98785cc3048-abc3-43cc-89b3-377341426ac7"
                 flowName = "ACL"
                 instructionInfoList = #[
-                    new InstructionInfo(InstructionType.apply_actions, #[
+                    new InstructionApplyActions(#[
                         new ActionNxConntrack(2, 1, 0, 5000, 255 as short),
                         new ActionNxResubmit(220 as short)
                     ])
@@ -1785,7 +1784,7 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
                 flowId = "TCP_DESTINATION_776_65534Egress98785cc3048-abc3-43cc-89b3-377341426ac6"
                 flowName = "ACL"
                 instructionInfoList = #[
-                    new InstructionInfo(InstructionType.apply_actions, #[
+                    new InstructionApplyActions(#[
                         new ActionNxConntrack(2, 1, 0, 5000, 255 as short),
                         new ActionNxResubmit(17 as short)
                     ])
@@ -1839,7 +1838,7 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
                 flowId = "TCP_DESTINATION_512_65280Egress98785cc3048-abc3-43cc-89b3-377341426ac6"
                 flowName = "ACL"
                 instructionInfoList = #[
-                    new InstructionInfo(InstructionType.apply_actions, #[
+                    new InstructionApplyActions(#[
                         new ActionNxConntrack(2, 1, 0, 5000, 255 as short),
                         new ActionNxResubmit(17 as short)
                     ])
@@ -1893,7 +1892,7 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
                 flowId = "TCP_DESTINATION_334_65534Egress98785cc3048-abc3-43cc-89b3-377341426ac6"
                 flowName = "ACL"
                 instructionInfoList = #[
-                    new InstructionInfo(InstructionType.apply_actions, #[
+                    new InstructionApplyActions(#[
                         new ActionNxConntrack(2, 1, 0, 5000, 255 as short),
                         new ActionNxResubmit(17 as short)
                     ])
@@ -1947,7 +1946,7 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
                 flowId = "TCP_DESTINATION_333_65535Egress98785cc3048-abc3-43cc-89b3-377341426ac6"
                 flowName = "ACL"
                 instructionInfoList = #[
-                    new InstructionInfo(InstructionType.apply_actions, #[
+                    new InstructionApplyActions(#[
                         new ActionNxConntrack(2, 1, 0, 5000, 255 as short),
                         new ActionNxResubmit(17 as short)
                     ])
@@ -2001,7 +2000,7 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
                 flowId = "TCP_DESTINATION_336_65520Egress98785cc3048-abc3-43cc-89b3-377341426ac6"
                 flowName = "ACL"
                 instructionInfoList = #[
-                    new InstructionInfo(InstructionType.apply_actions, #[
+                    new InstructionApplyActions(#[
                         new ActionNxConntrack(2, 1, 0, 5000, 255 as short),
                         new ActionNxResubmit(17 as short)
                     ])
@@ -2055,7 +2054,7 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
                 flowId = "TCP_DESTINATION_352_65504Egress98785cc3048-abc3-43cc-89b3-377341426ac6"
                 flowName = "ACL"
                 instructionInfoList = #[
-                    new InstructionInfo(InstructionType.apply_actions, #[
+                    new InstructionApplyActions(#[
                         new ActionNxConntrack(2, 1, 0, 5000, 255 as short),
                         new ActionNxResubmit(17 as short)
                     ])
@@ -2109,7 +2108,7 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
                 flowId = "TCP_DESTINATION_384_65408Egress98785cc3048-abc3-43cc-89b3-377341426ac6"
                 flowName = "ACL"
                 instructionInfoList = #[
-                    new InstructionInfo(InstructionType.apply_actions, #[
+                    new InstructionApplyActions(#[
                         new ActionNxConntrack(2, 1, 0, 5000, 255 as short),
                         new ActionNxResubmit(17 as short)
                     ])
@@ -2163,7 +2162,7 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
                 flowId = "TCP_DESTINATION_768_65528Egress98785cc3048-abc3-43cc-89b3-377341426ac6"
                 flowName = "ACL"
                 instructionInfoList = #[
-                    new InstructionInfo(InstructionType.apply_actions, #[
+                    new InstructionApplyActions(#[
                         new ActionNxConntrack(2, 1, 0, 5000, 255 as short),
                         new ActionNxResubmit(17 as short)
                     ])
@@ -2222,7 +2221,7 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
                 flowId = "UDP_DESTINATION_1_0Ingress98785cc3048-abc3-43cc-89b3-377341426ac7"
                 flowName = "ACL"
                 instructionInfoList = #[
-                    new InstructionInfo(InstructionType.apply_actions, #[
+                    new InstructionApplyActions(#[
                         new ActionNxConntrack(2, 1, 0, 5000, 255 as short),
                         new ActionNxResubmit(220 as short)
                     ])
@@ -2274,7 +2273,7 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
                 flowId = "TCP_DESTINATION_1_0Egress98785cc3048-abc3-43cc-89b3-377341426ac6"
                 flowName = "ACL"
                 instructionInfoList = #[
-                    new InstructionInfo(InstructionType.apply_actions, #[
+                    new InstructionApplyActions(#[
                         new ActionNxConntrack(2, 1, 0, 5000, 255 as short),
                         new ActionNxResubmit(17 as short)
                     ])
@@ -2327,7 +2326,7 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
                 flowId = "ICMP_V4_DESTINATION_23_Ingress98785cc3048-abc3-43cc-89b3-377341426ac7"
                 flowName = "ACL"
                 instructionInfoList = #[
-                    new InstructionInfo(InstructionType.apply_actions, #[
+                    new InstructionApplyActions(#[
                         new ActionNxConntrack(2, 1, 0, 5000, 255 as short),
                         new ActionNxResubmit(220 as short)
                     ])
@@ -2381,7 +2380,7 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
                 flowId = "ICMP_V4_DESTINATION_23_Ingress98785cc3048-abc3-43cc-89b3-377341426a22"
                 flowName = "ACL"
                 instructionInfoList = #[
-                    new InstructionInfo(InstructionType.apply_actions, #[
+                    new InstructionApplyActions(#[
                         new ActionNxConntrack(2, 1, 0, 5000, 255 as short),
                         new ActionNxResubmit(220 as short)
                     ])
@@ -2440,7 +2439,7 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
                 flowId = "ICMP_V4_DESTINATION_23_Egress98785cc3048-abc3-43cc-89b3-377341426ac6"
                 flowName = "ACL"
                 instructionInfoList = #[
-                    new InstructionInfo(InstructionType.apply_actions, #[
+                    new InstructionApplyActions(#[
                         new ActionNxConntrack(2, 1, 0, 5000, 255 as short),
                         new ActionNxResubmit(17 as short)
                     ])
@@ -2494,7 +2493,7 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
                 flowId = "ICMP_V4_DESTINATION_23_Egress98785cc3048-abc3-43cc-89b3-377341426a21"
                 flowName = "ACL"
                 instructionInfoList = #[
-                    new InstructionInfo(InstructionType.apply_actions, #[
+                    new InstructionApplyActions(#[
                         new ActionNxConntrack(2, 1, 0, 5000, 255 as short),
                         new ActionNxResubmit(17 as short)
                     ])
@@ -2554,7 +2553,7 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
                 flowId = "Ingress_DHCP_Server_v4123_987__Permit_"
                 flowName = "ACL"
                 instructionInfoList = #[
-                    new InstructionInfo(InstructionType.apply_actions, #[
+                    new InstructionApplyActions(#[
                         new ActionNxResubmit(220 as short)
                     ])
                 ]
@@ -2599,7 +2598,7 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
                 flowId = "Ingress_DHCP_Server_v6_123_987___Permit_"
                 flowName = "ACL"
                 instructionInfoList = #[
-                    new InstructionInfo(InstructionType.apply_actions, #[
+                    new InstructionApplyActions(#[
                         new ActionNxResubmit(220 as short)
                     ])
                 ]
@@ -2644,7 +2643,7 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
                 flowId = "Ingress_ICMPv6_123_987_130_Permit_"
                 flowName = "ACL"
                 instructionInfoList = #[
-                    new InstructionInfo(InstructionType.apply_actions, #[
+                    new InstructionApplyActions(#[
                         new ActionNxResubmit(220 as short)
                     ])
                 ]
@@ -2684,7 +2683,7 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
                 flowId = "Ingress_ICMPv6_123_987_135_Permit_"
                 flowName = "ACL"
                 instructionInfoList = #[
-                    new InstructionInfo(InstructionType.apply_actions, #[
+                    new InstructionApplyActions(#[
                         new ActionNxResubmit(220 as short)
                     ])
                 ]
@@ -2724,7 +2723,7 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
                 flowId = "Ingress_ICMPv6_123_987_136_Permit_"
                 flowName = "ACL"
                 instructionInfoList = #[
-                    new InstructionInfo(InstructionType.apply_actions, #[
+                    new InstructionApplyActions(#[
                         new ActionNxResubmit(220 as short)
                     ])
                 ]
@@ -2764,7 +2763,7 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
                 flowId = "Ingress_ARP_123_987"
                 flowName = "ACL"
                 instructionInfoList = #[
-                    new InstructionInfo(InstructionType.apply_actions, #[
+                    new InstructionApplyActions(#[
                         new ActionNxResubmit(220 as short)
                     ])
                 ]
@@ -2791,7 +2790,7 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
                 flowId = "Egress_DHCP_Client_v4123_987__Permit_"
                 flowName = "ACL"
                 instructionInfoList = #[
-                    new InstructionInfo(InstructionType.apply_actions, #[
+                    new InstructionApplyActions(#[
                         new ActionNxResubmit(17 as short)
                     ])
                 ]
@@ -2836,7 +2835,7 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
                 flowId = "Egress_DHCP_Client_v6_123_987__Permit_"
                 flowName = "ACL"
                 instructionInfoList = #[
-                    new InstructionInfo(InstructionType.apply_actions, #[
+                    new InstructionApplyActions(#[
                         new ActionNxResubmit(17 as short)
                     ])
                 ]
@@ -3002,7 +3001,7 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
                 flowId = "Egress_ICMPv6_123_987_133_Permit_"
                 flowName = "ACL"
                 instructionInfoList = #[
-                    new InstructionInfo(InstructionType.apply_actions, #[
+                    new InstructionApplyActions(#[
                         new ActionNxResubmit(17 as short)
                     ])
                 ]
@@ -3042,7 +3041,7 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
                 flowId = "Egress_ICMPv6_123_987_135_Permit_"
                 flowName = "ACL"
                 instructionInfoList = #[
-                    new InstructionInfo(InstructionType.apply_actions, #[
+                    new InstructionApplyActions(#[
                         new ActionNxResubmit(17 as short)
                     ])
                 ]
@@ -3082,7 +3081,7 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
                 flowId = "Egress_ICMPv6_123_987_136_Permit_"
                 flowName = "ACL"
                 instructionInfoList = #[
-                    new InstructionInfo(InstructionType.apply_actions, #[
+                    new InstructionApplyActions(#[
                         new ActionNxResubmit(17 as short)
                     ])
                 ]

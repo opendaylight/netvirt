@@ -15,7 +15,6 @@ import org.opendaylight.genius.mdsalutil.BucketInfo;
 import org.opendaylight.genius.mdsalutil.FlowEntity;
 import org.opendaylight.genius.mdsalutil.GroupEntity;
 import org.opendaylight.genius.mdsalutil.InstructionInfo;
-import org.opendaylight.genius.mdsalutil.InstructionType;
 import org.opendaylight.genius.mdsalutil.MatchFieldType;
 import org.opendaylight.genius.mdsalutil.MatchInfo;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
@@ -24,6 +23,8 @@ import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.genius.mdsalutil.actions.ActionGroup;
 import org.opendaylight.genius.mdsalutil.actions.ActionNxResubmit;
 import org.opendaylight.genius.mdsalutil.actions.ActionSetFieldTunnelId;
+import org.opendaylight.genius.mdsalutil.instructions.InstructionApplyActions;
+import org.opendaylight.genius.mdsalutil.instructions.InstructionGotoTable;
 import org.opendaylight.netvirt.bgpmanager.api.IBgpManager;
 import org.opendaylight.netvirt.fibmanager.api.IFibManager;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
@@ -693,7 +694,7 @@ public class NaptSwitchHA {
             actionsInfo.add(new ActionSetFieldTunnelId(BigInteger.valueOf(routerVpnId)));
             LOG.debug("Setting the tunnel to the list of action infos {}", actionsInfo);
             actionsInfo.add(new ActionGroup(groupId));
-            instructions.add(new InstructionInfo(InstructionType.apply_actions, actionsInfo));
+            instructions.add(new InstructionApplyActions(actionsInfo));
 
             flowEntity = MDSALUtil.buildFlowEntity(dpId, NwConstants.PSNAT_TABLE, flowRef,
                     NatConstants.DEFAULT_PSNAT_FLOW_PRIORITY, flowRef, 0, 0,
@@ -720,8 +721,7 @@ public class NaptSwitchHA {
         if (addordel == NatConstants.ADD_FLOW) {
             List<InstructionInfo> instructions = new ArrayList<>();
 
-            instructions.add(new InstructionInfo(InstructionType.goto_table, new long[]
-                    { NwConstants.OUTBOUND_NAPT_TABLE }));
+            instructions.add(new InstructionGotoTable(NwConstants.OUTBOUND_NAPT_TABLE));
 
             flowEntity = MDSALUtil.buildFlowEntity(dpId, NwConstants.PSNAT_TABLE, flowRef,
                     NatConstants.DEFAULT_PSNAT_FLOW_PRIORITY, flowRef, 0, 0,

@@ -16,7 +16,6 @@ import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
 import org.opendaylight.genius.mdsalutil.ActionInfo;
 import org.opendaylight.genius.mdsalutil.FlowEntity;
 import org.opendaylight.genius.mdsalutil.InstructionInfo;
-import org.opendaylight.genius.mdsalutil.InstructionType;
 import org.opendaylight.genius.mdsalutil.MatchFieldType;
 import org.opendaylight.genius.mdsalutil.MatchInfo;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
@@ -27,6 +26,9 @@ import org.opendaylight.genius.mdsalutil.actions.ActionNxResubmit;
 import org.opendaylight.genius.mdsalutil.actions.ActionSetDestinationIp;
 import org.opendaylight.genius.mdsalutil.actions.ActionSetFieldEthernetSource;
 import org.opendaylight.genius.mdsalutil.actions.ActionSetSourceIp;
+import org.opendaylight.genius.mdsalutil.instructions.InstructionApplyActions;
+import org.opendaylight.genius.mdsalutil.instructions.InstructionGotoTable;
+import org.opendaylight.genius.mdsalutil.instructions.InstructionWriteMetadata;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.MacAddress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.FloatingIpInfo;
@@ -144,10 +146,10 @@ public class FloatingIPListener extends AsyncDataTreeChangeListenerBase<Internal
         actionsInfos.add(new ActionSetDestinationIp(internalIp, "32"));
 
         List<InstructionInfo> instructions = new ArrayList<>();
-        instructions.add(new InstructionInfo(InstructionType.write_metadata,
-                new BigInteger[] { MetaDataUtil.getVpnIdMetadata(segmentId), MetaDataUtil.METADATA_MASK_VRFID }));
-        instructions.add(new InstructionInfo(InstructionType.apply_actions, actionsInfos));
-        instructions.add(new InstructionInfo(InstructionType.goto_table, new long[] { NwConstants.DNAT_TABLE }));
+        instructions.add(new InstructionWriteMetadata(MetaDataUtil.getVpnIdMetadata(segmentId),
+                MetaDataUtil.METADATA_MASK_VRFID));
+        instructions.add(new InstructionApplyActions(actionsInfos));
+        instructions.add(new InstructionGotoTable(NwConstants.DNAT_TABLE));
 
         String flowRef = NatUtil.getFlowRef(dpId, NwConstants.PDNAT_TABLE, routerId, externalIp);
 
@@ -179,11 +181,11 @@ public class FloatingIPListener extends AsyncDataTreeChangeListenerBase<Internal
 //        actionsInfos.add(new ActionSetDestinationIp(internalIp, "32"));
 
         List<InstructionInfo> instructions = new ArrayList<>();
-//        instructions.add(new InstructionInfo(InstructionType.write_metadata, new BigInteger[] { BigInteger.valueOf
-//                (routerId), MetaDataUtil.METADATA_MASK_VRFID }));
+//        instructions.add(new InstructionWriteMetadata(BigInteger.valueOf
+//                (routerId), MetaDataUtil.METADATA_MASK_VRFID));
         actionsInfos.add(new ActionNxResubmit(NwConstants.L3_FIB_TABLE));
-        instructions.add(new InstructionInfo(InstructionType.apply_actions, actionsInfos));
-        //instructions.add(new InstructionInfo(InstructionType.goto_table, new long[] { NatConstants.L3_FIB_TABLE }));
+        instructions.add(new InstructionApplyActions(actionsInfos));
+        //instructions.add(new InstructionGotoTable(NatConstants.L3_FIB_TABLE));
 
         String flowRef = NatUtil.getFlowRef(dpId, NwConstants.DNAT_TABLE, routerId, internalIp);
 
@@ -216,10 +218,10 @@ public class FloatingIPListener extends AsyncDataTreeChangeListenerBase<Internal
         actionsInfos.add(new ActionSetSourceIp(externalIp, "32"));
 
         List<InstructionInfo> instructions = new ArrayList<>();
-        instructions.add(new InstructionInfo(InstructionType.write_metadata,
-                new BigInteger[] { MetaDataUtil.getVpnIdMetadata(vpnId), MetaDataUtil.METADATA_MASK_VRFID }));
-        instructions.add(new InstructionInfo(InstructionType.apply_actions, actionsInfos));
-        instructions.add(new InstructionInfo(InstructionType.goto_table, new long[] { NwConstants.SNAT_TABLE }));
+        instructions.add(
+                new InstructionWriteMetadata(MetaDataUtil.getVpnIdMetadata(vpnId), MetaDataUtil.METADATA_MASK_VRFID));
+        instructions.add(new InstructionApplyActions(actionsInfos));
+        instructions.add(new InstructionGotoTable(NwConstants.SNAT_TABLE));
 
         String flowRef = NatUtil.getFlowRef(dpId, NwConstants.PSNAT_TABLE, routerId, internalIp);
 
@@ -274,7 +276,7 @@ public class FloatingIPListener extends AsyncDataTreeChangeListenerBase<Internal
             actionsInfo.add(new ActionNxResubmit(NwConstants.L3_FIB_TABLE));
         }
 
-        instructions.add(new InstructionInfo(InstructionType.apply_actions, actionsInfo));
+        instructions.add(new InstructionApplyActions(actionsInfo));
         String flowRef = NatUtil.getFlowRef(dpId, NwConstants.SNAT_TABLE, vpnId, externalIp);
 
         FlowEntity flowEntity = MDSALUtil.buildFlowEntity(dpId, NwConstants.SNAT_TABLE, flowRef,

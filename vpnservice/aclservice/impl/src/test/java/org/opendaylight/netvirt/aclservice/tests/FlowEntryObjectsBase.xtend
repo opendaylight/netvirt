@@ -9,11 +9,10 @@ package org.opendaylight.netvirt.aclservice.tests
 
 import org.opendaylight.genius.mdsalutil.actions.ActionNxResubmit
 import org.opendaylight.genius.mdsalutil.FlowEntity
-import org.opendaylight.genius.mdsalutil.InstructionInfo
-import org.opendaylight.genius.mdsalutil.InstructionType
 import org.opendaylight.genius.mdsalutil.MatchFieldType
 import org.opendaylight.genius.mdsalutil.MatchInfoBuilder
 import org.opendaylight.genius.mdsalutil.MetaDataUtil
+import org.opendaylight.genius.mdsalutil.instructions.InstructionApplyActions
 
 import static extension org.opendaylight.mdsal.binding.testutils.XtendBuilderExtensions.operator_doubleGreaterThan
 
@@ -30,7 +29,7 @@ class FlowEntryObjectsBase {
                 flowId = "Ingress_DHCP_Server_v4123_987__Permit_"
             flowName = "ACL"
             instructionInfoList = #[
-                new InstructionInfo(InstructionType.apply_actions, #[
+                new InstructionApplyActions(#[
                     new ActionNxResubmit(220 as short)
                     ])
                 ]
@@ -75,7 +74,7 @@ class FlowEntryObjectsBase {
                 flowId = "Ingress_DHCP_Server_v6_123_987___Permit_"
             flowName = "ACL"
             instructionInfoList = #[
-                new InstructionInfo(InstructionType.apply_actions, #[
+                new InstructionApplyActions(#[
                     new ActionNxResubmit(220 as short)
                     ])
                 ]
@@ -120,7 +119,7 @@ class FlowEntryObjectsBase {
                 flowId = "Ingress_ICMPv6_123_987_130_Permit_"
             flowName = "ACL"
             instructionInfoList = #[
-                new InstructionInfo(InstructionType.apply_actions, #[
+                new InstructionApplyActions(#[
                     new ActionNxResubmit(220 as short)
                     ])
                 ]
@@ -160,7 +159,7 @@ class FlowEntryObjectsBase {
                 flowId = "Ingress_ICMPv6_123_987_135_Permit_"
             flowName = "ACL"
             instructionInfoList = #[
-                new InstructionInfo(InstructionType.apply_actions, #[
+                new InstructionApplyActions(#[
                     new ActionNxResubmit(220 as short)
                     ])
                 ]
@@ -200,7 +199,7 @@ class FlowEntryObjectsBase {
                 flowId = "Ingress_ICMPv6_123_987_136_Permit_"
             flowName = "ACL"
             instructionInfoList = #[
-                new InstructionInfo(InstructionType.apply_actions, #[
+                new InstructionApplyActions(#[
                     new ActionNxResubmit(220 as short)
                     ])
                 ]
@@ -240,7 +239,7 @@ class FlowEntryObjectsBase {
                 flowId = "Ingress_ARP_123_987"
             flowName = "ACL"
             instructionInfoList = #[
-                new InstructionInfo(InstructionType.apply_actions, #[
+                new InstructionApplyActions(#[
                     new ActionNxResubmit(220 as short)
                     ])
                 ]
@@ -274,7 +273,7 @@ class FlowEntryObjectsBase {
                 flowId = "Egress_DHCP_Client_v4123_987__Permit_"
                 flowName = "ACL"
                 instructionInfoList = #[
-                    new InstructionInfo(InstructionType.apply_actions, #[
+                    new InstructionApplyActions(#[
                         new ActionNxResubmit(17 as short)
                     ])
                 ]
@@ -319,7 +318,7 @@ class FlowEntryObjectsBase {
                 flowId = "Egress_DHCP_Client_v6_123_987__Permit_"
                 flowName = "ACL"
                 instructionInfoList = #[
-                    new InstructionInfo(InstructionType.apply_actions, #[
+                    new InstructionApplyActions(#[
                         new ActionNxResubmit(17 as short)
                     ])
                 ]
@@ -485,7 +484,7 @@ class FlowEntryObjectsBase {
                 flowId = "Egress_ICMPv6_123_987_133_Permit_"
                 flowName = "ACL"
                 instructionInfoList = #[
-                    new InstructionInfo(InstructionType.apply_actions, #[
+                    new InstructionApplyActions(#[
                         new ActionNxResubmit(17 as short)
                     ])
                 ]
@@ -525,7 +524,7 @@ class FlowEntryObjectsBase {
                 flowId = "Egress_ICMPv6_123_987_135_Permit_"
                 flowName = "ACL"
                 instructionInfoList = #[
-                    new InstructionInfo(InstructionType.apply_actions, #[
+                    new InstructionApplyActions(#[
                         new ActionNxResubmit(17 as short)
                     ])
                 ]
@@ -565,7 +564,7 @@ class FlowEntryObjectsBase {
                 flowId = "Egress_ICMPv6_123_987_136_Permit_"
                 flowName = "ACL"
                 instructionInfoList = #[
-                    new InstructionInfo(InstructionType.apply_actions, #[
+                    new InstructionApplyActions(#[
                         new ActionNxResubmit(17 as short)
                     ])
                 ]
@@ -605,7 +604,7 @@ class FlowEntryObjectsBase {
                 flowId = "Egress_ARP_123_0D:AA:D8:42:30:F3"
                 flowName = "ACL"
                 instructionInfoList = #[
-                    new InstructionInfo(InstructionType.apply_actions, #[
+                    new InstructionApplyActions(#[
                         new ActionNxResubmit(17 as short)
                     ])
                 ]
@@ -644,7 +643,7 @@ class FlowEntryObjectsBase {
                 flowId = "Ingress_DHCP_Server_v4123_987__Permit_"
                 flowName = "ACL"
                 instructionInfoList = #[
-                    new InstructionInfo(InstructionType.apply_actions, #[
+                    new InstructionApplyActions(#[
                         new ActionNxResubmit(220 as short)
                     ])
                 ]
@@ -689,7 +688,7 @@ class FlowEntryObjectsBase {
                 flowId = "Ingress_DHCP_Server_v6_123_987___Permit_"
                 flowName = "ACL"
                 instructionInfoList = #[
-                    new InstructionInfo(InstructionType.apply_actions, #[
+                    new InstructionApplyActions(#[
                         new ActionNxResubmit(220 as short)
                     ])
                 ]
@@ -734,7 +733,7 @@ class FlowEntryObjectsBase {
                 flowId = "Ingress_ICMPv6_123_987_130_Permit_"
                 flowName = "ACL"
                 instructionInfoList = #[
-                    new InstructionInfo(InstructionType.apply_actions, #[
+                    new InstructionApplyActions(#[
                         new ActionNxResubmit(220 as short)
                     ])
                 ]
@@ -774,7 +773,7 @@ class FlowEntryObjectsBase {
                 flowId = "Ingress_ICMPv6_123_987_135_Permit_"
                 flowName = "ACL"
                 instructionInfoList = #[
-                    new InstructionInfo(InstructionType.apply_actions, #[
+                    new InstructionApplyActions(#[
                         new ActionNxResubmit(220 as short)
                     ])
                 ]
@@ -814,7 +813,7 @@ class FlowEntryObjectsBase {
                 flowId = "Ingress_ICMPv6_123_987_136_Permit_"
                 flowName = "ACL"
                 instructionInfoList = #[
-                    new InstructionInfo(InstructionType.apply_actions, #[
+                    new InstructionApplyActions(#[
                         new ActionNxResubmit(220 as short)
                     ])
                 ]
@@ -854,7 +853,7 @@ class FlowEntryObjectsBase {
                 flowId = "Ingress_ARP_123_987"
                 flowName = "ACL"
                 instructionInfoList = #[
-                    new InstructionInfo(InstructionType.apply_actions, #[
+                    new InstructionApplyActions(#[
                         new ActionNxResubmit(220 as short)
                     ])
                 ]
@@ -886,7 +885,7 @@ class FlowEntryObjectsBase {
                 flowId = "Egress_DHCP_Client_v4123_987__Permit_"
                 flowName = "ACL"
                 instructionInfoList = #[
-                    new InstructionInfo(InstructionType.apply_actions, #[
+                    new InstructionApplyActions(#[
                         new ActionNxResubmit(17 as short)
                     ])
                 ]
@@ -931,7 +930,7 @@ class FlowEntryObjectsBase {
                 flowId = "Egress_DHCP_Client_v6_123_987__Permit_"
                 flowName = "ACL"
                 instructionInfoList = #[
-                    new InstructionInfo(InstructionType.apply_actions, #[
+                    new InstructionApplyActions(#[
                         new ActionNxResubmit(17 as short)
                     ])
                 ]
@@ -1097,7 +1096,7 @@ class FlowEntryObjectsBase {
                 flowId = "Egress_ICMPv6_123_987_133_Permit_"
                 flowName = "ACL"
                 instructionInfoList = #[
-                    new InstructionInfo(InstructionType.apply_actions, #[
+                    new InstructionApplyActions(#[
                         new ActionNxResubmit(17 as short)
                     ])
                 ]
@@ -1137,7 +1136,7 @@ class FlowEntryObjectsBase {
                 flowId = "Egress_ICMPv6_123_987_135_Permit_"
                 flowName = "ACL"
                 instructionInfoList = #[
-                    new InstructionInfo(InstructionType.apply_actions, #[
+                    new InstructionApplyActions(#[
                         new ActionNxResubmit(17 as short)
                     ])
                 ]
@@ -1177,7 +1176,7 @@ class FlowEntryObjectsBase {
                 flowId = "Egress_ICMPv6_123_987_136_Permit_"
                 flowName = "ACL"
                 instructionInfoList = #[
-                    new InstructionInfo(InstructionType.apply_actions, #[
+                    new InstructionApplyActions(#[
                         new ActionNxResubmit(17 as short)
                     ])
                 ]
@@ -1217,7 +1216,7 @@ class FlowEntryObjectsBase {
                 flowId = "Egress_ARP_123_0D:AA:D8:42:30:F4"
                 flowName = "ACL"
                 instructionInfoList = #[
-                    new InstructionInfo(InstructionType.apply_actions, #[
+                    new InstructionApplyActions(#[
                         new ActionNxResubmit(17 as short)
                     ])
                 ]
@@ -1256,7 +1255,7 @@ class FlowEntryObjectsBase {
                 flowId = "Ingress_DHCP_Server_v4123_987__Permit_"
                 flowName = "ACL"
                 instructionInfoList = #[
-                    new InstructionInfo(InstructionType.apply_actions, #[
+                    new InstructionApplyActions(#[
                         new ActionNxResubmit(220 as short)
                     ])
                 ]
@@ -1301,7 +1300,7 @@ class FlowEntryObjectsBase {
                 flowId = "Ingress_DHCP_Server_v6_123_987___Permit_"
                 flowName = "ACL"
                 instructionInfoList = #[
-                    new InstructionInfo(InstructionType.apply_actions, #[
+                    new InstructionApplyActions(#[
                         new ActionNxResubmit(220 as short)
                     ])
                 ]
@@ -1346,7 +1345,7 @@ class FlowEntryObjectsBase {
                 flowId = "Ingress_ICMPv6_123_987_130_Permit_"
                 flowName = "ACL"
                 instructionInfoList = #[
-                    new InstructionInfo(InstructionType.apply_actions, #[
+                    new InstructionApplyActions(#[
                         new ActionNxResubmit(220 as short)
                     ])
                 ]
@@ -1386,7 +1385,7 @@ class FlowEntryObjectsBase {
                 flowId = "Ingress_ICMPv6_123_987_135_Permit_"
                 flowName = "ACL"
                 instructionInfoList = #[
-                    new InstructionInfo(InstructionType.apply_actions, #[
+                    new InstructionApplyActions(#[
                         new ActionNxResubmit(17 as short)
                     ])
                 ]
@@ -1426,7 +1425,7 @@ class FlowEntryObjectsBase {
                 flowId = "Ingress_ICMPv6_123_987_136_Permit_"
                 flowName = "ACL"
                 instructionInfoList = #[
-                    new InstructionInfo(InstructionType.apply_actions, #[
+                    new InstructionApplyActions(#[
                         new ActionNxResubmit(17 as short)
                     ])
                 ]
@@ -1466,7 +1465,7 @@ class FlowEntryObjectsBase {
                 flowId = "Ingress_ARP_123_987"
                 flowName = "ACL"
                 instructionInfoList = #[
-                    new InstructionInfo(InstructionType.apply_actions, #[
+                    new InstructionApplyActions(#[
                         new ActionNxResubmit(17 as short)
                     ])
                 ]
@@ -1498,7 +1497,7 @@ class FlowEntryObjectsBase {
                 flowId = "Egress_DHCP_Client_v4123_987__Permit_"
                 flowName = "ACL"
                 instructionInfoList = #[
-                    new InstructionInfo(InstructionType.apply_actions, #[
+                    new InstructionApplyActions(#[
                         new ActionNxResubmit(17 as short)
                     ])
                 ]
@@ -1543,7 +1542,7 @@ class FlowEntryObjectsBase {
                 flowId = "Egress_DHCP_Client_v6_123_987__Permit_"
                 flowName = "ACL"
                 instructionInfoList = #[
-                    new InstructionInfo(InstructionType.apply_actions, #[
+                    new InstructionApplyActions(#[
                         new ActionNxResubmit(17 as short)
                     ])
                 ]
@@ -1709,7 +1708,7 @@ class FlowEntryObjectsBase {
                 flowId = "Egress_ICMPv6_123_987_133_Permit_"
                 flowName = "ACL"
                 instructionInfoList = #[
-                    new InstructionInfo(InstructionType.apply_actions, #[
+                    new InstructionApplyActions(#[
                         new ActionNxResubmit(17 as short)
                     ])
                 ]
@@ -1749,7 +1748,7 @@ class FlowEntryObjectsBase {
                 flowId = "Egress_ICMPv6_123_987_135_Permit_"
                 flowName = "ACL"
                 instructionInfoList = #[
-                    new InstructionInfo(InstructionType.apply_actions, #[
+                    new InstructionApplyActions(#[
                         new ActionNxResubmit(17 as short)
                     ])
                 ]
@@ -1789,7 +1788,7 @@ class FlowEntryObjectsBase {
                 flowId = "Egress_ICMPv6_123_987_136_Permit_"
                 flowName = "ACL"
                 instructionInfoList = #[
-                    new InstructionInfo(InstructionType.apply_actions, #[
+                    new InstructionApplyActions(#[
                         new ActionNxResubmit(17 as short)
                     ])
                 ]
@@ -1829,7 +1828,7 @@ class FlowEntryObjectsBase {
                 flowId = "Egress_ARP_123_0D:AA:D8:42:30:F5"
                 flowName = "ACL"
                 instructionInfoList = #[
-                    new InstructionInfo(InstructionType.apply_actions, #[
+                    new InstructionApplyActions(#[
                         new ActionNxResubmit(17 as short)
                     ])
                 ]
@@ -1868,7 +1867,7 @@ class FlowEntryObjectsBase {
                 flowId = "Ingress_DHCP_Server_v4123_987__Permit_"
                 flowName = "ACL"
                 instructionInfoList = #[
-                    new InstructionInfo(InstructionType.apply_actions, #[
+                    new InstructionApplyActions(#[
                         new ActionNxResubmit(220 as short)
                     ])
                 ]
@@ -1913,7 +1912,7 @@ class FlowEntryObjectsBase {
                 flowId = "Ingress_DHCP_Server_v6_123_987___Permit_"
                 flowName = "ACL"
                 instructionInfoList = #[
-                    new InstructionInfo(InstructionType.apply_actions, #[
+                    new InstructionApplyActions(#[
                         new ActionNxResubmit(220 as short)
                     ])
                 ]
@@ -1958,7 +1957,7 @@ class FlowEntryObjectsBase {
                 flowId = "Ingress_ICMPv6_123_987_130_Permit_"
                 flowName = "ACL"
                 instructionInfoList = #[
-                    new InstructionInfo(InstructionType.apply_actions, #[
+                    new InstructionApplyActions(#[
                         new ActionNxResubmit(220 as short)
                     ])
                 ]
@@ -1998,7 +1997,7 @@ class FlowEntryObjectsBase {
                 flowId = "Ingress_ICMPv6_123_987_135_Permit_"
                 flowName = "ACL"
                 instructionInfoList = #[
-                    new InstructionInfo(InstructionType.apply_actions, #[
+                    new InstructionApplyActions(#[
                         new ActionNxResubmit(220 as short)
                     ])
                 ]
@@ -2038,7 +2037,7 @@ class FlowEntryObjectsBase {
                 flowId = "Ingress_ICMPv6_123_987_136_Permit_"
                 flowName = "ACL"
                 instructionInfoList = #[
-                    new InstructionInfo(InstructionType.apply_actions, #[
+                    new InstructionApplyActions(#[
                         new ActionNxResubmit(220 as short)
                     ])
                 ]
@@ -2078,7 +2077,7 @@ class FlowEntryObjectsBase {
                 flowId = "Ingress_ARP_123_987"
                 flowName = "ACL"
                 instructionInfoList = #[
-                    new InstructionInfo(InstructionType.apply_actions, #[
+                    new InstructionApplyActions(#[
                         new ActionNxResubmit(220 as short)
                     ])
                 ]
@@ -2105,7 +2104,7 @@ class FlowEntryObjectsBase {
                 flowId = "Egress_DHCP_Client_v4123_987__Permit_"
                 flowName = "ACL"
                 instructionInfoList = #[
-                    new InstructionInfo(InstructionType.apply_actions, #[
+                    new InstructionApplyActions(#[
                         new ActionNxResubmit(17 as short)
                     ])
                 ]
@@ -2150,7 +2149,7 @@ class FlowEntryObjectsBase {
                 flowId = "Egress_DHCP_Client_v6_123_987__Permit_"
                 flowName = "ACL"
                 instructionInfoList = #[
-                    new InstructionInfo(InstructionType.apply_actions, #[
+                    new InstructionApplyActions(#[
                         new ActionNxResubmit(17 as short)
                     ])
                 ]
@@ -2316,7 +2315,7 @@ class FlowEntryObjectsBase {
                 flowId = "Egress_ICMPv6_123_987_133_Permit_"
                 flowName = "ACL"
                 instructionInfoList = #[
-                    new InstructionInfo(InstructionType.apply_actions, #[
+                    new InstructionApplyActions(#[
                         new ActionNxResubmit(17 as short)
                     ])
                 ]
@@ -2356,7 +2355,7 @@ class FlowEntryObjectsBase {
                 flowId = "Egress_ICMPv6_123_987_135_Permit_"
                 flowName = "ACL"
                 instructionInfoList = #[
-                    new InstructionInfo(InstructionType.apply_actions, #[
+                    new InstructionApplyActions(#[
                         new ActionNxResubmit(17 as short)
                     ])
                 ]
@@ -2396,7 +2395,7 @@ class FlowEntryObjectsBase {
                 flowId = "Egress_ICMPv6_123_987_136_Permit_"
                 flowName = "ACL"
                 instructionInfoList = #[
-                    new InstructionInfo(InstructionType.apply_actions, #[
+                    new InstructionApplyActions(#[
                         new ActionNxResubmit(17 as short)
                     ])
                 ]

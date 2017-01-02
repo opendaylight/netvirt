@@ -35,7 +35,6 @@ import org.opendaylight.genius.datastoreutils.DataStoreJobCoordinator;
 import org.opendaylight.genius.mdsalutil.ActionInfo;
 import org.opendaylight.genius.mdsalutil.FlowEntity;
 import org.opendaylight.genius.mdsalutil.InstructionInfo;
-import org.opendaylight.genius.mdsalutil.InstructionType;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.mdsalutil.MatchFieldType;
 import org.opendaylight.genius.mdsalutil.MatchInfo;
@@ -54,6 +53,9 @@ import org.opendaylight.genius.mdsalutil.actions.ActionSetFieldMplsLabel;
 import org.opendaylight.genius.mdsalutil.actions.ActionSetFieldTunnelId;
 import org.opendaylight.genius.mdsalutil.actions.ActionSetIcmpType;
 import org.opendaylight.genius.mdsalutil.actions.ActionSetSourceIp;
+import org.opendaylight.genius.mdsalutil.instructions.InstructionApplyActions;
+import org.opendaylight.genius.mdsalutil.instructions.InstructionGotoTable;
+import org.opendaylight.genius.mdsalutil.instructions.InstructionWriteMetadata;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.genius.mdsalutil.packet.IPProtocols;
 import org.opendaylight.genius.utils.ServiceIndex;
@@ -569,8 +571,8 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
         }
         final List<InstructionInfo> instructions = new ArrayList<InstructionInfo>();
         BigInteger subnetRouteMeta =  ((BigInteger.valueOf(elanTag)).shiftLeft(32)).or((BigInteger.valueOf(vpnId).shiftLeft(1)));
-        instructions.add(new InstructionInfo(InstructionType.write_metadata,  new BigInteger[] { subnetRouteMeta, MetaDataUtil.METADATA_MASK_SUBNET_ROUTE }));
-        instructions.add(new InstructionInfo(InstructionType.goto_table, new long[] { NwConstants.L3_SUBNET_ROUTE_TABLE }));
+        instructions.add(new InstructionWriteMetadata(subnetRouteMeta, MetaDataUtil.METADATA_MASK_SUBNET_ROUTE));
+        instructions.add(new InstructionGotoTable(NwConstants.L3_SUBNET_ROUTE_TABLE));
         makeConnectedRoute(dpnId,vpnId,vrfEntry,rd,instructions,NwConstants.ADD_FLOW, tx);
 
         if (RouteOrigin.value(vrfEntry.getOrigin()) != RouteOrigin.SELF_IMPORTED) {
@@ -579,9 +581,9 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
             final List<InstructionInfo> LFIBinstructions = new ArrayList<InstructionInfo>();
 
             actionsInfos.add(new ActionPopMpls());
-            LFIBinstructions.add(new InstructionInfo(InstructionType.apply_actions, actionsInfos));
-            LFIBinstructions.add(new InstructionInfo(InstructionType.write_metadata,  new BigInteger[] { subnetRouteMeta, MetaDataUtil.METADATA_MASK_SUBNET_ROUTE }));
-            LFIBinstructions.add(new InstructionInfo(InstructionType.goto_table, new long[] { NwConstants.L3_SUBNET_ROUTE_TABLE }));
+            LFIBinstructions.add(new InstructionApplyActions(actionsInfos));
+            LFIBinstructions.add(new InstructionWriteMetadata(subnetRouteMeta, MetaDataUtil.METADATA_MASK_SUBNET_ROUTE));
+            LFIBinstructions.add(new InstructionGotoTable(NwConstants.L3_SUBNET_ROUTE_TABLE));
 
             makeLFibTableEntry(dpnId,vrfEntry.getLabel(), LFIBinstructions, DEFAULT_FIB_FLOW_PRIORITY, NwConstants.ADD_FLOW, tx);
         }
@@ -633,15 +635,14 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
                 for ( BigInteger dpId : targetDpns ) {
                     List<ActionInfo> actionsInfos = Collections.singletonList(new ActionPopMpls());
 
-                    BigInteger[] metadata = new BigInteger[] {
-                            MetaDataUtil.getMetaDataForLPortDispatcher(lportTag.intValue(), ServiceIndex.getIndex(NwConstants.L3VPN_SERVICE_NAME, NwConstants.L3VPN_SERVICE_INDEX)),
-                            MetaDataUtil.getMetaDataMaskForLPortDispatcher()
-                    };
                     List<InstructionInfo> instructions =
-                            Arrays.asList(new InstructionInfo(InstructionType.apply_actions, actionsInfos),
-                                    new InstructionInfo(InstructionType.write_metadata, metadata),
-                                    new InstructionInfo(InstructionType.goto_table,
-                                            new long[] { NwConstants.L3_INTERFACE_TABLE }));
+                            Arrays.asList(new InstructionApplyActions(actionsInfos),
+                                    new InstructionWriteMetadata(
+                                            MetaDataUtil.getMetaDataForLPortDispatcher(lportTag.intValue(),
+                                                    ServiceIndex.getIndex(NwConstants.L3VPN_SERVICE_NAME,
+                                                            NwConstants.L3VPN_SERVICE_INDEX)),
+                                            MetaDataUtil.getMetaDataMaskForLPortDispatcher()),
+                                    new InstructionGotoTable(NwConstants.L3_INTERFACE_TABLE));
 
                     LOG.debug("Installing flow: VrfEntry=[prefix={} label={} nexthop={}] dpn {} for InterVpnLink {} in LFIB",
                               vrfEntry.getDestPrefix(), vrfEntry.getLabel(), vrfEntry.getNextHopAddressList(),
@@ -696,15 +697,13 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
             return;
         }
 
-        BigInteger[] metadata = new BigInteger[] {
-                MetaDataUtil.getMetaDataForLPortDispatcher(optOtherEndpointLportTag.get().intValue(),
-                        ServiceIndex.getIndex(NwConstants.L3VPN_SERVICE_NAME, NwConstants.L3VPN_SERVICE_INDEX)),
-                MetaDataUtil.getMetaDataMaskForLPortDispatcher()
-        };
         List<Instruction> instructions =
-                Arrays.asList(new InstructionInfo(InstructionType.write_metadata, metadata).buildInstruction(0),
-                              new InstructionInfo(InstructionType.goto_table,
-                                                  new long[] { NwConstants.L3_INTERFACE_TABLE }).buildInstruction(1));
+                Arrays.asList(new InstructionWriteMetadata(
+                                MetaDataUtil.getMetaDataForLPortDispatcher(optOtherEndpointLportTag.get().intValue(),
+                                        ServiceIndex.getIndex(NwConstants.L3VPN_SERVICE_NAME, NwConstants
+                                                .L3VPN_SERVICE_INDEX)),
+                                MetaDataUtil.getMetaDataMaskForLPortDispatcher()).buildInstruction(0),
+                              new InstructionGotoTable(NwConstants.L3_INTERFACE_TABLE).buildInstruction(1));
 
         String values[] = destination.split("/");
         String destPrefixIpAddress = values[0];
@@ -851,10 +850,10 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
                 return BigInteger.ZERO;
             }
             final List<InstructionInfo> instructions = Collections.singletonList(
-                new InstructionInfo(InstructionType.apply_actions,
+                new InstructionApplyActions(
                     Collections.singletonList(new ActionGroup(groupId))));
             final List<InstructionInfo> lfibinstructions = Collections.singletonList(
-                new InstructionInfo(InstructionType.apply_actions,
+                new InstructionApplyActions(
                     Arrays.asList(new ActionPopMpls(), new ActionGroup(groupId))));
             if (RouteOrigin.value(vrfEntry.getOrigin()) != RouteOrigin.SELF_IMPORTED) {
                 LOG.debug("Installing tunnel table entry on dpn {} for interface {} with label {}",
@@ -947,7 +946,7 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
         mkMatches.add(new MatchInfo(MatchFieldType.tunnel_id, new BigInteger[] {BigInteger.valueOf(label)}));
 
         List<InstructionInfo> mkInstructions = new ArrayList<>();
-        mkInstructions.add(new InstructionInfo(InstructionType.apply_actions, actionsInfos));
+        mkInstructions.add(new InstructionApplyActions(actionsInfos));
 
         FlowEntity terminatingServiceTableFlowEntity = MDSALUtil.buildFlowEntity(destDpId, NwConstants.INTERNAL_TUNNEL_TABLE,
                 getTableMissFlowRef(destDpId, NwConstants.INTERNAL_TUNNEL_TABLE,label), 5, String.format("%s:%d","TST Flow Entry ",label),
@@ -1141,7 +1140,7 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
                 return;
             }
             actionInfos.addAll(egressActions);
-            instructions.add(new InstructionInfo(InstructionType.apply_actions, actionInfos));
+            instructions.add(new InstructionApplyActions(actionInfos));
             makeConnectedRoute(remoteDpnId, vpnId, vrfEntry, rd, instructions, NwConstants.ADD_FLOW, tx);
         }
         if(!wrTxPresent ){
@@ -2132,7 +2131,7 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
         final BigInteger COOKIE_PROTOCOL_TABLE = new BigInteger("1070000", 16);
         // Instruction to goto L3 InterfaceTable
         List<InstructionInfo> instructions = new ArrayList<>();
-        instructions.add(new InstructionInfo(InstructionType.goto_table, new long[] {NwConstants.L3_LFIB_TABLE}));
+        instructions.add(new InstructionGotoTable(NwConstants.L3_LFIB_TABLE));
         List<MatchInfo> matches = new ArrayList<MatchInfo>();
         matches.add(new MatchInfo(MatchFieldType.eth_type,
                 new long[] { NwConstants.ETHTYPE_MPLS_UC }));
@@ -2271,7 +2270,7 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
 
         List<InstructionInfo> instructions = new ArrayList<>();
 
-        instructions.add(new InstructionInfo(InstructionType.apply_actions, actionsInfos));
+        instructions.add(new InstructionApplyActions(actionsInfos));
 
         int priority = FibConstants.DEFAULT_FIB_FLOW_PRIORITY + FibConstants.DEFAULT_PREFIX_LENGTH;
         String flowRef = getFlowRef(dpnId, NwConstants.L3_FIB_TABLE, vrfEntry.getLabel(), priority);

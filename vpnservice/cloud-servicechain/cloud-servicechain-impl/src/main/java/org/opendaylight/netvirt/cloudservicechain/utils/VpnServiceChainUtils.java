@@ -18,7 +18,6 @@ import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.mdsalutil.ActionInfo;
 import org.opendaylight.genius.mdsalutil.FlowEntity;
 import org.opendaylight.genius.mdsalutil.InstructionInfo;
-import org.opendaylight.genius.mdsalutil.InstructionType;
 import org.opendaylight.genius.mdsalutil.MDSALDataStoreUtils;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.mdsalutil.MatchFieldType;
@@ -26,6 +25,9 @@ import org.opendaylight.genius.mdsalutil.MatchInfo;
 import org.opendaylight.genius.mdsalutil.MetaDataUtil;
 import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.genius.mdsalutil.actions.ActionPopMpls;
+import org.opendaylight.genius.mdsalutil.instructions.InstructionApplyActions;
+import org.opendaylight.genius.mdsalutil.instructions.InstructionGotoTable;
+import org.opendaylight.genius.mdsalutil.instructions.InstructionWriteMetadata;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.genius.utils.ServiceIndex;
 import org.opendaylight.netvirt.cloudservicechain.CloudServiceChainConstants;
@@ -304,16 +306,15 @@ public class VpnServiceChainUtils {
 
         List<ActionInfo> actionsInfos = Collections.singletonList(new ActionPopMpls());
         List<InstructionInfo> instructions = new ArrayList<>();
-        instructions.add(new InstructionInfo(InstructionType.write_metadata,
-                new BigInteger[]{
+        instructions.add(new InstructionWriteMetadata(
                        MetaDataUtil.getMetaDataForLPortDispatcher(lportTag,
                                                                   ServiceIndex.getIndex(NwConstants.SCF_SERVICE_NAME,
                                                                                         NwConstants.SCF_SERVICE_INDEX)),
                        MetaDataUtil.getMetaDataMaskForLPortDispatcher()
-                }));
+        ));
 
-        instructions.add(new InstructionInfo(InstructionType.apply_actions, actionsInfos));
-        instructions.add(new InstructionInfo(InstructionType.goto_table, new long[] {NwConstants.L3_INTERFACE_TABLE}));
+        instructions.add(new InstructionApplyActions(actionsInfos));
+        instructions.add(new InstructionGotoTable(NwConstants.L3_INTERFACE_TABLE));
         String flowRef = getLFibVpnPseudoPortFlowRef(lportTag, label, nextHop);
         return MDSALUtil.buildFlowEntity(dpId, NwConstants.L3_LFIB_TABLE, flowRef,
                                          CloudServiceChainConstants.DEFAULT_SCF_FLOW_PRIORITY, flowRef, 0, 0,
@@ -377,10 +378,10 @@ public class VpnServiceChainUtils {
             buildMatchOnLportTagAndSI(lportTag, ServiceIndex.getIndex(NwConstants.SCF_SERVICE_NAME,
                                                                       NwConstants.SCF_SERVICE_INDEX));
         List<InstructionInfo> instructions = new ArrayList<>();
-        instructions.add(new InstructionInfo(InstructionType.write_metadata, new BigInteger[] {
+        instructions.add(new InstructionWriteMetadata(
                 VpnServiceChainUtils.getMetadataSCF(scfTag), CloudServiceChainConstants.METADATA_MASK_SCF_WRITE
-        }));
-        instructions.add(new InstructionInfo(InstructionType.goto_table, new long[] { gotoTableId }));
+        ));
+        instructions.add(new InstructionGotoTable(gotoTableId));
         String flowRef = getL3VpnToScfLportDispatcherFlowRef(lportTag);
 
         return MDSALUtil.buildFlowEntity(dpId, NwConstants.LPORT_DISPATCHER_TABLE, flowRef,

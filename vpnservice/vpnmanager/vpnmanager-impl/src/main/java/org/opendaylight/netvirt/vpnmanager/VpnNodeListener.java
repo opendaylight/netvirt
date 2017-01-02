@@ -20,7 +20,6 @@ import org.opendaylight.genius.mdsalutil.ActionInfo;
 import org.opendaylight.genius.mdsalutil.BucketInfo;
 import org.opendaylight.genius.mdsalutil.FlowEntity;
 import org.opendaylight.genius.mdsalutil.InstructionInfo;
-import org.opendaylight.genius.mdsalutil.InstructionType;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.mdsalutil.MatchFieldType;
 import org.opendaylight.genius.mdsalutil.MatchInfo;
@@ -28,6 +27,8 @@ import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.genius.mdsalutil.actions.ActionGroup;
 import org.opendaylight.genius.mdsalutil.actions.ActionNxResubmit;
 import org.opendaylight.genius.mdsalutil.actions.ActionPuntToController;
+import org.opendaylight.genius.mdsalutil.instructions.InstructionApplyActions;
+import org.opendaylight.genius.mdsalutil.instructions.InstructionGotoTable;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.netvirt.vpnmanager.arp.responder.ArpResponderConstant;
 import org.opendaylight.netvirt.vpnmanager.arp.responder.ArpResponderUtil;
@@ -110,7 +111,8 @@ public class VpnNodeListener extends AsyncClusteredDataTreeChangeListenerBase<No
     private void makeTableMissFlow(WriteTransaction writeFlowTx, BigInteger dpnId, int addOrRemove) {
         final BigInteger COOKIE_TABLE_MISS = new BigInteger("1030000", 16);
         // Instruction to goto L3 InterfaceTable
-        List<InstructionInfo> instructions = Collections.singletonList(new InstructionInfo(InstructionType.goto_table, new long[] { NwConstants.L3_INTERFACE_TABLE }));
+        List<InstructionInfo> instructions =
+                Collections.singletonList(new InstructionGotoTable(NwConstants.L3_INTERFACE_TABLE));
         List<MatchInfo> matches = new ArrayList<MatchInfo>();
         FlowEntity flowEntityLfib = MDSALUtil.buildFlowEntity(dpnId, NwConstants.L3_LFIB_TABLE,
                 getTableMissFlowRef(dpnId, NwConstants.L3_LFIB_TABLE, NwConstants.TABLE_MISS_FLOW),
@@ -132,8 +134,8 @@ public class VpnNodeListener extends AsyncClusteredDataTreeChangeListenerBase<No
 
         List <ActionInfo> actionsInfos = new ArrayList <ActionInfo> ();
         actionsInfos.add(new ActionNxResubmit((NwConstants.LPORT_DISPATCHER_TABLE)));
-        instructions.add(new InstructionInfo(InstructionType.apply_actions, actionsInfos));
-        //instructions.add(new InstructionInfo(InstructionType.goto_table, new long[] { NwConstants.LPORT_DISPATCHER_TABLE }));
+        instructions.add(new InstructionApplyActions(actionsInfos));
+        //instructions.add(new InstructionGotoTable(NwConstants.LPORT_DISPATCHER_TABLE));
 
         FlowEntity flowEntityL3Intf = MDSALUtil.buildFlowEntity(dpnId, NwConstants.L3_INTERFACE_TABLE,
                 getTableMissFlowRef(dpnId, NwConstants.L3_INTERFACE_TABLE, NwConstants.TABLE_MISS_FLOW),
@@ -152,7 +154,7 @@ public class VpnNodeListener extends AsyncClusteredDataTreeChangeListenerBase<No
         List<ActionInfo> actionsInfos = new ArrayList<ActionInfo>();
         List<InstructionInfo> instructions = new ArrayList<InstructionInfo>();
         actionsInfos.add(new ActionPuntToController());
-        instructions.add(new InstructionInfo(InstructionType.apply_actions, actionsInfos));
+        instructions.add(new InstructionApplyActions(actionsInfos));
         List<MatchInfo> matches = new ArrayList<MatchInfo>();
         String flowRef = getTableMissFlowRef(dpnId, NwConstants.L3_SUBNET_ROUTE_TABLE, NwConstants.TABLE_MISS_FLOW);
         FlowEntity flowEntity = MDSALUtil.buildFlowEntity(dpnId, NwConstants.L3_SUBNET_ROUTE_TABLE, flowRef,
@@ -168,7 +170,7 @@ public class VpnNodeListener extends AsyncClusteredDataTreeChangeListenerBase<No
     private void createTableMissForVpnGwFlow(WriteTransaction writeFlowTx, BigInteger dpId) {
         List<MatchInfo> matches = new ArrayList<MatchInfo>();
         List<ActionInfo> actionsInfos = Collections.singletonList(new ActionNxResubmit(NwConstants.LPORT_DISPATCHER_TABLE));
-        List<InstructionInfo> instructions = Collections.singletonList(new InstructionInfo(InstructionType.apply_actions, actionsInfos));
+        List<InstructionInfo> instructions = Collections.singletonList(new InstructionApplyActions(actionsInfos));
         FlowEntity flowEntityMissforGw = MDSALUtil.buildFlowEntity(dpId, NwConstants.L3_GW_MAC_TABLE,
                 getTableMissFlowRef(dpId, NwConstants.L3_GW_MAC_TABLE, NwConstants.TABLE_MISS_FLOW),
                 NwConstants.TABLE_MISS_PRIORITY, "L3 Gw Mac Table Miss", 0, 0, new BigInteger("1080000", 16), matches, instructions);
@@ -190,7 +192,7 @@ public class VpnNodeListener extends AsyncClusteredDataTreeChangeListenerBase<No
         matches.add(new MatchInfo(MatchFieldType.arp_op, new long[] {NwConstants.ARP_REQUEST}));
         final List<ActionInfo> actionInfos = Collections.singletonList(
             new ActionGroup(ArpResponderUtil.retrieveStandardArpResponderGroupId(idManagerService)));
-        final List<InstructionInfo> instructions = Collections.singletonList(new InstructionInfo(InstructionType.apply_actions, actionInfos));
+        final List<InstructionInfo> instructions = Collections.singletonList(new InstructionApplyActions(actionInfos));
         FlowEntity flowEntity = MDSALUtil.buildFlowEntity(dpId, NwConstants.L3_GW_MAC_TABLE,
                 getFlowRefForArpFlows(dpId, NwConstants.L3_GW_MAC_TABLE, NwConstants.ARP_REQUEST),
                 NwConstants.DEFAULT_ARP_FLOW_PRIORITY, "L3GwMac Arp Rquest", 0, 0, new BigInteger("1080000", 16), matches, instructions);
@@ -205,7 +207,7 @@ public class VpnNodeListener extends AsyncClusteredDataTreeChangeListenerBase<No
         List<ActionInfo> actionsInfos = new ArrayList<>();
         actionsInfos.add(new ActionPuntToController());
         actionsInfos.add(new ActionNxResubmit(NwConstants.LPORT_DISPATCHER_TABLE));
-        List<InstructionInfo> instructions = Collections.singletonList(new InstructionInfo(InstructionType.apply_actions, actionsInfos));
+        List<InstructionInfo> instructions = Collections.singletonList(new InstructionApplyActions(actionsInfos));
         FlowEntity flowEntity = MDSALUtil.buildFlowEntity(dpId, NwConstants.L3_GW_MAC_TABLE,
                 getFlowRefForArpFlows(dpId, NwConstants.L3_GW_MAC_TABLE, NwConstants.ARP_REPLY),
                 NwConstants.DEFAULT_ARP_FLOW_PRIORITY, "L3GwMac Arp Reply", 0, 0, new BigInteger("1080000", 16), matches, instructions);
