@@ -20,8 +20,6 @@ import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.genius.mdsalutil.BucketInfo;
 import org.opendaylight.genius.mdsalutil.FlowEntity;
 import org.opendaylight.genius.mdsalutil.GroupEntity;
-import org.opendaylight.genius.mdsalutil.InstructionInfo;
-import org.opendaylight.genius.mdsalutil.InstructionType;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.mdsalutil.MatchFieldType;
 import org.opendaylight.genius.mdsalutil.MatchInfo;
@@ -38,6 +36,9 @@ import org.opendaylight.genius.mdsalutil.actions.ActionNxResubmit;
 import org.opendaylight.genius.mdsalutil.actions.ActionPuntToController;
 import org.opendaylight.genius.mdsalutil.actions.ActionSetArpOp;
 import org.opendaylight.genius.mdsalutil.actions.ActionSetFieldEthernetSource;
+import org.opendaylight.genius.mdsalutil.instructions.InstructionApplyActions;
+import org.opendaylight.genius.mdsalutil.instructions.InstructionGotoTable;
+import org.opendaylight.genius.mdsalutil.instructions.InstructionWriteMetadata;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.netvirt.vpnmanager.ArpReplyOrRequest;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.MacAddress;
@@ -120,8 +121,7 @@ public class ArpResponderUtil {
             ArpResponderConstant.DROP_FLOW_NAME.value(), 0, 0,
             NwConstants.COOKIE_ARP_RESPONDER,
             new ArrayList<MatchInfo>(),
-            Collections.singletonList(new InstructionInfo(InstructionType.apply_actions,
-                Collections.singletonList(new ActionDrop()))));
+            Collections.singletonList(new InstructionApplyActions(Collections.singletonList(new ActionDrop()))));
     }
 
     /**
@@ -276,15 +276,14 @@ public class ArpResponderUtil {
         instructions.add(MDSALUtil.buildApplyActionsInstruction(actions, 0));
         // reset the split-horizon bit to allow traffic to be sent back to the
         // provider port
-        instructions.add(new InstructionInfo(InstructionType.write_metadata,
-                new BigInteger[] { BigInteger.ZERO, MetaDataUtil.METADATA_MASK_SH_FLAG }).buildInstruction(1));
+        instructions.add(
+                new InstructionWriteMetadata(BigInteger.ZERO, MetaDataUtil.METADATA_MASK_SH_FLAG).buildInstruction(1));
 
         if (tableId != null) {
             // replace resubmit action with goto so it can co-exist with
             // write-metadata
             if (tableId > NwConstants.ARP_RESPONDER_TABLE) {
-                instructions.add(new InstructionInfo(InstructionType.goto_table, new long[] { tableId.longValue() })
-                        .buildInstruction(2));
+                instructions.add(new InstructionGotoTable(tableId).buildInstruction(2));
             } else {
                 LOG.warn("Failed to insall responder flow for interface {}. Resubmit to {} can't be replaced with goto",
                         extInterfaceName, tableId);

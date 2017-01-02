@@ -15,11 +15,11 @@ import java.util.Map;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.genius.mdsalutil.ActionInfo;
 import org.opendaylight.genius.mdsalutil.InstructionInfo;
-import org.opendaylight.genius.mdsalutil.InstructionType;
 import org.opendaylight.genius.mdsalutil.MatchInfoBase;
 import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.genius.mdsalutil.actions.ActionLearn;
 import org.opendaylight.genius.mdsalutil.actions.ActionNxResubmit;
+import org.opendaylight.genius.mdsalutil.instructions.InstructionApplyActions;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.netvirt.aclservice.api.AclServiceManager.Action;
 import org.opendaylight.netvirt.aclservice.utils.AclConstants;
@@ -67,7 +67,7 @@ public class LearnEgressAclServiceImpl extends AbstractEgressAclServiceImpl {
         actionsInfos.add(new ActionNxResubmit(NwConstants.LPORT_DISPATCHER_TABLE));
 
         List<InstructionInfo> instructions = new ArrayList<>();
-        instructions.add(new InstructionInfo(InstructionType.apply_actions, actionsInfos));
+        instructions.add(new InstructionApplyActions(actionsInfos));
 
         String flowNameAdded = flowName + "Egress" + lportTag + ace.getKey().getRuleName();
         syncFlow(dpId, NwConstants.INGRESS_LEARN2_TABLE, flowNameAdded, AclConstants.PROTO_MATCH_PRIORITY, "ACL", 0, 0,
