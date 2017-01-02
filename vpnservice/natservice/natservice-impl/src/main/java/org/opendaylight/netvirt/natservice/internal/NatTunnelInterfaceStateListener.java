@@ -16,6 +16,7 @@ import com.google.common.util.concurrent.ListenableFuture;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.mdsalutil.*;
+import org.opendaylight.genius.mdsalutil.instructions.InstructionGotoTable;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
 import org.opendaylight.netvirt.fibmanager.api.IFibManager;
@@ -564,8 +565,7 @@ public class NatTunnelInterfaceStateListener extends AsyncDataTreeChangeListener
 
                 LOG.debug("NAT Service : SNAT -> Install custom FIB routes ( Table 21 -> Push MPLS label to Tunnel port");
                 List<Instruction> customInstructions = new ArrayList<>();
-                customInstructions.add(new InstructionInfo(InstructionType.goto_table, new long[] { NwConstants.INBOUND_NAPT_TABLE }).
-                        buildInstruction(0));
+                customInstructions.add(new InstructionGotoTable(NwConstants.INBOUND_NAPT_TABLE).buildInstruction(0));
                 CreateFibEntryInput input = new CreateFibEntryInputBuilder().setVpnName(externalVpnName).setSourceDpid(srcDpnId).
                         setInstruction(customInstructions).setIpAddress(externalIp + "/32").setServiceId(label).setInstruction(customInstructions).build();
                 Future<RpcResult<Void>> future = fibRpcService.createFibEntry(input);
@@ -645,7 +645,7 @@ public class NatTunnelInterfaceStateListener extends AsyncDataTreeChangeListener
 
                 //Install custom FIB routes ( Table 21 -> Push MPLS label to Tunnel port
                 List<Instruction> customInstructions = new ArrayList<>();
-                customInstructions.add(new InstructionInfo(InstructionType.goto_table, new long[] { NwConstants.PDNAT_TABLE }).buildInstruction(0));
+                customInstructions.add(new InstructionGotoTable(NwConstants.PDNAT_TABLE).buildInstruction(0));
                 CreateFibEntryInput input = new CreateFibEntryInputBuilder().setVpnName(vpnName).setSourceDpid(fipCfgdDpnId).setInstruction(customInstructions)
                         .setIpAddress(externalIp + "/32").setServiceId(label).setInstruction(customInstructions).build();
                 Future<RpcResult<Void>> future = fibRpcService.createFibEntry(input);

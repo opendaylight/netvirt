@@ -9,12 +9,11 @@
 package org.opendaylight.netvirt.vpnmanager;
 
 import com.google.common.base.Optional;
-import com.google.common.primitives.Ints;
 import com.google.common.util.concurrent.CheckedFuture;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
+import com.google.common.util.concurrent.ListenableFuture;
 import java.math.BigInteger;
-import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -28,12 +27,12 @@ import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
 import org.opendaylight.genius.mdsalutil.FlowEntity;
 import org.opendaylight.genius.mdsalutil.InstructionInfo;
-import org.opendaylight.genius.mdsalutil.InstructionType;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.mdsalutil.MatchFieldType;
 import org.opendaylight.genius.mdsalutil.MatchInfo;
 import org.opendaylight.genius.mdsalutil.MetaDataUtil;
 import org.opendaylight.genius.mdsalutil.NwConstants;
+import org.opendaylight.genius.mdsalutil.instructions.InstructionGotoTable;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.genius.utils.cache.DataStoreCache;
 import org.opendaylight.netvirt.bgpmanager.api.IBgpManager;
@@ -145,7 +144,6 @@ import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.opendaylight.yangtools.yang.data.impl.schema.tree.SchemaValidationFailedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import com.google.common.util.concurrent.ListenableFuture;
 
 public class VpnUtil {
     private static final Logger LOG = LoggerFactory.getLogger(VpnUtil.class);
@@ -1173,7 +1171,7 @@ public class VpnUtil {
                 MetaDataUtil.getVpnIdMetadata(vpnId), MetaDataUtil.METADATA_MASK_VRFID }));
         mkMatches.add(new MatchInfo(MatchFieldType.eth_dst, new String[] { gwMacAddress }));
         List<InstructionInfo> mkInstructions = new ArrayList<InstructionInfo>();
-        mkInstructions.add(new InstructionInfo(InstructionType.goto_table, new long[] { NwConstants.L3_FIB_TABLE }));
+        mkInstructions.add(new InstructionGotoTable(NwConstants.L3_FIB_TABLE));
         String flowId = getL3VpnGatewayFlowRef(NwConstants.L3_GW_MAC_TABLE, dpId, vpnId, gwMacAddress);
         FlowEntity flowEntity = MDSALUtil.buildFlowEntity(dpId, NwConstants.L3_GW_MAC_TABLE,
                 flowId, 20, flowId, 0, 0, NwConstants.COOKIE_L3_GW_MAC_TABLE, mkMatches, mkInstructions);
