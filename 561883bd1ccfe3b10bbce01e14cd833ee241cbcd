@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "1a622d24_453668e8",
+        "filename": "docs/specs/acl-stats.rst",
+        "patchSetId": 17
+      },
+      "lineNbr": 5,
+      "author": {
+        "id": 5882
+      },
+      "writtenOn": "2017-01-02T13:10:14Z",
+      "side": 1,
+      "message": "Changed to \"ACL Statistics\"",
+      "parentUuid": "1a622d24_3a8547d0",
+      "revId": "561883bd1ccfe3b10bbce01e14cd833ee241cbcd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_7adcdfe4",
         "filename": "docs/specs/acl-stats.rst",
         "patchSetId": 17
@@ -30,6 +48,24 @@
       "writtenOn": "2017-01-02T11:28:11Z",
       "side": 1,
       "message": "These statistics are applicable for both IPv4 and IPv6 traffic right?",
+      "revId": "561883bd1ccfe3b10bbce01e14cd833ee241cbcd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_853080e9",
+        "filename": "docs/specs/acl-stats.rst",
+        "patchSetId": 17
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 5882
+      },
+      "writtenOn": "2017-01-02T13:10:14Z",
+      "side": 1,
+      "message": "Yes",
+      "parentUuid": "1a622d24_7adcdfe4",
       "revId": "561883bd1ccfe3b10bbce01e14cd833ee241cbcd",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -53,6 +89,24 @@
     },
     {
       "key": {
+        "uuid": "1a622d24_e54e946e",
+        "filename": "docs/specs/acl-stats.rst",
+        "patchSetId": 17
+      },
+      "lineNbr": 45,
+      "author": {
+        "id": 5882
+      },
+      "writtenOn": "2017-01-02T13:10:14Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1a622d24_dad7f321",
+      "revId": "561883bd1ccfe3b10bbce01e14cd833ee241cbcd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_ba4f97bc",
         "filename": "docs/specs/acl-stats.rst",
         "patchSetId": 17
@@ -64,6 +118,24 @@
       "writtenOn": "2017-01-02T11:28:11Z",
       "side": 1,
       "message": "Just curious: Why are we using a lower priority? Even if we use the same priority (i.e., 62020), ct_state would be different between the new flows and \"+est\", \"+rel\" right?\nAm i missing something?",
+      "revId": "561883bd1ccfe3b10bbce01e14cd833ee241cbcd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_e59cd4c2",
+        "filename": "docs/specs/acl-stats.rst",
+        "patchSetId": 17
+      },
+      "lineNbr": 82,
+      "author": {
+        "id": 5882
+      },
+      "writtenOn": "2017-01-02T13:10:14Z",
+      "side": 1,
+      "message": "Yes you are right; different priority is not needed here. This is only to give an unique priority for \"+inv\" ct_state. Main idea is to keep unique priority for each of the ct_states to have better clarity.",
+      "parentUuid": "1a622d24_ba4f97bc",
       "revId": "561883bd1ccfe3b10bbce01e14cd833ee241cbcd",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -87,6 +159,24 @@
     },
     {
       "key": {
+        "uuid": "1a622d24_c551d80f",
+        "filename": "docs/specs/acl-stats.rst",
+        "patchSetId": 17
+      },
+      "lineNbr": 95,
+      "author": {
+        "id": 5882
+      },
+      "writtenOn": "2017-01-02T13:10:14Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1a622d24_7a6e9f30",
+      "revId": "561883bd1ccfe3b10bbce01e14cd833ee241cbcd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_fa90ef44",
         "filename": "docs/specs/acl-stats.rst",
         "patchSetId": 17
@@ -98,6 +188,24 @@
       "writtenOn": "2017-01-02T11:28:11Z",
       "side": 1,
       "message": "does this error imply that port-security is disabled on the interface?",
+      "revId": "561883bd1ccfe3b10bbce01e14cd833ee241cbcd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_c59f18b3",
+        "filename": "docs/specs/acl-stats.rst",
+        "patchSetId": 17
+      },
+      "lineNbr": 382,
+      "author": {
+        "id": 5882
+      },
+      "writtenOn": "2017-01-02T13:10:14Z",
+      "side": 1,
+      "message": "Yes. \"error-message\" is also updated to reflect this condition.",
+      "parentUuid": "1a622d24_fa90ef44",
       "revId": "561883bd1ccfe3b10bbce01e14cd833ee241cbcd",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
