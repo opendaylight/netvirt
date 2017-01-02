@@ -16,6 +16,24 @@
       "revId": "66c9df1092c95806b9844096816e821320cf6edd",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_97ff16aa",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronPortChangeListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 355,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2017-01-02T06:24:05Z",
+      "side": 1,
+      "message": "Thanks @Tali for pointing it. I\u0027ll abandon this patch.",
+      "parentUuid": "1a622d24_ed8cc037",
+      "revId": "66c9df1092c95806b9844096816e821320cf6edd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
