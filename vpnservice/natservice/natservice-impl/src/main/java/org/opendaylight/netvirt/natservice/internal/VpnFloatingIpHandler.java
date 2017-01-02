@@ -24,14 +24,14 @@ import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.mdsalutil.ActionInfo;
-import org.opendaylight.genius.mdsalutil.InstructionInfo;
-import org.opendaylight.genius.mdsalutil.InstructionType;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.mdsalutil.MatchFieldType;
 import org.opendaylight.genius.mdsalutil.MatchInfo;
 import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.genius.mdsalutil.actions.ActionNxResubmit;
 import org.opendaylight.genius.mdsalutil.actions.ActionPopMpls;
+import org.opendaylight.genius.mdsalutil.instructions.InstructionApplyActions;
+import org.opendaylight.genius.mdsalutil.instructions.InstructionGotoTable;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.netvirt.bgpmanager.api.IBgpManager;
 import org.opendaylight.netvirt.elanmanager.api.IElanService;
@@ -146,13 +146,12 @@ public class VpnFloatingIpHandler implements FloatingIPHandler {
                     List<Instruction> instructions = new ArrayList<>();
                     List<ActionInfo> actionsInfos = new ArrayList<>();
                     actionsInfos.add(new ActionNxResubmit(NwConstants.PDNAT_TABLE));
-                    instructions.add(new InstructionInfo(InstructionType.apply_actions, actionsInfos).buildInstruction(0));
+                    instructions.add(new InstructionApplyActions(actionsInfos).buildInstruction(0));
                     makeTunnelTableEntry(dpnId, label, instructions);
 
                     //Install custom FIB routes
                     List<Instruction> customInstructions = new ArrayList<>();
-                    customInstructions.add(new InstructionInfo(InstructionType.goto_table,
-                            new long[] { NwConstants.PDNAT_TABLE }).buildInstruction(0));
+                    customInstructions.add(new InstructionGotoTable(NwConstants.PDNAT_TABLE).buildInstruction(0));
                     makeLFibTableEntry(dpnId, label, NwConstants.PDNAT_TABLE);
                     CreateFibEntryInput input = new CreateFibEntryInputBuilder().setVpnName(vpnName)
                             .setSourceDpid(dpnId).setInstruction(customInstructions)
@@ -314,7 +313,7 @@ public class VpnFloatingIpHandler implements FloatingIPHandler {
         mdsalManager.installFlow(dpnId, terminatingServiceTableFlowEntity);
     }
 
-    private void makeLFibTableEntry(BigInteger dpId, long serviceId, long tableId) {
+    private void makeLFibTableEntry(BigInteger dpId, long serviceId, short tableId) {
         List<MatchInfo> matches = new ArrayList<>();
         matches.add(new MatchInfo(MatchFieldType.eth_type,
                 new long[] { 0x8847L }));
@@ -323,10 +322,9 @@ public class VpnFloatingIpHandler implements FloatingIPHandler {
         List<Instruction> instructions = new ArrayList<>();
         List<ActionInfo> actionsInfos = new ArrayList<>();
         actionsInfos.add(new ActionPopMpls());
-        Instruction writeInstruction = new InstructionInfo(InstructionType.apply_actions,
-                actionsInfos).buildInstruction(0);
+        Instruction writeInstruction = new InstructionApplyActions(actionsInfos).buildInstruction(0);
         instructions.add(writeInstruction);
-        instructions.add(new InstructionInfo(InstructionType.goto_table, new long[]{tableId}).buildInstruction(1));
+        instructions.add(new InstructionGotoTable(tableId).buildInstruction(1));
 
         // Install the flow entry in L3_LFIB_TABLE
         String flowRef = getFlowRef(dpId, NwConstants.L3_LFIB_TABLE, serviceId, "");

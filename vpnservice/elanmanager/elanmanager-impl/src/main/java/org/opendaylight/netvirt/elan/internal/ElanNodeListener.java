@@ -19,7 +19,6 @@ import org.opendaylight.genius.mdsalutil.AbstractDataChangeListener;
 import org.opendaylight.genius.mdsalutil.ActionInfo;
 import org.opendaylight.genius.mdsalutil.FlowEntity;
 import org.opendaylight.genius.mdsalutil.InstructionInfo;
-import org.opendaylight.genius.mdsalutil.InstructionType;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.mdsalutil.MatchInfo;
 import org.opendaylight.genius.mdsalutil.MatchInfoBase;
@@ -29,6 +28,8 @@ import org.opendaylight.genius.mdsalutil.NxMatchInfo;
 import org.opendaylight.genius.mdsalutil.actions.ActionLearn;
 import org.opendaylight.genius.mdsalutil.actions.ActionNxResubmit;
 import org.opendaylight.genius.mdsalutil.actions.ActionPuntToController;
+import org.opendaylight.genius.mdsalutil.instructions.InstructionApplyActions;
+import org.opendaylight.genius.mdsalutil.instructions.InstructionGotoTable;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.netvirt.elan.utils.ElanConstants;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeId;
@@ -108,8 +109,8 @@ public class ElanNodeListener extends AbstractDataChangeListener<Node> implement
                         NwConstants.NxmOfFieldType.NXM_NX_REG4.getType(), 8))));
 
         List<InstructionInfo> mkInstructions = new ArrayList<>();
-        mkInstructions.add(new InstructionInfo(InstructionType.apply_actions, actionsInfos));
-        mkInstructions.add(new InstructionInfo(InstructionType.goto_table, new long[] { NwConstants.ELAN_DMAC_TABLE }));
+        mkInstructions.add(new InstructionApplyActions(actionsInfos));
+        mkInstructions.add(new InstructionGotoTable(NwConstants.ELAN_DMAC_TABLE));
 
         List<MatchInfo> mkMatches = new ArrayList<>();
         FlowEntity flowEntity = MDSALUtil.buildFlowEntity(dpId, NwConstants.ELAN_SMAC_TABLE,
@@ -127,7 +128,7 @@ public class ElanNodeListener extends AbstractDataChangeListener<Node> implement
         actionsInfo.add(new ActionNxResubmit(NwConstants.ELAN_SMAC_LEARNED_TABLE));
         actionsInfo.add(new ActionNxResubmit(NwConstants.ELAN_SMAC_TABLE));
         List<InstructionInfo> mkInstruct = new ArrayList<>();
-        mkInstruct.add(new InstructionInfo(InstructionType.apply_actions, actionsInfo));
+        mkInstruct.add(new InstructionApplyActions(actionsInfo));
         List<MatchInfo> mkMatch = new ArrayList<>();
         FlowEntity doubleResubmitTable = MDSALUtil.buildFlowEntity(dpId, NwConstants.ELAN_BASE_TABLE,
                 getTableMissFlowRef(NwConstants.ELAN_BASE_TABLE),
@@ -142,8 +143,7 @@ public class ElanNodeListener extends AbstractDataChangeListener<Node> implement
         mkMatches.add(new NxMatchInfo(NxMatchFieldType.nxm_reg_4, new long[] {
                 Long.valueOf(LEARN_MATCH_REG4_VALUE).longValue() }));
         List<InstructionInfo> mkInstructions = new ArrayList<>();
-        mkInstructions.add(new InstructionInfo(InstructionType.goto_table,
-                new long[] { NwConstants.ELAN_DMAC_TABLE }));
+        mkInstructions.add(new InstructionGotoTable(NwConstants.ELAN_DMAC_TABLE));
         String flowRef = new StringBuffer().append(NwConstants.ELAN_SMAC_TABLE).append(NwConstants.FLOWID_SEPARATOR)
                 .append(LEARN_MATCH_REG4_VALUE).toString();
         FlowEntity flowEntity = MDSALUtil.buildFlowEntity(dpId, NwConstants.ELAN_SMAC_TABLE, flowRef,
@@ -157,8 +157,7 @@ public class ElanNodeListener extends AbstractDataChangeListener<Node> implement
         List<MatchInfo> mkMatches = new ArrayList<>();
 
         List<InstructionInfo> mkInstructions = new ArrayList<>();
-        mkInstructions.add(
-                new InstructionInfo(InstructionType.goto_table, new long[] { NwConstants.ELAN_UNKNOWN_DMAC_TABLE }));
+        mkInstructions.add(new InstructionGotoTable(NwConstants.ELAN_UNKNOWN_DMAC_TABLE));
 
         FlowEntity flowEntity = MDSALUtil.buildFlowEntity(dpId, NwConstants.ELAN_DMAC_TABLE,
                 getTableMissFlowRef(NwConstants.ELAN_DMAC_TABLE), 0, "ELAN dMac Table Miss Flow", 0, 0,
