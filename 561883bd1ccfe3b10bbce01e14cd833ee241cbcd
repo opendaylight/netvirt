@@ -1,0 +1,106 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1a622d24_3a8547d0",
+        "filename": "docs/specs/acl-stats.rst",
+        "patchSetId": 17
+      },
+      "lineNbr": 5,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2017-01-02T11:28:11Z",
+      "side": 1,
+      "message": "nit: \"ACL Statistics\" could be more apt for this Spec.",
+      "revId": "561883bd1ccfe3b10bbce01e14cd833ee241cbcd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_7adcdfe4",
+        "filename": "docs/specs/acl-stats.rst",
+        "patchSetId": 17
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2017-01-02T11:28:11Z",
+      "side": 1,
+      "message": "These statistics are applicable for both IPv4 and IPv6 traffic right?",
+      "revId": "561883bd1ccfe3b10bbce01e14cd833ee241cbcd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_dad7f321",
+        "filename": "docs/specs/acl-stats.rst",
+        "patchSetId": 17
+      },
+      "lineNbr": 45,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2017-01-02T11:28:11Z",
+      "side": 1,
+      "message": "nit: selectively",
+      "revId": "561883bd1ccfe3b10bbce01e14cd833ee241cbcd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_ba4f97bc",
+        "filename": "docs/specs/acl-stats.rst",
+        "patchSetId": 17
+      },
+      "lineNbr": 82,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2017-01-02T11:28:11Z",
+      "side": 1,
+      "message": "Just curious: Why are we using a lower priority? Even if we use the same priority (i.e., 62020), ct_state would be different between the new flows and \"+est\", \"+rel\" right?\nAm i missing something?",
+      "revId": "561883bd1ccfe3b10bbce01e14cd833ee241cbcd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_7a6e9f30",
+        "filename": "docs/specs/acl-stats.rst",
+        "patchSetId": 17
+      },
+      "lineNbr": 95,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2017-01-02T11:28:11Z",
+      "side": 1,
+      "message": "nit: trailing white space.",
+      "revId": "561883bd1ccfe3b10bbce01e14cd833ee241cbcd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_fa90ef44",
+        "filename": "docs/specs/acl-stats.rst",
+        "patchSetId": 17
+      },
+      "lineNbr": 382,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2017-01-02T11:28:11Z",
+      "side": 1,
+      "message": "does this error imply that port-security is disabled on the interface?",
+      "revId": "561883bd1ccfe3b10bbce01e14cd833ee241cbcd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
