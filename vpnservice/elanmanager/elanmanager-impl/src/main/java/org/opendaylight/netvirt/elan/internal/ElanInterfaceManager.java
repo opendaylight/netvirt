@@ -816,8 +816,8 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
         return getRemoteBCGroupBuckets(elanInfo, null, interfaceInfo.getDpId(), bucketKeyStart, elanTag);
     }
 
-    private List<Bucket> getRemoteBCGroupBuckets(ElanInstance elanInfo, DpnInterfaces dpnInterfaces, BigInteger dpnId,
-            int bucketId, long elanTag) {
+    public List<Bucket> getRemoteBCGroupBuckets(ElanInstance elanInfo, DpnInterfaces dpnInterfaces, BigInteger dpnId,
+                                                int bucketId, long elanTag) {
         List<Bucket> listBucketInfo = new ArrayList<>();
         ElanDpnInterfacesList elanDpns = elanUtils.getElanDpnInterfacesList(elanInfo.getElanInstanceName());
         listBucketInfo.addAll(getRemoteBCGroupTunnelBuckets(elanDpns, dpnId, bucketId, elanTag));
