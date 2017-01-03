@@ -131,7 +131,7 @@ public abstract class HwvtepNodeBaseListener implements DataTreeChangeListener<N
                     LOG.info("Handle global node add {}", node.getNodeId().getValue());
                     onGlobalNodeAdd(key, node, tx);
                 } else {
-                    LOG.error("Handle ps node add {}", node.getNodeId().getValue());
+                    LOG.info("Handle ps node add {}", node.getNodeId().getValue());
                     onPsNodeAdd(key, node, tx);
                 }
             }

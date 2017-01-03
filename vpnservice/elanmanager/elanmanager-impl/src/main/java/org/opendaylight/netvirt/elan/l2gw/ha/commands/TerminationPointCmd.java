@@ -101,8 +101,8 @@ public class TerminationPointCmd extends MergeCommand<TerminationPoint, NodeBuil
                 .getAugmentation(HwvtepPhysicalPortAugmentation.class);
         HwvtepPhysicalPortAugmentation origAugmentation = orig.getAugmentation(HwvtepPhysicalPortAugmentation.class);
 
-        List<VlanBindings> up = updatedAugmentation.getVlanBindings();
-        List<VlanBindings> or = origAugmentation.getVlanBindings();
+        List<VlanBindings> up = updatedAugmentation != null ? updatedAugmentation.getVlanBindings() : null;
+        List<VlanBindings> or = origAugmentation != null ? origAugmentation.getVlanBindings() : null;
         if (!areSameSize(up, or)) {
             return false;
         }
