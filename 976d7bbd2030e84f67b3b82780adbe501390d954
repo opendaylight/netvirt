@@ -1,0 +1,72 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1a622d24_260ed28d",
+        "filename": "docs/specs/ipv6-distributed-router.rst",
+        "patchSetId": 1
+      },
+      "lineNbr": 72,
+      "author": {
+        "id": 4269
+      },
+      "writtenOn": "2017-01-03T15:08:24Z",
+      "side": 1,
+      "message": "Do we require a host mac for this scenario?",
+      "revId": "976d7bbd2030e84f67b3b82780adbe501390d954",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_061116ac",
+        "filename": "docs/specs/ipv6-distributed-router.rst",
+        "patchSetId": 1
+      },
+      "lineNbr": 108,
+      "author": {
+        "id": 4269
+      },
+      "writtenOn": "2017-01-03T15:08:24Z",
+      "side": 1,
+      "message": "Is there any logic planned to make this mac unique from the openstack generated macs? If so can we mention it here?",
+      "revId": "976d7bbd2030e84f67b3b82780adbe501390d954",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_861c06c3",
+        "filename": "docs/specs/ipv6-distributed-router.rst",
+        "patchSetId": 1
+      },
+      "lineNbr": 132,
+      "author": {
+        "id": 4269
+      },
+      "writtenOn": "2017-01-03T15:08:24Z",
+      "side": 1,
+      "message": "+1, it will make it symmetric",
+      "revId": "976d7bbd2030e84f67b3b82780adbe501390d954",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_e6617a3a",
+        "filename": "docs/specs/ipv6-distributed-router.rst",
+        "patchSetId": 1
+      },
+      "lineNbr": 199,
+      "author": {
+        "id": 4269
+      },
+      "writtenOn": "2017-01-03T15:08:24Z",
+      "side": 1,
+      "message": "There was a plan to the the external interface mac as the host mac? is this the odl allocated mac?",
+      "revId": "976d7bbd2030e84f67b3b82780adbe501390d954",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
