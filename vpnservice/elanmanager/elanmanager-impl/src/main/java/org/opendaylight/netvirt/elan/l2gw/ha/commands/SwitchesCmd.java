@@ -44,7 +44,8 @@ public class SwitchesCmd extends MergeCommand<Switches, HwvtepGlobalAugmentation
 
     @Override
     protected InstanceIdentifier<Switches> generateId(InstanceIdentifier<Node> id, Switches node) {
-        return id.augmentation(HwvtepGlobalAugmentation.class).child(Switches.class, node.getKey());
+        SwitchesKey switchesKey = transform(id, node).getKey();
+        return id.augmentation(HwvtepGlobalAugmentation.class).child(Switches.class, switchesKey);
     }
 
     @Override
