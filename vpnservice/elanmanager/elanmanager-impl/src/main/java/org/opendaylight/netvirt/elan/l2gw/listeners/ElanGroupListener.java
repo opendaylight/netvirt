@@ -13,6 +13,7 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentMap;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.clustering.EntityOwnershipService;
+import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncClusteredDataTreeChangeListenerBase;
 import org.opendaylight.netvirt.elan.internal.ElanInterfaceManager;
 import org.opendaylight.netvirt.elan.utils.ElanClusterUtils;
@@ -45,6 +46,7 @@ public class ElanGroupListener extends AsyncClusteredDataTreeChangeListenerBase<
         broker = db;
         this.elanUtils = elanUtils;
         this.entityOwnershipService = entityOwnershipService;
+        registerListener(LogicalDatastoreType.CONFIGURATION, broker);
         LOG.trace("ElanGroupListener registered");
     }
 
