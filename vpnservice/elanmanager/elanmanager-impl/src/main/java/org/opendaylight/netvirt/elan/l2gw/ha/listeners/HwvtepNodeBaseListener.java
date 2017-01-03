@@ -105,11 +105,11 @@ public abstract class HwvtepNodeBaseListener implements DataTreeChangeListener<N
             Node deleted = HwvtepHAUtil.getRemoved(mod);
             String nodeId = key.firstKeyOf(Node.class).getNodeId().getValue();
             if (deleted != null) {
-                if (nodeId.indexOf(HwvtepHAUtil.PHYSICALSWITCH) < 0) {
-                    LOG.info("Handle global node delete {}", deleted.getNodeId().getValue());
+                if (!nodeId.contains(HwvtepHAUtil.PHYSICALSWITCH)) {
+                    LOG.trace("Handle global node delete {}", deleted.getNodeId().getValue());
                     onGlobalNodeDelete(key, deleted, tx);
                 } else {
-                    LOG.error("Handle ps node node delete {}", deleted.getNodeId().getValue());
+                    LOG.trace("Handle ps node node delete {}", deleted.getNodeId().getValue());
                     onPsNodeDelete(key, deleted, tx);
                 }
             }
@@ -127,11 +127,12 @@ public abstract class HwvtepNodeBaseListener implements DataTreeChangeListener<N
             Node node = HwvtepHAUtil.getCreated(mod);
             String nodeId = key.firstKeyOf(Node.class).getNodeId().getValue();
             if (node != null) {
-                if (nodeId.indexOf(HwvtepHAUtil.PHYSICALSWITCH) < 0) {
-                    LOG.info("Handle global node add {}", node.getNodeId().getValue());
+
+                if (!nodeId.contains(HwvtepHAUtil.PHYSICALSWITCH)) {
+                    LOG.trace("Handle global node add {}", node.getNodeId().getValue());
                     onGlobalNodeAdd(key, node, tx);
                 } else {
-                    LOG.error("Handle ps node add {}", node.getNodeId().getValue());
+                    LOG.trace("Handle ps node add {}", node.getNodeId().getValue());
                     onPsNodeAdd(key, node, tx);
                 }
             }
