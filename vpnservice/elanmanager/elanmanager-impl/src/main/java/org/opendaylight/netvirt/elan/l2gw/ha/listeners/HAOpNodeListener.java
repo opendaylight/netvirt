@@ -157,8 +157,7 @@ public class HAOpNodeListener extends HwvtepNodeBaseListener implements DataTree
                             Node originalChildNode,
                             ReadWriteTransaction tx) throws ReadFailedException {
 
-        String oldHAId = HwvtepHAUtil.getHAIdFromManagerOtherConfig(originalChildNode);
-        if (!Strings.isNullOrEmpty(oldHAId)) { //was already ha child
+        if (hwvtepHACache.isHAEnabledDevice(childPath)) { //was already ha child
             InstanceIdentifier<Node> haPath = hwvtepHACache.getParent(childPath);
             haEventHandler.copyChildGlobalOpUpdateToHAParent(updatedChildNode, originalChildNode, haPath, tx);
             return;//TODO handle unha case
