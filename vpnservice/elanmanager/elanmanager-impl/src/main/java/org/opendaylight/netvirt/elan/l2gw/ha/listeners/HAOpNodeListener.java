@@ -11,7 +11,6 @@ import static org.opendaylight.controller.md.sal.common.api.data.LogicalDatastor
 import static org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType.OPERATIONAL;
 
 import com.google.common.base.Optional;
-import com.google.common.base.Strings;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
@@ -157,8 +156,7 @@ public class HAOpNodeListener extends HwvtepNodeBaseListener implements DataTree
                             Node originalChildNode,
                             ReadWriteTransaction tx) throws ReadFailedException {
 
-        String oldHAId = HwvtepHAUtil.getHAIdFromManagerOtherConfig(originalChildNode);
-        if (!Strings.isNullOrEmpty(oldHAId)) { //was already ha child
+        if (hwvtepHACache.isHAEnabledDevice(childPath)) { //was already ha child
             InstanceIdentifier<Node> haPath = hwvtepHACache.getParent(childPath);
             haEventHandler.copyChildGlobalOpUpdateToHAParent(updatedChildNode, originalChildNode, haPath, tx);
             return;//TODO handle unha case
