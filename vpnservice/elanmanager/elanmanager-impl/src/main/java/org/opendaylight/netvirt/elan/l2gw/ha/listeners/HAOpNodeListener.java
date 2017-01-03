@@ -105,15 +105,15 @@ public class HAOpNodeListener extends HwvtepNodeBaseListener implements DataTree
     void onGlobalNodeAdd(InstanceIdentifier<Node> childPath,
                          Node childNode,
                          ReadWriteTransaction tx) {
-        LOG.info("Node connected " + childNode.getNodeId().getValue() + " - Checking if Ha or Non-Ha enabled");
+        LOG.trace("Node connected {} - Checking if Ha or Non-Ha enabled ", childNode.getNodeId().getValue());
         //update cache
         HAOpClusteredListener.addToCacheIfHAChildNode(childPath, childNode);
         if (!hwvtepHACache.isHAEnabledDevice(childPath)) {
-            LOG.debug(" Non ha node connected " + childNode.getNodeId().getValue());
+            LOG.trace("Non ha node connected {}", childNode.getNodeId().getValue());
             return;
         }
         hwvtepHACache.updateConnectedNodeStatus(childPath);
-        LOG.info("Ha enabled child node connected {}", childNode.getNodeId().getValue());
+        LOG.trace("Ha enabled child node connected {}", childNode.getNodeId().getValue());
         InstanceIdentifier<Node> haNodePath = hwvtepHACache.getParent(childPath);
         updateNodeAvailability(childPath);
         if (areBothGlobalAndPsNodeAvailable(childPath)) {
@@ -252,17 +252,15 @@ public class HAOpNodeListener extends HwvtepNodeBaseListener implements DataTree
     void handleNodeConnected(final InstanceIdentifier<Node> childPath,
                              final Node childNode,
                              final InstanceIdentifier<Node> haNodePath) {
-        HAJobScheduler.getInstance().submitJob(new Runnable() {
-            public void run() {
-                try {
-                    LOG.info("Ha child connected handleNodeConnected {}", childNode.getNodeId().getValue());
-                    ReadWriteTransaction tx = getTx();
-                    haEventHandler.handleChildNodeConnected(childNode, childPath, haNodePath, tx);
-                    tx.submit().checkedGet();
-                } catch (InterruptedException | ExecutionException | ReadFailedException
-                        | TransactionCommitFailedException e) {
-                    LOG.error("Failed to process ", e);
-                }
+        HAJobScheduler.getInstance().submitJob(() -> {
+            try {
+                LOG.trace("Ha child connected handleNodeConnected {}", childNode.getNodeId().getValue());
+                ReadWriteTransaction tx = getTx();
+                haEventHandler.handleChildNodeConnected(childNode, childPath, haNodePath, tx);
+                tx.submit().checkedGet();
+            } catch (InterruptedException | ExecutionException | ReadFailedException
+                    | TransactionCommitFailedException e) {
+                LOG.error("Failed to process ", e);
             }
         });
     }
@@ -272,18 +270,16 @@ public class HAOpNodeListener extends HwvtepNodeBaseListener implements DataTree
                                final InstanceIdentifier<Node> haNodePath,
                                final Optional<Node> haGlobalCfg,
                                final Optional<Node> haPSCfg) {
-        HAJobScheduler.getInstance().submitJob(new Runnable() {
-            public void run() {
-                try {
-                    LOG.info("Ha child reconnected handleNodeReConnected {}", childNode.getNodeId().getValue());
-                    ReadWriteTransaction tx = getTx();
-                    haEventHandler.handleChildNodeReConnected(childNode, childPath,
-                            haNodePath, haGlobalCfg, haPSCfg, tx);
-                    tx.submit().checkedGet();
-                } catch (InterruptedException | ExecutionException | ReadFailedException
-                        | TransactionCommitFailedException e) {
-                    LOG.error("Failed to process ", e);
-                }
+        HAJobScheduler.getInstance().submitJob(() -> {
+            try {
+                LOG.trace("Ha child reconnected handleNodeReConnected {}", childNode.getNodeId().getValue());
+                ReadWriteTransaction tx = getTx();
+                haEventHandler.handleChildNodeReConnected(childNode, childPath,
+                        haNodePath, haGlobalCfg, haPSCfg, tx);
+                tx.submit().checkedGet();
+            } catch (InterruptedException | ExecutionException | ReadFailedException
+                    | TransactionCommitFailedException e) {
+                LOG.error("Failed to process ", e);
             }
         });
     }
