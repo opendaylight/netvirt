@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1a622d24_e0c84224",
+        "filename": "vpnservice/cloud-servicechain/cloud-servicechain-impl/src/test/java/org/opendaylight/netvirt/cloudservicechain/VPNServiceChainHandlerTest.java",
+        "patchSetId": 13
+      },
+      "lineNbr": 331,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-01-03T06:29:34Z",
+      "side": 1,
+      "message": "use getNonBgpRoutePaths(vrfEntry). you could move getNonBgpRoutePaths(vrfEntry) to VpnHelper",
+      "revId": "90040415572808f5932726ba8b2845968cabc221",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_c0f2666e",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/FibUtil.java",
+        "patchSetId": 13
+      },
+      "lineNbr": 518,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-01-03T06:29:34Z",
+      "side": 1,
+      "message": "isn\u0027t removing existing routePath in routes and adding newRoute ? or tx.merge/syncUpdate takes care of it ?\nYou could still use VpnHelper.buildVrfEntry(prefix, label, nextHopList, routes, origin) here.",
+      "revId": "90040415572808f5932726ba8b2845968cabc221",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_40fe5639",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 13
+      },
+      "lineNbr": 1173,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-01-03T06:29:34Z",
+      "side": 1,
+      "message": "As I suggested already, use getLbGroupKey(routePathList) in FibUtil",
+      "revId": "90040415572808f5932726ba8b2845968cabc221",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
