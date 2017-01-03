@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "1a622d24_80022e09",
+        "filename": "docs/specs/setup-smac-for-routed-packets-to-virt-endpoints.rst",
+        "patchSetId": 6
+      },
+      "lineNbr": 64,
+      "author": {
+        "id": 6321
+      },
+      "writtenOn": "2017-01-03T09:37:15Z",
+      "side": 1,
+      "message": "will change from \"of the\" to \"on that\" which seems more appropriate.",
+      "parentUuid": "1a622d24_409f7650",
+      "revId": "35ac28d67c3be03923403bdef473ba03096d903c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_a0ae4a83",
         "filename": "docs/specs/setup-smac-for-routed-packets-to-virt-endpoints.rst",
         "patchSetId": 6
@@ -30,6 +48,24 @@
       "writtenOn": "2017-01-03T03:30:52Z",
       "side": 1,
       "message": "The above para alone \u0027We need to note ..\u0027 can come after the next para.",
+      "revId": "35ac28d67c3be03923403bdef473ba03096d903c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_eb002303",
+        "filename": "docs/specs/setup-smac-for-routed-packets-to-virt-endpoints.rst",
+        "patchSetId": 6
+      },
+      "lineNbr": 68,
+      "author": {
+        "id": 6321
+      },
+      "writtenOn": "2017-01-03T09:37:15Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1a622d24_a0ae4a83",
       "revId": "35ac28d67c3be03923403bdef473ba03096d903c",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -53,6 +89,24 @@
     },
     {
       "key": {
+        "uuid": "1a622d24_cb03a70b",
+        "filename": "docs/specs/setup-smac-for-routed-packets-to-virt-endpoints.rst",
+        "patchSetId": 6
+      },
+      "lineNbr": 73,
+      "author": {
+        "id": 6321
+      },
+      "writtenOn": "2017-01-03T09:37:15Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1a622d24_80a98e7d",
+      "revId": "35ac28d67c3be03923403bdef473ba03096d903c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_e0b7a2d6",
         "filename": "docs/specs/setup-smac-for-routed-packets-to-virt-endpoints.rst",
         "patchSetId": 6
@@ -64,6 +118,24 @@
       "writtenOn": "2017-01-03T03:30:52Z",
       "side": 1,
       "message": "There are no pipeline changes.\n\nThe only change is in the NextHopGroup created by VPN Engine (i.e., VRFEntryListener).  In the NextHopGroup we will additionally fill up the ethernet source mac address field with proper mac-address as outlined in the \u0027Proposed change\u0027 section.",
+      "revId": "35ac28d67c3be03923403bdef473ba03096d903c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_8bba4f08",
+        "filename": "docs/specs/setup-smac-for-routed-packets-to-virt-endpoints.rst",
+        "patchSetId": 6
+      },
+      "lineNbr": 79,
+      "author": {
+        "id": 6321
+      },
+      "writtenOn": "2017-01-03T09:37:15Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1a622d24_e0b7a2d6",
       "revId": "35ac28d67c3be03923403bdef473ba03096d903c",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -87,6 +159,24 @@
     },
     {
       "key": {
+        "uuid": "1a622d24_abbf4bfa",
+        "filename": "docs/specs/setup-smac-for-routed-packets-to-virt-endpoints.rst",
+        "patchSetId": 6
+      },
+      "lineNbr": 89,
+      "author": {
+        "id": 6321
+      },
+      "writtenOn": "2017-01-03T09:37:15Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1a622d24_60d27201",
+      "revId": "35ac28d67c3be03923403bdef473ba03096d903c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_c0ba66bf",
         "filename": "docs/specs/setup-smac-for-routed-packets-to-virt-endpoints.rst",
         "patchSetId": 6
@@ -98,6 +188,24 @@
       "writtenOn": "2017-01-03T03:30:52Z",
       "side": 1,
       "message": "Please make sure OVS works when both mac\u0027s are setup :) ?",
+      "revId": "35ac28d67c3be03923403bdef473ba03096d903c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_eb3823a2",
+        "filename": "docs/specs/setup-smac-for-routed-packets-to-virt-endpoints.rst",
+        "patchSetId": 6
+      },
+      "lineNbr": 96,
+      "author": {
+        "id": 6321
+      },
+      "writtenOn": "2017-01-03T09:37:15Z",
+      "side": 1,
+      "message": "Unit testing will be on OVS only",
+      "parentUuid": "1a622d24_c0ba66bf",
       "revId": "35ac28d67c3be03923403bdef473ba03096d903c",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -121,6 +229,24 @@
     },
     {
       "key": {
+        "uuid": "1a622d24_cb3ba79a",
+        "filename": "docs/specs/setup-smac-for-routed-packets-to-virt-endpoints.rst",
+        "patchSetId": 6
+      },
+      "lineNbr": 124,
+      "author": {
+        "id": 6321
+      },
+      "writtenOn": "2017-01-03T09:37:15Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1a622d24_20b23ae6",
+      "revId": "35ac28d67c3be03923403bdef473ba03096d903c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_40c6564a",
         "filename": "docs/specs/setup-smac-for-routed-packets-to-virt-endpoints.rst",
         "patchSetId": 6
@@ -132,6 +258,24 @@
       "writtenOn": "2017-01-03T03:30:52Z",
       "side": 1,
       "message": "remove tab in the front.",
+      "revId": "35ac28d67c3be03923403bdef473ba03096d903c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_0b463f23",
+        "filename": "docs/specs/setup-smac-for-routed-packets-to-virt-endpoints.rst",
+        "patchSetId": 6
+      },
+      "lineNbr": 153,
+      "author": {
+        "id": 6321
+      },
+      "writtenOn": "2017-01-03T09:37:15Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1a622d24_40c6564a",
       "revId": "35ac28d67c3be03923403bdef473ba03096d903c",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -155,6 +299,24 @@
     },
     {
       "key": {
+        "uuid": "1a622d24_2b433b15",
+        "filename": "docs/specs/setup-smac-for-routed-packets-to-virt-endpoints.rst",
+        "patchSetId": 6
+      },
+      "lineNbr": 158,
+      "author": {
+        "id": 6321
+      },
+      "writtenOn": "2017-01-03T09:37:15Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1a622d24_a0c5aa3d",
+      "revId": "35ac28d67c3be03923403bdef473ba03096d903c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_00b57ecc",
         "filename": "docs/specs/setup-smac-for-routed-packets-to-virt-endpoints.rst",
         "patchSetId": 6
@@ -172,6 +334,24 @@
     },
     {
       "key": {
+        "uuid": "1a622d24_6b4c1343",
+        "filename": "docs/specs/setup-smac-for-routed-packets-to-virt-endpoints.rst",
+        "patchSetId": 6
+      },
+      "lineNbr": 182,
+      "author": {
+        "id": 6321
+      },
+      "writtenOn": "2017-01-03T09:37:15Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1a622d24_00b57ecc",
+      "revId": "35ac28d67c3be03923403bdef473ba03096d903c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_60cb9253",
         "filename": "docs/specs/setup-smac-for-routed-packets-to-virt-endpoints.rst",
         "patchSetId": 6
@@ -183,6 +363,24 @@
       "writtenOn": "2017-01-03T03:30:52Z",
       "side": 1,
       "message": "Atleast 2 CSIT test cases are required:\na. Validates that router-interface src-mac is available within the VM on recieved frames when that VM is on a router-arm.\nb. Validates that connected-mac as src-mac available within the VM on received frames when that VM is on a network-driven L3 BGPVPN.",
+      "revId": "35ac28d67c3be03923403bdef473ba03096d903c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_4b47971d",
+        "filename": "docs/specs/setup-smac-for-routed-packets-to-virt-endpoints.rst",
+        "patchSetId": 6
+      },
+      "lineNbr": 194,
+      "author": {
+        "id": 6321
+      },
+      "writtenOn": "2017-01-03T09:37:15Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1a622d24_60cb9253",
       "revId": "35ac28d67c3be03923403bdef473ba03096d903c",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
