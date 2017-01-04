@@ -1,0 +1,72 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1a622d24_899412e3",
+        "filename": "openstack/net-virt-providers/src/main/java/org/opendaylight/netvirt/openstack/netvirt/providers/openflow13/services/VlanResponderService.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2017-01-04T18:33:01Z",
+      "side": 1,
+      "message": "Please check for lines exceeding 80 chararaters",
+      "revId": "2952cb84c14f00478dc214ef509a02ea3a1dbbae",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_e9bae66c",
+        "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/VLANProvider.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 53,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2017-01-04T18:33:01Z",
+      "side": 1,
+      "message": "please add volatile",
+      "revId": "2952cb84c14f00478dc214ef509a02ea3a1dbbae",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_a9c0eee0",
+        "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/VLANProvider.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 73,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2017-01-04T18:33:01Z",
+      "side": 1,
+      "message": "can we move the vlanProviderCache to VlanResponderService instead of passing the cache every for every invoke?",
+      "revId": "2952cb84c14f00478dc214ef509a02ea3a1dbbae",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_a9674e24",
+        "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/VLANProvider.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 102,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2017-01-04T18:33:01Z",
+      "side": 1,
+      "message": "Are you sure that the neutronPortCache is fully functional at this time? Could the config datastore be still in the process of initializing?",
+      "revId": "2952cb84c14f00478dc214ef509a02ea3a1dbbae",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
