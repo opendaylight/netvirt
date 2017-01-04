@@ -1440,7 +1440,7 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
     protected void removeL3Vpn(Uuid id) {
         // read VPNMaps
         VpnMap vpnMap = NeutronvpnUtils.getVpnMap(dataBroker, id);
-        Uuid router = vpnMap.getRouterId();
+        Uuid router = (vpnMap != null) ? vpnMap.getRouterId() : null;
         // dissociate router
         if (router != null) {
             dissociateRouterFromVpn(id, router);

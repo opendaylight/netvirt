@@ -1240,7 +1240,7 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                 updateAdjs.getAdjacency() : new ArrayList<Adjacency>();
 
         //handles switching between <internal VPN - external VPN>
-        if (!oldVpnName.equals(newVpnName)) {
+        if (oldVpnName != null && !oldVpnName.equals(newVpnName)) {
             vpnInterfacesUpdateQueue.add(updateData);
             LOG.trace("UpdateData on VPNInterface {} update upon VPN swap added to update queue",
                     updateData.getOriginal().getName());

@@ -955,7 +955,7 @@ public class NatUtil {
 
     public static String[] getSubnetIpAndPrefix(DataBroker dataBroker, Uuid subnetId){
         String subnetIP = getSubnetIp(dataBroker, subnetId);
-        if(subnetId != null){
+        if (subnetIP != null) {
             return getSubnetIpAndPrefix(subnetIP);
         }
         return null;
