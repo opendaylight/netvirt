@@ -298,7 +298,7 @@ public class NeutronFloatingToFixedIpMappingChangeListener extends AsyncDataTree
         InstanceIdentifier id = buildfloatingIpIdToPortMappingIdentifier(floatingIpId);
         try {
             FloatingIpIdToPortMappingBuilder floatingIpIdToPortMappingBuilder = new
-                    FloatingIpIdToPortMappingBuilder().setFloatingIpDeleted(true);
+                    FloatingIpIdToPortMappingBuilder().setFloatingIpId(floatingIpId).setFloatingIpDeleted(true);
             LOG.debug("Updating floating IP UUID {} to Floating IP neutron port {} mapping in Floating IP" +
                             " Port Info Config DS to set isFloatingIpDeleted flag as true", floatingIpId.getValue(),
                     floatingIpPortId.getValue());
