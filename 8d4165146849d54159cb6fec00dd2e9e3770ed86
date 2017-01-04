@@ -37,6 +37,24 @@
     },
     {
       "key": {
+        "uuid": "1a622d24_498afabf",
+        "filename": "openstack/net-virt-providers/src/main/java/org/opendaylight/netvirt/openstack/netvirt/providers/openflow13/services/VlanResponderService.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2017-01-04T18:33:01Z",
+      "side": 1,
+      "message": "I still think that the map keys on segmenttationId is more efficient:\n- use less memory, if there are large # of mac addresses associated with an segmentation\n- execution time when check isSegmentationIdExist: check for key is more efficient than check for values",
+      "parentUuid": "1a622d24_8e6d389b",
+      "revId": "8d4165146849d54159cb6fec00dd2e9e3770ed86",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_71140a44",
         "filename": "openstack/net-virt-providers/src/main/java/org/opendaylight/netvirt/openstack/netvirt/providers/openflow13/services/VlanResponderService.java",
         "patchSetId": 2
