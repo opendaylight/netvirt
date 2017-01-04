@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "1a622d24_8e6d389b",
+        "filename": "openstack/net-virt-providers/src/main/java/org/opendaylight/netvirt/openstack/netvirt/providers/openflow13/services/VlanResponderService.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 4018
+      },
+      "writtenOn": "2017-01-04T14:10:08Z",
+      "side": 1,
+      "message": "Changed HashMap to ConcurrentHashMap. and for arranging the key-pair value data\u0027s we have maintain MAC address as key and value as Segmentation ID. Because while deleting the router in multi-router cases the flows are deleted based on the MAC address, which has MAC address as key value. so for that reason we have maintain this Map structure. \nand rest of the comments are done.",
+      "parentUuid": "1a622d24_2d17d852",
+      "revId": "8d4165146849d54159cb6fec00dd2e9e3770ed86",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_71140a44",
         "filename": "openstack/net-virt-providers/src/main/java/org/opendaylight/netvirt/openstack/netvirt/providers/openflow13/services/VlanResponderService.java",
         "patchSetId": 2
@@ -36,6 +54,24 @@
     },
     {
       "key": {
+        "uuid": "1a622d24_ae0914df",
+        "filename": "openstack/net-virt-providers/src/main/java/org/opendaylight/netvirt/openstack/netvirt/providers/openflow13/services/VlanResponderService.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 116,
+      "author": {
+        "id": 4018
+      },
+      "writtenOn": "2017-01-04T14:10:08Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1a622d24_71140a44",
+      "revId": "8d4165146849d54159cb6fec00dd2e9e3770ed86",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_510f4e2e",
         "filename": "openstack/net-virt-providers/src/main/java/org/opendaylight/netvirt/openstack/netvirt/providers/openflow13/services/VlanResponderService.java",
         "patchSetId": 2
@@ -47,6 +83,24 @@
       "writtenOn": "2016-12-30T18:54:28Z",
       "side": 1,
       "message": "should we check for empty vlancache for this segmentationId only?",
+      "revId": "8d4165146849d54159cb6fec00dd2e9e3770ed86",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_8e0418c1",
+        "filename": "openstack/net-virt-providers/src/main/java/org/opendaylight/netvirt/openstack/netvirt/providers/openflow13/services/VlanResponderService.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 199,
+      "author": {
+        "id": 4018
+      },
+      "writtenOn": "2017-01-04T14:10:08Z",
+      "side": 1,
+      "message": "Here not checking specific to segmentation ID, Removing the drop flows only when an external VLAN related are empty.",
+      "parentUuid": "1a622d24_510f4e2e",
       "revId": "8d4165146849d54159cb6fec00dd2e9e3770ed86",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
