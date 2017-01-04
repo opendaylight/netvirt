@@ -16,6 +16,24 @@
       "revId": "875a1b4f07cf9b52c5818bf1798d72274930cfd6",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_0ee928b8",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 1439,
+      "author": {
+        "id": 6465
+      },
+      "writtenOn": "2017-01-04T14:37:51Z",
+      "side": 1,
+      "message": "No, the method equals() is checking if the argument is not null.\nThanks.",
+      "parentUuid": "1a622d24_6e725c4a",
+      "revId": "875a1b4f07cf9b52c5818bf1798d72274930cfd6",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
