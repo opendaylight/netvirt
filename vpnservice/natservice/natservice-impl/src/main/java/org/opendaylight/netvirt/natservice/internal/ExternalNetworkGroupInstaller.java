@@ -76,7 +76,7 @@ public class ExternalNetworkGroupInstaller {
 
     public void installExtNetGroupEntries(Uuid subnetId, String macAddress) {
         Subnetmap subnetMap = NatUtil.getSubnetMap(broker, subnetId);
-        if (NatUtil.isIPv6Subnet(subnetMap.getSubnetIp())) {
+        if (subnetMap != null && NatUtil.isIPv6Subnet(subnetMap.getSubnetIp())) {
             LOG.trace("Subnet-id {} is not an IPv4 subnet, hence skipping.", subnetMap.getId());
             return;
         }

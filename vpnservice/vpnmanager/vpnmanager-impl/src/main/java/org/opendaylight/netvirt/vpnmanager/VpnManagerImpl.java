@@ -197,6 +197,12 @@ public class VpnManagerImpl implements IVpnManager {
     @Override
     public void setupArpResponderFlowsToExternalNetworkIps(String id, Collection<String> fixedIps, String macAddress,
             BigInteger dpnId, Uuid extNetworkId, WriteTransaction writeTx, int addOrRemove) {
+
+        if (dpnId == null || BigInteger.ZERO.equals(dpnId)) {
+            LOG.warn("Failed to install arp responder flows for router {}. DPN id is missing.", id);
+            return;
+        }
+
         String extInterfaceName = elanService.getExternalElanInterface(extNetworkId.getValue(), dpnId);
         if (extInterfaceName == null) {
             LOG.warn("Failed to install responder flows for {}. No external interface found for DPN id {}", id, dpnId);
