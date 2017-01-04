@@ -72,7 +72,7 @@ public class RouterPortsListener extends AsyncDataTreeChangeListenerBase<RouterP
         //Check if the router is associated with any BGP VPN and update the association
         String routerName = routerPorts.getRouterId();
         Uuid vpnName = NatUtil.getVpnForRouter(dataBroker, routerName);
-        if(vpnName != null) {
+        if (vpnName != null) {
             InstanceIdentifier<Routermapping> routerMappingId = NatUtil.getRouterVpnMappingId(routerName);
             Optional<Routermapping> optRouterMapping = NatUtil.read(dataBroker, LogicalDatastoreType.OPERATIONAL, routerMappingId);
             if(!optRouterMapping.isPresent()){
@@ -90,7 +90,11 @@ public class RouterPortsListener extends AsyncDataTreeChangeListenerBase<RouterP
         LOG.trace("Remove router ports method - key: " + identifier + ", value=" + routerPorts );
         //MDSALUtil.syncDelete(dataBroker, LogicalDatastoreType.OPERATIONAL, identifier);
         //Remove the router to vpn association mapping entry if at all present
-        MDSALUtil.syncDelete(dataBroker, LogicalDatastoreType.OPERATIONAL, NatUtil.getRouterVpnMappingId(routerPorts.getRouterId()));
+        String routerName = routerPorts.getRouterId();
+        Uuid vpnName = NatUtil.getVpnForRouter(dataBroker, routerName);
+        if (vpnName != null) {
+            MDSALUtil.syncDelete(dataBroker, LogicalDatastoreType.OPERATIONAL, NatUtil.getRouterVpnMappingId(routerPorts.getRouterId()));
+        }
     }
 
     @Override
