@@ -36,7 +36,6 @@ import org.opendaylight.genius.mdsalutil.FlowEntity;
 import org.opendaylight.genius.mdsalutil.GroupEntity;
 import org.opendaylight.genius.mdsalutil.InstructionInfo;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
-import org.opendaylight.genius.mdsalutil.MatchFieldType;
 import org.opendaylight.genius.mdsalutil.MatchInfo;
 import org.opendaylight.genius.mdsalutil.MetaDataUtil;
 import org.opendaylight.genius.mdsalutil.NwConstants;
@@ -50,6 +49,11 @@ import org.opendaylight.genius.mdsalutil.instructions.InstructionApplyActions;
 import org.opendaylight.genius.mdsalutil.instructions.InstructionGotoTable;
 import org.opendaylight.genius.mdsalutil.instructions.InstructionWriteMetadata;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
+import org.opendaylight.genius.mdsalutil.matches.MatchEthernetType;
+import org.opendaylight.genius.mdsalutil.matches.MatchIpv4Source;
+import org.opendaylight.genius.mdsalutil.matches.MatchMetadata;
+import org.opendaylight.genius.mdsalutil.matches.MatchMplsLabel;
+import org.opendaylight.genius.mdsalutil.matches.MatchTunnelId;
 import org.opendaylight.netvirt.bgpmanager.api.IBgpManager;
 import org.opendaylight.netvirt.fibmanager.api.IFibManager;
 import org.opendaylight.netvirt.fibmanager.api.RouteOrigin;
@@ -618,10 +622,8 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
     protected FlowEntity buildOutboundFlowEntity(BigInteger dpId, long routerId) {
         LOG.debug("NAT Service : buildOutboundFlowEntity called for dpId {} and routerId{}", dpId, routerId);
         List<MatchInfo> matches = new ArrayList<>();
-        matches.add(new MatchInfo(MatchFieldType.eth_type,
-                new long[] { 0x0800L }));
-        matches.add(new MatchInfo(MatchFieldType.metadata, new BigInteger[] {
-                MetaDataUtil.getVpnIdMetadata(routerId), MetaDataUtil.METADATA_MASK_VRFID }));
+        matches.add(MatchEthernetType.IPV4);
+        matches.add(new MatchMetadata(MetaDataUtil.getVpnIdMetadata(routerId), MetaDataUtil.METADATA_MASK_VRFID));
 
         List<InstructionInfo> instructions = new ArrayList<>();
         List<ActionInfo> actionsInfos = new ArrayList<>();
@@ -712,10 +714,8 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
         LOG.debug("NAT Service : buildSnatFlowEntity is called for dpId {}, routerName {} and groupId {}", dpId, routerName, groupId );
         long routerId = NatUtil.getVpnId(dataBroker, routerName);
         List<MatchInfo> matches = new ArrayList<>();
-        matches.add(new MatchInfo(MatchFieldType.eth_type,
-                new long[] { 0x0800L }));
-        matches.add(new MatchInfo(MatchFieldType.metadata, new BigInteger[] {
-                MetaDataUtil.getVpnIdMetadata(routerId), MetaDataUtil.METADATA_MASK_VRFID }));
+        matches.add(MatchEthernetType.IPV4);
+        matches.add(new MatchMetadata(MetaDataUtil.getVpnIdMetadata(routerId), MetaDataUtil.METADATA_MASK_VRFID));
 
 
         List<InstructionInfo> instructions = new ArrayList<>();
@@ -740,10 +740,8 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
                 routerName );
         long routerId = NatUtil.getVpnId(dataBroker, routerName);
         List<MatchInfo> matches = new ArrayList<MatchInfo>();
-        matches.add(new MatchInfo(MatchFieldType.eth_type,
-                new long[] { 0x0800L }));
-        matches.add(new MatchInfo(MatchFieldType.metadata, new BigInteger[] {
-                MetaDataUtil.getVpnIdMetadata(routerId), MetaDataUtil.METADATA_MASK_VRFID }));
+        matches.add(MatchEthernetType.IPV4);
+        matches.add(new MatchMetadata(MetaDataUtil.getVpnIdMetadata(routerId), MetaDataUtil.METADATA_MASK_VRFID));
 
         List<InstructionInfo> instructions = new ArrayList<InstructionInfo>();
         instructions.add(new InstructionGotoTable(NwConstants.OUTBOUND_NAPT_TABLE));
@@ -769,9 +767,8 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
 
         BigInteger routerId = BigInteger.valueOf (NatUtil.getVpnId(dataBroker, routerName));
         List<MatchInfo> matches = new ArrayList<>();
-        matches.add(new MatchInfo(MatchFieldType.eth_type,
-                new long[] { 0x0800L }));
-        matches.add(new MatchInfo(MatchFieldType.tunnel_id, new  BigInteger[] {routerId }));
+        matches.add(MatchEthernetType.IPV4);
+        matches.add(new MatchTunnelId(routerId));
 
         List<InstructionInfo> instructions = new ArrayList<>();
         instructions.add(new InstructionWriteMetadata(MetaDataUtil.getVpnIdMetadata(routerId.longValue()),
@@ -911,10 +908,8 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
 
         LOG.debug("NAT Service : buildNaptPfibFlowEntity is called for dpId {}, segmentId {}", dpId, segmentId );
         List<MatchInfo> matches = new ArrayList<>();
-        matches.add(new MatchInfo(MatchFieldType.eth_type,
-                new long[] { 0x0800L }));
-        matches.add(new MatchInfo(MatchFieldType.metadata, new BigInteger[] {
-                MetaDataUtil.getVpnIdMetadata(segmentId), MetaDataUtil.METADATA_MASK_VRFID }));
+        matches.add(MatchEthernetType.IPV4);
+        matches.add(new MatchMetadata(MetaDataUtil.getVpnIdMetadata(segmentId), MetaDataUtil.METADATA_MASK_VRFID));
 
         ArrayList<ActionInfo> listActionInfo = new ArrayList<>();
         ArrayList<InstructionInfo> instructionInfo = new ArrayList<>();
@@ -1036,9 +1031,8 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
 
     private void makeLFibTableEntry(BigInteger dpId, long serviceId, short tableId) {
         List<MatchInfo> matches = new ArrayList<>();
-        matches.add(new MatchInfo(MatchFieldType.eth_type,
-                new long[]{0x8847L}));
-        matches.add(new MatchInfo(MatchFieldType.mpls_label, new String[]{Long.toString(serviceId)}));
+        matches.add(MatchEthernetType.MPLS_UNICAST);
+        matches.add(new MatchMplsLabel(serviceId));
 
         List<Instruction> instructions = new ArrayList<>();
         List<ActionInfo> actionsInfos = new ArrayList<>();
@@ -1064,7 +1058,7 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
 
         LOG.debug("NAT Service : Create terminatingServiceAction on DpnId = {} and serviceId = {} and actions = {}", dpnId , serviceId);
 
-        mkMatches.add(new MatchInfo(MatchFieldType.tunnel_id, new BigInteger[] {BigInteger.valueOf(serviceId)}));
+        mkMatches.add(new MatchTunnelId(BigInteger.valueOf(serviceId)));
 
         Flow terminatingServiceTableFlowEntity = MDSALUtil.buildFlowNew(NwConstants.INTERNAL_TUNNEL_TABLE,
                 getFlowRef(dpnId, NwConstants.INTERNAL_TUNNEL_TABLE, serviceId, ""), 5, String.format("%s:%d", "TST Flow Entry ", serviceId),
@@ -2019,7 +2013,7 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
         LOG.info("NAT Service : remove terminatingServiceActions called with DpnId = {} and label = {}", dpnId , serviceId);
         List<MatchInfo> mkMatches = new ArrayList<>();
         // Matching metadata
-        mkMatches.add(new MatchInfo(MatchFieldType.tunnel_id, new BigInteger[] {BigInteger.valueOf(serviceId)}));
+        mkMatches.add(new MatchTunnelId(BigInteger.valueOf(serviceId)));
         Flow flowEntity = MDSALUtil.buildFlowNew(NwConstants.INTERNAL_TUNNEL_TABLE,
                 getFlowRef(dpnId, NwConstants.INTERNAL_TUNNEL_TABLE, serviceId, ""),
                 5, String.format("%s:%d","TST Flow Entry ",serviceId), 0, 0,
@@ -2030,9 +2024,8 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
 
     private void removeLFibTableEntry(BigInteger dpnId, long serviceId) {
         List<MatchInfo> matches = new ArrayList<>();
-        matches.add(new MatchInfo(MatchFieldType.eth_type,
-                new long[] { 0x8847L }));
-        matches.add(new MatchInfo(MatchFieldType.mpls_label, new String[]{Long.toString(serviceId)}));
+        matches.add(MatchEthernetType.MPLS_UNICAST);
+        matches.add(new MatchMplsLabel(serviceId));
 
         String flowRef = getFlowRef(dpnId, NwConstants.L3_LFIB_TABLE, serviceId, "");
 
@@ -2235,10 +2228,8 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
 
         LOG.debug("NAT Service : buildSnatFlowEntity is called for dpId {}, routerName {} groupId {} changed VPN ID {}", dpId, routerName, groupId, changedVpnId );
         List<MatchInfo> matches = new ArrayList<>();
-        matches.add(new MatchInfo(MatchFieldType.eth_type,
-                new long[] { 0x0800L }));
-        matches.add(new MatchInfo(MatchFieldType.metadata, new BigInteger[] {
-                MetaDataUtil.getVpnIdMetadata(changedVpnId), MetaDataUtil.METADATA_MASK_VRFID }));
+        matches.add(MatchEthernetType.IPV4);
+        matches.add(new MatchMetadata(MetaDataUtil.getVpnIdMetadata(changedVpnId), MetaDataUtil.METADATA_MASK_VRFID));
 
         List<InstructionInfo> instructions = new ArrayList<>();
         List<ActionInfo> actionsInfo = new ArrayList<>();
@@ -2260,10 +2251,8 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
 
         LOG.debug("NAT Service : buildSnatFlowEntity is called for dpId {}, routerName {} changed VPN ID {}", dpId, routerName, changedVpnId );
         List<MatchInfo> matches = new ArrayList<>();
-        matches.add(new MatchInfo(MatchFieldType.eth_type,
-                new long[] { 0x0800L }));
-        matches.add(new MatchInfo(MatchFieldType.metadata, new BigInteger[] {
-                MetaDataUtil.getVpnIdMetadata(changedVpnId), MetaDataUtil.METADATA_MASK_VRFID }));
+        matches.add(MatchEthernetType.IPV4);
+        matches.add(new MatchMetadata(MetaDataUtil.getVpnIdMetadata(changedVpnId), MetaDataUtil.METADATA_MASK_VRFID));
 
         List<InstructionInfo> instructions = new ArrayList<InstructionInfo>();
         instructions.add(new InstructionGotoTable(NwConstants.OUTBOUND_NAPT_TABLE));
@@ -2290,9 +2279,8 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
         BigInteger routerId = BigInteger.valueOf (NatUtil.getVpnId(dataBroker, routerName));
         BigInteger bgpVpnIdAsBigInt = BigInteger.valueOf(changedVpnId);
         List<MatchInfo> matches = new ArrayList<>();
-        matches.add(new MatchInfo(MatchFieldType.eth_type,
-                new long[] { 0x0800L }));
-        matches.add(new MatchInfo(MatchFieldType.tunnel_id, new  BigInteger[] {bgpVpnIdAsBigInt }));
+        matches.add(MatchEthernetType.IPV4);
+        matches.add(new MatchTunnelId(bgpVpnIdAsBigInt));
 
         List<InstructionInfo> instructions = new ArrayList<>();
         instructions.add(new InstructionWriteMetadata(MetaDataUtil.getVpnIdMetadata(changedVpnId),
@@ -2315,10 +2303,8 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
     protected FlowEntity buildOutboundFlowEntityWithBgpVpn(BigInteger dpId, long routerId, long changedVpnId) {
         LOG.debug("NAT Service : buildOutboundFlowEntityWithBgpVpn called for dpId {} and routerId {}, BGP VPN ID {}", dpId, routerId, changedVpnId);
         List<MatchInfo> matches = new ArrayList<>();
-        matches.add(new MatchInfo(MatchFieldType.eth_type,
-                new long[]{0x0800L}));
-        matches.add(new MatchInfo(MatchFieldType.metadata, new BigInteger[]{
-                MetaDataUtil.getVpnIdMetadata(changedVpnId), MetaDataUtil.METADATA_MASK_VRFID}));
+        matches.add(MatchEthernetType.IPV4);
+        matches.add(new MatchMetadata(MetaDataUtil.getVpnIdMetadata(changedVpnId), MetaDataUtil.METADATA_MASK_VRFID));
 
         List<InstructionInfo> instructions = new ArrayList<>();
         List<ActionInfo> actionsInfos = new ArrayList<>();
@@ -2340,10 +2326,9 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
                 externalIp);
 
         List<MatchInfo> matches = new ArrayList<>();
-        matches.add(new MatchInfo(MatchFieldType.eth_type, new long[] { NwConstants.ETHTYPE_IPV4 }));
-        matches.add(new MatchInfo(MatchFieldType.metadata,
-                new BigInteger[] { MetaDataUtil.getVpnIdMetadata(extVpnId), MetaDataUtil.METADATA_MASK_VRFID }));
-        matches.add(new MatchInfo(MatchFieldType.ipv4_source, new String[] { externalIp , "32" }));
+        matches.add(MatchEthernetType.IPV4);
+        matches.add(new MatchMetadata(MetaDataUtil.getVpnIdMetadata(extVpnId), MetaDataUtil.METADATA_MASK_VRFID));
+        matches.add(new MatchIpv4Source(externalIp , "32"));
 
         List<InstructionInfo> instructions = new ArrayList<>();
         List<ActionInfo> actionsInfos = new ArrayList<>();
@@ -2369,10 +2354,8 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
 
         LOG.debug("NAT Service : buildNaptPfibFlowEntityWithUpdatedVpnId is called for dpId {}, segmentId {}, BGP VPN ID {}", dpId, segmentId, changedVpnId);
         List<MatchInfo> matches = new ArrayList<>();
-        matches.add(new MatchInfo(MatchFieldType.eth_type,
-                new long[] { 0x0800L }));
-        matches.add(new MatchInfo(MatchFieldType.metadata, new BigInteger[] {
-                MetaDataUtil.getVpnIdMetadata(changedVpnId), MetaDataUtil.METADATA_MASK_VRFID }));
+        matches.add(MatchEthernetType.IPV4);
+        matches.add(new MatchMetadata(MetaDataUtil.getVpnIdMetadata(changedVpnId), MetaDataUtil.METADATA_MASK_VRFID));
 
         ArrayList<ActionInfo> listActionInfo = new ArrayList<>();
         ArrayList<InstructionInfo> instructionInfo = new ArrayList<>();

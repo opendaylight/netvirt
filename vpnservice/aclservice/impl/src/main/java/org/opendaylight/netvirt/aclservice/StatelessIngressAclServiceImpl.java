@@ -15,12 +15,11 @@ import java.util.Map;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.genius.mdsalutil.ActionInfo;
 import org.opendaylight.genius.mdsalutil.InstructionInfo;
-import org.opendaylight.genius.mdsalutil.MatchFieldType;
-import org.opendaylight.genius.mdsalutil.MatchInfo;
 import org.opendaylight.genius.mdsalutil.MatchInfoBase;
 import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.genius.mdsalutil.NxMatchFieldType;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
+import org.opendaylight.genius.mdsalutil.matches.MatchTcpFlags;
 import org.opendaylight.netvirt.aclservice.api.AclServiceManager.Action;
 import org.opendaylight.netvirt.aclservice.utils.AclConstants;
 import org.opendaylight.netvirt.aclservice.utils.AclDataUtil;
@@ -102,7 +101,7 @@ public class StatelessIngressAclServiceImpl extends AbstractIngressAclServiceImp
         List<MatchInfoBase> flowMatches = new ArrayList<>();
         flowMatches.addAll(origFlowMatches);
         if (new Short((short) NwConstants.IP_PROT_TCP).equals(protocol)) {
-            flowMatches.add(new MatchInfo(MatchFieldType.tcp_flags, new long[] { AclConstants.TCP_FLAG_SYN }));
+            flowMatches.add(MatchTcpFlags.SYN);
         }
         List<ActionInfo> actionsInfos = new ArrayList<>();
         List<InstructionInfo> instructions = getDispatcherTableResubmitInstructions(actionsInfos);

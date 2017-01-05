@@ -9,13 +9,20 @@ package org.opendaylight.netvirt.natservice.internal;
 
 import com.google.common.base.Optional;
 import com.google.common.collect.Sets;
-
+import java.math.BigInteger;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Set;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
+import org.opendaylight.controller.md.sal.binding.api.DataBroker;
+import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.mdsalutil.ActionInfo;
 import org.opendaylight.genius.mdsalutil.BucketInfo;
 import org.opendaylight.genius.mdsalutil.FlowEntity;
 import org.opendaylight.genius.mdsalutil.GroupEntity;
 import org.opendaylight.genius.mdsalutil.InstructionInfo;
-import org.opendaylight.genius.mdsalutil.MatchFieldType;
 import org.opendaylight.genius.mdsalutil.MatchInfo;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.mdsalutil.MetaDataUtil;
@@ -25,11 +32,11 @@ import org.opendaylight.genius.mdsalutil.actions.ActionNxResubmit;
 import org.opendaylight.genius.mdsalutil.actions.ActionSetFieldTunnelId;
 import org.opendaylight.genius.mdsalutil.instructions.InstructionApplyActions;
 import org.opendaylight.genius.mdsalutil.instructions.InstructionGotoTable;
+import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
+import org.opendaylight.genius.mdsalutil.matches.MatchEthernetType;
+import org.opendaylight.genius.mdsalutil.matches.MatchMetadata;
 import org.opendaylight.netvirt.bgpmanager.api.IBgpManager;
 import org.opendaylight.netvirt.fibmanager.api.IFibManager;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.group.types.rev131018.GroupTypes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeId;
@@ -67,14 +74,6 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.math.BigInteger;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
-import java.util.HashMap;
 
 public class NaptSwitchHA {
     private static final Logger LOG = LoggerFactory.getLogger(NaptSwitchHA.class);
@@ -697,10 +696,8 @@ public class NaptSwitchHA {
 
         FlowEntity flowEntity;
         List<MatchInfo> matches = new ArrayList<MatchInfo>();
-        matches.add(new MatchInfo(MatchFieldType.eth_type,
-                new long[]{ 0x0800L }));
-        matches.add(new MatchInfo(MatchFieldType.metadata, new BigInteger[] {
-                MetaDataUtil.getVpnIdMetadata(routerVpnId), MetaDataUtil.METADATA_MASK_VRFID }));
+        matches.add(MatchEthernetType.IPV4);
+        matches.add(new MatchMetadata(MetaDataUtil.getVpnIdMetadata(routerVpnId), MetaDataUtil.METADATA_MASK_VRFID));
 
         String flowRef = getFlowRefSnat(dpId, NwConstants.PSNAT_TABLE, routerName);
 
@@ -728,10 +725,8 @@ public class NaptSwitchHA {
 
         FlowEntity flowEntity;
         List<MatchInfo> matches = new ArrayList<>();
-        matches.add(new MatchInfo(MatchFieldType.eth_type,
-                new long[]{ 0x0800L }));
-        matches.add(new MatchInfo(MatchFieldType.metadata, new BigInteger[] {
-                MetaDataUtil.getVpnIdMetadata(routerVpnId), MetaDataUtil.METADATA_MASK_VRFID }));
+        matches.add(MatchEthernetType.IPV4);
+        matches.add(new MatchMetadata(MetaDataUtil.getVpnIdMetadata(routerVpnId), MetaDataUtil.METADATA_MASK_VRFID));
 
         String flowRef = getFlowRefSnat(dpId, NwConstants.PSNAT_TABLE, routerName);
 

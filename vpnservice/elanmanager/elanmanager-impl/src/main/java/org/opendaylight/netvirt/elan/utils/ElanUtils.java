@@ -40,7 +40,6 @@ import org.opendaylight.genius.mdsalutil.FlowEntity;
 import org.opendaylight.genius.mdsalutil.InstructionInfo;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.mdsalutil.MDSALUtil.MdsalOp;
-import org.opendaylight.genius.mdsalutil.MatchFieldType;
 import org.opendaylight.genius.mdsalutil.MatchInfo;
 import org.opendaylight.genius.mdsalutil.MetaDataUtil;
 import org.opendaylight.genius.mdsalutil.NwConstants;
@@ -48,6 +47,10 @@ import org.opendaylight.genius.mdsalutil.actions.ActionNxResubmit;
 import org.opendaylight.genius.mdsalutil.instructions.InstructionApplyActions;
 import org.opendaylight.genius.mdsalutil.instructions.InstructionGotoTable;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
+import org.opendaylight.genius.mdsalutil.matches.MatchEthernetDestination;
+import org.opendaylight.genius.mdsalutil.matches.MatchEthernetSource;
+import org.opendaylight.genius.mdsalutil.matches.MatchMetadata;
+import org.opendaylight.genius.mdsalutil.matches.MatchTunnelId;
 import org.opendaylight.genius.utils.ServiceIndex;
 import org.opendaylight.netvirt.elan.ElanException;
 import org.opendaylight.netvirt.elan.internal.ElanInstanceManager;
@@ -59,6 +62,7 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface.AdminStatus;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface.OperStatus;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.MacAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.PhysAddress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.action.types.rev131112.action.list.Action;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.FlowId;
@@ -699,9 +703,8 @@ public class ElanUtils {
         int lportTag = interfaceInfo.getInterfaceTag();
         // Matching metadata and eth_src fields
         List<MatchInfo> mkMatches = new ArrayList<>();
-        mkMatches.add(new MatchInfo(MatchFieldType.metadata, new BigInteger[] {
-                getElanMetadataLabel(elanInfo.getElanTag(), lportTag), getElanMetadataMask() }));
-        mkMatches.add(new MatchInfo(MatchFieldType.eth_src, new String[] { macAddress }));
+        mkMatches.add(new MatchMetadata(getElanMetadataLabel(elanInfo.getElanTag(), lportTag), getElanMetadataMask()));
+        mkMatches.add(new MatchEthernetSource(new MacAddress(macAddress)));
         List<InstructionInfo> mkInstructions = new ArrayList<>();
         mkInstructions.add(new InstructionGotoTable(NwConstants.ELAN_DMAC_TABLE));
 
@@ -788,7 +791,7 @@ public class ElanUtils {
     public static List<MatchInfo> getTunnelIdMatchForFilterEqualsLPortTag(int lportTag) {
         List<MatchInfo> mkMatches = new ArrayList<>();
         // Matching metadata
-        mkMatches.add(new MatchInfo(MatchFieldType.tunnel_id, new BigInteger[] { BigInteger.valueOf(lportTag) }));
+        mkMatches.add(new MatchTunnelId(BigInteger.valueOf(lportTag)));
         return mkMatches;
     }
 
@@ -1008,9 +1011,8 @@ public class ElanUtils {
         }
 
         List<MatchInfo> mkMatches = new ArrayList<>();
-        mkMatches.add(new MatchInfo(MatchFieldType.metadata,
-                new BigInteger[] { getElanMetadataLabel(elanTag), MetaDataUtil.METADATA_MASK_SERVICE }));
-        mkMatches.add(new MatchInfo(MatchFieldType.eth_dst, new String[] { macAddress }));
+        mkMatches.add(new MatchMetadata(getElanMetadataLabel(elanTag), MetaDataUtil.METADATA_MASK_SERVICE));
+        mkMatches.add(new MatchEthernetDestination(new MacAddress(macAddress)));
 
         List<Instruction> mkInstructions = new ArrayList<>();
         List<Action> actions = getEgressActionsForInterface(ifName, /* tunnelKey */ null);
@@ -1078,9 +1080,8 @@ public class ElanUtils {
     public Flow buildRemoteDmacFlowEntry(BigInteger srcDpId, BigInteger destDpId, int lportTag, long elanTag,
             String macAddress, String displayName, ElanInstance elanInstance) throws ElanException {
         List<MatchInfo> mkMatches = new ArrayList<>();
-        mkMatches.add(new MatchInfo(MatchFieldType.metadata,
-                new BigInteger[] { getElanMetadataLabel(elanTag), MetaDataUtil.METADATA_MASK_SERVICE }));
-        mkMatches.add(new MatchInfo(MatchFieldType.eth_dst, new String[] { macAddress }));
+        mkMatches.add(new MatchMetadata(getElanMetadataLabel(elanTag), MetaDataUtil.METADATA_MASK_SERVICE));
+        mkMatches.add(new MatchEthernetDestination(new MacAddress(macAddress)));
 
         List<Instruction> mkInstructions = new ArrayList<>();
 
@@ -1475,7 +1476,7 @@ public class ElanUtils {
     public static List<MatchInfo> getTunnelMatchesForServiceId(int elanTag) {
         List<MatchInfo> mkMatches = new ArrayList<>();
         // Matching metadata
-        mkMatches.add(new MatchInfo(MatchFieldType.tunnel_id, new BigInteger[] { BigInteger.valueOf(elanTag) }));
+        mkMatches.add(new MatchTunnelId(BigInteger.valueOf(elanTag)));
 
         return mkMatches;
     }
@@ -1678,9 +1679,9 @@ public class ElanUtils {
 
     public static List<MatchInfo> buildMatchesForElanTagShFlagAndDstMac(long elanTag, boolean shFlag, String macAddr) {
         List<MatchInfo> mkMatches = new ArrayList<>();
-        mkMatches.add(new MatchInfo(MatchFieldType.metadata, new BigInteger[] {
-                getElanMetadataLabel(elanTag, shFlag), MetaDataUtil.METADATA_MASK_SERVICE_SH_FLAG }));
-        mkMatches.add(new MatchInfo(MatchFieldType.eth_dst, new String[] { macAddr }));
+        mkMatches.add(
+                new MatchMetadata(getElanMetadataLabel(elanTag, shFlag), MetaDataUtil.METADATA_MASK_SERVICE_SH_FLAG));
+        mkMatches.add(new MatchEthernetDestination(new MacAddress(macAddr)));
 
         return mkMatches;
     }
@@ -2037,9 +2038,8 @@ public class ElanUtils {
     public static FlowEntity buildDmacRedirectToDispatcherFlow(BigInteger dpId, String dstMacAddress,
             String displayName, long elanTag) {
         List<MatchInfo> matches = new ArrayList<>();
-        matches.add(new MatchInfo(MatchFieldType.metadata,
-                new BigInteger[] { getElanMetadataLabel(elanTag), MetaDataUtil.METADATA_MASK_SERVICE }));
-        matches.add(new MatchInfo(MatchFieldType.eth_dst, new String[] { dstMacAddress }));
+        matches.add(new MatchMetadata(getElanMetadataLabel(elanTag), MetaDataUtil.METADATA_MASK_SERVICE));
+        matches.add(new MatchEthernetDestination(new MacAddress(dstMacAddress)));
         List<InstructionInfo> instructions = new ArrayList<>();
         List<ActionInfo> actions = new ArrayList<>();
         actions.add(new ActionNxResubmit(NwConstants.LPORT_DISPATCHER_TABLE));
@@ -2055,9 +2055,8 @@ public class ElanUtils {
     public static FlowEntity buildDmacRedirectToDispatcherFlowMacNoActions(BigInteger dpId, String dstMacAddress,
             String displayName, long elanTag) {
         List<MatchInfo> matches = new ArrayList<>();
-        matches.add(new MatchInfo(MatchFieldType.metadata,
-                new BigInteger[] { getElanMetadataLabel(elanTag), MetaDataUtil.METADATA_MASK_SERVICE }));
-        matches.add(new MatchInfo(MatchFieldType.eth_dst, new String[] { dstMacAddress }));
+        matches.add(new MatchMetadata(getElanMetadataLabel(elanTag), MetaDataUtil.METADATA_MASK_SERVICE));
+        matches.add(new MatchEthernetDestination(new MacAddress(dstMacAddress)));
 
         String flowId = getKnownDynamicmacFlowRef(NwConstants.ELAN_DMAC_TABLE, dpId, dstMacAddress, elanTag);
         FlowEntity flow  = MDSALUtil.buildFlowEntity(dpId, NwConstants.ELAN_DMAC_TABLE, flowId, 20, displayName, 0, 0,

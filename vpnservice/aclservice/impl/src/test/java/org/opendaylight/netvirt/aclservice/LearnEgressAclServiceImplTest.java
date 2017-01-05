@@ -8,6 +8,7 @@
 package org.opendaylight.netvirt.aclservice;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doReturn;
@@ -31,11 +32,11 @@ import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.mdsalutil.FlowEntity;
-import org.opendaylight.genius.mdsalutil.MatchFieldType;
 import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.genius.mdsalutil.NxMatchFieldType;
 import org.opendaylight.genius.mdsalutil.actions.ActionLearn;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
+import org.opendaylight.genius.mdsalutil.matches.MatchTcpFlags;
 import org.opendaylight.netvirt.aclservice.api.utils.AclInterface;
 import org.opendaylight.netvirt.aclservice.utils.AclConstants;
 import org.opendaylight.netvirt.aclservice.utils.AclDataUtil;
@@ -196,10 +197,9 @@ public class LearnEgressAclServiceImplTest {
         assertEquals(true, testedService.removeAcl(ai));
         assertEquals(5, removeFlowValueSaver.getNumOfInvocations());
         FlowEntity firstRangeFlow = (FlowEntity) removeFlowValueSaver.getInvocationParams(4).get(0);
-        AclServiceTestUtils.verifyMatchInfo(firstRangeFlow.getMatchInfoList(), MatchFieldType.tcp_flags, "2");
+        assertTrue(firstRangeFlow.getMatchInfoList().contains(new MatchTcpFlags(2)));
         AclServiceTestUtils.verifyMatchInfo(firstRangeFlow.getMatchInfoList(),
                 NxMatchFieldType.nx_tcp_dst_with_mask, "80", "65535");
-
     }
 
     private AclInterface stubUdpAclInterface(Uuid sgUuid, String ifName, String ipv4PrefixStr,

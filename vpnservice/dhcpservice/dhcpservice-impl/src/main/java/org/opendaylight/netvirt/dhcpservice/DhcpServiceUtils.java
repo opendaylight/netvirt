@@ -23,18 +23,22 @@ import org.opendaylight.genius.mdsalutil.ActionInfo;
 import org.opendaylight.genius.mdsalutil.FlowEntity;
 import org.opendaylight.genius.mdsalutil.InstructionInfo;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
-import org.opendaylight.genius.mdsalutil.MatchFieldType;
 import org.opendaylight.genius.mdsalutil.MatchInfo;
 import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.genius.mdsalutil.actions.ActionDrop;
 import org.opendaylight.genius.mdsalutil.actions.ActionPuntToController;
 import org.opendaylight.genius.mdsalutil.instructions.InstructionApplyActions;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
-import org.opendaylight.genius.mdsalutil.packet.IPProtocols;
+import org.opendaylight.genius.mdsalutil.matches.MatchEthernetSource;
+import org.opendaylight.genius.mdsalutil.matches.MatchEthernetType;
+import org.opendaylight.genius.mdsalutil.matches.MatchIpProtocol;
+import org.opendaylight.genius.mdsalutil.matches.MatchUdpDestinationPort;
+import org.opendaylight.genius.mdsalutil.matches.MatchUdpSourcePort;
 import org.opendaylight.genius.utils.ServiceIndex;
 import org.opendaylight.netvirt.dhcpservice.api.DhcpMConstants;
 import org.opendaylight.netvirt.neutronvpn.api.utils.NeutronUtils;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.InterfacesState;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.MacAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.instruction.list.Instruction;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.servicebinding.rev160406.ServiceBindings;
@@ -139,16 +143,11 @@ public class DhcpServiceUtils {
 
     private static List<MatchInfo> getDhcpMatch(String vmMacAddress) {
         List<MatchInfo> matches = new ArrayList<>();
-        matches.add(new MatchInfo(MatchFieldType.eth_type,
-                new long[] { NwConstants.ETHTYPE_IPV4 }));
-        matches.add(new MatchInfo(MatchFieldType.ip_proto,
-                new long[] { IPProtocols.UDP.intValue() }));
-        matches.add(new MatchInfo(MatchFieldType.udp_src,
-                new long[] { DhcpMConstants.DHCP_CLIENT_PORT}));
-        matches.add(new MatchInfo(MatchFieldType.udp_dst,
-                new long[] { DhcpMConstants.DHCP_SERVER_PORT}));
-        matches.add(new MatchInfo(MatchFieldType.eth_src,
-                new String[] { vmMacAddress }));
+        matches.add(MatchEthernetType.IPV4);
+        matches.add(MatchIpProtocol.UDP);
+        matches.add(new MatchUdpSourcePort(DhcpMConstants.DHCP_CLIENT_PORT));
+        matches.add(new MatchUdpDestinationPort(DhcpMConstants.DHCP_SERVER_PORT));
+        matches.add(new MatchEthernetSource(new MacAddress(vmMacAddress)));
         return matches;
     }
 

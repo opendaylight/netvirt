@@ -12,11 +12,11 @@ import com.google.common.base.Preconditions;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
-import org.opendaylight.genius.mdsalutil.MatchFieldType;
 import org.opendaylight.genius.mdsalutil.MatchInfo;
 import org.opendaylight.genius.mdsalutil.MetaDataUtil;
 import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
+import org.opendaylight.genius.mdsalutil.matches.MatchMetadata;
 import org.opendaylight.genius.utils.ServiceIndex;
 import org.opendaylight.netvirt.bgpmanager.api.IBgpManager;
 import org.opendaylight.netvirt.fibmanager.api.IFibManager;
@@ -234,11 +234,10 @@ public class InterVpnLinkUtil {
      */
     public static Flow buildLPortDispatcherFlow(String interVpnLinkName, long vpnId, int lportTag) {
         LOG.info("Inter-vpn-link : buildLPortDispatcherFlow. vpnId {}   lportTag {} ", vpnId, lportTag);
-        List<MatchInfo> matches = Arrays.asList(new MatchInfo(MatchFieldType.metadata,
-                new BigInteger[] {
+        List<MatchInfo> matches = Collections.singletonList(new MatchMetadata(
                         MetaDataUtil.getMetaDataForLPortDispatcher(lportTag,
                                 ServiceIndex.getIndex(NwConstants.L3VPN_SERVICE_NAME, NwConstants.L3VPN_SERVICE_INDEX)),
-                        MetaDataUtil.getMetaDataMaskForLPortDispatcher() }));
+                        MetaDataUtil.getMetaDataMaskForLPortDispatcher()));
         String flowRef = getLportDispatcherFlowRef(interVpnLinkName, lportTag);
         Flow lPortDispatcherFlow = MDSALUtil.buildFlowNew(NwConstants.LPORT_DISPATCHER_TABLE, flowRef,
                 VpnConstants.DEFAULT_LPORT_DISPATCHER_FLOW_PRIORITY, flowRef,
