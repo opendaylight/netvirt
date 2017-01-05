@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1a622d24_bfb77cd7",
+        "filename": "docs/specs/hairpinning-flat-vlan.rst",
+        "patchSetId": 10
+      },
+      "lineNbr": 234,
+      "author": {
+        "id": 3276
+      },
+      "writtenOn": "2017-01-05T07:14:05Z",
+      "side": 1,
+      "message": "formatting: these will work better as subsections than a bullet list. use \u0027----\u0027 to make each use case a subsection of Usage.",
+      "range": {
+        "startLine": 234,
+        "startChar": 0,
+        "endLine": 234,
+        "endChar": 2
+      },
+      "revId": "0309aed7bbe4b3993af2d0df5958f399baac7246",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_9fba80be",
+        "filename": "docs/specs/hairpinning-flat-vlan.rst",
+        "patchSetId": 10
+      },
+      "lineNbr": 370,
+      "author": {
+        "id": 3276
+      },
+      "writtenOn": "2017-01-05T07:14:05Z",
+      "side": 1,
+      "message": "IMO this can be skipped for specs. the way it is worded makes sense for template doc.",
+      "range": {
+        "startLine": 363,
+        "startChar": 0,
+        "endLine": 370,
+        "endChar": 54
+      },
+      "revId": "0309aed7bbe4b3993af2d0df5958f399baac7246",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
