@@ -28,14 +28,17 @@ import org.opendaylight.genius.mdsalutil.ActionInfo;
 import org.opendaylight.genius.mdsalutil.FlowEntity;
 import org.opendaylight.genius.mdsalutil.InstructionInfo;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
-import org.opendaylight.genius.mdsalutil.MatchFieldType;
 import org.opendaylight.genius.mdsalutil.MatchInfo;
 import org.opendaylight.genius.mdsalutil.MetaDataUtil;
 import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.genius.mdsalutil.actions.ActionPuntToController;
 import org.opendaylight.genius.mdsalutil.instructions.InstructionApplyActions;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
-import org.opendaylight.genius.mdsalutil.packet.IPProtocols;
+import org.opendaylight.genius.mdsalutil.matches.MatchEthernetType;
+import org.opendaylight.genius.mdsalutil.matches.MatchIcmpv6;
+import org.opendaylight.genius.mdsalutil.matches.MatchIpProtocol;
+import org.opendaylight.genius.mdsalutil.matches.MatchIpv6NdTarget;
+import org.opendaylight.genius.mdsalutil.matches.MatchMetadata;
 import org.opendaylight.genius.utils.ServiceIndex;
 import org.opendaylight.netvirt.elan.utils.ElanUtils;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv6Address;
@@ -302,29 +305,20 @@ public class Ipv6ServiceUtils {
 
     private static List<MatchInfo> getIcmpv6RSMatch(Long elanTag) {
         List<MatchInfo> matches = new ArrayList<>();
-        matches.add(new MatchInfo(MatchFieldType.eth_type,
-                new long[] { NwConstants.ETHTYPE_IPV6 }));
-        matches.add(new MatchInfo(MatchFieldType.ip_proto,
-                new long[] { IPProtocols.IPV6ICMP.intValue() }));
-        matches.add(new MatchInfo(MatchFieldType.icmp_v6,
-                new long[] { Ipv6Constants.ICMP_V6_RS_CODE, 0}));
-        matches.add(new MatchInfo(MatchFieldType.metadata,
-                new BigInteger[] { ElanUtils.getElanMetadataLabel(elanTag), MetaDataUtil.METADATA_MASK_SERVICE}));
+        matches.add(MatchEthernetType.IPV6);
+        matches.add(MatchIpProtocol.ICMPV6);
+        matches.add(new MatchIcmpv6(Ipv6Constants.ICMP_V6_RS_CODE, (short) 0));
+        matches.add(new MatchMetadata(ElanUtils.getElanMetadataLabel(elanTag), MetaDataUtil.METADATA_MASK_SERVICE));
         return matches;
     }
 
     private List<MatchInfo> getIcmpv6NSMatch(Long elanTag, String ndTarget) {
         List<MatchInfo> matches = new ArrayList<>();
-        matches.add(new MatchInfo(MatchFieldType.eth_type,
-                new long[] { NwConstants.ETHTYPE_IPV6 }));
-        matches.add(new MatchInfo(MatchFieldType.ip_proto,
-                new long[] { IPProtocols.IPV6ICMP.intValue() }));
-        matches.add(new MatchInfo(MatchFieldType.icmp_v6,
-                new long[] { Ipv6Constants.ICMP_V6_NS_CODE, 0}));
-        matches.add(new MatchInfo(MatchFieldType.ipv6_nd_target,
-                new String[] { ndTarget }));
-        matches.add(new MatchInfo(MatchFieldType.metadata,
-                new BigInteger[] { ElanUtils.getElanMetadataLabel(elanTag), MetaDataUtil.METADATA_MASK_SERVICE}));
+        matches.add(MatchEthernetType.IPV6);
+        matches.add(MatchIpProtocol.ICMPV6);
+        matches.add(new MatchIcmpv6(Ipv6Constants.ICMP_V6_NS_CODE, (short) 0));
+        matches.add(new MatchIpv6NdTarget(new Ipv6Address(ndTarget)));
+        matches.add(new MatchMetadata(ElanUtils.getElanMetadataLabel(elanTag), MetaDataUtil.METADATA_MASK_SERVICE));
         return matches;
     }
 

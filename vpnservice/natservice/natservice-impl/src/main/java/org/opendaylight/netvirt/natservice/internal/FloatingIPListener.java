@@ -16,7 +16,6 @@ import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
 import org.opendaylight.genius.mdsalutil.ActionInfo;
 import org.opendaylight.genius.mdsalutil.FlowEntity;
 import org.opendaylight.genius.mdsalutil.InstructionInfo;
-import org.opendaylight.genius.mdsalutil.MatchFieldType;
 import org.opendaylight.genius.mdsalutil.MatchInfo;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.mdsalutil.MetaDataUtil;
@@ -30,6 +29,10 @@ import org.opendaylight.genius.mdsalutil.instructions.InstructionApplyActions;
 import org.opendaylight.genius.mdsalutil.instructions.InstructionGotoTable;
 import org.opendaylight.genius.mdsalutil.instructions.InstructionWriteMetadata;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
+import org.opendaylight.genius.mdsalutil.matches.MatchEthernetType;
+import org.opendaylight.genius.mdsalutil.matches.MatchIpv4Destination;
+import org.opendaylight.genius.mdsalutil.matches.MatchIpv4Source;
+import org.opendaylight.genius.mdsalutil.matches.MatchMetadata;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.MacAddress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.FloatingIpInfo;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.floating.ip.info.RouterPorts;
@@ -134,12 +137,12 @@ public class FloatingIPListener extends AsyncDataTreeChangeListenerBase<Internal
         LOG.debug("NAT Service : Segment id {} in build preDNAT Flow", segmentId);
 
         List<MatchInfo> matches = new ArrayList<>();
-        matches.add(new MatchInfo(MatchFieldType.eth_type, new long[]{0x0800L}));
+        matches.add(MatchEthernetType.IPV4);
 
-        matches.add(new MatchInfo(MatchFieldType.ipv4_destination, new String[]{externalIp, "32"}));
+        matches.add(new MatchIpv4Destination(externalIp, "32"));
 
-//        matches.add(new MatchInfo(MatchFieldType.metadata, new BigInteger[] {
-//                BigInteger.valueOf(vpnId), MetaDataUtil.METADATA_MASK_VRFID }));
+//        matches.add(new MatchMetadata(
+//                BigInteger.valueOf(vpnId), MetaDataUtil.METADATA_MASK_VRFID));
         List<ActionInfo> actionsInfos = new ArrayList<>();
         actionsInfos.add(new ActionSetDestinationIp(internalIp, "32"));
 
@@ -168,12 +171,11 @@ public class FloatingIPListener extends AsyncDataTreeChangeListenerBase<Internal
         LOG.debug("NAT Service : Segment id {} in build DNAT", segmentId);
 
         List<MatchInfo> matches = new ArrayList<>();
-        matches.add(new MatchInfo(MatchFieldType.metadata, new BigInteger[] {
-                MetaDataUtil.getVpnIdMetadata(segmentId), MetaDataUtil.METADATA_MASK_VRFID }));
+        matches.add(new MatchMetadata(MetaDataUtil.getVpnIdMetadata(segmentId), MetaDataUtil.METADATA_MASK_VRFID));
 
-        matches.add(new MatchInfo(MatchFieldType.eth_type, new long[] { 0x0800L }));
+        matches.add(MatchEthernetType.IPV4);
 
-        matches.add(new MatchInfo(MatchFieldType.ipv4_destination, new String[] { internalIp, "32" }));
+        matches.add(new MatchIpv4Destination(internalIp, "32"));
 
         List<ActionInfo> actionsInfos = new ArrayList<>();
 //        actionsInfos.add(new ActionSetDestinationIp(internalIp, "32"));
@@ -205,12 +207,11 @@ public class FloatingIPListener extends AsyncDataTreeChangeListenerBase<Internal
         LOG.debug("NAT Service : Segment id {} in build preSNAT flow", segmentId);
 
         List<MatchInfo> matches = new ArrayList<>();
-        matches.add(new MatchInfo(MatchFieldType.eth_type, new long[] { 0x0800L }));
+        matches.add(MatchEthernetType.IPV4);
 
-        matches.add(new MatchInfo(MatchFieldType.ipv4_source, new String[] { internalIp, "32" }));
+        matches.add(new MatchIpv4Source(internalIp, "32"));
 
-        matches.add(new MatchInfo(MatchFieldType.metadata, new BigInteger[] {
-                MetaDataUtil.getVpnIdMetadata(segmentId), MetaDataUtil.METADATA_MASK_VRFID }));
+        matches.add(new MatchMetadata(MetaDataUtil.getVpnIdMetadata(segmentId), MetaDataUtil.METADATA_MASK_VRFID));
 
         List<ActionInfo> actionsInfos = new ArrayList<>();
         actionsInfos.add(new ActionSetSourceIp(externalIp, "32"));
@@ -244,12 +245,11 @@ public class FloatingIPListener extends AsyncDataTreeChangeListenerBase<Internal
         }
 
         List<MatchInfo> matches = new ArrayList<>();
-        matches.add(new MatchInfo(MatchFieldType.metadata, new BigInteger[] {
-                MetaDataUtil.getVpnIdMetadata(vpnId), MetaDataUtil.METADATA_MASK_VRFID }));
+        matches.add(new MatchMetadata(MetaDataUtil.getVpnIdMetadata(vpnId), MetaDataUtil.METADATA_MASK_VRFID));
 
-        matches.add(new MatchInfo(MatchFieldType.eth_type, new long[] { 0x0800L }));
+        matches.add(MatchEthernetType.IPV4);
 
-        matches.add(new MatchInfo(MatchFieldType.ipv4_source, new String[] { externalIp, "32" }));
+        matches.add(new MatchIpv4Source(externalIp, "32"));
 
         List<ActionInfo> actionsInfo = new ArrayList<>();
         List<InstructionInfo> instructions = new ArrayList<InstructionInfo>();

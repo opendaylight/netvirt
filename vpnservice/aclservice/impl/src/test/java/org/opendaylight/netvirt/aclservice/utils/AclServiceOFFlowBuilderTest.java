@@ -11,6 +11,7 @@ package org.opendaylight.netvirt.aclservice.utils;
 import static com.google.common.collect.Iterables.filter;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 import com.google.common.collect.Iterables;
 
@@ -19,12 +20,13 @@ import java.util.List;
 import java.util.Map;
 
 import org.junit.Test;
-import org.opendaylight.genius.mdsalutil.MatchFieldType;
-import org.opendaylight.genius.mdsalutil.MatchInfo;
 import org.opendaylight.genius.mdsalutil.MatchInfoBase;
-import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.genius.mdsalutil.NxMatchFieldType;
 import org.opendaylight.genius.mdsalutil.NxMatchInfo;
+import org.opendaylight.genius.mdsalutil.matches.MatchEthernetType;
+import org.opendaylight.genius.mdsalutil.matches.MatchIcmpv4;
+import org.opendaylight.genius.mdsalutil.matches.MatchIpv4Destination;
+import org.opendaylight.genius.mdsalutil.matches.MatchIpv4Source;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.acl.access.list.entries.ace.Matches;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.acl.access.list.entries.ace.matches.ace.type.AceIpBuilder;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.acl.access.list.entries.ace.matches.ace.type.ace.ip.ace.ip.version.AceIpv4Builder;
@@ -59,10 +61,14 @@ public class AclServiceOFFlowBuilderTest {
 
         AclServiceTestUtils.verifyGeneralFlows(flowMatches, "1", "10.1.1.1", "20.1.1.1", "24");
 
-        Iterable<MatchInfoBase> icmpv4Matches = filter(flowMatches,
-                (item -> ((MatchInfo) item).getMatchField().equals(MatchFieldType.icmp_v4)));
-        AclServiceTestUtils.verifyMatchValues((MatchInfo) Iterables.get(icmpv4Matches, 0), "1024", "2048");
-        AclServiceTestUtils.verifyMatchValues((MatchInfo) Iterables.get(icmpv4Matches, 1), "1024", "2048");
+        int matches = 0;
+        MatchIcmpv4 check = new MatchIcmpv4((short) 1024, (short) 2048);
+        for (MatchInfoBase flowMatch : flowMatches) {
+            if (check.equals(flowMatch)) {
+                matches++;
+            }
+        }
+        assertEquals(2, matches);
     }
 
     @Test
@@ -179,9 +185,8 @@ public class AclServiceOFFlowBuilderTest {
 
         List<MatchInfoBase> flowMatches = AclServiceOFFlowBuilder.addDstIpMatches(builder.build());
 
-        AclServiceTestUtils.verifyMatchInfo(flowMatches, MatchFieldType.eth_type,
-                Integer.toString(NwConstants.ETHTYPE_IPV4));
-        AclServiceTestUtils.verifyMatchInfo(flowMatches, MatchFieldType.ipv4_destination, "10.1.1.1", "24");
+        assertTrue(flowMatches.contains(MatchEthernetType.IPV4));
+        assertTrue(flowMatches.contains(new MatchIpv4Destination("10.1.1.1", "24")));
     }
 
     @Test
@@ -193,9 +198,8 @@ public class AclServiceOFFlowBuilderTest {
 
         List<MatchInfoBase> flowMatches = AclServiceOFFlowBuilder.addDstIpMatches(builder.build());
 
-        AclServiceTestUtils.verifyMatchInfo(flowMatches, MatchFieldType.eth_type,
-                Integer.toString(NwConstants.ETHTYPE_IPV4));
-        AclServiceTestUtils.verifyMatchFieldTypeDontExist(flowMatches, MatchFieldType.ipv4_destination);
+        assertTrue(flowMatches.contains(MatchEthernetType.IPV4));
+        AclServiceTestUtils.verifyMatchFieldTypeDontExist(flowMatches, MatchIpv4Destination.class);
     }
 
     @Test
@@ -207,9 +211,8 @@ public class AclServiceOFFlowBuilderTest {
 
         List<MatchInfoBase> flowMatches = AclServiceOFFlowBuilder.addSrcIpMatches(builder.build());
 
-        AclServiceTestUtils.verifyMatchInfo(flowMatches, MatchFieldType.eth_type,
-                Integer.toString(NwConstants.ETHTYPE_IPV4));
-        AclServiceTestUtils.verifyMatchInfo(flowMatches, MatchFieldType.ipv4_source, "10.1.1.1", "24");
+        assertTrue(flowMatches.contains(MatchEthernetType.IPV4));
+        assertTrue(flowMatches.contains(new MatchIpv4Source("10.1.1.1", "24")));
     }
 
     @Test
@@ -220,9 +223,8 @@ public class AclServiceOFFlowBuilderTest {
         builder.setAceIpVersion(v4builder.build());
 
         List<MatchInfoBase> flowMatches = AclServiceOFFlowBuilder.addSrcIpMatches(builder.build());
-        AclServiceTestUtils.verifyMatchInfo(flowMatches, MatchFieldType.eth_type,
-                Integer.toString(NwConstants.ETHTYPE_IPV4));
-        AclServiceTestUtils.verifyMatchFieldTypeDontExist(flowMatches, MatchFieldType.ipv4_source);
+        assertTrue(flowMatches.contains(MatchEthernetType.IPV4));
+        AclServiceTestUtils.verifyMatchFieldTypeDontExist(flowMatches, MatchIpv4Source.class);
     }
 
     @Test

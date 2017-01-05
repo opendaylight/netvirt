@@ -21,7 +21,6 @@ import org.opendaylight.genius.mdsalutil.BucketInfo;
 import org.opendaylight.genius.mdsalutil.FlowEntity;
 import org.opendaylight.genius.mdsalutil.GroupEntity;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
-import org.opendaylight.genius.mdsalutil.MatchFieldType;
 import org.opendaylight.genius.mdsalutil.MatchInfo;
 import org.opendaylight.genius.mdsalutil.MetaDataUtil;
 import org.opendaylight.genius.mdsalutil.NwConstants;
@@ -40,6 +39,10 @@ import org.opendaylight.genius.mdsalutil.instructions.InstructionApplyActions;
 import org.opendaylight.genius.mdsalutil.instructions.InstructionGotoTable;
 import org.opendaylight.genius.mdsalutil.instructions.InstructionWriteMetadata;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
+import org.opendaylight.genius.mdsalutil.matches.MatchArpOp;
+import org.opendaylight.genius.mdsalutil.matches.MatchArpTpa;
+import org.opendaylight.genius.mdsalutil.matches.MatchEthernetType;
+import org.opendaylight.genius.mdsalutil.matches.MatchMetadata;
 import org.opendaylight.netvirt.vpnmanager.ArpReplyOrRequest;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.MacAddress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.action.types.rev131112.action.list.Action;
@@ -190,14 +193,10 @@ public class ArpResponderUtil {
                         MetaDataUtil.METADATA_MASK_VRFID);
 
         // Matching Arp request flows
-        matches.add(new MatchInfo(MatchFieldType.eth_type,
-                new long[] { NwConstants.ETHTYPE_ARP }));
-        matches.add(new MatchInfo(MatchFieldType.metadata,
-                new BigInteger[] { metadata, metadataMask }));
-        matches.add(new MatchInfo(MatchFieldType.arp_op,
-                new long[] { ArpReplyOrRequest.REQUEST.getArpOperation() }));
-        matches.add(new MatchInfo(MatchFieldType.arp_tpa,
-                new String[] { ipAddress, "32" }));
+        matches.add(MatchEthernetType.ARP);
+        matches.add(new MatchMetadata(metadata, metadataMask));
+        matches.add(MatchArpOp.REQUEST);
+        matches.add(new MatchArpTpa(ipAddress, "32"));
         return matches;
 
     }

@@ -8,6 +8,7 @@
 package org.opendaylight.netvirt.aclservice;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doReturn;
@@ -27,13 +28,12 @@ import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.mdsalutil.FlowEntity;
-import org.opendaylight.genius.mdsalutil.MatchFieldType;
 import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.genius.mdsalutil.NxMatchFieldType;
 import org.opendaylight.genius.mdsalutil.actions.ActionNxResubmit;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
+import org.opendaylight.genius.mdsalutil.matches.MatchTcpFlags;
 import org.opendaylight.netvirt.aclservice.api.utils.AclInterface;
-import org.opendaylight.netvirt.aclservice.utils.AclConstants;
 import org.opendaylight.netvirt.aclservice.utils.AclDataUtil;
 import org.opendaylight.netvirt.aclservice.utils.AclServiceTestUtils;
 import org.opendaylight.netvirt.aclservice.utils.AclServiceUtils;
@@ -111,7 +111,7 @@ public class StatelessIngressAclServiceImplTest {
         FlowEntity firstRangeFlow = (FlowEntity) installFlowValueSaver.getInvocationParams(6).get(0);
         AclServiceTestUtils.verifyMatchInfo(firstRangeFlow.getMatchInfoList(),
                 NxMatchFieldType.nx_tcp_dst_with_mask, "80", "65535");
-        AclServiceTestUtils.verifyMatchInfo(firstRangeFlow.getMatchInfoList(), MatchFieldType.tcp_flags, "2");
+        assertTrue(firstRangeFlow.getMatchInfoList().contains(new MatchTcpFlags(2)));
         AclServiceTestUtils.verifyActionInfo(firstRangeFlow.getInstructionInfoList().get(0).getActionInfos(),
                 new ActionNxResubmit(NwConstants.EGRESS_LPORT_DISPATCHER_TABLE));
     }
@@ -139,12 +139,12 @@ public class StatelessIngressAclServiceImplTest {
         // https://bugs.opendaylight.org/show_bug.cgi?id=6200
         AclServiceTestUtils.verifyMatchInfo(firstRangeFlow.getMatchInfoList(),
                 NxMatchFieldType.nx_tcp_dst_with_mask, "80", "65532");
-        AclServiceTestUtils.verifyMatchInfo(firstRangeFlow.getMatchInfoList(), MatchFieldType.tcp_flags, "2");
+        assertTrue(firstRangeFlow.getMatchInfoList().contains(new MatchTcpFlags(2)));
 
         FlowEntity secondRangeFlow = (FlowEntity) installFlowValueSaver.getInvocationParams(7).get(0);
         AclServiceTestUtils.verifyMatchInfo(secondRangeFlow.getMatchInfoList(),
                 NxMatchFieldType.nx_tcp_dst_with_mask, "84", "65535");
-        AclServiceTestUtils.verifyMatchInfo(secondRangeFlow.getMatchInfoList(), MatchFieldType.tcp_flags, "2");
+        assertTrue(secondRangeFlow.getMatchInfoList().contains(new MatchTcpFlags(2)));
     }
 
     @Test
@@ -164,8 +164,7 @@ public class StatelessIngressAclServiceImplTest {
         FlowEntity firstSynFlow = (FlowEntity) removeFlowValueSaver.getInvocationParams(6).get(0);
         AclServiceTestUtils.verifyMatchInfo(firstSynFlow.getMatchInfoList(),
                 NxMatchFieldType.nx_tcp_dst_with_mask, "80", "65535");
-        AclServiceTestUtils.verifyMatchInfo(firstSynFlow.getMatchInfoList(), MatchFieldType.tcp_flags,
-                AclConstants.TCP_FLAG_SYN + "");
+        assertTrue(firstSynFlow.getMatchInfoList().contains(MatchTcpFlags.SYN));
 
     }
 

@@ -24,13 +24,17 @@ import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.mdsalutil.ActionInfo;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
-import org.opendaylight.genius.mdsalutil.MatchFieldType;
 import org.opendaylight.genius.mdsalutil.MatchInfo;
 import org.opendaylight.genius.mdsalutil.MetaDataUtil;
 import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.genius.mdsalutil.actions.ActionPopMpls;
 import org.opendaylight.genius.mdsalutil.instructions.InstructionApplyActions;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
+import org.opendaylight.genius.mdsalutil.matches.MatchEthernetType;
+import org.opendaylight.genius.mdsalutil.matches.MatchIpv4Destination;
+import org.opendaylight.genius.mdsalutil.matches.MatchMetadata;
+import org.opendaylight.genius.mdsalutil.matches.MatchMplsLabel;
+import org.opendaylight.genius.mdsalutil.matches.MatchTunnelId;
 import org.opendaylight.netvirt.fibmanager.api.IFibManager;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.tables.table.Flow;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.instruction.list.Instruction;
@@ -144,15 +148,12 @@ public class FibRpcServiceImpl implements FibRpcService {
         }
         List<MatchInfo> matches = new ArrayList<MatchInfo>();
 
-        matches.add(new MatchInfo(MatchFieldType.metadata, new BigInteger[] {
-                MetaDataUtil.getVpnIdMetadata(vpnId), MetaDataUtil.METADATA_MASK_VRFID }));
+        matches.add(new MatchMetadata(MetaDataUtil.getVpnIdMetadata(vpnId), MetaDataUtil.METADATA_MASK_VRFID));
 
-        matches.add(new MatchInfo(MatchFieldType.eth_type,
-                new long[] { 0x0800L }));
+        matches.add(MatchEthernetType.IPV4);
 
         if(prefixLength != 0) {
-            matches.add(new MatchInfo(MatchFieldType.ipv4_destination, new String[] {
-                    destPrefix.getHostAddress(), Integer.toString(prefixLength) }));
+            matches.add(new MatchIpv4Destination(destPrefix.getHostAddress(), Integer.toString(prefixLength)));
         }
 
         String flowRef = getFlowRef(dpnId, NwConstants.L3_FIB_TABLE, vpnId, ipAddress);
@@ -170,9 +171,8 @@ public class FibRpcServiceImpl implements FibRpcService {
 
     private void removeLFibTableEntry(BigInteger dpnId, long serviceId) {
         List<MatchInfo> matches = new ArrayList<MatchInfo>();
-        matches.add(new MatchInfo(MatchFieldType.eth_type,
-                new long[] { 0x8847L }));
-        matches.add(new MatchInfo(MatchFieldType.mpls_label, new String[]{Long.toString(serviceId)}));
+        matches.add(MatchEthernetType.MPLS_UNICAST);
+        matches.add(new MatchMplsLabel(serviceId));
 
         String flowRef = getFlowRef(dpnId, NwConstants.L3_LFIB_TABLE, serviceId, "");
 
@@ -191,7 +191,7 @@ public class FibRpcServiceImpl implements FibRpcService {
         LOG.info("remove terminatingServiceActions called with DpnId = {} and label = {}", dpnId , serviceId);
         List<MatchInfo> mkMatches = new ArrayList<MatchInfo>();
         // Matching metadata
-        mkMatches.add(new MatchInfo(MatchFieldType.tunnel_id, new BigInteger[] {BigInteger.valueOf(serviceId)}));
+        mkMatches.add(new MatchTunnelId(BigInteger.valueOf(serviceId)));
         Flow flowEntity = MDSALUtil.buildFlowNew(NwConstants.INTERNAL_TUNNEL_TABLE,
                 getFlowRef(dpnId, NwConstants.INTERNAL_TUNNEL_TABLE, serviceId, ""),
                 5, String.format("%s:%d","TST Flow Entry ",serviceId), 0, 0,
@@ -205,7 +205,7 @@ public class FibRpcServiceImpl implements FibRpcService {
 
         LOG.info("create terminatingServiceAction on DpnId = {} and serviceId = {} and actions = {}", dpnId , serviceId);
 
-        mkMatches.add(new MatchInfo(MatchFieldType.tunnel_id, new BigInteger[] {BigInteger.valueOf(serviceId)}));
+        mkMatches.add(new MatchTunnelId(BigInteger.valueOf(serviceId)));
 
         Flow terminatingServiceTableFlowEntity = MDSALUtil.buildFlowNew(NwConstants.INTERNAL_TUNNEL_TABLE,
                 getFlowRef(dpnId, NwConstants.INTERNAL_TUNNEL_TABLE, serviceId, ""), 5, String.format("%s:%d","TST Flow Entry ",serviceId),
@@ -233,15 +233,12 @@ public class FibRpcServiceImpl implements FibRpcService {
         }
         List<MatchInfo> matches = new ArrayList<MatchInfo>();
 
-        matches.add(new MatchInfo(MatchFieldType.metadata, new BigInteger[] {
-                MetaDataUtil.getVpnIdMetadata(vpnId), MetaDataUtil.METADATA_MASK_VRFID }));
+        matches.add(new MatchMetadata(MetaDataUtil.getVpnIdMetadata(vpnId), MetaDataUtil.METADATA_MASK_VRFID));
 
-        matches.add(new MatchInfo(MatchFieldType.eth_type,
-                new long[] { 0x0800L }));
+        matches.add(MatchEthernetType.IPV4);
 
         if(prefixLength != 0) {
-            matches.add(new MatchInfo(MatchFieldType.ipv4_destination, new String[] {
-                    destPrefix.getHostAddress(), Integer.toString(prefixLength) }));
+            matches.add(new MatchIpv4Destination(destPrefix.getHostAddress(), Integer.toString(prefixLength)));
         }
 
         String flowRef = getFlowRef(dpnId, NwConstants.L3_FIB_TABLE, vpnId, ipAddress);
@@ -259,9 +256,8 @@ public class FibRpcServiceImpl implements FibRpcService {
 
     private void makeLFibTableEntry(BigInteger dpId, long serviceId, List<Instruction> customInstructions) {
         List<MatchInfo> matches = new ArrayList<MatchInfo>();
-        matches.add(new MatchInfo(MatchFieldType.eth_type,
-                new long[] { 0x8847L }));
-        matches.add(new MatchInfo(MatchFieldType.mpls_label, new String[]{Long.toString(serviceId)}));
+        matches.add(MatchEthernetType.MPLS_UNICAST);
+        matches.add(new MatchMplsLabel(serviceId));
 
         List<Instruction> instructions = new ArrayList<Instruction>();
         List<ActionInfo> actionsInfos = new ArrayList<ActionInfo>();
