@@ -21,7 +21,6 @@ import org.opendaylight.genius.mdsalutil.BucketInfo;
 import org.opendaylight.genius.mdsalutil.FlowEntity;
 import org.opendaylight.genius.mdsalutil.InstructionInfo;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
-import org.opendaylight.genius.mdsalutil.MatchFieldType;
 import org.opendaylight.genius.mdsalutil.MatchInfo;
 import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.genius.mdsalutil.actions.ActionGroup;
@@ -30,6 +29,8 @@ import org.opendaylight.genius.mdsalutil.actions.ActionPuntToController;
 import org.opendaylight.genius.mdsalutil.instructions.InstructionApplyActions;
 import org.opendaylight.genius.mdsalutil.instructions.InstructionGotoTable;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
+import org.opendaylight.genius.mdsalutil.matches.MatchArpOp;
+import org.opendaylight.genius.mdsalutil.matches.MatchEthernetType;
 import org.opendaylight.netvirt.vpnmanager.arp.responder.ArpResponderConstant;
 import org.opendaylight.netvirt.vpnmanager.arp.responder.ArpResponderUtil;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.IdManagerService;
@@ -188,8 +189,8 @@ public class VpnNodeListener extends AsyncClusteredDataTreeChangeListenerBase<No
                 ArpResponderConstant.GROUP_FLOW_NAME.value(), buckets);
 
         final List<MatchInfo> matches = new ArrayList<MatchInfo>();
-        matches.add(new MatchInfo(MatchFieldType.eth_type, new long[] { NwConstants.ETHTYPE_ARP }));
-        matches.add(new MatchInfo(MatchFieldType.arp_op, new long[] {NwConstants.ARP_REQUEST}));
+        matches.add(MatchEthernetType.ARP);
+        matches.add(MatchArpOp.REQUEST);
         final List<ActionInfo> actionInfos = Collections.singletonList(
             new ActionGroup(ArpResponderUtil.retrieveStandardArpResponderGroupId(idManagerService)));
         final List<InstructionInfo> instructions = Collections.singletonList(new InstructionApplyActions(actionInfos));
@@ -202,8 +203,8 @@ public class VpnNodeListener extends AsyncClusteredDataTreeChangeListenerBase<No
 
     private void createArpResponseMatchFlowForGwMacTable(WriteTransaction writeFlowTx, BigInteger dpId) {
         List<MatchInfo> matches = new ArrayList<MatchInfo>();
-        matches.add(new MatchInfo(MatchFieldType.eth_type, new long[] { NwConstants.ETHTYPE_ARP }));
-        matches.add(new MatchInfo(MatchFieldType.arp_op, new long[] {NwConstants.ARP_REPLY}));
+        matches.add(MatchEthernetType.ARP);
+        matches.add(MatchArpOp.REPLY);
         List<ActionInfo> actionsInfos = new ArrayList<>();
         actionsInfos.add(new ActionPuntToController());
         actionsInfos.add(new ActionNxResubmit(NwConstants.LPORT_DISPATCHER_TABLE));

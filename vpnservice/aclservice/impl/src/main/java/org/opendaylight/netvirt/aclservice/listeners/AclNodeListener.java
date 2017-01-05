@@ -21,7 +21,6 @@ import org.opendaylight.genius.mdsalutil.ActionInfo;
 import org.opendaylight.genius.mdsalutil.FlowEntity;
 import org.opendaylight.genius.mdsalutil.InstructionInfo;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
-import org.opendaylight.genius.mdsalutil.MatchFieldType;
 import org.opendaylight.genius.mdsalutil.MatchInfo;
 import org.opendaylight.genius.mdsalutil.MatchInfoBase;
 import org.opendaylight.genius.mdsalutil.NwConstants;
@@ -32,7 +31,9 @@ import org.opendaylight.genius.mdsalutil.actions.ActionNxResubmit;
 import org.opendaylight.genius.mdsalutil.instructions.InstructionApplyActions;
 import org.opendaylight.genius.mdsalutil.instructions.InstructionGotoTable;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
-import org.opendaylight.genius.mdsalutil.packet.IPProtocols;
+import org.opendaylight.genius.mdsalutil.matches.MatchEthernetType;
+import org.opendaylight.genius.mdsalutil.matches.MatchIpProtocol;
+import org.opendaylight.genius.mdsalutil.matches.MatchTcpFlags;
 import org.opendaylight.netvirt.aclservice.utils.AclConstants;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.FlowCapableNode;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.Nodes;
@@ -310,12 +311,10 @@ public class AclNodeListener extends AsyncDataTreeChangeListenerBase<FlowCapable
      */
     private void addStatelessIngressAclTableMissFlow(BigInteger dpId) {
         List<MatchInfo> synMatches = new ArrayList<>();
-        synMatches.add(new MatchInfo(MatchFieldType.eth_type,
-                new long[] { NwConstants.ETHTYPE_IPV4 }));
-        synMatches.add(new MatchInfo(MatchFieldType.ip_proto,
-                new long[] { IPProtocols.TCP.intValue() }));
+        synMatches.add(MatchEthernetType.IPV4);
+        synMatches.add(MatchIpProtocol.TCP);
 
-        synMatches.add(new MatchInfo(MatchFieldType.tcp_flags, new long[] { AclConstants.TCP_FLAG_SYN }));
+        synMatches.add(MatchTcpFlags.SYN);
 
         List<ActionInfo> dropActionsInfos = new ArrayList<>();
         dropActionsInfos.add(new ActionDrop());
@@ -329,11 +328,9 @@ public class AclNodeListener extends AsyncDataTreeChangeListenerBase<FlowCapable
         mdsalManager.installFlow(synFlowEntity);
 
         synMatches = new ArrayList<>();
-        synMatches.add(new MatchInfo(MatchFieldType.eth_type,
-                new long[] { NwConstants.ETHTYPE_IPV4 }));
-        synMatches.add(new MatchInfo(MatchFieldType.ip_proto,
-                new long[] { IPProtocols.TCP.intValue() }));
-        synMatches.add(new MatchInfo(MatchFieldType.tcp_flags, new long[] { AclConstants.TCP_FLAG_SYN_ACK }));
+        synMatches.add(MatchEthernetType.IPV4);
+        synMatches.add(MatchIpProtocol.TCP);
+        synMatches.add(MatchTcpFlags.SYN_ACK);
 
         List<InstructionInfo> allowAllInstructions = new ArrayList<>();
         allowAllInstructions.add(new InstructionGotoTable(NwConstants.EGRESS_ACL_FILTER_TABLE));
@@ -377,11 +374,9 @@ public class AclNodeListener extends AsyncDataTreeChangeListenerBase<FlowCapable
         allowAllInstructions.add(new InstructionGotoTable(NwConstants.INGRESS_ACL_FILTER_TABLE));
 
         List<MatchInfo> synMatches = new ArrayList<>();
-        synMatches.add(new MatchInfo(MatchFieldType.eth_type,
-                new long[] { NwConstants.ETHTYPE_IPV4 }));
-        synMatches.add(new MatchInfo(MatchFieldType.ip_proto,
-                new long[] { IPProtocols.TCP.intValue() }));
-        synMatches.add(new MatchInfo(MatchFieldType.tcp_flags, new long[] { AclConstants.TCP_FLAG_SYN }));
+        synMatches.add(MatchEthernetType.IPV4);
+        synMatches.add(MatchIpProtocol.TCP);
+        synMatches.add(MatchTcpFlags.SYN);
 
         List<ActionInfo> synActionsInfos = new ArrayList<>();
         synActionsInfos.add(new ActionDrop());
@@ -395,11 +390,9 @@ public class AclNodeListener extends AsyncDataTreeChangeListenerBase<FlowCapable
         mdsalManager.installFlow(synFlowEntity);
 
         synMatches = new ArrayList<>();
-        synMatches.add(new MatchInfo(MatchFieldType.eth_type,
-                new long[] { NwConstants.ETHTYPE_IPV4 }));
-        synMatches.add(new MatchInfo(MatchFieldType.ip_proto,
-                new long[] { IPProtocols.TCP.intValue() }));
-        synMatches.add(new MatchInfo(MatchFieldType.tcp_flags, new long[] { AclConstants.TCP_FLAG_SYN_ACK }));
+        synMatches.add(MatchEthernetType.IPV4);
+        synMatches.add(MatchIpProtocol.TCP);
+        synMatches.add(MatchTcpFlags.SYN_ACK);
 
         FlowEntity synAckFlowEntity = MDSALUtil.buildFlowEntity(dpId, NwConstants.INGRESS_ACL_TABLE,
                 "SYN-ACK-ALLOW-" + getTableMissFlowId(NwConstants.INGRESS_ACL_TABLE),

@@ -36,7 +36,6 @@ import org.opendaylight.genius.mdsalutil.ActionInfo;
 import org.opendaylight.genius.mdsalutil.FlowEntity;
 import org.opendaylight.genius.mdsalutil.InstructionInfo;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
-import org.opendaylight.genius.mdsalutil.MatchFieldType;
 import org.opendaylight.genius.mdsalutil.MatchInfo;
 import org.opendaylight.genius.mdsalutil.MetaDataUtil;
 import org.opendaylight.genius.mdsalutil.NwConstants;
@@ -57,6 +56,14 @@ import org.opendaylight.genius.mdsalutil.instructions.InstructionApplyActions;
 import org.opendaylight.genius.mdsalutil.instructions.InstructionGotoTable;
 import org.opendaylight.genius.mdsalutil.instructions.InstructionWriteMetadata;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
+import org.opendaylight.genius.mdsalutil.matches.MatchEthernetType;
+import org.opendaylight.genius.mdsalutil.matches.MatchIcmpv4;
+import org.opendaylight.genius.mdsalutil.matches.MatchIpProtocol;
+import org.opendaylight.genius.mdsalutil.matches.MatchIpv4Destination;
+import org.opendaylight.genius.mdsalutil.matches.MatchIpv6Destination;
+import org.opendaylight.genius.mdsalutil.matches.MatchMetadata;
+import org.opendaylight.genius.mdsalutil.matches.MatchMplsLabel;
+import org.opendaylight.genius.mdsalutil.matches.MatchTunnelId;
 import org.opendaylight.genius.mdsalutil.packet.IPProtocols;
 import org.opendaylight.genius.utils.ServiceIndex;
 import org.opendaylight.genius.utils.batching.ActionableResource;
@@ -65,15 +72,14 @@ import org.opendaylight.genius.utils.batching.ResourceBatchingManager;
 import org.opendaylight.genius.utils.batching.ResourceHandler;
 import org.opendaylight.genius.utils.batching.SubTransaction;
 import org.opendaylight.genius.utils.batching.SubTransactionImpl;
-import org.opendaylight.netvirt.elanmanager.api.IElanService;
 import org.opendaylight.netvirt.fibmanager.NexthopManager.AdjacencyResult;
 import org.opendaylight.netvirt.fibmanager.api.RouteOrigin;
 import org.opendaylight.netvirt.vpnmanager.api.IVpnManager;
 import org.opendaylight.netvirt.vpnmanager.api.intervpnlink.InterVpnLinkCache;
 import org.opendaylight.netvirt.vpnmanager.api.intervpnlink.InterVpnLinkDataComposite;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.interfaces.VpnInterface;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.MacAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.iana._if.type.rev140508.Tunnel;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.MacAddress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.FlowCapableNode;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.FlowId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.tables.Table;
@@ -109,14 +115,10 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev15033
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3nexthop.rev150409.l3nexthop.vpnnexthops.VpnNexthop;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3nexthop.rev150409.l3nexthop.vpnnexthops.VpnNexthopBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.Adjacencies;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.PrefixToInterface;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.VpnInstanceOpData;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.VpnToExtraroute;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.prefix.to._interface.VpnIds;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.prefix.to._interface.VpnIdsKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.prefix.to._interface.vpn.ids.Prefixes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.prefix.to._interface.vpn.ids.PrefixesBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.prefix.to._interface.vpn.ids.PrefixesKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.VpnInstanceOpDataEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.VpnInstanceOpDataEntryKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.vpn.instance.op.data.entry.VpnToDpnList;
@@ -710,13 +712,11 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
         int prefixLength = (values.length == 1) ? 0 : Integer.parseInt(values[1]);
 
         List<MatchInfo> matches = new ArrayList<>();
-        matches.add(new MatchInfo(MatchFieldType.metadata, new BigInteger[] { MetaDataUtil.getVpnIdMetadata(vpnTag),
-                                                                              MetaDataUtil.METADATA_MASK_VRFID }));
-        matches.add(new MatchInfo(MatchFieldType.eth_type, new long[] { NwConstants.ETHTYPE_IPV4 }));
+        matches.add(new MatchMetadata(MetaDataUtil.getVpnIdMetadata(vpnTag), MetaDataUtil.METADATA_MASK_VRFID));
+        matches.add(MatchEthernetType.IPV4);
 
         if (prefixLength != 0) {
-            matches.add(new MatchInfo(MatchFieldType.ipv4_destination,
-                                      new String[] { destPrefixIpAddress, Integer.toString(prefixLength) }));
+            matches.add(new MatchIpv4Destination(destPrefixIpAddress, Integer.toString(prefixLength)));
         }
 
         int priority = DEFAULT_FIB_FLOW_PRIORITY + prefixLength;
@@ -943,7 +943,7 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
 
         // Matching metadata
         // FIXME vxlan vni bit set is not working properly with OVS.need to revisit
-        mkMatches.add(new MatchInfo(MatchFieldType.tunnel_id, new BigInteger[] {BigInteger.valueOf(label)}));
+        mkMatches.add(new MatchTunnelId(BigInteger.valueOf(label)));
 
         List<InstructionInfo> mkInstructions = new ArrayList<>();
         mkInstructions.add(new InstructionApplyActions(actionsInfos));
@@ -968,7 +968,7 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
         LOG.debug("remove terminatingServiceActions called with DpnId = {} and label = {}", dpId , label);
         List<MatchInfo> mkMatches = new ArrayList<>();
         // Matching metadata
-        mkMatches.add(new MatchInfo(MatchFieldType.tunnel_id, new BigInteger[] {BigInteger.valueOf(label)}));
+        mkMatches.add(new MatchTunnelId(BigInteger.valueOf(label)));
         flowEntity = MDSALUtil.buildFlowEntity(dpId,
                 NwConstants.INTERNAL_TUNNEL_TABLE,
                 getTableMissFlowRef(dpId, NwConstants.INTERNAL_TUNNEL_TABLE, (int)label),
@@ -1613,22 +1613,17 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
 
         List<MatchInfo> matches = new ArrayList<>();
 
-        matches.add(new MatchInfo(MatchFieldType.metadata, new BigInteger[] {
-                MetaDataUtil.getVpnIdMetadata(vpnId), MetaDataUtil.METADATA_MASK_VRFID }));
+        matches.add(new MatchMetadata(MetaDataUtil.getVpnIdMetadata(vpnId), MetaDataUtil.METADATA_MASK_VRFID));
 
         if (destPrefix instanceof Inet4Address) {
-            matches.add(new MatchInfo(MatchFieldType.eth_type,
-                    new long[] { NwConstants.ETHTYPE_IPV4 }));
+            matches.add(MatchEthernetType.IPV4);
             if(prefixLength != 0) {
-                matches.add(new MatchInfo(MatchFieldType.ipv4_destination, new String[] {
-                        destPrefix.getHostAddress(), Integer.toString(prefixLength)}));
+                matches.add(new MatchIpv4Destination(destPrefix.getHostAddress(), Integer.toString(prefixLength)));
             }
         } else {
-            matches.add(new MatchInfo(MatchFieldType.eth_type,
-                    new long[] { NwConstants.ETHTYPE_IPV6 }));
+            matches.add(MatchEthernetType.IPV6);
             if(prefixLength != 0) {
-                matches.add(new MatchInfo(MatchFieldType.ipv6_destination, new String[] {
-                        destPrefix.getHostAddress() + "/" + Integer.toString(prefixLength)}));
+                matches.add(new MatchIpv6Destination(destPrefix.getHostAddress() + "/" + prefixLength));
             }
         }
 
@@ -1687,9 +1682,8 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
         }
 
         List<MatchInfo> matches = new ArrayList<MatchInfo>();
-        matches.add(new MatchInfo(MatchFieldType.eth_type,
-                new long[] { NwConstants.ETHTYPE_MPLS_UC }));
-        matches.add(new MatchInfo(MatchFieldType.mpls_label, new String[]{Long.toString(label)}));
+        matches.add(MatchEthernetType.MPLS_UNICAST);
+        matches.add(new MatchMplsLabel(label));
 
         // Install the flow entry in L3_LFIB_TABLE
         String flowRef = getFlowRef(dpId, NwConstants.L3_LFIB_TABLE, label, priority);
@@ -2133,8 +2127,7 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
         List<InstructionInfo> instructions = new ArrayList<>();
         instructions.add(new InstructionGotoTable(NwConstants.L3_LFIB_TABLE));
         List<MatchInfo> matches = new ArrayList<MatchInfo>();
-        matches.add(new MatchInfo(MatchFieldType.eth_type,
-                new long[] { NwConstants.ETHTYPE_MPLS_UC }));
+        matches.add(MatchEthernetType.MPLS_UNICAST);
         FlowEntity flowEntityToLfib = MDSALUtil.buildFlowEntity(dpnId, NwConstants.INTERNAL_TUNNEL_TABLE,
                 getTableMissFlowRef(dpnId, NwConstants.INTERNAL_TUNNEL_TABLE,
                         NwConstants.L3_LFIB_TABLE),
@@ -2244,12 +2237,11 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
 
         List<MatchInfo> matches = new ArrayList<>();
 
-        matches.add(new MatchInfo(MatchFieldType.ip_proto, new long[] { IPProtocols.ICMP.intValue() }));
-        matches.add(new MatchInfo(MatchFieldType.metadata,
-                new BigInteger[] { MetaDataUtil.getVpnIdMetadata(vpnId), MetaDataUtil.METADATA_MASK_VRFID }));
-        matches.add(new MatchInfo(MatchFieldType.icmp_v4, new long[] { (short) 8, (short) 0 }));
-        matches.add(new MatchInfo(MatchFieldType.eth_type, new long[] { NwConstants.ETHTYPE_IPV4 }));
-        matches.add(new MatchInfo(MatchFieldType.ipv4_destination, new String[] { subSplit[0], "32" }));
+        matches.add(MatchIpProtocol.ICMP);
+        matches.add(new MatchMetadata(MetaDataUtil.getVpnIdMetadata(vpnId), MetaDataUtil.METADATA_MASK_VRFID));
+        matches.add(new MatchIcmpv4((short) 8, (short) 0));
+        matches.add(MatchEthernetType.IPV4);
+        matches.add(new MatchIpv4Destination(subSplit[0], "32"));
 
         List<ActionInfo> actionsInfos = new ArrayList<>();
 

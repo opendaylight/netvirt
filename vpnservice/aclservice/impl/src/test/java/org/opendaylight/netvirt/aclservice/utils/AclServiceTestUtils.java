@@ -29,10 +29,13 @@ import org.opendaylight.genius.mdsalutil.ActionInfo;
 import org.opendaylight.genius.mdsalutil.MatchFieldType;
 import org.opendaylight.genius.mdsalutil.MatchInfo;
 import org.opendaylight.genius.mdsalutil.MatchInfoBase;
-import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.genius.mdsalutil.NxMatchFieldType;
 import org.opendaylight.genius.mdsalutil.NxMatchInfo;
 import org.opendaylight.genius.mdsalutil.actions.ActionLearn;
+import org.opendaylight.genius.mdsalutil.matches.MatchEthernetType;
+import org.opendaylight.genius.mdsalutil.matches.MatchIpProtocol;
+import org.opendaylight.genius.mdsalutil.matches.MatchIpv4Destination;
+import org.opendaylight.genius.mdsalutil.matches.MatchIpv4Source;
 import org.opendaylight.genius.utils.cache.CacheUtil;
 import org.opendaylight.netvirt.aclservice.api.utils.AclInterface;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.Acl;
@@ -51,10 +54,10 @@ public class AclServiceTestUtils {
 
     public static void verifyGeneralFlows(List<MatchInfoBase> srcFlowMatches, String protocol, String srcIpv4Net,
             String dstIpv4Net, String mask) {
-        verifyMatchInfo(srcFlowMatches, MatchFieldType.eth_type, Integer.toString(NwConstants.ETHTYPE_IPV4));
-        verifyMatchInfo(srcFlowMatches, MatchFieldType.ip_proto, protocol);
-        verifyMatchInfo(srcFlowMatches, MatchFieldType.ipv4_source, srcIpv4Net, mask);
-        verifyMatchInfo(srcFlowMatches, MatchFieldType.ipv4_destination, dstIpv4Net, mask);
+        assertTrue(srcFlowMatches.contains(MatchEthernetType.IPV4));
+        assertTrue(srcFlowMatches.contains(new MatchIpProtocol(Short.parseShort(protocol))));
+        assertTrue(srcFlowMatches.contains(new MatchIpv4Source(srcIpv4Net, mask)));
+        assertTrue(srcFlowMatches.contains(new MatchIpv4Destination(dstIpv4Net, mask)));
     }
 
     public static AceIpBuilder prepareAceIpBuilder(String srcIpv4Net, String dstIpv4Net, String lowerPort,
@@ -87,31 +90,12 @@ public class AclServiceTestUtils {
         return builder;
     }
 
-    public static void verifyMatchInfo(List<MatchInfoBase> flowMatches, MatchFieldType matchType, String... params) {
-        Iterable<MatchInfoBase> matches = filter(flowMatches,
-            item -> item instanceof MatchInfo && ((MatchInfo) item).getMatchField().equals(matchType)
-                 || item instanceof NxMatchInfo && ((NxMatchInfo) item).getMatchField().equals(matchType));
-        assertFalse(Iterables.isEmpty(matches));
-        for (MatchInfoBase baseMatch : matches) {
-            if (baseMatch instanceof MatchInfo) {
-                verifyMatchValues((MatchInfo)baseMatch, params);
-            } else {
-                verifyMatchValues((NxMatchInfo)baseMatch, params);
-            }
-        }
-    }
-
     public static void verifyMatchInfo(List<MatchInfoBase> flowMatches, NxMatchFieldType matchType, String... params) {
         Iterable<MatchInfoBase> matches = filter(flowMatches,
-            item -> item instanceof MatchInfo && ((MatchInfo) item).getMatchField().equals(matchType)
-                 || item instanceof NxMatchInfo && ((NxMatchInfo) item).getMatchField().equals(matchType));
+            item -> item instanceof NxMatchInfo && ((NxMatchInfo) item).getMatchField().equals(matchType));
         assertFalse(Iterables.isEmpty(matches));
         for (MatchInfoBase baseMatch : matches) {
-            if (baseMatch instanceof MatchInfo) {
-                verifyMatchValues((MatchInfo)baseMatch, params);
-            } else {
-                verifyMatchValues((NxMatchInfo)baseMatch, params);
-            }
+            verifyMatchValues((NxMatchInfo)baseMatch, params);
         }
     }
 
@@ -124,30 +108,6 @@ public class AclServiceTestUtils {
             case ct_state:
                 long[] values = Arrays.stream(params).mapToLong(l -> Long.parseLong(l)).toArray();
                 Assert.assertArrayEquals(values, match.getMatchValues());
-                break;
-            default:
-                assertTrue("match type is not supported", false);
-                break;
-        }
-    }
-
-    public static void verifyMatchValues(MatchInfo match, String... params) {
-        switch (match.getMatchField()) {
-
-            case ip_proto:
-            case eth_type:
-            case tcp_flags:
-            case icmp_v4:
-                long[] values = Arrays.stream(params).mapToLong(l -> Long.parseLong(l)).toArray();
-                Assert.assertArrayEquals(values, match.getMatchValues());
-                break;
-            case ipv4_source:
-            case ipv4_destination:
-            case eth_src:
-            case eth_dst:
-            case arp_sha:
-            case arp_tha:
-                Assert.assertArrayEquals(params, match.getStringMatchValues());
                 break;
             default:
                 assertTrue("match type is not supported", false);

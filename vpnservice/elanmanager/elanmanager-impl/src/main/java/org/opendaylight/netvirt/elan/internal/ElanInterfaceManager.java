@@ -36,7 +36,6 @@ import org.opendaylight.genius.itm.globals.ITMConstants;
 import org.opendaylight.genius.mdsalutil.FlowEntity;
 import org.opendaylight.genius.mdsalutil.InstructionInfo;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
-import org.opendaylight.genius.mdsalutil.MatchFieldType;
 import org.opendaylight.genius.mdsalutil.MatchInfo;
 import org.opendaylight.genius.mdsalutil.MetaDataUtil;
 import org.opendaylight.genius.mdsalutil.NwConstants;
@@ -47,6 +46,8 @@ import org.opendaylight.genius.mdsalutil.actions.ActionSetFieldTunnelId;
 import org.opendaylight.genius.mdsalutil.instructions.InstructionGotoTable;
 import org.opendaylight.genius.mdsalutil.instructions.InstructionWriteMetadata;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
+import org.opendaylight.genius.mdsalutil.matches.MatchMetadata;
+import org.opendaylight.genius.mdsalutil.matches.MatchTunnelId;
 import org.opendaylight.genius.utils.ServiceIndex;
 import org.opendaylight.netvirt.elan.ElanException;
 import org.opendaylight.netvirt.elan.l2gw.utils.ElanL2GatewayUtils;
@@ -957,7 +958,7 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
 
     private List<MatchInfo> buildMatchesForVni(Long vni) {
         List<MatchInfo> mkMatches = new ArrayList<>();
-        MatchInfo match = new MatchInfo(MatchFieldType.tunnel_id, new BigInteger[] { BigInteger.valueOf(vni) });
+        MatchInfo match = new MatchTunnelId(BigInteger.valueOf(vni));
         mkMatches.add(match);
         return mkMatches;
     }
@@ -973,8 +974,8 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
     private List<MatchInfo> getMatchesForElanTag(long elanTag, boolean isSHFlagSet) {
         List<MatchInfo> mkMatches = new ArrayList<>();
         // Matching metadata
-        mkMatches.add(new MatchInfo(MatchFieldType.metadata, new BigInteger[] {
-                ElanUtils.getElanMetadataLabel(elanTag, isSHFlagSet), MetaDataUtil.METADATA_MASK_SERVICE_SH_FLAG }));
+        mkMatches.add(new MatchMetadata(
+                ElanUtils.getElanMetadataLabel(elanTag, isSHFlagSet), MetaDataUtil.METADATA_MASK_SERVICE_SH_FLAG));
         return mkMatches;
     }
 
@@ -1608,16 +1609,16 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
     private List<MatchInfo> getMatchesForFilterEqualsLPortTag(int lportTag) {
         List<MatchInfo> mkMatches = new ArrayList<>();
         // Matching metadata
-        mkMatches.add(new MatchInfo(MatchFieldType.metadata,
-                new BigInteger[] { MetaDataUtil.getLportTagMetaData(lportTag), MetaDataUtil.METADATA_MASK_LPORT_TAG }));
-        mkMatches.add(new MatchInfo(MatchFieldType.tunnel_id, new BigInteger[] { BigInteger.valueOf(lportTag) }));
+        mkMatches.add(
+                new MatchMetadata(MetaDataUtil.getLportTagMetaData(lportTag), MetaDataUtil.METADATA_MASK_LPORT_TAG));
+        mkMatches.add(new MatchTunnelId(BigInteger.valueOf(lportTag)));
         return mkMatches;
     }
 
     private List<MatchInfo> getTunnelIdMatchForFilterEqualsLPortTag(int lportTag) {
         List<MatchInfo> mkMatches = new ArrayList<>();
         // Matching metadata
-        mkMatches.add(new MatchInfo(MatchFieldType.tunnel_id, new BigInteger[] { BigInteger.valueOf(lportTag) }));
+        mkMatches.add(new MatchTunnelId(BigInteger.valueOf(lportTag)));
         return mkMatches;
     }
 

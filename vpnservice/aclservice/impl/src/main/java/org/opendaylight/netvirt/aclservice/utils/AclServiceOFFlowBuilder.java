@@ -13,12 +13,18 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.opendaylight.genius.mdsalutil.MatchFieldType;
-import org.opendaylight.genius.mdsalutil.MatchInfo;
 import org.opendaylight.genius.mdsalutil.MatchInfoBase;
 import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.genius.mdsalutil.NxMatchFieldType;
 import org.opendaylight.genius.mdsalutil.NxMatchInfo;
+import org.opendaylight.genius.mdsalutil.matches.MatchEthernetType;
+import org.opendaylight.genius.mdsalutil.matches.MatchIcmpv4;
+import org.opendaylight.genius.mdsalutil.matches.MatchIcmpv6;
+import org.opendaylight.genius.mdsalutil.matches.MatchIpProtocol;
+import org.opendaylight.genius.mdsalutil.matches.MatchIpv4Destination;
+import org.opendaylight.genius.mdsalutil.matches.MatchIpv4Source;
+import org.opendaylight.genius.mdsalutil.matches.MatchIpv6Destination;
+import org.opendaylight.genius.mdsalutil.matches.MatchIpv6Source;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.acl.access.list.entries.ace.Matches;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.acl.access.list.entries.ace.matches.ace.type.AceIp;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.acl.access.list.entries.ace.matches.ace.type.ace.ip.ace.ip.version.AceIpv4;
@@ -84,14 +90,11 @@ public class AclServiceOFFlowBuilder {
         flowMatches.addAll(addSrcIpMatches(acl));
         flowMatches.addAll(addDstIpMatches(acl));
         if (acl.getAceIpVersion() instanceof AceIpv4 ) {
-            flowMatches.add(new MatchInfo(MatchFieldType.eth_type,
-                new long[] { NwConstants.ETHTYPE_IPV4 }));
+            flowMatches.add(MatchEthernetType.IPV4);
         } else if (acl.getAceIpVersion() instanceof AceIpv6 ) {
-            flowMatches.add(new MatchInfo(MatchFieldType.eth_type,
-                new long[] { NwConstants.ETHTYPE_IPV6 }));
+            flowMatches.add(MatchEthernetType.IPV6);
         }
-        flowMatches.add(new MatchInfo(MatchFieldType.ip_proto,
-            new long[] { acl.getProtocol() }));
+        flowMatches.add(new MatchIpProtocol(acl.getProtocol()));
         String flowId = "OTHER_PROTO" + acl.getProtocol();
         Map<String,List<MatchInfoBase>> flowMatchesMap = new HashMap<>();
         flowMatchesMap.put(flowId,flowMatches);
@@ -111,15 +114,13 @@ public class AclServiceOFFlowBuilder {
         String flowId = "ICMP_";
         if (sourcePortRange != null) {
             if (acl.getAceIpVersion() instanceof AceIpv4 ) {
-                flowMatches.add(new MatchInfo(MatchFieldType.icmp_v4,
-                    new long[] { sourcePortRange.getLowerPort().getValue(),
-                                 sourcePortRange.getUpperPort().getValue() }));
+                flowMatches.add(new MatchIcmpv4(sourcePortRange.getLowerPort().getValue().shortValue(),
+                                 sourcePortRange.getUpperPort().getValue().shortValue()));
                 flowId = flowId + "V4_SOURCE_" + sourcePortRange.getLowerPort().getValue()
                         + sourcePortRange.getUpperPort().getValue();
             } else if (acl.getAceIpVersion() instanceof AceIpv6 ) {
-                flowMatches.add(new MatchInfo(MatchFieldType.icmp_v6,
-                    new long[] { sourcePortRange.getLowerPort().getValue(),
-                                 sourcePortRange.getUpperPort().getValue() }));
+                flowMatches.add(new MatchIcmpv6(sourcePortRange.getLowerPort().getValue().shortValue(),
+                                 sourcePortRange.getUpperPort().getValue().shortValue()));
                 flowId = flowId + "V6_SOURCE_" + sourcePortRange.getLowerPort().getValue() + "_"
                         + sourcePortRange.getUpperPort().getValue() + "_";
             }
@@ -127,21 +128,18 @@ public class AclServiceOFFlowBuilder {
         DestinationPortRange destinationPortRange = acl.getDestinationPortRange();
         if (destinationPortRange != null) {
             if (acl.getAceIpVersion() instanceof AceIpv4 ) {
-                flowMatches.add(new MatchInfo(MatchFieldType.icmp_v4,
-                    new long[] { destinationPortRange.getLowerPort().getValue(),
-                                 destinationPortRange.getUpperPort().getValue() }));
+                flowMatches.add(new MatchIcmpv4(destinationPortRange.getLowerPort().getValue().shortValue(),
+                                 destinationPortRange.getUpperPort().getValue().shortValue()));
                 flowId = flowId + "V4_DESTINATION_" + destinationPortRange.getLowerPort().getValue()
                         + destinationPortRange.getUpperPort().getValue() + "_";
             } else if (acl.getAceIpVersion() instanceof AceIpv6 ) {
-                flowMatches.add(new MatchInfo(MatchFieldType.icmp_v6,
-                    new long[] { destinationPortRange.getLowerPort().getValue(),
-                                 destinationPortRange.getUpperPort().getValue() }));
+                flowMatches.add(new MatchIcmpv6(destinationPortRange.getLowerPort().getValue().shortValue(),
+                                 destinationPortRange.getUpperPort().getValue().shortValue()));
                 flowId = flowId + "V6_DESTINATION_" + destinationPortRange.getLowerPort().getValue()
                         + destinationPortRange.getUpperPort().getValue() + "_";
             }
         }
-        flowMatches.add(new MatchInfo(MatchFieldType.ip_proto,
-            new long[] { acl.getProtocol() }));
+        flowMatches.add(new MatchIpProtocol(acl.getProtocol()));
         Map<String,List<MatchInfoBase>> flowMatchesMap = new HashMap<>();
         flowMatchesMap.put(flowId,flowMatches);
         return flowMatchesMap;
@@ -159,8 +157,7 @@ public class AclServiceOFFlowBuilder {
             List<MatchInfoBase> flowMatches = new ArrayList<>();
             flowMatches.addAll(addSrcIpMatches(acl));
             flowMatches.addAll(addDstIpMatches(acl));
-            flowMatches.add(new MatchInfo(MatchFieldType.ip_proto,
-                new long[] { acl.getProtocol() }));
+            flowMatches.add(new MatchIpProtocol(acl.getProtocol()));
             String flowId = "TCP_SOURCE_ALL_";
             flowMatchesMap.put(flowId,flowMatches);
             return flowMatchesMap;
@@ -176,8 +173,7 @@ public class AclServiceOFFlowBuilder {
                     flowMatches.add(new NxMatchInfo(NxMatchFieldType.nx_tcp_src_with_mask,
                         new long[] {  port, portMaskMap.get(port) }));
                 }
-                flowMatches.add(new MatchInfo(MatchFieldType.ip_proto,
-                    new long[] { acl.getProtocol() }));
+                flowMatches.add(new MatchIpProtocol(acl.getProtocol()));
                 String flowId = "TCP_SOURCE_" + port + "_" + portMaskMap.get(port);
                 flowMatchesMap.put(flowId,flowMatches);
             }
@@ -193,8 +189,7 @@ public class AclServiceOFFlowBuilder {
                     flowMatches.add(new NxMatchInfo(NxMatchFieldType.nx_tcp_dst_with_mask,
                         new long[] {  port, portMaskMap.get(port) }));
                 }
-                flowMatches.add(new MatchInfo(MatchFieldType.ip_proto,
-                    new long[] { acl.getProtocol() }));
+                flowMatches.add(new MatchIpProtocol(acl.getProtocol()));
                 String flowId = "TCP_DESTINATION_" + port + "_" + portMaskMap.get(port);
                 flowMatchesMap.put(flowId,flowMatches);
             }
@@ -214,8 +209,7 @@ public class AclServiceOFFlowBuilder {
             List<MatchInfoBase> flowMatches = new ArrayList<>();
             flowMatches.addAll(addSrcIpMatches(acl));
             flowMatches.addAll(addDstIpMatches(acl));
-            flowMatches.add(new MatchInfo(MatchFieldType.ip_proto,
-                new long[] { acl.getProtocol() }));
+            flowMatches.add(new MatchIpProtocol(acl.getProtocol()));
             String flowId = "UDP_SOURCE_ALL_";
             flowMatchesMap.put(flowId,flowMatches);
             return flowMatchesMap;
@@ -231,8 +225,7 @@ public class AclServiceOFFlowBuilder {
                     flowMatches.add(new NxMatchInfo(NxMatchFieldType.nx_udp_src_with_mask,
                         new long[] {  port, portMaskMap.get(port) }));
                 }
-                flowMatches.add(new MatchInfo(MatchFieldType.ip_proto,
-                    new long[] { acl.getProtocol() }));
+                flowMatches.add(new MatchIpProtocol(acl.getProtocol()));
                 String flowId = "UDP_SOURCE_" + port + "_" + portMaskMap.get(port);
                 flowMatchesMap.put(flowId ,flowMatches);
             }
@@ -248,8 +241,7 @@ public class AclServiceOFFlowBuilder {
                     flowMatches.add(new NxMatchInfo(NxMatchFieldType.nx_udp_dst_with_mask,
                         new long[] {  port, portMaskMap.get(port) }));
                 }
-                flowMatches.add(new MatchInfo(MatchFieldType.ip_proto,
-                    new long[] { acl.getProtocol() }));
+                flowMatches.add(new MatchIpProtocol(acl.getProtocol()));
                 String flowId = "UDP_DESTINATION_" + port + "_" + portMaskMap.get(port);
                 flowMatchesMap.put(flowId, flowMatches);
             }
@@ -265,21 +257,16 @@ public class AclServiceOFFlowBuilder {
     public static List<MatchInfoBase> addSrcIpMatches(AceIp acl) {
         List<MatchInfoBase> flowMatches = new ArrayList<>();
         if (acl.getAceIpVersion() instanceof AceIpv4 ) {
-            flowMatches.add(new MatchInfo(MatchFieldType.eth_type,
-                new long[] { NwConstants.ETHTYPE_IPV4 }));
+            flowMatches.add(MatchEthernetType.IPV4);
             Ipv4Prefix srcNetwork = ((AceIpv4)acl.getAceIpVersion()).getSourceIpv4Network();
             if (null != srcNetwork && !srcNetwork.getValue().equals(AclConstants.IPV4_ALL_NETWORK)) {
-                String[] ipaddressValues = srcNetwork.getValue().split("/");
-                flowMatches.add(new MatchInfo(MatchFieldType.ipv4_source,
-                    new String[] {ipaddressValues[0], ipaddressValues[1]}));
+                flowMatches.add(new MatchIpv4Source(srcNetwork));
             }
         } else if (acl.getAceIpVersion() instanceof AceIpv6 ) {
-            flowMatches.add(new MatchInfo(MatchFieldType.eth_type,
-                new long[] { NwConstants.ETHTYPE_IPV6 }));
+            flowMatches.add(MatchEthernetType.IPV6);
             Ipv6Prefix srcNetwork = ((AceIpv6)acl.getAceIpVersion()).getSourceIpv6Network();
             if (null != srcNetwork) {
-                flowMatches.add(new MatchInfo(MatchFieldType.ipv6_source,
-                    new String[] {srcNetwork.getValue()}));
+                flowMatches.add(new MatchIpv6Source(srcNetwork));
             }
         }
         return flowMatches;
@@ -292,21 +279,16 @@ public class AclServiceOFFlowBuilder {
     public static List<MatchInfoBase> addDstIpMatches(AceIp acl) {
         List<MatchInfoBase> flowMatches = new ArrayList<>();
         if (acl.getAceIpVersion() instanceof AceIpv4 ) {
-            flowMatches.add(new MatchInfo(MatchFieldType.eth_type,
-                new long[] { NwConstants.ETHTYPE_IPV4 }));
+            flowMatches.add(MatchEthernetType.IPV4);
             Ipv4Prefix dstNetwork = ((AceIpv4)acl.getAceIpVersion()).getDestinationIpv4Network();
             if (null != dstNetwork && !dstNetwork.getValue().equals(AclConstants.IPV4_ALL_NETWORK)) {
-                String[] ipaddressValues = dstNetwork.getValue().split("/");
-                flowMatches.add(new MatchInfo(MatchFieldType.ipv4_destination,
-                    new String[] {ipaddressValues[0], ipaddressValues[1]}));
+                flowMatches.add(new MatchIpv4Destination(dstNetwork));
             }
         } else if (acl.getAceIpVersion() instanceof AceIpv6 ) {
-            flowMatches.add(new MatchInfo(MatchFieldType.eth_type,
-                new long[] { NwConstants.ETHTYPE_IPV6 }));
+            flowMatches.add(MatchEthernetType.IPV6);
             Ipv6Prefix dstNetwork = ((AceIpv6)acl.getAceIpVersion()).getDestinationIpv6Network();
             if (null != dstNetwork) {
-                flowMatches.add(new MatchInfo(MatchFieldType.ipv6_destination,
-                    new String[] {dstNetwork.getValue()}));
+                flowMatches.add(new MatchIpv6Destination(dstNetwork));
             }
         }
         return flowMatches;
