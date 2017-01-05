@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1a622d24_26a528a2",
+        "filename": "docs/specs/index.rst",
+        "patchSetId": 5
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2017-01-05T15:04:52Z",
+      "side": 1,
+      "message": "This should be \u003cflow-based-snat\u003e",
+      "revId": "2ccf320cbb3e56e9a0ee82e7abab0ef9918edadf",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
