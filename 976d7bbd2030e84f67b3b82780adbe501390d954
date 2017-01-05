@@ -59,6 +59,23 @@
     },
     {
       "key": {
+        "uuid": "1a622d24_c629d438",
+        "filename": "docs/specs/ipv6-distributed-router.rst",
+        "patchSetId": 1
+      },
+      "lineNbr": 120,
+      "author": {
+        "id": 6966
+      },
+      "writtenOn": "2017-01-05T14:33:07Z",
+      "side": 1,
+      "message": "Do you have some references about having a Controller that supports NDP? NDP has many more complexities than ARP with many options, I am concerned that we could loose some options of NDP. A reference of best practice about it would help.",
+      "revId": "976d7bbd2030e84f67b3b82780adbe501390d954",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_861c06c3",
         "filename": "docs/specs/ipv6-distributed-router.rst",
         "patchSetId": 1
@@ -111,6 +128,24 @@
     },
     {
       "key": {
+        "uuid": "1a622d24_a62e5841",
+        "filename": "docs/specs/ipv6-distributed-router.rst",
+        "patchSetId": 1
+      },
+      "lineNbr": 141,
+      "author": {
+        "id": 6966
+      },
+      "writtenOn": "2017-01-05T14:33:07Z",
+      "side": 1,
+      "message": "+1",
+      "parentUuid": "1a622d24_a0912a9b",
+      "revId": "976d7bbd2030e84f67b3b82780adbe501390d954",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_466784b7",
         "filename": "docs/specs/ipv6-distributed-router.rst",
         "patchSetId": 1
@@ -139,6 +174,24 @@
       "writtenOn": "2017-01-05T14:26:08Z",
       "side": 1,
       "message": "I believe you would like to create a higher level hierarchy here.\nIf you have multiple routers each with its own ext-gw-info you would need to keep a set of HOST_MACs per router.",
+      "revId": "976d7bbd2030e84f67b3b82780adbe501390d954",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_061f4c09",
+        "filename": "docs/specs/ipv6-distributed-router.rst",
+        "patchSetId": 1
+      },
+      "lineNbr": 146,
+      "author": {
+        "id": 6966
+      },
+      "writtenOn": "2017-01-05T14:33:07Z",
+      "side": 1,
+      "message": "+1",
+      "parentUuid": "1a622d24_808cee80",
       "revId": "976d7bbd2030e84f67b3b82780adbe501390d954",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
