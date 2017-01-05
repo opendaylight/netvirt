@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1a622d24_a92e2941",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnUtil.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 587,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-01-05T17:20:02Z",
+      "side": 1,
+      "message": "why can\u0027t you have this method in InterVpnLinkUtil itself?",
+      "revId": "d2f3039b435d6ae19c7c3855ea8e43dfcfcd1a5b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
