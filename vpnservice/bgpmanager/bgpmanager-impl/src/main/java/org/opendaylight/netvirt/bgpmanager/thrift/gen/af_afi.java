@@ -7,6 +7,10 @@
 
 package org.opendaylight.netvirt.bgpmanager.thrift.gen;
 
+import java.util.Map;
+import java.util.HashMap;
+import org.apache.thrift.TEnum;
+
 public enum af_afi implements org.apache.thrift.TEnum {
   AFI_IP(1);
 
