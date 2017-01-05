@@ -54,6 +54,24 @@
     },
     {
       "key": {
+        "uuid": "1a622d24_5f5e2813",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/FloatingIPListener.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 122,
+      "author": {
+        "id": 6741
+      },
+      "writtenOn": "2017-01-05T04:26:21Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1a622d24_4e4cc042",
+      "revId": "473eb20574aa72d298ae977d2bc530d84de4b535",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_8e56d8d0",
         "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NaptEventHandler.java",
         "patchSetId": 8
