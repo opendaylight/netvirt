@@ -1,0 +1,27 @@
+Sandbox
+-------
+
+Include Source
+^^^^^^^^^^^^^^
+First of all let us see if we can include a file from netvirt source tree.
+
+.. literalinclude:: ../../vpnservice/natservice/natservice-api/src/main/yang/odl-nat.yang
+   :lines: 1-12
+
+** Did it work? **
+
+Include text block
+^^^^^^^^^^^^^^^^^^
+
+.. include:: copyright.txt
+
+Diff of text block
+""""""""""""""""""
+
+.. literalinclude:: copyright.txt
+   :diff: copyright.txt.orig
+
+Include Genius block?
+^^^^^^^^^^^^^^^^^^^^^
+
+.. literalinclude:: ../../../genius/docs/images/pipeline-high-level.txt

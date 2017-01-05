@@ -19,4 +19,5 @@ Contents:
    openstack-guide/index
    user-guide/index
    specs/index
+   sandbox/index
 
