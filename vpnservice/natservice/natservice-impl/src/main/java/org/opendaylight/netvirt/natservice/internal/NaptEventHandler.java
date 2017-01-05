@@ -24,7 +24,6 @@ import org.opendaylight.genius.mdsalutil.ActionInfo;
 import org.opendaylight.genius.mdsalutil.FlowEntity;
 import org.opendaylight.genius.mdsalutil.InstructionInfo;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
-import org.opendaylight.genius.mdsalutil.MatchFieldType;
 import org.opendaylight.genius.mdsalutil.MatchInfo;
 import org.opendaylight.genius.mdsalutil.MetaDataUtil;
 import org.opendaylight.genius.mdsalutil.NwConstants;
@@ -43,8 +42,16 @@ import org.opendaylight.genius.mdsalutil.instructions.InstructionApplyActions;
 import org.opendaylight.genius.mdsalutil.instructions.InstructionGotoTable;
 import org.opendaylight.genius.mdsalutil.instructions.InstructionWriteMetadata;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
+import org.opendaylight.genius.mdsalutil.matches.MatchEthernetType;
+import org.opendaylight.genius.mdsalutil.matches.MatchIpProtocol;
+import org.opendaylight.genius.mdsalutil.matches.MatchIpv4Destination;
+import org.opendaylight.genius.mdsalutil.matches.MatchIpv4Source;
+import org.opendaylight.genius.mdsalutil.matches.MatchMetadata;
+import org.opendaylight.genius.mdsalutil.matches.MatchTcpDestinationPort;
+import org.opendaylight.genius.mdsalutil.matches.MatchTcpSourcePort;
+import org.opendaylight.genius.mdsalutil.matches.MatchUdpDestinationPort;
+import org.opendaylight.genius.mdsalutil.matches.MatchUdpSourcePort;
 import org.opendaylight.genius.mdsalutil.packet.Ethernet;
-import org.opendaylight.genius.mdsalutil.packet.IPProtocols;
 import org.opendaylight.genius.mdsalutil.packet.IPv4;
 import org.opendaylight.genius.mdsalutil.packet.TCP;
 import org.opendaylight.genius.mdsalutil.packet.UDP;
@@ -311,29 +318,28 @@ public class NaptEventHandler {
 
         MatchInfo metaDataMatchInfo = null;
         if(tableId == NwConstants.OUTBOUND_NAPT_TABLE){
-            ipMatchInfo = new MatchInfo(MatchFieldType.ipv4_source, new String[] {ipAddressAsString, "32" });
+            ipMatchInfo = new MatchIpv4Source(ipAddressAsString, "32");
             if(protocol == NAPTEntryEvent.Protocol.TCP) {
-                protocolMatchInfo = new MatchInfo(MatchFieldType.ip_proto, new long[] {IPProtocols.TCP.intValue()});
-                portMatchInfo = new MatchInfo(MatchFieldType.tcp_src, new long[]{port});
+                protocolMatchInfo = MatchIpProtocol.TCP;
+                portMatchInfo = new MatchTcpSourcePort(port);
             } else if(protocol == NAPTEntryEvent.Protocol.UDP) {
-                protocolMatchInfo = new MatchInfo(MatchFieldType.ip_proto, new long[] {IPProtocols.UDP.intValue()});
-                portMatchInfo = new MatchInfo(MatchFieldType.udp_src, new long[]{port});
+                protocolMatchInfo = MatchIpProtocol.UDP;
+                portMatchInfo = new MatchUdpSourcePort(port);
             }
-            metaDataMatchInfo = new MatchInfo(MatchFieldType.metadata,
-                    new BigInteger[] { MetaDataUtil.getVpnIdMetadata(segmentId), MetaDataUtil.METADATA_MASK_VRFID });
+            metaDataMatchInfo =
+                    new MatchMetadata(MetaDataUtil.getVpnIdMetadata(segmentId), MetaDataUtil.METADATA_MASK_VRFID);
         }else{
-            ipMatchInfo = new MatchInfo(MatchFieldType.ipv4_destination, new String[] {ipAddressAsString, "32" });
+            ipMatchInfo = new MatchIpv4Destination(ipAddressAsString, "32");
             if(protocol == NAPTEntryEvent.Protocol.TCP) {
-                protocolMatchInfo = new MatchInfo(MatchFieldType.ip_proto, new long[] {IPProtocols.TCP.intValue()});
-                portMatchInfo = new MatchInfo(MatchFieldType.tcp_dst, new long[]{port});
+                protocolMatchInfo = MatchIpProtocol.TCP;
+                portMatchInfo = new MatchTcpDestinationPort(port);
             } else if(protocol == NAPTEntryEvent.Protocol.UDP) {
-                protocolMatchInfo = new MatchInfo(MatchFieldType.ip_proto, new long[] {IPProtocols.UDP.intValue()});
-                portMatchInfo = new MatchInfo(MatchFieldType.udp_dst, new long[]{port});
+                protocolMatchInfo = new MatchUdpDestinationPort(port);
             }
-            //metaDataMatchInfo = new MatchInfo(MatchFieldType.metadata, new BigInteger[]{BigInteger.valueOf(vpnId), MetaDataUtil.METADATA_MASK_VRFID});
+            //metaDataMatchInfo = new MatchMetadata(BigInteger.valueOf(vpnId), MetaDataUtil.METADATA_MASK_VRFID);
         }
         ArrayList<MatchInfo> matchInfo = new ArrayList<>();
-        matchInfo.add(new MatchInfo(MatchFieldType.eth_type, new long[] { 0x0800L }));
+        matchInfo.add(MatchEthernetType.IPV4);
         matchInfo.add(ipMatchInfo);
         matchInfo.add(protocolMatchInfo);
         matchInfo.add(portMatchInfo);
