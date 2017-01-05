@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "1a622d24_df7238ac",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/ExternalRoutersListener.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 2187,
+      "author": {
+        "id": 6741
+      },
+      "writtenOn": "2017-01-05T04:25:47Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1a622d24_ae3bd49a",
+      "revId": "473eb20574aa72d298ae977d2bc530d84de4b535",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_4e4cc042",
         "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/FloatingIPListener.java",
         "patchSetId": 8
@@ -47,6 +65,24 @@
       "writtenOn": "2017-01-04T13:59:49Z",
       "side": 1,
       "message": "same comment as all the other EVPN stuff",
+      "revId": "473eb20574aa72d298ae977d2bc530d84de4b535",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_1f64b0e3",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NaptEventHandler.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 97,
+      "author": {
+        "id": 6741
+      },
+      "writtenOn": "2017-01-05T04:25:47Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1a622d24_8e56d8d0",
       "revId": "473eb20574aa72d298ae977d2bc530d84de4b535",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
