@@ -36,6 +36,29 @@
     },
     {
       "key": {
+        "uuid": "1a622d24_26b1a847",
+        "filename": "docs/specs/ipv6-distributed-router.rst",
+        "patchSetId": 1
+      },
+      "lineNbr": 109,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2017-01-05T14:26:08Z",
+      "side": 1,
+      "message": "I think HOST_MAC needs to be allocated per compute/control node *per router gw* otherwise it would be impossible to classify the reverse traffic if the external network has more than one subnet defined. It might not make a difference in the current pipeline but it should after the hairpinning changes detailed in https://git.opendaylight.org/gerrit/#/c/49524",
+      "range": {
+        "startLine": 108,
+        "startChar": 58,
+        "endLine": 109,
+        "endChar": 16
+      },
+      "revId": "976d7bbd2030e84f67b3b82780adbe501390d954",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_861c06c3",
         "filename": "docs/specs/ipv6-distributed-router.rst",
         "patchSetId": 1
@@ -47,6 +70,92 @@
       "writtenOn": "2017-01-03T15:08:24Z",
       "side": 1,
       "message": "+1, it will make it symmetric",
+      "revId": "976d7bbd2030e84f67b3b82780adbe501390d954",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_a63938a6",
+        "filename": "docs/specs/ipv6-distributed-router.rst",
+        "patchSetId": 1
+      },
+      "lineNbr": 132,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2017-01-05T14:26:08Z",
+      "side": 1,
+      "message": "+1",
+      "parentUuid": "1a622d24_861c06c3",
+      "revId": "976d7bbd2030e84f67b3b82780adbe501390d954",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_a0912a9b",
+        "filename": "docs/specs/ipv6-distributed-router.rst",
+        "patchSetId": 1
+      },
+      "lineNbr": 141,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2017-01-05T14:26:08Z",
+      "side": 1,
+      "message": "as we may want to utilize this model for east/west cases it seems more appropriate to place it in a more generic module than odl-nat. Maybe odl-l3vpn?",
+      "revId": "976d7bbd2030e84f67b3b82780adbe501390d954",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_466784b7",
+        "filename": "docs/specs/ipv6-distributed-router.rst",
+        "patchSetId": 1
+      },
+      "lineNbr": 145,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2017-01-05T14:26:08Z",
+      "side": 1,
+      "message": "Did you consider incorporating this into one of the existing models like ext-routers?",
+      "revId": "976d7bbd2030e84f67b3b82780adbe501390d954",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_808cee80",
+        "filename": "docs/specs/ipv6-distributed-router.rst",
+        "patchSetId": 1
+      },
+      "lineNbr": 146,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2017-01-05T14:26:08Z",
+      "side": 1,
+      "message": "I believe you would like to create a higher level hierarchy here.\nIf you have multiple routers each with its own ext-gw-info you would need to keep a set of HOST_MACs per router.",
+      "revId": "976d7bbd2030e84f67b3b82780adbe501390d954",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_666a8082",
+        "filename": "docs/specs/ipv6-distributed-router.rst",
+        "patchSetId": 1
+      },
+      "lineNbr": 161,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2017-01-05T14:26:08Z",
+      "side": 1,
+      "message": "Wouldn\u0027t we want to make this feature configurable? maybe depending on neutron router distributed\u003dtrue config and keep the single router-gw mac if set to false",
       "revId": "976d7bbd2030e84f67b3b82780adbe501390d954",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
