@@ -1,0 +1,157 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1a622d24_9d6a83ec",
+        "filename": "openstack/net-virt-providers/src/main/java/org/opendaylight/netvirt/openstack/netvirt/providers/openflow13/services/VlanResponderService.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 91,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2017-01-06T20:15:14Z",
+      "side": 1,
+      "message": "Please adhere to an 80 character limit for line",
+      "revId": "a2a5d09f17e212105bfe261caea0ad28b6dcae9c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_fd6bb7ee",
+        "filename": "openstack/net-virt-providers/src/main/java/org/opendaylight/netvirt/openstack/netvirt/providers/openflow13/services/VlanResponderService.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 111,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2017-01-06T20:15:14Z",
+      "side": 1,
+      "message": "Please adhere to an 80 character limit for line",
+      "revId": "a2a5d09f17e212105bfe261caea0ad28b6dcae9c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_dd707bde",
+        "filename": "openstack/net-virt-providers/src/main/java/org/opendaylight/netvirt/openstack/netvirt/providers/openflow13/services/VlanResponderService.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 117,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2017-01-06T20:15:14Z",
+      "side": 1,
+      "message": "Please adhere to an 80 character limit for line",
+      "revId": "a2a5d09f17e212105bfe261caea0ad28b6dcae9c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_ddb99b7a",
+        "filename": "openstack/net-virt-providers/src/main/java/org/opendaylight/netvirt/openstack/netvirt/providers/openflow13/services/VlanResponderService.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 118,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2017-01-06T20:15:14Z",
+      "side": 1,
+      "message": "Using this file-scope variable inside the methods is not thread-safe. What if two threads access/modify this variable at the time?\nI would use local variable inside the method rather.",
+      "revId": "a2a5d09f17e212105bfe261caea0ad28b6dcae9c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_7d9167f0",
+        "filename": "openstack/net-virt-providers/src/main/java/org/opendaylight/netvirt/openstack/netvirt/providers/openflow13/services/VlanResponderService.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 120,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2017-01-06T20:15:14Z",
+      "side": 1,
+      "message": "I think this line is not needed",
+      "revId": "a2a5d09f17e212105bfe261caea0ad28b6dcae9c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_5d8e2bd1",
+        "filename": "openstack/net-virt-providers/src/main/java/org/opendaylight/netvirt/openstack/netvirt/providers/openflow13/services/VlanResponderService.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 141,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2017-01-06T20:15:14Z",
+      "side": 1,
+      "message": "remove tab",
+      "revId": "a2a5d09f17e212105bfe261caea0ad28b6dcae9c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_3d79afc8",
+        "filename": "openstack/net-virt-providers/src/main/java/org/opendaylight/netvirt/openstack/netvirt/providers/openflow13/services/VlanResponderService.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 159,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2017-01-06T20:15:14Z",
+      "side": 1,
+      "message": "Please adhere to an 80 character limit for lines",
+      "revId": "a2a5d09f17e212105bfe261caea0ad28b6dcae9c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_bdbe5f63",
+        "filename": "openstack/net-virt-providers/src/main/java/org/opendaylight/netvirt/openstack/netvirt/providers/openflow13/services/VlanResponderService.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 166,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2017-01-06T20:15:14Z",
+      "side": 1,
+      "message": "you can move this line after line 163",
+      "revId": "a2a5d09f17e212105bfe261caea0ad28b6dcae9c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_1d7673d7",
+        "filename": "openstack/net-virt-providers/src/main/java/org/opendaylight/netvirt/openstack/netvirt/providers/openflow13/services/VlanResponderService.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 189,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2017-01-06T20:15:14Z",
+      "side": 1,
+      "message": "Please adhere to an 80 character limit for line",
+      "revId": "a2a5d09f17e212105bfe261caea0ad28b6dcae9c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
