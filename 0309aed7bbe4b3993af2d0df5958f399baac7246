@@ -2,6 +2,121 @@
   "comments": [
     {
       "key": {
+        "uuid": "1a622d24_123e6228",
+        "filename": "docs/specs/hairpinning-flat-vlan.rst",
+        "patchSetId": 10
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 4534
+      },
+      "writtenOn": "2017-01-06T18:27:26Z",
+      "side": 1,
+      "message": "it will be good to call out the current workflow in detail for vlan, and how the new workflow will differ from vxlan, because the new proposal seems to align very closely with the vxlan workflow. the main diff that would continue seems to be for FIP-FIP forwarding, with bgpvpn over vxlan, the pkt would go to napt switch using the internet vrf, and come back from there to the dest vswitch, get translated into the same router vrf, and get forwarded to the dest vm.",
+      "range": {
+        "startLine": 11,
+        "startChar": 74,
+        "endLine": 11,
+        "endChar": 75
+      },
+      "revId": "0309aed7bbe4b3993af2d0df5958f399baac7246",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_17af742b",
+        "filename": "docs/specs/hairpinning-flat-vlan.rst",
+        "patchSetId": 10
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 4534
+      },
+      "writtenOn": "2017-01-06T18:27:26Z",
+      "side": 1,
+      "message": "subnet ID seems to exactly map to wherever the internet vpn id is being used in the vxlan pipeline, and doing the same things except for the diff called out above. is there some optimization possible, by defining and re-using the internet vpn id for both transport types, and only decoupling it from bgpvpn semantics for the vlan provider usecase?",
+      "range": {
+        "startLine": 32,
+        "startChar": 72,
+        "endLine": 32,
+        "endChar": 73
+      },
+      "revId": "0309aed7bbe4b3993af2d0df5958f399baac7246",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_b797a0eb",
+        "filename": "docs/specs/hairpinning-flat-vlan.rst",
+        "patchSetId": 10
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 4534
+      },
+      "writtenOn": "2017-01-06T18:27:26Z",
+      "side": 1,
+      "message": "seems like anytime the vpn id is set to subnet id, the fwding will happen on the provider vlan port. is this correct?\ncould there be a possibility that the vlan itself is not provisioned on the source compute node, due to the fact that there is no common router between the 2 nodes?for e.g FIP-FIP fwding where FIPs are in diff subnets, with no common router?",
+      "range": {
+        "startLine": 40,
+        "startChar": 36,
+        "endLine": 40,
+        "endChar": 37
+      },
+      "revId": "0309aed7bbe4b3993af2d0df5958f399baac7246",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_577c4cb5",
+        "filename": "docs/specs/hairpinning-flat-vlan.rst",
+        "patchSetId": 10
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 4534
+      },
+      "writtenOn": "2017-01-06T18:27:26Z",
+      "side": 1,
+      "message": "should clarify whether this mac translation is happening on ingress or egress node (pipeline indicates egress, but will be good to also capture in text). also, for vxlan, when sending from vm private IP to a floating IP, pkts will first go to the snat switch, where SIP will  get NATted, and then the pkt will hairpin back on the same vrf to the destination switch. will this semantic be maintained for vlan provider usecase, please add pipeline for this usecase also.",
+      "range": {
+        "startLine": 43,
+        "startChar": 40,
+        "endLine": 43,
+        "endChar": 41
+      },
+      "revId": "0309aed7bbe4b3993af2d0df5958f399baac7246",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_7d9de765",
+        "filename": "docs/specs/hairpinning-flat-vlan.rst",
+        "patchSetId": 10
+      },
+      "lineNbr": 161,
+      "author": {
+        "id": 4534
+      },
+      "writtenOn": "2017-01-06T18:27:26Z",
+      "side": 1,
+      "message": "how can there be a match on fip here, if the fip itself is located on a remote node?\nplease also consider what happens if pkt can go to the NAPT box (esp for VM-FIP forwarding usecase), and whether that can be re-used for FIP-FIP, similar to how vxlan based on internet vpn is working",
+      "range": {
+        "startLine": 161,
+        "startChar": 59,
+        "endLine": 161,
+        "endChar": 60
+      },
+      "revId": "0309aed7bbe4b3993af2d0df5958f399baac7246",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_bfb77cd7",
         "filename": "docs/specs/hairpinning-flat-vlan.rst",
         "patchSetId": 10
