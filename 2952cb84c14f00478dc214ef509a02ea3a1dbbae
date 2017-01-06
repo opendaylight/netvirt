@@ -36,6 +36,24 @@
     },
     {
       "key": {
+        "uuid": "1a622d24_12d022f5",
+        "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/VLANProvider.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 53,
+      "author": {
+        "id": 4018
+      },
+      "writtenOn": "2017-01-06T14:37:16Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1a622d24_e9bae66c",
+      "revId": "2952cb84c14f00478dc214ef509a02ea3a1dbbae",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_a9c0eee0",
         "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/VLANProvider.java",
         "patchSetId": 3
@@ -53,6 +71,24 @@
     },
     {
       "key": {
+        "uuid": "1a622d24_7247d6bc",
+        "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/VLANProvider.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 73,
+      "author": {
+        "id": 4018
+      },
+      "writtenOn": "2017-01-06T14:37:16Z",
+      "side": 1,
+      "message": "Initially tried this way but cache objects are not available in netvirt-provider side.\nExample: To implement this cache required this two  INeutronNetworkCRUD and INeutronPortCRUD objects. \nI have crossed checked configActivator class in netvirt-provider side.\nFor that reason cache side implementation done in netvirt side.",
+      "parentUuid": "1a622d24_a9c0eee0",
+      "revId": "2952cb84c14f00478dc214ef509a02ea3a1dbbae",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_a9674e24",
         "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/VLANProvider.java",
         "patchSetId": 3
@@ -64,6 +100,24 @@
       "writtenOn": "2017-01-04T18:33:01Z",
       "side": 1,
       "message": "Are you sure that the neutronPortCache is fully functional at this time? Could the config datastore be still in the process of initializing?",
+      "revId": "2952cb84c14f00478dc214ef509a02ea3a1dbbae",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_f28126c4",
+        "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/VLANProvider.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 102,
+      "author": {
+        "id": 4018
+      },
+      "writtenOn": "2017-01-06T14:37:16Z",
+      "side": 1,
+      "message": "Vinh, Yes we have cross verified all the cluster cases, and found that all the cases were properly updated.\nExample:\n1. ODL1 DOWN and UP. 2. ODL2 DOWN and UP 3. ODL3 DOWN and UP. 4. All the ODL\u0027S DOWN and UP. 5. All the ODL\u0027S restarted.",
+      "parentUuid": "1a622d24_a9674e24",
       "revId": "2952cb84c14f00478dc214ef509a02ea3a1dbbae",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
