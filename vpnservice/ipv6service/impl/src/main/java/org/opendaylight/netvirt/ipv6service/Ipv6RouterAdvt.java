@@ -140,7 +140,7 @@ public class Ipv6RouterAdvt {
         } else {
             raPacket.setRouterLifetime(Ipv6Constants.IPV6_ROUTER_LIFETIME);
         }
-        raPacket.setReachableTime((long) 0);
+        raPacket.setReachableTime((long) Ipv6Constants.IPV6_RA_REACHABLE_TIME);
         raPacket.setRetransTime((long) 0);
 
         raPacket.setOptionSourceAddr((short)1);
