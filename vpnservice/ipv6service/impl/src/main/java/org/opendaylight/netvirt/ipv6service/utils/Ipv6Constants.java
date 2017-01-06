@@ -30,6 +30,7 @@ public class Ipv6Constants {
     public static final int IPV6_ROUTER_LIFETIME = 4500;
     public static final int IPV6_RA_VALID_LIFETIME = 2592000;
     public static final int IPV6_RA_PREFERRED_LIFETIME = 604800;
+    public static final int IPV6_RA_REACHABLE_TIME = 120000;
 
     public static final int ICMP_V6_TYPE = 58;
     public static final short ICMP_V6_RS_CODE = 133;
