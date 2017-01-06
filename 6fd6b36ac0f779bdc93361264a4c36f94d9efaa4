@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "1a622d24_3279dec8",
+        "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/impl/DistributedArpService.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 267,
+      "author": {
+        "id": 4030
+      },
+      "writtenOn": "2017-01-06T15:56:32Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1a622d24_12be7965",
+      "range": {
+        "startLine": 267,
+        "startChar": 0,
+        "endLine": 267,
+        "endChar": 16
+      },
+      "revId": "6fd6b36ac0f779bdc93361264a4c36f94d9efaa4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_f2c01de2",
         "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/impl/SecurityServicesImpl.java",
         "patchSetId": 2
