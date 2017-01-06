@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1a622d24_9d0c43ef",
+        "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/PortSecurityHandler.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 159,
+      "author": {
+        "id": 4269
+      },
+      "writtenOn": "2017-01-06T17:42:27Z",
+      "side": 1,
+      "message": "nit pick tab",
+      "revId": "854ca861568a06cbd181ee815000356764f8cbdd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_dde07bfc",
+        "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/impl/SecurityGroupCacheManagerImpl.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 246,
+      "author": {
+        "id": 4269
+      },
+      "writtenOn": "2017-01-06T17:42:27Z",
+      "side": 1,
+      "message": "nitpick remove tab",
+      "revId": "854ca861568a06cbd181ee815000356764f8cbdd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
