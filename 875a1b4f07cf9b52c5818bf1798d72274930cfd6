@@ -2,6 +2,23 @@
   "comments": [
     {
       "key": {
+        "uuid": "1a622d24_721b5673",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/ExternalNetworkGroupInstaller.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 79,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2017-01-06T09:39:41Z",
+      "side": 1,
+      "message": "May i know the use-case in which this is reproduced?",
+      "revId": "875a1b4f07cf9b52c5818bf1798d72274930cfd6",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_6e725c4a",
         "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
         "patchSetId": 2
@@ -49,6 +66,23 @@
       "side": 1,
       "message": "ahh interesting I stand corrected, this is different than String equals()",
       "parentUuid": "1a622d24_0ee928b8",
+      "revId": "875a1b4f07cf9b52c5818bf1798d72274930cfd6",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_5218da74",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnManagerImpl.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 202,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2017-01-06T09:39:41Z",
+      "side": 1,
+      "message": "nit: only if there is a need to re-spin this patch, please include router in the message.\n\ni.e., Failed to install arp responder flows for router {} ...",
       "revId": "875a1b4f07cf9b52c5818bf1798d72274930cfd6",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
