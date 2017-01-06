@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1a622d24_9d9c4311",
+        "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/PortSecurityHandler.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 205,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2017-01-06T19:48:02Z",
+      "side": 1,
+      "message": "Can we get the topology node from the NodeCacheManager?",
+      "revId": "d06e0ee060d97c65eba96e5f6c075200a2363297",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
