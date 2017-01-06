@@ -1,0 +1,157 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1a622d24_d7705cde",
+        "filename": "docs/specs/flow-based-snat.rst",
+        "patchSetId": 6
+      },
+      "lineNbr": 5,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2017-01-06T08:42:52Z",
+      "side": 1,
+      "message": "Somehow, I have a feeling that \"Conntrack Based SNAT Support\" would be more apt for this feature instead of calling it as \"Flow based SNAT\". In the current implementation, when Controller is programming the dynamic flows, its still the \"flows\" that are supporting SNAT. So, to avoid any confusion, please see if we can use the suggested title (or something on those lines). Thanks.",
+      "revId": "6b0d1b79e20e18ced61c1d5477a8c922b3af5ed3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_976a64ec",
+        "filename": "docs/specs/flow-based-snat.rst",
+        "patchSetId": 6
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2017-01-06T08:42:52Z",
+      "side": 1,
+      "message": "I hope the new conntrack based SNAT implementation supports ICMP. If so, probably its worth mentioning this somewhere in this document.",
+      "revId": "6b0d1b79e20e18ced61c1d5477a8c922b3af5ed3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_77a86820",
+        "filename": "docs/specs/flow-based-snat.rst",
+        "patchSetId": 6
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2017-01-06T08:42:52Z",
+      "side": 1,
+      "message": "@Vivek/@Tali/@all, any idea why we match on the metadata (0x222e0/0xfffffffe) and update it to the same value in actions?",
+      "revId": "6b0d1b79e20e18ced61c1d5477a8c922b3af5ed3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_b7be8063",
+        "filename": "docs/specs/flow-based-snat.rst",
+        "patchSetId": 6
+      },
+      "lineNbr": 69,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2017-01-06T08:42:52Z",
+      "side": 1,
+      "message": "nit: s/submits the submit/submits the",
+      "revId": "6b0d1b79e20e18ced61c1d5477a8c922b3af5ed3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_57a56c45",
+        "filename": "docs/specs/flow-based-snat.rst",
+        "patchSetId": 6
+      },
+      "lineNbr": 91,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2017-01-06T08:42:52Z",
+      "side": 1,
+      "message": "@Aswin, may I know the difference between zone-src and conntrack-zone?",
+      "revId": "6b0d1b79e20e18ced61c1d5477a8c922b3af5ed3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_37b27094",
+        "filename": "docs/specs/flow-based-snat.rst",
+        "patchSetId": 6
+      },
+      "lineNbr": 115,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2017-01-06T08:42:52Z",
+      "side": 1,
+      "message": "For nat-type instead of uint32, can we use some enumeration?",
+      "revId": "6b0d1b79e20e18ced61c1d5477a8c922b3af5ed3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_177654d7",
+        "filename": "docs/specs/flow-based-snat.rst",
+        "patchSetId": 6
+      },
+      "lineNbr": 147,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2017-01-06T08:42:52Z",
+      "side": 1,
+      "message": "Can we expect the support for DPDK in OVS 2.7?",
+      "revId": "6b0d1b79e20e18ced61c1d5477a8c922b3af5ed3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_777fc8ab",
+        "filename": "docs/specs/flow-based-snat.rst",
+        "patchSetId": 6
+      },
+      "lineNbr": 188,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2017-01-06T08:42:52Z",
+      "side": 1,
+      "message": "Did you miss this section :)",
+      "revId": "6b0d1b79e20e18ced61c1d5477a8c922b3af5ed3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_b74cc09f",
+        "filename": "docs/specs/flow-based-snat.rst",
+        "patchSetId": 6
+      },
+      "lineNbr": 192,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2017-01-06T08:42:52Z",
+      "side": 1,
+      "message": "I think you can add a reference to the trello card and some tasks. \nPlease take a look at some of the other specs in pipeline for reference.\n\nAlso, please update the other sections which say \"To be Updated\" with some notes or \"N/A\"",
+      "revId": "6b0d1b79e20e18ced61c1d5477a8c922b3af5ed3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
