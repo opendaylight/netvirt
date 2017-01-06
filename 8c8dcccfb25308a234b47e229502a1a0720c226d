@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "1a622d24_9767044d",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 10
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 6741
+      },
+      "writtenOn": "2017-01-06T07:25:44Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1a622d24_438e56d1",
+      "revId": "8c8dcccfb25308a234b47e229502a1a0720c226d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_83c34eec",
         "filename": "/COMMIT_MSG",
         "patchSetId": 10
@@ -30,6 +48,24 @@
       "writtenOn": "2017-01-05T12:45:15Z",
       "side": 1,
       "message": "Here you can say that \"Currently SNAT traffic uses VM MAC as source MAC instead of Router Gateway MAC\".",
+      "revId": "8c8dcccfb25308a234b47e229502a1a0720c226d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_f758f88b",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 10
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 6741
+      },
+      "writtenOn": "2017-01-06T07:25:44Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1a622d24_83c34eec",
       "revId": "8c8dcccfb25308a234b47e229502a1a0720c226d",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -53,6 +89,24 @@
     },
     {
       "key": {
+        "uuid": "1a622d24_b762003c",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/ExternalRoutersListener.java",
+        "patchSetId": 10
+      },
+      "lineNbr": 2192,
+      "author": {
+        "id": 6741
+      },
+      "writtenOn": "2017-01-06T07:25:44Z",
+      "side": 1,
+      "message": "Have done the changes as per the comment. Added return statement if router gw-mac address is getting with \"null\" value.",
+      "parentUuid": "1a622d24_e3e682af",
+      "revId": "8c8dcccfb25308a234b47e229502a1a0720c226d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_c3eb8676",
         "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NaptEventHandler.java",
         "patchSetId": 10
@@ -64,6 +118,24 @@
       "writtenOn": "2017-01-05T12:45:15Z",
       "side": 1,
       "message": "ditto",
+      "revId": "8c8dcccfb25308a234b47e229502a1a0720c226d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_57728c11",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NaptEventHandler.java",
+        "patchSetId": 10
+      },
+      "lineNbr": 102,
+      "author": {
+        "id": 6741
+      },
+      "writtenOn": "2017-01-06T07:25:44Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1a622d24_c3eb8676",
       "revId": "8c8dcccfb25308a234b47e229502a1a0720c226d",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
