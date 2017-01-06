@@ -36,6 +36,29 @@
     },
     {
       "key": {
+        "uuid": "1a622d24_f7dbd84c",
+        "filename": "docs/specs/ipv6-distributed-router.rst",
+        "patchSetId": 1
+      },
+      "lineNbr": 108,
+      "author": {
+        "id": 4534
+      },
+      "writtenOn": "2017-01-06T07:18:21Z",
+      "side": 1,
+      "message": "each ovs port also has a port mac, that could be leveraged for this. when the controller sends pkt_out to the external n/w it could use the port mac of the vlan transport port from which the pkt is sent out. this port mac is stored in the interface manager, and is received by the controller as part of the of port up notification. i think the switch generates port macs based on its own NIC, but i am not 100% sure how it works on the switch itself",
+      "range": {
+        "startLine": 108,
+        "startChar": 69,
+        "endLine": 108,
+        "endChar": 77
+      },
+      "revId": "976d7bbd2030e84f67b3b82780adbe501390d954",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_26b1a847",
         "filename": "docs/specs/ipv6-distributed-router.rst",
         "patchSetId": 1
@@ -52,6 +75,76 @@
         "startChar": 58,
         "endLine": 109,
         "endChar": 16
+      },
+      "revId": "976d7bbd2030e84f67b3b82780adbe501390d954",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_57ec4cf3",
+        "filename": "docs/specs/ipv6-distributed-router.rst",
+        "patchSetId": 1
+      },
+      "lineNbr": 109,
+      "author": {
+        "id": 4534
+      },
+      "writtenOn": "2017-01-06T07:18:21Z",
+      "side": 1,
+      "message": "can we not use the vlan itself to scope the domain for the reverse traffic? macs are expected to be unique per vlan anyways.\nalso, what mac is used today by snat box for ipv4 snat usecase over vlan provider n/ws? does the snat switch use a fabricated mac?",
+      "parentUuid": "1a622d24_26b1a847",
+      "range": {
+        "startLine": 108,
+        "startChar": 58,
+        "endLine": 109,
+        "endChar": 16
+      },
+      "revId": "976d7bbd2030e84f67b3b82780adbe501390d954",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_17e65415",
+        "filename": "docs/specs/ipv6-distributed-router.rst",
+        "patchSetId": 1
+      },
+      "lineNbr": 112,
+      "author": {
+        "id": 4534
+      },
+      "writtenOn": "2017-01-06T07:18:21Z",
+      "side": 1,
+      "message": "if the i/f manager based port mac works, this would not be needed, right?",
+      "range": {
+        "startLine": 112,
+        "startChar": 52,
+        "endLine": 112,
+        "endChar": 53
+      },
+      "revId": "976d7bbd2030e84f67b3b82780adbe501390d954",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_97c1c456",
+        "filename": "docs/specs/ipv6-distributed-router.rst",
+        "patchSetId": 1
+      },
+      "lineNbr": 119,
+      "author": {
+        "id": 4534
+      },
+      "writtenOn": "2017-01-06T07:18:21Z",
+      "side": 1,
+      "message": "i guess you indicate, we also need to support NDs in the same n/w from external? is this allowed by neutron for ipv6, ie external entity on the same vlan as VMs, and sending ND for the VM IP? can we not use the VM mac itself for this case? if not, we need to map out the workflow for the arp responder in this case, because the mac sent would have to be different based on the sender it is received from. also, today for internal NDs, the VMs respond on their own, we do not leverage the arp responder, to my knowledge, so both aspects need to be covered, whether and how to use the arp responder, and how to differentiate between the macs if it is still needed.",
+      "range": {
+        "startLine": 119,
+        "startChar": 25,
+        "endLine": 119,
+        "endChar": 26
       },
       "revId": "976d7bbd2030e84f67b3b82780adbe501390d954",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
@@ -105,6 +198,29 @@
       "side": 1,
       "message": "+1",
       "parentUuid": "1a622d24_861c06c3",
+      "revId": "976d7bbd2030e84f67b3b82780adbe501390d954",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_3728b0e1",
+        "filename": "docs/specs/ipv6-distributed-router.rst",
+        "patchSetId": 1
+      },
+      "lineNbr": 134,
+      "author": {
+        "id": 4534
+      },
+      "writtenOn": "2017-01-06T07:18:21Z",
+      "side": 1,
+      "message": "is the lookup key same in both cases, ie v4 or v6 ip addr? should we worry about any perf considerations, if the keys are different?",
+      "range": {
+        "startLine": 134,
+        "startChar": 43,
+        "endLine": 134,
+        "endChar": 44
+      },
       "revId": "976d7bbd2030e84f67b3b82780adbe501390d954",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
