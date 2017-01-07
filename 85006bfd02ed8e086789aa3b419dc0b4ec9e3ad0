@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1a622d24_d871a9a9",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronQosUtils.java",
+        "patchSetId": 10
+      },
+      "lineNbr": 496,
+      "author": {
+        "id": 856
+      },
+      "writtenOn": "2017-01-07T00:54:41Z",
+      "side": 1,
+      "message": "Use the constant defined for priority.",
+      "revId": "85006bfd02ed8e086789aa3b419dc0b4ec9e3ad0",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_386a5db3",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronQosUtils.java",
+        "patchSetId": 10
+      },
+      "lineNbr": 501,
+      "author": {
+        "id": 856
+      },
+      "writtenOn": "2017-01-07T00:54:41Z",
+      "side": 1,
+      "message": "same as previous.",
+      "revId": "85006bfd02ed8e086789aa3b419dc0b4ec9e3ad0",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_1867a1ea",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/resources/org/opendaylight/blueprint/neutronvpn.xml",
+        "patchSetId": 10
+      },
+      "lineNbr": 96,
+      "author": {
+        "id": 856
+      },
+      "writtenOn": "2017-01-07T00:54:41Z",
+      "side": 1,
+      "message": "I notice other bean id\u0027s start with lowercase",
+      "revId": "85006bfd02ed8e086789aa3b419dc0b4ec9e3ad0",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
