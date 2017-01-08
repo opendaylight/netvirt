@@ -16,6 +16,24 @@
       "revId": "d06e0ee060d97c65eba96e5f6c075200a2363297",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_cc60cea7",
+        "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/PortSecurityHandler.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 205,
+      "author": {
+        "id": 4030
+      },
+      "writtenOn": "2017-01-08T07:41:22Z",
+      "side": 1,
+      "message": "Yes, We can get node from NodeCacheManager but avail nodes are not updated with termination points for VM ports. When we create VM instance the respective tp is not getting updated with the NodeCacheManager. So that we are getting updated node with updated VM port from southbound.readOvsdbTopologyNodes().",
+      "parentUuid": "1a622d24_9d9c4311",
+      "revId": "d06e0ee060d97c65eba96e5f6c075200a2363297",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
