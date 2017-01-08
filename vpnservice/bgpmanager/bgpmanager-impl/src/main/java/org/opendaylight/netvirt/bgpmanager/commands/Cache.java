@@ -22,7 +22,7 @@ import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev1509
 import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.bgp.neighbors.AddressFamilies;
 import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.bgp.neighbors.EbgpMultihop;
 import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.bgp.neighbors.UpdateSource;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 
 import java.io.PrintStream;
 import java.util.List;
@@ -127,10 +127,10 @@ public class Cache extends OsgiCommandSupport {
         AsId a = config.getAsId();
         if (a != null) {
             int asNum = a.getLocalAs().intValue();
-            Ipv4Address routerId = a.getRouterId();
+            IpAddress routerId = a.getRouterId();
             Long spt = a.getStalepathTime();
             Boolean afb = a.isAnnounceFbit();
-            String rid = (routerId == null) ? "<n/a>" : routerId.getValue();
+            String rid = (routerId == null) ? "<n/a>" : new String(routerId.getValue());
             int s = (spt == null) ? 0 : spt.intValue();
             //F-bit is always set to ON (hardcoded), in SDN even though the controller is down
             //forwarding state shall be retained.

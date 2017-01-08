@@ -85,6 +85,7 @@ import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev1509
 import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.bgp.neighbors.EbgpMultihopBuilder;
 import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.bgp.neighbors.UpdateSource;
 import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.bgp.neighbors.UpdateSourceBuilder;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.FibEntries;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.fibentries.VrfTables;
@@ -450,9 +451,9 @@ public class BgpConfigurationManager {
                     return;
                 }
                 long asNum = val.getLocalAs().longValue();
-                Ipv4Address routerId = val.getRouterId();
+                IpAddress routerId = val.getRouterId();
                 Boolean afb = val.isAnnounceFbit();
-                String rid = (routerId == null) ? "" : routerId.getValue();
+                String rid = (routerId == null) ? "" : new String(routerId.getValue());
                 int stalepathTime = (int) getStalePathtime(RESTART_DEFAULT_GR, val);
                 boolean announceFbit = true;
                 try {
@@ -1667,10 +1668,10 @@ public class BgpConfigurationManager {
                 return;
             }
             long asNum = a.getLocalAs().longValue();
-            Ipv4Address routerId = a.getRouterId();
+            IpAddress routerId = a.getRouterId();
             Long spt = a.getStalepathTime();
             Boolean afb = a.isAnnounceFbit();
-            String rid = (routerId == null) ? "" : routerId.getValue();
+            String rid = (routerId == null) ? "" : new String(routerId.getValue());
             int stalepathTime = (int) getStalePathtime(0, config.getAsId());
             boolean announceFbit = true;
             try {
@@ -1779,8 +1780,8 @@ public class BgpConfigurationManager {
 
     public synchronized void
     startBgp(long as, String routerId, int spt, boolean fbit) {
-        Ipv4Address rid = (routerId == null) ?
-                null : new Ipv4Address(routerId);
+        IpAddress rid = (routerId == null) ?
+                null : new IpAddress(routerId.toCharArray());
         Long staleTime = (long) spt;
         InstanceIdentifier.InstanceIdentifierBuilder<AsId> iib =
                 InstanceIdentifier.builder(Bgp.class).child(AsId.class);
