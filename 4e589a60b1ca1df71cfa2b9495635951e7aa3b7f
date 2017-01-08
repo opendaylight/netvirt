@@ -70,6 +70,24 @@
       "revId": "4e589a60b1ca1df71cfa2b9495635951e7aa3b7f",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_af06241b",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanBridgeManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 224,
+      "author": {
+        "id": 3276
+      },
+      "writtenOn": "2017-01-08T15:44:11Z",
+      "side": 1,
+      "message": "Alon: Even without the fix, if the ODL comes back with bridge present in config and operational, it won\u0027t do anything as getBridgeFromConfig() will return non-null. So, it depends on what you mean by \"datastore changes\". My concern here was that this change will expose certain bugs/gaps which are currently masked by this bug.\nJoshua: We can add provider network without requiring bridge in config. Genius code to add tunnels can add tunnels to bridges not present in config, only in operational. First configuration pushed for the bridge will create the node in config. But it again boils down to how we want to treat bridges not created by netvirt? Does all the configuration being done apply to bridges created only by us or also \u0027user\u0027 created bridges?\n\nI think || needs to be \u0026\u0026, else you might as well drop the operational check if all that matters is if it is present in config or not. What we need to do is, based on answer to my question, push our config for bridges not created by us.",
+      "parentUuid": "1a622d24_4c567e5d",
+      "revId": "4e589a60b1ca1df71cfa2b9495635951e7aa3b7f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
