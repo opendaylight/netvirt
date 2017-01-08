@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1a622d24_4cccbe6a",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanBridgeManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 224,
+      "author": {
+        "id": 670
+      },
+      "writtenOn": "2017-01-08T12:03:27Z",
+      "side": 1,
+      "message": "Just double checking - this would mean we are willing to work with a bridge that does not exist in the configuration DS - are we sure no current code relies on this?\n\nThis also means that we won\u0027t do addBridge on this bridge - meaning we will NOT correct various values such as the datapathType etc.\nPreviously we would always re-create br-int with the correct parameters, meaning even if a br-int existed from a previous run, we would correct it to be configured with the correct values.",
+      "revId": "4e589a60b1ca1df71cfa2b9495635951e7aa3b7f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
