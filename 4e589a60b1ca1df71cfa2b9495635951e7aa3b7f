@@ -16,6 +16,24 @@
       "revId": "4e589a60b1ca1df71cfa2b9495635951e7aa3b7f",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_6cbffaaa",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanBridgeManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 224,
+      "author": {
+        "id": 5357
+      },
+      "writtenOn": "2017-01-08T12:15:36Z",
+      "side": 1,
+      "message": "As I understand things this is acceptable. If there is already a br-int it means that the user has taken responsibility for datapath-type, etc.\n\nAnother gotcha here may be the following. I\u0027m wondering if it\u0027s possible for this code to write to the config and then before the operational is updated to get invoked for some other update and then create the bridge again. This should not be a big deal and really should not break anything but I think it is possible.",
+      "parentUuid": "1a622d24_4cccbe6a",
+      "revId": "4e589a60b1ca1df71cfa2b9495635951e7aa3b7f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
