@@ -52,6 +52,24 @@
       "revId": "4e589a60b1ca1df71cfa2b9495635951e7aa3b7f",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_4c567e5d",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanBridgeManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 224,
+      "author": {
+        "id": 5357
+      },
+      "writtenOn": "2017-01-08T13:15:38Z",
+      "side": 1,
+      "message": "OK, now I understand and you are %100 right. Here\u0027s a scenario - someone added a provider network. We need that bridge in config so we can add the provider network (see the method processNodePrep). I think the correct fix here is not to switch the || to an \u0026\u0026 but perhaps, if the br-int exists already to make sure that it is \"copied\" to config with the same dpnid.",
+      "parentUuid": "1a622d24_2c250209",
+      "revId": "4e589a60b1ca1df71cfa2b9495635951e7aa3b7f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
