@@ -34,6 +34,24 @@
       "revId": "4e589a60b1ca1df71cfa2b9495635951e7aa3b7f",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_2c250209",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanBridgeManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 224,
+      "author": {
+        "id": 670
+      },
+      "writtenOn": "2017-01-08T12:49:39Z",
+      "side": 1,
+      "message": "I\u0027m mostly worried about this change in behavior:\n\na. br-int is created by ODL with some flags\nb. ODL dies, yadda yadda\nc. ODL returns, OVS connects to ODL, but no code is triggered since the br-int was already \"configured by user\"\n\nNow (b) might include upgrading of ODL, datastore changes etc.\nNot sure if this is actually interesting but it seems like a potential behavior change that we wouldn\u0027t necessarily want just for this fix Vishal wanted?",
+      "parentUuid": "1a622d24_6cbffaaa",
+      "revId": "4e589a60b1ca1df71cfa2b9495635951e7aa3b7f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
