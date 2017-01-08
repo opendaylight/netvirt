@@ -80,7 +80,7 @@ public class InterfaceUtils {
     if (tunnelInfo.isPresent()) {
       List<TunnelEndPoints> nexthopIpList = tunnelInfo.get().getTunnelEndPoints();
       if (nexthopIpList != null && !nexthopIpList.isEmpty()) {
-        nextHopIp = nexthopIpList.get(0).getIpAddress().getIpv4Address().getValue();
+        nextHopIp = new String(nexthopIpList.get(0).getIpAddress().getValue());
       }
     }
     return nextHopIp;
