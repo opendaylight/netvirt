@@ -43,7 +43,7 @@ module ebgp {
       mandatory "true";
     }
     leaf router-id {
-      type inet:ipv4-address;
+      type inet:ip-address;
     }
     leaf stalepath-time {
       type uint32;
