@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 Red Hat, Inc. and others.  All rights reserved.
+ * Copyright (c) 2016, 2017 Red Hat, Inc. and others.  All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
@@ -45,7 +45,7 @@ public class ElanBridgeManager {
 
     private final MdsalUtils mdsalUtils;
     final SouthboundUtils southboundUtils;
-    private Random random;
+    private final Random random;
 
     /**
      * Construct a new ElanBridgeManager.
@@ -211,7 +211,9 @@ public class ElanBridgeManager {
 
     /**
      * Add a bridge to the OVSDB node but check that it does not exist in the
-     * CONFIGURATION or OPERATIONAL md-sals first.
+     * CONFIGURATION. If it already exists in OPERATIONAL, update it with all
+     * configurable parameters except mac as changing bridge mac will change
+     * datapath-id.
      *
      * @param ovsdbNode Which OVSDB node
      * @param bridgeName Name of the bridge
@@ -220,12 +222,13 @@ public class ElanBridgeManager {
      */
     public boolean addBridge(Node ovsdbNode, String bridgeName, String mac) {
         boolean rv = true;
-        if (!southboundUtils.isBridgeOnOvsdbNode(ovsdbNode, bridgeName)
-                || southboundUtils.getBridgeFromConfig(ovsdbNode, bridgeName) == null) {
+        if (southboundUtils.getBridgeFromConfig(ovsdbNode, bridgeName) == null) {
             Class<? extends DatapathTypeBase> dpType = null;
             if (isUserSpaceEnabled()) {
                 dpType = DatapathTypeNetdev.class;
             }
+            // If bridge already exists, don't generate mac, it will change datapath-id
+            mac = southboundUtils.isBridgeOnOvsdbNode(ovsdbNode, bridgeName) ? null : mac;
             rv = southboundUtils.addBridge(ovsdbNode, bridgeName,
                     southboundUtils.getControllersFromOvsdbNode(ovsdbNode), dpType, mac);
         }
