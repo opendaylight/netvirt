@@ -93,6 +93,7 @@
         init-method="start" destroy-method="close">
     <argument ref="dataBroker" />
     <argument ref="neutronvpnManager" />
+    <argument ref="neutronvpnNatManager" />
   </bean>
 
   <bean id="neutronRouterChangeListener"
