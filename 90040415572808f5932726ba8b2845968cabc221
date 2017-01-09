@@ -53,6 +53,24 @@
     },
     {
       "key": {
+        "uuid": "1a622d24_cfb8c0ca",
+        "filename": "vpnservice/fibmanager/fibmanager-api/src/main/yang/odl-fib.yang",
+        "patchSetId": 13
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-01-09T05:20:51Z",
+      "side": 1,
+      "message": "The assumption was label will be always different from two DCGWs for the same prefix. But as you said, there is no guarantee that it can be same. so it would be good to make both label and nexthop as the key.",
+      "parentUuid": "1a622d24_979c2411",
+      "revId": "90040415572808f5932726ba8b2845968cabc221",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_97c384ec",
         "filename": "vpnservice/fibmanager/fibmanager-api/src/main/yang/odl-fib.yang",
         "patchSetId": 13
@@ -64,6 +82,24 @@
       "writtenOn": "2017-01-06T08:39:42Z",
       "side": 1,
       "message": "route-paths is already a list, why do we need a leaf-list here?",
+      "revId": "90040415572808f5932726ba8b2845968cabc221",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_afbd84b9",
+        "filename": "vpnservice/fibmanager/fibmanager-api/src/main/yang/odl-fib.yang",
+        "patchSetId": 13
+      },
+      "lineNbr": 36,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-01-09T05:20:51Z",
+      "side": 1,
+      "message": "This is being carried from old model and used to store vxlan tep ip\u0027s for local extra route which has ecmp paths. but it can be replaced with leaf by having label and nexthop as the key.",
+      "parentUuid": "1a622d24_97c384ec",
       "revId": "90040415572808f5932726ba8b2845968cabc221",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
