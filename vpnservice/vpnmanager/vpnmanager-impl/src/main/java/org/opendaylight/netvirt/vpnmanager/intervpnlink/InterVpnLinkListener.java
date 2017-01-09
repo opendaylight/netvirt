@@ -369,18 +369,16 @@ public class InterVpnLinkListener extends AsyncDataTreeChangeListenerBase<InterV
         if ( vpnLink.isBgpRoutesLeaking() ) {
             originsToConsider.add(RouteOrigin.BGP);
         }
-
-        /* For now, only BGP leaking. Leave this here for when the other leakings are activated
         if ( vpnLink.isConnectedRoutesLeaking() ) {
             originsToConsider.add(RouteOrigin.CONNECTED);
         }
         if ( vpnLink.isStaticRoutesLeaking() ) {
             originsToConsider.add(RouteOrigin.STATIC);
-            NOTE: There are 2 types of static routes depending on the nexthop:
-              + static route when nexthop is a VM, the Dc-GW or a DPNIP
-              + static route when nexthop is an InterVPN Link
-            Only the 1st type should be considered since the 2nd has a special treatment
-        } */
+           /* NOTE: There are 2 types of static routes depending on the next hop:
+              + static route when next hop is a VM, the DC-GW or a DPNIP
+              + static route when next hop is an Inter-VPN Link
+            Only the 1st type should be considered since the 2nd has a special treatment */
+        }
         String vpn1Uuid = vpnLink.getFirstEndpoint().getVpnUuid().getValue();
         String vpn2Uuid = vpnLink.getSecondEndpoint().getVpnUuid().getValue();
 
