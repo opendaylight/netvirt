@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1a622d24_00a9e7de",
+        "filename": "vpnservice/cloud-servicechain/cloud-servicechain-impl/src/main/java/org/opendaylight/netvirt/cloudservicechain/VPNServiceChainHandler.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 117,
+      "author": {
+        "id": 670
+      },
+      "writtenOn": "2017-01-09T14:00:15Z",
+      "side": 1,
+      "message": "If we decide to keep this wait - please at least use a define in VpnConstants for the 10s",
+      "revId": "c0b99e35fdb26c4f698a5cd5377d22e5b5fe0593",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
