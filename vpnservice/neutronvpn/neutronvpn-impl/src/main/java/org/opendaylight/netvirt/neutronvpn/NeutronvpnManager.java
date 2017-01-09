@@ -386,7 +386,6 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
     @SuppressWarnings("checkstyle:IllegalCatch")
     private void updateVpnInstanceNode(String vpnName, List<String> rd, List<String> irt, List<String> ert,
                                        VpnInstance.Type type, long l3vni) {
-
         VpnInstanceBuilder builder = null;
         List<VpnTarget> vpnTargetList = new ArrayList<>();
         boolean isLockAcquired = false;
@@ -1118,6 +1117,16 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
             result.set(RpcResultBuilder.<DeleteL3VPNOutput>success().withResult(opBuilder.build()).build());
         }
         return result;
+    }
+
+    public void createVpnInstanceForSubnet(Uuid subnetId) {
+        LOG.debug("Creating/Updating L3 internalVPN for subnetID {} ", subnetId);
+        createL3InternalVpn(subnetId, subnetId.getValue(), null, null, null, null, null, null);
+    }
+
+    public void removeVpnInstanceForSubnet(Uuid subnetId) {
+        LOG.debug("Removing vpn-instance for subnetID {} ", subnetId);
+        removeVpn(subnetId);
     }
 
     protected void addSubnetToVpn(final Uuid vpnId, Uuid subnet) {
