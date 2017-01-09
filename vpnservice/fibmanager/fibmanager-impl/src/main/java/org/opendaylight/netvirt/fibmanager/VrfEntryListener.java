@@ -202,8 +202,8 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
             actResource.setInstanceIdentifier(identifier);
             actResource.setInstance(vrfEntry);
             vrfEntryBufferQ.add(actResource);
-            leakRouteIfNeeded(identifier, vrfEntry, NwConstants.ADD_FLOW);
         }
+        leakRouteIfNeeded(identifier, vrfEntry, NwConstants.ADD_FLOW);
         LOG.info("ADD: Added Fib Entry rd {} prefix {} nexthop {} label {}",
                 rd, vrfEntry.getDestPrefix(), vrfEntry.getNextHopAddressList(), vrfEntry.getLabel());
     }
@@ -444,14 +444,10 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
 
         String rd = vrfTableKey.getRouteDistinguisher();
         VpnInstanceOpDataEntry vpnInstance = getVpnInstance(rd);
-        if (RouteOrigin.value(vrfEntry.getOrigin()) == RouteOrigin.BGP) {
-            if (vpnInstance == null) {
-                LOG.error("Vpn Instance not available for external route with prefix {} label {} nexthop {}. Returning...", vrfEntry.getDestPrefix(), vrfEntry.getLabel(), vrfEntry.getNextHopAddressList());
-                return;
-            }
-        } else {
-            Preconditions.checkNotNull(vpnInstance,
-                                       "Vpn Instance not available with rd " + vrfTableKey.getRouteDistinguisher());
+        if (vpnInstance == null) {
+            LOG.error("VPN Instance not available for external route with prefix {} label {} nextHop {} RD {}. Returning...",
+                      vrfEntry.getDestPrefix(), vrfEntry.getLabel(), vrfEntry.getNextHopAddressList(), rd);
+            return;
         }
         String vpnUuid = vpnInstance.getVpnInstanceName();
         Preconditions.checkArgument(vpnUuid != null && !vpnUuid.isEmpty(),
@@ -473,8 +469,12 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
         // Ok, at this point everything is ready for the leaking/removal... but should it be performed?
         // For removal, we remove all leaked routes, but we only leak a route if the corresponding flag is enabled.
         boolean proceed =
-            (addOrRemove == NwConstants.DEL_FLOW) || ( RouteOrigin.value(vrfEntry.getOrigin()) == RouteOrigin.BGP
-                                                       && interVpnLink.get().isBgpRoutesLeaking() );
+                addOrRemove == NwConstants.DEL_FLOW || RouteOrigin.value(vrfEntry.getOrigin()) == RouteOrigin.BGP
+                                                            && interVpnLink.get().isBgpRoutesLeaking()
+                                                    || RouteOrigin.value(vrfEntry.getOrigin()) == RouteOrigin.STATIC
+                                                            && interVpnLink.get().isStaticRoutesLeaking()
+                                                    || RouteOrigin.value(vrfEntry.getOrigin()) == RouteOrigin.CONNECTED
+                                                            && interVpnLink.get().isConnectedRoutesLeaking();
 
         if ( proceed ) {
             boolean isVpnFirstEndpoint = interVpnLink.get().getFirstEndpoint().getVpnUuid().getValue().equals(vpnUuid);
