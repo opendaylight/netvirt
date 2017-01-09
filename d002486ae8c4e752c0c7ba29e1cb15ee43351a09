@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1a622d24_4040ff33",
+        "filename": "docs/specs/qos.rst",
+        "patchSetId": 4
+      },
+      "lineNbr": 36,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2017-01-09T13:59:14Z",
+      "side": 1,
+      "message": "whitespace nitpicks",
+      "revId": "d002486ae8c4e752c0c7ba29e1cb15ee43351a09",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_a060f3cf",
+        "filename": "docs/specs/qos.rst",
+        "patchSetId": 4
+      },
+      "lineNbr": 171,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2017-01-09T13:59:14Z",
+      "side": 1,
+      "message": "Should we link to a Genius spec?",
+      "revId": "d002486ae8c4e752c0c7ba29e1cb15ee43351a09",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
