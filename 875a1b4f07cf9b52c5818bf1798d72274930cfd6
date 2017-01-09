@@ -37,6 +37,24 @@
     },
     {
       "key": {
+        "uuid": "1a622d24_6f440cb7",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/ExternalNetworkGroupInstaller.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 79,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2017-01-09T06:52:13Z",
+      "side": 1,
+      "message": "Ok, thanks.",
+      "parentUuid": "1a622d24_4c74be67",
+      "revId": "875a1b4f07cf9b52c5818bf1798d72274930cfd6",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_6e725c4a",
         "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
         "patchSetId": 2
