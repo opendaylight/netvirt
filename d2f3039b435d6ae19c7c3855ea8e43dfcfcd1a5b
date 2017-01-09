@@ -16,6 +16,24 @@
       "revId": "d2f3039b435d6ae19c7c3855ea8e43dfcfcd1a5b",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_e2ae7397",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnUtil.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 587,
+      "author": {
+        "id": 5350
+      },
+      "writtenOn": "2017-01-09T09:22:02Z",
+      "side": 1,
+      "message": "Hi Vivek, I did put it here on purpose cause this method is supposed to be use case agnostic. In fact, it is analogous to the one above \u0027removeVrfEntries\u0027",
+      "parentUuid": "1a622d24_a92e2941",
+      "revId": "d2f3039b435d6ae19c7c3855ea8e43dfcfcd1a5b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
