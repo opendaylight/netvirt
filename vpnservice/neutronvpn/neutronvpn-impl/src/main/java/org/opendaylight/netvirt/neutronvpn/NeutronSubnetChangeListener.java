@@ -10,6 +10,7 @@ package org.opendaylight.netvirt.neutronvpn;
 import com.google.common.base.Optional;
 import java.util.ArrayList;
 import java.util.List;
+
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
@@ -31,11 +32,14 @@ public class NeutronSubnetChangeListener extends AsyncDataTreeChangeListenerBase
     private static final Logger LOG = LoggerFactory.getLogger(NeutronSubnetChangeListener.class);
     private final DataBroker dataBroker;
     private final NeutronvpnManager nvpnManager;
+    private final NeutronvpnNatManager nvpnNatManager;
 
-    public NeutronSubnetChangeListener(final DataBroker dataBroker, final NeutronvpnManager neutronvpnManager) {
+    public NeutronSubnetChangeListener(final DataBroker dataBroker, final NeutronvpnManager neutronvpnManager,
+            final NeutronvpnNatManager neutronvpnNatMgr) {
         super(Subnet.class, NeutronSubnetChangeListener.class);
         this.dataBroker = dataBroker;
         nvpnManager = neutronvpnManager;
+        nvpnNatManager = neutronvpnNatMgr;
     }
 
     public void start() {
@@ -58,6 +62,7 @@ public class NeutronSubnetChangeListener extends AsyncDataTreeChangeListenerBase
     protected void add(InstanceIdentifier<Subnet> identifier, Subnet input) {
         LOG.trace("Adding Subnet : key: {}, value={}", identifier, input);
         Uuid networkId = input.getNetworkId();
+        Uuid subnetId = input.getUuid();
         Network network = NeutronvpnUtils.getNeutronNetwork(dataBroker, networkId);
         if (network == null || !NeutronvpnUtils.isNetworkTypeSupported(network)) {
             //FIXME: This should be removed when support for VLAN and GRE network types is added
@@ -66,8 +71,15 @@ public class NeutronSubnetChangeListener extends AsyncDataTreeChangeListenerBase
                 + " Skipping the processing of Subnet add DCN", input.getName(), network);
             return;
         }
+
         handleNeutronSubnetCreated(input.getUuid(), String.valueOf(input.getCidr().getValue()), networkId,
                 input.getTenantId());
+        if (NeutronvpnUtils.getIsExternal(network) && NeutronvpnUtils.isFlatOrVlanNetwork(network)) {
+            LOG.trace("Added subnet {} part of external network {} will add NAT external subnet", input, networkId);
+            nvpnManager.createVpnInstanceForSubnet(input.getUuid());
+            nvpnNatManager.updateOrAddExternalSubnet(networkId, subnetId, null);
+        }
+
         NeutronvpnUtils.addToSubnetCache(input);
     }
 
@@ -84,6 +96,13 @@ public class NeutronSubnetChangeListener extends AsyncDataTreeChangeListenerBase
             return;
         }
         handleNeutronSubnetDeleted(input.getUuid(), networkId, null);
+        if (NeutronvpnUtils.getIsExternal(network) && NeutronvpnUtils.isFlatOrVlanNetwork(network)) {
+            LOG.trace("Removed subnet {} part of external network {} will remove NAT external subnet",
+                    input, networkId);
+            nvpnManager.removeVpnInstanceForSubnet(input.getUuid());
+            nvpnNatManager.removeExternalSubnet(input.getUuid());
+        }
+
         NeutronvpnUtils.removeFromSubnetCache(input);
     }
 
@@ -98,7 +117,8 @@ public class NeutronSubnetChangeListener extends AsyncDataTreeChangeListenerBase
                 + " Skipping the processing of Subnet update DCN", update.getName(), network);
             return;
         }
-        handleNeutronSubnetUpdated(update.getUuid(), networkId, update.getTenantId());
+        handleNeutronSubnetUpdated(update.getUuid(), network, update.getTenantId());
+
         NeutronvpnUtils.addToSubnetCache(update);
     }
 
@@ -120,14 +140,21 @@ public class NeutronSubnetChangeListener extends AsyncDataTreeChangeListenerBase
         nvpnManager.deleteSubnetMapNode(subnetId);
     }
 
-    private void handleNeutronSubnetUpdated(Uuid subnetId, Uuid networkId, Uuid tenantId) {
+    private void handleNeutronSubnetUpdated(Uuid subnetId, Network network, Uuid tenantId) {
         Uuid oldNetworkId = NeutronvpnUtils.getSubnetmap(dataBroker, subnetId).getNetworkId();
+        Uuid networkId = network.getUuid();
         if (oldNetworkId != null && !oldNetworkId.equals(networkId)) {
             deleteSubnetToNetworkMapping(subnetId, oldNetworkId);
         }
         if (networkId != null && !networkId.equals(oldNetworkId)) {
             createSubnetToNetworkMapping(subnetId, networkId);
+            if (NeutronvpnUtils.getIsExternal(network) && NeutronvpnUtils.isFlatOrVlanNetwork(network)) {
+                LOG.trace("Updated subnet {} part of external network {} will update NAT external subnet",
+                        subnetId, networkId);
+                nvpnNatManager.updateExternalSubnet(networkId, subnetId, null);
+            }
         }
+
         nvpnManager.updateSubnetNode(subnetId, null, tenantId, networkId, null/*routerID*/, null/*vpnID*/);
     }
 
