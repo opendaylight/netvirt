@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "1a622d24_c501c106",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronQosUtils.java",
+        "patchSetId": 10
+      },
+      "lineNbr": 496,
+      "author": {
+        "id": 6892
+      },
+      "writtenOn": "2017-01-09T11:34:45Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1a622d24_d871a9a9",
+      "revId": "85006bfd02ed8e086789aa3b419dc0b4ec9e3ad0",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_386a5db3",
         "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronQosUtils.java",
         "patchSetId": 10
@@ -47,6 +65,24 @@
       "writtenOn": "2017-01-07T00:54:41Z",
       "side": 1,
       "message": "I notice other bean id\u0027s start with lowercase",
+      "revId": "85006bfd02ed8e086789aa3b419dc0b4ec9e3ad0",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_6201c305",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/resources/org/opendaylight/blueprint/neutronvpn.xml",
+        "patchSetId": 10
+      },
+      "lineNbr": 96,
+      "author": {
+        "id": 6892
+      },
+      "writtenOn": "2017-01-09T11:34:45Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1a622d24_1867a1ea",
       "revId": "85006bfd02ed8e086789aa3b419dc0b4ec9e3ad0",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
