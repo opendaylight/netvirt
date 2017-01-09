@@ -55,6 +55,24 @@
     },
     {
       "key": {
+        "uuid": "1a622d24_a27bdb8a",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/RouterPortsListener.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 96,
+      "author": {
+        "id": 6465
+      },
+      "writtenOn": "2017-01-09T08:29:35Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1a622d24_8fe368a3",
+      "revId": "875a1b4f07cf9b52c5818bf1798d72274930cfd6",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_6e725c4a",
         "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
         "patchSetId": 2
@@ -136,6 +154,24 @@
       "writtenOn": "2017-01-08T07:53:00Z",
       "side": 1,
       "message": "ok.",
+      "parentUuid": "1a622d24_5218da74",
+      "revId": "875a1b4f07cf9b52c5818bf1798d72274930cfd6",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_426ac7b3",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnManagerImpl.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 202,
+      "author": {
+        "id": 6465
+      },
+      "writtenOn": "2017-01-09T08:29:35Z",
+      "side": 1,
+      "message": "Done",
       "parentUuid": "1a622d24_5218da74",
       "revId": "875a1b4f07cf9b52c5818bf1798d72274930cfd6",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
