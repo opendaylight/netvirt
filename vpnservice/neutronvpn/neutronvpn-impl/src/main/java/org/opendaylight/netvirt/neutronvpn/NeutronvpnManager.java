@@ -24,10 +24,13 @@ import org.opendaylight.controller.md.sal.binding.api.NotificationPublishService
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.DataStoreJobCoordinator;
+import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
+import org.opendaylight.genius.mdsalutil.packet.IPv4;
 import org.opendaylight.netvirt.elanmanager.api.IElanService;
 import org.opendaylight.netvirt.neutronvpn.api.utils.NeutronConstants;
+import org.opendaylight.ovsdb.utils.mdsal.utils.MdsalUtils;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.VpnInstances;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.VpnInterfaces;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.af.config.VpnTargets;
@@ -39,6 +42,7 @@ import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev14081
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.instances.VpnInstanceBuilder;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.instances.VpnInstanceKey;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.instances.vpn.instance.Ipv4FamilyBuilder;
+import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.instances.vpn.instance.Ipv6FamilyBuilder;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.interfaces.VpnInterface;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.interfaces.VpnInterfaceBuilder;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.interfaces.VpnInterfaceKey;
@@ -103,6 +107,9 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.vpn.rpc.rev160201.A
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.vpn.rpc.rev160201.RemoveStaticRouteInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.vpn.rpc.rev160201.RemoveStaticRouteInputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.vpn.rpc.rev160201.VpnRpcService;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.constants.rev150712.IpVersionBase;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.constants.rev150712.IpVersionV4;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.constants.rev150712.IpVersionV6;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l3.rev150712.l3.attributes.Routes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l3.rev150712.routers.attributes.routers.Router;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.networks.rev150712.networks.attributes.networks.Network;
@@ -387,7 +394,6 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
     }
 
     private void updateVpnInstanceNode(String vpnName, List<String> rd, List<String> irt, List<String> ert) {
-
         VpnInstanceBuilder builder = null;
         List<VpnTarget> vpnTargetList = new ArrayList<>();
         boolean isLockAcquired = false;
@@ -1088,6 +1094,34 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
             result.set(RpcResultBuilder.<DeleteL3VPNOutput> success().withResult(opBuilder.build()).build());
         }
         return result;
+    }
+
+    public void createVpnInstanceForSubnet(Subnet subnet) {
+        String subnetId = subnet.getUuid().getValue();
+        InstanceIdentifier<VpnInstance> vpnIdentifier = InstanceIdentifier.builder(VpnInstances.class).child
+                (VpnInstance.class, new VpnInstanceKey(subnetId)).build();
+        VpnInstanceBuilder vpnInstanceBuilder = new VpnInstanceBuilder();
+        vpnInstanceBuilder.setKey(new VpnInstanceKey(subnetId));
+        vpnInstanceBuilder.setVpnInstanceName(subnetId);
+        VpnInstance vpnInstance = vpnInstanceBuilder.build();
+        LOG.debug("Creating/Updating vpn-instance {} for subnetID {} ", vpnInstance, subnetId);
+        try {
+            SingleTransactionDataBroker.syncWrite(dataBroker, LogicalDatastoreType.CONFIGURATION, vpnIdentifier, vpnInstance);
+        } catch (Exception ex) {
+            LOG.error("Creation of VPN instance {} for subnet {} failed {}", vpnInstance, subnetId, ex.getMessage());
+        }
+    }
+
+    public void removeVpnInstanceForSubnet(Subnet subnet) {
+        String subnetId = subnet.getUuid().getValue();
+        InstanceIdentifier<VpnInstance> vpnIdentifier = InstanceIdentifier.builder(VpnInstances.class).child
+                (VpnInstance.class, new VpnInstanceKey(subnetId)).build();
+        LOG.debug("Removing vpn-instance for subnetID {} ", subnetId);
+        try {
+            SingleTransactionDataBroker.syncDelete(dataBroker, LogicalDatastoreType.CONFIGURATION, vpnIdentifier);
+        } catch (Exception ex) {
+            LOG.error("Removal of VPN instance for subnet {} failed {}", subnetId, ex.getMessage());
+        }
     }
 
     protected void addSubnetToVpn(final Uuid vpnId, Uuid subnet) {
