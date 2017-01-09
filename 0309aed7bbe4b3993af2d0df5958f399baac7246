@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "1a622d24_a53e458a",
+        "filename": "docs/specs/hairpinning-flat-vlan.rst",
+        "patchSetId": 10
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2017-01-09T17:10:14Z",
+      "side": 1,
+      "message": "I added some details on current workflow and changes in the problem description. \nAFAIK, the main differences between vlan/vxlan UCs after this spec impl will be FIP routing to remote DPNs\n* Ingress DPN - RNH flow \n  - VxLAN - output directly to tunnel with vni\u003dfip-label\n  - VLAN - output to vlan port via egress table using the network VID + fip-mac\n* Egress DPN - DNAT traffic\n  - VxLAN - traffic from tunnel matched against fip-label in internal tunnel table bypassing FIB stright to the DNAT pipeline\n  - VLAN - traffic from vlan network reaches L3 pipeline and matched against fip mac in GW MAC table. From there directed to DNAT pipeline through FIB\n\nHopefully most of this would diff be aligned after standard VNI support + tunnel service binding so only the type of transport and segmentation ids would be different",
+      "parentUuid": "1a622d24_123e6228",
+      "range": {
+        "startLine": 11,
+        "startChar": 74,
+        "endLine": 11,
+        "endChar": 75
+      },
+      "revId": "0309aed7bbe4b3993af2d0df5958f399baac7246",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_17af742b",
         "filename": "docs/specs/hairpinning-flat-vlan.rst",
         "patchSetId": 10
@@ -36,6 +60,30 @@
       "writtenOn": "2017-01-06T18:27:26Z",
       "side": 1,
       "message": "subnet ID seems to exactly map to wherever the internet vpn id is being used in the vxlan pipeline, and doing the same things except for the diff called out above. is there some optimization possible, by defining and re-using the internet vpn id for both transport types, and only decoupling it from bgpvpn semantics for the vlan provider usecase?",
+      "range": {
+        "startLine": 32,
+        "startChar": 72,
+        "endLine": 32,
+        "endChar": 73
+      },
+      "revId": "0309aed7bbe4b3993af2d0df5958f399baac7246",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_96bc1d08",
+        "filename": "docs/specs/hairpinning-flat-vlan.rst",
+        "patchSetId": 10
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2017-01-09T17:10:14Z",
+      "side": 1,
+      "message": "Openstack model enables multiple subnets in single external network and this info must be preserved in the pipeline to access the specific ext gw associated with the subnet. Based on my (very little) understanding the internet vpn is mapped to a single external network so it can\u0027t be used to model multiple subnets.\nHowever, it would be possible to make the vpn transitions\next-net-vpn-id -\u003e subnet-vpn-id \u003e router-vpn-id and vice versa \napply also for the bgpvpn use case by setting the internet vpn to be both ext-net and subnet vpn-ids.\nDoes this make sense? this means GW MAC entries will have additional write_metadata action setting the same internet vpn id",
+      "parentUuid": "1a622d24_17af742b",
       "range": {
         "startLine": 32,
         "startChar": 72,
@@ -71,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "1a622d24_4f3cb0c8",
+        "filename": "docs/specs/hairpinning-flat-vlan.rst",
+        "patchSetId": 10
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2017-01-09T17:10:14Z",
+      "side": 1,
+      "message": "Yes. when vpn-id is set to subnet-id and the fwding is across dpns or to ext-net the vlan provider port will always be used to forward the traffic. \nFIP-FIP or SNAT-FIP will be supported only within the same external subnet.\nFIPs from different subnets will continue to be routed by the external gw and not internally because of the reason you mentioned - there is no common router between the ext. subnets",
+      "parentUuid": "1a622d24_b797a0eb",
+      "range": {
+        "startLine": 40,
+        "startChar": 36,
+        "endLine": 40,
+        "endChar": 37
+      },
+      "revId": "0309aed7bbe4b3993af2d0df5958f399baac7246",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_577c4cb5",
         "filename": "docs/specs/hairpinning-flat-vlan.rst",
         "patchSetId": 10
@@ -82,6 +154,30 @@
       "writtenOn": "2017-01-06T18:27:26Z",
       "side": 1,
       "message": "should clarify whether this mac translation is happening on ingress or egress node (pipeline indicates egress, but will be good to also capture in text). also, for vxlan, when sending from vm private IP to a floating IP, pkts will first go to the snat switch, where SIP will  get NATted, and then the pkt will hairpin back on the same vrf to the destination switch. will this semantic be maintained for vlan provider usecase, please add pipeline for this usecase also.",
+      "range": {
+        "startLine": 43,
+        "startChar": 40,
+        "endLine": 43,
+        "endChar": 41
+      },
+      "revId": "0309aed7bbe4b3993af2d0df5958f399baac7246",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_2f3974d7",
+        "filename": "docs/specs/hairpinning-flat-vlan.rst",
+        "patchSetId": 10
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2017-01-09T17:10:14Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1a622d24_577c4cb5",
       "range": {
         "startLine": 43,
         "startChar": 40,
@@ -117,6 +213,30 @@
     },
     {
       "key": {
+        "uuid": "1a622d24_4f431042",
+        "filename": "docs/specs/hairpinning-flat-vlan.rst",
+        "patchSetId": 10
+      },
+      "lineNbr": 161,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2017-01-09T17:10:14Z",
+      "side": 1,
+      "message": "There might be some confusion here because both SIP/DIP are marked as FIP. I changed it to src-fip/dst-fip\nThe FIB entry is there because each FIP has an associated VRF entry. It creates RNH entries based on the provider network type so for vlan/flat the RNH actions are set-dst + outout to provider-port. \nThis semantics is completely identical to vxlan in logic. The only differences are the type of actions and traversal through egress in the vlan provider case",
+      "parentUuid": "1a622d24_7d9de765",
+      "range": {
+        "startLine": 161,
+        "startChar": 59,
+        "endLine": 161,
+        "endChar": 60
+      },
+      "revId": "0309aed7bbe4b3993af2d0df5958f399baac7246",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_bfb77cd7",
         "filename": "docs/specs/hairpinning-flat-vlan.rst",
         "patchSetId": 10
@@ -140,6 +260,30 @@
     },
     {
       "key": {
+        "uuid": "1a622d24_8f49a862",
+        "filename": "docs/specs/hairpinning-flat-vlan.rst",
+        "patchSetId": 10
+      },
+      "lineNbr": 234,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2017-01-09T17:10:14Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1a622d24_bfb77cd7",
+      "range": {
+        "startLine": 234,
+        "startChar": 0,
+        "endLine": 234,
+        "endChar": 2
+      },
+      "revId": "0309aed7bbe4b3993af2d0df5958f399baac7246",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_9fba80be",
         "filename": "docs/specs/hairpinning-flat-vlan.rst",
         "patchSetId": 10
@@ -151,6 +295,30 @@
       "writtenOn": "2017-01-05T07:14:05Z",
       "side": 1,
       "message": "IMO this can be skipped for specs. the way it is worded makes sense for template doc.",
+      "range": {
+        "startLine": 363,
+        "startChar": 0,
+        "endLine": 370,
+        "endChar": 54
+      },
+      "revId": "0309aed7bbe4b3993af2d0df5958f399baac7246",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_2f405433",
+        "filename": "docs/specs/hairpinning-flat-vlan.rst",
+        "patchSetId": 10
+      },
+      "lineNbr": 370,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2017-01-09T17:10:14Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1a622d24_9fba80be",
       "range": {
         "startLine": 363,
         "startChar": 0,
