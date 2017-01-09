@@ -444,9 +444,11 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
 
         String rd = vrfTableKey.getRouteDistinguisher();
         VpnInstanceOpDataEntry vpnInstance = getVpnInstance(rd);
-        if (RouteOrigin.value(vrfEntry.getOrigin()) == RouteOrigin.BGP) {
+        RouteOrigin vrfOrigin = RouteOrigin.value(vrfEntry.getOrigin());
+        if (vrfOrigin == RouteOrigin.BGP || vrfOrigin == RouteOrigin.STATIC || vrfOrigin == RouteOrigin.CONNECTED) {
             if (vpnInstance == null) {
-                LOG.error("Vpn Instance not available for external route with prefix {} label {} nexthop {}. Returning...", vrfEntry.getDestPrefix(), vrfEntry.getLabel(), vrfEntry.getNextHopAddressList());
+                LOG.error("Vpn Instance not available for external route with prefix {} label {} nextHop {}. Returning...",
+                          vrfEntry.getDestPrefix(), vrfEntry.getLabel(), vrfEntry.getNextHopAddressList());
                 return;
             }
         } else {
@@ -473,8 +475,12 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
         // Ok, at this point everything is ready for the leaking/removal... but should it be performed?
         // For removal, we remove all leaked routes, but we only leak a route if the corresponding flag is enabled.
         boolean proceed =
-            (addOrRemove == NwConstants.DEL_FLOW) || ( RouteOrigin.value(vrfEntry.getOrigin()) == RouteOrigin.BGP
-                                                       && interVpnLink.get().isBgpRoutesLeaking() );
+                addOrRemove == NwConstants.DEL_FLOW || RouteOrigin.value(vrfEntry.getOrigin()) == RouteOrigin.BGP
+                                                            && interVpnLink.get().isBgpRoutesLeaking()
+                                                    || RouteOrigin.value(vrfEntry.getOrigin()) == RouteOrigin.STATIC
+                                                            && interVpnLink.get().isStaticRoutesLeaking()
+                                                    || RouteOrigin.value(vrfEntry.getOrigin()) == RouteOrigin.CONNECTED
+                                                            && interVpnLink.get().isConnectedRoutesLeaking();
 
         if ( proceed ) {
             boolean isVpnFirstEndpoint = interVpnLink.get().getFirstEndpoint().getVpnUuid().getValue().equals(vpnUuid);
