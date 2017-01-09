@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "1a622d24_622f0389",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NaptEventHandler.java",
+        "patchSetId": 12
+      },
+      "lineNbr": 270,
+      "author": {
+        "id": 6741
+      },
+      "writtenOn": "2017-01-09T08:30:59Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1a622d24_c201b706",
+      "revId": "b774444c50c084e1a9b7ee4c8121dee19e8e08b4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_821b3f72",
         "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NaptEventHandler.java",
         "patchSetId": 12
@@ -30,6 +48,24 @@
       "writtenOn": "2017-01-09T08:23:16Z",
       "side": 1,
       "message": "When the API is called with NwConstants.INBOUND_NAPT_TABLE, we would hit this case. This will be a misleading log.\nPlease remove this error log.",
+      "revId": "b774444c50c084e1a9b7ee4c8121dee19e8e08b4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_026d6fcc",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NaptEventHandler.java",
+        "patchSetId": 12
+      },
+      "lineNbr": 379,
+      "author": {
+        "id": 6741
+      },
+      "writtenOn": "2017-01-09T08:30:59Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1a622d24_821b3f72",
       "revId": "b774444c50c084e1a9b7ee4c8121dee19e8e08b4",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
