@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "1a622d24_4f7e701a",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NaptEventHandler.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 334,
+      "author": {
+        "id": 6741
+      },
+      "writtenOn": "2017-01-09T04:21:50Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1a622d24_ac67524c",
+      "revId": "2a149a94260433423afd1adba9ca3afe724e5158",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_2c53426c",
         "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NaptEventHandler.java",
         "patchSetId": 11
@@ -30,6 +48,24 @@
       "writtenOn": "2017-01-08T13:08:51Z",
       "side": 1,
       "message": "nit: formatting - switch cases should be indented in the switch block",
+      "revId": "2a149a94260433423afd1adba9ca3afe724e5158",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_2f7b3429",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NaptEventHandler.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 342,
+      "author": {
+        "id": 6741
+      },
+      "writtenOn": "2017-01-09T04:21:50Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1a622d24_2c53426c",
       "revId": "2a149a94260433423afd1adba9ca3afe724e5158",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
