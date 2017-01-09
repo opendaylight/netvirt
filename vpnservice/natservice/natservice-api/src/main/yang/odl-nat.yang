@@ -183,4 +183,22 @@ module odl-nat {
             }
         }
     }
+
+    container external-subnets {
+        list subnets  {
+            key id;
+            leaf id {
+                type yang:uuid;
+            }
+            leaf vpn-id {
+                type yang:uuid;
+            }
+            leaf external-network-id {
+                type yang:uuid;
+            }
+            leaf router-id {
+                type yang:uuid;
+            }
+        }
+    }
 }
