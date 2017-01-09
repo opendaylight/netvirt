@@ -11,12 +11,17 @@ import com.google.common.base.Optional;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
+import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.netvirt.neutronvpn.api.utils.NeutronConstants;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ExternalNetworks;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ExternalSubnets;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ProviderTypes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ext.routers.Routers;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ext.routers.RoutersBuilder;
@@ -24,6 +29,9 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev16011
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.external.networks.Networks;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.external.networks.NetworksBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.external.networks.NetworksKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.external.subnets.Subnets;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.external.subnets.SubnetsBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.external.subnets.SubnetsKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l3.rev150712.routers.attributes.routers.Router;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l3.rev150712.routers.attributes.routers.router.ExternalGatewayInfo;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l3.rev150712.routers.attributes.routers.router.external_gateway_info.ExternalFixedIps;
@@ -51,10 +59,10 @@ public class NeutronvpnNatManager implements AutoCloseable {
     }
 
     public void handleExternalNetworkForRouter(Router original, Router update) {
-
         Uuid routerId = update.getUuid();
         Uuid origExtNetId = null;
         Uuid updExtNetId = null;
+        List<ExternalFixedIps> origExtFixedIps;
 
         LOG.trace("handleExternalNetwork for router " +  routerId);
         int extNetChanged = externalNetworkChanged(original, update);
@@ -68,16 +76,19 @@ public class NeutronvpnNatManager implements AutoCloseable {
             }
             if (extNetChanged == EXTERNAL_REMOVED) {
                 origExtNetId = original.getExternalGatewayInfo().getExternalNetworkId();
+                origExtFixedIps = original.getExternalGatewayInfo().getExternalFixedIps();
                 LOG.trace("External Network removal detected for router {}", routerId.getValue());
-                removeExternalNetworkFromRouter(origExtNetId, update);
+                removeExternalNetworkFromRouter(origExtNetId, update, origExtFixedIps);
                 //gateway mac unset handled as part of gateway clear deleting top-level routers node
                 return;
             }
+
             origExtNetId = original.getExternalGatewayInfo().getExternalNetworkId();
+            origExtFixedIps = original.getExternalGatewayInfo().getExternalFixedIps();
             updExtNetId = update.getExternalGatewayInfo().getExternalNetworkId();
             LOG.trace("External Network changed from {} to {} for router {}",
                 origExtNetId.getValue(), updExtNetId.getValue(), routerId.getValue());
-            removeExternalNetworkFromRouter(origExtNetId, update);
+            removeExternalNetworkFromRouter(origExtNetId, update, origExtFixedIps);
             addExternalNetworkToRouter(update);
             return;
         }
@@ -262,6 +273,7 @@ public class NeutronvpnNatManager implements AutoCloseable {
     private void addExternalNetworkToRouter(Router update) {
         Uuid routerId = update.getUuid();
         Uuid extNetId = update.getExternalGatewayInfo().getExternalNetworkId();
+        List<ExternalFixedIps> externalFixedIps = update.getExternalGatewayInfo().getExternalFixedIps();
 
         try {
             Network input = NeutronvpnUtils.getNeutronNetwork(dataBroker, extNetId);
@@ -273,6 +285,9 @@ public class NeutronvpnNatManager implements AutoCloseable {
             }
             // Add this router to the ExtRouters list
             addExternalRouter(update, dataBroker);
+
+            // Update External Subnets for this router
+            updateExternalSubnetsForRouter(routerId, extNetId, externalFixedIps);
 
             // Create and add Networks object for this External Network to the ExternalNetworks list
             InstanceIdentifier<Networks> netsIdentifier = InstanceIdentifier.builder(ExternalNetworks.class)
@@ -311,11 +326,15 @@ public class NeutronvpnNatManager implements AutoCloseable {
 
     // TODO Clean up the exception handling
     @SuppressWarnings("checkstyle:IllegalCatch")
-    public void removeExternalNetworkFromRouter(Uuid origExtNetId, Router update) {
+    public void removeExternalNetworkFromRouter(Uuid origExtNetId, Router update,
+            List<ExternalFixedIps> origExtFixedIps) {
         Uuid routerId = update.getUuid();
 
         // Remove the router to the ExtRouters list
         removeExternalRouter(origExtNetId, update, dataBroker);
+
+        // Remove the router from External Subnets
+        removeRouterFromExternalSubnets(routerId, origExtNetId, origExtFixedIps);
 
         // Remove the router from the ExternalNetworks list
         InstanceIdentifier<Networks> netsIdentifier = InstanceIdentifier.builder(ExternalNetworks.class)
@@ -413,8 +432,8 @@ public class NeutronvpnNatManager implements AutoCloseable {
     public void addExternalRouter(Router update, DataBroker broker) {
         Uuid routerId = update.getUuid();
         Uuid extNetId = update.getExternalGatewayInfo().getExternalNetworkId();
+        List<Uuid> extSubnetIds = getExternalSubnetIdsForRouter(update);
         Uuid gatewayPortId = update.getGatewayPortId();
-
         // Create and add Routers object for this Router to the ExtRouters list
 
         // Create a Routers object
@@ -440,6 +459,7 @@ public class NeutronvpnNatManager implements AutoCloseable {
             }
             builder.setRouterName(routerId.getValue());
             builder.setNetworkId(extNetId);
+            builder.setExternalSubnetIds(extSubnetIds);
             builder.setEnableSnat(update.getExternalGatewayInfo().isEnableSnat());
 
             ArrayList<String> extFixedIps = new ArrayList<String>();
@@ -497,9 +517,7 @@ public class NeutronvpnNatManager implements AutoCloseable {
     @SuppressWarnings("checkstyle:IllegalCatch")
     private void handleExternalFixedIpsForRouter(Router update, DataBroker broker) {
         Uuid routerId = update.getUuid();
-
         InstanceIdentifier<Routers> routersIdentifier = NeutronvpnUtils.buildExtRoutersIdentifier(routerId);
-
         try {
             Optional<Routers> optionalRouters = NeutronvpnUtils.read(broker,
                     LogicalDatastoreType.CONFIGURATION,
@@ -513,7 +531,11 @@ public class NeutronvpnNatManager implements AutoCloseable {
                         extFixedIps.add(fixedIps.getIpAddress().getIpv4Address().getValue());
                     }
                     builder.setExternalIps(extFixedIps);
+                    builder.setExternalSubnetIds(getExternalSubnetIdsForRouter(update));
                 }
+
+                updateExternalSubnetsForRouter(routerId, update.getExternalGatewayInfo().getExternalNetworkId(),
+                        update.getExternalGatewayInfo().getExternalFixedIps());
                 Routers routerss = builder.build();
                 LOG.trace("Updating external fixed ips for router {} with value {}", routerId.getValue(), routerss);
                 MDSALUtil.syncWrite(broker, LogicalDatastoreType.CONFIGURATION, routersIdentifier, routerss);
@@ -548,7 +570,6 @@ public class NeutronvpnNatManager implements AutoCloseable {
             LOG.trace("Updating extrouters " + routerss);
             MDSALUtil.syncWrite(broker, LogicalDatastoreType.CONFIGURATION, routersIdentifier, routerss);
             LOG.trace("Updated successfully Routers to CONFIG Datastore");
-
         } catch (Exception ex) {
             LOG.error("Updation of internal subnets for extrouters failed for router {} with {}",
                 routerId.getValue(), ex.getMessage());
@@ -585,5 +606,155 @@ public class NeutronvpnNatManager implements AutoCloseable {
             LOG.error("Updation of snat for extrouters failed for router {} with {}",
                 routerId.getValue(), ex.getMessage());
         }
+    }
+
+    public void updateOrAddExternalSubnet(Uuid networkId, Uuid subnetId, List<Uuid> routerIds) {
+        Optional<Subnets> optionalExternalSubnets = NeutronvpnUtils.getOptionalExternalSubnets(dataBroker, subnetId);
+        if (optionalExternalSubnets.isPresent()) {
+            LOG.trace("Will update extenral subnet {} with networkId {} and routerIds {}",
+                    subnetId, networkId, routerIds);
+            updateExternalSubnet(networkId, subnetId, routerIds);
+        } else {
+            LOG.trace("Will add extenral subnet {} with networkId {} and routerIds {}",
+                    subnetId, networkId, routerIds);
+            addExternalSubnet(networkId, subnetId, routerIds);
+        }
+    }
+
+    public void addExternalSubnet(Uuid networkId, Uuid subnetId, List<Uuid> routerIds) {
+        InstanceIdentifier<Subnets> subnetsIdentifier = InstanceIdentifier.builder(ExternalSubnets.class)
+                .child(Subnets.class, new SubnetsKey(subnetId)).build();
+        try {
+            Subnets newExternalSubnets = createSubnets(subnetId, networkId, routerIds);
+            LOG.info("Creating external subnet {}", newExternalSubnets);
+            SingleTransactionDataBroker.syncWrite(dataBroker, LogicalDatastoreType.CONFIGURATION, subnetsIdentifier,
+                    newExternalSubnets);
+        } catch (TransactionCommitFailedException ex) {
+            LOG.error("Creation of External Subnets {} failed {}", subnetId, ex.getMessage());
+        }
+    }
+
+    public void updateExternalSubnet(Uuid networkId, Uuid subnetId, List<Uuid> routerIds) {
+        InstanceIdentifier<Subnets> subnetsIdentifier = InstanceIdentifier.builder(ExternalSubnets.class)
+                .child(Subnets.class, new SubnetsKey(subnetId)).build();
+        try {
+            Subnets newExternalSubnets = createSubnets(subnetId, networkId, routerIds);
+            LOG.info("Updating external subnet {}", newExternalSubnets);
+            SingleTransactionDataBroker.syncUpdate(dataBroker, LogicalDatastoreType.CONFIGURATION, subnetsIdentifier,
+                    newExternalSubnets);
+        } catch (TransactionCommitFailedException ex) {
+            LOG.error("Update of External Subnets {} failed {}", subnetId, ex.getMessage());
+        }
+    }
+
+    public void removeExternalSubnet(Uuid subnetId) {
+        InstanceIdentifier<Subnets> subnetsIdentifier = InstanceIdentifier.builder(ExternalSubnets.class)
+                .child(Subnets.class, new SubnetsKey(subnetId)).build();
+
+        try {
+            LOG.info("Removing external subnet {}", subnetId);
+            SingleTransactionDataBroker.syncDelete(dataBroker, LogicalDatastoreType.CONFIGURATION, subnetsIdentifier);
+        } catch (TransactionCommitFailedException ex) {
+            LOG.error("Deletion of External Subnets {} failed {}", subnetId, ex.getMessage());
+        }
+    }
+
+    public void addRouterIdToExternalSubnet(Uuid networkId, Uuid subnetId, Uuid routerId) {
+        Optional<Subnets> optionalExternalSubnets = NeutronvpnUtils.getOptionalExternalSubnets(dataBroker, subnetId);
+        if (optionalExternalSubnets.isPresent()) {
+            Subnets subnets = optionalExternalSubnets.get();
+            List<Uuid> routerIds;
+            if (subnets.getRouterIds() != null) {
+                routerIds = subnets.getRouterIds();
+            } else {
+                routerIds = new ArrayList<>();
+            }
+
+            if (subnets.getExternalNetworkId() != null
+                    && subnets.getExternalNetworkId().equals(networkId) && !routerIds.contains(routerId)) {
+                LOG.debug("Will add routerID {} for external subnet.",
+                        routerId, subnetId);
+                routerIds.add(routerId);
+                updateExternalSubnet(networkId, subnetId, routerIds);
+            }
+        } else {
+            LOG.debug("Will create external subnet {} with external network ID {} and router ID {}",
+                    subnetId, networkId, routerId);
+            List<Uuid> routerIds = new ArrayList<>();
+            routerIds.add(routerId);
+            addExternalSubnet(networkId, subnetId, routerIds);
+        }
+    }
+
+    private Subnets createSubnets(Uuid subnetId, Uuid networkId, List<Uuid> routerIds) {
+        SubnetsBuilder subnetsBuilder = new SubnetsBuilder();
+        subnetsBuilder.setKey(new SubnetsKey(subnetId));
+        subnetsBuilder.setId(subnetId);
+        subnetsBuilder.setVpnId(subnetId);
+        subnetsBuilder.setExternalNetworkId(networkId);
+        if (routerIds != null) {
+            subnetsBuilder.setRouterIds(routerIds);
+        }
+
+        return subnetsBuilder.build();
+    }
+
+    private void updateExternalSubnetsForRouter(Uuid routerId, Uuid externalNetworkId,
+            List<ExternalFixedIps> externalFixedIps) {
+        LOG.debug("Updating external subnets for router {} for external network ID {}",
+                routerId, externalNetworkId);
+        Set<Uuid> subnetsUuidsSet = getExternalSubnetsUuidsSetForFixedIps(externalFixedIps);
+        for (Uuid subnetId : subnetsUuidsSet) {
+            addRouterIdToExternalSubnet(externalNetworkId, subnetId, routerId);
+        }
+    }
+
+    private void removeRouterFromExternalSubnets(Uuid routerId, Uuid externalNetworkId,
+            List<ExternalFixedIps> externalFixedIps) {
+        LOG.debug("Removing routerID {} from external subnets of external network{}",
+                routerId, externalNetworkId);
+
+        List<Subnets> fixedIpsSubnets = getSubnetsForFixedIps(getExternalSubnetsUuidsSetForFixedIps(externalFixedIps));
+        for (Subnets subnets : fixedIpsSubnets) {
+            Uuid subnetId = subnets.getId();
+            List<Uuid> routerIds = subnets.getRouterIds();
+            if (routerIds != null) {
+                if (subnets.getExternalNetworkId() != null
+                        && subnets.getExternalNetworkId().equals(externalNetworkId)
+                        && routerIds.contains(routerId)) {
+                    routerIds.remove(routerId);
+                    LOG.debug("Will remove routerIDs {} from external subnet {} router ID {}",
+                        subnetId, routerId);
+                    addExternalSubnet(externalNetworkId, subnetId, routerIds);
+                }
+            }
+        }
+    }
+
+    private Set<Uuid> getExternalSubnetsUuidsSetForFixedIps(List<ExternalFixedIps> externalFixedIps) {
+        Set<Uuid> subnetsUuidsSet = new HashSet<>();
+        for (ExternalFixedIps externalFixedIp : externalFixedIps) {
+            subnetsUuidsSet.add(externalFixedIp.getSubnetId());
+        }
+
+        return subnetsUuidsSet;
+    }
+
+    private List<Subnets> getSubnetsForFixedIps(Set<Uuid> subnetsUuidsSet) {
+        List<Subnets> subnetsList = new ArrayList<>();
+        for (Uuid subnetId : subnetsUuidsSet) {
+            Optional<Subnets> optionalSubnets = NeutronvpnUtils.getOptionalExternalSubnets(dataBroker, subnetId);
+            if (optionalSubnets.isPresent()) {
+                subnetsList.add(optionalSubnets.get());
+            }
+        }
+
+        return subnetsList;
+    }
+
+    private List<Uuid> getExternalSubnetIdsForRouter(Router router) {
+        List<ExternalFixedIps> externalFixedIps = router.getExternalGatewayInfo().getExternalFixedIps();
+        Set<Uuid> subnetsUuidsSetForFixedIps = getExternalSubnetsUuidsSetForFixedIps(externalFixedIps);
+        return new ArrayList<Uuid>(subnetsUuidsSetForFixedIps);
     }
 }
