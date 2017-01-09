@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1a622d24_2f0b342b",
+        "filename": "vpnservice/aclservice/impl/src/test/java/org/opendaylight/netvirt/aclservice/tests/AclServiceTestBaseIPv6.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 60,
+      "author": {
+        "id": 4269
+      },
+      "writtenOn": "2017-01-09T08:27:20Z",
+      "side": 1,
+      "message": "Can we think of extending Ipv4 AclService base class and add/change setting the variable? AclServiceStatefulTestIPv6 can do this directly instead having this class.",
+      "revId": "aee9a6519d9f67c697e9c2a3ea9c1d716db22693",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_c24ff769",
+        "filename": "vpnservice/aclservice/impl/src/test/java/org/opendaylight/netvirt/aclservice/tests/FlowEntryObjectsStatefulIPv6.xtend",
+        "patchSetId": 1
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 4269
+      },
+      "writtenOn": "2017-01-09T08:27:20Z",
+      "side": 1,
+      "message": "this class can inherit ipv4 class as well.",
+      "revId": "aee9a6519d9f67c697e9c2a3ea9c1d716db22693",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
