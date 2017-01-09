@@ -654,7 +654,7 @@ public class ElanUtils {
     }
 
     public static long getElanRemoteBroadCastGroupID(long elanTag) {
-        return ElanConstants.ELAN_GID_MIN + (((elanTag % ElanConstants.ELAN_GID_MIN) * 2));
+        return ElanConstants.ELAN_GID_MIN + elanTag % ElanConstants.ELAN_GID_MIN * 2;
     }
 
     /**
@@ -937,7 +937,7 @@ public class ElanUtils {
 
         Long elanTag = getElanTag(broker, elanInfo, interfaceInfo);
 
-        setupLocalDmacFlow(elanTag, dpId, ifName, macAddress, elanInstanceName, mdsalApiManager, ifTag,
+        setupLocalDmacFlow(elanTag, dpId, ifName, macAddress, elanInfo, mdsalApiManager, ifTag,
                 writeFlowGroupTx);
         LOG.debug("Dmac flow entry created for elan Name:{}, logical port Name:{} mand mac address:{} "
                                     + "on dpn:{}", elanInstanceName, interfaceInfo.getPortName(), macAddress, dpId);
@@ -1007,15 +1007,15 @@ public class ElanUtils {
     }
 
     private void setupLocalDmacFlow(long elanTag, BigInteger dpId, String ifName, String macAddress,
-            String displayName, IMdsalApiManager mdsalApiManager, long ifTag, WriteTransaction writeFlowGroupTx) {
-        Flow flowEntity = buildLocalDmacFlowEntry(elanTag, dpId, ifName, macAddress, displayName, ifTag);
+            ElanInstance elanInfo, IMdsalApiManager mdsalApiManager, long ifTag, WriteTransaction writeFlowGroupTx) {
+        Flow flowEntity = buildLocalDmacFlowEntry(elanTag, dpId, ifName, macAddress, elanInfo, ifTag);
         mdsalApiManager.addFlowToTx(dpId, flowEntity, writeFlowGroupTx);
-        installEtreeLocalDmacFlow(elanTag, dpId, ifName, macAddress, displayName, mdsalApiManager, ifTag,
-                writeFlowGroupTx);
+        installEtreeLocalDmacFlow(elanTag, dpId, ifName, macAddress, elanInfo,
+                mdsalApiManager, ifTag, writeFlowGroupTx);
     }
 
     private void installEtreeLocalDmacFlow(long elanTag, BigInteger dpId, String ifName, String macAddress,
-            String displayName, IMdsalApiManager mdsalApiManager, long ifTag, WriteTransaction writeFlowGroupTx) {
+            ElanInstance elanInfo, IMdsalApiManager mdsalApiManager, long ifTag, WriteTransaction writeFlowGroupTx) {
         EtreeInterface etreeInterface = getEtreeInterfaceByElanInterfaceName(broker, ifName);
         if (etreeInterface != null) {
             if (etreeInterface.getEtreeInterfaceType() == EtreeInterfaceType.Root) {
@@ -1025,7 +1025,7 @@ public class ElanUtils {
                              ifName, elanTag);
                 } else {
                     Flow flowEntity = buildLocalDmacFlowEntry(etreeTagName.getEtreeLeafTag().getValue(), dpId, ifName,
-                            macAddress, displayName, ifTag);
+                            macAddress, elanInfo, ifTag);
                     mdsalApiManager.addFlowToTx(dpId, flowEntity, writeFlowGroupTx);
                 }
             }
@@ -1077,7 +1077,17 @@ public class ElanUtils {
      * @return the flow
      */
     public Flow buildLocalDmacFlowEntry(long elanTag, BigInteger dpId, String ifName, String macAddress,
-            String displayName, long ifTag) {
+            ElanInstance elanInfo, long ifTag) {
+
+        // If interface is leaf, learn this only for the leaf tag.
+        EtreeInterface etreeInterface = getEtreeInterfaceByElanInterfaceName(broker, ifName);
+        if (etreeInterface != null && etreeInterface.getEtreeInterfaceType() == EtreeInterfaceType.Leaf) {
+            EtreeInstance etreeInstance = elanInfo.getAugmentation(EtreeInstance.class);
+            if (etreeInstance != null) {
+                elanTag =  etreeInstance.getEtreeLeafTagVal().getValue();
+            }
+        }
+
         List<MatchInfo> mkMatches = new ArrayList<>();
         mkMatches.add(new MatchInfo(MatchFieldType.metadata,
                 new BigInteger[] { getElanMetadataLabel(elanTag), MetaDataUtil.METADATA_MASK_SERVICE }));
@@ -1088,8 +1098,8 @@ public class ElanUtils {
         mkInstructions.add(MDSALUtil.buildApplyActionsInstruction(actions));
         Flow flow = MDSALUtil.buildFlowNew(NwConstants.ELAN_DMAC_TABLE,
                 getKnownDynamicmacFlowRef(NwConstants.ELAN_DMAC_TABLE, dpId, ifTag, macAddress, elanTag), 20,
-                displayName, 0, 0, ElanConstants.COOKIE_ELAN_KNOWN_DMAC.add(BigInteger.valueOf(elanTag)), mkMatches,
-                mkInstructions);
+                elanInfo.getElanInstanceName(), 0, 0, ElanConstants.COOKIE_ELAN_KNOWN_DMAC.add(
+                        BigInteger.valueOf(elanTag)), mkMatches, mkInstructions);
 
         return flow;
     }
@@ -2132,12 +2142,12 @@ public class ElanUtils {
 
     public static FlowEntity buildDmacRedirectToDispatcherFlow(BigInteger dpId, String dstMacAddress,
             String displayName, long elanTag) {
-        List<MatchInfo> matches = new ArrayList<MatchInfo>();
+        List<MatchInfo> matches = new ArrayList<>();
         matches.add(new MatchInfo(MatchFieldType.metadata,
                 new BigInteger[] { getElanMetadataLabel(elanTag), MetaDataUtil.METADATA_MASK_SERVICE }));
         matches.add(new MatchInfo(MatchFieldType.eth_dst, new String[] { dstMacAddress }));
-        List<InstructionInfo> instructions = new ArrayList<InstructionInfo>();
-        List<ActionInfo> actions = new ArrayList<ActionInfo>();
+        List<InstructionInfo> instructions = new ArrayList<>();
+        List<ActionInfo> actions = new ArrayList<>();
         actions.add(new ActionInfo(ActionType.nx_resubmit,
                 new String[] { String.valueOf(NwConstants.LPORT_DISPATCHER_TABLE) }));
 
@@ -2151,7 +2161,7 @@ public class ElanUtils {
 
     public static FlowEntity buildDmacRedirectToDispatcherFlowMacNoActions(BigInteger dpId, String dstMacAddress,
             String displayName, long elanTag) {
-        List<MatchInfo> matches = new ArrayList<MatchInfo>();
+        List<MatchInfo> matches = new ArrayList<>();
         matches.add(new MatchInfo(MatchFieldType.metadata,
                 new BigInteger[] { getElanMetadataLabel(elanTag), MetaDataUtil.METADATA_MASK_SERVICE }));
         matches.add(new MatchInfo(MatchFieldType.eth_dst, new String[] { dstMacAddress }));
