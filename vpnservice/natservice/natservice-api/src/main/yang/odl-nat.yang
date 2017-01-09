@@ -26,6 +26,7 @@ module odl-nat {
             key router-name;
             leaf router-name { type string; }
             leaf network-id { type yang:uuid; }
+            leaf-list external-subnet-ids { type yang:uuid; }
             leaf enable-snat { type boolean; }
             leaf-list external-ips {
                 type string; //format - ipaddress\prefixlength
@@ -180,6 +181,24 @@ module odl-nat {
                 key external-ip;
                 leaf external-ip { type string; }
                 leaf counter { type uint8; }
+            }
+        }
+    }
+
+    container external-subnets {
+        list subnets  {
+            key id;
+            leaf id {
+                type yang:uuid;
+            }
+            leaf vpn-id {
+                type yang:uuid;
+            }
+            leaf external-network-id {
+                type yang:uuid;
+            }
+            leaf-list router-ids {
+                type yang:uuid;
             }
         }
     }
