@@ -2,6 +2,40 @@
   "comments": [
     {
       "key": {
+        "uuid": "1a622d24_58ec79f3",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/utils/AclConstants.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 60,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2017-01-09T10:58:36Z",
+      "side": 1,
+      "message": "Please use \"::/0\".",
+      "revId": "aee9a6519d9f67c697e9c2a3ea9c1d716db22693",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_c291b748",
+        "filename": "vpnservice/aclservice/impl/src/test/java/org/opendaylight/netvirt/aclservice/tests/AclServiceStatefulTestIPv6.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 45,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2017-01-09T10:58:36Z",
+      "side": 1,
+      "message": "ICMP equivalent in IPv6 is ICMPv6. Please take a look at ICMPv6 and update the test-cases accordingly.\n\nFor reference: https://github.com/opendaylight/netvirt/blob/master/vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/utils/AclServiceUtils.java#L345",
+      "revId": "aee9a6519d9f67c697e9c2a3ea9c1d716db22693",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_2f0b342b",
         "filename": "vpnservice/aclservice/impl/src/test/java/org/opendaylight/netvirt/aclservice/tests/AclServiceTestBaseIPv6.java",
         "patchSetId": 1
@@ -19,6 +53,58 @@
     },
     {
       "key": {
+        "uuid": "1a622d24_c2b897ca",
+        "filename": "vpnservice/aclservice/impl/src/test/java/org/opendaylight/netvirt/aclservice/tests/AclServiceTestBaseIPv6.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 60,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2017-01-09T10:58:36Z",
+      "side": 1,
+      "message": "Agree with Aswin. We should ideally avoid any repeated code when possible.",
+      "parentUuid": "1a622d24_2f0b342b",
+      "revId": "aee9a6519d9f67c697e9c2a3ea9c1d716db22693",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_a2e47be1",
+        "filename": "vpnservice/aclservice/impl/src/test/java/org/opendaylight/netvirt/aclservice/tests/AclServiceTestBaseIPv6.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 70,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2017-01-09T10:58:36Z",
+      "side": 1,
+      "message": "This along with SR_UUID_1 and SR_UUID_2 seem to be un-used.",
+      "revId": "aee9a6519d9f67c697e9c2a3ea9c1d716db22693",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_02e60fe8",
+        "filename": "vpnservice/aclservice/impl/src/test/java/org/opendaylight/netvirt/aclservice/tests/AclServiceTestBaseIPv6.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 85,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2017-01-09T10:58:36Z",
+      "side": 1,
+      "message": "ditto.",
+      "revId": "aee9a6519d9f67c697e9c2a3ea9c1d716db22693",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_c24ff769",
         "filename": "vpnservice/aclservice/impl/src/test/java/org/opendaylight/netvirt/aclservice/tests/FlowEntryObjectsStatefulIPv6.xtend",
         "patchSetId": 1
@@ -30,6 +116,24 @@
       "writtenOn": "2017-01-09T08:27:20Z",
       "side": 1,
       "message": "this class can inherit ipv4 class as well.",
+      "revId": "aee9a6519d9f67c697e9c2a3ea9c1d716db22693",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_e27033de",
+        "filename": "vpnservice/aclservice/impl/src/test/java/org/opendaylight/netvirt/aclservice/tests/FlowEntryObjectsStatefulIPv6.xtend",
+        "patchSetId": 1
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2017-01-09T10:58:36Z",
+      "side": 1,
+      "message": "+1",
+      "parentUuid": "1a622d24_c24ff769",
       "revId": "aee9a6519d9f67c697e9c2a3ea9c1d716db22693",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
