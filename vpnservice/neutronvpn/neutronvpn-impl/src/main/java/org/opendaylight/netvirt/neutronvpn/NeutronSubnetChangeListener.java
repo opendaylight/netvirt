@@ -31,11 +31,14 @@ public class NeutronSubnetChangeListener extends AsyncDataTreeChangeListenerBase
     private static final Logger LOG = LoggerFactory.getLogger(NeutronSubnetChangeListener.class);
     private final DataBroker dataBroker;
     private final NeutronvpnManager nvpnManager;
+    private final NeutronvpnNatManager nvpnNatManager;
 
-    public NeutronSubnetChangeListener(final DataBroker dataBroker, final NeutronvpnManager nVpnMgr) {
+    public NeutronSubnetChangeListener(final DataBroker dataBroker, final NeutronvpnManager nVpnMgr,
+            final NeutronvpnNatManager nVpnNatMgr) {
         super(Subnet.class, NeutronSubnetChangeListener.class);
         this.dataBroker = dataBroker;
         nvpnManager = nVpnMgr;
+        nvpnNatManager = nVpnNatMgr;
     }
 
     public void start() {
@@ -67,6 +70,11 @@ public class NeutronSubnetChangeListener extends AsyncDataTreeChangeListenerBase
         }
         handleNeutronSubnetCreated(input.getUuid(), String.valueOf(input.getCidr().getValue()), networkId,
                 input.getTenantId());
+        if (NeutronvpnUtils.getIsExternal(network)) {
+            LOG.trace("Added subnet {} part of external network {} will add NAT external subnet", input, networkId);
+            nvpnNatManager.addExternalSubnet(network, input);
+        }
+
         NeutronvpnUtils.addToSubnetCache(input);
     }
 

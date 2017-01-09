@@ -13,22 +13,28 @@ import java.util.List;
 
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.netvirt.neutronvpn.api.utils.NeutronConstants;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ExternalNetworks;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ExternalSubnets;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ext.routers.Routers;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ext.routers.RoutersBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ext.routers.RoutersKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.external.networks.Networks;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.external.networks.NetworksBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.external.networks.NetworksKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.external.subnets.Subnets;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.external.subnets.SubnetsBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.external.subnets.SubnetsKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ProviderTypes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l3.rev150712.routers.attributes.routers.Router;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l3.rev150712.routers.attributes.routers.router.ExternalGatewayInfo;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l3.rev150712.routers.attributes.routers.router.external_gateway_info.ExternalFixedIps;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.networks.rev150712.networks.attributes.networks.Network;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.ports.attributes.ports.Port;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.subnets.rev150712.subnets.attributes.subnets.Subnet;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -583,6 +589,51 @@ public class NeutronvpnNatManager implements AutoCloseable {
         } catch (Exception ex) {
             LOG.error("Updation of snat for extrouters failed for router " + routerId.getValue() +
                     " with " + ex.getMessage());
+        }
+    }
+
+    public void addExternalSubnet(Network network, Subnet subnet) {
+        Uuid netId = network.getUuid();
+        Uuid subnetId = subnet.getUuid();
+        InstanceIdentifier<Subnets> subnetsIdentifier = InstanceIdentifier.builder(ExternalSubnets.class).
+                child(Subnets.class, new SubnetsKey(subnetId)).build();
+
+        try {
+            LOG.trace("Creating a new external subnet: {}", subnetId);
+            Optional<Subnets> optionalSubnets = NeutronvpnUtils.read(dataBroker,
+                    LogicalDatastoreType.CONFIGURATION,
+                    subnetsIdentifier);
+            if (optionalSubnets.isPresent()) {
+                LOG.warn("External Subnet {} already detected to be present", subnetId);
+                return;
+            }
+
+            ProviderTypes providerType = NeutronvpnUtils.getProviderNetworkType(network);
+            if (providerType == null){
+                LOG.error("Unable to get Network Provider Type for network {} for subnet {}", netId, subnetId);
+                return;
+            }
+
+            if (providerType != ProviderTypes.FLAT && providerType != ProviderTypes.VLAN) {
+                LOG.debug("Will not create external subnet for {}, network {} is with provider type {} -"
+                        + " will only create external subnet for FLAT and VLAN networks.",
+                        subnetId, netId, providerType);
+                return;
+            }
+
+            SubnetsBuilder subnetsBuilder = new SubnetsBuilder();
+            subnetsBuilder.setKey(new SubnetsKey(subnetId));
+            subnetsBuilder.setId(subnetId);
+            subnetsBuilder.setVpnId(subnetId);
+            subnetsBuilder.setExternalNetworkId(netId);
+            Subnets newExternalSubnets = subnetsBuilder.build();
+
+            LOG.trace("Creating external subnets {}", newExternalSubnets);
+            SingleTransactionDataBroker.syncWrite(dataBroker, LogicalDatastoreType.CONFIGURATION, subnetsIdentifier,
+                    newExternalSubnets);
+            LOG.trace("Wrote external subnets successfully to CONFIG Datastore");
+        } catch (Exception ex) {
+            LOG.error("Creation of External Subnets {} failed {}", subnetId, ex.getMessage());
         }
     }
 }
