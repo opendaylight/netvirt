@@ -1,0 +1,8 @@
+Verified+1: jenkins-releng <jenkins-releng@opendaylight.org>
+Code-Review+1: Tali Ben-Meir <tali.ben-meir@hpe.com>
+Code-Review+2: Alon Kochba <alonko@hpe.com>
+Submitted-by: Alon Kochba <alonko@hpe.com>
+Submitted-at: Tue, 10 Jan 2017 15:48:57 +0000
+Reviewed-on: https://git.opendaylight.org/gerrit/49218
+Project: netvirt
+Branch: refs/heads/master
