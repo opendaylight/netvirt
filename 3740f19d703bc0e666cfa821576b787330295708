@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "1a622d24_af49f761",
+        "filename": "docs/specs/l3vpn-over-vxlan-with-evpn-rt5.rst",
+        "patchSetId": 34
+      },
+      "lineNbr": 479,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-01-10T17:51:23Z",
+      "side": 1,
+      "message": "Yes, we can definitely consider that..",
+      "parentUuid": "1a622d24_e9b80fca",
+      "revId": "3740f19d703bc0e666cfa821576b787330295708",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_89bfdba9",
         "filename": "docs/specs/l3vpn-over-vxlan-with-evpn-rt5.rst",
         "patchSetId": 34
@@ -36,6 +54,24 @@
     },
     {
       "key": {
+        "uuid": "1a622d24_4fae63e7",
+        "filename": "docs/specs/l3vpn-over-vxlan-with-evpn-rt5.rst",
+        "patchSetId": 34
+      },
+      "lineNbr": 515,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-01-10T17:51:23Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1a622d24_89bfdba9",
+      "revId": "3740f19d703bc0e666cfa821576b787330295708",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_8944fbb7",
         "filename": "docs/specs/l3vpn-over-vxlan-with-evpn-rt5.rst",
         "patchSetId": 34
@@ -47,6 +83,30 @@
       "writtenOn": "2017-01-10T14:59:57Z",
       "side": 1,
       "message": "section 13?",
+      "range": {
+        "startLine": 667,
+        "startChar": 65,
+        "endLine": 667,
+        "endChar": 75
+      },
+      "revId": "3740f19d703bc0e666cfa821576b787330295708",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_cf89d376",
+        "filename": "docs/specs/l3vpn-over-vxlan-with-evpn-rt5.rst",
+        "patchSetId": 34
+      },
+      "lineNbr": 667,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-01-10T17:51:23Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1a622d24_8944fbb7",
       "range": {
         "startLine": 667,
         "startChar": 65,
