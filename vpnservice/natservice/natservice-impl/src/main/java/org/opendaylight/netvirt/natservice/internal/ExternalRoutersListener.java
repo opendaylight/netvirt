@@ -885,7 +885,7 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
 
         //On successful generation of the VPN label, advertise the route to the BGP and install the FIB routes.
         ListenableFuture<RpcResult<Void>> future =
-            Futures.transform(JdkFutureAdapters.listenInPoolThread(labelFuture),
+            Futures.transformAsync(JdkFutureAdapters.listenInPoolThread(labelFuture),
                 (AsyncFunction<RpcResult<GenerateVpnLabelOutput>, RpcResult<Void>>) result -> {
                     if (result.isSuccessful()) {
                         LOG.debug("NAT Service : inside apply with result success");
@@ -1890,7 +1890,7 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
         Future<RpcResult<Void>> future = fibService.removeFibEntry(input);
 
         ListenableFuture<RpcResult<Void>> labelFuture =
-            Futures.transform(JdkFutureAdapters.listenInPoolThread(future),
+            Futures.transformAsync(JdkFutureAdapters.listenInPoolThread(future),
                 (AsyncFunction<RpcResult<Void>, RpcResult<Void>>) result -> {
                     //Release label
                     if (result.isSuccessful()) {
@@ -1964,7 +1964,7 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
         Future<RpcResult<Void>> future = fibService.removeFibEntry(input);
 
         ListenableFuture<RpcResult<Void>> labelFuture =
-            Futures.transform(JdkFutureAdapters.listenInPoolThread(future),
+            Futures.transformAsync(JdkFutureAdapters.listenInPoolThread(future),
                 (AsyncFunction<RpcResult<Void>, RpcResult<Void>>) result -> {
                     //Release label
                     if (result.isSuccessful()) {
@@ -2436,4 +2436,5 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
     protected ExternalRoutersListener getDataTreeChangeListener() {
         return ExternalRoutersListener.this;
     }
+
 }
