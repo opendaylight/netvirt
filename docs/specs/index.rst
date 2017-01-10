@@ -11,6 +11,7 @@ Contents:
 
    Design Specification Template <specs-template>
    ACL Remote ACLs - Indirection Table to Improve Scale <remote_acl_indirection>
+   IPv6 Inter Data Center connectivity using L3VPN <ipv6-interdc-l3vpn>
    ACL Statistics <acl-stats>
    Conntrack Based SNAT <conntrack-based-snat>
    ECMP Support for BGP based L3VPN <ecmp-bgp-l3vpn>
