@@ -162,8 +162,9 @@ public class VpnFloatingIpHandler implements FloatingIPHandler {
             .setIpPrefix(externalIp).build();
         Future<RpcResult<GenerateVpnLabelOutput>> labelFuture = vpnService.generateVpnLabel(labelInput);
 
-        ListenableFuture<RpcResult<Void>> future = Futures.transform(JdkFutureAdapters.listenInPoolThread(labelFuture),
-            (AsyncFunction<RpcResult<GenerateVpnLabelOutput>, RpcResult<Void>>) result -> {
+        ListenableFuture<RpcResult<Void>> future = Futures.transformAsync(
+                JdkFutureAdapters.listenInPoolThread(labelFuture),
+                (AsyncFunction<RpcResult<GenerateVpnLabelOutput>, RpcResult<Void>>) result -> {
                 if (result.isSuccessful()) {
                     GenerateVpnLabelOutput output = result.getResult();
                     long label = output.getLabel();
@@ -298,8 +299,9 @@ public class VpnFloatingIpHandler implements FloatingIPHandler {
             .setSourceDpid(dpnId).setIpAddress(externalIp + "/32").setServiceId(label).build();
         Future<RpcResult<Void>> future = fibService.removeFibEntry(input);
 
-        ListenableFuture<RpcResult<Void>> labelFuture = Futures.transform(JdkFutureAdapters.listenInPoolThread(future),
-            (AsyncFunction<RpcResult<Void>, RpcResult<Void>>) result -> {
+        ListenableFuture<RpcResult<Void>> labelFuture = Futures.transformAsync(
+                JdkFutureAdapters.listenInPoolThread(future),
+                (AsyncFunction<RpcResult<Void>, RpcResult<Void>>) result -> {
                 //Release label
                 if (result.isSuccessful()) {
                 /*  check if any floating IP information is available in vpn-to-dpn-list for given dpn id. If exist any
