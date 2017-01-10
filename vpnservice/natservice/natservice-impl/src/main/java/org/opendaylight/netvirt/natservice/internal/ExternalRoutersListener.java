@@ -686,7 +686,7 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
         long groupId = createGroupId(getGroupIdKey(routerName));
         GroupEntity groupEntity = MDSALUtil.buildGroupEntity(dpnId, groupId, routerName, GroupTypes.GroupAll, bucketInfo);
         LOG.debug("NAT Service : installing the SNAT to NAPT GroupEntity:{}", groupEntity);
-        mdsalManager.installGroup(groupEntity);
+        mdsalManager.syncInstallGroup(groupEntity, 0);
         // Install miss entry pointing to group
         FlowEntity flowEntity = buildSnatFlowEntity(dpnId, routerName, groupId);
         mdsalManager.installFlow(flowEntity);
@@ -696,7 +696,7 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
         long groupId = createGroupId(getGroupIdKey(routerName));
         GroupEntity groupEntity = MDSALUtil.buildGroupEntity(dpnId, groupId, routerName, GroupTypes.GroupAll, bucketInfo);
         LOG.debug("NAT Service : installing the SNAT to NAPT GroupEntity:{}", groupEntity);
-        mdsalManager.installGroup(groupEntity);
+        mdsalManager.syncInstallGroup(groupEntity, 0);
         return groupId;
     }
 
