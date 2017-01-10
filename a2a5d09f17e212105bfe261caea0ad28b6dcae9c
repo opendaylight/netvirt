@@ -195,6 +195,24 @@
     },
     {
       "key": {
+        "uuid": "1a622d24_7b6fa52b",
+        "filename": "openstack/net-virt-providers/src/main/java/org/opendaylight/netvirt/openstack/netvirt/providers/openflow13/services/VlanResponderService.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 120,
+      "author": {
+        "id": 4018
+      },
+      "writtenOn": "2017-01-10T11:53:40Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1a622d24_76b98114",
+      "revId": "a2a5d09f17e212105bfe261caea0ad28b6dcae9c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_5d8e2bd1",
         "filename": "openstack/net-virt-providers/src/main/java/org/opendaylight/netvirt/openstack/netvirt/providers/openflow13/services/VlanResponderService.java",
         "patchSetId": 4
@@ -312,6 +330,24 @@
       "side": 1,
       "message": "Same comment, at line 161, we GET the reference to the set without removing it, we don\u0027t have to PUT the set back",
       "parentUuid": "1a622d24_0581f9fa",
+      "revId": "a2a5d09f17e212105bfe261caea0ad28b6dcae9c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_5b6c6935",
+        "filename": "openstack/net-virt-providers/src/main/java/org/opendaylight/netvirt/openstack/netvirt/providers/openflow13/services/VlanResponderService.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 166,
+      "author": {
+        "id": 4018
+      },
+      "writtenOn": "2017-01-10T11:53:40Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1a622d24_b665d9b6",
       "revId": "a2a5d09f17e212105bfe261caea0ad28b6dcae9c",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
