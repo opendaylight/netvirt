@@ -106,12 +106,6 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
       <artifactId>mdsal-binding-test-utils</artifactId>
     </dependency>
     <dependency>
-      <groupId>ch.vorburger</groupId>
-      <artifactId>xtendbeans</artifactId>
-      <version>1.2.0</version>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
       <groupId>org.immutables</groupId>
       <artifactId>value</artifactId>
     </dependency>
