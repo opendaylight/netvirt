@@ -1,4 +1,4 @@
-Netvirt Design Specifications
+NetVirt Design Specifications
 =============================
 Starting from Carbon, NetVirt uses an RST format Design Specification document
 for all new features. These specifications are a perfect way to understand
