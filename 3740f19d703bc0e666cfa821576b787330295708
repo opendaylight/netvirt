@@ -1,0 +1,61 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1a622d24_e9b80fca",
+        "filename": "docs/specs/l3vpn-over-vxlan-with-evpn-rt5.rst",
+        "patchSetId": 34
+      },
+      "lineNbr": 479,
+      "author": {
+        "id": 670
+      },
+      "writtenOn": "2017-01-10T14:59:57Z",
+      "side": 1,
+      "message": "Should we consider moving the default to \"vxlan\" by Carbon release?",
+      "revId": "3740f19d703bc0e666cfa821576b787330295708",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_89bfdba9",
+        "filename": "docs/specs/l3vpn-over-vxlan-with-evpn-rt5.rst",
+        "patchSetId": 34
+      },
+      "lineNbr": 515,
+      "author": {
+        "id": 670
+      },
+      "writtenOn": "2017-01-10T14:59:57Z",
+      "side": 1,
+      "message": "nit: some weird characters got in to these paragraphs somehow - probably some copy paste leftovers..",
+      "revId": "3740f19d703bc0e666cfa821576b787330295708",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_8944fbb7",
+        "filename": "docs/specs/l3vpn-over-vxlan-with-evpn-rt5.rst",
+        "patchSetId": 34
+      },
+      "lineNbr": 667,
+      "author": {
+        "id": 670
+      },
+      "writtenOn": "2017-01-10T14:59:57Z",
+      "side": 1,
+      "message": "section 13?",
+      "range": {
+        "startLine": 667,
+        "startChar": 65,
+        "endLine": 667,
+        "endChar": 75
+      },
+      "revId": "3740f19d703bc0e666cfa821576b787330295708",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
