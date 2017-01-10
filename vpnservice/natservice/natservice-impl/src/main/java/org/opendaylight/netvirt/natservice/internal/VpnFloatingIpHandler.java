@@ -124,7 +124,7 @@ public class VpnFloatingIpHandler implements FloatingIPHandler {
                 .setIpPrefix(externalIp).build();
         Future<RpcResult<GenerateVpnLabelOutput>> labelFuture = vpnService.generateVpnLabel(labelInput);
 
-        ListenableFuture<RpcResult<Void>> future = Futures.transform(JdkFutureAdapters.listenInPoolThread(labelFuture),
+        ListenableFuture<RpcResult<Void>> future = Futures.transformAsync(JdkFutureAdapters.listenInPoolThread(labelFuture),
                 new AsyncFunction<RpcResult<GenerateVpnLabelOutput>, RpcResult<Void>>() {
 
             @Override
@@ -241,7 +241,7 @@ public class VpnFloatingIpHandler implements FloatingIPHandler {
         RemoveFibEntryInput input = new RemoveFibEntryInputBuilder().setVpnName(vpnName).setSourceDpid(dpnId).setIpAddress(externalIp + "/32").setServiceId(label).build();
         Future<RpcResult<Void>> future = fibService.removeFibEntry(input);
 
-        ListenableFuture<RpcResult<Void>> labelFuture = Futures.transform(JdkFutureAdapters.listenInPoolThread(future),
+        ListenableFuture<RpcResult<Void>> labelFuture = Futures.transformAsync(JdkFutureAdapters.listenInPoolThread(future),
             new AsyncFunction<RpcResult<Void>, RpcResult<Void>>() {
 
             @Override

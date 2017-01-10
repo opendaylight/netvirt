@@ -954,7 +954,7 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
         Future<RpcResult<GenerateVpnLabelOutput>> labelFuture = vpnService.generateVpnLabel(labelInput);
 
         //On successful generation of the VPN label, advertise the route to the BGP and install the FIB routes.
-        ListenableFuture<RpcResult<Void>> future = Futures.transform(JdkFutureAdapters.listenInPoolThread(labelFuture), new AsyncFunction<RpcResult<GenerateVpnLabelOutput>, RpcResult<Void>>() {
+        ListenableFuture<RpcResult<Void>> future = Futures.transformAsync(JdkFutureAdapters.listenInPoolThread(labelFuture), new AsyncFunction<RpcResult<GenerateVpnLabelOutput>, RpcResult<Void>>() {
 
             @Override
             public ListenableFuture<RpcResult<Void>> apply(RpcResult<GenerateVpnLabelOutput> result) throws Exception {
@@ -1865,7 +1865,7 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
         RemoveFibEntryInput input = new RemoveFibEntryInputBuilder().setVpnName(vpnName).setSourceDpid(dpnId).setIpAddress(externalIp).setServiceId(label).build();
         Future<RpcResult<Void>> future = fibService.removeFibEntry(input);
 
-        ListenableFuture<RpcResult<Void>> labelFuture = Futures.transform(JdkFutureAdapters.listenInPoolThread(future), new AsyncFunction<RpcResult<Void>, RpcResult<Void>>() {
+        ListenableFuture<RpcResult<Void>> labelFuture = Futures.transformAsync(JdkFutureAdapters.listenInPoolThread(future), new AsyncFunction<RpcResult<Void>, RpcResult<Void>>() {
 
             @Override
             public ListenableFuture<RpcResult<Void>> apply(RpcResult<Void> result) throws Exception {
@@ -1934,7 +1934,7 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
         RemoveFibEntryInput input = new RemoveFibEntryInputBuilder().setVpnName(vpnName).setSourceDpid(dpnId).setIpAddress(externalIp).setServiceId(label).build();
         Future<RpcResult<Void>> future = fibService.removeFibEntry(input);
 
-        ListenableFuture<RpcResult<Void>> labelFuture = Futures.transform(JdkFutureAdapters.listenInPoolThread(future), new AsyncFunction<RpcResult<Void>, RpcResult<Void>>() {
+        ListenableFuture<RpcResult<Void>> labelFuture = Futures.transformAsync(JdkFutureAdapters.listenInPoolThread(future), new AsyncFunction<RpcResult<Void>, RpcResult<Void>>() {
 
             @Override
             public ListenableFuture<RpcResult<Void>> apply(RpcResult<Void> result) throws Exception {
