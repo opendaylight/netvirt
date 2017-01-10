@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1a622d24_1b0dd137",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanBridgeManager.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 226,
+      "author": {
+        "id": 670
+      },
+      "writtenOn": "2017-01-10T10:56:32Z",
+      "side": 1,
+      "message": "I think it might make a bit more sense to have this logic before calling addBridge, so the mac parameter is always used here.\nNot that important though, especially since this is only called when the bridge is missing in config DS.. change looks good..",
+      "revId": "1bc5c0bef4204dd6b86157a609e86823b38651a5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
