@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1a622d24_2457cecb",
+        "filename": "docs/specs/netvirt-statistics-spec.rst",
+        "patchSetId": 6
+      },
+      "lineNbr": 67,
+      "author": {
+        "id": 3511
+      },
+      "writtenOn": "2017-01-10T15:51:26Z",
+      "side": 1,
+      "message": "you should add an example and explanation how to use the filters",
+      "revId": "684295240b452955f3f5ab8b32a9b0e16535aa39",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_a453dee0",
+        "filename": "docs/specs/netvirt-statistics-spec.rst",
+        "patchSetId": 6
+      },
+      "lineNbr": 157,
+      "author": {
+        "id": 3511
+      },
+      "writtenOn": "2017-01-10T15:51:26Z",
+      "side": 1,
+      "message": "getNodeCounters",
+      "revId": "684295240b452955f3f5ab8b32a9b0e16535aa39",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
