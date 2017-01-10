@@ -75,6 +75,7 @@ import java.util.HashMap;
 
 public class NaptSwitchHA {
     private static final Logger LOG = LoggerFactory.getLogger(NaptSwitchHA.class);
+    private static final long FIXED_DELAY_IN_MILLISECONDS = 4000;
     private final DataBroker dataBroker;
     private final IMdsalApiManager mdsalManager;
     private final ItmRpcService itmManager;
@@ -620,7 +621,7 @@ public class NaptSwitchHA {
             LOG.debug("install SnatMissEntry for groupId {} for dpnId {} for router {}", groupId, dpnId,routerName);
             groupEntity = MDSALUtil.buildGroupEntity(dpnId, groupId, routerName,
                     GroupTypes.GroupAll, bucketInfo);
-            mdsalManager.installGroup(groupEntity);
+            mdsalManager.syncInstallGroup(groupEntity, FIXED_DELAY_IN_MILLISECONDS);
             LOG.debug("installed the SNAT to NAPT GroupEntity:{}", groupEntity);
         } catch (Exception ex) {
             LOG.error("Failed to install group for groupEntity {} : {}",groupEntity,ex);

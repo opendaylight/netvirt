@@ -114,6 +114,7 @@ import org.slf4j.LoggerFactory;
 
 public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Routers, ExternalRoutersListener> {
     private static final Logger LOG = LoggerFactory.getLogger( ExternalRoutersListener.class);
+    private static final long FIXED_DELAY_IN_MILLISECONDS = 4000;
     private ListenerRegistration<DataChangeListener> listenerRegistration;
     private final DataBroker dataBroker;
     private final IMdsalApiManager mdsalManager;
@@ -686,7 +687,7 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
         long groupId = createGroupId(getGroupIdKey(routerName));
         GroupEntity groupEntity = MDSALUtil.buildGroupEntity(dpnId, groupId, routerName, GroupTypes.GroupAll, bucketInfo);
         LOG.debug("NAT Service : installing the SNAT to NAPT GroupEntity:{}", groupEntity);
-        mdsalManager.installGroup(groupEntity);
+        mdsalManager.syncInstallGroup(groupEntity, FIXED_DELAY_IN_MILLISECONDS);
         // Install miss entry pointing to group
         FlowEntity flowEntity = buildSnatFlowEntity(dpnId, routerName, groupId);
         mdsalManager.installFlow(flowEntity);
@@ -696,7 +697,7 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
         long groupId = createGroupId(getGroupIdKey(routerName));
         GroupEntity groupEntity = MDSALUtil.buildGroupEntity(dpnId, groupId, routerName, GroupTypes.GroupAll, bucketInfo);
         LOG.debug("NAT Service : installing the SNAT to NAPT GroupEntity:{}", groupEntity);
-        mdsalManager.installGroup(groupEntity);
+        mdsalManager.syncInstallGroup(groupEntity, FIXED_DELAY_IN_MILLISECONDS);
         return groupId;
     }
 
