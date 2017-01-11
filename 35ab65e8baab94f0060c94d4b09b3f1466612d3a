@@ -246,6 +246,24 @@
     },
     {
       "key": {
+        "uuid": "1a622d24_473922a3",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 256,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-01-11T16:53:11Z",
+      "side": 1,
+      "message": "let us retain this as ERROR temporarily.",
+      "parentUuid": "1a622d24_435757ca",
+      "revId": "35ab65e8baab94f0060c94d4b09b3f1466612d3a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_c5b8a1ca",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
         "patchSetId": 8
@@ -351,6 +369,24 @@
     },
     {
       "key": {
+        "uuid": "1a622d24_e7e14e2b",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 1876,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-01-11T16:53:11Z",
+      "side": 1,
+      "message": "i meant you just get vpnRd (instead of vpnId) and use that everywhere instead.",
+      "parentUuid": "1a622d24_631ff308",
+      "revId": "35ab65e8baab94f0060c94d4b09b3f1466612d3a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_e5b31de7",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
         "patchSetId": 8
@@ -380,6 +416,24 @@
       "side": 1,
       "message": "isVpnInstanceReady and vpnInstanceIsReady are executed on different threads. Wanted to make them \"atomic\" so no interface will be left unhandled.",
       "parentUuid": "1a622d24_e5b31de7",
+      "revId": "35ab65e8baab94f0060c94d4b09b3f1466612d3a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_07bc4a05",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 1888,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-01-11T16:53:11Z",
+      "side": 1,
+      "message": "Both of them donot seem to access any common datastore entity... i think we can remove the synchronized block.. feel free to let me know if you think otherwise.",
+      "parentUuid": "1a622d24_2345fb16",
       "revId": "35ab65e8baab94f0060c94d4b09b3f1466612d3a",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
