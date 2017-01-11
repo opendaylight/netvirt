@@ -356,6 +356,11 @@ and is available at http://www.eclipse.org/legal/epl-v10.html INTERNAL
       <artifactId>javax.inject</artifactId>
       <version>1</version>
     </dependency>
+    <dependency>
+      <groupId>org.opendaylight.groupbasedpolicy</groupId>
+      <artifactId>vpp-renderer</artifactId>
+      <version>0.5.0-SNAPSHOT</version>
+    </dependency>
   </dependencies>
 
   <!--
