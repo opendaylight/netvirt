@@ -13,6 +13,7 @@ import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
 import org.opendaylight.genius.datastoreutils.DataStoreJobCoordinator;
 import org.opendaylight.netvirt.dhcpservice.api.DhcpMConstants;
+import org.opendaylight.netvirt.dhcpservice.jobs.DhcpInterfaceConfigAddJob;
 import org.opendaylight.netvirt.dhcpservice.jobs.DhcpInterfaceConfigRemoveJob;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.Interfaces;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface;
@@ -28,12 +29,15 @@ public class DhcpInterfaceConfigListener
 
     private final DataBroker dataBroker;
     private final DhcpExternalTunnelManager dhcpExternalTunnelManager;
+    private final DhcpManager dhcpManager;
     private DataStoreJobCoordinator dataStoreJobCoordinator;
 
-    public DhcpInterfaceConfigListener(DataBroker dataBroker, DhcpExternalTunnelManager dhcpExternalTunnelManager) {
+    public DhcpInterfaceConfigListener(DataBroker dataBroker,
+            DhcpExternalTunnelManager dhcpExternalTunnelManager, DhcpManager dhcpManager) {
         super(Interface.class, DhcpInterfaceConfigListener.class);
         this.dataBroker = dataBroker;
         this.dhcpExternalTunnelManager = dhcpExternalTunnelManager;
+        this.dhcpManager = dhcpManager;
         registerListener(LogicalDatastoreType.CONFIGURATION, dataBroker);
         dataStoreJobCoordinator = DataStoreJobCoordinator.getInstance();
     }
@@ -57,6 +61,8 @@ public class DhcpInterfaceConfigListener
 
     @Override
     protected void add(InstanceIdentifier<Interface> identifier, Interface add) {
+        DhcpInterfaceConfigAddJob job = new DhcpInterfaceConfigAddJob(dhcpManager, dataBroker, add);
+        dataStoreJobCoordinator.enqueueJob(DhcpServiceUtils.getJobKey(add.getName()), job, DhcpMConstants.RETRY_COUNT );
     }
 
     @Override
