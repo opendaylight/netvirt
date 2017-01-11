@@ -101,10 +101,7 @@ public class DhcpInterfaceAddJob implements Callable<List<ListenableFuture<Void>
     private void installDhcpEntries(String interfaceName, BigInteger dpId, List<ListenableFuture<Void>> futures) {
         String vmMacAddress = getAndUpdateVmMacAddress(interfaceName);
         WriteTransaction flowTx = dataBroker.newWriteOnlyTransaction();
-        WriteTransaction bindServiceTx = dataBroker.newWriteOnlyTransaction();
-        DhcpServiceUtils.bindDhcpService(interfaceName, NwConstants.DHCP_TABLE, bindServiceTx);
         dhcpManager.installDhcpEntries(dpId, vmMacAddress, flowTx);
-        futures.add(bindServiceTx.submit());
         futures.add(flowTx.submit());
     }
 
