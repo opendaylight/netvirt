@@ -597,7 +597,7 @@ public class ElanUtils {
     }
 
     public static long getElanRemoteBroadCastGroupID(long elanTag) {
-        return ElanConstants.ELAN_GID_MIN + (((elanTag % ElanConstants.ELAN_GID_MIN) * 2));
+        return ElanConstants.ELAN_GID_MIN + elanTag % ElanConstants.ELAN_GID_MIN * 2;
     }
 
     /**
@@ -2025,12 +2025,12 @@ public class ElanUtils {
 
     public static FlowEntity buildDmacRedirectToDispatcherFlow(BigInteger dpId, String dstMacAddress,
             String displayName, long elanTag) {
-        List<MatchInfo> matches = new ArrayList<MatchInfo>();
+        List<MatchInfo> matches = new ArrayList<>();
         matches.add(new MatchInfo(MatchFieldType.metadata,
                 new BigInteger[] { getElanMetadataLabel(elanTag), MetaDataUtil.METADATA_MASK_SERVICE }));
         matches.add(new MatchInfo(MatchFieldType.eth_dst, new String[] { dstMacAddress }));
-        List<InstructionInfo> instructions = new ArrayList<InstructionInfo>();
-        List<ActionInfo> actions = new ArrayList<ActionInfo>();
+        List<InstructionInfo> instructions = new ArrayList<>();
+        List<ActionInfo> actions = new ArrayList<>();
         actions.add(new ActionInfo(ActionType.nx_resubmit,
                 new String[] { String.valueOf(NwConstants.LPORT_DISPATCHER_TABLE) }));
 
@@ -2044,7 +2044,7 @@ public class ElanUtils {
 
     public static FlowEntity buildDmacRedirectToDispatcherFlowMacNoActions(BigInteger dpId, String dstMacAddress,
             String displayName, long elanTag) {
-        List<MatchInfo> matches = new ArrayList<MatchInfo>();
+        List<MatchInfo> matches = new ArrayList<>();
         matches.add(new MatchInfo(MatchFieldType.metadata,
                 new BigInteger[] { getElanMetadataLabel(elanTag), MetaDataUtil.METADATA_MASK_SERVICE }));
         matches.add(new MatchInfo(MatchFieldType.eth_dst, new String[] { dstMacAddress }));
