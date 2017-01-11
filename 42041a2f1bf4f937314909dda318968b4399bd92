@@ -1,0 +1,72 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1a622d24_971f046c",
+        "filename": "docs/specs/ecmp-bgp-l3vpn.rst",
+        "patchSetId": 3
+      },
+      "lineNbr": 222,
+      "author": {
+        "id": 3502
+      },
+      "writtenOn": "2017-01-11T12:15:50Z",
+      "side": 1,
+      "message": "1. routes received from two neighbors (DCGWs) can be same so we can not use is as key.\n2. in case of VxLAN there are no labels. Are we planning to overload with VNIs also?\n3. I think nexthop-IP should be the key.",
+      "revId": "42041a2f1bf4f937314909dda318968b4399bd92",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_52461a50",
+        "filename": "docs/specs/ecmp-bgp-l3vpn.rst",
+        "patchSetId": 3
+      },
+      "lineNbr": 225,
+      "author": {
+        "id": 3502
+      },
+      "writtenOn": "2017-01-11T12:15:50Z",
+      "side": 1,
+      "message": "route-paths is already a list, why do we need a list here?",
+      "revId": "42041a2f1bf4f937314909dda318968b4399bd92",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_f2248661",
+        "filename": "docs/specs/ecmp-bgp-l3vpn.rst",
+        "patchSetId": 3
+      },
+      "lineNbr": 242,
+      "author": {
+        "id": 3502
+      },
+      "writtenOn": "2017-01-11T12:15:50Z",
+      "side": 1,
+      "message": "for one particualr tunnel, there is one source DPN and one dest DPN, what is this target-device-id? why list?",
+      "revId": "42041a2f1bf4f937314909dda318968b4399bd92",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_b2768ea2",
+        "filename": "docs/specs/ecmp-bgp-l3vpn.rst",
+        "patchSetId": 3
+      },
+      "lineNbr": 254,
+      "author": {
+        "id": 3502
+      },
+      "writtenOn": "2017-01-11T12:15:50Z",
+      "side": 1,
+      "message": "Why this is a list?",
+      "revId": "42041a2f1bf4f937314909dda318968b4399bd92",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
