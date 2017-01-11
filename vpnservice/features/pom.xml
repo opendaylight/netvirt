@@ -346,6 +346,7 @@
       <version>${infrautils.version}</version>
       <classifier>features</classifier>
       <type>xml</type>
+      <scope>runtime</scope>
     </dependency>
     <dependency>
       <groupId>org.opendaylight.dlux</groupId>
@@ -353,6 +354,7 @@
       <version>${dlux.version}</version>
       <classifier>features</classifier>
       <type>xml</type>
+      <scope>runtime</scope>
     </dependency>
     <dependency>
       <groupId>${project.groupId}</groupId>
@@ -365,6 +367,14 @@
       <groupId>javax.inject</groupId>
       <artifactId>javax.inject</artifactId>
       <version>1</version>
+    </dependency>
+    <dependency>
+      <groupId>org.opendaylight.groupbasedpolicy</groupId>
+      <artifactId>features-groupbasedpolicy</artifactId>
+      <version>0.5.0-SNAPSHOT</version>
+      <classifier>features</classifier>
+      <type>xml</type>
+      <scope>runtime</scope>
     </dependency>
   </dependencies>
 
