@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1a622d24_a7491633",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/ExternalRoutersListener.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 365,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-01-11T16:55:17Z",
+      "side": 1,
+      "message": "for router?",
+      "revId": "8f2815b39a06e6af5e97aea9a789577ef64c7d42",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_c74c1245",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NAPTSwitchSelector.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 44,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-01-11T16:55:17Z",
+      "side": 1,
+      "message": "this debug can be removed.",
+      "revId": "8f2815b39a06e6af5e97aea9a789577ef64c7d42",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
