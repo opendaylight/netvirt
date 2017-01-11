@@ -18,3 +18,4 @@ Contents:
    Quality of Service <qos>
    Conntrack Based SNAT <conntrack-based-snat>
    ECMP Support for BGP based L3VPN <ecmp-bgp-l3vpn>
+   Discovery of directly connected PNFs in Flat/VLAN provider networks<directly_connected_pnf_discovery>
