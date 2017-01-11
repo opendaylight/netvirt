@@ -732,7 +732,9 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
              * interfaces in this elan instance are not present in the current
              * dpn.
              */
-            programRemoteDmacFlow(elanInstance, interfaceInfo, writeFlowGroupTx);
+            if (!interfaceManager.isExternalInterface(interfaceInfo.getInterfaceName())) {
+                programRemoteDmacFlow(elanInstance, interfaceInfo, writeFlowGroupTx);
+            }
         }
         // bind the Elan service to the Interface
         bindService(elanInstance, elanInterface, tx);
