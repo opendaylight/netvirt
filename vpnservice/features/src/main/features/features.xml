@@ -22,6 +22,7 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
   <repository>mvn:org.opendaylight.genius/genius-features/{{VERSION}}/xml/features</repository>
   <repository>mvn:org.opendaylight.infrautils/infrautils-features/{{VERSION}}/xml/features</repository>
   <repository>mvn:org.opendaylight.dlux/features-dlux/{{VERSION}}/xml/features</repository>
+  <repository>mvn:org.opendaylight.groupbasedpolicy/features-groupbasedpolicy/0.5.0-SNAPSHOT/xml/features</repository>
 
   <feature name='odl-netvirt-api' version='${project.version}' description='OpenDaylight :: NetVirt :: api'>
     <feature version='${mdsal.version}'>odl-mdsal-broker</feature>
@@ -55,6 +56,7 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
     <feature version="${openflowplugin.version}">odl-openflowplugin-flow-services</feature>
     <feature version='${genius.version}'>odl-genius</feature>
     <feature version='${infrautils.version}'>odl-infrautils-inject</feature>
+    <feature version='0.5.0-SNAPSHOT'>odl-groupbasedpolicy-vpp</feature>
     <bundle>mvn:commons-net/commons-net/{{VERSION}}</bundle>
     <bundle>wrap:mvn:com.googlecode.java-ipv6/java-ipv6/{{VERSION}}</bundle>
     <bundle>mvn:org.opendaylight.netvirt/bgpmanager-api/{{VERSION}}</bundle>

@@ -27,6 +27,8 @@
                    interface="org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.vpn.rpc.rev160201.VpnRpcService" />
   <odl:rpc-service id="odlArputilService"
                    interface="org.opendaylight.yang.gen.v1.urn.opendaylight.genius.arputil.rev160406.OdlArputilService" />
+  <odl:rpc-service id="vppAdapterRpcService"
+                   interface="org.opendaylight.yang.gen.v1.urn.opendaylight.groupbasedpolicy.vpp_adapter.rev161201.VppAdapterService" />
 
   <odl:clustered-app-config id="neutronvpnConfig"
                             binding-class="org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.config.rev160806.NeutronvpnConfig"
@@ -114,6 +116,7 @@
     <argument ref="neutronSubnetGwMacResolver" />
     <argument ref="odlInterfaceRpcService" />
     <argument ref="elanService" />
+    <argument ref="vppAdapterRpcService" />
   </bean>
 
   <bean id="neutronvpnSubnetmapListener"
