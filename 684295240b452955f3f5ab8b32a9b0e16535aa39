@@ -2,6 +2,29 @@
   "comments": [
     {
       "key": {
+        "uuid": "1a622d24_d74cc5ca",
+        "filename": "docs/specs/netvirt-statistics-spec.rst",
+        "patchSetId": 6
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 3502
+      },
+      "writtenOn": "2017-01-11T11:34:14Z",
+      "side": 1,
+      "message": "We have an FCAPS framework in Genius. Look into a recent patch under review- https://git.opendaylight.org/gerrit/#/c/50270/1 and see if it can be leveraged and we can have a common Stats framework module.",
+      "range": {
+        "startLine": 38,
+        "startChar": 49,
+        "endLine": 38,
+        "endChar": 56
+      },
+      "revId": "684295240b452955f3f5ab8b32a9b0e16535aa39",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_2457cecb",
         "filename": "docs/specs/netvirt-statistics-spec.rst",
         "patchSetId": 6
