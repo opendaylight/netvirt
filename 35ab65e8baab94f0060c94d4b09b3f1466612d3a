@@ -36,6 +36,24 @@
     },
     {
       "key": {
+        "uuid": "1a622d24_c38ec778",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 154,
+      "author": {
+        "id": 6365
+      },
+      "writtenOn": "2017-01-11T16:36:39Z",
+      "side": 1,
+      "message": "Removed",
+      "parentUuid": "1a622d24_257b5529",
+      "revId": "35ab65e8baab94f0060c94d4b09b3f1466612d3a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_05b3b90a",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
         "patchSetId": 8
@@ -70,6 +88,24 @@
     },
     {
       "key": {
+        "uuid": "1a622d24_23397b41",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 216,
+      "author": {
+        "id": 6365
+      },
+      "writtenOn": "2017-01-11T16:36:39Z",
+      "side": 1,
+      "message": "OK",
+      "parentUuid": "1a622d24_45d0111f",
+      "revId": "35ab65e8baab94f0060c94d4b09b3f1466612d3a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_85ab4974",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
         "patchSetId": 8
@@ -81,6 +117,24 @@
       "writtenOn": "2017-01-09T12:33:41Z",
       "side": 1,
       "message": "Please move the entire check above into add() method only.\n\nThis method can be retained as is as it is invoked from update() method also in which case VPNID will already be available, thereby we do away with unnecessary read.",
+      "revId": "35ab65e8baab94f0060c94d4b09b3f1466612d3a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_43347749",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 217,
+      "author": {
+        "id": 6365
+      },
+      "writtenOn": "2017-01-11T16:36:39Z",
+      "side": 1,
+      "message": "Refactored",
+      "parentUuid": "1a622d24_85ab4974",
       "revId": "35ab65e8baab94f0060c94d4b09b3f1466612d3a",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -104,6 +158,24 @@
     },
     {
       "key": {
+        "uuid": "1a622d24_633ed329",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 223,
+      "author": {
+        "id": 6365
+      },
+      "writtenOn": "2017-01-11T16:36:39Z",
+      "side": 1,
+      "message": "This was in the original code. Removed",
+      "parentUuid": "1a622d24_c591c148",
+      "revId": "35ab65e8baab94f0060c94d4b09b3f1466612d3a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_a5c12556",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
         "patchSetId": 8
@@ -115,6 +187,24 @@
       "writtenOn": "2017-01-09T12:33:41Z",
       "side": 1,
       "message": "VPNID is required for realizing a router interface in the datapath.\n\nIt isn\u0027t reassuring why this code was not checked if VPNID is available...",
+      "revId": "35ab65e8baab94f0060c94d4b09b3f1466612d3a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_c304071a",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 233,
+      "author": {
+        "id": 6365
+      },
+      "writtenOn": "2017-01-11T16:36:39Z",
+      "side": 1,
+      "message": "I think this is addressed now as part of the refactored code",
+      "parentUuid": "1a622d24_a5c12556",
       "revId": "35ab65e8baab94f0060c94d4b09b3f1466612d3a",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -138,6 +228,24 @@
     },
     {
       "key": {
+        "uuid": "1a622d24_435757ca",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 256,
+      "author": {
+        "id": 6365
+      },
+      "writtenOn": "2017-01-11T16:36:39Z",
+      "side": 1,
+      "message": "InterfaceStateChangeListener calls this method also, before the Config interface has been created. \nThat interface will be properly handled when VpnIntefaceManager:add() get called.",
+      "parentUuid": "1a622d24_659a6d6f",
+      "revId": "35ab65e8baab94f0060c94d4b09b3f1466612d3a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_c5b8a1ca",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
         "patchSetId": 8
@@ -149,6 +257,24 @@
       "writtenOn": "2017-01-09T12:33:41Z",
       "side": 1,
       "message": "the below call can be:\naddVpnInterface()",
+      "revId": "35ab65e8baab94f0060c94d4b09b3f1466612d3a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_8374cf68",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 1844,
+      "author": {
+        "id": 6365
+      },
+      "writtenOn": "2017-01-11T16:36:39Z",
+      "side": 1,
+      "message": "Refactored",
+      "parentUuid": "1a622d24_c5b8a1ca",
       "revId": "35ab65e8baab94f0060c94d4b09b3f1466612d3a",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -172,6 +298,24 @@
     },
     {
       "key": {
+        "uuid": "1a622d24_23133b0e",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 1861,
+      "author": {
+        "id": 6365
+      },
+      "writtenOn": "2017-01-11T16:36:39Z",
+      "side": 1,
+      "message": "Changed the code so we will reach this code from a synchronized block. It is a coarse level lock, but it should suffice as a temporary solution until a proper mechanism",
+      "parentUuid": "1a622d24_c5a381b0",
+      "revId": "35ab65e8baab94f0060c94d4b09b3f1466612d3a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_a5a8058e",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
         "patchSetId": 8
@@ -183,6 +327,24 @@
       "writtenOn": "2017-01-09T12:33:41Z",
       "side": 1,
       "message": "the above getVpnRd is not required as both getVpnId and getVpnRd uses the same datastore vpnInstanceToVpnId.",
+      "revId": "35ab65e8baab94f0060c94d4b09b3f1466612d3a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_631ff308",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 1876,
+      "author": {
+        "id": 6365
+      },
+      "writtenOn": "2017-01-11T16:36:39Z",
+      "side": 1,
+      "message": "vpnRd is needed for getVpnInstanceOpData.\nDo you mean that we can use vpnId instead of vpnRd when calling getVpnInstanceOpData, and that way to remove the additional read?",
+      "parentUuid": "1a622d24_a5a8058e",
       "revId": "35ab65e8baab94f0060c94d4b09b3f1466612d3a",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -206,6 +368,24 @@
     },
     {
       "key": {
+        "uuid": "1a622d24_2345fb16",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 1888,
+      "author": {
+        "id": 6365
+      },
+      "writtenOn": "2017-01-11T16:36:39Z",
+      "side": 1,
+      "message": "isVpnInstanceReady and vpnInstanceIsReady are executed on different threads. Wanted to make them \"atomic\" so no interface will be left unhandled.",
+      "parentUuid": "1a622d24_e5b31de7",
+      "revId": "35ab65e8baab94f0060c94d4b09b3f1466612d3a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_85f06992",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
         "patchSetId": 8
@@ -223,6 +403,24 @@
     },
     {
       "key": {
+        "uuid": "1a622d24_e3f02300",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 1904,
+      "author": {
+        "id": 6365
+      },
+      "writtenOn": "2017-01-11T16:36:39Z",
+      "side": 1,
+      "message": "OK",
+      "parentUuid": "1a622d24_85f06992",
+      "revId": "35ab65e8baab94f0060c94d4b09b3f1466612d3a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_25c99559",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
         "patchSetId": 8
@@ -234,6 +432,24 @@
       "writtenOn": "2017-01-09T12:33:41Z",
       "side": 1,
       "message": "adjacency handling is required only for update() invocation.  So can we decouple this from being stored in unprocessedVpnData.",
+      "revId": "35ab65e8baab94f0060c94d4b09b3f1466612d3a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_03ec3f29",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 1928,
+      "author": {
+        "id": 6365
+      },
+      "writtenOn": "2017-01-11T16:36:39Z",
+      "side": 1,
+      "message": "Removed",
+      "parentUuid": "1a622d24_25c99559",
       "revId": "35ab65e8baab94f0060c94d4b09b3f1466612d3a",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
