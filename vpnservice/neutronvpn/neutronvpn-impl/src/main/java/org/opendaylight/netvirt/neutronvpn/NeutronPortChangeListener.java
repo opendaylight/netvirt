@@ -13,9 +13,12 @@ import com.google.common.base.Optional;
 import com.google.common.util.concurrent.ListenableFuture;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
+import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
@@ -32,6 +35,13 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rev160406.IfL2vlan;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rev160406.IfL2vlanBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rev160406.InterfaceDeviceTypeCompute;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rev160406.InterfaceDeviceTypeDhcp;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rev160406.InterfaceVifTypeVhostuser;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rev160406.ParentRefs;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rev160406.ParentRefsBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rev160406._interface.vif.params.VifDetailsBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rev160406.interfaces._interface.NodeIdentifierBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.InterfaceAcl;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.InterfaceAclBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.interfaces._interface.AllowedAddressPairs;
@@ -43,12 +53,19 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.floating.ip.port.info.FloatingIpIdToPortMappingBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.floating.ip.port.info.FloatingIpIdToPortMappingKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.subnetmaps.Subnetmap;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.binding.rev150712.PortBindingExtension;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.binding.rev150712.binding.attributes.VifDetails;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l3.rev150712.routers.attributes.routers.Router;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.networks.rev150712.networks.attributes.networks.Network;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.port.attributes.FixedIps;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.ports.attributes.Ports;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.ports.attributes.ports.Port;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.rev150712.Neutron;
+import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.NetworkTopology;
+import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.TopologyId;
+import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.Topology;
+import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.TopologyKey;
+import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Node;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -61,6 +78,14 @@ public class NeutronPortChangeListener extends AsyncDataTreeChangeListenerBase<P
     private final NeutronvpnNatManager nvpnNatManager;
     private final NeutronSubnetGwMacResolver gwMacResolver;
     private final IElanService elanService;
+
+    //Constants for neutron port binding
+    public static final TopologyId NETCONF_TOPOLOGY_ID = new TopologyId("topology-netconf");
+    private static final String COMPUTE_OWNER = "compute";
+    private static final String DHCP_OWNER = "dhcp";
+    private static final String ROUTER_OWNER = "network:router_interface";
+    private static final String[] SUPPORTED_DEVICE_OWNERS = {COMPUTE_OWNER, DHCP_OWNER, ROUTER_OWNER};
+    private static final String VHOST_USER = "vhostuser";
 
     public NeutronPortChangeListener(final DataBroker dataBroker,
                                      final NeutronvpnManager neutronvpnManager,
@@ -176,11 +201,14 @@ public class NeutronPortChangeListener extends AsyncDataTreeChangeListenerBase<P
             }
         }
 
+        // Check if any change in portbinding info of the port
+        ParentRefsBuilder parentrefsBuilder = handleNeutronPortPortBindingUpdated(original, update);
+
         // check if port security enabled/disabled as part of port update
         boolean origSecurityEnabled = NeutronvpnUtils.getPortSecurityEnabled(original);
         boolean updatedSecurityEnabled = NeutronvpnUtils.getPortSecurityEnabled(update);
 
-        if (origSecurityEnabled || updatedSecurityEnabled) {
+        if (origSecurityEnabled || updatedSecurityEnabled || (parentrefsBuilder != null)) {
             InstanceIdentifier interfaceIdentifier = NeutronvpnUtils.buildVlanInterfaceIdentifier(portName);
             final DataStoreJobCoordinator portDataStoreCoordinator = DataStoreJobCoordinator.getInstance();
             portDataStoreCoordinator.enqueueJob("PORT- " + portName, () -> {
@@ -194,6 +222,9 @@ public class NeutronPortChangeListener extends AsyncDataTreeChangeListenerBase<P
                             InterfaceAcl infAcl = handlePortSecurityUpdated(original, update,
                                     origSecurityEnabled, updatedSecurityEnabled, interfaceBuilder).build();
                             interfaceBuilder.addAugmentation(InterfaceAcl.class, infAcl);
+                        }
+                        if (parentrefsBuilder != null) {
+                            interfaceBuilder.addAugmentation(ParentRefs.class, parentrefsBuilder.build());
                         }
                         LOG.info("Of-port-interface updation for port {}", portName);
                         // Update OFPort interface for this neutron port
@@ -210,12 +241,14 @@ public class NeutronPortChangeListener extends AsyncDataTreeChangeListenerBase<P
                 return futures;
             });
         }
+
         List<FixedIps> oldIPs = (original.getFixedIps() != null) ? original.getFixedIps() : new ArrayList<>();
         List<FixedIps> newIPs = (update.getFixedIps() != null) ? update.getFixedIps() : new ArrayList<>();
         if (!oldIPs.equals(newIPs)) {
             newIPs.removeIf(oldIPs::remove);
             handleNeutronPortUpdated(original, update);
         }
+
         if (NeutronConstants.DEVICE_OWNER_GATEWAY_INF.equals(update.getDeviceOwner())) {
             handleRouterGatewayUpdated(update);
         } else if (NeutronConstants.DEVICE_OWNER_FLOATING_IP.equals(update.getDeviceOwner())) {
@@ -347,6 +380,32 @@ public class NeutronPortChangeListener extends AsyncDataTreeChangeListenerBase<P
         });
     }
 
+    InstanceIdentifier<Topology> getNetconfTopologyIId() {
+        return InstanceIdentifier.builder(NetworkTopology.class)
+                .child(Topology.class, new TopologyKey(NETCONF_TOPOLOGY_ID))
+                .build();
+    }
+
+    @SuppressWarnings("checkstyle:IllegalCatch")
+    Node getNetconfNode(String portBindingHost, DataBroker dataBroker) {
+        Node node = null;
+        try {
+            ReadOnlyTransaction tx = dataBroker.newReadOnlyTransaction();
+            List<Node> nodes = tx
+                    .read(LogicalDatastoreType.CONFIGURATION, getNetconfTopologyIId())
+                    .checkedGet()
+                    .get()
+                    .getNode();
+            node = nodes.stream()
+                    .filter(n -> n.getNodeId().getValue().equals(portBindingHost))
+                    .findFirst()
+                    .orElse(null);
+        } catch (Exception e) {
+            LOG.error("getNetconfNode:",e);
+        }
+        return node;
+    }
+
     private void handleNeutronPortDeleted(final Port port) {
         final String portName = port.getUuid().getValue();
         final Uuid portId = port.getUuid();
@@ -429,6 +488,28 @@ public class NeutronPortChangeListener extends AsyncDataTreeChangeListenerBase<P
         });
     }
 
+    private ParentRefsBuilder handleNeutronPortPortBindingUpdated(final Port portoriginal, final Port portupdate) {
+        ParentRefsBuilder parentrefsBuilder = null;
+
+        String oldDeviceOwner = portoriginal.getDeviceOwner();
+        String updatedDeviceOwner = portupdate.getDeviceOwner();
+        String oldPortBindingHost = portoriginal.getAugmentation(PortBindingExtension.class).getHostId();
+        String newPortBindingHost = portupdate.getAugmentation(PortBindingExtension.class).getHostId();
+        String oldVifType = portoriginal.getAugmentation(PortBindingExtension.class).getVifType();
+        String newVifType = portupdate.getAugmentation(PortBindingExtension.class).getVifType();
+        List<VifDetails> oldVifDetails = portoriginal.getAugmentation(PortBindingExtension.class).getVifDetails();
+        List<VifDetails> newVifDetails = portupdate.getAugmentation(PortBindingExtension.class).getVifDetails();
+
+        if (!Objects.equals(oldDeviceOwner, updatedDeviceOwner)
+               || !Objects.equals(oldPortBindingHost, newPortBindingHost)
+               || !Objects.equals(oldVifType, newVifType)
+               || !oldVifDetails.containsAll(newVifDetails)) {
+            LOG.debug("handleNeutronPortPortBindingUpdated: Port binding info is updated for port {}", portupdate);
+            parentrefsBuilder = buildInterfaceParentRefs(portupdate);
+        }
+        return parentrefsBuilder;
+    }
+
     private static InterfaceAclBuilder handlePortSecurityUpdated(Port portOriginal, Port portUpdated, boolean
             origSecurityEnabled, boolean updatedSecurityEnabled, InterfaceBuilder interfaceBuilder) {
         String interfaceName = portUpdated.getUuid().getValue();
@@ -501,7 +582,62 @@ public class NeutronPortChangeListener extends AsyncDataTreeChangeListenerBase<P
             NeutronvpnUtils.populateInterfaceAclBuilder(interfaceAclBuilder, port);
             interfaceBuilder.addAugmentation(InterfaceAcl.class, interfaceAclBuilder.build());
         }
+
+        ParentRefsBuilder parentrefBuilder = buildInterfaceParentRefs(port);
+
+        if (parentrefBuilder != null) {
+            LOG.debug("createInterface: Adding ParentRefs info to the Interface {}", interfaceName);
+            interfaceBuilder.addAugmentation(ParentRefs.class, parentrefBuilder.build());
+        }
+
         return interfaceBuilder.build();
+    }
+
+    private ParentRefsBuilder buildInterfaceParentRefs(Port port) {
+        ParentRefsBuilder parentrefBuilder = new ParentRefsBuilder();
+
+        if (port.getDeviceOwner() != null) {
+            if (port.getDeviceOwner().contains(COMPUTE_OWNER)) {
+                parentrefBuilder.setDeviceOwner(InterfaceDeviceTypeCompute.class);
+            } else if (port.getDeviceOwner().contains(DHCP_OWNER)) {
+                parentrefBuilder.setDeviceOwner(InterfaceDeviceTypeDhcp.class);
+            }
+        }
+
+        PortBindingExtension portBindingExt = port.getAugmentation(PortBindingExtension.class);
+        if (portBindingExt != null) {
+            if (portBindingExt.getHostId() != null && !portBindingExt.getHostId().isEmpty()) {
+                //Find the topology subtree for the host
+                //TODO: Currently port-binding info in neutron port is used only for netconf interfaces
+                //Extend the below check when the support for port-binding for other types of
+                //interfaces is added
+                if (getNetconfNode(portBindingExt.getHostId(), dataBroker) != null) {
+                    NodeIdentifierBuilder nodeIdBuilder = new NodeIdentifierBuilder()
+                            .setTopologyId(NETCONF_TOPOLOGY_ID.getValue())
+                            .setNodeId(portBindingExt.getHostId());
+                    parentrefBuilder.setNodeIdentifier(Arrays.asList(nodeIdBuilder.build()));
+                }
+            }
+            if (Objects.equals(portBindingExt.getVifType(), VHOST_USER)) {
+                parentrefBuilder.setVifType(InterfaceVifTypeVhostuser.class);
+            }
+
+            if (portBindingExt.getVifDetails() != null && !portBindingExt.getVifDetails().isEmpty()) {
+                List<org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager
+                    .rev160406._interface.vif.params.VifDetails> vifdetailsList = new ArrayList<>();
+
+                for (VifDetails vifdetails: portBindingExt.getVifDetails()) {
+                    org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager
+                        .rev160406._interface.vif.params.VifDetailsBuilder vifdetailsBuilder = new VifDetailsBuilder();
+                    vifdetailsBuilder.setVifDetailsKey(vifdetails.getDetailsKey())
+                                     .setVifDetailsValue(vifdetails.getValue());
+                    vifdetailsList.add(vifdetailsBuilder.build());
+                }
+                parentrefBuilder.setVifDetails(vifdetailsList);
+            }
+        }
+
+        return parentrefBuilder;
     }
 
     // TODO Clean up the exception handling
