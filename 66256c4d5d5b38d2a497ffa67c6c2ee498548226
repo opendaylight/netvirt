@@ -1,0 +1,72 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1a622d24_b7c30956",
+        "filename": "docs/specs/acl-stats.rst",
+        "patchSetId": 21
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-01-11T10:59:37Z",
+      "side": 1,
+      "message": "Does this cover trunk ports and subports too?",
+      "revId": "66256c4d5d5b38d2a497ffa67c6c2ee498548226",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_3210a7a7",
+        "filename": "docs/specs/acl-stats.rst",
+        "patchSetId": 21
+      },
+      "lineNbr": 291,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-01-11T10:59:37Z",
+      "side": 1,
+      "message": "this can align with the URI as  \u0027acl-port-stats\u0027",
+      "revId": "66256c4d5d5b38d2a497ffa67c6c2ee498548226",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_b272f70e",
+        "filename": "docs/specs/acl-stats.rst",
+        "patchSetId": 21
+      },
+      "lineNbr": 432,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-01-11T10:59:37Z",
+      "side": 1,
+      "message": "if a port is not yet realized in the cloud (ie., it is just a valid neutron port), the statistics will be shown as 0?",
+      "revId": "66256c4d5d5b38d2a497ffa67c6c2ee498548226",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_5259e38c",
+        "filename": "docs/specs/index.rst",
+        "patchSetId": 21
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-01-11T10:59:37Z",
+      "side": 1,
+      "message": "ACL Operation Improvements is a very general..\n\nACL Live Statistics would be more apt.",
+      "revId": "66256c4d5d5b38d2a497ffa67c6c2ee498548226",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
