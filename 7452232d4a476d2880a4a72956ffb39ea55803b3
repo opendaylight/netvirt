@@ -1,0 +1,89 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1a622d24_4311175c",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/ExternalRoutersListener.java",
+        "patchSetId": 13
+      },
+      "lineNbr": 2191,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-01-11T16:42:09Z",
+      "side": 1,
+      "message": "{} missing in error statement",
+      "revId": "7452232d4a476d2880a4a72956ffb39ea55803b3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_a7111654",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/FloatingIPListener.java",
+        "patchSetId": 13
+      },
+      "lineNbr": 130,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-01-11T16:42:09Z",
+      "side": 1,
+      "message": "why is this file touched at all.. don\u0027t see any useful change here ..",
+      "revId": "7452232d4a476d2880a4a72956ffb39ea55803b3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_c73b72cf",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NaptEventHandler.java",
+        "patchSetId": 13
+      },
+      "lineNbr": 102,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-01-11T16:42:09Z",
+      "side": 1,
+      "message": "{} missing inside string..",
+      "revId": "7452232d4a476d2880a4a72956ffb39ea55803b3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_675a5e2b",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NaptEventHandler.java",
+        "patchSetId": 13
+      },
+      "lineNbr": 367,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-01-11T16:42:09Z",
+      "side": 1,
+      "message": "nEITER nor \u003ctable\u003e matches with input tableId {}",
+      "revId": "7452232d4a476d2880a4a72956ffb39ea55803b3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_277b468d",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NaptEventHandler.java",
+        "patchSetId": 13
+      },
+      "lineNbr": 368,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-01-11T16:42:09Z",
+      "side": 1,
+      "message": "are we sure the callers handle null?",
+      "revId": "7452232d4a476d2880a4a72956ffb39ea55803b3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
