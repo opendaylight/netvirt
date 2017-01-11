@@ -13,6 +13,7 @@ Contents:
    ACL Remote ACLs - Indirection Table to Improve Scale <remote_acl_indirection>
    ACL Statistics <acl-stats>
    Conntrack Based SNAT <conntrack-based-snat>
+   Discovery of directly connected PNFs in Flat/VLAN provider networks <directly_connected_pnf_discovery>
    ECMP Support for BGP based L3VPN <ecmp-bgp-l3vpn>
    Hairpinning of floating IPs in flat/VLAN provider networks <hairpinning-flat-vlan>
    IPv6 L3 North-South support for Flat/VLAN based Provider Networks <ipv6-cvr-north-south>
