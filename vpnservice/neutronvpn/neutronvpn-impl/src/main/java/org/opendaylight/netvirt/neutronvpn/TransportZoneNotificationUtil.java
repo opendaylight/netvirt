@@ -39,13 +39,12 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rev160406.transp
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeConnectorId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.neutron.router.dpns.RouterDpnList;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.neutron.router.dpns.router.dpn.list.DpnVpninterfacesList;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.neutron.router.dpns.router.dpn.list.dpn.vpninterfaces.list.RouterInterfaces;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.config.rev160806.NeutronvpnConfig;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.subnetmaps.Subnetmap;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.networks.rev150712.NetworkTypeVxlan;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.networks.rev150712.networks.attributes.Networks;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.networks.rev150712.networks.attributes.networks.Network;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.networks.rev150712.networks.attributes.networks.NetworkKey;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.port.attributes.FixedIps;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.ports.attributes.Ports;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.ports.attributes.ports.Port;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.ports.attributes.ports.PortKey;
@@ -138,13 +137,23 @@ public class TransportZoneNotificationUtil {
 
             String subnetIp = ALL_SUBNETS;
 
-            if (zone == null) {
-                zone = createZone(subnetIp, routerDpnList.getRouterId());
-            }
             int addedTeps = 0;
             for (DpnVpninterfacesList dpnVpninterfacesList : routerDpnList.getDpnVpninterfacesList()) {
-                BigInteger dpnId = dpnVpninterfacesList.getDpnId();
-                addedTeps += addVtep(zone, subnetIp, dpnId);
+                for (RouterInterfaces routerInterfaces: dpnVpninterfacesList.getRouterInterfaces()) {
+                    Uuid portUid = new Uuid(routerInterfaces.getInterface());
+                    Port neutronPort = NeutronvpnUtils.getNeutronPort(dataBroker, portUid);
+                    if (neutronPort != null) {
+                        if (!checkIfVxlanNetwork(neutronPort)) {
+                            continue;
+                        }
+                        if (zone == null) {
+                            zone = createZone(subnetIp, routerDpnList.getRouterId());
+                        }
+                        BigInteger dpnId = dpnVpninterfacesList.getDpnId();
+                        addedTeps += addVtep(zone, subnetIp, dpnId);
+                        break;
+                    }
+                }
             }
             if (addedTeps > 0) {
                 addTransportZone(zone, "router " + routerDpnList.getRouterId());
