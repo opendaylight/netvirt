@@ -8,11 +8,15 @@
 package org.opendaylight.netvirt.dhcpservice.jobs;
 
 import com.google.common.util.concurrent.ListenableFuture;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Callable;
+
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
+import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.netvirt.dhcpservice.DhcpExternalTunnelManager;
+import org.opendaylight.netvirt.dhcpservice.DhcpServiceUtils;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rev160406.IfTunnel;
@@ -39,15 +43,20 @@ public class DhcpInterfaceConfigRemoveJob implements Callable<List<ListenableFut
     public List<ListenableFuture<Void>> call() throws Exception {
         List<ListenableFuture<Void>> futures = new ArrayList<>();
         IfTunnel tunnelInterface = iface.getAugmentation(IfTunnel.class);
+        String interfaceName = iface.getName();
         if (tunnelInterface != null && !tunnelInterface.isInternal()) {
             IpAddress tunnelIp = tunnelInterface.getTunnelDestination();
             ParentRefs interfce = iface.getAugmentation(ParentRefs.class);
             if (interfce != null) {
-                LOG.trace("Calling handleTunnelStateDown for tunnelIp {} and interface {}", tunnelIp, iface.getName());
+                LOG.trace("Calling handleTunnelStateDown for tunnelIp {} and interface {}", tunnelIp, interfaceName);
                 dhcpExternalTunnelManager.handleTunnelStateDown(tunnelIp,
                         interfce.getDatapathNodeIdentifier(), futures);
+                return futures;
             }
         }
+        WriteTransaction unbindTx = dataBroker.newWriteOnlyTransaction();
+        DhcpServiceUtils.unbindDhcpService(interfaceName, unbindTx);
+        futures.add(unbindTx.submit());
         return futures;
     }
 }

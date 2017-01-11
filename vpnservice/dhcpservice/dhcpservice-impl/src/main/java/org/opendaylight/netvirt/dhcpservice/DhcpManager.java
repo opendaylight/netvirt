@@ -65,7 +65,7 @@ public class DhcpManager {
         if (config.isControllerDhcpEnabled()) {
             dhcpInterfaceEventListener =
                     new DhcpInterfaceEventListener(this, broker, dhcpExternalTunnelManager, interfaceManager);
-            dhcpInterfaceConfigListener = new DhcpInterfaceConfigListener(broker, dhcpExternalTunnelManager);
+            dhcpInterfaceConfigListener = new DhcpInterfaceConfigListener(broker, dhcpExternalTunnelManager, this);
             LOG.info("DHCP Service initialized");
         }
     }
