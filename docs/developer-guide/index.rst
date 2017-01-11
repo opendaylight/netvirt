@@ -1,5 +1,5 @@
-NetVirt Documentation
-=====================
+NetVirt Developer Guide
+=======================
 
 .. toctree::
    :maxdepth: 2
