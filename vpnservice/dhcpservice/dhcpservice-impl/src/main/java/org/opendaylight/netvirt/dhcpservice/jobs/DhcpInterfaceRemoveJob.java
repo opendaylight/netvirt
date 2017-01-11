@@ -88,11 +88,8 @@ public class DhcpInterfaceRemoveJob implements Callable<List<ListenableFuture<Vo
     private void unInstallDhcpEntries(String interfaceName, BigInteger dpId, List<ListenableFuture<Void>> futures) {
         String vmMacAddress = getAndRemoveVmMacAddress(interfaceName);
         WriteTransaction flowTx = dataBroker.newWriteOnlyTransaction();
-        WriteTransaction unbindTx = dataBroker.newWriteOnlyTransaction();
-        DhcpServiceUtils.unbindDhcpService(interfaceName, unbindTx);
         dhcpManager.unInstallDhcpEntries(dpId, vmMacAddress, flowTx);
         futures.add(flowTx.submit());
-        futures.add(unbindTx.submit());
     }
 
     private String getAndRemoveVmMacAddress(String interfaceName) {
