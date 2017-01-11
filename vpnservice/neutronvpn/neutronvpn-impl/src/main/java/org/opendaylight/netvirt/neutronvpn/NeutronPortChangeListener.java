@@ -59,6 +59,33 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.por
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.ports.attributes.ports.Port;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.qos.ext.rev160613.QosPortExtension;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.rev150712.Neutron;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.rev150712.Neutron;
+// VPP port creation logic ----- Start
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.binding.rev150712.PortBindingExtension;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.provider.ext.rev150712.NetworkProviderExtension;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.groupbasedpolicy.vpp_adapter.rev161201.VppAdapterService;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.groupbasedpolicy.vpp_adapter.rev161201.CreateVirtualBridgeDomainOnNodesInputBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.groupbasedpolicy.vpp_adapter.rev161201.CloneVirtualBridgeDomainOnNodesInputBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.groupbasedpolicy.vpp_adapter.rev161201.DeleteVirtualBridgeDomainFromNodesInput;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.groupbasedpolicy.vpp_adapter.rev161201.CreateInterfaceOnNodeInputBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.groupbasedpolicy.vpp_adapter.rev161201.DeleteInterfaceFromNodeInput;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.groupbasedpolicy.vpp_adapter.rev161201.AddInterfaceToBridgeDomainInputBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.groupbasedpolicy.vpp_adapter.rev161201.VxlanVniType;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.groupbasedpolicy.vpp_adapter.rev161201.bridge.domain.attributes.tunnel.type.VxlanBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.groupbasedpolicy.vpp_renderer.rev160425.bridge.domain.base.attributes.PhysicalLocationRefBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.groupbasedpolicy.vpp_renderer.rev160425._interface.attributes._interface.type.choice.VhostUserCaseBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.groupbasedpolicy.vpp_renderer.rev160425._interface.attributes._interface.type.choice.TapCaseBuilder;
+import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.NetworkTopology;
+import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.TopologyId;
+import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.Topology;
+import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.TopologyKey;
+import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Node;
+// VPP port creation logic ----- End
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -74,12 +101,27 @@ public class NeutronPortChangeListener extends AsyncDataTreeChangeListenerBase<P
     private OdlInterfaceRpcService odlInterfaceRpcService;
     private final IElanService elanService;
 
+    // VPP port creation logic ----- Start
+    private final VppAdapterService vppAdapterRpcService;
+    private Map<String, HashSet<String>> vbdToVppNodes = new ConcurrentHashMap<>();
+    //Constants for VPP interfaces
+    private static final String COMPUTE_OWNER = "compute";
+    private static final String DHCP_OWNER = "dhcp";
+    private static final String ROUTER_OWNER = "network:router_interface";
+    private static final String[] SUPPORTED_DEVICE_OWNERS = {COMPUTE_OWNER, DHCP_OWNER, ROUTER_OWNER};
+    private static final String VHOST_USER = "vhostuser";
+    private static final String VPP_INTERFACE_NAME_PREFIX = "neutron_port_";
+    private static final String TAP_PORT_NAME_PREFIX = "tap";
+    private static final String RT_PORT_NAME_PREFIX = "qr-";
+    // VPP port creation logic ----- End
+
     public NeutronPortChangeListener(final DataBroker dataBroker,
                                      final NeutronvpnManager nVpnMgr, final NeutronvpnNatManager nVpnNatMgr,
                                      final NotificationPublishService notiPublishService,
                                      final NeutronSubnetGwMacResolver gwMacResolver,
                                      final OdlInterfaceRpcService odlInterfaceRpcService,
-                                     final IElanService elanService) {
+                                     final IElanService elanService,
+                                     final VppAdapterService vppAdapterRpcService) {
         super(Port.class, NeutronPortChangeListener.class);
         this.dataBroker = dataBroker;
         nvpnManager = nVpnMgr;
@@ -88,6 +130,9 @@ public class NeutronPortChangeListener extends AsyncDataTreeChangeListenerBase<P
         this.gwMacResolver = gwMacResolver;
         this.odlInterfaceRpcService = odlInterfaceRpcService;
         this.elanService = elanService;
+        // VPP port creation logic ----- Start
+        this.vppAdapterRpcService = vppAdapterRpcService;
+        // VPP port creation logic ----- End
     }
 
 
@@ -373,6 +418,50 @@ public class NeutronPortChangeListener extends AsyncDataTreeChangeListenerBase<P
                     futures.add(wrtConfigTxn.submit());
                     return futures;
                 }
+
+                // VPP port creation logic ----- Start
+                if (isValidVPPVhostUser(port)) {
+                    String portBindingHost = port.getAugmentation(PortBindingExtension.class).getHostId();
+                    if (portBindingHost == null) {
+                        LOG.warn("Cannot create VPP bridge domain. binding:host_id not specified in neutron port: {}", port);
+                        futures.add(wrtConfigTxn.submit());
+                        return futures;
+                    }
+                    ReadOnlyTransaction tx = dataBroker.newReadOnlyTransaction();
+                    List<Node> nodes = tx.read(LogicalDatastoreType.CONFIGURATION, getVPPTopologyIId()).checkedGet().get().getNode();
+                    Node node = nodes.stream().filter(n -> n.getNodeId().getValue().equals(portBindingHost)).findFirst().get();
+                    if (node == null) {
+                        LOG.warn("Cannot create VPP bridge domain. Unable to find binding:host_id in topology: {}", port);
+                        futures.add(wrtConfigTxn.submit());
+                        return futures;
+                    }
+                    String networkId = port.getNetworkId().getValue();
+                    //Check if bridge domain existing for this network and if not, create
+                    HashSet vppNodesInVbd = vbdToVppNodes.get(networkId);
+                    if (vppNodesInVbd == null) {
+                        if (createVPPBridgeDomainOnNode(port, node, dataBroker)) {
+                            vppNodesInVbd = new HashSet<String>();
+                            vppNodesInVbd.add(portBindingHost);
+                            vbdToVppNodes.put(networkId, vppNodesInVbd);
+                        }
+                    }
+                    //Check if portBindingHost is already part of bridge domain. If not, clone the bridge domain on that host
+                    if (!vppNodesInVbd.contains(portBindingHost)) {
+                        if (cloneVPPBridgeDomainOnNode(networkId, node)) {
+                            vppNodesInVbd.add(portBindingHost);
+                            vbdToVppNodes.put(networkId, vppNodesInVbd);
+                        }
+                    }
+                    //Create VPP interface (vhostuser or tap) on portBindingHost
+                    createVPPInterfaceOnNode(port, node);
+                    //Add VPP interface on portBindingHost to bridge domain
+                    addVPPInterfaceToBridgeDomain(port, node, networkId);
+
+                    futures.add(wrtConfigTxn.submit());
+                    return futures;
+                }
+                // VPP port creation logic ----- End
+
                 LOG.info("Of-port-interface creation for port {}", portName);
                 // Create of-port interface for this neutron port
                 String portInterfaceName = createOfPortInterface(port, wrtConfigTxn);
@@ -392,6 +481,110 @@ public class NeutronPortChangeListener extends AsyncDataTreeChangeListenerBase<P
             }
         });
     }
+
+    // VPP port creation logic ----- Start
+    private boolean isValidVPPVhostUser(Port port) {
+        PortBindingExtension portBindingExt = port.getAugmentation(PortBindingExtension.class);
+        if (portBindingExt != null) {
+            String vifType = portBindingExt.getVifType();
+            String deviceOwner = port.getDeviceOwner();
+            if (vifType != null && deviceOwner != null) {
+                if (vifType.contains(VHOST_USER)) {
+                    for (String supportedDeviceOwner : SUPPORTED_DEVICE_OWNERS) {
+                        if (deviceOwner.contains(supportedDeviceOwner)) {
+                            return true;
+                        }
+                    }
+                }
+            }
+        }
+        return false;
+    }
+
+    InstanceIdentifier<Topology> getVPPTopologyIId() {
+        return InstanceIdentifier.builder(NetworkTopology.class)
+            .child(Topology.class, new TopologyKey(new TopologyId("topology-netconf")))
+            .build();
+    }
+
+    private String createPortName(Uuid portUuid) {
+        String tapPortName;
+        String uuid = portUuid.getValue();
+        if (uuid != null && uuid.length() >= 12) {
+            tapPortName = TAP_PORT_NAME_PREFIX + uuid.substring(0, 11);
+        } else {
+            tapPortName = TAP_PORT_NAME_PREFIX + uuid;
+        }
+        return tapPortName;
+    }
+
+    private boolean createVPPBridgeDomainOnNode(Port port, Node host, DataBroker dataBroker) {
+       Network network = NeutronvpnUtils.getNeutronNetwork(dataBroker, port.getNetworkId());
+       NetworkProviderExtension providerAug = network.getAugmentation(NetworkProviderExtension.class);
+       if (providerAug == null || providerAug.getSegmentationId() == null) {
+           LOG.warn("Cannot create VPP bridge domain. Segmentation ID not specified in neutron network: {}", network);
+           return false;
+       }
+       PhysicalLocationRefBuilder location = new PhysicalLocationRefBuilder();
+       location.setNodeId(host.getNodeId());
+       VxlanBuilder tunneltypeBuilder = new VxlanBuilder().setVni(new VxlanVniType(Long.parseLong(providerAug.getSegmentationId())));
+       CreateVirtualBridgeDomainOnNodesInputBuilder vbdInputBuilder = new CreateVirtualBridgeDomainOnNodesInputBuilder()
+                                                                           .setId(port.getNetworkId().getValue())
+                                                                           .setDescription("Neutron Network")
+                                                                           .setTunnelType(tunneltypeBuilder.build())
+                                                                           .setUnknownUnicastFlood(true)
+                                                                           .setPhysicalLocationRef(Arrays.asList(location.build()));
+       vppAdapterRpcService.createVirtualBridgeDomainOnNodes(vbdInputBuilder.build());
+       LOG.debug("VPP bridge domain created for network: {}", network);
+       return true;
+    }
+
+    private boolean cloneVPPBridgeDomainOnNode(String bridgeDomainId, Node host) {
+       CloneVirtualBridgeDomainOnNodesInputBuilder vbdInputBuilder = new CloneVirtualBridgeDomainOnNodesInputBuilder()
+                                                                            .setBridgeDomainId(bridgeDomainId)
+                                                                            .setBridgeDomainNode(Arrays.asList(host.getNodeId()));
+       vppAdapterRpcService.cloneVirtualBridgeDomainOnNodes(vbdInputBuilder.build());
+       LOG.debug("VPP bridge domain {} cloned on host: {}", bridgeDomainId, host);
+       return true;
+    }
+
+    private boolean createVPPInterfaceOnNode(Port port, Node host) {
+       CreateInterfaceOnNodeInputBuilder vbdIfInputBuilder = new CreateInterfaceOnNodeInputBuilder()
+                                                                     .setVppInterfaceName(VPP_INTERFACE_NAME_PREFIX + port.getUuid().getValue())
+                                                                     .setVppNodeId(host.getNodeId())
+                                                                     .setDescription("Neutron Port");
+       if (port.getDeviceOwner().contains(COMPUTE_OWNER)) {
+           String vhostuserSocket = port.getAugmentation(PortBindingExtension.class).getVifDetails()
+                                        .stream()
+                                        .filter(v -> v.getDetailsKey().equals("vhostuser_socket"))
+                                        .map(v -> v.getValue())
+                                        .findFirst()
+                                        .get();
+           if (vhostuserSocket == null) {
+              vhostuserSocket = "/tmp" + "socket_" + port.getUuid().getValue();
+           }
+           vbdIfInputBuilder.setInterfaceTypeChoice(new VhostUserCaseBuilder().setSocket(vhostuserSocket).build());
+       } else if (port.getDeviceOwner().contains(DHCP_OWNER) && port.getMacAddress() != null) {
+           TapCaseBuilder tapIfBuilder = new TapCaseBuilder()
+                                               .setPhysicalAddress(new PhysAddress(port.getMacAddress().getValue()))
+                                               .setName(createPortName(port.getUuid()));
+           vbdIfInputBuilder.setInterfaceTypeChoice(tapIfBuilder.build());
+       }
+       vppAdapterRpcService.createInterfaceOnNode(vbdIfInputBuilder.build());
+       LOG.debug("VPP interface created for port: {} on {}", port, host);
+       return true;
+    }
+
+    private boolean addVPPInterfaceToBridgeDomain(Port port, Node host, String bridgeDomainId) {
+       AddInterfaceToBridgeDomainInputBuilder vbdIfInputBuilder = new AddInterfaceToBridgeDomainInputBuilder()
+                                                                        .setVppInterfaceName(VPP_INTERFACE_NAME_PREFIX + port.getUuid().getValue())
+                                                                        .setVppNodeId(host.getNodeId())
+                                                                        .setBridgeDomainId(bridgeDomainId);
+       vppAdapterRpcService.addInterfaceToBridgeDomain(vbdIfInputBuilder.build());
+       LOG.debug("VPP interface for port: {} added to VPP bridge domain {}", port, bridgeDomainId);
+       return true;
+    }
+    // VPP port creation logic ----- End
 
     private void handleNeutronPortDeleted(final Port port) {
         final String portName = port.getUuid().getValue();
