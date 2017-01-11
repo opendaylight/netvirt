@@ -2,6 +2,57 @@
   "comments": [
     {
       "key": {
+        "uuid": "1a622d24_6b55334f",
+        "filename": "docs/specs/ipv6-distributed-router.rst",
+        "patchSetId": 1
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-01-11T12:58:15Z",
+      "side": 1,
+      "message": "For IPv6 East West we donot support VLAN/FLAT networks.. We only support VXLAN right?",
+      "revId": "976d7bbd2030e84f67b3b82780adbe501390d954",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_ed549200",
+        "filename": "docs/specs/ipv6-distributed-router.rst",
+        "patchSetId": 1
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-01-11T12:58:15Z",
+      "side": 1,
+      "message": "in east-west routing, what Source MAC address is carried on distributed packets over internal vxlan tunnels?",
+      "revId": "976d7bbd2030e84f67b3b82780adbe501390d954",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_ad8bba66",
+        "filename": "docs/specs/ipv6-distributed-router.rst",
+        "patchSetId": 1
+      },
+      "lineNbr": 70,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-01-11T12:58:15Z",
+      "side": 1,
+      "message": "You may want to allocate HOST_MAC in ODL from the range configured inside dvr_mac_address of neutron.conf",
+      "revId": "976d7bbd2030e84f67b3b82780adbe501390d954",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_260ed28d",
         "filename": "docs/specs/ipv6-distributed-router.rst",
         "patchSetId": 1
@@ -13,6 +64,57 @@
       "writtenOn": "2017-01-03T15:08:24Z",
       "side": 1,
       "message": "Do we require a host mac for this scenario?",
+      "revId": "976d7bbd2030e84f67b3b82780adbe501390d954",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_cdb71639",
+        "filename": "docs/specs/ipv6-distributed-router.rst",
+        "patchSetId": 1
+      },
+      "lineNbr": 79,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-01-11T12:58:15Z",
+      "side": 1,
+      "message": "This is self indicative that IPv6 is not suppored on VLAN Provider networks for internal switchign/routing as that would have garbled the MAC Table of physical switches connecting the Cloud Data Network Fabric.",
+      "revId": "976d7bbd2030e84f67b3b82780adbe501390d954",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_ad461a4d",
+        "filename": "docs/specs/ipv6-distributed-router.rst",
+        "patchSetId": 1
+      },
+      "lineNbr": 80,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-01-11T12:58:15Z",
+      "side": 1,
+      "message": "This entire para above must be placed first in the overview..\n\nThis Spec looks llke a suspense thriller novel \u003d)\n\nJust to re-stress[4] does not handle proper sourcemac address in datapath.  It only makes sure that when VM receives a frame, the frame contains a valid source mac address inside it.",
+      "revId": "976d7bbd2030e84f67b3b82780adbe501390d954",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_ad2a9a8d",
+        "filename": "docs/specs/ipv6-distributed-router.rst",
+        "patchSetId": 1
+      },
+      "lineNbr": 95,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-01-11T12:58:15Z",
+      "side": 1,
+      "message": "Host MAC addresses are used only to send out packets onto the external network from the hypervisors themselves.   \n\nWhen an ARP for hte router-gateway-ip comes from external entity,you will continue to responde with the router-gateway-mac-address only (i.e.,no role of HOST MAC here right)?",
       "revId": "976d7bbd2030e84f67b3b82780adbe501390d954",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -163,6 +265,23 @@
       "writtenOn": "2017-01-05T14:33:07Z",
       "side": 1,
       "message": "Do you have some references about having a Controller that supports NDP? NDP has many more complexities than ARP with many options, I am concerned that we could loose some options of NDP. A reference of best practice about it would help.",
+      "revId": "976d7bbd2030e84f67b3b82780adbe501390d954",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_4d11465c",
+        "filename": "docs/specs/ipv6-distributed-router.rst",
+        "patchSetId": 1
+      },
+      "lineNbr": 130,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-01-11T12:58:15Z",
+      "side": 1,
+      "message": "ipv6 today is considered as a separate service, so I am wondering if it would confuse when you re-use IPV4 NATing tables (including FIP tables) for this IPv6 use-cases.",
       "revId": "976d7bbd2030e84f67b3b82780adbe501390d954",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
