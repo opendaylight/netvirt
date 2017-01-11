@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "1a622d24_edce522d",
+        "filename": "docs/specs/acl-stats.rst",
+        "patchSetId": 21
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 5882
+      },
+      "writtenOn": "2017-01-11T12:47:25Z",
+      "side": 1,
+      "message": "Yes",
+      "parentUuid": "1a622d24_b7c30956",
+      "revId": "66256c4d5d5b38d2a497ffa67c6c2ee498548226",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_3210a7a7",
         "filename": "docs/specs/acl-stats.rst",
         "patchSetId": 21
@@ -30,6 +48,24 @@
       "writtenOn": "2017-01-11T10:59:37Z",
       "side": 1,
       "message": "this can align with the URI as  \u0027acl-port-stats\u0027",
+      "revId": "66256c4d5d5b38d2a497ffa67c6c2ee498548226",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_4dd026c9",
+        "filename": "docs/specs/acl-stats.rst",
+        "patchSetId": 21
+      },
+      "lineNbr": 291,
+      "author": {
+        "id": 5882
+      },
+      "writtenOn": "2017-01-11T12:47:25Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1a622d24_3210a7a7",
       "revId": "66256c4d5d5b38d2a497ffa67c6c2ee498548226",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -53,6 +89,24 @@
     },
     {
       "key": {
+        "uuid": "1a622d24_ed9c9211",
+        "filename": "docs/specs/acl-stats.rst",
+        "patchSetId": 21
+      },
+      "lineNbr": 432,
+      "author": {
+        "id": 5882
+      },
+      "writtenOn": "2017-01-11T12:47:25Z",
+      "side": 1,
+      "message": "If port is not realized, an error message would be returned instead of 0.",
+      "parentUuid": "1a622d24_b272f70e",
+      "revId": "66256c4d5d5b38d2a497ffa67c6c2ee498548226",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_5259e38c",
         "filename": "docs/specs/index.rst",
         "patchSetId": 21
@@ -64,6 +118,24 @@
       "writtenOn": "2017-01-11T10:59:37Z",
       "side": 1,
       "message": "ACL Operation Improvements is a very general..\n\nACL Live Statistics would be more apt.",
+      "revId": "66256c4d5d5b38d2a497ffa67c6c2ee498548226",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_ad8e1ace",
+        "filename": "docs/specs/index.rst",
+        "patchSetId": 21
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 5882
+      },
+      "writtenOn": "2017-01-11T12:47:25Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1a622d24_5259e38c",
       "revId": "66256c4d5d5b38d2a497ffa67c6c2ee498548226",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
