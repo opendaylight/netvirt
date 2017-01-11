@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "1a622d24_a88ba866",
+        "filename": "docs/specs/ipv6-distributed-router.rst",
+        "patchSetId": 1
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2017-01-11T18:00:41Z",
+      "side": 1,
+      "message": "Thanks @Vivek for reviewing the patch.\n\nI\u0027m afraid no. We do support VLAN/FLAT (along with VxLAN) tenant networks for IPv6 east-west.",
+      "parentUuid": "1a622d24_6b55334f",
+      "revId": "976d7bbd2030e84f67b3b82780adbe501390d954",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_ed549200",
         "filename": "docs/specs/ipv6-distributed-router.rst",
         "patchSetId": 1
@@ -30,6 +48,24 @@
       "writtenOn": "2017-01-11T12:58:15Z",
       "side": 1,
       "message": "in east-west routing, what Source MAC address is carried on distributed packets over internal vxlan tunnels?",
+      "revId": "976d7bbd2030e84f67b3b82780adbe501390d954",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_68dcf073",
+        "filename": "docs/specs/ipv6-distributed-router.rst",
+        "patchSetId": 1
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2017-01-11T18:00:41Z",
+      "side": 1,
+      "message": "The behavior is same as IPv4 (i.e., VM MAC is carried as source MAC).",
+      "parentUuid": "1a622d24_ed549200",
       "revId": "976d7bbd2030e84f67b3b82780adbe501390d954",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -53,6 +89,24 @@
     },
     {
       "key": {
+        "uuid": "1a622d24_2813180e",
+        "filename": "docs/specs/ipv6-distributed-router.rst",
+        "patchSetId": 1
+      },
+      "lineNbr": 70,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2017-01-11T18:00:41Z",
+      "side": 1,
+      "message": "yes @Vivek, I was also thinking of the same. \n\nOne issue is - how do we get this info to ODL, since neutron.conf is not parsed/read by ODL Controller.\nDo you think we should provide some REST API to configure this in ODL (with the default value as what OpenStack neutron uses - i.e., fa:16:3f:00:00:00)?",
+      "parentUuid": "1a622d24_ad8bba66",
+      "revId": "976d7bbd2030e84f67b3b82780adbe501390d954",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_260ed28d",
         "filename": "docs/specs/ipv6-distributed-router.rst",
         "patchSetId": 1
@@ -64,6 +118,24 @@
       "writtenOn": "2017-01-03T15:08:24Z",
       "side": 1,
       "message": "Do we require a host mac for this scenario?",
+      "revId": "976d7bbd2030e84f67b3b82780adbe501390d954",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_07ef2aea",
+        "filename": "docs/specs/ipv6-distributed-router.rst",
+        "patchSetId": 1
+      },
+      "lineNbr": 72,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2017-01-11T18:00:41Z",
+      "side": 1,
+      "message": "IMO yes. AFAIK, this is how IPv4 east-west routing is supported in OpenStack Neutron DVR. @Vivek will be able to confirm this.",
+      "parentUuid": "1a622d24_260ed28d",
       "revId": "976d7bbd2030e84f67b3b82780adbe501390d954",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -87,6 +159,24 @@
     },
     {
       "key": {
+        "uuid": "1a622d24_a793d659",
+        "filename": "docs/specs/ipv6-distributed-router.rst",
+        "patchSetId": 1
+      },
+      "lineNbr": 79,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2017-01-11T18:00:41Z",
+      "side": 1,
+      "message": "Are you referring to VLAN provider or VLAN tenant networks. Sorry, I\u0027m not sure if I got your point. Can you please elaborate? \n\nWe do support IPv6 VLAN tenant networks for east-west in the same manner as IPv4.",
+      "parentUuid": "1a622d24_cdb71639",
+      "revId": "976d7bbd2030e84f67b3b82780adbe501390d954",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_ad461a4d",
         "filename": "docs/specs/ipv6-distributed-router.rst",
         "patchSetId": 1
@@ -104,6 +194,24 @@
     },
     {
       "key": {
+        "uuid": "1a622d24_87b21a04",
+        "filename": "docs/specs/ipv6-distributed-router.rst",
+        "patchSetId": 1
+      },
+      "lineNbr": 80,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2017-01-11T18:00:41Z",
+      "side": 1,
+      "message": "\"suspense thriller....\" \u003e hahaha....LOL!!!\n\nAgree with you, [4] only updates the source MAC just before the packet is delivered to the VM. I\u0027ll try to re-phrase this sentence to remove any confusion.",
+      "parentUuid": "1a622d24_ad461a4d",
+      "revId": "976d7bbd2030e84f67b3b82780adbe501390d954",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_ad2a9a8d",
         "filename": "docs/specs/ipv6-distributed-router.rst",
         "patchSetId": 1
@@ -115,6 +223,24 @@
       "writtenOn": "2017-01-11T12:58:15Z",
       "side": 1,
       "message": "Host MAC addresses are used only to send out packets onto the external network from the hypervisors themselves.   \n\nWhen an ARP for hte router-gateway-ip comes from external entity,you will continue to responde with the router-gateway-mac-address only (i.e.,no role of HOST MAC here right)?",
+      "revId": "976d7bbd2030e84f67b3b82780adbe501390d954",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_a77ab621",
+        "filename": "docs/specs/ipv6-distributed-router.rst",
+        "patchSetId": 1
+      },
+      "lineNbr": 95,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2017-01-11T18:00:41Z",
+      "side": 1,
+      "message": "@Vivek, for your first sentence -\u003e In OpenStack DVR implementation are HOST MACs not used for East-West routing?\n\nFor the second point: If there is a Neighbor Solicitation from the external IPv6 gateway to the \"VM IPv6 GUA\", ODL controller would actually respond with HOST_MAC and not router-gateway-mac. Do you see any issue with this?",
+      "parentUuid": "1a622d24_ad2a9a8d",
       "revId": "976d7bbd2030e84f67b3b82780adbe501390d954",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -161,6 +287,48 @@
     },
     {
       "key": {
+        "uuid": "1a622d24_a7c8f655",
+        "filename": "docs/specs/ipv6-distributed-router.rst",
+        "patchSetId": 1
+      },
+      "lineNbr": 108,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2017-01-11T18:00:41Z",
+      "side": 1,
+      "message": "This was one of my initial ideas, but @Vivek had some concerns and suggested that it would be a good idea if we generate HOST_MACs in ODL (similar to OpenStack Neutron).",
+      "parentUuid": "1a622d24_f7dbd84c",
+      "range": {
+        "startLine": 108,
+        "startChar": 69,
+        "endLine": 108,
+        "endChar": 77
+      },
+      "revId": "976d7bbd2030e84f67b3b82780adbe501390d954",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_679c1e5e",
+        "filename": "docs/specs/ipv6-distributed-router.rst",
+        "patchSetId": 1
+      },
+      "lineNbr": 108,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2017-01-11T18:00:41Z",
+      "side": 1,
+      "message": "Yes, we would be using a separate prefix (dvr_mac_address) similar to how OpenStack Neutron uses.",
+      "parentUuid": "1a622d24_061116ac",
+      "revId": "976d7bbd2030e84f67b3b82780adbe501390d954",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_26b1a847",
         "filename": "docs/specs/ipv6-distributed-router.rst",
         "patchSetId": 1
@@ -196,6 +364,30 @@
       "side": 1,
       "message": "can we not use the vlan itself to scope the domain for the reverse traffic? macs are expected to be unique per vlan anyways.\nalso, what mac is used today by snat box for ipv4 snat usecase over vlan provider n/ws? does the snat switch use a fabricated mac?",
       "parentUuid": "1a622d24_26b1a847",
+      "range": {
+        "startLine": 108,
+        "startChar": 58,
+        "endLine": 109,
+        "endChar": 16
+      },
+      "revId": "976d7bbd2030e84f67b3b82780adbe501390d954",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_e7be6ead",
+        "filename": "docs/specs/ipv6-distributed-router.rst",
+        "patchSetId": 1
+      },
+      "lineNbr": 109,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2017-01-11T18:00:41Z",
+      "side": 1,
+      "message": "+1 for the first statement from Daya.\n\n@Daya, currently SNAT traffic uses VM MAC as source MAC instead of Router Gateway MAC. The following patch addresses this issue - https://git.opendaylight.org/gerrit/#/c/48430/",
+      "parentUuid": "1a622d24_57ec4cf3",
       "range": {
         "startLine": 108,
         "startChar": 58,
@@ -254,6 +446,30 @@
     },
     {
       "key": {
+        "uuid": "1a622d24_07560a2a",
+        "filename": "docs/specs/ipv6-distributed-router.rst",
+        "patchSetId": 1
+      },
+      "lineNbr": 119,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2017-01-11T18:00:41Z",
+      "side": 1,
+      "message": "\" ie external entity on the same vlan as VMs, and sending ND for the VM IP? can we not use the VM mac itself for this case?\" -\u003e This is a provider network use-case where VMs are directly spawned on the external/provider network (without any Neutron Virtual Router). In such use-cases, the VMs are on the same network, so they communicate with their MAC as SRC MAC and respond directly to the external servers/gateway.",
+      "parentUuid": "1a622d24_97c1c456",
+      "range": {
+        "startLine": 119,
+        "startChar": 25,
+        "endLine": 119,
+        "endChar": 26
+      },
+      "revId": "976d7bbd2030e84f67b3b82780adbe501390d954",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_c629d438",
         "filename": "docs/specs/ipv6-distributed-router.rst",
         "patchSetId": 1
@@ -271,6 +487,24 @@
     },
     {
       "key": {
+        "uuid": "1a622d24_870a1a77",
+        "filename": "docs/specs/ipv6-distributed-router.rst",
+        "patchSetId": 1
+      },
+      "lineNbr": 120,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2017-01-11T18:00:41Z",
+      "side": 1,
+      "message": "Agree that NDP is not as simple as ARP.\n\nI\u0027m not aware of any reference. We can refer to the RFCs [*] that explain the behavior of Router/Host for Neighbor Discovery protocol. Recently we optimized the frequency of NS in the tenant network via the following patch - https://git.opendaylight.org/gerrit/#/c/50089\n\nIf you have/find any best practices, please let us know. OTOH since we are not supporting IPv6 MLD, we have a subset of IPv6 use-cases to be handled in our Virtual IPv6 router.\n\n[*] https://tools.ietf.org/html/rfc4861#page-40",
+      "parentUuid": "1a622d24_c629d438",
+      "revId": "976d7bbd2030e84f67b3b82780adbe501390d954",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_4d11465c",
         "filename": "docs/specs/ipv6-distributed-router.rst",
         "patchSetId": 1
@@ -282,6 +516,24 @@
       "writtenOn": "2017-01-11T12:58:15Z",
       "side": 1,
       "message": "ipv6 today is considered as a separate service, so I am wondering if it would confuse when you re-use IPV4 NATing tables (including FIP tables) for this IPv6 use-cases.",
+      "revId": "976d7bbd2030e84f67b3b82780adbe501390d954",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_a76bd61c",
+        "filename": "docs/specs/ipv6-distributed-router.rst",
+        "patchSetId": 1
+      },
+      "lineNbr": 130,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2017-01-11T18:00:41Z",
+      "side": 1,
+      "message": "Even though IPv6 is a separate service, the intention from day-one was to use it only for IPv6 control path and not for data path. Pipeline programming (and data path) would be similar to IPv4.",
+      "parentUuid": "1a622d24_4d11465c",
       "revId": "976d7bbd2030e84f67b3b82780adbe501390d954",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -381,6 +633,24 @@
     },
     {
       "key": {
+        "uuid": "1a622d24_87cfba28",
+        "filename": "docs/specs/ipv6-distributed-router.rst",
+        "patchSetId": 1
+      },
+      "lineNbr": 141,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2017-01-11T18:00:41Z",
+      "side": 1,
+      "message": "Sure, thanks.",
+      "parentUuid": "1a622d24_a62e5841",
+      "revId": "976d7bbd2030e84f67b3b82780adbe501390d954",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_466784b7",
         "filename": "docs/specs/ipv6-distributed-router.rst",
         "patchSetId": 1
@@ -433,6 +703,24 @@
     },
     {
       "key": {
+        "uuid": "1a622d24_47be4266",
+        "filename": "docs/specs/ipv6-distributed-router.rst",
+        "patchSetId": 1
+      },
+      "lineNbr": 146,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2017-01-11T18:00:41Z",
+      "side": 1,
+      "message": "Since the HOST_MACs are per compute node and not router specific, IMO ext-routers may not be the right one.",
+      "parentUuid": "1a622d24_808cee80",
+      "revId": "976d7bbd2030e84f67b3b82780adbe501390d954",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_666a8082",
         "filename": "docs/specs/ipv6-distributed-router.rst",
         "patchSetId": 1
@@ -450,6 +738,24 @@
     },
     {
       "key": {
+        "uuid": "1a622d24_c7b1b290",
+        "filename": "docs/specs/ipv6-distributed-router.rst",
+        "patchSetId": 1
+      },
+      "lineNbr": 161,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2017-01-11T18:00:41Z",
+      "side": 1,
+      "message": "IMHO, we cannot use a single router-gw-mac for a fully distributed IPv6 router. Since we only want to support a distributed router and not a centralized one, the flag \"router distributed\u003dtrue\" would not make any difference for IPv6 use-cases.",
+      "parentUuid": "1a622d24_666a8082",
+      "revId": "976d7bbd2030e84f67b3b82780adbe501390d954",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_e6617a3a",
         "filename": "docs/specs/ipv6-distributed-router.rst",
         "patchSetId": 1
@@ -461,6 +767,24 @@
       "writtenOn": "2017-01-03T15:08:24Z",
       "side": 1,
       "message": "There was a plan to the the external interface mac as the host mac? is this the odl allocated mac?",
+      "revId": "976d7bbd2030e84f67b3b82780adbe501390d954",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_a7ae362c",
+        "filename": "docs/specs/ipv6-distributed-router.rst",
+        "patchSetId": 1
+      },
+      "lineNbr": 199,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2017-01-11T18:00:41Z",
+      "side": 1,
+      "message": "Yes @Aswin, this is ODL allocated MAC.",
+      "parentUuid": "1a622d24_e6617a3a",
       "revId": "976d7bbd2030e84f67b3b82780adbe501390d954",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
