@@ -87,6 +87,7 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
     <feature version="${neutron.version}">odl-neutron-service</feature>
     <feature version="${project.version}">odl-netvirt-impl</feature>
     <feature version="${restconf.version}">odl-restconf</feature>
+    <bundle>mvn:org.opendaylight.groupbasedpolicy/vpp-renderer/0.5.0-SNAPSHOT</bundle>
   </feature>
 
   <feature name="odl-netvirt-ui" description="OpenDaylight :: NetVirt :: DLUX Integration Plugin" version='${project.version}'>
