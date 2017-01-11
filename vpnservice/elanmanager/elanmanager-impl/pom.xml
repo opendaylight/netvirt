@@ -98,6 +98,11 @@
       <artifactId>vpnmanager-api</artifactId>
       <version>${project.version}</version>
     </dependency>
+    <dependency>
+      <groupId>org.opendaylight.groupbasedpolicy</groupId>
+      <artifactId>vpp-renderer</artifactId>
+      <version>0.6.0-SNAPSHOT</version>
+    </dependency>
 
     <!-- Only for unit-test -->
     <dependency>
