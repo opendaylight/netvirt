@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "1a622d24_2d132a0e",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/pom.xml",
+        "patchSetId": 11
+      },
+      "lineNbr": 3,
+      "author": {
+        "id": 6071
+      },
+      "writtenOn": "2017-01-11T15:30:02Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1a622d24_a2063b1b",
+      "range": {
+        "startLine": 3,
+        "startChar": 0,
+        "endLine": 3,
+        "endChar": 2
+      },
+      "revId": "c87e3e0dd1261c0df5c61205aa799dcf75b12238",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_e20cb33d",
         "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/BridgeRefEntryToTransportZoneListener.java",
         "patchSetId": 11
@@ -36,6 +60,24 @@
       "writtenOn": "2017-01-09T10:21:18Z",
       "side": 1,
       "message": "make these variables as final for initialization safety.",
+      "revId": "c87e3e0dd1261c0df5c61205aa799dcf75b12238",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_ad673ab6",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/BridgeRefEntryToTransportZoneListener.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 6071
+      },
+      "writtenOn": "2017-01-11T15:30:02Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1a622d24_e20cb33d",
       "revId": "c87e3e0dd1261c0df5c61205aa799dcf75b12238",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -59,6 +101,24 @@
     },
     {
       "key": {
+        "uuid": "1a622d24_ed0c92ef",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/BridgeRefEntryToTransportZoneListener.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 6071
+      },
+      "writtenOn": "2017-01-11T15:30:02Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1a622d24_021f2f5c",
+      "revId": "c87e3e0dd1261c0df5c61205aa799dcf75b12238",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_02560f06",
         "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanToTransportZoneListener.java",
         "patchSetId": 11
@@ -70,6 +130,24 @@
       "writtenOn": "2017-01-09T10:21:18Z",
       "side": 1,
       "message": "same comment as before.",
+      "revId": "c87e3e0dd1261c0df5c61205aa799dcf75b12238",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_cd6a7680",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanToTransportZoneListener.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 6071
+      },
+      "writtenOn": "2017-01-11T15:30:02Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1a622d24_02560f06",
       "revId": "c87e3e0dd1261c0df5c61205aa799dcf75b12238",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -93,6 +171,24 @@
     },
     {
       "key": {
+        "uuid": "1a622d24_2d5ccaec",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanToTransportZoneListener.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 75,
+      "author": {
+        "id": 6071
+      },
+      "writtenOn": "2017-01-11T15:30:02Z",
+      "side": 1,
+      "message": "This will filter out the elan interfaces which already exist in the original Elan object, meaning it will only take the new ones. At least this is how I understand the update method, am I wrong?",
+      "parentUuid": "1a622d24_02a44f06",
+      "revId": "c87e3e0dd1261c0df5c61205aa799dcf75b12238",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_226ceb34",
         "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/utils/TransportZoneNotificationUtil.java",
         "patchSetId": 11
@@ -110,6 +206,24 @@
     },
     {
       "key": {
+        "uuid": "1a622d24_03d6ff27",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/utils/TransportZoneNotificationUtil.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 82,
+      "author": {
+        "id": 6071
+      },
+      "writtenOn": "2017-01-11T15:30:02Z",
+      "side": 1,
+      "message": "You are right, I\u0027m currently working it. However, I\u0027m going to listen on elan-dpn-interfaces because I need the elan instance name.",
+      "parentUuid": "1a622d24_226ceb34",
+      "revId": "c87e3e0dd1261c0df5c61205aa799dcf75b12238",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_c262573d",
         "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/utils/TransportZoneNotificationUtil.java",
         "patchSetId": 11
@@ -121,6 +235,24 @@
       "writtenOn": "2017-01-09T10:21:18Z",
       "side": 1,
       "message": "is this transport zone really required ? because there is already zone created for elan instance ? can\u0027t we reuse the same ?",
+      "revId": "c87e3e0dd1261c0df5c61205aa799dcf75b12238",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_cd9d5668",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/utils/TransportZoneNotificationUtil.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 211,
+      "author": {
+        "id": 6071
+      },
+      "writtenOn": "2017-01-11T15:30:02Z",
+      "side": 1,
+      "message": "Yes because we create a TZ per router (vpnInstance) so VM\u0027s which are connected in L3 (via the router) will have a tunnel configured for them.",
+      "parentUuid": "1a622d24_c262573d",
       "revId": "c87e3e0dd1261c0df5c61205aa799dcf75b12238",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
