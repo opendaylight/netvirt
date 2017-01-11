@@ -16,6 +16,24 @@
       "revId": "1bc5c0bef4204dd6b86157a609e86823b38651a5",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_d7184520",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanBridgeManager.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 226,
+      "author": {
+        "id": 3276
+      },
+      "writtenOn": "2017-01-11T07:19:00Z",
+      "side": 1,
+      "message": "Good point. It is actually better to move it inside the config check as we\u0027ll avoid an operational DS read for majority of cases. Will push another patch.",
+      "parentUuid": "1a622d24_1b0dd137",
+      "revId": "1bc5c0bef4204dd6b86157a609e86823b38651a5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
