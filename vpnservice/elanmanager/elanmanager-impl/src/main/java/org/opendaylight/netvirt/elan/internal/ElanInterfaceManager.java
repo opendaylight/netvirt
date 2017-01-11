@@ -115,7 +115,7 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
 
     private static final long WAIT_TIME_FOR_SYNC_INSTALL = Long.getLong("wait.time.sync.install", 300L);
 
-    private Map<String, ConcurrentLinkedQueue<ElanInterface>> unProcessedElanInterfaces = new ConcurrentHashMap<>();
+    private final Map<String, ConcurrentLinkedQueue<ElanInterface>> unProcessedElanInterfaces = new ConcurrentHashMap<>();
 
     private static final Logger LOG = LoggerFactory.getLogger(ElanInterfaceManager.class);
 
@@ -724,7 +724,9 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
              * interfaces in this elan instance are not present in the current
              * dpn.
              */
-            programRemoteDmacFlow(elanInstance, interfaceInfo, writeFlowGroupTx);
+            if (!ElanUtils.isVlanOrFlatProviderIface(elanInstance, interfaceInfo.getInterfaceName())) {
+                programRemoteDmacFlow(elanInstance, interfaceInfo, writeFlowGroupTx);
+            }
         }
         // bind the Elan service to the Interface
         bindService(elanInstance, elanInterface, tx);
