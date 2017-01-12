@@ -72,4 +72,6 @@ public interface IElanService extends IEtreeService {
 
     List<MatchInfoBase> getEgressMatchesForElanInstance(String elanInstanceName);
 
+    Boolean isOpenStackVniSemanticsEnforced();
+
 }
