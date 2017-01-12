@@ -97,7 +97,7 @@ public class NeutronvpnManagerImpl implements INeutronVpnManager {
     }
 
     @Override
-    public Boolean getEnforceOpenstackSemanticsConfig() {
-        return nvManager.getEnforceOpenstackSemanticsConfig();
+    public Boolean isOpenStackVniSemanticsEnforced() {
+        return nvManager.isOpenStackVniSemanticsEnforced();
     }
 }
