@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "1a622d24_8d335961",
+        "filename": "docs/specs/flow-based-snat.rst",
+        "patchSetId": 8
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 4269
+      },
+      "writtenOn": "2017-01-12T11:04:39Z",
+      "side": 1,
+      "message": "Added in Other Infra considerations",
+      "parentUuid": "1a622d24_43af577d",
+      "range": {
+        "startLine": 33,
+        "startChar": 48,
+        "endLine": 33,
+        "endChar": 49
+      },
+      "revId": "22622ec6e21d262a843ecaf560a1aebfa4aefc3d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_63a2539a",
         "filename": "docs/specs/flow-based-snat.rst",
         "patchSetId": 8
@@ -36,6 +60,30 @@
       "writtenOn": "2017-01-11T15:49:48Z",
       "side": 1,
       "message": "is there a related spec doc for this effort, or will it be a code patch? if spec, should include a reference here.",
+      "range": {
+        "startLine": 42,
+        "startChar": 46,
+        "endLine": 42,
+        "endChar": 47
+      },
+      "revId": "22622ec6e21d262a843ecaf560a1aebfa4aefc3d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_6d387d3d",
+        "filename": "docs/specs/flow-based-snat.rst",
+        "patchSetId": 8
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 4269
+      },
+      "writtenOn": "2017-01-12T11:04:39Z",
+      "side": 1,
+      "message": "It is a code patch, the changes required are captured in yang model. The codec and converter written based on this model.",
+      "parentUuid": "1a622d24_63a2539a",
       "range": {
         "startLine": 42,
         "startChar": 46,
@@ -71,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "1a622d24_cd40b1a7",
+        "filename": "docs/specs/flow-based-snat.rst",
+        "patchSetId": 8
+      },
+      "lineNbr": 69,
+      "author": {
+        "id": 4269
+      },
+      "writtenOn": "2017-01-12T11:04:39Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1a622d24_e3e4a3e2",
+      "range": {
+        "startLine": 69,
+        "startChar": 90,
+        "endLine": 69,
+        "endChar": 91
+      },
+      "revId": "22622ec6e21d262a843ecaf560a1aebfa4aefc3d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_23eb3bb1",
         "filename": "docs/specs/flow-based-snat.rst",
         "patchSetId": 8
@@ -82,6 +154,30 @@
       "writtenOn": "2017-01-11T15:49:48Z",
       "side": 1,
       "message": "long term, we need to decide changes in scope of another project should be captured in a separate doc for that project and referenced here? for now, this is fine.",
+      "range": {
+        "startLine": 78,
+        "startChar": 0,
+        "endLine": 78,
+        "endChar": 12
+      },
+      "revId": "22622ec6e21d262a843ecaf560a1aebfa4aefc3d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_ad3d752d",
+        "filename": "docs/specs/flow-based-snat.rst",
+        "patchSetId": 8
+      },
+      "lineNbr": 78,
+      "author": {
+        "id": 4269
+      },
+      "writtenOn": "2017-01-12T11:04:39Z",
+      "side": 1,
+      "message": "Yes we need to consider that. But only netvirt is following this process now.",
+      "parentUuid": "1a622d24_23eb3bb1",
       "range": {
         "startLine": 78,
         "startChar": 0,
