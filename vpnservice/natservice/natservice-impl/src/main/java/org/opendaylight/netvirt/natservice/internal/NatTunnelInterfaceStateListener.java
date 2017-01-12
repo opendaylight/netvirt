@@ -665,7 +665,7 @@ public class NatTunnelInterfaceStateListener
                     LOG.debug("NAT Service : SNAT -> Advertise the route to the externalIp {} having nextHopIp {}",
                             externalIp, nextHopIp);
                     long l3vni = 0;
-                    if (nvpnManager.getEnforceOpenstackSemanticsConfig()) {
+                    if (nvpnManager.areOpenStackVniSemanticsEnforced()) {
                         l3vni = NatOverVxlanUtil.getInternetVpnVni(idManager, externalVpnName, l3vni).longValue();
                     }
                     Uuid externalSubnetId = NatUtil.getExternalSubnetForRouterExternalIp(dataBroker, externalIp,
@@ -804,7 +804,7 @@ public class NatTunnelInterfaceStateListener
                     LOG.debug("NAT Service : DNAT -> Advertise the route to the externalIp {} having nextHopIp {}",
                             externalIp, nextHopIp);
                     long l3vni = 0;
-                    if (nvpnManager.getEnforceOpenstackSemanticsConfig()) {
+                    if (nvpnManager.areOpenStackVniSemanticsEnforced()) {
                         l3vni = NatOverVxlanUtil.getInternetVpnVni(idManager, vpnName, l3vni).longValue();
                     }
                     NatUtil.addPrefixToBGP(dataBroker, bgpManager, fibManager, vpnName, rd, null,

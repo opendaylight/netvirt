@@ -157,7 +157,7 @@ public class VpnFloatingIpHandler implements FloatingIPHandler {
             return;
         }
 
-        if (nvpnManager.getEnforceOpenstackSemanticsConfig()) {
+        if (nvpnManager.areOpenStackVniSemanticsEnforced()) {
             NatOverVxlanUtil.validateAndCreateVxlanVniPool(dataBroker, nvpnManager,
                     idManager, NatConstants.ODL_VNI_POOL_NAME);
         }
@@ -176,7 +176,7 @@ public class VpnFloatingIpHandler implements FloatingIPHandler {
                         internalIp, externalIp);
                     //Inform BGP
                     long l3vni = 0;
-                    if (nvpnManager.getEnforceOpenstackSemanticsConfig()) {
+                    if (nvpnManager.areOpenStackVniSemanticsEnforced()) {
                         l3vni = NatOverVxlanUtil.getInternetVpnVni(idManager, vpnName, l3vni).longValue();
                     }
                     NatUtil.addPrefixToBGP(dataBroker, bgpManager, fibManager, vpnName, rd, subnetId,
@@ -309,7 +309,7 @@ public class VpnFloatingIpHandler implements FloatingIPHandler {
                  *  floating IP then do not remove INTERNAL_TUNNEL_TABLE (table=36) -> PDNAT_TABLE (table=25) flow entry
                  */
                     Boolean removeTunnelFlow = Boolean.TRUE;
-                    if (nvpnManager.getEnforceOpenstackSemanticsConfig()) {
+                    if (nvpnManager.areOpenStackVniSemanticsEnforced()) {
                         if (NatUtil.isFloatingIpPresentForDpn(dataBroker, dpnId, rd, vpnName, externalIp)) {
                             removeTunnelFlow = Boolean.FALSE;
                         }
@@ -376,7 +376,7 @@ public class VpnFloatingIpHandler implements FloatingIPHandler {
         // Increased the 36->25 flow priority. If SNAT is also configured on the same
         // DPN, then the traffic will be hijacked to DNAT and if there are no DNAT match,
         // then handled back to using using flow 25->44(which will be installed as part of SNAT)
-        if (nvpnManager.getEnforceOpenstackSemanticsConfig()) {
+        if (nvpnManager.areOpenStackVniSemanticsEnforced()) {
             mkMatches.add(new MatchTunnelId(NatOverVxlanUtil.getInternetVpnVni(idManager, vpnName, serviceId)));
             flowPriority = 6;
         } else {

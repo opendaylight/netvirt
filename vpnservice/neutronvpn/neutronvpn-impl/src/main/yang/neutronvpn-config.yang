@@ -17,7 +17,7 @@ module neutronvpn-config {
             type string;
             default "70000:99999";
         }
-        leaf enforce-openstack-semantics {
+        leaf openstack-vni-semantics-enforced {
             type boolean;
             default true;
         }

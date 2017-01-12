@@ -1,4 +1,4 @@
 <neutronvpn-config xmlns="urn:opendaylight:netvirt:neutronvpn:config">
   <opendaylight-vni-ranges>70000:99999</opendaylight-vni-ranges>
-  <enforce-openstack-semantics>false</enforce-openstack-semantics>
+  <openstack-vni-semantics-enforced>false</openstack-vni-semantics-enforced>
 </neutronvpn-config>

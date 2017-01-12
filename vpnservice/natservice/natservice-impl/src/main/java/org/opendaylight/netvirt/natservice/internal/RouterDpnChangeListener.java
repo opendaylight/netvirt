@@ -244,7 +244,7 @@ public class RouterDpnChangeListener
                     LOG.debug("Switch {} is elected as NaptSwitch for router {}", dpnId, routerName);
 
                     // When NAPT switch is elected during first VM comes up for the given Router
-                    if (nvpnManager.getEnforceOpenstackSemanticsConfig()) {
+                    if (nvpnManager.areOpenStackVniSemanticsEnforced()) {
                         NatOverVxlanUtil.validateAndCreateVxlanVniPool(dataBroker, nvpnManager,
                                 idManager, NatConstants.ODL_VNI_POOL_NAME);
                     }
