@@ -18,7 +18,6 @@ import org.opendaylight.controller.md.sal.binding.api.DataTreeChangeListener;
 import org.opendaylight.controller.md.sal.binding.api.DataTreeIdentifier;
 import org.opendaylight.controller.md.sal.binding.api.DataTreeModification;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.ovsdb.utils.mdsal.utils.MdsalUtils;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.OdlInterfaceRpcService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.networks.rev150712.networks.attributes.networks.Network;
@@ -39,14 +38,12 @@ public class NeutronQosPolicyChangeListener implements ClusteredDataTreeChangeLi
     private ListenerRegistration<DataTreeChangeListener<QosPolicy>> listenerRegistration;
     private final DataBroker dataBroker;
     private final OdlInterfaceRpcService odlInterfaceRpcService;
-    private final MdsalUtils mdsalUtils;
 
 
     public NeutronQosPolicyChangeListener(final DataBroker dataBroker,
             final OdlInterfaceRpcService odlInterfaceRpcService) {
         this.dataBroker = dataBroker;
         this.odlInterfaceRpcService = odlInterfaceRpcService;
-        this.mdsalUtils = new MdsalUtils(dataBroker);
     }
 
     public void start() {
