@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "1a622d24_4d2e6144",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/ExternalRoutersListener.java",
+        "patchSetId": 13
+      },
+      "lineNbr": 2191,
+      "author": {
+        "id": 6741
+      },
+      "writtenOn": "2017-01-12T04:57:16Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1a622d24_4311175c",
+      "revId": "7452232d4a476d2880a4a72956ffb39ea55803b3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_a7111654",
         "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/FloatingIPListener.java",
         "patchSetId": 13
@@ -30,6 +48,24 @@
       "writtenOn": "2017-01-11T16:42:09Z",
       "side": 1,
       "message": "why is this file touched at all.. don\u0027t see any useful change here ..",
+      "revId": "7452232d4a476d2880a4a72956ffb39ea55803b3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_4dd5c11a",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/FloatingIPListener.java",
+        "patchSetId": 13
+      },
+      "lineNbr": 130,
+      "author": {
+        "id": 6741
+      },
+      "writtenOn": "2017-01-12T04:57:16Z",
+      "side": 1,
+      "message": "Removed unwanted white space",
+      "parentUuid": "1a622d24_a7111654",
       "revId": "7452232d4a476d2880a4a72956ffb39ea55803b3",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -53,6 +89,24 @@
     },
     {
       "key": {
+        "uuid": "1a622d24_2dda054c",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NaptEventHandler.java",
+        "patchSetId": 13
+      },
+      "lineNbr": 102,
+      "author": {
+        "id": 6741
+      },
+      "writtenOn": "2017-01-12T04:57:16Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1a622d24_c73b72cf",
+      "revId": "7452232d4a476d2880a4a72956ffb39ea55803b3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_675a5e2b",
         "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NaptEventHandler.java",
         "patchSetId": 13
@@ -70,6 +124,24 @@
     },
     {
       "key": {
+        "uuid": "1a622d24_edebedd9",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NaptEventHandler.java",
+        "patchSetId": 13
+      },
+      "lineNbr": 367,
+      "author": {
+        "id": 6741
+      },
+      "writtenOn": "2017-01-12T04:57:16Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1a622d24_675a5e2b",
+      "revId": "7452232d4a476d2880a4a72956ffb39ea55803b3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_277b468d",
         "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NaptEventHandler.java",
         "patchSetId": 13
@@ -81,6 +153,24 @@
       "writtenOn": "2017-01-11T16:42:09Z",
       "side": 1,
       "message": "are we sure the callers handle null?",
+      "revId": "7452232d4a476d2880a4a72956ffb39ea55803b3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_6de07dfa",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NaptEventHandler.java",
+        "patchSetId": 13
+      },
+      "lineNbr": 368,
+      "author": {
+        "id": 6741
+      },
+      "writtenOn": "2017-01-12T04:57:16Z",
+      "side": 1,
+      "message": "All the caller method (3 places) it passes the table value as either NwConstants.OUTBOUND_NAPT_TABLE (table_id\u003d46) or NwConstants.INBOUND_NAPT_TABLE (table_id\u003d44). Just for safer purpose we are handling in default switch case. Also all the caller method has try-catch block to handle the generic exceptions as well.",
+      "parentUuid": "1a622d24_277b468d",
       "revId": "7452232d4a476d2880a4a72956ffb39ea55803b3",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
