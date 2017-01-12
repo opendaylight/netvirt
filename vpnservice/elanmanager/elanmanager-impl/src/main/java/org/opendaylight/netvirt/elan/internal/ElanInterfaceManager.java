@@ -7,6 +7,8 @@
  */
 package org.opendaylight.netvirt.elan.internal;
 
+import static org.opendaylight.netvirt.elan.utils.ElanUtils.isVxlan;
+
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.util.concurrent.ListenableFuture;
@@ -217,7 +219,7 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
                 removeElanBroadcastGroup(elanInfo, interfaceInfo, deleteFlowGroupTx);
                 removeLocalBroadcastGroup(elanInfo, interfaceInfo, deleteFlowGroupTx);
                 removeEtreeBroadcastGrups(elanInfo, interfaceInfo, deleteFlowGroupTx);
-                if (ElanUtils.isVxlan(elanInfo)) {
+                if (isVxlan(elanInfo)) {
                     unsetExternalTunnelTable(dpId, elanInfo);
                 }
                 isLastInterfaceOnDpn = true;
@@ -227,7 +229,7 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
         }
         futures.add(ElanUtils.waitForTransactionToComplete(tx));
         futures.add(ElanUtils.waitForTransactionToComplete(deleteFlowGroupTx));
-        if (isLastInterfaceOnDpn && dpId != null && ElanUtils.isVxlan(elanInfo)) {
+        if (isLastInterfaceOnDpn && dpId != null && isVxlan(elanInfo)) {
             setElanAndEtreeBCGrouponOtherDpns(elanInfo, dpId);
         }
         DataStoreJobCoordinator coordinator = DataStoreJobCoordinator.getInstance();
@@ -280,7 +282,7 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
             listBuckets.add(MDSALUtil.buildBucket(listAction, MDSALUtil.GROUP_WEIGHT, bucketId, MDSALUtil.WATCH_PORT,
                     MDSALUtil.WATCH_GROUP));
             bucketId++;
-            listBuckets.addAll(getRemoteBCGroupBucketInfos(elanInfo, bucketId, interfaceInfo, etreeTag));
+            listBuckets.addAll(getRemoteBCGroupBucketInfos(elanInfo, bucketId, interfaceInfo));
             BigInteger dpnId = interfaceInfo.getDpId();
             long groupId = ElanUtils.getEtreeLeafRemoteBCGId(etreeTag);
             Group group = MDSALUtil.buildGroup(groupId, elanInfo.getElanInstanceName(), GroupTypes.GroupAll,
@@ -356,7 +358,7 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
 
                 // Removing all those MACs from External Devices belonging
                 // to this ELAN
-                if (ElanUtils.isVxlan(elanInfo) && ! macAddresses.isEmpty()) {
+                if (isVxlan(elanInfo) && !macAddresses.isEmpty()) {
                     elanL2GatewayUtils.removeMacsFromElanExternalDevices(elanInfo, macAddresses);
                 }
             }
@@ -567,8 +569,9 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
                     for (MacEntry macEntry : remoteMacEntries) {
                         PhysAddress physAddress = macEntry.getMacAddress();
                         elanUtils.setupRemoteDmacFlow(interfaceInfo.getDpId(), remoteInterface.getDpId(),
-                                remoteInterface.getInterfaceTag(), elanInstance.getElanTag(), physAddress.getValue(),
-                                elanInstance.getElanInstanceName(), writeFlowGroupTx, remoteIf, elanInstance);
+                                (isVxlan(elanInstance)) ? elanInstance.getSegmentationId() : 0,
+                                elanInstance.getElanTag(), physAddress.getValue(), elanInstance.getElanInstanceName(),
+                                writeFlowGroupTx, remoteIf, elanInstance);
                     }
                 }
             }
@@ -612,7 +615,7 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
                 dpnInterfaces = createElanInterfacesList(elanInstanceName, interfaceName, dpId, tx);
                 // The 1st ElanInterface in a DPN must program the Ext Tunnel
                 // table, but only if Elan has VNI
-                if (ElanUtils.isVxlan(elanInstance)) {
+                if (isVxlan(elanInstance)) {
                     setExternalTunnelTable(dpId, elanInstance);
                 }
                 elanL2GatewayUtils.installElanL2gwDevicesLocalMacsInDpn(dpId, elanInstance, interfaceName);
@@ -636,7 +639,7 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
             installEntriesForFirstInterfaceonDpn(elanInstance, interfaceInfo, dpnInterfaces, isFirstInterfaceInDpn, tx);
         }
         futures.add(ElanUtils.waitForTransactionToComplete(tx));
-        if (isFirstInterfaceInDpn && ElanUtils.isVxlan(elanInstance)) {
+        if (isFirstInterfaceInDpn && isVxlan(elanInstance)) {
             //update the remote-DPNs remoteBC group entry with Tunnels
             setElanAndEtreeBCGrouponOtherDpns(elanInstance, dpId);
         }
@@ -725,11 +728,14 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
             return;
         }
         BigInteger dpId = interfaceInfo.getDpId();
-        elanUtils.setupTermDmacFlows(interfaceInfo, mdsalManager, writeFlowGroupTx);
         setupFilterEqualsTable(elanInstance, interfaceInfo, writeFlowGroupTx);
         if (isFirstInterfaceInDpn) {
             // Terminating Service , UnknownDMAC Table.
-            setupTerminateServiceTable(elanInstance, dpId, writeFlowGroupTx);
+            // The 1st ELAN Interface in a DPN must program the INTERNAL_TUNNEL_TABLE, but only if the network type
+            // for ELAN Instance is VxLAN (consists of segmentation ID to be supplied as VNI)
+            if (isVxlan(elanInstance)) {
+                setupTerminateServiceTable(elanInstance, dpId, writeFlowGroupTx);
+            }
             setupUnknownDMacTable(elanInstance, dpId, writeFlowGroupTx);
             /*
              * Install remote DMAC flow. This is required since this DPN is
@@ -776,7 +782,7 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
         Flow flow = MDSALUtil.buildFlowNew(NwConstants.ELAN_FILTER_EQUALS_TABLE,
                 getFlowRef(NwConstants.ELAN_FILTER_EQUALS_TABLE, ifTag), 9, elanInfo.getElanInstanceName(), 0, 0,
                 ElanConstants.COOKIE_ELAN_FILTER_EQUALS.add(BigInteger.valueOf(ifTag)),
-                getTunnelIdMatchForFilterEqualsLPortTag(ifTag),
+                elanUtils.getTunnelIdMatchForFilterEqualsLPortTag(ifTag),
                 elanUtils.getInstructionsInPortForOutGroup(interfaceInfo.getInterfaceName()));
 
         mdsalManager.addFlowToTx(interfaceInfo.getDpId(), flow, writeFlowGroupTx);
@@ -795,7 +801,7 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
         Flow flow = MDSALUtil.buildFlowNew(NwConstants.ELAN_FILTER_EQUALS_TABLE,
                 getFlowRef(NwConstants.ELAN_FILTER_EQUALS_TABLE, ifTag), 9, elanInfo.getElanInstanceName(), 0, 0,
                 ElanConstants.COOKIE_ELAN_FILTER_EQUALS.add(BigInteger.valueOf(ifTag)),
-                getTunnelIdMatchForFilterEqualsLPortTag(ifTag),
+                elanUtils.getTunnelIdMatchForFilterEqualsLPortTag(ifTag),
                 elanUtils.getInstructionsInPortForOutGroup(interfaceInfo.getInterfaceName()));
 
         mdsalManager.removeFlowToTx(interfaceInfo.getDpId(), flow, deleteFlowGroupTx);
@@ -809,15 +815,18 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
     }
 
     private List<Bucket> getRemoteBCGroupBucketInfos(ElanInstance elanInfo, int bucketKeyStart,
-            InterfaceInfo interfaceInfo, long elanTag) {
-        return getRemoteBCGroupBuckets(elanInfo, null, interfaceInfo.getDpId(), bucketKeyStart, elanTag);
+            InterfaceInfo interfaceInfo) {
+        return getRemoteBCGroupBuckets(elanInfo, null, interfaceInfo.getDpId(), bucketKeyStart);
     }
 
     private List<Bucket> getRemoteBCGroupBuckets(ElanInstance elanInfo, DpnInterfaces dpnInterfaces, BigInteger dpnId,
-            int bucketId, long elanTag) {
+            int bucketId) {
         List<Bucket> listBucketInfo = new ArrayList<>();
         ElanDpnInterfacesList elanDpns = elanUtils.getElanDpnInterfacesList(elanInfo.getElanInstanceName());
-        listBucketInfo.addAll(getRemoteBCGroupTunnelBuckets(elanDpns, dpnId, bucketId, elanTag));
+        if (isVxlan(elanInfo)) {
+            listBucketInfo.addAll(getRemoteBCGroupTunnelBuckets(elanDpns, dpnId, bucketId,
+                    elanInfo.getSegmentationId()));
+        }
         listBucketInfo.addAll(getRemoteBCGroupExternalPortBuckets(elanDpns, dpnInterfaces, dpnId,
             getNextAvailableBucketId(listBucketInfo.size())));
         listBucketInfo.addAll(getRemoteBCGroupBucketsOfElanL2GwDevices(elanInfo, dpnId,
@@ -831,15 +840,15 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
 
     @SuppressWarnings("checkstyle:IllegalCatch")
     private List<Bucket> getRemoteBCGroupTunnelBuckets(ElanDpnInterfacesList elanDpns, BigInteger dpnId, int bucketId,
-            long elanTag) {
+            long vni) {
         List<Bucket> listBucketInfo = new ArrayList<>();
         if (elanDpns != null) {
             for (DpnInterfaces dpnInterface : elanDpns.getDpnInterfaces()) {
                 if (elanUtils.isDpnPresent(dpnInterface.getDpId()) && !Objects.equals(dpnInterface.getDpId(), dpnId)
                         && dpnInterface.getInterfaces() != null && !dpnInterface.getInterfaces().isEmpty()) {
                     try {
-                        List<Action> listActionInfo = elanUtils.getInternalTunnelItmEgressAction(dpnId,
-                                dpnInterface.getDpId(), elanTag);
+                        List<Action> listActionInfo = elanUtils.getInternalTunnelItmEgressAction(dpnId, dpnInterface
+                                .getDpId(), vni);
                         if (listActionInfo.isEmpty()) {
                             continue;
                         }
@@ -923,12 +932,12 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
                             dpnInterface.getDpId()) && otherFes.getInterfaces() != null
                             && !otherFes.getInterfaces().isEmpty()) {
                             try {
-                                List<Action> remoteListActionInfo = elanUtils.getInternalTunnelItmEgressAction(
-                                        dpnInterface.getDpId(), otherFes.getDpId(), elanTag);
+                                List<Action> remoteListActionInfo =
+                                        elanUtils.getInternalTunnelItmEgressAction(dpnInterface.getDpId(), otherFes
+                                                .getDpId(), elanInfo.getSegmentationId());
                                 if (!remoteListActionInfo.isEmpty()) {
-                                    remoteListBucketInfo
-                                            .add(MDSALUtil.buildBucket(remoteListActionInfo, MDSALUtil.GROUP_WEIGHT,
-                                                    bucketId, MDSALUtil.WATCH_PORT, MDSALUtil.WATCH_GROUP));
+                                    remoteListBucketInfo.add(MDSALUtil.buildBucket(remoteListActionInfo, MDSALUtil
+                                            .GROUP_WEIGHT, bucketId, MDSALUtil.WATCH_PORT, MDSALUtil.WATCH_GROUP));
                                     bucketId++;
                                 }
                             } catch (Exception ex) {
@@ -993,23 +1002,23 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
     }
 
     /**
-     * Builds the list of instructions to be installed in the External Tunnel
-     * table (38), which so far consists in writing the elanTag in metadata and
-     * send packet to the new DHCP table.
+     * Builds the list of instructions to be installed in the INTERNAL_TUNNEL_TABLE (36) / EXTERNAL_TUNNEL_TABLE (38)
+     * which so far consists of writing the elanTag in metadata and send the packet to ELAN_DMAC_TABLE.
      *
      * @param elanTag
      *            elanTag to be written in metadata when flow is selected
      * @return the instructions ready to be installed in a flow
      */
-    private List<InstructionInfo> getInstructionsExtTunnelTable(Long elanTag) {
+    private List<InstructionInfo> getInstructionsIntOrExtTunnelTable(Long elanTag) {
         List<InstructionInfo> mkInstructions = new ArrayList<>();
         mkInstructions.add(new InstructionInfo(InstructionType.write_metadata,
-                new BigInteger[] { ElanUtils.getElanMetadataLabel(elanTag), ElanUtils.getElanMetadataMask() }));
-        // TODO: We should point to SMAC or DMAC depending on a configuration
-        // property to enable
-        // mac learning
-        mkInstructions.add(new InstructionInfo(InstructionType.goto_table, new long[] { NwConstants.ELAN_DMAC_TABLE }));
-
+                new BigInteger[]{ElanUtils.getElanMetadataLabel(elanTag), ElanUtils.getElanMetadataMask()}));
+        /* applicable for EXTERNAL_TUNNEL_TABLE only
+        * TODO: We should point to SMAC or DMAC depending on a configuration
+        * property to enable
+        * mac learning
+        */
+        mkInstructions.add(new InstructionInfo(InstructionType.goto_table, new long[]{NwConstants.ELAN_DMAC_TABLE}));
         return mkInstructions;
     }
 
@@ -1049,8 +1058,7 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
         listBucket.add(MDSALUtil.buildBucket(listAction, MDSALUtil.GROUP_WEIGHT, bucketId, MDSALUtil.WATCH_PORT,
                 MDSALUtil.WATCH_GROUP));
         bucketId++;
-        List<Bucket> listBucketInfoRemote = getRemoteBCGroupBuckets(elanInfo, dpnInterfaces, dpnId, bucketId,
-                elanInfo.getElanTag());
+        List<Bucket> listBucketInfoRemote = getRemoteBCGroupBuckets(elanInfo, dpnInterfaces, dpnId, bucketId);
         listBucket.addAll(listBucketInfoRemote);
         long groupId = ElanUtils.getElanRemoteBCGId(elanTag);
         Group group = MDSALUtil.buildGroup(groupId, elanInfo.getElanInstanceName(), GroupTypes.GroupAll,
@@ -1071,8 +1079,7 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
             listBucket.add(MDSALUtil.buildBucket(listAction, MDSALUtil.GROUP_WEIGHT, bucketId, MDSALUtil.WATCH_PORT,
                     MDSALUtil.WATCH_GROUP));
             bucketId++;
-            List<Bucket> listBucketInfoRemote = getRemoteBCGroupBuckets(elanInfo, dpnInterfaces, dpnId, bucketId,
-                    etreeLeafTag);
+            List<Bucket> listBucketInfoRemote = getRemoteBCGroupBuckets(elanInfo, dpnInterfaces, dpnId, bucketId);
             listBucket.addAll(listBucketInfoRemote);
             long groupId = ElanUtils.getEtreeLeafRemoteBCGId(etreeLeafTag);
             Group group = MDSALUtil.buildGroup(groupId, elanInfo.getElanInstanceName(), GroupTypes.GroupAll,
@@ -1208,7 +1215,7 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
         listBuckets.add(MDSALUtil.buildBucket(listAction, MDSALUtil.GROUP_WEIGHT, bucketId, MDSALUtil.WATCH_PORT,
                 MDSALUtil.WATCH_GROUP));
         bucketId++;
-        listBuckets.addAll(getRemoteBCGroupBucketInfos(elanInfo, bucketId, interfaceInfo, elanInfo.getElanTag()));
+        listBuckets.addAll(getRemoteBCGroupBucketInfos(elanInfo, bucketId, interfaceInfo));
         BigInteger dpnId = interfaceInfo.getDpId();
         long groupId = ElanUtils.getElanRemoteBCGId(elanInfo.getElanTag());
         Group group = MDSALUtil.buildGroup(groupId, elanInfo.getElanInstanceName(), GroupTypes.GroupAll,
@@ -1235,7 +1242,7 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
                 0, // idleTimeout
                 0, // hardTimeout
                 ITMConstants.COOKIE_ITM_EXTERNAL.add(BigInteger.valueOf(elanTag)),
-                buildMatchesForVni(elanInfo.getSegmentationId()), getInstructionsExtTunnelTable(elanTag));
+                buildMatchesForVni(elanInfo.getSegmentationId()), getInstructionsIntOrExtTunnelTable(elanTag));
 
         mdsalManager.installFlow(flowEntity);
     }
@@ -1270,14 +1277,13 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
 
     public void setupTerminateServiceTable(ElanInstance elanInfo, BigInteger dpId, long elanTag,
             WriteTransaction writeFlowGroupTx) {
-        Flow flowEntity = MDSALUtil.buildFlowNew(NwConstants.INTERNAL_TUNNEL_TABLE,
+        FlowEntity flowEntity = MDSALUtil.buildFlowEntity(dpId, NwConstants.INTERNAL_TUNNEL_TABLE,
                 getFlowRef(NwConstants.INTERNAL_TUNNEL_TABLE, elanTag), 5,
                 String.format("%s:%d", "ITM Flow Entry ", elanTag), 0, 0,
                 ITMConstants.COOKIE_ITM.add(BigInteger.valueOf(elanTag)),
-                ElanUtils.getTunnelMatchesForServiceId((int) elanTag),
-                getInstructionsForOutGroup(ElanUtils.getElanLocalBCGId(elanTag)));
+                buildMatchesForVni(elanInfo.getSegmentationId()), getInstructionsIntOrExtTunnelTable(elanTag));
 
-        mdsalManager.addFlowToTx(dpId, flowEntity, writeFlowGroupTx);
+        mdsalManager.addFlowToTx(flowEntity, writeFlowGroupTx);
     }
 
     private void setupEtreeTerminateServiceTable(ElanInstance elanInfo, BigInteger dpId,
@@ -1321,7 +1327,7 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
     private void installRemoteUnknownFlow(ElanInstance elanInfo, BigInteger dpId, long elanTag,
             WriteTransaction writeFlowGroupTx) {
         // only if ELAN can connect to external network, perform the following
-        if (ElanUtils.isVxlan(elanInfo) || ElanUtils.isVlan(elanInfo) || ElanUtils.isFlat(elanInfo)) {
+        if (isVxlan(elanInfo) || ElanUtils.isVlan(elanInfo) || ElanUtils.isFlat(elanInfo)) {
             Flow flowEntity2 = MDSALUtil.buildFlowNew(NwConstants.ELAN_UNKNOWN_DMAC_TABLE,
                     getUnknownDmacFlowRef(NwConstants.ELAN_UNKNOWN_DMAC_TABLE, elanTag,
                             /* SH flag */true),
@@ -1340,7 +1346,7 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
                 elanTag, /* SH flag */ false))).setTableId(NwConstants.ELAN_UNKNOWN_DMAC_TABLE).build();
         mdsalManager.removeFlowToTx(dpId, flow, deleteFlowGroupTx);
 
-        if (ElanUtils.isVxlan(elanInfo)) {
+        if (isVxlan(elanInfo)) {
             Flow flow2 = new FlowBuilder().setId(new FlowId(getUnknownDmacFlowRef(NwConstants.ELAN_UNKNOWN_DMAC_TABLE,
                     elanTag, /* SH flag */ true))).setTableId(NwConstants.ELAN_UNKNOWN_DMAC_TABLE)
                     .build();
@@ -1626,13 +1632,6 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
         // Matching metadata
         mkMatches.add(new MatchInfo(MatchFieldType.metadata,
                 new BigInteger[] { MetaDataUtil.getLportTagMetaData(lportTag), MetaDataUtil.METADATA_MASK_LPORT_TAG }));
-        mkMatches.add(new MatchInfo(MatchFieldType.tunnel_id, new BigInteger[] { BigInteger.valueOf(lportTag) }));
-        return mkMatches;
-    }
-
-    private List<MatchInfo> getTunnelIdMatchForFilterEqualsLPortTag(int lportTag) {
-        List<MatchInfo> mkMatches = new ArrayList<>();
-        // Matching metadata
         mkMatches.add(new MatchInfo(MatchFieldType.tunnel_id, new BigInteger[] { BigInteger.valueOf(lportTag) }));
         return mkMatches;
     }
