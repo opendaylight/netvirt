@@ -31,13 +31,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 
-public class SubnetmapListener extends AsyncDataTreeChangeListenerBase<Subnetmap, SubnetmapListener> {
-    private static final Logger LOG = LoggerFactory.getLogger(SubnetmapListener.class);
+public class SubnetmapChangeListener extends AsyncDataTreeChangeListenerBase<Subnetmap, SubnetmapChangeListener> {
+    private static final Logger LOG = LoggerFactory.getLogger(SubnetmapChangeListener.class);
     private final DataBroker dataBroker;
     private NotificationPublishService notificationPublishService;
 
-    public SubnetmapListener(final DataBroker dataBroker, final NotificationPublishService notiPublishService) {
-        super(Subnetmap.class, SubnetmapListener.class);
+    public SubnetmapChangeListener(final DataBroker dataBroker, final NotificationPublishService notiPublishService) {
+        super(Subnetmap.class, SubnetmapChangeListener.class);
         this.dataBroker = dataBroker;
         this.notificationPublishService = notiPublishService;
     }
@@ -65,21 +65,21 @@ public class SubnetmapListener extends AsyncDataTreeChangeListenerBase<Subnetmap
 
     @Override
     protected void add(InstanceIdentifier<Subnetmap> identifier, Subnetmap subnetmap) {
-        LOG.trace("SubnetmapListener add subnetmap method - key: " + identifier + ", value=" + subnetmap);
+        LOG.trace("SubnetmapChangeListener add subnetmap method - key: " + identifier + ", value=" + subnetmap);
     }
 
     @Override
     protected void remove(InstanceIdentifier<Subnetmap> identifier, Subnetmap subnetmap) {
-        LOG.trace("SubnetmapListener remove subnetmap method - key: " + identifier + ", value" + subnetmap);
+        LOG.trace("SubnetmapChangeListener remove subnetmap method - key: " + identifier + ", value" + subnetmap);
     }
 
     @Override
     // TODO Clean up the exception handling
     @SuppressWarnings("checkstyle:IllegalCatch")
-    protected void update(InstanceIdentifier<Subnetmap> identifier,
-                          Subnetmap subnetmapOriginal, Subnetmap subnetmapUpdate) {
+    protected void update(InstanceIdentifier<Subnetmap> identifier, Subnetmap subnetmapOriginal, Subnetmap
+            subnetmapUpdate) {
         LOG.trace("SubnetmapListener update subnetmap method - key: {}, original: {}, update: {}",
-            identifier, subnetmapOriginal, subnetmapUpdate);
+                    identifier, subnetmapOriginal, subnetmapUpdate);
         Uuid vpnIdNew = subnetmapUpdate.getVpnId();
         Uuid vpnIdOld = subnetmapOriginal.getVpnId();
         Uuid subnetId = subnetmapUpdate.getId();
@@ -91,7 +91,7 @@ public class SubnetmapListener extends AsyncDataTreeChangeListenerBase<Subnetmap
                 + "subnetmapListener update for subnet {}", elanInstanceName, subnetId);
             return;
         }
-        //////////////////////////SubnetAddedToVpn////////////////////////////////////////////////////
+        // subnet added to VPN case
         if (vpnIdNew != null && vpnIdOld == null) {
             boolean isExternalVpn = !vpnIdNew.equals(subnetmapUpdate.getRouterId());
             try {
@@ -105,7 +105,7 @@ public class SubnetmapListener extends AsyncDataTreeChangeListenerBase<Subnetmap
             }
             return;
         }
-        ////////////////////////////SubnetRemovedFromVpn//////////////////////////////////////////////
+        // subnet removed from VPN case
         if (vpnIdOld != null && vpnIdNew == null) {
             Boolean isExternalVpn = vpnIdOld.equals(subnetmapOriginal.getRouterId()) ? false : true;
             try {
@@ -119,7 +119,7 @@ public class SubnetmapListener extends AsyncDataTreeChangeListenerBase<Subnetmap
             }
             return;
         }
-        ///////////////////////////SubnetUpdatedInVpn///////////////////////////////////////////////
+        // subnet updated in VPN case
         if (vpnIdOld != null && vpnIdNew != null && (!vpnIdNew.equals(vpnIdOld))) {
             boolean isBeingAssociated = subnetmapUpdate.getVpnId().equals(subnetmapUpdate.getRouterId()) ? false : true;
             try {
@@ -133,7 +133,7 @@ public class SubnetmapListener extends AsyncDataTreeChangeListenerBase<Subnetmap
             }
             return;
         }
-        ///////////////////////////PortAdded/RemovedFromSubnet///////////////////////////////////////////////
+        // port added/removed to/from subnet case
         List<Uuid> oldPortList;
         List<Uuid> newPortList;
         newPortList = subnetmapUpdate.getPortList() != null ? subnetmapUpdate.getPortList() : new ArrayList<>();
@@ -173,7 +173,7 @@ public class SubnetmapListener extends AsyncDataTreeChangeListenerBase<Subnetmap
     }
 
     @Override
-    protected SubnetmapListener getDataTreeChangeListener() {
+    protected SubnetmapChangeListener getDataTreeChangeListener() {
         return this;
     }
 
