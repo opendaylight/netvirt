@@ -189,6 +189,24 @@
     },
     {
       "key": {
+        "uuid": "1a622d24_8d8079f8",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanToTransportZoneListener.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 75,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-01-12T05:34:59Z",
+      "side": 1,
+      "message": "Here the predicate in filter is based on ElanInterface, If you make it based on elan interface name, then it should be ok. \nBut anyway if you are going to depend on elan-dpn-interfaces, this class becomes obsolete.",
+      "parentUuid": "1a622d24_2d5ccaec",
+      "revId": "c87e3e0dd1261c0df5c61205aa799dcf75b12238",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_226ceb34",
         "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/utils/TransportZoneNotificationUtil.java",
         "patchSetId": 11
