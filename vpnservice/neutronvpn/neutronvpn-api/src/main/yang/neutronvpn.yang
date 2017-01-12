@@ -132,6 +132,9 @@ module neutronvpn {
           type    yang:uuid;
           description "UUID representing the network ";
         }
+        leaf l3vni {
+           type uint32;
+        }
     }
 
     container vpnMaps {
@@ -201,7 +204,7 @@ module neutronvpn {
     }
 
     rpc createL3VPN{
-        description "Create one or more L3 VPN";
+        description "Create one or more L3VPN(s)";
         input {
             list l3vpn {
                 uses l3vpn-instance;
