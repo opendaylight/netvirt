@@ -149,10 +149,10 @@ public class NeutronvpnUtils {
     private static TimeUnit secUnit = TimeUnit.SECONDS;
 
     static {
-        registerSuppoprtedNetworkType(NetworkTypeFlat.class);
-        registerSuppoprtedNetworkType(NetworkTypeVlan.class);
-        registerSuppoprtedNetworkType(NetworkTypeVxlan.class);
-        registerSuppoprtedNetworkType(NetworkTypeGre.class);
+        registerSupportedNetworkType(NetworkTypeFlat.class);
+        registerSupportedNetworkType(NetworkTypeVlan.class);
+        registerSupportedNetworkType(NetworkTypeVxlan.class);
+        registerSupportedNetworkType(NetworkTypeGre.class);
     }
 
     private NeutronvpnUtils() {
@@ -161,11 +161,11 @@ public class NeutronvpnUtils {
 
     static ConcurrentHashMap<String, ImmutablePair<ReadWriteLock,AtomicInteger>> locks = new ConcurrentHashMap<>();
 
-    public static void registerSuppoprtedNetworkType(Class<? extends NetworkTypeBase> netType) {
+    public static void registerSupportedNetworkType(Class<? extends NetworkTypeBase> netType) {
         SUPPORTED_NETWORK_TYPES.add(netType);
     }
 
-    public static void unregisterSuppoprtedNetworkType(Class<? extends NetworkTypeBase> netType) {
+    public static void unregisterSupportedNetworkType(Class<? extends NetworkTypeBase> netType) {
         SUPPORTED_NETWORK_TYPES.remove(netType);
     }
 
@@ -879,6 +879,16 @@ public class NeutronvpnUtils {
         }
     }
 
+    public static String getSegmentationIdFromNeutronNetwork(Network network) {
+        String segmentationId = null;
+        NetworkProviderExtension providerExtension = network.getAugmentation(NetworkProviderExtension.class);
+        if (providerExtension != null) {
+            Class<? extends NetworkTypeBase> networkType = providerExtension.getNetworkType();
+            segmentationId = NeutronUtils.getSegmentationIdFromNeutronNetwork(network, networkType);
+        }
+
+        return segmentationId;
+    }
 
     public static Class<? extends SegmentTypeBase> getSegmentTypeFromNeutronNetwork(Network network) {
         NetworkProviderExtension providerExtension = network.getAugmentation(NetworkProviderExtension.class);
