@@ -147,6 +147,7 @@ public class VpnInterfaceOpListener extends AsyncDataTreeChangeListenerBase<VpnI
                     vpnFootprintService.updateVpnToDpnMapping(pref.getDpnId(), del.getVpnInstanceName(),
                                                               interfaceName, false /* delete */);
                 }
+                VpnUtil.releaseGwSourceMacForVpnInterface(writeOperTxn, vpnName, interfaceName);
             }
         } else {
             LOG.error("rd not retrievable as vpninstancetovpnid for vpn {} is absent, trying rd as ", vpnName, vpnName);
