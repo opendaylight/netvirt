@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1a622d24_ed43edac",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/ExternalRoutersListener.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 690,
+      "author": {
+        "id": 6177
+      },
+      "writtenOn": "2017-01-12T06:47:16Z",
+      "side": 1,
+      "message": "Could you remove the usage of FIXED_DELAY_IN_MILLISECONDS, and pass 0 instead (or use an API without the delay if exists).\n\nThis parameter is unused in the function, and it\u0027s just confusing",
+      "revId": "ef66b71b3ba6dd1460696bd1eeb2b7ca794dbf05",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
