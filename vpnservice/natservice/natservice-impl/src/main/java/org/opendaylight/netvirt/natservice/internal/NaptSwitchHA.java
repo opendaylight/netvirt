@@ -38,9 +38,9 @@ import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.genius.mdsalutil.matches.MatchEthernetType;
 import org.opendaylight.genius.mdsalutil.matches.MatchMetadata;
 import org.opendaylight.netvirt.bgpmanager.api.IBgpManager;
+import org.opendaylight.netvirt.elanmanager.api.IElanService;
 import org.opendaylight.netvirt.fibmanager.api.IFibManager;
 import org.opendaylight.netvirt.natservice.api.SnatServiceManager;
-import org.opendaylight.netvirt.neutronvpn.interfaces.INeutronVpnManager;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.IdManagerService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rev160406.TunnelTypeBase;
@@ -96,7 +96,7 @@ public class NaptSwitchHA {
     private final VpnRpcService vpnService;
     private final FibRpcService fibService;
     private final IFibManager fibManager;
-    private final INeutronVpnManager nvpnManager;
+    private final IElanService elanManager;
     private List<String> externalIpsCache;
     private HashMap<String, Long> externalIpsLabel;
     private final EvpnNaptSwitchHA evpnNaptSwitchHA;
@@ -115,7 +115,7 @@ public class NaptSwitchHA {
                         final FibRpcService fibService,
                         final IFibManager fibManager,
                         final EvpnNaptSwitchHA evpnNaptSwitchHA,
-                        final INeutronVpnManager nvpnManager,
+                        final IElanService elanManager,
                         final SnatServiceManager natServiceManager,
                         final NatserviceConfig config) {
         this.dataBroker = dataBroker;
@@ -130,7 +130,7 @@ public class NaptSwitchHA {
         this.fibService = fibService;
         this.fibManager = fibManager;
         this.evpnNaptSwitchHA = evpnNaptSwitchHA;
-        this.nvpnManager = nvpnManager;
+        this.elanManager = elanManager;
         this.natServiceManager = natServiceManager;
         if (config != null) {
             this.natMode = config.getNatMode();
@@ -784,8 +784,8 @@ public class NaptSwitchHA {
 
         if (addordel == NatConstants.ADD_FLOW) {
             List<ActionInfo> actionsInfo = new ArrayList<>();
-            long tunnelId = NatUtil.getTunnelIdForNonNaptToNaptFlow(dataBroker, nvpnManager, idManager,
-                                                                        routerVpnId, routerName);
+            long tunnelId = NatUtil.getTunnelIdForNonNaptToNaptFlow(dataBroker, elanManager, idManager, routerVpnId,
+                    routerName);
             actionsInfo.add(new ActionSetFieldTunnelId(BigInteger.valueOf(tunnelId)));
             LOG.debug("Setting the tunnel to the list of action infos {}", actionsInfo);
             actionsInfo.add(new ActionGroup(groupId));
