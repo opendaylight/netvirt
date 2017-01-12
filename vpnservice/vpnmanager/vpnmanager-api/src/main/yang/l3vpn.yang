@@ -727,6 +727,29 @@ module l3vpn {
         description
           "The name of the vpn-instance.";
       }
+      leaf type {
+        description
+          "The type of the VPN Instance.
+           L3 indicates it is an L3VPN.
+           L2 indicates it is an EVPN";
+
+        type enumeration {
+           enum l3 {
+              value "0";
+              description “L3VPN";
+           }
+           enum l2 {
+              value "1";
+              description "EVPN";
+           }
+        }
+        default "l3";
+      }
+
+      leaf l3vni {
+         type uint32;
+      }
+
 
       leaf description {
         description
