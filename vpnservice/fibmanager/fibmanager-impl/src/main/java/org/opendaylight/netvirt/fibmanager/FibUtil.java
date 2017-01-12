@@ -42,6 +42,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev15033
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.VrfEntryBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.VrfEntryKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.Adjacencies;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.PrefixToInterface;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.VpnIdToVpnInstance;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.VpnInstanceOpData;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.VpnInstanceToVpnId;
@@ -132,6 +133,16 @@ public class FibUtil {
                 new org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.interfaces
                     .VpnInterfaceKey(vpnInterfaceName))
             .augmentation(org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.Adjacencies.class)
+            .build();
+    }
+
+    static InstanceIdentifier<org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.prefix.to._interface
+        .VpnIds> getPrefixToInterfaceIdentifier(long vpnId) {
+        return InstanceIdentifier.builder(PrefixToInterface.class)
+            .child(org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.prefix.to._interface
+                    .VpnIds.class,
+                    new org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.prefix.to
+                        ._interface.VpnIdsKey(vpnId))
             .build();
     }
 
@@ -474,7 +485,8 @@ public class FibUtil {
     // TODO Clean up the exception handling
     @SuppressWarnings("checkstyle:IllegalCatch")
     public static void addOrUpdateFibEntry(DataBroker broker, String rd, String prefix, List<String> nextHopList,
-                                           int label, RouteOrigin origin, WriteTransaction writeConfigTxn) {
+                                           int label, String gwMacAddress, RouteOrigin origin,
+                                           WriteTransaction writeConfigTxn) {
         if (rd == null || rd.isEmpty()) {
             LOG.error("Prefix {} not associated with vpn", prefix);
             return;
@@ -491,7 +503,7 @@ public class FibUtil {
 
             if (!entry.isPresent()) {
                 VrfEntry vrfEntry = new VrfEntryBuilder().setDestPrefix(prefix).setNextHopAddressList(nextHopList)
-                    .setLabel((long) label).setOrigin(origin.getValue()).build();
+                    .setLabel((long) label).setGatewayMacAddress(gwMacAddress).setOrigin(origin.getValue()).build();
 
                 if (writeConfigTxn != null) {
                     writeConfigTxn.merge(LogicalDatastoreType.CONFIGURATION, vrfEntryId, vrfEntry, true);
@@ -507,7 +519,7 @@ public class FibUtil {
                     }
                 }
                 VrfEntry vrfEntry = new VrfEntryBuilder().setDestPrefix(prefix).setNextHopAddressList(nh)
-                    .setLabel((long) label).setOrigin(origin.getValue()).build();
+                    .setLabel((long) label).setGatewayMacAddress(gwMacAddress).setOrigin(origin.getValue()).build();
 
                 if (writeConfigTxn != null) {
                     writeConfigTxn.merge(LogicalDatastoreType.CONFIGURATION, vrfEntryId, vrfEntry, true);
@@ -632,7 +644,7 @@ public class FibUtil {
     }
 
     public static void updateFibEntry(DataBroker broker, String rd, String prefix, List<String> nextHopList,
-                                      WriteTransaction writeConfigTxn) {
+                                      String gwMacAddress, WriteTransaction writeConfigTxn) {
 
         LOG.debug("Updating fib entry for prefix {} with nextHopList {} for rd {}", prefix, nextHopList, rd);
 
@@ -646,7 +658,7 @@ public class FibUtil {
             // Update the VRF entry with nextHopList
             VrfEntry vrfEntry =
                 new VrfEntryBuilder(entry.get()).setDestPrefix(prefix).setNextHopAddressList(nextHopList)
-                    .setKey(new VrfEntryKey(prefix)).build();
+                    .setGatewayMacAddress(gwMacAddress).setKey(new VrfEntryKey(prefix)).build();
             if (nextHopList.isEmpty()) {
                 if (writeConfigTxn != null) {
                     writeConfigTxn.put(LogicalDatastoreType.CONFIGURATION, vrfEntryId, vrfEntry, true);
@@ -680,6 +692,15 @@ public class FibUtil {
                 FibUtil.DEFAULT_CALLBACK);
         }
 
+    }
+
+    static List<Prefixes> getAllPrefixesToInterface(DataBroker broker, long vpnId) {
+        Optional<org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.prefix.to._interface
+            .VpnIds> vpnIds = read(broker, LogicalDatastoreType.OPERATIONAL, getPrefixToInterfaceIdentifier(vpnId));
+        if (vpnIds.isPresent()) {
+            return vpnIds.get().getPrefixes();
+        }
+        return new ArrayList<Prefixes>();
     }
 
     public static void removeVrfTable(DataBroker broker, String rd, WriteTransaction writeConfigTxn) {
