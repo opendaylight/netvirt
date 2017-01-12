@@ -1365,19 +1365,18 @@ public class VpnUtil {
 
     public static void setupGwMacIfExternalVpn(DataBroker dataBroker, IMdsalApiManager mdsalManager, BigInteger dpnId,
             String interfaceName, long vpnId, WriteTransaction writeInvTxn, int addOrRemove) {
-        InstanceIdentifier<org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.id.to.vpn
-                .instance.VpnIds>
-                vpnIdsInstanceIdentifier = getVpnIdToVpnInstanceIdentifier(vpnId);
-        Optional<org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.id.to.vpn.instance.VpnIds>
-                vpnIdsOptional = read(dataBroker, LogicalDatastoreType.CONFIGURATION, vpnIdsInstanceIdentifier);
+        InstanceIdentifier<org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.id.to.vpn.instance
+            .VpnIds> vpnIdsInstanceIdentifier = getVpnIdToVpnInstanceIdentifier(vpnId);
+        Optional<org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.id.to.vpn.instance
+            .VpnIds> vpnIdsOptional = read(
+                dataBroker, LogicalDatastoreType.CONFIGURATION, vpnIdsInstanceIdentifier);
         if (vpnIdsOptional.isPresent() && vpnIdsOptional.get().isExternalVpn()) {
-            Optional<String> gwMacAddressOptional = InterfaceUtils.getMacAddressForInterface(dataBroker, interfaceName);
-            if (!gwMacAddressOptional.isPresent()) {
+            Optional<String> gwMacAddress = InterfaceUtils.getMacAddressForInterface(dataBroker, interfaceName);
+            if (!gwMacAddress.isPresent()) {
                 LOG.error("Failed to get gwMacAddress for interface {}", interfaceName);
                 return;
             }
-            String gwMacAddress = gwMacAddressOptional.get();
-            FlowEntity flowEntity = VpnUtil.buildL3vpnGatewayFlow(dpnId, gwMacAddress, vpnId);
+            FlowEntity flowEntity = VpnUtil.buildL3vpnGatewayFlow(dpnId, gwMacAddress.get(), vpnId);
             if (addOrRemove == NwConstants.ADD_FLOW) {
                 mdsalManager.addFlowToTx(flowEntity, writeInvTxn);
             } else if (addOrRemove == NwConstants.DEL_FLOW) {
@@ -1385,6 +1384,7 @@ public class VpnUtil {
             }
         }
     }
+
 
     public static Optional<VpnPortipToPort> getRouterInterfaceForVpnInterface(DataBroker dataBroker,
                                                                               String interfaceName,
