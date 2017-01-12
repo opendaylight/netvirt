@@ -319,7 +319,7 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
 
         // Validating and creating VNI pool during when NAPT switch is selected.
         // With Assumption this might be the first NAT service comes up.
-        if (nvpnManager.getEnforceOpenstackSemanticsConfig()) {
+        if (nvpnManager.areOpenStackVniSemanticsEnforced()) {
             NatOverVxlanUtil.validateAndCreateVxlanVniPool(dataBroker, nvpnManager,
                     idManager, NatConstants.ODL_VNI_POOL_NAME);
         }
@@ -987,7 +987,7 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
                         }
                         //Inform BGP
                         long l3vni = 0;
-                        if (nvpnManager.getEnforceOpenstackSemanticsConfig()) {
+                        if (nvpnManager.areOpenStackVniSemanticsEnforced()) {
                             l3vni = NatOverVxlanUtil.getInternetVpnVni(idManager, vpnName, l3vni).longValue();
                         }
                         Routers extRouter = router != null ? router :
@@ -1007,7 +1007,7 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
                         //Install custom FIB routes - FIB table.
                         List<Instruction> fibTableCustomInstructions = createFibTableCustomInstructions(dataBroker,
                                 tableId, routerName, externalIp);
-                        if (nvpnManager.getEnforceOpenstackSemanticsConfig()) {
+                        if (nvpnManager.areOpenStackVniSemanticsEnforced()) {
                             //Install the flow table 25->44 If there is no FIP Match on table 25 (PDNAT_TABLE)
                             NatUtil.makePreDnatToSnatTableEntry(mdsalManager, dpnId,
                                     NwConstants.INBOUND_NAPT_TABLE);
@@ -1095,7 +1095,7 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
         LOG.debug("NAT Service : Create terminatingServiceAction on DpnId = {} and serviceId = {} and actions = {}",
             dpnId, serviceId, customInstructions);
 
-        if (nvpnManager.getEnforceOpenstackSemanticsConfig()) {
+        if (nvpnManager.areOpenStackVniSemanticsEnforced()) {
             mkMatches.add(new MatchTunnelId(BigInteger.valueOf(l3Vni)));
         } else {
             mkMatches.add(new MatchTunnelId(BigInteger.valueOf(serviceId)));
@@ -1584,7 +1584,7 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
                 handleRouterGwFlows(router, primarySwitchId, NwConstants.DEL_FLOW);
                 List<String> externalIps = NatUtil.getExternalIpsForRouter(dataBroker, routerId);
                 handleDisableSnat(router, networkUuid, externalIps, true, null, primarySwitchId);
-                if (nvpnManager.getEnforceOpenstackSemanticsConfig()) {
+                if (nvpnManager.areOpenStackVniSemanticsEnforced()) {
                     NatOverVxlanUtil.releaseVNI(routerName, idManager);
                 }
             }
@@ -2507,7 +2507,7 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
         matches.add(MatchEthernetType.IPV4);
 
         BigInteger tunnelId = BigInteger.valueOf(changedVpnId);
-        if (nvpnManager.getEnforceOpenstackSemanticsConfig()) {
+        if (nvpnManager.areOpenStackVniSemanticsEnforced()) {
             tunnelId = NatOverVxlanUtil.getRouterVni(idManager, routerName, changedVpnId);
         }
         matches.add(new MatchTunnelId(tunnelId));

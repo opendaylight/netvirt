@@ -163,8 +163,12 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
         LOG.info("{} close", getClass().getSimpleName());
     }
 
-    public NeutronvpnConfig getNeutronvpnConfig() {
-        return neutronvpnConfig;
+    public String getOpenDaylightVniRangesConfig() {
+        return neutronvpnConfig.getOpendaylightVniRanges();
+    }
+
+    public Boolean areOpenStackVniSemanticsEnforced() {
+        return neutronvpnConfig.isOpenstackVniSemanticsEnforced();
     }
 
     // TODO Clean up the exception handling
@@ -1966,14 +1970,6 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
         LOG.debug("dissociateRouter returns..");
 
         return result;
-    }
-
-    public String getOpenDaylightVniRangesConfig() {
-        return neutronvpnConfig.getOpendaylightVniRanges();
-    }
-
-    public Boolean getEnforceOpenstackSemanticsConfig() {
-        return neutronvpnConfig.isEnforceOpenstackSemantics();
     }
 
     protected void handleNeutronRouterDeleted(Uuid routerId, List<Uuid> routerSubnetIds) {
