@@ -738,7 +738,8 @@ public class NatUtil {
                 log.error("addPrefix failed since nextHopIp cannot be null.");
                 return;
             }
-            fibManager.addOrUpdateFibEntry(broker, rd, prefix, Arrays.asList(nextHopIp), (int)label, origin, null);
+            fibManager.addOrUpdateFibEntry(broker, rd, prefix, Arrays.asList(nextHopIp), (int)label, null /*gatewayMacAddress*/,
+                    origin, null /*writeTxn*/);
             bgpManager.advertisePrefix(rd, prefix, Arrays.asList(nextHopIp), (int)label);
             LOG.info("ADD: Added Fib entry rd {} prefix {} nextHop {} label {}", rd, prefix, nextHopIp, label);
         } catch(Exception e) {

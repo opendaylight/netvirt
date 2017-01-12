@@ -50,12 +50,13 @@ public interface IFibManager {
                                 String destTepIp);
 
     void addOrUpdateFibEntry(DataBroker broker, String rd, String prefix, List<String> nextHopList,
-                             int label, RouteOrigin origin, WriteTransaction writeConfigTxn);
+                             int label, String gwMacAddress, RouteOrigin origin, WriteTransaction writeConfigTxn);
     void addFibEntryForRouterInterface(DataBroker broker, String rd, String prefix,
                                         RouterInterface routerInterface, long label, WriteTransaction writeConfigTxn);
     void removeOrUpdateFibEntry(DataBroker broker, String rd, String prefix, String nextHopToRemove, WriteTransaction writeConfigTxn);
     void removeFibEntry(DataBroker broker, String rd, String prefix, WriteTransaction writeConfigTxn);
-    void updateFibEntry(DataBroker broker, String rd, String prefix , List<String> nextHopList, WriteTransaction writeConfigTxn);
+    void updateFibEntry(DataBroker broker, String rd, String prefix , List<String> nextHopList, String gwMacAddress,
+                        WriteTransaction writeConfigTxn);
     void addVrfTable(DataBroker broker, String rd, WriteTransaction writeConfigTxn);
     void removeVrfTable(DataBroker broker, String rd, WriteTransaction writeConfigTxn);
     void removeInterVPNLinkRouteFlows(final String interVpnLinkName,

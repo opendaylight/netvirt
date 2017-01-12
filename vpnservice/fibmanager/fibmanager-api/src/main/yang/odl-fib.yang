@@ -35,6 +35,9 @@ module odl-fib {
                 type string;
                 mandatory true;
             }
+            leaf gateway_mac_address {
+                type string;
+            }
         }
     }
 
