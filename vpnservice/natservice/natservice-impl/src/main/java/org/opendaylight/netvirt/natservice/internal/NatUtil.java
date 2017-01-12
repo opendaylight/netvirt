@@ -1768,7 +1768,7 @@ public class NatUtil {
 
     public static long getTunnelIdForNonNaptToNaptFlow(DataBroker dataBroker, INeutronVpnManager nvpnManager,
             IdManagerService idManager, long routerId, String routerName) {
-        if (nvpnManager.getEnforceOpenstackSemanticsConfig()) {
+        if (nvpnManager.isOpenStackVniSemanticsEnforced()) {
             // Router VNI will be set as tun_id if OpenStackSemantics is enabled
             return NatOverVxlanUtil.getRouterVni(idManager, routerName, routerId).longValue();
         } else {
