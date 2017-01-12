@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "1a622d24_70f692fa",
+        "filename": "docs/specs/netvirt-statistics-spec.rst",
+        "patchSetId": 6
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 3511
+      },
+      "writtenOn": "2017-01-12T08:38:33Z",
+      "side": 1,
+      "message": "Hi Vivek,\n\naccording to my understanding the purpose of the FCAPS framework is to persist counter values in the datastore.\nin this spec the plan is to retrieve the counter values from the switch by demand and not to persist it at all.\nam i missing something?",
+      "parentUuid": "1a622d24_d74cc5ca",
+      "range": {
+        "startLine": 38,
+        "startChar": 49,
+        "endLine": 38,
+        "endChar": 56
+      },
+      "revId": "684295240b452955f3f5ab8b32a9b0e16535aa39",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_2457cecb",
         "filename": "docs/specs/netvirt-statistics-spec.rst",
         "patchSetId": 6
