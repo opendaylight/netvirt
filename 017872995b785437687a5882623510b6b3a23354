@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1a622d24_dc421d3d",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanInterfaceManager.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 728,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2017-01-12T16:29:14Z",
+      "side": 1,
+      "message": "You can use interfaceManager.isExternal(interfaceName) \nit\u0027s more robust than depending on the interface name",
+      "revId": "017872995b785437687a5882623510b6b3a23354",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
