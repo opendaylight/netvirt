@@ -96,6 +96,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.Vpn
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.VpnInstanceToVpnId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.VpnToExtraroutes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.adjacency.list.Adjacency;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.adjacency.list.AdjacencyKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.prefix.to._interface.VpnIds;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.prefix.to._interface.VpnIdsBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.prefix.to._interface.VpnIdsKey;
@@ -337,10 +338,6 @@ public class VpnUtil {
             return nextHops;
         }
         return null;
-    }
-
-    static DestPrefixesBuilder getDestPrefixesBuilder(String destPrefix, List<String> rd) {
-        return new DestPrefixesBuilder().setKey(new DestPrefixesKey(destPrefix)).setDestPrefix(destPrefix).setRouteDistinguishers(rd);
     }
 
     static Adjacencies getVpnInterfaceAugmentation(List<Adjacency> nextHopList) {
@@ -1380,7 +1377,7 @@ public class VpnUtil {
                 .filter(pair -> {
                     Optional<Prefixes> prefixToInterface = getPrefixToInterface(dataBroker, vpnId, pair.a);
                     return prefixToInterface.isPresent() ? dpnId.equals(prefixToInterface.get().getDpnId()) : false;})
-                .map(pair -> pair.b).findAny();
+                .map(pair -> pair.b).findFirst();
         if (rdToAllocate.isPresent()) {
             return rdToAllocate;
         }
@@ -1393,8 +1390,12 @@ public class VpnUtil {
         }
         String rd = availableRds.get(0);
         usedRds.add(rd);
-        syncUpdate(dataBroker, LogicalDatastoreType.OPERATIONAL, VpnHelper.getUsedRdsIdentifier(vpnId, prefix), getDestPrefixesBuilder(prefix, usedRds).build());
+        syncUpdate(dataBroker, LogicalDatastoreType.OPERATIONAL, VpnHelper.getUsedRdsIdentifier(vpnId, prefix), VpnHelper.getDestPrefixesBuilder(prefix, usedRds).build());
         return java.util.Optional.ofNullable(rd);
     }
 
+    static InstanceIdentifier<Adjacency> getAdjacencyIdentifier(String vpnInterfaceName, String ipAddress) {
+        return InstanceIdentifier.builder(VpnInterfaces.class).child(VpnInterface.class, new VpnInterfaceKey(vpnInterfaceName)).augmentation(
+                        Adjacencies.class).child(Adjacency.class, new AdjacencyKey(ipAddress)).build();
+    }
 }

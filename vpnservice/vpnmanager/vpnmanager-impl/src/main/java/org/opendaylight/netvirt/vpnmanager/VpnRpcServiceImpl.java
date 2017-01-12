@@ -233,7 +233,7 @@ public class VpnRpcServiceImpl implements VpnRpcService {
                 LOG.warn("Could not withdraw route [vpn={}  prefix={}] to BGP. Reason:", vpnRd, destination, e);
             }
         } else {
-            vpnInterfaceMgr.delExtraRoute(destination, nexthop, vpnRd, null /*routerId*/, null /*intfName*/, null);
+            vpnInterfaceMgr.delExtraRoute(destination, nexthop, vpnRd, vpnInstanceName, null /*intfName*/, null);
         }
         result.set(RpcResultBuilder.<Void>success().build());
 

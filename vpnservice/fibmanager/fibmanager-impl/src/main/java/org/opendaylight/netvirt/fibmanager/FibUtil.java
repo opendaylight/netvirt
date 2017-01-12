@@ -21,6 +21,7 @@ import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
+import org.antlr.v4.runtime.misc.Pair;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
@@ -41,6 +42,10 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rev
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.GetEgressActionsForInterfaceInputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.GetEgressActionsForInterfaceOutput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.OdlInterfaceRpcService;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.op.rev160406.DpnEndpoints;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.op.rev160406.dpn.endpoints.DPNTEPsInfo;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.op.rev160406.dpn.endpoints.DPNTEPsInfoKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.op.rev160406.dpn.endpoints.dpn.teps.info.TunnelEndPoints;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rpcs.rev160406.GetExternalTunnelInterfaceNameInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rpcs.rev160406.GetExternalTunnelInterfaceNameInputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rpcs.rev160406.GetExternalTunnelInterfaceNameOutput;
@@ -66,6 +71,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.VpnInstanceOpDataEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.VpnInstanceOpDataEntryKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.vpn.instance.op.data.entry.VpnToDpnList;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.to.extraroutes.vpn.extraroutes.extra.routes.Routes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.netvirt.inter.vpn.link.rev160311.InterVpnLinkStates;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.netvirt.inter.vpn.link.rev160311.InterVpnLinks;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.netvirt.inter.vpn.link.rev160311.inter.vpn.link.states.InterVpnLinkState;
@@ -605,7 +611,7 @@ public class FibUtil {
         // Looking for existing prefix in MDSAL database
         InstanceIdentifier<VrfEntry> vrfEntryId =
                 InstanceIdentifier.builder(FibEntries.class).child(VrfTables.class, new VrfTablesKey(rd))
-                        .child(VrfEntry.class, new VrfEntryKey(prefix)).build();
+                        .child(VrfEntry.class, new VrfEntryKey(getIpPrefix(prefix))).build();
         Optional<VrfEntry> entry = MDSALUtil.read(broker, LogicalDatastoreType.CONFIGURATION, vrfEntryId);
 
         if (!entry.isPresent()) {
@@ -648,12 +654,9 @@ public class FibUtil {
             }
         } else {
             // An update must be done, not including the current next hop
+            updateUsedRdAndVpnToExtraRoute(broker, nextHopToRemove, rd, prefix);
             RoutePaths newRoutes = VpnHelper.buildRoutePath(routePath, nhListRead, routePath.getLabel());
-            if (writeConfigTxn != null) {
-                writeConfigTxn.put(LogicalDatastoreType.CONFIGURATION, routePathsId, newRoutes, true);
-            } else {
-                MDSALUtil.syncUpdate(broker, LogicalDatastoreType.CONFIGURATION, routePathsId, newRoutes);
-            }
+            MDSALUtil.syncWrite(broker, LogicalDatastoreType.CONFIGURATION, routePathsId, newRoutes);
             LOG.info("Removed Nexthop {} from Fib Entry rd {} prefix {}", nextHopToRemove, rd, prefix);
         }
     }
@@ -753,4 +756,59 @@ public class FibUtil {
         }
     }
 
+    public static void updateUsedRdAndVpnToExtraRoute(DataBroker broker, String nextHopToRemove, String rd, String prefix) {
+        Optional<VpnInstanceOpDataEntry> optVpnInstance = VpnHelper.getVpnInstance(broker, rd);
+        if (!optVpnInstance.isPresent()) {
+            return;
+        }
+        VpnInstanceOpDataEntry vpnInstance = optVpnInstance.get();
+        String vpnName = vpnInstance.getVpnInstanceName();
+        long vpnId = vpnInstance.getVpnId();
+        List<String> usedRds = VpnHelper.getUsedRds(broker, vpnId, prefix);
+        java.util.Optional<String> rdToRemove = usedRds.stream()
+                .map(usedRd -> {
+                    Optional<Routes> vpnExtraRoutes = VpnHelper.getVpnExtraroutes(broker, vpnName, usedRd, prefix);
+                    return vpnExtraRoutes.isPresent() ? new Pair<String, String>(vpnExtraRoutes.get().getNexthopIpList().get(0), usedRd) : new Pair<String, String>("", "");})
+                .filter(pair -> {
+                    Prefixes prefixToInterface = getPrefixToInterface(broker, vpnId, getIpPrefix(pair.a));
+                    return prefixToInterface != null ? nextHopToRemove
+                            .equals(getEndpointIpAddressForDPN(broker, prefixToInterface.getDpnId())) : false;})
+                .map(pair -> pair.b).findFirst();
+        if (!rdToRemove.isPresent()) {
+            return;
+        }
+        Optional<Routes> optRoutes = VpnHelper.getVpnExtraroutes(broker, vpnName, rdToRemove.get(), prefix);
+        if (!optRoutes.isPresent()) {
+            return;
+        }
+        Prefixes prefixToInterface = getPrefixToInterface(broker, vpnId, getIpPrefix(optRoutes.get().getNexthopIpList().get(0)));
+        if (prefixToInterface != null) {
+            delete(broker, LogicalDatastoreType.OPERATIONAL, 
+                    getAdjacencyIdentifier(prefixToInterface.getVpnInterfaceName(), prefix));
+        }
+        MDSALUtil.syncDelete(broker, LogicalDatastoreType.OPERATIONAL,
+                VpnHelper.getVpnToExtrarouteIdentifier(vpnName, rdToRemove.get(), prefix));
+        usedRds.remove(rdToRemove.get());
+        MDSALUtil.syncWrite(broker, LogicalDatastoreType.OPERATIONAL,
+                VpnHelper.getUsedRdsIdentifier(vpnId, prefix), 
+                VpnHelper.getDestPrefixesBuilder(prefix, usedRds).build());
+    }
+
+    private static String getIpPrefix(String prefix) {
+        return prefix.split("/").length == 1 ? prefix + "/32" : prefix;
+    }
+
+    private static String getEndpointIpAddressForDPN(DataBroker broker, BigInteger dpnId) {
+        String nextHopIp = null;
+        InstanceIdentifier<DPNTEPsInfo> tunnelInfoId =
+            InstanceIdentifier.builder(DpnEndpoints.class).child(DPNTEPsInfo.class, new DPNTEPsInfoKey(dpnId)).build();
+        Optional<DPNTEPsInfo> tunnelInfo = read(broker, LogicalDatastoreType.CONFIGURATION, tunnelInfoId);
+        if (tunnelInfo.isPresent()) {
+          List<TunnelEndPoints> nexthopIpList = tunnelInfo.get().getTunnelEndPoints();
+          if (nexthopIpList != null && !nexthopIpList.isEmpty()) {
+            nextHopIp = nexthopIpList.get(0).getIpAddress().getIpv4Address().getValue();
+          }
+        }
+        return nextHopIp;
+      }
 }

@@ -61,4 +61,5 @@ public interface IFibManager {
     void removeInterVPNLinkRouteFlows(final String interVpnLinkName,
                                       final boolean isVpnFirstEndPoint,
                                       final VrfEntry vrfEntry);
+    void refreshFibTables(String rd, String prefix);
 }
