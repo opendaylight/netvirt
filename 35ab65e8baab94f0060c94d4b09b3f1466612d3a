@@ -458,6 +458,24 @@
     },
     {
       "key": {
+        "uuid": "1a622d24_9c1ee55d",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 1888,
+      "author": {
+        "id": 6365
+      },
+      "writtenOn": "2017-01-12T16:36:40Z",
+      "side": 1,
+      "message": "I\u0027m not worried from accessing common datastore entity. I\u0027m worried from a race between vpn-interface addition to the unhandled map and the vpn-instance readiness.\nAs far as I know, those can run in multiple threads.",
+      "parentUuid": "1a622d24_07bc4a05",
+      "revId": "35ab65e8baab94f0060c94d4b09b3f1466612d3a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_85f06992",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
         "patchSetId": 8
