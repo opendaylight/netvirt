@@ -474,7 +474,8 @@ public class FibUtil {
     // TODO Clean up the exception handling
     @SuppressWarnings("checkstyle:IllegalCatch")
     public static void addOrUpdateFibEntry(DataBroker broker, String rd, String prefix, List<String> nextHopList,
-                                           int label, RouteOrigin origin, WriteTransaction writeConfigTxn) {
+                                           int label, String gwMacAddress, RouteOrigin origin,
+                                           WriteTransaction writeConfigTxn) {
         if (rd == null || rd.isEmpty()) {
             LOG.error("Prefix {} not associated with vpn", prefix);
             return;
@@ -491,7 +492,7 @@ public class FibUtil {
 
             if (!entry.isPresent()) {
                 VrfEntry vrfEntry = new VrfEntryBuilder().setDestPrefix(prefix).setNextHopAddressList(nextHopList)
-                    .setLabel((long) label).setOrigin(origin.getValue()).build();
+                    .setLabel((long) label).setGatewayMacAddress(gwMacAddress).setOrigin(origin.getValue()).build();
 
                 if (writeConfigTxn != null) {
                     writeConfigTxn.merge(LogicalDatastoreType.CONFIGURATION, vrfEntryId, vrfEntry, true);
@@ -507,7 +508,7 @@ public class FibUtil {
                     }
                 }
                 VrfEntry vrfEntry = new VrfEntryBuilder().setDestPrefix(prefix).setNextHopAddressList(nh)
-                    .setLabel((long) label).setOrigin(origin.getValue()).build();
+                    .setLabel((long) label).setGatewayMacAddress(gwMacAddress).setOrigin(origin.getValue()).build();
 
                 if (writeConfigTxn != null) {
                     writeConfigTxn.merge(LogicalDatastoreType.CONFIGURATION, vrfEntryId, vrfEntry, true);
@@ -632,7 +633,7 @@ public class FibUtil {
     }
 
     public static void updateFibEntry(DataBroker broker, String rd, String prefix, List<String> nextHopList,
-                                      WriteTransaction writeConfigTxn) {
+                                      String gwMacAddress, WriteTransaction writeConfigTxn) {
 
         LOG.debug("Updating fib entry for prefix {} with nextHopList {} for rd {}", prefix, nextHopList, rd);
 
@@ -646,7 +647,7 @@ public class FibUtil {
             // Update the VRF entry with nextHopList
             VrfEntry vrfEntry =
                 new VrfEntryBuilder(entry.get()).setDestPrefix(prefix).setNextHopAddressList(nextHopList)
-                    .setKey(new VrfEntryKey(prefix)).build();
+                    .setGatewayMacAddress(gwMacAddress).setKey(new VrfEntryKey(prefix)).build();
             if (nextHopList.isEmpty()) {
                 if (writeConfigTxn != null) {
                     writeConfigTxn.put(LogicalDatastoreType.CONFIGURATION, vrfEntryId, vrfEntry, true);
