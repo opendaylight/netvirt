@@ -28,8 +28,11 @@ import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.clustering.EntityOwnershipService;
+import org.opendaylight.controller.md.sal.common.api.data.AsyncTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
+import org.opendaylight.controller.md.sal.common.api.data.TransactionChain;
+import org.opendaylight.controller.md.sal.common.api.data.TransactionChainListener;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
 import org.opendaylight.genius.interfacemanager.globals.InterfaceInfo;
 import org.opendaylight.genius.interfacemanager.globals.InterfaceServiceUtil;
@@ -183,6 +186,20 @@ public class ElanUtils {
         @Override
         public void onFailure(Throwable error) {
             LOG.error("Error in Datastore operation", error);
+        }
+    };
+
+    public static final TransactionChainListener DEFAULT_CHAIN_CALLBACK = new TransactionChainListener() {
+
+        @Override
+        public void onTransactionChainSuccessful(TransactionChain<?, ?> chain) {
+            LOG.debug("Success in Transaction Chain operation");
+        }
+
+        @Override
+        public void onTransactionChainFailed(TransactionChain<?, ?> chain, AsyncTransaction<?, ?> transaction,
+                Throwable cause) {
+            LOG.error("Error in Transaction Chain operation", cause);
         }
     };
 
@@ -665,7 +682,7 @@ public class ElanUtils {
     public void setupMacFlows(ElanInstance elanInfo, InterfaceInfo interfaceInfo,
                               long macTimeout, String macAddress, boolean configureRemoteFlows,
                               WriteTransaction writeFlowGroupTx) throws ElanException {
-        synchronized (getElanMacKey(elanInfo.getElanTag(), macAddress)) {
+        synchronized (getElanMacDPNKey(elanInfo.getElanTag(), macAddress, interfaceInfo.getDpId())) {
             setupKnownSmacFlow(elanInfo, interfaceInfo, macTimeout, macAddress, mdsalManager,
                 writeFlowGroupTx);
             setupOrigDmacFlows(elanInfo, interfaceInfo, macAddress, configureRemoteFlows, mdsalManager,
@@ -675,7 +692,7 @@ public class ElanUtils {
 
     public void setupDMacFlowonRemoteDpn(ElanInstance elanInfo, InterfaceInfo interfaceInfo, BigInteger dstDpId,
             String macAddress, WriteTransaction writeFlowTx) throws ElanException {
-        synchronized (getElanMacKey(elanInfo.getElanTag(), macAddress)) {
+        synchronized (getElanMacDPNKey(elanInfo.getElanTag(), macAddress, dstDpId)) {
             LOG.debug("Acquired lock for mac : " + macAddress + ". Proceeding with install operation.");
             setupOrigDmacFlowsonRemoteDpn(elanInfo, interfaceInfo, dstDpId, macAddress, writeFlowTx);
         }
@@ -1119,7 +1136,7 @@ public class ElanUtils {
             return;
         }
         String macAddress = macEntry.getMacAddress().getValue();
-        synchronized (getElanMacKey(elanInfo.getElanTag(), macAddress)) {
+        synchronized (getElanMacDPNKey(elanInfo.getElanTag(), macAddress, interfaceInfo.getDpId())) {
             deleteMacFlows(elanInfo, interfaceInfo, macAddress, /* alsoDeleteSMAC */ true, deleteFlowGroupTx);
         }
     }
@@ -1620,7 +1637,7 @@ public class ElanUtils {
             String extDeviceNodeId, Long elanTag, Long vni, String macAddress, String displayName,
             String interfaceName) throws ElanException {
         List<ListenableFuture<Void>> futures = new ArrayList<>();
-        synchronized (getElanMacKey(elanTag, macAddress)) {
+        synchronized (getElanMacDPNKey(elanTag, macAddress, dpnId)) {
             Flow flow = buildDmacFlowForExternalRemoteMac(dpnId, extDeviceNodeId, elanTag, vni, macAddress,
                     displayName);
             futures.add(mdsalManager.installFlow(dpnId, flow));
@@ -1863,7 +1880,7 @@ public class ElanUtils {
     public List<ListenableFuture<Void>> deleteDmacFlowsToExternalMac(long elanTag, BigInteger dpId,
             String extDeviceNodeId, String macToRemove) {
         List<ListenableFuture<Void>> futures = new ArrayList<>();
-        synchronized (getElanMacKey(elanTag, macToRemove)) {
+        synchronized (getElanMacDPNKey(elanTag, macToRemove, dpId)) {
             // Removing the flows that sends the packet on an external tunnel
             removeFlowThatSendsThePacketOnAnExternalTunnel(elanTag, dpId, extDeviceNodeId, macToRemove, futures);
 
@@ -2125,6 +2142,10 @@ public class ElanUtils {
 
         LOG.trace("Elan {} does not have any external interace attached to DPN {}", elanInstanceName, dpnId);
         return null;
+    }
+
+    public static String getElanMacDPNKey(long elanTag, String macAddress, BigInteger dpnId) {
+        return ("MAC-" + macAddress + " ELAN_TAG-" + elanTag + "DPN_ID-" + dpnId).intern();
     }
 
     public static String getElanMacKey(long elanTag, String macAddress) {
