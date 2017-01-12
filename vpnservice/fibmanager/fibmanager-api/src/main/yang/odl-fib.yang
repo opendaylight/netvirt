@@ -25,7 +25,6 @@ module odl-fib {
             }
             leaf label {
                 type uint32;
-                mandatory true;
             }
             leaf-list nextHopAddressList {
                 type string;
@@ -35,6 +34,32 @@ module odl-fib {
                 type string;
                 mandatory true;
             }
+            leaf encap-type {
+               description
+                  "This flag indicates how to interpret the existing label field.
+                   A value of mplsgre indicates that the label will continue to be considered as an MPLS Label.
+                   A value of vxlan indicates that l3vni should be used to advertise to bgp and label will be ignored.";
+
+               type enumeration {
+                  enum mplsgre {
+                     value "0";
+                     description "MPLSOverGRE";
+                  }
+                  enum vxlan {
+                     value "1";
+                     description “VNI";
+                  }
+               }
+               default "mplsgre";
+            }
+
+            leaf l3vni {
+               type uint32;
+            }
+            leaf gateway_mac_address {
+               type string;
+            }
+
         }
     }
 
