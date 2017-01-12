@@ -9,4 +9,5 @@
   -->
   <auto-config-transport-zones>true</auto-config-transport-zones>
   <use-of-tunnels>false</use-of-tunnels>
+  <openstack-vni-semantics-enforced>false</openstack-vni-semantics-enforced>
 </elanmanager-config>
