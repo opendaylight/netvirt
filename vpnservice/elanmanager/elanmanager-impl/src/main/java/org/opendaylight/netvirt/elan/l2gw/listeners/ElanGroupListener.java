@@ -130,8 +130,7 @@ public class ElanGroupListener extends AsyncClusteredDataTreeChangeListenerBase<
             }
         }
         if (updateGroup) {
-            List<Bucket> bucketList = elanInterfaceManager.getRemoteBCGroupBuckets(elanInstance, null, dpnId, 0,
-                    elanInstance.getElanTag());
+            List<Bucket> bucketList = elanInterfaceManager.getRemoteBCGroupBuckets(elanInstance, null, dpnId, 0);
             expectedElanFootprint--;//remove local bcgroup bucket
             if (bucketList == null || (bucketList.size() != expectedElanFootprint)) {
                 //no point in retrying if not able to meet expected foot print
