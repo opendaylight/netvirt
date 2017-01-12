@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "1a622d24_7b295336",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 10
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 4269
+      },
+      "writtenOn": "2017-01-12T11:04:39Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1a622d24_900d2eeb",
+      "revId": "7fdc940819bf36cd5d65694c5c2584d93ea43783",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_f01462ea",
         "filename": "docs/specs/conntrack-based-snat.rst",
         "patchSetId": 10
@@ -30,6 +48,24 @@
       "writtenOn": "2017-01-12T09:19:16Z",
       "side": 1,
       "message": "Please fix the formatting errors of YANG model and the flows in the generated doc.\nhttps://logs.opendaylight.org/releng/jenkins092/docs-verify-rtd-carbon/762/archives/docs/_build/html/submodules/netvirt/docs/specs/flow-based-snat.html",
+      "revId": "7fdc940819bf36cd5d65694c5c2584d93ea43783",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_3b335bac",
+        "filename": "docs/specs/conntrack-based-snat.rst",
+        "patchSetId": 10
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 4269
+      },
+      "writtenOn": "2017-01-12T11:04:39Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1a622d24_f01462ea",
       "revId": "7fdc940819bf36cd5d65694c5c2584d93ea43783",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -53,6 +89,24 @@
     },
     {
       "key": {
+        "uuid": "1a622d24_50a396b1",
+        "filename": "docs/specs/conntrack-based-snat.rst",
+        "patchSetId": 10
+      },
+      "lineNbr": 30,
+      "author": {
+        "id": 4269
+      },
+      "writtenOn": "2017-01-12T11:04:39Z",
+      "side": 1,
+      "message": "@Sridhar No changes are planned for HA as a part of this feature.",
+      "parentUuid": "1a622d24_b0e5ca0a",
+      "revId": "7fdc940819bf36cd5d65694c5c2584d93ea43783",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_d0fa06bc",
         "filename": "docs/specs/conntrack-based-snat.rst",
         "patchSetId": 10
@@ -64,6 +118,24 @@
       "writtenOn": "2017-01-12T09:19:16Z",
       "side": 1,
       "message": "I hope you wanted to have it as PORT (instead of PROTO).",
+      "revId": "7fdc940819bf36cd5d65694c5c2584d93ea43783",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_5014369f",
+        "filename": "docs/specs/conntrack-based-snat.rst",
+        "patchSetId": 10
+      },
+      "lineNbr": 101,
+      "author": {
+        "id": 4269
+      },
+      "writtenOn": "2017-01-12T11:04:39Z",
+      "side": 1,
+      "message": "I have reused the constants from ovs. Though I am not sure why it is called PROTO instead of port, may be since it need not be a port no always as in the case of TCP and UDP.",
+      "parentUuid": "1a622d24_d0fa06bc",
       "revId": "7fdc940819bf36cd5d65694c5c2584d93ea43783",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -87,6 +159,24 @@
     },
     {
       "key": {
+        "uuid": "1a622d24_104c7ec7",
+        "filename": "docs/specs/conntrack-based-snat.rst",
+        "patchSetId": 10
+      },
+      "lineNbr": 105,
+      "author": {
+        "id": 4269
+      },
+      "writtenOn": "2017-01-12T11:04:39Z",
+      "side": 1,
+      "message": "same as above.",
+      "parentUuid": "1a622d24_b0f78ad2",
+      "revId": "7fdc940819bf36cd5d65694c5c2584d93ea43783",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_10011eaf",
         "filename": "docs/specs/conntrack-based-snat.rst",
         "patchSetId": 10
@@ -98,6 +188,24 @@
       "writtenOn": "2017-01-12T09:19:16Z",
       "side": 1,
       "message": "nit: s/Persistant/Persistent",
+      "revId": "7fdc940819bf36cd5d65694c5c2584d93ea43783",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_b0d94af5",
+        "filename": "docs/specs/conntrack-based-snat.rst",
+        "patchSetId": 10
+      },
+      "lineNbr": 124,
+      "author": {
+        "id": 4269
+      },
+      "writtenOn": "2017-01-12T11:04:39Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1a622d24_10011eaf",
       "revId": "7fdc940819bf36cd5d65694c5c2584d93ea43783",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -121,6 +229,24 @@
     },
     {
       "key": {
+        "uuid": "1a622d24_9081aec5",
+        "filename": "docs/specs/conntrack-based-snat.rst",
+        "patchSetId": 10
+      },
+      "lineNbr": 126,
+      "author": {
+        "id": 4269
+      },
+      "writtenOn": "2017-01-12T11:04:39Z",
+      "side": 1,
+      "message": "same as the above",
+      "parentUuid": "1a622d24_f0fd82b2",
+      "revId": "7fdc940819bf36cd5d65694c5c2584d93ea43783",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_502ef643",
         "filename": "docs/specs/conntrack-based-snat.rst",
         "patchSetId": 10
@@ -132,6 +258,24 @@
       "writtenOn": "2017-01-12T09:19:16Z",
       "side": 1,
       "message": "nit: Can you please use NX_NAT_F_PROTO_RANDOM (i.e., full form similar to the usage in L116).",
+      "revId": "7fdc940819bf36cd5d65694c5c2584d93ea43783",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_30f53a57",
+        "filename": "docs/specs/conntrack-based-snat.rst",
+        "patchSetId": 10
+      },
+      "lineNbr": 129,
+      "author": {
+        "id": 4269
+      },
+      "writtenOn": "2017-01-12T11:04:39Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1a622d24_502ef643",
       "revId": "7fdc940819bf36cd5d65694c5c2584d93ea43783",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -155,6 +299,24 @@
     },
     {
       "key": {
+        "uuid": "1a622d24_b0002a35",
+        "filename": "docs/specs/conntrack-based-snat.rst",
+        "patchSetId": 10
+      },
+      "lineNbr": 243,
+      "author": {
+        "id": 4269
+      },
+      "writtenOn": "2017-01-12T11:04:39Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1a622d24_30337aac",
+      "revId": "7fdc940819bf36cd5d65694c5c2584d93ea43783",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_70297236",
         "filename": "docs/specs/conntrack-based-snat.rst",
         "patchSetId": 10
@@ -166,6 +328,24 @@
       "writtenOn": "2017-01-12T09:19:16Z",
       "side": 1,
       "message": "nit: s/multliple/multiple",
+      "revId": "7fdc940819bf36cd5d65694c5c2584d93ea43783",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_70a2124c",
+        "filename": "docs/specs/conntrack-based-snat.rst",
+        "patchSetId": 10
+      },
+      "lineNbr": 268,
+      "author": {
+        "id": 4269
+      },
+      "writtenOn": "2017-01-12T11:04:39Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1a622d24_70297236",
       "revId": "7fdc940819bf36cd5d65694c5c2584d93ea43783",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
