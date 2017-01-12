@@ -58,6 +58,7 @@ import org.opendaylight.genius.mdsalutil.matches.MatchMetadata;
 import org.opendaylight.genius.mdsalutil.matches.MatchMplsLabel;
 import org.opendaylight.genius.mdsalutil.matches.MatchTunnelId;
 import org.opendaylight.netvirt.bgpmanager.api.IBgpManager;
+import org.opendaylight.netvirt.elanmanager.api.IElanService;
 import org.opendaylight.netvirt.fibmanager.api.IFibManager;
 import org.opendaylight.netvirt.fibmanager.api.RouteOrigin;
 import org.opendaylight.netvirt.natservice.api.CentralizedSwitchScheduler;
@@ -152,6 +153,7 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
     private final CentralizedSwitchScheduler  centralizedSwitchScheduler;
     private NatMode natMode = NatMode.Controller;
     private final INeutronVpnManager nvpnManager;
+    private final IElanService elanManager;
     private static final BigInteger COOKIE_TUNNEL = new BigInteger("9000000", 16);
     static final BigInteger COOKIE_VM_LFIB_TABLE = new BigInteger("8000022", 16);
 
@@ -173,7 +175,8 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
                                    final EvpnSnatFlowProgrammer evpnSnatFlowProgrammer,
                                    final INeutronVpnManager nvpnManager,
                                    final CentralizedSwitchScheduler centralizedSwitchScheduler,
-                                   final NatserviceConfig config) {
+                                   final NatserviceConfig config,
+                                   final IElanService elanManager) {
         super(Routers.class, ExternalRoutersListener.class);
         this.dataBroker = dataBroker;
         this.mdsalManager = mdsalManager;
@@ -192,6 +195,7 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
         this.vpnManager = vpnManager;
         this.evpnSnatFlowProgrammer = evpnSnatFlowProgrammer;
         this.nvpnManager = nvpnManager;
+        this.elanManager = elanManager;
         this.centralizedSwitchScheduler = centralizedSwitchScheduler;
         if (config != null) {
             this.natMode = config.getNatMode();
@@ -319,7 +323,7 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
 
         // Validating and creating VNI pool during when NAPT switch is selected.
         // With Assumption this might be the first NAT service comes up.
-        if (nvpnManager.getEnforceOpenstackSemanticsConfig()) {
+        if (elanManager.isOpenStackVniSemanticsEnforced()) {
             NatOverVxlanUtil.validateAndCreateVxlanVniPool(dataBroker, nvpnManager,
                     idManager, NatConstants.ODL_VNI_POOL_NAME);
         }
@@ -679,8 +683,8 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
         matches.add(new MatchMetadata(MetaDataUtil.getVpnIdMetadata(routerId), MetaDataUtil.METADATA_MASK_VRFID));
 
         List<ActionInfo> actionsInfo = new ArrayList<>();
-        long tunnelId = NatUtil.getTunnelIdForNonNaptToNaptFlow(dataBroker, nvpnManager, idManager,
-                                                                    routerId, routerName);
+        long tunnelId = NatUtil.getTunnelIdForNonNaptToNaptFlow(dataBroker, elanManager, idManager, routerId,
+                routerName);
         actionsInfo.add(new ActionSetFieldTunnelId(BigInteger.valueOf(tunnelId)));
         LOG.debug("NAT Service : Setting the tunnel to the list of action infos {}", actionsInfo);
         actionsInfo.add(new ActionGroup(groupId));
@@ -736,8 +740,8 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
         long routerId = NatUtil.getVpnId(dataBroker, routerName);
         List<MatchInfo> matches = new ArrayList<>();
         matches.add(MatchEthernetType.IPV4);
-        long tunnelId = NatUtil.getTunnelIdForNonNaptToNaptFlow(dataBroker, nvpnManager, idManager,
-                            routerId, routerName);
+        long tunnelId = NatUtil.getTunnelIdForNonNaptToNaptFlow(dataBroker, elanManager, idManager, routerId,
+                routerName);
         matches.add(new MatchTunnelId(BigInteger.valueOf(tunnelId)));
         String flowRef = getFlowRefTs(dpId, NwConstants.INTERNAL_TUNNEL_TABLE, tunnelId);
         List<InstructionInfo> instructions = new ArrayList<>();
@@ -987,7 +991,7 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
                         }
                         //Inform BGP
                         long l3vni = 0;
-                        if (nvpnManager.getEnforceOpenstackSemanticsConfig()) {
+                        if (elanManager.isOpenStackVniSemanticsEnforced()) {
                             l3vni = NatOverVxlanUtil.getInternetVpnVni(idManager, vpnName, l3vni).longValue();
                         }
                         Routers extRouter = router != null ? router :
@@ -1007,7 +1011,7 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
                         //Install custom FIB routes - FIB table.
                         List<Instruction> fibTableCustomInstructions = createFibTableCustomInstructions(dataBroker,
                                 tableId, routerName, externalIp);
-                        if (nvpnManager.getEnforceOpenstackSemanticsConfig()) {
+                        if (elanManager.isOpenStackVniSemanticsEnforced()) {
                             //Install the flow table 25->44 If there is no FIP Match on table 25 (PDNAT_TABLE)
                             NatUtil.makePreDnatToSnatTableEntry(mdsalManager, dpnId,
                                     NwConstants.INBOUND_NAPT_TABLE);
@@ -1095,7 +1099,7 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
         LOG.debug("NAT Service : Create terminatingServiceAction on DpnId = {} and serviceId = {} and actions = {}",
             dpnId, serviceId, customInstructions);
 
-        if (nvpnManager.getEnforceOpenstackSemanticsConfig()) {
+        if (elanManager.isOpenStackVniSemanticsEnforced()) {
             mkMatches.add(new MatchTunnelId(BigInteger.valueOf(l3Vni)));
         } else {
             mkMatches.add(new MatchTunnelId(BigInteger.valueOf(serviceId)));
@@ -1584,7 +1588,7 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
                 handleRouterGwFlows(router, primarySwitchId, NwConstants.DEL_FLOW);
                 List<String> externalIps = NatUtil.getExternalIpsForRouter(dataBroker, routerId);
                 handleDisableSnat(router, networkUuid, externalIps, true, null, primarySwitchId);
-                if (nvpnManager.getEnforceOpenstackSemanticsConfig()) {
+                if (elanManager.isOpenStackVniSemanticsEnforced()) {
                     NatOverVxlanUtil.releaseVNI(routerName, idManager);
                 }
             }
@@ -2453,8 +2457,8 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
         matches.add(new MatchMetadata(MetaDataUtil.getVpnIdMetadata(changedVpnId), MetaDataUtil.METADATA_MASK_VRFID));
 
         List<ActionInfo> actionsInfo = new ArrayList<>();
-        long tunnelId = NatUtil.getTunnelIdForNonNaptToNaptFlow(dataBroker, nvpnManager, idManager,
-                                                        changedVpnId, routerName);
+        long tunnelId = NatUtil.getTunnelIdForNonNaptToNaptFlow(dataBroker, elanManager, idManager, changedVpnId,
+                routerName);
         actionsInfo.add(new ActionSetFieldTunnelId(BigInteger.valueOf(tunnelId)));
         LOG.debug("NAT Service : Setting the tunnel to the list of action infos {}", actionsInfo);
         actionsInfo.add(new ActionGroup(groupId));
@@ -2507,7 +2511,7 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
         matches.add(MatchEthernetType.IPV4);
 
         BigInteger tunnelId = BigInteger.valueOf(changedVpnId);
-        if (nvpnManager.getEnforceOpenstackSemanticsConfig()) {
+        if (elanManager.isOpenStackVniSemanticsEnforced()) {
             tunnelId = NatOverVxlanUtil.getRouterVni(idManager, routerName, changedVpnId);
         }
         matches.add(new MatchTunnelId(tunnelId));
