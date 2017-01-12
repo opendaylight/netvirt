@@ -36,6 +36,7 @@ import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.netvirt.neutronvpn.api.utils.NeutronConstants;
+import org.opendaylight.netvirt.neutronvpn.api.utils.NeutronUtils;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.VpnInstances;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.VpnInterfaces;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.instances.VpnInstance;
@@ -149,10 +150,10 @@ public class NeutronvpnUtils {
     private static TimeUnit secUnit = TimeUnit.SECONDS;
 
     static {
-        registerSuppoprtedNetworkType(NetworkTypeFlat.class);
-        registerSuppoprtedNetworkType(NetworkTypeVlan.class);
-        registerSuppoprtedNetworkType(NetworkTypeVxlan.class);
-        registerSuppoprtedNetworkType(NetworkTypeGre.class);
+        registerSupportedNetworkType(NetworkTypeFlat.class);
+        registerSupportedNetworkType(NetworkTypeVlan.class);
+        registerSupportedNetworkType(NetworkTypeVxlan.class);
+        registerSupportedNetworkType(NetworkTypeGre.class);
     }
 
     private NeutronvpnUtils() {
@@ -161,11 +162,11 @@ public class NeutronvpnUtils {
 
     static ConcurrentHashMap<String, ImmutablePair<ReadWriteLock,AtomicInteger>> locks = new ConcurrentHashMap<>();
 
-    public static void registerSuppoprtedNetworkType(Class<? extends NetworkTypeBase> netType) {
+    public static void registerSupportedNetworkType(Class<? extends NetworkTypeBase> netType) {
         SUPPORTED_NETWORK_TYPES.add(netType);
     }
 
-    public static void unregisterSuppoprtedNetworkType(Class<? extends NetworkTypeBase> netType) {
+    public static void unregisterSupportedNetworkType(Class<? extends NetworkTypeBase> netType) {
         SUPPORTED_NETWORK_TYPES.remove(netType);
     }
 
@@ -879,6 +880,16 @@ public class NeutronvpnUtils {
         }
     }
 
+    public static String getSegmentationIdFromNeutronNetwork(Network network) {
+        String segmentationId = null;
+        NetworkProviderExtension providerExtension = network.getAugmentation(NetworkProviderExtension.class);
+        if (providerExtension != null) {
+            Class<? extends NetworkTypeBase> networkType = providerExtension.getNetworkType();
+            segmentationId = NeutronUtils.getSegmentationIdFromNeutronNetwork(network, networkType);
+        }
+
+        return segmentationId;
+    }
 
     public static Class<? extends SegmentTypeBase> getSegmentTypeFromNeutronNetwork(Network network) {
         NetworkProviderExtension providerExtension = network.getAugmentation(NetworkProviderExtension.class);
@@ -1042,17 +1053,13 @@ public class NeutronvpnUtils {
         return npe != null && npe.getNetworkType() != null && type.isAssignableFrom(npe.getNetworkType());
     }
 
-    static boolean isVxlanNetwork(Network network) {
-        return network != null && isNetworkOfType(network, NetworkTypeVxlan.class);
-    }
-
-    static boolean isGreNetwork(Network network) {
-        return network != null && isNetworkOfType(network, NetworkTypeGre.class);
-    }
-
     static boolean isFlatOrVlanNetwork(Network network) {
         return network != null
                 && (isNetworkOfType(network, NetworkTypeVlan.class) || isNetworkOfType(network, NetworkTypeFlat.class));
+    }
+
+    static boolean isVlanOrVxlanNetwork(Class<? extends NetworkTypeBase> type) {
+        return type.isAssignableFrom(NetworkTypeVxlan.class) || type.isAssignableFrom(NetworkTypeVlan.class);
     }
 
     /**

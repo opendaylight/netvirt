@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 Ericsson India Global Services Pvt Ltd. and others.  All rights reserved.
+ * Copyright (c) 2016, 2017 Ericsson India Global Services Pvt Ltd. and others.  All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
@@ -22,8 +22,10 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.instances.ElanInstanceBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.instances.ElanInstanceKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ProviderTypes;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.networks.rev150712.NetworkTypeBase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.networks.rev150712.networks.attributes.Networks;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.networks.rev150712.networks.attributes.networks.Network;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.provider.ext.rev150712.NetworkProviderExtension;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.qos.ext.rev160613.QosNetworkExtension;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.rev150712.Neutron;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
@@ -71,8 +73,16 @@ public class NeutronNetworkChangeListener extends AsyncDataTreeChangeListenerBas
     protected void add(InstanceIdentifier<Network> identifier, Network input) {
         LOG.trace("Adding Network : key: {}, value={}", identifier, input);
         if (!NeutronvpnUtils.isNetworkTypeSupported(input)) {
-            LOG.error("Neutronvpn doesn't support this network provider type for this network {} and uuid {}.",
-                input.getName(), input.getUuid());
+            LOG.error("Neutronvpn doesn't support this network provider type for this network {} and uuid {}.", input
+                    .getName(), input.getUuid().getValue());
+            return;
+        }
+        Class<? extends NetworkTypeBase> networkType = input.getAugmentation(NetworkProviderExtension.class)
+                .getNetworkType();
+        if ((NeutronvpnUtils.isVlanOrVxlanNetwork(networkType))
+                && NeutronUtils.getSegmentationIdFromNeutronNetwork(input, networkType) == null) {
+            LOG.error("Segmentation ID is null for configured provider network {} of type {}. Abandoning any further "
+                    + "processing for the network", input.getUuid().getValue(), networkType);
             return;
         }
 
@@ -84,10 +94,10 @@ public class NeutronNetworkChangeListener extends AsyncDataTreeChangeListenerBas
         if (NeutronvpnUtils.getIsExternal(input)) {
             ProviderTypes providerNwType = NeutronvpnUtils.getProviderNetworkType(input);
             if (providerNwType == null) {
-                LOG.error("Neutron Service : Unable to get Network Provider Type for network {}", input.getUuid());
+                LOG.error("NeutronVPN: Unable to get Network Provider Type for network {}", input.getUuid().getValue());
                 return;
             }
-            LOG.trace("Neutron Service : External Network Provider Type is {}", providerNwType.getName());
+            LOG.trace("NeutronVPN: External Network Provider Type is {}", providerNwType.getName());
             nvpnNatManager.addExternalNetwork(input);
             if (NeutronvpnUtils.isFlatOrVlanNetwork(input)) {
                 nvpnManager.createL3InternalVpn(input.getUuid(), null, null, null, null, null, null, null);
@@ -122,10 +132,10 @@ public class NeutronNetworkChangeListener extends AsyncDataTreeChangeListenerBas
         NeutronvpnUtils.addToNetworkCache(update);
         String elanInstanceName = original.getUuid().getValue();
         Class<? extends SegmentTypeBase> origSegmentType = NeutronvpnUtils.getSegmentTypeFromNeutronNetwork(original);
-        String origSegmentationId = NeutronUtils.getSegmentationIdFromNeutronNetwork(original);
+        String origSegmentationId = NeutronvpnUtils.getSegmentationIdFromNeutronNetwork(original);
         String origPhysicalNetwork = NeutronvpnUtils.getPhysicalNetworkName(original);
         Class<? extends SegmentTypeBase> updateSegmentType = NeutronvpnUtils.getSegmentTypeFromNeutronNetwork(update);
-        String updateSegmentationId = NeutronUtils.getSegmentationIdFromNeutronNetwork(update);
+        String updateSegmentationId = NeutronvpnUtils.getSegmentationIdFromNeutronNetwork(update);
         String updatePhysicalNetwork = NeutronvpnUtils.getPhysicalNetworkName(update);
 
         if (!Objects.equals(origSegmentType, updateSegmentType)
@@ -172,7 +182,7 @@ public class NeutronNetworkChangeListener extends AsyncDataTreeChangeListenerBas
     private ElanInstance createElanInstance(Network input) {
         String elanInstanceName = input.getUuid().getValue();
         Class<? extends SegmentTypeBase> segmentType = NeutronvpnUtils.getSegmentTypeFromNeutronNetwork(input);
-        String segmentationId = NeutronUtils.getSegmentationIdFromNeutronNetwork(input);
+        String segmentationId = NeutronvpnUtils.getSegmentationIdFromNeutronNetwork(input);
         String physicalNetworkName = NeutronvpnUtils.getPhysicalNetworkName(input);
         ElanInstance elanInstance = createElanInstance(elanInstanceName, segmentType, segmentationId,
             physicalNetworkName);
