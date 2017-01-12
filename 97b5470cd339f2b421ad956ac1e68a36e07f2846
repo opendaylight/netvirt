@@ -1,0 +1,90 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1a622d24_fceb99d9",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 1823,
+      "author": {
+        "id": 5350
+      },
+      "writtenOn": "2017-01-12T17:37:38Z",
+      "side": 1,
+      "message": "where is this private method called from?",
+      "range": {
+        "startLine": 1823,
+        "startChar": 17,
+        "endLine": 1823,
+        "endChar": 40
+      },
+      "revId": "97b5470cd339f2b421ad956ac1e68a36e07f2846",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_5cbc4ddc",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 1870,
+      "author": {
+        "id": 5350
+      },
+      "writtenOn": "2017-01-12T17:37:38Z",
+      "side": 1,
+      "message": "if the VpnInstance becomes ready at this point, couldn\u0027t it be possible that the InterfaceData stays in the unprocessed list forever?\nSounds unlikely, but it won\u0027t hurt to have a cleanup job or something",
+      "revId": "97b5470cd339f2b421ad956ac1e68a36e07f2846",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_7ce029fa",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 1880,
+      "author": {
+        "id": 5350
+      },
+      "writtenOn": "2017-01-12T17:37:38Z",
+      "side": 1,
+      "message": "notice that this method is accessing MD-SAL twice just to see if the VpnInstanceOpDataEntry is ready. If so, you\u0027ll need 2 extra reads for retrieving it again.",
+      "range": {
+        "startLine": 1880,
+        "startChar": 20,
+        "endLine": 1880,
+        "endChar": 38
+      },
+      "revId": "97b5470cd339f2b421ad956ac1e68a36e07f2846",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_1c18151d",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 1891,
+      "author": {
+        "id": 5350
+      },
+      "writtenOn": "2017-01-12T17:37:38Z",
+      "side": 1,
+      "message": "return (vpnInstanceOpDataEntry !\u003d null) is preferred",
+      "range": {
+        "startLine": 1887,
+        "startChar": 8,
+        "endLine": 1891,
+        "endChar": 20
+      },
+      "revId": "97b5470cd339f2b421ad956ac1e68a36e07f2846",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
