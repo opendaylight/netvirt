@@ -50,7 +50,6 @@
   <bean id="neutronvpnManager" class="org.opendaylight.netvirt.neutronvpn.NeutronvpnManager"
         destroy-method="close">
     <argument ref="dataBroker" />
-    <argument ref="mdsalUtils" />
     <argument ref="notificationPublishService" />
     <argument ref="neutronvpnNatManager" />
     <argument ref="vpnRpcService" />
@@ -120,7 +119,7 @@
   </bean>
 
   <bean id="neutronvpnSubnetmapListener"
-        class="org.opendaylight.netvirt.neutronvpn.SubnetmapListener"
+        class="org.opendaylight.netvirt.neutronvpn.SubnetmapChangeListener"
         init-method="start" destroy-method="close">
     <argument ref="dataBroker" />
     <argument ref="notificationPublishService" />

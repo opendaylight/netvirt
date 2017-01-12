@@ -17,8 +17,9 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.por
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.provider.ext.rev150712.NetworkProviderExtension;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.provider.ext.rev150712.neutron.networks.network.Segments;
 
+import static org.opendaylight.netvirt.neutronvpn.api.utils.NeutronConstants.VNIC_TYPE_NORMAL;
+
 public class NeutronUtils {
-    public static final String VNIC_TYPE_NORMAL = "normal";
 
     public static boolean isPortVnicTypeNormal(Port port) {
         PortBindingExtension portBinding = port.getAugmentation(PortBindingExtension.class);
@@ -28,17 +29,6 @@ public class NeutronUtils {
         }
         String vnicType = portBinding.getVnicType().trim().toLowerCase();
         return vnicType.equals(VNIC_TYPE_NORMAL);
-    }
-
-    public static String getSegmentationIdFromNeutronNetwork(Network network) {
-        String segmentationId = null;
-        NetworkProviderExtension providerExtension = network.getAugmentation(NetworkProviderExtension.class);
-        if (providerExtension != null) {
-            Class<? extends NetworkTypeBase> networkType = providerExtension.getNetworkType();
-            segmentationId = getSegmentationIdFromNeutronNetwork(network, networkType);
-        }
-
-        return segmentationId;
     }
 
     public static <T extends NetworkTypeBase> String getSegmentationIdFromNeutronNetwork(Network network,

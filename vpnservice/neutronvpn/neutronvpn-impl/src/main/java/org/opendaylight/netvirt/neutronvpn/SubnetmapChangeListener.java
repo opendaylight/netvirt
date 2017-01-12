@@ -32,13 +32,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 
-public class SubnetmapListener extends AsyncDataTreeChangeListenerBase<Subnetmap, SubnetmapListener> {
-    private static final Logger LOG = LoggerFactory.getLogger(SubnetmapListener.class);
+public class SubnetmapChangeListener extends AsyncDataTreeChangeListenerBase<Subnetmap, SubnetmapChangeListener> {
+    private static final Logger LOG = LoggerFactory.getLogger(SubnetmapChangeListener.class);
     private final DataBroker dataBroker;
     private NotificationPublishService notificationPublishService;
 
-    public SubnetmapListener(final DataBroker dataBroker, final NotificationPublishService notiPublishService) {
-        super(Subnetmap.class, SubnetmapListener.class);
+    public SubnetmapChangeListener(final DataBroker dataBroker, final NotificationPublishService notiPublishService) {
+        super(Subnetmap.class, SubnetmapChangeListener.class);
         this.dataBroker = dataBroker;
         this.notificationPublishService = notiPublishService;
     }
@@ -64,17 +64,17 @@ public class SubnetmapListener extends AsyncDataTreeChangeListenerBase<Subnetmap
 
     @Override
     protected void add(InstanceIdentifier<Subnetmap> identifier, Subnetmap subnetmap) {
-        LOG.trace("SubnetmapListener add subnetmap method - key: " + identifier + ", value=" + subnetmap);
+        LOG.trace("SubnetmapChangeListener add subnetmap method - key: " + identifier + ", value=" + subnetmap);
     }
 
     @Override
     protected void remove(InstanceIdentifier<Subnetmap> identifier, Subnetmap subnetmap) {
-        LOG.trace("SubnetmapListener remove subnetmap method - key: " + identifier + ", value" + subnetmap);
+        LOG.trace("SubnetmapChangeListener remove subnetmap method - key: " + identifier + ", value" + subnetmap);
     }
 
     @Override
     protected void update(InstanceIdentifier<Subnetmap> identifier, Subnetmap subnetmapOriginal, Subnetmap subnetmapUpdate) {
-        LOG.trace("SubnetmapListener update subnetmap method - key: " + identifier + ", original=" + subnetmapOriginal + ", update=" + subnetmapUpdate);
+        LOG.trace("SubnetmapChangeListener update subnetmap method - key: " + identifier + ", original=" + subnetmapOriginal + ", update=" + subnetmapUpdate);
         Uuid vpnIdNew = subnetmapUpdate.getVpnId();
         Uuid vpnIdOld = subnetmapOriginal.getVpnId();
         Uuid subnetId = subnetmapUpdate.getId();
@@ -168,7 +168,7 @@ public class SubnetmapListener extends AsyncDataTreeChangeListenerBase<Subnetmap
     }
 
     @Override
-    protected SubnetmapListener getDataTreeChangeListener() {
+    protected SubnetmapChangeListener getDataTreeChangeListener() {
         return this;
     }
 

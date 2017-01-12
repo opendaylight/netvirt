@@ -39,14 +39,12 @@ public class NeutronQosPolicyChangeListener implements ClusteredDataTreeChangeLi
     private ListenerRegistration<DataTreeChangeListener<QosPolicy>> listenerRegistration;
     private final DataBroker dataBroker;
     private final OdlInterfaceRpcService odlInterfaceRpcService;
-    private final MdsalUtils mdsalUtils;
 
 
     public NeutronQosPolicyChangeListener(final DataBroker dataBroker,
             final OdlInterfaceRpcService odlInterfaceRpcService) {
         this.dataBroker = dataBroker;
         this.odlInterfaceRpcService = odlInterfaceRpcService;
-        this.mdsalUtils = new MdsalUtils(dataBroker);
     }
 
     public void start() {
