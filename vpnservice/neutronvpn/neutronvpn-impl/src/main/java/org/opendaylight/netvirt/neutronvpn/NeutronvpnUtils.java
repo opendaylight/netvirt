@@ -37,6 +37,8 @@ import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
+import org.opendaylight.netvirt.neutronvpn.api.utils.NeutronConstants;
+import org.opendaylight.netvirt.neutronvpn.api.utils.NeutronUtils;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.VpnInstances;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.instances.VpnInstance;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.FloatingIpPortInfo;
@@ -144,16 +146,16 @@ public class NeutronvpnUtils {
     public static ConcurrentHashMap<Uuid, QosPolicy> qosPolicyMap = new ConcurrentHashMap<>();
     public static ConcurrentHashMap<Uuid, HashMap<Uuid, Port>> qosPortsMap = new ConcurrentHashMap<>();
     public static ConcurrentHashMap<Uuid, HashMap<Uuid, Network>> qosNetworksMap = new ConcurrentHashMap<>();
-    private static final Set<Class<? extends NetworkTypeBase>> supportedNetworkTypes = Sets.newConcurrentHashSet();
+    private static final Set<Class<? extends NetworkTypeBase>> SUPPORTED_NETWORK_TYPES = Sets.newConcurrentHashSet();
 
     private static long LOCK_WAIT_TIME = 10L;
     private static TimeUnit secUnit = TimeUnit.SECONDS;
 
     static {
-        registerSuppoprtedNetworkType(NetworkTypeFlat.class);
-        registerSuppoprtedNetworkType(NetworkTypeVlan.class);
-        registerSuppoprtedNetworkType(NetworkTypeVxlan.class);
-        registerSuppoprtedNetworkType(NetworkTypeGre.class);
+        registerSupportedNetworkType(NetworkTypeFlat.class);
+        registerSupportedNetworkType(NetworkTypeVlan.class);
+        registerSupportedNetworkType(NetworkTypeVxlan.class);
+        registerSupportedNetworkType(NetworkTypeGre.class);
     }
 
     private NeutronvpnUtils() {
@@ -162,12 +164,12 @@ public class NeutronvpnUtils {
 
     static ConcurrentHashMap<String, ImmutablePair<ReadWriteLock,AtomicInteger>> locks = new ConcurrentHashMap<>();
 
-    public static void registerSuppoprtedNetworkType(Class<? extends NetworkTypeBase> netType) {
-        supportedNetworkTypes.add(netType);
+    public static void registerSupportedNetworkType(Class<? extends NetworkTypeBase> netType) {
+        SUPPORTED_NETWORK_TYPES.add(netType);
     }
 
-    public static void unregisterSuppoprtedNetworkType(Class<? extends NetworkTypeBase> netType) {
-        supportedNetworkTypes.remove(netType);
+    public static void unregisterSupportedNetworkType(Class<? extends NetworkTypeBase> netType) {
+        SUPPORTED_NETWORK_TYPES.remove(netType);
     }
 
     protected static Subnetmap getSubnetmap(DataBroker broker, Uuid subnetId) {
@@ -901,6 +903,16 @@ public class NeutronvpnUtils {
         }
     }
 
+    public static String getSegmentationIdFromNeutronNetwork(Network network) {
+        String segmentationId = null;
+        NetworkProviderExtension providerExtension = network.getAugmentation(NetworkProviderExtension.class);
+        if (providerExtension != null) {
+            Class<? extends NetworkTypeBase> networkType = providerExtension.getNetworkType();
+            segmentationId = NeutronUtils.getSegmentationIdFromNeutronNetwork(network, networkType);
+        }
+
+        return segmentationId;
+    }
 
     public static Class<? extends SegmentTypeBase> getSegmentTypeFromNeutronNetwork(Network network) {
         NetworkProviderExtension providerExtension = network.getAugmentation(NetworkProviderExtension.class);
@@ -1029,7 +1041,7 @@ public class NeutronvpnUtils {
 
     static boolean isNetworkTypeSupported(Network network) {
         NetworkProviderExtension npe = network.getAugmentation(NetworkProviderExtension.class);
-        return npe != null && npe.getNetworkType() != null && supportedNetworkTypes.contains(npe.getNetworkType());
+        return npe != null && npe.getNetworkType() != null && SUPPORTED_NETWORK_TYPES.contains(npe.getNetworkType());
     }
 
     static ProviderTypes getProviderNetworkType(Network network) {
@@ -1060,17 +1072,13 @@ public class NeutronvpnUtils {
         return npe != null && npe.getNetworkType() != null && type.isAssignableFrom(npe.getNetworkType());
     }
 
-    static boolean isVxlanNetwork(Network network) {
-        return network != null && isNetworkOfType(network, NetworkTypeVxlan.class);
-    }
-
-    static boolean isGreNetwork(Network network) {
-        return network != null && isNetworkOfType(network, NetworkTypeGre.class);
-    }
-
     static boolean isFlatOrVlanNetwork(Network network) {
         return network != null
                 && (isNetworkOfType(network, NetworkTypeVlan.class) || isNetworkOfType(network, NetworkTypeFlat.class));
+    }
+
+    static boolean isVlanOrVxlanNetwork(Class<? extends NetworkTypeBase> type) {
+        return type.isAssignableFrom(NetworkTypeVxlan.class) || type.isAssignableFrom(NetworkTypeVlan.class);
     }
 
     /**
@@ -1089,9 +1097,9 @@ public class NeutronvpnUtils {
     /**
      * Returns an InterVpnLink by searching by one of its endpoint's IP.
      *
-     * @param broker
+     * @param broker data broker
      * @param endpointIp IP to search for
-     * @return
+     * @return Optional of InterVpnLink
      */
     public static Optional<InterVpnLink> getInterVpnLinkByEndpointIp(DataBroker broker, String endpointIp) {
         InstanceIdentifier<InterVpnLinks> interVpnLinksIid = InstanceIdentifier.builder(InterVpnLinks.class).build();
