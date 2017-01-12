@@ -13,10 +13,7 @@ import com.google.common.util.concurrent.ListenableFuture;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
-import java.util.concurrent.Callable;
-
 import org.opendaylight.controller.liblldp.NetUtils;
 import org.opendaylight.controller.liblldp.PacketException;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
@@ -25,12 +22,10 @@ import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.DataStoreJobCoordinator;
 import org.opendaylight.genius.interfacemanager.globals.InterfaceInfo;
 import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
-import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.mdsalutil.MetaDataUtil;
 import org.opendaylight.genius.mdsalutil.NWUtil;
 import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.genius.mdsalutil.packet.Ethernet;
-//import org.opendaylight.netvirt.elan.ElanException;
 import org.opendaylight.netvirt.elan.l2gw.utils.ElanL2GatewayUtils;
 import org.opendaylight.netvirt.elan.utils.ElanUtils;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.PhysAddress;
@@ -82,118 +77,121 @@ public class ElanPacketInHandler implements PacketProcessingListener {
                 final BigInteger metadata = notification.getMatch().getMetadata().getMetadata();
                 final long elanTag = MetaDataUtil.getElanTagFromMetadata(metadata);
 
+                long portTag = MetaDataUtil.getLportFromMetadata(metadata).intValue();
+
+                Optional<IfIndexInterface> interfaceInfoOp = elanUtils.getInterfaceInfoByInterfaceTag(portTag);
+                if (!interfaceInfoOp.isPresent()) {
+                    LOG.warn("There is no interface for given portTag {}", portTag);
+                    return;
+                }
+                String interfaceName = interfaceInfoOp.get().getInterfaceName();
+                LOG.debug("Received a packet with srcMac: {} ElanTag: {} PortTag: {} InterfaceName: {}", macAddress,
+                        elanTag, portTag, interfaceName);
+                ElanTagName elanTagName = elanUtils.getElanInfoByElanTag(elanTag);
+                if (elanTagName == null) {
+                    LOG.warn("not able to find elanTagName in elan-tag-name-map for elan tag {}", elanTag);
+                    return;
+                }
+                String elanName = elanTagName.getName();
+                PhysAddress physAddress = new PhysAddress(macAddress);
+                ElanInstance elanInstance = ElanUtils.getElanInstanceByName(broker, elanName);
+                InterfaceInfo interfaceInfo = interfaceManager.getInterfaceInfo(interfaceName);
+                MacEntry macEntry = elanUtils.getInterfaceMacEntriesOperationalDataPath(interfaceName, physAddress);
+                if (macEntry != null && macEntry.getInterface().equals(interfaceName)) {
+                    long macTimeStamp = macEntry.getControllerLearnedForwardingEntryTimestamp().longValue();
+                    if (System.currentTimeMillis() < macTimeStamp + 10000) {
+                        // Protection time running. Ignore packets for 2 seconds
+                        ElanManagerCounters.unknown_smac_pktin_ignored_due_protection.inc();
+                        return;
+                    }
+                } else if (macEntry != null) {
+                    long macTimeStamp = macEntry.getControllerLearnedForwardingEntryTimestamp().longValue();
+                    if (System.currentTimeMillis() < macTimeStamp + 10000) {
+                        // New FEs flood their packets on all interfaces. This
+                        // can lead
+                        // to many contradicting packet_ins. Ignore all packets
+                        // received
+                        // within 1s after the first packet_in
+                        ElanManagerCounters.unknown_smac_pktin_mac_migration_ignored_due_to_protection.inc();
+                        return;
+                    }
+                }
+
                 final DataStoreJobCoordinator portDataStoreCoordinator = DataStoreJobCoordinator.getInstance();
-                portDataStoreCoordinator.enqueueJob(ElanUtils.getElanMacKey(elanTag, macAddress),
-                    new Callable<List<ListenableFuture<Void>>>() {
-                        @Override
-                        public List<ListenableFuture<Void>> call() throws Exception {
+                enqueueJobForFlowsManipulation(macAddress, elanTag, interfaceName, physAddress, elanInstance,
+                        interfaceInfo, macEntry, portDataStoreCoordinator);
 
-                            long portTag = MetaDataUtil.getLportFromMetadata(metadata).intValue();
-
-                            Optional<IfIndexInterface> interfaceInfoOp =
-                                elanUtils.getInterfaceInfoByInterfaceTag(portTag);
-                            if (!interfaceInfoOp.isPresent()) {
-                                LOG.warn("There is no interface for given portTag {}", portTag);
-                                return Collections.emptyList();
-                            }
-                            String interfaceName = interfaceInfoOp.get().getInterfaceName();
-                            LOG.debug("Received a packet with srcMac: {} ElanTag: {} PortTag: {} InterfaceName: {}",
-                                macAddress, elanTag, portTag, interfaceName);
-                            ElanTagName elanTagName = elanUtils.getElanInfoByElanTag(elanTag);
-                            if (elanTagName == null) {
-                                LOG.warn("not able to find elanTagName in elan-tag-name-map for elan tag {}", elanTag);
-                                return Collections.emptyList();
-                            }
-                            String elanName = elanTagName.getName();
-                            PhysAddress physAddress = new PhysAddress(macAddress);
-                            MacEntry macEntry = elanUtils.getInterfaceMacEntriesOperationalDataPath(interfaceName,
-                                physAddress);
-                            if (macEntry != null && macEntry.getInterface().equals(interfaceName)) {
-                                BigInteger macTimeStamp = macEntry.getControllerLearnedForwardingEntryTimestamp();
-                                if (System.currentTimeMillis() > macTimeStamp.longValue() + 10000) {
-                                /*
-                                 * Protection time expired. Even though the MAC has been
-                                 * learnt (it is in the cache) the packets are punted to
-                                 * controller. Which means, the the flows were not
-                                 * successfully created in the DPN, but the MAC entry
-                                 * has been added successfully in the cache.
-                                 *
-                                 * So, the cache has to be cleared and the flows and
-                                 * cache should be recreated (clearing of cache is
-                                 * required so that the timestamp is updated).
-                                 */
-                                    InstanceIdentifier<MacEntry> macEntryId = ElanUtils
-                                        .getInterfaceMacEntriesIdentifierOperationalDataPath(interfaceName,
-                                            physAddress);
-                                    ElanUtils.delete(broker, LogicalDatastoreType.OPERATIONAL, macEntryId);
-                                    ElanManagerCounters.unknown_smac_pktin_removed_for_retry.inc();
-                                } else {
-                                    // Protection time running. Ignore packets for 2 seconds
-                                    ElanManagerCounters.unknown_smac_pktin_ignored_due_protection.inc();
-                                    return Collections.emptyList();
-                                }
-                            } else if (macEntry != null) {
-                                // MAC address has moved. Overwrite the mapping and replace
-                                // MAC flows
-                                long macTimeStamp = macEntry.getControllerLearnedForwardingEntryTimestamp().longValue();
-                                if (System.currentTimeMillis() > macTimeStamp + 10000) {
-
-                                    InstanceIdentifier<MacEntry> macEntryId = ElanUtils
-                                        .getInterfaceMacEntriesIdentifierOperationalDataPath(interfaceName,
-                                            physAddress);
-                                    ElanUtils.delete(broker, LogicalDatastoreType.OPERATIONAL, macEntryId);
-                                    tryAndRemoveInvalidMacEntry(elanName, macEntry);
-                                    ElanManagerCounters.unknown_smac_pktin_removed_for_relearned.inc();
-                                } else {
-                                    // New FEs flood their packets on all interfaces. This
-                                    // can lead
-                                    // to many contradicting packet_ins. Ignore all packets
-                                    // received
-                                    // within 1s after the first packet_in
-                                    ElanManagerCounters.unknown_smac_pktin_mac_migration_ignored_due_to_protection
-                                        .inc();
-                                    return Collections.emptyList();
-                                }
-                            }
-                            BigInteger timeStamp = new BigInteger(String.valueOf(System.currentTimeMillis()));
-                            macEntry = new MacEntryBuilder().setInterface(interfaceName).setMacAddress(physAddress)
-                                .setKey(new MacEntryKey(physAddress))
-                                .setControllerLearnedForwardingEntryTimestamp(timeStamp)
-                                .setIsStaticAddress(false).build();
-                            InstanceIdentifier<MacEntry> macEntryId = ElanUtils
-                                .getInterfaceMacEntriesIdentifierOperationalDataPath(interfaceName, physAddress);
-                            MDSALUtil.syncWrite(broker, LogicalDatastoreType.OPERATIONAL, macEntryId,
-                                macEntry);
-                            InstanceIdentifier<MacEntry> elanMacEntryId =
-                                ElanUtils.getMacEntryOperationalDataPath(elanName, physAddress);
-                            MDSALUtil.syncWrite(broker, LogicalDatastoreType.OPERATIONAL, elanMacEntryId,
-                                macEntry);
-                            ElanInstance elanInstance = ElanUtils.getElanInstanceByName(broker, elanName);
-                            WriteTransaction flowWritetx = broker.newWriteOnlyTransaction();
-
-                            boolean isVlanOrFlatProviderIface =
-                                ElanUtils.isVlan(elanInstance)
-                                    && interfaceName.endsWith(":" + elanInstance.getSegmentationId())
-                                    || ElanUtils.isFlat(elanInstance) && interfaceName.endsWith(":flat");
-
-                            elanUtils.setupMacFlows(elanInstance, interfaceManager.getInterfaceInfo(interfaceName),
-                                elanInstance.getMacTimeout(), macAddress,
-                                !isVlanOrFlatProviderIface, flowWritetx);
-                            List<ListenableFuture<Void>> futures = new ArrayList<>();
-                            futures.add(flowWritetx.submit());
-                            BigInteger dpId = interfaceManager.getDpnForInterface(interfaceName);
-                            elanL2GatewayUtils.scheduleAddDpnMacInExtDevices(elanInstance.getElanInstanceName(), dpId,
-                                Arrays.asList(physAddress));
-
-                            ElanManagerCounters.unknown_smac_pktin_learned.inc();
-                            return futures;
-                        }
-                    });
-
+                enqueueJobForMacEntriesManipulation(macAddress, elanTag, interfaceName, elanName, physAddress, macEntry,
+                        portDataStoreCoordinator);
             } catch (PacketException e) {
                 LOG.error("Failed to decode packet: {}", notification, e);
             }
         }
+    }
+
+    private void enqueueJobForMacEntriesManipulation(final String macAddress, final long elanTag, String interfaceName,
+            String elanName, PhysAddress physAddress, MacEntry macEntry,
+            final DataStoreJobCoordinator portDataStoreCoordinator) {
+        portDataStoreCoordinator.enqueueJob(ElanUtils.getElanMacKey(elanTag, macAddress), () -> {
+            WriteTransaction writeTx = broker.newWriteOnlyTransaction();
+            if (macEntry != null && macEntry.getInterface().equals(interfaceName)) {
+                ElanManagerCounters.unknown_smac_pktin_forwarding_entries_removed.inc();
+            } else if (macEntry != null) {
+                // MAC address has moved. Overwrite the mapping and replace
+                // MAC flows
+                ElanManagerCounters.unknown_smac_pktin_removed_for_relearned.inc();
+            }
+            /*
+             * Protection time expired. Even though the MAC has been learnt (it is in the cache) the packets are punted
+             * to controller. Which means, the the flows were not successfully created in the DPN, but the MAC entry has
+             * been added successfully in the cache.
+             *
+             * So, the cache has to be cleared and the flows and cache should be recreated (clearing of cache is
+             * required so that the timestamp is updated).
+             */
+            BigInteger timeStamp = new BigInteger(String.valueOf(System.currentTimeMillis()));
+            MacEntry newMacEntry = new MacEntryBuilder().setInterface(interfaceName).setMacAddress(physAddress)
+                    .setKey(new MacEntryKey(physAddress)).setControllerLearnedForwardingEntryTimestamp(timeStamp)
+                    .setIsStaticAddress(false).build();
+            InstanceIdentifier<MacEntry> macEntryId =
+                    ElanUtils.getInterfaceMacEntriesIdentifierOperationalDataPath(interfaceName, physAddress);
+            writeTx.put(LogicalDatastoreType.OPERATIONAL, macEntryId, newMacEntry, true);
+            InstanceIdentifier<MacEntry> elanMacEntryId =
+                    ElanUtils.getMacEntryOperationalDataPath(elanName, physAddress);
+            writeTx.put(LogicalDatastoreType.OPERATIONAL, elanMacEntryId, newMacEntry, true);
+            List<ListenableFuture<Void>> futures = new ArrayList<>();
+            futures.add(writeTx.submit());
+            return futures;
+        });
+    }
+
+    private void enqueueJobForFlowsManipulation(final String macAddress, final long elanTag, String interfaceName,
+            PhysAddress physAddress, ElanInstance elanInstance, InterfaceInfo interfaceInfo, MacEntry macEntry,
+            final DataStoreJobCoordinator portDataStoreCoordinator) {
+        portDataStoreCoordinator
+                .enqueueJob(ElanUtils.getElanMacDPNKey(elanTag, macAddress, interfaceInfo.getDpId()), () -> {
+                    WriteTransaction flowWritetx = broker.newWriteOnlyTransaction();
+
+                    if (macEntry != null && !macEntry.getInterface().equals(interfaceName)) {
+                        tryAndRemoveInvalidMacEntry(elanInstance.getElanInstanceName(), macEntry);
+                        ElanManagerCounters.unknown_smac_pktin_flows_removed_for_relearned.inc();
+                    }
+                    boolean isVlanOrFlatProviderIface = ElanUtils.isVlan(elanInstance)
+                            && interfaceName.endsWith(":" + elanInstance.getSegmentationId())
+                            || ElanUtils.isFlat(elanInstance) && interfaceName.endsWith(":flat");
+
+                    elanUtils.setupMacFlows(elanInstance, interfaceInfo, elanInstance.getMacTimeout(),
+                            macAddress, !isVlanOrFlatProviderIface, flowWritetx);
+                    List<ListenableFuture<Void>> futures = new ArrayList<>();
+                    futures.add(flowWritetx.submit());
+                    BigInteger dpId = interfaceManager.getDpnForInterface(interfaceName);
+                    elanL2GatewayUtils.scheduleAddDpnMacInExtDevices(elanInstance.getElanInstanceName(), dpId,
+                            Arrays.asList(physAddress));
+
+                    ElanManagerCounters.unknown_smac_pktin_learned.inc();
+
+                    return futures;
+                });
     }
 
     /*
