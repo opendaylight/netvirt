@@ -36,6 +36,11 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.action.types.rev131112.acti
 import org.opendaylight.yang.gen.v1.urn.opendaylight.action.types.rev131112.action.list.Action;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.group.types.rev131018.GroupTypes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.instances.ElanInstance;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.FibEntries;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.fibentries.VrfTables;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.fibentries.VrfTablesKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.VrfEntry;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.VrfEntryKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.Adjacencies;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.adjacency.list.Adjacency;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.adjacency.list.AdjacencyKey;
@@ -97,10 +102,6 @@ public class NexthopManager implements AutoCloseable {
     private final ItmRpcService itmManager;
     private final IdManagerService idManager;
     private final IElanService elanService;
-    private static final short LPORT_INGRESS_TABLE = 0;
-    private static final short LFIB_TABLE = 20;
-    private static final short FIB_TABLE = 21;
-    private static final short DEFAULT_FLOW_PRIORITY = 10;
     private static final String NEXTHOP_ID_POOL_NAME = "nextHopPointerPool";
     private static final long FIXED_DELAY_IN_MILLISECONDS = 4000;
     private L3VPNTransportTypes configuredTransportTypeL3VPN = L3VPNTransportTypes.Invalid;
@@ -211,7 +212,7 @@ public class NexthopManager implements AutoCloseable {
         }
     }
 
-    protected List<ActionInfo> getEgressActionsForInterface(String ifName) {
+    protected List<ActionInfo> getEgressActionsForInterface(final String ifName, int actionKey) {
         List<ActionInfo> listActionInfo = new ArrayList<ActionInfo>();
         try {
             Future<RpcResult<GetEgressActionsForInterfaceOutput>> result =
@@ -224,6 +225,7 @@ public class NexthopManager implements AutoCloseable {
                 List<org.opendaylight.yang.gen.v1.urn.opendaylight.action.types.rev131112.action.list.Action> actions =
                         rpcResult.getResult().getAction();
                 for (Action action : actions) {
+                    actionKey = action.getKey().getOrder() + (actionKey++);
                     org.opendaylight.yang.gen.v1.urn.opendaylight.action.types.rev131112.action.Action actionClass = action.getAction();
                     if (actionClass instanceof OutputActionCase) {
                         listActionInfo.add(new ActionInfo(ActionType.output,
@@ -300,7 +302,7 @@ public class NexthopManager implements AutoCloseable {
     }
 
     public long createLocalNextHop(long vpnId, BigInteger dpnId,
-                                   String ifName, String ipNextHopAddress, String ipPrefixAddress) {
+                                   String ifName, String ipNextHopAddress, String ipPrefixAddress, String gwMacAddress) {
         String macAddress = FibUtil.getMacAddressFromPrefix(dataBroker, ifName, ipPrefixAddress);
         String ipAddress = (macAddress != null) ? ipPrefixAddress: ipNextHopAddress;
 
@@ -321,16 +323,22 @@ public class NexthopManager implements AutoCloseable {
                 List<BucketInfo> listBucketInfo = new ArrayList<BucketInfo>();
                 List<ActionInfo> listActionInfo = new ArrayList<>();
                 // MAC re-write
+                int actionKey = 0;
                 if (macAddress != null) {
-                    int actionKey = listActionInfo.size();
+                    final String vpnName = FibUtil.getVpnNameFromId(dataBroker, vpnId);
+                    final String nextHopSrcMac = gwMacAddress;
+                    if (nextHopSrcMac != null) {
+                        LOG.trace("The Local NextHop Group Source Mac {} for VpnInterface {} on VPN {}",nextHopSrcMac, ifName, vpnName);
+                        listActionInfo.add(new ActionInfo(ActionType.set_field_eth_src,
+                                new String[]{nextHopSrcMac}, actionKey++));
+                    }
                     listActionInfo.add(new ActionInfo(ActionType.set_field_eth_dest,
-                        new String[]{macAddress}, actionKey));
-                    //listActionInfo.add(0, new ActionInfo(ActionType.pop_mpls, new String[]{}));
+                            new String[]{macAddress}, actionKey++));
                 } else {
                     //FIXME: Log message here.
                     LOG.debug("mac address for new local nexthop is null");
                 }
-                listActionInfo.addAll(getEgressActionsForInterface(ifName));
+                listActionInfo.addAll(getEgressActionsForInterface(ifName, actionKey));
                 BucketInfo bucket = new BucketInfo(listActionInfo);
 
                 listBucketInfo.add(bucket);

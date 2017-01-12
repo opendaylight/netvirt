@@ -833,7 +833,7 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
             }
 
             final long groupId = nextHopManager.createLocalNextHop(parentVpnId, dpnId,
-                    localNextHopInfo.getVpnInterfaceName(), localNextHopIP, vrfEntry.getDestPrefix());
+                    localNextHopInfo.getVpnInterfaceName(), localNextHopIP, vrfEntry.getDestPrefix(), vrfEntry.getGatewayMacAddress());
             if (groupId == 0) {
                 LOG.error("Unable to create Group for local prefix {} on rd {} for vpninterface {} on Node {}",
                         vrfEntry.getDestPrefix(), rd, localNextHopInfo.getVpnInterfaceName(), dpnId.toString());
@@ -1125,7 +1125,7 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
             } else {
                 addRewriteDstMacAction(vpnId, vrfEntry, actionInfos);
             }
-            List<ActionInfo> egressActions = nextHopManager.getEgressActionsForInterface(egressInterface);
+            List<ActionInfo> egressActions = nextHopManager.getEgressActionsForInterface(egressInterface, actionInfos.size());
             if (egressActions.isEmpty()) {
                 LOG.error(
                         "Failed to retrieve egress action for prefix {} nextHop {} interface {}. Aborting remote FIB entry creation.",

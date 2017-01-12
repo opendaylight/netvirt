@@ -561,7 +561,7 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
         }
 
         List<VpnInstanceOpDataEntry> vpnsToImportRoute = getVpnsImportingMyRoute(vpnName);
-
+        Optional<String> gwMac = Optional.absent();
         LOG.trace("NextHops for interface {} are {}", interfaceName, nextHops);
         for (Adjacency nextHop : nextHops) {
             String prefix = VpnUtil.getIpPrefix(nextHop.getIpAddress());
@@ -587,7 +587,10 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                 final Uuid subnetId = nextHop.getSubnetId();
                 setupGwMacIfRequired(dpnId, vpnName, interfaceName, vpnId, subnetId,
                         writeInvTxn, NwConstants.ADD_FLOW);
-                addArpResponderFlow(dpnId, lPortTag, vpnName, vpnId, interfaceName, subnetId, writeInvTxn);
+                final Optional<String> gatewayIp = VpnUtil.getVpnSubnetGatewayIp(dataBroker, subnetId);
+                gwMac = getGatewayMacAddressForInterface(vpnName, interfaceName, gatewayIp.get());
+                addArpResponderFlow(dpnId, lPortTag, vpnName, vpnId, interfaceName, subnetId,
+                        gwMac.get(), gatewayIp.get(), writeInvTxn);
             } else {
                 //Extra route adjacency
                 LOG.trace("Adding prefix {} and nextHopList {} as extra-route for vpn", nextHop.getIpAddress(), nextHop.getNextHopIpList(), vpnName);
@@ -608,21 +611,22 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
             if (rd != null) {
                 addToLabelMapper(label, dpnId, nextHop.getIpAddress(), nhList, vpnId,
                         interfaceName, null,false, rd, writeOperTxn);
-                addPrefixToBGP(rd, nextHop.getIpAddress(), nhList, label, RouteOrigin.LOCAL, writeConfigTxn);
+                addPrefixToBGP(rd, nextHop.getIpAddress(), nhList, label, gwMac.isPresent() ? gwMac.get() : null,
+                        RouteOrigin.LOCAL, writeConfigTxn);
                 //TODO: ERT - check for VPNs importing my route
                 for (VpnInstanceOpDataEntry vpn : vpnsToImportRoute) {
                     String vpnRd = vpn.getVrfId();
                     if (vpnRd != null) {
                         LOG.debug("Exporting route with rd {} prefix {} nexthop {} label {} to VPN {}", vpnRd, nextHop.getIpAddress(), nextHopIp, label, vpn);
                         fibManager.addOrUpdateFibEntry(dataBroker, vpnRd, nextHop.getIpAddress(), nhList, (int) label,
-                                RouteOrigin.SELF_IMPORTED, writeConfigTxn);
+                                gwMac.isPresent() ? gwMac.get() : null, RouteOrigin.SELF_IMPORTED, writeConfigTxn);
                     }
                 }
             } else {
                 // ### add FIB route directly
                 fibManager.addOrUpdateFibEntry(dataBroker, vpnName, nextHop.getIpAddress(),
                         (nextHopIp == null ? Collections.emptyList() : Arrays.asList(nextHopIp)),
-                        (int)label, RouteOrigin.LOCAL, writeConfigTxn);
+                        (int)label, gwMac.isPresent() ? gwMac.get() : null, RouteOrigin.LOCAL, writeConfigTxn);
             }
         }
     }
@@ -681,11 +685,13 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                 }
 
                 if (nextHopAdded) {
-                    LOG.info("Updating label mapper : label {} dpn {} prefix {} nexthoplist {} vpnid {} rd {}", label, srcDpnId , prefix, nhList, vpnId, rd);
+                    LOG.info("Updating label mapper : label {} dpn {} prefix {} nexthoplist {} vpnid {} rd {}", label, srcDpnId ,
+                        prefix, nhList, vpnId, rd);
                     updateLabelMapper(label, nhList);
-
+                    Optional<String> gwMacAddr = getGatewayMacAddressForInterface(vpnInterface.getVpnInstanceName(),
+                            vpnInterface.getName(),prefix);
                     // Update the VRF entry with nextHop
-                    fibManager.updateFibEntry(dataBroker, rd, prefix, nhList, null);
+                    fibManager.updateFibEntry(dataBroker, rd, prefix, nhList, gwMacAddr.isPresent() ? gwMacAddr.get() : null, null);
 
                     //Get the list of VPN's importing this route(prefix) .
                     // Then update the VRF entry with nhList
@@ -694,7 +700,8 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                         String vpnRd = vpn.getVrfId();
                         if (vpnRd != null) {
                             LOG.debug("Exporting route with rd {} prefix {} nhList {} label {} to VPN {}", vpnRd, prefix, nhList, label, vpn);
-                            fibManager.updateFibEntry(dataBroker, vpnRd, prefix, nhList, null);
+                            fibManager.updateFibEntry(dataBroker, vpnRd, prefix, nhList,
+                                gwMacAddr.isPresent() ? gwMacAddr.get() : null, null);
                         }
                     }
                     // Advertise the prefix to BGP only for external vpn
@@ -750,9 +757,11 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                 if(isNextHopRemoveReqd) {
                     LOG.info("Updating label mapper : label {} dpn {} prefix {} nexthoplist {} vpnid {} rd {}", label, srcDpnId , prefix, nhList, vpnId, rd);
                     updateLabelMapper(label, nhList);
-
+                    Optional<String> gwMacAddr = getGatewayMacAddressForInterface(vpnInterface.getVpnInstanceName(),
+                            vpnInterface.getName(),prefix);
                     // Update the VRF entry with emtpy nextHop
-                    fibManager.updateFibEntry(dataBroker, rd, prefix, new ArrayList<String>() /* empty */, null);
+                    fibManager.updateFibEntry(dataBroker, rd, prefix, new ArrayList<String>() /* empty */,
+                        gwMacAddr.isPresent() ? gwMacAddr.get() : null, null);
 
                     //Get the list of VPN's importing this route(prefix) .
                     // Then update the VRF entry with nhList
@@ -761,7 +770,8 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                         String vpnRd = vpn.getVrfId();
                         if (vpnRd != null) {
                             LOG.debug("Exporting route with rd {} prefix {} nhList {} label {} to VPN {}", vpnRd, prefix, nhList, label, vpn);
-                            fibManager.updateFibEntry(dataBroker, vpnRd, prefix, nhList, null);
+                            fibManager.updateFibEntry(dataBroker, vpnRd, prefix, nhList,
+                                gwMacAddr.isPresent() ? gwMacAddr.get() : null, null);
                         }
                     }
 
@@ -901,6 +911,7 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                         }
                         String prefix = vrfEntry.getDestPrefix();
                         long label = vrfEntry.getLabel();
+                        String gwMac = vrfEntry.getGatewayMacAddress();
                         List<String> nextHops = vrfEntry.getNextHopAddressList();
                         SubnetRoute route = vrfEntry.getAugmentation(SubnetRoute.class);
                         for (String nh : nextHops) {
@@ -908,9 +919,10 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                                 LOG.info("Importing subnet route fib entry rd {} prefix {} nexthop {} label {} to vpn {}", vpnRd, prefix, nh, label, vpn.getVpnInstanceName());
                                 importSubnetRouteForNewVpn(vpnRd, prefix, nh, (int)label, route, writeConfigTxn);
                             } else {
-                                LOG.info("Importing fib entry rd {} prefix {} nexthop {} label {} to vpn {}", vpnRd, prefix, nh, label, vpn.getVpnInstanceName());
+                                LOG.info("Importing fib entry rd {} prefix {} nexthop {} label {} gwMAc {} to vpn {}",
+                                        vpnRd, prefix, nh, label, gwMac, vpn.getVpnInstanceName());
                                 fibManager.addOrUpdateFibEntry(dataBroker, vpnRd, prefix, Arrays.asList(nh), (int)label,
-                                        RouteOrigin.SELF_IMPORTED, writeConfigTxn);
+                                        gwMac, RouteOrigin.SELF_IMPORTED, writeConfigTxn);
                             }
                         }
                     } catch (Exception e) {
@@ -924,11 +936,11 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
         }
     }
 
-    private void addPrefixToBGP(String rd, String prefix, List<String> nextHopList, long label, RouteOrigin origin,
-                                WriteTransaction writeConfigTxn) {
+    private void addPrefixToBGP(String rd, String prefix, List<String> nextHopList, long label, String gwMacAddress,
+                                RouteOrigin origin, WriteTransaction writeConfigTxn) {
         try {
             LOG.info("ADD: Adding Fib entry rd {} prefix {} nextHop {} label {}", rd, prefix, nextHopList, label);
-            fibManager.addOrUpdateFibEntry(dataBroker, rd, prefix, nextHopList, (int)label, origin, writeConfigTxn);
+            fibManager.addOrUpdateFibEntry(dataBroker, rd, prefix, nextHopList, (int)label, gwMacAddress, origin, writeConfigTxn);
             LOG.info("ADD: Added Fib entry rd {} prefix {} nextHop {} label {}", rd, prefix, nextHopList, label);
             // Advertize the prefix to BGP only if nexthop ip is available
             if (nextHopList!= null && !nextHopList.isEmpty()) {
@@ -1131,28 +1143,27 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
         }
     }
 
-    private void addArpResponderFlow(final BigInteger dpId, final int lPortTag, final String vpnName,
+    private void addArpResponderFlow(final BigInteger dpId, final int lportTag, final String vpnName,
                                      final long vpnId, final String ifName, final Uuid subnetId,
-                                     final WriteTransaction writeInvTxn){
+                                     final String subnetGwMac, final String gwIp, final WriteTransaction writeInvTxn){
         LOG.trace("Creating the ARP Responder flow for VPN Interface {}",ifName);
-        final Optional<String> gatewayIp = VpnUtil.getVpnSubnetGatewayIp(dataBroker, subnetId);
-        if (gatewayIp.isPresent()) {
-            String gwIp = gatewayIp.get();
-            LOG.trace("VPN Interface Adjacency Subnet Gateway IP {}", gwIp);
-            VpnPortipToPort gwPort = VpnUtil.getNeutronPortFromVpnPortFixedIp(dataBroker, vpnName, gwIp);
-            //Check if a router gateway interface is available for the subnet gw is so then use Router interface
-            // else use connected interface
-            final String subNetGwMac = (gwPort != null && gwPort.isSubnetIp())?
-                    gwPort.getMacAddress() : InterfaceUtils.getMacAddressForInterface(dataBroker, ifName).get();
-            LOG.debug("VPN Interface Subnet Gateway MAC for {} interface to be used for ARPResponder is {}",
-                    (gwPort != null && gwPort.isSubnetIp())?"Router":"Connected", subNetGwMac);
-            final String flowId = ArpResponderUtil.getFlowID(lPortTag, gwIp);
-            List<Action> actions = ArpResponderUtil.getActions(ifaceMgrRpcService, ifName, gwIp, subNetGwMac);
-            ArpResponderUtil.installFlow(mdsalManager, writeInvTxn, dpId, flowId, flowId, NwConstants.DEFAULT_ARP_FLOW_PRIORITY,
-                    ArpResponderUtil.generateCookie(lPortTag, gwIp), ArpResponderUtil.getMatchCriteria(lPortTag, vpnId, gwIp),
-                    Arrays.asList(MDSALUtil.buildApplyActionsInstruction(actions)));
-            LOG.trace("Installed the ARP Responder flow for VPN Interface {}", ifName);
-        }
+        final String flowId = ArpResponderUtil.getFlowID(lportTag, gwIp);
+        List<Action> actions = ArpResponderUtil.getActions(ifaceMgrRpcService, ifName, gwIp, subnetGwMac);
+        ArpResponderUtil.installFlow(mdsalManager, writeInvTxn, dpId, flowId, flowId,
+                NwConstants.DEFAULT_ARP_FLOW_PRIORITY, ArpResponderUtil.generateCookie(lportTag, gwIp),
+                ArpResponderUtil.getMatchCriteria(lportTag, vpnId, gwIp),
+                Collections.singletonList(MDSALUtil.buildApplyActionsInstruction(actions)));
+        LOG.trace("Installed the ARP Responder flow for VPN Interface {}", ifName);
+    }
+
+    private Optional<String> getGatewayMacAddressForInterface(String vpnName, String ifName, String ipAddress) {
+        Optional<String> routerGwMac = Optional.absent();
+        VpnPortipToPort gwPort = VpnUtil.getNeutronPortFromVpnPortFixedIp(dataBroker, vpnName, ipAddress);
+        //Check if a router gateway interface is available for the subnet gw is so then use Router interface
+        // else use connected interface
+        routerGwMac = Optional.of((gwPort != null && gwPort.isSubnetIp())
+                ? gwPort.getMacAddress() : InterfaceUtils.getMacAddressForInterface(dataBroker, ifName).get());
+        return routerGwMac;
     }
 
     private void removeArpResponderFlow(final BigInteger dpId, final int lPortTag, final Uuid subnetUuid,
@@ -1635,10 +1646,11 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
             InterVpnLinkUtil.leakRoute(dataBroker, bgpManager, interVpnLink, srcVpnUuid, dstVpnUuid, destination, newLabel);
         } else {
             if (rd != null) {
-                addPrefixToBGP(rd, destination, nextHopIpList, label, origin, writeConfigTxn);
+                addPrefixToBGP(rd, destination, nextHopIpList, label, null, origin, writeConfigTxn);
             } else {
                 // ### add FIB route directly
-                fibManager.addOrUpdateFibEntry(dataBroker, routerID, destination, nextHopIpList, label, origin, writeConfigTxn);
+                fibManager.addOrUpdateFibEntry(dataBroker, routerID, destination, nextHopIpList, label,
+                        null /*gatewayMacAddress*/, origin, writeConfigTxn);
             }
         }
         if (!writeOperTxnPresent) {
