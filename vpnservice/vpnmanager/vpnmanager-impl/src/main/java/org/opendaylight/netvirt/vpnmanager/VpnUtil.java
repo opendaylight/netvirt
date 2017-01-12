@@ -17,7 +17,7 @@ import java.util.Objects;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
-import org.antlr.v4.runtime.misc.Pair;
+import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
@@ -72,13 +72,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.lockmanager.rev16041
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.ElanTagNameMap;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.tag.name.map.ElanTagName;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.tag.name.map.ElanTagNameKey;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.ExtrarouteRoutedistinguishersMap;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.FibEntries;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.extraroute.routedistinguishers.map.ExtrarouteRoutedistinguishers;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.extraroute.routedistinguishers.map.ExtrarouteRoutedistinguishersKey;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.extraroute.routedistinguishers.map.extraroute.routedistinguishers.DestPrefixes;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.extraroute.routedistinguishers.map.extraroute.routedistinguishers.DestPrefixesBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.extraroute.routedistinguishers.map.extraroute.routedistinguishers.DestPrefixesKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.fibentries.VrfTables;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.fibentries.VrfTablesKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.VrfEntry;
@@ -96,6 +90,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.Vpn
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.VpnInstanceToVpnId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.VpnToExtraroutes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.adjacency.list.Adjacency;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.adjacency.list.AdjacencyKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.prefix.to._interface.VpnIds;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.prefix.to._interface.VpnIdsBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.prefix.to._interface.VpnIdsKey;
@@ -113,10 +108,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.to.extraroutes.VpnExtraroutes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.to.extraroutes.VpnExtraroutesKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.to.extraroutes.vpn.extraroutes.ExtraRoutes;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.to.extraroutes.vpn.extraroutes.ExtraRoutesKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.to.extraroutes.vpn.extraroutes.extra.routes.Routes;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.to.extraroutes.vpn.extraroutes.extra.routes.RoutesBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.to.extraroutes.vpn.extraroutes.extra.routes.RoutesKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ExtRouters;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ExternalNetworks;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.NaptSwitches;
@@ -158,8 +150,6 @@ import com.google.common.util.concurrent.Futures;
 
 public class VpnUtil {
     private static final Logger LOG = LoggerFactory.getLogger(VpnUtil.class);
-    private static final int DEFAULT_PREFIX_LENGTH = 32;
-    private static final String PREFIX_SEPARATOR = "/";
 
     static InstanceIdentifier<VpnInterface> getVpnInterfaceIdentifier(String vpnInterfaceName) {
         return InstanceIdentifier.builder(VpnInterfaces.class)
@@ -242,7 +232,7 @@ public class VpnUtil {
     }
 
     static Optional<Prefixes> getPrefixToInterface(DataBroker broker, long vpnId, String ipPrefix) {
-        return read(broker, LogicalDatastoreType.OPERATIONAL, getPrefixToInterfaceIdentifier(vpnId, getIpPrefix(ipPrefix)));
+        return read(broker, LogicalDatastoreType.OPERATIONAL, getPrefixToInterfaceIdentifier(vpnId, VpnHelper.getIpPrefix(ipPrefix)));
    }
 
    static  List<Routes> getAllExtraRoutes(DataBroker broker, String vpnName, String vrfId) {
@@ -337,10 +327,6 @@ public class VpnUtil {
             return nextHops;
         }
         return null;
-    }
-
-    static DestPrefixesBuilder getDestPrefixesBuilder(String destPrefix, List<String> rd) {
-        return new DestPrefixesBuilder().setKey(new DestPrefixesKey(destPrefix)).setDestPrefix(destPrefix).setRouteDistinguishers(rd);
     }
 
     static Adjacencies getVpnInterfaceAugmentation(List<Adjacency> nextHopList) {
@@ -680,14 +666,6 @@ public class VpnUtil {
             }
         }
         return false;
-    }
-
-    static String getIpPrefix(String prefix) {
-        String prefixValues[] = prefix.split("/");
-        if (prefixValues.length == 1) {
-            prefix = prefix + PREFIX_SEPARATOR + DEFAULT_PREFIX_LENGTH;
-        }
-        return prefix;
     }
 
     static final FutureCallback<Void> DEFAULT_CALLBACK =
@@ -1376,11 +1354,14 @@ public class VpnUtil {
         java.util.Optional<String> rdToAllocate = usedRds.stream()
                 .map(usedRd -> {
                     Optional<Routes> vpnExtraRoutes = VpnHelper.getVpnExtraroutes(dataBroker, vpnName, usedRd, prefix);
-                    return vpnExtraRoutes.isPresent() ? new Pair<String, String>(vpnExtraRoutes.get().getNexthopIpList().get(0), usedRd) : new Pair<String, String>("", "");})
+                    return vpnExtraRoutes.isPresent() ? new ImmutablePair<String, String>(vpnExtraRoutes.get().getNexthopIpList().get(0), usedRd) : new ImmutablePair<String, String>("", "");})
                 .filter(pair -> {
-                    Optional<Prefixes> prefixToInterface = getPrefixToInterface(dataBroker, vpnId, pair.a);
+                    if (pair.getLeft().isEmpty()) {
+                        return false;
+                    }
+                    Optional<Prefixes> prefixToInterface = getPrefixToInterface(dataBroker, vpnId, pair.getLeft());
                     return prefixToInterface.isPresent() ? dpnId.equals(prefixToInterface.get().getDpnId()) : false;})
-                .map(pair -> pair.b).findAny();
+                .map(pair -> pair.getRight()).findFirst();
         if (rdToAllocate.isPresent()) {
             return rdToAllocate;
         }
@@ -1393,8 +1374,12 @@ public class VpnUtil {
         }
         String rd = availableRds.get(0);
         usedRds.add(rd);
-        syncUpdate(dataBroker, LogicalDatastoreType.OPERATIONAL, VpnHelper.getUsedRdsIdentifier(vpnId, prefix), getDestPrefixesBuilder(prefix, usedRds).build());
+        syncUpdate(dataBroker, LogicalDatastoreType.OPERATIONAL, VpnHelper.getUsedRdsIdentifier(vpnId, prefix), VpnHelper.getDestPrefixesBuilder(prefix, usedRds).build());
         return java.util.Optional.ofNullable(rd);
     }
 
+    static InstanceIdentifier<Adjacency> getAdjacencyIdentifier(String vpnInterfaceName, String ipAddress) {
+        return InstanceIdentifier.builder(VpnInterfaces.class).child(VpnInterface.class, new VpnInterfaceKey(vpnInterfaceName)).augmentation(
+                        Adjacencies.class).child(Adjacency.class, new AdjacencyKey(ipAddress)).build();
+    }
 }

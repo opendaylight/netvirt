@@ -10,17 +10,20 @@ package org.opendaylight.netvirt.vpnmanager;
 import com.google.common.base.Optional;
 import com.google.common.util.concurrent.CheckedFuture;
 import com.google.common.util.concurrent.ListenableFuture;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.DataStoreJobCoordinator;
+import org.opendaylight.netvirt.vpnmanager.api.VpnHelper;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.VpnInterfaces;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.interfaces.VpnInterface;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.interfaces.VpnInterfaceKey;
@@ -122,7 +125,7 @@ public class VpnInterfaceOpListener extends AsyncDataTreeChangeListenerBase<VpnI
                 List<Prefixes> prefixToInterface = new ArrayList<>();
                 Optional<Prefixes> prefix = VpnUtil.read(dataBroker, LogicalDatastoreType.OPERATIONAL,
                         VpnUtil.getPrefixToInterfaceIdentifier(vpnInstOp.getVpnId(),
-                                VpnUtil.getIpPrefix(adjacency.getIpAddress())));
+                                VpnHelper.getIpPrefix(adjacency.getIpAddress())));
                 if (prefix.isPresent()) {
                     prefixToInterface.add(prefix.get());
                 }
@@ -130,7 +133,7 @@ public class VpnInterfaceOpListener extends AsyncDataTreeChangeListenerBase<VpnI
                     for (String nh : adjacency.getNextHopIpList()) {
                         prefix = VpnUtil.read(dataBroker, LogicalDatastoreType.OPERATIONAL,
                                 VpnUtil.getPrefixToInterfaceIdentifier(vpnInstOp.getVpnId(),
-                                        VpnUtil.getIpPrefix(nh)));
+                                        VpnHelper.getIpPrefix(nh)));
                         if (prefix.isPresent())
                             prefixToInterface.add(prefix.get());
                     }
@@ -214,14 +217,14 @@ public class VpnInterfaceOpListener extends AsyncDataTreeChangeListenerBase<VpnI
                 List<Prefixes> prefixToInterfaceList = new ArrayList<>();
                 Optional<Prefixes> prefixToInterface = VpnUtil.read(dataBroker, LogicalDatastoreType.OPERATIONAL,
                         VpnUtil.getPrefixToInterfaceIdentifier(vpnInstOp.getVpnId(),
-                                VpnUtil.getIpPrefix(adjacency.getIpAddress())));
+                                VpnHelper.getIpPrefix(adjacency.getIpAddress())));
                 if (prefixToInterface.isPresent()) {
                     prefixToInterfaceList.add(prefixToInterface.get());
                 } else {
                     for (String adj : adjacency.getNextHopIpList()) {
                         prefixToInterface = VpnUtil.read(dataBroker, LogicalDatastoreType.OPERATIONAL,
                                 VpnUtil.getPrefixToInterfaceIdentifier(vpnInstOp.getVpnId(),
-                                        VpnUtil.getIpPrefix(adj)));
+                                        VpnHelper.getIpPrefix(adj)));
                         if (prefixToInterface.isPresent()) {
                             prefixToInterfaceList.add(prefixToInterface.get());
                         }

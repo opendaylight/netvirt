@@ -181,6 +181,11 @@ public class FibManagerImpl implements IFibManager {
     }
 
     @Override
+    public void removeNextHopFromFibEntry(DataBroker broker, String rd, String prefix, String nextHop, long label, WriteTransaction writeConfigTxn) {
+        FibUtil.removeNextHopFromFibEntry(broker, rd, prefix , nextHop, label, writeConfigTxn);
+    }
+
+    @Override
     public void addVrfTable(DataBroker broker, String rd, WriteTransaction writeConfigTxn) {
         FibUtil.addVrfTable(broker, rd, writeConfigTxn);
 
@@ -201,5 +206,10 @@ public class FibManagerImpl implements IFibManager {
                                              final boolean isVpnFirstEndPoint,
                                              final VrfEntry vrfEntry) {
         vrfEntryListener.removeInterVPNLinkRouteFlows(interVpnLinkName, isVpnFirstEndPoint,vrfEntry);
+    }
+
+    @Override
+    public void refreshFibTables(String rd, String prefix) {
+        vrfEntryListener.refreshFibTables(rd, prefix);
     }
 }

@@ -807,7 +807,12 @@ public class NexthopManager implements AutoCloseable {
         Map<String, List<ActionInfo>>egressActionMap = new HashMap<>();
         clonedVpnExtraRoutes.stream().forEach(vpnExtraRoute -> vpnExtraRoute.getNexthopIpList().stream().forEach(remoteNextHopIp -> {
             String nextHopIp = remoteNextHopIp + "/32";
-            String tepIp = FibUtil.getNextHopAddress(dataBroker, rd, nextHopIp).get(0);
+            List<String> nhList = FibUtil.getNextHopAddress(dataBroker, rd, nextHopIp);
+            if (nhList.isEmpty()) {
+                LOG.error("NhList empty for ip {}", nextHopIp);
+                return;
+            }
+            String tepIp = nhList.get(0);
             AdjacencyResult adjacencyResult = getRemoteNextHopPointer(dpnId, vpnId,
                     vrfEntry.getDestPrefix(), tepIp);
             if(adjacencyResult != null) {

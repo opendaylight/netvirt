@@ -10,10 +10,12 @@ package org.opendaylight.netvirt.vpnmanager;
 import com.google.common.base.Optional;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
+
 import java.math.BigInteger;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
+
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
@@ -21,6 +23,7 @@ import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.mdsalutil.MetaDataUtil;
+import org.opendaylight.netvirt.vpnmanager.api.VpnHelper;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.VpnInterfaces;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.interfaces.VpnInterface;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.interfaces.VpnInterfaceBuilder;
@@ -180,7 +183,7 @@ public class ArpNotificationHandler implements OdlArputilListener {
             String ip = prefix.getIpv4Address().getValue();
             if (adjacencies.isPresent()) {
                 List<Adjacency> adjacencyList = adjacencies.get().getAdjacency();
-                ip = VpnUtil.getIpPrefix(ip);
+                ip = VpnHelper.getIpPrefix(ip);
                 for (Adjacency adjacs : adjacencyList) {
                     if (adjacs.isPrimaryAdjacency()) {
                         nextHopIpAddr = adjacs.getIpAddress();
@@ -218,7 +221,7 @@ public class ArpNotificationHandler implements OdlArputilListener {
     }
 
     private void removeMipAdjacency(String vpnName, String vpnInterface, IpAddress prefix) {
-        String ip = VpnUtil.getIpPrefix(prefix.getIpv4Address().getValue());
+        String ip = VpnHelper.getIpPrefix(prefix.getIpv4Address().getValue());
         LOG.trace("Removing {} adjacency from Old VPN Interface {} ", ip,vpnInterface);
         InstanceIdentifier<VpnInterface> vpnIfId = VpnUtil.getVpnInterfaceIdentifier(vpnInterface);
         InstanceIdentifier<Adjacencies> path = vpnIfId.augmentation(Adjacencies.class);

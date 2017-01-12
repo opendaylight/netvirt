@@ -56,9 +56,11 @@ public interface IFibManager {
     void removeOrUpdateFibEntry(DataBroker broker, String rd, String prefix, String nextHopToRemove, WriteTransaction writeConfigTxn);
     void removeFibEntry(DataBroker broker, String rd, String prefix, WriteTransaction writeConfigTxn);
     void updateFibEntry(DataBroker broker, String rd, String prefix , List<String> nextHopList, long label, WriteTransaction writeConfigTxn);
+    void removeNextHopFromFibEntry(DataBroker broker, String rd, String prefix, String nextHop, long label, WriteTransaction writeConfigTxn);
     void addVrfTable(DataBroker broker, String rd, WriteTransaction writeConfigTxn);
     void removeVrfTable(DataBroker broker, String rd, WriteTransaction writeConfigTxn);
     void removeInterVPNLinkRouteFlows(final String interVpnLinkName,
                                       final boolean isVpnFirstEndPoint,
                                       final VrfEntry vrfEntry);
+    void refreshFibTables(String rd, String prefix);
 }
