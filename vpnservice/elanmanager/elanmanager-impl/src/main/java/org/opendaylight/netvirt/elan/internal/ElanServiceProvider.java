@@ -134,6 +134,11 @@ public class ElanServiceProvider extends AbstractLifecycle implements IElanServi
     protected void stop() throws Exception {
     }
 
+    @Override
+    public Boolean isOpenStackVniSemanticsEnforced() {
+        return elanUtils.isOpenStackVniSemanticsEnforced();
+    }
+
     private void createIdPool() throws Exception {
         CreateIdPoolInput createPool = new CreateIdPoolInputBuilder().setPoolName(ElanConstants.ELAN_ID_POOL_NAME)
                 .setLow(ElanConstants.ELAN_ID_LOW_VALUE).setHigh(ElanConstants.ELAN_ID_HIGH_VALUE).build();
@@ -616,7 +621,6 @@ public class ElanServiceProvider extends AbstractLifecycle implements IElanServi
             LOG.debug("No ELAN tag found for {}", elanInstanceName);
             return Collections.emptyList();
         }
-
         return Collections.singletonList(
                 new NxMatchRegister(ElanConstants.ELAN_REG_ID, elanTag, MetaDataUtil.getElanMaskForReg()));
     }

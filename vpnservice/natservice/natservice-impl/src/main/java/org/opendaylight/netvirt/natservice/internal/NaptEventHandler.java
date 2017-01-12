@@ -57,7 +57,7 @@ import org.opendaylight.genius.mdsalutil.packet.Ethernet;
 import org.opendaylight.genius.mdsalutil.packet.IPv4;
 import org.opendaylight.genius.mdsalutil.packet.TCP;
 import org.opendaylight.genius.mdsalutil.packet.UDP;
-import org.opendaylight.netvirt.neutronvpn.interfaces.INeutronVpnManager;
+import org.opendaylight.netvirt.elanmanager.api.IElanService;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Uri;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.MacAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
@@ -83,7 +83,7 @@ public class NaptEventHandler {
     private final PacketProcessingService pktService;
     private final OdlInterfaceRpcService interfaceManagerRpc;
     private final NaptManager naptManager;
-    private final INeutronVpnManager nvpnManager;
+    private final IElanService elanManager;
     private final IdManagerService idManager;
     private IInterfaceManager interfaceManager;
 
@@ -93,7 +93,7 @@ public class NaptEventHandler {
                             final PacketProcessingService pktService,
                             final OdlInterfaceRpcService interfaceManagerRpc,
                             final IInterfaceManager interfaceManager,
-                            final INeutronVpnManager nvpnManager,
+                            final IElanService elanManager,
                             final IdManagerService idManager) {
         this.dataBroker = dataBroker;
         NaptEventHandler.mdsalManager = mdsalManager;
@@ -101,7 +101,7 @@ public class NaptEventHandler {
         this.pktService = pktService;
         this.interfaceManagerRpc = interfaceManagerRpc;
         this.interfaceManager = interfaceManager;
-        this.nvpnManager = nvpnManager;
+        this.elanManager = elanManager;
         this.idManager = idManager;
     }
 
@@ -272,8 +272,8 @@ public class NaptEventHandler {
                 }
                 if (pktOut != null) {
                     String routerName = NatUtil.getRouterName(dataBroker, routerId);
-                    long tunId = NatUtil.getTunnelIdForNonNaptToNaptFlow(dataBroker,
-                            nvpnManager, idManager, routerId, routerName);
+                    long tunId = NatUtil.getTunnelIdForNonNaptToNaptFlow(dataBroker, elanManager, idManager, routerId,
+                            routerName);
                     sendNaptPacketOut(pktOut, infInfo, actionInfos, tunId);
                 } else {
                     LOG.warn("NAT Service : Unable to send Packet Out");
