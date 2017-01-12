@@ -35,10 +35,10 @@ import org.opendaylight.genius.mdsalutil.instructions.InstructionGotoTable;
 import org.opendaylight.genius.mdsalutil.instructions.InstructionWriteMetadata;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.netvirt.bgpmanager.api.IBgpManager;
+import org.opendaylight.netvirt.elanmanager.api.IElanService;
 import org.opendaylight.netvirt.fibmanager.api.IFibManager;
 import org.opendaylight.netvirt.fibmanager.api.RouteOrigin;
 import org.opendaylight.netvirt.natservice.api.SnatServiceManager;
-import org.opendaylight.netvirt.neutronvpn.interfaces.INeutronVpnManager;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.instruction.list.Instruction;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.IdManagerService;
@@ -86,7 +86,7 @@ public class NatTunnelInterfaceStateListener
     private final OdlInterfaceRpcService interfaceService;
     private final FloatingIPListener floatingIPListener;
     private final FibRpcService fibRpcService;
-    private final INeutronVpnManager nvpnManager;
+    private final IElanService elanManager;
     private NatMode natMode = NatMode.Controller;
 
     protected enum TunnelAction {
@@ -109,6 +109,7 @@ public class NatTunnelInterfaceStateListener
      * @param interfaceService       - Interface Service
      * @param floatingIPListener     -  Floating IP Listner
      * @param fibRpcService          - FIB RPC Service
+     * @param elanManager            - Elan Manager
      */
     @Inject
     public NatTunnelInterfaceStateListener(final DataBroker dataBroker,
@@ -123,8 +124,8 @@ public class NatTunnelInterfaceStateListener
                                            final OdlInterfaceRpcService interfaceService,
                                            final FloatingIPListener floatingIPListener,
                                            final FibRpcService fibRpcService,
-                                           final INeutronVpnManager nvpnManager,
-                                           final NatserviceConfig config) {
+                                           final NatserviceConfig config,
+                                           final IElanService elanManager) {
         super(StateTunnelList.class, NatTunnelInterfaceStateListener.class);
         this.dataBroker = dataBroker;
         this.bgpManager = bgpManager;
@@ -138,7 +139,7 @@ public class NatTunnelInterfaceStateListener
         this.interfaceService = interfaceService;
         this.floatingIPListener = floatingIPListener;
         this.fibRpcService = fibRpcService;
-        this.nvpnManager = nvpnManager;
+        this.elanManager = elanManager;
         if (config != null) {
             this.natMode = config.getNatMode();
         }
@@ -671,7 +672,7 @@ public class NatTunnelInterfaceStateListener
                     LOG.debug("NAT Service : SNAT -> Advertise the route to the externalIp {} having nextHopIp {}",
                             externalIp, nextHopIp);
                     long l3vni = 0;
-                    if (nvpnManager.getEnforceOpenstackSemanticsConfig()) {
+                    if (elanManager.isOpenStackVniSemanticsEnforced()) {
                         l3vni = NatOverVxlanUtil.getInternetVpnVni(idManager, externalVpnName, l3vni).longValue();
                     }
                     Uuid externalSubnetId = NatUtil.getExternalSubnetForRouterExternalIp(dataBroker, externalIp,
@@ -816,7 +817,7 @@ public class NatTunnelInterfaceStateListener
                     LOG.debug("NAT Service : DNAT -> Advertise the route to the externalIp {} having nextHopIp {}",
                             externalIp, nextHopIp);
                     long l3vni = 0;
-                    if (nvpnManager.getEnforceOpenstackSemanticsConfig()) {
+                    if (elanManager.isOpenStackVniSemanticsEnforced()) {
                         l3vni = NatOverVxlanUtil.getInternetVpnVni(idManager, vpnName, l3vni).longValue();
                     }
                     NatUtil.addPrefixToBGP(dataBroker, bgpManager, fibManager, vpnName, rd, null,
