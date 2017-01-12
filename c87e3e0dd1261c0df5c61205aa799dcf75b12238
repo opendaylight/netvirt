@@ -207,6 +207,23 @@
     },
     {
       "key": {
+        "uuid": "1a622d24_0dcaae1a",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/InterfaceStateToTransportZoneListener.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 66,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2017-01-12T09:44:16Z",
+      "side": 1,
+      "message": "Noticed a NPE here.\n\nException in thread \"pool-45-thread-3\" java.lang.NullPointerException\n        at org.opendaylight.genius.interfacemanager.InterfacemgrProvider.getInterfaceInfoFromOperationalDataStore(InterfacemgrProvider.java:434)\n        at Proxyb9c6ecca_6d00_44bc_8912_68be27dd154f.getInterfaceInfoFromOperationalDataStore(Unknown Source)\n        at org.opendaylight.netvirt.elan.internal.InterfaceStateToTransportZoneListener.add(InterfaceStateToTransportZoneListener.java:66)\n        at org.opendaylight.netvirt.elan.internal.InterfaceStateToTransportZoneListener.add(InterfaceStateToTransportZoneListener.java:23)\n        at org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase$DataTreeChangeHandler.run(AsyncDataTreeChangeListenerBase.java:142)\n        at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1142)\n        at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:617)\n        at java.lang.Thread.run(Thread.java:745)\nException in thread \"pool-45-thread-4\" java.lang.NullPointerException\n        at org.opendaylight.genius.interfacemanager.InterfacemgrProvider.getInterfaceInfoFromOperationalDataStore(InterfacemgrProvider.java:434)\n        at Proxyb9c6ecca_6d00_44bc_8912_68be27dd154f.getInterfaceInfoFromOperationalDataStore(Unknown Source)\n        at org.opendaylight.netvirt.elan.internal.InterfaceStateToTransportZoneListener.add(InterfaceStateToTransportZoneListener.java:66)\n        at org.opendaylight.netvirt.elan.internal.InterfaceStateToTransportZoneListener.add(InterfaceStateToTransportZoneListener.java:23)\n        at org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase$DataTreeChangeHandler.run(AsyncDataTreeChangeListenerBase.java:142)\n        at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1142)\n        at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:617)\n        at java.lang.Thread.run(Thread.java:745)",
+      "revId": "c87e3e0dd1261c0df5c61205aa799dcf75b12238",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_226ceb34",
         "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/utils/TransportZoneNotificationUtil.java",
         "patchSetId": 11
@@ -271,6 +288,23 @@
       "side": 1,
       "message": "Yes because we create a TZ per router (vpnInstance) so VM\u0027s which are connected in L3 (via the router) will have a tunnel configured for them.",
       "parentUuid": "1a622d24_c262573d",
+      "revId": "c87e3e0dd1261c0df5c61205aa799dcf75b12238",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_a8e0c896",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/utils/TransportZoneNotificationUtil.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 243,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2017-01-12T09:44:16Z",
+      "side": 1,
+      "message": "opendaylight-user@root\u003elog:exception-display \njava.lang.NullPointerException\n        at org.opendaylight.netvirt.elan.utils.TransportZoneNotificationUtil.shouldCreateVtep(TransportZoneNotificationUtil.java:243)[365:org.opendaylight.netvirt.elanmanager-impl:0.4.0.SNAPSHOT]\n        at org.opendaylight.netvirt.elan.utils.TransportZoneNotificationUtil.updateTransportZone(TransportZoneNotificationUtil.java:217)[365:org.opendaylight.netvirt.elanmanager-impl:0.4.0.SNAPSHOT]\n        at org.opendaylight.netvirt.elan.internal.VpnToTransportZoneListener.update(VpnToTransportZoneListener.java:62)[365:org.opendaylight.netvirt.elanmanager-impl:0.4.0.SNAPSHOT]\n        at org.opendaylight.netvirt.elan.internal.VpnToTransportZoneListener.update(VpnToTransportZoneListener.java:23)[365:org.opendaylight.netvirt.elanmanager-impl:0.4.0.SNAPSHOT]\n        at org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase$DataTreeChangeHandler.run(AsyncDataTreeChangeListenerBase.java:138)[321:org.opendaylight.genius.mdsalutil-api:0.2.0.SNAPSHOT]\n        at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1142)[:1.8.0_111]\n        at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:617)[:1.8.0_111]\n        at java.lang.Thread.run(Thread.java:745)[:1.8.0_111]",
       "revId": "c87e3e0dd1261c0df5c61205aa799dcf75b12238",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
