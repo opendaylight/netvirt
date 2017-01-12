@@ -758,7 +758,7 @@ public class NatUtil {
                 return;
             }
             fibManager.addOrUpdateFibEntry(broker, rd, prefix, Collections.singletonList(nextHopIp), (int) label,
-                    origin, null);
+                    null, origin, null);
             bgpManager.advertisePrefix(rd, prefix, Collections.singletonList(nextHopIp), (int) label);
             LOG.info("ADD: Added Fib entry rd {} prefix {} nextHop {} label {}", rd, prefix, nextHopIp, label);
         } catch (Exception e) {
