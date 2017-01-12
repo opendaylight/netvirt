@@ -16,6 +16,41 @@
       "revId": "16e8be1153da4b6952281219614bb95799137c9f",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_fc4f1932",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 10
+      },
+      "lineNbr": 200,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-01-12T16:52:12Z",
+      "side": 1,
+      "message": "Please remvoe the syncrhonized(this) here and see down below for the new comment..",
+      "parentUuid": "1a622d24_fc2ef98a",
+      "revId": "16e8be1153da4b6952281219614bb95799137c9f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_bc492133",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 10
+      },
+      "lineNbr": 1868,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-01-12T16:52:12Z",
+      "side": 1,
+      "message": "let us have a synchronize(this) here..",
+      "revId": "16e8be1153da4b6952281219614bb95799137c9f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
