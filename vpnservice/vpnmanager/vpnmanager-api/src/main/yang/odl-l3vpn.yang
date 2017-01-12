@@ -62,6 +62,31 @@ module odl-l3vpn {
         }
     }
 
+    container vpn-interface-to-gw-src-mac {
+        config false;
+
+        list vpn-interface-to-gw-src-mac-data {
+            key "vpn-name vpn-interface";
+
+            leaf vpn-name{
+                type string;
+            }
+
+            leaf vpn-interface {
+                type string;
+            }
+            leaf src-mac {
+                type string;
+            }
+            leaf mac-source {
+                type enumeration{
+                    enum ROUTER;
+                    enum CONNECTED;
+                }
+            }
+        }
+    }
+
     container vpn-to-extraroute {
         config false;
         list vpn {
