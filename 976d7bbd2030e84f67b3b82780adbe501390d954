@@ -37,6 +37,29 @@
     },
     {
       "key": {
+        "uuid": "1a622d24_818682d9",
+        "filename": "docs/specs/ipv6-distributed-router.rst",
+        "patchSetId": 1
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 6773
+      },
+      "writtenOn": "2017-01-12T16:28:47Z",
+      "side": 1,
+      "message": "actually DNAT (floating IP) is also source NAT (going out) only with a dedicated IP (hence the \"D\" in DNAT). The correct term would be SNAT where the \"S\" means \"Shared\" - not source :)",
+      "range": {
+        "startLine": 28,
+        "startChar": 6,
+        "endLine": 28,
+        "endChar": 18
+      },
+      "revId": "976d7bbd2030e84f67b3b82780adbe501390d954",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_ed549200",
         "filename": "docs/specs/ipv6-distributed-router.rst",
         "patchSetId": 1
@@ -66,6 +89,47 @@
       "side": 1,
       "message": "The behavior is same as IPv4 (i.e., VM MAC is carried as source MAC).",
       "parentUuid": "1a622d24_ed549200",
+      "revId": "976d7bbd2030e84f67b3b82780adbe501390d954",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_01727210",
+        "filename": "docs/specs/ipv6-distributed-router.rst",
+        "patchSetId": 1
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 6773
+      },
+      "writtenOn": "2017-01-12T16:28:47Z",
+      "side": 1,
+      "message": "This is correct but is really an anomaly of the implementation. In the reference Neutron implementation the SMAC should have been a MAC per DPN (compute host) assigned to the DVR router port.",
+      "parentUuid": "1a622d24_68dcf073",
+      "revId": "976d7bbd2030e84f67b3b82780adbe501390d954",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_012a728f",
+        "filename": "docs/specs/ipv6-distributed-router.rst",
+        "patchSetId": 1
+      },
+      "lineNbr": 48,
+      "author": {
+        "id": 6773
+      },
+      "writtenOn": "2017-01-12T16:28:47Z",
+      "side": 1,
+      "message": "While there is no need for a NAT, the network model should still be the same as that of a \"router\". In other words, an IPv6 VM MAC should be replaced by a \"router\" port MAC and no NDP request should be expected for the VM but should be expected for this router port. The problem with DVR is that there is no real one port. Hence, the question is how to handle the NDP request. Since this request should not be expected to reference the VM to be reached (in fact it may be performed once for communications with multiple VMs on different computer hosts), it seems that the only viable solution would be to respond to such request with a single MAC, similar to the SNAT solution with the unfortunate side effect of having all the N-S traffic going through a single compute as a gateway just like with SNAT traffic.\nFor better performance, Floating IPv6 IPs could be used (with DNAT) could be used.\nI do not see a solution where the model effectively moves the Neutron network to the ext net (we cannot expect NDP queries for the VM IPv6 addresses even if they are globally routable).\nIn addition, note that an IPv6 host may also use link local addresses which should not be forwarded outside the L2 domain and this would be yet another case to differentiate from globally routable IPv6 addresses.",
+      "range": {
+        "startLine": 47,
+        "startChar": 28,
+        "endLine": 48,
+        "endChar": 29
+      },
       "revId": "976d7bbd2030e84f67b3b82780adbe501390d954",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -171,6 +235,24 @@
       "side": 1,
       "message": "Are you referring to VLAN provider or VLAN tenant networks. Sorry, I\u0027m not sure if I got your point. Can you please elaborate? \n\nWe do support IPv6 VLAN tenant networks for east-west in the same manner as IPv4.",
       "parentUuid": "1a622d24_cdb71639",
+      "revId": "976d7bbd2030e84f67b3b82780adbe501390d954",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_e18ad6bd",
+        "filename": "docs/specs/ipv6-distributed-router.rst",
+        "patchSetId": 1
+      },
+      "lineNbr": 79,
+      "author": {
+        "id": 6773
+      },
+      "writtenOn": "2017-01-12T16:28:47Z",
+      "side": 1,
+      "message": "The East-West IPv6 can be solved exactly like in IPv4 (with or without HOST_MAC). There is no real issue with reference to VM\u0027s as their ARP\u0027s for the Neutron router port on the source network would always be responded to within the compute (either by the controller or by the OVS responder). This is different from the case of the ext net.\nHowever, a similar issue exists for non-VM instances on a VLAN provider network (e.g. appliance / PNF) which would like to communicate at L3 with a VM on another Neutron network. We refer to this as the L3 PNF issue. One solution would be to mandate HWVTEP connectivity for such an appliance / PNF.",
+      "parentUuid": "1a622d24_a793d659",
       "revId": "976d7bbd2030e84f67b3b82780adbe501390d954",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -329,6 +411,30 @@
     },
     {
       "key": {
+        "uuid": "1a622d24_bc112154",
+        "filename": "docs/specs/ipv6-distributed-router.rst",
+        "patchSetId": 1
+      },
+      "lineNbr": 108,
+      "author": {
+        "id": 6773
+      },
+      "writtenOn": "2017-01-12T16:28:47Z",
+      "side": 1,
+      "message": "I believe we should really implement the same kind of RPC that the L3 agent performs to get the HOST_MAC but in ODL. ODL internal allocation may suffer from inconsistencies with the Neutron implementation which I am concerned about too. Also, we may need a MAC per Neutron router port per host and not just per host.",
+      "parentUuid": "1a622d24_a7c8f655",
+      "range": {
+        "startLine": 108,
+        "startChar": 69,
+        "endLine": 108,
+        "endChar": 77
+      },
+      "revId": "976d7bbd2030e84f67b3b82780adbe501390d954",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_26b1a847",
         "filename": "docs/specs/ipv6-distributed-router.rst",
         "patchSetId": 1
@@ -388,6 +494,30 @@
       "side": 1,
       "message": "+1 for the first statement from Daya.\n\n@Daya, currently SNAT traffic uses VM MAC as source MAC instead of Router Gateway MAC. The following patch addresses this issue - https://git.opendaylight.org/gerrit/#/c/48430/",
       "parentUuid": "1a622d24_57ec4cf3",
+      "range": {
+        "startLine": 108,
+        "startChar": 58,
+        "endLine": 109,
+        "endChar": 16
+      },
+      "revId": "976d7bbd2030e84f67b3b82780adbe501390d954",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_3c2d1196",
+        "filename": "docs/specs/ipv6-distributed-router.rst",
+        "patchSetId": 1
+      },
+      "lineNbr": 109,
+      "author": {
+        "id": 6773
+      },
+      "writtenOn": "2017-01-12T16:28:47Z",
+      "side": 1,
+      "message": "-1 I do not agree. The model should allow for a MAC per Neutron router port per host or the network model would be broken when no VLANs are used (e.g. flat ext net with multiple subnets).",
+      "parentUuid": "1a622d24_e7be6ead",
       "range": {
         "startLine": 108,
         "startChar": 58,
