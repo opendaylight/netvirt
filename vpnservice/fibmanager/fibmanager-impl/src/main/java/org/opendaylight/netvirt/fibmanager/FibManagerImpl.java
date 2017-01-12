@@ -148,8 +148,9 @@ public class FibManagerImpl implements IFibManager {
 
     @Override
     public void addOrUpdateFibEntry(DataBroker broker, String rd, String prefix, List<String> nextHopList,
-                                    int label, RouteOrigin origin, WriteTransaction writeConfigTxn) {
-        FibUtil.addOrUpdateFibEntry(broker, rd, prefix, nextHopList, label, origin, writeConfigTxn);
+                                    int label, String gwMacAddress, RouteOrigin origin,
+                                    WriteTransaction writeConfigTxn) {
+        FibUtil.addOrUpdateFibEntry(broker, rd, prefix, nextHopList, label, gwMacAddress, origin, writeConfigTxn);
     }
 
     @Override
@@ -171,8 +172,8 @@ public class FibManagerImpl implements IFibManager {
     }
 
     public void updateFibEntry(DataBroker broker, String rd, String prefix, List<String> nextHopList,
-                               WriteTransaction writeConfigTxn) {
-        FibUtil.updateFibEntry(broker, rd, prefix, nextHopList, writeConfigTxn);
+                               String gwMacAddress, WriteTransaction writeConfigTxn) {
+        FibUtil.updateFibEntry(broker, rd, prefix, nextHopList, gwMacAddress, writeConfigTxn);
     }
 
     @Override
