@@ -102,6 +102,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.pre
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.prefix.to._interface.VpnIdsBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.prefix.to._interface.VpnIdsKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.prefix.to._interface.vpn.ids.Prefixes;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.prefix.to._interface.vpn.ids.Prefixes.SourceMacFrom;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.prefix.to._interface.vpn.ids.PrefixesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.prefix.to._interface.vpn.ids.PrefixesKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.router.interfaces.RouterInterface;
@@ -188,6 +189,11 @@ public class VpnUtil {
     static Prefixes getPrefixToInterface(BigInteger dpId, String vpnInterfaceName, String ipPrefix) {
         return new PrefixesBuilder().setDpnId(dpId).setVpnInterfaceName(
             vpnInterfaceName).setIpAddress(ipPrefix).build();
+    }
+
+    static Prefixes getPrefixToInterface(BigInteger dpId, String vpnInterfaceName, String ipPrefix, final String srcMac, final SourceMacFrom srcMacFrm) {
+        return new PrefixesBuilder().setDpnId(dpId).setVpnInterfaceName(
+            vpnInterfaceName).setIpAddress(ipPrefix).setSourceMac(srcMac).setSourceMacFrom(srcMacFrm).build();
     }
 
     static InstanceIdentifier<Extraroute> getVpnToExtrarouteIdentifier(String vrfId, String ipPrefix) {
@@ -1373,26 +1379,52 @@ public class VpnUtil {
     }
 
     public static void setupGwMacIfExternalVpn(DataBroker dataBroker, IMdsalApiManager mdsalManager, BigInteger dpnId,
-            String interfaceName, long vpnId, WriteTransaction writeInvTxn, int addOrRemove) {
-        InstanceIdentifier<org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.id.to.vpn
-                .instance.VpnIds>
-                vpnIdsInstanceIdentifier = getVpnIdToVpnInstanceIdentifier(vpnId);
-        Optional<org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.id.to.vpn.instance.VpnIds>
-                vpnIdsOptional = read(dataBroker, LogicalDatastoreType.CONFIGURATION, vpnIdsInstanceIdentifier);
+            String interfaceName, long vpnId, WriteTransaction writeInvTxn, final Optional<String> gwMacAddress,
+            int addOrRemove) {
+        InstanceIdentifier<org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.id.to.vpn.instance
+            .VpnIds> vpnIdsInstanceIdentifier = getVpnIdToVpnInstanceIdentifier(vpnId);
+        Optional<org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.id.to.vpn.instance
+            .VpnIds> vpnIdsOptional = read(
+                dataBroker, LogicalDatastoreType.CONFIGURATION, vpnIdsInstanceIdentifier);
         if (vpnIdsOptional.isPresent() && vpnIdsOptional.get().isExternalVpn()) {
-            Optional<String> gwMacAddressOptional = InterfaceUtils.getMacAddressForInterface(dataBroker, interfaceName);
-            if (!gwMacAddressOptional.isPresent()) {
-                LOG.error("Failed to get gwMacAddress for interface {}", interfaceName);
-                return;
-            }
-            String gwMacAddress = gwMacAddressOptional.get();
-            FlowEntity flowEntity = VpnUtil.buildL3vpnGatewayFlow(dpnId, gwMacAddress, vpnId);
+            FlowEntity flowEntity = VpnUtil.buildL3vpnGatewayFlow(dpnId, gwMacAddress.get(), vpnId);
             if (addOrRemove == NwConstants.ADD_FLOW) {
                 mdsalManager.addFlowToTx(flowEntity, writeInvTxn);
             } else if (addOrRemove == NwConstants.DEL_FLOW) {
                 mdsalManager.removeFlowToTx(flowEntity, writeInvTxn);
             }
         }
+    }
+
+    public static Prefixes resolveGwSourceMacForVpnInterface(final DataBroker dataBroker,
+            final WriteTransaction writeOperTxn, final BigInteger dpnId, final String vpnName, final String interfaceName, final String prefix, final String gwIp) {
+
+        final VpnPortipToPort gwPort = VpnUtil.getNeutronPortFromVpnPortFixedIp(dataBroker, vpnName, gwIp);
+        String macaddress;
+        SourceMacFrom gwSrcType;
+        if (gwPort != null && gwPort.isSubnetIp()) {
+            macaddress = gwPort.getMacAddress();
+            gwSrcType = SourceMacFrom.ROUTER;
+        } else {
+            macaddress = InterfaceUtils.getMacAddressForInterface(dataBroker, interfaceName).get();
+            gwSrcType = SourceMacFrom.CONNECTED;
+        }
+        LOG.trace("Adding prefix {} to interface {} for vpn {}", prefix, interfaceName, vpnName);
+        Prefixes prefixes = VpnUtil.getPrefixToInterface(dpnId, interfaceName, prefix, macaddress, gwSrcType);
+        writeOperTxn.merge(
+            LogicalDatastoreType.OPERATIONAL,
+            VpnUtil.getPrefixToInterfaceIdentifier(
+                VpnUtil.getVpnId(dataBroker, vpnName), prefix),
+            prefixes, true);
+        return prefixes;
+    }
+
+    public static java.util.Optional<Prefixes> getGwSrcMac(final DataBroker dataBroker, final String vpnName,
+            final String interfaceName) {
+
+        return getAllPrefixesToInterface(dataBroker, VpnUtil.getVpnId(dataBroker, vpnName)).parallelStream()
+                .filter(v -> v.getVpnInterfaceName().equals(interfaceName)).findFirst();
+
     }
 
     public static Optional<VpnPortipToPort> getRouterInterfaceForVpnInterface(DataBroker dataBroker,

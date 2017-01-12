@@ -58,6 +58,15 @@ module odl-l3vpn {
               leaf vpn-interface-name {
                   type string;
               }
+              leaf source-mac {
+                  type string;
+              }
+              leaf source-mac-from {
+                  type enumeration {
+                      enum ROUTER;
+                      enum CONNECTED;
+                  }
+              }
            }
         }
     }
