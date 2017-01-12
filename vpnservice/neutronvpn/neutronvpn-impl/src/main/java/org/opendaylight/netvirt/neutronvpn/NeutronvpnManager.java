@@ -25,7 +25,6 @@ import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.DataStoreJobCoordinator;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
-import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.netvirt.elanmanager.api.IElanService;
 import org.opendaylight.netvirt.neutronvpn.api.utils.NeutronConstants;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.VpnInstances;
@@ -132,7 +131,6 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
     private final VpnRpcService vpnRpcService;
     private final NeutronFloatingToFixedIpMappingChangeListener floatingIpMapListener;
     private final NeutronvpnConfig neutronvpnConfig;
-    private final IMdsalApiManager mdsalUtil;
     private final IElanService elanService;
     Boolean isExternalVpn;
 
@@ -147,13 +145,11 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
      * @param neutronvpnConfig Neutronvpn configuration service
      */
     public NeutronvpnManager(
-            final DataBroker dataBroker, final IMdsalApiManager mdsalManager,
-            final NotificationPublishService notiPublishService, final NeutronvpnNatManager vpnNatMgr,
-            final VpnRpcService vpnRpcSrv, final IElanService elanService,
+            final DataBroker dataBroker, final NotificationPublishService notiPublishService,
+            final NeutronvpnNatManager vpnNatMgr, final VpnRpcService vpnRpcSrv, final IElanService elanService,
             final NeutronFloatingToFixedIpMappingChangeListener neutronFloatingToFixedIpMappingChangeListener,
             final NeutronvpnConfig neutronvpnConfig) {
         this.dataBroker = dataBroker;
-        mdsalUtil = mdsalManager;
         nvpnNatManager = vpnNatMgr;
         notificationPublishService = notiPublishService;
         vpnRpcService = vpnRpcSrv;
