@@ -54,7 +54,7 @@ Optional - Advanced OpenDaylight Installation - Configurations and Clustering
 * ACL Implementations - Alternative options:
 
   * "learn" - semi-stateful implementation that does not require conntrack support. This is the most complete non-conntrack implementation.
-  * "stateless" - naive security group implementation for TCP connections only.
+  * "stateless" - naive security group implementation for TCP connections only. UDP and ICMP packets are allowed by default.
   * "transparent" - no security group support. all traffic is allowed, this is the recommended mode if you don't need to use security groups at all.
 
   * To configure one of these alternative implementations, the following needs to be done prior to running OpenDaylight:
@@ -346,7 +346,7 @@ end-points for instances on your network and managing traffic to them.
 
 Adding an external network for floating IP connectivity
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-* In order to connect to the VM using a floating IP, we need to configure external network connectivity, by create an external network and subnet. This external network must be linked to a physical port on the machine, which will provide connectivity to an external gateway.
+* In order to connect to the VM using a floating IP, we need to configure external network connectivity, by creating an external network and subnet. This external network must be linked to a physical port on the machine, which will provide connectivity to an external gateway.
 
   .. code-block:: bash
 
@@ -481,7 +481,7 @@ Floating IP Issues
      This can be verified by searching for the line "Installing ext-net group" in the karaf.log.
    * Locate the compute the VM is residing on (can use ``nova show <vm>``).
    * Run a ping to the VM floating IP.
-   * If the ping fais, execute a flow dump of br-int, and search for the flows that are relevant to the VM's floating IP address:
+   * If the ping fails, execute a flow dump of br-int, and search for the flows that are relevant to the VM's floating IP address:
      ``ovs-ofctl -OOpenFlow13 dump-flows br-int | grep "<floating_ip>"``
 
      * | Are there packets on the incoming flow (matching dst_ip=<floating_ip>)?
