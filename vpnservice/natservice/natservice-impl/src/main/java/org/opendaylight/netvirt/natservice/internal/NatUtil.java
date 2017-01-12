@@ -50,10 +50,10 @@ import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.genius.mdsalutil.matches.MatchEthernetType;
 import org.opendaylight.genius.mdsalutil.matches.MatchMetadata;
 import org.opendaylight.netvirt.bgpmanager.api.IBgpManager;
+import org.opendaylight.netvirt.elanmanager.api.IElanService;
 import org.opendaylight.netvirt.fibmanager.api.IFibManager;
 import org.opendaylight.netvirt.fibmanager.api.RouteOrigin;
 import org.opendaylight.netvirt.neutronvpn.api.utils.NeutronConstants;
-import org.opendaylight.netvirt.neutronvpn.interfaces.INeutronVpnManager;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.VpnInterfaces;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.interfaces.VpnInterface;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.interfaces.VpnInterfaceKey;
@@ -1766,9 +1766,9 @@ public class NatUtil {
                 .child(ElanInstance.class, new ElanInstanceKey(elanInstanceName)).build();
     }
 
-    public static long getTunnelIdForNonNaptToNaptFlow(DataBroker dataBroker, INeutronVpnManager nvpnManager,
+    public static long getTunnelIdForNonNaptToNaptFlow(DataBroker dataBroker, IElanService elanManager,
             IdManagerService idManager, long routerId, String routerName) {
-        if (nvpnManager.getEnforceOpenstackSemanticsConfig()) {
+        if (elanManager.isOpenStackVniSemanticsEnforced()) {
             // Router VNI will be set as tun_id if OpenStackSemantics is enabled
             return NatOverVxlanUtil.getRouterVni(idManager, routerName, routerId).longValue();
         } else {

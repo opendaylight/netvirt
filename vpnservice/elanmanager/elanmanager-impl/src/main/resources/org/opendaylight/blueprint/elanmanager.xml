@@ -95,6 +95,7 @@
     <argument ref="elanInterfaceManager" />
     <argument ref="entityOwnershipService" />
     <argument ref="interfaceManager" />
+    <argument ref="elanConfig" />
   </bean>
 
   <bean id="elanStatisticsImpl"
