@@ -1,0 +1,174 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1a622d24_900d2eeb",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 10
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2017-01-12T09:19:16Z",
+      "side": 1,
+      "message": "Please update the Commit message as well.",
+      "revId": "7fdc940819bf36cd5d65694c5c2584d93ea43783",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_f01462ea",
+        "filename": "docs/specs/conntrack-based-snat.rst",
+        "patchSetId": 10
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2017-01-12T09:19:16Z",
+      "side": 1,
+      "message": "Please fix the formatting errors of YANG model and the flows in the generated doc.\nhttps://logs.opendaylight.org/releng/jenkins092/docs-verify-rtd-carbon/762/archives/docs/_build/html/submodules/netvirt/docs/specs/flow-based-snat.html",
+      "revId": "7fdc940819bf36cd5d65694c5c2584d93ea43783",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_b0e5ca0a",
+        "filename": "docs/specs/conntrack-based-snat.rst",
+        "patchSetId": 10
+      },
+      "lineNbr": 30,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2017-01-12T09:19:16Z",
+      "side": 1,
+      "message": "@Aswin, in the current implementation you mentioned that there is some kind of HA (i.e., active NAPT switch and backup NAPT switch). Do you think we should include some notes on any related changes to this feature?",
+      "revId": "7fdc940819bf36cd5d65694c5c2584d93ea43783",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_d0fa06bc",
+        "filename": "docs/specs/conntrack-based-snat.rst",
+        "patchSetId": 10
+      },
+      "lineNbr": 101,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2017-01-12T09:19:16Z",
+      "side": 1,
+      "message": "I hope you wanted to have it as PORT (instead of PROTO).",
+      "revId": "7fdc940819bf36cd5d65694c5c2584d93ea43783",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_b0f78ad2",
+        "filename": "docs/specs/conntrack-based-snat.rst",
+        "patchSetId": 10
+      },
+      "lineNbr": 105,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2017-01-12T09:19:16Z",
+      "side": 1,
+      "message": "ditto",
+      "revId": "7fdc940819bf36cd5d65694c5c2584d93ea43783",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_10011eaf",
+        "filename": "docs/specs/conntrack-based-snat.rst",
+        "patchSetId": 10
+      },
+      "lineNbr": 124,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2017-01-12T09:19:16Z",
+      "side": 1,
+      "message": "nit: s/Persistant/Persistent",
+      "revId": "7fdc940819bf36cd5d65694c5c2584d93ea43783",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_f0fd82b2",
+        "filename": "docs/specs/conntrack-based-snat.rst",
+        "patchSetId": 10
+      },
+      "lineNbr": 126,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2017-01-12T09:19:16Z",
+      "side": 1,
+      "message": "ditto",
+      "revId": "7fdc940819bf36cd5d65694c5c2584d93ea43783",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_502ef643",
+        "filename": "docs/specs/conntrack-based-snat.rst",
+        "patchSetId": 10
+      },
+      "lineNbr": 129,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2017-01-12T09:19:16Z",
+      "side": 1,
+      "message": "nit: Can you please use NX_NAT_F_PROTO_RANDOM (i.e., full form similar to the usage in L116).",
+      "revId": "7fdc940819bf36cd5d65694c5c2584d93ea43783",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_30337aac",
+        "filename": "docs/specs/conntrack-based-snat.rst",
+        "patchSetId": 10
+      },
+      "lineNbr": 243,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2017-01-12T09:19:16Z",
+      "side": 1,
+      "message": "typo: \u0027n\u0027 is missing from \"nova\".",
+      "revId": "7fdc940819bf36cd5d65694c5c2584d93ea43783",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_70297236",
+        "filename": "docs/specs/conntrack-based-snat.rst",
+        "patchSetId": 10
+      },
+      "lineNbr": 268,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2017-01-12T09:19:16Z",
+      "side": 1,
+      "message": "nit: s/multliple/multiple",
+      "revId": "7fdc940819bf36cd5d65694c5c2584d93ea43783",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
