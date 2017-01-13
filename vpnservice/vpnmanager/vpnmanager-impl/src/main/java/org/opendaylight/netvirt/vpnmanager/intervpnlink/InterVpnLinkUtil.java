@@ -52,7 +52,6 @@ import org.slf4j.LoggerFactory;
 import com.google.common.util.concurrent.ListenableFuture;
 import java.math.BigInteger;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -234,11 +233,11 @@ public class InterVpnLinkUtil {
      */
     public static Flow buildLPortDispatcherFlow(String interVpnLinkName, long vpnId, int lportTag) {
         LOG.info("Inter-vpn-link : buildLPortDispatcherFlow. vpnId {}   lportTag {} ", vpnId, lportTag);
-        List<MatchInfo> matches = Arrays.asList(new MatchInfo(MatchFieldType.metadata,
+        List<MatchInfo> matches = Collections.singletonList(new MatchInfo(MatchFieldType.metadata,
                 new BigInteger[] {
                         MetaDataUtil.getMetaDataForLPortDispatcher(lportTag,
                                 ServiceIndex.getIndex(NwConstants.L3VPN_SERVICE_NAME, NwConstants.L3VPN_SERVICE_INDEX)),
-                        MetaDataUtil.getMetaDataMaskForLPortDispatcher() }));
+                        MetaDataUtil.getMetaDataMaskForLPortDispatcher()}));
         String flowRef = getLportDispatcherFlowRef(interVpnLinkName, lportTag);
         Flow lPortDispatcherFlow = MDSALUtil.buildFlowNew(NwConstants.LPORT_DISPATCHER_TABLE, flowRef,
                 VpnConstants.DEFAULT_LPORT_DISPATCHER_FLOW_PRIORITY, flowRef,
@@ -476,7 +475,7 @@ public class InterVpnLinkUtil {
                 : interVpnLink.getFirstEndpoint().getIpAddress().getValue();
 
         VrfEntry newVrfEntry = new VrfEntryBuilder().setKey(new VrfEntryKey(prefix)).setDestPrefix(prefix)
-                .setLabel(label).setNextHopAddressList(Arrays.asList(endpointIp))
+                .setLabel(label).setNextHopAddressList(Collections.singletonList(endpointIp))
                 .setOrigin(RouteOrigin.INTERVPN.getValue())
                 .build();
 

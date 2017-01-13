@@ -852,7 +852,7 @@ public class VpnSubnetRouteHandler implements NeutronvpnListener {
             try {
                 //BGP manager will handle withdraw and advertise internally if prefix
                 //already exist
-                bgpManager.advertisePrefix(rd, subnetIp, Arrays.asList(nexthopIp), label);
+                bgpManager.advertisePrefix(rd, subnetIp, Collections.singletonList(nexthopIp), label);
             } catch (Exception e) {
                 logger.error("Fail: Subnet route not advertised for rd {} subnetIp {}", rd, subnetIp, e);
                 throw e;
