@@ -690,6 +690,30 @@
     },
     {
       "key": {
+        "uuid": "1a622d24_e4ec9fbd",
+        "filename": "docs/specs/ipv6-distributed-router.rst",
+        "patchSetId": 1
+      },
+      "lineNbr": 119,
+      "author": {
+        "id": 5661
+      },
+      "writtenOn": "2017-01-13T19:37:04Z",
+      "side": 1,
+      "message": "I think Daya\u0027s question is, how do we differentiate the Neighbor Solicitation requests coming for a IPv6 VM from an external router or another entity attached to the same IPv6 network via L2GW or VLAN provide network? If the NS is from external router, it needs to be punted to controller and responded with HOST_MAC. Else it needs to broadcasted in the ELAN instance and responded with VM MAC. So we need to program the flows accordingly (I think there is a concept of internal tunnel and external tunnel in the pipeline. May be we should explore if that can used for this differentiation)",
+      "parentUuid": "1a622d24_07560a2a",
+      "range": {
+        "startLine": 119,
+        "startChar": 25,
+        "endLine": 119,
+        "endChar": 26
+      },
+      "revId": "976d7bbd2030e84f67b3b82780adbe501390d954",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_c629d438",
         "filename": "docs/specs/ipv6-distributed-router.rst",
         "patchSetId": 1
