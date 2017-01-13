@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Ericsson India Global Services Pvt Ltd. and others.  All rights reserved.
+ * Copyright © 2015, 2017 Ericsson India Global Services Pvt Ltd. and others.  All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
@@ -38,8 +38,6 @@ import org.opendaylight.controller.config.api.osgi.WaitingServiceTracker;
 import org.opendaylight.controller.md.sal.binding.api.ClusteredDataTreeChangeListener;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.DataChangeListener;
-import org.opendaylight.controller.md.sal.common.api.clustering.EntityOwnershipChange;
-import org.opendaylight.controller.md.sal.common.api.clustering.EntityOwnershipListener;
 import org.opendaylight.controller.md.sal.common.api.clustering.EntityOwnershipService;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
@@ -49,7 +47,6 @@ import org.opendaylight.netvirt.bgpmanager.commands.ClearBgpCli;
 import org.opendaylight.netvirt.bgpmanager.oam.BgpAlarms;
 import org.opendaylight.netvirt.bgpmanager.oam.BgpConstants;
 import org.opendaylight.netvirt.bgpmanager.oam.BgpCounters;
-import org.opendaylight.netvirt.bgpmanager.oam.BgpAlarms;
 import org.opendaylight.netvirt.bgpmanager.thrift.client.BgpRouter;
 import org.opendaylight.netvirt.bgpmanager.thrift.client.BgpRouterException;
 import org.opendaylight.netvirt.bgpmanager.thrift.client.BgpSyncHandle;
@@ -98,7 +95,6 @@ import org.osgi.framework.BundleContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.util.concurrent.atomic.AtomicInteger;
-import org.opendaylight.yangtools.yang.binding.DataObject;
 
 public class BgpConfigurationManager {
     private static final Logger LOG = LoggerFactory.getLogger(BgpConfigurationManager.class);
@@ -437,14 +433,14 @@ public class BgpConfigurationManager {
             if (ignoreClusterDcnEventForFollower()) {
                 return;
             }
-            LOG.debug("received add router config asNum {}", val.getLocalAs().longValue());
+            LOG.debug("received add router config asNum {}", val.getLocalAs());
             synchronized (BgpConfigurationManager.this) {
                 BgpRouter br = getClient(yangObj);
                 if (br == null) {
                     LOG.error("no bgp router client found exiting asid add");
                     return;
                 }
-                long asNum = val.getLocalAs().longValue();
+                long asNum = val.getLocalAs();
                 IpAddress routerId = val.getRouterId();
                 Boolean afb = val.isAnnounceFbit();
                 String rid = (routerId == null) ? "" : new String(routerId.getValue());
@@ -484,7 +480,7 @@ public class BgpConfigurationManager {
         @Override
         protected synchronized void
         remove(InstanceIdentifier<AsId> iid, AsId val) {
-            LOG.error("received delete router config asNum {}", val.getLocalAs().longValue());
+            LOG.error("received delete router config asNum {}", val.getLocalAs());
             if (ignoreClusterDcnEventForFollower()) {
                 return;
             }
@@ -493,7 +489,7 @@ public class BgpConfigurationManager {
                 if (br == null) {
                     return;
                 }
-                long asNum = val.getLocalAs().longValue();
+                long asNum = val.getLocalAs();
                 try {
                     br.stopBgp(asNum);
                 } catch (Exception e) {
@@ -731,7 +727,7 @@ public class BgpConfigurationManager {
                     return;
                 }
                 String peerIp = val.getAddress().getValue();
-                long as = val.getRemoteAs().longValue();
+                long as = val.getRemoteAs();
                 try {
                     //itmProvider.buildTunnelsToDCGW(new IpAddress(peerIp.toCharArray()));
                     br.addNeighbor(peerIp, as);
@@ -1556,7 +1552,7 @@ public class BgpConfigurationManager {
         for (Neighbors nbr : n) {
             try {
                 br.addNeighbor(nbr.getAddress().getValue(),
-                        nbr.getRemoteAs().longValue());
+                        nbr.getRemoteAs());
                 //itmProvider.buildTunnelsToDCGW(new IpAddress(nbr.getAddress().getValue().toCharArray()));
             } catch (Exception e) {
                 LOG.error("Replay:addNbr() received exception: \"" + e + "\"");
@@ -1658,7 +1654,7 @@ public class BgpConfigurationManager {
             if (a == null) {
                 return;
             }
-            long asNum = a.getLocalAs().longValue();
+            long asNum = a.getLocalAs();
             IpAddress routerId = a.getRouterId();
             Long spt = a.getStalepathTime();
             Boolean afb = a.isAnnounceFbit();

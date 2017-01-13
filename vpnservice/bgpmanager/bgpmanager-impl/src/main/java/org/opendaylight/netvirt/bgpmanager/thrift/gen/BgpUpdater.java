@@ -868,13 +868,13 @@ public class BgpUpdater {
           return getPrefix();
 
         case PREFIXLEN:
-          return Integer.valueOf(getPrefixlen());
+          return getPrefixlen();
 
         case NEXTHOP:
           return getNexthop();
 
         case LABEL:
-          return Integer.valueOf(getLabel());
+          return getLabel();
 
       }
       throw new IllegalStateException();
@@ -1569,7 +1569,7 @@ public class BgpUpdater {
           return getPrefix();
 
         case PREFIXLEN:
-          return Integer.valueOf(getPrefixlen());
+          return getPrefixlen();
 
         case NEXTHOP:
           return getNexthop();
@@ -2419,10 +2419,10 @@ public class BgpUpdater {
           return getPrefix();
 
         case ERR_CODE:
-          return Byte.valueOf(getErrCode());
+          return getErrCode();
 
         case ERR_SUBCODE:
-          return Byte.valueOf(getErrSubcode());
+          return getErrSubcode();
 
       }
       throw new IllegalStateException();
