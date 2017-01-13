@@ -1,0 +1,72 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1a622d24_d0c20152",
+        "filename": "vpnservice/bgpmanager/bgpmanager-impl/src/main/java/org/opendaylight/netvirt/bgpmanager/BgpConfigurationManager.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 456,
+      "author": {
+        "id": 5866
+      },
+      "writtenOn": "2017-01-13T04:01:16Z",
+      "side": 1,
+      "message": "why \"new String()\" is being used?",
+      "revId": "421ed4e51cde92aadd1e4e0e9e2e3fd923b402ed",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_30a375b3",
+        "filename": "vpnservice/bgpmanager/bgpmanager-impl/src/main/java/org/opendaylight/netvirt/bgpmanager/BgpConfigurationManager.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 1679,
+      "author": {
+        "id": 5866
+      },
+      "writtenOn": "2017-01-13T04:01:16Z",
+      "side": 1,
+      "message": "same as line 456",
+      "revId": "421ed4e51cde92aadd1e4e0e9e2e3fd923b402ed",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_10a8f98b",
+        "filename": "vpnservice/bgpmanager/bgpmanager-impl/src/main/java/org/opendaylight/netvirt/bgpmanager/commands/Cache.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 133,
+      "author": {
+        "id": 5866
+      },
+      "writtenOn": "2017-01-13T04:01:16Z",
+      "side": 1,
+      "message": "why \"new String()\" is being used?",
+      "revId": "421ed4e51cde92aadd1e4e0e9e2e3fd923b402ed",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_70a96d8f",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/utilities/InterfaceUtils.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 83,
+      "author": {
+        "id": 5866
+      },
+      "writtenOn": "2017-01-13T04:01:16Z",
+      "side": 1,
+      "message": "why \"new String()\" is being used?",
+      "revId": "421ed4e51cde92aadd1e4e0e9e2e3fd923b402ed",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
