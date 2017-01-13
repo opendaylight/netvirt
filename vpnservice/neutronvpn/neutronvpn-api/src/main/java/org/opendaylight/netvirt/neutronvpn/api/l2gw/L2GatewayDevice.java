@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 Ericsson India Global Services Pvt Ltd. and others.  All rights reserved.
+ * Copyright © 2016, 2017 Ericsson India Global Services Pvt Ltd. and others.  All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
@@ -286,11 +286,8 @@ public class L2GatewayDevice {
                 this.ucastLocalMacs.stream().map(localUcastMac -> localUcastMac.getMacEntryKey().getValue()).collect(
                         Collectors.toList());
 
-        StringBuilder builder = new StringBuilder();
-        builder.append("L2GatewayDevice [deviceName=").append(deviceName).append(", hwvtepNodeId=").append(hwvtepNodeId)
-                .append(", tunnelIps=").append(lstTunnelIps).append(", l2GatewayIds=").append(l2GatewayIds)
-                .append(", ucastLocalMacs=").append(lstMacs).append("]");
-        return builder.toString();
+        return "L2GatewayDevice [deviceName=" + deviceName + ", hwvtepNodeId=" + hwvtepNodeId + ", tunnelIps="
+                + lstTunnelIps + ", l2GatewayIds=" + l2GatewayIds + ", ucastLocalMacs=" + lstMacs + "]";
     }
 
 }

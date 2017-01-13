@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 Ericsson India Global Services Pvt Ltd. and others.  All rights reserved.
+ * Copyright © 2016, 2017 Ericsson India Global Services Pvt Ltd. and others.  All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
@@ -279,9 +279,8 @@ public class FibRpcServiceImpl implements FibRpcService {
     }
 
     private String getFlowRef(BigInteger dpnId, short tableId, long id, String ipAddress) {
-        return new StringBuilder(64).append(FLOWID_PREFIX).append(dpnId).append(NwConstants.FLOWID_SEPARATOR)
-            .append(tableId).append(NwConstants.FLOWID_SEPARATOR)
-            .append(id).append(NwConstants.FLOWID_SEPARATOR).append(ipAddress).toString();
+        return FLOWID_PREFIX + dpnId + NwConstants.FLOWID_SEPARATOR + tableId + NwConstants.FLOWID_SEPARATOR + id
+                + NwConstants.FLOWID_SEPARATOR + ipAddress;
     }
 
     private synchronized void updateVpnToDpnAssociation(long vpnId, BigInteger dpnId, String ipAddr, String vpnName) {

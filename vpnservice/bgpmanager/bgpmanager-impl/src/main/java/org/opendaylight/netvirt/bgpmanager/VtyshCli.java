@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Ericsson India Global Services Pvt Ltd. and others.  All rights reserved.
+ * Copyright © 2015, 2017 Ericsson India Global Services Pvt Ltd. and others.  All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
@@ -115,8 +115,6 @@ public class VtyshCli extends OsgiCommandSupport {
 
     public static void handleCommand(String arg, String cmd) throws IOException {
 
-        StringBuilder inputBgpCmd = new StringBuilder();
-
         String str, prompt, replacedStr, inputCmd = null;
         char cbuf[] = new char[10];
         char op_buf[];
@@ -128,9 +126,7 @@ public class VtyshCli extends OsgiCommandSupport {
         StringBuilder temp, temp2;
         char ch, gt = '>', hashChar = '#';
 
-        inputBgpCmd.append("show " + cmd);
-
-        inputCmd = inputBgpCmd.toString();
+        inputCmd = "show " + cmd;
 
         try {
             socket = new Socket(serverName, serverPort);

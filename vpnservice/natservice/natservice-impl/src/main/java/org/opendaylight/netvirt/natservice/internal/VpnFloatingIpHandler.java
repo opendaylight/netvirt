@@ -280,9 +280,8 @@ public class VpnFloatingIpHandler implements FloatingIPHandler {
     }
 
     private String getFlowRef(BigInteger dpnId, short tableId, long id, String ipAddress) {
-        return new StringBuilder(64).append(FLOWID_PREFIX).append(dpnId).append(NwConstants.FLOWID_SEPARATOR)
-            .append(tableId).append(NwConstants.FLOWID_SEPARATOR)
-            .append(id).append(NwConstants.FLOWID_SEPARATOR).append(ipAddress).toString();
+        return FLOWID_PREFIX + dpnId + NwConstants.FLOWID_SEPARATOR + tableId + NwConstants.FLOWID_SEPARATOR + id
+                + NwConstants.FLOWID_SEPARATOR + ipAddress;
     }
 
     private void removeTunnelTableEntry(BigInteger dpnId, long serviceId) {
