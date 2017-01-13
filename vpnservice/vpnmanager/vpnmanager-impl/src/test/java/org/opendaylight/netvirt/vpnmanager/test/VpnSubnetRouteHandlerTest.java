@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 Ericsson India Global Services Pvt Ltd. and others.  All rights reserved.
+ * Copyright © 2016, 2017 Ericsson India Global Services Pvt Ltd. and others.  All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
@@ -269,9 +269,9 @@ public class VpnSubnetRouteHandlerTest {
         nexthopIp = "10.1.1.25";
         idKey = "100:1.10.1.1.24";
         poolName = "vpnservices";
-        elanTag = Long.valueOf(2);
+        elanTag = 2L;
         longId = Long.valueOf("100");
-        nodeConnectorId = buildNodeConnectorId(dpId, Long.valueOf(2));
+        nodeConnectorId = buildNodeConnectorId(dpId, 2L);
         ipAddress = IpAddressBuilder.getDefaultInstance(nexthopIp);
         vpnIntfaces = new VpnInterfacesBuilder().setInterfaceName(interfaceName).setKey(
             new VpnInterfacesKey(interfaceName)).build();

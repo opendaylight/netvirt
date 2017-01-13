@@ -751,8 +751,6 @@ public class NeutronvpnUtils {
     // TODO Clean up the exception handling and the console output
     @SuppressWarnings({"checkstyle:IllegalCatch", "checkstyle:RegexpSinglelineJava"})
     protected static Short getIPPrefixFromPort(DataBroker broker, Port port) {
-        Short prefix = new Short((short) 0);
-        String cidr = "";
         try {
             Uuid subnetUUID = port.getFixedIps().get(0).getSubnetId();
             SubnetKey subnetkey = new SubnetKey(subnetUUID);
@@ -760,12 +758,11 @@ public class NeutronvpnUtils {
                     .class).child(Subnet.class, subnetkey);
             Optional<Subnet> subnet = read(broker, LogicalDatastoreType.CONFIGURATION, subnetidentifier);
             if (subnet.isPresent()) {
-                cidr = String.valueOf(subnet.get().getCidr().getValue());
+                String cidr = String.valueOf(subnet.get().getCidr().getValue());
                 // Extract the prefix length from cidr
                 String[] parts = cidr.split("/");
                 if (parts.length == 2) {
-                    prefix = Short.valueOf(parts[1]);
-                    return prefix;
+                    return Short.valueOf(parts[1]);
                 } else {
                     LOG.trace("Could not retrieve prefix from subnet CIDR");
                     System.out.println("Could not retrieve prefix from subnet CIDR");

@@ -272,7 +272,7 @@ public class ElanUtils {
             Future<RpcResult<AllocateIdOutput>> result = idManager.allocateId(getIdInput);
             RpcResult<AllocateIdOutput> rpcResult = result.get();
             if (rpcResult.isSuccessful()) {
-                return rpcResult.getResult().getIdValue().longValue();
+                return rpcResult.getResult().getIdValue();
             } else {
                 LOG.warn("RPC Call to Allocate Id returned with Errors {}", rpcResult.getErrors());
             }
@@ -1995,13 +1995,13 @@ public class ElanUtils {
     public static boolean isVxlan(ElanInstance elanInstance) {
         return elanInstance != null && elanInstance.getSegmentType() != null
                 && elanInstance.getSegmentType().isAssignableFrom(SegmentTypeVxlan.class)
-                && elanInstance.getSegmentationId() != null && elanInstance.getSegmentationId().longValue() != 0;
+                && elanInstance.getSegmentationId() != null && elanInstance.getSegmentationId() != 0;
     }
 
     public static boolean isVlan(ElanInstance elanInstance) {
         return elanInstance != null && elanInstance.getSegmentType() != null
                 && elanInstance.getSegmentType().isAssignableFrom(SegmentTypeVlan.class)
-                && elanInstance.getSegmentationId() != null && elanInstance.getSegmentationId().longValue() != 0;
+                && elanInstance.getSegmentationId() != null && elanInstance.getSegmentationId() != 0;
     }
 
     public static boolean isFlat(ElanInstance elanInstance) {
