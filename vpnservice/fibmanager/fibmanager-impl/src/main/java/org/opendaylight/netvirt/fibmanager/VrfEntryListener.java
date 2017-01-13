@@ -19,6 +19,7 @@ import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.Callable;
@@ -484,7 +485,8 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
                         vrfEntry.getDestPrefix(), vrfEntry.getNextHopAddressList(), rd, dstVpnRd);
                 String key = rd + FibConstants.SEPARATOR + vrfEntry.getDestPrefix();
                 long label = FibUtil.getUniqueId(idManager, FibConstants.VPN_IDPOOL_NAME, key);
-                VrfEntry newVrfEntry = new VrfEntryBuilder(vrfEntry).setNextHopAddressList(Arrays.asList(endpointIp))
+                VrfEntry newVrfEntry = new VrfEntryBuilder(vrfEntry).setNextHopAddressList(
+                        Collections.singletonList(endpointIp))
                         .setLabel(label)
                         .setOrigin(RouteOrigin.INTERVPN.getValue())
                         .build();
@@ -607,7 +609,8 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
                 LOG.trace("Installing flow in LFIB table for interVpnLink {}", interVpnLink.getName());
 
                 for ( BigInteger dpId : targetDpns ) {
-                    List<ActionInfo> actionsInfos = Arrays.asList(new ActionInfo(ActionType.pop_mpls, new String[]{}));
+                    List<ActionInfo> actionsInfos =
+                            Collections.singletonList(new ActionInfo(ActionType.pop_mpls, new String[] {}));
 
                     BigInteger[] metadata = new BigInteger[] {
                             MetaDataUtil.getMetaDataForLPortDispatcher(lportTag.intValue(), ServiceIndex.getIndex(NwConstants.L3VPN_SERVICE_NAME, NwConstants.L3VPN_SERVICE_INDEX)),
@@ -827,12 +830,13 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
                 return BigInteger.ZERO;
             }
             List<ActionInfo> actionsInfos =
-                    Arrays.asList(new ActionInfo(ActionType.group, new String[] { String.valueOf(groupId)}));
+                    Collections.singletonList(new ActionInfo(ActionType.group, new String[] {String.valueOf(groupId)}));
             final List<InstructionInfo> instructions =
-                    Arrays.asList(new InstructionInfo(InstructionType.apply_actions, actionsInfos));
+                    Collections.singletonList(new InstructionInfo(InstructionType.apply_actions, actionsInfos));
             actionsInfos = Arrays.asList(new ActionInfo(ActionType.pop_mpls, new String[]{}),
                     new ActionInfo(ActionType.group, new String[] { String.valueOf(groupId) }) );
-            final List<InstructionInfo> lfibinstructions = Arrays.asList(new InstructionInfo(InstructionType.apply_actions, actionsInfos));
+            final List<InstructionInfo> lfibinstructions =
+                    Collections.singletonList(new InstructionInfo(InstructionType.apply_actions, actionsInfos));
             if (RouteOrigin.value(vrfEntry.getOrigin()) != RouteOrigin.SELF_IMPORTED) {
                 LOG.debug("Installing tunnel table entry on dpn {} for interface {} with label {}",
                         dpnId, localNextHopInfo.getVpnInterfaceName(), vrfEntry.getLabel());
@@ -1853,7 +1857,7 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
                         List<String> nextHopAddressList = vrfEntry.getNextHopAddressList();
                         VrfEntry modVrfEntry;
                         if (nextHopAddressList == null || (nextHopAddressList.isEmpty())) {
-                            List<String> nhList = Arrays.asList(destTepIp);
+                            List<String> nhList = Collections.singletonList(destTepIp);
                             modVrfEntry = new VrfEntryBuilder(vrfEntry).setNextHopAddressList(nhList).build();
                         } else {
                             modVrfEntry = vrfEntry;
@@ -2029,7 +2033,7 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
             if (RouteOrigin.value(vrfEntry.getOrigin()) != RouteOrigin.BGP) {
                 Extraroute extra_route = getVpnToExtraroute(rd, vrfEntry.getDestPrefix());
                 if (extra_route == null) {
-                    prefixIpList = Arrays.asList(vrfEntry.getDestPrefix());
+                    prefixIpList = Collections.singletonList(vrfEntry.getDestPrefix());
                 } else {
                     prefixIpList = new ArrayList<>();
                     for (String extraRouteIp : extra_route.getNexthopIpList()) {
@@ -2037,7 +2041,7 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
                     }
                 }
             } else {
-                prefixIpList = Arrays.asList(vrfEntry.getDestPrefix());
+                prefixIpList = Collections.singletonList(vrfEntry.getDestPrefix());
             }
 
             for (String prefixIp : prefixIpList) {

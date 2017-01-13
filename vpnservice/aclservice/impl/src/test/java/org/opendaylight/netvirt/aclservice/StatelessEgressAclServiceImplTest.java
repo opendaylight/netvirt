@@ -16,7 +16,7 @@ import static org.mockito.Mockito.when;
 import com.google.common.base.Optional;
 import com.google.common.util.concurrent.Futures;
 import java.math.BigInteger;
-import java.util.Arrays;
+import java.util.Collections;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -170,7 +170,7 @@ public class StatelessEgressAclServiceImplTest {
             int tcpPortLower, int tcpPortUpper) {
         AclInterface ai = new AclInterface();
         ai.setPortSecurityEnabled(true);
-        ai.setSecurityGroups(Arrays.asList(sgUuid));
+        ai.setSecurityGroups(Collections.singletonList(sgUuid));
         ai.setDpId(BigInteger.ONE);
         ai.setLPortTag(2);
         stubInterfaceAcl(ifName, ai);
@@ -185,7 +185,7 @@ public class StatelessEgressAclServiceImplTest {
         ai.setPortSecurityEnabled(true);
         ai.setDpId(BigInteger.ONE);
         ai.setLPortTag(2);
-        ai.setSecurityGroups(Arrays.asList(sgUuid));
+        ai.setSecurityGroups(Collections.singletonList(sgUuid));
         stubInterfaceAcl(ifName, ai);
 
         stubAccessList(sgUuid, ipv4PrefixStr, tcpPortLower, tcpPortUpper, (short)NwConstants.IP_PROT_TCP);
@@ -195,7 +195,7 @@ public class StatelessEgressAclServiceImplTest {
     private AclInterface stubAllowAllInterface(Uuid sgUuid, String ifName) {
         AclInterface ai = new AclInterface();
         ai.setPortSecurityEnabled(true);
-        ai.setSecurityGroups(Arrays.asList(sgUuid));
+        ai.setSecurityGroups(Collections.singletonList(sgUuid));
         ai.setDpId(BigInteger.ONE);
         ai.setLPortTag(2);
         stubInterfaceAcl(ifName, ai);
@@ -208,7 +208,7 @@ public class StatelessEgressAclServiceImplTest {
         AllowedAddressPairsBuilder aapb = new AllowedAddressPairsBuilder();
         aapb.setIpAddress(new IpPrefixOrAddress("1.1.1.1/32".toCharArray()));
         aapb.setMacAddress(new MacAddress("AA:BB:CC:DD:EE:FF"));
-        ai.setAllowedAddressPairs(Arrays.asList(aapb.build()));
+        ai.setAllowedAddressPairs(Collections.singletonList(aapb.build()));
     }
 
     private void stubAccessList(Uuid sgUuid, String ipv4PrefixStr, int portLower, int portUpper, short protocol) {
@@ -240,7 +240,7 @@ public class StatelessEgressAclServiceImplTest {
         securityRuleAttrBuilder.setDirection(DirectionEgress.class);
         aceBuilder.addAugmentation(SecurityRuleAttr.class, securityRuleAttrBuilder.build());
         AccessListEntriesBuilder aleb = new AccessListEntriesBuilder();
-        aleb.setAce(Arrays.asList(aceBuilder.build()));
+        aleb.setAce(Collections.singletonList(aceBuilder.build()));
         ab.setAccessListEntries(aleb.build());
 
         InstanceIdentifier<Acl> aclKey = AclServiceUtils.getAclInstanceIdentifier(sgUuid.getValue());

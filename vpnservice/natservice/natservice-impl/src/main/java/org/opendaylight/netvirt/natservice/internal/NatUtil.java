@@ -15,7 +15,6 @@ import java.math.BigInteger;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -767,8 +766,8 @@ public class NatUtil {
                 log.error("addPrefix failed since nextHopIp cannot be null.");
                 return;
             }
-            fibManager.addOrUpdateFibEntry(broker, rd, prefix, Arrays.asList(nextHopIp), (int)label, origin, null);
-            bgpManager.advertisePrefix(rd, prefix, Arrays.asList(nextHopIp), (int)label);
+            fibManager.addOrUpdateFibEntry(broker, rd, prefix, Collections.singletonList(nextHopIp), (int)label, origin, null);
+            bgpManager.advertisePrefix(rd, prefix, Collections.singletonList(nextHopIp), (int)label);
             LOG.info("ADD: Added Fib entry rd {} prefix {} nextHop {} label {}", rd, prefix, nextHopIp, label);
         } catch(Exception e) {
             log.error("Add prefix failed", e);
@@ -1087,7 +1086,7 @@ public class NatUtil {
             List<org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.neutron.router.dpns.router.dpn.list.dpn.vpninterfaces.list.RouterInterfaces> routerInterfaces =  new ArrayList<>();
             routerInterfaces.add(routerInterface);
             dpnVpnList.setRouterInterfaces(routerInterfaces);
-            routerDpnListBuilder.setDpnVpninterfacesList(Arrays.asList(dpnVpnList.build()));
+            routerDpnListBuilder.setDpnVpninterfacesList(Collections.singletonList(dpnVpnList.build()));
             writeOperTxn.merge(LogicalDatastoreType.OPERATIONAL,
                     getRouterId(routerName),
                     routerDpnListBuilder.build(), true);
@@ -1129,7 +1128,7 @@ public class NatUtil {
             dpnRoutersListBuilder.setDpnId(dpId);
             RoutersListBuilder routersListBuilder = new RoutersListBuilder();
             routersListBuilder.setRouter(routerName);
-            dpnRoutersListBuilder.setRoutersList(Arrays.asList(routersListBuilder.build()));
+            dpnRoutersListBuilder.setRoutersList(Collections.singletonList(routersListBuilder.build()));
             writeOperTxn.merge(LogicalDatastoreType.OPERATIONAL,
                     getDpnRoutersId(dpId),
                     dpnRoutersListBuilder.build(), true);
