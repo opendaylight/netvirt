@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Inocybe and others.  All rights reserved.
+ * Copyright © 2015, 2017 Inocybe and others.  All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
@@ -83,7 +83,7 @@ public class L3FowardingServiceTest {
 
         assertEquals("Error, did not return the expected StatusCode",
                 new Status(StatusCode.SUCCESS),
-                l3ForwardingService.programForwardingTableEntry(Long.valueOf(123),
+                l3ForwardingService.programForwardingTableEntry(123L,
                         SEGMENTATION_ID, address, MAC_ADDRESS, Action.ADD));
         verify(writeTransaction, times(2)).put(any(LogicalDatastoreType.class),
                 any(InstanceIdentifier.class), any(Node.class), anyBoolean());
@@ -92,7 +92,7 @@ public class L3FowardingServiceTest {
 
         assertEquals("Error, did not return the expected StatusCode",
                 new Status(StatusCode.SUCCESS),
-                l3ForwardingService.programForwardingTableEntry(Long.valueOf(123),
+                l3ForwardingService.programForwardingTableEntry(123L,
                         SEGMENTATION_ID, address, MAC_ADDRESS, Action.DELETE));
         verify(writeTransaction, times(1)).delete(any(LogicalDatastoreType.class), any(InstanceIdentifier.class));
         verify(writeTransaction, times(2)).submit();
