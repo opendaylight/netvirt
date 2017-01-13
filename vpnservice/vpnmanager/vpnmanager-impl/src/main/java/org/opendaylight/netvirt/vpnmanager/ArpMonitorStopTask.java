@@ -48,9 +48,7 @@ public class ArpMonitorStopTask implements Callable<List<ListenableFuture<Void>>
         List<ListenableFuture<Void>> futures = new ArrayList<>();
         WriteTransaction tx = dataBroker.newWriteOnlyTransaction();
         java.util.Optional<Long> monitorIdOptional = AlivenessMonitorUtils.getMonitorIdFromInterface(macEntry);
-        if(monitorIdOptional.isPresent()) {
-            AlivenessMonitorUtils.stopArpMonitoring(alivenessManager, monitorIdOptional.get());
-        }
+        monitorIdOptional.ifPresent(aLong -> AlivenessMonitorUtils.stopArpMonitoring(alivenessManager, aLong));
         removeMipAdjacency(macEntry.getIpAddress().getHostAddress(),
                 macEntry.getVpnName(), macEntry.getInterfaceName(), tx);
         VpnUtil.removeLearntVpnVipToPort(dataBroker, macEntry.getVpnName(),

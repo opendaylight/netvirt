@@ -102,7 +102,7 @@ public class PipelineOrchestratorImpl implements ConfigInterface, NodeCacheListe
         // insert the service if not already there. The list is ordered based of table ID.
         if (!staticPipeline.contains(service) && !isTableInPipeline(service.getTable())) {
             staticPipeline.add(service);
-            Collections.sort(staticPipeline, Service.insertComparator);
+            staticPipeline.sort(Service.insertComparator);
         }
         LOG.info("registerService: {}", staticPipeline);
     }

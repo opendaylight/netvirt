@@ -101,13 +101,7 @@ public class NeutronRouterChangeListener extends AsyncDataTreeChangeListenerBase
         List<Routes> oldRoutes = (original.getRoutes() != null) ? original.getRoutes() : new ArrayList<>();
         List<Routes> newRoutes = (update.getRoutes() != null) ? update.getRoutes() : new ArrayList<>();
         if (!oldRoutes.equals(newRoutes)) {
-            Iterator<Routes> iterator = newRoutes.iterator();
-            while (iterator.hasNext()) {
-                Routes route = iterator.next();
-                if (oldRoutes.remove(route)) {
-                    iterator.remove();
-                }
-            }
+            newRoutes.removeIf(oldRoutes::remove);
 
             handleChangedRoutes(vpnId, newRoutes, NwConstants.ADD_FLOW);
 

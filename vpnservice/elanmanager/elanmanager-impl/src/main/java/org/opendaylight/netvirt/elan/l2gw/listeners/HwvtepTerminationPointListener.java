@@ -81,12 +81,7 @@ public class HwvtepTerminationPointListener
             return;
         }
         synchronized (HwvtepTerminationPointListener.class) {
-            List<Runnable> list = waitingJobsList.get(key);
-            if (list == null) {
-                list = new ArrayList<>();
-                waitingJobsList.put(key, list);
-            }
-            list.add(runnable);
+            waitingJobsList.computeIfAbsent(key, k -> new ArrayList<>()).add(runnable);
             LOG.debug("added the job to wait list of physical locator {}", key);
         }
     }

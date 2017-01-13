@@ -1290,11 +1290,7 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
                 }
                 LOG.trace("Adding extra route for destination {} onto vpn {} with nexthop {} ", destination,
                         vpnId.getValue(), nextHop);
-                List<String> hops = adjMap.get(destination);
-                if (hops == null) {
-                    hops = new ArrayList<>();
-                    adjMap.put(destination, hops);
-                }
+                List<String> hops = adjMap.computeIfAbsent(destination, k -> new ArrayList<>());
                 if (!hops.contains(nextHop)) {
                     hops.add(nextHop);
                 }

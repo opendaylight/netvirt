@@ -770,19 +770,11 @@ public class VpnUtil {
 
     public static <T extends DataObject> Optional<T> read(DataBroker broker, LogicalDatastoreType datastoreType,
                                                           InstanceIdentifier<T> path) {
-
-        ReadOnlyTransaction tx = broker.newReadOnlyTransaction();
-
-        Optional<T> result = Optional.absent();
-        try {
-            result = tx.read(datastoreType, path).get();
+        try (ReadOnlyTransaction tx = broker.newReadOnlyTransaction()) {
+            return tx.read(datastoreType, path).get();
         } catch (Exception e) {
             throw new RuntimeException(e);
-        } finally {
-            tx.close();
         }
-
-        return result;
     }
 
     public static <T extends DataObject> void asyncUpdate(DataBroker broker, LogicalDatastoreType datastoreType,

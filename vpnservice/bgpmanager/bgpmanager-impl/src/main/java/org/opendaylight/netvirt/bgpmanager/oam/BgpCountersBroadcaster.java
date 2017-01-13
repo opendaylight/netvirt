@@ -27,9 +27,7 @@ public class BgpCountersBroadcaster extends NotificationBroadcasterSupport imple
     public Map<String, String> retrieveCounterMap() {
         LOGGER.trace("Polled retrieveCounterMap");
         Map<String, String> countersVal = new HashMap<>(bgpCountersMap);
-        Iterator<Map.Entry<String, String>> entries = countersVal.entrySet().iterator();
-        while (entries.hasNext()) {
-            Map.Entry<String, String> entry = entries.next();
+        for (Map.Entry<String, String> entry : countersVal.entrySet()) {
             LOGGER.trace(entry.getKey() + ", Value from MBean= " + entry.getValue());
         }
         return countersVal;

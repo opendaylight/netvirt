@@ -235,13 +235,7 @@ public class NeutronPortChangeListener extends AsyncDataTreeChangeListenerBase<P
         List<FixedIps> oldIPs = (original.getFixedIps() != null) ? original.getFixedIps() : new ArrayList<>();
         List<FixedIps> newIPs = (update.getFixedIps() != null) ? update.getFixedIps() : new ArrayList<>();
         if (!oldIPs.equals(newIPs)) {
-            Iterator<FixedIps> iterator = newIPs.iterator();
-            while (iterator.hasNext()) {
-                FixedIps ip = iterator.next();
-                if (oldIPs.remove(ip)) {
-                    iterator.remove();
-                }
-            }
+            newIPs.removeIf(oldIPs::remove);
             handleNeutronPortUpdated(original, update);
         }
         if (NeutronConstants.DEVICE_OWNER_GATEWAY_INF.equals(update.getDeviceOwner())) {

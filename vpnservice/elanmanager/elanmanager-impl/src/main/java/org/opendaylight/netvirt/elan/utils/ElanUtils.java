@@ -289,29 +289,19 @@ public class ElanUtils {
     @SuppressWarnings("checkstyle:IllegalCatch")
     public <T extends DataObject> Optional<T> read(DataBroker broker, LogicalDatastoreType datastoreType,
             InstanceIdentifier<T> path) {
-        ReadOnlyTransaction tx = broker != null ? broker.newReadOnlyTransaction()
-                : this.broker.newReadOnlyTransaction();
-        Optional<T> result = Optional.absent();
-        try {
-            CheckedFuture<Optional<T>, ReadFailedException> checkedFuture = tx.read(datastoreType, path);
-            result = checkedFuture.get();
+        try (ReadOnlyTransaction tx = broker != null ? broker.newReadOnlyTransaction()
+                : this.broker.newReadOnlyTransaction()) {
+            return tx.read(datastoreType, path).get();
         } catch (Exception e) {
             throw new RuntimeException(e);
-        } finally {
-            tx.close();
         }
-
-        return result;
     }
 
     public <T extends DataObject> Optional<T> read2(LogicalDatastoreType datastoreType, InstanceIdentifier<T> path)
             throws ReadFailedException {
-        ReadOnlyTransaction tx = broker.newReadOnlyTransaction();
-        try {
+        try (ReadOnlyTransaction tx = broker.newReadOnlyTransaction()) {
             CheckedFuture<Optional<T>, ReadFailedException> checkedFuture = tx.read(datastoreType, path);
             return checkedFuture.checkedGet();
-        } finally {
-            tx.close();
         }
     }
 

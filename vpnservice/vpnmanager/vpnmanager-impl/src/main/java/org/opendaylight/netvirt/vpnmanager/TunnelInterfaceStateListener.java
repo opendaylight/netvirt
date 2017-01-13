@@ -299,9 +299,7 @@ public class TunnelInterfaceStateListener extends AsyncDataTreeChangeListenerBas
             }
 
             //Iterate over the VpnId-to-Rd map.
-            Iterator<Map.Entry<Long, String>> entries = vpnIdRdMap.entrySet().iterator();
-            while (entries.hasNext()) {
-                Map.Entry<Long, String> entry = entries.next();
+            for (Map.Entry<Long, String> entry : vpnIdRdMap.entrySet()) {
                 Long vpnId = entry.getKey();
                 rd = entry.getValue();
                 if ((tunnelAction == TunnelAction.TUNNEL_EP_ADD) &&

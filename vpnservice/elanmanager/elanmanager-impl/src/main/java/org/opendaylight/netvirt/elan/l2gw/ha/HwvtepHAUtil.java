@@ -365,7 +365,7 @@ public class HwvtepHAUtil {
      * @return child Switches
      */
     public static Set<InstanceIdentifier<Node>> getPSChildrenIdsForHAPSNode(String psNodId) {
-        if (psNodId.indexOf(PHYSICALSWITCH) < 0) {
+        if (!psNodId.contains(PHYSICALSWITCH)) {
             return Collections.emptySet();
         }
         String nodeId = convertToGlobalNodeId(psNodId);

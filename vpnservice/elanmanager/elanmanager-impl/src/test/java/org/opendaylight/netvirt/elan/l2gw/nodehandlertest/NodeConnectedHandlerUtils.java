@@ -10,6 +10,7 @@ package org.opendaylight.netvirt.elan.l2gw.nodehandlertest;
 import static org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType.OPERATIONAL;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
@@ -99,12 +100,7 @@ public class NodeConnectedHandlerUtils {
     }
 
     public List<String> getData(String data) {
-        String[] dataArray = data.split(",");
-        List<String> logicalSwitch = new ArrayList<>();
-        for (int i = 0; i < dataArray.length; i++) {
-            logicalSwitch.add(dataArray[i]);
-        }
-        return logicalSwitch;
+        return Arrays.asList(data.split(","));
     }
 
     public static Uuid getUUid(String key) {

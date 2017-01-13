@@ -845,12 +845,7 @@ public class NeutronvpnUtils {
         subnetMap.put(subnet.getUuid(), subnet);
         IpAddress gatewayIp = subnet.getGatewayIp();
         if (gatewayIp != null) {
-            Set<Uuid> gwIps = subnetGwIpMap.get(gatewayIp);
-            if (gwIps == null) {
-                gwIps = Sets.newConcurrentHashSet();
-                subnetGwIpMap.put(gatewayIp, gwIps);
-            }
-            gwIps.add(subnet.getUuid());
+            subnetGwIpMap.computeIfAbsent(gatewayIp, k -> Sets.newConcurrentHashSet()).add(subnet.getUuid());
         }
     }
 

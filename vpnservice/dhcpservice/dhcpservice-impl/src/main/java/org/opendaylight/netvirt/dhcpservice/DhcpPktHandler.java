@@ -13,7 +13,6 @@ import java.math.BigInteger;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.Arrays;
-import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
@@ -499,11 +498,9 @@ public class DhcpPktHandler implements PacketProcessingListener {
             return;
         }
         ByteArrayOutputStream result = new ByteArrayOutputStream();
-        Iterator<HostRoutes> iter = hostRoutes.iterator();
-        while (iter.hasNext()) {
-            HostRoutes hostRoute = iter.next();
+        for (HostRoutes hostRoute : hostRoutes) {
             if (hostRoute.getNexthop().getIpv4Address() == null
-                    || hostRoute.getDestination().getIpv4Prefix() == null ) {
+                    || hostRoute.getDestination().getIpv4Prefix() == null) {
                 // we only deal with IPv4 addresses
                 return;
             }

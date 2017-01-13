@@ -72,12 +72,7 @@ public class VpnOpDataSyncer {
         List<Runnable> notifieeList = null;
         try {
             synchronized (listenerMap) {
-                notifieeList = listenerMap.get(vpnName);
-                if (notifieeList == null) {
-                    notifieeList = new ArrayList<>();
-                    listenerMap.put(vpnName, notifieeList);
-                }
-                notifieeList.add(notifyTask);
+                listenerMap.computeIfAbsent(vpnName, k -> new ArrayList<>()).add(notifyTask);
             }
 
             synchronized (notifyTask) {

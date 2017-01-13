@@ -42,11 +42,7 @@ public class PortInfo {
     }
 
     public PortIp allocateFixedIp(int ipVersion, String ipPfx, String subnetId) {
-        PortIp portIp = fixedIpList.get(ipPfx);
-        if (portIp == null) {
-            portIp = new PortIp(ipVersion, ipPfx, subnetId);
-            fixedIpList.put(ipPfx, portIp);
-        }
+        PortIp portIp = fixedIpList.computeIfAbsent(ipPfx, k -> new PortIp(ipVersion, ipPfx, subnetId));
 
         if (NetvirtITConstants.IPV4 == ipVersion) {
             portIp.setFixedIp(ipFor(ipPfx, ofPort));

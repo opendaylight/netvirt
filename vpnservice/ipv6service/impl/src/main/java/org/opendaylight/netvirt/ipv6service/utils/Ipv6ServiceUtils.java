@@ -92,16 +92,11 @@ public class Ipv6ServiceUtils {
      */
     public static <T extends DataObject> Optional<T> read(DataBroker broker, LogicalDatastoreType datastoreType,
                                                           InstanceIdentifier<T> path) {
-        ReadOnlyTransaction tx = broker.newReadOnlyTransaction();
-        Optional<T> result = Optional.absent();
-        try {
-            result = tx.read(datastoreType, path).get();
+        try (ReadOnlyTransaction tx = broker.newReadOnlyTransaction()) {
+            return tx.read(datastoreType, path).get();
         } catch (InterruptedException | ExecutionException e) {
             throw new RuntimeException(e);
-        } finally {
-            tx.close();
         }
-        return result;
     }
 
     /**

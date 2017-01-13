@@ -34,11 +34,7 @@ public class ElanL2GwCacheUtils {
         ConcurrentMap<String, L2GatewayDevice> deviceMap = cachedMap.get(elanName);
         if (deviceMap == null) {
             synchronized (ElanL2GwCacheUtils.class) {
-                deviceMap = cachedMap.get(elanName);
-                if (deviceMap == null) {
-                    deviceMap = new ConcurrentHashMap<>();
-                    cachedMap.put(elanName, deviceMap);
-                }
+                deviceMap = cachedMap.computeIfAbsent(elanName, k -> new ConcurrentHashMap<>());
             }
         }
         deviceMap.put(l2GwDevice.getHwvtepNodeId(), l2GwDevice);
