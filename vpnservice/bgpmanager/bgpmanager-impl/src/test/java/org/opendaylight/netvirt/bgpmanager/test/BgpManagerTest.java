@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 Ericsson India Global Services Pvt Ltd. and others.  All rights reserved.
+ * Copyright © 2016, 2017 Ericsson India Global Services Pvt Ltd. and others.  All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
@@ -7,7 +7,7 @@
  */
 package org.opendaylight.netvirt.bgpmanager.test;
 
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
@@ -41,7 +41,7 @@ public class BgpManagerTest extends AbstractDataBrokerTest {
     public void testAddSinglePrefix() {
         String rd = "101";
         String prefix = "10.10.10.10/32";
-        List<String> nexthop = Arrays.asList("100.100.100.100");
+        List<String> nexthop = Collections.singletonList("100.100.100.100");
         int label = 1234;
 
         bgpFibWriter.addFibEntryToDS(rd, prefix, nexthop, label, RouteOrigin.LOCAL);

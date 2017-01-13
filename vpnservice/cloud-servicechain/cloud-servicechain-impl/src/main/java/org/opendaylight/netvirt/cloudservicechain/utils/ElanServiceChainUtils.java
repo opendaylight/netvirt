@@ -105,11 +105,11 @@ public class ElanServiceChainUtils {
             instructions.add(MDSALUtil.buildApplyActionsInstruction(MDSALUtil
                     .buildActions(actionsInfos),instructionKey++));
             instructions.add(MDSALUtil.buildAndGetGotoTableInstruction(tableId, instructionKey++));
-            List<MatchInfo> matches = Arrays.asList(
+            List<MatchInfo> matches = Collections.singletonList(
                     new MatchInfo(MatchFieldType.metadata,
-                            new BigInteger[] { MetaDataUtil.getMetaDataForLPortDispatcher(elanLportTag,
+                            new BigInteger[] {MetaDataUtil.getMetaDataForLPortDispatcher(elanLportTag,
                                     ServiceIndex.getIndex(NwConstants.SCF_SERVICE_NAME, NwConstants.SCF_SERVICE_INDEX)),
-                                    MetaDataUtil.getMetaDataMaskForLPortDispatcher() }));
+                                    MetaDataUtil.getMetaDataMaskForLPortDispatcher()}));
 
             Flow flow = MDSALUtil.buildFlowNew(NwConstants.LPORT_DISPATCHER_TABLE, flowRef,
                     CloudServiceChainConstants.DEFAULT_SCF_FLOW_PRIORITY, flowRef,
@@ -141,13 +141,13 @@ public class ElanServiceChainUtils {
                  dpnId, elanLportTag, elanTag, addOrRemove);
         String flowRef = buildLportDispFromScfFlowRef(elanTag, elanLportTag );
         if (addOrRemove == NwConstants.ADD_FLOW) {
-            List<MatchInfo> matches = Arrays.asList(
-                new MatchInfo(MatchFieldType.metadata,
-                              new BigInteger[] {
-                                  MetaDataUtil.getMetaDataForLPortDispatcher(elanLportTag,
-                                                                ServiceIndex.getIndex(NwConstants.ELAN_SERVICE_NAME,
-                                                                                      NwConstants.ELAN_SERVICE_INDEX)),
-                                  MetaDataUtil.getMetaDataMaskForLPortDispatcher() }));
+            List<MatchInfo> matches = Collections.singletonList(
+                    new MatchInfo(MatchFieldType.metadata,
+                            new BigInteger[] {
+                                    MetaDataUtil.getMetaDataForLPortDispatcher(elanLportTag,
+                                            ServiceIndex.getIndex(NwConstants.ELAN_SERVICE_NAME,
+                                                    NwConstants.ELAN_SERVICE_INDEX)),
+                                    MetaDataUtil.getMetaDataMaskForLPortDispatcher()}));
             int instructionKey = 0;
             List<Instruction> instructions = Arrays.asList(
                     // BigInter.ONE is for setting also the Split-Horizon flag since it could have been cleared
@@ -197,8 +197,8 @@ public class ElanServiceChainUtils {
                  dpnId, vni, elanLportTag, addOrRemove);
         String flowRef = buildExtTunnelTblToLportDispFlowRef(vni, elanLportTag);
         if (addOrRemove == NwConstants.ADD_FLOW) {
-            List<MatchInfo> matches = Arrays.asList(new MatchInfo(MatchFieldType.tunnel_id,
-                    new BigInteger[] { BigInteger.valueOf(vni) } ) );
+            List<MatchInfo> matches = Collections.singletonList(new MatchInfo(MatchFieldType.tunnel_id,
+                    new BigInteger[] {BigInteger.valueOf(vni)}));
             List<Instruction> instructions = buildSetLportTagAndGotoLportDispInstructions(elanLportTag);
             Flow flow = MDSALUtil.buildFlowNew(NwConstants.EXTERNAL_TUNNEL_TABLE, flowRef,
                     CloudServiceChainConstants.DEFAULT_SCF_FLOW_PRIORITY, flowRef,

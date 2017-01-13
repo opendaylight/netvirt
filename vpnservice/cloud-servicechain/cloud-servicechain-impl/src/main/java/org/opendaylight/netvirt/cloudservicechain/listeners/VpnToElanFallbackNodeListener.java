@@ -9,6 +9,7 @@ package org.opendaylight.netvirt.cloudservicechain.listeners;
 
 import java.math.BigInteger;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
@@ -117,7 +118,7 @@ public class VpnToElanFallbackNodeListener extends AsyncDataTreeChangeListenerBa
                                                                        NwConstants.L3VPN_SERVICE_INDEX)),
             MetaDataUtil.METADATA_MASK_SERVICE_INDEX
         };
-        List<MatchInfo> matches = Arrays.asList(new MatchInfo(MatchFieldType.metadata, metadataToMatch));
+        List<MatchInfo> matches = Collections.singletonList(new MatchInfo(MatchFieldType.metadata, metadataToMatch));
 
         BigInteger metadataToWrite =
             MetaDataUtil.getServiceIndexMetaData(ServiceIndex.getIndex(NwConstants.ELAN_SERVICE_NAME,

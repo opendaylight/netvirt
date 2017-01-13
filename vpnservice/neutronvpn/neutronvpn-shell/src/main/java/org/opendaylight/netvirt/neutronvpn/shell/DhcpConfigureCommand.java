@@ -8,6 +8,11 @@
 
 package org.opendaylight.netvirt.neutronvpn.shell;
 
+import com.google.common.base.Optional;
+import com.google.common.util.concurrent.CheckedFuture;
+import java.util.Collections;
+import java.util.List;
+import java.util.concurrent.ExecutionException;
 import org.apache.karaf.shell.commands.Command;
 import org.apache.karaf.shell.commands.Option;
 import org.apache.karaf.shell.console.OsgiCommandSupport;
@@ -23,13 +28,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev15060
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.google.common.base.Optional;
-import com.google.common.util.concurrent.CheckedFuture;
-
-import java.util.Arrays;
-import java.util.List;
-import java.util.concurrent.ExecutionException;
 
 @Command(scope = "vpnservice", name = "dhcp-configure", description = "configuring parameters for DHCP Service")
 public class DhcpConfigureCommand extends OsgiCommandSupport {
@@ -77,7 +75,7 @@ public class DhcpConfigureCommand extends OsgiCommandSupport {
             dccBuilder.setLeaseDuration((leaseDuration == null) ? currLeaseDuration : leaseDuration);
             dccBuilder.setDefaultDomain((defaultDomain == null) ? currDefDomain : defaultDomain);
 
-            List<Configs> configList = Arrays.asList(dccBuilder.build());
+            List<Configs> configList = Collections.singletonList(dccBuilder.build());
             dcBuilder.setConfigs(configList);
             write(iid, dcBuilder.build());
         } catch (Exception e) {
