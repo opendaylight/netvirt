@@ -17,7 +17,7 @@ import java.io.InputStreamReader;
 import java.lang.reflect.Constructor;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -1539,7 +1539,7 @@ public class BgpConfigurationManager {
         }
         if (addroute) {
             LOG.info("ADD: Adding Fib entry rd {} prefix {} nexthop {} label {}", rd, prefix, nextHop, label);
-            fibDSWriter.addFibEntryToDS(rd, prefix + "/" + plen, Arrays.asList(nextHop), label, RouteOrigin.BGP);
+            fibDSWriter.addFibEntryToDS(rd, prefix + "/" + plen, Collections.singletonList(nextHop), label, RouteOrigin.BGP);
             LOG.info("ADD: Added Fib entry rd {} prefix {} nexthop {} label {}", rd, prefix, nextHop, label);
         }
     }
