@@ -15,6 +15,7 @@ import org.opendaylight.controller.md.sal.common.api.data.AsyncDataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.AsyncDataBroker.DataChangeScope;
 import org.opendaylight.genius.datastoreutils.AsyncClusteredDataChangeListenerBase;
+import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
 import org.opendaylight.netvirt.vpnmanager.api.intervpnlink.InterVpnLinkCache;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.netvirt.inter.vpn.link.rev160311.InterVpnLinks;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.netvirt.inter.vpn.link.rev160311.inter.vpn.links.InterVpnLink;
@@ -29,7 +30,7 @@ import org.slf4j.LoggerFactory;
  */
 public class InterVpnLinkCacheFeeder extends AsyncClusteredDataChangeListenerBase<InterVpnLink, InterVpnLinkCacheFeeder>
                                      implements AutoCloseable {
-
+    // TODO: convert this to AsyncClusteredDataTreeChangeListenerBase
     private ListenerRegistration<DataChangeListener> listenerRegistration;
 
     private static final Logger logger = LoggerFactory.getLogger(InterVpnLinkCacheFeeder.class);
@@ -40,7 +41,7 @@ public class InterVpnLinkCacheFeeder extends AsyncClusteredDataChangeListenerBas
     }
 
     private void registerListener(final DataBroker db) {
-        logger.debug("Registering InterVpnLinkListener");
+        logger.debug("Registering InterVpnLinkCacheFeeder");
         try {
             listenerRegistration = db.registerDataChangeListener(LogicalDatastoreType.CONFIGURATION,
                                                                  getWildCardPath(), InterVpnLinkCacheFeeder.this,

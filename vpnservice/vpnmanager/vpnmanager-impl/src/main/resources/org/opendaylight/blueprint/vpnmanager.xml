@@ -242,6 +242,13 @@
     <argument ref="vpnOpDataSyncer" />
   </bean>
 
+  <bean id="interVpnLinkStateListener"
+        class="org.opendaylight.netvirt.vpnmanager.intervpnlink.InterVpnLinkStateListener"
+        init-method="start" destroy-method="close">
+     <argument ref="dataBroker" />
+     <argument ref="interVpnLinkService" />
+  </bean>
+
   <bean id="interVpnLinkNodeListener"
         class="org.opendaylight.netvirt.vpnmanager.intervpnlink.InterVpnLinkNodeListener"
         init-method="start" destroy-method="close">
