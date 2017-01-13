@@ -44,7 +44,6 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
   <feature name='odl-ovsdb-sfc-ui' version='${project.version}' description='OpenDaylight :: ovsdb-sfc :: UI'>
     <feature version="${project.version}">odl-ovsdb-sfc-rest</feature>
     <feature version="${restconf.version}">odl-mdsal-apidocs</feature>
-    <feature version="${controller.mdsal.version}">odl-mdsal-xsql</feature>
     <feature version="${dlux.version}">odl-dlux-yangui</feature>
   </feature>
   <feature name='odl-ovsdb-sfc-test' version='${project.version}' description='OpenDaylight :: ovsdb-sfc-test'>
