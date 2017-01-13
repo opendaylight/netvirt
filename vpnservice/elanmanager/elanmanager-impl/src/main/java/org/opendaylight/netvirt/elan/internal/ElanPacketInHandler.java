@@ -12,7 +12,7 @@ import com.google.common.util.concurrent.ListenableFuture;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import org.opendaylight.controller.liblldp.NetUtils;
 import org.opendaylight.controller.liblldp.PacketException;
@@ -182,7 +182,7 @@ public class ElanPacketInHandler implements PacketProcessingListener {
 
                     BigInteger dpId = interfaceManager.getDpnForInterface(interfaceName);
                     elanL2GatewayUtils.scheduleAddDpnMacInExtDevices(elanInstance.getElanInstanceName(), dpId,
-                            Arrays.asList(physAddress));
+                            Collections.singletonList(physAddress));
 
                     ElanManagerCounters.unknown_smac_pktin_learned.inc();
 
@@ -232,7 +232,8 @@ public class ElanPacketInHandler implements PacketProcessingListener {
         WriteTransaction flowDeletetx = broker.newWriteOnlyTransaction();
         elanUtils.deleteMacFlows(elanInfo, oldInterfaceLport, macEntry, flowDeletetx);
         flowDeletetx.submit();
-        elanL2GatewayUtils.removeMacsFromElanExternalDevices(elanInfo, Arrays.asList(macEntry.getMacAddress()));
+        elanL2GatewayUtils.removeMacsFromElanExternalDevices(elanInfo,
+                Collections.singletonList(macEntry.getMacAddress()));
     }
 
 }
