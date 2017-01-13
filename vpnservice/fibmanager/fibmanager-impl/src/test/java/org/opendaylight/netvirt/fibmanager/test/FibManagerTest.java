@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015, 2016 Ericsson India Global Services Pvt Ltd. and others. All rights reserved.
+ * Copyright © 2015, 2017 Ericsson India Global Services Pvt Ltd. and others. All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
@@ -11,7 +11,7 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.when;
 
 import java.math.BigInteger;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
@@ -76,7 +76,7 @@ public class FibManagerTest {
     private void setupMocks() {
         dpn = BigInteger.valueOf(100000L);
         identifier = buildVrfEntryId(TEST_RD, PREFIX);
-        vrfEntry = buildVrfEntry(TEST_RD, PREFIX, Arrays.asList(NEXTHOP), LABEL, origin);
+        vrfEntry = buildVrfEntry(TEST_RD, PREFIX, Collections.singletonList(NEXTHOP), LABEL, origin);
         when(vrfTableKey.getRouteDistinguisher()).thenReturn(TEST_RD);
     }
 

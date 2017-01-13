@@ -520,7 +520,8 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
                     vrfEntry.getDestPrefix(), vrfEntry.getNextHopAddressList(), rd, dstVpnRd);
                 String key = rd + FibConstants.SEPARATOR + vrfEntry.getDestPrefix();
                 long label = FibUtil.getUniqueId(idManager, FibConstants.VPN_IDPOOL_NAME, key);
-                VrfEntry newVrfEntry = new VrfEntryBuilder(vrfEntry).setNextHopAddressList(Arrays.asList(endpointIp))
+                VrfEntry newVrfEntry = new VrfEntryBuilder(vrfEntry).setNextHopAddressList(
+                        Collections.singletonList(endpointIp))
                     .setLabel(label)
                     .setOrigin(RouteOrigin.INTERVPN.getValue())
                     .build();
@@ -1913,7 +1914,7 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
                     List<String> nextHopAddressList = vrfEntry.getNextHopAddressList();
                     VrfEntry modVrfEntry;
                     if (nextHopAddressList == null || (nextHopAddressList.isEmpty())) {
-                        List<String> nhList = Arrays.asList(destTepIp);
+                        List<String> nhList = Collections.singletonList(destTepIp);
                         modVrfEntry = new VrfEntryBuilder(vrfEntry).setNextHopAddressList(nhList).build();
                     } else {
                         modVrfEntry = vrfEntry;
@@ -2096,7 +2097,7 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
             if (RouteOrigin.value(vrfEntry.getOrigin()) != RouteOrigin.BGP) {
                 Extraroute extraRoute = getVpnToExtraroute(rd, vrfEntry.getDestPrefix());
                 if (extraRoute == null) {
-                    prefixIpList = Arrays.asList(vrfEntry.getDestPrefix());
+                    prefixIpList = Collections.singletonList(vrfEntry.getDestPrefix());
                 } else {
                     prefixIpList = new ArrayList<>();
                     for (String extraRouteIp : extraRoute.getNexthopIpList()) {
@@ -2104,7 +2105,7 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
                     }
                 }
             } else {
-                prefixIpList = Arrays.asList(vrfEntry.getDestPrefix());
+                prefixIpList = Collections.singletonList(vrfEntry.getDestPrefix());
             }
 
             for (String prefixIp : prefixIpList) {

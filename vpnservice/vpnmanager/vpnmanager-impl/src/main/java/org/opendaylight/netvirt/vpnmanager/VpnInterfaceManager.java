@@ -13,7 +13,6 @@ import com.google.common.collect.Iterators;
 import com.google.common.util.concurrent.ListenableFuture;
 import java.math.BigInteger;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
@@ -636,8 +635,8 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
             } else {
                 // ### add FIB route directly
                 fibManager.addOrUpdateFibEntry(dataBroker, vpnName, nextHop.getIpAddress(),
-                        (nextHopIp == null ? Collections.emptyList() : Arrays.asList(nextHopIp)), (int) label,
-                        RouteOrigin.LOCAL, writeConfigTxn);
+                        (nextHopIp == null ? Collections.emptyList() : Collections.singletonList(nextHopIp)),
+                        (int) label, RouteOrigin.LOCAL, writeConfigTxn);
             }
         }
     }
@@ -672,7 +671,7 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
             for (Adjacency adj : adjList) {
                 prefix = adj.getIpAddress();
                 label = adj.getLabel();
-                nhList = Arrays.asList(srcTepIp);
+                nhList = Collections.singletonList(srcTepIp);
                 //Only for primary adjacency update the nexthop ip
                 if (adj.getMacAddress() != null && !adj.getMacAddress().isEmpty()) {
                     List<String> nextHopList = adj.getNextHopIpList();
@@ -1200,7 +1199,7 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
             ArpResponderUtil.installFlow(mdsalManager, writeInvTxn, dpId, flowId, flowId,
                     NwConstants.DEFAULT_ARP_FLOW_PRIORITY, ArpResponderUtil.generateCookie(lportTag, gwIp),
                     ArpResponderUtil.getMatchCriteria(lportTag, vpnId, gwIp),
-                    Arrays.asList(MDSALUtil.buildApplyActionsInstruction(actions)));
+                    Collections.singletonList(MDSALUtil.buildApplyActionsInstruction(actions)));
             LOG.trace("Installed the ARP Responder flow for VPN Interface {}", ifName);
         }
     }
@@ -1468,7 +1467,7 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
         Optional<VrfEntry> entry = MDSALUtil.read(dataBroker, LogicalDatastoreType.CONFIGURATION, vrfEntryId);
 
         if (!entry.isPresent()) {
-            List<VrfEntry> vrfEntryList = Arrays.asList(vrfEntry);
+            List<VrfEntry> vrfEntryList = Collections.singletonList(vrfEntry);
 
             InstanceIdentifierBuilder<VrfTables> idBuilder =
                 InstanceIdentifier.builder(FibEntries.class).child(VrfTables.class, new VrfTablesKey(rd));

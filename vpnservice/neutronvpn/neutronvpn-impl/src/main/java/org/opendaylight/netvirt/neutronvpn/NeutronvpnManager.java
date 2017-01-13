@@ -13,6 +13,7 @@ import com.google.common.util.concurrent.SettableFuture;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.EventListener;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -1345,7 +1346,8 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
                         InstanceIdentifier<Adjacency> path = identifier.augmentation(Adjacencies.class)
                             .child(Adjacency.class, new AdjacencyKey(destination));
                         Adjacency erAdj = new AdjacencyBuilder().setIpAddress(destination)
-                            .setNextHopIpList(Arrays.asList(nextHop)).setKey(new AdjacencyKey(destination)).build();
+                            .setNextHopIpList(Collections.singletonList(nextHop)).setKey(new AdjacencyKey(destination))
+                            .build();
                         isLockAcquired = NeutronvpnUtils.lock(infName);
                         MDSALUtil.syncWrite(dataBroker, LogicalDatastoreType.CONFIGURATION, path, erAdj);
                     } catch (Exception e) {
@@ -1418,7 +1420,8 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
                                 .setNextHopIpList(nextHopList)
                                 .setKey(new AdjacencyKey(destination))
                                 .build();
-                        Adjacencies erAdjs = new AdjacenciesBuilder().setAdjacency(Arrays.asList(newAdj)).build();
+                        Adjacencies erAdjs =
+                                new AdjacenciesBuilder().setAdjacency(Collections.singletonList(newAdj)).build();
                         VpnInterface vpnIf = new VpnInterfaceBuilder().setKey(new VpnInterfaceKey(infName))
                                 .addAugmentation(Adjacencies.class, erAdjs).build();
                         MDSALUtil.syncUpdate(dataBroker, LogicalDatastoreType.CONFIGURATION, vpnIfIdentifier, vpnIf);
