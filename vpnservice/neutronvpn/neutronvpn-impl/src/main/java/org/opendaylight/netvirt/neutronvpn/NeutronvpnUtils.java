@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 Ericsson India Global Services Pvt Ltd. and others.  All rights reserved.
+ * Copyright © 2016, 2017 Ericsson India Global Services Pvt Ltd. and others.  All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
@@ -867,12 +867,7 @@ public class NeutronvpnUtils {
         subnetMap.put(subnet.getUuid(), subnet);
         IpAddress gatewayIp = subnet.getGatewayIp();
         if (gatewayIp != null) {
-            Set<Uuid> gwIps = subnetGwIpMap.get(gatewayIp);
-            if (gwIps == null) {
-                gwIps = Sets.newConcurrentHashSet();
-                subnetGwIpMap.put(gatewayIp, gwIps);
-            }
-            gwIps.add(subnet.getUuid());
+            subnetGwIpMap.computeIfAbsent(gatewayIp, k -> Sets.newConcurrentHashSet()).add(subnet.getUuid());
         }
     }
 
