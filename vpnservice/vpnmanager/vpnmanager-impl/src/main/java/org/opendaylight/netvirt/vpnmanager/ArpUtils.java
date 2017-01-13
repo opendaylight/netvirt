@@ -19,6 +19,7 @@ import org.opendaylight.controller.liblldp.EtherTypes;
 import org.opendaylight.genius.mdsalutil.ActionInfo;
 import org.opendaylight.genius.mdsalutil.ActionType;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
+import org.opendaylight.genius.mdsalutil.NWUtil;
 import org.opendaylight.genius.mdsalutil.packet.ARP;
 import org.opendaylight.genius.mdsalutil.packet.Ethernet;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.action.types.rev131112.action.list.Action;
@@ -29,7 +30,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class ArpUtils {
-    private static final Logger s_logger = LoggerFactory.getLogger(ArpUtils.class);
+    private static final Logger LOG = LoggerFactory.getLogger(ArpUtils.class);
 
     public static TransmitPacketInput createArpRequestInput(BigInteger dpnId, long groupId, byte[] abySenderMAC,
             byte[] abySenderIpAddress, byte[] abyTargetIpAddress) {
@@ -53,11 +54,10 @@ public class ArpUtils {
             byte[] abyTargetMAC, byte[] abySenderIpAddress, byte[] abyTargetIpAddress, NodeConnectorRef ingress,
             List<ActionInfo> lstActionInfo) {
 
-        s_logger.info(
-                "SubnetRoutePacketInHandler: sendArpRequest dpnId {}, actions {},"
-                        + " groupId {}, senderIPAddress {}, targetIPAddress {}",
-                dpnId, lstActionInfo, groupId, toStringIpAddress(abySenderIpAddress),
-                toStringIpAddress(abyTargetIpAddress));
+        LOG.info("SubnetRoutePacketInHandler: sendArpRequest dpnId {}, actions {},"
+                 + " groupId {}, senderIPAddress {}, targetIPAddress {}",
+                dpnId, lstActionInfo, groupId, NWUtil.toStringIpAddress(abySenderIpAddress),
+                NWUtil.toStringIpAddress(abyTargetIpAddress));
         if (abySenderIpAddress != null) {
             byte[] arpPacket;
             byte[] ethPacket;
@@ -74,7 +74,7 @@ public class ArpUtils {
                 return MDSALUtil.getPacketOutDefault(lstActionInfo, ethPacket, dpnId);
             }
         } else {
-            s_logger.info("SubnetRoutePacketInHandler: Unable to send ARP request because client port has no IP  ");
+            LOG.info("SubnetRoutePacketInHandler: Unable to send ARP request because client port has no IP  ");
             return null;
         }
     }
@@ -92,21 +92,6 @@ public class ArpUtils {
         return macAddressBytes;
     }
 
-    private static String toStringIpAddress(byte[] ipAddress) {
-        String ip = null;
-        if (ipAddress == null) {
-            return ip;
-        }
-
-        try {
-            ip = InetAddress.getByAddress(ipAddress).getHostAddress();
-        } catch (UnknownHostException e) {
-            s_logger.error("SubnetRoutePacketInHandler: Unable to translate byt[] ipAddress to String {}", e);
-        }
-
-        return ip;
-    }
-
     private static byte[] createEthernetPacket(byte[] sourceMAC, byte[] targetMAC, byte[] arp) {
         Ethernet ethernet = new Ethernet();
         byte[] rawEthPkt = null;
@@ -117,7 +102,7 @@ public class ArpUtils {
             ethernet.setRawPayload(arp);
             rawEthPkt = ethernet.serialize();
         } catch (Exception ex) {
-            s_logger.error(
+            LOG.error(
                     "VPNUtil:  Serialized Ethernet packet with sourceMacAddress {} targetMacAddress {} exception ",
                     sourceMAC, targetMAC, ex);
         }
@@ -140,7 +125,7 @@ public class ArpUtils {
             arp.setTargetProtocolAddress(targetIP);
             rawArpPkt = arp.serialize();
         } catch (Exception ex) {
-            s_logger.error("VPNUtil:  Serialized ARP packet with senderIp {} targetIP {} exception ", senderIP,
+            LOG.error("VPNUtil:  Serialized ARP packet with senderIp {} targetIP {} exception ", senderIP,
                     targetIP, ex);
         }
 

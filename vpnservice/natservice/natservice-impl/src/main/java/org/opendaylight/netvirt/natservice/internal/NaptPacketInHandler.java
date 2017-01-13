@@ -9,6 +9,7 @@ package org.opendaylight.netvirt.natservice.internal;
 
 import org.opendaylight.controller.liblldp.NetUtils;
 import org.opendaylight.genius.mdsalutil.MetaDataUtil;
+import org.opendaylight.genius.mdsalutil.NWUtil;
 import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.genius.mdsalutil.packet.Ethernet;
 import org.opendaylight.genius.mdsalutil.packet.IPv4;
@@ -60,7 +61,7 @@ public class NaptPacketInHandler implements PacketProcessingListener {
                     IPv4 ipPkt = (IPv4) ethPkt.getPayload();
                     byte[] ipSrc = Ints.toByteArray(ipPkt.getSourceAddress());
 
-                    internalIPAddress = NatUtil.toStringIpAddress(ipSrc, LOG);
+                    internalIPAddress = NWUtil.toStringIpAddress(ipSrc);
                     LOG.trace("Retrieved internalIPAddress {}", internalIPAddress);
                     if (ipPkt.getPayload() instanceof TCP) {
                         TCP tcpPkt = (TCP) ipPkt.getPayload();
