@@ -804,22 +804,6 @@ public class NatUtil {
         return InstanceIdentifier.create(NaptSwitches.class).child(RouterToNaptSwitch.class, new RouterToNaptSwitchKey(routerId));
     }
 
-    public static String toStringIpAddress(byte[] ipAddress, Logger log)
-    {
-        String ip = "";
-        if (ipAddress == null) {
-            return ip;
-        }
-
-        try {
-            ip = InetAddress.getByAddress(ipAddress).getHostAddress();
-        } catch(UnknownHostException e) {
-            log.error("NAT Service : Caught exception during toStringIpAddress()");
-        }
-
-        return ip;
-    }
-
     public static String getGroupIdKey(String routerName){
         String groupIdKey = new String("snatmiss." + routerName);
         return groupIdKey;

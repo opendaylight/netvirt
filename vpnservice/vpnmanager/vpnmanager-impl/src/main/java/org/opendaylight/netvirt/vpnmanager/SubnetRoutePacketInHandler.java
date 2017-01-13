@@ -82,8 +82,8 @@ public class SubnetRoutePacketInHandler implements PacketProcessingListener {
                     byte[] dstMac = res.getDestinationMACAddress();
                     byte[] srcIp = Ints.toByteArray(ipv4.getSourceAddress());
                     byte[] dstIp = Ints.toByteArray(ipv4.getDestinationAddress());
-                    String dstIpStr = toStringIpAddress(dstIp);
-                    String srcIpStr = toStringIpAddress(srcIp);
+                    String dstIpStr = NWUtil.toStringIpAddress(dstIp);
+                    String srcIpStr = NWUtil.toStringIpAddress(srcIp);
                     /*if (VpnUtil.getNeutronPortNamefromPortFixedIp(dataBroker, dstIpStr) != null) {
                         LOG.debug("SubnetRoutePacketInHandler: IPv4 Packet received with "
                                 + "Target IP {} is a valid Neutron port, ignoring subnet route processing", dstIpStr);
@@ -178,22 +178,6 @@ public class SubnetRoutePacketInHandler implements PacketProcessingListener {
             }
         }
         return dpnid;
-    }
-
-    private static String toStringIpAddress(byte[] ipAddress)
-    {
-        String ip = null;
-        if (ipAddress == null) {
-            return ip;
-        }
-
-        try {
-            ip = InetAddress.getByAddress(ipAddress).getHostAddress();
-        } catch(UnknownHostException e) {
-            LOG.error("SubnetRoutePacketInHandler: Unable to translate byt[] ipAddress to String {}", e);
-        }
-
-        return ip;
     }
 
     public static long getElanTagFromSubnetRouteMetadata(BigInteger metadata) {
