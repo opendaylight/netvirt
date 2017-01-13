@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 - 2016 Ericsson India Global Services Pvt Ltd. and others.  All rights reserved.
+ * Copyright © 2015, 2017 Ericsson India Global Services Pvt Ltd. and others.  All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
@@ -627,26 +627,31 @@ public class NexthopManager implements AutoCloseable {
 
     private ConfTransportTypeL3vpn createConfTransportType(String type) {
         ConfTransportTypeL3vpn confTransType;
-        if (type.equals(ITMConstants.TUNNEL_TYPE_GRE)) {
-            confTransType = new ConfTransportTypeL3vpnBuilder().setTransportType(TunnelTypeGre.class).build();
-            LOG.trace("Setting the confTransportType to GRE.");
-        } else if (type.equals(ITMConstants.TUNNEL_TYPE_VXLAN)) {
-            confTransType = new ConfTransportTypeL3vpnBuilder().setTransportType(TunnelTypeVxlan.class).build();
-            LOG.trace("Setting the confTransportType to VxLAN.");
-        } else {
-            LOG.trace("Invalid transport type {} passed to Config DS ", type);
-            confTransType = null;
+        switch (type) {
+            case ITMConstants.TUNNEL_TYPE_GRE:
+                confTransType = new ConfTransportTypeL3vpnBuilder().setTransportType(TunnelTypeGre.class).build();
+                LOG.trace("Setting the confTransportType to GRE.");
+                break;
+            case ITMConstants.TUNNEL_TYPE_VXLAN:
+                confTransType = new ConfTransportTypeL3vpnBuilder().setTransportType(TunnelTypeVxlan.class).build();
+                LOG.trace("Setting the confTransportType to VxLAN.");
+                break;
+            default:
+                LOG.trace("Invalid transport type {} passed to Config DS ", type);
+                confTransType = null;
+                break;
         }
         return confTransType;
     }
 
     public Class<? extends TunnelTypeBase> getReqTunType(String transportType) {
-        if (transportType.equals("VXLAN")) {
-            return TunnelTypeVxlan.class;
-        } else if (transportType.equals("GRE")) {
-            return TunnelTypeGre.class;
-        } else {
-            return TunnelTypeMplsOverGre.class;
+        switch (transportType) {
+            case "VXLAN":
+                return TunnelTypeVxlan.class;
+            case "GRE":
+                return TunnelTypeGre.class;
+            default:
+                return TunnelTypeMplsOverGre.class;
         }
     }
 

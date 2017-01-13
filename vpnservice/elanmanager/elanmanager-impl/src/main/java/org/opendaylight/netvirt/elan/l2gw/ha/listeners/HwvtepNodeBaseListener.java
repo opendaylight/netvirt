@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 Ericsson India Global Services Pvt Ltd. and others.  All rights reserved.
+ * Copyright © 2016, 2017 Ericsson India Global Services Pvt Ltd. and others.  All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
@@ -85,7 +85,7 @@ public abstract class HwvtepNodeBaseListener implements DataTreeChangeListener<N
             Node original = HwvtepHAUtil.getOriginal(mod);
             if (updated != null && original != null) {
                 if (updated != null && original != null) {
-                    if (nodeId.indexOf(HwvtepHAUtil.PHYSICALSWITCH) < 0) {
+                    if (!nodeId.contains(HwvtepHAUtil.PHYSICALSWITCH)) {
                         onGlobalNodeUpdate(key, updated, original, tx);
                     } else {
                         onPsNodeUpdate(key, updated, original, tx);
@@ -105,7 +105,7 @@ public abstract class HwvtepNodeBaseListener implements DataTreeChangeListener<N
             Node deleted = HwvtepHAUtil.getRemoved(mod);
             String nodeId = key.firstKeyOf(Node.class).getNodeId().getValue();
             if (deleted != null) {
-                if (nodeId.indexOf(HwvtepHAUtil.PHYSICALSWITCH) < 0) {
+                if (!nodeId.contains(HwvtepHAUtil.PHYSICALSWITCH)) {
                     LOG.info("Handle global node delete {}", deleted.getNodeId().getValue());
                     onGlobalNodeDelete(key, deleted, tx);
                 } else {
@@ -127,7 +127,7 @@ public abstract class HwvtepNodeBaseListener implements DataTreeChangeListener<N
             Node node = HwvtepHAUtil.getCreated(mod);
             String nodeId = key.firstKeyOf(Node.class).getNodeId().getValue();
             if (node != null) {
-                if (nodeId.indexOf(HwvtepHAUtil.PHYSICALSWITCH) < 0) {
+                if (!nodeId.contains(HwvtepHAUtil.PHYSICALSWITCH)) {
                     LOG.info("Handle global node add {}", node.getNodeId().getValue());
                     onGlobalNodeAdd(key, node, tx);
                 } else {

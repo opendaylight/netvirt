@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 Ericsson India Global Services Pvt Ltd. and others. All rights reserved.
+ * Copyright © 2016, 2017 Ericsson India Global Services Pvt Ltd. and others. All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
@@ -771,20 +771,12 @@ public class VpnUtil {
         };
 
     public static <T extends DataObject> Optional<T> read(DataBroker broker, LogicalDatastoreType datastoreType,
-        InstanceIdentifier<T> path) {
-
-        ReadOnlyTransaction tx = broker.newReadOnlyTransaction();
-
-        Optional<T> result = Optional.absent();
-        try {
-            result = tx.read(datastoreType, path).get();
+                                                          InstanceIdentifier<T> path) {
+        try (ReadOnlyTransaction tx = broker.newReadOnlyTransaction()) {
+            return tx.read(datastoreType, path).get();
         } catch (InterruptedException | ExecutionException e) {
             throw new RuntimeException(e);
-        } finally {
-            tx.close();
         }
-
-        return result;
     }
 
     public static <T extends DataObject> void asyncUpdate(DataBroker broker, LogicalDatastoreType datastoreType,

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 Ericsson India Global Services Pvt Ltd. and others.  All rights reserved.
+ * Copyright © 2016, 2017 Ericsson India Global Services Pvt Ltd. and others.  All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
@@ -34,11 +34,7 @@ public class ElanL2GwCacheUtils {
         ConcurrentMap<String, L2GatewayDevice> deviceMap = cachedMap.get(elanName);
         if (deviceMap == null) {
             synchronized (ElanL2GwCacheUtils.class) {
-                deviceMap = cachedMap.get(elanName);
-                if (deviceMap == null) {
-                    deviceMap = new ConcurrentHashMap<>();
-                    cachedMap.put(elanName, deviceMap);
-                }
+                deviceMap = cachedMap.computeIfAbsent(elanName, k -> new ConcurrentHashMap<>());
             }
         }
         deviceMap.put(l2GwDevice.getHwvtepNodeId(), l2GwDevice);

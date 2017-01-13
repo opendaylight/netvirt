@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 - 2016 Ericsson India Global Services Pvt Ltd. and others.  All rights reserved.
+ * Copyright © 2015, 2017 Ericsson India Global Services Pvt Ltd. and others.  All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
@@ -12,7 +12,6 @@ import static org.opendaylight.netvirt.neutronvpn.NeutronvpnUtils.buildfloatingI
 import com.google.common.base.Optional;
 import com.google.common.util.concurrent.ListenableFuture;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.NotificationPublishService;
@@ -233,13 +232,7 @@ public class NeutronPortChangeListener extends AsyncDataTreeChangeListenerBase<P
         List<FixedIps> oldIPs = (original.getFixedIps() != null) ? original.getFixedIps() : new ArrayList<>();
         List<FixedIps> newIPs = (update.getFixedIps() != null) ? update.getFixedIps() : new ArrayList<>();
         if (!oldIPs.equals(newIPs)) {
-            Iterator<FixedIps> iterator = newIPs.iterator();
-            while (iterator.hasNext()) {
-                FixedIps ip = iterator.next();
-                if (oldIPs.remove(ip)) {
-                    iterator.remove();
-                }
-            }
+            newIPs.removeIf(oldIPs::remove);
             handleNeutronPortUpdated(original, update);
         }
         if (NeutronConstants.DEVICE_OWNER_GATEWAY_INF.equals(update.getDeviceOwner())) {
