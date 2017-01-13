@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 Red Hat, Inc. and others.  All rights reserved.
+ * Copyright © 2016, 2017 Red Hat, Inc. and others.  All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
@@ -95,16 +95,11 @@ public class Ipv6ServiceUtils {
      */
     public static <T extends DataObject> Optional<T> read(DataBroker broker, LogicalDatastoreType datastoreType,
                                                           InstanceIdentifier<T> path) {
-        ReadOnlyTransaction tx = broker.newReadOnlyTransaction();
-        Optional<T> result = Optional.absent();
-        try {
-            result = tx.read(datastoreType, path).get();
+        try (ReadOnlyTransaction tx = broker.newReadOnlyTransaction()) {
+            return tx.read(datastoreType, path).get();
         } catch (InterruptedException | ExecutionException e) {
             throw new RuntimeException(e);
-        } finally {
-            tx.close();
         }
-        return result;
     }
 
     /**

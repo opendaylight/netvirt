@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014, 2015 HP, Inc. and others. All rights reserved.
+ * Copyright © 2014, 2017 HP, Inc. and others. All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
@@ -28,7 +28,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.HashMap;
@@ -83,11 +82,7 @@ public class SecurityGroupCacheManagerImpl implements ConfigInterface, SecurityG
     @Override
     public void addToCache(String remoteSgUuid, String portUuid, NodeId nodeId) {
         LOG.debug("In addToCache remoteSgUuid:" + remoteSgUuid + " portUuid:" + portUuid);
-        Map<String, NodeId> remoteSgPorts = securityGroupCache.get(remoteSgUuid);
-        if (null == remoteSgPorts) {
-            remoteSgPorts = new HashMap<>();
-            securityGroupCache.put(remoteSgUuid, remoteSgPorts);
-        }
+        Map<String, NodeId> remoteSgPorts = securityGroupCache.computeIfAbsent(remoteSgUuid, k -> new HashMap<>());
         remoteSgPorts.put(portUuid, nodeId);
     }
 
@@ -123,10 +118,7 @@ public class SecurityGroupCacheManagerImpl implements ConfigInterface, SecurityG
             LOG.debug("The port list is empty for security group:" + securityGroupUuid);
             return;
         }
-        Set portSet = portList.entrySet();
-        Iterator itr = portSet.iterator();
-        while(itr.hasNext()) {
-            Map.Entry<String, NodeId> portEntry = (Map.Entry)itr.next();
+        for (Map.Entry<String, NodeId> portEntry : portList.entrySet()) {
             String cachedportUuid = portEntry.getKey();
             NodeId nodeId = portEntry.getValue();
             if (cachedportUuid.equals(port.getID())) {
@@ -137,7 +129,7 @@ public class SecurityGroupCacheManagerImpl implements ConfigInterface, SecurityG
                 cachedport = neutronL3Adapter.getPortFromCleanupCache(cachedportUuid);
                 if (null == cachedport) {
                     LOG.error("In processPortRemoved cachedport port not found in neuton cache:"
-                                + " cachedportUuid:" + cachedportUuid);
+                            + " cachedportUuid:" + cachedportUuid);
                     continue;
                 }
             }
@@ -164,10 +156,7 @@ public class SecurityGroupCacheManagerImpl implements ConfigInterface, SecurityG
             LOG.debug("The port list is empty for security group:" + securityGroupUuid);
             return;
         }
-        Set portSet = portList.entrySet();
-        Iterator itr = portSet.iterator();
-        while(itr.hasNext()) {
-            Map.Entry<String, NodeId> portEntry = (Map.Entry)itr.next();
+        for (Map.Entry<String, NodeId> portEntry : portList.entrySet()) {
             String cachedportUuid = portEntry.getKey();
             NodeId nodeId = portEntry.getValue();
             if (cachedportUuid.equals(port.getID())) {
@@ -178,7 +167,7 @@ public class SecurityGroupCacheManagerImpl implements ConfigInterface, SecurityG
                 cachedport = neutronL3Adapter.getPortFromCleanupCache(cachedportUuid);
                 if (null == cachedport) {
                     LOG.error("In processPortRemoved cachedport port not found in neuton cache:"
-                                + " cachedportUuid:" + cachedportUuid);
+                            + " cachedportUuid:" + cachedportUuid);
                     continue;
                 }
             }
