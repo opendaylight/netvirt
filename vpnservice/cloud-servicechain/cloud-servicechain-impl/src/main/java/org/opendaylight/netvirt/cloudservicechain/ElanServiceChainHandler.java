@@ -151,8 +151,8 @@ public class ElanServiceChainHandler {
 
             for (BigInteger dpnId : operativeDPNs) {
                 ElanServiceChainUtils.programLPortDispatcherToScf(mdsalManager, dpnId, elanTag, elanLportTag,
-                        CloudServiceChainConstants.SCF_DOWN_SUB_FILTER_TCP_BASED_TABLE,
-                        scfTag, NwConstants.DEL_FLOW);
+                                                                  NwConstants.SCF_DOWN_SUB_FILTER_TCP_BASED_TABLE,
+                                                                  scfTag, NwConstants.DEL_FLOW);
                 ElanServiceChainUtils.programLPortDispatcherFromScf(mdsalManager, dpnId, elanLportTag, elanTag,
                                                                     NwConstants.DEL_FLOW);
                 ElanServiceChainUtils.programExternalTunnelTable(mdsalManager, dpnId, elanLportTag, vni, elanTag,
