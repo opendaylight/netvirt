@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 - 2016 Inocybe and others.  All rights reserved.
+ * Copyright © 2015, 2017 Inocybe and others.  All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
@@ -203,7 +203,7 @@ public class IngressAclServiceTest {
         when(neutronSecurityRuleCache.getAllNeutronSecurityRules()).thenReturn(portSecurityList);
 
         ingressAclServiceSpy.programPortSecurityGroup(
-                Long.valueOf(1554), "2", MAC_ADDRESS, 124, localSecurityGroup, PORT_UUID, nodeId, false);
+                1554L, "2", MAC_ADDRESS, 124, localSecurityGroup, PORT_UUID, nodeId, false);
     }
 
     /**
@@ -216,7 +216,7 @@ public class IngressAclServiceTest {
         when(portSecurityRule.getSecurityRulePortMin()).thenReturn(null);
         when(portSecurityRule.getSecurityRuleRemoteIpPrefix()).thenReturn(null);
 
-        ingressAclServiceSpy.programPortSecurityGroup(Long.valueOf(1554), "2", MAC_ADDRESS, 124, securityGroup,PORT_UUID, nodeId, true);
+        ingressAclServiceSpy.programPortSecurityGroup(1554L, "2", MAC_ADDRESS, 124, securityGroup,PORT_UUID, nodeId, true);
 
         verify(writeTransaction, times(1)).put(any(LogicalDatastoreType.class), any(InstanceIdentifier.class), any(Node.class), eq(true));
         verify(writeTransaction, times(1)).submit();
@@ -233,7 +233,7 @@ public class IngressAclServiceTest {
         when(portSecurityIpv6Rule.getSecurityRulePortMin()).thenReturn(null);
         when(portSecurityIpv6Rule.getSecurityRuleRemoteIpPrefix()).thenReturn(null);
 
-        ingressAclServiceSpy.programPortSecurityGroup(Long.valueOf(1554), "2", MAC_ADDRESS, 124, securityGroupIpv6, PORT_UUID, nodeId, true);
+        ingressAclServiceSpy.programPortSecurityGroup(1554L, "2", MAC_ADDRESS, 124, securityGroupIpv6, PORT_UUID, nodeId, true);
 
         verify(writeTransaction, times(1)).put(any(LogicalDatastoreType.class), any(InstanceIdentifier.class), any(Node.class), eq(true));
         verify(writeTransaction, times(1)).submit();
@@ -250,7 +250,7 @@ public class IngressAclServiceTest {
         when(portSecurityRule.getSecurityRulePortMin()).thenReturn(null);
         when(portSecurityRule.getSecurityRuleRemoteIpPrefix()).thenReturn(null);
 
-        ingressAclServiceSpy.programPortSecurityGroup(Long.valueOf(1554), "2", MAC_ADDRESS, 124, securityGroup,PORT_UUID, nodeId, false);
+        ingressAclServiceSpy.programPortSecurityGroup(1554L, "2", MAC_ADDRESS, 124, securityGroup,PORT_UUID, nodeId, false);
 
         verify(writeTransaction, times(1)).delete(any(LogicalDatastoreType.class), any(InstanceIdentifier.class));
         verify(writeTransaction, times(1)).submit();
@@ -267,7 +267,7 @@ public class IngressAclServiceTest {
         when(portSecurityIpv6Rule.getSecurityRulePortMin()).thenReturn(null);
         when(portSecurityIpv6Rule.getSecurityRuleRemoteIpPrefix()).thenReturn(null);
 
-        ingressAclServiceSpy.programPortSecurityGroup(Long.valueOf(1554), "2", MAC_ADDRESS, 124, securityGroupIpv6, PORT_UUID, nodeId, false);
+        ingressAclServiceSpy.programPortSecurityGroup(1554L, "2", MAC_ADDRESS, 124, securityGroupIpv6, PORT_UUID, nodeId, false);
 
         verify(writeTransaction, times(1)).delete(any(LogicalDatastoreType.class), any(InstanceIdentifier.class));
         verify(writeTransaction, times(1)).submit();
@@ -1514,7 +1514,7 @@ public class IngressAclServiceTest {
     public void testProgramPortSecurityACLRuleInvalidEther() throws Exception {
         when(portSecurityRule.getSecurityRuleEthertype()).thenReturn("IP");
 
-        ingressAclServiceSpy.programPortSecurityGroup(Long.valueOf(1554), "2", MAC_ADDRESS, 124, securityGroup,PORT_UUID, nodeId, false);
+        ingressAclServiceSpy.programPortSecurityGroup(1554L, "2", MAC_ADDRESS, 124, securityGroup,PORT_UUID, nodeId, false);
 
         verify(writeTransaction, times(0)).delete(any(LogicalDatastoreType.class), any(InstanceIdentifier.class));
         verify(writeTransaction, times(0)).submit();
@@ -1528,7 +1528,7 @@ public class IngressAclServiceTest {
     public void testProgramPortSecurityACLRuleInvalidDirection() throws Exception {
         when(portSecurityRule.getSecurityRuleDirection()).thenReturn("edgress");
 
-        ingressAclServiceSpy.programPortSecurityGroup(Long.valueOf(1554), "2", MAC_ADDRESS, 124, securityGroup,PORT_UUID, nodeId, false);
+        ingressAclServiceSpy.programPortSecurityGroup(1554L, "2", MAC_ADDRESS, 124, securityGroup,PORT_UUID, nodeId, false);
 
         verify(writeTransaction, times(0)).delete(any(LogicalDatastoreType.class), any(InstanceIdentifier.class));
         verify(writeTransaction, times(0)).submit();
@@ -1542,7 +1542,7 @@ public class IngressAclServiceTest {
     public void testProgramFixedSecurityACLAdd2() throws Exception {
         when(securityServices.isConntrackEnabled()).thenReturn(false);
 
-        ingressAclServiceSpy.programFixedSecurityGroup(Long.valueOf(1554), "2", DHCP_MAC_ADDRESS, 1, MAC_ADDRESS, true);
+        ingressAclServiceSpy.programFixedSecurityGroup(1554L, "2", DHCP_MAC_ADDRESS, 1, MAC_ADDRESS, true);
 
         verify(writeTransaction, times(3)).put(any(LogicalDatastoreType.class), any(InstanceIdentifier.class), any(Node.class), eq(true));
         verify(writeTransaction, times(3)).submit();
@@ -1555,7 +1555,7 @@ public class IngressAclServiceTest {
     public void testProgramFixedSecurityACLRemove2() throws Exception {
         when(securityServices.isConntrackEnabled()).thenReturn(false);
 
-        ingressAclServiceSpy.programFixedSecurityGroup(Long.valueOf(1554), "2", DHCP_MAC_ADDRESS, 1, MAC_ADDRESS, false);
+        ingressAclServiceSpy.programFixedSecurityGroup(1554L, "2", DHCP_MAC_ADDRESS, 1, MAC_ADDRESS, false);
 
         verify(writeTransaction, times(3)).delete(any(LogicalDatastoreType.class), any(InstanceIdentifier.class));
         verify(writeTransaction, times(3)).submit();
@@ -1568,7 +1568,7 @@ public class IngressAclServiceTest {
     public void testProgramFixedSecurityACLAdd4() throws Exception {
         when(securityServices.isConntrackEnabled()).thenReturn(true);
 
-        ingressAclServiceSpy.programFixedSecurityGroup(Long.valueOf(1554), "2", DHCP_MAC_ADDRESS, 1, MAC_ADDRESS, true);
+        ingressAclServiceSpy.programFixedSecurityGroup(1554L, "2", DHCP_MAC_ADDRESS, 1, MAC_ADDRESS, true);
 
         verify(writeTransaction, times(8)).put(any(LogicalDatastoreType.class), any(InstanceIdentifier.class), any(Node.class), eq(true));
         verify(writeTransaction, times(8)).submit();
@@ -1581,7 +1581,7 @@ public class IngressAclServiceTest {
     public void testProgramFixedSecurityACLRemove4() throws Exception {
         when(securityServices.isConntrackEnabled()).thenReturn(true);
 
-        ingressAclServiceSpy.programFixedSecurityGroup(Long.valueOf(1554), "2", DHCP_MAC_ADDRESS, 1, MAC_ADDRESS, false);
+        ingressAclServiceSpy.programFixedSecurityGroup(1554L, "2", DHCP_MAC_ADDRESS, 1, MAC_ADDRESS, false);
 
         verify(writeTransaction, times(8)).delete(any(LogicalDatastoreType.class), any(InstanceIdentifier.class));
         verify(writeTransaction, times(8)).submit();
