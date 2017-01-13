@@ -50,7 +50,6 @@ import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.genius.utils.ServiceIndex;
 import org.opendaylight.netvirt.elan.ElanException;
 import org.opendaylight.netvirt.elan.internal.ElanInstanceManager;
-import org.opendaylight.netvirt.elan.internal.ElanInterfaceManager;
 import org.opendaylight.netvirt.elan.l2gw.utils.ElanL2GatewayMulticastUtils;
 import org.opendaylight.netvirt.elan.l2gw.utils.ElanL2GatewayUtils;
 import org.opendaylight.netvirt.elan.l2gw.utils.L2GatewayConnectionUtils;
@@ -188,17 +187,16 @@ public class ElanUtils {
 
     public ElanUtils(DataBroker dataBroker, IMdsalApiManager mdsalManager, ElanInstanceManager elanInstanceManager,
                      OdlInterfaceRpcService interfaceManagerRpcService, ItmRpcService itmRpcService,
-                     ElanInterfaceManager elanInterfaceManager,
-                     EntityOwnershipService entityOwnershipService, IInterfaceManager interfaceManager) {
+                     EntityOwnershipService entityOwnershipService, IInterfaceManager interfaceManager,
+                     ElanL2GatewayMulticastUtils elanL2GatewayMulticastUtils) {
         this.broker = dataBroker;
         this.mdsalManager = mdsalManager;
         this.elanInstanceManager = elanInstanceManager;
         this.interfaceManagerRpcService = interfaceManagerRpcService;
         this.itmRpcService = itmRpcService;
         this.interfaceManager = interfaceManager;
+        this.elanL2GatewayMulticastUtils = elanL2GatewayMulticastUtils;
 
-        elanL2GatewayMulticastUtils =
-                new ElanL2GatewayMulticastUtils(broker, elanInstanceManager, elanInterfaceManager, this);
         elanL2GatewayUtils = new ElanL2GatewayUtils(broker, itmRpcService, this,
                 entityOwnershipService, elanL2GatewayMulticastUtils);
         elanL2GatewayMulticastUtils.setEElanL2GatewayUtils(elanL2GatewayUtils);

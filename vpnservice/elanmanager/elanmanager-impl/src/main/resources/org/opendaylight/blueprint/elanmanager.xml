@@ -40,6 +40,7 @@
     <argument ref="mdsalUtils" />
     <argument ref="interfaceManager" />
     <argument ref="elanForwardingEntriesHandler" />
+    <argument ref="elanUtils" />
   </bean>
 
   <bean id="elanInstanceManager"
@@ -81,9 +82,16 @@
     <argument ref="elanInstanceManager" />
     <argument ref="odlInterfaceRpcService" />
     <argument ref="itmRpcService" />
-    <argument ref="elanInterfaceManager" />
     <argument ref="entityOwnershipService" />
-    <argument ref="interfaceManager" />
+    <argument ref="elanInterfaceManager" />
+    <argument ref="elanL2GatewayMulticastUtils" />
+  </bean>
+
+  <bean id="elanL2GatewayMulticastUtils" class="org.opendaylight.netvirt.elan.l2gw.utils.ElanL2GatewayMulticastUtils">
+    <argument ref="dataBroker" />
+    <argument ref="elanInstanceManager" />
+    <argument ref="elanInterfaceManager" />
+    <argument ref="elanUtils" />
   </bean>
 
   <bean id="elanStatisticsImpl" class="org.opendaylight.netvirt.elan.statisitcs.ElanStatisticsImpl">
