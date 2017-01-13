@@ -276,25 +276,19 @@ public class NatUtil {
        getFlowRef() returns a string identfier for the SNAT flows using the router ID as the reference.
     */
     public static String getFlowRef(BigInteger dpnId, short tableId, long routerID, String ip) {
-        return new StringBuffer().append(NatConstants.NAPT_FLOWID_PREFIX).append(dpnId)
-            .append(NatConstants.FLOWID_SEPARATOR)
-            .append(tableId).append(NatConstants.FLOWID_SEPARATOR).append(routerID)
-            .append(NatConstants.FLOWID_SEPARATOR).append(ip).toString();
+        return NatConstants.NAPT_FLOWID_PREFIX + dpnId + NatConstants.FLOWID_SEPARATOR + tableId + NatConstants
+                .FLOWID_SEPARATOR + routerID + NatConstants.FLOWID_SEPARATOR + ip;
     }
 
     public static String getFlowRef(BigInteger dpnId, short tableId, InetAddress destPrefix) {
-        return new StringBuilder(64).append(NatConstants.FLOWID_PREFIX).append(dpnId)
-            .append(NwConstants.FLOWID_SEPARATOR)
-            .append(tableId).append(NwConstants.FLOWID_SEPARATOR)
-            .append(destPrefix.getHostAddress()).toString();
+        return NatConstants.FLOWID_PREFIX + dpnId + NwConstants.FLOWID_SEPARATOR + tableId + NwConstants
+                .FLOWID_SEPARATOR + destPrefix.getHostAddress();
     }
 
     public static String getNaptFlowRef(BigInteger dpnId, short tableId, String routerID, String ip, int port) {
-        return new StringBuffer().append(NatConstants.NAPT_FLOWID_PREFIX)
-            .append(dpnId).append(NatConstants.FLOWID_SEPARATOR)
-            .append(tableId).append(NatConstants.FLOWID_SEPARATOR).append(routerID)
-            .append(NatConstants.FLOWID_SEPARATOR).append(ip)
-            .append(NatConstants.FLOWID_SEPARATOR).append(port).toString();
+        return NatConstants.NAPT_FLOWID_PREFIX + dpnId + NatConstants.FLOWID_SEPARATOR + tableId + NatConstants
+                .FLOWID_SEPARATOR + routerID + NatConstants.FLOWID_SEPARATOR + ip + NatConstants.FLOWID_SEPARATOR
+                + port;
     }
 
     /*

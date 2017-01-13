@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 Ericsson India Global Services Pvt Ltd. and others.  All rights reserved.
+ * Copyright © 2016, 2017 Ericsson India Global Services Pvt Ltd. and others.  All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
@@ -524,16 +524,13 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
     }
 
     public String getFlowRefOutbound(BigInteger dpnId, short tableId, long routerID) {
-        return new StringBuilder().append(NatConstants.NAPT_FLOWID_PREFIX).append(dpnId)
-            .append(NatConstants.FLOWID_SEPARATOR)
-            .append(tableId).append(NatConstants.FLOWID_SEPARATOR).append(routerID).toString();
+        return NatConstants.NAPT_FLOWID_PREFIX + dpnId + NatConstants.FLOWID_SEPARATOR + tableId + NatConstants
+                .FLOWID_SEPARATOR + routerID;
     }
 
     private String getFlowRefNaptFib(BigInteger dpnId, short tableId, long routerID, String externalIp) {
-        return new StringBuilder().append(NatConstants.NAPT_FLOWID_PREFIX).append(dpnId)
-            .append(NatConstants.FLOWID_SEPARATOR)
-            .append(tableId).append(NatConstants.FLOWID_SEPARATOR).append(routerID)
-            .append(NatConstants.FLOWID_SEPARATOR).append(externalIp).toString();
+        return NatConstants.NAPT_FLOWID_PREFIX + dpnId + NatConstants.FLOWID_SEPARATOR + tableId + NatConstants
+                .FLOWID_SEPARATOR + routerID + NatConstants.FLOWID_SEPARATOR + externalIp;
     }
 
     public BigInteger getCookieOutboundFlow(long routerId) {
@@ -709,15 +706,13 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
     }
 
     public String getFlowRefTs(BigInteger dpnId, short tableId, long routerID) {
-        return new StringBuilder().append(NatConstants.NAPT_FLOWID_PREFIX).append(dpnId)
-            .append(NatConstants.FLOWID_SEPARATOR)
-            .append(tableId).append(NatConstants.FLOWID_SEPARATOR).append(routerID).toString();
+        return NatConstants.NAPT_FLOWID_PREFIX + dpnId + NatConstants.FLOWID_SEPARATOR + tableId + NatConstants
+                .FLOWID_SEPARATOR + routerID;
     }
 
     public static String getFlowRefSnat(BigInteger dpnId, short tableId, String routerID) {
-        return new StringBuilder().append(NatConstants.SNAT_FLOWID_PREFIX).append(dpnId)
-            .append(NatConstants.FLOWID_SEPARATOR)
-            .append(tableId).append(NatConstants.FLOWID_SEPARATOR).append(routerID).toString();
+        return NatConstants.SNAT_FLOWID_PREFIX + dpnId + NatConstants.FLOWID_SEPARATOR + tableId + NatConstants
+                .FLOWID_SEPARATOR + routerID;
     }
 
     private String getGroupIdKey(String routerName) {
@@ -1021,10 +1016,8 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
     }
 
     private String getFlowRef(BigInteger dpnId, short tableId, long id, String ipAddress) {
-        return new StringBuilder(64).append(NatConstants.SNAT_FLOWID_PREFIX).append(dpnId)
-            .append(NwConstants.FLOWID_SEPARATOR)
-            .append(tableId).append(NwConstants.FLOWID_SEPARATOR)
-            .append(id).append(NwConstants.FLOWID_SEPARATOR).append(ipAddress).toString();
+        return NatConstants.SNAT_FLOWID_PREFIX + dpnId + NwConstants.FLOWID_SEPARATOR + tableId + NwConstants
+                .FLOWID_SEPARATOR + id + NwConstants.FLOWID_SEPARATOR + ipAddress;
     }
 
     @Override
