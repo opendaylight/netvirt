@@ -29,7 +29,7 @@ import org.slf4j.LoggerFactory;
  */
 public class InterVpnLinkCacheFeeder extends AsyncClusteredDataChangeListenerBase<InterVpnLink, InterVpnLinkCacheFeeder>
                                      implements AutoCloseable {
-
+    // TODO: convert this to AsyncClusteredDataTreeChangeListenerBase
     private ListenerRegistration<DataChangeListener> listenerRegistration;
 
     private static final Logger logger = LoggerFactory.getLogger(InterVpnLinkCacheFeeder.class);
@@ -40,7 +40,7 @@ public class InterVpnLinkCacheFeeder extends AsyncClusteredDataChangeListenerBas
     }
 
     private void registerListener(final DataBroker db) {
-        logger.debug("Registering InterVpnLinkListener");
+        logger.debug("Registering InterVpnLinkCacheFeeder");
         try {
             listenerRegistration = db.registerDataChangeListener(LogicalDatastoreType.CONFIGURATION,
                                                                  getWildCardPath(), InterVpnLinkCacheFeeder.this,

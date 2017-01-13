@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 Ericsson India Global Services Pvt Ltd. and others.  All rights reserved.
+ * Copyright (c) 2017 Ericsson India Global Services Pvt Ltd. and others.  All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
@@ -15,13 +15,9 @@ import com.google.common.util.concurrent.ListenableFuture;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
-import java.util.function.Predicate;
-import java.util.stream.Collectors;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.NotificationPublishService;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
@@ -56,12 +52,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.ReleaseIdInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.ReleaseIdInputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.VrfEntry;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.VpnMaps;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.vpnmaps.VpnMap;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l3.rev150712.l3.attributes.Routes;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l3.rev150712.routers.attributes.Routers;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l3.rev150712.routers.attributes.routers.Router;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.rev150712.Neutron;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.netvirt.inter.vpn.link.rev160311.InterVpnLinkCreationError;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.netvirt.inter.vpn.link.rev160311.InterVpnLinkCreationErrorBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.netvirt.inter.vpn.link.rev160311.InterVpnLinks;
@@ -249,7 +239,7 @@ public class InterVpnLinkListener extends AsyncDataTreeChangeListenerBase<InterV
             InterVpnLinkUtil.updateVpnFootprint(vpnFootprintService, vpn1Name, secondDpnList);
 
             // Program static routes if needed
-            handleStaticRoutes(iVpnLink.get());
+            ivpnLinkService.handleStaticRoutes(iVpnLink.get());
 
             // Now, if the corresponding flags are activated, there will be some routes exchange
             leakRoutesIfNeeded(add);
@@ -266,99 +256,6 @@ public class InterVpnLinkListener extends AsyncDataTreeChangeListenerBase<InterV
                                                 .setDpId(Collections.emptyList()).build();
             InterVpnLinkUtil.updateInterVpnLinkState(dataBroker, add.getName(), InterVpnLinkState.State.Error,
                                                      firstEndPointState, secondEndPointState);
-        }
-    }
-
-    private Map<String, String> buildRouterXL3VPNMap() {
-        InstanceIdentifier<VpnMaps> vpnMapsIdentifier = InstanceIdentifier.builder(VpnMaps.class).build();
-        Optional<VpnMaps> optVpnMaps =
-            MDSALUtil.read(dataBroker, LogicalDatastoreType.CONFIGURATION, vpnMapsIdentifier);
-        if (!optVpnMaps.isPresent()) {
-            LOG.info("Could not retrieve VpnMaps object from Configurational DS");
-            return new HashMap<>();
-        }
-        Predicate<VpnMap> isExternalVpn =
-            (vpnMap) -> vpnMap.getRouterId() != null
-                        && ! vpnMap.getVpnId().getValue().equalsIgnoreCase(vpnMap.getRouterId().getValue());
-
-        return optVpnMaps.get().getVpnMap().stream()
-                                           .filter(isExternalVpn)
-                                           .collect(Collectors.toMap(v -> v.getRouterId().getValue(),
-                                                                     v -> v.getVpnId().getValue()));
-    }
-
-
-    /*
-     * Checks if there are any static routes pointing to any of both
-     * InterVpnLink's endpoints. Goes through all routers checking if they have
-     * a route whose nexthop is an InterVpnLink endpoint
-     */
-    private void handleStaticRoutes(InterVpnLinkDataComposite iVpnLink) {
-        // Map that corresponds a routerId with the L3VPN that it's been assigned to.
-        Map<String, String> routerXL3VpnMap = buildRouterXL3VPNMap();
-
-        // Retrieving all Routers
-        InstanceIdentifier<Routers> routersIid = InstanceIdentifier.builder(Neutron.class).child(Routers.class).build();
-        Optional<Routers> routerOpData = MDSALUtil.read(dataBroker, LogicalDatastoreType.CONFIGURATION, routersIid);
-        if ( !routerOpData.isPresent() ) {
-
-            return;
-        }
-        List<Router> routers = routerOpData.get().getRouter();
-        for ( Router router : routers ) {
-            String vpnId = routerXL3VpnMap.get(router.getUuid().getValue());
-            if ( vpnId == null ) {
-                LOG.warn("Could not find suitable VPN for router {}", router.getUuid());
-                continue; // with next router
-            }
-            List<Routes> routerRoutes = router.getRoutes();
-            if ( routerRoutes != null ) {
-                for ( Routes route : routerRoutes ) {
-                    handleStaticRoute(vpnId, route, iVpnLink);
-                }
-            }
-        }
-    }
-
-    /*
-     * Takes care of an static route to see if flows related to interVpnLink
-     * must be installed in tables 20 and 17
-     *
-     * @param vpnId Vpn to which the route belongs
-     * @param route Route to handle. Will only be considered if its nexthop is the VPN's endpoint IpAddress
-     *              at the other side of the InterVpnLink
-     * @param iVpnLink
-     */
-    private void handleStaticRoute(String vpnId, Routes route, InterVpnLinkDataComposite iVpnLink) {
-
-        String routeNextHop = route.getNexthop().getIpv4Address().getValue();
-        String destination = String.valueOf(route.getDestination().getValue());
-
-        // is nexthop the other endpoint's IP
-        String otherEndpoint = iVpnLink.getOtherEndpoint(vpnId);
-        if ( !routeNextHop.equals(otherEndpoint) ) {
-            LOG.debug("VPN {}: Route to {} nexthop={} points to an InterVpnLink endpoint, but its not "
-                      + "the other endpoint. Other endpoint is {}",
-                      vpnId, destination, routeNextHop, otherEndpoint);
-            return;
-        }
-
-        // Lets work: 1) write Fibentry, 2) advertise to BGP and 3) check if it must be leaked
-        String vpnRd = VpnUtil.getVpnRd(dataBroker, vpnId);
-        if ( vpnRd == null ) {
-            LOG.warn("Could not find Route-Distinguisher for VpnName {}", vpnId);
-            return;
-        }
-
-        int label = VpnUtil.getUniqueId(idManager, VpnConstants.VPN_IDPOOL_NAME,
-                                        VpnUtil.getNextHopLabelKey(vpnId, destination));
-
-        try {
-            InterVpnLinkUtil.handleStaticRoute(iVpnLink, vpnId, destination, routeNextHop, label,
-                                               dataBroker, fibManager, bgpManager);
-        } catch (Exception e) {
-            LOG.warn("InterVpnLink [{}]: Could not handle static route [vpn={} prefix={} nexthop={} label={}]",
-                     iVpnLink.getInterVpnLinkName(), vpnId, destination, routeNextHop, label, e);
         }
     }
 
