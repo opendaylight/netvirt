@@ -1037,7 +1037,7 @@ public class NeutronL3Adapter extends AbstractHandler implements GatewayMacResol
         LOG.trace("programFlowsForNeutronRouterInterface called for interface {} isDelete {}",
                      destNeutronRouterInterface, isDelete);
 
-        if (subnet != null && subnet.getIpVersion().intValue() == 6) {
+        if (subnet != null && subnet.getIpVersion() == 6) {
             LOG.trace("programFlowsForNeutronRouterInterface doesn't support IPv6 router interface");
             return;
         }

@@ -43,7 +43,7 @@ public enum BgpAlarmErrorCodes {
     }
 
     public static BgpAlarmErrorCodes checkErrorSubcode(int i) {
-        BgpAlarmErrorCodes type = intToTypeMap.get(Integer.valueOf(i));
+        BgpAlarmErrorCodes type = intToTypeMap.get(i);
         if (type == null)
             return BgpAlarmErrorCodes.ERROR_IGNORE;
         return type;

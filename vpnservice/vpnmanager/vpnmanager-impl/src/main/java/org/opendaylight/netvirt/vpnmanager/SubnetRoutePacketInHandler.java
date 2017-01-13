@@ -204,6 +204,6 @@ public class SubnetRoutePacketInHandler implements PacketProcessingListener {
     getVpnIdToVpnInstanceIdentifier(long vpnId) {
         return InstanceIdentifier.builder(VpnIdToVpnInstance.class)
                 .child(VpnIds.class,
-                        new VpnIdsKey(Long.valueOf(vpnId))).build();
+                        new VpnIdsKey(vpnId)).build();
     }
 }

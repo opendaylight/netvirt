@@ -347,7 +347,7 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
                             WriteTransaction tx = dataBroker.newWriteOnlyTransaction();
                             for (final VpnToDpnList curDpn : vpnToDpnList) {
                                 if (curDpn.getDpnState() == VpnToDpnList.DpnState.Active) {
-                                    installSubnetRouteInFib(curDpn.getDpnId(), elanTag, rd, vpnId.longValue(), vrfEntry, tx);
+                                    installSubnetRouteInFib(curDpn.getDpnId(), elanTag, rd, vpnId, vrfEntry, tx);
                                 }
                             }
                             List<ListenableFuture<Void>> futures = new ArrayList<>();

@@ -302,7 +302,7 @@ public class NatUtil {
 
     static String getVpnInstanceFromVpnIdentifier(DataBroker broker, long vpnId) {
         InstanceIdentifier<VpnIds> id = InstanceIdentifier.builder(VpnIdToVpnInstance.class)
-                .child(VpnIds.class, new VpnIdsKey(Long.valueOf(vpnId))).build();
+                .child(VpnIds.class, new VpnIdsKey(vpnId)).build();
         Optional<VpnIds> vpnInstance = read(broker, LogicalDatastoreType.CONFIGURATION, id);
         return vpnInstance.isPresent() ? vpnInstance.get().getVpnInstanceName() : null;
     }

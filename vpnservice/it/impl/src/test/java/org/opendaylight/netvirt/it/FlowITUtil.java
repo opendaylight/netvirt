@@ -85,7 +85,7 @@ public class FlowITUtil {
         NxAugMatchRpcUpdateFlowOriginal.class,
         NxAugMatchRpcUpdateFlowUpdated.class};
 
-    private static Integer DEFAULT_PRIORITY = new Integer(32768);
+    private static Integer DEFAULT_PRIORITY = 32768;
 
     private String getNodeName(long dpidLong) {
         return OPENFLOW + ":" + dpidLong;

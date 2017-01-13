@@ -153,7 +153,7 @@ public class ElanNodeListener extends AbstractDataChangeListener<Node> implement
         //T50 - match on Reg4 and goto T51
         List<MatchInfoBase> mkMatches = new ArrayList<>();
         mkMatches.add(new NxMatchInfo(NxMatchFieldType.nxm_reg_4, new long[] {
-                Long.valueOf(LEARN_MATCH_REG4_VALUE).longValue() }));
+                Long.valueOf(LEARN_MATCH_REG4_VALUE)}));
         List<InstructionInfo> mkInstructions = new ArrayList<>();
         mkInstructions.add(new InstructionInfo(InstructionType.goto_table,
                 new long[] { NwConstants.ELAN_DMAC_TABLE }));

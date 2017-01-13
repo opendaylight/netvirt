@@ -436,14 +436,14 @@ public class BgpConfigurationManager {
             if (ignoreClusterDcnEventForFollower()) {
                 return;
             }
-            LOG.debug("received add router config asNum {}", val.getLocalAs().longValue());
+            LOG.debug("received add router config asNum {}", val.getLocalAs());
             synchronized (BgpConfigurationManager.this) {
                 BgpRouter br = getClient(yangObj);
                 if (br == null) {
                     LOG.error("no bgp router client found exiting asid add");
                     return;
                 }
-                long asNum = val.getLocalAs().longValue();
+                long asNum = val.getLocalAs();
                 Ipv4Address routerId = val.getRouterId();
                 Boolean afb = val.isAnnounceFbit();
                 String rid = (routerId == null) ? "" : routerId.getValue();
@@ -483,7 +483,7 @@ public class BgpConfigurationManager {
         @Override
         protected synchronized void
         remove(InstanceIdentifier<AsId> iid, AsId val) {
-            LOG.error("received delete router config asNum {}", val.getLocalAs().longValue());
+            LOG.error("received delete router config asNum {}", val.getLocalAs());
             if (ignoreClusterDcnEventForFollower()) {
                 return;
             }
@@ -492,7 +492,7 @@ public class BgpConfigurationManager {
                 if (br == null) {
                     return;
                 }
-                long asNum = val.getLocalAs().longValue();
+                long asNum = val.getLocalAs();
                 try {
                     br.stopBgp(asNum);
                 } catch (Exception e) {
@@ -730,7 +730,7 @@ public class BgpConfigurationManager {
                     return;
                 }
                 String peerIp = val.getAddress().getValue();
-                long as = val.getRemoteAs().longValue();
+                long as = val.getRemoteAs();
                 try {
                     //itmProvider.buildTunnelsToDCGW(new IpAddress(peerIp.toCharArray()));
                     br.addNeighbor(peerIp, as);
@@ -1555,7 +1555,7 @@ public class BgpConfigurationManager {
         for (Neighbors nbr : n) {
             try {
                 br.addNeighbor(nbr.getAddress().getValue(),
-                        nbr.getRemoteAs().longValue());
+                        nbr.getRemoteAs());
                 //itmProvider.buildTunnelsToDCGW(new IpAddress(nbr.getAddress().getValue().toCharArray()));
             } catch (Exception e) {
                 LOG.error("Replay:addNbr() received exception: \"" + e + "\"");
@@ -1657,7 +1657,7 @@ public class BgpConfigurationManager {
             if (a == null) {
                 return;
             }
-            long asNum = a.getLocalAs().longValue();
+            long asNum = a.getLocalAs();
             Ipv4Address routerId = a.getRouterId();
             Long spt = a.getStalepathTime();
             Boolean afb = a.isAnnounceFbit();

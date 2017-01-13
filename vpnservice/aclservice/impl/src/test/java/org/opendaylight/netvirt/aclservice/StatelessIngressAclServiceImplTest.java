@@ -175,7 +175,7 @@ public class StatelessIngressAclServiceImplTest {
         ai.setPortSecurityEnabled(true);
         ai.setSecurityGroups(Arrays.asList(sgUuid));
         ai.setDpId(BigInteger.ONE);
-        ai.setLPortTag(new Integer(2));
+        ai.setLPortTag(2);
         stubInterfaceAcl(ifName, ai);
 
         stubAccessList(sgUuid, ipv4PrefixStr, tcpPortLower, tcpPortUpper, (short)NwConstants.IP_PROT_UDP);
@@ -187,7 +187,7 @@ public class StatelessIngressAclServiceImplTest {
         AclInterface ai = new AclInterface();
         ai.setPortSecurityEnabled(true);
         ai.setDpId(BigInteger.ONE);
-        ai.setLPortTag(Integer.valueOf(2));
+        ai.setLPortTag(2);
         ai.setSecurityGroups(Arrays.asList(sgUuid));
         stubInterfaceAcl(ifName, ai);
 
@@ -200,7 +200,7 @@ public class StatelessIngressAclServiceImplTest {
         ai.setPortSecurityEnabled(true);
         ai.setSecurityGroups(Arrays.asList(sgUuid));
         ai.setDpId(BigInteger.ONE);
-        ai.setLPortTag(new Integer(2));
+        ai.setLPortTag(2);
         stubInterfaceAcl(ifName, ai);
 
         stubAccessList(sgUuid, "0.0.0.0/0", -1, -1, (short)-1);

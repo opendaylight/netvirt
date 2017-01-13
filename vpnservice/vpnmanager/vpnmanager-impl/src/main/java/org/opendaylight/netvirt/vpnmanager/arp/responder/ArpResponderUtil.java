@@ -482,8 +482,8 @@ public class ArpResponderUtil {
             Future<RpcResult<AllocateIdOutput>> result = idManager.allocateId(getIdInput);
             RpcResult<AllocateIdOutput> rpcResult = result.get();
             if (rpcResult.isSuccessful()) {
-                LOG.trace("Retrieved Group Id is {}", rpcResult.getResult().getIdValue().longValue());
-                return rpcResult.getResult().getIdValue().longValue();
+                LOG.trace("Retrieved Group Id is {}", rpcResult.getResult().getIdValue());
+                return rpcResult.getResult().getIdValue();
             } else {
                 LOG.warn("RPC Call to Allocate Id returned with Errors {}", rpcResult.getErrors());
             }

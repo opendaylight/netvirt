@@ -418,7 +418,7 @@ public class FibUtil {
     static InstanceIdentifier<VpnIds>
     getVpnIdToVpnInstanceIdentifier(long vpnId) {
         return InstanceIdentifier.builder(VpnIdToVpnInstance.class)
-                .child(VpnIds.class, new VpnIdsKey(Long.valueOf(vpnId))).build();
+                .child(VpnIds.class, new VpnIdsKey(vpnId)).build();
     }
 
     public static <T extends DataObject> void syncUpdate(DataBroker broker, LogicalDatastoreType datastoreType,

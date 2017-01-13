@@ -258,9 +258,9 @@ public class VpnSubnetRouteHandlerTest {
         nexthopIp = "10.1.1.25";
         idKey = "100:1.10.1.1.24";
         poolName = "vpnservices";
-        elanTag = Long.valueOf(2);
+        elanTag = 2L;
         longId = Long.valueOf("100");
-        nodeConnectorId = buildNodeConnectorId(dpId, Long.valueOf(2));
+        nodeConnectorId = buildNodeConnectorId(dpId, 2L);
         ipAddress = IpAddressBuilder.getDefaultInstance(nexthopIp);
         vpnIntfaces = new VpnInterfacesBuilder().setInterfaceName(interfaceName).setKey(new VpnInterfacesKey
                 (interfaceName)).build();

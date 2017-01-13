@@ -409,7 +409,7 @@ public class NaptEventHandler {
 
     private String getInterfaceNameFromTag(long portTag) {
         String interfaceName = null;
-        GetInterfaceFromIfIndexInput input = new GetInterfaceFromIfIndexInputBuilder().setIfIndex(new Integer((int)portTag)).build();
+        GetInterfaceFromIfIndexInput input = new GetInterfaceFromIfIndexInputBuilder().setIfIndex((int) portTag).build();
         Future<RpcResult<GetInterfaceFromIfIndexOutput>> futureOutput = interfaceManagerRpc.getInterfaceFromIfIndex(input);
         try {
             GetInterfaceFromIfIndexOutput output = futureOutput.get().getResult();

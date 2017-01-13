@@ -83,7 +83,7 @@ public class L3FowardingServiceTest {
 
         assertEquals("Error, did not return the expected StatusCode",
                 new Status(StatusCode.SUCCESS),
-                l3ForwardingService.programForwardingTableEntry(Long.valueOf(123),
+                l3ForwardingService.programForwardingTableEntry(123L,
                         SEGMENTATION_ID, address, MAC_ADDRESS, Action.ADD));
         verify(writeTransaction, times(2)).put(any(LogicalDatastoreType.class),
                 any(InstanceIdentifier.class), any(Node.class), anyBoolean());
@@ -92,7 +92,7 @@ public class L3FowardingServiceTest {
 
         assertEquals("Error, did not return the expected StatusCode",
                 new Status(StatusCode.SUCCESS),
-                l3ForwardingService.programForwardingTableEntry(Long.valueOf(123),
+                l3ForwardingService.programForwardingTableEntry(123L,
                         SEGMENTATION_ID, address, MAC_ADDRESS, Action.DELETE));
         verify(writeTransaction, times(1)).delete(any(LogicalDatastoreType.class), any(InstanceIdentifier.class));
         verify(writeTransaction, times(2)).submit();

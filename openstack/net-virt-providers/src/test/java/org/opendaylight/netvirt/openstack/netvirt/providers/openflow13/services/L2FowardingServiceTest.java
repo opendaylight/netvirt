@@ -105,7 +105,7 @@ public class L2FowardingServiceTest {
      */
     @Test
     public void testProgramLocalVlanUcastOut() throws Exception {
-        l2ForwardingService.programLocalVlanUcastOut(DPID, SEGMENTATION_ID, Long.valueOf(124), MAC_ADDRESS, true);
+        l2ForwardingService.programLocalVlanUcastOut(DPID, SEGMENTATION_ID, 124L, MAC_ADDRESS, true);
         verify(writeTransaction, times(2)).put(any(LogicalDatastoreType.class), any(InstanceIdentifier.class), any(Node.class), anyBoolean());
         verify(writeTransaction, times(1)).submit();
         verify(commitFuture, times(1)).get();
