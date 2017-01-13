@@ -252,8 +252,8 @@ public class Ipv6ServiceUtils {
         Arrays.fill(data, (byte)0);
 
         ByteBuffer buf = ByteBuffer.wrap(data);
-        long flowLabel = (((long)(ip6Pdu.getVersion().shortValue() & 0x0f) << 28)
-                | (ip6Pdu.getFlowLabel().longValue() & 0x0fffffff));
+        long flowLabel = (((long)(ip6Pdu.getVersion() & 0x0f) << 28)
+                | (ip6Pdu.getFlowLabel() & 0x0fffffff));
         buf.putInt((int)flowLabel);
         buf.putShort((short)ip6Pdu.getIpv6Length().intValue());
         buf.put((byte)ip6Pdu.getNextHeader().shortValue());

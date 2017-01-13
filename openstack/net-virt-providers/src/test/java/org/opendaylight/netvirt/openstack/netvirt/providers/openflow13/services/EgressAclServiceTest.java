@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 - 2016 Inocybe and others.  All rights reserved.
+ * Copyright © 2015, 2017 Inocybe and others.  All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
@@ -215,7 +215,7 @@ public class EgressAclServiceTest {
         when(portSecurityRule.getSecurityRulePortMin()).thenReturn(null);
         when(portSecurityRule.getSecurityRuleRemoteIpPrefix()).thenReturn(null);
 
-        egressAclServiceSpy.programPortSecurityGroup(Long.valueOf(1554), "2", MAC_ADDRESS, 124, securityGroup,PORT_UUID, nodeId, true);
+        egressAclServiceSpy.programPortSecurityGroup(1554L, "2", MAC_ADDRESS, 124, securityGroup,PORT_UUID, nodeId, true);
 
         verify(writeTransaction, times(1)).put(any(LogicalDatastoreType.class), any(InstanceIdentifier.class), any(Node.class), eq(true));
         verify(writeTransaction, times(1)).submit();
@@ -232,7 +232,7 @@ public class EgressAclServiceTest {
         when(portSecurityIpv6Rule.getSecurityRulePortMin()).thenReturn(null);
         when(portSecurityIpv6Rule.getSecurityRuleRemoteIpPrefix()).thenReturn(null);
 
-        egressAclServiceSpy.programPortSecurityGroup(Long.valueOf(1554), "2", MAC_ADDRESS, 124, securityGroupIpv6, PORT_UUID, nodeId, true);
+        egressAclServiceSpy.programPortSecurityGroup(1554L, "2", MAC_ADDRESS, 124, securityGroupIpv6, PORT_UUID, nodeId, true);
 
         verify(writeTransaction, times(1)).put(any(LogicalDatastoreType.class), any(InstanceIdentifier.class), any(Node.class), eq(true));
         verify(writeTransaction, times(1)).submit();
@@ -249,7 +249,7 @@ public class EgressAclServiceTest {
         when(portSecurityRule.getSecurityRulePortMin()).thenReturn(null);
         when(portSecurityRule.getSecurityRuleRemoteIpPrefix()).thenReturn(null);
 
-        egressAclServiceSpy.programPortSecurityGroup(Long.valueOf(1554), "2", MAC_ADDRESS, 124, securityGroup,PORT_UUID, nodeId, false);
+        egressAclServiceSpy.programPortSecurityGroup(1554L, "2", MAC_ADDRESS, 124, securityGroup,PORT_UUID, nodeId, false);
         verify(writeTransaction, times(1)).delete(any(LogicalDatastoreType.class), any(InstanceIdentifier.class));
         verify(writeTransaction, times(1)).submit();
         verify(commitFuture, times(1)).get();
@@ -265,7 +265,7 @@ public class EgressAclServiceTest {
         when(portSecurityIpv6Rule.getSecurityRulePortMin()).thenReturn(null);
         when(portSecurityIpv6Rule.getSecurityRuleRemoteIpPrefix()).thenReturn(null);
 
-        egressAclServiceSpy.programPortSecurityGroup(Long.valueOf(1554), "2", MAC_ADDRESS, 124, securityGroupIpv6, PORT_UUID, nodeId, false);
+        egressAclServiceSpy.programPortSecurityGroup(1554L, "2", MAC_ADDRESS, 124, securityGroupIpv6, PORT_UUID, nodeId, false);
         verify(writeTransaction, times(1)).delete(any(LogicalDatastoreType.class), any(InstanceIdentifier.class));
         verify(writeTransaction, times(1)).submit();
         verify(commitFuture, times(1)).get();
@@ -1482,7 +1482,7 @@ public class EgressAclServiceTest {
     public void testProgramPortSecurityACLRuleInvalidEther() throws Exception {
         when(portSecurityRule.getSecurityRuleEthertype()).thenReturn("IP");
 
-        egressAclServiceSpy.programPortSecurityGroup(Long.valueOf(1554), "2", MAC_ADDRESS, 124, securityGroup,PORT_UUID, nodeId, false);
+        egressAclServiceSpy.programPortSecurityGroup(1554L, "2", MAC_ADDRESS, 124, securityGroup,PORT_UUID, nodeId, false);
 
         verify(writeTransaction, times(0)).delete(any(LogicalDatastoreType.class), any(InstanceIdentifier.class));
         verify(writeTransaction, times(0)).submit();
@@ -1496,7 +1496,7 @@ public class EgressAclServiceTest {
     public void testProgramPortSecurityACLRuleInvalidDirection() throws Exception {
         when(portSecurityRule.getSecurityRuleDirection()).thenReturn(NeutronSecurityRule.DIRECTION_INGRESS);
 
-        egressAclServiceSpy.programPortSecurityGroup(Long.valueOf(1554), "2", MAC_ADDRESS, 124, securityGroup,PORT_UUID, nodeId, false);
+        egressAclServiceSpy.programPortSecurityGroup(1554L, "2", MAC_ADDRESS, 124, securityGroup,PORT_UUID, nodeId, false);
 
         verify(writeTransaction, times(0)).delete(any(LogicalDatastoreType.class), any(InstanceIdentifier.class));
         verify(writeTransaction, times(0)).submit();
@@ -1510,7 +1510,7 @@ public class EgressAclServiceTest {
     public void testProgramFixedSecurityACLAdd2() throws Exception {
         when(securityServices.isConntrackEnabled()).thenReturn(false);
 
-        egressAclServiceSpy.programFixedSecurityGroup(Long.valueOf(1554), "2", MAC_ADDRESS, 1, neutronDestIpList, true);
+        egressAclServiceSpy.programFixedSecurityGroup(1554L, "2", MAC_ADDRESS, 1, neutronDestIpList, true);
 
         verify(writeTransaction, times(9)).put(any(LogicalDatastoreType.class), any(InstanceIdentifier.class), any(Node.class), eq(true));
         verify(writeTransaction, times(9)).submit();
@@ -1524,7 +1524,7 @@ public class EgressAclServiceTest {
     public void testProgramFixedSecurityACLRemove2() throws Exception {
         when(securityServices.isConntrackEnabled()).thenReturn(false);
 
-        egressAclServiceSpy.programFixedSecurityGroup(Long.valueOf(1554), "2", MAC_ADDRESS, 1, neutronDestIpList, false);
+        egressAclServiceSpy.programFixedSecurityGroup(1554L, "2", MAC_ADDRESS, 1, neutronDestIpList, false);
 
         verify(writeTransaction, times(9)).delete(any(LogicalDatastoreType.class), any(InstanceIdentifier.class));
         verify(writeTransaction, times(9)).submit();
@@ -1538,7 +1538,7 @@ public class EgressAclServiceTest {
     public void testProgramFixedSecurityACLAdd4() throws Exception {
         when(securityServices.isConntrackEnabled()).thenReturn(true);
 
-        egressAclServiceSpy.programFixedSecurityGroup(Long.valueOf(1554), "2", MAC_ADDRESS, 1, neutronDestIpList, true);
+        egressAclServiceSpy.programFixedSecurityGroup(1554L, "2", MAC_ADDRESS, 1, neutronDestIpList, true);
 
         verify(writeTransaction, times(14)).put(any(LogicalDatastoreType.class),
                                                any(InstanceIdentifier.class), any(Node.class), eq(true));
@@ -1553,7 +1553,7 @@ public class EgressAclServiceTest {
     public void testProgramFixedSecurityACLRemove4() throws Exception {
         when(securityServices.isConntrackEnabled()).thenReturn(true);
 
-        egressAclServiceSpy.programFixedSecurityGroup(Long.valueOf(1554), "2", MAC_ADDRESS, 1, neutronDestIpList, false);
+        egressAclServiceSpy.programFixedSecurityGroup(1554L, "2", MAC_ADDRESS, 1, neutronDestIpList, false);
 
         verify(writeTransaction, times(14)).delete(any(LogicalDatastoreType.class), any(InstanceIdentifier.class));
         verify(writeTransaction, times(14)).submit();

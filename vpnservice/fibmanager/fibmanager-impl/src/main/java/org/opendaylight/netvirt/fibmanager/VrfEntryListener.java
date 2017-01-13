@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 - 2016 Ericsson India Global Services Pvt Ltd. and others.  All rights reserved.
+ * Copyright © 2015, 2017 Ericsson India Global Services Pvt Ltd. and others.  All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
@@ -377,8 +377,7 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
                         WriteTransaction tx = dataBroker.newWriteOnlyTransaction();
                         for (final VpnToDpnList curDpn : vpnToDpnList) {
                             if (curDpn.getDpnState() == VpnToDpnList.DpnState.Active) {
-                                installSubnetRouteInFib(curDpn.getDpnId(), elanTag, rd, vpnId.longValue(),
-                                    vrfEntry, tx);
+                                installSubnetRouteInFib(curDpn.getDpnId(), elanTag, rd, vpnId, vrfEntry, tx);
                             }
                         }
                         List<ListenableFuture<Void>> futures = new ArrayList<>();

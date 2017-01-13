@@ -442,16 +442,16 @@ public class Update implements org.apache.thrift.TBase<Update, Update._Fields>, 
   public Object getFieldValue(_Fields field) {
     switch (field) {
     case TYPE:
-      return Integer.valueOf(getType());
+      return getType();
 
     case RESERVED:
-      return Integer.valueOf(getReserved());
+      return getReserved();
 
     case PREFIXLEN:
-      return Integer.valueOf(getPrefixlen());
+      return getPrefixlen();
 
     case LABEL:
-      return Integer.valueOf(getLabel());
+      return getLabel();
 
     case RD:
       return getRd();

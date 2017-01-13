@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 Ericsson India Global Services Pvt Ltd. and others.  All rights reserved.
+ * Copyright © 2016, 2017 Ericsson India Global Services Pvt Ltd. and others.  All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
@@ -430,8 +430,8 @@ public class ArpResponderUtil {
             Future<RpcResult<AllocateIdOutput>> result = idManager.allocateId(getIdInput);
             RpcResult<AllocateIdOutput> rpcResult = result.get();
             if (rpcResult.isSuccessful()) {
-                LOG.trace("Retrieved Group Id is {}", rpcResult.getResult().getIdValue().longValue());
-                return rpcResult.getResult().getIdValue().longValue();
+                LOG.trace("Retrieved Group Id is {}", rpcResult.getResult().getIdValue());
+                return rpcResult.getResult().getIdValue();
             } else {
                 LOG.warn("RPC Call to Allocate Id returned with Errors {}", rpcResult.getErrors());
             }

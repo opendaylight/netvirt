@@ -280,13 +280,13 @@ public class Routes implements org.apache.thrift.TBase<Routes, Routes._Fields>, 
   public Object getFieldValue(_Fields field) {
     switch (field) {
     case ERRCODE:
-      return Integer.valueOf(getErrcode());
+      return getErrcode();
 
     case UPDATES:
       return getUpdates();
 
     case MORE:
-      return Integer.valueOf(getMore());
+      return getMore();
 
     }
     throw new IllegalStateException();
