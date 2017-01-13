@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 - 2016 Ericsson India Global Services Pvt Ltd. and others.  All rights reserved.
+ * Copyright © 2015, 2017 Ericsson India Global Services Pvt Ltd. and others.  All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
@@ -13,7 +13,6 @@ import java.math.BigInteger;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.Arrays;
-import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
@@ -499,11 +498,9 @@ public class DhcpPktHandler implements PacketProcessingListener {
             return;
         }
         ByteArrayOutputStream result = new ByteArrayOutputStream();
-        Iterator<HostRoutes> iter = hostRoutes.iterator();
-        while (iter.hasNext()) {
-            HostRoutes hostRoute = iter.next();
+        for (HostRoutes hostRoute : hostRoutes) {
             if (hostRoute.getNexthop().getIpv4Address() == null
-                    || hostRoute.getDestination().getIpv4Prefix() == null ) {
+                    || hostRoute.getDestination().getIpv4Prefix() == null) {
                 // we only deal with IPv4 addresses
                 return;
             }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 Red Hat, Inc. and others. All rights reserved.
+ * Copyright © 2016, 2017 Red Hat, Inc. and others. All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
@@ -146,17 +146,12 @@ public final class AclServiceUtils {
      */
     public static <T extends DataObject> Optional<T> read(
             DataBroker broker, LogicalDatastoreType datastoreType, InstanceIdentifier<T> path) {
-
-        Optional<T> result = Optional.absent();
-        ReadOnlyTransaction tx = broker.newReadOnlyTransaction();
-        try {
-            result = tx.read(datastoreType, path).checkedGet();
+        try (ReadOnlyTransaction tx = broker.newReadOnlyTransaction()) {
+            return tx.read(datastoreType, path).checkedGet();
         } catch (ReadFailedException e) {
             LOG.warn("Failed to read InstanceIdentifier {} from {}", path, datastoreType, e);
-        } finally {
-            tx.close();
+            return Optional.absent();
         }
-        return result;
     }
 
     /**

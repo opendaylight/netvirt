@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 Ericsson India Global Services Pvt Ltd. and others. All rights reserved.
+ * Copyright © 2016, 2017 Ericsson India Global Services Pvt Ltd. and others. All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
@@ -46,9 +46,7 @@ public class ArpMonitorStopTask implements Callable<List<ListenableFuture<Void>>
         final List<ListenableFuture<Void>> futures = new ArrayList<>();
         WriteTransaction tx = dataBroker.newWriteOnlyTransaction();
         java.util.Optional<Long> monitorIdOptional = AlivenessMonitorUtils.getMonitorIdFromInterface(macEntry);
-        if (monitorIdOptional.isPresent()) {
-            AlivenessMonitorUtils.stopArpMonitoring(alivenessManager, monitorIdOptional.get());
-        }
+        monitorIdOptional.ifPresent(aLong -> AlivenessMonitorUtils.stopArpMonitoring(alivenessManager, aLong));
         removeMipAdjacency(macEntry.getIpAddress().getHostAddress(),
                 macEntry.getVpnName(), macEntry.getInterfaceName(), tx);
         VpnUtil.removeLearntVpnVipToPort(dataBroker, macEntry.getVpnName(),

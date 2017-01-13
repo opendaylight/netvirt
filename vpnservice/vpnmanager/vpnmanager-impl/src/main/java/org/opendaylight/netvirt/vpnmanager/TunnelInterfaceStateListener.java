@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 Ericsson India Global Services Pvt Ltd. and others.  All rights reserved.
+ * Copyright © 2016, 2017 Ericsson India Global Services Pvt Ltd. and others.  All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
@@ -309,9 +309,7 @@ public class TunnelInterfaceStateListener extends AsyncDataTreeChangeListenerBas
             }
 
             //Iterate over the VpnId-to-Rd map.
-            Iterator<Map.Entry<Long, String>> entries = vpnIdRdMap.entrySet().iterator();
-            while (entries.hasNext()) {
-                Map.Entry<Long, String> entry = entries.next();
+            for (Map.Entry<Long, String> entry : vpnIdRdMap.entrySet()) {
                 Long vpnId = entry.getKey();
                 rd = entry.getValue();
                 if ((tunnelAction == TunnelAction.TUNNEL_EP_ADD)

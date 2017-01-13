@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Ericsson India Global Services Pvt Ltd. and others.  All rights reserved.
+ * Copyright © 2015, 2017 Ericsson India Global Services Pvt Ltd. and others.  All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
@@ -27,9 +27,7 @@ public class BgpCountersBroadcaster extends NotificationBroadcasterSupport imple
     public Map<String, String> retrieveCounterMap() {
         LOGGER.trace("Polled retrieveCounterMap");
         Map<String, String> countersVal = new HashMap<>(bgpCountersMap);
-        Iterator<Map.Entry<String, String>> entries = countersVal.entrySet().iterator();
-        while (entries.hasNext()) {
-            Map.Entry<String, String> entry = entries.next();
+        for (Map.Entry<String, String> entry : countersVal.entrySet()) {
             LOGGER.trace(entry.getKey() + ", Value from MBean= " + entry.getValue());
         }
         return countersVal;
