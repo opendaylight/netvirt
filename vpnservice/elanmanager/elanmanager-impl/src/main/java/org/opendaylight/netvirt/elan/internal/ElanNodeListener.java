@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 Ericsson India Global Services Pvt Ltd. and others.  All rights reserved.
+ * Copyright © 2016, 2017 Ericsson India Global Services Pvt Ltd. and others.  All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
@@ -141,7 +141,7 @@ public class ElanNodeListener extends AbstractDataChangeListener<Node> implement
         //T50 - match on Reg4 and goto T51
         List<MatchInfoBase> mkMatches = new ArrayList<>();
         mkMatches.add(new NxMatchInfo(NxMatchFieldType.nxm_reg_4, new long[] {
-                Long.valueOf(LEARN_MATCH_REG4_VALUE).longValue() }));
+                Long.valueOf(LEARN_MATCH_REG4_VALUE)}));
         List<InstructionInfo> mkInstructions = new ArrayList<>();
         mkInstructions.add(new InstructionGotoTable(NwConstants.ELAN_DMAC_TABLE));
         String flowRef = new StringBuffer().append(NwConstants.ELAN_SMAC_TABLE).append(NwConstants.FLOWID_SEPARATOR)

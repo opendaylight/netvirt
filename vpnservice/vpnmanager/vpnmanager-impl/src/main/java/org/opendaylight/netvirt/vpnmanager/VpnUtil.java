@@ -623,8 +623,7 @@ public class VpnUtil {
                 org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.id.to.vpn.instance.VpnIds
                     .class,
                 new org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.id.to.vpn.instance
-                    .VpnIdsKey(
-                    Long.valueOf(vpnId))).build();
+                    .VpnIdsKey(vpnId)).build();
     }
 
     /**
