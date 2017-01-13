@@ -78,7 +78,7 @@ public class ElanServiceProvider implements IElanService {
     private final ElanBridgeManager bridgeMgr;
     private final DataBroker broker;
     private final ElanStatusMonitor elanStatusMonitor;
-    private static ElanUtils elanUtils;
+    private final ElanUtils elanUtils;
 
     private boolean generateIntBridgeMac = true;
     private boolean isL2BeforeL3;
