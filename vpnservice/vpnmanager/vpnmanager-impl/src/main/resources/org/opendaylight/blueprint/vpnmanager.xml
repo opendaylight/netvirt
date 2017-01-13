@@ -226,6 +226,9 @@
   <bean id="interVpnLinkService"
         class="org.opendaylight.netvirt.vpnmanager.intervpnlink.InterVpnLinkService">
     <argument ref="dataBroker" />
+    <argument ref="idManagerService" />
+    <argument ref="bgpmanager" />
+    <argument ref="fibManager" />
   </bean>
 
   <bean id="interVpnLinkListener"
@@ -240,6 +243,13 @@
     <argument ref="interVpnLinkService" />
     <argument ref="vpnFootprintService" />
     <argument ref="vpnOpDataSyncer" />
+  </bean>
+
+  <bean id="interVpnLinkStateListener"
+        class="org.opendaylight.netvirt.vpnmanager.intervpnlink.InterVpnLinkStateListener"
+        init-method="start" destroy-method="close">
+     <argument ref="dataBroker" />
+     <argument ref="interVpnLinkService" />
   </bean>
 
   <bean id="interVpnLinkNodeListener"
