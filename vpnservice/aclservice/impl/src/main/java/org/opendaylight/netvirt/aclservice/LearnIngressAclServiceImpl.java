@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 HPE, Inc. and others. All rights reserved.
+ * Copyright © 2016, 2017 HPE, Inc. and others. All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
@@ -89,7 +89,7 @@ public class LearnIngressAclServiceImpl extends AbstractIngressAclServiceImpl {
             String.valueOf(this.aclServiceUtils.getConfig().getSecurityGroupDefaultHardTimeout()),
             AclConstants.PROTO_MATCH_PRIORITY.toString(),
             AclConstants.COOKIE_ACL_BASE.toString(),
-            AclConstants.LEARN_DELETE_LEARNED_FLAG_VALUE.toString(),
+            AclConstants.LEARN_DELETE_LEARNED_FLAG_VALUE,
             Short.toString(NwConstants.INGRESS_LEARN_TABLE),
             "0",
             "0"
@@ -105,7 +105,7 @@ public class LearnIngressAclServiceImpl extends AbstractIngressAclServiceImpl {
             String.valueOf(this.aclServiceUtils.getConfig().getSecurityGroupTcpHardTimeout()),
             AclConstants.PROTO_MATCH_PRIORITY.toString(),
             AclConstants.COOKIE_ACL_BASE.toString(),
-            AclConstants.LEARN_DELETE_LEARNED_FLAG_VALUE.toString(),
+            AclConstants.LEARN_DELETE_LEARNED_FLAG_VALUE,
             Short.toString(NwConstants.INGRESS_LEARN_TABLE),
             String.valueOf(this.aclServiceUtils.getConfig().getSecurityGroupTcpFinIdleTimeout()),
             String.valueOf(this.aclServiceUtils.getConfig().getSecurityGroupTcpFinHardTimeout())
@@ -121,7 +121,7 @@ public class LearnIngressAclServiceImpl extends AbstractIngressAclServiceImpl {
             String.valueOf(this.aclServiceUtils.getConfig().getSecurityGroupUdpHardTimeout()),
             AclConstants.PROTO_MATCH_PRIORITY.toString(),
             AclConstants.COOKIE_ACL_BASE.toString(),
-            AclConstants.LEARN_DELETE_LEARNED_FLAG_VALUE.toString(),
+            AclConstants.LEARN_DELETE_LEARNED_FLAG_VALUE,
             Short.toString(NwConstants.INGRESS_LEARN_TABLE),
             "0",
             "0"

@@ -172,12 +172,12 @@ public class NexthopManager implements AutoCloseable {
     }
 
     private String getNextHopKey(long vpnId, String ipAddress){
-        String nhKey = new String("nexthop." + vpnId + ipAddress);
+        String nhKey = "nexthop." + vpnId + ipAddress;
         return nhKey;
     }
 
     private String getNextHopKey(String ifName, String ipAddress){
-        String nhKey = new String("nexthop." + ifName + ipAddress);
+        String nhKey = "nexthop." + ifName + ipAddress;
         return nhKey;
     }
 
@@ -309,7 +309,7 @@ public class NexthopManager implements AutoCloseable {
             LOG.error("Unable to allocate groupId for vpnId {} , prefix {}", vpnId, ipAddress);
             return groupId;
         }
-        String nextHopLockStr = new String(vpnId + ipAddress);
+        String nextHopLockStr = vpnId + ipAddress;
         synchronized (nextHopLockStr.intern()) {
             VpnNexthop nexthop = getVpnNexthop(vpnId, ipAddress);
             LOG.trace("nexthop: {} retrieved for vpnId {}, prefix {}, ifName {} on dpn {}", nexthop,
@@ -457,14 +457,14 @@ public class NexthopManager implements AutoCloseable {
     }
 
     public void removeLocalNextHop(BigInteger dpnId, Long vpnId, String ipNextHopAddress, String ipPrefixAddress ) {
-        String ipPrefixStr = new String(vpnId + ipPrefixAddress);
+        String ipPrefixStr = vpnId + ipPrefixAddress;
         VpnNexthop prefixNh = null;
         synchronized (ipPrefixStr.intern()) {
             prefixNh = getVpnNexthop(vpnId, ipPrefixAddress);
         }
         String ipAddress = (prefixNh != null) ? ipPrefixAddress : ipNextHopAddress;
 
-        String nextHopLockStr = new String(vpnId + ipAddress);
+        String nextHopLockStr = vpnId + ipAddress;
         synchronized (nextHopLockStr.intern()) {
             VpnNexthop nh = getVpnNexthop(vpnId, ipAddress);
             if (nh != null) {
