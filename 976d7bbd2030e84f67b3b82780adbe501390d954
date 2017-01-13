@@ -136,6 +136,30 @@
     },
     {
       "key": {
+        "uuid": "1a622d24_493e4cdb",
+        "filename": "docs/specs/ipv6-distributed-router.rst",
+        "patchSetId": 1
+      },
+      "lineNbr": 48,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2017-01-13T16:03:41Z",
+      "side": 1,
+      "message": "Reg: \u003e\u003eWhile there is no need for a NAT, the network model should still be the same as that of a \"router\". In other words, an IPv6 VM MAC should be replaced by a \"router\" port MAC and no NDP request should be expected for the VM but should be expected for this router port. \n\n[Sridhar] Ideally, this would be the behavior with a centralized router solution. But the objective of this SPEC is to support a distributed one where we manually configure the external/physical IPv6 gateway with an \"on-link route to tenant GUA prefix\". \n\nThis was one of the Blueprints proposed in OpenStack Neutron (but was not implemented) - https://review.openstack.org/#/c/136878/8/specs/kilo/ipv6-router-and-dvr.rst\n\nIn the absence of routing protocols (like BGP), to realize the north-south IPv6 use-case we have to anyway configure a downstream route on the physical IPv6 gateway. \nThis SPEC expects that we configure an \"onlink route\" in the physical IPv6 gateway. Do you think this would not be feasible with all the Physical IPv6 Gateways?\n\nNote: We have a parallel spec that will address the BGPVPN IPv6 north-south use-case - https://git.opendaylight.org/gerrit/#/c/50359/\n\n\n\nReg: \u003e\u003e The problem with DVR is that there is no real one port. Hence, the question is how to handle the NDP request. Since this request should not be expected to reference the VM to be reached (in fact it may be performed once for communications with multiple VMs on different computer hosts), it seems that the only viable solution would be to respond to such request with a single MAC, similar to the SNAT solution with the unfortunate side effect of having all the N-S traffic going through a single compute as a gateway just like with SNAT traffic.\n\n[Sridhar] Thats true. In a centralized IPv6 router implementation, we\u0027ll be able to use the router-gateway-mac just like SNAT.\n\n\nReg: \u003e\u003e For better performance, Floating IPv6 IPs could be used (with DNAT) could be used.\n[Sridhar] OpenStack Neutron API does NOT support IPv6 floating-ips.\n\n\nReg: \u003e\u003e In addition, note that an IPv6 host may also use link local addresses which should not be forwarded outside the L2 domain and this would be yet another case to differentiate from globally routable IPv6 addresses.\n\n[Sridhar] This would be taken care. Currently, we support IPv6 east-west routing, and Link Local addresses are NOT forwarded outside the L2 domain.",
+      "parentUuid": "1a622d24_012a728f",
+      "range": {
+        "startLine": 47,
+        "startChar": 28,
+        "endLine": 48,
+        "endChar": 29
+      },
+      "revId": "976d7bbd2030e84f67b3b82780adbe501390d954",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_ad8bba66",
         "filename": "docs/specs/ipv6-distributed-router.rst",
         "patchSetId": 1
@@ -253,6 +277,24 @@
       "side": 1,
       "message": "The East-West IPv6 can be solved exactly like in IPv4 (with or without HOST_MAC). There is no real issue with reference to VM\u0027s as their ARP\u0027s for the Neutron router port on the source network would always be responded to within the compute (either by the controller or by the OVS responder). This is different from the case of the ext net.\nHowever, a similar issue exists for non-VM instances on a VLAN provider network (e.g. appliance / PNF) which would like to communicate at L3 with a VM on another Neutron network. We refer to this as the L3 PNF issue. One solution would be to mandate HWVTEP connectivity for such an appliance / PNF.",
       "parentUuid": "1a622d24_a793d659",
+      "revId": "976d7bbd2030e84f67b3b82780adbe501390d954",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_640c0f3c",
+        "filename": "docs/specs/ipv6-distributed-router.rst",
+        "patchSetId": 1
+      },
+      "lineNbr": 79,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2017-01-13T16:03:41Z",
+      "side": 1,
+      "message": "Reg: \u003e\u003eThe East-West IPv6 can be solved exactly like in IPv4 (with or without HOST_MAC). There is no real issue with reference to VM\u0027s as their ARP\u0027s for the Neutron router port on the source network would always be responded to within the compute (either by the controller or by the OVS responder). This is different from the case of the ext net.\n\n[Sridhar] I agree. The issue I wanted to mention is that we are not updating the source MAC in the datapath even when the traffic hits the second network.\nIdeally, if we had a router MAC per DPN, we could have avoided this issue. As you rightly mentioned, this is an anomaly with OpenStack Neutron implementation. OpenStack uses HOST_MAC/compute-node for the east-west.",
+      "parentUuid": "1a622d24_e18ad6bd",
       "revId": "976d7bbd2030e84f67b3b82780adbe501390d954",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -435,6 +477,30 @@
     },
     {
       "key": {
+        "uuid": "1a622d24_a4110754",
+        "filename": "docs/specs/ipv6-distributed-router.rst",
+        "patchSetId": 1
+      },
+      "lineNbr": 108,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2017-01-13T16:03:41Z",
+      "side": 1,
+      "message": "[Sridhar] IMHO, introducing a reverse-rpc-channel to Neutron Server would be an overkill for this requirement.\nNeutron uses two separate MACs - one (generated via base_mac prefix) for the VMs and the other (dvr_mac_address prefix) for HOST_MACs.\nBoth are different prefixes, so they do not overlap. If we use the dvr_mac_prefix in ODL, IMHO we should be good.",
+      "parentUuid": "1a622d24_bc112154",
+      "range": {
+        "startLine": 108,
+        "startChar": 69,
+        "endLine": 108,
+        "endChar": 77
+      },
+      "revId": "976d7bbd2030e84f67b3b82780adbe501390d954",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_26b1a847",
         "filename": "docs/specs/ipv6-distributed-router.rst",
         "patchSetId": 1
@@ -518,6 +584,30 @@
       "side": 1,
       "message": "-1 I do not agree. The model should allow for a MAC per Neutron router port per host or the network model would be broken when no VLANs are used (e.g. flat ext net with multiple subnets).",
       "parentUuid": "1a622d24_e7be6ead",
+      "range": {
+        "startLine": 108,
+        "startChar": 58,
+        "endLine": 109,
+        "endChar": 16
+      },
+      "revId": "976d7bbd2030e84f67b3b82780adbe501390d954",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_041b9b73",
+        "filename": "docs/specs/ipv6-distributed-router.rst",
+        "patchSetId": 1
+      },
+      "lineNbr": 109,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2017-01-13T16:03:41Z",
+      "side": 1,
+      "message": "Thanks for the suggestion, I\u0027ll think through. \nAny idea how OpenStack is supporting the use-cases with a single HOST_MAC per compute node?",
+      "parentUuid": "1a622d24_3c2d1196",
       "range": {
         "startLine": 108,
         "startChar": 58,
