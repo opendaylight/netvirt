@@ -217,7 +217,7 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
         if (RouteOrigin.value(vrfEntry.getOrigin()) != RouteOrigin.BGP) {
             createFibEntries(identifier, vrfEntry);
         } else {
-            ActionableResource actResource = new ActionableResourceImpl(rd.toString() + vrfEntry.getDestPrefix());
+            ActionableResource actResource = new ActionableResourceImpl(rd + vrfEntry.getDestPrefix());
             actResource.setAction(ActionableResource.CREATE);
             actResource.setInstanceIdentifier(identifier);
             actResource.setInstance(vrfEntry);
@@ -237,7 +237,7 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
         if (RouteOrigin.value(vrfEntry.getOrigin()) != RouteOrigin.BGP) {
             deleteFibEntries(identifier, vrfEntry);
         } else {
-            ActionableResource actResource = new ActionableResourceImpl(rd.toString() + vrfEntry.getDestPrefix());
+            ActionableResource actResource = new ActionableResourceImpl(rd + vrfEntry.getDestPrefix());
             actResource.setAction(ActionableResource.DELETE);
             actResource.setInstanceIdentifier(identifier);
             actResource.setInstance(vrfEntry);
@@ -258,7 +258,7 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
             rd, update.getDestPrefix(), update.getNextHopAddressList(), update.getLabel());
         // Handle BGP Routes first
         if (RouteOrigin.value(update.getOrigin()) == RouteOrigin.BGP) {
-            ActionableResource actResource = new ActionableResourceImpl(rd.toString() + update.getDestPrefix());
+            ActionableResource actResource = new ActionableResourceImpl(rd + update.getDestPrefix());
             actResource.setAction(ActionableResource.UPDATE);
             actResource.setInstanceIdentifier(identifier);
             actResource.setInstance(update);
@@ -372,7 +372,7 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
                 rd, vrfEntry.getDestPrefix(), elanTag);
             if (vpnToDpnList != null) {
                 DataStoreJobCoordinator dataStoreCoordinator = DataStoreJobCoordinator.getInstance();
-                dataStoreCoordinator.enqueueJob("FIB-" + rd.toString() + "-" + vrfEntry.getDestPrefix(),
+                dataStoreCoordinator.enqueueJob("FIB-" + rd + "-" + vrfEntry.getDestPrefix(),
                     () -> {
                         WriteTransaction tx = dataBroker.newWriteOnlyTransaction();
                         for (final VpnToDpnList curDpn : vpnToDpnList) {
@@ -396,7 +396,7 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
 
         if (vpnToDpnList != null) {
             DataStoreJobCoordinator dataStoreCoordinator = DataStoreJobCoordinator.getInstance();
-            dataStoreCoordinator.enqueueJob("FIB-" + rd.toString() + "-" + vrfEntry.getDestPrefix(),
+            dataStoreCoordinator.enqueueJob("FIB-" + rd + "-" + vrfEntry.getDestPrefix(),
                 () -> {
                     WriteTransaction tx = dataBroker.newWriteOnlyTransaction();
                     for (VpnToDpnList vpnDpn : vpnToDpnList) {
@@ -1399,7 +1399,7 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
                 rd, vrfEntry.getDestPrefix(), elanTag);
             if (vpnToDpnList != null) {
                 DataStoreJobCoordinator dataStoreCoordinator = DataStoreJobCoordinator.getInstance();
-                dataStoreCoordinator.enqueueJob("FIB-" + rd.toString() + "-" + vrfEntry.getDestPrefix(),
+                dataStoreCoordinator.enqueueJob("FIB-" + rd + "-" + vrfEntry.getDestPrefix(),
                     () -> {
                         WriteTransaction tx = dataBroker.newWriteOnlyTransaction();
 
@@ -1453,7 +1453,7 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
             vrfTableKey.getRouteDistinguisher(), vrfEntry);
         if (vpnToDpnList != null) {
             DataStoreJobCoordinator dataStoreCoordinator = DataStoreJobCoordinator.getInstance();
-            dataStoreCoordinator.enqueueJob("FIB-" + rd.toString() + "-" + vrfEntry.getDestPrefix(),
+            dataStoreCoordinator.enqueueJob("FIB-" + rd + "-" + vrfEntry.getDestPrefix(),
                 () -> {
                     WriteTransaction tx = dataBroker.newWriteOnlyTransaction();
 
@@ -2067,24 +2067,18 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
     }
 
     private String getFlowRef(BigInteger dpnId, short tableId, long label, int priority) {
-        return new StringBuilder(64).append(FLOWID_PREFIX).append(dpnId).append(NwConstants.FLOWID_SEPARATOR)
-            .append(tableId).append(NwConstants.FLOWID_SEPARATOR).append(label).append(NwConstants.FLOWID_SEPARATOR)
-            .append(priority).toString();
+        return FLOWID_PREFIX + dpnId + NwConstants.FLOWID_SEPARATOR + tableId + NwConstants.FLOWID_SEPARATOR + label
+                + NwConstants.FLOWID_SEPARATOR + priority;
     }
 
     private String getFlowRef(BigInteger dpnId, short tableId, String rd, int priority, InetAddress destPrefix) {
-        return new StringBuilder(64).append(FLOWID_PREFIX).append(dpnId).append(NwConstants.FLOWID_SEPARATOR)
-            .append(tableId).append(NwConstants.FLOWID_SEPARATOR)
-            .append(rd).append(NwConstants.FLOWID_SEPARATOR)
-            .append(priority).append(NwConstants.FLOWID_SEPARATOR)
-            .append(destPrefix.getHostAddress()).toString();
+        return FLOWID_PREFIX + dpnId + NwConstants.FLOWID_SEPARATOR + tableId + NwConstants.FLOWID_SEPARATOR + rd
+                + NwConstants.FLOWID_SEPARATOR + priority + NwConstants.FLOWID_SEPARATOR + destPrefix.getHostAddress();
     }
 
     private String getInterVpnFibFlowRef(String interVpnLinkName, String prefix, String nextHop) {
-        return new StringBuilder(64).append(FLOWID_PREFIX)
-            .append(interVpnLinkName).append(NwConstants.FLOWID_SEPARATOR)
-            .append(prefix).append(NwConstants.FLOWID_SEPARATOR)
-            .append(nextHop).toString();
+        return FLOWID_PREFIX + interVpnLinkName + NwConstants.FLOWID_SEPARATOR + prefix + NwConstants
+                .FLOWID_SEPARATOR + nextHop;
     }
 
     protected List<AdjacencyResult> resolveAdjacency(final BigInteger remoteDpnId, final long vpnId,
@@ -2134,9 +2128,8 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
     }
 
     private String getTableMissFlowRef(BigInteger dpnId, short tableId, int tableMiss) {
-        return new StringBuffer().append(FLOWID_PREFIX).append(dpnId).append(NwConstants.FLOWID_SEPARATOR)
-            .append(tableId).append(NwConstants.FLOWID_SEPARATOR).append(tableMiss)
-            .append(FLOWID_PREFIX).toString();
+        return FLOWID_PREFIX + dpnId + NwConstants.FLOWID_SEPARATOR + tableId + NwConstants.FLOWID_SEPARATOR
+                + tableMiss + FLOWID_PREFIX;
     }
 
     /*

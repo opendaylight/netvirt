@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 Ericsson India Global Services Pvt Ltd. and others.  All rights reserved.
+ * Copyright © 2016, 2017 Ericsson India Global Services Pvt Ltd. and others.  All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
@@ -103,7 +103,7 @@ public class ExternalNetworksChangeListenerTest {
         final short snatTable = 40;
         final int defaultSnatFlowPriority = 0;
         final String flowidSeparator = ".";
-        String routerName = new String("200");
+        String routerName = "200";
         List<BucketInfo> bucketInfo = new ArrayList<>();
         List<ActionInfo> listActionInfoPrimary = new ArrayList<>();
         listActionInfoPrimary.add(new ActionOutput(new Uri("3")));
@@ -126,8 +126,7 @@ public class ExternalNetworksChangeListenerTest {
         BigInteger dpnId = new BigInteger("100");
         long routerId = 200;
         String snatFlowidPrefix = "SNAT.";
-        String flowRef = new StringBuffer().append(snatFlowidPrefix).append(dpnId).append(flowidSeparator)
-            .append(snatTable).append(flowidSeparator).append(routerId).toString();
+        String flowRef = snatFlowidPrefix + dpnId + flowidSeparator + snatTable + flowidSeparator + routerId;
 
         BigInteger cookieSnat = NatUtil.getCookieSnatFlow(routerId);
         try {
