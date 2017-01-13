@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 Ericsson India Global Services Pvt Ltd. and others.  All rights reserved.
+ * Copyright © 2016, 2017 Ericsson India Global Services Pvt Ltd. and others.  All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
@@ -108,8 +108,8 @@ public class SNATDefaultRouteProgrammer {
     }
 
     private String getFlowRefFib(BigInteger dpnId, short tableId, long routerID) {
-        return new StringBuilder().append(NatConstants.NAPT_FLOWID_PREFIX).append(dpnId).append(NatConstants.FLOWID_SEPARATOR).
-                append(tableId).append(NatConstants.FLOWID_SEPARATOR).append(routerID).toString();
+        return NatConstants.NAPT_FLOWID_PREFIX + dpnId + NatConstants.FLOWID_SEPARATOR + tableId + NatConstants
+                .FLOWID_SEPARATOR + routerID;
     }
 
     void installDefNATRouteInDPN(BigInteger dpnId, long vpnId) {

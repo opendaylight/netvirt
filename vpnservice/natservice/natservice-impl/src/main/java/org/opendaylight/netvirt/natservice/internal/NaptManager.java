@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 Ericsson India Global Services Pvt Ltd. and others.  All rights reserved.
+ * Copyright © 2016, 2017 Ericsson India Global Services Pvt Ltd. and others.  All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
@@ -135,7 +135,7 @@ public class NaptManager  {
         // Create Pool per ExternalIp and not for all IPs in the subnet. Create new Pools during getExternalAddressMapping if exhausted.
         String externalIpPool;
         if (external.getPrefixLength() !=0 && external.getPrefixLength() != NatConstants.DEFAULT_PREFIX) {  // subnet case
-            String externalSubnet = new StringBuilder(64).append(external.getIpAddress()).append("/").append(external.getPrefixLength()).toString();
+            String externalSubnet = external.getIpAddress() + "/" + external.getPrefixLength();
             LOG.debug("NAPT Service : externalSubnet is : {}", externalSubnet);
             SubnetUtils subnetUtils = new SubnetUtils(externalSubnet);
             SubnetInfo subnetInfo = subnetUtils.getInfo();
@@ -148,11 +148,11 @@ public class NaptManager  {
         // Store the ip to ip map in Operational DS
         String internalIp = internal.getIpAddress();
         if(internal.getPrefixLength() != 0) {
-            internalIp =  new StringBuilder(64).append(internal.getIpAddress()).append("/").append(internal.getPrefixLength()).toString();
+            internalIp = internal.getIpAddress() + "/" + internal.getPrefixLength();
         }
         String externalIp = external.getIpAddress();
         if(external.getPrefixLength() != 0) {
-            externalIp =  new StringBuilder(64).append(external.getIpAddress()).append("/").append(external.getPrefixLength()).toString();
+            externalIp = external.getIpAddress() + "/" + external.getPrefixLength();
         }
         updateCounter(segmentId, externalIp, true);
         //update the actual ip-map
@@ -207,7 +207,7 @@ public class NaptManager  {
          */
 
          //SessionAddress externalIpPort = new SessionAddress();
-         String internalIpPort = new StringBuilder(64).append(sourceAddress.getIpAddress()).append(":").append(sourceAddress.getPortNumber()).toString();
+         String internalIpPort = sourceAddress.getIpAddress() + ":" + sourceAddress.getPortNumber();
 
          // First check existing Port Map.
          SessionAddress existingIpPort = checkIpPortMap(segmentId, internalIpPort, protocol);
@@ -340,7 +340,7 @@ public class NaptManager  {
 
          LOG.debug("NAPT Service : releaseAddressMapping called with segmentId {}, internalIP {}, port {}", segmentId, address.getIpAddress(), address.getPortNumber());
          // delete entry from IpPort Map and IP Map if exists
-         String internalIpPort = new StringBuilder(64).append(address.getIpAddress()).append(":").append(address.getPortNumber()).toString();
+         String internalIpPort = address.getIpAddress() + ":" + address.getPortNumber();
          SessionAddress existingIpPort = checkIpPortMap(segmentId, internalIpPort, protocol);
          if(existingIpPort != null) {
              // delete the entry from IpPortMap DS
@@ -505,7 +505,7 @@ public class NaptManager  {
                for (IpMap ipMap : ipMaps) {
                     if (ipMap.getInternalIp().equals(internalIp)) {
                        LOG.debug("NAPT Service : IpMap : {}", ipMap);
-                       externalIp = ipMap.getExternalIp().toString();
+                       externalIp = ipMap.getExternalIp();
                        LOG.debug("NAPT Service : checkIpMap successfully returning externalIp {}", externalIp );
                        return externalIp;
                     } else if (ipMap.getInternalIp().contains("/")) { // subnet case
@@ -513,7 +513,7 @@ public class NaptManager  {
                         SubnetInfo subnetInfo = subnetUtils.getInfo();
                         if (subnetInfo.isInRange(internalIp)) {
                             LOG.debug("NAPT Service : internalIp {} found to be IpMap of internalIpSubnet {}", internalIp, ipMap.getInternalIp());
-                            externalIp = ipMap.getExternalIp().toString();
+                            externalIp = ipMap.getExternalIp();
                             LOG.debug("NAPT Service : checkIpMap successfully returning externalIp {}", externalIp );
                             return externalIp;
                         }
