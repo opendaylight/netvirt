@@ -110,29 +110,28 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
     private final IInterfaceManager interfaceManager;
     private final IdManagerService idManager;
     private final ElanForwardingEntriesHandler elanForwardingEntriesHandler;
-    private ElanL2GatewayUtils elanL2GatewayUtils;
-    private ElanUtils elanUtils;
+    private final ElanL2GatewayUtils elanL2GatewayUtils;
+    private final ElanUtils elanUtils;
 
     private static final long WAIT_TIME_FOR_SYNC_INSTALL = Long.getLong("wait.time.sync.install", 300L);
 
-    private Map<String, ConcurrentLinkedQueue<ElanInterface>> unProcessedElanInterfaces = new ConcurrentHashMap<>();
+    private final Map<String, ConcurrentLinkedQueue<ElanInterface>> unProcessedElanInterfaces
+        = new ConcurrentHashMap<>();
 
     private static final Logger LOG = LoggerFactory.getLogger(ElanInterfaceManager.class);
 
     public ElanInterfaceManager(final DataBroker dataBroker,
                                 final IdManagerService managerService,
                                 final IMdsalApiManager mdsalApiManager,
-                                IInterfaceManager interfaceManager,
-                                final ElanForwardingEntriesHandler elanForwardingEntriesHandler) {
+                                final IInterfaceManager interfaceManager,
+                                final ElanForwardingEntriesHandler elanForwardingEntriesHandler,
+                                final ElanUtils elanUtils) {
         super(ElanInterface.class, ElanInterfaceManager.class);
         this.broker = dataBroker;
         this.idManager = managerService;
         this.mdsalManager = mdsalApiManager;
         this.interfaceManager = interfaceManager;
         this.elanForwardingEntriesHandler = elanForwardingEntriesHandler;
-    }
-
-    public void setElanUtils(ElanUtils elanUtils) {
         this.elanUtils = elanUtils;
         this.elanL2GatewayUtils = elanUtils.getElanL2GatewayUtils();
         this.elanForwardingEntriesHandler.setElanUtils(elanUtils);
@@ -1385,10 +1384,11 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
     private boolean isStandardElanService(ElanInterface elanInterface) {
         return elanInterface.getAugmentation(EtreeInterface.class) == null;
     }
-
+/*
     private boolean isStandardElanService(ElanInstance elanInstance) {
         return elanInstance.getAugmentation(EtreeInstance.class) == null;
     }
+*/
 
     private void unbindService(ElanInstance elanInfo, String interfaceName, WriteTransaction tx) {
         tx.delete(LogicalDatastoreType.CONFIGURATION, ElanUtils.buildServiceId(interfaceName,

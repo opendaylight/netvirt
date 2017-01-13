@@ -96,7 +96,6 @@ public class ElanServiceProvider implements IElanService {
         this.broker = dataBroker;
         this.elanStatusMonitor = elanStatusMonitor;
         this.elanUtils = elanUtils;
-        elanInterfaceManager.setElanUtils(elanUtils);
         try {
             EntityOwnerUtils.registerEntityCandidateForOwnerShip(entityOwnershipService,
                     HwvtepSouthboundConstants.ELAN_ENTITY_TYPE, HwvtepSouthboundConstants.ELAN_ENTITY_TYPE,
