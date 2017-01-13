@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 Ericsson India Global Services Pvt Ltd. and others.  All rights reserved.
+ * Copyright © 2016, 2017 Ericsson India Global Services Pvt Ltd. and others.  All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
@@ -190,8 +190,6 @@ public class SubnetRoutePacketInHandler implements PacketProcessingListener {
     }
 
     static InstanceIdentifier<VpnIds> getVpnIdToVpnInstanceIdentifier(long vpnId) {
-        return InstanceIdentifier.builder(VpnIdToVpnInstance.class)
-            .child(VpnIds.class,
-                new VpnIdsKey(Long.valueOf(vpnId))).build();
+        return InstanceIdentifier.builder(VpnIdToVpnInstance.class) .child(VpnIds.class, new VpnIdsKey(vpnId)).build();
     }
 }

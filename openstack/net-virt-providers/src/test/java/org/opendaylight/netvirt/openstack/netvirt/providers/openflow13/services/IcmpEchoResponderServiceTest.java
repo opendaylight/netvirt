@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 Red Hat, Inc. and others. All rights reserved.
+ * Copyright © 2016, 2017 Red Hat, Inc. and others. All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
@@ -71,14 +71,14 @@ public class IcmpEchoResponderServiceTest {
         when(flowBuilder.getKey()).thenReturn(mock(FlowKey.class));
 
         // test Action.ADD
-        assertEquals("Error, did not return the expected StatusCode", new Status(StatusCode.SUCCESS), icmpEchoResponderService.programIcmpEchoEntry(Long.valueOf(12), "2", MAC_ADDRESS, ipAddress, Action.ADD));
+        assertEquals("Error, did not return the expected StatusCode", new Status(StatusCode.SUCCESS), icmpEchoResponderService.programIcmpEchoEntry(12L, "2", MAC_ADDRESS, ipAddress, Action.ADD));
 
         verify(transaction, times(2)).put(any(LogicalDatastoreType.class), any(InstanceIdentifier.class), any(Node.class), anyBoolean());
         verify(transaction, times(1)).submit();
         verify(commitFuture, times(1)).get();
 
         // test Action.DELETE
-        assertEquals("Error, did not return the expected StatusCode", new Status(StatusCode.SUCCESS), icmpEchoResponderService.programIcmpEchoEntry(Long.valueOf(12), "2", MAC_ADDRESS, ipAddress, Action.DELETE));
+        assertEquals("Error, did not return the expected StatusCode", new Status(StatusCode.SUCCESS), icmpEchoResponderService.programIcmpEchoEntry(12L, "2", MAC_ADDRESS, ipAddress, Action.DELETE));
 
         verify(transaction, times(1)).delete(any(LogicalDatastoreType.class), any(InstanceIdentifier.class));
         verify(commitFuture, times(2)).get(); // 1 + 1 above
