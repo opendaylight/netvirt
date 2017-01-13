@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 Ericsson India Global Services Pvt Ltd. and others.  All rights reserved.
+ * Copyright © 2016, 2017 Ericsson India Global Services Pvt Ltd. and others.  All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
@@ -72,12 +72,7 @@ public class VpnOpDataSyncer {
         List<Runnable> notifieeList = null;
         try {
             synchronized (listenerMap) {
-                notifieeList = listenerMap.get(vpnName);
-                if (notifieeList == null) {
-                    notifieeList = new ArrayList<>();
-                    listenerMap.put(vpnName, notifieeList);
-                }
-                notifieeList.add(notifyTask);
+                listenerMap.computeIfAbsent(vpnName, k -> new ArrayList<>()).add(notifyTask);
             }
 
             synchronized (notifyTask) {
