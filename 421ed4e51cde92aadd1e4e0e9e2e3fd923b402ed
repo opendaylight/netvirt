@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "1a622d24_44b8f3c7",
+        "filename": "vpnservice/bgpmanager/bgpmanager-impl/src/main/java/org/opendaylight/netvirt/bgpmanager/BgpConfigurationManager.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 456,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2017-01-13T18:53:58Z",
+      "side": 1,
+      "message": "It is required since routerId.getValue() returns char[].",
+      "parentUuid": "1a622d24_d0c20152",
+      "revId": "421ed4e51cde92aadd1e4e0e9e2e3fd923b402ed",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_30a375b3",
         "filename": "vpnservice/bgpmanager/bgpmanager-impl/src/main/java/org/opendaylight/netvirt/bgpmanager/BgpConfigurationManager.java",
         "patchSetId": 2
