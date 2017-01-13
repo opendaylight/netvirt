@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 Ericsson India Global Services Pvt Ltd. and others.  All rights reserved.
+ * Copyright © 2016, 2017 Ericsson India Global Services Pvt Ltd. and others.  All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
@@ -365,7 +365,7 @@ public class HwvtepHAUtil {
      * @return child Switches
      */
     public static Set<InstanceIdentifier<Node>> getPSChildrenIdsForHAPSNode(String psNodId) {
-        if (psNodId.indexOf(PHYSICALSWITCH) < 0) {
+        if (!psNodId.contains(PHYSICALSWITCH)) {
             return Collections.emptySet();
         }
         String nodeId = convertToGlobalNodeId(psNodId);
