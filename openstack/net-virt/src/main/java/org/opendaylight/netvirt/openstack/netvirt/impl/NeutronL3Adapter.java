@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014 - 2016 Red Hat, Inc. and others. All rights reserved.
+ * Copyright © 2014, 2017 Red Hat, Inc. and others. All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
@@ -1037,7 +1037,7 @@ public class NeutronL3Adapter extends AbstractHandler implements GatewayMacResol
         LOG.trace("programFlowsForNeutronRouterInterface called for interface {} isDelete {}",
                      destNeutronRouterInterface, isDelete);
 
-        if (subnet != null && subnet.getIpVersion().intValue() == 6) {
+        if (subnet != null && subnet.getIpVersion() == 6) {
             LOG.trace("programFlowsForNeutronRouterInterface doesn't support IPv6 router interface");
             return;
         }
