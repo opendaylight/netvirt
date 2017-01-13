@@ -12,7 +12,6 @@ import com.google.common.base.Preconditions;
 import com.google.common.util.concurrent.ListenableFuture;
 import java.math.BigInteger;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -462,7 +461,7 @@ public class InterVpnLinkUtil {
             : interVpnLink.getFirstEndpoint().getIpAddress().getValue();
 
         VrfEntry newVrfEntry = new VrfEntryBuilder().setKey(new VrfEntryKey(prefix)).setDestPrefix(prefix)
-            .setLabel(label).setNextHopAddressList(Arrays.asList(endpointIp))
+            .setLabel(label).setNextHopAddressList(Collections.singletonList(endpointIp))
             .setOrigin(RouteOrigin.INTERVPN.getValue())
             .build();
 

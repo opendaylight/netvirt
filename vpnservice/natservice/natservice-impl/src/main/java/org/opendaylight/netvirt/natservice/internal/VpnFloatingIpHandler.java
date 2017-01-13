@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 Ericsson India Global Services Pvt Ltd. and others.  All rights reserved.
+ * Copyright © 2016, 2017 Ericsson India Global Services Pvt Ltd. and others.  All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
@@ -17,7 +17,7 @@ import com.google.common.util.concurrent.JdkFutureAdapters;
 import com.google.common.util.concurrent.ListenableFuture;
 import java.math.BigInteger;
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.Future;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
@@ -162,7 +162,8 @@ public class VpnFloatingIpHandler implements FloatingIPHandler {
                         WriteTransaction writeTx = dataBroker.newWriteOnlyTransaction();
                         vpnManager.setupSubnetMacIntoVpnInstance(vpnName, floatingIpPortMacAddress, dpnId, writeTx,
                             NwConstants.ADD_FLOW);
-                        vpnManager.setupArpResponderFlowsToExternalNetworkIps(routerId, Arrays.asList(externalIp),
+                        vpnManager.setupArpResponderFlowsToExternalNetworkIps(routerId,
+                                Collections.singleton(externalIp),
                             floatingIpPortMacAddress, dpnId, networkId, writeTx, NwConstants.ADD_FLOW);
                         writeTx.submit();
                     }
@@ -220,7 +221,7 @@ public class VpnFloatingIpHandler implements FloatingIPHandler {
             WriteTransaction writeTx = dataBroker.newWriteOnlyTransaction();
             vpnManager.setupSubnetMacIntoVpnInstance(vpnName, floatingIpPortMacAddress, dpnId, writeTx,
                 NwConstants.DEL_FLOW);
-            vpnManager.setupArpResponderFlowsToExternalNetworkIps(routerId, Arrays.asList(externalIp),
+            vpnManager.setupArpResponderFlowsToExternalNetworkIps(routerId, Collections.singletonList(externalIp),
                 floatingIpPortMacAddress, dpnId, networkId, writeTx, NwConstants.DEL_FLOW);
             writeTx.submit();
         }

@@ -10,7 +10,7 @@ package org.opendaylight.netvirt.neutronvpn.shell;
 
 import com.google.common.base.Optional;
 import com.google.common.util.concurrent.CheckedFuture;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import org.apache.karaf.shell.commands.Command;
@@ -78,7 +78,7 @@ public class DhcpConfigureCommand extends OsgiCommandSupport {
             dccBuilder.setLeaseDuration((leaseDuration == null) ? currLeaseDuration : leaseDuration);
             dccBuilder.setDefaultDomain((defaultDomain == null) ? currDefDomain : defaultDomain);
 
-            List<Configs> configList = Arrays.asList(dccBuilder.build());
+            List<Configs> configList = Collections.singletonList(dccBuilder.build());
             DhcpConfigBuilder dcBuilder = new DhcpConfigBuilder();
             dcBuilder.setConfigs(configList);
             write(iid, dcBuilder.build());

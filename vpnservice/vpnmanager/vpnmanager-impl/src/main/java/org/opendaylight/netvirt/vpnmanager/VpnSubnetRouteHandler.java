@@ -11,7 +11,7 @@ import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import java.math.BigInteger;
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -941,7 +941,7 @@ public class VpnSubnetRouteHandler implements NeutronvpnListener {
             try {
                 //BGP manager will handle withdraw and advertise internally if prefix
                 //already exist
-                bgpManager.advertisePrefix(rd, subnetIp, Arrays.asList(nexthopIp), label);
+                bgpManager.advertisePrefix(rd, subnetIp, Collections.singletonList(nexthopIp), label);
             } catch (Exception e) {
                 LOG.error("Fail: Subnet route not advertised for rd {} subnetIp {}", rd, subnetIp, e);
                 throw e;
