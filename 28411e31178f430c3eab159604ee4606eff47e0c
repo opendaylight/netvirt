@@ -1,0 +1,101 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1a622d24_84332b61",
+        "filename": "docs/specs/ipv6-l3vpn.rst",
+        "patchSetId": 1
+      },
+      "lineNbr": 116,
+      "author": {
+        "id": 5661
+      },
+      "writtenOn": "2017-01-13T20:10:01Z",
+      "side": 1,
+      "message": "The same steps are applicable for the use case of IPv6 L3 North-South/Internet connectivity using BGP VPNs, rt?",
+      "revId": "28411e31178f430c3eab159604ee4606eff47e0c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_a43d872d",
+        "filename": "docs/specs/ipv6-l3vpn.rst",
+        "patchSetId": 1
+      },
+      "lineNbr": 134,
+      "author": {
+        "id": 5661
+      },
+      "writtenOn": "2017-01-13T20:10:01Z",
+      "side": 1,
+      "message": "It would be good if you include existing IPv4 BGPVPN pipeline for both direction traffic as a reference.",
+      "revId": "28411e31178f430c3eab159604ee4606eff47e0c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_241977d7",
+        "filename": "docs/specs/ipv6-l3vpn.rst",
+        "patchSetId": 1
+      },
+      "lineNbr": 198,
+      "author": {
+        "id": 5661
+      },
+      "writtenOn": "2017-01-13T20:10:01Z",
+      "side": 1,
+      "message": "Isn\u0027t there a REST API for this configuration?",
+      "revId": "28411e31178f430c3eab159604ee4606eff47e0c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_04755bf9",
+        "filename": "docs/specs/ipv6-l3vpn.rst",
+        "patchSetId": 1
+      },
+      "lineNbr": 200,
+      "author": {
+        "id": 5661
+      },
+      "writtenOn": "2017-01-13T20:10:01Z",
+      "side": 1,
+      "message": "Actually in IPv6, external subnet association is optional.\n\nThere are three ways in Openstack Neutron to configure external Router/gateway IPv6 LLP for a Neutron Router:\n\nOption 1: As u described here, attach an external IPv6 subnet and explicitly specify the upstream router IPv6 address as gateway\n\nSince attachment of a subnet to an external network is optional in case of IPv6 (because the tenant subnets are already Global Unique and externally reachable):\n\nOption 2: The neutron router can learn the IPv6 address of external gateway by processing the Router Advertisement (RA) messages from the external gateway.\n\nOption 3: Manual configuration of IPv6 address of external gateway\n\nI think to begin with, we can go with Option1, but we need to discuss if any value in support Option2 or 3.",
+      "range": {
+        "startLine": 200,
+        "startChar": 68,
+        "endLine": 200,
+        "endChar": 74
+      },
+      "revId": "28411e31178f430c3eab159604ee4606eff47e0c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_e4713f0d",
+        "filename": "docs/specs/ipv6-l3vpn.rst",
+        "patchSetId": 1
+      },
+      "lineNbr": 221,
+      "author": {
+        "id": 5661
+      },
+      "writtenOn": "2017-01-13T20:10:01Z",
+      "side": 1,
+      "message": "Why do we need this? Isn\u0027t this we are trying to achieve through BGP advertisements?",
+      "range": {
+        "startLine": 219,
+        "startChar": 1,
+        "endLine": 221,
+        "endChar": 26
+      },
+      "revId": "28411e31178f430c3eab159604ee4606eff47e0c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
