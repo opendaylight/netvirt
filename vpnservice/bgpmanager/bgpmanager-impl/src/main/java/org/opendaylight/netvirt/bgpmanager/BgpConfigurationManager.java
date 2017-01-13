@@ -1992,10 +1992,10 @@ public class BgpConfigurationManager {
                                 }
                                 try {
                                     totalCleared++;
-                                    LOG.debug("BGP: RouteCleanup deletePrefix called for : rd:{}, prefix{}" + rd.toString() + prefix);
+                                    LOG.debug("BGP: RouteCleanup deletePrefix called for : rd:{}, prefix{}" + rd + prefix);
                                     fibDSWriter.removeFibEntryFromDS(rd, prefix);
                                 } catch (Exception e) {
-                                    LOG.error("BGP: RouteCleanup deletePrefix failed rd:{}, prefix{}" + rd.toString() + prefix);
+                                    LOG.error("BGP: RouteCleanup deletePrefix failed rd:{}, prefix{}" + rd + prefix);
                                 }
                             }
                         }
