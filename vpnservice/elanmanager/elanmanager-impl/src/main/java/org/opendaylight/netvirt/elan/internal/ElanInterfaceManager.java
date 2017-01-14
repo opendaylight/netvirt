@@ -115,7 +115,8 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
 
     private static final long WAIT_TIME_FOR_SYNC_INSTALL = Long.getLong("wait.time.sync.install", 300L);
 
-    private Map<String, ConcurrentLinkedQueue<ElanInterface>> unProcessedElanInterfaces = new ConcurrentHashMap<>();
+    private final Map<String, ConcurrentLinkedQueue<ElanInterface>> unProcessedElanInterfaces
+        = new ConcurrentHashMap<>();
 
     private static final Logger LOG = LoggerFactory.getLogger(ElanInterfaceManager.class);
 
@@ -132,10 +133,10 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
         this.elanForwardingEntriesHandler = elanForwardingEntriesHandler;
     }
 
-    public void setElanUtils(ElanUtils elanUtils) {
+    public void setelanUtils(ElanUtils elanUtils) {
         this.elanUtils = elanUtils;
         this.elanL2GatewayUtils = elanUtils.getElanL2GatewayUtils();
-        this.elanForwardingEntriesHandler.setElanUtils(elanUtils);
+        this.elanForwardingEntriesHandler.setelanUtils(elanUtils);
     }
 
     @Override
@@ -151,7 +152,7 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
     @Override
     protected void remove(InstanceIdentifier<ElanInterface> identifier, ElanInterface del) {
         String interfaceName = del.getName();
-        ElanInstance elanInfo = ElanUtils.getElanInstanceByName(broker, del.getElanInstanceName());
+        ElanInstance elanInfo = elanUtils.getElanInstanceByName(broker, del.getElanInstanceName());
         /*
          * Handling in case the elan instance is deleted.If the Elan instance is
          * deleted, there is no need to explicitly delete the elan interfaces
@@ -202,7 +203,7 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
                 removeElanBroadcastGroup(elanInfo, interfaceInfo, deleteFlowGroupTx);
                 removeLocalBroadcastGroup(elanInfo, interfaceInfo, deleteFlowGroupTx);
                 removeEtreeBroadcastGrups(elanInfo, interfaceInfo, deleteFlowGroupTx);
-                if (ElanUtils.isVxlan(elanInfo)) {
+                if (elanUtils.isVxlan(elanInfo)) {
                     unsetExternalTunnelTable(dpId, elanInfo);
                 }
                 isLastInterfaceOnDpn = true;
@@ -210,9 +211,9 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
                 setupLocalBroadcastGroups(elanInfo, dpnInterfaces, interfaceInfo);
             }
         }
-        futures.add(ElanUtils.waitForTransactionToComplete(tx));
-        futures.add(ElanUtils.waitForTransactionToComplete(deleteFlowGroupTx));
-        if (isLastInterfaceOnDpn && dpId != null && ElanUtils.isVxlan(elanInfo)) {
+        futures.add(elanUtils.waitForTransactionToComplete(tx));
+        futures.add(elanUtils.waitForTransactionToComplete(deleteFlowGroupTx));
+        if (isLastInterfaceOnDpn && dpId != null && elanUtils.isVxlan(elanInfo)) {
             setElanAndEtreeBCGrouponOtherDpns(elanInfo, dpId);
         }
         DataStoreJobCoordinator coordinator = DataStoreJobCoordinator.getInstance();
@@ -241,7 +242,7 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
         EtreeInstance etreeInstance = elanInfo.getAugmentation(EtreeInstance.class);
         if (etreeInstance != null) {
             BigInteger dpnId = interfaceInfo.getDpId();
-            long groupId = ElanUtils.getEtreeLeafLocalBCGId(etreeInstance.getEtreeLeafTagVal().getValue());
+            long groupId = elanUtils.getEtreeLeafLocalBCGId(etreeInstance.getEtreeLeafTagVal().getValue());
             List<Bucket> listBuckets = new ArrayList<>();
             int bucketId = 0;
             listBuckets.add(getLocalBCGroupBucketInfo(interfaceInfo, bucketId));
@@ -262,14 +263,14 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
             List<Bucket> listBuckets = new ArrayList<>();
             List<Action> listAction = new ArrayList<>();
             listAction.add(new ActionInfo(ActionType.group,
-                    new String[] { String.valueOf(ElanUtils.getEtreeLeafLocalBCGId(etreeTag)) }, ++actionKey)
+                    new String[] { String.valueOf(elanUtils.getEtreeLeafLocalBCGId(etreeTag)) }, ++actionKey)
                             .buildAction());
             listBuckets.add(MDSALUtil.buildBucket(listAction, MDSALUtil.GROUP_WEIGHT, bucketId, MDSALUtil.WATCH_PORT,
                     MDSALUtil.WATCH_GROUP));
             bucketId++;
             listBuckets.addAll(getRemoteBCGroupBucketInfos(elanInfo, bucketId, interfaceInfo, etreeTag));
             BigInteger dpnId = interfaceInfo.getDpId();
-            long groupId = ElanUtils.getEtreeLeafRemoteBCGId(etreeTag);
+            long groupId = elanUtils.getEtreeLeafRemoteBCGId(etreeTag);
             Group group = MDSALUtil.buildGroup(groupId, elanInfo.getElanInstanceName(), GroupTypes.GroupAll,
                     MDSALUtil.buildBucketLists(listBuckets));
             LOG.trace("deleting the remoteBroadCast group:{}", group);
@@ -279,21 +280,21 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
 
     private Elan removeElanStateForInterface(ElanInstance elanInfo, String interfaceName, WriteTransaction tx) {
         String elanName = elanInfo.getElanInstanceName();
-        Elan elanState = ElanUtils.getElanByName(broker, elanName);
+        Elan elanState = elanUtils.getElanByName(broker, elanName);
         if (elanState == null) {
             return elanState;
         }
         List<String> elanInterfaces = elanState.getElanInterfaces();
         elanInterfaces.remove(interfaceName);
         if (elanInterfaces.isEmpty()) {
-            tx.delete(LogicalDatastoreType.OPERATIONAL, ElanUtils.getElanInstanceOperationalDataPath(elanName));
-            tx.delete(LogicalDatastoreType.OPERATIONAL, ElanUtils.getElanMacTableOperationalDataPath(elanName));
+            tx.delete(LogicalDatastoreType.OPERATIONAL, elanUtils.getElanInstanceOperationalDataPath(elanName));
+            tx.delete(LogicalDatastoreType.OPERATIONAL, elanUtils.getElanMacTableOperationalDataPath(elanName));
             tx.delete(LogicalDatastoreType.OPERATIONAL,
-                    ElanUtils.getElanInfoEntriesOperationalDataPath(elanInfo.getElanTag()));
+                    elanUtils.getElanInfoEntriesOperationalDataPath(elanInfo.getElanTag()));
         } else {
             Elan updateElanState = new ElanBuilder().setElanInterfaces(elanInterfaces).setName(elanName)
                     .setKey(new ElanKey(elanName)).build();
-            tx.put(LogicalDatastoreType.OPERATIONAL, ElanUtils.getElanInstanceOperationalDataPath(elanName),
+            tx.put(LogicalDatastoreType.OPERATIONAL, elanUtils.getElanInstanceOperationalDataPath(elanName),
                     updateElanState);
         }
         return elanState;
@@ -303,9 +304,9 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
         // removing the ElanInterface from the config data_store if interface is
         // not present in Interface config DS
         if (interfaceManager.getInterfaceInfoFromConfigDataStore(interfaceName) == null
-                && ElanUtils.getElanInterfaceByElanInterfaceName(broker, interfaceName) != null) {
+                && elanUtils.getElanInterfaceByElanInterfaceName(broker, interfaceName) != null) {
             tx.delete(LogicalDatastoreType.CONFIGURATION,
-                    ElanUtils.getElanInterfaceConfigurationDataPathId(interfaceName));
+                    elanUtils.getElanInterfaceConfigurationDataPathId(interfaceName));
         }
     }
 
@@ -315,7 +316,7 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
         String elanName = elanInfo.getElanInstanceName();
         WriteTransaction tx = broker.newWriteOnlyTransaction();
         WriteTransaction deleteFlowGroupTx = broker.newWriteOnlyTransaction();
-        InstanceIdentifier<ElanInterfaceMac> elanInterfaceId = ElanUtils
+        InstanceIdentifier<ElanInterfaceMac> elanInterfaceId = elanUtils
                 .getElanInterfaceMacEntriesOperationalDataPath(interfaceName);
         LOG.debug("Removing the Interface:{} from elan:{}", interfaceName, elanName);
         if (interfaceInfo != null) {
@@ -335,7 +336,7 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
                             macAddress);
                     if (!isLastElanInterface && macEntryOptional.isPresent()) {
                         tx.delete(LogicalDatastoreType.OPERATIONAL,
-                                ElanUtils.getMacEntryOperationalDataPath(elanName, macAddress));
+                                elanUtils.getMacEntryOperationalDataPath(elanName, macAddress));
                     }
                     elanUtils.deleteMacFlows(elanInfo, interfaceInfo, macEntry, deleteFlowGroupTx);
                     return macAddress;
@@ -343,7 +344,7 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
 
                 // Removing all those MACs from External Devices belonging
                 // to this ELAN
-                if (ElanUtils.isVxlan(elanInfo) && ! macAddresses.isEmpty()) {
+                if (elanUtils.isVxlan(elanInfo) && ! macAddresses.isEmpty()) {
                     elanL2GatewayUtils.removeMacsFromElanExternalDevices(elanInfo, macAddresses);
                 }
             }
@@ -361,7 +362,7 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
                             macAddress);
                     if (macEntryOptional.isPresent()) {
                         tx.delete(LogicalDatastoreType.OPERATIONAL,
-                                ElanUtils.getMacEntryOperationalDataPath(elanName, macAddress));
+                                elanUtils.getMacEntryOperationalDataPath(elanName, macAddress));
                     }
                 } );
             }
@@ -371,8 +372,8 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
             unbindService(elanInfo, interfaceName, tx);
         }
         deleteElanInterfaceFromConfigDS(interfaceName, tx);
-        futures.add(ElanUtils.waitForTransactionToComplete(tx));
-        futures.add(ElanUtils.waitForTransactionToComplete(deleteFlowGroupTx));
+        futures.add(elanUtils.waitForTransactionToComplete(tx));
+        futures.add(elanUtils.waitForTransactionToComplete(deleteFlowGroupTx));
     }
 
     private DpnInterfaces removeElanDpnInterfaceFromOperationalDataStore(String elanName, BigInteger dpId,
@@ -422,7 +423,7 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
         mdsalManager
                 .removeFlow(dpId,
                         MDSALUtil.buildFlow(NwConstants.ELAN_DMAC_TABLE,
-                                ElanUtils.getKnownDynamicmacFlowRef(NwConstants.ELAN_DMAC_TABLE, dpId, currentDpId,
+                                elanUtils.getKnownDynamicmacFlowRef(NwConstants.ELAN_DMAC_TABLE, dpId, currentDpId,
                                         mac.getMacAddress().getValue(), elanTag)));
     }
 
@@ -459,9 +460,9 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
                                 tx);
                     } else {
                         elanForwardingEntriesHandler.addElanInterfaceForwardingTableList(
-                                ElanUtils.getElanInstanceByName(broker, elanName), interfaceName, physAddress, tx);
+                                elanUtils.getElanInstanceByName(broker, elanName), interfaceName, physAddress, tx);
                     }
-                    ElanUtils.waitForTransactionToComplete(tx);
+                    elanUtils.waitForTransactionToComplete(tx);
                 }
             }
         } else if (existingPhysAddress != null && !existingPhysAddress.isEmpty()) {
@@ -480,7 +481,7 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
             LOG.warn("Interface {} is removed from Interface Oper DS due to port down ", interfaceName);
             return;
         }
-        ElanInstance elanInstance = ElanUtils.getElanInstanceByName(broker, elanInstanceName);
+        ElanInstance elanInstance = elanUtils.getElanInstanceByName(broker, elanInstanceName);
 
         if (elanInstance == null) {
             elanInstance = new ElanInstanceBuilder().setElanInstanceName(elanInstanceName)
@@ -489,10 +490,10 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
             WriteTransaction tx = broker.newWriteOnlyTransaction();
             List<String> elanInterfaces = new ArrayList<>();
             elanInterfaces.add(interfaceName);
-            ElanUtils.updateOperationalDataStore(broker, idManager,
+            elanUtils.updateOperationalDataStore(broker, idManager,
                     elanInstance, elanInterfaces, tx);
-            ElanUtils.waitForTransactionToComplete(tx);
-            elanInstance = ElanUtils.getElanInstanceByName(broker, elanInstanceName);
+            elanUtils.waitForTransactionToComplete(tx);
+            elanInstance = elanUtils.getElanInstanceByName(broker, elanInstanceName);
         }
 
         Long elanTag = elanInstance.getElanTag();
@@ -571,12 +572,12 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
         String interfaceName = elanInterface.getName();
         String elanInstanceName = elanInterface.getElanInstanceName();
 
-        Elan elanInfo = ElanUtils.getElanByName(broker, elanInstanceName);
+        Elan elanInfo = elanUtils.getElanByName(broker, elanInstanceName);
         WriteTransaction tx = broker.newWriteOnlyTransaction();
         if (elanInfo == null) {
             List<String> elanInterfaces = new ArrayList<>();
             elanInterfaces.add(interfaceName);
-            ElanUtils.updateOperationalDataStore(broker, idManager,
+            elanUtils.updateOperationalDataStore(broker, idManager,
                     elanInstance, elanInterfaces, tx);
         } else {
             createElanStateList(elanInstanceName, interfaceName, tx);
@@ -589,7 +590,7 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
         BigInteger dpId = interfaceInfo != null ? dpId = interfaceInfo.getDpId() : null;
         DpnInterfaces dpnInterfaces = null;
         if (dpId != null && !dpId.equals(ElanConstants.INVALID_DPN)) {
-            InstanceIdentifier<DpnInterfaces> elanDpnInterfaces = ElanUtils
+            InstanceIdentifier<DpnInterfaces> elanDpnInterfaces = elanUtils
                     .getElanDpnInterfaceOperationalDataPath(elanInstanceName, dpId);
             Optional<DpnInterfaces> existingElanDpnInterfaces = elanUtils.read(broker,
                     LogicalDatastoreType.OPERATIONAL, elanDpnInterfaces);
@@ -599,7 +600,7 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
                 dpnInterfaces = createElanInterfacesList(elanInstanceName, interfaceName, dpId, tx);
                 // The 1st ElanInterface in a DPN must program the Ext Tunnel
                 // table, but only if Elan has VNI
-                if (ElanUtils.isVxlan(elanInstance)) {
+                if (elanUtils.isVxlan(elanInstance)) {
                     setExternalTunnelTable(dpId, elanInstance);
                 }
                 elanL2GatewayUtils.installElanL2gwDevicesLocalMacsInDpn(dpId, elanInstance, interfaceName);
@@ -622,8 +623,8 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
         if (interfaceInfo != null) {
             installEntriesForFirstInterfaceonDpn(elanInstance, interfaceInfo, dpnInterfaces, isFirstInterfaceInDpn, tx);
         }
-        futures.add(ElanUtils.waitForTransactionToComplete(tx));
-        if (isFirstInterfaceInDpn && ElanUtils.isVxlan(elanInstance)) {
+        futures.add(elanUtils.waitForTransactionToComplete(tx));
+        if (isFirstInterfaceInDpn && elanUtils.isVxlan(elanInstance)) {
             //update the remote-DPNs remoteBC group entry with Tunnels
             setElanAndEtreeBCGrouponOtherDpns(elanInstance, dpId);
         }
@@ -675,8 +676,8 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
                         staticMacAddresses);
             }
         }
-        futures.add(ElanUtils.waitForTransactionToComplete(tx));
-        futures.add(ElanUtils.waitForTransactionToComplete(writeFlowGroupTx));
+        futures.add(elanUtils.waitForTransactionToComplete(tx));
+        futures.add(elanUtils.waitForTransactionToComplete(writeFlowGroupTx));
     }
 
     protected void removeInterfaceStaticMacEntires(String elanInstanceName, String interfaceName,
@@ -694,10 +695,10 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
                 .setKey(new MacEntryKey(physAddress)).build();
         WriteTransaction tx = broker.newWriteOnlyTransaction();
         elanForwardingEntriesHandler.deleteElanInterfaceForwardingEntries(
-                ElanUtils.getElanInstanceByName(broker, elanInstanceName), interfaceInfo, macEntry, tx);
+                elanUtils.getElanInstanceByName(broker, elanInstanceName), interfaceInfo, macEntry, tx);
         elanForwardingEntriesHandler.deleteElanInterfaceMacForwardingEntries(interfaceName,
                 physAddress, tx);
-        ElanUtils.waitForTransactionToComplete(tx);
+        elanUtils.waitForTransactionToComplete(tx);
     }
 
     private InstanceIdentifier<MacEntry> getMacEntryOperationalDataPath(String elanName, PhysAddress physAddress) {
@@ -876,12 +877,12 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
 
     private void setElanAndEtreeBCGrouponOtherDpns(ElanInstance elanInfo, BigInteger dpId) {
         int elanTag = elanInfo.getElanTag().intValue();
-        long groupId = ElanUtils.getElanRemoteBCGId(elanTag);
+        long groupId = elanUtils.getElanRemoteBCGId(elanTag);
         setBCGrouponOtherDpns(elanInfo, dpId, elanTag, groupId);
         EtreeInstance etreeInstance = elanInfo.getAugmentation(EtreeInstance.class);
         if (etreeInstance != null) {
             int etreeLeafTag = etreeInstance.getEtreeLeafTagVal().getValue().intValue();
-            long etreeLeafGroupId = ElanUtils.getEtreeLeafRemoteBCGId(etreeLeafTag);
+            long etreeLeafGroupId = elanUtils.getEtreeLeafRemoteBCGId(etreeLeafTag);
             setBCGrouponOtherDpns(elanInfo, dpId, etreeLeafTag, etreeLeafGroupId);
         }
 
@@ -900,7 +901,7 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
                     List<Action> listAction = new ArrayList<>();
                     int actionKey = 0;
                     listAction.add(new ActionInfo(ActionType.group,
-                            new String[] { String.valueOf(ElanUtils.getElanLocalBCGId(elanTag)) }, ++actionKey)
+                            new String[] { String.valueOf(elanUtils.getElanLocalBCGId(elanTag)) }, ++actionKey)
                                     .buildAction());
                     remoteListBucketInfo.add(MDSALUtil.buildBucket(listAction, MDSALUtil.GROUP_WEIGHT, bucketId,
                             MDSALUtil.WATCH_PORT, MDSALUtil.WATCH_GROUP));
@@ -975,7 +976,7 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
         List<MatchInfo> mkMatches = new ArrayList<>();
         // Matching metadata
         mkMatches.add(new MatchInfo(MatchFieldType.metadata, new BigInteger[] {
-                ElanUtils.getElanMetadataLabel(elanTag, isSHFlagSet), MetaDataUtil.METADATA_MASK_SERVICE_SH_FLAG }));
+                elanUtils.getElanMetadataLabel(elanTag, isSHFlagSet), MetaDataUtil.METADATA_MASK_SERVICE_SH_FLAG }));
         return mkMatches;
     }
 
@@ -991,7 +992,7 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
     private List<InstructionInfo> getInstructionsExtTunnelTable(Long elanTag) {
         List<InstructionInfo> mkInstructions = new ArrayList<>();
         mkInstructions.add(new InstructionInfo(InstructionType.write_metadata,
-                new BigInteger[] { ElanUtils.getElanMetadataLabel(elanTag), ElanUtils.getElanMetadataMask() }));
+                new BigInteger[] { elanUtils.getElanMetadataLabel(elanTag), elanUtils.getElanMetadataMask() }));
         // TODO: We should point to SMAC or DMAC depending on a configuration
         // property to enable
         // mac learning
@@ -1033,14 +1034,14 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
         Long elanTag = elanInfo.getElanTag();
         List<Action> listAction = new ArrayList<>();
         listAction.add(new ActionInfo(ActionType.group,
-                new String[] { String.valueOf(ElanUtils.getElanLocalBCGId(elanTag)) }, ++actionKey).buildAction());
+                new String[] { String.valueOf(elanUtils.getElanLocalBCGId(elanTag)) }, ++actionKey).buildAction());
         listBucket.add(MDSALUtil.buildBucket(listAction, MDSALUtil.GROUP_WEIGHT, bucketId, MDSALUtil.WATCH_PORT,
                 MDSALUtil.WATCH_GROUP));
         bucketId++;
         List<Bucket> listBucketInfoRemote = getRemoteBCGroupBuckets(elanInfo, dpnInterfaces, dpnId, bucketId,
                 elanInfo.getElanTag());
         listBucket.addAll(listBucketInfoRemote);
-        long groupId = ElanUtils.getElanRemoteBCGId(elanTag);
+        long groupId = elanUtils.getElanRemoteBCGId(elanTag);
         Group group = MDSALUtil.buildGroup(groupId, elanInfo.getElanInstanceName(), GroupTypes.GroupAll,
                 MDSALUtil.buildBucketLists(listBucket));
         LOG.trace("Installing the remote BroadCast Group:{}", group);
@@ -1056,7 +1057,7 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
             int actionKey = 0;
             List<Action> listAction = new ArrayList<>();
             listAction.add(new ActionInfo(ActionType.group,
-                    new String[] { String.valueOf(ElanUtils.getEtreeLeafLocalBCGId(etreeLeafTag)) }, ++actionKey)
+                    new String[] { String.valueOf(elanUtils.getEtreeLeafLocalBCGId(etreeLeafTag)) }, ++actionKey)
                             .buildAction());
             listBucket.add(MDSALUtil.buildBucket(listAction, MDSALUtil.GROUP_WEIGHT, bucketId, MDSALUtil.WATCH_PORT,
                     MDSALUtil.WATCH_GROUP));
@@ -1064,7 +1065,7 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
             List<Bucket> listBucketInfoRemote = getRemoteBCGroupBuckets(elanInfo, dpnInterfaces, dpnId, bucketId,
                     etreeLeafTag);
             listBucket.addAll(listBucketInfoRemote);
-            long groupId = ElanUtils.getEtreeLeafRemoteBCGId(etreeLeafTag);
+            long groupId = elanUtils.getEtreeLeafRemoteBCGId(etreeLeafTag);
             Group group = MDSALUtil.buildGroup(groupId, elanInfo.getElanInstanceName(), GroupTypes.GroupAll,
                     MDSALUtil.buildBucketLists(listBucket));
             LOG.trace("Installing the remote BroadCast Group:{}", group);
@@ -1091,7 +1092,7 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
             InterfaceInfo interfaceInfo) {
         List<Bucket> listBucket = new ArrayList<>();
         int bucketId = 0;
-        long groupId = ElanUtils.getElanLocalBCGId(elanInfo.getElanTag());
+        long groupId = elanUtils.getElanLocalBCGId(elanInfo.getElanTag());
 
         List<String> interfaces = new ArrayList<>();
         if (newDpnInterface != null) {
@@ -1152,7 +1153,7 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
             }
 
             long etreeLeafTag = etreeInstance.getEtreeLeafTagVal().getValue();
-            long groupId = ElanUtils.getEtreeLeafLocalBCGId(etreeLeafTag);
+            long groupId = elanUtils.getEtreeLeafLocalBCGId(etreeLeafTag);
             Group group = MDSALUtil.buildGroup(groupId, elanInfo.getElanInstanceName(), GroupTypes.GroupAll,
                     MDSALUtil.buildBucketLists(listBucket));
             LOG.trace("installing the localBroadCast Group:{}", group);
@@ -1163,7 +1164,7 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
 
     private int addInterfaceIfRootInterface(int bucketId, String ifName, List<Bucket> listBucket,
             InterfaceInfo ifInfo) {
-        EtreeInterface etreeInterface = ElanUtils.getEtreeInterfaceByElanInterfaceName(broker, ifName);
+        EtreeInterface etreeInterface = elanUtils.getEtreeInterfaceByElanInterfaceName(broker, ifName);
         if (etreeInterface != null && etreeInterface.getEtreeInterfaceType() == EtreeInterfaceType.Root) {
             listBucket.add(MDSALUtil.buildBucket(getInterfacePortActions(ifInfo), MDSALUtil.GROUP_WEIGHT, bucketId,
                     MDSALUtil.WATCH_PORT, MDSALUtil.WATCH_GROUP));
@@ -1175,7 +1176,7 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
     public void removeLocalBroadcastGroup(ElanInstance elanInfo, InterfaceInfo interfaceInfo,
             WriteTransaction deleteFlowGroupTx) {
         BigInteger dpnId = interfaceInfo.getDpId();
-        long groupId = ElanUtils.getElanLocalBCGId(elanInfo.getElanTag());
+        long groupId = elanUtils.getElanLocalBCGId(elanInfo.getElanTag());
         List<Bucket> listBuckets = new ArrayList<>();
         int bucketId = 0;
         listBuckets.add(getLocalBCGroupBucketInfo(interfaceInfo, bucketId));
@@ -1195,13 +1196,13 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
         List<Bucket> listBuckets = new ArrayList<>();
         List<Action> listAction = new ArrayList<>();
         listAction.add(new ActionInfo(ActionType.group,
-                new String[] { String.valueOf(ElanUtils.getElanLocalBCGId(elanTag)) }, ++actionKey).buildAction());
+                new String[] { String.valueOf(elanUtils.getElanLocalBCGId(elanTag)) }, ++actionKey).buildAction());
         listBuckets.add(MDSALUtil.buildBucket(listAction, MDSALUtil.GROUP_WEIGHT, bucketId, MDSALUtil.WATCH_PORT,
                 MDSALUtil.WATCH_GROUP));
         bucketId++;
         listBuckets.addAll(getRemoteBCGroupBucketInfos(elanInfo, bucketId, interfaceInfo, elanInfo.getElanTag()));
         BigInteger dpnId = interfaceInfo.getDpId();
-        long groupId = ElanUtils.getElanRemoteBCGId(elanInfo.getElanTag());
+        long groupId = elanUtils.getElanRemoteBCGId(elanInfo.getElanTag());
         Group group = MDSALUtil.buildGroup(groupId, elanInfo.getElanInstanceName(), GroupTypes.GroupAll,
                 MDSALUtil.buildBucketLists(listBuckets));
         LOG.trace("deleting the remoteBroadCast group:{}", group);
@@ -1265,8 +1266,8 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
                 getFlowRef(NwConstants.INTERNAL_TUNNEL_TABLE, elanTag), 5,
                 String.format("%s:%d", "ITM Flow Entry ", elanTag), 0, 0,
                 ITMConstants.COOKIE_ITM.add(BigInteger.valueOf(elanTag)),
-                ElanUtils.getTunnelMatchesForServiceId((int) elanTag),
-                getInstructionsForOutGroup(ElanUtils.getElanLocalBCGId(elanTag)));
+                elanUtils.getTunnelMatchesForServiceId((int) elanTag),
+                getInstructionsForOutGroup(elanUtils.getElanLocalBCGId(elanTag)));
 
         mdsalManager.addFlowToTx(dpId, flowEntity, writeFlowGroupTx);
     }
@@ -1304,7 +1305,7 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
                 5, elanInfo.getElanInstanceName(), 0, 0,
                 ElanConstants.COOKIE_ELAN_UNKNOWN_DMAC.add(BigInteger.valueOf(elanTag)),
                 getMatchesForElanTag(elanTag, /* SH flag */false),
-                getInstructionsForOutGroup(ElanUtils.getElanRemoteBCGId(elanTag)));
+                getInstructionsForOutGroup(elanUtils.getElanRemoteBCGId(elanTag)));
 
         mdsalManager.addFlowToTx(dpId, flowEntity, writeFlowGroupTx);
     }
@@ -1312,14 +1313,14 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
     private void installRemoteUnknownFlow(ElanInstance elanInfo, BigInteger dpId, long elanTag,
             WriteTransaction writeFlowGroupTx) {
         // only if ELAN can connect to external network, perform the following
-        if (ElanUtils.isVxlan(elanInfo) || ElanUtils.isVlan(elanInfo) || ElanUtils.isFlat(elanInfo)) {
+        if (elanUtils.isVxlan(elanInfo) || elanUtils.isVlan(elanInfo) || elanUtils.isFlat(elanInfo)) {
             Flow flowEntity2 = MDSALUtil.buildFlowNew(NwConstants.ELAN_UNKNOWN_DMAC_TABLE,
                     getUnknownDmacFlowRef(NwConstants.ELAN_UNKNOWN_DMAC_TABLE, elanTag,
                             /* SH flag */true),
                     5, elanInfo.getElanInstanceName(), 0, 0,
                     ElanConstants.COOKIE_ELAN_UNKNOWN_DMAC.add(BigInteger.valueOf(elanTag)),
                     getMatchesForElanTag(elanTag, /* SH flag */true),
-                    getInstructionsForOutGroup(ElanUtils.getElanLocalBCGId(elanTag)));
+                    getInstructionsForOutGroup(elanUtils.getElanLocalBCGId(elanTag)));
             mdsalManager.addFlowToTx(dpId, flowEntity2, writeFlowGroupTx);
         }
     }
@@ -1331,7 +1332,7 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
                 elanTag, /* SH flag */ false))).setTableId(NwConstants.ELAN_UNKNOWN_DMAC_TABLE).build();
         mdsalManager.removeFlowToTx(dpId, flow, deleteFlowGroupTx);
 
-        if (ElanUtils.isVxlan(elanInfo)) {
+        if (elanUtils.isVxlan(elanInfo)) {
             Flow flow2 = new FlowBuilder().setId(new FlowId(getUnknownDmacFlowRef(NwConstants.ELAN_UNKNOWN_DMAC_TABLE,
                     elanTag, /* SH flag */ true))).setTableId(NwConstants.ELAN_UNKNOWN_DMAC_TABLE)
                     .build();
@@ -1355,16 +1356,16 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
         int priority = ElanConstants.ELAN_SERVICE_PRIORITY;
         int instructionKey = 0;
         List<Instruction> instructions = new ArrayList<>();
-        instructions.add(MDSALUtil.buildAndGetWriteMetadaInstruction(ElanUtils.getElanMetadataLabel(elanTag),
+        instructions.add(MDSALUtil.buildAndGetWriteMetadaInstruction(elanUtils.getElanMetadataLabel(elanTag),
                 MetaDataUtil.METADATA_MASK_SERVICE, ++instructionKey));
         instructions.add(MDSALUtil.buildAndGetGotoTableInstruction(NwConstants.ELAN_BASE_TABLE,
                 ++instructionKey));
         short elanServiceIndex = ServiceIndex.getIndex(NwConstants.ELAN_SERVICE_NAME, NwConstants.ELAN_SERVICE_INDEX);
-        BoundServices serviceInfo = ElanUtils.getBoundServices(
+        BoundServices serviceInfo = elanUtils.getBoundServices(
                 String.format("%s.%s.%s", "vpn", elanInstanceName, interfaceName), elanServiceIndex,
                 priority, NwConstants.COOKIE_ELAN_INGRESS_TABLE, instructions);
         tx.put(LogicalDatastoreType.CONFIGURATION,
-                ElanUtils.buildServiceId(interfaceName, elanServiceIndex), serviceInfo, true);
+                elanUtils.buildServiceId(interfaceName, elanServiceIndex), serviceInfo, true);
     }
 
     private void bindEtreeService(ElanInstance elanInfo, ElanInterface elanInterface, WriteTransaction tx) {
@@ -1391,7 +1392,7 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
     }
 
     private void unbindService(ElanInstance elanInfo, String interfaceName, WriteTransaction tx) {
-        tx.delete(LogicalDatastoreType.CONFIGURATION, ElanUtils.buildServiceId(interfaceName,
+        tx.delete(LogicalDatastoreType.CONFIGURATION, elanUtils.buildServiceId(interfaceName,
                 ServiceIndex.getIndex(NwConstants.ELAN_SERVICE_NAME, NwConstants.ELAN_SERVICE_INDEX)));
     }
 
@@ -1419,7 +1420,7 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
         DpnInterfaces dpnInterface = new DpnInterfacesBuilder().setDpId(dpId).setInterfaces(interfaceNames)
                 .setKey(new DpnInterfacesKey(dpId)).build();
         tx.put(LogicalDatastoreType.OPERATIONAL,
-                ElanUtils.getElanDpnInterfaceOperationalDataPath(elanInstanceName, dpId), dpnInterface, true);
+                elanUtils.getElanDpnInterfaceOperationalDataPath(elanInstanceName, dpId), dpnInterface, true);
         return dpnInterface;
     }
 
@@ -1433,7 +1434,7 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
      */
     private void deleteElanDpnInterface(String elanInstanceName, BigInteger dpId, WriteTransaction tx) {
         tx.delete(LogicalDatastoreType.OPERATIONAL,
-                ElanUtils.getElanDpnInterfaceOperationalDataPath(elanInstanceName, dpId));
+                elanUtils.getElanDpnInterfaceOperationalDataPath(elanInstanceName, dpId));
     }
 
     private DpnInterfaces createElanInterfacesList(String elanInstanceName, String interfaceName, BigInteger dpId,
@@ -1443,12 +1444,12 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
         DpnInterfaces dpnInterface = new DpnInterfacesBuilder().setDpId(dpId).setInterfaces(interfaceNames)
                 .setKey(new DpnInterfacesKey(dpId)).build();
         tx.put(LogicalDatastoreType.OPERATIONAL,
-                ElanUtils.getElanDpnInterfaceOperationalDataPath(elanInstanceName, dpId), dpnInterface, true);
+                elanUtils.getElanDpnInterfaceOperationalDataPath(elanInstanceName, dpId), dpnInterface, true);
         return dpnInterface;
     }
 
     private void createElanInterfaceTablesList(String interfaceName, WriteTransaction tx) {
-        InstanceIdentifier<ElanInterfaceMac> elanInterfaceMacTables = ElanUtils
+        InstanceIdentifier<ElanInterfaceMac> elanInterfaceMacTables = elanUtils
                 .getElanInterfaceMacEntriesOperationalDataPath(interfaceName);
         Optional<ElanInterfaceMac> interfaceMacTables = elanUtils.read(broker,
                 LogicalDatastoreType.OPERATIONAL, elanInterfaceMacTables);
@@ -1458,13 +1459,13 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
             ElanInterfaceMac elanInterfaceMacTable = new ElanInterfaceMacBuilder().setElanInterface(interfaceName)
                     .setKey(new ElanInterfaceMacKey(interfaceName)).build();
             tx.put(LogicalDatastoreType.OPERATIONAL,
-                    ElanUtils.getElanInterfaceMacEntriesOperationalDataPath(interfaceName), elanInterfaceMacTable,
+                    elanUtils.getElanInterfaceMacEntriesOperationalDataPath(interfaceName), elanInterfaceMacTable,
                     true);
         }
     }
 
     private void createElanStateList(String elanInstanceName, String interfaceName, WriteTransaction tx) {
-        InstanceIdentifier<Elan> elanInstance = ElanUtils.getElanInstanceOperationalDataPath(elanInstanceName);
+        InstanceIdentifier<Elan> elanInstance = elanUtils.getElanInstanceOperationalDataPath(elanInstanceName);
         Optional<Elan> elanInterfaceLists = elanUtils.read(broker,
                 LogicalDatastoreType.OPERATIONAL, elanInstance);
         // Adding new Elan Interface Port to the operational DataStore without
@@ -1477,7 +1478,7 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
             interfaceLists.add(interfaceName);
             Elan elanState = new ElanBuilder().setName(elanInstanceName).setElanInterfaces(interfaceLists)
                     .setKey(new ElanKey(elanInstanceName)).build();
-            tx.put(LogicalDatastoreType.OPERATIONAL, ElanUtils.getElanInstanceOperationalDataPath(elanInstanceName),
+            tx.put(LogicalDatastoreType.OPERATIONAL, elanUtils.getElanInstanceOperationalDataPath(elanInstanceName),
                     elanState, true);
         }
     }
@@ -1509,7 +1510,7 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
             }
             if (cnt == 2) {
                 LOG.debug("Elan instance:{} is present b/w srcDpn:{} and dstDpn:{}", elanName, srcDpId, dstDpId);
-                ElanInstance elanInfo = ElanUtils.getElanInstanceByName(broker, elanName);
+                ElanInstance elanInfo = elanUtils.getElanInstanceByName(broker, elanName);
                 // update Remote BC Group
                 setupElanBroadcastGroups(elanInfo, srcDpId);
 
@@ -1563,7 +1564,7 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
         List<ElanDpnInterfacesList> elanDpnIf = dpnInterfaceLists.getElanDpnInterfacesList();
         for (ElanDpnInterfacesList elanDpns : elanDpnIf) {
             String elanName = elanDpns.getElanInstanceName();
-            ElanInstance elanInfo = ElanUtils.getElanInstanceByName(broker, elanName);
+            ElanInstance elanInfo = elanUtils.getElanInstanceByName(broker, elanName);
 
             DpnInterfaces dpnInterfaces = elanUtils.getElanInterfaceInfoByElanDpn(elanName, dpId);
             if (dpnInterfaces == null || dpnInterfaces.getInterfaces() == null
@@ -1600,7 +1601,7 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
             LOG.trace("Validating external tunnel state: src tunnel {}, dest tunnel {}", externalTunnel,
                     otherEndPointExtTunnel);
             if (otherEndPointExtTunnel != null) {
-                boolean otherEndPointInterfaceOperational = ElanUtils.isInterfaceOperational(
+                boolean otherEndPointInterfaceOperational = elanUtils.isInterfaceOperational(
                         otherEndPointExtTunnel.getTunnelInterfaceName(), broker);
                 if (otherEndPointInterfaceOperational) {
                     return true;

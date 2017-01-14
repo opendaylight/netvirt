@@ -26,11 +26,13 @@ public class CacheElanInstanceListener implements ClusteredDataTreeChangeListene
     private static final Logger LOG = LoggerFactory.getLogger(CacheElanInstanceListener.class);
 
     private final DataBroker broker;
+    private final ElanUtils elanUtils;
 
     private ListenerRegistration<CacheElanInstanceListener> registration;
 
-    public CacheElanInstanceListener(DataBroker dataBroker) {
+    public CacheElanInstanceListener(DataBroker dataBroker, ElanUtils elanUtils) {
         this.broker = dataBroker;
+        this.elanUtils = elanUtils;
     }
 
     public void init() {
@@ -60,12 +62,12 @@ public class CacheElanInstanceListener implements ClusteredDataTreeChangeListene
             DataObjectModification<ElanInstance> mod = change.getRootNode();
             switch (mod.getModificationType()) {
                 case DELETE:
-                    ElanUtils.removeElanInstanceFromCache(mod.getDataBefore().getElanInstanceName());
+                    elanUtils.removeElanInstanceFromCache(mod.getDataBefore().getElanInstanceName());
                     break;
                 case SUBTREE_MODIFIED:
                 case WRITE:
                     ElanInstance elanInstance = mod.getDataAfter();
-                    ElanUtils.addElanInstanceIntoCache(elanInstance.getElanInstanceName(), elanInstance);
+                    elanUtils.addElanInstanceIntoCache(elanInstance.getElanInstanceName(), elanInstance);
                     break;
                 default:
                     throw new IllegalArgumentException("Unhandled modification type " + mod.getModificationType());

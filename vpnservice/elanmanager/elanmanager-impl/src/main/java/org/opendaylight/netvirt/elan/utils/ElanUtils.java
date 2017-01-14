@@ -161,8 +161,8 @@ public class ElanUtils {
 
     private static final Logger LOG = LoggerFactory.getLogger(ElanUtils.class);
 
-    private static Map<String, ElanInstance> elanInstanceLocalCache = new ConcurrentHashMap<>();
-    private static Map<String, ElanInterface> elanInterfaceLocalCache = new ConcurrentHashMap<>();
+    private final Map<String, ElanInstance> elanInstanceLocalCache = new ConcurrentHashMap<>();
+    private final Map<String, ElanInterface> elanInterfaceLocalCache = new ConcurrentHashMap<>();
 
     private final DataBroker broker;
     private final IMdsalApiManager mdsalManager;
@@ -218,15 +218,15 @@ public class ElanUtils {
         return l2GatewayConnectionUtils;
     }
 
-    public static void addElanInstanceIntoCache(String elanInstanceName, ElanInstance elanInstance) {
+    public void addElanInstanceIntoCache(String elanInstanceName, ElanInstance elanInstance) {
         elanInstanceLocalCache.put(elanInstanceName, elanInstance);
     }
 
-    public static void removeElanInstanceFromCache(String elanInstanceName) {
+    public void removeElanInstanceFromCache(String elanInstanceName) {
         elanInstanceLocalCache.remove(elanInstanceName);
     }
 
-    public static ElanInstance getElanInstanceFromCache(String elanInstanceName) {
+    private ElanInstance getElanInstanceFromCache(String elanInstanceName) {
         return elanInstanceLocalCache.get(elanInstanceName);
     }
 
@@ -334,7 +334,7 @@ public class ElanUtils {
     }
 
     // elan-instances config container
-    public static ElanInstance getElanInstanceByName(DataBroker broker, String elanInstanceName) {
+    public ElanInstance getElanInstanceByName(DataBroker broker, String elanInstanceName) {
         ElanInstance elanObj = getElanInstanceFromCache(elanInstanceName);
         if (elanObj != null) {
             return elanObj;

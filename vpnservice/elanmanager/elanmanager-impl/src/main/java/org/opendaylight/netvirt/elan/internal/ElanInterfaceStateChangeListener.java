@@ -38,13 +38,17 @@ public class ElanInterfaceStateChangeListener
 
     private final DataBroker broker;
     private final ElanInterfaceManager elanInterfaceManager;
+    private final ElanUtils elanUtils;
 
-    public ElanInterfaceStateChangeListener(final DataBroker db, final ElanInterfaceManager ifManager) {
+    public ElanInterfaceStateChangeListener(final DataBroker db, final ElanInterfaceManager ifManager,
+            final ElanUtils elanUtils) {
         super(Interface.class, ElanInterfaceStateChangeListener.class);
-        broker = db;
-        elanInterfaceManager = ifManager;
+        this.broker = db;
+        this.elanInterfaceManager = ifManager;
+        this.elanUtils = elanUtils;
     }
 
+    @Override
     public void init() {
         registerListener(LogicalDatastoreType.OPERATIONAL, broker);
     }
@@ -65,7 +69,7 @@ public class ElanInterfaceStateChangeListener
         interfaceInfo.setInterfaceType(InterfaceInfo.InterfaceType.VLAN_INTERFACE);
         interfaceInfo.setInterfaceTag(delIf.getIfIndex());
         String elanInstanceName = elanInterface.getElanInstanceName();
-        ElanInstance elanInstance = ElanUtils.getElanInstanceByName(broker, elanInstanceName);
+        ElanInstance elanInstance = elanUtils.getElanInstanceByName(broker, elanInstanceName);
         DataStoreJobCoordinator coordinator = DataStoreJobCoordinator.getInstance();
         InterfaceRemoveWorkerOnElan removeWorker = new InterfaceRemoveWorkerOnElan(elanInstanceName, elanInstance,
             interfaceName, interfaceInfo, true, elanInterfaceManager);
