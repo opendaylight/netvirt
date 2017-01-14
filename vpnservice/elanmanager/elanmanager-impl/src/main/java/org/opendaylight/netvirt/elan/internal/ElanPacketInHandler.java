@@ -14,6 +14,8 @@ import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import org.opendaylight.controller.liblldp.NetUtils;
 import org.opendaylight.controller.liblldp.PacketException;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
@@ -44,6 +46,7 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+@Singleton
 @SuppressWarnings("deprecation")
 public class ElanPacketInHandler implements PacketProcessingListener {
 
@@ -54,6 +57,7 @@ public class ElanPacketInHandler implements PacketProcessingListener {
     private final ElanUtils elanUtils;
     private final ElanL2GatewayUtils elanL2GatewayUtils;
 
+    @Inject
     public ElanPacketInHandler(DataBroker dataBroker, final IInterfaceManager interfaceManager, ElanUtils elanUtils) {
         broker = dataBroker;
         this.interfaceManager = interfaceManager;
@@ -121,7 +125,6 @@ public class ElanPacketInHandler implements PacketProcessingListener {
                 InterfaceInfo interfaceInfo = interfaceManager.getInterfaceInfo(interfaceName);
                 enqueueJobForDPNSpecificTasks(macAddress, elanTag, interfaceName, physAddress, elanInstance,
                         interfaceInfo, oldMacEntry, newMacEntry, isVlanOrFlatProviderIface, portDataStoreCoordinator);
-
 
             } catch (PacketException e) {
                 LOG.error("Failed to decode packet: {}", notification, e);
