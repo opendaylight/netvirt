@@ -993,7 +993,7 @@ public class NeutronvpnUtils {
 
     static boolean isNetworkTypeSupported(Network network) {
         NetworkProviderExtension npe = network.getAugmentation(NetworkProviderExtension.class);
-        return npe != null && supportedNetworkTypes.contains(npe.getNetworkType());
+        return npe != null && npe.getNetworkType() != null && supportedNetworkTypes.contains(npe.getNetworkType());
     }
 
     static ProviderTypes getProviderNetworkType(Network network) {
@@ -1021,7 +1021,7 @@ public class NeutronvpnUtils {
 
     static boolean isNetworkOfType(Network network, Class<? extends NetworkTypeBase> type) {
         NetworkProviderExtension npe = network.getAugmentation(NetworkProviderExtension.class);
-        return npe != null && type.isAssignableFrom(npe.getNetworkType());
+        return npe != null && npe.getNetworkType() != null && type.isAssignableFrom(npe.getNetworkType());
     }
 
     static boolean isVxlanNetwork(Network network) {
