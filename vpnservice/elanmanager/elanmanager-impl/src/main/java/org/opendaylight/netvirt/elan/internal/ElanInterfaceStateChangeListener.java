@@ -10,6 +10,9 @@ package org.opendaylight.netvirt.elan.internal;
 
 import java.math.BigInteger;
 import java.util.List;
+import javax.annotation.PostConstruct;
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
@@ -31,6 +34,7 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+@Singleton
 public class ElanInterfaceStateChangeListener
         extends AsyncDataTreeChangeListenerBase<Interface, ElanInterfaceStateChangeListener> implements AutoCloseable {
 
@@ -39,12 +43,15 @@ public class ElanInterfaceStateChangeListener
     private final DataBroker broker;
     private final ElanInterfaceManager elanInterfaceManager;
 
+    @Inject
     public ElanInterfaceStateChangeListener(final DataBroker db, final ElanInterfaceManager ifManager) {
         super(Interface.class, ElanInterfaceStateChangeListener.class);
         broker = db;
         elanInterfaceManager = ifManager;
     }
 
+    @Override
+    @PostConstruct
     public void init() {
         registerListener(LogicalDatastoreType.OPERATIONAL, broker);
     }
@@ -124,11 +131,6 @@ public class ElanInterfaceStateChangeListener
         elanInterfaceManager.add(elanInterfaceId, elanInterface);
     }
 
-    @Override
-    public void close() throws Exception {
-
-    }
-
     public  InternalTunnel getTunnelState(String interfaceName) {
         InternalTunnel internalTunnel = null;
         TunnelList tunnelList = ElanUtils.buildInternalTunnel(broker);
@@ -148,7 +150,6 @@ public class ElanInterfaceStateChangeListener
     protected InstanceIdentifier<Interface> getWildCardPath() {
         return InstanceIdentifier.create(InterfacesState.class).child(Interface.class);
     }
-
 
     @Override
     protected ElanInterfaceStateChangeListener getDataTreeChangeListener() {

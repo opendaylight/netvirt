@@ -33,17 +33,17 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public abstract class HwvtepNodeBaseListener implements DataTreeChangeListener<Node>, AutoCloseable {
+    private static final Logger LOG = LoggerFactory.getLogger(HwvtepNodeBaseListener.class);
 
-    public static final Logger LOG = LoggerFactory.getLogger(HwvtepNodeBaseListener.class);
     private static final int STARTUP_LOOP_TICK = 500;
     private static final int STARTUP_LOOP_MAX_RETRIES = 8;
 
-    static HwvtepHACache hwvtepHACache = HwvtepHACache.getInstance();
+    private final HwvtepHACache hwvtepHACache = HwvtepHACache.getInstance();
 
     private ListenerRegistration<HwvtepNodeBaseListener> registration;
-    DataBroker db;
+    private final DataBroker db;
 
-    public HwvtepNodeBaseListener(LogicalDatastoreType datastoreType, DataBroker dataBroker) throws Exception {
+    protected HwvtepNodeBaseListener(LogicalDatastoreType datastoreType, DataBroker dataBroker) throws Exception {
         db = dataBroker;
         registerListener(datastoreType, db);
     }

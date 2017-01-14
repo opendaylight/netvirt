@@ -7,6 +7,9 @@
  */
 package org.opendaylight.netvirt.elan.l2gw.listeners;
 
+import javax.annotation.PreDestroy;
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.ClusteredDataChangeListener;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.DataChangeListener;
@@ -23,6 +26,7 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+@Singleton
 public class L2GatewayConnectionListener extends AsyncClusteredDataChangeListenerBase<L2gatewayConnection,
         L2GatewayConnectionListener> implements AutoCloseable {
     private static final Logger LOG = LoggerFactory.getLogger(L2GatewayConnectionListener.class);
@@ -31,15 +35,17 @@ public class L2GatewayConnectionListener extends AsyncClusteredDataChangeListene
     private final DataBroker broker;
     private final L2GatewayConnectionUtils l2GatewayConnectionUtils;
 
+    @Inject
     public L2GatewayConnectionListener(final DataBroker db,
                                        ElanUtils elanUtils) {
         super(L2gatewayConnection.class, L2GatewayConnectionListener.class);
-        broker = db;
+        this.broker = db;
         this.l2GatewayConnectionUtils = elanUtils.getL2GatewayConnectionUtils();
         registerListener(db);
     }
 
     @Override
+    @PreDestroy
     @SuppressWarnings("checkstyle:IllegalCatch")
     public void close() throws Exception {
         // TODO use https://git.opendaylight.org/gerrit/#/c/44145/ when merged, and remove @SuppressWarnings
