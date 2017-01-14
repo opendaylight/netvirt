@@ -7,14 +7,9 @@
  */
 package org.opendaylight.netvirt.aclservice.tests;
 
-import static com.google.common.truth.Truth.assertThat;
-import static org.junit.Assert.assertTrue;
 import static org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType.CONFIGURATION;
-import static org.opendaylight.mdsal.binding.testutils.AssertDataObjects.assertEqualBeans;
 import static org.opendaylight.netvirt.aclservice.tests.StateInterfaceBuilderHelper.putNewStateInterface;
 
-import com.google.common.collect.Iterables;
-import com.google.common.collect.Lists;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -58,8 +53,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 
-public abstract class AclServiceTestBase {
 
+public abstract class AclServiceTestBase {
     private static final Logger LOG = LoggerFactory.getLogger(AclServiceTestBase.class);
 
     static final String PORT_MAC_1 = "0D:AA:D8:42:30:F3";
@@ -343,44 +338,8 @@ public abstract class AclServiceTestBase {
 
     abstract void newInterfaceWithTwoAclsHavingSameRulesCheck();
 
-    // TODO Remove this from here, use the one about to be merged in TestIMdsalApiManager
-    // under https://git.opendaylight.org/gerrit/#/c/47842/ *BUT* remember to integrate
-    // the ignore ordering fix recently added here to there...
     protected void assertFlowsInAnyOrder(Iterable<FlowEntity> expectedFlows) {
-        List<FlowEntity> flows = mdsalApiManager.getFlows();
-        if (!Iterables.isEmpty(expectedFlows)) {
-            assertTrue("No Flows created (bean wiring may be broken?)", !flows.isEmpty());
-        }
-
-        // TODO Support Iterable <-> List directly within XtendBeanGenerator
-        List<FlowEntity> expectedFlowsAsNewArrayList = Lists.newArrayList(expectedFlows);
-
-        // FYI: This containsExactlyElementsIn() assumes that FlowEntity, and everything in it,
-        // has correctly working equals() implementations.  assertEqualBeans() does not assume
-        // that, and would work even without equals, because it only uses property reflection.
-        // Normally this will lead to the same result, but if one day it doesn't (because of
-        // a bug in an equals() implementation somewhere), then it's worth to keep this diff
-        // in mind.
-
-        // FTR: This use of G Truth and then catch AssertionError and using assertEqualBeans iff NOK
-        // (thus discarding the message from G Truth) is a bit of a hack, but it works well...
-        // If you're tempted to improve this, please remember that correctly re-implementing
-        // containsExactlyElementsIn (or Hamcrest's similar containsInAnyOrder) isn't a 1 line
-        // trivia... e.g. a.containsAll(b) && b.containsAll(a) isn't sufficient, because it
-        // won't work for duplicates (which we frequently have here); and ordering before is
-        // not viable because FlowEntity is not Comparable, and Comparator based on hashCode
-        // is not a good idea (different instances can have same hashCode), and e.g. on
-        // System#identityHashCode even less so.
-        try {
-            LOG.info("expectedFlows = {}", expectedFlowsAsNewArrayList);
-            LOG.info("flows = {}",flows);
-            assertThat(flows).containsExactlyElementsIn(expectedFlowsAsNewArrayList);
-        } catch (AssertionError e) {
-            // The point of this is basically just that our assertEqualBeans output,
-            // in case of a comparison failure, is *A LOT* more clearly readable
-            // than what G Truth (or Hamcrest) can do based on toString.
-            assertEqualBeans(expectedFlowsAsNewArrayList, flows);
-        }
+        mdsalApiManager.assertFlowsInAnyOrder(expectedFlows);
     }
 
     private void newAllowedAddressPair(String portName, List<String> sgUuidList, String ipAddress, String macAddress)
