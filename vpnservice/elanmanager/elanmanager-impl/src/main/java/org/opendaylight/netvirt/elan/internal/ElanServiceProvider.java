@@ -20,6 +20,9 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.Future;
 import java.util.function.BiFunction;
+import javax.annotation.PostConstruct;
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.clustering.CandidateAlreadyRegisteredException;
 import org.opendaylight.controller.md.sal.common.api.clustering.EntityOwnershipService;
@@ -67,7 +70,7 @@ import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
+@Singleton
 public class ElanServiceProvider implements IElanService {
 
     private static final Logger LOG = LoggerFactory.getLogger(ElanServiceProvider.class);
@@ -83,6 +86,7 @@ public class ElanServiceProvider implements IElanService {
     private boolean generateIntBridgeMac = true;
     private boolean isL2BeforeL3;
 
+    @Inject
     public ElanServiceProvider(IdManagerService idManager, IInterfaceManager interfaceManager,
                                ElanInstanceManager elanInstanceManager, ElanBridgeManager bridgeMgr,
                                DataBroker dataBroker,
@@ -106,6 +110,7 @@ public class ElanServiceProvider implements IElanService {
         }
     }
 
+    @PostConstruct
     @SuppressWarnings("checkstyle:IllegalCatch")
     public void init() throws Exception {
         LOG.info("Starting ElnaServiceProvider");

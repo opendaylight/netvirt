@@ -20,6 +20,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.DataTreeChangeListener;
 import org.opendaylight.controller.md.sal.binding.api.ReadWriteTransaction;
@@ -37,18 +39,29 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+@Singleton
 public class HAOpNodeListener extends HwvtepNodeBaseListener implements DataTreeChangeListener<Node>, AutoCloseable {
 
-    public static final Logger LOG = LoggerFactory.getLogger(HAOpNodeListener.class);
+    private static final Logger LOG = LoggerFactory.getLogger(HAOpNodeListener.class);
 
-    static HwvtepHACache hwvtepHACache = HwvtepHACache.getInstance();
+    private final HwvtepHACache hwvtepHACache = HwvtepHACache.getInstance();
 
-    IHAEventHandler haEventHandler;
+    private final IHAEventHandler haEventHandler;
+    private final HAOpClusteredListener haOpClusteredListener;
 
-    Map<String, Boolean> availableGlobalNodes = new HashMap<>();
-    Map<String, Boolean> availablePsNodes = new HashMap<>();
+    private final Map<String, Boolean> availableGlobalNodes = new HashMap<>();
+    private final Map<String, Boolean> availablePsNodes = new HashMap<>();
 
-    void clearNodeAvailability(InstanceIdentifier<Node> key) {
+    @Inject
+    public HAOpNodeListener(DataBroker db, HAEventHandler haEventHandler, HAOpClusteredListener haOpClusteredListener)
+            throws Exception {
+        super(OPERATIONAL, db);
+        this.haEventHandler = haEventHandler;
+        this.haOpClusteredListener = haOpClusteredListener;
+        LOG.info("Registering HwvtepDataChangeListener for operational nodes");
+    }
+
+    private void clearNodeAvailability(InstanceIdentifier<Node> key) {
         String id = key.firstKeyOf(Node.class).getNodeId().getValue();
         String psId = null;
         String globalId = null;
@@ -63,7 +76,7 @@ public class HAOpNodeListener extends HwvtepNodeBaseListener implements DataTree
         }
     }
 
-    void updateNodeAvailability(InstanceIdentifier<Node> key) {
+    private void updateNodeAvailability(InstanceIdentifier<Node> key) {
         String id = key.firstKeyOf(Node.class).getNodeId().getValue();
         String psId = null;
         String globalId = null;
@@ -78,7 +91,7 @@ public class HAOpNodeListener extends HwvtepNodeBaseListener implements DataTree
         }
     }
 
-    boolean areBothGlobalAndPsNodeAvailable(InstanceIdentifier<Node> key) {
+    private boolean areBothGlobalAndPsNodeAvailable(InstanceIdentifier<Node> key) {
         String id = key.firstKeyOf(Node.class).getNodeId().getValue();
         String psId = null;
         String globalId = null;
@@ -95,19 +108,13 @@ public class HAOpNodeListener extends HwvtepNodeBaseListener implements DataTree
         return false;
     }
 
-    public HAOpNodeListener(DataBroker db, HAEventHandler haEventHandler) throws Exception {
-        super(OPERATIONAL, db);
-        this.haEventHandler = haEventHandler;
-        LOG.info("Registering HwvtepDataChangeListener for operational nodes");
-    }
-
     @Override
     void onGlobalNodeAdd(InstanceIdentifier<Node> childPath,
                          Node childNode,
                          ReadWriteTransaction tx) {
         LOG.info("Node connected " + childNode.getNodeId().getValue() + " - Checking if Ha or Non-Ha enabled");
         //update cache
-        HAOpClusteredListener.addToCacheIfHAChildNode(childPath, childNode);
+        haOpClusteredListener.addToCacheIfHAChildNode(childPath, childNode);
         if (!hwvtepHACache.isHAEnabledDevice(childPath)) {
             LOG.debug(" Non ha node connected " + childNode.getNodeId().getValue());
             return;
@@ -164,7 +171,7 @@ public class HAOpNodeListener extends HwvtepNodeBaseListener implements DataTree
             return;//TODO handle unha case
         }
 
-        HAOpClusteredListener.addToHACacheIfBecameHAChild(childPath, updatedChildNode, originalChildNode, tx);
+        haOpClusteredListener.addToHACacheIfBecameHAChild(childPath, updatedChildNode, originalChildNode, tx);
         boolean becameHAChild = hwvtepHACache.isHAEnabledDevice(childPath);
         if (becameHAChild) {
             hwvtepHACache.updateConnectedNodeStatus(childPath);
@@ -249,41 +256,37 @@ public class HAOpNodeListener extends HwvtepNodeBaseListener implements DataTree
         });
     }
 
-    void handleNodeConnected(final InstanceIdentifier<Node> childPath,
+    private void handleNodeConnected(final InstanceIdentifier<Node> childPath,
                              final Node childNode,
                              final InstanceIdentifier<Node> haNodePath) {
-        HAJobScheduler.getInstance().submitJob(new Runnable() {
-            public void run() {
-                try {
-                    LOG.info("Ha child connected handleNodeConnected {}", childNode.getNodeId().getValue());
-                    ReadWriteTransaction tx = getTx();
-                    haEventHandler.handleChildNodeConnected(childNode, childPath, haNodePath, tx);
-                    tx.submit().checkedGet();
-                } catch (InterruptedException | ExecutionException | ReadFailedException
-                        | TransactionCommitFailedException e) {
-                    LOG.error("Failed to process ", e);
-                }
+        HAJobScheduler.getInstance().submitJob(() -> {
+            try {
+                LOG.info("Ha child connected handleNodeConnected {}", childNode.getNodeId().getValue());
+                ReadWriteTransaction tx = getTx();
+                haEventHandler.handleChildNodeConnected(childNode, childPath, haNodePath, tx);
+                tx.submit().checkedGet();
+            } catch (InterruptedException | ExecutionException | ReadFailedException
+                    | TransactionCommitFailedException e) {
+                LOG.error("Failed to process ", e);
             }
         });
     }
 
-    void handleNodeReConnected(final InstanceIdentifier<Node> childPath,
+    private void handleNodeReConnected(final InstanceIdentifier<Node> childPath,
                                final Node childNode,
                                final InstanceIdentifier<Node> haNodePath,
                                final Optional<Node> haGlobalCfg,
                                final Optional<Node> haPSCfg) {
-        HAJobScheduler.getInstance().submitJob(new Runnable() {
-            public void run() {
-                try {
-                    LOG.info("Ha child reconnected handleNodeReConnected {}", childNode.getNodeId().getValue());
-                    ReadWriteTransaction tx = getTx();
-                    haEventHandler.handleChildNodeReConnected(childNode, childPath,
-                            haNodePath, haGlobalCfg, haPSCfg, tx);
-                    tx.submit().checkedGet();
-                } catch (InterruptedException | ExecutionException | ReadFailedException
-                        | TransactionCommitFailedException e) {
-                    LOG.error("Failed to process ", e);
-                }
+        HAJobScheduler.getInstance().submitJob(() -> {
+            try {
+                LOG.info("Ha child reconnected handleNodeReConnected {}", childNode.getNodeId().getValue());
+                ReadWriteTransaction tx = getTx();
+                haEventHandler.handleChildNodeReConnected(childNode, childPath,
+                        haNodePath, haGlobalCfg, haPSCfg, tx);
+                tx.submit().checkedGet();
+            } catch (InterruptedException | ExecutionException | ReadFailedException
+                    | TransactionCommitFailedException e) {
+                LOG.error("Failed to process ", e);
             }
         });
     }
