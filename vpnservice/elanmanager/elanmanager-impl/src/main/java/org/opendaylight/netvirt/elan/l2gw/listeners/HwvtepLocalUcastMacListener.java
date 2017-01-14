@@ -8,6 +8,9 @@
 package org.opendaylight.netvirt.elan.l2gw.listeners;
 
 import java.util.Collections;
+import javax.annotation.PostConstruct;
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.hwvtep.HwvtepClusteredDataTreeChangeListener;
@@ -33,14 +36,16 @@ import org.slf4j.LoggerFactory;
  * according to field 'tunnel_key' of the Logical Switch to which the new MAC
  * belongs.
  */
+@Singleton
 public class HwvtepLocalUcastMacListener extends
-        HwvtepClusteredDataTreeChangeListener<LocalUcastMacs, HwvtepLocalUcastMacListener> implements AutoCloseable {
+        HwvtepClusteredDataTreeChangeListener<LocalUcastMacs, HwvtepLocalUcastMacListener> {
 
     private static final Logger LOG = LoggerFactory.getLogger(HwvtepLocalUcastMacListener.class);
 
     private final DataBroker broker;
     private final ElanL2GatewayUtils elanL2GatewayUtils;
 
+    @Inject
     public HwvtepLocalUcastMacListener(DataBroker broker, ElanUtils elanUtils) {
         super(LocalUcastMacs.class, HwvtepLocalUcastMacListener.class);
 
@@ -48,6 +53,7 @@ public class HwvtepLocalUcastMacListener extends
         this.elanL2GatewayUtils = elanUtils.getElanL2GatewayUtils();
     }
 
+    @PostConstruct
     public void init() {
         registerListener(LogicalDatastoreType.OPERATIONAL, broker);
     }
@@ -84,7 +90,6 @@ public class HwvtepLocalUcastMacListener extends
     protected void updated(InstanceIdentifier<LocalUcastMacs> identifier, LocalUcastMacs original,
             LocalUcastMacs update) {
         // TODO (eperefr) what can change here?
-
     }
 
     @Override

@@ -10,6 +10,8 @@ package org.opendaylight.netvirt.elan.l2gw.utils;
 
 import java.util.Collections;
 import java.util.List;
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.clustering.EntityOwnershipService;
 import org.opendaylight.infrautils.inject.AbstractLifecycle;
@@ -26,17 +28,18 @@ import org.slf4j.LoggerFactory;
 /**
  * Created by eaksahu on 3/15/2017.
  */
+@Singleton
 public class L2gwServiceProvider extends AbstractLifecycle implements IL2gwService {
 
     private static final Logger LOG = LoggerFactory.getLogger(L2gwServiceProvider.class);
-
     private final DataBroker dataBroker;
     private final ItmRpcService itmRpcService;
     private final ElanUtils elanUtils;
     private final EntityOwnershipService entityOwnershipService;
 
+    @Inject
     public L2gwServiceProvider(final DataBroker dataBroker, final EntityOwnershipService entityOwnershipService,
-                               ItmRpcService itmRpcService, ElanUtils elanUtils) {
+                               final ItmRpcService itmRpcService, final ElanUtils elanUtils) {
         this.dataBroker = dataBroker;
         this.entityOwnershipService = entityOwnershipService;
         this.itmRpcService = itmRpcService;
@@ -71,6 +74,6 @@ public class L2gwServiceProvider extends AbstractLifecycle implements IL2gwServi
 
     @Override
     protected void stop() throws Exception {
-
+        LOG.info("Stopping L2gwServiceProvider");
     }
 }

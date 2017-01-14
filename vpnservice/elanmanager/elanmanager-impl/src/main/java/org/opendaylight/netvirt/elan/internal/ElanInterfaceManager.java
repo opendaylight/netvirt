@@ -113,8 +113,7 @@ import org.slf4j.LoggerFactory;
  */
 @Singleton
 @SuppressWarnings("deprecation")
-public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanInterface, ElanInterfaceManager>
-        implements AutoCloseable {
+public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanInterface, ElanInterfaceManager> {
 
     private final DataBroker broker;
     private final IMdsalApiManager mdsalManager;
@@ -367,7 +366,7 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
 
                 // Removing all those MACs from External Devices belonging
                 // to this ELAN
-                if ((ElanUtils.isVxlan(elanInfo) || (ElanUtils.isVxlanSegment(elanInfo))) && ! macAddresses.isEmpty()) {
+                if ((ElanUtils.isVxlan(elanInfo) || ElanUtils.isVxlanSegment(elanInfo)) && ! macAddresses.isEmpty()) {
                     elanL2GatewayUtils.removeMacsFromElanExternalDevices(elanInfo, macAddresses);
                 }
             }
@@ -632,7 +631,7 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
                 dpnInterfaces = createElanInterfacesList(elanInstanceName, interfaceName, dpId, tx);
                 // The 1st ElanInterface in a DPN must program the Ext Tunnel
                 // table, but only if Elan has VNI
-                if ((ElanUtils.isVxlan(elanInstance) || (ElanUtils.isVxlanSegment(elanInstance)))) {
+                if (ElanUtils.isVxlan(elanInstance) || ElanUtils.isVxlanSegment(elanInstance)) {
                     setExternalTunnelTable(dpId, elanInstance);
                 }
                 elanL2GatewayUtils.installElanL2gwDevicesLocalMacsInDpn(dpId, elanInstance, interfaceName);

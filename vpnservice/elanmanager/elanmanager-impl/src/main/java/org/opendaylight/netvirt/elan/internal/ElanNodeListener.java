@@ -11,6 +11,9 @@ import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import javax.annotation.PostConstruct;
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
@@ -42,17 +45,18 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+@Singleton
 public class ElanNodeListener extends AsyncDataTreeChangeListenerBase<Node, ElanNodeListener> implements AutoCloseable {
 
     private static final Logger LOG = LoggerFactory.getLogger(ElanNodeListener.class);
     private static final int LEARN_MATCH_REG4_VALUE = 1;
-
     private final DataBroker broker;
     private final IMdsalApiManager mdsalManager;
     private final int tempSmacLearnTimeout;
     private final boolean puntLldpToController;
 
 
+    @Inject
     public ElanNodeListener(DataBroker dataBroker, IMdsalApiManager mdsalManager, ElanConfig elanConfig) {
         this.broker = dataBroker;
         this.mdsalManager = mdsalManager;
@@ -61,6 +65,7 @@ public class ElanNodeListener extends AsyncDataTreeChangeListenerBase<Node, Elan
     }
 
     @Override
+    @PostConstruct
     public void init() {
         registerListener(LogicalDatastoreType.OPERATIONAL, broker);
     }
@@ -233,5 +238,4 @@ public class ElanNodeListener extends AsyncDataTreeChangeListenerBase<Node, Elan
         // TODO Auto-generated method stub
         return ElanNodeListener.this;
     }
-
 }
