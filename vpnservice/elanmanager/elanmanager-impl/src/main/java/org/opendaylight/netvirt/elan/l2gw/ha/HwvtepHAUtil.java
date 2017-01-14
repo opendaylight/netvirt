@@ -63,9 +63,8 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class HwvtepHAUtil {
-
-    static Logger LOG = LoggerFactory.getLogger(HwvtepHAUtil.class);
+public final class HwvtepHAUtil {
+    private static final Logger LOG = LoggerFactory.getLogger(HwvtepHAUtil.class);
 
     //TODO reuse HWvtepSouthboundConstants
     public static final String HA_ENABLED = "ha_enabled";
@@ -79,7 +78,7 @@ public class HwvtepHAUtil {
     public static final String HWVTEP_URI_PREFIX = "hwvtep";
     public static final String MANAGER_KEY = "managerKey";
 
-    static HwvtepHACache hwvtepHACache = HwvtepHACache.getInstance();
+    private static HwvtepHACache hwvtepHACache = HwvtepHACache.getInstance();
 
     public static HwvtepPhysicalLocatorRef buildLocatorRef(InstanceIdentifier<Node> nodeIid, String tepIp) {
         InstanceIdentifier<TerminationPoint> tepId = buildTpId(nodeIid, tepIp);
@@ -272,8 +271,8 @@ public class HwvtepHAUtil {
     }
 
     public static Node getCreated(DataObjectModification<Node> mod) {
-        if ((mod.getModificationType() == DataObjectModification.ModificationType.WRITE)
-                && (mod.getDataBefore() == null)) {
+        if (mod.getModificationType() == DataObjectModification.ModificationType.WRITE
+                && mod.getDataBefore() == null) {
             return mod.getDataAfter();
         }
         return null;
@@ -542,7 +541,7 @@ public class HwvtepHAUtil {
         }
         //also read from managed by attribute of switches and cleanup them as a back up if the above cleanup fails
         Optional<Topology> topologyOptional = tx
-                .read(CONFIGURATION, (InstanceIdentifier<Topology>)key.firstIdentifierOf(Topology.class)).checkedGet();
+                .read(CONFIGURATION, key.firstIdentifierOf(Topology.class)).checkedGet();
         String deletedNodeId = key.firstKeyOf(Node.class).getNodeId().getValue();
         if (topologyOptional.isPresent()) {
             Topology topology = topologyOptional.get();

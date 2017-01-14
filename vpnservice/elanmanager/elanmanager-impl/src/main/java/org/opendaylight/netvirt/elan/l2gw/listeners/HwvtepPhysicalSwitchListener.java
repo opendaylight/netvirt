@@ -18,6 +18,9 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
+import javax.annotation.PostConstruct;
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.ClusteredDataTreeChangeListener;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
@@ -59,26 +62,18 @@ import org.slf4j.LoggerFactory;
 /**
  * Listener to handle physical switch updates.
  */
+@Singleton
 public class HwvtepPhysicalSwitchListener
         extends HwvtepAbstractDataTreeChangeListener<PhysicalSwitchAugmentation, HwvtepPhysicalSwitchListener>
-        implements ClusteredDataTreeChangeListener<PhysicalSwitchAugmentation>, AutoCloseable {
+        implements ClusteredDataTreeChangeListener<PhysicalSwitchAugmentation> {
 
-    /** The Constant LOG. */
     private static final Logger LOG = LoggerFactory.getLogger(HwvtepPhysicalSwitchListener.class);
-
-    /** The data broker. */
     private final DataBroker dataBroker;
-
-    /** The itm rpc service. */
     private final ItmRpcService itmRpcService;
-
-    /** The entity ownership service. */
     private final EntityOwnershipService entityOwnershipService;
-
     private final L2GatewayConnectionUtils l2GatewayConnectionUtils;
-
     private final HwvtepHACache hwvtepHACache = HwvtepHACache.getInstance();
-
+    private final HAOpClusteredListener haOpClusteredListener;
     protected final L2gwServiceProvider l2gwServiceProvider;
 
     /**
@@ -90,17 +85,22 @@ public class HwvtepPhysicalSwitchListener
      * @param entityOwnershipService entity ownership service
      * @param elanUtils elan utils
      */
+    @Inject
     public HwvtepPhysicalSwitchListener(final DataBroker dataBroker, ItmRpcService itmRpcService,
                                         EntityOwnershipService entityOwnershipService,
-                                        ElanUtils elanUtils, L2gwServiceProvider l2gwServiceProvider) {
+                                        ElanUtils elanUtils, L2gwServiceProvider l2gwServiceProvider,
+                                        HAOpClusteredListener haOpClusteredListener) {
         super(PhysicalSwitchAugmentation.class, HwvtepPhysicalSwitchListener.class);
         this.dataBroker = dataBroker;
         this.itmRpcService = itmRpcService;
         this.entityOwnershipService = entityOwnershipService;
         this.l2GatewayConnectionUtils = elanUtils.getL2GatewayConnectionUtils();
         this.l2gwServiceProvider = l2gwServiceProvider;
+        this.haOpClusteredListener = haOpClusteredListener;
     }
 
+    @Override
+    @PostConstruct
     public void init() {
         registerListener(LogicalDatastoreType.OPERATIONAL, dataBroker);
     }
@@ -226,7 +226,7 @@ public class HwvtepPhysicalSwitchListener
             public void onSuccess(Optional<Node> globalNodeOptional) {
                 if (globalNodeOptional.isPresent()) {
                     LOG.trace("Running job for node {} ", globalNodeIid);
-                    HAOpClusteredListener.addToCacheIfHAChildNode(globalNodeIid, (Node) globalNodeOptional.get());
+                    haOpClusteredListener.addToCacheIfHAChildNode(globalNodeIid, (Node) globalNodeOptional.get());
                     if (hwvtepHACache.isHAEnabledDevice(globalNodeIid)) {
                         LOG.trace("Ha enabled device {}", globalNodeIid);
                     }
@@ -257,7 +257,7 @@ public class HwvtepPhysicalSwitchListener
             throws ExecutionException, InterruptedException {
         ReadWriteTransaction transaction = broker.newReadWriteTransaction();
         Node node = transaction.read(LogicalDatastoreType.OPERATIONAL, globalNodeId).get().get();
-        HAOpClusteredListener.addToCacheIfHAChildNode(globalNodeId, node);
+        haOpClusteredListener.addToCacheIfHAChildNode(globalNodeId, node);
         return hwvtepHACache.isHAEnabledDevice(globalNodeId);
     }
 
@@ -283,7 +283,6 @@ public class HwvtepPhysicalSwitchListener
             }
         }
     }
-
 
     private L2GatewayDevice updateL2GatewayCache(String psName, HwvtepGlobalRef globalRef, List<TunnelIps> tunnelIps) {
         L2GatewayDevice l2GwDevice = L2GatewayCacheUtils.getL2DeviceFromCache(psName);

@@ -17,6 +17,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import javax.inject.Inject;
+import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
 import org.opendaylight.netvirt.elanmanager.api.IElanBridgeManager;
@@ -34,6 +35,7 @@ import org.slf4j.LoggerFactory;
 /**
  * This class provides functions for creating bridges via OVSDB, specifically the br-int bridge.
  */
+@Singleton
 public class ElanBridgeManager implements IElanBridgeManager {
     private static final Logger LOG = LoggerFactory.getLogger(ElanBridgeManager.class);
 

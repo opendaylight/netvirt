@@ -72,6 +72,7 @@
       <groupId>org.opendaylight.genius</groupId>
       <artifactId>interfacemanager-impl</artifactId>
       <version>${genius.version}</version>
+      <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>${project.groupId}</groupId>
@@ -162,6 +163,10 @@
 
   <build>
     <plugins>
+     <plugin>
+       <groupId>org.apache.aries.blueprint</groupId>
+       <artifactId>blueprint-maven-plugin</artifactId>
+     </plugin>
       <plugin>
         <groupId>org.apache.felix</groupId>
         <artifactId>maven-bundle-plugin</artifactId>
