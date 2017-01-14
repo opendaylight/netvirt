@@ -8,8 +8,6 @@
 
 package org.opendaylight.netvirt.elan.utils;
 
-
-
 import com.google.common.base.Optional;
 import javax.inject.Inject;
 import javax.inject.Singleton;

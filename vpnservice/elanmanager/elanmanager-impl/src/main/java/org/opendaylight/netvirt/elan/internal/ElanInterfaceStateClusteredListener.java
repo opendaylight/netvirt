@@ -7,6 +7,9 @@
  */
 package org.opendaylight.netvirt.elan.internal;
 
+import javax.annotation.PostConstruct;
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.clustering.EntityOwnershipService;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
@@ -22,6 +25,7 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+@Singleton
 public class ElanInterfaceStateClusteredListener extends
     AsyncClusteredDataTreeChangeListenerBase<Interface, ElanInterfaceStateClusteredListener> implements AutoCloseable {
 
@@ -36,6 +40,7 @@ public class ElanInterfaceStateClusteredListener extends
      * Why do we have ElanInterfaceStateChangeListener and ElanInterfaceStateClusteredListener
      * both within same module? Refactor this code into single listener.
      */
+    @Inject
     public ElanInterfaceStateClusteredListener(DataBroker broker, ElanInterfaceManager elanInterfaceManager,
                                                ElanUtils elanUtils, EntityOwnershipService entityOwnershipService) {
         this.broker = broker;
@@ -44,6 +49,7 @@ public class ElanInterfaceStateClusteredListener extends
         this.entityOwnershipService = entityOwnershipService;
     }
 
+    @PostConstruct
     public void init() {
         registerListener(LogicalDatastoreType.OPERATIONAL, broker);
     }
@@ -91,9 +97,6 @@ public class ElanInterfaceStateClusteredListener extends
         }
     }
 
-    /* (non-Javadoc)
-     * @see org.opendaylight.genius.datastoreutils.AsyncClusteredDataTreeChangeListenerBase#getDataTreeChangeListener()
-     */
     @Override
     protected ElanInterfaceStateClusteredListener getDataTreeChangeListener() {
         return this;

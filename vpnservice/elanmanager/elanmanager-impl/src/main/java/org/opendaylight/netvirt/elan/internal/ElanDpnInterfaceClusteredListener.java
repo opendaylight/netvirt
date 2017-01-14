@@ -8,6 +8,9 @@
 package org.opendaylight.netvirt.elan.internal;
 
 import java.util.Collections;
+import javax.annotation.PostConstruct;
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.clustering.EntityOwnershipService;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
@@ -24,6 +27,7 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+@Singleton
 public class ElanDpnInterfaceClusteredListener
     extends AsyncClusteredDataTreeChangeListenerBase<DpnInterfaces, ElanDpnInterfaceClusteredListener>
     implements AutoCloseable {
@@ -35,6 +39,7 @@ public class ElanDpnInterfaceClusteredListener
     private final ElanL2GatewayUtils elanL2GatewayUtils;
     private final ElanL2GatewayMulticastUtils elanL2GatewayMulticastUtils;
 
+    @Inject
     public ElanDpnInterfaceClusteredListener(DataBroker broker, EntityOwnershipService entityOwnershipService,
                                              ElanUtils elanUtils) {
         this.broker = broker;
@@ -43,6 +48,7 @@ public class ElanDpnInterfaceClusteredListener
         this.elanL2GatewayMulticastUtils = elanUtils.getElanL2GatewayMulticastUtils();
     }
 
+    @PostConstruct
     public void init() {
         registerListener(LogicalDatastoreType.OPERATIONAL, this.broker);
     }

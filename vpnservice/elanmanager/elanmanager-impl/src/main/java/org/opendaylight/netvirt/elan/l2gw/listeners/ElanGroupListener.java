@@ -11,6 +11,8 @@ import java.math.BigInteger;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ConcurrentMap;
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.clustering.EntityOwnershipService;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
@@ -31,15 +33,17 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+@Singleton
 public class ElanGroupListener extends AsyncClusteredDataTreeChangeListenerBase<Group, ElanGroupListener>
         implements AutoCloseable {
 
     private static final Logger LOG = LoggerFactory.getLogger(ElanGroupListener.class);
-    private ElanInterfaceManager elanInterfaceManager;
+    private final ElanInterfaceManager elanInterfaceManager;
     private final DataBroker broker;
-    private ElanUtils elanUtils;
+    private final ElanUtils elanUtils;
     private final EntityOwnershipService entityOwnershipService;
 
+    @Inject
     public ElanGroupListener(ElanInterfaceManager elanInterfaceManager, final DataBroker db, ElanUtils elanUtils,
                              EntityOwnershipService entityOwnershipService) {
         super(Group.class, ElanGroupListener.class);
@@ -51,6 +55,7 @@ public class ElanGroupListener extends AsyncClusteredDataTreeChangeListenerBase<
         LOG.trace("ElanGroupListener registered");
     }
 
+    @Override
     protected InstanceIdentifier<Group> getWildCardPath() {
         return InstanceIdentifier.create(Nodes.class).child(Node.class)
                 .augmentation(FlowCapableNode.class).child(Group.class);
@@ -61,8 +66,7 @@ public class ElanGroupListener extends AsyncClusteredDataTreeChangeListenerBase<
         LOG.trace("received group removed {}", del.getKey().getGroupId());
     }
 
-
-    ElanInstance getElanInstanceFromGroupId(Group update) {
+    private ElanInstance getElanInstanceFromGroupId(Group update) {
         Set<String> elanNames = ElanUtils.getAllElanNames();
         for (String elanName : elanNames) {
             ElanInstance elanInstance = ElanUtils.getElanInstanceByName(broker, elanName);
@@ -162,6 +166,3 @@ public class ElanGroupListener extends AsyncClusteredDataTreeChangeListenerBase<
         return this;
     }
 }
-
-
-

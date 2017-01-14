@@ -20,6 +20,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.Future;
 import java.util.function.BiFunction;
+import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
@@ -111,6 +112,7 @@ public class ElanServiceProvider extends AbstractLifecycle implements IElanServi
     }
 
     @Override
+    @PostConstruct
     @SuppressWarnings("checkstyle:IllegalCatch")
     protected void start() throws Exception {
         LOG.info("Starting ElnaServiceProvider");

@@ -7,6 +7,8 @@
  */
 package org.opendaylight.netvirt.elan.l2gw.listeners;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.genius.datastoreutils.AsyncClusteredDataTreeChangeListenerBase;
 import org.opendaylight.netvirt.elan.l2gw.utils.L2GatewayConnectionUtils;
@@ -18,6 +20,7 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+@Singleton
 public class L2GatewayConnectionListener extends AsyncClusteredDataTreeChangeListenerBase<L2gatewayConnection,
         L2GatewayConnectionListener> implements AutoCloseable {
     private static final Logger LOG = LoggerFactory.getLogger(L2GatewayConnectionListener.class);
@@ -25,6 +28,7 @@ public class L2GatewayConnectionListener extends AsyncClusteredDataTreeChangeLis
     private final DataBroker broker;
     private final L2GatewayConnectionUtils l2GatewayConnectionUtils;
 
+    @Inject
     public L2GatewayConnectionListener(final DataBroker db, ElanUtils elanUtils) {
         this.broker = db;
         this.l2GatewayConnectionUtils = elanUtils.getL2GatewayConnectionUtils();
