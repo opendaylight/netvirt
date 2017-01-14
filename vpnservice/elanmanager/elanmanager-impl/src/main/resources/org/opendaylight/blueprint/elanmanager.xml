@@ -84,6 +84,7 @@
     <argument ref="elanInterfaceManager" />
     <argument ref="entityOwnershipService" />
     <argument ref="interfaceManager" />
+    <argument ref="hwvtepTerminationPointListener" />
   </bean>
 
   <bean id="elanStatisticsImpl" class="org.opendaylight.netvirt.elan.statisitcs.ElanStatisticsImpl">

@@ -104,6 +104,7 @@ public class ElanL2GatewayUtils {
     private final ElanUtils elanUtils;
     private final EntityOwnershipService entityOwnershipService;
     private final ElanL2GatewayMulticastUtils elanL2GatewayMulticastUtils;
+    private final HwvtepTerminationPointListener hwvtepTerminationPointListener;
 
     private final DataStoreJobCoordinator dataStoreJobCoordinator = DataStoreJobCoordinator.getInstance();
     private static Timer LogicalSwitchDeleteJobTimer = new Timer();
@@ -112,12 +113,14 @@ public class ElanL2GatewayUtils {
 
     public ElanL2GatewayUtils(DataBroker broker, ItmRpcService itmRpcService, ElanUtils elanUtils,
                               EntityOwnershipService entityOwnershipService,
-                              ElanL2GatewayMulticastUtils elanL2GatewayMulticastUtils) {
+                              ElanL2GatewayMulticastUtils elanL2GatewayMulticastUtils,
+                              HwvtepTerminationPointListener hwvtepTerminationPointListener) {
         this.broker = broker;
         this.itmRpcService = itmRpcService;
         this.elanUtils = elanUtils;
         this.entityOwnershipService = entityOwnershipService;
         this.elanL2GatewayMulticastUtils = elanL2GatewayMulticastUtils;
+        this.hwvtepTerminationPointListener = hwvtepTerminationPointListener;
     }
 
     /**
@@ -1081,7 +1084,7 @@ public class ElanL2GatewayUtils {
         TerminationPointKey tpKey = HwvtepSouthboundUtils.getTerminationPointKey(dpnTepIp.getIpv4Address().getValue());
         InstanceIdentifier<TerminationPoint> tpPath = HwvtepSouthboundUtils.createTerminationPointId(nodeId, tpKey);
 
-        HwvtepTerminationPointListener.runJobAfterPhysicalLocatorIsAvialable(tpPath, () -> HwvtepUtils
+        hwvtepTerminationPointListener.runJobAfterPhysicalLocatorIsAvialable(tpPath, () -> HwvtepUtils
                 .installUcastMacs(broker, externalDevice.getHwvtepNodeId(), staticMacAddresses, elanName, dpnTepIp));
     }
 

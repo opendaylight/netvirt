@@ -51,6 +51,7 @@ import org.opendaylight.genius.utils.ServiceIndex;
 import org.opendaylight.netvirt.elan.ElanException;
 import org.opendaylight.netvirt.elan.internal.ElanInstanceManager;
 import org.opendaylight.netvirt.elan.internal.ElanInterfaceManager;
+import org.opendaylight.netvirt.elan.l2gw.listeners.HwvtepTerminationPointListener;
 import org.opendaylight.netvirt.elan.l2gw.utils.ElanL2GatewayMulticastUtils;
 import org.opendaylight.netvirt.elan.l2gw.utils.ElanL2GatewayUtils;
 import org.opendaylight.netvirt.elan.l2gw.utils.L2GatewayConnectionUtils;
@@ -189,7 +190,8 @@ public class ElanUtils {
     public ElanUtils(DataBroker dataBroker, IMdsalApiManager mdsalManager, ElanInstanceManager elanInstanceManager,
                      OdlInterfaceRpcService interfaceManagerRpcService, ItmRpcService itmRpcService,
                      ElanInterfaceManager elanInterfaceManager,
-                     EntityOwnershipService entityOwnershipService, IInterfaceManager interfaceManager) {
+                     EntityOwnershipService entityOwnershipService, IInterfaceManager interfaceManager,
+                     HwvtepTerminationPointListener hwvtepTerminationPointListener) {
         this.broker = dataBroker;
         this.mdsalManager = mdsalManager;
         this.elanInstanceManager = elanInstanceManager;
@@ -200,7 +202,7 @@ public class ElanUtils {
         elanL2GatewayMulticastUtils =
                 new ElanL2GatewayMulticastUtils(broker, elanInstanceManager, elanInterfaceManager, this);
         elanL2GatewayUtils = new ElanL2GatewayUtils(broker, itmRpcService, this,
-                entityOwnershipService, elanL2GatewayMulticastUtils);
+                entityOwnershipService, elanL2GatewayMulticastUtils, hwvtepTerminationPointListener);
         elanL2GatewayMulticastUtils.setEElanL2GatewayUtils(elanL2GatewayUtils);
         l2GatewayConnectionUtils = new L2GatewayConnectionUtils(broker,
                 elanInstanceManager, entityOwnershipService, this);

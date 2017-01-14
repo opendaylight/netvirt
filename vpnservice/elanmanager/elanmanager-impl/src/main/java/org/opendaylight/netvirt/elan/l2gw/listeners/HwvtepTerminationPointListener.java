@@ -55,10 +55,13 @@ public class HwvtepTerminationPointListener
 
     private static final Logger LOG = LoggerFactory.getLogger(HwvtepTerminationPointListener.class);
 
-    private DataBroker broker;
+    private final DataBroker broker;
     private ListenerRegistration<DataChangeListener> lstnerRegistration;
     private final ElanL2GatewayUtils elanL2GatewayUtils;
     private final EntityOwnershipService entityOwnershipService;
+
+    private final Map<InstanceIdentifier<TerminationPoint>, List<Runnable>> waitingJobsList = new ConcurrentHashMap<>();
+    private final Map<InstanceIdentifier<TerminationPoint>, Boolean> teps = new ConcurrentHashMap<>();
 
     public HwvtepTerminationPointListener(DataBroker broker, ElanUtils elanUtils,
                                           EntityOwnershipService entityOwnershipService) {
@@ -71,10 +74,7 @@ public class HwvtepTerminationPointListener
         LOG.debug("created HwvtepTerminationPointListener");
     }
 
-    static Map<InstanceIdentifier<TerminationPoint>, List<Runnable>> waitingJobsList = new ConcurrentHashMap<>();
-    static Map<InstanceIdentifier<TerminationPoint>, Boolean> teps = new ConcurrentHashMap<>();
-
-    public static void runJobAfterPhysicalLocatorIsAvialable(InstanceIdentifier<TerminationPoint> key,
+    public void runJobAfterPhysicalLocatorIsAvialable(InstanceIdentifier<TerminationPoint> key,
             Runnable runnable) {
         if (teps.get(key) != null) {
             LOG.debug("physical locator already available {} running job ", key);
