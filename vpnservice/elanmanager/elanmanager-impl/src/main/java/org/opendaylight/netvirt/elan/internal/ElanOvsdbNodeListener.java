@@ -7,6 +7,10 @@
  */
 package org.opendaylight.netvirt.elan.internal;
 
+import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.DataChangeListener;
 import org.opendaylight.controller.md.sal.common.api.data.AsyncDataBroker;
@@ -27,13 +31,15 @@ import org.slf4j.LoggerFactory;
 /**
  * Listen for new OVSDB nodes and then make sure they have the necessary bridges configured.
  */
+@Singleton
 public class ElanOvsdbNodeListener extends AbstractDataChangeListener<Node> implements AutoCloseable {
     private static final Logger LOG = LoggerFactory.getLogger(ElanOvsdbNodeListener.class);
+
     private ListenerRegistration<DataChangeListener> listenerRegistration;
     private final DataBroker dataBroker;
     private final ElanBridgeManager bridgeMgr;
     private final IElanService elanProvider;
-    private boolean generateIntBridgeMac;
+    private final boolean generateIntBridgeMac;
 
     /**
      * Constructor.
@@ -42,6 +48,7 @@ public class ElanOvsdbNodeListener extends AbstractDataChangeListener<Node> impl
      * @param bridgeMgr bridge manager
      * @param elanProvider elan provider
      */
+    @Inject
     public ElanOvsdbNodeListener(final DataBroker dataBroker, ElanConfig elanConfig,
                                  final ElanBridgeManager bridgeMgr,
                                  final IElanService elanProvider) {
@@ -52,6 +59,7 @@ public class ElanOvsdbNodeListener extends AbstractDataChangeListener<Node> impl
         this.elanProvider = elanProvider;
     }
 
+    @PostConstruct
     public void init() {
         LOG.info("{} init", getClass().getSimpleName());
         listenerRegistration = dataBroker.registerDataChangeListener(LogicalDatastoreType.OPERATIONAL,
@@ -66,6 +74,7 @@ public class ElanOvsdbNodeListener extends AbstractDataChangeListener<Node> impl
     }
 
     @Override
+    @PreDestroy
     public void close() throws Exception {
         if (listenerRegistration != null) {
             listenerRegistration.close();

@@ -8,6 +8,10 @@
 package org.opendaylight.netvirt.elan.utils;
 
 import java.util.Collection;
+import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.ClusteredDataTreeChangeListener;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.DataObjectModification;
@@ -21,16 +25,19 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+@Singleton
 public class CacheElanInterfaceListener implements ClusteredDataTreeChangeListener<ElanInterface> {
 
     private ListenerRegistration<CacheElanInterfaceListener> registration;
     private static final Logger LOG = LoggerFactory.getLogger(CacheElanInterfaceListener.class);
     private final DataBroker broker;
 
+    @Inject
     public CacheElanInterfaceListener(DataBroker dataBroker) {
         this.broker = dataBroker;
     }
 
+    @PostConstruct
     public void init() {
         registerListener();
     }
@@ -46,6 +53,7 @@ public class CacheElanInterfaceListener implements ClusteredDataTreeChangeListen
         return InstanceIdentifier.create(ElanInterfaces.class).child(ElanInterface.class);
     }
 
+    @PreDestroy
     public void close() throws Exception {
         if (registration != null) {
             registration.close();

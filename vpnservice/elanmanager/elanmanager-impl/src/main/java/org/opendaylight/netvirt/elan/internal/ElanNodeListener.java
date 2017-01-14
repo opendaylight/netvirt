@@ -10,6 +10,10 @@ package org.opendaylight.netvirt.elan.internal;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
+import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.DataChangeListener;
 import org.opendaylight.controller.md.sal.common.api.data.AsyncDataBroker;
@@ -37,6 +41,7 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+@Singleton
 public class ElanNodeListener extends AbstractDataChangeListener<Node> implements AutoCloseable {
 
     private static final Logger LOG = LoggerFactory.getLogger(ElanNodeListener.class);
@@ -48,6 +53,7 @@ public class ElanNodeListener extends AbstractDataChangeListener<Node> implement
 
     private ListenerRegistration<DataChangeListener> listenerRegistration;
 
+    @Inject
     public ElanNodeListener(DataBroker dataBroker, IMdsalApiManager mdsalManager, ElanConfig elanConfig) {
         super(Node.class);
         this.broker = dataBroker;
@@ -55,8 +61,17 @@ public class ElanNodeListener extends AbstractDataChangeListener<Node> implement
         this.tempSmacLearnTimeout = elanConfig.getTempSmacLearnTimeout();
     }
 
+    @PostConstruct
     public void init() {
         registerListener(broker);
+    }
+
+    @Override
+    @PreDestroy
+    public void close() throws Exception {
+        if (listenerRegistration != null) {
+            listenerRegistration.close();
+        }
     }
 
     private void registerListener(final DataBroker db) {
@@ -183,10 +198,4 @@ public class ElanNodeListener extends AbstractDataChangeListener<Node> implement
         return new StringBuffer().append(tableId).toString();
     }
 
-    @Override
-    public void close() throws Exception {
-        if (listenerRegistration != null) {
-            listenerRegistration.close();
-        }
-    }
 }

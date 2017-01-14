@@ -8,18 +8,22 @@
 package org.opendaylight.netvirt.elan.statusanddiag;
 
 import java.lang.management.ManagementFactory;
+import javax.annotation.PostConstruct;
+import javax.inject.Singleton;
 import javax.management.JMException;
 import javax.management.MBeanServer;
 import javax.management.ObjectName;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+@Singleton
 public class ElanStatusMonitorJMX implements ElanStatusMonitor, ElanStatusMonitorMBean {
 
     private String serviceStatus;
     private static final String JMX_ELAN_OBJ_NAME = "org.opendaylight.netvirt.elan:type=SvcElanService";
     private static final Logger LOG = LoggerFactory.getLogger(ElanStatusMonitorJMX.class);
 
+    @PostConstruct
     public void init() throws Exception {
         registerMbean();
     }

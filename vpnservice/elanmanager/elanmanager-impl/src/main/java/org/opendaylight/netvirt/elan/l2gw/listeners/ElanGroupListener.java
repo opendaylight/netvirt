@@ -7,12 +7,12 @@
  */
 package org.opendaylight.netvirt.elan.l2gw.listeners;
 
-import com.google.common.util.concurrent.ListenableFuture;
 import java.math.BigInteger;
 import java.util.List;
 import java.util.Set;
-import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentMap;
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.clustering.EntityOwnershipService;
 import org.opendaylight.genius.datastoreutils.AsyncClusteredDataTreeChangeListenerBase;
@@ -31,15 +31,17 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+@Singleton
 public class ElanGroupListener extends AsyncClusteredDataTreeChangeListenerBase<Group, ElanGroupListener>
         implements AutoCloseable {
 
     private static final Logger LOG = LoggerFactory.getLogger(ElanGroupListener.class);
-    private ElanInterfaceManager elanInterfaceManager;
+    private final ElanInterfaceManager elanInterfaceManager;
     private final DataBroker broker;
-    private ElanUtils elanUtils;
+    private final ElanUtils elanUtils;
     private final EntityOwnershipService entityOwnershipService;
 
+    @Inject
     public ElanGroupListener(ElanInterfaceManager elanInterfaceManager, final DataBroker db, ElanUtils elanUtils,
                              EntityOwnershipService entityOwnershipService) {
         super(Group.class, ElanGroupListener.class);
@@ -50,6 +52,7 @@ public class ElanGroupListener extends AsyncClusteredDataTreeChangeListenerBase<
         LOG.trace("ElanGroupListener registered");
     }
 
+    @Override
     protected InstanceIdentifier<Group> getWildCardPath() {
         return InstanceIdentifier.create(Nodes.class).child(Node.class)
                 .augmentation(FlowCapableNode.class).child(Group.class);
@@ -60,8 +63,7 @@ public class ElanGroupListener extends AsyncClusteredDataTreeChangeListenerBase<
         LOG.trace("received group removed {}", del.getKey().getGroupId());
     }
 
-
-    ElanInstance getElanInstanceFromGroupId(Group update) {
+    private ElanInstance getElanInstanceFromGroupId(Group update) {
         Set<String> elanNames = ElanUtils.getAllElanNames();
         for (String elanName : elanNames) {
             ElanInstance elanInstance = ElanUtils.getElanInstanceByName(broker, elanName);
@@ -133,13 +135,10 @@ public class ElanGroupListener extends AsyncClusteredDataTreeChangeListenerBase<
                     update.getKey().getGroupId());
             ElanClusterUtils.runOnlyInLeaderNode(entityOwnershipService, elanInstance.getElanInstanceName(),
                     "updating broadcast group",
-                    new Callable<List<ListenableFuture<Void>>>() {
-                        @Override
-                        public List<ListenableFuture<Void>> call() throws Exception {
-                            elanInterfaceManager.setupElanBroadcastGroups(elanInstance, dpnId);
-                            return null;
-                        }
-                    });
+                () -> {
+                    elanInterfaceManager.setupElanBroadcastGroups(elanInstance, dpnId);
+                    return null;
+                });
         } else {
             LOG.trace("no buckets in the update {} {}", elanInstance.getElanInstanceName(),
                     update.getKey().getGroupId());
@@ -157,6 +156,3 @@ public class ElanGroupListener extends AsyncClusteredDataTreeChangeListenerBase<
         return this;
     }
 }
-
-
-

@@ -14,6 +14,9 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import javax.annotation.PreDestroy;
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.DataChangeListener;
 import org.opendaylight.controller.md.sal.common.api.clustering.EntityOwnershipService;
@@ -49,17 +52,19 @@ import org.slf4j.LoggerFactory;
 /**
  * Listener for physical locator presence in operational datastore.
  */
+@Singleton
 public class HwvtepTerminationPointListener
         extends HwvtepClusteredDataTreeChangeListener<TerminationPoint, HwvtepTerminationPointListener>
         implements AutoCloseable {
 
     private static final Logger LOG = LoggerFactory.getLogger(HwvtepTerminationPointListener.class);
 
-    private DataBroker broker;
+    private final DataBroker broker;
     private ListenerRegistration<DataChangeListener> lstnerRegistration;
     private final ElanL2GatewayUtils elanL2GatewayUtils;
     private final EntityOwnershipService entityOwnershipService;
 
+    @Inject
     public HwvtepTerminationPointListener(DataBroker broker, ElanUtils elanUtils,
                                           EntityOwnershipService entityOwnershipService) {
         super(TerminationPoint.class, HwvtepTerminationPointListener.class);
@@ -93,6 +98,7 @@ public class HwvtepTerminationPointListener
     }
 
     @Override
+    @PreDestroy
     @SuppressWarnings("checkstyle:IllegalCatch")
     public void close() throws Exception {
         if (lstnerRegistration != null) {

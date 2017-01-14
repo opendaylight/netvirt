@@ -7,6 +7,9 @@
  */
 package org.opendaylight.netvirt.elan.internal;
 
+import javax.annotation.PostConstruct;
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.ClusteredDataChangeListener;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.clustering.EntityOwnershipService;
@@ -24,6 +27,7 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+@Singleton
 public class ElanInterfaceStateClusteredListener extends
     AsyncClusteredDataChangeListenerBase<Interface, ElanInterfaceStateClusteredListener> implements AutoCloseable {
 
@@ -34,6 +38,7 @@ public class ElanInterfaceStateClusteredListener extends
     private final ElanUtils elanUtils;
     private final EntityOwnershipService entityOwnershipService;
 
+    @Inject
     public ElanInterfaceStateClusteredListener(DataBroker broker, ElanInterfaceManager elanInterfaceManager,
                                                ElanUtils elanUtils, EntityOwnershipService entityOwnershipService) {
         super(Interface.class, ElanInterfaceStateClusteredListener.class);
@@ -43,6 +48,7 @@ public class ElanInterfaceStateClusteredListener extends
         this.entityOwnershipService = entityOwnershipService;
     }
 
+    @PostConstruct
     public void init() {
         registerListener(LogicalDatastoreType.OPERATIONAL, broker);
     }
