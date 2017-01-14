@@ -11,6 +11,8 @@ import com.google.common.util.concurrent.ListenableFuture;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Callable;
+import javax.annotation.PostConstruct;
+import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
@@ -26,9 +28,12 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+@Singleton
 public class ElanLearntVpnVipToPortListener extends
         AsyncDataTreeChangeListenerBase<LearntVpnVipToPort, ElanLearntVpnVipToPortListener> {
+
     private static final Logger LOG = LoggerFactory.getLogger(ElanLearntVpnVipToPortListener.class);
+
     private final DataBroker broker;
     private final IInterfaceManager interfaceManager;
     private final ElanUtils elanUtils;
@@ -41,14 +46,9 @@ public class ElanLearntVpnVipToPortListener extends
     }
 
     @Override
+    @PostConstruct
     public void init() {
         registerListener(LogicalDatastoreType.OPERATIONAL, broker);
-    }
-
-    @Override
-    public void close() {
-        super.close();
-        LOG.debug("ElanLearntVpnPortIpToPort Listener Closed");
     }
 
     @Override
@@ -141,6 +141,5 @@ public class ElanLearntVpnVipToPortListener extends
     private String buildJobKey(String mac, String interfaceName) {
         return "ENTERPRISEMACJOB" + mac + interfaceName;
     }
-
 
 }

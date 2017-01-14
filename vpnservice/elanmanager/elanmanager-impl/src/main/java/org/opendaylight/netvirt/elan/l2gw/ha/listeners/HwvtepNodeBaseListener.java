@@ -11,6 +11,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
+import javax.annotation.PreDestroy;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.DataObjectModification;
 import org.opendaylight.controller.md.sal.binding.api.DataTreeChangeListener;
@@ -20,7 +21,6 @@ import org.opendaylight.controller.md.sal.binding.api.ReadWriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
 import org.opendaylight.genius.datastoreutils.TaskRetryLooper;
-import org.opendaylight.genius.utils.hwvtep.HwvtepHACache;
 import org.opendaylight.genius.utils.hwvtep.HwvtepSouthboundConstants;
 import org.opendaylight.netvirt.elan.l2gw.ha.HwvtepHAUtil;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.NetworkTopology;
@@ -33,23 +33,17 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public abstract class HwvtepNodeBaseListener implements DataTreeChangeListener<Node>, AutoCloseable {
+    private static final Logger LOG = LoggerFactory.getLogger(HwvtepNodeBaseListener.class);
 
-    public static final Logger LOG = LoggerFactory.getLogger(HwvtepNodeBaseListener.class);
     private static final int STARTUP_LOOP_TICK = 500;
     private static final int STARTUP_LOOP_MAX_RETRIES = 8;
 
-    static HwvtepHACache hwvtepHACache = HwvtepHACache.getInstance();
+    private final ListenerRegistration<HwvtepNodeBaseListener> registration;
+    private final DataBroker db;
 
-    private ListenerRegistration<HwvtepNodeBaseListener> registration;
-    DataBroker db;
-
-    public HwvtepNodeBaseListener(LogicalDatastoreType datastoreType, DataBroker dataBroker) throws Exception {
+    protected HwvtepNodeBaseListener(LogicalDatastoreType datastoreType, DataBroker dataBroker) throws Exception {
         db = dataBroker;
-        registerListener(datastoreType, db);
-    }
-
-    public void registerListener(LogicalDatastoreType dsType, final DataBroker db) throws Exception {
-        final DataTreeIdentifier<Node> treeId = new DataTreeIdentifier<>(dsType, getWildcardPath());
+        final DataTreeIdentifier<Node> treeId = new DataTreeIdentifier<>(datastoreType, getWildcardPath());
         TaskRetryLooper looper = new TaskRetryLooper(STARTUP_LOOP_TICK, STARTUP_LOOP_MAX_RETRIES);
         registration = looper.loopUntilNoException(() ->
                 db.registerDataTreeChangeListener(treeId, HwvtepNodeBaseListener.this));
@@ -147,6 +141,7 @@ public abstract class HwvtepNodeBaseListener implements DataTreeChangeListener<N
     }
 
     @Override
+    @PreDestroy
     public void close() throws Exception {
         if (registration != null) {
             registration.close();
@@ -164,26 +159,21 @@ public abstract class HwvtepNodeBaseListener implements DataTreeChangeListener<N
 
     void onPsNodeDelete(InstanceIdentifier<Node> key, Node addedPSNode, ReadWriteTransaction tx)
             throws ReadFailedException {
-
     }
 
     void onGlobalNodeAdd(InstanceIdentifier<Node> key, Node added, ReadWriteTransaction tx) {
-
     }
 
     void onPsNodeAdd(InstanceIdentifier<Node> key, Node addedPSNode, ReadWriteTransaction tx)
             throws ReadFailedException, InterruptedException, ExecutionException {
-
     }
 
     void onGlobalNodeUpdate(InstanceIdentifier<Node> key, Node updated, Node original, ReadWriteTransaction tx)
             throws ReadFailedException, InterruptedException, ExecutionException {
-
     }
 
     void onPsNodeUpdate(InstanceIdentifier<Node> key, Node updated, Node original, ReadWriteTransaction tx)
             throws ReadFailedException, InterruptedException, ExecutionException {
-
     }
 
 }

@@ -9,6 +9,8 @@ package org.opendaylight.netvirt.elan.l2gw.ha.listeners;
 
 import com.google.common.base.Strings;
 import java.util.List;
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.ClusteredDataTreeChangeListener;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.ReadWriteTransaction;
@@ -18,18 +20,17 @@ import org.opendaylight.netvirt.elan.l2gw.ha.HwvtepHAUtil;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.HwvtepGlobalAugmentation;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.hwvtep.global.attributes.Managers;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Node;
-import org.opendaylight.yangtools.concepts.ListenerRegistration;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+@Singleton
 public class HAOpClusteredListener extends HwvtepNodeBaseListener implements ClusteredDataTreeChangeListener<Node> {
     private static final Logger LOG = LoggerFactory.getLogger(HAOpClusteredListener.class);
 
-    static HwvtepHACache hwvtepHACache = HwvtepHACache.getInstance();
-    private static DataBroker dataBroker;
-    private ListenerRegistration<HAOpClusteredListener> registration;
+    private final HwvtepHACache hwvtepHACache = HwvtepHACache.getInstance();
 
+    @Inject
     public HAOpClusteredListener(DataBroker db) throws Exception {
         super(LogicalDatastoreType.OPERATIONAL, db);
         LOG.info("Registering HAOpClusteredListener");
@@ -56,7 +57,7 @@ public class HAOpClusteredListener extends HwvtepNodeBaseListener implements Clu
         hwvtepHACache.updateConnectedNodeStatus(key);
     }
 
-    public static void addToCacheIfHAChildNode(InstanceIdentifier<Node> childPath, Node childNode) {
+    public void addToCacheIfHAChildNode(InstanceIdentifier<Node> childPath, Node childNode) {
         String haId = HwvtepHAUtil.getHAIdFromManagerOtherConfig(childNode);
         if (!Strings.isNullOrEmpty(haId)) {
             InstanceIdentifier<Node> parentId = HwvtepHAUtil.createInstanceIdentifierFromHAId(haId);
@@ -99,7 +100,7 @@ public class HAOpClusteredListener extends HwvtepNodeBaseListener implements Clu
      * @param beforeChildNode non-ha node before updated to HA node
      * @param tx Transaction
      */
-    public static void addToHACacheIfBecameHAChild(InstanceIdentifier<Node> childPath,
+    public void addToHACacheIfBecameHAChild(InstanceIdentifier<Node> childPath,
                                                    Node updatedChildNode,
                                                    Node beforeChildNode,
                                                    ReadWriteTransaction tx) {
