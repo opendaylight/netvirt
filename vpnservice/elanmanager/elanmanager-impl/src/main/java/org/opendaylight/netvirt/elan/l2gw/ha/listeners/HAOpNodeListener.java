@@ -20,6 +20,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
+import javax.annotation.PreDestroy;
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.DataTreeChangeListener;
 import org.opendaylight.controller.md.sal.binding.api.ReadWriteTransaction;
@@ -45,19 +48,32 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class HAOpNodeListener extends HwvtepNodeBaseListener implements DataTreeChangeListener<Node>, AutoCloseable {
+@Singleton
+public class HAOpNodeListener extends HwvtepNodeBaseListener implements DataTreeChangeListener<Node> {
+    private static final Logger LOG = LoggerFactory.getLogger(HAOpNodeListener.class);
 
-    public static final Logger LOG = LoggerFactory.getLogger(HAOpNodeListener.class);
-
-    static HwvtepHACache hwvtepHACache = HwvtepHACache.getInstance();
+    private final HwvtepHACache hwvtepHACache = HwvtepHACache.getInstance();
 
     private final IHAEventHandler haEventHandler;
+    private final HAOpClusteredListener haOpClusteredListener;
+    private final ManagerListener managerListener;
+    private final DataBroker dataBroker;
 
     private final Map<String, Boolean> availableGlobalNodes = new HashMap<>();
     private final Map<String, Boolean> availablePsNodes = new HashMap<>();
-    private ManagerListener managerListener;
 
-    void clearNodeAvailability(InstanceIdentifier<Node> key) {
+    @Inject
+    public HAOpNodeListener(DataBroker db, HAEventHandler haEventHandler, HAOpClusteredListener haOpClusteredListener)
+            throws Exception {
+        super(OPERATIONAL, db);
+        this.dataBroker = db;
+        this.haEventHandler = haEventHandler;
+        this.haOpClusteredListener = haOpClusteredListener;
+        this.managerListener = new ManagerListener(Managers.class, ManagerListener.class);
+        LOG.info("Registering HwvtepDataChangeListener for operational nodes");
+    }
+
+    private void clearNodeAvailability(InstanceIdentifier<Node> key) {
         String id = key.firstKeyOf(Node.class).getNodeId().getValue();
         String psId = null;
         String globalId = null;
@@ -72,7 +88,7 @@ public class HAOpNodeListener extends HwvtepNodeBaseListener implements DataTree
         }
     }
 
-    void updateNodeAvailability(InstanceIdentifier<Node> key) {
+    private void updateNodeAvailability(InstanceIdentifier<Node> key) {
         String id = key.firstKeyOf(Node.class).getNodeId().getValue();
         String psId = null;
         String globalId = null;
@@ -87,7 +103,7 @@ public class HAOpNodeListener extends HwvtepNodeBaseListener implements DataTree
         }
     }
 
-    boolean areBothGlobalAndPsNodeAvailable(InstanceIdentifier<Node> key) {
+    private boolean areBothGlobalAndPsNodeAvailable(InstanceIdentifier<Node> key) {
         String id = key.firstKeyOf(Node.class).getNodeId().getValue();
         String globalId;
 
@@ -99,14 +115,8 @@ public class HAOpNodeListener extends HwvtepNodeBaseListener implements DataTree
         return availableGlobalNodes.containsKey(globalId) && availablePsNodes.containsKey(globalId);
     }
 
-    public HAOpNodeListener(DataBroker db, HAEventHandler haEventHandler) throws Exception {
-        super(OPERATIONAL, db);
-        this.haEventHandler = haEventHandler;
-        this.managerListener = new ManagerListener(Managers.class, ManagerListener.class);
-        LOG.info("Registering HwvtepDataChangeListener for operational nodes");
-    }
-
     @Override
+    @PreDestroy
     public void close() throws Exception {
         super.close();
         if (managerListener != null) {
@@ -120,7 +130,7 @@ public class HAOpNodeListener extends HwvtepNodeBaseListener implements DataTree
                          ReadWriteTransaction tx) {
         LOG.trace("Node connected {} - Checking if Ha or Non-Ha enabled ", childNode.getNodeId().getValue());
         //update cache
-        HAOpClusteredListener.addToCacheIfHAChildNode(childPath, childNode);
+        haOpClusteredListener.addToCacheIfHAChildNode(childPath, childNode);
         if (!hwvtepHACache.isHAEnabledDevice(childPath)) {
             LOG.trace("Non ha node connected {}", childNode.getNodeId().getValue());
             return;
@@ -178,7 +188,7 @@ public class HAOpNodeListener extends HwvtepNodeBaseListener implements DataTree
             return;//TODO handle unha case
         }
 
-        HAOpClusteredListener.addToHACacheIfBecameHAChild(childPath, updatedChildNode, originalChildNode, tx);
+        haOpClusteredListener.addToHACacheIfBecameHAChild(childPath, updatedChildNode, originalChildNode, tx);
         boolean becameHAChild = hwvtepHACache.isHAEnabledDevice(childPath);
         if (becameHAChild) {
             hwvtepHACache.updateConnectedNodeStatus(childPath);
@@ -263,7 +273,7 @@ public class HAOpNodeListener extends HwvtepNodeBaseListener implements DataTree
         });
     }
 
-    void handleNodeConnected(final InstanceIdentifier<Node> childPath,
+    private void handleNodeConnected(final InstanceIdentifier<Node> childPath,
                              final Node childNode,
                              final InstanceIdentifier<Node> haNodePath) {
         HAJobScheduler.getInstance().submitJob(() -> {
@@ -279,7 +289,7 @@ public class HAOpNodeListener extends HwvtepNodeBaseListener implements DataTree
         });
     }
 
-    void handleNodeReConnected(final InstanceIdentifier<Node> childPath,
+    private void handleNodeReConnected(final InstanceIdentifier<Node> childPath,
                                final Node childNode,
                                final InstanceIdentifier<Node> haNodePath,
                                final Optional<Node> haGlobalCfg,
@@ -305,7 +315,7 @@ public class HAOpNodeListener extends HwvtepNodeBaseListener implements DataTree
 
         ManagerListener(Class<Managers> clazz, Class<ManagerListener> eventClazz) {
             super(clazz, eventClazz);
-            registerListener(LogicalDatastoreType.OPERATIONAL, db);
+            registerListener(LogicalDatastoreType.OPERATIONAL, dataBroker);
         }
 
         @Override
@@ -339,10 +349,10 @@ public class HAOpNodeListener extends HwvtepNodeBaseListener implements DataTree
                 String newHAID = getHaId(newData);
                 if (!Strings.isNullOrEmpty(newHAID)) {
                     InstanceIdentifier<Node> nodeIid = instanceIdentifier.firstIdentifierOf(Node.class);
-                    ReadWriteTransaction tx = db.newReadWriteTransaction();
+                    ReadWriteTransaction tx = dataBroker.newReadWriteTransaction();
                     try {
                         Node node = tx.read(LogicalDatastoreType.OPERATIONAL, nodeIid).checkedGet().get();
-                        HAOpClusteredListener.addToCacheIfHAChildNode(nodeIid, node);
+                        haOpClusteredListener.addToCacheIfHAChildNode(nodeIid, node);
                         HAJobScheduler.getInstance().submitJob(() -> {
                             onGlobalNodeAdd(nodeIid, node, tx);
                         });

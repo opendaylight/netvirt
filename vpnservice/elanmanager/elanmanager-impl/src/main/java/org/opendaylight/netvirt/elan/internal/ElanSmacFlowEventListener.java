@@ -12,6 +12,8 @@ import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 import java.math.BigInteger;
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
@@ -35,6 +37,7 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+@Singleton
 @SuppressWarnings("deprecation")
 public class ElanSmacFlowEventListener implements SalFlowListener {
 
@@ -44,6 +47,7 @@ public class ElanSmacFlowEventListener implements SalFlowListener {
     private final IInterfaceManager interfaceManager;
     private final ElanUtils elanUtils;
 
+    @Inject
     public ElanSmacFlowEventListener(DataBroker broker, IInterfaceManager interfaceManager, ElanUtils elanUtils) {
         this.broker = broker;
         this.interfaceManager = interfaceManager;
@@ -52,8 +56,6 @@ public class ElanSmacFlowEventListener implements SalFlowListener {
 
     @Override
     public void onFlowAdded(FlowAdded arg0) {
-        // TODO Auto-generated method stub
-
     }
 
     @Override
@@ -132,26 +134,18 @@ public class ElanSmacFlowEventListener implements SalFlowListener {
 
     @Override
     public void onFlowUpdated(FlowUpdated arg0) {
-        // TODO Auto-generated method stub
-
     }
 
     @Override
     public void onNodeErrorNotification(NodeErrorNotification arg0) {
-        // TODO Auto-generated method stub
-
     }
 
     @Override
     public void onNodeExperimenterErrorNotification(NodeExperimenterErrorNotification arg0) {
-        // TODO Auto-generated method stub
-
     }
 
     @Override
     public void onSwitchFlowRemoved(SwitchFlowRemoved switchFlowRemoved) {
-
     }
-
 
 }

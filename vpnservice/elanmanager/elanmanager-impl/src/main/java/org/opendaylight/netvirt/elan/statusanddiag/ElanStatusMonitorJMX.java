@@ -8,14 +8,16 @@
 package org.opendaylight.netvirt.elan.statusanddiag;
 
 import java.lang.management.ManagementFactory;
-
+import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
+import javax.inject.Singleton;
 import javax.management.JMException;
 import javax.management.MBeanServer;
 import javax.management.ObjectName;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+@Singleton
 public class ElanStatusMonitorJMX implements ElanStatusMonitor, ElanStatusMonitorMBean {
 
     private String serviceStatus;
@@ -23,6 +25,7 @@ public class ElanStatusMonitorJMX implements ElanStatusMonitor, ElanStatusMonito
     private static final Logger LOG = LoggerFactory.getLogger(ElanStatusMonitorJMX.class);
     private static final MBeanServer MBS = ManagementFactory.getPlatformMBeanServer();
 
+    @PostConstruct
     public void init() throws Exception {
         registerMbean();
     }
@@ -33,6 +36,7 @@ public class ElanStatusMonitorJMX implements ElanStatusMonitor, ElanStatusMonito
         LOG.info("ElanStatusMonitor MXBean successfully registered {}", JMX_ELAN_OBJ_NAME);
     }
 
+    @PreDestroy
     public void close() {
         try {
             ObjectName objName = new ObjectName(JMX_ELAN_OBJ_NAME);

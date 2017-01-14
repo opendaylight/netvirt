@@ -11,6 +11,8 @@ import static org.opendaylight.controller.md.sal.common.api.data.LogicalDatastor
 
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.ReadWriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
@@ -25,14 +27,16 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+@Singleton
 public class HAConfigNodeListener extends HwvtepNodeBaseListener {
     private static final Logger LOG = LoggerFactory.getLogger(HAConfigNodeListener.class);
 
-    static HwvtepHACache hwvtepHACache = HwvtepHACache.getInstance();
+    private final HwvtepHACache hwvtepHACache = HwvtepHACache.getInstance();
 
-    IHAEventHandler haEventHandler;
-    ConfigNodeUpdatedHandler configNodeUpdatedHandler = new ConfigNodeUpdatedHandler();
+    private final IHAEventHandler haEventHandler;
+    private final ConfigNodeUpdatedHandler configNodeUpdatedHandler = new ConfigNodeUpdatedHandler();
 
+    @Inject
     public HAConfigNodeListener(DataBroker db, HAEventHandler haEventHandler) throws Exception {
         super(LogicalDatastoreType.CONFIGURATION, db);
         this.haEventHandler = haEventHandler;

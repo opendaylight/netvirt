@@ -17,6 +17,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import javax.inject.Inject;
+import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
 import org.opendaylight.ovsdb.utils.config.ConfigProperties;
@@ -35,6 +36,7 @@ import org.slf4j.LoggerFactory;
  * Note and TODO: br-ex is temporary. vpnservice does not require it but for the time being it is
  * left here because devstack expects it.
  */
+@Singleton
 public class ElanBridgeManager {
     private static final Logger LOG = LoggerFactory.getLogger(ElanBridgeManager.class);
 
