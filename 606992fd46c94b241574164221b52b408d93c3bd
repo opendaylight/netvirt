@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1a622d24_fabb940c",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 472,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2017-01-15T07:38:02Z",
+      "side": 1,
+      "message": "evaluate RouteOrigin once\nAlso this will be better understood if moved to util method",
+      "revId": "606992fd46c94b241574164221b52b408d93c3bd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
