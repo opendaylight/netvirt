@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "1a622d24_dab85813",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 1823,
+      "author": {
+        "id": 6365
+      },
+      "writtenOn": "2017-01-15T07:19:18Z",
+      "side": 1,
+      "message": "It is no longer in use. Removed",
+      "parentUuid": "1a622d24_fceb99d9",
+      "range": {
+        "startLine": 1823,
+        "startChar": 17,
+        "endLine": 1823,
+        "endChar": 40
+      },
+      "revId": "97b5470cd339f2b421ad956ac1e68a36e07f2846",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_5cbc4ddc",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
         "patchSetId": 11
