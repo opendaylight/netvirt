@@ -49,6 +49,30 @@
     },
     {
       "key": {
+        "uuid": "1a622d24_da1a18c5",
+        "filename": "docs/specs/hairpinning-flat-vlan.rst",
+        "patchSetId": 10
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 4534
+      },
+      "writtenOn": "2017-01-15T16:20:22Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1a622d24_a53e458a",
+      "range": {
+        "startLine": 11,
+        "startChar": 74,
+        "endLine": 11,
+        "endChar": 75
+      },
+      "revId": "0309aed7bbe4b3993af2d0df5958f399baac7246",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_17af742b",
         "filename": "docs/specs/hairpinning-flat-vlan.rst",
         "patchSetId": 10
@@ -84,6 +108,30 @@
       "side": 1,
       "message": "Openstack model enables multiple subnets in single external network and this info must be preserved in the pipeline to access the specific ext gw associated with the subnet. Based on my (very little) understanding the internet vpn is mapped to a single external network so it can\u0027t be used to model multiple subnets.\nHowever, it would be possible to make the vpn transitions\next-net-vpn-id -\u003e subnet-vpn-id \u003e router-vpn-id and vice versa \napply also for the bgpvpn use case by setting the internet vpn to be both ext-net and subnet vpn-ids.\nDoes this make sense? this means GW MAC entries will have additional write_metadata action setting the same internet vpn id",
       "parentUuid": "1a622d24_17af742b",
+      "range": {
+        "startLine": 32,
+        "startChar": 72,
+        "endLine": 32,
+        "endChar": 73
+      },
+      "revId": "0309aed7bbe4b3993af2d0df5958f399baac7246",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_5a8608dc",
+        "filename": "docs/specs/hairpinning-flat-vlan.rst",
+        "patchSetId": 10
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 4534
+      },
+      "writtenOn": "2017-01-15T16:20:22Z",
+      "side": 1,
+      "message": "i understand why it would be needed for vlan provider only now. for bgpvpn based ext n/w, even if there are multiple subnets configured in the ext network, each prefix in that could be advertized with the correct next-hop by the external physical router in context of the internet vpn, so the fib lookup could natively support multiple subnets. however, multiple subnets in a network is not very well tested yet, overall.",
+      "parentUuid": "1a622d24_96bc1d08",
       "range": {
         "startLine": 32,
         "startChar": 72,
@@ -225,6 +273,30 @@
       "side": 1,
       "message": "There might be some confusion here because both SIP/DIP are marked as FIP. I changed it to src-fip/dst-fip\nThe FIB entry is there because each FIP has an associated VRF entry. It creates RNH entries based on the provider network type so for vlan/flat the RNH actions are set-dst + outout to provider-port. \nThis semantics is completely identical to vxlan in logic. The only differences are the type of actions and traversal through egress in the vlan provider case",
       "parentUuid": "1a622d24_7d9de765",
+      "range": {
+        "startLine": 161,
+        "startChar": 59,
+        "endLine": 161,
+        "endChar": 60
+      },
+      "revId": "0309aed7bbe4b3993af2d0df5958f399baac7246",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_ba6e3c2d",
+        "filename": "docs/specs/hairpinning-flat-vlan.rst",
+        "patchSetId": 10
+      },
+      "lineNbr": 161,
+      "author": {
+        "id": 4534
+      },
+      "writtenOn": "2017-01-15T16:20:22Z",
+      "side": 1,
+      "message": "ok, got it. my previous assumption was snat-FIP for this workflow",
+      "parentUuid": "1a622d24_4f431042",
       "range": {
         "startLine": 161,
         "startChar": 59,
