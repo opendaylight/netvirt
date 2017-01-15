@@ -16,6 +16,24 @@
       "revId": "017872995b785437687a5882623510b6b3a23354",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_bad2bcfd",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanInterfaceManager.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 728,
+      "author": {
+        "id": 5703
+      },
+      "writtenOn": "2017-01-15T10:43:07Z",
+      "side": 1,
+      "message": "I actually copied the logic from ElanPacketInHandler.\nSo what is the logic you suggest to do here instead?",
+      "parentUuid": "1a622d24_dc421d3d",
+      "revId": "017872995b785437687a5882623510b6b3a23354",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
