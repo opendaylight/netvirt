@@ -160,6 +160,30 @@
     },
     {
       "key": {
+        "uuid": "1a622d24_da521834",
+        "filename": "docs/specs/ipv6-distributed-router.rst",
+        "patchSetId": 1
+      },
+      "lineNbr": 48,
+      "author": {
+        "id": 6773
+      },
+      "writtenOn": "2017-01-15T16:03:24Z",
+      "side": 1,
+      "message": "Regarding the reference to ipv6-router-and-dvr.rst, as you noted this was never implemented (and it is from Kilo) since I believe it was flawed. IMHO, the right way to implement using GUA subnets is to publish them with routing protocols as is already implemented: See http://docs.openstack.org/newton/networking-guide/config-bgp-dynamic-routing.html. This reference also mentions the issues of DVR, IPv4 and IPv6. The key is that it doesn\u0027t break any IP network model. If you allow the same IP to be \"floating\" as well as configured on a VM you are effectively creating the same IP subnet on two separate L2 segments. This will certainly create anomalies later on. The issue of CVR versus DVR can be solved if we advertise a next hop address per compute hosts for every full (IPv4/32 or IPv6/128) address belonging to a VM. These routes need not be distributed beyond the local DC as they can be aggregated by the DCGW.",
+      "parentUuid": "1a622d24_493e4cdb",
+      "range": {
+        "startLine": 47,
+        "startChar": 28,
+        "endLine": 48,
+        "endChar": 29
+      },
+      "revId": "976d7bbd2030e84f67b3b82780adbe501390d954",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_ad8bba66",
         "filename": "docs/specs/ipv6-distributed-router.rst",
         "patchSetId": 1
