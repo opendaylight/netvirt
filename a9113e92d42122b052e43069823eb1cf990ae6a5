@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1a622d24_5a3e08db",
+        "filename": "docs/specs/hairpinning-flat-vlan.rst",
+        "patchSetId": 13
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 4534
+      },
+      "writtenOn": "2017-01-15T16:20:22Z",
+      "side": 1,
+      "message": "are there corresponding changes in the arp resolver for router-gw mac? will there be multiple such entries for each subnet, that will be keyed by subnet id?",
+      "range": {
+        "startLine": 21,
+        "startChar": 74,
+        "endLine": 21,
+        "endChar": 75
+      },
+      "revId": "a9113e92d42122b052e43069823eb1cf990ae6a5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_7a3944f1",
+        "filename": "docs/specs/hairpinning-flat-vlan.rst",
+        "patchSetId": 13
+      },
+      "lineNbr": 129,
+      "author": {
+        "id": 4534
+      },
+      "writtenOn": "2017-01-15T16:20:22Z",
+      "side": 1,
+      "message": "as asked above, will there be a separate router-gw mac per external subnet to help figure out the correct subnet id here?",
+      "range": {
+        "startLine": 129,
+        "startChar": 66,
+        "endLine": 129,
+        "endChar": 69
+      },
+      "revId": "a9113e92d42122b052e43069823eb1cf990ae6a5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_7a102459",
+        "filename": "docs/specs/hairpinning-flat-vlan.rst",
+        "patchSetId": 13
+      },
+      "lineNbr": 325,
+      "author": {
+        "id": 4534
+      },
+      "writtenOn": "2017-01-15T16:20:22Z",
+      "side": 1,
+      "message": "is same router, with 2 interfaces, one each to subnet1 and subnet2 a supported usecase? should add a test for this scenario as well.",
+      "range": {
+        "startLine": 325,
+        "startChar": 23,
+        "endLine": 325,
+        "endChar": 30
+      },
+      "revId": "a9113e92d42122b052e43069823eb1cf990ae6a5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
