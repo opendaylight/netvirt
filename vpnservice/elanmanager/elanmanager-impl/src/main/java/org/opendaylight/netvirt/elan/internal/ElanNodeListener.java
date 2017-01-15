@@ -25,13 +25,16 @@ import org.opendaylight.genius.mdsalutil.MatchInfoBase;
 import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.genius.mdsalutil.NxMatchFieldType;
 import org.opendaylight.genius.mdsalutil.NxMatchInfo;
+import org.opendaylight.genius.mdsalutil.actions.ActionDrop;
 import org.opendaylight.genius.mdsalutil.actions.ActionLearn;
 import org.opendaylight.genius.mdsalutil.actions.ActionNxResubmit;
 import org.opendaylight.genius.mdsalutil.actions.ActionPuntToController;
 import org.opendaylight.genius.mdsalutil.instructions.InstructionApplyActions;
 import org.opendaylight.genius.mdsalutil.instructions.InstructionGotoTable;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
+import org.opendaylight.genius.mdsalutil.matches.MatchEthernetDestination;
 import org.opendaylight.netvirt.elan.utils.ElanConstants;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.MacAddress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.Nodes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.Node;
@@ -83,13 +86,14 @@ public class ElanNodeListener extends AbstractDataChangeListener<Node> implement
     @Override
     protected void add(InstanceIdentifier<Node> identifier, Node add) {
         NodeId nodeId = add.getId();
-        String[] node =  nodeId.getValue().split(":");
+        String[] node = nodeId.getValue().split(":");
         if (node.length < 2) {
             LOG.warn("Unexpected nodeId {}", nodeId.getValue());
             return;
         }
         BigInteger dpId = new BigInteger(node[1]);
         createTableMissEntry(dpId);
+        createMulticastFlows(dpId);
     }
 
     public void createTableMissEntry(BigInteger dpnId) {
@@ -162,7 +166,36 @@ public class ElanNodeListener extends AbstractDataChangeListener<Node> implement
         FlowEntity flowEntity = MDSALUtil.buildFlowEntity(dpId, NwConstants.ELAN_DMAC_TABLE,
                 getTableMissFlowRef(NwConstants.ELAN_DMAC_TABLE), 0, "ELAN dMac Table Miss Flow", 0, 0,
                 ElanConstants.COOKIE_ELAN_KNOWN_DMAC, mkMatches, mkInstructions);
+
         mdsalManager.installFlow(flowEntity);
+    }
+
+    private void createMulticastFlows(BigInteger dpId) {
+        createL2ControlProtocolDropFlows(dpId);
+    }
+
+    private void createL2ControlProtocolDropFlows(BigInteger dpId) {
+        List<MatchInfo> mkMatches = new ArrayList<>();
+        String dstMac = ElanConstants.L2_CONTROL_PACKETS_DMAC;
+        String dstMacMask = ElanConstants.L2_CONTROL_PACKETS_DMAC_MASK;
+        MatchEthernetDestination matchEthDst = new MatchEthernetDestination(
+                new MacAddress(dstMac),
+                new MacAddress(dstMacMask));
+
+        mkMatches.add(matchEthDst);
+
+        List<ActionInfo> listActionInfo = new ArrayList<>();
+        listActionInfo.add(new ActionDrop());
+
+        List<InstructionInfo> mkInstructions = new ArrayList<>();
+        mkInstructions.add(new InstructionApplyActions(listActionInfo));
+
+        String flowId = dpId.toString() + NwConstants.ELAN_DMAC_TABLE + "l2control" + dstMac + dstMacMask;
+        FlowEntity flow = MDSALUtil.buildFlowEntity(dpId, NwConstants.ELAN_DMAC_TABLE,
+                flowId, 15, "L2 control packets dMac Table Flow", 0, 0,
+                ElanConstants.COOKIE_ELAN_KNOWN_DMAC, mkMatches, mkInstructions);
+
+        mdsalManager.installFlow(flow);
     }
 
     private String getTableMissFlowRef(long tableId) {
