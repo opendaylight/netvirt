@@ -109,6 +109,24 @@
     },
     {
       "key": {
+        "uuid": "1a622d24_a27612a2",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 10
+      },
+      "lineNbr": 200,
+      "author": {
+        "id": 6365
+      },
+      "writtenOn": "2017-01-16T17:07:11Z",
+      "side": 1,
+      "message": "Maybe I\u0027m missing something, but I\u0027ll try to explain the race I\u0027m trying to solve here. suppose we have two threads, t1,t2 and the following sequence:\nt1. call isVpnInstanceReady() (returned false)\nt1. about to call addToUnprocessedVpnInterfaces() but contex-switched out.\nt2. call vpnInstanceIsReady()\nt2. call processSavedInterfaces() (finishes processing all saved interfaces)\nt1. execute addToUnprocessedVpnInterfaces()\n\nIn this scenario, no one will process that saved interface.\nIf I understand correctly, when locking addToUnprocessedVpnInterfaces and processSavedInterfaces methods as you advised, we are not protecting from the described race.",
+      "parentUuid": "1a622d24_7f1931d6",
+      "revId": "16e8be1153da4b6952281219614bb95799137c9f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_3f1b39cb",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
         "patchSetId": 10
