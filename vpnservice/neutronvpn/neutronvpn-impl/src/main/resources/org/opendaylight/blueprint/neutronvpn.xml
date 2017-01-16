@@ -183,6 +183,12 @@
     <argument ref="neutronvpnManager" />
   </bean>
 
+  <bean id="NeutronTrunkChangeListener"
+        class="org.opendaylight.netvirt.neutronvpn.NeutronTrunkChangeListener"
+        init-method="start" destroy-method="close">
+    <argument ref="dataBroker" />
+  </bean>
+
   <service ref="neutronvpnManagerImpl" odl:type="default"
            interface="org.opendaylight.netvirt.neutronvpn.interfaces.INeutronVpnManager" />
 </blueprint>

@@ -51,6 +51,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.por
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.ports.attributes.ports.Port;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.qos.ext.rev160613.QosPortExtension;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.rev150712.Neutron;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.trunks.rev170118.trunk.attributes.SubPorts;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -209,6 +210,8 @@ public class NeutronPortChangeListener extends AsyncDataTreeChangeListenerBase<P
                             interfaceBuilder.addAugmentation(ParentRefs.class,
                                 getParentRefsBuilder(update).build());
                         }
+                        // Add trunk information if applicable
+                        NeutronvpnUtils.addTrunkInformation(interfaceBuilder, update);
                         if (origSecurityEnabled || updatedSecurityEnabled) {
                             InterfaceAcl infAcl = handlePortSecurityUpdated(original, update,
                                     origSecurityEnabled, updatedSecurityEnabled, interfaceBuilder).build();
@@ -562,6 +565,10 @@ public class NeutronPortChangeListener extends AsyncDataTreeChangeListenerBase<P
 
     private ParentRefsBuilder getParentRefsBuilder(Port update) {
         String parentRefName = NeutronvpnUtils.getVifPortName(update);
+        SubPorts subPort = NeutronvpnUtils.getSubPortForNeutronPort(update);
+        if(subPort != null) {
+            parentRefName = NeutronvpnUtils.getParentPortId(subPort).getValue();
+        }
         if (parentRefName != null) {
             return new ParentRefsBuilder().setParentInterface(parentRefName);
         }
@@ -602,4 +609,5 @@ public class NeutronPortChangeListener extends AsyncDataTreeChangeListenerBase<P
                 floatingIpId.getValue(), floatingIpPortId.getValue(), e);
         }
     }
+
 }
