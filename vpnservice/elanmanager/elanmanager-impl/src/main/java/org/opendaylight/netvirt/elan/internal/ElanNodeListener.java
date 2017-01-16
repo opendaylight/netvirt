@@ -21,6 +21,7 @@ import org.opendaylight.genius.mdsalutil.FlowEntity;
 import org.opendaylight.genius.mdsalutil.InstructionInfo;
 import org.opendaylight.genius.mdsalutil.InstructionType;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
+import org.opendaylight.genius.mdsalutil.MatchFieldType;
 import org.opendaylight.genius.mdsalutil.MatchInfo;
 import org.opendaylight.genius.mdsalutil.MatchInfoBase;
 import org.opendaylight.genius.mdsalutil.NwConstants;
@@ -45,6 +46,7 @@ public class ElanNodeListener extends AbstractDataChangeListener<Node> implement
     private final DataBroker broker;
     private final IMdsalApiManager mdsalManager;
     private final int tempSmacLearnTimeout;
+    private final boolean puntLldpToController;
 
     private ListenerRegistration<DataChangeListener> listenerRegistration;
 
@@ -53,6 +55,7 @@ public class ElanNodeListener extends AbstractDataChangeListener<Node> implement
         this.broker = dataBroker;
         this.mdsalManager = mdsalManager;
         this.tempSmacLearnTimeout = elanConfig.getTempSmacLearnTimeout();
+        this.puntLldpToController = elanConfig.isPuntLldpToController();
     }
 
     public void init() {
@@ -86,11 +89,40 @@ public class ElanNodeListener extends AbstractDataChangeListener<Node> implement
         }
         BigInteger dpId = new BigInteger(node[1]);
         createTableMissEntry(dpId);
+
+        if (puntLldpToController) {
+            createLldpFlows(dpId);
+        }
     }
 
     public void createTableMissEntry(BigInteger dpnId) {
         setupTableMissSmacFlow(dpnId);
         setupTableMissDmacFlow(dpnId);
+    }
+
+    private void createLldpFlows(BigInteger dpId) {
+        createLldpFlow(dpId, ElanConstants.LLDP_DST_1);
+        createLldpFlow(dpId, ElanConstants.LLDP_DST_2);
+        createLldpFlow(dpId, ElanConstants.LLDP_DST_3);
+    }
+
+    private void createLldpFlow(BigInteger dpId, String dstMac) {
+        List<MatchInfo> mkMatches = new ArrayList<>();
+        mkMatches.add(new MatchInfo(MatchFieldType.eth_type, new long[] { ElanConstants.LLDP_ETH_TYPE }));
+        mkMatches.add(new MatchInfo(MatchFieldType.eth_dst, new String[] { dstMac } ));
+
+        List<ActionInfo> listActionInfo = new ArrayList<>();
+        listActionInfo.add(new ActionInfo(ActionType.punt_to_controller, new String[] {}));
+
+        List<InstructionInfo> mkInstructions = new ArrayList<>();
+        mkInstructions.add(new InstructionInfo(InstructionType.apply_actions, listActionInfo));
+
+        String flowId = dpId.toString() + NwConstants.ELAN_DMAC_TABLE + "lldp" + dstMac;
+        FlowEntity lldpFlow = MDSALUtil.buildFlowEntity(dpId, NwConstants.ELAN_DMAC_TABLE,
+                flowId, 16, "LLDP dMac Table Flow", 0, 0,
+                ElanConstants.COOKIE_ELAN_KNOWN_DMAC, mkMatches, mkInstructions);
+
+        mdsalManager.installFlow(lldpFlow);
     }
 
     private void setupTableMissSmacFlow(BigInteger dpId) {
