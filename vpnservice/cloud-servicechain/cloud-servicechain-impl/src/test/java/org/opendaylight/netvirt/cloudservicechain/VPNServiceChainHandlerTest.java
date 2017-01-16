@@ -38,6 +38,7 @@ import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
+import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
 import org.opendaylight.genius.mdsalutil.FlowEntity;
 import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
@@ -94,7 +95,7 @@ public class VPNServiceChainHandlerTest {
     @Mock WriteTransaction writeTx;
     @Mock IMdsalApiManager mdsalMgr;
     @Mock IVpnManager vpnManager;
-
+    @Mock IInterfaceManager ifaceMgr;
 
     @BeforeClass
     public static void setUpBeforeClass() throws Exception {
@@ -113,7 +114,7 @@ public class VPNServiceChainHandlerTest {
         when(writeTx.submit()).thenReturn(chkdFuture);
 
         // SUT
-        vpnsch = new VPNServiceChainHandler(broker, mdsalMgr, vpnManager);
+        vpnsch = new VPNServiceChainHandler(broker, mdsalMgr, vpnManager, ifaceMgr);
     }
 
     @After
