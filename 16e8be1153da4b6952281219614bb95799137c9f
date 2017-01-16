@@ -91,6 +91,41 @@
     },
     {
       "key": {
+        "uuid": "1a622d24_7f1931d6",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 10
+      },
+      "lineNbr": 200,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-01-16T16:08:19Z",
+      "side": 1,
+      "message": "add() is called serially and not parallely.  When an add() is in action, another add() will never land.\n\nI do notice that addVpnInterface() is stub code that spins off separate processing, but isVpnInstanceReady() is not touching the concurrentQueue at all.\n\nYou should lock only the critical section (Reading does not come under critical section since you are using a safe read structure concurrentqueue).\n\naddToUnprocessed() and processSavedInterfaces() will require locking though.\n\nAlso recommend locking per interface inside processSavedInterfaces() instead of bunch locking with a big while inside.",
+      "parentUuid": "1a622d24_9c653b20",
+      "revId": "16e8be1153da4b6952281219614bb95799137c9f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_3f1b39cb",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 10
+      },
+      "lineNbr": 951,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-01-16T16:08:19Z",
+      "side": 1,
+      "message": "regardless of the above if(), you may want to remove this interface from unprocessedList (if its there) and that requires locking :)",
+      "revId": "16e8be1153da4b6952281219614bb95799137c9f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_bc492133",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
         "patchSetId": 10
