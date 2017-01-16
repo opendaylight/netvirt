@@ -29,6 +29,7 @@ and is available at http://www.eclipse.org/legal/epl-v10.html INTERNAL
     <neutron.version>0.8.0-SNAPSHOT</neutron.version>
     <genius.version>0.2.0-SNAPSHOT</genius.version>
     <infrautils.version>1.1.0-SNAPSHOT</infrautils.version>
+    <statistics.plugin.version>0.1.3-SNAPSHOT</statistics.plugin.version>
     <arputil.version>${genius.version}</arputil.version>
     <mdsalutil.version>${genius.version}</mdsalutil.version>
     <vpnmanager.version>${vpnservices.version}</vpnmanager.version>
@@ -195,6 +196,16 @@ and is available at http://www.eclipse.org/legal/epl-v10.html INTERNAL
       <groupId>${project.groupId}</groupId>
       <artifactId>model-bgp</artifactId>
       <version>2013.07.15.10-SNAPSHOT</version>
+    </dependency>
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>statistics-plugin-api</artifactId>
+      <version>0.1.3-SNAPSHOT</version>
+    </dependency>
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>statistics-plugin-impl</artifactId>
+      <version>0.1.3-SNAPSHOT</version>
     </dependency>
     <dependency>
       <groupId>${project.groupId}</groupId>

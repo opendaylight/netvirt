@@ -1,0 +1,77 @@
+module statistics-plugin {
+    yang-version 1;
+    namespace "urn:opendaylight:netvirt:statistics:plugin";
+    prefix "statistics-plugin";
+
+    revision "2017-01-20" {
+        description "Initial revision of statistics-plugin model";
+    }
+
+    grouping result {
+        list counterResult {
+            key id;
+            leaf id {
+                type string;
+            }
+            list groups {
+                key name;
+                leaf name {
+                    type string;
+                }
+                list counters {
+                    key name;
+                    leaf name {
+                        type string;
+                    }
+                    leaf value {
+                        type uint64;
+                    }
+                }
+            }
+        }
+    }
+
+    grouping filters {
+        leaf-list groupFilters {
+            type string;
+        }
+        leaf-list counterFilter {
+            type string;
+        }
+    }
+
+    rpc getNodeConnectorCounters {
+        input {
+            leaf portId {
+                type string;
+            }
+            uses filters;
+        }
+        output {
+            uses result;
+        }
+    }
+
+    rpc getNodeCounters {
+        input {
+            leaf nodeId {
+                type uint64;
+            }
+        }
+        output {
+            uses result;
+        }
+    }
+
+    rpc getNodeAggregatedCounters {
+        input {
+            leaf nodeId {
+                type uint64;
+            }
+            uses filters;
+        }
+        output {
+            uses result;
+        }
+    }
+}
