@@ -16,6 +16,8 @@
            interface="org.opendaylight.netvirt.vpnmanager.api.IVpnManager" />
   <reference id="centralizedSwitchProvider"
            interface="org.opendaylight.netvirt.vpnmanager.api.ICentralizedSwitchProvider" />
+  <reference id="interfaceManager"
+    interface="org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager" />
 
   <odl:rpc-service id="idManagerService"
                    interface="org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.IdManagerService" />
@@ -178,6 +180,13 @@
         init-method="start" destroy-method="close">
     <argument ref="dataBroker" />
     <argument ref="neutronvpnManager" />
+  </bean>
+
+  <bean id="NeutronTrunkChangeListener"
+        class="org.opendaylight.netvirt.neutronvpn.NeutronTrunkChangeListener"
+        init-method="start" destroy-method="close">
+    <argument ref="dataBroker" />
+    <argument ref="interfaceManager" />
   </bean>
 
   <service ref="neutronvpnManagerImpl" odl:type="default"
