@@ -12,8 +12,11 @@ import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
+import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
 import org.opendaylight.genius.mdsalutil.ActionInfo;
 import org.opendaylight.genius.mdsalutil.FlowEntity;
 import org.opendaylight.genius.mdsalutil.InstructionInfo;
@@ -466,4 +469,32 @@ public class VpnServiceChainUtils {
                                  .append(CloudServiceChainConstants.DEFAULT_SCF_FLOW_PRIORITY).toString();
     }
 
+    public static List<String> getAllVpnIfaceNames(DataBroker dataBroker, String vpnName) {
+
+        String vpnRd = getVpnRd(dataBroker, vpnName);
+        InstanceIdentifier<VpnInstanceOpDataEntry> vpnOpDataIid =
+            InstanceIdentifier.builder(VpnInstanceOpData.class)
+                              .child(VpnInstanceOpDataEntry.class, new VpnInstanceOpDataEntryKey(vpnRd)).build();
+
+        try {
+            VpnInstanceOpDataEntry vpnOpData =
+                SingleTransactionDataBroker.syncRead(dataBroker, LogicalDatastoreType.OPERATIONAL, vpnOpDataIid);
+
+            if (vpnOpData == null) {
+                return Collections.emptyList();
+            }
+            List<VpnToDpnList> dpnToVpns = vpnOpData.getVpnToDpnList();
+            if (dpnToVpns == null) {
+                return Collections.emptyList();
+            }
+
+            return dpnToVpns.stream()
+                            .flatMap(dpn -> dpn.getVpnInterfaces().stream())
+                            .map(vpnIf -> vpnIf.getInterfaceName())
+                            .collect(Collectors.toList());
+        } catch (ReadFailedException e) {
+            LOG.warn("getAllVpnInterfaces for vpn {}: Failure on read operation", vpnName, e);
+            return Collections.emptyList();
+        }
+    }
 }
