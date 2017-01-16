@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1a622d24_5caba374",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 9
+      },
+      "lineNbr": 454,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-01-16T13:14:07Z",
+      "side": 1,
+      "message": "for route with prefix",
+      "revId": "c5141dd2b03a1803a2b9423ba0a559ce705aa6b7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_7cbdbfb6",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/intervpnlink/InterVpnLinkListener.java",
+        "patchSetId": 9
+      },
+      "lineNbr": 380,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-01-16T13:14:07Z",
+      "side": 1,
+      "message": "place this comment above the if ( vpnLink.isStaticRoutesLeaking()).",
+      "revId": "c5141dd2b03a1803a2b9423ba0a559ce705aa6b7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
