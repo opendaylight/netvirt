@@ -43,6 +43,7 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
     <bundle>mvn:org.opendaylight.netvirt/aclservice-api/{{VERSION}}</bundle>
     <bundle>mvn:org.opendaylight.netvirt/ipv6service-api/{{VERSION}}</bundle>
     <bundle>mvn:org.opendaylight.netvirt/elanmanager-api/{{VERSION}}</bundle>
+    <bundle>mvn:org.opendaylight.netvirt/statistics-api/{{VERSION}}</bundle>
     <bundle>mvn:org.opendaylight.netvirt/cloud-servicechain-api/{{VERSION}}</bundle>
   </feature>
 
@@ -73,6 +74,7 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
     <bundle>mvn:org.opendaylight.netvirt/ipv6service-impl/{{VERSION}}</bundle>
     <bundle>mvn:org.opendaylight.netvirt/ipv6service-api/{{VERSION}}</bundle>
     <bundle>mvn:org.opendaylight.netvirt/statemanager-impl/{{VERSION}}</bundle>
+    <bundle>mvn:org.opendaylight.netvirt/statistics-impl/{{VERSION}}</bundle>
     <bundle>mvn:org.opendaylight.ovsdb/utils.mdsal-utils/{{VERSION}}</bundle>
     <bundle>mvn:org.opendaylight.ovsdb/utils.southbound-utils/{{VERSION}}</bundle>
     <bundle>mvn:org.opendaylight.ovsdb/utils.mdsal-utils/{{VERSION}}</bundle>
