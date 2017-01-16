@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "1a622d24_359d1fbd",
+        "filename": "docs/specs/hairpinning-flat-vlan.rst",
+        "patchSetId": 13
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2017-01-16T16:49:48Z",
+      "side": 1,
+      "message": "No. ARP responder flows would not require any change since the ingress traffic classification for subnets occurs in he GW MAC table based on DMAC.\nARP requests are not classified by DMAC in the GW MAC table but by eth_type and sent directly to the group containing {punt_to_controller, resubmit_dispatcher, resubmit_arp_responder }\nSo the vpn-id matched in ARP responder flows for fip/gouter gw entries is based on either ext-net-id for flat/vlan or internet-vpn for bgpvpn use cases",
+      "parentUuid": "1a622d24_5a3e08db",
+      "range": {
+        "startLine": 21,
+        "startChar": 74,
+        "endLine": 21,
+        "endChar": 75
+      },
+      "revId": "a9113e92d42122b052e43069823eb1cf990ae6a5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_7a3944f1",
         "filename": "docs/specs/hairpinning-flat-vlan.rst",
         "patchSetId": 13
@@ -36,6 +60,30 @@
       "writtenOn": "2017-01-15T16:20:22Z",
       "side": 1,
       "message": "as asked above, will there be a separate router-gw mac per external subnet to help figure out the correct subnet id here?",
+      "range": {
+        "startLine": 129,
+        "startChar": 66,
+        "endLine": 129,
+        "endChar": 69
+      },
+      "revId": "a9113e92d42122b052e43069823eb1cf990ae6a5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_c20cee3d",
+        "filename": "docs/specs/hairpinning-flat-vlan.rst",
+        "patchSetId": 13
+      },
+      "lineNbr": 129,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2017-01-16T16:49:48Z",
+      "side": 1,
+      "message": "Actually no. I figured all fixed ips will be in the same subnet but now I see it\u0027s possible to configure several router-gw fixed ips in different external subnets\nSo to support this I would have to move the subnet vpn-id classification for the router-gw to the FIB entries matching the router-gw fixed ips. Does this make sense?",
+      "parentUuid": "1a622d24_7a3944f1",
       "range": {
         "startLine": 129,
         "startChar": 66,
