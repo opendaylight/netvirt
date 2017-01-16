@@ -1,0 +1,3 @@
+<elan-config xmlns="urn:opendaylight:netvirt:elan:config">
+  <punt-lldp-to-controller>false</punt-lldp-to-controller>
+</elan-config>
