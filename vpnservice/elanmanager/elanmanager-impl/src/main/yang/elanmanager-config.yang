@@ -42,5 +42,10 @@ module elan-config {
             type uint16;
             default 10;
         }
+        leaf punt-lldp-to-controller {
+            description "Determines whether LLDP are punt to controller or dropped";
+            type boolean;
+            default false;
+        }
     }
 }
