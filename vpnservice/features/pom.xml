@@ -40,6 +40,7 @@ and is available at http://www.eclipse.org/legal/epl-v10.html INTERNAL
     <idmanager.version>${genius.version}</idmanager.version>
     <itm.version>${genius.version}</itm.version>
     <neutronvpn.version>${vpnservices.version}</neutronvpn.version>
+    <statistics.plugin.version>${vpnservices.version}</statistics.plugin.version>
     <cloud-servicechain.version>${vpnservices.version}</cloud-servicechain.version>
     <configfile.directory>etc/opendaylight/karaf</configfile.directory>
     <dlux.version>0.5.0-SNAPSHOT</dlux.version>
@@ -189,7 +190,7 @@ and is available at http://www.eclipse.org/legal/epl-v10.html INTERNAL
       <version>${vpnmanager.version}</version>
     </dependency>
     <dependency>
-      <groupId>${project.groupId}</groupId>
+       <groupId>${project.groupId}</groupId>
       <artifactId>bgpmanager-impl</artifactId>
       <version>${vpnservices.version}</version>
     </dependency>
@@ -202,6 +203,16 @@ and is available at http://www.eclipse.org/legal/epl-v10.html INTERNAL
       <groupId>${project.groupId}</groupId>
       <artifactId>model-bgp</artifactId>
       <version>2013.07.15.10-SNAPSHOT</version>
+    </dependency>
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>statistics-plugin-api</artifactId>
+      <version>${vpnservices.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>statistics-plugin-impl</artifactId>
+      <version>${vpnservices.version}</version>
     </dependency>
     <dependency>
       <groupId>${project.groupId}</groupId>
