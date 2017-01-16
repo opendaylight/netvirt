@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.mdsalutil.ActionInfo;
@@ -34,6 +35,12 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.Fl
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.tables.table.Flow;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.tables.table.FlowBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.instruction.list.Instruction;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.servicebinding.rev160406.ServiceBindings;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.servicebinding.rev160406.ServiceModeIngress;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.servicebinding.rev160406.service.bindings.ServicesInfo;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.servicebinding.rev160406.service.bindings.ServicesInfoKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.servicebinding.rev160406.service.bindings.services.info.BoundServices;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.servicebinding.rev160406.service.bindings.services.info.BoundServicesKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.cloud.servicechain.state.rev170511.VpnToPseudoPortList;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.cloud.servicechain.state.rev170511.vpn.to.pseudo.port.list.VpnToPseudoPortData;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.cloud.servicechain.state.rev170511.vpn.to.pseudo.port.list.VpnToPseudoPortDataKey;
@@ -74,6 +81,12 @@ public class VpnServiceChainUtils {
                 .child(VpnInstanceOpDataEntry.class, new VpnInstanceOpDataEntryKey(rd)).build();
     }
 
+    public static InstanceIdentifier<BoundServices> buildBoundServicesIid(short servicePrio, String ifaceName) {
+        return InstanceIdentifier.builder(ServiceBindings.class)
+                                 .child(ServicesInfo.class, new ServicesInfoKey(ifaceName, ServiceModeIngress.class))
+                                 .child(BoundServices.class, new BoundServicesKey(servicePrio))
+                                 .build();
+    }
 
     /**
      * Retrieves from MDSAL the Operational Data of the VPN specified by its
@@ -474,4 +487,28 @@ public class VpnServiceChainUtils {
                                  .append(CloudServiceChainConstants.DEFAULT_SCF_FLOW_PRIORITY).toString();
     }
 
+    public static List<String> getAllVpnIfaceNames(DataBroker dataBroker, String vpnName) {
+
+        String vpnRd = getVpnRd(dataBroker, vpnName);
+        InstanceIdentifier<VpnInstanceOpDataEntry> vpnOpDataIid =
+            InstanceIdentifier.builder(VpnInstanceOpData.class)
+                              .child(VpnInstanceOpDataEntry.class, new VpnInstanceOpDataEntryKey(vpnRd)).build();
+
+        Optional<VpnInstanceOpDataEntry> optVpnOpData =
+            MDSALUtil.read(dataBroker, LogicalDatastoreType.OPERATIONAL, vpnOpDataIid);
+
+        if (!optVpnOpData.isPresent()) {
+            return Collections.emptyList();
+        }
+        List<VpnToDpnList> dpnToVpns = optVpnOpData.get().getVpnToDpnList();
+        if (dpnToVpns == null) {
+            return Collections.emptyList();
+        }
+
+        return dpnToVpns.stream()
+                        .filter(dpn -> dpn.getVpnInterfaces() != null)
+                        .flatMap(dpn -> dpn.getVpnInterfaces().stream())
+                        .map(vpnIf -> vpnIf.getInterfaceName())
+                        .collect(Collectors.toList());
+    }
 }

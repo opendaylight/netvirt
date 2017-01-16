@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 - 2016 Ericsson India Global Services Pvt Ltd. and others.  All rights reserved.
+ * Copyright (c) 2017 Ericsson India Global Services Pvt Ltd. and others.  All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
@@ -11,29 +11,40 @@ package org.opendaylight.netvirt.cloudservicechain;
 import com.google.common.base.Optional;
 import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.DataStoreJobCoordinator;
+import org.opendaylight.genius.interfacemanager.globals.InterfaceServiceUtil;
+import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.mdsalutil.NWUtil;
 import org.opendaylight.genius.mdsalutil.NwConstants;
+import org.opendaylight.genius.mdsalutil.actions.ActionRegLoad;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.netvirt.cloudservicechain.jobs.AddVpnPseudoPortDataJob;
 import org.opendaylight.netvirt.cloudservicechain.jobs.RemoveVpnPseudoPortDataJob;
 import org.opendaylight.netvirt.cloudservicechain.utils.VpnPseudoPortCache;
 import org.opendaylight.netvirt.cloudservicechain.utils.VpnServiceChainUtils;
 import org.opendaylight.netvirt.vpnmanager.api.IVpnManager;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.action.types.rev131112.action.list.Action;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.FlowId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.tables.table.Flow;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.tables.table.FlowBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.instruction.list.Instruction;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.servicebinding.rev160406.ServiceModeIngress;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.servicebinding.rev160406.service.bindings.services.info.BoundServices;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.cloud.servicechain.state.rev170511.vpn.to.pseudo.port.list.VpnToPseudoPortData;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.VrfEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.VpnInstanceOpData;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.VpnInstanceOpDataEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.VpnInstanceOpDataEntryKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.vpn.instance.op.data.entry.VpnToDpnList;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.openflowjava.nx.match.rev140421.NxmNxReg2;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -44,19 +55,21 @@ public class VPNServiceChainHandler implements AutoCloseable {
     private static final Logger LOG = LoggerFactory.getLogger(VPNServiceChainHandler.class);
 
     private final IMdsalApiManager mdsalManager;
-    private final DataBroker broker;
+    private final DataBroker dataBroker;
     private final IVpnManager vpnManager;
+    private final IInterfaceManager interfaceManager;
 
 
     public VPNServiceChainHandler(final DataBroker db, final IMdsalApiManager mdsalManager,
-                                  final IVpnManager vpnManager) {
-        this.broker = db;
+                                  final IVpnManager vpnManager, final IInterfaceManager ifaceMgr) {
+        this.dataBroker = db;
         this.mdsalManager = mdsalManager;
         this.vpnManager = vpnManager;
+        this.interfaceManager = ifaceMgr;
     }
 
     public void init() {
-        VpnPseudoPortCache.createVpnPseudoPortCache(broker);
+        VpnPseudoPortCache.createVpnPseudoPortCache(dataBroker);
     }
 
     @Override
@@ -73,8 +86,8 @@ public class VPNServiceChainHandler implements AutoCloseable {
     protected VpnInstanceOpDataEntry getVpnInstance(String rd) {
         InstanceIdentifier<VpnInstanceOpDataEntry> id = InstanceIdentifier.create(VpnInstanceOpData.class)
                 .child(VpnInstanceOpDataEntry.class, new VpnInstanceOpDataEntryKey(rd));
-        Optional<VpnInstanceOpDataEntry> vpnInstanceOpData = MDSALUtil.read(broker, LogicalDatastoreType.OPERATIONAL,
-                                                                            id);
+        Optional<VpnInstanceOpDataEntry> vpnInstanceOpData = MDSALUtil.read(dataBroker,
+                                                                            LogicalDatastoreType.OPERATIONAL, id);
         if (vpnInstanceOpData.isPresent()) {
             return vpnInstanceOpData.get();
         }
@@ -104,7 +117,7 @@ public class VPNServiceChainHandler implements AutoCloseable {
         //     - Match: vpnPseudoPortTag + SI==SCF   Instr:  scfTag  +  GOTO 70
         LOG.info("programVpnToScfPipeline ({}) : Parameters VpnName:{} tableId:{} scftag:{}  lportTag:{}",
                  addOrRemove == NwConstants.ADD_FLOW ? "Creation" : "Removal", vpnName, tableId, scfTag, lportTag);
-        String rd = VpnServiceChainUtils.getVpnRd(broker, vpnName);
+        String rd = VpnServiceChainUtils.getVpnRd(dataBroker, vpnName);
         LOG.debug("Router distinguisher (rd):{}", rd);
         if (rd == null || rd.isEmpty()) {
             LOG.warn("programVpnToScfPipeline: Could not find Router-distinguisher for VPN {}. No further actions",
@@ -119,16 +132,26 @@ public class VPNServiceChainHandler implements AutoCloseable {
 
         // Find out the set of DPNs for the given VPN ID
         Collection<VpnToDpnList> vpnToDpnList = vpnInstance.getVpnToDpnList();
-        List<VrfEntry> vrfEntries = VpnServiceChainUtils.getAllVrfEntries(broker, rd);
+        List<VrfEntry> vrfEntries = VpnServiceChainUtils.getAllVrfEntries(dataBroker, rd);
         if (vrfEntries != null) {
             AddVpnPseudoPortDataJob updateVpnToPseudoPortTask =
-                new AddVpnPseudoPortDataJob(broker, rd, lportTag, tableId, (int) scfTag);
+                new AddVpnPseudoPortDataJob(dataBroker, rd, lportTag, tableId, (int) scfTag);
             DataStoreJobCoordinator.getInstance().enqueueJob(updateVpnToPseudoPortTask.getDsJobCoordinatorKey(),
                                                              updateVpnToPseudoPortTask);
 
             for (VpnToDpnList dpnInVpn : vpnToDpnList) {
                 BigInteger dpnId = dpnInVpn.getDpnId();
                 programVpnToScfPipelineOnDpn(dpnId, vrfEntries, tableId, (int) scfTag, lportTag, addOrRemove);
+
+                if (dpnInVpn.getVpnInterfaces() != null) {
+                    dpnInVpn.getVpnInterfaces().stream().forEach(vpnIf -> {
+                        if ( addOrRemove == NwConstants.ADD_FLOW ) {
+                            bindScfOnVpnInterface(vpnIf.getInterfaceName(), (int) scfTag);
+                        } else {
+                            unbindScfOnVpnInterface(vpnIf.getInterfaceName());
+                        }
+                    });
+                }
             }
         }
     }
@@ -167,7 +190,7 @@ public class VPNServiceChainHandler implements AutoCloseable {
         //       - Match:  vrfTag==vpnTag + eth_type=IPv4  + dst_ip   Instr:  Output DC-GW
         //
         LOG.info("L3VPN: Service Chaining programScfToVpnPipeline [Started]: Parameters Vpn Name: {} ", vpnName);
-        String rd = VpnServiceChainUtils.getVpnRd(broker, vpnName);
+        String rd = VpnServiceChainUtils.getVpnRd(dataBroker, vpnName);
 
         if (rd == null || rd.isEmpty()) {
             LOG.warn("programScfToVpnPipeline: Could not find Router-distinguisher for VPN {}. No further actions",
@@ -227,14 +250,14 @@ public class VPNServiceChainHandler implements AutoCloseable {
         // could imply check all ServiceChains ending in all DPNs in Vpn footprint to decide that if the entries
         // can be removed, and that sounds even costlier than this.
 
-        String rd = VpnServiceChainUtils.getVpnRd(broker, vpnInstanceName);
+        String rd = VpnServiceChainUtils.getVpnRd(dataBroker, vpnInstanceName);
         List<VrfEntry> vrfEntries = null;
         if ( rd != null ) {
-            vrfEntries = VpnServiceChainUtils.getAllVrfEntries(broker, rd);
+            vrfEntries = VpnServiceChainUtils.getAllVrfEntries(dataBroker, rd);
         }
         boolean cleanLFib = vrfEntries != null && !vrfEntries.isEmpty();
 
-        List<BigInteger> operativeDPNs = NWUtil.getOperativeDPNs(broker);
+        List<BigInteger> operativeDPNs = NWUtil.getOperativeDPNs(dataBroker);
         for (BigInteger dpnId : operativeDPNs) {
             if ( cleanLFib ) {
                 VpnServiceChainUtils.programLFibEntriesForSCF(mdsalManager, dpnId, vrfEntries, vpnPseudoLportTag,
@@ -252,10 +275,56 @@ public class VPNServiceChainHandler implements AutoCloseable {
         }
 
         if ( rd != null ) {
-            RemoveVpnPseudoPortDataJob removeVpnPseudoPortDataTask = new RemoveVpnPseudoPortDataJob(broker, rd);
+            RemoveVpnPseudoPortDataJob removeVpnPseudoPortDataTask = new RemoveVpnPseudoPortDataJob(dataBroker, rd);
             DataStoreJobCoordinator.getInstance().enqueueJob(removeVpnPseudoPortDataTask.getDsJobCoordinatorKey(),
                                                              removeVpnPseudoPortDataTask);
         }
     }
 
+    // TODO: Remove if [https://git.opendaylight.org/gerrit/#/c/51075/] lands on Genius
+    private boolean isServiceBoundOnInterface(short servicePriority, String interfaceName) {
+        InstanceIdentifier<BoundServices> boundServicesIId =
+            VpnServiceChainUtils.buildBoundServicesIid(servicePriority, interfaceName);
+        return MDSALUtil.read(dataBroker,LogicalDatastoreType.CONFIGURATION, boundServicesIId).isPresent();
+    }
+
+
+    public void bindScfOnVpnInterface(String ifName, int scfTag) {
+        LOG.debug("bind SCF tag {} on iface {}", scfTag, ifName);
+        if (isServiceBoundOnInterface(NwConstants.SCF_SERVICE_INDEX, ifName)) {
+            LOG.info("SCF is already bound on Interface {} for Ingress. Binding aborted", ifName);
+            return;
+        }
+        Action loadReg2Action = new ActionRegLoad(1, NxmNxReg2.class, 0, 31, scfTag).buildAction();
+        List<Instruction> instructions =
+            Arrays.asList(MDSALUtil.buildApplyActionsInstruction(Collections.singletonList(loadReg2Action)),
+                          MDSALUtil.buildAndGetGotoTableInstruction(NwConstants.SCF_DOWN_SUB_FILTER_TCP_BASED_TABLE,
+                                                                    1 /*instructionKey, not sure why it is needed*/));
+        BoundServices boundServices =
+            InterfaceServiceUtil.getBoundServices(ifName, NwConstants.SCF_SERVICE_INDEX,
+                                                  CloudServiceChainConstants.DEFAULT_SCF_FLOW_PRIORITY,
+                                                  CloudServiceChainConstants.COOKIE_SCF_BASE,
+                                                  instructions);
+        interfaceManager.bindService(ifName, ServiceModeIngress.class, boundServices);
+    }
+
+    public void unbindScfOnVpnInterface(String ifName) {
+        BoundServices boundService =
+            InterfaceServiceUtil.getBoundServices(ifName, NwConstants.SCF_SERVICE_INDEX,
+                                                  CloudServiceChainConstants.DEFAULT_SCF_FLOW_PRIORITY,
+                                                  CloudServiceChainConstants.COOKIE_SCF_BASE,
+                                                  /*instructions*/ Collections.emptyList());
+
+        interfaceManager.unbindService(ifName, ServiceModeIngress.class, boundService);
+    }
+
+    public Optional<VpnToPseudoPortData> getScfInfoForVpn(String vpnName) {
+        String vpnRd = VpnServiceChainUtils.getVpnRd(dataBroker, vpnName);
+        if (vpnRd == null) {
+            LOG.trace("Checking if Vpn {} participates in SC. Could not find its RD", vpnName);
+            return Optional.absent();
+        }
+
+        return VpnServiceChainUtils.getVpnPseudoPortData(dataBroker, vpnRd);
+    }
 }
