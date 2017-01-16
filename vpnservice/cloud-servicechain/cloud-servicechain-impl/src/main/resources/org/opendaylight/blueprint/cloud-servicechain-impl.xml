@@ -7,12 +7,20 @@
                odl:type="pingpong" />
     <reference id="mdsalManager" interface="org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager" />
     <reference id="vpnManager" interface="org.opendaylight.netvirt.vpnmanager.api.IVpnManager" />
+    <reference id="interfaceManager" interface="org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager" />
 
     <bean id="vpnServiceChainHandler" class="org.opendaylight.netvirt.cloudservicechain.VPNServiceChainHandler"
           init-method="init" destroy-method="close">
         <argument ref="dataBroker" />
         <argument ref="mdsalManager" />
         <argument ref="vpnManager" />
+        <argument ref="interfaceManager" />
+    </bean>
+
+    <bean id="cloudScVpnIfaceListener" class="org.opendaylight.netvirt.cloudservicechain.listeners.CloudScVpnInterfaceListener"
+          init-method="start" destroy-method="close">
+        <argument ref="dataBroker" />
+        <argument ref="vpnServiceChainHandler" />
     </bean>
 
     <bean id="elanServiceChainHandler" class="org.opendaylight.netvirt.cloudservicechain.ElanServiceChainHandler">
