@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1a622d24_35d51f1c",
+        "filename": "docs/specs/conntrack-based-snat.rst",
+        "patchSetId": 16
+      },
+      "lineNbr": 198,
+      "author": {
+        "id": 3276
+      },
+      "writtenOn": "2017-01-16T06:09:31Z",
+      "side": 1,
+      "message": "Would be good to capture configuration file, contents and default values. Okay if you add in a subsequent patch as long as it gets captured before code is merged.",
+      "revId": "258afd283099055eef839b379871a7431abc100f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_d514abea",
+        "filename": "docs/specs/conntrack-based-snat.rst",
+        "patchSetId": 16
+      },
+      "lineNbr": 231,
+      "author": {
+        "id": 3276
+      },
+      "writtenOn": "2017-01-16T06:09:31Z",
+      "side": 1,
+      "message": "Each of these should be subsections rather than list.",
+      "revId": "258afd283099055eef839b379871a7431abc100f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_951eb30a",
+        "filename": "docs/specs/conntrack-based-snat.rst",
+        "patchSetId": 16
+      },
+      "lineNbr": 286,
+      "author": {
+        "id": 3276
+      },
+      "writtenOn": "2017-01-16T06:09:31Z",
+      "side": 1,
+      "message": "No OVS version dependencies?",
+      "revId": "258afd283099055eef839b379871a7431abc100f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
