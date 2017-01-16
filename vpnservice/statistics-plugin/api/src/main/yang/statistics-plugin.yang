@@ -1,0 +1,78 @@
+module statistics-plugin {
+    yang-version 1;
+    namespace "urn:opendaylight:params:xml:ns:yang:statistics-plugin";
+    prefix "statistics-plugin";
+
+    revision "2015-01-05" {
+        description "Initial revision of statistics-plugin model";
+    }
+
+    grouping result {
+        list groups {
+            key name;
+            leaf name {
+                type string;
+            }
+            list counters {
+                key name;
+                leaf name {
+                    type string;
+                }
+                leaf value {
+                    type uint64;
+                }
+            }
+        }
+    }
+
+    grouping filters {
+        leaf-list groupFilters {
+            type string;
+        }
+        leaf-list counterFilter {
+            type string;
+        }
+    }
+
+    rpc getNodeConnectorCounters {
+        input {
+            leaf portId {
+                type string;
+            }
+            uses filters;
+        }
+        output {
+            uses result;
+        }
+    }
+
+    rpc getNodeCounters {
+        input {
+            leaf nodeId {
+                type string;
+            }
+        }
+        output {
+        	list nodeConnectorResult {
+        		key ofPortId;
+                leaf ofPortId {
+                    type string;
+                }
+            	 uses result;
+        	}
+        }
+    }
+    
+    rpc getNodeAggregatedCounters {
+        input {
+            leaf nodeId {
+                type string;
+            }
+            uses filters;
+        }
+        output {
+        	uses result;
+        }
+    }
+    
+}
