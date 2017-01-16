@@ -73,6 +73,24 @@
     },
     {
       "key": {
+        "uuid": "1a622d24_9c653b20",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 10
+      },
+      "lineNbr": 200,
+      "author": {
+        "id": 6365
+      },
+      "writtenOn": "2017-01-16T14:36:07Z",
+      "side": 1,
+      "message": "The lock is indeed for every vpn interface, but it is good to remember that the lock is only on the relevant decision if to handle or to save the interface. If we decide to handle, the interface will get handle in parallel from addVpnInteface (Using DjC).\n\nIf you think this lock is still an issue, I can move the sync block to the addToUnprocessedVpnInterface, but it will require an additional call to isVpnInstanceReady (double check locking) in order to properly handle the race between saving a new interface and the single time we iterate over the saved list and processing them.",
+      "parentUuid": "1a622d24_d5a78ba5",
+      "revId": "16e8be1153da4b6952281219614bb95799137c9f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_bc492133",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
         "patchSetId": 10
@@ -101,6 +119,24 @@
       "writtenOn": "2017-01-16T06:40:45Z",
       "side": 1,
       "message": "The above call is not required.\n\nIf vpnRd is retrievable, then vpnId is already available too !",
+      "revId": "16e8be1153da4b6952281219614bb95799137c9f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_957513cd",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 10
+      },
+      "lineNbr": 1884,
+      "author": {
+        "id": 6365
+      },
+      "writtenOn": "2017-01-16T14:36:07Z",
+      "side": 1,
+      "message": "Please look at the latest code, this check has already been removed :)",
+      "parentUuid": "1a622d24_f5aa876f",
       "revId": "16e8be1153da4b6952281219614bb95799137c9f",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
