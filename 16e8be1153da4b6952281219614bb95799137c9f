@@ -55,6 +55,24 @@
     },
     {
       "key": {
+        "uuid": "1a622d24_d5a78ba5",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 10
+      },
+      "lineNbr": 200,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-01-16T06:40:45Z",
+      "side": 1,
+      "message": "Doesn\u0027t seem to be acceptable.\n\nisVpnInstanceReady() is only reading concurrentqueue and not doing any operations on that..\n\nThis looks like even if you have some VPN Instance perfectly running, you will lock and unlock for every interface being plumbed into VPN..",
+      "parentUuid": "1a622d24_1a3e508c",
+      "revId": "16e8be1153da4b6952281219614bb95799137c9f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_bc492133",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
         "patchSetId": 10
@@ -66,6 +84,23 @@
       "writtenOn": "2017-01-12T16:52:12Z",
       "side": 1,
       "message": "let us have a synchronize(this) here..",
+      "revId": "16e8be1153da4b6952281219614bb95799137c9f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_f5aa876f",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 10
+      },
+      "lineNbr": 1884,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-01-16T06:40:45Z",
+      "side": 1,
+      "message": "The above call is not required.\n\nIf vpnRd is retrievable, then vpnId is already available too !",
       "revId": "16e8be1153da4b6952281219614bb95799137c9f",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
