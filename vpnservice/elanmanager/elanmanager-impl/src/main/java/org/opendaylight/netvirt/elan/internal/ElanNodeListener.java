@@ -33,6 +33,7 @@ import org.opendaylight.genius.mdsalutil.instructions.InstructionApplyActions;
 import org.opendaylight.genius.mdsalutil.instructions.InstructionGotoTable;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.genius.mdsalutil.matches.MatchEthernetDestination;
+import org.opendaylight.genius.mdsalutil.matches.MatchEthernetType;
 import org.opendaylight.netvirt.elan.utils.ElanConstants;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.MacAddress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeId;
@@ -52,6 +53,7 @@ public class ElanNodeListener extends AbstractDataChangeListener<Node> implement
     private final DataBroker broker;
     private final IMdsalApiManager mdsalManager;
     private final int tempSmacLearnTimeout;
+    private final boolean puntLldpToController;
 
     private ListenerRegistration<DataChangeListener> listenerRegistration;
 
@@ -60,6 +62,7 @@ public class ElanNodeListener extends AbstractDataChangeListener<Node> implement
         this.broker = dataBroker;
         this.mdsalManager = mdsalManager;
         this.tempSmacLearnTimeout = elanConfig.getTempSmacLearnTimeout();
+        this.puntLldpToController = elanConfig.isPuntLldpToController();
     }
 
     public void init() {
@@ -99,6 +102,43 @@ public class ElanNodeListener extends AbstractDataChangeListener<Node> implement
     public void createTableMissEntry(BigInteger dpnId) {
         setupTableMissSmacFlow(dpnId);
         setupTableMissDmacFlow(dpnId);
+    }
+
+    private void createMulticastFlows(BigInteger dpId) {
+        createL2ControlProtocolDropFlows(dpId);
+
+        if (puntLldpToController) {
+            createMulticastPuntFlows(dpId);
+        }
+    }
+
+    private void createMulticastPuntFlows(BigInteger dpId) {
+        createLldpFlows(dpId);
+    }
+
+    private void createLldpFlows(BigInteger dpId) {
+        createLldpFlow(dpId, ElanConstants.LLDP_DST_1, "LLDP dMac Table Flow 1");
+        createLldpFlow(dpId, ElanConstants.LLDP_DST_2, "LLDP dMac Table Flow 2");
+        createLldpFlow(dpId, ElanConstants.LLDP_DST_3, "LLDP dMac Table Flow 3");
+    }
+
+    private void createLldpFlow(BigInteger dpId, String dstMac, String flowName) {
+        List<MatchInfo> mkMatches = new ArrayList<>();
+        mkMatches.add(new MatchEthernetType(ElanConstants.LLDP_ETH_TYPE));
+        mkMatches.add(new MatchEthernetDestination(new MacAddress(dstMac)));
+
+        List<ActionInfo> listActionInfo = new ArrayList<>();
+        listActionInfo.add(new ActionPuntToController());
+
+        List<InstructionInfo> mkInstructions = new ArrayList<>();
+        mkInstructions.add(new InstructionApplyActions(listActionInfo));
+
+        String flowId = dpId.toString() + NwConstants.ELAN_DMAC_TABLE + "lldp" + ElanConstants.LLDP_ETH_TYPE + dstMac;
+        FlowEntity lldpFlow = MDSALUtil.buildFlowEntity(dpId, NwConstants.ELAN_DMAC_TABLE,
+                flowId, 16, flowName, 0, 0,
+                ElanConstants.COOKIE_ELAN_KNOWN_DMAC, mkMatches, mkInstructions);
+
+        mdsalManager.installFlow(lldpFlow);
     }
 
     private void setupTableMissSmacFlow(BigInteger dpId) {
@@ -167,10 +207,6 @@ public class ElanNodeListener extends AbstractDataChangeListener<Node> implement
                 ElanConstants.COOKIE_ELAN_KNOWN_DMAC, mkMatches, mkInstructions);
 
         mdsalManager.installFlow(flowEntity);
-    }
-
-    private void createMulticastFlows(BigInteger dpId) {
-        createL2ControlProtocolDropFlows(dpId);
     }
 
     private void createL2ControlProtocolDropFlows(BigInteger dpId) {

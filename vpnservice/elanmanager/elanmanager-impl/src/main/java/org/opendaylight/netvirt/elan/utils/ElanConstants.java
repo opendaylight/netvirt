@@ -31,7 +31,10 @@ public class ElanConstants {
     public static final BigInteger COOKIE_ELAN_FILTER_EQUALS = new BigInteger("8800000", 16);
     public static final String L2_CONTROL_PACKETS_DMAC = "01:80:C2:00:00:00";
     public static final String L2_CONTROL_PACKETS_DMAC_MASK = "FF:FF:FF:FF:FF:F0";
-
+    public static final int LLDP_ETH_TYPE = 0x88CC;
+    public static final String LLDP_DST_1 = "01:80:C2:00:00:00";
+    public static final String LLDP_DST_2 = "01:80:C2:00:00:03";
+    public static final String LLDP_DST_3 = "01:80:C2:00:00:0E";
     public static final String L2GATEWAY_DS_JOB_NAME = "L2GW";
     public static final String UNKNOWN_DMAC = "00:00:00:00:00:00";
     public static final int JOB_MAX_RETRIES = 6;
