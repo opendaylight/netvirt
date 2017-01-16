@@ -11,6 +11,7 @@ import static org.mockito.Matchers.argThat;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.anyObject;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -39,6 +40,8 @@ import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
+import org.opendaylight.genius.interfacemanager.globals.InterfaceServiceUtil;
+import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
 import org.opendaylight.genius.mdsalutil.FlowEntity;
 import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
@@ -47,7 +50,8 @@ import org.opendaylight.netvirt.cloudservicechain.matchers.FlowMatcher;
 import org.opendaylight.netvirt.cloudservicechain.utils.VpnServiceChainUtils;
 import org.opendaylight.netvirt.vpnmanager.api.IVpnManager;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.tables.table.Flow;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fib.rpc.rev160121.FibRpcService;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.servicebinding.rev160406.ServiceModeIngress;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.servicebinding.rev160406.service.bindings.services.info.BoundServices;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.fibentries.VrfTables;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.fibentries.VrfTablesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.fibentries.VrfTablesKey;
@@ -92,12 +96,11 @@ public class VPNServiceChainHandlerTest {
     private VPNServiceChainHandler vpnsch; // SUT
 
     @Mock DataBroker broker;
-    @Mock FibRpcService fibRpcService;
     @Mock ReadOnlyTransaction readTx;
     @Mock WriteTransaction writeTx;
     @Mock IMdsalApiManager mdsalMgr;
     @Mock IVpnManager vpnManager;
-
+    @Mock IInterfaceManager ifaceMgr;
 
     @BeforeClass
     public static void setUpBeforeClass() throws Exception {
@@ -116,7 +119,7 @@ public class VPNServiceChainHandlerTest {
         when(writeTx.submit()).thenReturn(chkdFuture);
 
         // SUT
-        vpnsch = new VPNServiceChainHandler(broker, mdsalMgr, vpnManager);
+        vpnsch = new VPNServiceChainHandler(broker, mdsalMgr, vpnManager, ifaceMgr);
     }
 
     @After
@@ -169,12 +172,13 @@ public class VPNServiceChainHandlerTest {
         when(readTx.read(eq(LogicalDatastoreType.OPERATIONAL), eq(id))).thenReturn(chkdFuture);
     }
 
-    private void stubGetVpnInstance(String rd) throws InterruptedException, ExecutionException {
+    private void stubGetVpnInstance(String rd, String ipAddress, String ifaceName) throws InterruptedException,
+                                                                                          ExecutionException {
 
         IpAddresses ipAddr =
-            new IpAddressesBuilder().setIpAddress("1.3.4.5").setKey(new IpAddressesKey("1.3.4.5")).build();
+            new IpAddressesBuilder().setIpAddress(ipAddress).setKey(new IpAddressesKey(ipAddress)).build();
         List<VpnInterfaces> ifacesList =
-            Collections.singletonList(new VpnInterfacesBuilder().setInterfaceName("eth0").build());
+            Collections.singletonList(new VpnInterfacesBuilder().setInterfaceName(ifaceName).build());
         VpnToDpnListBuilder vtdlb =
             new VpnToDpnListBuilder().setKey(new VpnToDpnListKey(DPN_ID))
                                      .setDpnId(DPN_ID)
@@ -223,6 +227,28 @@ public class VPNServiceChainHandlerTest {
         when(chkdFuture.get()).thenReturn(Optional.of(vpnIfacesList));
         when(readTx.read(eq(LogicalDatastoreType.OPERATIONAL),
                          eq(VpnServiceChainUtils.getVpnToDpnListIdentifier(rd, dpnId))))
+             .thenReturn(chkdFuture);
+    }
+
+    private void stubScfIsBoundOnIface(long scfTag, String ifName) throws Exception {
+        CheckedFuture chkdFuture = mock(CheckedFuture.class);
+        BoundServices boundService =
+            InterfaceServiceUtil.getBoundServices(ifName, NwConstants.SCF_SERVICE_INDEX,
+                                                  CloudServiceChainConstants.DEFAULT_SCF_FLOW_PRIORITY,
+                                                  CloudServiceChainConstants.COOKIE_SCF_BASE,
+                                                  null /*instructions*/);
+
+        when(chkdFuture.checkedGet()).thenReturn(Optional.of(boundService));
+        when(readTx.read(eq(LogicalDatastoreType.CONFIGURATION),
+                         eq(VpnServiceChainUtils.buildBoundServicesIid(NwConstants.SCF_SERVICE_INDEX, ifName))))
+             .thenReturn(chkdFuture);
+    }
+
+    private void stubScfIsNotBoundOnIface(long scfTag, String ifName) throws Exception {
+        CheckedFuture chkdFuture = mock(CheckedFuture.class);
+        when(chkdFuture.checkedGet()).thenReturn(Optional.absent());
+        when(readTx.read(eq(LogicalDatastoreType.CONFIGURATION),
+                         eq(VpnServiceChainUtils.buildBoundServicesIid(NwConstants.SCF_SERVICE_INDEX, ifName))))
              .thenReturn(chkdFuture);
     }
 
@@ -277,7 +303,7 @@ public class VPNServiceChainHandlerTest {
         // Basic stubbing //
         /////////////////////
         stubGetRouteDistinguisher(VPN_NAME, RD);
-        stubGetVpnInstance(RD);
+        stubGetVpnInstance(RD, "1.2.3.4", "eth0");
         stubGetVrfEntries(RD, Collections.singletonList(buildVrfEntry(2000L, "11.12.13.14", DC_GW_IP)));
         stubReadVpnToDpnList(RD, DPN_ID, Collections.singletonList("iface1"));
         /////////
@@ -307,16 +333,18 @@ public class VPNServiceChainHandlerTest {
 
 
     @Test
-    public void testProgramVpnToScfPipeline() throws Exception {
+    public void testProgramVpnToScfWithVpnIfacesAlreadyBound() throws Exception {
 
         /////////////////////
         // Basic stubbing //
         /////////////////////
+        String ifaceName = "eth0";
         stubGetRouteDistinguisher(VPN_NAME, RD);
-        stubGetVpnInstance(RD);
+        stubGetVpnInstance(RD, "1.2.3.4", ifaceName);
         VrfEntry vrfEntry = buildVrfEntry(2000L, "11.12.13.14", DC_GW_IP);
         stubGetVrfEntries(RD, Collections.singletonList(vrfEntry));
-        stubReadVpnToDpnList(RD, DPN_ID, Collections.singletonList("iface1"));
+        stubReadVpnToDpnList(RD, DPN_ID, Collections.singletonList(ifaceName));
+        stubScfIsBoundOnIface(SCF_TAG, ifaceName);
 
         /////////
         // SUT //
@@ -324,6 +352,9 @@ public class VPNServiceChainHandlerTest {
         short tableId = 10;
         vpnsch.programVpnToScfPipeline(VPN_NAME, tableId, SCF_TAG, LPORT_TAG, NwConstants.ADD_FLOW);
 
+        ////////////
+        // Verify //
+        ////////////
         ArgumentCaptor<FlowEntity> argumentCaptor = ArgumentCaptor.forClass(FlowEntity.class);
         verify(mdsalMgr, times(2)).installFlow(argumentCaptor.capture());
         List<FlowEntity> installedFlowsCaptured = argumentCaptor.getAllValues();
@@ -340,4 +371,65 @@ public class VPNServiceChainHandlerTest {
 
     }
 
+    @Test
+    public void testProgramVpnToScfWithIfacesNotBound() throws Exception {
+
+        /////////////////////
+        // Basic stubbing //
+        /////////////////////
+        String ifaceName = "eth0";
+        stubGetRouteDistinguisher(VPN_NAME, RD);
+        stubGetVpnInstance(RD, "1.2.3.4", ifaceName);
+        VrfEntry vrfEntry = buildVrfEntry(2000L, "11.12.13.14", DC_GW_IP);
+        stubGetVrfEntries(RD, Collections.singletonList(vrfEntry));
+        stubReadVpnToDpnList(RD, DPN_ID, Collections.singletonList(ifaceName));
+        stubScfIsNotBoundOnIface(SCF_TAG, ifaceName);
+
+        /////////
+        // SUT //
+        /////////
+        short tableId = 10;
+        vpnsch.programVpnToScfPipeline(VPN_NAME, tableId, SCF_TAG, LPORT_TAG, NwConstants.ADD_FLOW);
+
+        ////////////
+        // Verify //
+        ////////////
+        ArgumentCaptor<FlowEntity> argumentCaptor = ArgumentCaptor.forClass(FlowEntity.class);
+        verify(ifaceMgr).bindService(eq(ifaceName), eq(ServiceModeIngress.class), anyObject());
+        verify(mdsalMgr, times(2)).installFlow(argumentCaptor.capture());
+        List<FlowEntity> installedFlowsCaptured = argumentCaptor.getAllValues();
+        assert (installedFlowsCaptured.size() == 2);
+
+        FlowEntity expectedLFibFlowEntity =
+            VpnServiceChainUtils.buildLFibVpnPseudoPortFlow(DPN_ID, vrfEntry.getLabel(),
+                                                            vrfEntry.getNextHopAddressList().get(0), LPORT_TAG);
+        assert (new FlowEntityMatcher(expectedLFibFlowEntity).matches(installedFlowsCaptured.get(0)));
+
+        FlowEntity expectedLPortDispatcher =
+            VpnServiceChainUtils.buildLportFlowDispForVpnToScf(DPN_ID, LPORT_TAG, SCF_TAG, tableId);
+        assert (new FlowEntityMatcher(expectedLPortDispatcher).matches(installedFlowsCaptured.get(1)));
+
+    }
+
+    @Test
+    public void testBindScfOnVpnInterfaceWithScfAlreadyBound() throws Exception {
+        String ifName = "eth4";
+        int scfTag = 30;
+        stubScfIsBoundOnIface(scfTag, ifName);
+
+        vpnsch.bindScfOnVpnInterface(ifName, scfTag);
+
+        verify(ifaceMgr, never()).bindService(anyObject(), anyObject(), anyObject());
+    }
+
+    @Test
+    public void testBindScfOnVpnInterfaceWithScfNotBound() throws Exception {
+        String ifName = "eth4";
+        int scfTag = 30;
+        stubScfIsNotBoundOnIface(scfTag, ifName);
+
+        vpnsch.bindScfOnVpnInterface(ifName, scfTag);
+
+        verify(ifaceMgr).bindService(eq(ifName), eq(ServiceModeIngress.class), anyObject());
+    }
 }
