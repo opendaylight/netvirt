@@ -68,6 +68,29 @@
       "revId": "a9113e92d42122b052e43069823eb1cf990ae6a5",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_3c5067d3",
+        "filename": "docs/specs/hairpinning-flat-vlan.rst",
+        "patchSetId": 13
+      },
+      "lineNbr": 360,
+      "author": {
+        "id": 3276
+      },
+      "writtenOn": "2017-01-16T12:18:49Z",
+      "side": 1,
+      "message": "nitpick: VM1 etc., router-gateway and ip-address should be within \u0027\u0027 as these are literals.",
+      "range": {
+        "startLine": 354,
+        "startChar": 0,
+        "endLine": 360,
+        "endChar": 101
+      },
+      "revId": "a9113e92d42122b052e43069823eb1cf990ae6a5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
