@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "1a622d24_7558378a",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronSubnetChangeListener.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 116,
+      "author": {
+        "id": 6248
+      },
+      "writtenOn": "2017-01-16T11:21:50Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1a622d24_dac21852",
+      "revId": "2a5f22c4b83dc58c48d092204d332e950414d7ed",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_7adb044f",
         "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
         "patchSetId": 7
@@ -30,6 +48,24 @@
       "writtenOn": "2017-01-15T09:23:02Z",
       "side": 1,
       "message": "Use nvpnManager.createL3InternalVpn() and nvpnManager.removeL3Vpn()",
+      "revId": "2a5f22c4b83dc58c48d092204d332e950414d7ed",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_f54ba7ae",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 1097,
+      "author": {
+        "id": 6248
+      },
+      "writtenOn": "2017-01-16T11:21:50Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1a622d24_7adb044f",
       "revId": "2a5f22c4b83dc58c48d092204d332e950414d7ed",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -53,6 +89,24 @@
     },
     {
       "key": {
+        "uuid": "1a622d24_79f031fe",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnNatManager.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 627,
+      "author": {
+        "id": 6248
+      },
+      "writtenOn": "2017-01-16T11:21:50Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1a622d24_5ae0c8f9",
+      "revId": "2a5f22c4b83dc58c48d092204d332e950414d7ed",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_9ae5400b",
         "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnNatManager.java",
         "patchSetId": 7
@@ -64,6 +118,24 @@
       "writtenOn": "2017-01-15T09:23:02Z",
       "side": 1,
       "message": "Avoid reading/updating the same subnet twice",
+      "revId": "2a5f22c4b83dc58c48d092204d332e950414d7ed",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_392a3990",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnNatManager.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 675,
+      "author": {
+        "id": 6248
+      },
+      "writtenOn": "2017-01-16T11:21:50Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1a622d24_9ae5400b",
       "revId": "2a5f22c4b83dc58c48d092204d332e950414d7ed",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -87,6 +159,24 @@
     },
     {
       "key": {
+        "uuid": "1a622d24_791f916c",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnNatManager.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 695,
+      "author": {
+        "id": 6248
+      },
+      "writtenOn": "2017-01-16T11:21:50Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1a622d24_faeef4eb",
+      "revId": "2a5f22c4b83dc58c48d092204d332e950414d7ed",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_3aa34cb3",
         "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnNatManager.java",
         "patchSetId": 7
@@ -98,6 +188,24 @@
       "writtenOn": "2017-01-15T09:23:02Z",
       "side": 1,
       "message": "??",
+      "revId": "2a5f22c4b83dc58c48d092204d332e950414d7ed",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_392fd989",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnNatManager.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 709,
+      "author": {
+        "id": 6248
+      },
+      "writtenOn": "2017-01-16T11:21:50Z",
+      "side": 1,
+      "message": "The merge in update will leave the old router if it\u0027s set to null.",
+      "parentUuid": "1a622d24_3aa34cb3",
       "revId": "2a5f22c4b83dc58c48d092204d332e950414d7ed",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
