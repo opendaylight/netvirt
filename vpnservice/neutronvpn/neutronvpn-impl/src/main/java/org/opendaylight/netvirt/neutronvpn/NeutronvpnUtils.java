@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 Ericsson India Global Services Pvt Ltd. and others.  All rights reserved.
+ * Copyright (c) 2016, 2017 Ericsson India Global Services Pvt Ltd. and others.  All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
@@ -45,6 +45,7 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv6Address;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.Interfaces;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.InterfaceBuilder;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.InterfaceKey;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.MacAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
@@ -112,6 +113,11 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.rev150712.Neutron;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.subnets.rev150712.subnets.attributes.Subnets;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.subnets.rev150712.subnets.attributes.subnets.Subnet;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.subnets.rev150712.subnets.attributes.subnets.SubnetKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.trunks.rev170118.trunk.attributes.SubPorts;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.trunks.rev170118.trunks.attributes.trunks.Trunk;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rev160406.IfL2vlan;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rev160406.IfL2vlanBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.l2.types.rev130827.VlanId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.netvirt.inter.vpn.link.rev160311.InterVpnLinkStates;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.netvirt.inter.vpn.link.rev160311.InterVpnLinks;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.netvirt.inter.vpn.link.rev160311.inter.vpn.link.states.InterVpnLinkState;
@@ -144,6 +150,9 @@ public class NeutronvpnUtils {
     public static ConcurrentHashMap<Uuid, HashMap<Uuid, Port>> qosPortsMap = new ConcurrentHashMap<>();
     public static ConcurrentHashMap<Uuid, HashMap<Uuid, Network>> qosNetworksMap = new ConcurrentHashMap<>();
     private static final Set<Class<? extends NetworkTypeBase>> SUPPORTED_NETWORK_TYPES = Sets.newConcurrentHashSet();
+    public static ConcurrentHashMap<Uuid, Trunk> portToTrunkMap = new ConcurrentHashMap<>();
+    public static ConcurrentHashMap<Uuid, SubPorts> portToSubPortMap = new ConcurrentHashMap<>();
+    public static ConcurrentHashMap<Uuid, Uuid> subPortToParentPortMap = new ConcurrentHashMap<>();
 
     private static long LOCK_WAIT_TIME = 10L;
     private static TimeUnit secUnit = TimeUnit.SECONDS;
@@ -839,6 +848,27 @@ public class NeutronvpnUtils {
         }
     }
 
+    protected static void addTrunkInformation(InterfaceBuilder interfaceBuilder, Port port) {
+        /*
+         * Note: We don't have anything to do for Trunk parent port
+         */
+        SubPorts subPort = NeutronvpnUtils.getSubPortForNeutronPort(port);
+        if (subPort != null) {
+            IfL2vlanBuilder ifL2vlanBuilder = new IfL2vlanBuilder();
+            ifL2vlanBuilder.setVlanId(new VlanId(subPort.getSegmentationId().intValue()));
+            ifL2vlanBuilder.setL2vlanMode(IfL2vlan.L2vlanMode.TrunkMember);
+            interfaceBuilder.addAugmentation(IfL2vlan.class, ifL2vlanBuilder.build());
+        }
+    }
+
+    protected static Trunk getTrunkForNeutronPort(Port port) {
+        return portToTrunkMap.get(port.getUuid());
+    }
+
+    protected static SubPorts getSubPortForNeutronPort(Port port) {
+        return portToSubPortMap.get(port.getUuid());
+    }
+
     public static void addToNetworkCache(Network network) {
         networkMap.put(network.getUuid(), network);
     }
@@ -963,6 +993,24 @@ public class NeutronvpnUtils {
         if (qosNetworksMap.containsKey(qosUuid) && qosNetworksMap.get(qosUuid).containsKey(network.getUuid())) {
             qosNetworksMap.get(qosUuid).remove(network.getUuid(), network);
         }
+    }
+
+    public static void addToTrunkPortsCache(Trunk trunk) {
+        portToTrunkMap.put(trunk.getPortId(), trunk);
+    }
+
+    public static void removeFromTrunkPortsCache(Trunk trunk) {
+        portToTrunkMap.remove(trunk.getPortId());
+    }
+
+    public static void addToSubPortsCache(Uuid parentUuid, SubPorts subPort) {
+        portToSubPortMap.put(subPort.getPortId(), subPort);
+        subPortToParentPortMap.put(subPort.getPortId(), parentUuid);
+    }
+
+    public static void removeFromSubPortsCache(SubPorts subPort) {
+        portToSubPortMap.remove(subPort.getPortId());
+        subPortToParentPortMap.remove(subPort.getPortId());
     }
 
     static InstanceIdentifier<NetworkMap> buildNetworkMapIdentifier(Uuid networkId) {
@@ -1206,6 +1254,10 @@ public class NeutronvpnUtils {
             }
         }
         return existingRDs;
+    }
+
+    public static Uuid getParentPortId(SubPorts subPort) {
+        return subPortToParentPortMap.get(subPort.getPortId());
     }
 
 }
