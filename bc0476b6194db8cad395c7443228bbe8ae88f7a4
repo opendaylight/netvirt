@@ -1,0 +1,208 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1a622d24_a2a3b2b0",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/FibUtil.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 731,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-01-16T18:06:12Z",
+      "side": 1,
+      "message": "why are these changes below required anymore in FibUtil?",
+      "revId": "bc0476b6194db8cad395c7443228bbe8ae88f7a4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_22fb22c2",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/NexthopManager.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 376,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-01-16T18:06:12Z",
+      "side": 1,
+      "message": "remove the List suffix from the name of the yang",
+      "revId": "bc0476b6194db8cad395c7443228bbe8ae88f7a4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_42fe1eaf",
+        "filename": "vpnservice/vpnmanager/vpnmanager-api/src/main/yang/odl-l3vpn.yang",
+        "patchSetId": 3
+      },
+      "lineNbr": 65,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-01-16T18:06:12Z",
+      "side": 1,
+      "message": "vpn-interface-to-src-mac instead of vpn-interface-to-gw-src-mac.",
+      "revId": "bc0476b6194db8cad395c7443228bbe8ae88f7a4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_02f8a6c1",
+        "filename": "vpnservice/vpnmanager/vpnmanager-api/src/main/yang/odl-l3vpn.yang",
+        "patchSetId": 3
+      },
+      "lineNbr": 66,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-01-16T18:06:12Z",
+      "side": 1,
+      "message": "replace the tabs with right spaces.",
+      "revId": "bc0476b6194db8cad395c7443228bbe8ae88f7a4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_823316aa",
+        "filename": "vpnservice/vpnmanager/vpnmanager-api/src/main/yang/odl-l3vpn.yang",
+        "patchSetId": 3
+      },
+      "lineNbr": 68,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-01-16T18:06:12Z",
+      "side": 1,
+      "message": "vpn-interface-to-src-mac-data can be used instead of -list",
+      "revId": "bc0476b6194db8cad395c7443228bbe8ae88f7a4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_a22e1241",
+        "filename": "vpnservice/vpnmanager/vpnmanager-api/src/main/yang/odl-l3vpn.yang",
+        "patchSetId": 3
+      },
+      "lineNbr": 76,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-01-16T18:06:12Z",
+      "side": 1,
+      "message": "use src-mac instead of gw-src-mac",
+      "revId": "bc0476b6194db8cad395c7443228bbe8ae88f7a4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_62019aae",
+        "filename": "vpnservice/vpnmanager/vpnmanager-api/src/main/yang/odl-l3vpn.yang",
+        "patchSetId": 3
+      },
+      "lineNbr": 80,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-01-16T18:06:12Z",
+      "side": 1,
+      "message": "this is ok.. we can leave it here as ROUTER (or) CONNECTED itself ..\n\nname the leaf as:\nmac-source instead of gw-src-type..",
+      "revId": "bc0476b6194db8cad395c7443228bbe8ae88f7a4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_e2dbea4c",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 1116,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-01-16T18:06:12Z",
+      "side": 1,
+      "message": "remove arp responder first and then remove gwmac entry.",
+      "revId": "bc0476b6194db8cad395c7443228bbe8ae88f7a4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_42157ee3",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 1117,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-01-16T18:06:12Z",
+      "side": 1,
+      "message": "donot remove the DS info here... You can remove this in the return path inside vpnInterfaceOpListener right below where they remove prefixToInterface.",
+      "revId": "bc0476b6194db8cad395c7443228bbe8ae88f7a4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_c2e06efc",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 1207,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-01-16T18:06:12Z",
+      "side": 1,
+      "message": "this comment can be corrected better :)",
+      "revId": "bc0476b6194db8cad395c7443228bbe8ae88f7a4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_02e6e614",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnUtil.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 1367,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-01-16T18:06:12Z",
+      "side": 1,
+      "message": "never use syncWrite.. always use transactions borrowed from main thread.",
+      "revId": "bc0476b6194db8cad395c7443228bbe8ae88f7a4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_e2b2ca04",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnUtil.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 1374,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-01-16T18:06:12Z",
+      "side": 1,
+      "message": "ditto comment on transactions here.",
+      "revId": "bc0476b6194db8cad395c7443228bbe8ae88f7a4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
