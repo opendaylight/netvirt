@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1a622d24_e21e4a5e",
+        "filename": "docs/specs/qos.rst",
+        "patchSetId": 7
+      },
+      "lineNbr": 5,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-01-16T17:29:10Z",
+      "side": 1,
+      "message": "Since this spec is primarily about DSCP marking facility for Qos in netvirt, would be good to have the title and topics to reflect the same.",
+      "revId": "d7fa55666aa00884067c4b383f77092dadd65297",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_42e29e2f",
+        "filename": "docs/specs/qos.rst",
+        "patchSetId": 7
+      },
+      "lineNbr": 76,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-01-16T17:29:10Z",
+      "side": 1,
+      "message": "would the spec cover implementing DSCP for trunk ports as well?",
+      "revId": "d7fa55666aa00884067c4b383f77092dadd65297",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
