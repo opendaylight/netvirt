@@ -1298,12 +1298,12 @@ public class VpnUtil {
             return gatewayMac;
         }
         VpnPortipToPort vpnTargetIpToPort = VpnUtil.getNeutronPortFromVpnPortFixedIp(dataBroker,
-            macEntry.getVpnName(), gatewayIp.getIpv4Address().getValue());
+                macEntry.getVpnName(), gatewayIp.getIpv4Address().getValue());
         if (vpnTargetIpToPort != null && vpnTargetIpToPort.isSubnetIp()) {
             gatewayMac = Optional.of(vpnTargetIpToPort.getMacAddress());
         } else {
-            org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.id.to.vpn.instance.VpnIds vpnIds =
-                vpnIdsOptional.get();
+            org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn
+                    .id.to.vpn.instance.VpnIds vpnIds = vpnIdsOptional.get();
             if (vpnIds.isExternalVpn()) {
                 gatewayMac = InterfaceUtils.getMacAddressForInterface(dataBroker, macEntry.getInterfaceName());
             }
@@ -1428,11 +1428,6 @@ public class VpnUtil {
 
     static boolean isEvpnOverVxLan(Long l2Vni) { //To be used by RT2
         return (l2Vni != null && l2Vni != 0);
-    }
-
-    static   String getGatewayMac(String interfaceName) {
-        //OUI based MAC creation and use
-        return VpnConstants.DEFAULT_GATEWAY_MAC_ADDRESS;
     }
 
 }

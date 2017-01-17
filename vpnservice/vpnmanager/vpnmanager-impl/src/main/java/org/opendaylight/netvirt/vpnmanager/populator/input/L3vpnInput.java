@@ -35,10 +35,6 @@ public class L3vpnInput {
         return nextHopIp;
     }
 
-    public String getGatewayMac() {
-        return gatewayMac;
-    }
-
     public Long getL3vni() {
         return l3vni;
     }
@@ -59,6 +55,10 @@ public class L3vpnInput {
         return encapType;
     }
 
+    public String getGatewayMac() {
+        return gatewayMac;
+    }
+
     public L3vpnInput setRd(String rd) {
         this.rd = rd;
         return this;
@@ -71,11 +71,6 @@ public class L3vpnInput {
 
     public L3vpnInput setNextHopIp(String nextHopIp) {
         this.nextHopIp = nextHopIp;
-        return this;
-    }
-
-    public L3vpnInput setGatewayMac(String gatewayMac) {
-        this.gatewayMac = gatewayMac;
         return this;
     }
 
@@ -101,6 +96,11 @@ public class L3vpnInput {
 
     public L3vpnInput setEncapType(VrfEntry.EncapType encapType) {
         this.encapType = encapType;
+        return this;
+    }
+
+    public L3vpnInput setGatewayMac(String gatewayMac) {
+        this.gatewayMac = gatewayMac;
         return this;
     }
 }
