@@ -12,6 +12,7 @@ import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.netvirt.bgpmanager.api.IBgpManager;
 import org.opendaylight.netvirt.fibmanager.api.IFibManager;
 import org.opendaylight.netvirt.vpnmanager.VpnInterfaceManager;
+import org.opendaylight.netvirt.vpnmanager.VpnUtil;
 import org.opendaylight.netvirt.vpnmanager.populator.input.L3vpnInput;
 import org.opendaylight.netvirt.vpnmanager.populator.registry.L3vpnRegistry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.VrfEntry;
@@ -40,10 +41,11 @@ public class L3vpnOverVxlanPopulator extends L3vpnPopulator {
     public void populateFib(L3vpnInput input, DataBroker broker, WriteTransaction writeConfigTxn,
                             WriteTransaction writeOperTxn) {
         String rd = input.getRd();
+        String gatewayMac = VpnUtil.getGatewayMac(broker, input.getNextHop().getSubnetId(), input.getVpnName());
         Adjacency nextHop = input.getNextHop();
         if (rd != null) {
             addPrefixToBGP(rd, nextHop.getMacAddress(), nextHop.getIpAddress(), input.getNextHopIp(),
-                    input.getEncapType(), 0 /*label*/, Long.valueOf(input.getL3vni()), input.getGatewayMac(),
+                    input.getEncapType(), 0 /*label*/, Long.valueOf(input.getL3vni()), gatewayMac,
                     broker, writeConfigTxn);
         } else {
             LOG.error("Internal VPN for L3 Over VxLAN is not supported. Aborting.");
