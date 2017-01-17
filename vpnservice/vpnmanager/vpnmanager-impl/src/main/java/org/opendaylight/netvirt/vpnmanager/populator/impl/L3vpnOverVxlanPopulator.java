@@ -10,6 +10,7 @@ package org.opendaylight.netvirt.vpnmanager.populator.impl;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.netvirt.vpnmanager.VpnInterfaceManager;
+import org.opendaylight.netvirt.vpnmanager.VpnUtil;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.VrfEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.adjacency.list.Adjacency;
 import org.slf4j.Logger;
@@ -20,9 +21,9 @@ public class L3vpnOverVxlanPopulator extends L3vpnPopulator {
     protected String gatewayMac;
     private static final Logger LOG = LoggerFactory.getLogger(L3vpnOverVxlanPopulator.class);
 
-    public L3vpnOverVxlanPopulator(VpnInterfaceManager context, String rd, Adjacency nextHop, String nextHopIp,
-                                   Long l3vni, String gatewayMac) {
-        super(context, rd, nextHop, nextHopIp);
+    public L3vpnOverVxlanPopulator(VpnInterfaceManager context, String rd, String vpnName, Adjacency nextHop,
+                                   String nextHopIp, Long l3vni, String gatewayMac) {
+        super(context, rd, vpnName, nextHop, nextHopIp);
         this.l3vni = l3vni;
         this.gatewayMac = gatewayMac;
         this.encapType = VrfEntry.EncapType.Vxlan;
@@ -30,6 +31,9 @@ public class L3vpnOverVxlanPopulator extends L3vpnPopulator {
 
     @Override
     public void populateFib(DataBroker broker, WriteTransaction writeConfigTxn, WriteTransaction writeOperTxn) {
+        String gatewayMac = VpnUtil.getGatewayMac(broker, nextHop.getSubnetId(), vpnName);
+        LOG.info("Gateway Mac Address is {} for rd {} prefix {} nexthop {} l3vni {}", gatewayMac, rd,
+                nextHop.getIpAddress(), nextHop.getNextHopIpList(), l3vni);
         if (rd != null) {
             addPrefixToBGP(rd, nextHop.getMacAddress(), nextHop.getIpAddress(), nextHopIp, encapType, 0 /*label*/,
                     Long.valueOf(l3vni), gatewayMac, broker, writeConfigTxn);

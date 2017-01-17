@@ -454,23 +454,23 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
         InstanceIdentifier<Adjacencies> path = identifier.augmentation(Adjacencies.class);
         Optional<Adjacencies> adjacencies = VpnUtil.read(dataBroker, LogicalDatastoreType.OPERATIONAL, path);
         if (adjacencies.isPresent()) {
-            VpnInstanceOpDataEntry vpnInstanceOpData = VpnUtil.getVpnInstanceOpData(dataBroker, rd);
-            long l3vni = 0;
-            String gatewayMac = null;
-            VrfEntry.EncapType encapType = null;
-            if (VpnUtil.isL3VpnOverVxLan(vpnInstanceOpData.getL3vni())) {
-                encapType = VrfEntry.EncapType.Vxlan;
-                l3vni = vpnInstanceOpData.getL3vni();
-                gatewayMac = VpnUtil.getGatewayMac(intf.getName());
-            } else {
-                encapType = VrfEntry.EncapType.Mplsgre;
-            }
             List<Adjacency> nextHops = adjacencies.get().getAdjacency();
 
             if (!nextHops.isEmpty()) {
                 LOG.trace("NextHops are {}", nextHops);
+                VpnInstanceOpDataEntry vpnInstanceOpData = VpnUtil.getVpnInstanceOpData(dataBroker, rd);
+                long l3vni = vpnInstanceOpData.getL3vni();
+                VrfEntry.EncapType encapType = VpnUtil.isL3VpnOverVxLan(l3vni)
+                        ? VrfEntry.EncapType.Vxlan : VrfEntry.EncapType.Mplsgre;
                 for (Adjacency nextHop : nextHops) {
-                    long label = nextHop.getLabel();
+                    String gatewayMac = null;
+                    long label = 0;
+                    if (VpnUtil.isL3VpnOverVxLan(l3vni)) {
+                        gatewayMac = VpnUtil.getGatewayMac(dataBroker, nextHop.getSubnetId(),
+                                vpnInstanceOpData.getVpnInstanceName());
+                    } else {
+                        label = nextHop.getLabel();
+                    }
                     try {
                         LOG.info("VPN ADVERTISE: Adding Fib Entry rd {} prefix {} nexthop {} label {}", rd,
                                 nextHop.getIpAddress(), nextHopIp, label);
@@ -603,16 +603,11 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
         List<VpnInstanceOpDataEntry> vpnsToImportRoute = getVpnsImportingMyRoute(vpnName);
         VpnInstanceOpDataEntry vpnInstanceOpData = VpnUtil.getVpnInstanceOpData(dataBroker, rd);
         Long l3vni = vpnInstanceOpData.getL3vni();
-        String gatewayMac = null;
-        VrfEntry.EncapType encapType = null;
-        if (VpnUtil.isL3VpnOverVxLan(l3vni)) {
-            encapType = VrfEntry.EncapType.Vxlan;
-            gatewayMac = VpnUtil.getGatewayMac(interfaceName);
-        } else {
-            encapType = VrfEntry.EncapType.Mplsgre;
-        }
+
         List<Adjacency> nextHops = adjacencies.get().getAdjacency();
         List<Adjacency> value = new ArrayList<>();
+        VrfEntry.EncapType encapType = VpnUtil.isL3VpnOverVxLan(l3vni)
+                ? VrfEntry.EncapType.Vxlan : VrfEntry.EncapType.Mplsgre;
         LOG.trace("NextHops for interface {} are {}", interfaceName, nextHops);
         for (Adjacency nextHop : nextHops) {
             String prefix = VpnUtil.getIpPrefix(nextHop.getIpAddress());
@@ -645,7 +640,8 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                 final Uuid subnetId = nextHop.getSubnetId();
                 setupGwMacIfRequired(dpnId, vpnName, interfaceName, vpnId, subnetId,
                         writeInvTxn, NwConstants.ADD_FLOW);
-                addArpResponderFlow(dpnId, lportTag, vpnName, vpnId, interfaceName, subnetId, writeInvTxn);
+                addArpResponderFlow(dpnId, lportTag, vpnName, vpnId, interfaceName, subnetId,
+                        VpnUtil.isL3VpnOverVxLan(l3vni), writeInvTxn);
             } else {
                 //Extra route adjacency
                 LOG.trace("Adding prefix {} and nextHopList {} as extra-route for vpn", nextHop.getIpAddress(),
@@ -661,7 +657,7 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
         Adjacencies aug = VpnUtil.getVpnInterfaceAugmentation(value);
         addVpnInterfaceToOperational(vpnName, interfaceName, dpnId, aug, writeOperTxn);
 
-        L3vpnInput input = new L3vpnInput().setRd(rd).setNextHopIp(nextHopIp).setL3vni(l3vni).setGatewayMac(gatewayMac)
+        L3vpnInput input = new L3vpnInput().setRd(rd).setNextHopIp(nextHopIp).setL3vni(l3vni)
                 .setInterfaceName(interfaceName).setVpnName(vpnName).setInterfaceName(interfaceName).setDpnId(dpnId);
         for (Adjacency nextHop : aug.getAdjacency()) {
             input.setNextHop(nextHop);
@@ -1208,7 +1204,7 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
 
     private void addArpResponderFlow(final BigInteger dpId, final int lportTag, final String vpnName,
                                      final long vpnId, final String ifName, final Uuid subnetId,
-                                     final WriteTransaction writeInvTxn) {
+                                     boolean isOverVxLan, final WriteTransaction writeInvTxn) {
         LOG.trace("Creating the ARP Responder flow for VPN Interface {}",ifName);
         final Optional<String> gatewayIp = VpnUtil.getVpnSubnetGatewayIp(dataBroker, subnetId);
         if (gatewayIp.isPresent()) {
@@ -1217,8 +1213,7 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
             VpnPortipToPort gwPort = VpnUtil.getNeutronPortFromVpnPortFixedIp(dataBroker, vpnName, gwIp);
             //Check if a router gateway interface is available for the subnet gw is so then use Router interface
             // else use connected interface
-            final String subNetGwMac = (gwPort != null && gwPort.isSubnetIp())
-                ? gwPort.getMacAddress() : InterfaceUtils.getMacAddressForInterface(dataBroker, ifName).get();
+            String subNetGwMac = VpnUtil.getSubnetGwMac(dataBroker, gwPort, ifName, isOverVxLan);
             LOG.debug("VPN Interface Subnet Gateway MAC for {} interface to be used for ARPResponder is {}",
                     (gwPort != null && gwPort.isSubnetIp()) ? "Router" : "Connected", subNetGwMac);
             final String flowId = ArpResponderUtil.getFlowID(lportTag, gwIp);
@@ -1275,7 +1270,7 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
         String vpnRd = VpnUtil.getVpnRd(dataBroker, vpnInstanceName);
         VpnInstanceOpDataEntry vpnInstanceOpDataEntry = VpnUtil.getVpnInstanceOpData(dataBroker, vpnRd);
         if (VpnUtil.isL3VpnOverVxLan(vpnInstanceOpDataEntry.getL3vni())) {
-            buildAndProgramGwMacFlow(dpId, vpnId, VpnUtil.getGatewayMac(vpnInterfaceName),
+            buildAndProgramGwMacFlow(dpId, vpnId, VpnUtil.getGatewayMac(dataBroker, subnetUuid, vpnInstanceName),
                     writeInvTxn, NwConstants.ADD_FLOW);
         }
     }

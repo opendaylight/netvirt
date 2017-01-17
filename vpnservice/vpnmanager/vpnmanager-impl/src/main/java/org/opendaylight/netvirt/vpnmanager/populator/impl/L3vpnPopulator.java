@@ -25,13 +25,16 @@ public class L3vpnPopulator implements VpnPopulator {
     protected Adjacency nextHop;
     protected String nextHopIp;
     protected VrfEntry.EncapType encapType;
+    protected String vpnName;
     private static final Logger LOG = LoggerFactory.getLogger(L3vpnPopulator.class);
 
-    protected L3vpnPopulator(VpnInterfaceManager context, String rd, Adjacency nextHop, String nextHopIp) {
+    protected L3vpnPopulator(VpnInterfaceManager context, String rd, String vpnName, Adjacency nextHop,
+                             String nextHopIp) {
         this.context = context;
         this.rd = rd;
         this.nextHop = nextHop;
         this.nextHopIp = nextHopIp;
+        this.vpnName = vpnName;
     }
 
     @Override
