@@ -127,6 +127,24 @@
     },
     {
       "key": {
+        "uuid": "1a622d24_eead91ea",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 10
+      },
+      "lineNbr": 200,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-01-17T13:21:55Z",
+      "side": 1,
+      "message": "OK, this makes sense.. \n\nisVpnInstanceReady() and addToUnprocessedVpnInterfaces() must be together.\n\nYou can unequivocally call addToUnprocessedVPNiNTERFACEs() from within add() and within that we lock  first.  If isVpnInstanceReady() you return out without adding returning false, otherwise you add the interface to the queue.  The addToUnprocessedxxx() can return whether it added or not.  If it added, do early exit in add(), otherwise continue to invoke addVpnInterface().\n\nSimilarly in processSavedVpnInterfaces we lock first and then service all the saved interfaces.",
+      "parentUuid": "1a622d24_a27612a2",
+      "revId": "16e8be1153da4b6952281219614bb95799137c9f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_3f1b39cb",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
         "patchSetId": 10
@@ -190,6 +208,23 @@
       "side": 1,
       "message": "Please look at the latest code, this check has already been removed :)",
       "parentUuid": "1a622d24_f5aa876f",
+      "revId": "16e8be1153da4b6952281219614bb95799137c9f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_4eb7653a",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 10
+      },
+      "lineNbr": 1904,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-01-17T13:21:55Z",
+      "side": 1,
+      "message": "again let us not lock for entier bunch here..",
       "revId": "16e8be1153da4b6952281219614bb95799137c9f",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
