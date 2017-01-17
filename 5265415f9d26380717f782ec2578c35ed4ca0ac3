@@ -1,0 +1,100 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1a622d24_7a3f8487",
+        "filename": "docs/specs/netvirt-statistics-spec.rst",
+        "patchSetId": 8
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 2589
+      },
+      "writtenOn": "2017-01-17T07:18:33Z",
+      "side": 1,
+      "message": "1) It uses OFP RPC which takes the data from the switch. We will not use OFP statistics.\n2) We will not store the data.",
+      "parentUuid": "1a622d24_700a0d7a",
+      "range": {
+        "startLine": 20,
+        "startChar": 0,
+        "endLine": 20,
+        "endChar": 61
+      },
+      "revId": "5265415f9d26380717f782ec2578c35ed4ca0ac3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_5a44481a",
+        "filename": "docs/specs/netvirt-statistics-spec.rst",
+        "patchSetId": 8
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 2589
+      },
+      "writtenOn": "2017-01-17T07:18:33Z",
+      "side": 1,
+      "message": "1) The stats collection will be on demand.\n2) Since we neither use OFP statistics, nor store the data, the only scale issue could be running many RPC calls simultaneously - but in that case load balancing of the calls could be a solution.",
+      "parentUuid": "1a622d24_f01d7dbf",
+      "range": {
+        "startLine": 32,
+        "startChar": 0,
+        "endLine": 33,
+        "endChar": 43
+      },
+      "revId": "5265415f9d26380717f782ec2578c35ed4ca0ac3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_ba4c7c43",
+        "filename": "docs/specs/netvirt-statistics-spec.rst",
+        "patchSetId": 8
+      },
+      "lineNbr": 110,
+      "author": {
+        "id": 2589
+      },
+      "writtenOn": "2017-01-17T07:18:33Z",
+      "side": 1,
+      "message": "No stats will be stored.",
+      "parentUuid": "1a622d24_1080f9be",
+      "range": {
+        "startLine": 108,
+        "startChar": 0,
+        "endLine": 110,
+        "endChar": 4
+      },
+      "revId": "5265415f9d26380717f782ec2578c35ed4ca0ac3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_9a49c033",
+        "filename": "docs/specs/netvirt-statistics-spec.rst",
+        "patchSetId": 8
+      },
+      "lineNbr": 118,
+      "author": {
+        "id": 2589
+      },
+      "writtenOn": "2017-01-17T07:18:33Z",
+      "side": 1,
+      "message": "Done in previous comments.",
+      "parentUuid": "1a622d24_307b75f6",
+      "range": {
+        "startLine": 116,
+        "startChar": 0,
+        "endLine": 118,
+        "endChar": 4
+      },
+      "revId": "5265415f9d26380717f782ec2578c35ed4ca0ac3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
