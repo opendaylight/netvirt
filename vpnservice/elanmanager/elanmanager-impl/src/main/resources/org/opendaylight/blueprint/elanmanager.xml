@@ -143,6 +143,11 @@
     <argument ref="dataBroker" />
   </bean>
 
+  <bean id="cacheElanInterfaceListener" class="org.opendaylight.netvirt.elan.utils.CacheElanInstanceListener"
+    init-method="init" destroy-method="close">
+    <argument ref="dataBroker" />
+  </bean>
+
   <bean id="hwvtepLocalUcastMacListener" class="org.opendaylight.netvirt.elan.l2gw.listeners.HwvtepLocalUcastMacListener"
     init-method="init" destroy-method="close">
     <argument ref="dataBroker" />
