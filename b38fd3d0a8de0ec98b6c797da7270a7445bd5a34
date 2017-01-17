@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1a622d24_a544571b",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 2
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 2264
+      },
+      "writtenOn": "2017-01-17T17:48:55Z",
+      "side": 1,
+      "message": "forgive my ignorance here, but the way I am understanding the context of all\nof this is that there was some \"functionality\" not being (not loading these\nlistener classes) started.\n\nwhat I\u0027m wondering is why nothing was breaking/failing? no CSIT was affected\nby this, I don\u0027t think. Obviously IT/UT must be ok because that would be blocking\nmerges, etc.\n\nis it just the case that we don\u0027t have any tests?",
+      "revId": "b38fd3d0a8de0ec98b6c797da7270a7445bd5a34",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
