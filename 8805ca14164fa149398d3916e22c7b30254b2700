@@ -1,0 +1,84 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1a622d24_a229ed38",
+        "filename": "docs/specs/ecmp-bgp-l3vpn.rst",
+        "patchSetId": 5
+      },
+      "lineNbr": 219,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2017-01-17T17:26:55Z",
+      "side": 1,
+      "message": "We are also looking at extending this model for the multiple VxLAN use case https://trello.com/c/Uk3yrjUG/25-multiple-vxlan-endpoints-for-compute\nDid you consider using some standard model for this?\nI figured it might be easier to pick a standard model and implement only parts of it instead of remodeling for each new feature coming in. \nI was looking at next-hop model in https://tools.ietf.org/html/draft-ietf-i2rs-rib-info-model-10#section-2.4 would it be a good fit for representation of the route paths?",
+      "revId": "8805ca14164fa149398d3916e22c7b30254b2700",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_22ecbdf2",
+        "filename": "docs/specs/ecmp-bgp-l3vpn.rst",
+        "patchSetId": 5
+      },
+      "lineNbr": 234,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2017-01-17T17:26:55Z",
+      "side": 1,
+      "message": "Would it be possible to to separate the transport-related logic (group table for tunnels, updates based on tunnel state) to be lower level than l3vpn so other services (e.g. L2VPN, multiple uplinks) would be able to benefit from it?",
+      "revId": "8805ca14164fa149398d3916e22c7b30254b2700",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_022701cb",
+        "filename": "docs/specs/ecmp-bgp-l3vpn.rst",
+        "patchSetId": 5
+      },
+      "lineNbr": 257,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2017-01-17T17:26:55Z",
+      "side": 1,
+      "message": "this name is confusing",
+      "range": {
+        "startLine": 257,
+        "startChar": 14,
+        "endLine": 257,
+        "endChar": 20
+      },
+      "revId": "8805ca14164fa149398d3916e22c7b30254b2700",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_e223e5ba",
+        "filename": "docs/specs/ecmp-bgp-l3vpn.rst",
+        "patchSetId": 5
+      },
+      "lineNbr": 261,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2017-01-17T17:26:55Z",
+      "side": 1,
+      "message": "Hoe can you tell if its dpId or ip address?",
+      "range": {
+        "startLine": 261,
+        "startChar": 15,
+        "endLine": 261,
+        "endChar": 33
+      },
+      "revId": "8805ca14164fa149398d3916e22c7b30254b2700",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
