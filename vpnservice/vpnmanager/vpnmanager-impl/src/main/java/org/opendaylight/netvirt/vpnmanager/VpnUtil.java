@@ -1312,16 +1312,12 @@ public class VpnUtil {
             return gatewayMac;
         }
         VpnPortipToPort vpnTargetIpToPort = VpnUtil.getNeutronPortFromVpnPortFixedIp(dataBroker,
-            macEntry.getVpnName(), gatewayIp.getIpv4Address().getValue());
-        if (vpnTargetIpToPort != null && vpnTargetIpToPort.isSubnetIp()) {
-            gatewayMac = Optional.of(vpnTargetIpToPort.getMacAddress());
-        } else {
-            org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.id.to.vpn.instance.VpnIds vpnIds =
-                vpnIdsOptional.get();
-            if (vpnIds.isExternalVpn()) {
-                gatewayMac = InterfaceUtils.getMacAddressForInterface(dataBroker, macEntry.getInterfaceName());
-            }
-        }
+                macEntry.getVpnName(), gatewayIp.getIpv4Address().getValue());
+        String vpnRd = VpnUtil.getVpnRd(dataBroker, macEntry.getVpnName());
+        VpnInstanceOpDataEntry vpnInstanceOpDataEntry = VpnUtil.getVpnInstanceOpData(dataBroker, vpnRd);
+        //TODO (KIRAN) : Why is isExternalVpn() check required for getting gwMac when router isn't associated?
+        gatewayMac = Optional.of(VpnUtil.getSubnetGwMac(dataBroker, vpnTargetIpToPort,
+                macEntry.getInterfaceName(), VpnUtil.isL3VpnOverVxLan(vpnInstanceOpDataEntry.getL3vni())));
         return gatewayMac;
     }
 
@@ -1448,9 +1444,50 @@ public class VpnUtil {
         return (l2Vni != null && l2Vni != 0);
     }
 
-    static   String getGatewayMac(String interfaceName) {
-        //OUI based MAC creation and use
-        return VpnConstants.DEFAULT_GATEWAY_MAC_ADDRESS;
+    public static String getGatewayMac(DataBroker broker, Uuid subnetId, String vpnName) {
+        String gatewayMac = getRouterInterfaceMac(broker, subnetId, vpnName);
+        if (gatewayMac == null) {
+            gatewayMac = VpnConstants.DEFAULT_GATEWAY_MAC_ADDRESS;
+        }
+        return gatewayMac;
+    }
+
+    public static String getRouterInterfaceMac(DataBroker broker, Uuid subnetId, String vpnName) {
+        LOG.info("Get gateway Mac for subnet {}", subnetId.getValue());
+        InstanceIdentifier<Subnet> subnetIdentifier = InstanceIdentifier.create(Neutron.class).child(Subnets.class)
+                .child(Subnet.class,     new SubnetKey(subnetId));
+        Optional<Subnet> subnetOptional = read(broker, LogicalDatastoreType.CONFIGURATION, subnetIdentifier);
+        if (!subnetOptional.isPresent()) {
+            LOG.error("No subnet found with id {}", subnetId.getValue());
+            return null;
+        }
+        IpAddress gatewayIp = subnetOptional.get().getGatewayIp();
+        if (gatewayIp == null) {
+            LOG.error("No GW ip found for subnet {}", subnetId.getValue());
+            return null;
+        }
+        InstanceIdentifier<VpnPortipToPort> gatewayPortIdentifier = InstanceIdentifier
+                .builder(NeutronVpnPortipPortData.class).child(VpnPortipToPort.class,
+                        new VpnPortipToPortKey(gatewayIp.getIpv4Address().getValue(), vpnName)).build();
+        Optional<VpnPortipToPort> gatewayPort = read(broker, LogicalDatastoreType.CONFIGURATION,
+                gatewayPortIdentifier);
+        if (gatewayPort.isPresent()) {
+            return gatewayPort.get().getMacAddress();
+        }
+        LOG.error("Router Mac was not found for gatewayIp {} in subnet {}", gatewayIp, subnetId.getValue());
+        return null;
+    }
+
+    static String getSubnetGwMac(DataBroker broker, VpnPortipToPort gwPort, String interfaceName, boolean isOverVxLan) {
+        String gwMacAddress = null;
+        if (gwPort != null && gwPort.isSubnetIp()) {
+            gwMacAddress = gwPort.getMacAddress();
+        } else if (isOverVxLan) {
+            gwMacAddress = VpnConstants.DEFAULT_GATEWAY_MAC_ADDRESS;
+        } else {
+            gwMacAddress = InterfaceUtils.getMacAddressForInterface(broker, interfaceName).get();
+        }
+        return  gwMacAddress;
     }
 
 }

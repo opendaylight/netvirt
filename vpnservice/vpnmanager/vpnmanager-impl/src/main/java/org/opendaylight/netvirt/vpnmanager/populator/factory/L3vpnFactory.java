@@ -22,8 +22,8 @@ public class L3vpnFactory {
     public static VpnPopulator getL3vpnPopulator(VrfEntry.EncapType encapType, L3vpnInput input,
                                                  VpnInterfaceManager context) {
         if (encapType.equals(VrfEntry.EncapType.Vxlan)) {
-            return new L3vpnOverVxlanPopulator(context, input.getRd(), input.getNextHop(), input.getNextHopIp(),
-                    input.getL3vni(), input.getGatewayMac());
+            return new L3vpnOverVxlanPopulator(context, input.getRd(), input.getVpnName(), input.getNextHop(),
+                    input.getNextHopIp(), input.getL3vni(), input.getGatewayMac());
         } else {
             return new L3vpnOverMplsGrePopulator(context, input.getRd(), input.getNextHop(), input.getNextHopIp(),
                     input.getVpnName(), input.getInterfaceName(), input.getDpnId());
