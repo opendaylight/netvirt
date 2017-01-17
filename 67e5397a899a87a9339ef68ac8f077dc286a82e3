@@ -1,0 +1,89 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1a622d24_8ddfc70c",
+        "filename": "vpnservice/dhcpservice/dhcpservice-impl/src/main/java/org/opendaylight/netvirt/dhcpservice/DhcpInterfaceConfigListener.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 53,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-01-17T05:44:28Z",
+      "side": 1,
+      "message": "same comment as below.",
+      "revId": "67e5397a899a87a9339ef68ac8f077dc286a82e3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_edc8fb56",
+        "filename": "vpnservice/dhcpservice/dhcpservice-impl/src/main/java/org/opendaylight/netvirt/dhcpservice/DhcpInterfaceConfigListener.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 64,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-01-17T05:44:28Z",
+      "side": 1,
+      "message": "do we really need separate class DhcpInterfaceConfigAddJob for it ? you could simply pass it as Function to enqueueJob.",
+      "revId": "67e5397a899a87a9339ef68ac8f077dc286a82e3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_8db867c9",
+        "filename": "vpnservice/dhcpservice/dhcpservice-impl/src/main/java/org/opendaylight/netvirt/dhcpservice/jobs/DhcpInterfaceConfigAddJob.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 30,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-01-17T05:44:28Z",
+      "side": 1,
+      "message": "make these member variables as private final",
+      "revId": "67e5397a899a87a9339ef68ac8f077dc286a82e3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_2da83376",
+        "filename": "vpnservice/dhcpservice/dhcpservice-impl/src/main/java/org/opendaylight/netvirt/dhcpservice/jobs/DhcpInterfaceConfigAddJob.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 44,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-01-17T05:44:28Z",
+      "side": 1,
+      "message": "Don\u0027t you need check for iface as VLAN type ?",
+      "revId": "67e5397a899a87a9339ef68ac8f077dc286a82e3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_adb3a3e7",
+        "filename": "vpnservice/dhcpservice/dhcpservice-impl/src/main/java/org/opendaylight/netvirt/dhcpservice/jobs/DhcpInterfaceConfigAddJob.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 49,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-01-17T05:44:28Z",
+      "side": 1,
+      "message": "is this log necessary ? Or make it as debug log and guard with if (LOG.isDebugEnabled())",
+      "revId": "67e5397a899a87a9339ef68ac8f077dc286a82e3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
