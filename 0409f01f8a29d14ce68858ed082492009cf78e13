@@ -1,0 +1,157 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1a622d24_aef6f9f6",
+        "filename": "vpnservice/fibmanager/fibmanager-api/src/main/yang/odl-fib.yang",
+        "patchSetId": 6
+      },
+      "lineNbr": 60,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-01-17T13:38:33Z",
+      "side": 1,
+      "message": "are we using the value in this mac_address anywhere within FIB Manager?",
+      "revId": "0409f01f8a29d14ce68858ed082492009cf78e13",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_2eb94915",
+        "filename": "vpnservice/model-bgp/src/main/yang/ebgp.yang",
+        "patchSetId": 6
+      },
+      "lineNbr": 140,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-01-17T13:38:33Z",
+      "side": 1,
+      "message": "Please put a description of what is significance for each of these elements.",
+      "revId": "0409f01f8a29d14ce68858ed082492009cf78e13",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_eec2b183",
+        "filename": "vpnservice/model-bgp/src/main/yang/ebgp.yang",
+        "patchSetId": 6
+      },
+      "lineNbr": 197,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-01-17T13:38:33Z",
+      "side": 1,
+      "message": "this description looks crazy..\n\nVRF represents a MAC-VRF",
+      "revId": "0409f01f8a29d14ce68858ed082492009cf78e13",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_4ebc8506",
+        "filename": "vpnservice/model-bgp/src/main/yang/ebgp.yang",
+        "patchSetId": 6
+      },
+      "lineNbr": 202,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-01-17T13:38:33Z",
+      "side": 1,
+      "message": "VRF represents an IP-VRF",
+      "revId": "0409f01f8a29d14ce68858ed082492009cf78e13",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_ce3ff585",
+        "filename": "vpnservice/model-bgp/src/main/yang/ebgp.yang",
+        "patchSetId": 6
+      },
+      "lineNbr": 244,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-01-17T13:38:33Z",
+      "side": 1,
+      "message": "i am not sure if this is a suitable name after seeing the values below ;)",
+      "revId": "0409f01f8a29d14ce68858ed082492009cf78e13",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_2e5029d3",
+        "filename": "vpnservice/model-bgp/src/main/yang/ebgp.yang",
+        "patchSetId": 6
+      },
+      "lineNbr": 273,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-01-17T13:38:33Z",
+      "side": 1,
+      "message": "again we can name this better.. how about vpn-type",
+      "revId": "0409f01f8a29d14ce68858ed082492009cf78e13",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_4e6ac581",
+        "filename": "vpnservice/neutronvpn/neutronvpn-api/src/main/yang/neutronvpn.yang",
+        "patchSetId": 6
+      },
+      "lineNbr": 136,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-01-17T13:38:33Z",
+      "side": 1,
+      "message": "mandatory false?",
+      "revId": "0409f01f8a29d14ce68858ed082492009cf78e13",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_6e0ce1ed",
+        "filename": "vpnservice/vpnmanager/vpnmanager-api/src/main/yang/l3vpn.yang",
+        "patchSetId": 6
+      },
+      "lineNbr": 750,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-01-17T13:38:33Z",
+      "side": 1,
+      "message": "mandatory false?",
+      "revId": "0409f01f8a29d14ce68858ed082492009cf78e13",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_0efbadc1",
+        "filename": "vpnservice/vpnmanager/vpnmanager-api/src/main/yang/odl-l3vpn.yang",
+        "patchSetId": 6
+      },
+      "lineNbr": 204,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-01-17T13:38:33Z",
+      "side": 1,
+      "message": "mandatory false?",
+      "revId": "0409f01f8a29d14ce68858ed082492009cf78e13",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
