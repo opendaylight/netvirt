@@ -99,6 +99,8 @@ import org.slf4j.LoggerFactory;
 public class ElanL2GatewayUtils {
     private static final Logger LOG = LoggerFactory.getLogger(ElanL2GatewayUtils.class);
 
+    private static final int LOGICAL_SWITCH_DELETE_DELAY = 20000;
+
     private final DataBroker broker;
     private final ItmRpcService itmRpcService;
     private final ElanUtils elanUtils;
@@ -106,8 +108,7 @@ public class ElanL2GatewayUtils {
     private final ElanL2GatewayMulticastUtils elanL2GatewayMulticastUtils;
 
     private final DataStoreJobCoordinator dataStoreJobCoordinator = DataStoreJobCoordinator.getInstance();
-    private static Timer LogicalSwitchDeleteJobTimer = new Timer();
-    private static final int LOGICAL_SWITCH_DELETE_DELAY = 20000;
+    private final Timer logicalSwitchDeleteJobTimer = new Timer();
     private final ConcurrentMap<Pair<NodeId, String>, TimerTask> logicalSwitchDeletedTasks = new ConcurrentHashMap<>();
 
     public ElanL2GatewayUtils(DataBroker broker, ItmRpcService itmRpcService, ElanUtils elanUtils,
@@ -118,6 +119,11 @@ public class ElanL2GatewayUtils {
         this.elanUtils = elanUtils;
         this.entityOwnershipService = entityOwnershipService;
         this.elanL2GatewayMulticastUtils = elanL2GatewayMulticastUtils;
+    }
+
+    public void close() {
+        logicalSwitchDeleteJobTimer.cancel();
+        logicalSwitchDeleteJobTimer.purge();
     }
 
     /**
@@ -1100,7 +1106,7 @@ public class ElanL2GatewayUtils {
         };
         Pair<NodeId, String> nodeIdLogicalSwitchNamePair = new ImmutablePair<>(hwvtepNodeId, lsName);
         logicalSwitchDeletedTasks.put(nodeIdLogicalSwitchNamePair, logicalSwitchDeleteTask);
-        LogicalSwitchDeleteJobTimer.schedule(logicalSwitchDeleteTask, LOGICAL_SWITCH_DELETE_DELAY);
+        logicalSwitchDeleteJobTimer.schedule(logicalSwitchDeleteTask, LOGICAL_SWITCH_DELETE_DELAY);
     }
 
     public void cancelDeleteLogicalSwitch(final NodeId hwvtepNodeId, final String lsName) {
