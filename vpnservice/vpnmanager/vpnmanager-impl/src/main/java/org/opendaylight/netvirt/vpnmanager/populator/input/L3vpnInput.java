@@ -16,7 +16,6 @@ public class L3vpnInput {
     private String rd;
     private Adjacency nextHop;
     private String nextHopIp;
-    private String gatewayMac;
     private Long l3vni;
     private String interfaceName;
     private String vpnName;
@@ -33,10 +32,6 @@ public class L3vpnInput {
 
     public String getNextHopIp() {
         return nextHopIp;
-    }
-
-    public String getGatewayMac() {
-        return gatewayMac;
     }
 
     public Long getL3vni() {
@@ -71,11 +66,6 @@ public class L3vpnInput {
 
     public L3vpnInput setNextHopIp(String nextHopIp) {
         this.nextHopIp = nextHopIp;
-        return this;
-    }
-
-    public L3vpnInput setGatewayMac(String gatewayMac) {
-        this.gatewayMac = gatewayMac;
         return this;
     }
 
