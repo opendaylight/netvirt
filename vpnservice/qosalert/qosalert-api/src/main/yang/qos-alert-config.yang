@@ -1,0 +1,37 @@
+module qosalert-config {
+    yang-version 1;
+    namespace "urn:opendaylight:params:xml:ns:yang:netvirt:qosalert:config";
+    prefix "qosalert";
+
+    revision "2016-12-05" {
+        description "Initial revision of qosalert model";
+    }
+
+    description "This YANG module defines QoS alert configuration.";
+
+    container qosalert-config {
+    config true;
+
+    /* QoS alert enable-disable config. Disable by default */
+
+      leaf qos-alert-enabled {
+         type boolean;
+         default false;
+      }
+    
+    /* QoS Packet drop threshold config.
+       Send alert if (dropped packet % > threshold) && (!disable-qos-alert) */
+
+      leaf qos-drop-packet-threshold {
+         type uint16;
+         default 5;
+      }
+
+      leaf qos-alert-log-file {
+         type string;
+         default qosalert/qos-alert.log;
+      }
+
+    }
+
+}
