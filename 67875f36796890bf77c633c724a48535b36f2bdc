@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1a622d24_d30ddee9",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/resources/org/opendaylight/blueprint/elanmanager.xml",
+        "patchSetId": 1
+      },
+      "lineNbr": 146,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-01-17T11:02:20Z",
+      "side": 1,
+      "message": "change the bean id to cacheElanInstanceListener",
+      "revId": "67875f36796890bf77c633c724a48535b36f2bdc",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
