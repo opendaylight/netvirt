@@ -115,7 +115,8 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
 
     private static final long WAIT_TIME_FOR_SYNC_INSTALL = Long.getLong("wait.time.sync.install", 300L);
 
-    private Map<String, ConcurrentLinkedQueue<ElanInterface>> unProcessedElanInterfaces = new ConcurrentHashMap<>();
+    private final Map<String, ConcurrentLinkedQueue<ElanInterface>>
+        unProcessedElanInterfaces = new ConcurrentHashMap<>();
 
     private static final Logger LOG = LoggerFactory.getLogger(ElanInterfaceManager.class);
 
@@ -132,6 +133,13 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
         this.elanForwardingEntriesHandler = elanForwardingEntriesHandler;
     }
 
+    /**
+     * This method is used instead of "regular" standard constructor dependency injection in, only,
+     * ElanServiceProvider's constructor to wire things together. It was done like this because of the unholy
+     * triumvirate of unhealthy love triangle between (at least) ElanUtils, ElanInterfaceManager and
+     * ElanL2GatewayMulticastUtils. The proper solution to be able to get rid of this would be to split up some of these
+     * relatively big classes into smaller classes, and then inject more fine grained among them.
+     */
     public void setElanUtils(ElanUtils elanUtils) {
         this.elanUtils = elanUtils;
         this.elanL2GatewayUtils = elanUtils.getElanL2GatewayUtils();
