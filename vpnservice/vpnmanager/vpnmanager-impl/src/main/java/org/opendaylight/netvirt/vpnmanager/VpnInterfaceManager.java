@@ -476,23 +476,21 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
         }
 
         if (adjacencies.isPresent()) {
-            VpnInstanceOpDataEntry vpnInstanceOpData = VpnUtil.getVpnInstanceOpData(dataBroker, rd);
-            long l3vni = 0;
-            String gatewayMac = null;
-            VrfEntry.EncapType encapType = null;
-            if (VpnUtil.isL3VpnOverVxLan(vpnInstanceOpData.getL3vni())) {
-                encapType = VrfEntry.EncapType.Vxlan;
-                l3vni = vpnInstanceOpData.getL3vni();
-                gatewayMac = VpnUtil.getGatewayMac(intf.getName());
-            } else {
-                encapType = VrfEntry.EncapType.Mplsgre;
-            }
             List<Adjacency> nextHops = adjacencies.get().getAdjacency();
 
             if (!nextHops.isEmpty()) {
                 LOG.trace("NextHops are {}", nextHops);
+                VpnInstanceOpDataEntry vpnInstanceOpData = VpnUtil.getVpnInstanceOpData(dataBroker, rd);
+                long l3vni = vpnInstanceOpData.getL3vni();
+                VrfEntry.EncapType encapType = VpnUtil.isL3VpnOverVxLan(l3vni) ? VrfEntry.EncapType.Vxlan : VrfEntry.EncapType.Mplsgre;
                 for (Adjacency nextHop : nextHops) {
-                    long label = nextHop.getLabel();
+                    String gatewayMac = null;
+                    long label = 0;
+                    if (VpnUtil.isL3VpnOverVxLan(l3vni)) {
+                        gatewayMac = VpnUtil.getGatewayMac(dataBroker, nextHop.getSubnetId(), vpnInstanceOpData.getVpnInstanceName());
+                    } else {
+                        label = nextHop.getLabel();
+                    }
                     try {
                         LOG.info("VPN ADVERTISE: Adding Fib Entry rd {} prefix {} nexthop {} label {}", rd, nextHop.getIpAddress(), nextHopIp, label);
                         bgpManager.advertisePrefix(rd, nextHop.getMacAddress(), nextHop.getIpAddress(), nextHopIp,
@@ -619,14 +617,7 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
         List<VpnInstanceOpDataEntry> vpnsToImportRoute = getVpnsImportingMyRoute(vpnName);
         VpnInstanceOpDataEntry vpnInstanceOpData = VpnUtil.getVpnInstanceOpData(dataBroker, rd);
         Long l3vni = vpnInstanceOpData.getL3vni();
-        String gatewayMac = null;
-        VrfEntry.EncapType encapType = null;
-        if (VpnUtil.isL3VpnOverVxLan(l3vni)) {
-            encapType = VrfEntry.EncapType.Vxlan;
-            gatewayMac = VpnUtil.getGatewayMac(interfaceName);
-        } else {
-            encapType = VrfEntry.EncapType.Mplsgre;
-        }
+        VrfEntry.EncapType encapType = VpnUtil.isL3VpnOverVxLan(l3vni) ? VrfEntry.EncapType.Vxlan : VrfEntry.EncapType.Mplsgre;
         LOG.trace("NextHops for interface {} are {}", interfaceName, nextHops);
         for (Adjacency nextHop : nextHops) {
             String prefix = VpnUtil.getIpPrefix(nextHop.getIpAddress());
@@ -673,8 +664,8 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
         Adjacencies aug = VpnUtil.getVpnInterfaceAugmentation(value);
         addVpnInterfaceToOperational(vpnName, interfaceName, dpnId, aug, writeOperTxn);
 
-        L3vpnInput input = new L3vpnInput().setRd(rd).setNextHopIp(nextHopIp).setL3vni(l3vni).setGatewayMac(gatewayMac)
-                .setInterfaceName(interfaceName).setVpnName(vpnName).setInterfaceName(interfaceName).setDpnId(dpnId);
+        L3vpnInput input = new L3vpnInput().setRd(rd).setNextHopIp(nextHopIp).setL3vni(l3vni).setInterfaceName(interfaceName)
+                .setVpnName(vpnName).setInterfaceName(interfaceName).setDpnId(dpnId);
         for (Adjacency nextHop : aug.getAdjacency()) {
             input.setNextHop(nextHop);
             VpnPopulator vpnPopulator = L3vpnFactory.getL3vpnPopulator(encapType, input, this);
@@ -1253,7 +1244,7 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
         String vpnRd = VpnUtil.getVpnRd(dataBroker, vpnInstanceName);
         VpnInstanceOpDataEntry vpnInstanceOpDataEntry = VpnUtil.getVpnInstanceOpData(dataBroker, vpnRd);
         if (VpnUtil.isL3VpnOverVxLan(vpnInstanceOpDataEntry.getL3vni())) {
-            buildAndProgramGwMacFlow(dpId, vpnId, VpnUtil.getGatewayMac(vpnInterfaceName), writeInvTxn, NwConstants.ADD_FLOW);
+            buildAndProgramGwMacFlow(dpId, vpnId, VpnUtil.getGatewayMac(dataBroker, subnetUuid, vpnInstanceName), writeInvTxn, NwConstants.ADD_FLOW);
         }
     }
 

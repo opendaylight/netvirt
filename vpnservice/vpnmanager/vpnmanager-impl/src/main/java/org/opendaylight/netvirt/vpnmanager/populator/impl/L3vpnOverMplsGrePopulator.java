@@ -23,14 +23,12 @@ import java.util.Arrays;
 import java.util.List;
 
 public class L3vpnOverMplsGrePopulator extends L3vpnPopulator {
-    private String vpnName;
     private String interfaceName;
     private BigInteger dpnId;
     private static final Logger LOG = LoggerFactory.getLogger(L3vpnOverMplsGrePopulator.class);
 
     public L3vpnOverMplsGrePopulator(VpnInterfaceManager context, String rd, Adjacency nextHop, String nextHopIp, String vpnName, String interfaceName, BigInteger dpnId) {
-        super(context, rd, nextHop, nextHopIp);
-        this.vpnName = vpnName;
+        super(context, rd, vpnName, nextHop, nextHopIp);
         this.interfaceName = interfaceName;
         this.dpnId = dpnId;
         this.encapType = VrfEntry.EncapType.Mplsgre;
