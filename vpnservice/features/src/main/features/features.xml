@@ -44,6 +44,7 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
     <bundle>mvn:org.opendaylight.netvirt/ipv6service-api/{{VERSION}}</bundle>
     <bundle>mvn:org.opendaylight.netvirt/elanmanager-api/{{VERSION}}</bundle>
     <bundle>mvn:org.opendaylight.netvirt/cloud-servicechain-api/{{VERSION}}</bundle>
+    <bundle>mvn:org.opendaylight.netvirt/qosalert-api/{{VERSION}}</bundle>
   </feature>
 
   <feature name='odl-netvirt-impl' version='${project.version}' description='OpenDaylight :: NetVirt :: impl'>
@@ -78,10 +79,12 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
     <bundle>mvn:org.opendaylight.ovsdb/utils.mdsal-utils/{{VERSION}}</bundle>
     <bundle>mvn:org.opendaylight.ovsdb/utils.southbound-utils/{{VERSION}}</bundle>
     <bundle>wrap:mvn:org.apache.thrift/libthrift/0.9.1$overwrite=merge&amp;Bundle-Version=0.9.1&amp;Export-Package=*;-noimport:=true;version="0.9.1"</bundle>
+    <bundle>mvn:org.opendaylight.netvirt/qosalert-impl/{{VERSION}}</bundle>
     <configfile finalname="etc/opendaylight/datastore/initial/config/netvirt-aclservice-config.xml">mvn:org.opendaylight.netvirt/aclservice-impl/{{VERSION}}/xml/config</configfile>
     <configfile finalname="etc/opendaylight/datastore/initial/config/netvirt-dhcpservice-config.xml">mvn:org.opendaylight.netvirt/dhcpservice-impl/{{VERSION}}/xml/config</configfile>
     <configfile finalname="etc/opendaylight/datastore/initial/config/netvirt-elanmanager-config.xml">mvn:org.opendaylight.netvirt/elanmanager-impl/{{VERSION}}/xml/config</configfile>
     <configfile finalname="etc/opendaylight/datastore/initial/config/netvirt-neutronvpn-config.xml">mvn:org.opendaylight.netvirt/neutronvpn-impl/{{VERSION}}/xml/config</configfile>
+    <configfile finalname="etc/opendaylight/datastore/initial/config/netvirt-qosalert-config.xml">mvn:org.opendaylight.netvirt/qosalert-impl/{{VERSION}}/xml/config</configfile>
   </feature>
 
   <feature name='odl-netvirt-openstack' version='${project.version}' description='OpenDaylight :: NetVirt :: OpenStack'>
