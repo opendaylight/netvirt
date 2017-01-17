@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "1a622d24_13a596a1",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/FibUtil.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 731,
+      "author": {
+        "id": 6550
+      },
+      "writtenOn": "2017-01-17T16:05:27Z",
+      "side": 1,
+      "message": "Reverted back the class",
+      "parentUuid": "1a622d24_a2a3b2b0",
+      "revId": "bc0476b6194db8cad395c7443228bbe8ae88f7a4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_22fb22c2",
         "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/NexthopManager.java",
         "patchSetId": 3
@@ -53,6 +71,24 @@
     },
     {
       "key": {
+        "uuid": "1a622d24_487f5dab",
+        "filename": "vpnservice/vpnmanager/vpnmanager-api/src/main/yang/odl-l3vpn.yang",
+        "patchSetId": 3
+      },
+      "lineNbr": 65,
+      "author": {
+        "id": 6550
+      },
+      "writtenOn": "2017-01-17T16:05:27Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1a622d24_42fe1eaf",
+      "revId": "bc0476b6194db8cad395c7443228bbe8ae88f7a4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_02f8a6c1",
         "filename": "vpnservice/vpnmanager/vpnmanager-api/src/main/yang/odl-l3vpn.yang",
         "patchSetId": 3
@@ -64,6 +100,24 @@
       "writtenOn": "2017-01-16T18:06:12Z",
       "side": 1,
       "message": "replace the tabs with right spaces.",
+      "revId": "bc0476b6194db8cad395c7443228bbe8ae88f7a4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_287ca1b4",
+        "filename": "vpnservice/vpnmanager/vpnmanager-api/src/main/yang/odl-l3vpn.yang",
+        "patchSetId": 3
+      },
+      "lineNbr": 66,
+      "author": {
+        "id": 6550
+      },
+      "writtenOn": "2017-01-17T16:05:27Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1a622d24_02f8a6c1",
       "revId": "bc0476b6194db8cad395c7443228bbe8ae88f7a4",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -87,6 +141,24 @@
     },
     {
       "key": {
+        "uuid": "1a622d24_884cd59f",
+        "filename": "vpnservice/vpnmanager/vpnmanager-api/src/main/yang/odl-l3vpn.yang",
+        "patchSetId": 3
+      },
+      "lineNbr": 68,
+      "author": {
+        "id": 6550
+      },
+      "writtenOn": "2017-01-17T16:05:27Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1a622d24_823316aa",
+      "revId": "bc0476b6194db8cad395c7443228bbe8ae88f7a4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_a22e1241",
         "filename": "vpnservice/vpnmanager/vpnmanager-api/src/main/yang/odl-l3vpn.yang",
         "patchSetId": 3
@@ -98,6 +170,24 @@
       "writtenOn": "2017-01-16T18:06:12Z",
       "side": 1,
       "message": "use src-mac instead of gw-src-mac",
+      "revId": "bc0476b6194db8cad395c7443228bbe8ae88f7a4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_68517935",
+        "filename": "vpnservice/vpnmanager/vpnmanager-api/src/main/yang/odl-l3vpn.yang",
+        "patchSetId": 3
+      },
+      "lineNbr": 76,
+      "author": {
+        "id": 6550
+      },
+      "writtenOn": "2017-01-17T16:05:27Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1a622d24_a22e1241",
       "revId": "bc0476b6194db8cad395c7443228bbe8ae88f7a4",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -121,6 +211,24 @@
     },
     {
       "key": {
+        "uuid": "1a622d24_c8424d67",
+        "filename": "vpnservice/vpnmanager/vpnmanager-api/src/main/yang/odl-l3vpn.yang",
+        "patchSetId": 3
+      },
+      "lineNbr": 80,
+      "author": {
+        "id": 6550
+      },
+      "writtenOn": "2017-01-17T16:05:27Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1a622d24_62019aae",
+      "revId": "bc0476b6194db8cad395c7443228bbe8ae88f7a4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_e2dbea4c",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
         "patchSetId": 3
@@ -132,6 +240,24 @@
       "writtenOn": "2017-01-16T18:06:12Z",
       "side": 1,
       "message": "remove arp responder first and then remove gwmac entry.",
+      "revId": "bc0476b6194db8cad395c7443228bbe8ae88f7a4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_9391a649",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 1116,
+      "author": {
+        "id": 6550
+      },
+      "writtenOn": "2017-01-17T16:05:27Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1a622d24_e2dbea4c",
       "revId": "bc0476b6194db8cad395c7443228bbe8ae88f7a4",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -155,6 +281,24 @@
     },
     {
       "key": {
+        "uuid": "1a622d24_33bff2ab",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 1117,
+      "author": {
+        "id": 6550
+      },
+      "writtenOn": "2017-01-17T16:05:27Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1a622d24_42157ee3",
+      "revId": "bc0476b6194db8cad395c7443228bbe8ae88f7a4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_c2e06efc",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
         "patchSetId": 3
@@ -166,6 +310,24 @@
       "writtenOn": "2017-01-16T18:06:12Z",
       "side": 1,
       "message": "this comment can be corrected better :)",
+      "revId": "bc0476b6194db8cad395c7443228bbe8ae88f7a4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_f3cf3a54",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 1207,
+      "author": {
+        "id": 6550
+      },
+      "writtenOn": "2017-01-17T16:05:27Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1a622d24_c2e06efc",
       "revId": "bc0476b6194db8cad395c7443228bbe8ae88f7a4",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -189,6 +351,24 @@
     },
     {
       "key": {
+        "uuid": "1a622d24_53d9ce20",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnUtil.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 1367,
+      "author": {
+        "id": 6550
+      },
+      "writtenOn": "2017-01-17T16:05:27Z",
+      "side": 1,
+      "message": "OK, changed accordingly",
+      "parentUuid": "1a622d24_02e6e614",
+      "revId": "bc0476b6194db8cad395c7443228bbe8ae88f7a4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_e2b2ca04",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnUtil.java",
         "patchSetId": 3
@@ -200,6 +380,24 @@
       "writtenOn": "2017-01-16T18:06:12Z",
       "side": 1,
       "message": "ditto comment on transactions here.",
+      "revId": "bc0476b6194db8cad395c7443228bbe8ae88f7a4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_730b2a8e",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnUtil.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 1374,
+      "author": {
+        "id": 6550
+      },
+      "writtenOn": "2017-01-17T16:05:27Z",
+      "side": 1,
+      "message": "OK, changed Accordingly.",
+      "parentUuid": "1a622d24_e2b2ca04",
       "revId": "bc0476b6194db8cad395c7443228bbe8ae88f7a4",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false

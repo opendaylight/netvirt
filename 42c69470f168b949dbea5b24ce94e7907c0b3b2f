@@ -16,6 +16,24 @@
       "revId": "42c69470f168b949dbea5b24ce94e7907c0b3b2f",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_73bdeab6",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/NexthopManager.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 103,
+      "author": {
+        "id": 6550
+      },
+      "writtenOn": "2017-01-17T16:05:27Z",
+      "side": 0,
+      "message": "All are moved to NwConstants.java, unnecessary fields not being used anywhere in the class.",
+      "parentUuid": "1a622d24_02cd4685",
+      "revId": "42c69470f168b949dbea5b24ce94e7907c0b3b2f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
