@@ -82,7 +82,8 @@
   </bean>
   <odl:notification-listener ref="elanSmacFlowEventListener" />
 
-  <bean id="elanUtils" class="org.opendaylight.netvirt.elan.utils.ElanUtils">
+  <bean id="elanUtils" class="org.opendaylight.netvirt.elan.utils.ElanUtils"
+    destroy-method="close">
     <argument ref="dataBroker" />
     <argument ref="mdsalUtils" />
     <argument ref="elanInstanceManager" />

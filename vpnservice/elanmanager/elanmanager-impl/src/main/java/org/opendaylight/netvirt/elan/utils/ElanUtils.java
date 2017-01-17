@@ -214,6 +214,10 @@ public class ElanUtils {
                 elanInstanceManager, entityOwnershipService, this);
     }
 
+    public void close() {
+        elanL2GatewayUtils.close();
+    }
+
     public ElanL2GatewayUtils getElanL2GatewayUtils() {
         return elanL2GatewayUtils;
     }
