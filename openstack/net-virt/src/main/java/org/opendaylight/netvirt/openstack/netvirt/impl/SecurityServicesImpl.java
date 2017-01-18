@@ -14,6 +14,7 @@ import org.opendaylight.netvirt.openstack.netvirt.api.Constants;
 import org.opendaylight.netvirt.openstack.netvirt.api.EgressAclProvider;
 import org.opendaylight.netvirt.openstack.netvirt.api.IngressAclProvider;
 import org.opendaylight.netvirt.openstack.netvirt.api.NodeCacheManager;
+import org.opendaylight.netvirt.openstack.netvirt.api.SecurityGroupCacheManger;
 import org.opendaylight.netvirt.openstack.netvirt.api.SecurityServicesManager;
 import org.opendaylight.netvirt.openstack.netvirt.api.Southbound;
 import org.opendaylight.netvirt.openstack.netvirt.translator.NeutronNetwork;
@@ -36,6 +37,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class SecurityServicesImpl implements ConfigInterface, SecurityServicesManager {
 
@@ -49,6 +51,7 @@ public class SecurityServicesImpl implements ConfigInterface, SecurityServicesMa
     private volatile IngressAclProvider ingressAclProvider;
     private volatile EgressAclProvider egressAclProvider;
     private volatile NeutronL3Adapter neutronL3Adapter;
+    private volatile SecurityGroupCacheManger securityGroupCacheManger;
     private boolean isConntrackEnabled = false;
 
     public SecurityServicesImpl() {
@@ -72,9 +75,9 @@ public class SecurityServicesImpl implements ConfigInterface, SecurityServicesMa
         if (neutronPortId == null) {
             return false;
         }
-        NeutronPort neutronPort = neutronPortCache.getPort(neutronPortId);
+        NeutronPort neutronPort = neutronL3Adapter.getPortFromCleanupCache(neutronPortId);
         if (neutronPort == null) {
-            neutronPort = neutronL3Adapter.getPortFromCleanupCache(neutronPortId);
+            neutronPort = neutronPortCache.getPort(neutronPortId);
             if (neutronPort == null) {
                 LOG.error("isPortSecurityReady for {}", terminationPointAugmentation.getName()
                           + "not found");
@@ -110,9 +113,9 @@ public class SecurityServicesImpl implements ConfigInterface, SecurityServicesMa
         if (neutronPortId == null) {
             return neutronSecurityGroups;
         }
-        NeutronPort neutronPort = neutronPortCache.getPort(neutronPortId);
+        NeutronPort neutronPort = neutronL3Adapter.getPortFromCleanupCache(neutronPortId);
         if (neutronPort == null) {
-            neutronPort = neutronL3Adapter.getPortFromCleanupCache(neutronPortId);
+            neutronPort = neutronPortCache.getPort(neutronPortId);
             if (neutronPort == null) {
                 LOG.error("getSecurityGroupInPortList for {}", terminationPointAugmentation.getName()
                           + "not found.");
@@ -474,10 +477,10 @@ public class SecurityServicesImpl implements ConfigInterface, SecurityServicesMa
         LOG.trace("syncSecurityGroup:" + securityGroupList + " Write:" + write);
         if (null != port && null != port.getSecurityGroups()) {
             Node node = getNode(port);
-            NodeId nodeId = node.getNodeId();
             if (node == null) {
                 return;
             }
+            NodeId nodeId = node.getNodeId();
             NeutronNetwork neutronNetwork = neutronNetworkCache.getNetwork(port.getNetworkUUID());
             if (null == neutronNetwork) {
                 neutronNetwork = neutronL3Adapter.getNetworkFromCleanupCache(port.getNetworkUUID());
@@ -511,16 +514,22 @@ public class SecurityServicesImpl implements ConfigInterface, SecurityServicesMa
                                                           securityGroupInPort, neutronPortId, nodeId, write);
                 egressAclProvider.programPortSecurityGroup(dpid, segmentationId, attachedMac, localPort,
                                                          securityGroupInPort, neutronPortId, nodeId, write);
+                if (write) {
+                    securityGroupCacheManger.portAdded(securityGroupInPort, neutronPortId);
+                } else {
+                    securityGroupCacheManger.portRemoved(securityGroupInPort, neutronPortId);
+                }
             }
         }
     }
 
     @Override
-    public void syncSecurityRule(NeutronPort port, NeutronSecurityRule securityRule,Neutron_IPs vmIp, NodeId nodeId, boolean write) {
+    public void syncSecurityRule(NeutronPort port, NeutronSecurityRule securityRule,Neutron_IPs vmIp, NodeId nodeId,
+            boolean write, Map<NodeId, Long> dpIdNodeMap, NeutronSecurityGroup securityGroup) {
         LOG.trace("syncSecurityGroup:" + securityRule + " Write:" + write);
         if (null != port && null != port.getSecurityGroups()) {
             if (nodeId != null) {
-                syncSecurityRules(port, securityRule, vmIp, write, nodeId, port.getMacAddress());
+                syncSecurityRules(port, securityRule, vmIp, write, nodeId, port.getMacAddress(), dpIdNodeMap,securityGroup);
             } else {
                 return;
             }
@@ -528,41 +537,36 @@ public class SecurityServicesImpl implements ConfigInterface, SecurityServicesMa
     }
 
     private void syncSecurityRules(NeutronPort port, NeutronSecurityRule securityRule,Neutron_IPs vmIp, boolean write, NodeId nodeId,
-            String attachedMac) {
-        NeutronNetwork neutronNetwork = neutronNetworkCache.getNetwork(port.getNetworkUUID());
+            String attachedMac, Map<NodeId, Long> dpIdNodeMap, NeutronSecurityGroup securityGroup) {
+        NeutronNetwork neutronNetwork = neutronL3Adapter.getNetworkFromCleanupCache(port.getNetworkUUID());
         if (null == neutronNetwork) {
-            neutronNetwork = neutronL3Adapter.getNetworkFromCleanupCache(port.getNetworkUUID());
+            neutronNetwork = neutronNetworkCache.getNetwork(port.getNetworkUUID());
         }
         if (neutronNetwork == null) {
             return;
         }
         String segmentationId = neutronNetwork.getProviderSegmentationID();
-        Long localPort = 0L;
         Node node = nodeCacheManager.getNode(nodeId);
-        if(attachedMac == null) {
-            OvsdbTerminationPointAugmentation intf = getInterface(node, port);
-            if (intf == null) {
+        Long localPort = 0L;
+        long dpid = 0;
+
+        if(dpIdNodeMap.get(node.getNodeId()) == null ) {
+            dpid = getDpidOfIntegrationBridge(node);
+            if (dpid == 0L) {
                 return;
             }
-            localPort = southbound.getOFPort(intf);
-            attachedMac = southbound.getInterfaceExternalIdsValue(intf, Constants.EXTERNAL_ID_VM_MAC);
-            if (attachedMac == null) {
-                LOG.debug("programVlanRules: No AttachedMac seen in {}", intf);
-                return;
-            }
+            dpIdNodeMap.put(node.getNodeId() , dpid);
+        } else {
+            dpid = dpIdNodeMap.get(node.getNodeId());
         }
 
-        long dpid = getDpidOfIntegrationBridge(node);
-        if (dpid == 0L) {
-            return;
-        }
         if (NeutronSecurityRule.ETHERTYPE_IPV4.equals(securityRule.getSecurityRuleEthertype())) {
             if (NeutronSecurityRule.DIRECTION_INGRESS.equals(securityRule.getSecurityRuleDirection())) {
                 ingressAclProvider.programPortSecurityRule(dpid, segmentationId, attachedMac, localPort,
-                        securityRule, vmIp, write);
+                        securityRule, vmIp, securityGroup, write);
             } else if (NeutronSecurityRule.DIRECTION_EGRESS.equals(securityRule.getSecurityRuleDirection())) {
                 egressAclProvider.programPortSecurityRule(dpid, segmentationId, attachedMac, localPort,
-                        securityRule, vmIp, write);
+                        securityRule, vmIp, securityGroup, write);
             }
         }
     }
@@ -659,6 +663,8 @@ public class SecurityServicesImpl implements ConfigInterface, SecurityServicesMa
                 (NodeCacheManager) ServiceHelper.getGlobalInstance(NodeCacheManager.class, this);
         configurationService =
                 (ConfigurationService) ServiceHelper.getGlobalInstance(ConfigurationService.class, this);
+        securityGroupCacheManger =
+                (SecurityGroupCacheManger) ServiceHelper.getGlobalInstance(SecurityGroupCacheManger.class, this);
     }
 
     @Override

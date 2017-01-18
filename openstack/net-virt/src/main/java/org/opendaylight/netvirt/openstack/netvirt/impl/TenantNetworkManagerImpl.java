@@ -163,13 +163,14 @@ public class TenantNetworkManagerImpl implements ConfigInterface, TenantNetworkM
         String neutronPortId = southbound.getInterfaceExternalIdsValue(terminationPointAugmentation,
                 Constants.EXTERNAL_ID_INTERFACE_ID);
         if (neutronPortId != null) {
-            neutronPort = neutronPortCache.getPort(neutronPortId);
+            neutronPort = neutronL3Adapter.getPortFromCleanupCache(neutronPortId);
             if (null == neutronPort) {
                 LOG.debug("neutronPort is null checking the clean up cache.");
-                neutronPort = neutronL3Adapter.getPortFromCleanupCache(neutronPortId);
+                neutronPort = neutronPortCache.getPort(neutronPortId);
             }
         }
         if (neutronPort != null) {
+            neutronL3Adapter.storePortInCleanupCache(neutronPort);
             LOG.debug("mapped to {}", neutronPort);
         } else {
             LOG.warn("getTenantPort did not find port for {}", terminationPointAugmentation.getName());
