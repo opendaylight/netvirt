@@ -1,0 +1,72 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1a622d24_2c530ce3",
+        "filename": "docs/specs/netvirt-statistics-spec.rst",
+        "patchSetId": 9
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 670
+      },
+      "writtenOn": "2017-01-18T12:13:59Z",
+      "side": 1,
+      "message": "No need for this section in actual spec",
+      "revId": "3380a794790552cf5aa3f77fa91fa1a85287a94c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_ecfab4bb",
+        "filename": "docs/specs/netvirt-statistics-spec.rst",
+        "patchSetId": 9
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 670
+      },
+      "writtenOn": "2017-01-18T12:13:59Z",
+      "side": 1,
+      "message": "What inputs are we going to support initially?\nWill these be neutron ports? ELAN interfaces?\n\nPlease add some more details on all the initially supported use cases we already have ready.",
+      "revId": "3380a794790552cf5aa3f77fa91fa1a85287a94c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_ec73d47d",
+        "filename": "docs/specs/netvirt-statistics-spec.rst",
+        "patchSetId": 9
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 670
+      },
+      "writtenOn": "2017-01-18T12:13:59Z",
+      "side": 1,
+      "message": "nit: break into lines, line length should be \u003c\u003d100 or so",
+      "revId": "3380a794790552cf5aa3f77fa91fa1a85287a94c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_ac56fccb",
+        "filename": "docs/specs/netvirt-statistics-spec.rst",
+        "patchSetId": 9
+      },
+      "lineNbr": 232,
+      "author": {
+        "id": 670
+      },
+      "writtenOn": "2017-01-18T12:13:59Z",
+      "side": 1,
+      "message": "No need for these default references",
+      "revId": "3380a794790552cf5aa3f77fa91fa1a85287a94c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
