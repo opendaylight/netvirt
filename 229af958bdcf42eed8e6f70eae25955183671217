@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "1a622d24_c7c23384",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnNatManager.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 636,
+      "author": {
+        "id": 6248
+      },
+      "writtenOn": "2017-01-18T15:34:26Z",
+      "side": 1,
+      "message": "The methods that calls it should set the correct state of routersIds.\nIf they give routerIds that is not null, it will take theirs - because they should know with what information to set it.\nHowever, if they give a null routerIds it will not erase it.\nBecause, we\u0027re using syncUpdate which merge the information and if null is given it will not change the original routerIds information.",
+      "parentUuid": "1a622d24_6c918446",
+      "revId": "229af958bdcf42eed8e6f70eae25955183671217",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_8caea096",
         "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnNatManager.java",
         "patchSetId": 11
@@ -30,6 +48,24 @@
       "writtenOn": "2017-01-18T12:31:20Z",
       "side": 1,
       "message": "allocate only if subnets.getRouterIds() !\u003d null",
+      "revId": "229af958bdcf42eed8e6f70eae25955183671217",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_473e238d",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnNatManager.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 691,
+      "author": {
+        "id": 6248
+      },
+      "writtenOn": "2017-01-18T15:34:26Z",
+      "side": 1,
+      "message": "The logic here handles 2 states - for which we know we need to add a routerId to the external-subnet object:\n1. update when we already have routerIds\n2. update when we don\u0027t have routerIds (routerIds \u003d null).\n\nIf we already have routerIds will get them and add it, if not will create a new list and add to it the new routerId and add it.\n\nI\u0027m missing something here?",
+      "parentUuid": "1a622d24_8caea096",
       "revId": "229af958bdcf42eed8e6f70eae25955183671217",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -53,6 +89,24 @@
     },
     {
       "key": {
+        "uuid": "1a622d24_470c63ed",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnNatManager.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 724,
+      "author": {
+        "id": 6248
+      },
+      "writtenOn": "2017-01-18T15:34:26Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1a622d24_6c8a241c",
+      "revId": "229af958bdcf42eed8e6f70eae25955183671217",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_6cd5041b",
         "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnNatManager.java",
         "patchSetId": 11
@@ -70,6 +124,24 @@
     },
     {
       "key": {
+        "uuid": "1a622d24_a7e577dd",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnNatManager.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 728,
+      "author": {
+        "id": 6248
+      },
+      "writtenOn": "2017-01-18T15:34:26Z",
+      "side": 1,
+      "message": "Because the update still have the removed routerIds, it does a merge and the information stays.\nI will use just add (it will work fine)",
+      "parentUuid": "1a622d24_6cd5041b",
+      "revId": "229af958bdcf42eed8e6f70eae25955183671217",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_71b83dc8",
         "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnNatManager.java",
         "patchSetId": 11
@@ -81,6 +153,24 @@
       "writtenOn": "2017-01-18T12:31:20Z",
       "side": 1,
       "message": "Move this to NeutronvpnUtils",
+      "revId": "229af958bdcf42eed8e6f70eae25955183671217",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_270167af",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnNatManager.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 761,
+      "author": {
+        "id": 6248
+      },
+      "writtenOn": "2017-01-18T15:34:26Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1a622d24_71b83dc8",
       "revId": "229af958bdcf42eed8e6f70eae25955183671217",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
