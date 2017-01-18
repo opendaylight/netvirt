@@ -106,8 +106,12 @@ public class ElanPacketInHandler implements PacketProcessingListener {
                             }
                             String elanName = elanTagName.getName();
                             PhysAddress physAddress = new PhysAddress(macAddress);
-                            MacEntry macEntry = elanUtils.getInterfaceMacEntriesOperationalDataPath(interfaceName,
-                                physAddress);
+                            MacEntry macEntry = elanUtils.getMacEntryForElanInstance(elanName, physAddress).orNull();
+                            ElanInstance elanInstance = ElanUtils.getElanInstanceByName(broker, elanName);
+                            boolean isVlanOrFlatProviderIface =
+                                    ElanUtils.isVlan(elanInstance)
+                                        && interfaceName.endsWith(":" + elanInstance.getSegmentationId())
+                                        || ElanUtils.isFlat(elanInstance) && interfaceName.endsWith(":flat");
                             if (macEntry != null && macEntry.getInterface().equals(interfaceName)) {
                                 BigInteger macTimeStamp = macEntry.getControllerLearnedForwardingEntryTimestamp();
                                 if (System.currentTimeMillis() > macTimeStamp.longValue() + 10000) {
@@ -132,7 +136,7 @@ public class ElanPacketInHandler implements PacketProcessingListener {
                                     ElanManagerCounters.unknown_smac_pktin_ignored_due_protection.inc();
                                     return Collections.emptyList();
                                 }
-                            } else if (macEntry != null) {
+                            } else if (macEntry != null && !isVlanOrFlatProviderIface) {
                                 // MAC address has moved. Overwrite the mapping and replace
                                 // MAC flows
                                 long macTimeStamp = macEntry.getControllerLearnedForwardingEntryTimestamp().longValue();
@@ -155,27 +159,23 @@ public class ElanPacketInHandler implements PacketProcessingListener {
                                     return Collections.emptyList();
                                 }
                             }
-                            BigInteger timeStamp = new BigInteger(String.valueOf(System.currentTimeMillis()));
-                            macEntry = new MacEntryBuilder().setInterface(interfaceName).setMacAddress(physAddress)
-                                .setKey(new MacEntryKey(physAddress))
-                                .setControllerLearnedForwardingEntryTimestamp(timeStamp)
-                                .setIsStaticAddress(false).build();
-                            InstanceIdentifier<MacEntry> macEntryId = ElanUtils
-                                .getInterfaceMacEntriesIdentifierOperationalDataPath(interfaceName, physAddress);
-                            MDSALUtil.syncWrite(broker, LogicalDatastoreType.OPERATIONAL, macEntryId,
-                                macEntry);
-                            InstanceIdentifier<MacEntry> elanMacEntryId =
-                                ElanUtils.getMacEntryOperationalDataPath(elanName, physAddress);
-                            MDSALUtil.syncWrite(broker, LogicalDatastoreType.OPERATIONAL, elanMacEntryId,
-                                macEntry);
-                            ElanInstance elanInstance = ElanUtils.getElanInstanceByName(broker, elanName);
+                            if (!isVlanOrFlatProviderIface) {
+                                BigInteger timeStamp = new BigInteger(String.valueOf(System.currentTimeMillis()));
+                                macEntry = new MacEntryBuilder().setInterface(interfaceName).setMacAddress(physAddress)
+                                        .setKey(new MacEntryKey(physAddress))
+                                        .setControllerLearnedForwardingEntryTimestamp(timeStamp)
+                                        .setIsStaticAddress(false).build();
+                                InstanceIdentifier<MacEntry> macEntryId = ElanUtils
+                                        .getInterfaceMacEntriesIdentifierOperationalDataPath(interfaceName, physAddress);
+                                MDSALUtil.syncWrite(broker, LogicalDatastoreType.OPERATIONAL, macEntryId,
+                                        macEntry);
+                                InstanceIdentifier<MacEntry> elanMacEntryId =
+                                        ElanUtils.getMacEntryOperationalDataPath(elanName, physAddress);
+                                MDSALUtil.syncWrite(broker, LogicalDatastoreType.OPERATIONAL, elanMacEntryId,
+                                        macEntry);
+                            }
+
                             WriteTransaction flowWritetx = broker.newWriteOnlyTransaction();
-
-                            boolean isVlanOrFlatProviderIface =
-                                ElanUtils.isVlan(elanInstance)
-                                    && interfaceName.endsWith(":" + elanInstance.getSegmentationId())
-                                    || ElanUtils.isFlat(elanInstance) && interfaceName.endsWith(":flat");
-
                             elanUtils.setupMacFlows(elanInstance, interfaceManager.getInterfaceInfo(interfaceName),
                                 elanInstance.getMacTimeout(), macAddress,
                                 !isVlanOrFlatProviderIface, flowWritetx);
