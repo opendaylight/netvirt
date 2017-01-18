@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1a622d24_162f3f89",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 45
+      },
+      "lineNbr": 210,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-01-18T07:28:02Z",
+      "side": 1,
+      "message": "what is the difference here between left and right?",
+      "revId": "5d720d75b2d62230d9d48f6bb010adc3f66b91aa",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_b66c8bd1",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 45
+      },
+      "lineNbr": 1001,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-01-18T07:28:02Z",
+      "side": 1,
+      "message": "do we really need full path here?",
+      "revId": "5d720d75b2d62230d9d48f6bb010adc3f66b91aa",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_96718faa",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 45
+      },
+      "lineNbr": 2034,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-01-18T07:28:02Z",
+      "side": 1,
+      "message": "ditto here",
+      "revId": "5d720d75b2d62230d9d48f6bb010adc3f66b91aa",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
