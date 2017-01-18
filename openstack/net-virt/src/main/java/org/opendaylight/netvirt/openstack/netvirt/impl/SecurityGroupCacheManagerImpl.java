@@ -9,6 +9,7 @@
 package org.opendaylight.netvirt.openstack.netvirt.impl;
 
 import org.opendaylight.netvirt.openstack.netvirt.translator.crud.INeutronPortCRUD;
+import org.opendaylight.netvirt.openstack.netvirt.translator.crud.INeutronSecurityGroupCRUD;
 import org.opendaylight.netvirt.openstack.netvirt.ConfigInterface;
 import org.opendaylight.netvirt.openstack.netvirt.api.Constants;
 import org.opendaylight.netvirt.openstack.netvirt.api.SecurityGroupCacheManger;
@@ -53,31 +54,22 @@ public class SecurityGroupCacheManagerImpl implements ConfigInterface, SecurityG
 
     @Override
     public void portAdded(String securityGroupUuid, String portUuid) {
-        LOG.debug("In portAdded securityGroupUuid:" + securityGroupUuid + " portUuid:" + portUuid);
-        NeutronPort port = neutronPortCache.getPort(portUuid);
-        if (port == null) {
-            port = neutronL3Adapter.getPortFromCleanupCache(portUuid);
-            if (port == null) {
-                LOG.error("In portAdded no neutron port found:" + " portUuid:" + portUuid);
-                return;
-            }
+        LOG.debug("In portAdded securityGroupUuid: {} portUuid: {} " , securityGroupUuid, portUuid);
+        NeutronPort port = neutronL3Adapter.getPortPreferablyFromCleanupCache(portUuid);
+        if(port == null) {
+            return;
         }
-        processPortAdded(securityGroupUuid,port);
+        processPortAdded(securityGroupUuid, port);
     }
 
     @Override
     public void portRemoved(String securityGroupUuid, String portUuid) {
-        LOG.debug("In portRemoved securityGroupUuid:" + securityGroupUuid + " portUuid:" + portUuid);
-        NeutronPort port = neutronPortCache.getPort(portUuid);
-
-        if (port == null) {
-            port = neutronL3Adapter.getPortFromCleanupCache(portUuid);
-            if (port == null) {
-                LOG.error("In portRemoved no neutron port found:" + " portUuid:" + portUuid);
-                return;
-            }
+        LOG.debug("In portRemoved securityGroupUuid: {} portUuid: {} " , securityGroupUuid, portUuid);
+        NeutronPort port = neutronL3Adapter.getPortPreferablyFromCleanupCache(portUuid);
+        if(port == null) {
+            return;
         }
-        processPortRemoved(securityGroupUuid,port);
+        processPortRemoved(securityGroupUuid, port);
     }
 
     @Override
@@ -113,18 +105,23 @@ public class SecurityGroupCacheManagerImpl implements ConfigInterface, SecurityG
     }
 
     private void processPortAdded(String securityGroupUuid, NeutronPort port) {
+        processSyncRule(securityGroupUuid, port, true);
+    }
+
+    private void processSyncRule(String securityGroupUuid, NeutronPort port, boolean write) {
         /*
          * Itreate through the cache maintained for the security group added. For each port in the cache
          * add the rule to allow traffic to/from the new port added.
          */
-        LOG.debug("In processPortAdded securityGroupUuid:" + securityGroupUuid + " NeutronPort:" + port);
-        Map<String, NodeId> portList = securityGroupCache.get(securityGroupUuid);
-        if (null == portList) {
-            LOG.debug("The port list is empty for security group:" + securityGroupUuid);
+        LOG.debug("In processPortAdded securityGroupUuid: {}, NeutronPort: {}", securityGroupUuid, port);
+        Map<String, NodeId> portMap = securityGroupCache.get(securityGroupUuid);
+        if (null == portMap) {
+            LOG.debug("The port list is empty for security group: {}", securityGroupUuid);
             return;
         }
-        Set portSet = portList.entrySet();
+        Set portSet = portMap.entrySet();
         Iterator itr = portSet.iterator();
+        Map<String, List<NeutronSecurityRule>> secGrpRulesMap = new HashMap<String, List<NeutronSecurityRule>>();
         while(itr.hasNext()) {
             Map.Entry<String, NodeId> portEntry = (Map.Entry)itr.next();
             String cachedportUuid = portEntry.getKey();
@@ -132,93 +129,47 @@ public class SecurityGroupCacheManagerImpl implements ConfigInterface, SecurityG
             if (cachedportUuid.equals(port.getID())) {
                 continue;
             }
-            NeutronPort cachedport = neutronPortCache.getPort(cachedportUuid);
-            if (cachedport == null) {
-                cachedport = neutronL3Adapter.getPortFromCleanupCache(cachedportUuid);
-                if (null == cachedport) {
-                    LOG.error("In processPortRemoved cachedport port not found in neuton cache:"
-                                + " cachedportUuid:" + cachedportUuid);
-                    continue;
-                }
+            NeutronPort cachedport = neutronL3Adapter.getPortPreferablyFromCleanupCache(cachedportUuid);
+            if(cachedport == null) {
+                continue;
             }
-            List<NeutronSecurityRule> remoteSecurityRules = retrieveSecurityRules(securityGroupUuid, cachedportUuid);
-            for (NeutronSecurityRule securityRule : remoteSecurityRules) {
-                if (port.getFixedIPs() == null) {
-                    continue;
-                }
-                for (Neutron_IPs vmIp : port.getFixedIPs()) {
-                    securityServicesManager.syncSecurityRule(cachedport, securityRule, vmIp, nodeId, true);
-                }
-            }
+            retrieveAndSyncSecurityRules(securityGroupUuid, cachedport, nodeId, secGrpRulesMap, port, write);
         }
     }
 
     private void processPortRemoved(String securityGroupUuid, NeutronPort port) {
-        /*
-         * Itreate through the cache maintained for the security group added. For each port in the cache remove
-         * the rule to allow traffic to/from the  port that got deleted.
-         */
-        LOG.debug("In processPortRemoved securityGroupUuid:" + securityGroupUuid + " port:" + port);
-        Map<String, NodeId> portList = securityGroupCache.get(securityGroupUuid);
-        if (null == portList) {
-            LOG.debug("The port list is empty for security group:" + securityGroupUuid);
-            return;
-        }
-        Set portSet = portList.entrySet();
-        Iterator itr = portSet.iterator();
-        while(itr.hasNext()) {
-            Map.Entry<String, NodeId> portEntry = (Map.Entry)itr.next();
-            String cachedportUuid = portEntry.getKey();
-            NodeId nodeId = portEntry.getValue();
-            if (cachedportUuid.equals(port.getID())) {
-                continue;
-            }
-            NeutronPort cachedport = neutronPortCache.getPort(cachedportUuid);
-            if (cachedport == null) {
-                cachedport = neutronL3Adapter.getPortFromCleanupCache(cachedportUuid);
-                if (null == cachedport) {
-                    LOG.error("In processPortRemoved cachedport port not found in neuton cache:"
-                                + " cachedportUuid:" + cachedportUuid);
-                    continue;
-                }
-            }
-            List<NeutronSecurityRule> remoteSecurityRules = retrieveSecurityRules(securityGroupUuid, cachedportUuid);
-            for (NeutronSecurityRule securityRule : remoteSecurityRules) {
-                if (port.getFixedIPs() == null) {
-                    continue;
-                }
-                for (Neutron_IPs vmIp : port.getFixedIPs()) {
-                    securityServicesManager.syncSecurityRule(cachedport, securityRule, vmIp, nodeId, false);
-                }
-            }
-        }
+        processSyncRule(securityGroupUuid, port, false);
     }
 
-    private List<NeutronSecurityRule> retrieveSecurityRules(String securityGroupUuid, String portUuid) {
+    private void retrieveAndSyncSecurityRules(String securityGroupUuid, NeutronPort cachedport, NodeId nodeId,
+            Map<String, List<NeutronSecurityRule> > secGrpRulesMap, NeutronPort currentPort, boolean write) {
         /*
          * Get the list of security rules in the port with portUuid that has securityGroupUuid as a remote
          * security group.
          */
-        LOG.debug("In retrieveSecurityRules securityGroupUuid:" + securityGroupUuid + " portUuid:" + portUuid);
-        NeutronPort port = neutronPortCache.getPort(portUuid);
-        if (port == null) {
-            port = neutronL3Adapter.getPortFromCleanupCache(portUuid);
-            if (null == port) {
-                LOG.error("In retrieveSecurityRules no neutron port found:" + " portUuid:" + portUuid);
-                return null;
-            }
-        }
-        List<NeutronSecurityRule> remoteSecurityRules = new ArrayList<>();
-        List<NeutronSecurityGroup> securityGroups = port.getSecurityGroups();
+        List<NeutronSecurityRule> securityRules =  new ArrayList<NeutronSecurityRule>();
+        List<NeutronSecurityGroup> securityGroups = cachedport.getSecurityGroups();
         for (NeutronSecurityGroup securityGroup : securityGroups) {
-            List<NeutronSecurityRule> securityRules = getSecurityRulesforGroup(securityGroup);
+            securityRules = secGrpRulesMap.get(securityGroup.getSecurityGroupUUID());
+            if (securityRules == null) {
+                securityRules = getSecurityRulesforGroup(securityGroup);
+                secGrpRulesMap.put(securityGroup.getSecurityGroupUUID(), securityRules);
+            }
             for (NeutronSecurityRule securityRule : securityRules) {
                 if (securityGroupUuid.equals(securityRule.getSecurityRemoteGroupID())) {
-                    remoteSecurityRules.add(securityRule);
+                    if (currentPort.getFixedIPs() == null) {
+                        continue;
+                    }
+                    for (Neutron_IPs vmIp : currentPort.getFixedIPs()) {
+                        if (write) {
+                            securityServicesManager.syncSecurityRule(cachedport, securityRule, vmIp, nodeId, securityGroup, true);
+                        } else {
+                            securityServicesManager.syncSecurityRule(cachedport, securityRule, vmIp, nodeId, securityGroup, false);
+                        }
+                    }
                 }
             }
         }
-        return remoteSecurityRules;
     }
 
     private void init() {
