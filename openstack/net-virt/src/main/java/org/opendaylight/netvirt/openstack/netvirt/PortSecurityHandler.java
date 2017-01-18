@@ -169,13 +169,15 @@ public class PortSecurityHandler extends AbstractHandler
         }
     }
 
-    private void syncSecurityGroup(NeutronSecurityRule securityRule, NeutronPort port, NodeId nodeId,
-                                   boolean write) {
-        LOG.debug("syncSecurityGroup {} port {} ", securityRule, port);
+    private void syncSecurityGroup(NeutronSecurityRule securityRule, NeutronPort port, NodeId nodeId, boolean write) {
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("syncSecurityGroup {} port {} ", securityRule, port);
+        }
         if (!port.getPortSecurityEnabled()) {
             LOG.info("Port security not enabled port {}", port);
             return;
         }
+        Map<NodeId, Long> dpIdNodeMap = new HashMap<NodeId, Long>();
         if (null != securityRule.getSecurityRemoteGroupID()) {
             List<Neutron_IPs> vmIpList  = securityServicesManager
                     .getVmListForSecurityGroup(port.getID(), securityRule.getSecurityRemoteGroupID());
@@ -192,11 +194,11 @@ public class PortSecurityHandler extends AbstractHandler
                 }
             } else {
                 for (Neutron_IPs vmIp : vmIpList) {
-                    securityServicesManager.syncSecurityRule(port, securityRule, vmIp, nodeId, write);
+                    securityServicesManager.syncSecurityRule(port, securityRule, vmIp, nodeId, dpIdNodeMap, write);
                 }
             }
         } else {
-            securityServicesManager.syncSecurityRule(port, securityRule, null, nodeId, write);
+            securityServicesManager.syncSecurityRule(port, securityRule, null, nodeId, dpIdNodeMap, write);
         }
     }
 
