@@ -909,6 +909,8 @@ public class OF13Provider implements ConfigInterface, NetworkingProvider {
                     programLocalIngressTunnelBridgeRules(node, dpid, segmentationId, attachedMac,
                             tunnelOFPort, localPort);
                 }
+            } else {
+		 LOG.info("programtunnelrules:Tunnel Port is NULL dst {}",dst);
             }
         } catch (Exception e) {
             LOG.warn("Failed to program tunnel rules, node {}, intf {}", node, intf, e);
@@ -1536,6 +1538,7 @@ public class OF13Provider implements ConfigInterface, NetworkingProvider {
             Short goToTableId, String segmentationId,
             Long OFPortOut, String attachedMac,
             boolean write) {
+        LOG.info("Invoked Tunnel out for {} table {} attachedMac {}", dpidLong, goToTableId, attachedMac);
         l2ForwardingProvider.programTunnelOut(dpidLong, segmentationId, OFPortOut, attachedMac, write);
     }
 
