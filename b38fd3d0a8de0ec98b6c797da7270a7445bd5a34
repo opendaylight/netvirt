@@ -16,6 +16,24 @@
       "revId": "b38fd3d0a8de0ec98b6c797da7270a7445bd5a34",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_ece8f4e3",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 2
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 5867
+      },
+      "writtenOn": "2017-01-18T12:21:15Z",
+      "side": 1,
+      "message": "Jamo, what this fixes is a missing Cache for 1 particular entity (ElanInstance), which was apparently lost during the CSS to BP migration by mistake.  CSIT probably does not catch a missing cache (it\u0027s just a performance impact; not sure if measurable).  Re. IT/UT/CT, there simply are none... ;-) That\u0027s why I\u0027m working so much on Component Test infra.",
+      "parentUuid": "1a622d24_a544571b",
+      "revId": "b38fd3d0a8de0ec98b6c797da7270a7445bd5a34",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
