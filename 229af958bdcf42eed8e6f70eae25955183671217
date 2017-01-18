@@ -1,0 +1,89 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1a622d24_6c918446",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnNatManager.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 636,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2017-01-18T12:31:20Z",
+      "side": 1,
+      "message": "What if the subnet was already associated to routers? it could be deleted by update",
+      "revId": "229af958bdcf42eed8e6f70eae25955183671217",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_8caea096",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnNatManager.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 691,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2017-01-18T12:31:20Z",
+      "side": 1,
+      "message": "allocate only if subnets.getRouterIds() !\u003d null",
+      "revId": "229af958bdcf42eed8e6f70eae25955183671217",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_6c8a241c",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnNatManager.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 724,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2017-01-18T12:31:20Z",
+      "side": 1,
+      "message": "could throw if routerIds is null",
+      "revId": "229af958bdcf42eed8e6f70eae25955183671217",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_6cd5041b",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnNatManager.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 728,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2017-01-18T12:31:20Z",
+      "side": 1,
+      "message": "Why do you need remove+add here? updateExternalSubnetsForRouter would be more efficiant here",
+      "revId": "229af958bdcf42eed8e6f70eae25955183671217",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_71b83dc8",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnNatManager.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 761,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2017-01-18T12:31:20Z",
+      "side": 1,
+      "message": "Move this to NeutronvpnUtils",
+      "revId": "229af958bdcf42eed8e6f70eae25955183671217",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
