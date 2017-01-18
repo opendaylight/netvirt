@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1a622d24_16461f4f",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/BgpRouteVrfEntryHandler.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2017-01-18T07:26:03Z",
+      "side": 1,
+      "message": "Where is this used?",
+      "revId": "9a579855c036d8629f7564215160e6197ec1d1a8",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_767673a5",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2017-01-18T07:26:03Z",
+      "side": 1,
+      "message": "unused",
+      "revId": "9a579855c036d8629f7564215160e6197ec1d1a8",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_36499b60",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 180,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2017-01-18T07:26:03Z",
+      "side": 1,
+      "message": "the same functionality is duplicated to update() and remove()\nconsider extracting this to a common method",
+      "revId": "9a579855c036d8629f7564215160e6197ec1d1a8",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
