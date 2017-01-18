@@ -51,6 +51,24 @@
       "revId": "8feb140f6ec58a7a074ef91fb8f413b791d4ac5d",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_1653bf39",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanPacketInHandler.java",
+        "patchSetId": 12
+      },
+      "lineNbr": 103,
+      "author": {
+        "id": 5703
+      },
+      "writtenOn": "2017-01-18T09:44:12Z",
+      "side": 1,
+      "message": "I prefer to rely on the protection in the switch, because adding this extra mechanism here is now difficult and partial.\nBecause we split the job into 2 jobs, we need to think where this extra grace period logic will reside.\nIf we put it before the execution of the jobs, it doesn\u0027t lock any key. It means that if 100 packets from the same MAC got in, they will all pass the grace period test and only then end up in the pending jobs queue. So the grace period didn\u0027t really give us anything.\nWe can\u0027t put the grace period inside the flows+interfaceName and mac job, because the global mac job runs in a separate thread, and it might update the data structure before the flows job runs, which will result in flows not even being installed one time.\nWe can put the grace period inside the global MAC data structure update job, and I think it won\u0027t harm there. It will result in a partial defense (The other job isn\u0027t protected), that I think isn\u0027t cost-effective and might be bug prone, and hard to understand and change in the future.",
+      "parentUuid": "1a622d24_f6144345",
+      "revId": "8feb140f6ec58a7a074ef91fb8f413b791d4ac5d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
