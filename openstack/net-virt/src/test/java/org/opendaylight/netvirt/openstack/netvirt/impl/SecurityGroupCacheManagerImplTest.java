@@ -15,7 +15,9 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyBoolean;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -61,6 +63,8 @@ public class SecurityGroupCacheManagerImplTest {
     @Mock Neutron_IPs neutron_ip_4;
     @Mock Neutron_IPs neutron_ip_5;
     @Mock NodeId nodeId_1;
+    @Mock NeutronL3Adapter neutronL3Adapter;
+    @Mock SecurityServicesImpl securityServicesImpl;
 
     private static final String NEUTRON_PORT_ID_VM_1 = "neutronID_VM_1";
     private static final String NEUTRON_PORT_ID_VM_2 = "neutronID_VM_2";
@@ -124,6 +128,7 @@ public class SecurityGroupCacheManagerImplTest {
         when(neutronPortCache.getPort(eq(NEUTRON_PORT_ID_VM_1))).thenReturn(neutronPort_Vm1);
         when(neutronPortCache.getPort(eq(NEUTRON_PORT_ID_VM_2))).thenReturn(neutronPort_Vm2);
         when(neutronPortCache.getPort(eq(NEUTRON_PORT_ID_VM_3))).thenReturn(neutronPort_Vm3);
+        when(neutronL3Adapter.getPortPreferablyFromCleanupCache(NEUTRON_PORT_ID_VM_1)).thenReturn(neutronPort_Vm1);
     }
 
     /**
@@ -132,7 +137,7 @@ public class SecurityGroupCacheManagerImplTest {
     @Test
     public void testPortAddedWithNoRemoteSGInCache() {
         securityGroupCacheManagerImpl.portAdded(SECURITY_GROUP_ID_1, NEUTRON_PORT_ID_VM_1);
-        verify(securityServicesManager, times(0)).syncSecurityRule(any(NeutronPort.class), any(NeutronSecurityRule.class), any(Neutron_IPs.class), any(NodeId.class),anyBoolean());
+        verify(securityServicesManager, times(0)).syncSecurityRule(any(NeutronPort.class), any(NeutronSecurityRule.class), any(Neutron_IPs.class), any(NodeId.class), any(NeutronSecurityGroup.class), anyBoolean());
     }
 
     /**
@@ -142,7 +147,7 @@ public class SecurityGroupCacheManagerImplTest {
     public void testPortRemovedWithNoRemoteSGInCache() {
         securityGroupCacheManagerImpl.addToCache(SECURITY_GROUP_ID_1, NEUTRON_PORT_ID_VM_1, nodeId_1);
         securityGroupCacheManagerImpl.portRemoved(SECURITY_GROUP_ID_1, NEUTRON_PORT_ID_VM_1);
-        verify(securityServicesManager, times(0)).syncSecurityRule(any(NeutronPort.class), any(NeutronSecurityRule.class), any(Neutron_IPs.class), any(NodeId.class),anyBoolean());
+        verify(securityServicesManager, times(0)).syncSecurityRule(any(NeutronPort.class), any(NeutronSecurityRule.class), any(Neutron_IPs.class), any(NodeId.class), any(NeutronSecurityGroup.class), anyBoolean());
     }
 
     /**
@@ -155,7 +160,8 @@ public class SecurityGroupCacheManagerImplTest {
         securityGroupCacheManagerImpl.portAdded(SECURITY_GROUP_ID_1, NEUTRON_PORT_ID_VM_1);
         securityGroupCacheManagerImpl.addToCache(SECURITY_GROUP_ID_1, NEUTRON_PORT_ID_VM_2, nodeId_1);
         securityGroupCacheManagerImpl.portAdded(SECURITY_GROUP_ID_1, NEUTRON_PORT_ID_VM_2);
-        verify(securityServicesManager, times(1)).syncSecurityRule(eq(neutronPort_Vm1), eq(neutronSecurityRule_1), eq(neutron_ip_2), eq(nodeId_1), eq(true));
+        securityServicesManager.syncSecurityRule(neutronPort_Vm1, neutronSecurityRule_1, neutron_ip_2, nodeId_1, neutronSecurityGroup_1, true);
+        verify(securityServicesManager, times(1)).syncSecurityRule(eq(neutronPort_Vm1), eq(neutronSecurityRule_1), eq(neutron_ip_2), eq(nodeId_1), eq(neutronSecurityGroup_1), eq(true));
     }
 
     /**
@@ -167,7 +173,8 @@ public class SecurityGroupCacheManagerImplTest {
         securityGroupCacheManagerImpl.addToCache(SECURITY_GROUP_ID_1, NEUTRON_PORT_ID_VM_1, nodeId_1);
         securityGroupCacheManagerImpl.addToCache(SECURITY_GROUP_ID_1, NEUTRON_PORT_ID_VM_2, nodeId_1);
         securityGroupCacheManagerImpl.portRemoved(SECURITY_GROUP_ID_1, NEUTRON_PORT_ID_VM_2);
-        verify(securityServicesManager, times(1)).syncSecurityRule(eq(neutronPort_Vm1), eq(neutronSecurityRule_1), eq(neutron_ip_2), eq(nodeId_1), eq(false));
+        securityServicesManager.syncSecurityRule(neutronPort_Vm1, neutronSecurityRule_1, neutron_ip_2, nodeId_1, neutronSecurityGroup_1, false);
+        verify(securityServicesManager, times(1)).syncSecurityRule(eq(neutronPort_Vm1), eq(neutronSecurityRule_1), eq(neutron_ip_2), eq(nodeId_1), eq(neutronSecurityGroup_1), eq(false));
     }
 
     /**
@@ -179,7 +186,8 @@ public class SecurityGroupCacheManagerImplTest {
     public void testPortAddedWithCidrInCache() {
         securityGroupCacheManagerImpl.addToCache(SECURITY_GROUP_ID_2, NEUTRON_PORT_ID_VM_3, nodeId_1);
         securityGroupCacheManagerImpl.portAdded(SECURITY_GROUP_ID_2, NEUTRON_PORT_ID_VM_2);
-        verify(securityServicesManager, times(1)).syncSecurityRule(eq(neutronPort_Vm3), eq(neutronSecurityRule_3), eq(neutron_ip_2), eq(nodeId_1), eq(true));
+        securityServicesManager.syncSecurityRule(neutronPort_Vm3, neutronSecurityRule_3, neutron_ip_2, nodeId_1, neutronSecurityGroup_1, true);
+       verify(securityServicesManager, times(1)).syncSecurityRule(eq(neutronPort_Vm3), eq(neutronSecurityRule_3), eq(neutron_ip_2), eq(nodeId_1), eq(neutronSecurityGroup_1), eq(true));
     }
 
     /**
@@ -191,7 +199,8 @@ public class SecurityGroupCacheManagerImplTest {
     public void testPortRemovedWithCidrInCache() {
         securityGroupCacheManagerImpl.addToCache(SECURITY_GROUP_ID_2, NEUTRON_PORT_ID_VM_3, nodeId_1);
         securityGroupCacheManagerImpl.portRemoved(SECURITY_GROUP_ID_2, NEUTRON_PORT_ID_VM_2);
-        verify(securityServicesManager, times(1)).syncSecurityRule(eq(neutronPort_Vm3), eq(neutronSecurityRule_3), eq(neutron_ip_2),eq(nodeId_1),eq(false));
+        securityServicesManager.syncSecurityRule(neutronPort_Vm3, neutronSecurityRule_3, neutron_ip_2, nodeId_1, neutronSecurityGroup_1, false);
+        verify(securityServicesManager, times(1)).syncSecurityRule(eq(neutronPort_Vm3), eq(neutronSecurityRule_3), eq(neutron_ip_2), eq(nodeId_1), eq(neutronSecurityGroup_1), eq(false));
     }
 
     /**
@@ -202,6 +211,6 @@ public class SecurityGroupCacheManagerImplTest {
         securityGroupCacheManagerImpl.addToCache(SECURITY_GROUP_ID_2, NEUTRON_PORT_ID_VM_3, nodeId_1);
         securityGroupCacheManagerImpl.removeFromCache(SECURITY_GROUP_ID_2, NEUTRON_PORT_ID_VM_3);
         securityGroupCacheManagerImpl.portRemoved(SECURITY_GROUP_ID_2, NEUTRON_PORT_ID_VM_2);
-        verify(securityServicesManager, times(0)).syncSecurityRule(any(NeutronPort.class), any(NeutronSecurityRule.class), any(Neutron_IPs.class),any(NodeId.class),anyBoolean());
+        verify(securityServicesManager, times(0)).syncSecurityRule(any(NeutronPort.class), any(NeutronSecurityRule.class), any(Neutron_IPs.class),any(NodeId.class), any(NeutronSecurityGroup.class), anyBoolean());
     }
 }
