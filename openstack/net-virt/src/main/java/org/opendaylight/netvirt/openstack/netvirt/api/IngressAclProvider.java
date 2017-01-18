@@ -39,13 +39,11 @@ public interface IngressAclProvider {
      * @param dpid the dpid
      * @param segmentationId the segmentation id
      * @param attachedMac the attached mac
-     * @param localPort the local port
      * @param portSecurityRule the security rule
      * @param vmIp the ip of the remote vm if it has a remote security group.
      * @param write  is this flow write or delete
      */
-    void programPortSecurityRule(Long dpid, String segmentationId, String attachedMac,
-                                 long localPort, NeutronSecurityRule portSecurityRule,
+    void programPortSecurityRule(Long dpid, String segmentationId, String attachedMac, NeutronSecurityRule portSecurityRule,
                                  Neutron_IPs vmIp, boolean write);
     /**
      * Program fixed ingress ACL rules that will be associated with the VM port when a vm is spawned.

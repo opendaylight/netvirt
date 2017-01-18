@@ -29,7 +29,6 @@ import org.opendaylight.netvirt.openstack.netvirt.providers.openflow13.Service;
 import org.opendaylight.netvirt.openstack.netvirt.translator.NeutronSecurityGroup;
 import org.opendaylight.netvirt.openstack.netvirt.translator.NeutronSecurityRule;
 import org.opendaylight.netvirt.openstack.netvirt.translator.Neutron_IPs;
-import org.opendaylight.netvirt.openstack.netvirt.translator.crud.INeutronSecurityGroupCRUD;
 import org.opendaylight.netvirt.openstack.netvirt.translator.crud.INeutronSecurityRuleCRUD;
 import org.opendaylight.netvirt.utils.mdsal.openflow.ActionUtils;
 import org.opendaylight.netvirt.utils.mdsal.openflow.FlowUtils;
@@ -86,12 +85,16 @@ public class EgressAclService extends AbstractServiceInstance implements EgressA
                                        NeutronSecurityGroup securityGroup, String portUuid, NodeId nodeId, boolean write) {
 
         LOG.trace("programPortSecurityGroup: neutronSecurityGroup: {} ", securityGroup);
-        if (securityGroup == null || getSecurityRulesforGroup(securityGroup) == null) {
+        if (securityGroup == null ) {
+            return;
+        }
+        List<NeutronSecurityRule> portSecurityList = getSecurityRulesforGroup(securityGroup);
+        if (portSecurityList == null) {
             return;
         }
 
-        List<NeutronSecurityRule> portSecurityList = getSecurityRulesforGroup(securityGroup);
         /* Iterate over the Port Security Rules in the Port Security Group bound to the port*/
+        Map <String, List<Neutron_IPs>> secGroupRemoteIPMap =  new HashMap <String, List<Neutron_IPs>>();
         for (NeutronSecurityRule portSecurityRule : portSecurityList) {
 
             /**
@@ -111,31 +114,26 @@ public class EgressAclService extends AbstractServiceInstance implements EgressA
 
             if (NeutronSecurityRule.DIRECTION_EGRESS.equals(portSecurityRule.getSecurityRuleDirection())) {
                 LOG.debug("programPortSecurityGroup: Acl Rule matching IP and ingress is: {} ", portSecurityRule);
-                if (null != portSecurityRule.getSecurityRemoteGroupID()) {
+                String remoteSgUuid = portSecurityRule.getSecurityRemoteGroupID();
+                if (null != remoteSgUuid) {
                     //Remote Security group is selected
-                    List<Neutron_IPs> remoteSrcAddressList = securityServicesManager
-                            .getVmListForSecurityGroup(portUuid,portSecurityRule.getSecurityRemoteGroupID());
-                    if (null != remoteSrcAddressList) {
-                        for (Neutron_IPs vmIp :remoteSrcAddressList ) {
-
-                            programPortSecurityRule(dpid, segmentationId, attachedMac,
-                                                    localPort, portSecurityRule, vmIp, write);
-                        }
-                        if (write) {
-                            securityGroupCacheManger.addToCache(portSecurityRule.getSecurityRemoteGroupID(), portUuid, nodeId);
-                        } else {
-                            securityGroupCacheManger.removeFromCache(portSecurityRule.getSecurityRemoteGroupID(),
-                                                                     portUuid);
-                        }
+                    List<Neutron_IPs> remoteSrcAddressList = secGroupRemoteIPMap.get(remoteSgUuid);
+                    if (remoteSrcAddressList == null) {
+                        remoteSrcAddressList = securityServicesManager
+                                .getVmListForSecurityGroup(portUuid,remoteSgUuid);
+                        secGroupRemoteIPMap.put(remoteSgUuid, remoteSrcAddressList);
+                    }
+                    for (Neutron_IPs vmIp :remoteSrcAddressList ) {
+                        programPortSecurityRule(dpid, segmentationId, attachedMac, portSecurityRule, vmIp, write);
+                    }
+                    if (write) {
+                        securityGroupCacheManger.addToCache(remoteSgUuid, portUuid, nodeId);
+                    } else {
+                        securityGroupCacheManger.removeFromCache(remoteSgUuid,
+                                                                 portUuid);
                     }
                 } else {
-                    programPortSecurityRule(dpid, segmentationId, attachedMac, localPort,
-                                            portSecurityRule, null, write);
-                }
-                if (write) {
-                    securityGroupCacheManger.portAdded(securityGroup.getSecurityGroupUUID(), portUuid);
-                } else {
-                    securityGroupCacheManger.portRemoved(securityGroup.getSecurityGroupUUID(), portUuid);
+                    programPortSecurityRule(dpid, segmentationId, attachedMac, portSecurityRule, null, write);
                 }
             }
         }
@@ -143,8 +141,7 @@ public class EgressAclService extends AbstractServiceInstance implements EgressA
 
     @Override
     public void programPortSecurityRule(Long dpid, String segmentationId, String attachedMac,
-                                        long localPort, NeutronSecurityRule portSecurityRule,
-                                        Neutron_IPs vmIp, boolean write) {
+                                        NeutronSecurityRule portSecurityRule, Neutron_IPs vmIp, boolean write) {
         String securityRuleEtherType = portSecurityRule.getSecurityRuleEthertype();
         boolean isIpv6 = NeutronSecurityRule.ETHERTYPE_IPV6.equals(securityRuleEtherType);
         if (!isIpv6 && !NeutronSecurityRule.ETHERTYPE_IPV4.equals(securityRuleEtherType)) {
@@ -169,10 +166,8 @@ public class EgressAclService extends AbstractServiceInstance implements EgressA
                 return;
             }
         }
-        INeutronSecurityGroupCRUD groupCRUD =
-                (INeutronSecurityGroupCRUD) ServiceHelper.getGlobalInstance(INeutronSecurityGroupCRUD.class, this);
-        NeutronSecurityGroup securityGrp = groupCRUD.getNeutronSecurityGroup(portSecurityRule.getSecurityRuleGroupID());
-        if (null == portSecurityRule.getSecurityRuleProtocol() && securityGrp.getSecurityGroupName().equals("default")) {
+        if (null == portSecurityRule.getSecurityRuleProtocol()
+                && securityGroupCacheManger.isDefaultSecurityGroup(portSecurityRule.getSecurityRuleGroupID())) {
             /* TODO Rework on the priority values */
             egressAclIp(dpid, isIpv6, segmentationId, attachedMac,
                 portSecurityRule, ipaddress,
