@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "1a622d24_361b5b74",
+        "filename": "docs/specs/ecmp-bgp-l3vpn.rst",
+        "patchSetId": 5
+      },
+      "lineNbr": 219,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-01-18T07:01:49Z",
+      "side": 1,
+      "message": "yes Tali, this can still be used for flows which has multiple VxLAN end points as nexthop. Even UC3 (ECMP  forwarding of  intra-DC traffic) falls under this category. But label would be same for all route paths and only nexthop-address would be different.\nTo align with https://tools.ietf.org/html/draft-ietf-i2rs-rib-info-model-10#section-2.4, can we make only nexthop-address as key ?",
+      "parentUuid": "1a622d24_a229ed38",
+      "revId": "8805ca14164fa149398d3916e22c7b30254b2700",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_22ecbdf2",
         "filename": "docs/specs/ecmp-bgp-l3vpn.rst",
         "patchSetId": 5
@@ -36,6 +54,24 @@
     },
     {
       "key": {
+        "uuid": "1a622d24_1618df73",
+        "filename": "docs/specs/ecmp-bgp-l3vpn.rst",
+        "patchSetId": 5
+      },
+      "lineNbr": 234,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-01-18T07:01:49Z",
+      "side": 1,
+      "message": "I am not sure how much we can leverage from it for L2VPN and multiple uplinks. Because this specific ecmp select group buckets have actions like push_mpls, move_reg[0...7]_mpls_label, output\u003d\u003cport\u003e for gre tunnels, output\u003d\u003cport\u003e for internal vxlan tunnels. For L2VPN, the group bucket actions would be different. But we can still use the below containers l3vpn-lb-nexthops and dpid-l3vpn-lb-nexthops for l2vpn specific group tables and update it based on tunnel state.",
+      "parentUuid": "1a622d24_22ecbdf2",
+      "revId": "8805ca14164fa149398d3916e22c7b30254b2700",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_022701cb",
         "filename": "docs/specs/ecmp-bgp-l3vpn.rst",
         "patchSetId": 5
@@ -47,6 +83,30 @@
       "writtenOn": "2017-01-17T17:26:55Z",
       "side": 1,
       "message": "this name is confusing",
+      "range": {
+        "startLine": 257,
+        "startChar": 14,
+        "endLine": 257,
+        "endChar": 20
+      },
+      "revId": "8805ca14164fa149398d3916e22c7b30254b2700",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_d63827d5",
+        "filename": "docs/specs/ecmp-bgp-l3vpn.rst",
+        "patchSetId": 5
+      },
+      "lineNbr": 257,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-01-18T07:01:49Z",
+      "side": 1,
+      "message": "i will change it to dpn-lb-nexthops.",
+      "parentUuid": "1a622d24_022701cb",
       "range": {
         "startLine": 257,
         "startChar": 14,
@@ -94,6 +154,30 @@
       "side": 1,
       "message": "*How*",
       "parentUuid": "1a622d24_e223e5ba",
+      "range": {
+        "startLine": 261,
+        "startChar": 15,
+        "endLine": 261,
+        "endChar": 33
+      },
+      "revId": "8805ca14164fa149398d3916e22c7b30254b2700",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_96234fa6",
+        "filename": "docs/specs/ecmp-bgp-l3vpn.rst",
+        "patchSetId": 5
+      },
+      "lineNbr": 261,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-01-18T07:01:49Z",
+      "side": 1,
+      "message": "this is used for both vxlan and gre tunnels. For internal vxlan tunnel, it contains destination dpId. For GRE tunnel, it contains remote TEP IP address.",
+      "parentUuid": "1a622d24_a55a9727",
       "range": {
         "startLine": 261,
         "startChar": 15,
