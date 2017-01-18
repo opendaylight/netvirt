@@ -86,32 +86,33 @@ public class ElanSmacFlowEventListener implements SalFlowListener {
             }
             MacEntry macEntry = elanUtils.getInterfaceMacEntriesOperationalDataPath(interfaceName, physAddress);
             InterfaceInfo interfaceInfo = interfaceManager.getInterfaceInfo(interfaceName);
+            String elanInstanceName = elanTagInfo.getName();
             if (macEntry != null && interfaceInfo != null) {
                 WriteTransaction deleteFlowTx = broker.newWriteOnlyTransaction();
-                elanUtils.deleteMacFlows(ElanUtils.getElanInstanceByName(broker, elanTagInfo.getName()), interfaceInfo,
+                elanUtils.deleteMacFlows(ElanUtils.getElanInstanceByName(broker, elanInstanceName), interfaceInfo,
                         macEntry, deleteFlowTx);
                 ListenableFuture<Void> result = deleteFlowTx.submit();
                 addCallBack(result, srcMacAddress);
             }
             InstanceIdentifier<MacEntry> macEntryIdForElanInterface = ElanUtils
                     .getInterfaceMacEntriesIdentifierOperationalDataPath(interfaceName, physAddress);
-            InstanceIdentifier<MacEntry> macEntryIdForElanInstance = ElanUtils
-                    .getMacEntryOperationalDataPath(elanTagInfo.getName(), physAddress);
             WriteTransaction tx = broker.newWriteOnlyTransaction();
             Optional<MacEntry> existingInterfaceMacEntry = elanUtils.read(broker,
                 LogicalDatastoreType.OPERATIONAL, macEntryIdForElanInterface);
             if (existingInterfaceMacEntry.isPresent()) {
                 tx.delete(LogicalDatastoreType.OPERATIONAL, macEntryIdForElanInterface);
+                MacEntry macEntryInElanInstance = elanUtils.getMacEntryForElanInstance(elanInstanceName,
+                        physAddress).orNull();
+                if (macEntryInElanInstance != null
+                        && macEntryInElanInstance.getInterface().equals(interfaceName)) {
+                    InstanceIdentifier<MacEntry> macEntryIdForElanInstance = ElanUtils
+                            .getMacEntryOperationalDataPath(elanInstanceName, physAddress);
+                    tx.delete(LogicalDatastoreType.OPERATIONAL, macEntryIdForElanInstance);
+                }
+                ListenableFuture<Void> writeResult = tx.submit();
+                addCallBack(writeResult, srcMacAddress);
             }
-            Optional<MacEntry> existingMacEntryForElanInstance = elanUtils.read(broker,
-                LogicalDatastoreType.OPERATIONAL, macEntryIdForElanInstance);
-            if (existingMacEntryForElanInstance.isPresent()) {
-                tx.delete(LogicalDatastoreType.OPERATIONAL, macEntryIdForElanInstance);
-            }
-            ListenableFuture<Void> writeResult = tx.submit();
-            addCallBack(writeResult, srcMacAddress);
         }
-
     }
 
     private void addCallBack(ListenableFuture<Void> writeResult, String srcMacAddress) {
