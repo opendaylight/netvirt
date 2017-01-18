@@ -447,14 +447,17 @@ public class SouthboundImpl implements Southbound {
         OvsdbTerminationPointAugmentation tpAugmentation = extractTerminationPointAugmentation(node,portName);
         if(tpAugmentation == null){
             List<OvsdbTerminationPointAugmentation> tpAugmentations = readTerminationPointAugmentations(node);
+            LOG.info("TP List {}",tpAugmentations);
             if(tpAugmentations != null){
                 for(OvsdbTerminationPointAugmentation ovsdbTpAugmentation : tpAugmentations){
                     if(ovsdbTpAugmentation.getName().equals(portName)){
+                        LOG.info("Return0 TP is {}",ovsdbTpAugmentation);
                         return ovsdbTpAugmentation;
                     }
                 }
             }
         }
+        LOG.info("Return TP is {}",tpAugmentation);
         return tpAugmentation;
     }
 
@@ -462,11 +465,14 @@ public class SouthboundImpl implements Southbound {
         if (bridgeNode.getAugmentation(OvsdbBridgeAugmentation.class) != null) {
             List<OvsdbTerminationPointAugmentation> tpAugmentations = extractTerminationPointAugmentations(bridgeNode);
             for (OvsdbTerminationPointAugmentation ovsdbTerminationPointAugmentation : tpAugmentations) {
+                    LOG.info("CEHCKING PORT {}",ovsdbTerminationPointAugmentation.getName());
                 if (ovsdbTerminationPointAugmentation.getName().equals(portName)) {
+                    LOG.info("RETURNING {}",ovsdbTerminationPointAugmentation);
                     return ovsdbTerminationPointAugmentation;
                 }
             }
         }
+        LOG.error("TERMINATION POINT:RETURNING NULL");
         return null;
     }
 
