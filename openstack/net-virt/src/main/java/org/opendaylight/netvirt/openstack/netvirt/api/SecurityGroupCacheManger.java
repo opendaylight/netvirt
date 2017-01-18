@@ -8,6 +8,7 @@
 
 package org.opendaylight.netvirt.openstack.netvirt.api;
 
+import org.opendaylight.netvirt.openstack.netvirt.translator.NeutronSecurityGroup;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.NodeId;
 
 /**
@@ -23,16 +24,16 @@ public interface SecurityGroupCacheManger {
 
     /**
      * Notifies that a new port in the security group with securityGroupUuid.
-     * @param securityGroupUuid the uuid of the security group associated with the port.
+     * @param securityGroup the security group associated with the port.
      * @param portUuid the uuid of the port.
      */
-    void portAdded(String securityGroupUuid, String portUuid);
+    void portAdded(NeutronSecurityGroup securityGroup, String portUuid);
     /**
      * Notifies that a port is removed with the securityGroupUuid.
-     * @param securityGroupUuid the uuid of the security group associated with the port.
+     * @param securityGroup the security group associated with the port.
      * @param portUuid the uuid of the port.
      */
-    void portRemoved(String securityGroupUuid, String portUuid);
+    void portRemoved(NeutronSecurityGroup securityGroup, String portUuid);
     /**
      * A port with portUuid has a reference remote security group remoteSgUuid will be added
      * to the cache maintained.
