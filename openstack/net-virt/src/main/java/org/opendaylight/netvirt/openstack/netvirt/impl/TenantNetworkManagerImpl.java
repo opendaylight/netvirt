@@ -128,11 +128,7 @@ public class TenantNetworkManagerImpl implements ConfigInterface, TenantNetworkM
         String neutronPortId = southbound.getInterfaceExternalIdsValue(terminationPointAugmentation,
                 Constants.EXTERNAL_ID_INTERFACE_ID);
         if (neutronPortId != null) {
-            NeutronPort neutronPort = neutronPortCache.getPort(neutronPortId);
-            if ( null == neutronPort) {
-                LOG.debug("neutronPort is null, checking the clean up cache.");
-                neutronPort = neutronL3Adapter.getPortFromCleanupCache(neutronPortId);
-            }
+            NeutronPort neutronPort = neutronL3Adapter.getPortPreferablyFromCleanupCache(neutronPortId);
             if (neutronPort != null) {
                 neutronNetwork = neutronNetworkCache.getNetwork(neutronPort.getNetworkUUID());
                 if (null == neutronNetwork) {
@@ -163,15 +159,9 @@ public class TenantNetworkManagerImpl implements ConfigInterface, TenantNetworkM
         String neutronPortId = southbound.getInterfaceExternalIdsValue(terminationPointAugmentation,
                 Constants.EXTERNAL_ID_INTERFACE_ID);
         if (neutronPortId != null) {
-            neutronPort = neutronPortCache.getPort(neutronPortId);
-            if (null == neutronPort) {
-                LOG.debug("neutronPort is null checking the clean up cache.");
-                neutronPort = neutronL3Adapter.getPortFromCleanupCache(neutronPortId);
-            }
+            neutronPort = neutronL3Adapter.getPortPreferablyFromCleanupCache(neutronPortId);
         }
-        if (neutronPort != null) {
-            LOG.debug("mapped to {}", neutronPort);
-        } else {
+        if (neutronPort == null) {
             LOG.warn("getTenantPort did not find port for {}", terminationPointAugmentation.getName());
         }
 
@@ -189,11 +179,7 @@ public class TenantNetworkManagerImpl implements ConfigInterface, TenantNetworkM
     }
 
     private boolean isInterfacePresentInTenantNetwork (String portId, String networkId) {
-        NeutronPort neutronPort = neutronPortCache.getPort(portId);
-        if (null == neutronPort) {
-            LOG.debug("neutronPort is null checking the clean up cache.");
-            neutronPort = neutronL3Adapter.getPortFromCleanupCache(portId);
-        }
+        NeutronPort neutronPort = neutronL3Adapter.getPortPreferablyFromCleanupCache(portId);
         return neutronPort != null && neutronPort.getNetworkUUID().equalsIgnoreCase(networkId);
     }
 

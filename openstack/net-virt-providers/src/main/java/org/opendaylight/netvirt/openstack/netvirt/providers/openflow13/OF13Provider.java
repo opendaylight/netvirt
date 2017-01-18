@@ -39,6 +39,7 @@ import org.opendaylight.netvirt.openstack.netvirt.api.NetworkingProvider;
 import org.opendaylight.netvirt.openstack.netvirt.api.NetworkingProviderManager;
 import org.opendaylight.netvirt.openstack.netvirt.api.NodeCacheManager;
 import org.opendaylight.netvirt.openstack.netvirt.api.ResubmitAclLearnProvider;
+import org.opendaylight.netvirt.openstack.netvirt.api.SecurityGroupCacheManger;
 import org.opendaylight.netvirt.openstack.netvirt.api.SecurityServicesManager;
 import org.opendaylight.netvirt.openstack.netvirt.api.Southbound;
 import org.opendaylight.netvirt.openstack.netvirt.api.Status;
@@ -135,6 +136,7 @@ public class OF13Provider implements ConfigInterface, NetworkingProvider {
     private volatile ResubmitAclLearnProvider resubmitAclLearnProvider;
     private volatile L2ForwardingLearnProvider l2ForwardingLearnProvider;
     private volatile L2ForwardingProvider l2ForwardingProvider;
+    private volatile SecurityGroupCacheManger securityGroupCacheManger;
 
     public static final String NAME = "OF13Provider";
     private volatile BundleContext bundleContext;
@@ -1053,7 +1055,6 @@ public class OF13Provider implements ConfigInterface, NetworkingProvider {
             LOG.info("Port security is not enabled" + intf);
             return;
         }
-        org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.NodeId nodeId = node.getNodeId();
         NeutronPort dhcpPort = securityServicesManager.getDhcpServerPort(intf);
         List<Neutron_IPs> srcAddressList = null;
         if (null != dhcpPort) {
@@ -1075,13 +1076,18 @@ public class OF13Provider implements ConfigInterface, NetworkingProvider {
                     .getSecurityGroupInPortList(intf);
             String neutronPortId = southbound.getInterfaceExternalIdsValue(intf,
                                                                            Constants.EXTERNAL_ID_INTERFACE_ID);
+            org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.NodeId nodeId = node.getNodeId();
             for (NeutronSecurityGroup securityGroupInPort:securityGroupListInPort) {
                 ingressAclProvider.programPortSecurityGroup(dpid, segmentationId, attachedMac, localPort,
                                                             securityGroupInPort, neutronPortId, nodeId, write);
                 egressAclProvider.programPortSecurityGroup(dpid, segmentationId, attachedMac, localPort,
                                                            securityGroupInPort, neutronPortId, nodeId, write);
+                if (write) {
+                    securityGroupCacheManger.portAdded(securityGroupInPort.getSecurityGroupUUID(), neutronPortId);
+                } else {
+                    securityGroupCacheManger.portRemoved(securityGroupInPort.getSecurityGroupUUID(), neutronPortId);
+                }
             }
-
         } else {
             LOG.warn("programLocalRules: No DCHP port seen in  network of {}", intf);
         }
@@ -2115,6 +2121,8 @@ public class OF13Provider implements ConfigInterface, NetworkingProvider {
                 (SecurityServicesManager) ServiceHelper.getGlobalInstance(SecurityServicesManager.class, this);
         southbound =
                 (Southbound) ServiceHelper.getGlobalInstance(Southbound.class, this);
+        securityGroupCacheManger =
+                (SecurityGroupCacheManger) ServiceHelper.getGlobalInstance(SecurityGroupCacheManger.class, this);
     }
 
     @Override
