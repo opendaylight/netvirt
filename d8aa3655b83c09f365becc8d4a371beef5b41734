@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1a622d24_d675c7cb",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanPacketInHandler.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 139,
+      "author": {
+        "id": 6177
+      },
+      "writtenOn": "2017-01-18T09:39:23Z",
+      "side": 1,
+      "message": "I think this check is not really required. Since we\u0027re not saving the macEntry in ElanForwardingTables, then macEntry will always be null in the vlan provider UC?",
+      "revId": "d8aa3655b83c09f365becc8d4a371beef5b41734",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_7665d31c",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanPacketInHandler.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 170,
+      "author": {
+        "id": 6177
+      },
+      "writtenOn": "2017-01-18T09:39:23Z",
+      "side": 1,
+      "message": "I believe this model is required - when removing an elanInstance (happens when removing the external network), InterfaceRemoveWorkerOnElanInterface is triggered and this model is iterated as its entries are removed..",
+      "revId": "d8aa3655b83c09f365becc8d4a371beef5b41734",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
