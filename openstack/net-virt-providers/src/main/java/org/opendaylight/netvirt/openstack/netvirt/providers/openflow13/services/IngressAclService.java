@@ -79,12 +79,16 @@ public class IngressAclService extends AbstractServiceInstance implements Ingres
                                        String portUuid, NodeId nodeId, boolean write) {
 
         LOG.trace("programPortSecurityGroup neutronSecurityGroup: {} ", securityGroup);
-        if (securityGroup == null || getSecurityRulesforGroup(securityGroup) == null) {
+        if (securityGroup == null) {
+            return;
+        }
+        List<NeutronSecurityRule> portSecurityList = getSecurityRulesforGroup(securityGroup);
+        if (portSecurityList == null) {
             return;
         }
 
-        List<NeutronSecurityRule> portSecurityList = getSecurityRulesforGroup(securityGroup);
         /* Iterate over the Port Security Rules in the Port Security Group bound to the port*/
+        Map <String, List<Neutron_IPs>> secGroupRemoteIPMap =  new HashMap <String, List<Neutron_IPs>>();
         for (NeutronSecurityRule portSecurityRule : portSecurityList) {
 
             /**
@@ -106,27 +110,22 @@ public class IngressAclService extends AbstractServiceInstance implements Ingres
                 LOG.debug("programPortSecurityGroup: Rule matching IP and ingress is: {} ", portSecurityRule);
                 if (null != portSecurityRule.getSecurityRemoteGroupID()) {
                     //Remote Security group is selected
-                    List<Neutron_IPs> remoteSrcAddressList = securityServicesManager
-                            .getVmListForSecurityGroup(portUuid,portSecurityRule.getSecurityRemoteGroupID());
-                    if (null != remoteSrcAddressList) {
-                        for (Neutron_IPs vmIp :remoteSrcAddressList ) {
-                            programPortSecurityRule(dpid, segmentationId, attachedMac, localPort,
-                                                    portSecurityRule, vmIp, write);
-                        }
-                        if (write) {
-                            securityGroupCacheManger.addToCache(portSecurityRule.getSecurityRemoteGroupID(), portUuid, nodeId);
-                        } else {
-                            securityGroupCacheManger.removeFromCache(portSecurityRule.getSecurityRemoteGroupID(), portUuid);
-                        }
+                    List<Neutron_IPs> remoteSrcAddressList = secGroupRemoteIPMap.get(portSecurityRule.getSecurityRemoteGroupID());
+                    if (remoteSrcAddressList == null) {
+                        remoteSrcAddressList = securityServicesManager
+                                .getVmListForSecurityGroup(portUuid,portSecurityRule.getSecurityRemoteGroupID());
+                        secGroupRemoteIPMap.put(portSecurityRule.getSecurityRemoteGroupID(), remoteSrcAddressList);
+                    }
+                    for (Neutron_IPs vmIp :remoteSrcAddressList ) {
+                        programPortSecurityRule(dpid, segmentationId, attachedMac, portSecurityRule, vmIp, write);
+                    }
+                    if (write) {
+                        securityGroupCacheManger.addToCache(portSecurityRule.getSecurityRemoteGroupID(), portUuid, nodeId);
+                    } else {
+                        securityGroupCacheManger.removeFromCache(portSecurityRule.getSecurityRemoteGroupID(), portUuid);
                     }
                 } else {
-                    programPortSecurityRule(dpid, segmentationId, attachedMac, localPort,
-                                            portSecurityRule, null, write);
-                }
-                if (write) {
-                    securityGroupCacheManger.portAdded(securityGroup.getSecurityGroupUUID(), portUuid);
-                } else {
-                    securityGroupCacheManger.portRemoved(securityGroup.getSecurityGroupUUID(), portUuid);
+                    programPortSecurityRule(dpid, segmentationId, attachedMac, portSecurityRule, null, write);
                 }
             }
         }
@@ -134,8 +133,7 @@ public class IngressAclService extends AbstractServiceInstance implements Ingres
 
     @Override
     public void programPortSecurityRule(Long dpid, String segmentationId, String attachedMac,
-                                        long localPort, NeutronSecurityRule portSecurityRule,
-                                        Neutron_IPs vmIp, boolean write) {
+                                        NeutronSecurityRule portSecurityRule, Neutron_IPs vmIp, boolean write) {
         String securityRuleEtherType = portSecurityRule.getSecurityRuleEthertype();
         boolean isIpv6 = NeutronSecurityRule.ETHERTYPE_IPV6.equals(securityRuleEtherType);
         if (!isIpv6 && !NeutronSecurityRule.ETHERTYPE_IPV4.equals(securityRuleEtherType)) {
@@ -143,8 +141,6 @@ public class IngressAclService extends AbstractServiceInstance implements Ingres
                     securityRuleEtherType);
             return;
         }
-
-
         String ipaddress = null;
         if (null != vmIp) {
             ipaddress = vmIp.getIpAddress();
@@ -160,10 +156,8 @@ public class IngressAclService extends AbstractServiceInstance implements Ingres
                 return;
             }
         }
-        INeutronSecurityGroupCRUD groupCRUD =
-                (INeutronSecurityGroupCRUD) ServiceHelper.getGlobalInstance(INeutronSecurityGroupCRUD.class, this);
-        NeutronSecurityGroup securityGrp = groupCRUD.getNeutronSecurityGroup(portSecurityRule.getSecurityRuleGroupID());
-        if (null == portSecurityRule.getSecurityRuleProtocol() && securityGrp.getSecurityGroupName().equals("default")) {
+        if (null == portSecurityRule.getSecurityRuleProtocol()
+                && securityGroupCacheManger.isDefaultSecurityGroup(portSecurityRule.getSecurityRuleGroupID())) {
             ingressAclIp(dpid, isIpv6, segmentationId, attachedMac,
                 portSecurityRule, ipaddress,
                 write, Constants.PROTO_PORT_MATCH_PRIORITY - 1, false);

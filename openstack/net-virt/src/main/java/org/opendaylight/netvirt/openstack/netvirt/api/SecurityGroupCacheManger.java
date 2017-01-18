@@ -47,4 +47,9 @@ public interface SecurityGroupCacheManger {
      * @param portUuid portUUID the uuid of the port.
      */
     void removeFromCache(String remoteSgUuid, String portUuid);
+    /**
+     * Returns true if the specified SgId is default, else false
+     * @param securityGroupUUID the security group id
+     */
+    boolean isDefaultSecurityGroup(String securityGroupUUID);
 }
