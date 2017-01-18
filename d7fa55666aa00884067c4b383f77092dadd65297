@@ -19,6 +19,42 @@
     },
     {
       "key": {
+        "uuid": "1a622d24_6bb32998",
+        "filename": "docs/specs/qos.rst",
+        "patchSetId": 7
+      },
+      "lineNbr": 5,
+      "author": {
+        "id": 856
+      },
+      "writtenOn": "2017-01-18T22:55:22Z",
+      "side": 1,
+      "message": "I\u0027ve attempted to enhance the wording to clarify that the spec is about completing the basic feature set of Neutron QoS API support.",
+      "parentUuid": "1a622d24_e21e4a5e",
+      "revId": "d7fa55666aa00884067c4b383f77092dadd65297",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_aba9c125",
+        "filename": "docs/specs/qos.rst",
+        "patchSetId": 7
+      },
+      "lineNbr": 67,
+      "author": {
+        "id": 856
+      },
+      "writtenOn": "2017-01-18T22:55:22Z",
+      "side": 1,
+      "message": "this feature will become a new spec as discussed in email",
+      "parentUuid": "1a622d24_859ddbbe",
+      "revId": "d7fa55666aa00884067c4b383f77092dadd65297",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_42e29e2f",
         "filename": "docs/specs/qos.rst",
         "patchSetId": 7
@@ -48,6 +84,24 @@
       "side": 1,
       "message": "Yes DSCP support is there in sub port and trunk ports.",
       "parentUuid": "1a622d24_42e29e2f",
+      "revId": "d7fa55666aa00884067c4b383f77092dadd65297",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_ce69abfa",
+        "filename": "docs/specs/qos.rst",
+        "patchSetId": 7
+      },
+      "lineNbr": 76,
+      "author": {
+        "id": 856
+      },
+      "writtenOn": "2017-01-18T22:55:22Z",
+      "side": 1,
+      "message": "Will sub port or trunk ports change the match criteria?  that is, should I add more match options to the table?",
+      "parentUuid": "1a622d24_ad9c435e",
       "revId": "d7fa55666aa00884067c4b383f77092dadd65297",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
