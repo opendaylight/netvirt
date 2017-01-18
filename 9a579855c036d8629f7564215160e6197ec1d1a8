@@ -19,6 +19,23 @@
     },
     {
       "key": {
+        "uuid": "1a622d24_1118e973",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 670
+      },
+      "writtenOn": "2017-01-18T10:00:28Z",
+      "side": 1,
+      "message": "Please don\u0027t import *",
+      "revId": "9a579855c036d8629f7564215160e6197ec1d1a8",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_767673a5",
         "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
         "patchSetId": 6
@@ -47,6 +64,40 @@
       "writtenOn": "2017-01-18T07:26:03Z",
       "side": 1,
       "message": "the same functionality is duplicated to update() and remove()\nconsider extracting this to a common method",
+      "revId": "9a579855c036d8629f7564215160e6197ec1d1a8",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_515421fe",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 182,
+      "author": {
+        "id": 670
+      },
+      "writtenOn": "2017-01-18T10:00:28Z",
+      "side": 1,
+      "message": "do we really need a switch case for a single entry key check instead of an if? also missing a default case if we retain the switch case",
+      "revId": "9a579855c036d8629f7564215160e6197ec1d1a8",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_b155b5fb",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 191,
+      "author": {
+        "id": 670
+      },
+      "writtenOn": "2017-01-18T10:00:28Z",
+      "side": 1,
+      "message": "it seems we would continue the for loop anyways - so why is continue used? what is the intention of this code block?",
       "revId": "9a579855c036d8629f7564215160e6197ec1d1a8",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
