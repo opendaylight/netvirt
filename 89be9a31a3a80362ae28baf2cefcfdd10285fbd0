@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1a622d24_6c4fc46b",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanNodeListener.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 90,
+      "author": {
+        "id": 670
+      },
+      "writtenOn": "2017-01-18T11:42:07Z",
+      "side": 1,
+      "message": "Can we have some better name for this?\n\nSomething like:\n\ncreateMulticastFlows(), which would call createMulticastDropFlows() and createMulticastPuntFlows()\n\nThen DropFlows() would have a list of multicast addresses (or just 1 for now with a mask like you did), but I assume we might modify this list in the future.",
+      "revId": "89be9a31a3a80362ae28baf2cefcfdd10285fbd0",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
