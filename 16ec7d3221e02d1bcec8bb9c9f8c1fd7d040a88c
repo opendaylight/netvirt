@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1a622d24_51c1c152",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/SubnetGwMacChangeListener.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 103,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2017-01-18T10:38:47Z",
+      "side": 1,
+      "message": "I don\u0027t think this will work\nIf I look at the current subnetmap model for external subnet it is not mapped to any vpn id",
+      "revId": "16ec7d3221e02d1bcec8bb9c9f8c1fd7d040a88c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
