@@ -16,6 +16,23 @@
       "revId": "16ec7d3221e02d1bcec8bb9c9f8c1fd7d040a88c",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_3118851d",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/SubnetGwMacChangeListener.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 107,
+      "author": {
+        "id": 670
+      },
+      "writtenOn": "2017-01-18T10:41:38Z",
+      "side": 1,
+      "message": "Vivek, why do we break now on the first matching subnetId?\nDon\u0027t we want to handle all subnetIds for the gateway?",
+      "revId": "16ec7d3221e02d1bcec8bb9c9f8c1fd7d040a88c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
