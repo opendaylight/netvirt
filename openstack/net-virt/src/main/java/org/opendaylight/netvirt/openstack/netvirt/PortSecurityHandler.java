@@ -26,6 +26,7 @@ import org.opendaylight.netvirt.openstack.netvirt.translator.NeutronSecurityGrou
 import org.opendaylight.netvirt.openstack.netvirt.translator.NeutronSecurityRule;
 import org.opendaylight.netvirt.openstack.netvirt.translator.Neutron_IPs;
 import org.opendaylight.netvirt.openstack.netvirt.translator.crud.INeutronPortCRUD;
+import org.opendaylight.netvirt.openstack.netvirt.translator.crud.INeutronSecurityGroupCRUD;
 import org.opendaylight.netvirt.openstack.netvirt.translator.iaware.INeutronSecurityGroupAware;
 import org.opendaylight.netvirt.utils.servicehelper.ServiceHelper;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.rev150105.OvsdbTerminationPointAugmentation;
@@ -150,10 +151,13 @@ public class PortSecurityHandler extends AbstractHandler
 
     private void processNeutronSecurityRuleAdded(NeutronSecurityRule neutronSecurityRule) {
         List<NeutronPort> portList = getPortWithSecurityGroup(neutronSecurityRule.getSecurityRuleGroupID());
+        INeutronSecurityGroupCRUD groupCRUD =
+                (INeutronSecurityGroupCRUD) ServiceHelper.getGlobalInstance(INeutronSecurityGroupCRUD.class, this);
+        NeutronSecurityGroup securityGroup = groupCRUD.getNeutronSecurityGroup(neutronSecurityRule.getSecurityRuleGroupID());
         Map<String, NodeId> portNodeCache = getPortNodeCache();
         if (null != portNodeCache) {
             for (NeutronPort port:portList) {
-                syncSecurityGroup(neutronSecurityRule, port, portNodeCache.get(port.getID()), true);
+                syncSecurityGroup(neutronSecurityRule, port, portNodeCache.get(port.getID()), securityGroup, true);
             }
         }
 
@@ -161,21 +165,25 @@ public class PortSecurityHandler extends AbstractHandler
 
     private void processNeutronSecurityRuleDeleted(NeutronSecurityRule neutronSecurityRule) {
         List<NeutronPort> portList = getPortWithSecurityGroup(neutronSecurityRule.getSecurityRuleGroupID());
+        INeutronSecurityGroupCRUD groupCRUD =
+                (INeutronSecurityGroupCRUD) ServiceHelper.getGlobalInstance(INeutronSecurityGroupCRUD.class, this);
+        NeutronSecurityGroup securityGroup = groupCRUD.getNeutronSecurityGroup(neutronSecurityRule.getSecurityRuleGroupID());
         Map<String, NodeId> portNodeCache = getPortNodeCache();
         if (null != portNodeCache) {
             for (NeutronPort port:portList) {
-                syncSecurityGroup(neutronSecurityRule, port, portNodeCache.get(port.getID()), false);
+                syncSecurityGroup(neutronSecurityRule, port, portNodeCache.get(port.getID()), securityGroup, false);
             }
         }
     }
 
-    private void syncSecurityGroup(NeutronSecurityRule securityRule, NeutronPort port, NodeId nodeId,
+    private void syncSecurityGroup(NeutronSecurityRule securityRule, NeutronPort port, NodeId nodeId, NeutronSecurityGroup securityGroup,
                                    boolean write) {
         LOG.debug("syncSecurityGroup {} port {} ", securityRule, port);
         if (!port.getPortSecurityEnabled()) {
             LOG.info("Port security not enabled port {}", port);
             return;
         }
+        Map<NodeId, Long>  dpIdNodeMap = new HashMap<NodeId, Long>();
         if (null != securityRule.getSecurityRemoteGroupID()) {
             List<Neutron_IPs> vmIpList  = securityServicesManager
                     .getVmListForSecurityGroup(port.getID(), securityRule.getSecurityRemoteGroupID());
@@ -192,11 +200,11 @@ public class PortSecurityHandler extends AbstractHandler
                 }
             } else {
                 for (Neutron_IPs vmIp : vmIpList) {
-                    securityServicesManager.syncSecurityRule(port, securityRule, vmIp, nodeId, write);
+                    securityServicesManager.syncSecurityRule(port, securityRule, vmIp, nodeId, dpIdNodeMap, securityGroup, write);
                 }
             }
         } else {
-            securityServicesManager.syncSecurityRule(port, securityRule, null, nodeId, write);
+            securityServicesManager.syncSecurityRule(port, securityRule, null, nodeId, dpIdNodeMap, securityGroup, write);
         }
     }
 
