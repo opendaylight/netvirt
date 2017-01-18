@@ -26,6 +26,7 @@ import org.opendaylight.netvirt.openstack.netvirt.translator.NeutronSecurityGrou
 import org.opendaylight.netvirt.openstack.netvirt.translator.NeutronSecurityRule;
 import org.opendaylight.netvirt.openstack.netvirt.translator.Neutron_IPs;
 import org.opendaylight.netvirt.openstack.netvirt.translator.crud.INeutronPortCRUD;
+import org.opendaylight.netvirt.openstack.netvirt.translator.crud.INeutronSecurityGroupCRUD;
 import org.opendaylight.netvirt.openstack.netvirt.translator.iaware.INeutronSecurityGroupAware;
 import org.opendaylight.netvirt.utils.servicehelper.ServiceHelper;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.rev150105.OvsdbTerminationPointAugmentation;
@@ -176,6 +177,10 @@ public class PortSecurityHandler extends AbstractHandler
             LOG.info("Port security not enabled port {}", port);
             return;
         }
+        INeutronSecurityGroupCRUD groupCRUD =
+                (INeutronSecurityGroupCRUD) ServiceHelper.getGlobalInstance(INeutronSecurityGroupCRUD.class, this);
+        NeutronSecurityGroup securityGroup = groupCRUD.getNeutronSecurityGroup(securityRule.getSecurityRuleGroupID());
+        Map<NodeId, Long>  dpIdNodeMap = new HashMap<NodeId, Long>();
         if (null != securityRule.getSecurityRemoteGroupID()) {
             List<Neutron_IPs> vmIpList  = securityServicesManager
                     .getVmListForSecurityGroup(port.getID(), securityRule.getSecurityRemoteGroupID());
@@ -192,11 +197,11 @@ public class PortSecurityHandler extends AbstractHandler
                 }
             } else {
                 for (Neutron_IPs vmIp : vmIpList) {
-                    securityServicesManager.syncSecurityRule(port, securityRule, vmIp, nodeId, write);
+                    securityServicesManager.syncSecurityRule(port, securityRule, vmIp, nodeId, write, dpIdNodeMap,securityGroup);
                 }
             }
         } else {
-            securityServicesManager.syncSecurityRule(port, securityRule, null, nodeId, write);
+            securityServicesManager.syncSecurityRule(port, securityRule, null, nodeId, write, dpIdNodeMap,securityGroup);
         }
     }
 
