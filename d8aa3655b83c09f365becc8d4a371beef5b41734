@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "1a622d24_91f6b9f7",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanPacketInHandler.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 139,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-01-18T10:26:39Z",
+      "side": 1,
+      "message": "Koby, this is needed because it still deletes entry from ElanInterfaceForwardingEntries and deleting mac flows on the switch for the actual elan interface (i.e. elan interface of Nova VM)",
+      "parentUuid": "1a622d24_d675c7cb",
+      "revId": "d8aa3655b83c09f365becc8d4a371beef5b41734",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_7665d31c",
         "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanPacketInHandler.java",
         "patchSetId": 1
@@ -30,6 +48,24 @@
       "writtenOn": "2017-01-18T09:39:23Z",
       "side": 1,
       "message": "I believe this model is required - when removing an elanInstance (happens when removing the external network), InterfaceRemoveWorkerOnElanInterface is triggered and this model is iterated as its entries are removed..",
+      "revId": "d8aa3655b83c09f365becc8d4a371beef5b41734",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_f173ad7d",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanPacketInHandler.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 170,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-01-18T10:26:39Z",
+      "side": 1,
+      "message": "Yes, This model is still intact. But What I am trying to do here is, not updating ElanInterfaceForwardingEntries and ElanForwardingTables if the mac is already available on other elan interface when same mac is learned on vlan provider port.\nIn PS#2, I am handling the case for mac is freshly learned on vlan provider port (example: external device mac) using isMacAlreadyExists check.\n\nIf you have any other scenario, please bring up.\n\nNote: With this change, when smac expires on vlan provider ports, ElanSmacFlowEventListener#onFlowRemoved will fail to delete local dmac since no entry present in ElanInterfaceForwardingEntries for this mac.\nOnce we agree on this, I can go ahead and make changes there.",
+      "parentUuid": "1a622d24_7665d31c",
       "revId": "d8aa3655b83c09f365becc8d4a371beef5b41734",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
