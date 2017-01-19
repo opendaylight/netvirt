@@ -99,11 +99,6 @@ public class NeutronNetworkChangeListener extends AsyncDataTreeChangeListenerBas
     @Override
     protected void remove(InstanceIdentifier<Network> identifier, Network input) {
         LOG.trace("Removing Network : key: {}, value={}", identifier, input);
-        if (!NeutronvpnUtils.isNetworkTypeSupported(input)) {
-            //FIXME: This should be removed when support for GRE network types is added
-            LOG.error("Neutronvpn doesn't support gre network provider type for this network {}.", input);
-            return;
-        }
         if (NeutronvpnUtils.getIsExternal(input)) {
             if (NeutronvpnUtils.isFlatOrVlanNetwork(input)) {
                 nvpnManager.removeExternalVpnInterfaces(input.getUuid());
