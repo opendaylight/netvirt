@@ -62,7 +62,7 @@ public class BgpRouter {
 
 
     private enum Optype {
-        START, STOP, NBR, VRF, PFX, SRC, MHOP, LOG, AF, GR
+        START, STOP, NBR, VRF, PFX, SRC, MHOP, LOG, AF, GR, MP
     };
 
     private final static int GET_RTS_INIT = 0;
@@ -142,6 +142,9 @@ public class BgpRouter {
             throw new BgpRouterException(BgpRouterException.BGP_ERR_NOT_INITED);
         }
 
+        af_afi afi = af_afi.findByValue(op.ints[0]);
+        af_safi safi = af_safi.findByValue(op.ints[1]);
+
         switch (op.type) {
             case START:
                 setStartTS(System.currentTimeMillis());
@@ -187,8 +190,6 @@ public class BgpRouter {
                 break;
             default: break;
             case AF:
-                af_afi afi = af_afi.findByValue(op.ints[0]);
-                af_safi safi = af_safi.findByValue(op.ints[1]);
                 result = bop.add ?
                         bgpClient.enableAddressFamily(op.strs[0], afi, safi)
                         : bgpClient.disableAddressFamily(op.strs[0], afi, safi);
@@ -198,6 +199,10 @@ public class BgpRouter {
                         bgpClient.enableGracefulRestart(op.ints[0])
                         : bgpClient.disableGracefulRestart();
                 break;
+            case MP:
+                result = bop.add ?
+                        bgpClient.enableMultipath( afi, safi )
+                        : bgpClient.disableMultipath( afi, safi);
         }
         if (result != 0) {
             throw new BgpRouterException(result);
@@ -421,6 +426,26 @@ public class BgpRouter {
         bop.type = Optype.GR;
         bop.add = false;
         LOGGER.debug("graceful restart deleted");
+        dispatch(bop);
+    }
+
+    public synchronized void enableMultipath(af_afi afi, af_safi safi) throws TException, BgpRouterException
+    {
+        bop.type = Optype.MP;
+        bop.add = true;
+        LOGGER.debug("Enabling multipath for afi: " + afi.getValue() + " safi: " + safi.getValue() );
+        bop.ints[0] = afi.getValue();
+        bop.ints[1] = safi.getValue();
+        dispatch(bop);
+    }
+
+    public synchronized void disableMultipath(af_afi afi, af_safi safi) throws TException, BgpRouterException
+    {
+        bop.type = Optype.MP;
+        bop.add = false;
+        LOGGER.debug("Disabling multipath for afi: " + afi.getValue() + " safi: " + safi.getValue() );
+        bop.ints[0] = afi.getValue();
+        bop.ints[1] = safi.getValue();
         dispatch(bop);
     }
 }

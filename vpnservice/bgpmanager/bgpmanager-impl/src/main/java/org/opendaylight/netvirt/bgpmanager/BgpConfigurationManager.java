@@ -17,14 +17,7 @@ import java.io.InputStreamReader;
 import java.lang.reflect.Constructor;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
-import java.util.Arrays;
-import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Timer;
-import java.util.TimerTask;
+import java.util.*;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CountDownLatch;
@@ -34,6 +27,8 @@ import java.util.concurrent.Future;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicBoolean;
+
+import org.apache.thrift.TException;
 import org.opendaylight.controller.config.api.osgi.WaitingServiceTracker;
 import org.opendaylight.controller.md.sal.binding.api.ClusteredDataTreeChangeListener;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
@@ -61,6 +56,7 @@ import org.opendaylight.netvirt.bgpmanager.thrift.gen.qbgpConstants;
 import org.opendaylight.netvirt.bgpmanager.thrift.server.BgpThriftService;
 import org.opendaylight.netvirt.fibmanager.api.RouteOrigin;
 import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.Bgp;
+import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.bgp.*;
 import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.bgp.AsId;
 import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.bgp.AsIdBuilder;
 import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.bgp.ConfigServer;
@@ -69,6 +65,8 @@ import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev1509
 import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.bgp.GracefulRestartBuilder;
 import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.bgp.Logging;
 import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.bgp.LoggingBuilder;
+import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.bgp.MultipathBuilder;
+import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.bgp.MultipathKey;
 import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.bgp.Neighbors;
 import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.bgp.NeighborsBuilder;
 import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.bgp.NeighborsKey;
@@ -98,6 +96,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.util.concurrent.atomic.AtomicInteger;
 import org.opendaylight.yangtools.yang.binding.DataObject;
+import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.bgp.Multipath;
 
 public class BgpConfigurationManager {
     private static final Logger LOG = LoggerFactory.getLogger(BgpConfigurationManager.class);
@@ -200,7 +199,8 @@ public class BgpConfigurationManager {
             GracefulRestartReactor.class, LoggingReactor.class,
             NeighborsReactor.class, UpdateSourceReactor.class,
             EbgpMultihopReactor.class, AddressFamiliesReactor.class,
-            NetworksReactor.class, VrfsReactor.class, BgpReactor.class
+            NetworksReactor.class, VrfsReactor.class, BgpReactor.class,
+            MultipathReactor.class
     };
 
     private ListenerRegistration<DataChangeListener>[] registrations;
@@ -1349,6 +1349,89 @@ public class BgpConfigurationManager {
         }
     }
 
+
+    public class MultipathReactor
+            extends AsyncDataTreeChangeListenerBase<Multipath, MultipathReactor>
+            implements AutoCloseable, ClusteredDataTreeChangeListener<Multipath> {
+
+        private static final String yangObj = "multipath ";
+
+        public MultipathReactor() {
+            super(Multipath.class, MultipathReactor.class);
+        }
+
+
+        @Override
+        protected MultipathReactor getDataTreeChangeListener() {
+            return MultipathReactor.this;
+        }
+
+        @Override
+        protected InstanceIdentifier<Multipath> getWildCardPath() {
+            return InstanceIdentifier.create(Bgp.class).child(Multipath.class);
+        }
+
+        @Override
+        protected synchronized void
+        remove(InstanceIdentifier<Multipath> iid, Multipath val) {
+            if (ignoreClusterDcnEventForFollower()) {
+                return;
+            }
+            synchronized (BgpConfigurationManager.this) {
+                BgpRouter br = getClient(yangObj);
+                if (br == null) {
+                    return;
+                }
+                try {
+
+                } catch (Exception e) {
+                    LOG.error(yangObj + " Delete received exception:  \"" + e + "\"; "
+                            + delWarn);
+                }
+            }
+        }
+
+        @Override
+        protected void update(InstanceIdentifier<Multipath> iid,
+                              Multipath oldval, Multipath newval) {
+            if (ignoreClusterDcnEventForFollower()) {
+                return;
+            }
+            synchronized (BgpConfigurationManager.this) {
+                BgpRouter br = getClient(yangObj);
+                if (br == null) {
+                    return;
+                }
+                if ( oldval.isMultipathEnabled() != newval.isMultipathEnabled() )
+                {
+                    try {
+                        if ( newval.isMultipathEnabled() )
+                            br.enableMultipath(af_afi.findByValue(newval.getAfi().intValue()), af_safi.findByValue(newval.getSafi().intValue()));
+                        else
+                            br.disableMultipath(af_afi.findByValue(newval.getAfi().intValue()), af_safi.findByValue(newval.getSafi().intValue()));
+                    } catch (Exception e) {
+                        LOG.error(yangObj + "newval received exception: \"" + e + "\"; "
+                                + addWarn);
+                    }
+                }
+            }
+        }
+
+        @Override
+        protected void add(InstanceIdentifier<Multipath> key, Multipath dataObjectModification) {
+            // TODO
+        }
+
+        @Override
+        public void close() {
+            try {
+                super.close();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
     public String readThriftIpForCommunication( String mipAddr) {
         File f = new File(CLUSTER_CONF_FILE);
         if (!f.exists()) {
@@ -1647,6 +1730,7 @@ public class BgpConfigurationManager {
      }
 
     public synchronized void replay() {
+        LOG.info("### replay called");
         synchronized (bgpConfigurationManager) {
             String host = getConfigHost();
             int port = getConfigPort();
@@ -1755,6 +1839,47 @@ public class BgpConfigurationManager {
                 replayNbrConfig(n, br);
             } else {
                 LOG.error("no Neighbors present for replay config ");
+            }
+
+            LOG.info("### about to iterate through multipaths");
+            List<Multipath> multipaths = config.getMultipath();
+
+            if( multipaths == null || multipaths.isEmpty() )
+            {
+                Multipath mp = new MultipathBuilder()
+                        .setAfi((long)af_afi.AFI_IP.getValue())
+                        .setSafi((long)af_safi.SAFI_MPLS_VPN.getValue())
+                        .setMultipathEnabled(true)
+                        .build();
+
+                multipaths = new ArrayList<>();
+                multipaths.add(mp);
+                LOG.info("### added entry : " + multipaths.size() );
+            }
+            else
+            {
+                LOG.info("### entry already existing: " + multipaths.get(0).getAfi() + " : " + multipaths.get(0).getSafi() + " : " + multipaths.get(0).isMultipathEnabled());
+            }
+
+            for ( Multipath m: multipaths )
+            {
+                LOG.info("### iterating through MPs" );
+                if ( m != null )
+                {
+                    af_afi afi = af_afi.findByValue( m.getAfi().intValue() );
+                    af_safi safi = af_safi.findByValue( m.getSafi().intValue() );
+
+                    try {
+                        if ( m.isMultipathEnabled() )
+                            br.enableMultipath( afi, safi );
+                        else
+                            br.disableMultipath( afi, safi );
+                        LOG.info("### executed MP");
+                    } catch ( TException | BgpRouterException e )
+                    {
+                        LOG.info("Replay:multipaths() received exception: \"" + e + "\"");
+                    }
+                }
             }
         }
     }
@@ -1981,6 +2106,22 @@ public class BgpConfigurationManager {
                         .child(Vrfs.class, new VrfsKey(rd));
         InstanceIdentifier<Vrfs> iid = iib.build();
         delete(iid);
+    }
+
+    public synchronized void
+    setMultipathStatus(af_afi afi, af_safi safi, boolean enable ) {
+
+        long lAfi = afi.getValue();
+        long lSafi = safi.getValue();
+
+        InstanceIdentifier.InstanceIdentifierBuilder<Multipath> iib =
+                InstanceIdentifier
+                        .builder(Bgp.class)
+                        .child(Multipath.class, new MultipathKey(Long.valueOf(afi.getValue()), Long.valueOf(safi.getValue())) );
+
+        Multipath dto = new MultipathBuilder().setAfi(lAfi).setSafi(lSafi).setMultipathEnabled(enable).build();
+//        BgpUtil.syncWrite(dataBroker, LogicalDatastoreType.CONFIGURATION, iib.build(), dto);
+        update(iib.build(), dto);
     }
 
     static ScheduledExecutorService executor = Executors.newScheduledThreadPool(1);

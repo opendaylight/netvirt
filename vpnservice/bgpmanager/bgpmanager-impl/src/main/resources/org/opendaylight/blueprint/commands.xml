@@ -67,5 +67,10 @@
             <action class="org.opendaylight.netvirt.bgpmanager.commands.Cache"/>
         </command>
     </command-bundle>
+    <command-bundle xmlns="http://karaf.apache.org/xmlns/shell/v1.1.0">
+        <command>
+            <action class="org.opendaylight.netvirt.bgpmanager.commands.Multipath"/>
+        </command>
+    </command-bundle>
 
 </blueprint>
