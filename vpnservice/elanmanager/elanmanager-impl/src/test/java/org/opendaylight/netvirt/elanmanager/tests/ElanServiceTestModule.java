@@ -25,6 +25,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.OdlInterfaceRpcService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rpcs.rev160406.ItmRpcService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.lockmanager.rev160413.LockManagerService;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.config.rev150710.ElanConfig;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.config.rev150710.ElanConfigBuilder;
 
 /**
  * Equivalent of src/main/resources/org/opendaylight/blueprint/elanmanager.xml,
@@ -43,6 +45,8 @@ public class ElanServiceTestModule extends AbstractGuiceJsr250Module {
         bind(IdManagerService.class).to(IdManager.class);
         bind(LockManagerService.class).to(LockManager.class);
         bind(OdlInterfaceRpcService.class).to(InterfaceManagerRpcService.class);
+        bind(ElanConfig.class).toInstance(new ElanConfigBuilder().setIntBridgeGenMac(true)
+                        .setTempSmacLearnTimeout(10).build());
 
         // Bindings of all listeners (which are not directly referenced in the code)
         // This is required to be explicit here, because these are referenced neither from src/main nor src/test
