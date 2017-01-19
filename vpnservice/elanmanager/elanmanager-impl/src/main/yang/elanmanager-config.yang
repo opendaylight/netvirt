@@ -18,6 +18,16 @@ module elan-config {
             type boolean;
             default true;
         }
+        leaf controller-max-backoff {
+            description "max_backoff for controller configured on OVS Bridge";
+            type uint32 {
+                range "1000..max";
+            }
+        }
+        leaf controller-inactivity-probe {
+            description "inactivity_probe timeout for controller configured on OVS Bridge";
+            type uint32;
+        }
         leaf temp-smac-learn-timeout {
             description "Temporary source MAC learning timeout";
             type uint16;
