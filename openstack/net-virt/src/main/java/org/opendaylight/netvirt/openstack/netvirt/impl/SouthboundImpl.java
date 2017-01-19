@@ -447,26 +447,36 @@ public class SouthboundImpl implements Southbound {
         OvsdbTerminationPointAugmentation tpAugmentation = extractTerminationPointAugmentation(node,portName);
         if(tpAugmentation == null){
             List<OvsdbTerminationPointAugmentation> tpAugmentations = readTerminationPointAugmentations(node);
+            LOG.trace("TP List {}",tpAugmentations);
             if(tpAugmentations != null){
+                LOG.trace("getTerminationPointOfBridge: port name {}", portName);
                 for(OvsdbTerminationPointAugmentation ovsdbTpAugmentation : tpAugmentations){
                     if(ovsdbTpAugmentation.getName().equals(portName)){
+                        LOG.trace("getTerminationPointOfBridge: Valid port name {}", portName);
+                        LOG.trace("Return0 TP is {}",ovsdbTpAugmentation);
                         return ovsdbTpAugmentation;
                     }
                 }
             }
         }
+        LOG.trace("Return TP is {}",tpAugmentation);
         return tpAugmentation;
     }
 
     public OvsdbTerminationPointAugmentation extractTerminationPointAugmentation(Node bridgeNode, String portName) {
         if (bridgeNode.getAugmentation(OvsdbBridgeAugmentation.class) != null) {
+            LOG.trace("extractTerminationPointAugmentation: port name {}", portName);
             List<OvsdbTerminationPointAugmentation> tpAugmentations = extractTerminationPointAugmentations(bridgeNode);
             for (OvsdbTerminationPointAugmentation ovsdbTerminationPointAugmentation : tpAugmentations) {
+                LOG.trace("CEHCKING PORT {}",ovsdbTerminationPointAugmentation.getName());
                 if (ovsdbTerminationPointAugmentation.getName().equals(portName)) {
+                    LOG.trace("extractTerminationPointAugmentation: Valid port name {}", portName);
+                    LOG.trace("RETURNING {}",ovsdbTerminationPointAugmentation);
                     return ovsdbTerminationPointAugmentation;
                 }
             }
         }
+        LOG.error("TERMINATION POINT:RETURNING NULL");
         return null;
     }
 

@@ -887,6 +887,7 @@ public class OF13Provider implements ConfigInterface, NetworkingProvider {
                 return;
             }
 
+            LOG.trace("programTunnelRules: topology info {}", southbound.getOvsdbTopology());
             OvsdbTerminationPointAugmentation tunnelPort= southbound.getTerminationPointOfBridge(node, getTunnelName(tunnelType, dst));
             if (tunnelPort != null){
                 long tunnelOFPort = southbound.getOFPort(tunnelPort);
@@ -909,6 +910,14 @@ public class OF13Provider implements ConfigInterface, NetworkingProvider {
                     programLocalIngressTunnelBridgeRules(node, dpid, segmentationId, attachedMac,
                             tunnelOFPort, localPort);
                 }
+            } else {
+                LOG.trace("programTunnelRules when tunnel port is null: readTerminationPointAugmentations info {}",
+                        southbound.readTerminationPointAugmentations(node));
+                LOG.trace("programTunnelRules when tunnel port is null:  extractTerminationPointAugmentations info {}",
+                        southbound.extractTerminationPointAugmentations(node));
+                LOG.trace("programTunnelRules when tunnel port is null:  port name {}", getTunnelName(tunnelType, dst));
+                LOG.trace("programTunnelRules when tunnel port is null: topology info {}", southbound.getOvsdbTopology());
+                LOG.trace("programtunnelrules:Tunnel Port is NULL dst {}", dst);
             }
         } catch (Exception e) {
             LOG.warn("Failed to program tunnel rules, node {}, intf {}", node, intf, e);
@@ -1536,6 +1545,7 @@ public class OF13Provider implements ConfigInterface, NetworkingProvider {
             Short goToTableId, String segmentationId,
             Long OFPortOut, String attachedMac,
             boolean write) {
+        LOG.trace("Invoked Tunnel out for {} table {} attachedMac {}", dpidLong, goToTableId, attachedMac);
         l2ForwardingProvider.programTunnelOut(dpidLong, segmentationId, OFPortOut, attachedMac, write);
     }
 
