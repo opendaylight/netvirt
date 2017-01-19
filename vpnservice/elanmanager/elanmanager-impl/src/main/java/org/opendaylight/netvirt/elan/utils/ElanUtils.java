@@ -920,7 +920,7 @@ public class ElanUtils {
         long ifTag = interfaceInfo.getInterfaceTag();
         String elanInstanceName = elanInfo.getElanInstanceName();
 
-        Long elanTag = getElanTag(broker, elanInfo, interfaceInfo);
+        Long elanTag = elanInfo.getElanTag();
 
         setupLocalDmacFlow(elanTag, dpId, ifName, macAddress, elanInfo, mdsalApiManager, ifTag,
                 writeFlowGroupTx);
@@ -1063,15 +1063,6 @@ public class ElanUtils {
      */
     public Flow buildLocalDmacFlowEntry(long elanTag, BigInteger dpId, String ifName, String macAddress,
             ElanInstance elanInfo, long ifTag) {
-
-        // If interface is leaf, learn this only for the leaf tag.
-        EtreeInterface etreeInterface = getEtreeInterfaceByElanInterfaceName(broker, ifName);
-        if (etreeInterface != null && etreeInterface.getEtreeInterfaceType() == EtreeInterfaceType.Leaf) {
-            EtreeInstance etreeInstance = elanInfo.getAugmentation(EtreeInstance.class);
-            if (etreeInstance != null && etreeInstance.getEtreeLeafTagVal() != null) {
-                elanTag = etreeInstance.getEtreeLeafTagVal().getValue();
-            }
-        }
 
         List<MatchInfo> mkMatches = new ArrayList<>();
         mkMatches.add(new MatchInfo(MatchFieldType.metadata,
