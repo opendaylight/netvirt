@@ -21,6 +21,7 @@ import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
@@ -637,8 +638,9 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                 }
             } else {
                 // ### add FIB route directly
-                fibManager.addOrUpdateFibEntry(dataBroker, vpnName, nextHop.getIpAddress(), Arrays.asList(nextHopIp),
-                                               (int) label, RouteOrigin.LOCAL, writeConfigTxn);
+                fibManager.addOrUpdateFibEntry(dataBroker, vpnName, nextHop.getIpAddress(),
+                        (nextHopIp == null ? Collections.emptyList() : Arrays.asList(nextHopIp)),
+                        (int)label, RouteOrigin.LOCAL, writeConfigTxn);
             }
         }
     }
