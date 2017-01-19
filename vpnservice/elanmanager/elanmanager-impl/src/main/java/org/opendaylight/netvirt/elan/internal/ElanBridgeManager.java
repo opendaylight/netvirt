@@ -22,6 +22,7 @@ import org.opendaylight.genius.interfacemanager.globals.IfmConstants;
 import org.opendaylight.ovsdb.utils.config.ConfigProperties;
 import org.opendaylight.ovsdb.utils.mdsal.utils.MdsalUtils;
 import org.opendaylight.ovsdb.utils.southbound.utils.SouthboundUtils;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.config.rev150710.ElanConfig;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.rev150105.DatapathTypeBase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.rev150105.DatapathTypeNetdev;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.rev150105.OvsdbNodeAugmentation;
@@ -46,16 +47,21 @@ public class ElanBridgeManager {
     private final MdsalUtils mdsalUtils;
     final SouthboundUtils southboundUtils;
     private final Random random;
+    private final Long maxBackoff;
+    private final Long inactivityProbe;
 
     /**
      * Construct a new ElanBridgeManager.
      * @param dataBroker DataBroker
+     * @param elanConfig the elan configuration
      */
-    public ElanBridgeManager(DataBroker dataBroker) {
+    public ElanBridgeManager(DataBroker dataBroker, ElanConfig elanConfig) {
         //TODO: ClusterAware!!!??
         this.mdsalUtils = new MdsalUtils(dataBroker);
         this.southboundUtils = new SouthboundUtils(mdsalUtils);
         this.random = new Random(System.currentTimeMillis());
+        this.maxBackoff = elanConfig.getControllerMaxBackoff();
+        this.inactivityProbe = elanConfig.getControllerInactivityProbe();
     }
 
     /**
@@ -230,14 +236,16 @@ public class ElanBridgeManager {
             // If bridge already exists, don't generate mac, it will change datapath-id
             mac = southboundUtils.isBridgeOnOvsdbNode(ovsdbNode, bridgeName) ? null : mac;
             rv = southboundUtils.addBridge(ovsdbNode, bridgeName,
-                    southboundUtils.getControllersFromOvsdbNode(ovsdbNode), dpType, mac);
+                    southboundUtils.getControllersFromOvsdbNode(ovsdbNode), dpType, mac,
+                    maxBackoff, inactivityProbe);
         }
         return rv;
     }
 
     private boolean addControllerToBridge(Node ovsdbNode,String bridgeName) {
         return southboundUtils.setBridgeController(ovsdbNode,
-                            bridgeName, southboundUtils.getControllersFromOvsdbNode(ovsdbNode));
+                bridgeName, southboundUtils.getControllersFromOvsdbNode(ovsdbNode),
+                maxBackoff, inactivityProbe);
     }
 
     /**
