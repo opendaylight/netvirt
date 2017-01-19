@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1a622d24_d4881a73",
+        "filename": "vpnservice/dhcpservice/dhcpservice-impl/src/main/java/org/opendaylight/netvirt/dhcpservice/DhcpInterfaceConfigListener.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 101,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-01-19T09:00:38Z",
+      "side": 1,
+      "message": "do we need to check for tunnelInterface here ? because code after 109 executes only if it is vlan interface.",
+      "revId": "7f2ffad53f08297de75d37b6e065caffa729db90",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
