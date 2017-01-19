@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1a622d24_daefa11c",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/yang/elanmanager-config.yang",
+        "patchSetId": 1
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 5703
+      },
+      "writtenOn": "2017-01-19T14:21:44Z",
+      "side": 1,
+      "message": "What about defaults?",
+      "revId": "a09ec353cd4b15fae1ab48a7cbda5eec47d4d3e4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_ba8f4574",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/yang/elanmanager-config.yang",
+        "patchSetId": 1
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 5703
+      },
+      "writtenOn": "2017-01-19T14:21:44Z",
+      "side": 1,
+      "message": "Should add the time unit of the configuration",
+      "revId": "a09ec353cd4b15fae1ab48a7cbda5eec47d4d3e4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_faec1d2c",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/yang/elanmanager-config.yang",
+        "patchSetId": 1
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 5703
+      },
+      "writtenOn": "2017-01-19T14:21:44Z",
+      "side": 1,
+      "message": "What about defaults?",
+      "revId": "a09ec353cd4b15fae1ab48a7cbda5eec47d4d3e4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
