@@ -37,6 +37,126 @@
     },
     {
       "key": {
+        "uuid": "1a622d24_f4071680",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/BgpRouteVrfEntryHandler.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 4540
+      },
+      "writtenOn": "2017-01-19T10:00:27Z",
+      "side": 1,
+      "message": "It\u0027s assigned but never accessed as far as I can see... Sharing this seems rather dangerous anyway — what happens if several calls to create/delete/update occur before the list has been processed?",
+      "parentUuid": "1a622d24_91ecf4bc",
+      "revId": "9a579855c036d8629f7564215160e6197ec1d1a8",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_34b06edc",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/BgpRouteVrfEntryHandler.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 36,
+      "author": {
+        "id": 4540
+      },
+      "writtenOn": "2017-01-19T10:00:27Z",
+      "side": 1,
+      "message": "These need to be declared consistently with their initialisation: if they\u0027re initialised in the constructor, they shouldn\u0027t be static; if they\u0027re supposed to be static, they should be initialised in a static block, not in the constructor.",
+      "revId": "9a579855c036d8629f7564215160e6197ec1d1a8",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_94bea2ac",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/BgpRouteVrfEntryHandler.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 4540
+      },
+      "writtenOn": "2017-01-19T10:00:27Z",
+      "side": 1,
+      "message": "Why is this static?",
+      "revId": "9a579855c036d8629f7564215160e6197ec1d1a8",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_34e7cee5",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/BgpRouteVrfEntryHandler.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 90,
+      "author": {
+        "id": 4540
+      },
+      "writtenOn": "2017-01-19T10:00:27Z",
+      "side": 1,
+      "message": "Don\u0027t call toString() here:\n\n    ActionableResource actResource \u003d new ActionableResourceImpl(rd + vrfEntry.getDestPrefix());",
+      "revId": "9a579855c036d8629f7564215160e6197ec1d1a8",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_14ea92ab",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/BgpRouteVrfEntryHandler.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 99,
+      "author": {
+        "id": 4540
+      },
+      "writtenOn": "2017-01-19T10:00:27Z",
+      "side": 1,
+      "message": "As above.",
+      "revId": "9a579855c036d8629f7564215160e6197ec1d1a8",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_74d4a6eb",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/BgpRouteVrfEntryHandler.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 108,
+      "author": {
+        "id": 4540
+      },
+      "writtenOn": "2017-01-19T10:00:27Z",
+      "side": 1,
+      "message": "As above.",
+      "revId": "9a579855c036d8629f7564215160e6197ec1d1a8",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_d40ada88",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/FibUtil.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 430,
+      "author": {
+        "id": 4540
+      },
+      "writtenOn": "2017-01-19T10:00:27Z",
+      "side": 1,
+      "message": "Simplify the last two statements to\n\n    return read(dataBroker, LogicalDatastoreType.OPERATIONAL, id).orNull();\n\nand consider perhaps returning the Optional instead.",
+      "revId": "9a579855c036d8629f7564215160e6197ec1d1a8",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_1118e973",
         "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
         "patchSetId": 6
