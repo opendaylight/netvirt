@@ -2,6 +2,23 @@
   "comments": [
     {
       "key": {
+        "uuid": "1a622d24_5ac27185",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanBridgeManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 63,
+      "author": {
+        "id": 6465
+      },
+      "writtenOn": "2017-01-19T14:33:26Z",
+      "side": 1,
+      "message": "what is value will be installed here, if there are no any value declaration in YANG ?",
+      "revId": "a09ec353cd4b15fae1ab48a7cbda5eec47d4d3e4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_daefa11c",
         "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/yang/elanmanager-config.yang",
         "patchSetId": 1
