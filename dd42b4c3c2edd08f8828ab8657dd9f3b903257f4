@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1a622d24_74de66de",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanManagerCounters.java",
+        "patchSetId": 13
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 6177
+      },
+      "writtenOn": "2017-01-19T10:19:32Z",
+      "side": 1,
+      "message": "I think this counter is unused, and also doesn\u0027t match the convention",
+      "revId": "dd42b4c3c2edd08f8828ab8657dd9f3b903257f4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
