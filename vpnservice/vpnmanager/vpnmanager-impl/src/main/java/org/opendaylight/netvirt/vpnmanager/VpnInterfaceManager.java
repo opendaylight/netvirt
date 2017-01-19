@@ -620,8 +620,9 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                 }
             } else {
                 // ### add FIB route directly
-                fibManager.addOrUpdateFibEntry(dataBroker, vpnName, nextHop.getIpAddress(), Arrays.asList(nextHopIp),
-                                               (int) label, RouteOrigin.LOCAL, writeConfigTxn);
+                fibManager.addOrUpdateFibEntry(dataBroker, vpnName, nextHop.getIpAddress(),
+                        (nextHopIp == null ? Collections.emptyList() : Arrays.asList(nextHopIp)),
+                        (int)label, RouteOrigin.LOCAL, writeConfigTxn);
             }
         }
     }
