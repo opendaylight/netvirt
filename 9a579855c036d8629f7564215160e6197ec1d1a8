@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "1a622d24_91ecf4bc",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/BgpRouteVrfEntryHandler.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 6154
+      },
+      "writtenOn": "2017-01-19T06:47:37Z",
+      "side": 1,
+      "message": "It is used in create/delete/update methods below",
+      "parentUuid": "1a622d24_16461f4f",
+      "revId": "9a579855c036d8629f7564215160e6197ec1d1a8",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_1118e973",
         "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
         "patchSetId": 6
@@ -30,6 +48,24 @@
       "writtenOn": "2017-01-18T10:00:28Z",
       "side": 1,
       "message": "Please don\u0027t import *",
+      "revId": "9a579855c036d8629f7564215160e6197ec1d1a8",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_1150e9d2",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 6154
+      },
+      "writtenOn": "2017-01-19T06:47:37Z",
+      "side": 1,
+      "message": "Sure. The IDE i am using modified it , without my notice. I will correct it.",
+      "parentUuid": "1a622d24_1118e973",
       "revId": "9a579855c036d8629f7564215160e6197ec1d1a8",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -53,6 +89,24 @@
     },
     {
       "key": {
+        "uuid": "1a622d24_f121ed4d",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 6154
+      },
+      "writtenOn": "2017-01-19T06:47:37Z",
+      "side": 1,
+      "message": "Will remove it.",
+      "parentUuid": "1a622d24_767673a5",
+      "revId": "9a579855c036d8629f7564215160e6197ec1d1a8",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_36499b60",
         "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
         "patchSetId": 6
@@ -64,6 +118,24 @@
       "writtenOn": "2017-01-18T07:26:03Z",
       "side": 1,
       "message": "the same functionality is duplicated to update() and remove()\nconsider extracting this to a common method",
+      "revId": "9a579855c036d8629f7564215160e6197ec1d1a8",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_ab4a6152",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 180,
+      "author": {
+        "id": 6154
+      },
+      "writtenOn": "2017-01-19T06:47:37Z",
+      "side": 1,
+      "message": "Hi Tali , we are calling different methods of handlers for add/update/delete DCN i.e createFlows/updateFlows/removeFlows.",
+      "parentUuid": "1a622d24_36499b60",
       "revId": "9a579855c036d8629f7564215160e6197ec1d1a8",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -87,6 +159,24 @@
     },
     {
       "key": {
+        "uuid": "1a622d24_d1ccb18b",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 182,
+      "author": {
+        "id": 6154
+      },
+      "writtenOn": "2017-01-19T06:47:37Z",
+      "side": 1,
+      "message": "Hi Alon , currently we have started with BGP Route handler. Different route handlers like subnet route , intervpn link , import-export will be added into switch cases in subsequent reviews. I will put a default case.",
+      "parentUuid": "1a622d24_515421fe",
+      "revId": "9a579855c036d8629f7564215160e6197ec1d1a8",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_b155b5fb",
         "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
         "patchSetId": 6
@@ -98,6 +188,24 @@
       "writtenOn": "2017-01-18T10:00:28Z",
       "side": 1,
       "message": "it seems we would continue the for loop anyways - so why is continue used? what is the intention of this code block?",
+      "revId": "9a579855c036d8629f7564215160e6197ec1d1a8",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_b1f13097",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 191,
+      "author": {
+        "id": 6154
+      },
+      "writtenOn": "2017-01-19T06:47:37Z",
+      "side": 1,
+      "message": "Hi Alon,\n\nThe pattern we are attempting to implement is \"chain of responsibility\". A given VrfEntry object (any type of origin) should go through the chain of handlers which are interested in handling it. A given VrfEntry object may be required to be processed by more than one handler. Lets define the chain as A-B-C (list of handlers). After VrfEntry is processed by handler-A , if its says continue processing (VRF_PROCESSING_CONTINUE), next handler-B can process it and so on .. If any handler after processing the VrfEntry obj thinks it need not be processed by any other handler , it can say processing completed (VRF_PROCESSING_COMPLETED).",
+      "parentUuid": "1a622d24_b155b5fb",
       "revId": "9a579855c036d8629f7564215160e6197ec1d1a8",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
