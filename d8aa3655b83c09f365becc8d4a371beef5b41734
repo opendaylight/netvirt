@@ -105,6 +105,24 @@
       "revId": "d8aa3655b83c09f365becc8d4a371beef5b41734",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_318360cd",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanPacketInHandler.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 170,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-01-19T07:18:07Z",
+      "side": 1,
+      "message": "Yes Koby, I am fine with updating only ElanInterfaceForwardingEntries if mac is relearned on VLAN provider port.I have updated patch set with required changes. Please have a look and test it in vlan provider network setup.\nIf things look okay, we can merge it in or shall we wait for Guy\u0027s code review https://git.opendaylight.org/gerrit/#/c/50370/ to get merged and then rebase this ?",
+      "parentUuid": "1a622d24_6cf06467",
+      "revId": "d8aa3655b83c09f365becc8d4a371beef5b41734",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
