@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "1a622d24_1a9c795c",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanBridgeManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 63,
+      "author": {
+        "id": 3276
+      },
+      "writtenOn": "2017-01-19T15:08:38Z",
+      "side": 1,
+      "message": "I believe it will be null, in which case we don\u0027t configure and switch uses its own default. I\u0027m yet to do proper testing on this, waiting for OVSDB patch to be merged first.",
+      "parentUuid": "1a622d24_5ac27185",
+      "revId": "a09ec353cd4b15fae1ab48a7cbda5eec47d4d3e4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_daefa11c",
         "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/yang/elanmanager-config.yang",
         "patchSetId": 1
@@ -30,6 +48,24 @@
       "writtenOn": "2017-01-19T14:21:44Z",
       "side": 1,
       "message": "What about defaults?",
+      "revId": "a09ec353cd4b15fae1ab48a7cbda5eec47d4d3e4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_9a708941",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/yang/elanmanager-config.yang",
+        "patchSetId": 1
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 3276
+      },
+      "writtenOn": "2017-01-19T15:08:38Z",
+      "side": 1,
+      "message": "Default should be whatever the OVS default is, we don\u0027t configure anything.",
+      "parentUuid": "1a622d24_daefa11c",
       "revId": "a09ec353cd4b15fae1ab48a7cbda5eec47d4d3e4",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -53,6 +89,24 @@
     },
     {
       "key": {
+        "uuid": "1a622d24_3a99756e",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/yang/elanmanager-config.yang",
+        "patchSetId": 1
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 3276
+      },
+      "writtenOn": "2017-01-19T15:08:38Z",
+      "side": 1,
+      "message": "Yeah, will do.",
+      "parentUuid": "1a622d24_ba8f4574",
+      "revId": "a09ec353cd4b15fae1ab48a7cbda5eec47d4d3e4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_faec1d2c",
         "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/yang/elanmanager-config.yang",
         "patchSetId": 1
@@ -64,6 +118,24 @@
       "writtenOn": "2017-01-19T14:21:44Z",
       "side": 1,
       "message": "What about defaults?",
+      "revId": "a09ec353cd4b15fae1ab48a7cbda5eec47d4d3e4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_da95e133",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/yang/elanmanager-config.yang",
+        "patchSetId": 1
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 3276
+      },
+      "writtenOn": "2017-01-19T15:08:38Z",
+      "side": 1,
+      "message": "Same as above. I considered making 30 sec the default but felt isn\u0027t good to change it.",
+      "parentUuid": "1a622d24_faec1d2c",
       "revId": "a09ec353cd4b15fae1ab48a7cbda5eec47d4d3e4",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
