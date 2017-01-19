@@ -105,6 +105,24 @@
       "revId": "d7fa55666aa00884067c4b383f77092dadd65297",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_11446419",
+        "filename": "docs/specs/qos.rst",
+        "patchSetId": 7
+      },
+      "lineNbr": 76,
+      "author": {
+        "id": 6892
+      },
+      "writtenOn": "2017-01-19T03:27:00Z",
+      "side": 1,
+      "message": "No. Lport tag and Ethtype are the match criteria for Subports and Trunkports. No need to add any other options",
+      "parentUuid": "1a622d24_ce69abfa",
+      "revId": "d7fa55666aa00884067c4b383f77092dadd65297",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
