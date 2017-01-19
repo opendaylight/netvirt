@@ -16,3 +16,4 @@ Contents:
    ACL Statistics <acl-stats>
    Hairpinning of floating IPs in flat/VLAN provider networks <hairpinning-flat-vlan>
    Quality of Service <qos>
+   QoS Alert <qos-alert>
