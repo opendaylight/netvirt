@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1a622d24_80de5cdb",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronNetworkChangeListener.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 105,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-01-20T03:17:31Z",
+      "side": 0,
+      "message": "if we donot support a network type, that check is evenly placed in add and remove to ignore processing such network events holistically..  So this should not be removed..\n\nWhy would an update event remove the Augmentation and can you please point where?",
+      "revId": "2e2d21400f40e1f17654b81add06d34dac988481",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
