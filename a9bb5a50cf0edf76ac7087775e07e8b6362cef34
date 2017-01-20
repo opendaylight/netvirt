@@ -2,6 +2,23 @@
   "comments": [
     {
       "key": {
+        "uuid": "1a622d24_17ba8fc0",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 5
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-01-20T13:09:32Z",
+      "side": 1,
+      "message": "the last sentence can be removed. Instead of that sentence:\n\nIf gateway mac is not recoverable for the subnet on which the virtual endpoint resides, then the connected mac address of that virtual endpoint will be used as the source mac address.  Here the connected mac address represents the mac-address on the tapxxx (or) the vhuxxx port on OVS Datapath for that virtual endpoint.",
+      "revId": "a9bb5a50cf0edf76ac7087775e07e8b6362cef34",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_a029d89c",
         "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/NexthopManager.java",
         "patchSetId": 5
@@ -19,6 +36,206 @@
         "endLine": 213,
         "endChar": 4
       },
+      "revId": "a9bb5a50cf0edf76ac7087775e07e8b6362cef34",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_9444dd4a",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/NexthopManager.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 213,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-01-20T13:09:32Z",
+      "side": 1,
+      "message": "how would you do that?  This method returns ActionInfo list, while InterfaceManager provides list of Actions",
+      "parentUuid": "1a622d24_a029d89c",
+      "range": {
+        "startLine": 213,
+        "startChar": 0,
+        "endLine": 213,
+        "endChar": 4
+      },
+      "revId": "a9bb5a50cf0edf76ac7087775e07e8b6362cef34",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_b7fd9bb3",
+        "filename": "vpnservice/vpnmanager/vpnmanager-api/src/main/yang/odl-l3vpn.yang",
+        "patchSetId": 5
+      },
+      "lineNbr": 65,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-01-20T13:09:32Z",
+      "side": 1,
+      "message": "to-gw-src-mac",
+      "revId": "a9bb5a50cf0edf76ac7087775e07e8b6362cef34",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_57ab6788",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 601,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-01-20T13:09:32Z",
+      "side": 1,
+      "message": "This can be a separate mini method.",
+      "revId": "a9bb5a50cf0edf76ac7087775e07e8b6362cef34",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_37aeab98",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 1103,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-01-20T13:09:32Z",
+      "side": 1,
+      "message": "use the same mini-method to handle this too.",
+      "revId": "a9bb5a50cf0edf76ac7087775e07e8b6362cef34",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_77cca389",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 1196,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-01-20T13:09:32Z",
+      "side": 1,
+      "message": "too cryptic.. can we please retrieve gwSrcMac first earlier only and then pass exact info here.",
+      "range": {
+        "startLine": 1196,
+        "startChar": 69,
+        "endLine": 1196,
+        "endChar": 77
+      },
+      "revId": "a9bb5a50cf0edf76ac7087775e07e8b6362cef34",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_b743dbad",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceOpListener.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 150,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-01-20T13:09:32Z",
+      "side": 1,
+      "message": "fix the name of the method as in the other file comment.",
+      "revId": "a9bb5a50cf0edf76ac7087775e07e8b6362cef34",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_5799a76c",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnUtil.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 1328,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-01-20T13:09:32Z",
+      "side": 1,
+      "message": "why was this annotation required?",
+      "revId": "a9bb5a50cf0edf76ac7087775e07e8b6362cef34",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_f7955333",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnUtil.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 1329,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-01-20T13:09:32Z",
+      "side": 1,
+      "message": "ResolveGwSourceMacForVpnInterface()",
+      "revId": "a9bb5a50cf0edf76ac7087775e07e8b6362cef34",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_b7991b7b",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnUtil.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 1342,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-01-20T13:09:32Z",
+      "side": 1,
+      "message": "better to have vpnName and vpnInterfaceName together as the key for this DS.",
+      "revId": "a9bb5a50cf0edf76ac7087775e07e8b6362cef34",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_379ceb5c",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnUtil.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 1360,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-01-20T13:09:32Z",
+      "side": 1,
+      "message": "ditto here",
+      "revId": "a9bb5a50cf0edf76ac7087775e07e8b6362cef34",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_77a14393",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnUtil.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 1361,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-01-20T13:09:32Z",
+      "side": 1,
+      "message": "releaseGwSourceMacForVpnInterface()",
       "revId": "a9bb5a50cf0edf76ac7087775e07e8b6362cef34",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
