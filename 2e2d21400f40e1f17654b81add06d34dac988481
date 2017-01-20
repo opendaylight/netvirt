@@ -16,6 +16,24 @@
       "revId": "2e2d21400f40e1f17654b81add06d34dac988481",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_602340bd",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronNetworkChangeListener.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 105,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2017-01-20T06:22:50Z",
+      "side": 0,
+      "message": "@Vivek, this issue would be seen when using networking_odl V2 driver (not with V1).\n\nRegarding your first comment: If we are not allowing a Network creation (for non-supported network types), what is the use of checking it during delete? Do you see a use-case where it can still get created? If not, IMO this check is redundant (even with V1 driver) and we should avoid un-necessary checks (wherever possible) as this also improves the performance.",
+      "parentUuid": "1a622d24_80de5cdb",
+      "revId": "2e2d21400f40e1f17654b81add06d34dac988481",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
