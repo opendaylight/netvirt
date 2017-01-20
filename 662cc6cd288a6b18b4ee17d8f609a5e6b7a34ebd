@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1a622d24_e0cd9032",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 15
+      },
+      "lineNbr": 230,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-01-20T03:11:30Z",
+      "side": 1,
+      "message": "would you need this debug?",
+      "revId": "662cc6cd288a6b18b4ee17d8f609a5e6b7a34ebd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_40d1e4cb",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 15
+      },
+      "lineNbr": 952,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-01-20T03:11:30Z",
+      "side": 1,
+      "message": "need to remove this interface from concurrentQueue here for cleanup.",
+      "revId": "662cc6cd288a6b18b4ee17d8f609a5e6b7a34ebd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
