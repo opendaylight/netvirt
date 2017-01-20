@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1a622d24_546d2503",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/BgpRouteVrfEntryHandler.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 4540
+      },
+      "writtenOn": "2017-01-20T10:39:55Z",
+      "side": 1,
+      "message": "I still don\u0027t see the point of having this as a class attribute.",
+      "revId": "c328ac8515a8f93111d08562eff116abb4e43e49",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_b4a4794b",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/BgpRouteVrfEntryHandler.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 36,
+      "author": {
+        "id": 4540
+      },
+      "writtenOn": "2017-01-20T10:39:55Z",
+      "side": 1,
+      "message": "OK so these should really just be\n\n    private static final int BATCH_SIZE \u003d 1000;\n    private static final int BATCH_INTERVAL \u003d 500;\n\nsince they\u0027re initialised to these fixed values in the constructor and never modified. Or are they supposed to be modifiable later?",
+      "revId": "c328ac8515a8f93111d08562eff116abb4e43e49",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
