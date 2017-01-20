@@ -1144,7 +1144,7 @@ public class OF13Provider implements ConfigInterface, NetworkingProvider {
                         }
                     }
 
-                    if (network == tenantNetworkManager.getTenantNetwork(port)){
+                    if (network == neutronNetwork){
                         programTunnelRules(networkType, segmentationId, dst, srcBridgeNode, port, false);
                     }
                     else{
