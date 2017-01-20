@@ -340,10 +340,10 @@ public class SouthboundHandler extends AbstractHandler
         LOG.debug("processPortUpdate : {} for the Node: {}", port, node);
         NeutronNetwork network = tenantNetworkManager.getTenantNetwork(port);
         if (network != null) {
-            final NeutronPort neutronPort = tenantNetworkManager.getTenantPort(port);
             if (!network.getRouterExternal()) {
                 handleInterfaceUpdate(node, port, action);
             } else if (action != null && action.equals(Action.UPDATE)) {
+                final NeutronPort neutronPort = tenantNetworkManager.getTenantPort(port);
                 programVLANNetworkFlowProvider(node, port, network, neutronPort, true);
             }
         }
