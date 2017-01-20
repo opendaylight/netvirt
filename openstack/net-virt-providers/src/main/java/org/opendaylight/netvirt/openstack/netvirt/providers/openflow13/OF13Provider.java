@@ -190,10 +190,12 @@ public class OF13Provider implements ConfigInterface, NetworkingProvider {
     private boolean addTunnelPort (Node node, String tunnelType, InetAddress src, InetAddress dst) {
         String tunnelBridgeName = configurationService.getIntegrationBridgeName();
         String portName = getTunnelName(tunnelType, dst);
-        LOG.info("Added TunnelPort : portName: {}", portName);
+        LOG.trace("Added TunnelPort : portName: {}", portName);
         if (southbound.extractTerminationPointAugmentation(node, portName) != null
                 || southbound.isTunnelTerminationPointExist(node, tunnelBridgeName, portName)) {
-            LOG.info("Tunnel {} is present in {} of {}", portName, tunnelBridgeName, node.getNodeId().getValue());
+            if (LOG.isTraceEnabled()) {
+                LOG.trace("Tunnel {} is present in {} of {}", portName, tunnelBridgeName, node.getNodeId().getValue());
+            }
             return true;
         }
 
@@ -207,7 +209,7 @@ public class OF13Provider implements ConfigInterface, NetworkingProvider {
             return false;
         }
 
-            LOG.info("addTunnelPort exit: portName: {}", portName);
+        LOG.info("addTunnelPort exit: portName: {}", portName);
         return true;
     }
 
@@ -1050,7 +1052,7 @@ public class OF13Provider implements ConfigInterface, NetworkingProvider {
         LOG.debug("programLocalRules: Program fixed security group rules for interface {}", intf.getName());
         boolean isPortSecurityEnabled = securityServicesManager.isPortSecurityEnabled(intf);
         if (!isPortSecurityEnabled) {
-            LOG.info("Port security is not enabled" + intf);
+            LOG.info("Port security is not enabled {}", intf);
             return;
         }
         org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.NodeId nodeId = node.getNodeId();

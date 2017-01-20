@@ -153,8 +153,10 @@ public abstract class AbstractServiceInstance {
 
     protected void writeFlow(FlowBuilder flowBuilder, NodeBuilder nodeBuilder) {
         if (NetvirtProvidersProvider.isMasterProviderInstance()) {
-            LOG.debug("writeFlow: flowBuilder: {}, nodeBuilder: {}",
-                    flowBuilder.build(), nodeBuilder.build());
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("writeFlow: flowBuilder: {}, nodeBuilder: {}",
+                        flowBuilder.build(), nodeBuilder.build());
+            }
             WriteTransaction modification = dataBroker.newWriteOnlyTransaction();
             //modification.put(LogicalDatastoreType.CONFIGURATION, createNodePath(nodeBuilder),
             //        nodeBuilder.build(), true /*createMissingParents*/);
