@@ -888,27 +888,29 @@ public class OF13Provider implements ConfigInterface, NetworkingProvider {
             }
 
             OvsdbTerminationPointAugmentation tunnelPort= southbound.getTerminationPointOfBridge(node, getTunnelName(tunnelType, dst));
-            if (tunnelPort != null){
-                long tunnelOFPort = southbound.getOFPort(tunnelPort);
-                if (tunnelOFPort == 0) {
-                    LOG.error("programTunnelRules: Could not Identify Tunnel port {} -> OF ({}) on {}",
-                            tunnelPort.getName(), tunnelOFPort, node);
-                    return;
-                }
-                LOG.debug("programTunnelRules: Identified Tunnel port {} -> OF ({}) on {}",
+            if (tunnelPort == null) {
+                LOG.warn("Failed to program tunnel rules since the tunnel port was not created: node {}, intf {}", node, intf);
+                return;
+            }
+            long tunnelOFPort = southbound.getOFPort(tunnelPort);
+            if (tunnelOFPort == 0) {
+                LOG.error("programTunnelRules: Could not Identify Tunnel port {} -> OF ({}) on {}",
                         tunnelPort.getName(), tunnelOFPort, node);
+                return;
+            }
+            LOG.debug("programTunnelRules: Identified Tunnel port {} -> OF ({}) on {}",
+                    tunnelPort.getName(), tunnelOFPort, node);
 
-                if (!local) {
-                    LOG.trace("programTunnelRules: program remote egress tunnel rules: node {}, intf {}",
-                            node.getNodeId().getValue(), intf.getName());
-                    programRemoteEgressTunnelBridgeRules(node, dpid, segmentationId, attachedMac,
-                            tunnelOFPort, localPort);
-                } else {
-                    LOG.trace("programTunnelRules: program local ingress tunnel rules: node {}, intf {}",
-                            node.getNodeId().getValue(), intf.getName());
-                    programLocalIngressTunnelBridgeRules(node, dpid, segmentationId, attachedMac,
-                            tunnelOFPort, localPort);
-                }
+            if (!local) {
+                LOG.trace("programTunnelRules: program remote egress tunnel rules: node {}, intf {}",
+                        node.getNodeId().getValue(), intf.getName());
+                programRemoteEgressTunnelBridgeRules(node, dpid, segmentationId, attachedMac,
+                        tunnelOFPort, localPort);
+            } else {
+                LOG.trace("programTunnelRules: program local ingress tunnel rules: node {}, intf {}",
+                        node.getNodeId().getValue(), intf.getName());
+                programLocalIngressTunnelBridgeRules(node, dpid, segmentationId, attachedMac,
+                        tunnelOFPort, localPort);
             }
         } catch (Exception e) {
             LOG.warn("Failed to program tunnel rules, node {}, intf {}", node, intf, e);
