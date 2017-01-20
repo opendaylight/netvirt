@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1a622d24_a029d89c",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/NexthopManager.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 213,
+      "author": {
+        "id": 6550
+      },
+      "writtenOn": "2017-01-20T06:55:56Z",
+      "side": 1,
+      "message": "Hi Vivek,\n\nPlease confirm if we can avoid adding individual Action that to be added, or can we add all the actions returned by getEgressAction RPC. which we are doing in ArpResponderUtil.java",
+      "range": {
+        "startLine": 213,
+        "startChar": 0,
+        "endLine": 213,
+        "endChar": 4
+      },
+      "revId": "a9bb5a50cf0edf76ac7087775e07e8b6362cef34",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
