@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "1a622d24_f41ef16e",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/intervpnlink/InterVpnLinkService.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 280,
+      "author": {
+        "id": 5350
+      },
+      "writtenOn": "2017-01-20T11:07:06Z",
+      "side": 1,
+      "message": "not right now. \nBut it wont hurt to be a bit defensive here, so I\u0027ve changed it.",
+      "parentUuid": "1a622d24_a5144ae9",
+      "range": {
+        "startLine": 280,
+        "startChar": 49,
+        "endLine": 280,
+        "endChar": 65
+      },
+      "revId": "37a0db881c4b63d558f9437068c43afc3ba712b8",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_85eaeed8",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/intervpnlink/InterVpnLinkStateListener.java",
         "patchSetId": 2
@@ -36,6 +60,24 @@
       "writtenOn": "2017-01-19T17:33:49Z",
       "side": 1,
       "message": "General question unrelated to this specific commit - why is InterVpnLinkState read from the config DS and not from the oper DS? is there a reason for this?",
+      "revId": "37a0db881c4b63d558f9437068c43afc3ba712b8",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_d71c976c",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/intervpnlink/InterVpnLinkStateListener.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 5350
+      },
+      "writtenOn": "2017-01-20T11:07:06Z",
+      "side": 1,
+      "message": "it was initially placed at OPERATIONAL, but it didn\u0027t survive to Karaf restarts, so we had to move it to CONFIG.\n\nwhat\u0027s the usual way for application-generated info that must be persisted?",
+      "parentUuid": "1a622d24_85eaeed8",
       "revId": "37a0db881c4b63d558f9437068c43afc3ba712b8",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
