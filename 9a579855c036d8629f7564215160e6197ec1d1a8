@@ -72,6 +72,24 @@
     },
     {
       "key": {
+        "uuid": "1a622d24_0099ac1f",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/BgpRouteVrfEntryHandler.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 36,
+      "author": {
+        "id": 6154
+      },
+      "writtenOn": "2017-01-20T10:30:28Z",
+      "side": 1,
+      "message": "Earlier this batching infra subscription code was part of VrfEntryListener class which was a monolithic class handling all types of VrfEntry types(different origin). Hence the batchInterval, BATCH_SIZE etc where meant to be common parameters for all VrfEntry types. But later , batching was done only for VrfEntry type BGP. \n\nNow as we have separate handlers for each type of VrfEntry , we will make them handler specific parameters.\n\nI will change them from static to non-static.",
+      "parentUuid": "1a622d24_34b06edc",
+      "revId": "9a579855c036d8629f7564215160e6197ec1d1a8",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_94bea2ac",
         "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/BgpRouteVrfEntryHandler.java",
         "patchSetId": 6
@@ -106,6 +124,24 @@
     },
     {
       "key": {
+        "uuid": "1a622d24_5fad43e8",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/BgpRouteVrfEntryHandler.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 90,
+      "author": {
+        "id": 6154
+      },
+      "writtenOn": "2017-01-20T10:30:28Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1a622d24_34e7cee5",
+      "revId": "9a579855c036d8629f7564215160e6197ec1d1a8",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_14ea92ab",
         "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/BgpRouteVrfEntryHandler.java",
         "patchSetId": 6
@@ -117,6 +153,24 @@
       "writtenOn": "2017-01-19T10:00:27Z",
       "side": 1,
       "message": "As above.",
+      "revId": "9a579855c036d8629f7564215160e6197ec1d1a8",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_bfb8d72a",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/BgpRouteVrfEntryHandler.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 99,
+      "author": {
+        "id": 6154
+      },
+      "writtenOn": "2017-01-20T10:30:28Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1a622d24_14ea92ab",
       "revId": "9a579855c036d8629f7564215160e6197ec1d1a8",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -140,6 +194,24 @@
     },
     {
       "key": {
+        "uuid": "1a622d24_9fb35b4c",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/BgpRouteVrfEntryHandler.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 108,
+      "author": {
+        "id": 6154
+      },
+      "writtenOn": "2017-01-20T10:30:28Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1a622d24_74d4a6eb",
+      "revId": "9a579855c036d8629f7564215160e6197ec1d1a8",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_d40ada88",
         "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/FibUtil.java",
         "patchSetId": 6
@@ -151,6 +223,24 @@
       "writtenOn": "2017-01-19T10:00:27Z",
       "side": 1,
       "message": "Simplify the last two statements to\n\n    return read(dataBroker, LogicalDatastoreType.OPERATIONAL, id).orNull();\n\nand consider perhaps returning the Optional instead.",
+      "revId": "9a579855c036d8629f7564215160e6197ec1d1a8",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_d4fbf544",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/FibUtil.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 430,
+      "author": {
+        "id": 6154
+      },
+      "writtenOn": "2017-01-20T10:30:28Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1a622d24_d40ada88",
       "revId": "9a579855c036d8629f7564215160e6197ec1d1a8",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
