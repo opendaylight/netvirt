@@ -235,7 +235,7 @@ public class OF13Provider implements ConfigInterface, NetworkingProvider {
          * Table(0) Rule #3
          * ----------------
          * Match: VM sMac and Local Ingress Port
-         * Action:Action: Set Tunnel ID and GOTO Local Table (5)
+         * Action: Set Tunnel ID and GOTO Local Table (5)
          */
 
         handleLocalInPort(dpid, TABLE_0_DEFAULT_INGRESS, TABLE_1_ISOLATE_TENANT,
