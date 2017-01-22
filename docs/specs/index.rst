@@ -26,3 +26,4 @@ Contents:
    Netvirt counters <netvirt-statistics-spec>
    QoS Alert <qos-alert>
    DHCP Server with dynamic allocation pool <dhcp-dynamic-allocation-pool>
+   Element counters <element-counters>
