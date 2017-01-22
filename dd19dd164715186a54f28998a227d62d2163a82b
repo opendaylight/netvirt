@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_12eeec22",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 2
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 670
+      },
+      "writtenOn": "2017-01-22T09:04:48Z",
+      "side": 1,
+      "message": "I prefer Depends-On: \u003cgit review URL\u003e instead of this, as it provides an actual link.. the OVSDB commit ID may change due to rebase etc.",
+      "revId": "dd19dd164715186a54f28998a227d62d2163a82b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
