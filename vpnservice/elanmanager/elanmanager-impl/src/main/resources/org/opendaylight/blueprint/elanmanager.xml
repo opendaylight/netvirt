@@ -155,7 +155,7 @@
   </bean>
 
   <bean id="elanStatusMonitor" class="org.opendaylight.netvirt.elan.statusanddiag.ElanStatusMonitorJMX"
-    init-method="init" />
+    init-method="init" destroy-method="close" />
 
   <bean id="l2GatewayConnectionListener"
     class="org.opendaylight.netvirt.elan.l2gw.listeners.L2GatewayConnectionListener"
