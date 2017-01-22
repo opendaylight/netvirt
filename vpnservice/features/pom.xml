@@ -158,6 +158,13 @@ and is available at http://www.eclipse.org/legal/epl-v10.html INTERNAL
     </dependency>
     <dependency>
       <groupId>${project.groupId}</groupId>
+      <artifactId>elanmanager-impl</artifactId>
+      <version>${elanmgr.version}</version>
+      <type>xml</type>
+      <classifier>config</classifier>
+    </dependency>
+    <dependency>
+      <groupId>${project.groupId}</groupId>
       <artifactId>elanmanager-api</artifactId>
       <version>${elanmgr.version}</version>
     </dependency>
