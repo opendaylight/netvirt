@@ -200,7 +200,9 @@
   </bean>
 
   <odl:clustered-app-config id="elanConfig"
-                            binding-class="org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.config.rev150710.ElanConfig">
+                            binding-class="org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.config.rev150710.ElanConfig"
+                            default-config-file-name="netvirt-elanmanager-config.xml"
+                            update-strategy="none">
   </odl:clustered-app-config>
 
   <bean id="ElanOvsdbNodeListener"
