@@ -1,0 +1,76 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_3204d07d",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/InterfaceStateChangeListener.java",
+        "patchSetId": 19
+      },
+      "lineNbr": 65,
+      "author": {
+        "id": 670
+      },
+      "writtenOn": "2017-01-22T13:39:59Z",
+      "side": 1,
+      "message": "Sure, fixed, thanks.",
+      "parentUuid": "1a622d24_94006203",
+      "revId": "e2819e682b1c903a51738c99b53055ba447efa37",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_1209cc95",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/InterfaceStateChangeListener.java",
+        "patchSetId": 19
+      },
+      "lineNbr": 119,
+      "author": {
+        "id": 670
+      },
+      "writtenOn": "2017-01-22T13:39:59Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1a622d24_1f0c6b3a",
+      "revId": "e2819e682b1c903a51738c99b53055ba447efa37",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_72fe586d",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/InterfaceStateChangeListener.java",
+        "patchSetId": 19
+      },
+      "lineNbr": 166,
+      "author": {
+        "id": 670
+      },
+      "writtenOn": "2017-01-22T13:39:59Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1a622d24_7f163f4d",
+      "revId": "e2819e682b1c903a51738c99b53055ba447efa37",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_52035473",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/InterfaceStateChangeListener.java",
+        "patchSetId": 19
+      },
+      "lineNbr": 170,
+      "author": {
+        "id": 670
+      },
+      "writtenOn": "2017-01-22T13:39:59Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1a622d24_1f710ba8",
+      "revId": "e2819e682b1c903a51738c99b53055ba447efa37",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
