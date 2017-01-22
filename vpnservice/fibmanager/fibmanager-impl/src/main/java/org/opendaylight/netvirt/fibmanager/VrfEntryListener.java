@@ -372,6 +372,11 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
 
         final List<BigInteger> localDpnIdList = createLocalFibEntry(vpnInstance.getVpnId(), rd, vrfEntry);
 
+        if (localDpnIdList.isEmpty()) {
+            LOG.error("No local dpnId was found for vrfEntry {} vpnId {} rd {}", vrfEntry, vpnInstance.getVpnId(), rd);
+            return;
+        }
+
         if (vpnToDpnList != null) {
             DataStoreJobCoordinator dataStoreCoordinator = DataStoreJobCoordinator.getInstance();
             dataStoreCoordinator.enqueueJob("FIB-"+ rd.toString() + "-" + vrfEntry.getDestPrefix(),
@@ -772,6 +777,21 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
         List<BigInteger> returnLocalDpnId = new ArrayList<>();
         Prefixes localNextHopInfo = FibUtil.getPrefixToInterface(dataBroker, vpnId, vrfEntry.getDestPrefix());
         String localNextHopIP = vrfEntry.getDestPrefix();
+
+        // Just for debugging
+        if (localNextHopInfo == null) {
+            LOG.info("Sleeping 3s to see if there is a race: vpnId {}, vrfEntry dest {}", vpnId, vrfEntry.getDestPrefix());
+            try {
+                Thread.sleep(3000);
+            } catch (InterruptedException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+            localNextHopInfo = FibUtil.getPrefixToInterface(dataBroker, vpnId, vrfEntry.getDestPrefix());
+            if (localNextHopInfo == null) {
+                LOG.error("Prefix is still null");
+            }
+        }
 
         if (localNextHopInfo == null) {
             //Is this fib route an extra route? If yes, get the nexthop which would be an adjacency in the vpn
