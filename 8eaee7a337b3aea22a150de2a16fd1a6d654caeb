@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_d29bc470",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/resources/org/opendaylight/blueprint/elanmanager.xml",
+        "patchSetId": 1
+      },
+      "lineNbr": 205,
+      "author": {
+        "id": 3276
+      },
+      "writtenOn": "2017-01-22T10:27:16Z",
+      "side": 1,
+      "message": "@Olga/Koby: If you can confirm that changing values at runtime works without any issues and would prefer changing at runtime, we can remove this option.",
+      "range": {
+        "startLine": 205,
+        "startChar": 28,
+        "endLine": 205,
+        "endChar": 50
+      },
+      "revId": "8eaee7a337b3aea22a150de2a16fd1a6d654caeb",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
