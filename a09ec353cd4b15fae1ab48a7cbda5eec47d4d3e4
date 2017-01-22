@@ -108,6 +108,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_12d8ac52",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/yang/elanmanager-config.yang",
+        "patchSetId": 1
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 3276
+      },
+      "writtenOn": "2017-01-22T09:50:49Z",
+      "side": 1,
+      "message": "Updated yang with time unit as well as explained defaults.",
+      "parentUuid": "fafc7978_d2e3c431",
+      "revId": "a09ec353cd4b15fae1ab48a7cbda5eec47d4d3e4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_ba8f4574",
         "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/yang/elanmanager-config.yang",
         "patchSetId": 1
