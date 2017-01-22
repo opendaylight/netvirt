@@ -8,9 +8,11 @@
 package org.opendaylight.netvirt.elan.statusanddiag;
 
 import java.lang.management.ManagementFactory;
+
 import javax.management.JMException;
 import javax.management.MBeanServer;
 import javax.management.ObjectName;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -29,6 +31,20 @@ public class ElanStatusMonitorJMX implements ElanStatusMonitor, ElanStatusMonito
         ObjectName objName = new ObjectName(JMX_ELAN_OBJ_NAME);
         mbs.registerMBean(this, objName);
         LOG.info("ElanStatusMonitor MXBean successfully registered {}", JMX_ELAN_OBJ_NAME);
+    }
+
+    public void close() {
+        try {
+            MBeanServer mbs = ManagementFactory.getPlatformMBeanServer();
+            ObjectName objName;
+            objName = new ObjectName(JMX_ELAN_OBJ_NAME);
+            if (mbs != null && mbs.isRegistered(objName)) {
+                mbs.unregisterMBean(objName);
+                LOG.info("Successfully unregistered MXBean {}", JMX_ELAN_OBJ_NAME);
+            }
+        } catch (JMException e) {
+            LOG.error("Error unregistering MXBean " + JMX_ELAN_OBJ_NAME, e);
+        }
     }
 
     @Override
