@@ -16,6 +16,24 @@
       "revId": "dd19dd164715186a54f28998a227d62d2163a82b",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_b2f8c0c5",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 2
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 3276
+      },
+      "writtenOn": "2017-01-22T09:48:58Z",
+      "side": 1,
+      "message": "It should be Depends-On. I expect gerrit to pick the change and link it in Depends-On.\n\nhttp://docs.openstack.org/infra/manual/developers.html#cross-repository-dependencies",
+      "parentUuid": "fafc7978_12eeec22",
+      "revId": "dd19dd164715186a54f28998a227d62d2163a82b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
