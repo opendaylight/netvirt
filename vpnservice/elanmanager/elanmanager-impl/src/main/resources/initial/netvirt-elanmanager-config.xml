@@ -1,0 +1,4 @@
+<elanmanager-config xmlns="urn:opendaylight:netvirt:elan:config">
+  <int-bridge-gen-mac>true</int-bridge-gen-mac>
+  <temp-smac-learn-timeout>10</temp-smac-learn-timeout>
+</elanmanager-config>
