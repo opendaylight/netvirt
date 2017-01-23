@@ -184,6 +184,30 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_9522c6ff",
+        "filename": "docs/specs/ipv6-distributed-router.rst",
+        "patchSetId": 1
+      },
+      "lineNbr": 48,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2017-01-23T07:36:34Z",
+      "side": 1,
+      "message": "Thanks for your review comments @Gidi. \n\nAFAIK, when using Neutron BGP Dynamic routing API, it only advertises \"/64\" prefixes and not \"/128\" prefixes since IPv6 router is still a CVR in Neutron DVR [*] implementation.\nHowever, as you rightly pointed out, when using neutron bgp dynamic routing API, the routes are advertised to the external IPv6 gateway, eliminating the manual configuration.\n[*] In Neutron DVR use-case, IPv6 traffic from the VMs is always forwarded to the centralized SNAT router from where it is sent out on external network.\n\n\n \u003e Reg: \"The issue of CVR versus DVR can be solved if we advertise a next hop address per compute hosts \n \u003e for every full (IPv4/32 or IPv6/128) address belonging to a VM. \nCurrently, Neutron does not support IPv6 floatingips and also does *not* create multiple router gateway ports (i.e., one per router per compute-node).\nIncase of IPv4 DVR, for each compute node that is hosting a VM with FIP, it creates a FIP namespace with an external gateway port (one for each *external network*) and the external gateway port is shared among the tenants. So, in the current state, Neutron DVR use-case/API is not creating a router gw port per compute node.\nIn your earlier comments, you have suggested that we should allocate a unique MAC address (one per compute node per router) and use it for north-south traffic. \nBy doing this, I agree with you that we can use BGP to advertise the /128 next-hop routes that can be aggregated by the DCGW. \nThis approach differs to the Neutron implementation of DVR. Anyways, I remember @Alon mentioning that @Tali is planning to propose a DVR Spec. \nI feel that in the DVR Spec, we should consider both IPv4 and IPv6 use-cases and finalize the design that fits both the use-cases.\n\nSo, if I got it correctly, we have the following options.\n1. Implement a plain IPv6 CVR (without BGP). Here we manually configure a downstream route (for the tenant GUA subnet CIDR with next-hop as Neutron router-gateway-port) on the external IPv6 Gateway.\n2. Implement IPv6 CVR + BGP to advertise /64 prefixes (to avoid manual configuration on the upstream external IPv6 GW).\n3. Implement an IPv6 DVR + BGP to advertise /128 prefixes.\n\nPlease let me know your comments on this.",
+      "parentUuid": "1a622d24_da521834",
+      "range": {
+        "startLine": 47,
+        "startChar": 28,
+        "endLine": 48,
+        "endChar": 29
+      },
+      "revId": "976d7bbd2030e84f67b3b82780adbe501390d954",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_ad8bba66",
         "filename": "docs/specs/ipv6-distributed-router.rst",
         "patchSetId": 1
@@ -726,6 +750,30 @@
       "side": 1,
       "message": "I think Daya\u0027s question is, how do we differentiate the Neighbor Solicitation requests coming for a IPv6 VM from an external router or another entity attached to the same IPv6 network via L2GW or VLAN provide network? If the NS is from external router, it needs to be punted to controller and responded with HOST_MAC. Else it needs to broadcasted in the ELAN instance and responded with VM MAC. So we need to program the flows accordingly (I think there is a concept of internal tunnel and external tunnel in the pipeline. May be we should explore if that can used for this differentiation)",
       "parentUuid": "1a622d24_07560a2a",
+      "range": {
+        "startLine": 119,
+        "startChar": 25,
+        "endLine": 119,
+        "endChar": 26
+      },
+      "revId": "976d7bbd2030e84f67b3b82780adbe501390d954",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_95692628",
+        "filename": "docs/specs/ipv6-distributed-router.rst",
+        "patchSetId": 1
+      },
+      "lineNbr": 119,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2017-01-23T07:36:34Z",
+      "side": 1,
+      "message": "@Srikanth, let us revisit this after we conclude on the soln we want to pursue. Thanks.",
+      "parentUuid": "1a622d24_e4ec9fbd",
       "range": {
         "startLine": 119,
         "startChar": 25,
