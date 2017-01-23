@@ -1,0 +1,157 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_876d7407",
+        "filename": "openstack/net-virt-providers/src/main/java/org/opendaylight/netvirt/openstack/netvirt/providers/openflow13/services/EgressAclService.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 148,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2017-01-23T22:00:56Z",
+      "side": 1,
+      "message": "double \u0027 \u0027 after \u0027boolean write\u0027",
+      "revId": "4c67dd37a488c39ad0d5bd222fd8c64e621db3b1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_677210e7",
+        "filename": "openstack/net-virt-providers/src/main/java/org/opendaylight/netvirt/openstack/netvirt/providers/openflow13/services/EgressAclService.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 173,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2017-01-23T22:00:56Z",
+      "side": 1,
+      "message": "Sorry, take a step back here, could you remind me why the \"default\" SG has special treatment for SG rule protocol \u003d\u003d ANY. \nWhat is the difference between an arbitrary SG with rule protocol \u003d\u003d ANY and the default SG with protocol \u003d\u003d ANY?",
+      "revId": "4c67dd37a488c39ad0d5bd222fd8c64e621db3b1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_19344cdd",
+        "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/PortSecurityHandler.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 154,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2017-01-23T22:00:56Z",
+      "side": 1,
+      "message": "I am sorry, I thought incorrectly that the security group was readily available before the call the syncSecurityGroup.\nIf we have to query it on the fly then might as well do it in the syncSecurityGroup as do did in previous version",
+      "revId": "4c67dd37a488c39ad0d5bd222fd8c64e621db3b1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_79e2b804",
+        "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/impl/SecurityGroupCacheManagerImpl.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 58,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2017-01-23T22:00:56Z",
+      "side": 1,
+      "message": "Please refactor this block 58-63 (64 can be removed) to a new function so it can be reused.",
+      "revId": "4c67dd37a488c39ad0d5bd222fd8c64e621db3b1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_59889422",
+        "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/impl/SecurityGroupCacheManagerImpl.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 66,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2017-01-23T22:00:56Z",
+      "side": 1,
+      "message": "space after\u0027,\u0027",
+      "revId": "4c67dd37a488c39ad0d5bd222fd8c64e621db3b1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_3994b036",
+        "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/impl/SecurityGroupCacheManagerImpl.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 127,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2017-01-23T22:00:56Z",
+      "side": 1,
+      "message": "remove space after securityGroupCache.get(",
+      "revId": "4c67dd37a488c39ad0d5bd222fd8c64e621db3b1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_199f2c61",
+        "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/impl/SecurityGroupCacheManagerImpl.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 134,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2017-01-23T22:00:56Z",
+      "side": 1,
+      "message": "Could we use the method NeutronL3Adapter::getDpIdOfNeutronPort?",
+      "revId": "4c67dd37a488c39ad0d5bd222fd8c64e621db3b1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_9c6e6ac8",
+        "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/impl/TenantNetworkManagerImpl.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 173,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2017-01-23T22:00:56Z",
+      "side": 1,
+      "message": "remove this",
+      "revId": "4c67dd37a488c39ad0d5bd222fd8c64e621db3b1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_d9948446",
+        "filename": "openstack/net-virt/src/test/java/org/opendaylight/netvirt/openstack/netvirt/impl/SecurityServicesImplTest.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 411,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2017-01-23T22:00:56Z",
+      "side": 1,
+      "message": "I am assuming that we\u0027ll fix the unit test after removing the \u0027WIP\u0027",
+      "revId": "4c67dd37a488c39ad0d5bd222fd8c64e621db3b1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
