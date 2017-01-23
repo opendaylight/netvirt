@@ -317,6 +317,24 @@
     },
     {
       "key": {
+        "uuid": "1a622d24_002fecf7",
+        "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/PortSecurityHandler.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 180,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2017-01-23T22:00:56Z",
+      "side": 1,
+      "message": "please ignore this comment",
+      "parentUuid": "1a622d24_ce536b15",
+      "revId": "caf68d33d7d18311f7054110ac20d9b1db8b44ec",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_8e8df3d5",
         "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/PortSecurityHandler.java",
         "patchSetId": 2
@@ -696,6 +714,24 @@
       "side": 1,
       "message": "first, they fetching neutronPort from the datastore, if not found they are reffering the local cache for port details. This is happening in many areas and finally they update the neutronPort to the cache.\n\nI think, to get updated port details from the datastore they are fetching in this way.\n\nWe have changed the code like, for the first time itself we update the neutronPort to the cache. So following queries for neutronPort will look the cache instead of DS.",
       "parentUuid": "1a622d24_ced6cb4e",
+      "revId": "caf68d33d7d18311f7054110ac20d9b1db8b44ec",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_99583cfc",
+        "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/impl/SecurityGroupCacheManagerImpl.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 142,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2017-01-23T22:00:56Z",
+      "side": 1,
+      "message": "The existing logic to retrieve neutron ports to avoid a timing issue (see bug 4205). We want to make sure that our changes here doesn\u0027t break the above fix.\nHow significance for the time that we save if reading from cache  first?",
+      "parentUuid": "fafc7978_3bee6b8c",
       "revId": "caf68d33d7d18311f7054110ac20d9b1db8b44ec",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
