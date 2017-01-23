@@ -164,6 +164,8 @@ public class VpnInstanceListener extends AsyncDataTreeChangeListenerBase<VpnInst
                                 break;
                             }
                         }
+                    } else {
+                        intfCount = currentIntfCount;
                     }
                 } else {
                     // There is no VPNOPEntry.  Something else happened on the system !
