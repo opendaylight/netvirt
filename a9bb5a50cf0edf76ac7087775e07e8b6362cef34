@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_6787b010",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 5
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 6550
+      },
+      "writtenOn": "2017-01-23T19:09:57Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1a622d24_17ba8fc0",
+      "revId": "a9bb5a50cf0edf76ac7087775e07e8b6362cef34",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_a029d89c",
         "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/NexthopManager.java",
         "patchSetId": 5
@@ -66,6 +84,30 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_559e9e57",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/NexthopManager.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 213,
+      "author": {
+        "id": 6550
+      },
+      "writtenOn": "2017-01-23T19:09:57Z",
+      "side": 1,
+      "message": "OK, Sorry, I thought in ArpResponder we were using ActionInfo, there we were using Actions, Thought we could avoid conversions.",
+      "parentUuid": "1a622d24_9444dd4a",
+      "range": {
+        "startLine": 213,
+        "startChar": 0,
+        "endLine": 213,
+        "endChar": 4
+      },
+      "revId": "a9bb5a50cf0edf76ac7087775e07e8b6362cef34",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_b7fd9bb3",
         "filename": "vpnservice/vpnmanager/vpnmanager-api/src/main/yang/odl-l3vpn.yang",
         "patchSetId": 5
@@ -77,6 +119,24 @@
       "writtenOn": "2017-01-20T13:09:32Z",
       "side": 1,
       "message": "to-gw-src-mac",
+      "revId": "a9bb5a50cf0edf76ac7087775e07e8b6362cef34",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_e7728048",
+        "filename": "vpnservice/vpnmanager/vpnmanager-api/src/main/yang/odl-l3vpn.yang",
+        "patchSetId": 5
+      },
+      "lineNbr": 65,
+      "author": {
+        "id": 6550
+      },
+      "writtenOn": "2017-01-23T19:09:57Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1a622d24_b7fd9bb3",
       "revId": "a9bb5a50cf0edf76ac7087775e07e8b6362cef34",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -100,6 +160,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_07ad0489",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 601,
+      "author": {
+        "id": 6550
+      },
+      "writtenOn": "2017-01-23T19:09:57Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1a622d24_57ab6788",
+      "revId": "a9bb5a50cf0edf76ac7087775e07e8b6362cef34",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_37aeab98",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
         "patchSetId": 5
@@ -111,6 +189,24 @@
       "writtenOn": "2017-01-20T13:09:32Z",
       "side": 1,
       "message": "use the same mini-method to handle this too.",
+      "revId": "a9bb5a50cf0edf76ac7087775e07e8b6362cef34",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_47b6ecdd",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 1103,
+      "author": {
+        "id": 6550
+      },
+      "writtenOn": "2017-01-23T19:09:57Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1a622d24_37aeab98",
       "revId": "a9bb5a50cf0edf76ac7087775e07e8b6362cef34",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -140,6 +236,30 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_87b0d4de",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 1196,
+      "author": {
+        "id": 6550
+      },
+      "writtenOn": "2017-01-23T19:09:57Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1a622d24_77cca389",
+      "range": {
+        "startLine": 1196,
+        "startChar": 69,
+        "endLine": 1196,
+        "endChar": 77
+      },
+      "revId": "a9bb5a50cf0edf76ac7087775e07e8b6362cef34",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_b743dbad",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceOpListener.java",
         "patchSetId": 5
@@ -151,6 +271,24 @@
       "writtenOn": "2017-01-20T13:09:32Z",
       "side": 1,
       "message": "fix the name of the method as in the other file comment.",
+      "revId": "a9bb5a50cf0edf76ac7087775e07e8b6362cef34",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_07c4e43e",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceOpListener.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 150,
+      "author": {
+        "id": 6550
+      },
+      "writtenOn": "2017-01-23T19:09:57Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1a622d24_b743dbad",
       "revId": "a9bb5a50cf0edf76ac7087775e07e8b6362cef34",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -174,6 +312,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_3504ba7d",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnUtil.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 1328,
+      "author": {
+        "id": 6550
+      },
+      "writtenOn": "2017-01-23T19:09:57Z",
+      "side": 1,
+      "message": "MDSALUtil.syncWrite method was marked deprecated, hence it was showing warning that you are using deprecated method. To suppress the warning Added this Annotation.",
+      "parentUuid": "1a622d24_5799a76c",
+      "revId": "a9bb5a50cf0edf76ac7087775e07e8b6362cef34",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_f7955333",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnUtil.java",
         "patchSetId": 5
@@ -185,6 +341,24 @@
       "writtenOn": "2017-01-20T13:09:32Z",
       "side": 1,
       "message": "ResolveGwSourceMacForVpnInterface()",
+      "revId": "a9bb5a50cf0edf76ac7087775e07e8b6362cef34",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_b53eea27",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnUtil.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 1329,
+      "author": {
+        "id": 6550
+      },
+      "writtenOn": "2017-01-23T19:09:57Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1a622d24_f7955333",
       "revId": "a9bb5a50cf0edf76ac7087775e07e8b6362cef34",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -225,6 +399,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_553a1e37",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnUtil.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 1360,
+      "author": {
+        "id": 6550
+      },
+      "writtenOn": "2017-01-23T19:09:57Z",
+      "side": 1,
+      "message": "MDSALUtil.syncDelete method was marked deprecated, hence it was showing warning that you are using deprecated method. To suppress the warning Added this Annotation.",
+      "parentUuid": "1a622d24_379ceb5c",
+      "revId": "a9bb5a50cf0edf76ac7087775e07e8b6362cef34",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_77a14393",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnUtil.java",
         "patchSetId": 5
@@ -236,6 +428,24 @@
       "writtenOn": "2017-01-20T13:09:32Z",
       "side": 1,
       "message": "releaseGwSourceMacForVpnInterface()",
+      "revId": "a9bb5a50cf0edf76ac7087775e07e8b6362cef34",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_d5ee0eb4",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnUtil.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 1361,
+      "author": {
+        "id": 6550
+      },
+      "writtenOn": "2017-01-23T19:09:57Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1a622d24_77a14393",
       "revId": "a9bb5a50cf0edf76ac7087775e07e8b6362cef34",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
