@@ -164,11 +164,16 @@ public class VpnInstanceListener extends AsyncDataTreeChangeListenerBase<VpnInst
                                 break;
                             }
                         }
+                    } else {
+                        LOG.info("Retrying clearing because not all vpnInterfaces removed : current interface count {},"
+                                + " initial count {} for rd {}, vpnname {}", currentIntfCount, intfCount, rd, vpnName);
+                        intfCount = currentIntfCount;
                     }
                 } else {
                     // There is no VPNOPEntry.  Something else happened on the system !
                     // So let us quit and take our chances.
                     //TODO(vpnteam): L3VPN refactoring to take care of this case.
+                    LOG.error("VpnInstanceOpData is not present in the operational DS for rd {}, vpnname {}", rd, vpnName);
                     break;
                 }
             }
