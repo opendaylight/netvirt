@@ -71,7 +71,7 @@
   <!-- Only for unit-test -->
   <dependency>
    <groupId>org.mockito</groupId>
-   <artifactId>mockito-all</artifactId>
+   <artifactId>mockito-core</artifactId>
    <version>${mockitoall.version}</version>
    <scope>test</scope>
   </dependency>
