@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_75fe426d",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 45
+      },
+      "lineNbr": 210,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-01-23T07:02:45Z",
+      "side": 1,
+      "message": "Rebasing issue. Fixed",
+      "parentUuid": "1a622d24_162f3f89",
+      "revId": "5d720d75b2d62230d9d48f6bb010adc3f66b91aa",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_b66c8bd1",
         "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
         "patchSetId": 45
@@ -36,6 +54,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_55ecdec7",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 45
+      },
+      "lineNbr": 1001,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-01-23T07:02:45Z",
+      "side": 1,
+      "message": "Not needed. Fixed",
+      "parentUuid": "1a622d24_b66c8bd1",
+      "revId": "5d720d75b2d62230d9d48f6bb010adc3f66b91aa",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_96718faa",
         "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
         "patchSetId": 45
@@ -47,6 +83,24 @@
       "writtenOn": "2017-01-18T07:28:02Z",
       "side": 1,
       "message": "ditto here",
+      "revId": "5d720d75b2d62230d9d48f6bb010adc3f66b91aa",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_95cda660",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 45
+      },
+      "lineNbr": 2034,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-01-23T07:02:45Z",
+      "side": 1,
+      "message": "Required here as there are two objects with the same Class Name",
+      "parentUuid": "1a622d24_96718faa",
       "revId": "5d720d75b2d62230d9d48f6bb010adc3f66b91aa",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
