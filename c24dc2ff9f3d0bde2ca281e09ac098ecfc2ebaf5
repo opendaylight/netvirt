@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_07aa2419",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/NexthopManager.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 336,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2017-01-23T19:57:11Z",
+      "side": 1,
+      "message": "shouldn\u0027t the actionKey increase here?",
+      "revId": "c24dc2ff9f3d0bde2ca281e09ac098ecfc2ebaf5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_474a6c84",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/NexthopManager.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 377,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2017-01-23T19:57:11Z",
+      "side": 1,
+      "message": "Is there a guarantee that when VrfEntryListener is called as a result of vrfEntry creation, the corresponding VpnInterfaceToGwSrcMacData is already there?",
+      "revId": "c24dc2ff9f3d0bde2ca281e09ac098ecfc2ebaf5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_274f6894",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnUtil.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 1358,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2017-01-23T19:57:11Z",
+      "side": 1,
+      "message": "You can use the latest and greatest SingleTransactionDataBroker instead of adding more deprecations to the code",
+      "revId": "c24dc2ff9f3d0bde2ca281e09ac098ecfc2ebaf5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
