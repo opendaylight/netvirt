@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_ccf843c7",
+        "filename": "docs/specs/ecmp-bgp-l3vpn.rst",
+        "patchSetId": 6
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 7009
+      },
+      "writtenOn": "2017-01-23T16:50:35Z",
+      "side": 1,
+      "message": "Not sure if ECMP is the right term for this. RFC2991 states that \"Using equal-cost multipath means that if multiple equalcost routes to the same destination exist, they can be discovered and used to provide load balancing among redundant paths.\" The load balancing of traffic to different VMs is different, as the packets are not destined to the same destination. This use case is actually load balancing, not ECMP.",
+      "range": {
+        "startLine": 18,
+        "startChar": 52,
+        "endLine": 19,
+        "endChar": 38
+      },
+      "revId": "30ea5825d736184ba912c2bb553be068c7231b28",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_ecff07a9",
+        "filename": "docs/specs/ecmp-bgp-l3vpn.rst",
+        "patchSetId": 6
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 7009
+      },
+      "writtenOn": "2017-01-23T16:50:35Z",
+      "side": 1,
+      "message": "LB use case, not ECMP",
+      "range": {
+        "startLine": 33,
+        "startChar": 0,
+        "endLine": 34,
+        "endChar": 73
+      },
+      "revId": "30ea5825d736184ba912c2bb553be068c7231b28",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
