@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_3b882b22",
+        "filename": "openstack/net-virt-providers/src/main/java/org/opendaylight/netvirt/openstack/netvirt/providers/openflow13/services/EgressAclService.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 88,
+      "author": {
+        "id": 4058
+      },
+      "writtenOn": "2017-01-23T12:25:10Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1a622d24_eb661929",
+      "revId": "caf68d33d7d18311f7054110ac20d9b1db8b44ec",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_0b471578",
         "filename": "openstack/net-virt-providers/src/main/java/org/opendaylight/netvirt/openstack/netvirt/providers/openflow13/services/EgressAclService.java",
         "patchSetId": 2
@@ -30,6 +48,24 @@
       "writtenOn": "2017-01-18T23:17:39Z",
       "side": 1,
       "message": "Here you assume that all remote rules in this SG have the same remote SG id. That is not correct. Rules in the same SG can have different remote SG ids",
+      "revId": "caf68d33d7d18311f7054110ac20d9b1db8b44ec",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_bb7b7b28",
+        "filename": "openstack/net-virt-providers/src/main/java/org/opendaylight/netvirt/openstack/netvirt/providers/openflow13/services/EgressAclService.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 116,
+      "author": {
+        "id": 4058
+      },
+      "writtenOn": "2017-01-23T12:25:10Z",
+      "side": 1,
+      "message": "Yes Vinh.. You are correct. We have changed the code to fetch the remote rules for each rule.",
+      "parentUuid": "1a622d24_0b471578",
       "revId": "caf68d33d7d18311f7054110ac20d9b1db8b44ec",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -53,6 +89,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_db72bf48",
+        "filename": "openstack/net-virt-providers/src/main/java/org/opendaylight/netvirt/openstack/netvirt/providers/openflow13/services/EgressAclService.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 120,
+      "author": {
+        "id": 4058
+      },
+      "writtenOn": "2017-01-23T12:25:10Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1a622d24_6b616904",
+      "revId": "caf68d33d7d18311f7054110ac20d9b1db8b44ec",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_8b004503",
         "filename": "openstack/net-virt-providers/src/main/java/org/opendaylight/netvirt/openstack/netvirt/providers/openflow13/services/EgressAclService.java",
         "patchSetId": 2
@@ -64,6 +118,24 @@
       "writtenOn": "2017-01-18T23:17:39Z",
       "side": 1,
       "message": "\"Neutron_IPs vmIp,NeutronSecurityGroup securityGroup,  boolean write\"\n\none space after \u0027,\u0027",
+      "revId": "caf68d33d7d18311f7054110ac20d9b1db8b44ec",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_3b8f8b25",
+        "filename": "openstack/net-virt-providers/src/main/java/org/opendaylight/netvirt/openstack/netvirt/providers/openflow13/services/EgressAclService.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 143,
+      "author": {
+        "id": 4058
+      },
+      "writtenOn": "2017-01-23T12:25:10Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1a622d24_8b004503",
       "revId": "caf68d33d7d18311f7054110ac20d9b1db8b44ec",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -87,6 +159,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_3bb66bdd",
+        "filename": "openstack/net-virt-providers/src/main/java/org/opendaylight/netvirt/openstack/netvirt/providers/openflow13/services/IngressAclService.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 82,
+      "author": {
+        "id": 4058
+      },
+      "writtenOn": "2017-01-23T12:25:10Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1a622d24_ae1c2f6b",
+      "revId": "caf68d33d7d18311f7054110ac20d9b1db8b44ec",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_8e17b344",
         "filename": "openstack/net-virt-providers/src/main/java/org/opendaylight/netvirt/openstack/netvirt/providers/openflow13/services/IngressAclService.java",
         "patchSetId": 2
@@ -98,6 +188,24 @@
       "writtenOn": "2017-01-18T23:17:39Z",
       "side": 1,
       "message": "Please see comments in EgressAclService.java",
+      "revId": "caf68d33d7d18311f7054110ac20d9b1db8b44ec",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_7bb0f3dd",
+        "filename": "openstack/net-virt-providers/src/main/java/org/opendaylight/netvirt/openstack/netvirt/providers/openflow13/services/IngressAclService.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 110,
+      "author": {
+        "id": 4058
+      },
+      "writtenOn": "2017-01-23T12:25:10Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1a622d24_8e17b344",
       "revId": "caf68d33d7d18311f7054110ac20d9b1db8b44ec",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -121,6 +229,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_5bb52fcc",
+        "filename": "openstack/net-virt-providers/src/main/java/org/opendaylight/netvirt/openstack/netvirt/providers/openflow13/services/IngressAclService.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 113,
+      "author": {
+        "id": 4058
+      },
+      "writtenOn": "2017-01-23T12:25:10Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1a622d24_ee29078b",
+      "revId": "caf68d33d7d18311f7054110ac20d9b1db8b44ec",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_2e201f9a",
         "filename": "openstack/net-virt-providers/src/main/java/org/opendaylight/netvirt/openstack/netvirt/providers/openflow13/services/IngressAclService.java",
         "patchSetId": 2
@@ -132,6 +258,24 @@
       "writtenOn": "2017-01-18T23:17:39Z",
       "side": 1,
       "message": "Please see comments in EgressAclService.java",
+      "revId": "caf68d33d7d18311f7054110ac20d9b1db8b44ec",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_9bc67748",
+        "filename": "openstack/net-virt-providers/src/main/java/org/opendaylight/netvirt/openstack/netvirt/providers/openflow13/services/IngressAclService.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 135,
+      "author": {
+        "id": 4058
+      },
+      "writtenOn": "2017-01-23T12:25:10Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1a622d24_2e201f9a",
       "revId": "caf68d33d7d18311f7054110ac20d9b1db8b44ec",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -155,6 +299,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_dbc0ff2c",
+        "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/PortSecurityHandler.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 180,
+      "author": {
+        "id": 4058
+      },
+      "writtenOn": "2017-01-23T12:25:10Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1a622d24_ce536b15",
+      "revId": "caf68d33d7d18311f7054110ac20d9b1db8b44ec",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_8e8df3d5",
         "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/PortSecurityHandler.java",
         "patchSetId": 2
@@ -166,6 +328,24 @@
       "writtenOn": "2017-01-18T23:17:39Z",
       "side": 1,
       "message": "space after \u0027,\u0027",
+      "revId": "caf68d33d7d18311f7054110ac20d9b1db8b44ec",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_1be287d5",
+        "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/PortSecurityHandler.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 200,
+      "author": {
+        "id": 4058
+      },
+      "writtenOn": "2017-01-23T12:25:10Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1a622d24_8e8df3d5",
       "revId": "caf68d33d7d18311f7054110ac20d9b1db8b44ec",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -189,6 +369,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_5bec0fc8",
+        "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/PortSecurityHandler.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 204,
+      "author": {
+        "id": 4058
+      },
+      "writtenOn": "2017-01-23T12:25:10Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1a622d24_eebf475f",
+      "revId": "caf68d33d7d18311f7054110ac20d9b1db8b44ec",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_0e5a8329",
         "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/api/EgressAclProvider.java",
         "patchSetId": 2
@@ -200,6 +398,24 @@
       "writtenOn": "2017-01-18T23:17:39Z",
       "side": 1,
       "message": "space after \u0027,\u0027",
+      "revId": "caf68d33d7d18311f7054110ac20d9b1db8b44ec",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_9bcdd760",
+        "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/api/EgressAclProvider.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 51,
+      "author": {
+        "id": 4058
+      },
+      "writtenOn": "2017-01-23T12:25:10Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1a622d24_0e5a8329",
       "revId": "caf68d33d7d18311f7054110ac20d9b1db8b44ec",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -223,6 +439,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_fbda2316",
+        "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/api/IngressAclProvider.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 49,
+      "author": {
+        "id": 4058
+      },
+      "writtenOn": "2017-01-23T12:25:10Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1a622d24_6e44d749",
+      "revId": "caf68d33d7d18311f7054110ac20d9b1db8b44ec",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_ce7a4b87",
         "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/api/SecurityServicesManager.java",
         "patchSetId": 2
@@ -234,6 +468,24 @@
       "writtenOn": "2017-01-18T23:17:39Z",
       "side": 1,
       "message": "update java doc",
+      "revId": "caf68d33d7d18311f7054110ac20d9b1db8b44ec",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_dbd75fec",
+        "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/api/SecurityServicesManager.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 119,
+      "author": {
+        "id": 4058
+      },
+      "writtenOn": "2017-01-23T12:25:10Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1a622d24_ce7a4b87",
       "revId": "caf68d33d7d18311f7054110ac20d9b1db8b44ec",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -257,6 +509,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_3b04ab7d",
+        "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/api/SecurityServicesManager.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 123,
+      "author": {
+        "id": 4058
+      },
+      "writtenOn": "2017-01-23T12:25:10Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1a622d24_ee77479e",
+      "revId": "caf68d33d7d18311f7054110ac20d9b1db8b44ec",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_6eb2174d",
         "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/impl/SecurityGroupCacheManagerImpl.java",
         "patchSetId": 2
@@ -268,6 +538,24 @@
       "writtenOn": "2017-01-18T23:17:39Z",
       "side": 1,
       "message": "why don\u0027t we pass in the NeutronPort as parameter. Then we don\u0027t have to query for it here",
+      "revId": "caf68d33d7d18311f7054110ac20d9b1db8b44ec",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_fb4863ce",
+        "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/impl/SecurityGroupCacheManagerImpl.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 57,
+      "author": {
+        "id": 4058
+      },
+      "writtenOn": "2017-01-23T12:25:10Z",
+      "side": 1,
+      "message": "As the callers of this method doesn\u0027t have NeutronPort object we are querying it by portUuid here.",
+      "parentUuid": "1a622d24_6eb2174d",
       "revId": "caf68d33d7d18311f7054110ac20d9b1db8b44ec",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -291,6 +579,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_1b1727a5",
+        "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/impl/SecurityGroupCacheManagerImpl.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 72,
+      "author": {
+        "id": 4058
+      },
+      "writtenOn": "2017-01-23T12:25:10Z",
+      "side": 1,
+      "message": "As the callers of this method doesn\u0027t have NeutronPort object we are querying it by portUuid here.",
+      "parentUuid": "1a622d24_4ead9be8",
+      "revId": "caf68d33d7d18311f7054110ac20d9b1db8b44ec",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_6e7a17be",
         "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/impl/SecurityGroupCacheManagerImpl.java",
         "patchSetId": 2
@@ -302,6 +608,24 @@
       "writtenOn": "2017-01-18T23:17:39Z",
       "side": 1,
       "message": "Here u got a Map, \u0027portList\u0027 is not a good variable name",
+      "revId": "caf68d33d7d18311f7054110ac20d9b1db8b44ec",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_5b11afab",
+        "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/impl/SecurityGroupCacheManagerImpl.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 123,
+      "author": {
+        "id": 4058
+      },
+      "writtenOn": "2017-01-23T12:25:10Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1a622d24_6e7a17be",
       "revId": "caf68d33d7d18311f7054110ac20d9b1db8b44ec",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -325,6 +649,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_bb253b0c",
+        "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/impl/SecurityGroupCacheManagerImpl.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 128,
+      "author": {
+        "id": 4058
+      },
+      "writtenOn": "2017-01-23T12:25:10Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1a622d24_aee6ef41",
+      "revId": "caf68d33d7d18311f7054110ac20d9b1db8b44ec",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_ced6cb4e",
         "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/impl/SecurityGroupCacheManagerImpl.java",
         "patchSetId": 2
@@ -336,6 +678,24 @@
       "writtenOn": "2017-01-18T23:17:39Z",
       "side": 1,
       "message": "There are many places in existing codes that do:\nneutronPortCache.getPort and then\nneutronL3Adapter.getPortFromCleanupCache\n\nDo you have any idea why they were written that way and instead of your new way?",
+      "revId": "caf68d33d7d18311f7054110ac20d9b1db8b44ec",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_3bee6b8c",
+        "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/impl/SecurityGroupCacheManagerImpl.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 142,
+      "author": {
+        "id": 4058
+      },
+      "writtenOn": "2017-01-23T12:25:10Z",
+      "side": 1,
+      "message": "first, they fetching neutronPort from the datastore, if not found they are reffering the local cache for port details. This is happening in many areas and finally they update the neutronPort to the cache.\n\nI think, to get updated port details from the datastore they are fetching in this way.\n\nWe have changed the code like, for the first time itself we update the neutronPort to the cache. So following queries for neutronPort will look the cache instead of DS.",
+      "parentUuid": "1a622d24_ced6cb4e",
       "revId": "caf68d33d7d18311f7054110ac20d9b1db8b44ec",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -359,6 +719,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_1bf3a774",
+        "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/impl/SecurityGroupCacheManagerImpl.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 150,
+      "author": {
+        "id": 4058
+      },
+      "writtenOn": "2017-01-23T12:25:10Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1a622d24_8ee1732c",
+      "revId": "caf68d33d7d18311f7054110ac20d9b1db8b44ec",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_6eea17dc",
         "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/impl/SecurityGroupCacheManagerImpl.java",
         "patchSetId": 2
@@ -370,6 +748,24 @@
       "writtenOn": "2017-01-18T23:17:39Z",
       "side": 1,
       "message": "tab",
+      "revId": "caf68d33d7d18311f7054110ac20d9b1db8b44ec",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_5bed2f8b",
+        "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/impl/SecurityGroupCacheManagerImpl.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 157,
+      "author": {
+        "id": 4058
+      },
+      "writtenOn": "2017-01-23T12:25:10Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1a622d24_6eea17dc",
       "revId": "caf68d33d7d18311f7054110ac20d9b1db8b44ec",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -393,6 +789,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_3b95cbe4",
+        "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/impl/SecurityGroupCacheManagerImpl.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 188,
+      "author": {
+        "id": 4058
+      },
+      "writtenOn": "2017-01-23T12:25:10Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1a622d24_2ecadfa0",
+      "revId": "caf68d33d7d18311f7054110ac20d9b1db8b44ec",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_0e472378",
         "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/impl/SecurityGroupCacheManagerImpl.java",
         "patchSetId": 2
@@ -404,6 +818,24 @@
       "writtenOn": "2017-01-18T23:17:39Z",
       "side": 1,
       "message": "could we retrieve the dpid associates with the nodeId beforehand, then pass the dpid in this call instead of passing the Map.",
+      "revId": "caf68d33d7d18311f7054110ac20d9b1db8b44ec",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_db7d9fb3",
+        "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/impl/SecurityGroupCacheManagerImpl.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 193,
+      "author": {
+        "id": 4058
+      },
+      "writtenOn": "2017-01-23T12:25:10Z",
+      "side": 1,
+      "message": "To reduce the read call for getting dpId for the node, We put one map which will have the dpId and node details. At this point, the dpIdNodeMap will be empty. and it will be filled by the method securityServicesManager.syncSecurityRule().\n\nSo we cannot pass the dpid instead of Map from this method.",
+      "parentUuid": "1a622d24_0e472378",
       "revId": "caf68d33d7d18311f7054110ac20d9b1db8b44ec",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
