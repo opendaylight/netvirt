@@ -2,6 +2,23 @@
   "comments": [
     {
       "key": {
+        "uuid": "1a622d24_29c95026",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/FibUtil.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 736,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2017-01-23T19:57:11Z",
+      "side": 1,
+      "message": "Use INeutronVpnManager.getNeutronSubnet()",
+      "revId": "be89b7c963133fcc112896fdc6e0aa7ee549d7af",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_d35ccb1b",
         "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/FibUtil.java",
         "patchSetId": 2
@@ -13,6 +30,23 @@
       "writtenOn": "2017-01-13T09:15:15Z",
       "side": 1,
       "message": "you can return Optional.absent here..",
+      "revId": "be89b7c963133fcc112896fdc6e0aa7ee549d7af",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_e9f9184f",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/FibUtil.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 777,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2017-01-23T19:57:11Z",
+      "side": 1,
+      "message": "use IInterfaceManager.getInterfaceInfo().getMacAddress()",
       "revId": "be89b7c963133fcc112896fdc6e0aa7ee549d7af",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
