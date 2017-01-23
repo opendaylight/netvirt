@@ -1197,55 +1197,59 @@ public class OF13Provider implements ConfigInterface, NetworkingProvider {
         if (isVlan(networkType)) {
             programVlanRules(network, srcNode, intf);
         } else if (isTunnel(networkType)){
-
+            InetAddress src = configurationService.getTunnelEndPoint(srcNode);
+            if (src == null) {
+                LOG.warn("Tunnel end-point configuration missing. Please configure it in OpenVSwitch Table: {}",
+                    srcNode);
+                return true;
+            }
             boolean sourceTunnelStatus = false;
             boolean destTunnelStatus = false;
             boolean isSrcinNw = tenantNetworkManager.isTenantNetworkPresentInNode(srcBridgeNode, segmentationId);
             for (Node dstNode : nodes.values()) {
-                InetAddress src = configurationService.getTunnelEndPoint(srcNode);
                 InetAddress dst = configurationService.getTunnelEndPoint(dstNode);
-                if ((src != null) && (dst != null)) {
-                    sourceTunnelStatus = addTunnelPort(srcBridgeNode, networkType, src, dst);
-
-                    Node dstBridgeNode = southbound.getBridgeNode(dstNode,
-                            configurationService.getIntegrationBridgeName());
-
-                    if (dstBridgeNode != null) {
-                        destTunnelStatus = addTunnelPort(dstBridgeNode, networkType, dst, src);
-                    }
-                    if (sourceTunnelStatus &&  destTunnelStatus) {
-                        LOG.debug("Created Source and destination TunnelPorts :{}, {}", src, dst);
-                    }  else {
-                        LOG.debug("Source and destination TunnelPort status :{}, {}", sourceTunnelStatus, destTunnelStatus);
-                    }
-                    if (sourceTunnelStatus) {
-                        boolean isDestinNw = tenantNetworkManager.isTenantNetworkPresentInNode(dstBridgeNode, segmentationId);
-                        //Check whether the network is present in src & dst node
-                        //If only present , add vxlan ports in TunnelRules for both nodes (bug# 5614)
-                        if (isSrcinNw && isDestinNw) {
-                            programTunnelRules(networkType, segmentationId, dst, srcBridgeNode, intf, true);
-                            programTunnelRules(networkType, segmentationId, src, dstBridgeNode, intf, true);
-                        } else if (configurationService.isRemoteMacLearnEnabled()) {
-                            //Even if to learn remote MAC, a network doesn't exist in a node,
-                            //a vxlan port is added in TunnelRules for both nodes.(bug# 6474)
-                            programTunnelRules(networkType, segmentationId, dst, srcBridgeNode, intf, true);
-                        }
-                    }
-                    if (destTunnelStatus) {
-                        programTunnelRules(networkType, segmentationId, src, dstBridgeNode, intf, false);
-
-                        if (srcNodeId != null && intBridgesWithoutVmPorts.contains(srcNodeId)) {
-                            programTunnelRulesInNewNode(network, networkType, segmentationId, src, dst,
-                                    srcBridgeNode, dstBridgeNode, intf);
-                            intBridgesWithoutVmPorts.remove(srcNodeId);
-                        }
-                    }
-                } else {
-                    LOG.warn("Tunnel end-point configuration missing. Please configure it in OpenVSwitch Table. "
-                                    + "Check source {} or destination {}",
-                            src != null ? src.getHostAddress() : "null",
-                            dst != null ? dst.getHostAddress() : "null");
+                if (dst == null) {
+                    LOG.warn("Tunnel end-point configuration missing. Please configure it in OpenVSwitch Table: {}",
+                        dstNode);
+                    continue;
                 }
+
+                sourceTunnelStatus = addTunnelPort(srcBridgeNode, networkType, src, dst);
+
+                Node dstBridgeNode = southbound.getBridgeNode(dstNode,
+                        configurationService.getIntegrationBridgeName());
+
+                if (dstBridgeNode != null) {
+                    destTunnelStatus = addTunnelPort(dstBridgeNode, networkType, dst, src);
+                }
+                if (sourceTunnelStatus &&  destTunnelStatus) {
+                    LOG.debug("Created Source and destination TunnelPorts :{}, {}", src, dst);
+                }  else {
+                    LOG.debug("Source and destination TunnelPort status :{}, {}", sourceTunnelStatus, destTunnelStatus);
+                }
+                if (sourceTunnelStatus) {
+                    boolean isDestinNw = tenantNetworkManager.isTenantNetworkPresentInNode(dstBridgeNode, segmentationId);
+                    //Check whether the network is present in src & dst node
+                    //If only present , add vxlan ports in TunnelRules for both nodes (bug# 5614)
+                    if (isSrcinNw && isDestinNw) {
+                        programTunnelRules(networkType, segmentationId, dst, srcBridgeNode, intf, true);
+                        programTunnelRules(networkType, segmentationId, src, dstBridgeNode, intf, true);
+                    } else if (configurationService.isRemoteMacLearnEnabled()) {
+                        //Even if to learn remote MAC, a network doesn't exist in a node,
+                        //a vxlan port is added in TunnelRules for both nodes.(bug# 6474)
+                        programTunnelRules(networkType, segmentationId, dst, srcBridgeNode, intf, true);
+                    }
+                }
+                if (destTunnelStatus) {
+                    programTunnelRules(networkType, segmentationId, src, dstBridgeNode, intf, false);
+
+                    if (srcNodeId != null && intBridgesWithoutVmPorts.contains(srcNodeId)) {
+                        programTunnelRulesInNewNode(network, networkType, segmentationId, src, dst,
+                                srcBridgeNode, dstBridgeNode, intf);
+                        intBridgesWithoutVmPorts.remove(srcNodeId);
+                    }
+                }
+
             }
         }
 
