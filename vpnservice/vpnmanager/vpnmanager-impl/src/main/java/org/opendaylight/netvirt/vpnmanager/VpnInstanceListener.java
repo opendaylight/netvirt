@@ -139,30 +139,28 @@ public class VpnInstanceListener extends AsyncDataTreeChangeListenerBase<VpnInst
                             }
                         }
                     }
-                    if ((currentIntfCount == 0) || (currentIntfCount >= intfCount)) {
-                        // Either the FibManager completed its job to cleanup all vpnInterfaces in VPN
-                        // OR
-                        // There is no progress by FibManager in removing all the interfaces even after good time!
-                        // In either case, let us quit and take our chances.
-                        //TODO(vpnteam): L3VPN refactoring to take care of this case.
-                        if ((dpnToVpns == null) || dpnToVpns.size() <= 0) {
-                            LOG.info("VPN Instance vpn {} rd {} ready for removal, exiting wait loop", vpnName, rd);
-                            break;
-                        } else {
-                            if (retryCount > 0) {
-                                retryCount--;
-                                LOG.info("Retrying clearing vpn with vpnname {} rd {} since current interface count {} ", vpnName, rd, currentIntfCount);
-                                if (currentIntfCount > 0) {
-                                    intfCount = currentIntfCount;
-                                } else {
-                                    LOG.info("Current interface count is zero, but instance Op for vpn {} and rd {} not cleared yet. Waiting for 5 more seconds.", vpnName, rd);
-                                    intfCount = 1L;
-                                }
+                    // Either the FibManager completed its job to cleanup all vpnInterfaces in VPN
+                    // OR
+                    // There is no progress by FibManager in removing all the interfaces even after good time!
+                    // In either case, let us quit and take our chances.
+                    //TODO(vpnteam): L3VPN refactoring to take care of this case.
+                    if ((dpnToVpns == null) || dpnToVpns.size() <= 0) {
+                        LOG.info("VPN Instance vpn {} rd {} ready for removal, exiting wait loop", vpnName, rd);
+                        break;
+                    } else {
+                        if (retryCount > 0) {
+                            retryCount--;
+                            LOG.info("Retrying clearing vpn with vpnname {} rd {} since current interface count {} ", vpnName, rd, currentIntfCount);
+                            if (currentIntfCount > 0) {
+                                intfCount = currentIntfCount;
                             } else {
-                                LOG.info("VPNInstance bailing out of wait loop as current interface count is {} and max retries exceeded for for vpnName {}, rd {}",
-                                        currentIntfCount, vpnName, rd);
-                                break;
+                                LOG.info("Current interface count is zero, but instance Op for vpn {} and rd {} not cleared yet. Waiting for 5 more seconds.", vpnName, rd);
+                                intfCount = 1L;
                             }
+                        } else {
+                            LOG.info("VPNInstance bailing out of wait loop as current interface count is {} and max retries exceeded for for vpnName {}, rd {}",
+                                    currentIntfCount, vpnName, rd);
+                            break;
                         }
                     }
                 } else {
