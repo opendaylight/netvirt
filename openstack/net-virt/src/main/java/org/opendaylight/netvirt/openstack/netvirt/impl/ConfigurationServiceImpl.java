@@ -150,7 +150,9 @@ public class ConfigurationServiceImpl implements ConfigurationService, ConfigInt
         if (tunnelEndpoint != null) {
             try {
                 address = InetAddress.getByName(tunnelEndpoint);
-                LOG.debug("Tunnel Endpoint for Node {} {}", node, address.getHostAddress());
+                if (LOG.isDebugEnabled()) {
+                    LOG.debug("Tunnel Endpoint for Node {} {}", node, address.getHostAddress());
+                }
             } catch (UnknownHostException e) {
                 LOG.error("Error populating Tunnel Endpoint for Node {} ", node, e);
             }
