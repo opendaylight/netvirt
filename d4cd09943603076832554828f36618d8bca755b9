@@ -1,0 +1,95 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_412b7ceb",
+        "filename": "vpnservice/fibmanager/fibmanager-api/src/main/yang/odl-fib.yang",
+        "patchSetId": 7
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-01-23T15:59:16Z",
+      "side": 1,
+      "message": "indicates that l3vni should be used to advertise to bgp and label will be ignored.",
+      "revId": "d4cd09943603076832554828f36618d8bca755b9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_21659845",
+        "filename": "vpnservice/model-bgp/src/main/yang/ebgp.yang",
+        "patchSetId": 7
+      },
+      "lineNbr": 221,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-01-23T15:59:16Z",
+      "side": 1,
+      "message": "indentation.",
+      "revId": "d4cd09943603076832554828f36618d8bca755b9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_61d680c7",
+        "filename": "vpnservice/model-bgp/src/main/yang/ebgp.yang",
+        "patchSetId": 7
+      },
+      "lineNbr": 251,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-01-23T15:59:16Z",
+      "side": 1,
+      "message": "bgp_control_plane_type would be more apt for this",
+      "range": {
+        "startLine": 251,
+        "startChar": 22,
+        "endLine": 251,
+        "endChar": 23
+      },
+      "revId": "d4cd09943603076832554828f36618d8bca755b9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_815a8481",
+        "filename": "vpnservice/model-bgp/src/main/yang/ebgp.yang",
+        "patchSetId": 7
+      },
+      "lineNbr": 255,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-01-23T15:59:16Z",
+      "side": 1,
+      "message": "indentation",
+      "revId": "d4cd09943603076832554828f36618d8bca755b9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_615fa073",
+        "filename": "vpnservice/model-bgp/src/main/yang/ebgp.yang",
+        "patchSetId": 7
+      },
+      "lineNbr": 286,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-01-23T15:59:16Z",
+      "side": 1,
+      "message": "indentation",
+      "revId": "d4cd09943603076832554828f36618d8bca755b9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
