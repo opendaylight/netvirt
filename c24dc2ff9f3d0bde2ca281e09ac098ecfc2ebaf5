@@ -37,6 +37,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_dc5d924a",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/NexthopManager.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 336,
+      "author": {
+        "id": 6550
+      },
+      "writtenOn": "2017-01-24T06:55:45Z",
+      "side": 1,
+      "message": "Oops, Thank you, good catch, missed to merge during rebase.",
+      "parentUuid": "fafc7978_fcf8564b",
+      "revId": "c24dc2ff9f3d0bde2ca281e09ac098ecfc2ebaf5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_474a6c84",
         "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/NexthopManager.java",
         "patchSetId": 8
@@ -83,6 +101,24 @@
       "writtenOn": "2017-01-23T19:57:11Z",
       "side": 1,
       "message": "You can use the latest and greatest SingleTransactionDataBroker instead of adding more deprecations to the code",
+      "revId": "c24dc2ff9f3d0bde2ca281e09ac098ecfc2ebaf5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_fc8fb6ca",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnUtil.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 1358,
+      "author": {
+        "id": 6550
+      },
+      "writtenOn": "2017-01-24T06:55:45Z",
+      "side": 1,
+      "message": "Can I go ahead and delete MDSALUtil.syncdelete assuming singleTransactionDataBroker can never be null?",
+      "parentUuid": "fafc7978_274f6894",
       "revId": "c24dc2ff9f3d0bde2ca281e09ac098ecfc2ebaf5",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
