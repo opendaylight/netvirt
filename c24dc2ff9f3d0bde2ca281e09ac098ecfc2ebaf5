@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_fcf8564b",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/NexthopManager.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 336,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-01-24T06:31:16Z",
+      "side": 1,
+      "message": "+1",
+      "parentUuid": "fafc7978_07aa2419",
+      "revId": "c24dc2ff9f3d0bde2ca281e09ac098ecfc2ebaf5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_474a6c84",
         "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/NexthopManager.java",
         "patchSetId": 8
@@ -30,6 +48,24 @@
       "writtenOn": "2017-01-23T19:57:11Z",
       "side": 1,
       "message": "Is there a guarantee that when VrfEntryListener is called as a result of vrfEntry creation, the corresponding VpnInterfaceToGwSrcMacData is already there?",
+      "revId": "c24dc2ff9f3d0bde2ca281e09ac098ecfc2ebaf5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_7cbbc672",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/NexthopManager.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 377,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-01-24T06:31:16Z",
+      "side": 1,
+      "message": "I wouldn\u0027t say a 100% guarantee exists, but if you notice all OPERATIONAL Datastores are invoked submit() before the CONFIGURATION Datastores inside the VPNEngine.\n\nWhile we can make CONFIGURATION Datastores gate over successful submit callback of OPERATIONAL Datastore call themselves, we observed it substantially reduced operational performance at scale of 80 Hypervisors and 3000 VMs.",
+      "parentUuid": "fafc7978_474a6c84",
       "revId": "c24dc2ff9f3d0bde2ca281e09ac098ecfc2ebaf5",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
