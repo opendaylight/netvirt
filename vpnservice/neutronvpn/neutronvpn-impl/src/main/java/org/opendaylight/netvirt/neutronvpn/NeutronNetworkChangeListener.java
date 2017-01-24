@@ -7,6 +7,8 @@
  */
 package org.opendaylight.netvirt.neutronvpn;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 import com.google.common.base.Optional;
@@ -19,10 +21,16 @@ import org.opendaylight.netvirt.neutronvpn.api.utils.NeutronUtils;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.OdlInterfaceRpcService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.ElanInstances;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.SegmentTypeBase;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.SegmentTypeVlan;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.SegmentTypeVxlan;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.instances.ElanInstance;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.instances.ElanInstanceBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.instances.ElanInstanceKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.instances.elan.instance.ElanSegments;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.instances.elan.instance.ElanSegmentsBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ProviderTypes;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.networks.rev150712.NetworkTypeVlan;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.networks.rev150712.NetworkTypeVxlan;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.networks.rev150712.networks.attributes.Networks;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.networks.rev150712.networks.attributes.networks.Network;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.qos.ext.rev160613.QosNetworkExtension;
@@ -142,7 +150,7 @@ public class NeutronNetworkChangeListener extends AsyncDataTreeChangeListenerBas
             if (elanInstance != null) {
                 elanService.deleteExternalElanNetwork(elanInstance);
                 elanInstance = updateElanInstance(elanInstanceName, updateSegmentType, updateSegmentationId,
-                        updatePhysicalNetwork);
+                        updatePhysicalNetwork, buildSegments(update));
                 elanService.createExternalElanNetwork(elanInstance);
             }
 
@@ -173,12 +181,33 @@ public class NeutronNetworkChangeListener extends AsyncDataTreeChangeListenerBas
         }
     }
 
+    private List<ElanSegments> buildSegments(Network input) {
+        Long numSegments = NeutronUtils.getNumberSegmentsFromNeutronNetwork(input);
+        Long index = 0L;
+        List <ElanSegments> segments = new ArrayList<>();
+        while (index < numSegments) {
+            index++;
+            ElanSegmentsBuilder elanSegmentsBuilder = new ElanSegmentsBuilder();
+            elanSegmentsBuilder.setSegmentationId(Long.valueOf(NeutronUtils.getSegmentationIdFromNeutronNetworkSegment(input, index)));
+            if(NeutronUtils.isNetworkSegmentType(input, index, NetworkTypeVxlan.class)) {
+                elanSegmentsBuilder.setSegmentType(SegmentTypeVxlan.class);
+            } else if (NeutronUtils.isNetworkSegmentType(input, index, NetworkTypeVlan.class)) {
+                elanSegmentsBuilder.setSegmentType(SegmentTypeVlan.class);
+            }
+            elanSegmentsBuilder.setSegmentationIndex(index);
+            segments.add(elanSegmentsBuilder.build());
+            LOG.debug("Added segment {} to ELANInstance{}", segments.get(Integer.valueOf(index.intValue() - 1 )));
+        }
+        return segments;
+    }
+
     private ElanInstance createElanInstance(Network input) {
         String elanInstanceName = input.getUuid().getValue();
         Class<? extends SegmentTypeBase> segmentType = NeutronvpnUtils.getSegmentTypeFromNeutronNetwork(input);
         String segmentationId = NeutronUtils.getSegmentationIdFromNeutronNetwork(input);
         String physicalNetworkName = NeutronvpnUtils.getPhysicalNetworkName(input);
-        ElanInstance elanInstance = createElanInstance(elanInstanceName, segmentType, segmentationId, physicalNetworkName);
+        ElanInstance elanInstance = createElanInstance(elanInstanceName, segmentType, segmentationId,
+                                                       physicalNetworkName, buildSegments(input));
         InstanceIdentifier<ElanInstance> id = createElanInstanceIdentifier(elanInstanceName);
         Optional<ElanInstance> existingElanInstance = MDSALUtil.read(dataBroker, LogicalDatastoreType.CONFIGURATION, id);
         if (existingElanInstance.isPresent()) {
@@ -196,8 +225,9 @@ public class NeutronNetworkChangeListener extends AsyncDataTreeChangeListenerBas
     }
 
     private ElanInstance updateElanInstance(String elanInstanceName, Class<? extends SegmentTypeBase> segmentType,
-            String segmentationId, String physicalNetworkName) {
-        ElanInstance elanInstance = createElanInstance(elanInstanceName, segmentType, segmentationId, physicalNetworkName);
+            String segmentationId, String physicalNetworkName, List<ElanSegments> segments) {
+
+        ElanInstance elanInstance = createElanInstance(elanInstanceName, segmentType, segmentationId, physicalNetworkName, segments);
         InstanceIdentifier<ElanInstance> id = createElanInstanceIdentifier(elanInstanceName);
         MDSALUtil.syncUpdate(dataBroker, LogicalDatastoreType.CONFIGURATION, id, elanInstance);
         return elanInstance;
@@ -210,7 +240,7 @@ public class NeutronNetworkChangeListener extends AsyncDataTreeChangeListenerBas
     }
 
     private ElanInstance createElanInstance(String elanInstanceName, Class<? extends SegmentTypeBase> segmentType,
-            String segmentationId, String physicalNetworkName) {
+            String segmentationId, String physicalNetworkName, List<ElanSegments> segments) {
         ElanInstanceBuilder elanInstanceBuilder = new ElanInstanceBuilder().setElanInstanceName(elanInstanceName);
         if (segmentType != null) {
             elanInstanceBuilder.setSegmentType(segmentType);
@@ -220,6 +250,9 @@ public class NeutronNetworkChangeListener extends AsyncDataTreeChangeListenerBas
             if (physicalNetworkName != null) {
                 elanInstanceBuilder.setPhysicalNetworkName(physicalNetworkName);
             }
+        }
+        if (segments != null) {
+            elanInstanceBuilder.setElanSegments(segments);
         }
         elanInstanceBuilder.setKey(new ElanInstanceKey(elanInstanceName));
         return elanInstanceBuilder.build();
