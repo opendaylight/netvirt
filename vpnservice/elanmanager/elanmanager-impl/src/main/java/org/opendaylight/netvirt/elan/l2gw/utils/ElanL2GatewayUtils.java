@@ -392,8 +392,8 @@ public class ElanL2GatewayUtils {
                         for (DpnInterfaces elanDpn : elanDpns) {
                             // TODO batch the below call
                             fts.addAll(elanUtils.installDmacFlowsToExternalRemoteMac(elanDpn.getDpId(),
-                                    extDeviceNodeId, elan.getElanTag(), elan.getSegmentationId(), macToBeAdded,
-                                    elanInstanceName, interfaceName));
+                                    extDeviceNodeId, elan.getElanTag(), ElanUtils.getVxlanSegmentationId(elan),
+                                    macToBeAdded, elanInstanceName, interfaceName));
                         }
                     } else {
                         LOG.trace("Skipping install of dmac flows for mac {} as it is not found in cache",
