@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_dc88f2c8",
+        "filename": "docs/specs/ecmp-bgp-l3vpn.rst",
+        "patchSetId": 6
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-01-24T06:31:21Z",
+      "side": 1,
+      "message": "Actually ECMP is not applied for VMs. It is only for extra routes which can have multiple VMs as nexthops.\n\nExample:\nneutron router-update ROUTER1 --routes type\u003ddict list\u003dtrue destination\u003d120.0.0.0/24,nexthop\u003d40.1.1.2 destination\u003d120.0.0.0/24,nexthop\u003d40.1.1.3 destination\u003d121.0.0.0/24,nexthop\u003d40.1.1.2 destination\u003d121.0.0.0/24,nexthop\u003d40.1.1.3 destination\u003d121.0.0.0/24,nexthop\u003d40.1.1.4\n\n120.0.0.0/24 is having VMs 40.1.1.2 and 40.1.1.3 as nexthops.\n121.0.0.0/24 is having VMs 40.1.1.2, 40.1.1.3 and 40.1.1.4 as nexthops.",
+      "parentUuid": "fafc7978_ccf843c7",
+      "range": {
+        "startLine": 18,
+        "startChar": 52,
+        "endLine": 19,
+        "endChar": 38
+      },
+      "revId": "30ea5825d736184ba912c2bb553be068c7231b28",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_ecff07a9",
         "filename": "docs/specs/ecmp-bgp-l3vpn.rst",
         "patchSetId": 6
@@ -36,6 +60,30 @@
       "writtenOn": "2017-01-23T16:50:35Z",
       "side": 1,
       "message": "LB use case, not ECMP",
+      "range": {
+        "startLine": 33,
+        "startChar": 0,
+        "endLine": 34,
+        "endChar": 73
+      },
+      "revId": "30ea5825d736184ba912c2bb553be068c7231b28",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_3cc13ee5",
+        "filename": "docs/specs/ecmp-bgp-l3vpn.rst",
+        "patchSetId": 6
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-01-24T06:31:21Z",
+      "side": 1,
+      "message": "Here I meant spraying traffic from DC-GW to multiple compute nodes if an extra route can be reachable from multiple VMs (each connected to different compute node).",
+      "parentUuid": "fafc7978_ecff07a9",
       "range": {
         "startLine": 33,
         "startChar": 0,
