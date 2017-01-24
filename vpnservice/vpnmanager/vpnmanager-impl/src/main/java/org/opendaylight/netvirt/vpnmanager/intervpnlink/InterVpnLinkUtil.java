@@ -516,8 +516,7 @@ public class InterVpnLinkUtil {
 
     public static void handleStaticRoute(InterVpnLinkDataComposite iVpnLink, String vpnName,
                                          String destination, String nexthop, int label,
-                                         DataBroker dataBroker, IFibManager fibManager, IBgpManager bgpManager)
-             throws Exception {
+                                         DataBroker dataBroker, IFibManager fibManager, IBgpManager bgpManager) {
 
         LOG.debug("handleStaticRoute [vpnLink={} srcVpn={} destination={} nextHop={} label={}]",
                   iVpnLink.getInterVpnLinkName(), vpnName, destination, nexthop, label);
@@ -539,11 +538,13 @@ public class InterVpnLinkUtil {
         List<String> nexthopList =
             endpointDpns.stream().map(dpnId -> InterfaceUtils.getEndpointIpAddressForDPN(dataBroker, dpnId))
                                  .collect(Collectors.toList());
-        LOG.debug("advertising IVpnLink route to BGP:  vpnRd={}, prefix={}, label={}, nexthops={}",
+        LOG.debug("advertising IVpnLink route to BGP:  vpnRd={}, prefix={}, label={}, nextHops={}",
                   vpnRd, destination, label, nexthopList);
-        bgpManager.advertisePrefix(vpnRd, destination, nexthopList, label);
-
-        // TODO: Leak if static-routes-leaking flag is active
-
+        try {
+            bgpManager.advertisePrefix(vpnRd, destination, nexthopList, label);
+        } catch (Exception e) {
+            LOG.warn("Could not advertise static route: [vpnRd={}  prefix={}  label={}  nextHops={}]. Exception: ",
+                     vpnRd, destination, label, nexthopList, e);
+        }
     }
 }
