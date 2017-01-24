@@ -1,0 +1,123 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_a3b6a588",
+        "filename": "docs/specs/conntrack-based-snat.rst",
+        "patchSetId": 17
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-01-24T17:52:00Z",
+      "side": 1,
+      "message": "VM in a tenant network access the external network without..",
+      "revId": "48342aaf9e8c864124d2a46ba01c266ceeb6d246",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_434ff992",
+        "filename": "docs/specs/conntrack-based-snat.rst",
+        "patchSetId": 17
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-01-24T17:52:00Z",
+      "side": 1,
+      "message": "On an NAPT Switch failure, there will continue to be traffic even with this approach right?",
+      "revId": "48342aaf9e8c864124d2a46ba01c266ceeb6d246",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_436899f5",
+        "filename": "docs/specs/conntrack-based-snat.rst",
+        "patchSetId": 17
+      },
+      "lineNbr": 44,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-01-24T17:52:00Z",
+      "side": 1,
+      "message": "So the changes to address this feature involves openflowplugin, genius and netvirt projects ?",
+      "revId": "48342aaf9e8c864124d2a46ba01c266ceeb6d246",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_e3242dc8",
+        "filename": "docs/specs/conntrack-based-snat.rst",
+        "patchSetId": 17
+      },
+      "lineNbr": 65,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-01-24T17:52:00Z",
+      "side": 1,
+      "message": "the write_metadata value here should represent External VPN metadata which should be different from the matched metadata which represents the Router VPN.\nThis should happen in the flow rule that completes NATing action and so i think this should apply for both the flows of Table 46.",
+      "revId": "48342aaf9e8c864124d2a46ba01c266ceeb6d246",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_fe47a649",
+        "filename": "docs/specs/conntrack-based-snat.rst",
+        "patchSetId": 17
+      },
+      "lineNbr": 71,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-01-24T17:52:00Z",
+      "side": 1,
+      "message": "Packets come from Table 19 directly to Table 44.. \nSimilarly packets come from Table 20 directly to Table 44 too.\n\nNot sure where Table 21 interference comes from.  Can you please clarify this?",
+      "revId": "48342aaf9e8c864124d2a46ba01c266ceeb6d246",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_5e74f29b",
+        "filename": "docs/specs/conntrack-based-snat.rst",
+        "patchSetId": 17
+      },
+      "lineNbr": 80,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-01-24T17:52:00Z",
+      "side": 1,
+      "message": "here you have swapped the metadata correctly :)",
+      "revId": "48342aaf9e8c864124d2a46ba01c266ceeb6d246",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_7e73b6b1",
+        "filename": "docs/specs/conntrack-based-snat.rst",
+        "patchSetId": 17
+      },
+      "lineNbr": 208,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-01-24T17:52:00Z",
+      "side": 1,
+      "message": "Conntracking SNATing will not work with OVS+DPDK, and is that the reason why we have the configuration knob to turn OFF this feature?",
+      "revId": "48342aaf9e8c864124d2a46ba01c266ceeb6d246",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
