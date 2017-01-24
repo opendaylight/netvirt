@@ -96,7 +96,7 @@ public class AssociateHwvtepToElanJob implements Callable<List<ListenableFuture<
     private ListenableFuture<Void> createLogicalSwitch(L2GatewayDevice l2GatewayDevice, ElanInstance elanInstance) {
         final String logicalSwitchName = ElanL2GatewayUtils.getLogicalSwitchFromElan(
                 elanInstance.getElanInstanceName());
-        String segmentationId = elanInstance.getSegmentationId().toString();
+        String segmentationId = ElanUtils.getVxlanSegmentationId(elanInstance).toString();
 
         LOG.trace("logical switch {} is created on {} with VNI {}", logicalSwitchName,
                 l2GatewayDevice.getHwvtepNodeId(), segmentationId);

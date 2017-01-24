@@ -141,7 +141,7 @@ public class L2GatewayConnectionUtils {
 
         Uuid networkUuid = input.getNetworkId();
         ElanInstance elanInstance = elanInstanceManager.getElanInstanceByName(networkUuid.getValue());
-        if (elanInstance == null || !ElanUtils.isVxlan(elanInstance)) {
+        if (elanInstance == null || (!ElanUtils.isVxlan(elanInstance) && !ElanUtils.isVxlanSegment(elanInstance))) {
             LOG.error("Neutron network with id {} is not present", networkUuid.getValue());
         } else {
             Uuid l2GatewayId = input.getL2gatewayId();
