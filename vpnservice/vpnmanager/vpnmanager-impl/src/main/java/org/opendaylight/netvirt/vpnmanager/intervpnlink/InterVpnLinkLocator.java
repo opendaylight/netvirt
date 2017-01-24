@@ -27,14 +27,14 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.netvirt.
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class InterVpnLinkService {
+public class InterVpnLinkLocator {
 
-    private static final Logger LOG = LoggerFactory.getLogger(InterVpnLinkService.class);
+    private static final Logger LOG = LoggerFactory.getLogger(InterVpnLinkLocator.class);
     private static final String NBR_OF_DPNS_PROPERTY_NAME = "vpnservice.intervpnlink.number.dpns";
 
     private final DataBroker dataBroker;
 
-    public InterVpnLinkService(final DataBroker dataBroker) {
+    public InterVpnLinkLocator(final DataBroker dataBroker) {
         this.dataBroker = dataBroker;
     }
 
