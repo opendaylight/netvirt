@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_3c365e04",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/FibUtil.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 736,
+      "author": {
+        "id": 6550
+      },
+      "writtenOn": "2017-01-24T06:55:45Z",
+      "side": 1,
+      "message": "With Creation of separate DS for storing mapping between vpn interface and src mac, now we need not read subnet gateway. This method is removed in latest patch set.",
+      "parentUuid": "1a622d24_29c95026",
+      "revId": "be89b7c963133fcc112896fdc6e0aa7ee549d7af",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_d35ccb1b",
         "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/FibUtil.java",
         "patchSetId": 2
@@ -47,6 +65,24 @@
       "writtenOn": "2017-01-23T19:57:11Z",
       "side": 1,
       "message": "use IInterfaceManager.getInterfaceInfo().getMacAddress()",
+      "revId": "be89b7c963133fcc112896fdc6e0aa7ee549d7af",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_bc5a4e4e",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/FibUtil.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 777,
+      "author": {
+        "id": 6550
+      },
+      "writtenOn": "2017-01-24T06:55:45Z",
+      "side": 1,
+      "message": "This method is removed in latest patch set.",
+      "parentUuid": "1a622d24_e9f9184f",
       "revId": "be89b7c963133fcc112896fdc6e0aa7ee549d7af",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
