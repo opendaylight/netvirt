@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_c3fe4938",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInstanceListener.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 173,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-01-24T17:13:23Z",
+      "side": 1,
+      "message": "can you please insert an ERROR statement for this case indicating that vpninstanceopdata disappeared...",
+      "revId": "eeab4a3a3e06ab4fd22afe42129330f1c477169b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
