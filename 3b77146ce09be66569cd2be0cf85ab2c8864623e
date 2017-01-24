@@ -117,6 +117,57 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_7ebbb672",
+        "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/impl/SecurityGroupCacheManagerImpl.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 57,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2017-01-24T23:53:40Z",
+      "side": 1,
+      "message": "Could it be a public method in NeutronL3Adapter so that it can be used in SecurityServiceImpl.java:78 and possibly other places",
+      "revId": "3b77146ce09be66569cd2be0cf85ab2c8864623e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_5e63521a",
+        "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/impl/SecurityGroupCacheManagerImpl.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 61,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2017-01-24T23:53:40Z",
+      "side": 1,
+      "message": "This is not be needed. The neutron port might not be not in the cleanup cache at this moment but it will eventually be added when netvirt receives the southbound event.\n\nIt is not clean to update internal cache from outside.",
+      "revId": "3b77146ce09be66569cd2be0cf85ab2c8864623e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_5eeeb28c",
+        "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/impl/SecurityGroupCacheManagerImpl.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 108,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2017-01-24T23:53:40Z",
+      "side": 1,
+      "message": "I had a comment earlier about this, what is your thought?:\n\n\"The existing logic to retrieve neutron ports to avoid a timing issue (see bug 4205). We want to make sure that our changes here doesn\u0027t break the above fix.\nHow significance for the time that we save if reading from cache  first?\"",
+      "revId": "3b77146ce09be66569cd2be0cf85ab2c8864623e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_3e52ce13",
         "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/impl/SecurityGroupCacheManagerImpl.java",
         "patchSetId": 7
