@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_7ca46657",
+        "filename": "vpnservice/fibmanager/fibmanager-api/src/main/yang/odl-fib.yang",
+        "patchSetId": 7
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-01-24T06:41:09Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_412b7ceb",
+      "revId": "d4cd09943603076832554828f36618d8bca755b9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_21659845",
         "filename": "vpnservice/model-bgp/src/main/yang/ebgp.yang",
         "patchSetId": 7
@@ -30,6 +48,24 @@
       "writtenOn": "2017-01-23T15:59:16Z",
       "side": 1,
       "message": "indentation.",
+      "revId": "d4cd09943603076832554828f36618d8bca755b9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_7c72a6e6",
+        "filename": "vpnservice/model-bgp/src/main/yang/ebgp.yang",
+        "patchSetId": 7
+      },
+      "lineNbr": 221,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-01-24T06:41:09Z",
+      "side": 1,
+      "message": "Indentation is fine",
+      "parentUuid": "fafc7978_21659845",
       "revId": "d4cd09943603076832554828f36618d8bca755b9",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -59,6 +95,30 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_5cbc026d",
+        "filename": "vpnservice/model-bgp/src/main/yang/ebgp.yang",
+        "patchSetId": 7
+      },
+      "lineNbr": 251,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-01-24T06:41:09Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_61d680c7",
+      "range": {
+        "startLine": 251,
+        "startChar": 22,
+        "endLine": 251,
+        "endChar": 23
+      },
+      "revId": "d4cd09943603076832554828f36618d8bca755b9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_815a8481",
         "filename": "vpnservice/model-bgp/src/main/yang/ebgp.yang",
         "patchSetId": 7
@@ -76,6 +136,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_9c6dca07",
+        "filename": "vpnservice/model-bgp/src/main/yang/ebgp.yang",
+        "patchSetId": 7
+      },
+      "lineNbr": 255,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-01-24T06:41:09Z",
+      "side": 1,
+      "message": "Indentation is fine",
+      "parentUuid": "fafc7978_815a8481",
+      "revId": "d4cd09943603076832554828f36618d8bca755b9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_615fa073",
         "filename": "vpnservice/model-bgp/src/main/yang/ebgp.yang",
         "patchSetId": 7
@@ -87,6 +165,24 @@
       "writtenOn": "2017-01-23T15:59:16Z",
       "side": 1,
       "message": "indentation",
+      "revId": "d4cd09943603076832554828f36618d8bca755b9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_3c681ef5",
+        "filename": "vpnservice/model-bgp/src/main/yang/ebgp.yang",
+        "patchSetId": 7
+      },
+      "lineNbr": 286,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-01-24T06:41:09Z",
+      "side": 1,
+      "message": "Indentation is fine.",
+      "parentUuid": "fafc7978_615fa073",
       "revId": "d4cd09943603076832554828f36618d8bca755b9",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
