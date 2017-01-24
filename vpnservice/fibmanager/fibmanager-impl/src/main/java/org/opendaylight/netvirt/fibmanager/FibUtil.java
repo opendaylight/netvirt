@@ -296,97 +296,6 @@ public class FibUtil {
     }
 
     /**
-     * Retrieves the InterVpnLink in which the VPN, represented by its Uuid,
-     * participates.
-     *
-     * @param dataBroker The DataBroker
-     * @param vpnUuid The vpn uuid
-     * @return The InterVpnLink or Optional.absent() if the VPN does not participate in an InterVpnLink
-     */
-    public static Optional<InterVpnLink> getInterVpnLinkByVpnUuid(DataBroker dataBroker, String vpnUuid) {
-        List<InterVpnLink> interVpnLinkList = getAllInterVpnLinks(dataBroker);
-        for (InterVpnLink interVpnLink : interVpnLinkList) {
-            if (interVpnLink.getFirstEndpoint().getVpnUuid().getValue().equals(vpnUuid)
-                || interVpnLink.getSecondEndpoint().getVpnUuid().getValue().equals(vpnUuid)) {
-                LOG.debug("InterVpnLink found for VPN {}. Details: vpn1=( uuid={} endpoint={}) "
-                    + "vpn2=( uuid={} endpoint={} ))",
-                    vpnUuid, interVpnLink.getFirstEndpoint().getVpnUuid(),
-                    interVpnLink.getFirstEndpoint().getIpAddress(), interVpnLink.getSecondEndpoint().getVpnUuid(),
-                    interVpnLink.getSecondEndpoint().getIpAddress());
-                return Optional.fromNullable(interVpnLink);
-            }
-        }
-        LOG.debug("Could not find a suitable InterVpnLink for VpnUuid={}", vpnUuid);
-        return Optional.absent();
-    }
-
-    /**
-     * Retrieves the InterVpnLink in which the VPN, represented by its
-     * Route-Distinguisher, participates.
-     *
-     * @param dataBroker The DataBroker
-     * @param rd route-distinguisher
-     * @return The InterVpnLink or Optional.absent() if the VPN does not participate in an InterVpnLink
-     */
-    public static Optional<InterVpnLink> getInterVpnLinkByRd(DataBroker dataBroker, String rd) {
-        Optional<String> vpnId = getVpnNameFromRd(dataBroker, rd);
-        if (!vpnId.isPresent()) {
-            LOG.debug("Could not find vpnId for RouteDistinguisher {}", rd);
-            return Optional.absent();
-        }
-
-        return getInterVpnLinkByVpnUuid(dataBroker, vpnId.get());
-    }
-
-    /**
-     * Checks if the route-distinguisher is involved in any inter-vpn-link, which is returned if its found.
-     *
-     * @param dataBroker The DataBroker
-     * @param rd route-distinguisher
-     * @return The inter vpn link
-     */
-    public static Optional<InterVpnLink> getActiveInterVpnLinkFromRd(DataBroker dataBroker, String rd) {
-        Optional<InterVpnLink> interVpnLink = getInterVpnLinkByRd(dataBroker, rd);
-        if (interVpnLink.isPresent()) {
-            if (isInterVpnLinkActive(dataBroker, interVpnLink.get().getName())) {
-                return interVpnLink;
-            } else {
-                LOG.warn("InterVpnLink for RouteDistinguisher {} exists, but it's in error state. InterVpnLink={}",
-                    rd, interVpnLink.get().getName());
-                return Optional.absent();
-            }
-        }
-        return Optional.absent();
-    }
-
-    /**
-     * Checks if the route-distinguisher is involved in any inter-vpn-link. In that case, this method will return
-     * the endpoint of the other vpn involved in the inter-vpn-link.
-     *
-     * @param dataBroker The DataBroker
-     * @param rd route-distinguisher
-     * @return Opposite endpoint
-     */
-    public static Optional<String> getInterVpnLinkOppositeEndPointIpAddress(DataBroker dataBroker, String rd) {
-        Optional<String> vpnId = getVpnNameFromRd(dataBroker, rd);
-        if (!vpnId.isPresent()) {
-            LOG.debug("Could not find the VpnName for RouteDistinguisher {}", rd);
-            return Optional.absent();
-        }
-        List<InterVpnLink> interVpnLinkList = getAllInterVpnLinks(dataBroker);
-        if (!interVpnLinkList.isEmpty()) {
-            for (InterVpnLink interVpnLink : interVpnLinkList) {
-                if (interVpnLink.getFirstEndpoint().getVpnUuid().getValue().equals(vpnId)) {
-                    return Optional.fromNullable(interVpnLink.getSecondEndpoint().getVpnUuid().getValue());
-                } else if (interVpnLink.getSecondEndpoint().getIpAddress().getValue().equals(vpnId)) {
-                    return Optional.fromNullable(interVpnLink.getFirstEndpoint().getIpAddress().getValue());
-                }
-            }
-        }
-        return Optional.absent();
-    }
-
-    /**
      * Obtains the route-distinguisher for a given vpn-name.
      *
      * @param broker The DataBroker
@@ -396,24 +305,6 @@ public class FibUtil {
     public static String getVpnRd(DataBroker broker, String vpnName) {
         InstanceIdentifier<VpnInstance> id = getVpnInstanceToVpnIdIdentifier(vpnName);
         return read(broker, LogicalDatastoreType.CONFIGURATION, id).transform(VpnInstance::getVrfId).orNull();
-    }
-
-    /**
-     * Returns a boolean value which indicates if the endpoint's IP received as parameter belongs to any InterVpnLink.
-     *
-     * @param broker DataBroker
-     * @param endpointIp IP to search for.
-     * @return inter vpn link
-     */
-    public static boolean getInterVpnLinkByEndpointIp(DataBroker broker, String endpointIp) {
-        List<InterVpnLink> allInterVpnLinks = getAllInterVpnLinks(broker);
-        for (InterVpnLink interVpnLink : allInterVpnLinks) {
-            if (interVpnLink.getFirstEndpoint().getIpAddress().getValue().equals(endpointIp)
-                || interVpnLink.getSecondEndpoint().getIpAddress().getValue().equals(endpointIp)) {
-                return true;
-            }
-        }
-        return false;
     }
 
     public static int getUniqueId(IdManagerService idManager, String poolName, String idKey) {
