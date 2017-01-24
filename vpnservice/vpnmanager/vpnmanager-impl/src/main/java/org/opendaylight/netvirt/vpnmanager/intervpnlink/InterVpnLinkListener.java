@@ -35,6 +35,7 @@ import org.opendaylight.netvirt.vpnmanager.VpnConstants;
 import org.opendaylight.netvirt.vpnmanager.VpnFootprintService;
 import org.opendaylight.netvirt.vpnmanager.VpnOpDataSyncer;
 import org.opendaylight.netvirt.vpnmanager.VpnUtil;
+import org.opendaylight.netvirt.vpnmanager.api.intervpnlink.IVpnLinkService;
 import org.opendaylight.netvirt.vpnmanager.api.intervpnlink.InterVpnLinkCache;
 import org.opendaylight.netvirt.vpnmanager.api.intervpnlink.InterVpnLinkDataComposite;
 import org.opendaylight.netvirt.vpnmanager.intervpnlink.tasks.InterVpnLinkCleanedCheckerTask;
@@ -77,26 +78,23 @@ public class InterVpnLinkListener extends AsyncDataTreeChangeListenerBase<InterV
 
     private static final long INVALID_ID = 0;
 
-    private final InterVpnLinkService ivpnLinkService;
     private final DataBroker dataBroker;
     private final IMdsalApiManager mdsalManager;
     private final IdManagerService idManager;
     private final IBgpManager bgpManager;
     private final IFibManager fibManager;
     private final NotificationPublishService notificationsService;
+    private final IVpnLinkService ivpnLinkService;
+    private final InterVpnLinkLocator ivpnLinkLocator;
     private final VpnFootprintService vpnFootprintService;
     private final VpnOpDataSyncer vpnOpDataSyncer;
-
-
-    // A couple of listener in order to maintain the InterVpnLink cache
-    private InterVpnLinkCacheFeeder interVpnLinkCacheFeeder;
-    private InterVpnLinkStateCacheFeeder interVpnLinkStateCacheFeeder;
 
 
     public InterVpnLinkListener(final DataBroker dataBroker, final IdManagerService idManager,
                                 final IMdsalApiManager mdsalManager, final IBgpManager bgpManager,
                                 final IFibManager fibManager, final NotificationPublishService notifService,
-                                final InterVpnLinkService interVpnLinkService,
+                                final IVpnLinkService interVpnLinkService,
+                                final InterVpnLinkLocator interVpnLinkLocator,
                                 final VpnFootprintService vpnFootprintService,
                                 final VpnOpDataSyncer vpnOpDataSyncer) {
         super(InterVpnLink.class, InterVpnLinkListener.class);
@@ -107,6 +105,7 @@ public class InterVpnLinkListener extends AsyncDataTreeChangeListenerBase<InterV
         this.fibManager = fibManager;
         this.notificationsService = notifService;
         this.ivpnLinkService = interVpnLinkService;
+        this.ivpnLinkLocator = interVpnLinkLocator;
         this.vpnFootprintService = vpnFootprintService;
         this.vpnOpDataSyncer = vpnOpDataSyncer;
     }
@@ -116,8 +115,6 @@ public class InterVpnLinkListener extends AsyncDataTreeChangeListenerBase<InterV
         LOG.info("{} start", getClass().getSimpleName());
         registerListener(LogicalDatastoreType.CONFIGURATION, dataBroker);
         InterVpnLinkCache.createInterVpnLinkCaches(dataBroker);
-        interVpnLinkCacheFeeder = new InterVpnLinkCacheFeeder(dataBroker);
-        interVpnLinkStateCacheFeeder = new InterVpnLinkStateCacheFeeder(dataBroker);
     }
 
     @Override
@@ -208,7 +205,7 @@ public class InterVpnLinkListener extends AsyncDataTreeChangeListenerBase<InterV
             }
         }
 
-        List<BigInteger> firstDpnList = ivpnLinkService.selectSuitableDpns(add);
+        List<BigInteger> firstDpnList = ivpnLinkLocator.selectSuitableDpns(add);
         if (firstDpnList != null && !firstDpnList.isEmpty()) {
             List<BigInteger> secondDpnList = firstDpnList;
 
