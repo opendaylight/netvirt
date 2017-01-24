@@ -140,6 +140,29 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_bef51ecd",
+        "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/impl/SecurityGroupCacheManagerImpl.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 156,
+      "author": {
+        "id": 396
+      },
+      "writtenOn": "2017-01-24T22:04:53Z",
+      "side": 1,
+      "message": "Is this indent correct? I think the indent should be 4 white spaces here.",
+      "range": {
+        "startLine": 156,
+        "startChar": 0,
+        "endLine": 156,
+        "endChar": 9
+      },
+      "revId": "3b77146ce09be66569cd2be0cf85ab2c8864623e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_e3af0d2a",
         "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/impl/SecurityServicesImpl.java",
         "patchSetId": 7
@@ -163,6 +186,76 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_3ebbeec5",
+        "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/impl/SecurityServicesImpl.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 528,
+      "author": {
+        "id": 396
+      },
+      "writtenOn": "2017-01-24T22:04:53Z",
+      "side": 1,
+      "message": "Ignore this comment. Now, I understand how it is used.",
+      "parentUuid": "fafc7978_e3af0d2a",
+      "range": {
+        "startLine": 528,
+        "startChar": 12,
+        "endLine": 528,
+        "endChar": 41
+      },
+      "revId": "3b77146ce09be66569cd2be0cf85ab2c8864623e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_9e35ba48",
+        "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/impl/SecurityServicesImpl.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 550,
+      "author": {
+        "id": 396
+      },
+      "writtenOn": "2017-01-24T22:04:53Z",
+      "side": 1,
+      "message": "It seems to me that we don\u0027t need to have this variable. We can put \"0L\u0027 directly into the line 565 and 568.",
+      "range": {
+        "startLine": 550,
+        "startChar": 8,
+        "endLine": 550,
+        "endChar": 28
+      },
+      "revId": "3b77146ce09be66569cd2be0cf85ab2c8864623e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_becd1e60",
+        "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/impl/SecurityServicesImpl.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 553,
+      "author": {
+        "id": 396
+      },
+      "writtenOn": "2017-01-24T22:04:53Z",
+      "side": 1,
+      "message": "In this if-else-blocks, \"dpIdNodeMap.get(node.getNodeId())\" is called twice. But I think it\u0027s better to call it once. And, I think this doesn\u0027t need to call \"node.getNodeId()\", since this method has the target value of the NodeId as its parameter.\n\nTherefore, it would be like as follows.\n\n        Long dpid \u003d dpIdNodeMap.get(nodeId);\n        if (dpid \u003d\u003d null) {\n            dpid \u003d getDpidOfIntegrationBridge(node);\n            if (dpid \u003d\u003d 0L) {\n                return;\n            }\n            dpIdNodeMap.put(nodeId, dpid);\n        }",
+      "range": {
+        "startLine": 553,
+        "startChar": 10,
+        "endLine": 553,
+        "endChar": 43
+      },
+      "revId": "3b77146ce09be66569cd2be0cf85ab2c8864623e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_e388adc8",
         "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/impl/SecurityServicesImpl.java",
         "patchSetId": 7
@@ -179,6 +272,53 @@
         "startChar": 12,
         "endLine": 558,
         "endChar": 53
+      },
+      "revId": "3b77146ce09be66569cd2be0cf85ab2c8864623e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_5eb6b2dd",
+        "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/impl/SecurityServicesImpl.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 558,
+      "author": {
+        "id": 396
+      },
+      "writtenOn": "2017-01-24T22:04:53Z",
+      "side": 1,
+      "message": "Ignore this comment. Now, I understand how it is used.",
+      "parentUuid": "fafc7978_e388adc8",
+      "range": {
+        "startLine": 558,
+        "startChar": 12,
+        "endLine": 558,
+        "endChar": 53
+      },
+      "revId": "3b77146ce09be66569cd2be0cf85ab2c8864623e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_def8e2c6",
+        "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/impl/TenantNetworkManagerImpl.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 168,
+      "author": {
+        "id": 396
+      },
+      "writtenOn": "2017-01-24T22:04:53Z",
+      "side": 1,
+      "message": "Now, this message is not correct since checking the clean up cache is done at this point.",
+      "range": {
+        "startLine": 168,
+        "startChar": 27,
+        "endLine": 168,
+        "endChar": 75
       },
       "revId": "3b77146ce09be66569cd2be0cf85ab2c8864623e",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",

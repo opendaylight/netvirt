@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_fe45e6b3",
+        "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/impl/SecurityServicesImpl.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 552,
+      "author": {
+        "id": 396
+      },
+      "writtenOn": "2017-01-24T22:04:53Z",
+      "side": 0,
+      "message": "You intentionally remove these lines, since you\u0027ve identified it\u0027s not needed, right? Just in case, I\u0027m checking this, since I\u0027m not sure if it is intentional or a mistake.",
+      "range": {
+        "startLine": 548,
+        "startChar": 0,
+        "endLine": 552,
+        "endChar": 13
+      },
+      "revId": "b3afcaf173483536ab496a7bcfa7dbd3363a3b05",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
