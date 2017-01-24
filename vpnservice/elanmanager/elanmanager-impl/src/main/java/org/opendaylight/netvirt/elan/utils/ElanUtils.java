@@ -145,6 +145,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.instances.ElanInstance;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.instances.ElanInstanceBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.instances.ElanInstanceKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.instances.elan.instance.ElanSegments;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.interfaces.ElanInterface;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.interfaces.ElanInterfaceKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.state.Elan;
@@ -1997,6 +1998,38 @@ public class ElanUtils {
         return elanInstance != null && elanInstance.getSegmentType() != null
                 && elanInstance.getSegmentType().isAssignableFrom(SegmentTypeVxlan.class)
                 && elanInstance.getSegmentationId() != null && elanInstance.getSegmentationId().longValue() != 0;
+    }
+
+    public static boolean isVxlanSegment(ElanInstance elanInstance) {
+        if (elanInstance != null) {
+            for (ElanSegments segment : elanInstance.getElanSegments()) {
+                if (segment != null && (segment.getSegmentType().isAssignableFrom(SegmentTypeVxlan.class)
+                        && segment.getSegmentationId() != null
+                        && segment.getSegmentationId().longValue() != 0)) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    public static Long getVxlanSegmentationId(ElanInstance elanInstance) {
+        Long segmentationId = 0L;
+
+        if (elanInstance != null && elanInstance.getSegmentType() != null
+                && elanInstance.getSegmentType().isAssignableFrom(SegmentTypeVxlan.class)
+                && elanInstance.getSegmentationId() != null && elanInstance.getSegmentationId().longValue() != 0) {
+            segmentationId = elanInstance.getSegmentationId();
+        } else {
+            for (ElanSegments segment: elanInstance.getElanSegments()) {
+                if (segment != null && segment.getSegmentType().isAssignableFrom(SegmentTypeVxlan.class)
+                    && segment.getSegmentationId() != null
+                    && segment.getSegmentationId().longValue() != 0) {
+                    segmentationId = segment.getSegmentationId();
+                }
+            }
+        }
+        return segmentationId;
     }
 
     public static boolean isVlan(ElanInstance elanInstance) {
