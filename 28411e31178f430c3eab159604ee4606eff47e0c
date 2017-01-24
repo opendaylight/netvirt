@@ -2,6 +2,23 @@
   "comments": [
     {
       "key": {
+        "uuid": "fafc7978_281a9417",
+        "filename": "docs/specs/ipv6-l3vpn.rst",
+        "patchSetId": 1
+      },
+      "lineNbr": 107,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2017-01-24T14:28:18Z",
+      "side": 1,
+      "message": "Here, you have mentioned about an IPv4 subnet in the external network. Sp, we don\u0027t require any IPv6 subnet in the external network for the BGPVPN use-case?",
+      "revId": "28411e31178f430c3eab159604ee4606eff47e0c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_84332b61",
         "filename": "docs/specs/ipv6-l3vpn.rst",
         "patchSetId": 1
@@ -30,6 +47,58 @@
       "writtenOn": "2017-01-13T20:10:01Z",
       "side": 1,
       "message": "It would be good if you include existing IPv4 BGPVPN pipeline for both direction traffic as a reference.",
+      "revId": "28411e31178f430c3eab159604ee4606eff47e0c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_c8e30804",
+        "filename": "docs/specs/ipv6-l3vpn.rst",
+        "patchSetId": 1
+      },
+      "lineNbr": 134,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2017-01-24T14:28:18Z",
+      "side": 1,
+      "message": "Agree. All Specs are now including the pipeline changes.",
+      "parentUuid": "1a622d24_a43d872d",
+      "revId": "28411e31178f430c3eab159604ee4606eff47e0c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_68a13ca9",
+        "filename": "docs/specs/ipv6-l3vpn.rst",
+        "patchSetId": 1
+      },
+      "lineNbr": 168,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2017-01-24T14:28:18Z",
+      "side": 1,
+      "message": "Based on the review comments in IPv6 Distributed Routing patch[1], I\u0027m not sure if we will be able to implement a distributed IPv6 router for Carbon release.\n\nIn case, we pursue \"Option1\" (as discussed in the patch [1] which essentially means a Centralized IPv6 router), do you see any impact to your use-case?\n\n[1] https://git.opendaylight.org/gerrit/#/c/49909/1/docs/specs/ipv6-distributed-router.rst@48",
+      "revId": "28411e31178f430c3eab159604ee4606eff47e0c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_68881c23",
+        "filename": "docs/specs/ipv6-l3vpn.rst",
+        "patchSetId": 1
+      },
+      "lineNbr": 176,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2017-01-24T14:28:18Z",
+      "side": 1,
+      "message": "\u003e \"Since there is no NAT involved in the solution,\nthere is less scaling issues using IPv6 Globally Unique Addresses than for IPv4.\" \nCan you please elaborate what you mean by this? Since we are not doing NAT, we will have more routes to advertise right. So how is \"no NAT\" going to help us for scaling?",
       "revId": "28411e31178f430c3eab159604ee4606eff47e0c",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -76,6 +145,47 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_e8a24c99",
+        "filename": "docs/specs/ipv6-l3vpn.rst",
+        "patchSetId": 1
+      },
+      "lineNbr": 200,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2017-01-24T14:28:18Z",
+      "side": 1,
+      "message": "@Julien, this contradicts with your description in Line 107.",
+      "parentUuid": "1a622d24_04755bf9",
+      "range": {
+        "startLine": 200,
+        "startChar": 68,
+        "endLine": 200,
+        "endChar": 74
+      },
+      "revId": "28411e31178f430c3eab159604ee4606eff47e0c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_88b580cf",
+        "filename": "docs/specs/ipv6-l3vpn.rst",
+        "patchSetId": 1
+      },
+      "lineNbr": 219,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2017-01-24T14:28:18Z",
+      "side": 1,
+      "message": "I think this is not applicable for the BGPVPN use-case.",
+      "revId": "28411e31178f430c3eab159604ee4606eff47e0c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_e4713f0d",
         "filename": "docs/specs/ipv6-l3vpn.rst",
         "patchSetId": 1
@@ -93,6 +203,40 @@
         "endLine": 221,
         "endChar": 26
       },
+      "revId": "28411e31178f430c3eab159604ee4606eff47e0c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_68ddbc14",
+        "filename": "docs/specs/ipv6-l3vpn.rst",
+        "patchSetId": 1
+      },
+      "lineNbr": 247,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2017-01-24T14:28:18Z",
+      "side": 1,
+      "message": "I\u0027m not completely familiar with BGPVPN use-cases. So, feel free to correct me.\n\nCan we trigger this using Neutron API?",
+      "revId": "28411e31178f430c3eab159604ee4606eff47e0c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_48e278d6",
+        "filename": "docs/specs/ipv6-l3vpn.rst",
+        "patchSetId": 1
+      },
+      "lineNbr": 268,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2017-01-24T14:28:18Z",
+      "side": 1,
+      "message": "same as above.",
       "revId": "28411e31178f430c3eab159604ee4606eff47e0c",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
