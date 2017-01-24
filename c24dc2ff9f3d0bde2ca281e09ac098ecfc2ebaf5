@@ -2,6 +2,23 @@
   "comments": [
     {
       "key": {
+        "uuid": "fafc7978_282f34a3",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/NexthopManager.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 333,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-01-24T17:01:01Z",
+      "side": 1,
+      "message": "for vpnInterface {} on vpn {vpnname}",
+      "revId": "c24dc2ff9f3d0bde2ca281e09ac098ecfc2ebaf5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_07aa2419",
         "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/NexthopManager.java",
         "patchSetId": 8
@@ -84,6 +101,108 @@
       "side": 1,
       "message": "I wouldn\u0027t say a 100% guarantee exists, but if you notice all OPERATIONAL Datastores are invoked submit() before the CONFIGURATION Datastores inside the VPNEngine.\n\nWhile we can make CONFIGURATION Datastores gate over successful submit callback of OPERATIONAL Datastore call themselves, we observed it substantially reduced operational performance at scale of 80 Hypervisors and 3000 VMs.",
       "parentUuid": "fafc7978_474a6c84",
+      "revId": "c24dc2ff9f3d0bde2ca281e09ac098ecfc2ebaf5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_a309852e",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 596,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-01-24T17:01:01Z",
+      "side": 1,
+      "message": "programGatewayMacAndArpResponderTables(\ndpnId, vpnName, vpnId, interfaceName, lportTag, nextHop, writeOperTxn, writeInvTxn, ADD_FLOW)\n\norder of parameters also should be hierarchical as noted above..",
+      "revId": "c24dc2ff9f3d0bde2ca281e09ac098ecfc2ebaf5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_a357c501",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 1150,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-01-24T17:01:01Z",
+      "side": 1,
+      "message": "on vpn {} with subnetId {}",
+      "revId": "c24dc2ff9f3d0bde2ca281e09ac098ecfc2ebaf5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_6374bd9c",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 1158,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-01-24T17:01:01Z",
+      "side": 1,
+      "message": "vpn interface {} on vpn {vpnname} for gateway-ip {} with gateway-mac {}",
+      "revId": "c24dc2ff9f3d0bde2ca281e09ac098ecfc2ebaf5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_a36ea5c7",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 1164,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-01-24T17:01:01Z",
+      "side": 1,
+      "message": "one trace per method at the end is sufficient",
+      "revId": "c24dc2ff9f3d0bde2ca281e09ac098ecfc2ebaf5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_8373a1b0",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 1169,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-01-24T17:01:01Z",
+      "side": 1,
+      "message": "ditto comment on log statement here as above.. trace at the end is sufficient.",
+      "revId": "c24dc2ff9f3d0bde2ca281e09ac098ecfc2ebaf5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_8311e1ae",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnUtil.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 1355,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-01-24T17:01:01Z",
+      "side": 1,
+      "message": "cant it be : Optional.absent()",
       "revId": "c24dc2ff9f3d0bde2ca281e09ac098ecfc2ebaf5",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
