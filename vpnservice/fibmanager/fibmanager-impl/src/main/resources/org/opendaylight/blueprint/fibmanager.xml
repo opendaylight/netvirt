@@ -10,6 +10,9 @@
              interface="org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager" />
   <reference id="elanService"
              interface="org.opendaylight.netvirt.elanmanager.api.IElanService" />
+  <reference id="interVpnLinkService"
+             interface="org.opendaylight.netvirt.vpnmanager.api.intervpnlink.IVpnLinkService"
+             availability="optional"/>
 
   <odl:rpc-service id="idManagerService"
                    interface="org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.IdManagerService" />
@@ -45,6 +48,7 @@
     <argument ref="nexthopManager" />
     <argument ref="odlInterfaceRpcService" />
     <argument ref="idManagerService" />
+    <argument ref="interVpnLinkService"/>
   </bean>
 
   <bean id="fibRpcServiceImpl" class="org.opendaylight.netvirt.fibmanager.FibRpcServiceImpl">
