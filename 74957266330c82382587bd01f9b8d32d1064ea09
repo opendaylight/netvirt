@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_92265167",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInstanceListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 142,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-01-24T10:44:59Z",
+      "side": 0,
+      "message": "This condition is essential for the wait logic. Please retain this.\nPlease add an else block for this if condition and set intfCount \u003d currentIntfCount;",
+      "range": {
+        "startLine": 142,
+        "startChar": 20,
+        "endLine": 142,
+        "endChar": 85
+      },
+      "revId": "74957266330c82382587bd01f9b8d32d1064ea09",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
