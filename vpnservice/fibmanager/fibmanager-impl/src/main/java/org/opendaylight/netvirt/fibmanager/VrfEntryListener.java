@@ -73,7 +73,7 @@ import org.opendaylight.genius.utils.batching.SubTransaction;
 import org.opendaylight.genius.utils.batching.SubTransactionImpl;
 import org.opendaylight.netvirt.fibmanager.NexthopManager.AdjacencyResult;
 import org.opendaylight.netvirt.fibmanager.api.RouteOrigin;
-import org.opendaylight.netvirt.vpnmanager.api.IVpnManager;
+import org.opendaylight.netvirt.vpnmanager.api.intervpnlink.IVpnLinkService;
 import org.opendaylight.netvirt.vpnmanager.api.intervpnlink.InterVpnLinkCache;
 import org.opendaylight.netvirt.vpnmanager.api.intervpnlink.InterVpnLinkDataComposite;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.interfaces.VpnInterface;
@@ -93,7 +93,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rev
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.GetTunnelTypeInputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.GetTunnelTypeOutput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.OdlInterfaceRpcService;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rpcs.rev160406.ItmRpcService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.Nodes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.Node;
@@ -144,45 +143,41 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
 
     private static final Logger LOG = LoggerFactory.getLogger(VrfEntryListener.class);
     private static final String FLOWID_PREFIX = "L3.";
-    private final DataBroker dataBroker;
-    private final IMdsalApiManager mdsalManager;
-    private IVpnManager vpnmanager;
-    private final NexthopManager nextHopManager;
-    private ItmRpcService itmManager;
-    private final OdlInterfaceRpcService interfaceManager;
-    private final IdManagerService idManager;
-    private static final BigInteger COOKIE_VM_FIB_TABLE = new BigInteger("8000003", 16);
+    private static final int BATCH_SIZE = 1000;
+    private static final int PERIODICITY = 500;
+    private static final BigInteger COOKIE_VM_FIB_TABLE =  new BigInteger("8000003", 16);
     private static final int DEFAULT_FIB_FLOW_PRIORITY = 10;
     private static final int LFIB_INTERVPN_PRIORITY = 1;
-    private static final BigInteger METADATA_MASK_CLEAR = new BigInteger("000000FFFFFFFFFF", 16);
-    private static final BigInteger CLEAR_METADATA = BigInteger.valueOf(0);
     public static final BigInteger COOKIE_TUNNEL = new BigInteger("9000000", 16);
+
+    private final DataBroker dataBroker;
+    private final IMdsalApiManager mdsalManager;
+    private final NexthopManager nextHopManager;
+    private final OdlInterfaceRpcService interfaceManager;
+    private final IdManagerService idManager;
+    private final IVpnLinkService ivpnLinkService;
+
     List<SubTransaction> transactionObjects;
-    private static final int PERIODICITY = 500;
+
     private static Integer batchSize;
     private static Integer batchInterval;
-    private static final int BATCH_SIZE = 1000;
+
     private static BlockingQueue<ActionableResource> vrfEntryBufferQ = new LinkedBlockingQueue<>();
     private final ResourceBatchingManager resourceBatchingManager;
 
     public VrfEntryListener(final DataBroker dataBroker, final IMdsalApiManager mdsalApiManager,
                             final NexthopManager nexthopManager, final OdlInterfaceRpcService interfaceManager,
-                            final IdManagerService idManager) {
+                            final IdManagerService idManager, final IVpnLinkService ivpnLinkService) {
         super(VrfEntry.class, VrfEntryListener.class);
         this.dataBroker = dataBroker;
         this.mdsalManager = mdsalApiManager;
         this.nextHopManager = nexthopManager;
         this.interfaceManager = interfaceManager;
         this.idManager = idManager;
+        this.ivpnLinkService = ivpnLinkService;
 
-        batchSize = Integer.getInteger("batch.size");
-        if (batchSize == null) {
-            batchSize = BATCH_SIZE;
-        }
-        batchInterval = Integer.getInteger("batch.wait.time");
-        if (batchInterval == null) {
-            batchInterval = PERIODICITY;
-        }
+        batchSize = Integer.getInteger("batch.size", BATCH_SIZE);
+        batchInterval = Integer.getInteger("batch.wait.time", PERIODICITY);
         resourceBatchingManager = ResourceBatchingManager.getInstance();
         resourceBatchingManager.registerBatchableResource("FIB-VRFENTRY", vrfEntryBufferQ, this);
         transactionObjects = new ArrayList<>();
@@ -448,7 +443,6 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
             + " has null vpnId!");
 
         final Collection<VpnToDpnList> vpnToDpnList = vpnInstance.getVpnToDpnList();
-        final String rd = vrfTableKey.getRouteDistinguisher();
         if (vpnToDpnList != null) {
             for (VpnToDpnList vpnDpn : vpnToDpnList) {
                 if (vpnDpn.getDpnState() == VpnToDpnList.DpnState.Active) {
@@ -458,12 +452,6 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
         }
     }
 
-    private boolean originMustBeLeaked(InterVpnLink ivpnLink, RouteOrigin routeOrigin) {
-        return routeOrigin == RouteOrigin.BGP && ivpnLink.isBgpRoutesLeaking()
-            || routeOrigin == RouteOrigin.STATIC && ivpnLink.isStaticRoutesLeaking()
-            || routeOrigin == RouteOrigin.CONNECTED && ivpnLink.isConnectedRoutesLeaking();
-    }
-
     // FIXME: Refactoring needed here.
     //        This kind of logic must be taken to an 'upper' layer like BgpManager or VpnManager
     private void leakRouteIfNeeded(final InstanceIdentifier<VrfEntry> vrfEntryIid, final VrfEntry vrfEntry,
@@ -471,67 +459,27 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
         Preconditions.checkNotNull(vrfEntry, "VrfEntry cannot be null or empty!");
         final VrfTablesKey vrfTableKey = vrfEntryIid.firstKeyOf(VrfTables.class);
 
+        String prefix = vrfEntry.getDestPrefix();
+        List<String> nextHopsList = vrfEntry.getNextHopAddressList();
+        Long label = vrfEntry.getLabel();
         String rd = vrfTableKey.getRouteDistinguisher();
+        LOG.trace("leakRouteIfNeeded: srcVpnRd={}  prefix={}  nhList={}  label={}", rd, prefix, nextHopsList, label);
+
         VpnInstanceOpDataEntry vpnInstance = getVpnInstance(rd);
         if (vpnInstance == null) {
             LOG.error("VPN Instance not available for route with prefix {} label {} nextHop {} RD {}. Returning...",
-                vrfEntry.getDestPrefix(), vrfEntry.getLabel(), vrfEntry.getNextHopAddressList(), rd);
+                      prefix, label, nextHopsList, rd);
             return;
         }
         String vpnUuid = vpnInstance.getVpnInstanceName();
-        Preconditions.checkArgument(vpnUuid != null && !vpnUuid.isEmpty(),
-            "Could not find suitable VPN UUID for Route-Distinguisher=" + rd);
-
-        // if the new vrfEntry has been learned by Quagga BGP, its necessary to check if it's
-        // there an interVpnLink for the involved vpn in order to make learn the new route to
-        // the other part of the inter-vpn-link.
-
-        // For leaking, we need the InterVpnLink to be active. For removal, we just need a InterVpnLink.
-        Optional<InterVpnLink> interVpnLink =
-            (addOrRemove == NwConstants.ADD_FLOW) ? FibUtil.getActiveInterVpnLinkFromRd(dataBroker, rd)
-                : FibUtil.getInterVpnLinkByRd(dataBroker, rd);
-        if (!interVpnLink.isPresent()) {
-            LOG.debug("Could not find an InterVpnLink for Route-Distinguisher={}", rd);
+        if (vpnUuid == null || vpnUuid.isEmpty()) {
+            LOG.warn("Could not find suitable VPN UUID for rd={}.  vrfEntry=[prefix={}  nhList={}  label={}]",
+                     rd, prefix, nextHopsList, label);
             return;
         }
 
-        // Ok, at this point everything is ready for the leaking/removal... but should it be performed?
-        // For removal, we remove all leaked routes, but we only leak a route if the corresponding flag is enabled.
-        boolean proceed =
-            addOrRemove == NwConstants.DEL_FLOW || originMustBeLeaked(interVpnLink.get(),
-                RouteOrigin.value(vrfEntry.getOrigin()));
-
-        if (proceed) {
-            boolean isVpnFirstEndpoint = interVpnLink.get().getFirstEndpoint().getVpnUuid().getValue().equals(vpnUuid);
-
-            String theOtherVpnId = isVpnFirstEndpoint ? interVpnLink.get().getSecondEndpoint().getVpnUuid().getValue()
-                : interVpnLink.get().getFirstEndpoint().getVpnUuid().getValue();
-            String dstVpnRd = FibUtil.getVpnRd(dataBroker, theOtherVpnId);
-            String endpointIp = isVpnFirstEndpoint ? interVpnLink.get().getFirstEndpoint().getIpAddress().getValue()
-                : interVpnLink.get().getSecondEndpoint().getIpAddress().getValue();
-
-            InstanceIdentifier<VrfEntry> vrfEntryIidInOtherVpn =
-                InstanceIdentifier.builder(FibEntries.class)
-                    .child(VrfTables.class, new VrfTablesKey(dstVpnRd))
-                    .child(VrfEntry.class, new VrfEntryKey(vrfEntry.getDestPrefix()))
-                    .build();
-            if (addOrRemove == NwConstants.ADD_FLOW) {
-                LOG.debug("Leaking route (destination={}, nexthop={}) from Vrf={} to Vrf={}",
-                    vrfEntry.getDestPrefix(), vrfEntry.getNextHopAddressList(), rd, dstVpnRd);
-                String key = rd + FibConstants.SEPARATOR + vrfEntry.getDestPrefix();
-                long label = FibUtil.getUniqueId(idManager, FibConstants.VPN_IDPOOL_NAME, key);
-                VrfEntry newVrfEntry = new VrfEntryBuilder(vrfEntry).setNextHopAddressList(
-                        Collections.singletonList(endpointIp))
-                    .setLabel(label)
-                    .setOrigin(RouteOrigin.INTERVPN.getValue())
-                    .build();
-                MDSALUtil.syncUpdate(dataBroker, LogicalDatastoreType.CONFIGURATION,
-                    vrfEntryIidInOtherVpn, newVrfEntry);
-            } else {
-                LOG.debug("Removing leaked vrfEntry={}", vrfEntryIidInOtherVpn.toString());
-                MDSALUtil.syncDelete(dataBroker, LogicalDatastoreType.CONFIGURATION, vrfEntryIidInOtherVpn);
-            }
-        }
+        ivpnLinkService.leakRouteIfNeeded(vpnUuid, prefix, nextHopsList, label.intValue(),
+                                          RouteOrigin.value(vrfEntry.getOrigin()), addOrRemove);
     }
 
     private Prefixes updateVpnReferencesInLri(LabelRouteInfo lri, String vpnInstanceName, boolean isPresentInList) {
