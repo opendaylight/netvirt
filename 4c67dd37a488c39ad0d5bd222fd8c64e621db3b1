@@ -2,6 +2,23 @@
   "comments": [
     {
       "key": {
+        "uuid": "fafc7978_1e49cad0",
+        "filename": "openstack/net-virt-providers/src/main/java/org/opendaylight/netvirt/openstack/netvirt/providers/openflow13/services/EgressAclService.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 139,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2017-01-24T23:53:40Z",
+      "side": 1,
+      "message": "space after \u0027,\u0027",
+      "revId": "4c67dd37a488c39ad0d5bd222fd8c64e621db3b1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_876d7407",
         "filename": "openstack/net-virt-providers/src/main/java/org/opendaylight/netvirt/openstack/netvirt/providers/openflow13/services/EgressAclService.java",
         "patchSetId": 5
@@ -72,6 +89,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_be3b5e37",
+        "filename": "openstack/net-virt-providers/src/main/java/org/opendaylight/netvirt/openstack/netvirt/providers/openflow13/services/EgressAclService.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 173,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2017-01-24T23:53:40Z",
+      "side": 1,
+      "message": "We should avoid passing too many parameters in a method. If the whole purpose of of passing the security group in here is for checking if is \"default\", then we can catch the \"default\" SG in the SecurityGroupCacheManger. The latter then provides a method:\nboolean isDefaultSecurityGroup(String securityGroupUUID)\n\nwhich can be used here.\n\nSame comment for IngressAclService",
+      "parentUuid": "fafc7978_68ff7c02",
+      "revId": "4c67dd37a488c39ad0d5bd222fd8c64e621db3b1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_19344cdd",
         "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/PortSecurityHandler.java",
         "patchSetId": 5
@@ -101,6 +136,109 @@
       "side": 1,
       "message": "Here we are reading the datastore to get the SecurityGroup associated with the given SecurityRule.\n\nIf we put the read call in the syncSecurityGroup, It will trigger by each port for the same securityRule.\n\nTo avoid duplicate reads, better we can put this here.",
       "parentUuid": "fafc7978_19344cdd",
+      "revId": "4c67dd37a488c39ad0d5bd222fd8c64e621db3b1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_3e176ea5",
+        "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/PortSecurityHandler.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 154,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2017-01-24T23:53:40Z",
+      "side": 1,
+      "message": "Please see my comment related to the security group in EgressAclService.java:173. We might not have to pass the SG to subsequent methods",
+      "parentUuid": "fafc7978_882580ad",
+      "revId": "4c67dd37a488c39ad0d5bd222fd8c64e621db3b1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_9e0c9a96",
+        "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/PortSecurityHandler.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 168,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2017-01-24T23:53:40Z",
+      "side": 1,
+      "message": "Please see my comment related to the security group in EgressAclService.java:173. We might not have to pass the SG to subsequent methods",
+      "revId": "4c67dd37a488c39ad0d5bd222fd8c64e621db3b1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_3e65ae45",
+        "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/PortSecurityHandler.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 186,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2017-01-24T23:53:40Z",
+      "side": 1,
+      "message": "Please see my comment in SecurityGroupCacheManagerImpl.java:134",
+      "revId": "4c67dd37a488c39ad0d5bd222fd8c64e621db3b1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_7e11f6ab",
+        "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/api/EgressAclProvider.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 51,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2017-01-24T23:53:40Z",
+      "side": 1,
+      "message": "This might not be needed if we cache the default SG",
+      "revId": "4c67dd37a488c39ad0d5bd222fd8c64e621db3b1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_de25820b",
+        "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/api/IngressAclProvider.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 49,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2017-01-24T23:53:40Z",
+      "side": 1,
+      "message": "This might not be needed if we cache the default SG",
+      "revId": "4c67dd37a488c39ad0d5bd222fd8c64e621db3b1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_be223eff",
+        "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/impl/NeutronL3Adapter.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 1579,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2017-01-24T23:53:40Z",
+      "side": 1,
+      "message": "This change might not be needed",
       "revId": "4c67dd37a488c39ad0d5bd222fd8c64e621db3b1",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -223,6 +361,24 @@
       "side": 1,
       "message": "No. NeutronL3Adapter::getDpIdOfNeutronPort method will read all the node details from the datastore and again it reads the DS to fetch the dpID of the node. We could not cache these details also.\n\nTo avoid number of read calls, we are followed this approach.",
       "parentUuid": "fafc7978_199f2c61",
+      "revId": "4c67dd37a488c39ad0d5bd222fd8c64e621db3b1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_5e607235",
+        "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/impl/SecurityGroupCacheManagerImpl.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 134,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2017-01-24T23:53:40Z",
+      "side": 1,
+      "message": "I see thanks. However we can make use of the same neutronPortToDpIdCache in NeutronL3Adapter for caching the dpid by providing a new method, something like:\n\nNeutronL3Adapter::getDpIdOfNeutronPort(String neutronTenantPortUuid, Node bridgeNode) {\n  if(neutronPortToDpIdCache.get(neutronTenantPortUuid) \u003d\u003d null) {\n    Long dpId \u003d getDpidForIntegrationBridge(bridge);\n    Uuid interfaceUuid \u003d intf.getInterfaceUuid();\n                    handleInterfaceEventAdd(neutronPort.getPortUUID(), dpId, interfaceUuid);\n  }\n  return neutronPortToDpIdCache.get(neutronTenantPortUuid);\n}\n\nThere are two disadvantages of passing this Map as parameter to a method:\n1) passing too many parameters to a method\n2) It is not clean and intuitive to modify parameter objects inside a method (unless the method name indicates as such).",
+      "parentUuid": "fafc7978_48871862",
       "revId": "4c67dd37a488c39ad0d5bd222fd8c64e621db3b1",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
