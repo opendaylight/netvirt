@@ -208,6 +208,30 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_a387c20e",
+        "filename": "docs/specs/ipv6-distributed-router.rst",
+        "patchSetId": 1
+      },
+      "lineNbr": 48,
+      "author": {
+        "id": 6773
+      },
+      "writtenOn": "2017-01-25T09:47:56Z",
+      "side": 1,
+      "message": "I think you describe the options we have correctly:\n1. IPv6 CVR (with or without BGP advertisements) - probably the easiest and cleanest solution, but with the inherent drawbacks regarding performance and scalability.\n2. IPv6 DVR (as well as IPv4 DVR for publicly routable addresses) + BGP advertising VM/host IPs pointing to specific computes as next hops - more complicated (and possibly not possible within the existing OpenStack Neutron models but IMHO the preferred solution with regards to performance and scalability. In fact this is somewhat similar to the BGP EVPN/L3VPN like solution but without the tunnels between the BGP DCGW and the compute hosts. I think that the missing part in Neutron is the ability to have a router-gateway IP address per host on the ext net.\n\nIn both cases, this would require the ODL implementation to support a mode for forwarding packets to the ext net without NAT (in addition to the SNAT and DNAT options).\n\nIMHO, we could probably suffice with the less complicated option #1 (with optional BGP advertisements) and move to #2 once we clarify with the Neutron team what their view is. I think #2 is an incremental step on top of #1 if we implement it with #2 in mind.",
+      "parentUuid": "fafc7978_9522c6ff",
+      "range": {
+        "startLine": 47,
+        "startChar": 28,
+        "endLine": 48,
+        "endChar": 29
+      },
+      "revId": "976d7bbd2030e84f67b3b82780adbe501390d954",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_ad8bba66",
         "filename": "docs/specs/ipv6-distributed-router.rst",
         "patchSetId": 1
