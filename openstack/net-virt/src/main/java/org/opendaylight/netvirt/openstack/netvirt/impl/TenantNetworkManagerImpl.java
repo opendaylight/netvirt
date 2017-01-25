@@ -172,7 +172,9 @@ public class TenantNetworkManagerImpl implements ConfigInterface, TenantNetworkM
         if (neutronPort != null) {
             LOG.debug("mapped to {}", neutronPort);
         } else {
-            LOG.warn("getTenantPort did not find port for {}", terminationPointAugmentation.getName());
+            if (LOG.isTraceEnabled()) {
+                LOG.trace("getTenantPort did not find port for {}", terminationPointAugmentation.getName());
+            }
         }
 
         return neutronPort;
