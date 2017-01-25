@@ -36,6 +36,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_4658a456",
+        "filename": "docs/specs/conntrack-based-snat.rst",
+        "patchSetId": 17
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 670
+      },
+      "writtenOn": "2017-01-25T12:39:35Z",
+      "side": 1,
+      "message": "OpenStack supports ICMP, we should too. What do you mean by the \"NAPT session\"? This support would arrive from OVS, our ODL SNAT logic would not be used anymore as far as I understand it, only the NAPT centralized switch logic.",
+      "parentUuid": "fafc7978_c00c7c97",
+      "revId": "48342aaf9e8c864124d2a46ba01c266ceeb6d246",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_434ff992",
         "filename": "docs/specs/conntrack-based-snat.rst",
         "patchSetId": 17
@@ -155,6 +173,24 @@
       "writtenOn": "2017-01-24T17:52:00Z",
       "side": 1,
       "message": "Conntracking SNATing will not work with OVS+DPDK, and is that the reason why we have the configuration knob to turn OFF this feature?",
+      "revId": "48342aaf9e8c864124d2a46ba01c266ceeb6d246",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_267e40af",
+        "filename": "docs/specs/conntrack-based-snat.rst",
+        "patchSetId": 17
+      },
+      "lineNbr": 208,
+      "author": {
+        "id": 670
+      },
+      "writtenOn": "2017-01-25T12:39:35Z",
+      "side": 1,
+      "message": "Yes.. we might get it in OVS 2.7, I\u0027m not sure yet, Aswin can probably check once the feature is done",
+      "parentUuid": "fafc7978_7e73b6b1",
       "revId": "48342aaf9e8c864124d2a46ba01c266ceeb6d246",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
