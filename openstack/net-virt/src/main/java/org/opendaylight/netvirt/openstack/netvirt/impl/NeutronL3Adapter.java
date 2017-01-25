@@ -1646,7 +1646,7 @@ public class NeutronL3Adapter extends AbstractHandler implements GatewayMacResol
     public NeutronNetwork getNetworkFromCleanupCache(String networkid) {
         NeutronNetwork ret = networkCleanupCache.get(networkid);
         if (ret != null) {
-            LOG.info("getPortFromCleanupCache: Matching NeutronPort found {}", networkid);
+            LOG.info("getNetworkFromCleanupCache: Matching NeutronNetwork found {}", networkid);
         }
         return ret;
     }

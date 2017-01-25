@@ -192,10 +192,12 @@ public class OF13Provider implements ConfigInterface, NetworkingProvider {
     private boolean addTunnelPort (Node node, String tunnelType, InetAddress src, InetAddress dst) {
         String tunnelBridgeName = configurationService.getIntegrationBridgeName();
         String portName = getTunnelName(tunnelType, dst);
-        LOG.info("Added TunnelPort : portName: {}", portName);
+        LOG.trace("Added TunnelPort : portName: {}", portName);
         if (southbound.extractTerminationPointAugmentation(node, portName) != null
                 || southbound.isTunnelTerminationPointExist(node, tunnelBridgeName, portName)) {
-            LOG.info("Tunnel {} is present in {} of {}", portName, tunnelBridgeName, node.getNodeId().getValue());
+            if (LOG.isTraceEnabled()) {
+                LOG.trace("Tunnel {} is present in {} of {}", portName, tunnelBridgeName, node.getNodeId().getValue());
+            }
             return true;
         }
 
@@ -209,7 +211,7 @@ public class OF13Provider implements ConfigInterface, NetworkingProvider {
             return false;
         }
 
-            LOG.info("addTunnelPort exit: portName: {}", portName);
+        LOG.info("addTunnelPort exit: portName: {}", portName);
         return true;
     }
 

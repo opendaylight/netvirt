@@ -97,8 +97,8 @@ public class SouthboundHandler extends AbstractHandler
 
     @Override
     public void ovsdbUpdate(Node node, DataObject resourceAugmentationData, OvsdbType ovsdbType, Action action) {
-        LOG.info("Received ovsdbUpdate for : {} with action : {} for the OVS node : {}"
-                +"Resource Data  : {}", ovsdbType, action, node, resourceAugmentationData);
+        LOG.debug("Received ovsdbUpdate for : {} with action : {} for the OVS node : {} Resource Data : {}",
+                ovsdbType, action, node, resourceAugmentationData);
         enqueueEvent(new SouthboundEvent(node, resourceAugmentationData,
                 ovsdbTypeToSouthboundEventType(ovsdbType), action));
     }
@@ -252,7 +252,7 @@ public class SouthboundHandler extends AbstractHandler
      */
     @Override
     public void notifyNode (Node node, Action action) {
-        LOG.info("notifyNode : action: {}, Node  : {} ", action, node);
+        LOG.trace("notifyNode : action: {}, Node  : {} ", action, node);
 
         if ((action == Action.ADD) && (southbound.getBridge(node) != null)) {
             networkingProviderManager.getProvider(node).initializeOFFlowRules(node);
