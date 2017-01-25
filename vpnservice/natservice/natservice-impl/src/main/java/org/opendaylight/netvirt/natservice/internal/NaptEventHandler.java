@@ -118,15 +118,6 @@ public class NaptEventHandler {
             Long routerId = naptEntryEvent.getRouterId();
             LOG.info("NAT Service : handleEvent() entry for IP {}, port {}, routerID {}",
                 naptEntryEvent.getIpAddress(), naptEntryEvent.getPortNumber(), routerId);
-            // Get the External Gateway MAC Address
-            String extGwMacAddress = NatUtil.getExtGwMacAddFromRouterId(dataBroker, routerId);
-            if (extGwMacAddress != null) {
-                LOG.debug("NAT Service : External Gateway MAC address {} found for External Router ID {}",
-                    extGwMacAddress, routerId);
-            } else {
-                LOG.error("NAT Service : No External Gateway MAC address found for External Router ID {}", routerId);
-                return;
-            }
             //Get the DPN ID
             BigInteger dpnId = NatUtil.getPrimaryNaptfromRouterId(dataBroker, routerId);
             long bgpVpnId = NatConstants.INVALID_ID;
@@ -149,15 +140,22 @@ public class NaptEventHandler {
                     return;
                 }
             }
-            if (naptEntryEvent.getOperation() == NAPTEntryEvent.Operation.ADD) {
-                LOG.debug("NAT Service : Inside Add operation of NaptEventHandler");
-
-                //Get the external network ID from the ExternalRouter model
-                Uuid networkId = NatUtil.getNetworkIdFromRouterId(dataBroker, routerId);
-                if (networkId == null) {
-                    LOG.error("NAT Service : networkId is null");
-                    return;
-                }
+        if(naptEntryEvent.getOperation() == NAPTEntryEvent.Operation.ADD) {
+            LOG.debug("NAT Service : Inside Add operation of NaptEventHandler");
+            // Get the External Gateway MAC Address
+            String extGwMacAddress = NatUtil.getExtGwMacAddFromRouterId(dataBroker, routerId);
+            if (extGwMacAddress != null) {
+                LOG.debug("NAT Service : External Gateway MAC address {} found for External Router ID {}", extGwMacAddress, routerId);
+            } else {
+               LOG.error("NAT Service : No External Gateway MAC address found for External Router ID {}", routerId);
+               return;
+            }
+            //Get the external network ID from the ExternalRouter model
+            Uuid networkId = NatUtil.getNetworkIdFromRouterId(dataBroker, routerId);
+            if(networkId == null ){
+                LOG.error("NAT Service : networkId is null");
+                return;
+            }
 
                 //Get the VPN ID from the ExternalNetworks model
                 Uuid vpnUuid = NatUtil.getVpnIdfromNetworkId(dataBroker, networkId);
