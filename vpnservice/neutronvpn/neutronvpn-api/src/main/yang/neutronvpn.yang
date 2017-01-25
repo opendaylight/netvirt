@@ -84,6 +84,50 @@ module neutronvpn {
         }
     }
 
+    grouping evpn-instance{
+
+        leaf id {
+            mandatory "true";
+            type    yang:uuid;
+            description "evpn-id";
+        }
+
+        leaf name {
+          type    string;
+          description "EVPN name";
+        }
+
+        leaf tenant-id {
+            type    yang:uuid;
+            description "The UUID of the tenant that will own the subnet.";
+        }
+
+        leaf-list route-distinguisher {
+            type string;
+            description
+            "configures a route distinguisher (RD) for the EVPN instance.
+             Format is ASN:nn or IP-address:nn.";
+        }
+
+        leaf-list import-RT {
+            type string;
+            description
+            "configures a list of import route target.
+             Format is ASN:nn or IP-address:nn.";
+        }
+
+        leaf-list export-RT{
+            type string;
+            description
+            "configures a list of export route targets.
+             Format is ASN:nn or IP-address:nn.";
+        }
+
+        leaf vni {
+           type uint32;
+        }
+    }
+
     grouping vpn-instance{
 
         leaf id {
@@ -203,6 +247,21 @@ module neutronvpn {
         }
     }
 
+    rpc createEVPN{
+        description "Create one or more EVPN(s)";
+        input {
+            list evpn {
+                uses evpn-instance;
+            }
+        }
+        output {
+            leaf-list response {
+                type    string;
+                description "Status response for createVPN RPC";
+            }
+        }
+    }
+
     rpc createL3VPN{
         description "Create one or more L3VPN(s)";
         input {
@@ -251,7 +310,7 @@ module neutronvpn {
     }
 
     rpc associateNetworks {
-        description "associates a list of networks with L3VPN";
+        description "associates a list of networks with VPN";
         input {
             leaf vpn-id {
                 type    yang:uuid;
@@ -288,6 +347,22 @@ module neutronvpn {
             leaf response {
                 type    string;
                 description "Status response for dissociateNetworks RPC";
+            }
+        }
+    }
+
+    rpc deleteEVPN{
+        description "delete EVPNs for specified Id list";
+        input {
+            leaf-list id {
+                type    yang:uuid;
+                description "evpn-id";
+            }
+        }
+        output {
+            leaf-list response {
+                type    string;
+                description "Status response for deleteL3VPN RPC";
             }
         }
     }

@@ -162,6 +162,10 @@ module ebgp {
       description "VxLAN Identifier.";
       type uint32;
     }
+    leaf l2vni {
+      type uint32;
+      mandatory "false";
+    }
   } // networks
 
   list vrfs {

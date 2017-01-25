@@ -16,50 +16,73 @@ module odl-fib {
         }
     }
 
+    grouping vrfEntryContents {
+        leaf destPrefix {
+            type string;
+            mandatory true;
+        }
+        leaf-list nextHopAddressList {
+            type string;
+            min-elements "1";
+        }
+        leaf origin {
+            type string;
+            mandatory true;
+        }
+        leaf encap-type {
+           description
+              "This flag indicates how to interpret the existing label field.
+               A value of mplsgre indicates that the label will continue to be considered as an MPLS Label.
+               A value of vxlan indicates that vni should be used to advertise to bgp.";
+
+           type enumeration {
+              enum mplsgre {
+                 value "0";
+                 description "MPLSOverGRE";
+              }
+              enum vxlan {
+                 value "1";
+                 description “VNI";
+              }
+           }
+           default "mplsgre";
+        }
+
+        leaf mac_address {
+           type string;
+           mandatory false;
+        }
+
+        leaf l3vni {
+           type uint32;
+           mandatory false;
+        }
+
+        leaf gateway_mac_address {
+           type string;
+           mandatory false;
+        }
+    }
+
     grouping vrfEntries{
         list vrfEntry{
             key  "destPrefix";
-            leaf destPrefix {
-                type string;
-                mandatory true;
-            }
+            uses vrfEntryContents;
             leaf label {
                 type uint32;
+                description "Existing mpls label";
+                mandatory false;
             }
-            leaf-list nextHopAddressList {
-                type string;
-                min-elements "1";
-            }
-            leaf origin {
-                type string;
-                mandatory true;
-            }
-            leaf encap-type {
-               description
-                  "This flag indicates how to interpret the existing label field.
-                   A value of mplsgre indicates that the label will continue to be considered as an MPLS Label.
-                   A value of vxlan indicates that l3vni should be used to advertise to bgp and label will be ignored.";
+        }
+    }
 
-               type enumeration {
-                  enum mplsgre {
-                     value "0";
-                     description "MPLSOverGRE";
-                  }
-                  enum vxlan {
-                     value "1";
-                     description “VNI";
-                  }
-               }
-               default "mplsgre";
-            }
-
-            leaf l3vni {
+    grouping macVrfEntries{
+        list MacVrfEntry {
+            key  "mac_address";
+            uses vrfEntryContents;
+            leaf l2vni {
                type uint32;
             }
-            leaf gateway_mac_address {
-               type string;
-            }
-
         }
     }
 
@@ -77,10 +100,11 @@ module odl-fib {
 
     container fibEntries {
         config true;
-        list vrfTables{
+        list vrfTables {
             key "routeDistinguisher";
             leaf routeDistinguisher {type string;}
             uses vrfEntries;
+            uses macVrfEntries;
         }
 
         container ipv4Table{

@@ -126,6 +126,23 @@ module odl-l3vpn {
            }
     }
 
+    container evpn-rd-to-networks {
+        config false;
+        description "Holds the networks to which given evpn is attached to";
+        list evpn-rd-to-network {
+           key vrf-id;
+           leaf vrf-id {
+             type string;
+           }
+           list evpn-networks {
+            key network-id;
+            leaf network-id {
+              type string;
+            }
+           }
+        }
+    }
+
     container vpn-instance-op-data {
         config false;
         list vpn-instance-op-data-entry {
