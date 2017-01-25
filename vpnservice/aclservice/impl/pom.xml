@@ -18,6 +18,7 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
   </parent>
 
   <artifactId>aclservice-impl</artifactId>
+  <name>ODL :: netvirt :: ${project.artifactId}</name>
   <packaging>bundle</packaging>
 
   <dependencies>
