@@ -301,8 +301,8 @@ public class ElanBridgeManager {
             return patchPortName;
         }
 
-        LOG.warn("Patch port {} exceeds maximum allowed length. Truncating to {} characters", patchPortName,
-                MAX_LINUX_INTERFACE_NAME_LENGTH);
+        LOG.debug("Patch port {} exceeds maximum allowed length. Truncating to {} characters",
+                patchPortName, MAX_LINUX_INTERFACE_NAME_LENGTH);
         return patchPortName.substring(0, MAX_LINUX_INTERFACE_NAME_LENGTH - 1);
     }
 
