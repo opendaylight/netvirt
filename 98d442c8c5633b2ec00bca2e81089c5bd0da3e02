@@ -1,0 +1,72 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_94d636c4",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/statusanddiag/ElanStatusMonitorJMX.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 5867
+      },
+      "writtenOn": "2017-01-25T15:45:28Z",
+      "side": 1,
+      "message": "how about having a constant private static final MBS field?",
+      "revId": "98d442c8c5633b2ec00bca2e81089c5bd0da3e02",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_74ee328d",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/statusanddiag/ElanStatusMonitorJMX.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 5867
+      },
+      "writtenOn": "2017-01-25T15:45:28Z",
+      "side": 1,
+      "message": "how about assigning this variable in one line, instead of separately declaring and assigning it?  (PS: I thought of suggesting to also having a constant private static final field for this one, but that\u0027s probably a bad ideas because ObjectName MalformedObjectNameException throws MalformedObjectNameException; and exceptions from static initialization can be very confusing.)",
+      "revId": "98d442c8c5633b2ec00bca2e81089c5bd0da3e02",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_749592e3",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/statusanddiag/ElanStatusMonitorJMX.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 5867
+      },
+      "writtenOn": "2017-01-25T15:45:28Z",
+      "side": 1,
+      "message": "I don\u0027t know JMX well enough to know if ManagementFactory.getPlatformMBeanServer() can ever return null .. but this strikes me as a minor inconsistency within this class: IFF ManagementFactory.getPlatformMBeanServer() is @Nullable, then the use above in registerMbean() line 32 should also be null guarded.  But if ManagementFactory.getPlatformMBeanServer() is @NonNull then this null check hinders code readability and can safely be removed.  Having briefly looked at the implementation in the JDK, it seems to be @NonNull, so the null check is not needed.",
+      "revId": "98d442c8c5633b2ec00bca2e81089c5bd0da3e02",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_d4fefe37",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/statusanddiag/ElanStatusMonitorJMX.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 46,
+      "author": {
+        "id": 5867
+      },
+      "writtenOn": "2017-01-25T15:45:28Z",
+      "side": 1,
+      "message": "use \"Error unregistering MXBean {}\", JMX_ELAN_OBJ_NAME instead",
+      "revId": "98d442c8c5633b2ec00bca2e81089c5bd0da3e02",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
