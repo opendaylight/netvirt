@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_149c0669",
+        "filename": "vpnservice/features/src/main/features/features.xml",
+        "patchSetId": 8
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 3547
+      },
+      "writtenOn": "2017-01-25T14:52:13Z",
+      "side": 1,
+      "message": "for neutron\u0027s implementation of hostconfig\nhttps://git.opendaylight.org/gerrit/#/c/50742/\n\nPlease build the neutron patch locally\nand include odl-neutron-hostconfig-vpp feature, e.g. here or in odl-netvirt-openstack. A dependency in pom would be needed too.",
+      "range": {
+        "startLine": 50,
+        "startChar": 17,
+        "endLine": 50,
+        "endChar": 33
+      },
+      "revId": "917028a9cd4a786883784af65bcaa6543b297f72",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
