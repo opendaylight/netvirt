@@ -17,6 +17,7 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
 
   <modelVersion>4.0.0</modelVersion>
   <artifactId>fibmanager-shell</artifactId>
+  <name>ODL :: netvirt :: ${project.artifactId}</name>
   <packaging>bundle</packaging>
   <dependencies>
     <dependency>
