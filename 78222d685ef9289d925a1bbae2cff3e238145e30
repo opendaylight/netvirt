@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_291733ef",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 9
+      },
+      "lineNbr": 1152,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-01-25T13:25:08Z",
+      "side": 1,
+      "message": "inability to retrieve gateway-ip is an ERROR and cannot be a WARNING.",
+      "revId": "78222d685ef9289d925a1bbae2cff3e238145e30",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_e9e36b03",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnUtil.java",
+        "patchSetId": 9
+      },
+      "lineNbr": 1350,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-01-25T13:25:08Z",
+      "side": 1,
+      "message": "i meant cant the last be \n :java.util.Optional.absent().",
+      "revId": "78222d685ef9289d925a1bbae2cff3e238145e30",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
