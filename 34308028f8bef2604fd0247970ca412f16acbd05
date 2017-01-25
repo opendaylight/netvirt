@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_744ab284",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 2
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 5867
+      },
+      "writtenOn": "2017-01-25T15:56:16Z",
+      "side": 1,
+      "message": "technically we call this a component test, not a unit test",
+      "revId": "34308028f8bef2604fd0247970ca412f16acbd05",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_9449168e",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 2
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 5867
+      },
+      "writtenOn": "2017-01-25T15:56:16Z",
+      "side": 1,
+      "message": "you don\u0027t have to repeat \"Implement IPv6 unit tests in ACLService\", it makes the commit message harder to read (either completely remove, or something like \"This is based on and inspired by the similar IPv4 tests\")",
+      "revId": "34308028f8bef2604fd0247970ca412f16acbd05",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
