@@ -750,7 +750,6 @@ module l3vpn {
          type uint32;
       }
 
-
       leaf description {
         description
           "A textual description of VPN instance, the VPN instance description
