@@ -19,6 +19,23 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_c00c7c97",
+        "filename": "docs/specs/conntrack-based-snat.rst",
+        "patchSetId": 17
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 6741
+      },
+      "writtenOn": "2017-01-25T11:54:21Z",
+      "side": 1,
+      "message": "NAPT (Network Address Port Translation) session will be created based on the IP + Port combination. In case of ICMP traffic it does not have port address. Hence current implementation does not support ICMP protocol in SNAT.\n\nIs there any specific requirement for supporting ICMP also in SNAT?",
+      "revId": "48342aaf9e8c864124d2a46ba01c266ceeb6d246",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_434ff992",
         "filename": "docs/specs/conntrack-based-snat.rst",
         "patchSetId": 17
@@ -47,6 +64,29 @@
       "writtenOn": "2017-01-24T17:52:00Z",
       "side": 1,
       "message": "So the changes to address this feature involves openflowplugin, genius and netvirt projects ?",
+      "revId": "48342aaf9e8c864124d2a46ba01c266ceeb6d246",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_80eef489",
+        "filename": "docs/specs/conntrack-based-snat.rst",
+        "patchSetId": 17
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 6741
+      },
+      "writtenOn": "2017-01-25T11:54:21Z",
+      "side": 1,
+      "message": "What basis linux netfilter will remove the existing SNAT session which is no longer alive (NAPT HA).Please explain how the existing SNAT session will be handling for OVS down or Ideal time out scenario.",
+      "range": {
+        "startLine": 52,
+        "startChar": 49,
+        "endLine": 52,
+        "endChar": 58
+      },
       "revId": "48342aaf9e8c864124d2a46ba01c266ceeb6d246",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
