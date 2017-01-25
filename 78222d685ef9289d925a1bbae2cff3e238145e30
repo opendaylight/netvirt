@@ -19,6 +19,23 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_0fc50f5b",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 9
+      },
+      "lineNbr": 1141,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2017-01-25T17:41:43Z",
+      "side": 1,
+      "message": "I noticed that part of the EVPN yang changes include gw-mac-address as part of the vrfEntry. https://git.opendaylight.org/gerrit/#/c/50347/11/vpnservice/fibmanager/fibmanager-api/src/main/yang/odl-fib.yang\n\nIs the new model introduced in this patch set the same mac address as the EVPN? If it\u0027s the same, propagating this info via vrfEntry looks smoother than adding a new model",
+      "revId": "78222d685ef9289d925a1bbae2cff3e238145e30",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_291733ef",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
         "patchSetId": 9
