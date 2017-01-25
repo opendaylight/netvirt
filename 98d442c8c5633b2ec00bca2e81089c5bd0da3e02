@@ -67,6 +67,24 @@
       "revId": "98d442c8c5633b2ec00bca2e81089c5bd0da3e02",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_4f79d792",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/statusanddiag/ElanStatusMonitorJMX.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 46,
+      "author": {
+        "id": 6071
+      },
+      "writtenOn": "2017-01-25T16:31:54Z",
+      "side": 1,
+      "message": "But then I wouldn\u0027t be able to use a log.error overload which takes a Throwable. Maybe I could use string.format instead.",
+      "parentUuid": "fafc7978_d4fefe37",
+      "revId": "98d442c8c5633b2ec00bca2e81089c5bd0da3e02",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
