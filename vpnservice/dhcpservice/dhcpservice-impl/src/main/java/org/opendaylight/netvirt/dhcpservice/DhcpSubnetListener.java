@@ -18,6 +18,7 @@ import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncClusteredDataTreeChangeListenerBase;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
+import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.InterfacesState;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface;
@@ -108,12 +109,15 @@ public class DhcpSubnetListener extends AsyncClusteredDataTreeChangeListenerBase
         for (Uuid portIntf : portList) {
             NodeConnectorId nodeConnectorId = getNodeConnectorIdForPortIntf(portIntf);
             BigInteger dpId = BigInteger.valueOf(MDSALUtil.getDpnIdFromPortName(nodeConnectorId));
-            Port port = dhcpManager.getNeutronPort(portIntf.getValue());
+            String interfaceName = portIntf.getValue();
+            Port port = dhcpManager.getNeutronPort(interfaceName);
             String vmMacAddress = port.getMacAddress().getValue();
             //check whether any changes have happened
             LOG.trace("DhcpSubnetListener installNeutronPortEntries dpId: {} vmMacAddress : {}", dpId, vmMacAddress);
-            //install the entriesd
+            //install the entries
             WriteTransaction tx = dataBroker.newWriteOnlyTransaction();
+            //Bind the dhcp service when enabled
+            DhcpServiceUtils.bindDhcpService(interfaceName, NwConstants.DHCP_TABLE, tx);
             dhcpManager.installDhcpEntries(dpId, vmMacAddress, tx);
             DhcpServiceUtils.submitTransaction(tx);
         }
@@ -124,13 +128,16 @@ public class DhcpSubnetListener extends AsyncClusteredDataTreeChangeListenerBase
         for (Uuid portIntf : portList) {
             NodeConnectorId nodeConnectorId = getNodeConnectorIdForPortIntf(portIntf);
             BigInteger dpId = BigInteger.valueOf(MDSALUtil.getDpnIdFromPortName(nodeConnectorId));
-            Port port = dhcpManager.getNeutronPort(portIntf.getValue());
+            String interfaceName = portIntf.getValue();
+            Port port = dhcpManager.getNeutronPort(interfaceName);
             String vmMacAddress = port.getMacAddress().getValue();
             //check whether any changes have happened
             LOG.trace("DhcpSubnetListener uninstallNeutronPortEntries dpId: {} vmMacAddress : {}",
                     dpId, vmMacAddress);
-            //install the entries
+            //uninstall the entries
             WriteTransaction tx = dataBroker.newWriteOnlyTransaction();
+            //Unbind the dhcp service when disabled
+            DhcpServiceUtils.unbindDhcpService(interfaceName, tx);
             dhcpManager.unInstallDhcpEntries(dpId, vmMacAddress, tx);
             DhcpServiceUtils.submitTransaction(tx);
         }
