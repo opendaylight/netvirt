@@ -34,6 +34,24 @@
       "revId": "fe34cf90dc6d0b0d63d1c760a650d00fbbd5647b",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_3abe5300",
+        "filename": "vpnservice/aclservice/impl/src/test/java/org/opendaylight/netvirt/aclservice/tests/FlowEntryObjectsBase.xtend",
+        "patchSetId": 3
+      },
+      "lineNbr": 46,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2017-01-25T20:59:11Z",
+      "side": 1,
+      "message": "+1, very nice!",
+      "parentUuid": "fafc7978_433416de",
+      "revId": "fe34cf90dc6d0b0d63d1c760a650d00fbbd5647b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
