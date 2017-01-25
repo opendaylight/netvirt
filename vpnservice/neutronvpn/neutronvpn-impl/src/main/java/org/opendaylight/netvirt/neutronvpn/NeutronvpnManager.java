@@ -1459,8 +1459,13 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
                     portDataStoreCoordinator.enqueueJob("PORT-" + portId.getValue(), () -> {
                         WriteTransaction wrtConfigTxn = dataBroker.newWriteOnlyTransaction();
                         List<ListenableFuture<Void>> futures = new ArrayList<>();
-                        deleteVpnInterface(vpnId, routerId, NeutronvpnUtils.getNeutronPort(dataBroker, portId),
-                                wrtConfigTxn);
+                        Port port = NeutronvpnUtils.getNeutronPort(dataBroker, portId);
+                        if (port != null) {
+                            deleteVpnInterface(vpnId, routerId, port, wrtConfigTxn);
+                        } else {
+                            LOG.error("Cannot proceed with deleteVpnInterface for port {} in subnet {} since port is " +
+                                    "absent in Neutron config DS", portId.getValue(), subnet.getValue());
+                        }
                         futures.add(wrtConfigTxn.submit());
                         return futures;
                     });
