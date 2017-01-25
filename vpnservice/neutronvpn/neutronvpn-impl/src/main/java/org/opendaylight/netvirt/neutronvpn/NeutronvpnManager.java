@@ -645,6 +645,10 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
             wrtConfigTxnPresent = false;
             wrtConfigTxn = dataBroker.newWriteOnlyTransaction();
         }
+        if (port == null) {
+            LOG.error("Cannot proceed with deleteVpnInterface since port object supplied is null");
+            return;
+        }
         String infName = port.getUuid().getValue();
         InstanceIdentifier<VpnInterface> vpnIfIdentifier = NeutronvpnUtils.buildVpnInterfaceIdentifier(infName);
         try {
