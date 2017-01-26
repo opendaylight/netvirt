@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_6034a5de",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/statusanddiag/ElanStatusMonitorJMX.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 5867
+      },
+      "writtenOn": "2017-01-26T18:10:41Z",
+      "side": 1,
+      "message": "Yakir I don\u0027t want to be a pain and come across as lecturing you, but FYI usually when you take a review comment into account, as I see you\u0027ve done in subsequent change set, we reply e.g. \"Done\" on any comment as an indication to the reviewer.",
+      "parentUuid": "fafc7978_94d636c4",
+      "revId": "98d442c8c5633b2ec00bca2e81089c5bd0da3e02",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_74ee328d",
         "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/statusanddiag/ElanStatusMonitorJMX.java",
         "patchSetId": 3
@@ -82,6 +100,24 @@
       "side": 1,
       "message": "But then I wouldn\u0027t be able to use a log.error overload which takes a Throwable. Maybe I could use string.format instead.",
       "parentUuid": "fafc7978_d4fefe37",
+      "revId": "98d442c8c5633b2ec00bca2e81089c5bd0da3e02",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_802b8981",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/statusanddiag/ElanStatusMonitorJMX.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 46,
+      "author": {
+        "id": 5867
+      },
+      "writtenOn": "2017-01-26T18:10:41Z",
+      "side": 1,
+      "message": "are you sure? AFAIK LOG.error(\"Error unregistering MXBean {}\", JMX_ELAN_OBJ_NAME, e); works just fine, and does the right thing... if I\u0027m wrong on this, then we have this wrong in A LOT ;) of places - it\u0027s done like this all over in ODL!  I believe this https://www.slf4j.org/faq.html#paramException confirms what I\u0027m saying is accurate? If you disagree and we got this wrong, then do shout (loudly), please.",
+      "parentUuid": "fafc7978_4f79d792",
       "revId": "98d442c8c5633b2ec00bca2e81089c5bd0da3e02",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
