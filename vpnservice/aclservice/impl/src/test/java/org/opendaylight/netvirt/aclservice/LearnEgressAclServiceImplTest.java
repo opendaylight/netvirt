@@ -119,11 +119,10 @@ public class LearnEgressAclServiceImplTest {
         FlowEntity flow = (FlowEntity) installFlowValueSaver.getInvocationParams(9).get(0);
         AclServiceTestUtils.verifyMatchInfo(flow.getMatchInfoList(),
                 NxMatchFieldType.nx_tcp_dst_with_mask, "80", "65535");
-        AclServiceTestUtils.verifyActionTypeExist(flow.getInstructionInfoList().get(0).getActionInfos(),
-                ActionLearn.class);
+        AclServiceTestUtils.verifyActionTypeExist(flow.getInstructionInfoList().get(0), ActionLearn.class);
 
         // verify that tcpFinIdleTimeout is used for TCP
-        AclServiceTestUtils.verifyActionLearn(flow.getInstructionInfoList().get(0).getActionInfos(),
+        AclServiceTestUtils.verifyActionLearn(flow.getInstructionInfoList().get(0),
                 new ActionLearn(
                         0,
                         0,
@@ -144,8 +143,7 @@ public class LearnEgressAclServiceImplTest {
         assertEquals(10, installFlowValueSaver.getNumOfInvocations());
 
         FlowEntity flow = (FlowEntity) installFlowValueSaver.getInvocationParams(9).get(0);
-        AclServiceTestUtils.verifyActionTypeExist(flow.getInstructionInfoList().get(0).getActionInfos(),
-                ActionLearn.class);
+        AclServiceTestUtils.verifyActionTypeExist(flow.getInstructionInfoList().get(0), ActionLearn.class);
     }
 
     @Test
@@ -172,11 +170,10 @@ public class LearnEgressAclServiceImplTest {
         FlowEntity flow = (FlowEntity) installFlowValueSaver.getInvocationParams(9).get(0);
         AclServiceTestUtils.verifyMatchInfo(flow.getMatchInfoList(),
                 NxMatchFieldType.nx_udp_dst_with_mask, "80", "65535");
-        AclServiceTestUtils.verifyActionTypeExist(flow.getInstructionInfoList().get(0).getActionInfos(),
-                ActionLearn.class);
+        AclServiceTestUtils.verifyActionTypeExist(flow.getInstructionInfoList().get(0), ActionLearn.class);
 
         // verify that even though tcpFinIdleTimeout is set to non-zero, it is not used for UDP
-        AclServiceTestUtils.verifyActionLearn(flow.getInstructionInfoList().get(0).getActionInfos(),
+        AclServiceTestUtils.verifyActionLearn(flow.getInstructionInfoList().get(0),
                 new ActionLearn(
                         0,
                         0,
