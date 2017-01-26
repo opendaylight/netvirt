@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_807ee9e2",
+        "filename": "openstack/net-virt-providers/src/main/java/org/opendaylight/netvirt/openstack/netvirt/providers/openflow13/OF13Provider.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 1147,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2017-01-26T19:37:06Z",
+      "side": 1,
+      "message": "Using \u0027equals\u0027 here is the same as \u0027\u003d\u003d\u0027 because NeutronNetwork doesn\u0027t override \u0027equals\u0027 in the Object class. \nFor testing object equality we might want to compare network UUID, ie:\nnetwork.getNetworkUUID().equals(neutronNetwork.getNetworkUUID())",
+      "revId": "588a93d814c83e4dd0cd283652020d86870ea6b8",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_0092f956",
+        "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/impl/NeutronL3Adapter.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 943,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2017-01-26T19:37:06Z",
+      "side": 1,
+      "message": "Please fix the typo \u0027isPortSecuirtyEnableUpdated\u0027 while you are at it",
+      "revId": "588a93d814c83e4dd0cd283652020d86870ea6b8",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_207c5d20",
+        "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/impl/NeutronL3Adapter.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 958,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2017-01-26T19:37:06Z",
+      "side": 1,
+      "message": "Here we need to use \u0027equals\u0027 because we compare Boolean object which overrides \u0027equals\u0027 method.\nTo make it more convincing to the reviewer, we could add a simple UT to make sure we have the correct behaviour",
+      "revId": "588a93d814c83e4dd0cd283652020d86870ea6b8",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
