@@ -13,9 +13,10 @@ import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.when;
 
+import com.google.common.base.Optional;
+import com.google.common.util.concurrent.Futures;
 import java.util.ArrayList;
 import java.util.List;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -47,9 +48,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.por
 import org.opendaylight.yangtools.concepts.ListenerRegistration;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
-import com.google.common.base.Optional;
-import com.google.common.util.concurrent.Futures;
-
 @RunWith(MockitoJUnitRunner.class)
 public class NeutronPortChangeListenerTest {
 
@@ -58,9 +56,9 @@ public class NeutronPortChangeListenerTest {
     @Mock
     DataBroker dataBroker;
     @Mock
-    NeutronvpnManager nVpnMgr;
+    NeutronvpnManager neutronvpnManager;
     @Mock
-    NeutronvpnNatManager nVpnNatMgr;
+    NeutronvpnNatManager neutronvpnNatManager;
     @Mock
     NotificationPublishService notiPublishService;
     @Mock
@@ -94,15 +92,15 @@ public class NeutronPortChangeListenerTest {
         doReturn(mockWriteTx).when(dataBroker).newWriteOnlyTransaction();
         doReturn(Futures.immediateCheckedFuture(null)).when(mockWriteTx).submit();
         doReturn(mockReadTx).when(dataBroker).newReadOnlyTransaction();
-        when(mockReadTx.read(any(LogicalDatastoreType.class), any(InstanceIdentifier.class))).
-            thenReturn(Futures.immediateCheckedFuture(Optional.of(mockNetwork)));
-        neutronPortChangeListener = new NeutronPortChangeListener(dataBroker, nVpnMgr, nVpnNatMgr,
+        when(mockReadTx.read(any(LogicalDatastoreType.class), any(InstanceIdentifier.class)))
+            .thenReturn(Futures.immediateCheckedFuture(Optional.of(mockNetwork)));
+        neutronPortChangeListener = new NeutronPortChangeListener(dataBroker, neutronvpnManager, neutronvpnNatManager,
                 notiPublishService, gwMacResolver, odlInterfaceRpcService, elanService);
         InstanceIdentifier<ElanInstance> elanIdentifierId = InstanceIdentifier.builder(ElanInstances.class)
                 .child(ElanInstance.class,
                         new ElanInstanceKey(new Uuid("12345678-1234-1234-1234-123456789012").getValue())).build();
-        when(mockReadTx.read(any(LogicalDatastoreType.class), eq(elanIdentifierId))).
-                thenReturn(Futures.immediateCheckedFuture(Optional.of(elanInstance)));
+        when(mockReadTx.read(any(LogicalDatastoreType.class), eq(elanIdentifierId)))
+            .thenReturn(Futures.immediateCheckedFuture(Optional.of(elanInstance)));
     }
 
     @Test

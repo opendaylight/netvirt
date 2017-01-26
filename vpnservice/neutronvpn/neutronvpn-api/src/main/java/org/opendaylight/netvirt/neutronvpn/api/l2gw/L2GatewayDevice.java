@@ -10,7 +10,6 @@ package org.opendaylight.netvirt.neutronvpn.api.l2gw;
 
 import com.google.common.base.Function;
 import com.google.common.collect.Lists;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -19,8 +18,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.stream.Collectors;
-
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l2gateways.rev150712.l2gateway.attributes.Devices;
@@ -31,25 +28,12 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hw
  */
 public class L2GatewayDevice {
 
-    /** The device name. */
     String deviceName;
-
-    /** The hwvtep node id. */
     String hwvtepNodeId;
-
-    /** The tunnel ips. */
     Set<IpAddress> tunnelIps = new HashSet<>();
-
-    /** The l2 gateway ids. */
     Set<Uuid> l2GatewayIds = new HashSet<>();
-
-    /** The ucast local macs. */
     List<LocalUcastMacs> ucastLocalMacs = Collections.synchronizedList(new ArrayList<>());
-
-    /** the status of this device connectin */
     AtomicBoolean connected = new AtomicBoolean(false);
-
-    /** Connection Id to Devices */
     Map<Uuid,List<Devices>> l2gwConnectionIdToDevices = new HashMap<>();
 
     /**

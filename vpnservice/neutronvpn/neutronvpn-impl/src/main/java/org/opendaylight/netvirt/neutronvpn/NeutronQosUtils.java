@@ -275,6 +275,8 @@ public class NeutronQosUtils {
         return bridgeEntryIdBuilder.build();
     }
 
+    // TODO Clean up the exception handling
+    @SuppressWarnings("checkstyle:IllegalCatch")
     private static <T extends DataObject> Optional<T> read(LogicalDatastoreType datastoreType,
             InstanceIdentifier<T> path, DataBroker broker) {
 

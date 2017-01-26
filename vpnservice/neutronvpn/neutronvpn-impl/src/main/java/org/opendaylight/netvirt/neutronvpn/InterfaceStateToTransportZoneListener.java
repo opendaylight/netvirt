@@ -17,7 +17,9 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class InterfaceStateToTransportZoneListener extends AsyncDataTreeChangeListenerBase<Interface, InterfaceStateToTransportZoneListener> implements ClusteredDataTreeChangeListener<Interface>, AutoCloseable{
+public class InterfaceStateToTransportZoneListener
+    extends AsyncDataTreeChangeListenerBase<Interface, InterfaceStateToTransportZoneListener>
+    implements ClusteredDataTreeChangeListener<Interface>, AutoCloseable {
 
     private static final Logger LOG = LoggerFactory.getLogger(InterfaceStateToTransportZoneListener.class);
     private TransportZoneNotificationUtil ism;

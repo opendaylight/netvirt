@@ -9,6 +9,8 @@
 package org.opendaylight.netvirt.neutronvpn;
 
 import com.google.common.base.Optional;
+import java.util.ArrayList;
+import java.util.List;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.NotificationPublishService;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
@@ -27,9 +29,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev15060
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.ArrayList;
-import java.util.List;
 
 
 public class SubnetmapListener extends AsyncDataTreeChangeListenerBase<Subnetmap, SubnetmapListener> {
@@ -53,6 +52,8 @@ public class SubnetmapListener extends AsyncDataTreeChangeListenerBase<Subnetmap
         return InstanceIdentifier.create(Subnetmaps.class).child(Subnetmap.class);
     }
 
+    // TODO Clean up the exception handling
+    @SuppressWarnings("checkstyle:IllegalCatch")
     private void registerListener(final DataBroker db) {
         try {
             registerListener(LogicalDatastoreType.CONFIGURATION, db);
@@ -73,8 +74,12 @@ public class SubnetmapListener extends AsyncDataTreeChangeListenerBase<Subnetmap
     }
 
     @Override
-    protected void update(InstanceIdentifier<Subnetmap> identifier, Subnetmap subnetmapOriginal, Subnetmap subnetmapUpdate) {
-        LOG.trace("SubnetmapListener update subnetmap method - key: " + identifier + ", original=" + subnetmapOriginal + ", update=" + subnetmapUpdate);
+    // TODO Clean up the exception handling
+    @SuppressWarnings("checkstyle:IllegalCatch")
+    protected void update(InstanceIdentifier<Subnetmap> identifier,
+                          Subnetmap subnetmapOriginal, Subnetmap subnetmapUpdate) {
+        LOG.trace("SubnetmapListener update subnetmap method - key: {}, original: {}, update: {}",
+            identifier, subnetmapOriginal, subnetmapUpdate);
         Uuid vpnIdNew = subnetmapUpdate.getVpnId();
         Uuid vpnIdOld = subnetmapOriginal.getVpnId();
         Uuid subnetId = subnetmapUpdate.getId();
@@ -82,13 +87,13 @@ public class SubnetmapListener extends AsyncDataTreeChangeListenerBase<Subnetmap
         String subnetIp = subnetmapUpdate.getSubnetIp();
         Long elanTag = getElanTag(elanInstanceName);
         if (elanTag.equals(0L)) {
-            LOG.debug("Unable to fetch elantag from ElanInstance {} and hence not proceeding with subnetmapListener update" +
-                    " for subnet {}", elanInstanceName, subnetId);
+            LOG.debug("Unable to fetch elantag from ElanInstance {} and hence not proceeding with "
+                + "subnetmapListener update for subnet {}", elanInstanceName, subnetId);
             return;
         }
         //////////////////////////SubnetAddedToVpn////////////////////////////////////////////////////
         if (vpnIdNew != null && vpnIdOld == null) {
-            boolean isExternalVpn = vpnIdNew.equals(subnetmapUpdate.getRouterId()) ? false : true;
+            boolean isExternalVpn = !vpnIdNew.equals(subnetmapUpdate.getRouterId());
             try {
                 checkAndPublishSubnetAddedToVpnNotification(subnetId, subnetIp, vpnIdNew.getValue(),
                         isExternalVpn, elanTag);
@@ -108,7 +113,7 @@ public class SubnetmapListener extends AsyncDataTreeChangeListenerBase<Subnetmap
                         vpnIdOld.getValue(), isExternalVpn, elanTag);
                 LOG.debug("Subnet removed from VPN notification sent for subnet {} on VPN {}", subnetId.getValue(),
                         vpnIdOld.getValue());
-            } catch (Exception e){
+            } catch (Exception e) {
                 LOG.error("Subnet removed from VPN notification failed for subnet {} on VPN {}", subnetId.getValue(),
                         vpnIdOld.getValue(), e);
             }
@@ -122,7 +127,7 @@ public class SubnetmapListener extends AsyncDataTreeChangeListenerBase<Subnetmap
                         subnetmapUpdate.getVpnId().getValue(), isBeingAssociated, elanTag);
                 LOG.debug("VPN updated for subnet notification sent for subnet {} on VPN {}", subnetId.getValue(),
                         vpnIdNew.getValue());
-            } catch (Exception e){
+            } catch (Exception e) {
                 LOG.error("VPN updated for subnet notification failed for subnet {} on VPN {}", subnetId.getValue(),
                         vpnIdNew.getValue(), e);
             }
@@ -143,9 +148,9 @@ public class SubnetmapListener extends AsyncDataTreeChangeListenerBase<Subnetmap
                         checkAndPublishPortAddedToSubnetNotification(subnetIp, subnetId, port, elanTag);
                         LOG.debug("Port added to subnet notification sent for port {} in subnet {}", port.getValue(),
                                 subnetId.getValue());
-                    }catch (Exception e){
-                        LOG.error("Port added to subnet notification failed for port {} in subnet {}", port.getValue(),
-                                subnetId.getValue(), e);
+                    } catch (Exception e) {
+                        LOG.error("Port added to subnet notification failed for port {} in subnet {}",
+                            port.getValue(), subnetId.getValue(), e);
                     }
                     return;
                 }
@@ -155,11 +160,11 @@ public class SubnetmapListener extends AsyncDataTreeChangeListenerBase<Subnetmap
                 if (! newPortList.contains(port)) {
                     try {
                         checkAndPublishPortRemovedFromSubnetNotification(subnetIp, subnetId, port, elanTag);
-                        LOG.debug("Port removed from subnet notification sent for port {} in subnet {}", port.getValue(),
-                                subnetId.getValue());
-                    }catch (Exception e){
-                        LOG.error("Port removed from subnet notification failed for port {} in subnet {}", port.getValue(),
-                                subnetId.getValue(), e);
+                        LOG.debug("Port removed from subnet notification sent for port {} in subnet {}",
+                            port.getValue(), subnetId.getValue());
+                    } catch (Exception e) {
+                        LOG.error("Port removed from subnet notification failed for port {} in subnet {}",
+                            port.getValue(), subnetId.getValue(), e);
                     }
                     return;
                 }
@@ -172,7 +177,9 @@ public class SubnetmapListener extends AsyncDataTreeChangeListenerBase<Subnetmap
         return this;
     }
 
-    protected long getElanTag (String elanInstanceName) {
+    // TODO Clean up the exception handling
+    @SuppressWarnings("checkstyle:IllegalCatch")
+    protected long getElanTag(String elanInstanceName) {
         InstanceIdentifier<ElanInstance> elanIdentifierId = InstanceIdentifier.builder(ElanInstances.class)
                 .child(ElanInstance.class, new ElanInstanceKey(elanInstanceName)).build();
         long elanTag = 0L;
@@ -185,13 +192,15 @@ public class SubnetmapListener extends AsyncDataTreeChangeListenerBase<Subnetmap
                 LOG.error("Notification failed because of failure in reading ELANInstance {}", elanInstanceName);
             }
         } catch (Exception e) {
-            LOG.error("Notification failed because of failure in fetching elanTag from ElanInstance {} config DS", elanInstanceName, e);
+            LOG.error("Notification failed because of failure in fetching elanTag from ElanInstance {} config DS",
+                elanInstanceName, e);
         }
         return elanTag;
     }
 
     private void checkAndPublishSubnetAddedToVpnNotification(Uuid subnetId, String subnetIp, String vpnName,
-                                                             Boolean isExternalvpn, Long elanTag) throws InterruptedException {
+                                                             Boolean isExternalvpn, Long elanTag)
+        throws InterruptedException {
         SubnetAddedToVpnBuilder builder = new SubnetAddedToVpnBuilder();
 
         LOG.trace("publish notification called from SubnetAddedToVpnNotification");
@@ -206,7 +215,8 @@ public class SubnetmapListener extends AsyncDataTreeChangeListenerBase<Subnetmap
     }
 
     private void checkAndPublishSubnetDeletedFromVpnNotification(Uuid subnetId, String subnetIp, String vpnName,
-                                                                 Boolean isExternalvpn, Long elanTag) throws InterruptedException {
+                                                                 Boolean isExternalvpn, Long elanTag)
+        throws InterruptedException {
         SubnetDeletedFromVpnBuilder builder = new SubnetDeletedFromVpnBuilder();
 
         LOG.trace("publish notification called SubnetDeletedFromVpnNotification");
@@ -221,7 +231,8 @@ public class SubnetmapListener extends AsyncDataTreeChangeListenerBase<Subnetmap
     }
 
     private void checkAndPublishSubnetUpdatedInVpnNotification(Uuid subnetId, String subnetIp, String vpnName,
-                                                               Boolean isExternalvpn, Long elanTag) throws InterruptedException {
+                                                               Boolean isExternalvpn, Long elanTag)
+        throws InterruptedException {
         SubnetUpdatedInVpnBuilder builder = new SubnetUpdatedInVpnBuilder();
 
         LOG.trace("publish notification called SubnetUpdatedInVpnNotification");
@@ -235,8 +246,9 @@ public class SubnetmapListener extends AsyncDataTreeChangeListenerBase<Subnetmap
         notificationPublishService.putNotification(builder.build());
     }
 
-    private void checkAndPublishPortAddedToSubnetNotification(String subnetIp, Uuid subnetId, Uuid portId, Long elanTag) throws
-            InterruptedException {
+    private void checkAndPublishPortAddedToSubnetNotification(String subnetIp, Uuid subnetId,
+                                                              Uuid portId, Long elanTag)
+        throws InterruptedException {
         PortAddedToSubnetBuilder builder = new PortAddedToSubnetBuilder();
         LOG.trace("publish notification called PortAddedToSubnetNotification");
         builder.setSubnetIp(subnetIp);
@@ -247,7 +259,8 @@ public class SubnetmapListener extends AsyncDataTreeChangeListenerBase<Subnetmap
         notificationPublishService.putNotification(builder.build());
     }
 
-    private void checkAndPublishPortRemovedFromSubnetNotification(String subnetIp, Uuid subnetId, Uuid portId, Long elanTag)
+    private void checkAndPublishPortRemovedFromSubnetNotification(String subnetIp, Uuid subnetId, Uuid portId,
+                                                                  Long elanTag)
             throws InterruptedException {
         PortRemovedFromSubnetBuilder builder = new PortRemovedFromSubnetBuilder();
         LOG.trace("publish notification called PortRemovedFromSubnetNotification");
