@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_951470f6",
+        "filename": "openstack/net-virt-providers/src/main/java/org/opendaylight/netvirt/openstack/netvirt/providers/openflow13/OF13Provider.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 197,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2017-01-26T00:22:00Z",
+      "side": 1,
+      "message": "Actually using the check in line 175 saves the cost of executing node.getNodeId().getValue().\nI am ok with that",
+      "parentUuid": "fafc7978_95f8f0e6",
+      "revId": "dcbfcfdbf7219e1fcd5734ab2080a21089cd89db",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_95cf50b0",
         "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/impl/TenantNetworkManagerImpl.java",
         "patchSetId": 2
@@ -30,6 +48,24 @@
       "writtenOn": "2017-01-26T00:03:57Z",
       "side": 1,
       "message": "The parameterized message format doesn\u0027t incur any parameter construction cost in case the log is disabled.\nSo you don\u0027t have to do check as in line 196\n\nDo you think parameterized message doesn\u0027t work for TRACE?\n\nPlease see:\nhttps://www.slf4j.org/faq.html#logging_performance\n\"Better yet, use parameterized messages\"",
+      "revId": "dcbfcfdbf7219e1fcd5734ab2080a21089cd89db",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_550a08d3",
+        "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/impl/TenantNetworkManagerImpl.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 175,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2017-01-26T00:22:00Z",
+      "side": 1,
+      "message": "Actually using the check in line 175 saves the cost of executing terminationPointAugmentation.getName().\n\nI am ok with that",
+      "parentUuid": "fafc7978_95cf50b0",
       "revId": "dcbfcfdbf7219e1fcd5734ab2080a21089cd89db",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
