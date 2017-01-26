@@ -8,9 +8,10 @@
 
 package org.opendaylight.netvirt.bgpmanager.thrift.client;
 
+import java.util.List;
+import org.apache.thrift.TException;
 import org.apache.thrift.protocol.TBinaryProtocol;
 import org.apache.thrift.protocol.TProtocol;
-import org.apache.thrift.TException;
 import org.apache.thrift.transport.TSocket;
 import org.apache.thrift.transport.TTransport;
 import org.apache.thrift.transport.TTransportException;
@@ -21,12 +22,10 @@ import org.opendaylight.netvirt.bgpmanager.thrift.gen.af_safi;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.List;
-
 public class BgpRouter {
     private static TTransport transport;
     private static TProtocol protocol;
-    private static BgpConfigurator.Client bgpClient=null;
+    private static BgpConfigurator.Client bgpClient = null;
     boolean isConnected = false;
     private static final Logger LOGGER = LoggerFactory.getLogger(BgpRouter.class);
     public int startBGPresult = Integer.MIN_VALUE;
@@ -63,23 +62,24 @@ public class BgpRouter {
 
     private enum Optype {
         START, STOP, NBR, VRF, PFX, SRC, MHOP, LOG, AF, GR
-    };
+    }
 
-    private final static int GET_RTS_INIT = 0;
-    private final static int GET_RTS_NEXT = 1;
-    private final static int CONNECTION_TIMEOUT = 60000;
+    private static final int GET_RTS_INIT = 0;
+    private static final int GET_RTS_NEXT = 1;
+    private static final int CONNECTION_TIMEOUT = 60000;
 
 
     private class BgpOp {
         public Optype type;
         public boolean add;
-        public String[] strs;
-        public int[] ints;
-        public List<String> irts;
-        public List<String> erts;
-        public long asNumber;
-        public static final int ignore = 0;
-        public BgpOp() {
+        String[] strs;
+        int[] ints;
+        List<String> irts;
+        List<String> erts;
+        long asNumber;
+        static final int IGNORE = 0;
+
+        BgpOp() {
             strs = new String[3];
             ints = new int[2];
         }
@@ -96,7 +96,7 @@ public class BgpRouter {
     }
 
     public synchronized boolean connect(String bgpHost, int bgpPort) {
-        String msgPiece = "BGP config server at "+bgpHost+":"+bgpPort;
+        String msgPiece = "BGP config server at " + bgpHost + ":" + bgpPort;
 
         this.bgpHost = bgpHost;
         this.bgpHostPort = bgpPort;
@@ -117,7 +117,7 @@ public class BgpRouter {
         }
         protocol = new TBinaryProtocol(transport);
         bgpClient = new BgpConfigurator.Client(protocol);
-        LOGGER.info("Connected to "+msgPiece);
+        LOGGER.info("Connected to " + msgPiece);
         return true;
     }
 
@@ -145,58 +145,51 @@ public class BgpRouter {
         switch (op.type) {
             case START:
                 setStartTS(System.currentTimeMillis());
-                LOGGER.debug("startBgp thrift call for AsId {}",op.asNumber);
+                LOGGER.debug("startBgp thrift call for AsId {}", op.asNumber);
                 result = bgpClient.startBgp(op.asNumber, op.strs[0],
-                        op.ignore, op.ignore, op.ignore, op.ints[0], op.add);
-                LOGGER.debug("Result of startBgp thrift call for AsId {} : {}",op.asNumber,result);
+                        BgpOp.IGNORE, BgpOp.IGNORE, BgpOp.IGNORE, op.ints[0], op.add);
+                LOGGER.debug("Result of startBgp thrift call for AsId {} : {}", op.asNumber, result);
                 startBGPresult = result;
                 break;
             case STOP:
                 result = bgpClient.stopBgp(op.asNumber);
                 break;
             case NBR:
-                result = bop.add ?
-                        bgpClient.createPeer(op.strs[0], op.asNumber)
-                        : bgpClient.deletePeer(op.strs[0]);
+                result = bop.add ? bgpClient.createPeer(op.strs[0], op.asNumber) : bgpClient.deletePeer(op.strs[0]);
                 break;
             case VRF:
-                result = bop.add ?
-                        bgpClient.addVrf(op.strs[0], op.irts, op.erts)
-                        : bgpClient.delVrf(op.strs[0]);
+                result = bop.add ? bgpClient.addVrf(op.strs[0], op.irts, op.erts) : bgpClient.delVrf(op.strs[0]);
                 break;
             case PFX:
                 // order of args is different in addPrefix(), hence the
                 // seeming out-of-order-ness of string indices
-                result = bop.add ?
-                        bgpClient.pushRoute(op.strs[1], op.strs[2],
-                                op.strs[0], op.ints[0])
-                        : bgpClient.withdrawRoute(op.strs[1], op.strs[0]);
+                result = bop.add ? bgpClient.pushRoute(op.strs[1], op.strs[2], op.strs[0],
+                        op.ints[0]) : bgpClient.withdrawRoute(op.strs[1], op.strs[0]);
                 break;
             case LOG:
                 result = bgpClient.setLogConfig(op.strs[0], op.strs[1]);
                 break;
             case MHOP:
-                result = bop.add ?
-                        bgpClient.setEbgpMultihop(op.strs[0], op.ints[0])
+                result = bop.add
+                        ? bgpClient.setEbgpMultihop(op.strs[0], op.ints[0])
                         : bgpClient.unsetEbgpMultihop(op.strs[0]);
                 break;
             case SRC:
-                result = bop.add ?
-                        bgpClient.setUpdateSource(op.strs[0], op.strs[1])
+                result = bop.add
+                        ? bgpClient.setUpdateSource(op.strs[0], op.strs[1])
                         : bgpClient.unsetUpdateSource(op.strs[0]);
                 break;
-            default: break;
+            default:
+                break;
             case AF:
                 af_afi afi = af_afi.findByValue(op.ints[0]);
                 af_safi safi = af_safi.findByValue(op.ints[1]);
-                result = bop.add ?
-                        bgpClient.enableAddressFamily(op.strs[0], afi, safi)
+                result = bop.add
+                        ? bgpClient.enableAddressFamily(op.strs[0], afi, safi)
                         : bgpClient.disableAddressFamily(op.strs[0], afi, safi);
                 break;
             case GR:
-                result = bop.add ?
-                        bgpClient.enableGracefulRestart(op.ints[0])
-                        : bgpClient.disableGracefulRestart();
+                result = bop.add ? bgpClient.enableGracefulRestart(op.ints[0]) : bgpClient.disableGracefulRestart();
                 break;
         }
         if (result != 0) {
@@ -270,7 +263,7 @@ public class BgpRouter {
         bop.strs[1] = prefix;
         bop.strs[2] = nexthop;
         bop.ints[0] = label;
-        LOGGER.debug("Adding BGP route - rd:{} prefix:{} nexthop:{} label:{} ", rd ,prefix, nexthop, label);
+        LOGGER.debug("Adding BGP route - rd:{} prefix:{} nexthop:{} label:{} ", rd, prefix, nexthop, label);
         dispatch(bop);
     }
 
@@ -321,14 +314,13 @@ public class BgpRouter {
         }
         int state = handle.getState();
         if (state != BgpSyncHandle.INITED && state != BgpSyncHandle.ITERATING) {
-            Routes r = new Routes();
-            r.setErrcode(BgpRouterException.BGP_ERR_NOT_ITER);
-            return r;
+            Routes routes = new Routes();
+            routes.setErrcode(BgpRouterException.BGP_ERR_NOT_ITER);
+            return routes;
         }
-        int op = (state == BgpSyncHandle.INITED) ?
-                GET_RTS_INIT : GET_RTS_NEXT;
+        int op = (state == BgpSyncHandle.INITED) ? GET_RTS_INIT : GET_RTS_NEXT;
         handle.setState(BgpSyncHandle.ITERATING);
-        int winSize = handle.getMaxCount()*handle.getRouteSize();
+        int winSize = handle.getMaxCount() * handle.getRouteSize();
         Routes outRoutes = bgpClient.getRoutes(op, winSize);
         if (outRoutes.errcode != 0) {
             return outRoutes;
