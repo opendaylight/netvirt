@@ -56,7 +56,6 @@ public class FibDSWriter {
                     InstanceIdentifier.builder(FibEntries.class)
                             .child(VrfTables.class, new VrfTablesKey(rd))
                             .child(VrfEntry.class, new VrfEntryKey(prefix)).build();
-            Optional<VrfEntry> entry = BgpUtil.read(dataBroker, LogicalDatastoreType.CONFIGURATION, vrfEntryId);
 
             VrfEntry vrfEntry = new VrfEntryBuilder().setDestPrefix(prefix).setNextHopAddressList(nextHopList)
                                                      .setLabel((long)label).setOrigin(origin.getValue()).build();

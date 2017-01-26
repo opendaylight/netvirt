@@ -6,106 +6,122 @@ This program and the accompanying materials are made available under the
 terms of the Eclipse Public License v1.0 which accompanies this distribution,
 and is available at http://www.eclipse.org/legal/epl-v10.html
 -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
-  <parent>
-    <groupId>org.opendaylight.netvirt</groupId>
-    <artifactId>config-parent</artifactId>
-    <version>0.4.0-SNAPSHOT</version>
-    <relativePath>../../commons/config-parent</relativePath>
-  </parent>
+    <parent>
+        <groupId>org.opendaylight.netvirt</groupId>
+        <artifactId>config-parent</artifactId>
+        <version>0.4.0-SNAPSHOT</version>
+        <relativePath>../../commons/config-parent</relativePath>
+    </parent>
 
-  <modelVersion>4.0.0</modelVersion>
-  <artifactId>bgpmanager-impl</artifactId>
-  <packaging>bundle</packaging>
-  <dependencies>
+    <modelVersion>4.0.0</modelVersion>
+    <artifactId>bgpmanager-impl</artifactId>
+    <packaging>bundle</packaging>
+    <dependencies>
 
-    <dependency>
-      <groupId>${project.groupId}</groupId>
-      <artifactId>bgpmanager-api</artifactId>
-      <version>${vpnservices.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.opendaylight.genius</groupId>
-      <artifactId>mdsalutil-api</artifactId>
-      <version>${genius.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>${project.groupId}</groupId>
-      <artifactId>model-bgp</artifactId>
-      <version>${model.bgp.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>${project.groupId}</groupId>
-      <artifactId>fibmanager-api</artifactId>
-      <version>${vpnservices.version}</version>
-    </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>bgpmanager-api</artifactId>
+            <version>${vpnservices.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.opendaylight.genius</groupId>
+            <artifactId>mdsalutil-api</artifactId>
+            <version>${genius.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>model-bgp</artifactId>
+            <version>${model.bgp.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>fibmanager-api</artifactId>
+            <version>${vpnservices.version}</version>
+        </dependency>
 
-    <dependency>
-      <groupId>org.apache.thrift</groupId>
-      <artifactId>libthrift</artifactId>
-      <version>0.9.1</version>
-    </dependency>
+        <dependency>
+            <groupId>org.apache.thrift</groupId>
+            <artifactId>libthrift</artifactId>
+            <version>0.9.1</version>
+        </dependency>
 
-    <dependency>
-      <groupId>${project.groupId}</groupId>
-      <artifactId>vpnmanager-api</artifactId>
-      <version>${vpnservices.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.opendaylight.genius</groupId>
-      <artifactId>itm-api</artifactId>
-      <version>${genius.version}</version>
-    </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>vpnmanager-api</artifactId>
+            <version>${vpnservices.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.opendaylight.genius</groupId>
+            <artifactId>itm-api</artifactId>
+            <version>${genius.version}</version>
+        </dependency>
 
-    <dependency>
-      <groupId>org.opendaylight.controller</groupId>
-      <artifactId>sal-binding-broker-impl</artifactId>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.opendaylight.controller</groupId>
-      <artifactId>sal-binding-broker-impl</artifactId>
-      <version>${mdsal.version}</version>
-      <scope>test</scope>
-      <type>test-jar</type>
-    </dependency>
-	
-	<dependency>
-      <groupId>org.apache.karaf.shell</groupId>
-      <artifactId>org.apache.karaf.shell.console</artifactId>
-	  <version>3.0.3</version>
-	  <exclusions>
-	<exclusion>
-	<groupId>org.slf4j</groupId>
-	<artifactId>log4j</artifactId>
-	</exclusion>
-	</exclusions>
-   </dependency>
-    <dependency>
-      <groupId>io.dropwizard.metrics</groupId>
-      <artifactId>metrics-core</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>io.dropwizard.metrics</groupId>
-      <artifactId>metrics-graphite</artifactId>
-    </dependency>
+        <dependency>
+            <groupId>org.opendaylight.controller</groupId>
+            <artifactId>sal-binding-broker-impl</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.opendaylight.controller</groupId>
+            <artifactId>sal-binding-broker-impl</artifactId>
+            <version>${mdsal.version}</version>
+            <scope>test</scope>
+            <type>test-jar</type>
+        </dependency>
 
-  </dependencies>
+        <dependency>
+            <groupId>org.apache.karaf.shell</groupId>
+            <artifactId>org.apache.karaf.shell.console</artifactId>
+            <version>3.0.3</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.slf4j</groupId>
+                    <artifactId>log4j</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>io.dropwizard.metrics</groupId>
+            <artifactId>metrics-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.dropwizard.metrics</groupId>
+            <artifactId>metrics-graphite</artifactId>
+        </dependency>
 
-  <!--
-      Maven Site Configuration
+    </dependencies>
 
-      The following configuration is necessary for maven-site-plugin to
-      correctly identify the correct deployment path for OpenDaylight Maven
-      sites.
-  -->
-  <url>${odl.site.url}/${project.groupId}/${stream}/${project.artifactId}/</url>
+    <build>
+        <plugins>
+            <plugin>
+                <artifactId>maven-checkstyle-plugin</artifactId>
+                <configuration>
+                    <propertyExpansion>checkstyle.violationSeverity=error</propertyExpansion>
+                    <excludes>
+                        org/opendaylight/yang/gen/**,
+                        **/thrift/gen/*.java
+                    </excludes>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
 
-  <distributionManagement>
-    <site>
-      <id>opendaylight-site</id>
-      <url>${nexus.site.url}/${project.artifactId}/</url>
-    </site>
-  </distributionManagement>
+    <!--
+        Maven Site Configuration
+
+        The following configuration is necessary for maven-site-plugin to
+        correctly identify the correct deployment path for OpenDaylight Maven
+        sites.
+    -->
+    <url>${odl.site.url}/${project.groupId}/${stream}/${project.artifactId}/</url>
+
+    <distributionManagement>
+        <site>
+            <id>opendaylight-site</id>
+            <url>${nexus.site.url}/${project.artifactId}/</url>
+        </site>
+    </distributionManagement>
 </project>

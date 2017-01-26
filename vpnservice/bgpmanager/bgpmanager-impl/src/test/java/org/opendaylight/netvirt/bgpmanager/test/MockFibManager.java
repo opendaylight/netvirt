@@ -8,7 +8,6 @@
 package org.opendaylight.netvirt.bgpmanager.test;
 
 import java.util.Collection;
-
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.DataObjectModification;
 import org.opendaylight.controller.md.sal.binding.api.DataTreeIdentifier;
@@ -22,7 +21,7 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
 public class MockFibManager extends AbstractMockFibManager<VrfEntry> {
 
-    private int nFibEntries = 0;
+    private int numFibEntries = 0;
 
     private ListenerRegistration<MockFibManager> listenerRegistration;
 
@@ -32,12 +31,9 @@ public class MockFibManager extends AbstractMockFibManager<VrfEntry> {
     }
 
     private void registerListener(final DataBroker db) {
-        final DataTreeIdentifier<VrfEntry> treeId = new DataTreeIdentifier<>(LogicalDatastoreType.CONFIGURATION, getWildCardPath());
-        try {
-            listenerRegistration = db.registerDataTreeChangeListener(treeId, MockFibManager.this);
-        } catch (final Exception e) {
-            throw new IllegalStateException("FibManager registration Listener fail! System needs restart.", e);
-        }
+        final DataTreeIdentifier<VrfEntry> treeId =
+                new DataTreeIdentifier<>(LogicalDatastoreType.CONFIGURATION, getWildCardPath());
+        listenerRegistration = db.registerDataTreeChangeListener(treeId, MockFibManager.this);
     }
 
     private InstanceIdentifier<VrfEntry> getWildCardPath() {
@@ -52,11 +48,11 @@ public class MockFibManager extends AbstractMockFibManager<VrfEntry> {
 
             switch (mod.getModificationType()) {
                 case DELETE:
-                    nFibEntries -= 1;
+                    numFibEntries -= 1;
                     break;
                 case WRITE:
                     if (mod.getDataBefore() == null) {
-                        nFibEntries += 1;
+                        numFibEntries += 1;
                     } else {
                         // UPDATE COUNT UNCHANGED
                     }
@@ -68,6 +64,6 @@ public class MockFibManager extends AbstractMockFibManager<VrfEntry> {
     }
 
     public int getDataChgCount() {
-        return nFibEntries;
+        return numFibEntries;
     }
 }

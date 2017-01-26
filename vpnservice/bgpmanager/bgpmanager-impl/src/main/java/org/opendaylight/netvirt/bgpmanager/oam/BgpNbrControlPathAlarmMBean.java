@@ -11,13 +11,19 @@ package org.opendaylight.netvirt.bgpmanager.oam;
 /**
  * Created by ECHIAPT on 7/21/2016.
  */
+
 import java.util.ArrayList;
 
 public interface BgpNbrControlPathAlarmMBean {
-    public void setRaiseAlarmObject(ArrayList<String> raiseAlarmObject);
-    public ArrayList<String> getRaiseAlarmObject();
-    public void setClearAlarmObject(ArrayList<String> clearAlarmObject);
-    public ArrayList<String> getClearAlarmObject();
-    public void raiseAlarm(String alarmName, String additionalText, String source);
-    public void clearAlarm(String alarmName, String additionalText, String source);
+    void setRaiseAlarmObject(ArrayList<String> raiseAlarmObject);
+
+    ArrayList<String> getRaiseAlarmObject();
+
+    void setClearAlarmObject(ArrayList<String> clearAlarmObject);
+
+    ArrayList<String> getClearAlarmObject();
+
+    void raiseAlarm(String alarmName, String additionalText, String source);
+
+    void clearAlarm(String alarmName, String additionalText, String source);
 }

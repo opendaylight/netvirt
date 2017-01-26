@@ -141,7 +141,7 @@ public class BgpThriftService {
 
         public void onStartConfigResyncNotification() {
             LOGGER.info("BGP (re)started");
-            bgpManager.setqBGPrestartTS(System.currentTimeMillis());
+            bgpManager.setQbgprestartTS(System.currentTimeMillis());
             try {
                 bgpManager.bgpRestarted();
             } catch (Throwable e) {

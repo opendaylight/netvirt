@@ -8,9 +8,6 @@
 
 package org.opendaylight.netvirt.bgpmanager.oam;
 
-import javax.management.JMException;
-import javax.management.MBeanServer;
-import javax.management.ObjectName;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -24,16 +21,16 @@ import java.net.Socket;
 import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
 import java.util.TimerTask;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import org.opendaylight.netvirt.bgpmanager.BgpManager;
+import javax.management.JMException;
+import javax.management.MBeanServer;
+import javax.management.ObjectName;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -51,11 +48,11 @@ public class BgpCounters extends TimerTask {
     }
 
     @Override
-    public void run () {
+    public void run() {
         try {
             LOGGER.debug("Fetching counters from BGP");
             resetCounters();
-            fetchCmdOutputs("cmd_ip_bgp_summary.txt","show ip bgp summary");
+            fetchCmdOutputs("cmd_ip_bgp_summary.txt", "show ip bgp summary");
             fetchCmdOutputs("cmd_bgp_ipv4_unicast_statistics.txt", "show bgp ipv4 unicast statistics");
             fetchCmdOutputs("cmd_ip_bgp_vpnv4_all.txt", "show ip bgp vpnv4 all");
             parseIpBgpSummary();
@@ -73,7 +70,7 @@ public class BgpCounters extends TimerTask {
                     bgpStatsServer.registerMBean(bgpStatsBroadcaster, bgpStatsObj);
                     LOGGER.info("BGP Counters MBean Registered :::");
                 } catch (JMException e) {
-                    LOGGER.error("Adding a NotificationBroadcaster failed." , e);
+                    LOGGER.error("Adding a NotificationBroadcaster failed.", e);
                     return;
                 }
             }
@@ -225,7 +222,7 @@ public class BgpCounters extends TimerTask {
         } catch (IOException e) {
             LOGGER.error("Could not process the file {}", file.getAbsolutePath());
         }
- }
+    }
     /*
      * The below function parses the output of "show bgp ipv4 unicast statistics" saved in a file.
      * Below is the sample output for the same :-
