@@ -419,9 +419,14 @@ public class SouthboundHandler extends AbstractHandler
         LOG.debug("BridgeDelete: Delete bridge from config data store : {}"
                 +"Node : {}", bridge, node);
         nodeCacheManager.nodeRemoved(node);
-        // TODO SB_MIGRATION
-        // Not sure if we want to do this yet
-        southbound.deleteBridge(node);
+
+        // Currently we only do not remove the integration bridge from configDS, which resolves
+        // bug 7461 where upon a rapid connection flap, the integration bridge is sometimes
+        // removed from the device due to ODL asynchronous processing of the connection flap.
+        if (bridge.getBridgeName() != null &&
+                !bridge.getBridgeName().getValue().equals(configurationService.getIntegrationBridgeName())) {
+            southbound.deleteBridge(node);
+        }
     }
 
     @Override
@@ -449,7 +454,7 @@ public class SouthboundHandler extends AbstractHandler
         ovsdbInventoryService =
                 (OvsdbInventoryService) ServiceHelper.getGlobalInstance(OvsdbInventoryService.class, this);
         ovsdbInventoryService.listenerAdded(this);
-        vlanProvider = 
+        vlanProvider =
                 (VLANProvider) ServiceHelper.getGlobalInstance(VLANProvider.class, this);
     }
 
