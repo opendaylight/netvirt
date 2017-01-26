@@ -7,31 +7,30 @@
  */
 package org.opendaylight.netvirt.bgpmanager.test;
 
+import static org.junit.Assert.assertEquals;
+
 import java.util.Collections;
 import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-
 import org.mockito.runners.MockitoJUnitRunner;
-import org.opendaylight.netvirt.bgpmanager.BgpUtil;
-import org.opendaylight.netvirt.bgpmanager.FibDSWriter;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.test.AbstractDataBrokerTest;
+import org.opendaylight.netvirt.bgpmanager.BgpUtil;
+import org.opendaylight.netvirt.bgpmanager.FibDSWriter;
 import org.opendaylight.netvirt.fibmanager.api.RouteOrigin;
-
-import static org.junit.Assert.assertEquals;
 
 @RunWith(MockitoJUnitRunner.class)
 
 public class BgpManagerTest extends AbstractDataBrokerTest {
     DataBroker dataBroker;
-    FibDSWriter bgpFibWriter = null ;
-    MockFibManager fibManager = null ;
+    FibDSWriter bgpFibWriter = null;
+    MockFibManager fibManager = null;
 
     @Before
     public void setUp() throws Exception {
-        dataBroker = getDataBroker() ;
+        dataBroker = getDataBroker();
         bgpFibWriter = new FibDSWriter(dataBroker);
         fibManager = new MockFibManager(dataBroker);
         BgpUtil.setBroker(dataBroker);
@@ -55,10 +54,10 @@ public class BgpManagerTest extends AbstractDataBrokerTest {
         String rd = "101";
         String prefix = "10.10.10.10/32";
         int label = 1234;
-        try{
+        try {
             bgpFibWriter.addFibEntryToDS(rd, prefix, null, label, RouteOrigin.CONNECTED);
-            assertEquals(1,0); //The code is not launching NullPointerException
-        }catch(NullPointerException e){
+            assertEquals(1, 0); //The code is not launching NullPointerException
+        } catch (NullPointerException e) {
             //The code must launch NullPointerException
             assertEquals(1, 1);
         }

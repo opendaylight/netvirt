@@ -56,14 +56,14 @@ public interface IBgpManager {
      * @param rd
      * @param prefix
      */
-    void deletePrefix(String rd, String prefix) throws Exception;
+    void deletePrefix(String rd, String prefix);
 
     /**
      *
      * @param fileName
      * @param logLevel
      */
-    void setQbgpLog(String fileName, String logLevel) throws Exception;
+    void setQbgpLog(String fileName, String logLevel);
 
     /**
      * Advertises a Prefix to a BGP neighbour, using several nexthops. Only sends the BGP messages, no writing to
@@ -97,6 +97,6 @@ public interface IBgpManager {
     String getDCGwIP();
 
     void sendNotificationEvent(String pfx, int code, int subcode);
-    void setqBGPrestartTS(long qBGPrestartTS);
+    void setQbgprestartTS(long qbgprestartTS);
     void bgpRestarted();
 }

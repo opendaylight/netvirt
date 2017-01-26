@@ -8,9 +8,6 @@
 
 package org.opendaylight.netvirt.bgpmanager.oam;
 
-import javax.management.JMException;
-import javax.management.MBeanServer;
-import javax.management.ObjectName;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -31,6 +28,9 @@ import java.util.Scanner;
 import java.util.TimerTask;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import javax.management.JMException;
+import javax.management.MBeanServer;
+import javax.management.ObjectName;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -48,11 +48,11 @@ public class BgpCounters extends TimerTask {
     }
 
     @Override
-    public void run () {
+    public void run() {
         try {
             LOGGER.debug("Fetching counters from BGP");
             resetCounters();
-            fetchCmdOutputs("cmd_ip_bgp_summary.txt","show ip bgp summary");
+            fetchCmdOutputs("cmd_ip_bgp_summary.txt", "show ip bgp summary");
             fetchCmdOutputs("cmd_bgp_ipv4_unicast_statistics.txt", "show bgp ipv4 unicast statistics");
             fetchCmdOutputs("cmd_ip_bgp_vpnv4_all.txt", "show ip bgp vpnv4 all");
             parseIpBgpSummary();
@@ -70,7 +70,7 @@ public class BgpCounters extends TimerTask {
                     bgpStatsServer.registerMBean(bgpStatsBroadcaster, bgpStatsObj);
                     LOGGER.info("BGP Counters MBean Registered :::");
                 } catch (JMException e) {
-                    LOGGER.error("Adding a NotificationBroadcaster failed." , e);
+                    LOGGER.error("Adding a NotificationBroadcaster failed.", e);
                     return;
                 }
             }
@@ -212,7 +212,8 @@ public class BgpCounters extends TimerTask {
                     final String tx = result[4];
 
                     countersMap.put(
-                            BgpConstants.BGP_COUNTER_NBR_PKTS_RX + ":BGP_Nbr_IP_" + strIp + "_AS_" + as + "_PktsReceived",
+                            BgpConstants.BGP_COUNTER_NBR_PKTS_RX + ":BGP_Nbr_IP_" + strIp + "_AS_" + as
+                                    + "_PktsReceived",
                             rx);
                     countersMap.put(
                             BgpConstants.BGP_COUNTER_NBR_PKTS_TX + ":BGP_Nbr_IP_" + strIp + "_AS_" + as + "_PktsSent",
@@ -222,7 +223,7 @@ public class BgpCounters extends TimerTask {
         } catch (IOException e) {
             LOGGER.error("Could not process the file {}", file.getAbsolutePath());
         }
- }
+    }
     /*
      * The below function parses the output of "show bgp ipv4 unicast statistics" saved in a file.
      * Below is the sample output for the same :-
@@ -242,9 +243,9 @@ public class BgpCounters extends TimerTask {
                 String instr = scanner.nextLine();
                 if (instr.contains("Total Prefixes")) {
                     String[] result = instr.split(":");
-                    try {
+                    if (result.length > 1) {
                         totPfx = result[1].trim();
-                    } catch (Exception e) {
+                    } else {
                         totPfx = "0";
                     }
                     break;
@@ -298,29 +299,30 @@ public class BgpCounters extends TimerTask {
     }
 
     private int processRouteCount(String rd, int startIndex, List<String> inputStrs) {
-        int num = startIndex, route_count = 0;
+        int num = startIndex;
+        int routeCount = 0;
         String key = BgpConstants.BGP_COUNTER_RD_ROUTE_COUNT + ":BGP_RD_" + rd + "_route_count";
 
         for (String str = inputStrs.get(num); str != null && !str.trim().equals("") && num < inputStrs.size();
                 str = inputStrs.get(num)) {
             if (str.contains("Route Distinguisher")) {
-                countersMap.put(key, Integer.toString(route_count));
+                countersMap.put(key, Integer.toString(routeCount));
                 return num - 1;
             }
-            route_count++;
+            routeCount++;
             num++;
             if (num == inputStrs.size()) {
                 break;
             }
         }
-        if (route_count == 0) {
+        if (routeCount == 0) {
             // Erroneous condition, should never happen.
             // Implies that the file contains marker for RD  without routes.
             // will form an infinite loop if not broken
             // by sending a big number back.
             return Integer.MAX_VALUE;
         }
-        countersMap.put(key, Integer.toString(route_count));
+        countersMap.put(key, Integer.toString(routeCount));
         return num - 1;
     }
 
@@ -361,8 +363,8 @@ public class BgpCounters extends TimerTask {
                         if (!validate(strIp)) {
                             break;
                         }
-                        String state_pfxRcvd = result[9];
-                        countMap.put(strIp, state_pfxRcvd);
+                        String statePfxRcvd = result[9];
+                        countMap.put(strIp, statePfxRcvd);
                     }
                 }
             }

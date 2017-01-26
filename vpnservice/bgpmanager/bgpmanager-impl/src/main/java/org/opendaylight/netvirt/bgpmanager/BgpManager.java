@@ -7,12 +7,19 @@
  */
 package org.opendaylight.netvirt.bgpmanager;
 
-import java.util.*;
-
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+import java.util.Timer;
 import org.apache.thrift.TException;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.netvirt.bgpmanager.api.IBgpManager;
-import org.opendaylight.netvirt.bgpmanager.oam.*;
+import org.opendaylight.netvirt.bgpmanager.oam.BgpAlarmBroadcaster;
+import org.opendaylight.netvirt.bgpmanager.oam.BgpAlarmErrorCodes;
+import org.opendaylight.netvirt.bgpmanager.oam.BgpAlarms;
+import org.opendaylight.netvirt.bgpmanager.oam.BgpConstants;
+import org.opendaylight.netvirt.bgpmanager.oam.BgpCounters;
 import org.opendaylight.netvirt.bgpmanager.thrift.gen.af_afi;
 import org.opendaylight.netvirt.bgpmanager.thrift.gen.af_safi;
 import org.opendaylight.netvirt.fibmanager.api.RouteOrigin;
@@ -27,15 +34,15 @@ public class BgpManager implements AutoCloseable, IBgpManager {
     private final BgpConfigurationManager bcm;
     private final BgpAlarmBroadcaster qbgpAlarmProducer;
     private final FibDSWriter fibDSWriter;
-    private long qBGPrestartTS = 0;
+    private long qbgprestartTS = 0;
     public Timer bgpAlarmsTimer;
     public BgpAlarms bgpAlarms;
     public BgpCounters bgpCounters;
 
     public BgpManager(final DataBroker dataBroker,
-                      final BgpConfigurationManager bcm,
-                      final BgpAlarmBroadcaster bgpAlarmProducer,
-                      final FibDSWriter fibDSWriter) {
+            final BgpConfigurationManager bcm,
+            final BgpAlarmBroadcaster bgpAlarmProducer,
+            final FibDSWriter fibDSWriter) {
         this.dataBroker = dataBroker;
         this.bcm = bcm;
         this.qbgpAlarmProducer = bgpAlarmProducer;
@@ -43,13 +50,9 @@ public class BgpManager implements AutoCloseable, IBgpManager {
     }
 
     public void init() {
-        try {
-            BgpUtil.setBroker(dataBroker);
-            ConfigureBgpCli.setBgpManager(this);
-            LOG.info("{} start", getClass().getSimpleName());
-        } catch (Exception e) {
-            LOG.error("Failed to start BgpManager: ", e);
-        }
+        BgpUtil.setBroker(dataBroker);
+        ConfigureBgpCli.setBgpManager(this);
+        LOG.info("{} start", getClass().getSimpleName());
     }
 
     @Override
@@ -110,7 +113,7 @@ public class BgpManager implements AutoCloseable, IBgpManager {
     }
 
     @Override
-    public void deletePrefix(String rd, String prefix) throws Exception {
+    public void deletePrefix(String rd, String prefix) {
         fibDSWriter.removeFibEntryFromDS(rd, prefix);
         bcm.delPrefix(rd, prefix);
     }
@@ -134,11 +137,11 @@ public class BgpManager implements AutoCloseable, IBgpManager {
         LOG.info("WITHDRAW: Removed Prefix rd {} prefix {}", rd, prefix);
     }
 
-    public void setQbgpLog(String fileName, String debugLevel) throws Exception {
+    public void setQbgpLog(String fileName, String debugLevel) {
         bcm.addLogging(fileName, debugLevel);
     }
 
-    public void delLogging() throws Exception {
+    public void delLogging() {
         bcm.delLogging();
     }
 
@@ -204,7 +207,6 @@ public class BgpManager implements AutoCloseable, IBgpManager {
     }
 
 
-
     public void bgpRestarted() {
         bcm.bgpRestarted();
     }
@@ -220,32 +222,39 @@ public class BgpManager implements AutoCloseable, IBgpManager {
     public long getLastConnectedTS() {
         return bcm.getLastConnectedTS();
     }
+
     public long getConnectTS() {
         return bcm.getConnectTS();
     }
+
     public long getStartTS() {
         return bcm.getStartTS();
     }
 
-    public long getqBGPrestartTS() {
-        return qBGPrestartTS;
+    public long getQbgprestartTS() {
+        return qbgprestartTS;
     }
 
-    public void setqBGPrestartTS(long qBGPrestartTS) {
-        this.qBGPrestartTS = qBGPrestartTS;
+    public void setQbgprestartTS(long qbgprestartTS) {
+        this.qbgprestartTS = qbgprestartTS;
     }
+
     public long getStaleStartTime() {
         return bcm.getStaleStartTime();
     }
+
     public long getStaleEndTime() {
         return bcm.getStaleEndTime();
     }
+
     public long getCfgReplayStartTime() {
         return bcm.getCfgReplayStartTime();
     }
+
     public long getCfgReplayEndTime() {
         return bcm.getCfgReplayEndTime();
     }
+
     public long getStaleCleanupTime() {
         return bcm.getStaleCleanupTime();
     }
