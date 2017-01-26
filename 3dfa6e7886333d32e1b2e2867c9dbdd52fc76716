@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_75dd8c14",
+        "filename": "vpnservice/features/src/main/features/features.xml",
+        "patchSetId": 2
+      },
+      "lineNbr": 84,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2017-01-26T02:02:36Z",
+      "side": 1,
+      "message": "maybe move it up a spot to keep alpha order",
+      "revId": "3dfa6e7886333d32e1b2e2867c9dbdd52fc76716",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
