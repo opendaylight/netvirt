@@ -45,13 +45,13 @@ public class NeutronBgpvpnChangeListener extends AsyncDataTreeChangeListenerBase
     private final IdManagerService idManager;
     private final String adminRDValue;
 
-    public NeutronBgpvpnChangeListener(final DataBroker dataBroker, final NeutronvpnManager nVpnMgr,
+    public NeutronBgpvpnChangeListener(final DataBroker dataBroker, final NeutronvpnManager neutronvpnManager,
                                        final IdManagerService idManager) {
         super(Bgpvpn.class, NeutronBgpvpnChangeListener.class);
         this.dataBroker = dataBroker;
-        nvpnManager = nVpnMgr;
+        nvpnManager = neutronvpnManager;
         this.idManager = idManager;
-        BundleContext bundleContext=FrameworkUtil.getBundle(NeutronBgpvpnChangeListener.class).getBundleContext();
+        BundleContext bundleContext = FrameworkUtil.getBundle(NeutronBgpvpnChangeListener.class).getBundleContext();
         adminRDValue = bundleContext.getProperty(NeutronConstants.RD_PROPERTY_KEY);
     }
 
@@ -81,12 +81,12 @@ public class NeutronBgpvpnChangeListener extends AsyncDataTreeChangeListenerBase
     }
 
     @Override
+    // TODO Clean up the exception handling
+    @SuppressWarnings("checkstyle:IllegalCatch")
     protected void add(InstanceIdentifier<Bgpvpn> identifier, Bgpvpn input) {
         LOG.trace("Adding Bgpvpn : key: {}, value={}", identifier, input);
         if (isBgpvpnTypeL3(input.getType())) {
             // handle route-target(s)
-            List<String> importRouteTargets = new ArrayList<String>();
-            List<String> exportRouteTargets = new ArrayList<String>();
             List<String> inputRouteList = input.getRouteTargets();
             List<String> inputImportRouteList = input.getImportTargets();
             List<String> inputExportRouteList = input.getExportTargets();
@@ -104,6 +104,8 @@ public class NeutronBgpvpnChangeListener extends AsyncDataTreeChangeListenerBase
                 inputExportRouteSet.addAll(inputExportRouteList);
             }
 
+            List<String> importRouteTargets = new ArrayList<String>();
+            List<String> exportRouteTargets = new ArrayList<String>();
             importRouteTargets.addAll(inputImportRouteSet);
             exportRouteTargets.addAll(inputExportRouteSet);
 
@@ -126,8 +128,8 @@ public class NeutronBgpvpnChangeListener extends AsyncDataTreeChangeListenerBase
             }
             if (rd != null) {
                 try {
-                    nvpnManager.createL3Vpn(input.getUuid(), input.getName(), input.getTenantId(), rd, importRouteTargets,
-                            exportRouteTargets, router, input.getNetworks());
+                    nvpnManager.createL3Vpn(input.getUuid(), input.getName(), input.getTenantId(), rd,
+                        importRouteTargets, exportRouteTargets, router, input.getNetworks());
                 } catch (Exception e) {
                     LOG.error("Creation of BGPVPN {} failed with error message {}. ", input.getUuid(),
                             e.getMessage(), e);
@@ -216,16 +218,14 @@ public class NeutronBgpvpnChangeListener extends AsyncDataTreeChangeListenerBase
                 if (oldRouters.size() > 1 || newRouters.size() > 1) {
                     VpnMap vpnMap = NeutronvpnUtils.getVpnMap(dataBroker, vpnId);
                     if (vpnMap.getRouterId() != null) {
-                        LOG.warn("Only Single Router association  to a given bgpvpn is allowed .Kindly de-associate " +
-                                "router " + vpnMap.getRouterId().getValue() + " from vpn " + vpnId + " before " +
-                                "proceeding with associate");
+                        LOG.warn("Only Single Router association to a given bgpvpn is allowed. Kindly de-associate"
+                            + " router " + vpnMap.getRouterId().getValue()
+                            + " from vpn " + vpnId + " before proceeding with associate");
                     }
-                    return;
                 }
             } else if (validateRouteInfo(newRouters.get(0))) {
                 nvpnManager.associateRouterToVpn(vpnId, newRouters.get(0));
             }
-
         } else if (oldRouters != null && !oldRouters.isEmpty()) {
                 /* dissociate old router */
             Uuid oldRouter = oldRouters.get(0);

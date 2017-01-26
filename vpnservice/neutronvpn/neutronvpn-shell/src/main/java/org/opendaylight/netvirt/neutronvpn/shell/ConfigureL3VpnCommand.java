@@ -8,6 +8,11 @@
 
 package org.opendaylight.netvirt.neutronvpn.shell;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
 import org.apache.karaf.shell.commands.Command;
 import org.apache.karaf.shell.commands.Option;
 import org.apache.karaf.shell.console.OsgiCommandSupport;
@@ -25,17 +30,10 @@ import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
-
 @Command(scope = "vpnservice", name = "configure-l3vpn", description = "Create/Delete Neutron L3VPN")
 public class ConfigureL3VpnCommand extends OsgiCommandSupport {
 
-    final Logger Logger = LoggerFactory.getLogger(ConfigureL3VpnCommand.class);
-
+    private static final Logger LOG = LoggerFactory.getLogger(ConfigureL3VpnCommand.class);
     private INeutronVpnManager neutronVpnManager;
     private RpcProviderRegistry rpcProviderRegistry;
     private NeutronvpnService neutronvpnService;
@@ -109,6 +107,8 @@ public class ConfigureL3VpnCommand extends OsgiCommandSupport {
         return null;
     }
 
+    // TODO Clean up the exception handling
+    @SuppressWarnings("checkstyle:IllegalCatch")
     public void createL3VpnCLI() {
 
         if (vid == null) {
@@ -148,22 +148,21 @@ public class ConfigureL3VpnCommand extends OsgiCommandSupport {
             }
 
             List<L3vpn> l3vpns = new ArrayList<>();
-            L3vpn l3vpn = new L3vpnBuilder().setId(vuuid).setName(name).setRouteDistinguisher(rdList).setImportRT
-                    (irtList)
-                    .setExportRT(ertList).setTenantId(tuuid).build();
+            L3vpn l3vpn = new L3vpnBuilder().setId(vuuid).setName(name).setRouteDistinguisher(rdList)
+                .setImportRT(irtList).setExportRT(ertList).setTenantId(tuuid).build();
             l3vpns.add(l3vpn);
             Future<RpcResult<CreateL3VPNOutput>> result =
                     neutronvpnService.createL3VPN(new CreateL3VPNInputBuilder().setL3vpn(l3vpns).build());
             RpcResult<CreateL3VPNOutput> rpcResult = result.get();
             if (rpcResult.isSuccessful()) {
                 session.getConsole().println("L3VPN created successfully");
-                Logger.trace("createl3vpn: {}", result);
+                LOG.trace("createl3vpn: {}", result);
             } else {
                 session.getConsole().println("error populating createL3VPN : " + result.get().getErrors());
                 session.getConsole().println(getHelp("create"));
             }
         } catch (InterruptedException | ExecutionException e) {
-            Logger.error("error populating createL3VPN", e);
+            LOG.error("error populating createL3VPN", e);
             session.getConsole().println("error populating createL3VPN : " + e.getMessage());
             session.getConsole().println(getHelp("create"));
         }
@@ -182,11 +181,13 @@ public class ConfigureL3VpnCommand extends OsgiCommandSupport {
             }
 
         } catch (Exception e) {
-            Logger.error("error in adding subnet to VPN", e);
+            LOG.error("error in adding subnet to VPN", e);
             session.getConsole().println("error in adding subnet to VPN : " + e.getMessage());
         }
     }
 
+    // TODO Clean up the exception handling
+    @SuppressWarnings("checkstyle:IllegalCatch")
     public void deleteL3VpnCLI() {
 
         if (vid == null) {
@@ -203,7 +204,7 @@ public class ConfigureL3VpnCommand extends OsgiCommandSupport {
                 }
             }
         } catch (Exception e) {
-            Logger.error("error in deleting subnet from VPN", e);
+            LOG.error("error in deleting subnet from VPN", e);
             session.getConsole().println("error in deleting subnet from VPN : " + e.getMessage());
         }
 
@@ -216,13 +217,13 @@ public class ConfigureL3VpnCommand extends OsgiCommandSupport {
             RpcResult<DeleteL3VPNOutput> rpcResult = result.get();
             if (rpcResult.isSuccessful()) {
                 session.getConsole().println("L3VPN deleted successfully");
-                Logger.trace("deletel3vpn: {}", result);
+                LOG.trace("deletel3vpn: {}", result);
             } else {
                 session.getConsole().println("error populating deleteL3VPN : " + result.get().getErrors());
                 session.getConsole().println(getHelp("delete"));
             }
         } catch (InterruptedException | ExecutionException e) {
-            Logger.error("error populating deleteL3VPN", e);
+            LOG.error("error populating deleteL3VPN", e);
             session.getConsole().println("error populating deleteL3VPN : " + e.getMessage());
             session.getConsole().println(getHelp("delete"));
         }
@@ -244,6 +245,9 @@ public class ConfigureL3VpnCommand extends OsgiCommandSupport {
                 help.append("-rd/--rd <rd> -irt/--import-rts <irt1,irt2,..> -ert/--export-rts <ert1,ert2,..>\n");
                 help.append("[-sid/--subnet-uuid <subnet1,subnet2,..>]\n");
                 help.append("exec configure-vpn -op/--operation delete-l3-vpn -vid/--vpnid <id> \n");
+                break;
+            default:
+                break;
         }
         return help.toString();
     }

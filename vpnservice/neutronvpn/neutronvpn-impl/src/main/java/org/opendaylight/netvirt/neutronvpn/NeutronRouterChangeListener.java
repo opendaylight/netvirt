@@ -35,12 +35,13 @@ public class NeutronRouterChangeListener extends AsyncDataTreeChangeListenerBase
     private final NeutronvpnNatManager nvpnNatManager;
     private final NeutronSubnetGwMacResolver gwMacResolver;
 
-    public NeutronRouterChangeListener(final DataBroker dataBroker, final NeutronvpnManager nVpnMgr,
-                                       final NeutronvpnNatManager nVpnNatMgr, NeutronSubnetGwMacResolver gwMacResolver) {
+    public NeutronRouterChangeListener(final DataBroker dataBroker, final NeutronvpnManager neutronvpnManager,
+                                       final NeutronvpnNatManager neutronvpnNatManager,
+                                       NeutronSubnetGwMacResolver gwMacResolver) {
         super(Router.class, NeutronRouterChangeListener.class);
         this.dataBroker = dataBroker;
-        nvpnManager = nVpnMgr;
-        nvpnNatManager = nVpnNatMgr;
+        nvpnManager = neutronvpnManager;
+        nvpnNatManager = neutronvpnNatManager;
         this.gwMacResolver = gwMacResolver;
     }
 
@@ -132,7 +133,8 @@ public class NeutronRouterChangeListener extends AsyncDataTreeChangeListenerBase
             if ( interVpnLink.isPresent() ) {
                 Optional<InterVpnLinkState> interVpnLinkState =
                         NeutronvpnUtils.getInterVpnLinkState(dataBroker, interVpnLink.get().getName());
-                if ( interVpnLinkState.isPresent() && interVpnLinkState.get().getState() == InterVpnLinkState.State.Active) {
+                if ( interVpnLinkState.isPresent()
+                    && interVpnLinkState.get().getState() == InterVpnLinkState.State.Active) {
                     interVpnLinkRoutes.add(route);
                     nexthopsXinterVpnLinks.put(nextHop, interVpnLink.get());
                 } else {
