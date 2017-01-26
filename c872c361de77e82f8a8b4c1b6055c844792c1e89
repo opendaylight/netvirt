@@ -36,6 +36,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_8a63aab0",
+        "filename": "vpnservice/statistics-plugin/impl/src/main/java/org/opendaylight/statisticsplugin/impl/CounterRequestType.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 2589
+      },
+      "writtenOn": "2017-01-26T14:26:10Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_d569d826",
+      "revId": "c872c361de77e82f8a8b4c1b6055c844792c1e89",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_d550b860",
         "filename": "vpnservice/statistics-plugin/impl/src/main/java/org/opendaylight/statisticsplugin/impl/CounterResultDataStructure.java",
         "patchSetId": 4
@@ -47,6 +65,24 @@
       "writtenOn": "2017-01-26T08:05:44Z",
       "side": 1,
       "message": "is it valid to assume that all results will have the same counter names?",
+      "revId": "c872c361de77e82f8a8b4c1b6055c844792c1e89",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_ca5db2eb",
+        "filename": "vpnservice/statistics-plugin/impl/src/main/java/org/opendaylight/statisticsplugin/impl/CounterResultDataStructure.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 85,
+      "author": {
+        "id": 2589
+      },
+      "writtenOn": "2017-01-26T14:26:10Z",
+      "side": 1,
+      "message": "I assume that each instance of this class will have a unified structure.",
+      "parentUuid": "fafc7978_d550b860",
       "revId": "c872c361de77e82f8a8b4c1b6055c844792c1e89",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -70,6 +106,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_4a00a2aa",
+        "filename": "vpnservice/statistics-plugin/impl/src/main/java/org/opendaylight/statisticsplugin/impl/CounterRetriever.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 235,
+      "author": {
+        "id": 2589
+      },
+      "writtenOn": "2017-01-26T14:26:10Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_35778404",
+      "revId": "c872c361de77e82f8a8b4c1b6055c844792c1e89",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_157400fc",
         "filename": "vpnservice/statistics-plugin/impl/src/main/java/org/opendaylight/statisticsplugin/impl/CounterRetriever.java",
         "patchSetId": 4
@@ -81,6 +135,24 @@
       "writtenOn": "2017-01-26T08:05:44Z",
       "side": 1,
       "message": "read timeout from configuration",
+      "revId": "c872c361de77e82f8a8b4c1b6055c844792c1e89",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_aa2cae4b",
+        "filename": "vpnservice/statistics-plugin/impl/src/main/java/org/opendaylight/statisticsplugin/impl/CounterRetriever.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 274,
+      "author": {
+        "id": 2589
+      },
+      "writtenOn": "2017-01-26T14:26:10Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_157400fc",
       "revId": "c872c361de77e82f8a8b4c1b6055c844792c1e89",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -104,6 +176,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_8a31eaa4",
+        "filename": "vpnservice/statistics-plugin/impl/src/main/java/org/opendaylight/statisticsplugin/impl/CounterRetriever.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 276,
+      "author": {
+        "id": 2589
+      },
+      "writtenOn": "2017-01-26T14:26:10Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_7560ec35",
+      "revId": "c872c361de77e82f8a8b4c1b6055c844792c1e89",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_b55a5481",
         "filename": "vpnservice/statistics-plugin/impl/src/main/java/org/opendaylight/statisticsplugin/impl/CounterRetriever.java",
         "patchSetId": 4
@@ -115,6 +205,24 @@
       "writtenOn": "2017-01-26T08:05:44Z",
       "side": 1,
       "message": "add this functionality to CounterResultDataStructure",
+      "revId": "c872c361de77e82f8a8b4c1b6055c844792c1e89",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_2acefe83",
+        "filename": "vpnservice/statistics-plugin/impl/src/main/java/org/opendaylight/statisticsplugin/impl/CounterRetriever.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 297,
+      "author": {
+        "id": 2589
+      },
+      "writtenOn": "2017-01-26T14:26:10Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_b55a5481",
       "revId": "c872c361de77e82f8a8b4c1b6055c844792c1e89",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -138,6 +246,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_ca2bf22e",
+        "filename": "vpnservice/statistics-plugin/impl/src/main/java/org/opendaylight/statisticsplugin/impl/CountersUtils.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 81,
+      "author": {
+        "id": 2589
+      },
+      "writtenOn": "2017-01-26T14:26:10Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_354e64c2",
+      "revId": "c872c361de77e82f8a8b4c1b6055c844792c1e89",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_154b60b1",
         "filename": "vpnservice/statistics-plugin/impl/src/main/java/org/opendaylight/statisticsplugin/impl/StatisticsPluginImpl.java",
         "patchSetId": 4
@@ -149,6 +275,24 @@
       "writtenOn": "2017-01-26T08:05:44Z",
       "side": 1,
       "message": "add counters to all relevant cases (rpc call/failed rpc/success rpc...)",
+      "revId": "c872c361de77e82f8a8b4c1b6055c844792c1e89",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_6a1ac618",
+        "filename": "vpnservice/statistics-plugin/impl/src/main/java/org/opendaylight/statisticsplugin/impl/StatisticsPluginImpl.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 55,
+      "author": {
+        "id": 2589
+      },
+      "writtenOn": "2017-01-26T14:26:10Z",
+      "side": 1,
+      "message": "I don\u0027t think counters should be added for success scenarios - it is not useful for debug purposes. I will add counters for failure scenarios that are interesting.",
+      "parentUuid": "fafc7978_154b60b1",
       "revId": "c872c361de77e82f8a8b4c1b6055c844792c1e89",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -172,6 +316,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_6af126cd",
+        "filename": "vpnservice/statistics-plugin/impl/src/main/java/org/opendaylight/statisticsplugin/impl/StatisticsPluginImpl.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 64,
+      "author": {
+        "id": 2589
+      },
+      "writtenOn": "2017-01-26T14:26:10Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_75c74c13",
+      "revId": "c872c361de77e82f8a8b4c1b6055c844792c1e89",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_55ccc835",
         "filename": "vpnservice/statistics-plugin/impl/src/main/java/org/opendaylight/statisticsplugin/impl/StatisticsPluginImpl.java",
         "patchSetId": 4
@@ -183,6 +345,24 @@
       "writtenOn": "2017-01-26T08:05:44Z",
       "side": 1,
       "message": "return an error",
+      "revId": "c872c361de77e82f8a8b4c1b6055c844792c1e89",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_aabaeede",
+        "filename": "vpnservice/statistics-plugin/impl/src/main/java/org/opendaylight/statisticsplugin/impl/StatisticsPluginImpl.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 67,
+      "author": {
+        "id": 2589
+      },
+      "writtenOn": "2017-01-26T14:26:10Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_55ccc835",
       "revId": "c872c361de77e82f8a8b4c1b6055c844792c1e89",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -206,6 +386,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_eab4f6f3",
+        "filename": "vpnservice/statistics-plugin/impl/src/main/java/org/opendaylight/statisticsplugin/impl/StatisticsPluginImpl.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 84,
+      "author": {
+        "id": 2589
+      },
+      "writtenOn": "2017-01-26T14:26:10Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_b5d1b4cf",
+      "revId": "c872c361de77e82f8a8b4c1b6055c844792c1e89",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_95d630c4",
         "filename": "vpnservice/statistics-plugin/impl/src/main/java/org/opendaylight/statisticsplugin/impl/StatisticsPluginImpl.java",
         "patchSetId": 4
@@ -223,6 +421,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_8abf2ad0",
+        "filename": "vpnservice/statistics-plugin/impl/src/main/java/org/opendaylight/statisticsplugin/impl/StatisticsPluginImpl.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 88,
+      "author": {
+        "id": 2589
+      },
+      "writtenOn": "2017-01-26T14:26:10Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_95d630c4",
+      "revId": "c872c361de77e82f8a8b4c1b6055c844792c1e89",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_f5da1ce8",
         "filename": "vpnservice/statistics-plugin/impl/src/main/java/org/opendaylight/statisticsplugin/impl/StatisticsPluginImpl.java",
         "patchSetId": 4
@@ -234,6 +450,24 @@
       "writtenOn": "2017-01-26T08:05:44Z",
       "side": 1,
       "message": "Lower",
+      "revId": "c872c361de77e82f8a8b4c1b6055c844792c1e89",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_cab932eb",
+        "filename": "vpnservice/statistics-plugin/impl/src/main/java/org/opendaylight/statisticsplugin/impl/StatisticsPluginImpl.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 111,
+      "author": {
+        "id": 2589
+      },
+      "writtenOn": "2017-01-26T14:26:10Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_f5da1ce8",
       "revId": "c872c361de77e82f8a8b4c1b6055c844792c1e89",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
