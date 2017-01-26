@@ -232,6 +232,30 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_aaa14eab",
+        "filename": "docs/specs/ipv6-distributed-router.rst",
+        "patchSetId": 1
+      },
+      "lineNbr": 48,
+      "author": {
+        "id": 4534
+      },
+      "writtenOn": "2017-01-26T14:25:59Z",
+      "side": 1,
+      "message": "agree on issues and approach. the bgpvpn service plugin workgroup has also been working on different n/w provider types, like adding vxlan support for evpns. this would be an alternate avenue for getting the NB orchestration constructs in place for vlan provider n/ws.\nre auto-population, the bgpvpn is currently used for ipv4/vxlan to advertise floating IPs and snat IPs to the g/w, so this could be easily re-used for vlan provider networks as well. it does need an extra orchestration step of associating the external n/w with an \u0027internet\u0027 vpn.",
+      "parentUuid": "fafc7978_a387c20e",
+      "range": {
+        "startLine": 47,
+        "startChar": 28,
+        "endLine": 48,
+        "endChar": 29
+      },
+      "revId": "976d7bbd2030e84f67b3b82780adbe501390d954",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_ad8bba66",
         "filename": "docs/specs/ipv6-distributed-router.rst",
         "patchSetId": 1
@@ -261,6 +285,24 @@
       "side": 1,
       "message": "yes @Vivek, I was also thinking of the same. \n\nOne issue is - how do we get this info to ODL, since neutron.conf is not parsed/read by ODL Controller.\nDo you think we should provide some REST API to configure this in ODL (with the default value as what OpenStack neutron uses - i.e., fa:16:3f:00:00:00)?",
       "parentUuid": "1a622d24_ad8bba66",
+      "revId": "976d7bbd2030e84f67b3b82780adbe501390d954",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_6a4e46c3",
+        "filename": "docs/specs/ipv6-distributed-router.rst",
+        "patchSetId": 1
+      },
+      "lineNbr": 70,
+      "author": {
+        "id": 4534
+      },
+      "writtenOn": "2017-01-26T14:25:59Z",
+      "side": 1,
+      "message": "so, to summarize for my understanding, host_macs per compute will not be implemented in phase 1 i.e a centralized approach, for N-S.\nwill you allocate host_macs for the SNAT switch to support multiple subnets in the external n/w or would you rely on the i/f macs in the snat vswitches in each of the subnets? IMO, using i/f macs would be sufficient with the centralized approach.\nfor E-W, we continue with existing mechanisms similar to what is used for IPv4?",
+      "parentUuid": "1a622d24_2813180e",
       "revId": "976d7bbd2030e84f67b3b82780adbe501390d954",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
