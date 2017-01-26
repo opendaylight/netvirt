@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_6aaac61a",
+        "filename": "vpnservice/statistics-plugin/impl/pom.xml",
+        "patchSetId": 4
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 2589
+      },
+      "writtenOn": "2017-01-26T14:45:01Z",
+      "side": 1,
+      "message": "These are different methods from different files. I won\u0027t move all of them to the \u0027api\u0027 package since it is too much of refactoring. I can copy these methods to our \u0027CounterUtils.java\u0027, but other components in netvirt vpn are also depending on \"impl\" packages",
+      "parentUuid": "fafc7978_f56cdc38",
+      "revId": "c872c361de77e82f8a8b4c1b6055c844792c1e89",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_d569d826",
         "filename": "vpnservice/statistics-plugin/impl/src/main/java/org/opendaylight/statisticsplugin/impl/CounterRequestType.java",
         "patchSetId": 4
