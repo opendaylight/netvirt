@@ -53,6 +53,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_5565e843",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 9
+      },
+      "lineNbr": 1152,
+      "author": {
+        "id": 6550
+      },
+      "writtenOn": "2017-01-26T07:55:18Z",
+      "side": 1,
+      "message": "Since were not terminating the request/event handling by returning/throwing error, thought we log with warning message and continue processing the request.",
+      "parentUuid": "fafc7978_291733ef",
+      "revId": "78222d685ef9289d925a1bbae2cff3e238145e30",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_e9e36b03",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnUtil.java",
         "patchSetId": 9
@@ -64,6 +82,24 @@
       "writtenOn": "2017-01-25T13:25:08Z",
       "side": 1,
       "message": "i meant cant the last be \n :java.util.Optional.absent().",
+      "revId": "78222d685ef9289d925a1bbae2cff3e238145e30",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_955f5072",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnUtil.java",
+        "patchSetId": 9
+      },
+      "lineNbr": 1350,
+      "author": {
+        "id": 6550
+      },
+      "writtenOn": "2017-01-26T07:55:18Z",
+      "side": 1,
+      "message": "No, absent method of guava Optional is renamed to empty in Java SE Optional. I\u0027m replacing ternary operator with below. code\n\nreturn java.util.Optional.ofNullable(gwPort.orNull());",
+      "parentUuid": "fafc7978_e9e36b03",
       "revId": "78222d685ef9289d925a1bbae2cff3e238145e30",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
