@@ -8,13 +8,12 @@
 
 package org.opendaylight.netvirt.bgpmanager.oam;
 
-import javax.management.NotificationBroadcasterSupport;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+import javax.management.NotificationBroadcasterSupport;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**

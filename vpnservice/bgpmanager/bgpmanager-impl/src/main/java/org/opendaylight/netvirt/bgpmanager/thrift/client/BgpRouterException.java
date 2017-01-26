@@ -8,21 +8,35 @@
 
 package org.opendaylight.netvirt.bgpmanager.thrift.client;
 
-import org.opendaylight.netvirt.bgpmanager.thrift.gen.qbgpConstants;
+import com.google.common.collect.ImmutableBiMap;
+import java.util.Map;
+import org.opendaylight.netvirt.bgpmanager.thrift.gen.QbgpConstants;
 
 public class BgpRouterException extends Exception {
-    public final static int BGP_ERR_INITED = 101;
-    public final static int BGP_ERR_NOT_INITED = 102;
-    public final static int BGP_ERR_IN_ITER =  103;
+    public static final int BGP_ERR_INITED = 101;
+    public static final int BGP_ERR_NOT_INITED = 102;
+    public static final int BGP_ERR_IN_ITER = 103;
 
     // the following consts are server-dictated. do not modify
-    public final static int BGP_ERR_FAILED = qbgpConstants. BGP_ERR_FAILED;
-    public final static int BGP_ERR_ACTIVE = qbgpConstants.BGP_ERR_ACTIVE;
-    public final static int BGP_ERR_INACTIVE = qbgpConstants.BGP_ERR_INACTIVE; 
-    public final static int BGP_ERR_NOT_ITER =  qbgpConstants.BGP_ERR_NOT_ITER;
-    public final static int BGP_ERR_PARAM = qbgpConstants.BGP_ERR_PARAM;
+    public static final int BGP_ERR_FAILED = QbgpConstants.BGP_ERR_FAILED;
+    public static final int BGP_ERR_ACTIVE = QbgpConstants.BGP_ERR_ACTIVE;
+    public static final int BGP_ERR_INACTIVE = QbgpConstants.BGP_ERR_INACTIVE;
+    public static final int BGP_ERR_NOT_ITER = QbgpConstants.BGP_ERR_NOT_ITER;
+    public static final int BGP_ERR_PARAM = QbgpConstants.BGP_ERR_PARAM;
 
-    private int errcode;
+    private static final Map<Integer, String> MESSAGES = ImmutableBiMap.<Integer, String>builder()
+            .put(BGP_ERR_INITED, "(" + BGP_ERR_INITED + ") Attempt to reinitialize BgpRouter thrift client")
+            .put(BGP_ERR_NOT_INITED, "(" + BGP_ERR_NOT_INITED + ") BgpRouter thrift client was not initialized")
+            .put(BGP_ERR_FAILED, "(" + BGP_ERR_FAILED + ") Error reported by BGP, check qbgp.log")
+            .put(BGP_ERR_ACTIVE, "(" + BGP_ERR_ACTIVE + ") Attempt to start router instance when already active")
+            .put(BGP_ERR_INACTIVE, "(" + BGP_ERR_INACTIVE + ") Router instance is not active")
+            .put(BGP_ERR_IN_ITER,
+                    "(" + BGP_ERR_IN_ITER + ") Attempt to start route iteration when already in the middle of one")
+            .put(BGP_ERR_NOT_ITER, "(" + BGP_ERR_NOT_ITER + ") Route iteration not initialized")
+            .put(BGP_ERR_PARAM, "(" + BGP_ERR_PARAM + ") Parameter validation or Unknown error")
+            .build();
+
+    private final int errcode;
 
     public BgpRouterException(int cause) {
         errcode = cause;
@@ -33,38 +47,10 @@ public class BgpRouterException extends Exception {
     }
 
     public String toString() {
-      String s = "("+errcode+") ";
-
-      switch (errcode) {
-        case BGP_ERR_INITED :
-            s += "Attempt to reinitialize BgpRouter thrift client";
-            break;
-        case BGP_ERR_NOT_INITED :
-            s += "BgpRouter thrift client was not initialized";
-            break;
-        case BGP_ERR_FAILED :
-            s += "Error reported by BGP, check qbgp.log";
-            break;
-        case BGP_ERR_ACTIVE : 
-            s += "Attempt to start router instance when already active";
-            break;
-        case BGP_ERR_INACTIVE : 
-            s += "Router instance is not active";
-            break;
-        case BGP_ERR_IN_ITER :
-            s += "Attempt to start route iteration when already "+
-                 "in the middle of one";
-            break;
-        case BGP_ERR_NOT_ITER :
-            s += "Route iteration not initialized";
-            break;
-        case BGP_ERR_PARAM :
-            s += "Parameter validation or Unknown error";
-            break;
-        default : 
-            s += "Unknown error";
-            break;
-     }
-     return s;
-   }
+        String message = MESSAGES.get(errcode);
+        if (message != null) {
+            return message;
+        }
+        return "(" + errcode + ") Unknown error";
+    }
 }

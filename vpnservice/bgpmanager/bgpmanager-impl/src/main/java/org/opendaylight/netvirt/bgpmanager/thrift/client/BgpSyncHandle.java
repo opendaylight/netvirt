@@ -29,19 +29,19 @@ public class BgpSyncHandle {
     public static final int DEFAULT_TCP_SOCK_SZ = 87380;    //default receive buffer size on linux > 2.4
 
     private BgpSyncHandle() {
-        more = 1; 
+        more = 1;
         state = NEVER_DONE;
     }
 
     public static synchronized BgpSyncHandle getInstance() {
-       if (handle == null) {
-           handle = new BgpSyncHandle();
-       }
-       return handle;
+        if (handle == null) {
+            handle = new BgpSyncHandle();
+        }
+        return handle;
     }
 
     public synchronized int getState() {
-       return state;
+        return state;
     }
 
     public int getMaxCount() {
@@ -58,31 +58,28 @@ public class BgpSyncHandle {
         } catch (IOException e) {
             LOGGER.warn("IO Exception while closing socket for retrieving default socket buffer size");
         }
-        return sockBufSz/getRouteSize();
+        return sockBufSz / getRouteSize();
     }
 
     public int getRouteSize() {
-       //size of one update structure on the wire. ideally
-       //this should be computed; or thrift sure has a nice
-       //way to tell this to the applciation, but for the
-       //moment, we just use 8 bytes more than the size of 
-       //the C struct. 
+        //size of one update structure on the wire. ideally
+        //this should be computed; or thrift sure has a nice
+        //way to tell this to the applciation, but for the
+        //moment, we just use 8 bytes more than the size of
+        //the C struct.
 
-       return 96;
+        return 96;
     }
 
     public int setState(int state) {
-       int retval = this.state;
-       this.state = state;
-       return retval;
+        int retval = this.state;
+        this.state = state;
+        return retval;
     }
 
     public int setMore(int more) {
-       int retval = this.more;
-       this.more = more;
-       return retval;
+        int retval = this.more;
+        this.more = more;
+        return retval;
     }
 }
-
-        
-  

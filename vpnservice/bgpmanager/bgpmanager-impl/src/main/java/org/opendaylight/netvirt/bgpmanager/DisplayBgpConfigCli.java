@@ -9,9 +9,7 @@
 package org.opendaylight.netvirt.bgpmanager;
 import java.io.PrintStream;
 import java.util.ArrayList;
-import java.util.concurrent.Future;
 
-import com.google.common.base.Optional;
 import org.apache.karaf.shell.commands.Command;
 import org.apache.karaf.shell.commands.Option;
 import org.apache.karaf.shell.console.OsgiCommandSupport;
@@ -46,7 +44,7 @@ public class DisplayBgpConfigCli extends OsgiCommandSupport {
             //last ODL started BGP due to configuration trigger TS
             ps.printf("Last ODL started BGP at: %s\n", new Date(bm.getStartTS()));
             //last Quagga attempted to RESTART the connection
-            ps.printf("Last Quagga BGP, sent reSync at: %s\n", new Date(bm.getqBGPrestartTS()));
+            ps.printf("Last Quagga BGP, sent reSync at: %s\n", new Date(bm.getQbgprestartTS()));
 
             //stale cleanup start - end TS
             ps.printf("Time taken to create stale fib : %s ms\n", bm.getStaleEndTime() - bm.getStaleStartTime());

@@ -33,74 +33,72 @@ public class VtyshCli extends OsgiCommandSupport {
     private static int serverPort = 2605;
     private static String serverName = "localhost";
     private static int handlerModule = 0;
-    private static final int BGPd = 1;
+    private static final int BGPD = 1;
     public static String passwordCheckStr = "Password:";
     public static String vtyPassword = "sdncbgpc";
     public static String noPaginationCmd = "terminal length 0";
     public static int sockTimeout = 5;
 
-    String[] validCommands = new String[]{
-            "display routing ip bgp vpnv4 all",
-            "display routing ip bgp vpnv4 rd <rd>",
-            "display routing ip bgp vpnv4 all neighbors",
-            "display routing ip bgp vpnv4 all neighbors  <ip> routes",
-            "display routing ip bgp vpnv4 all  <ip/mask>",
-            "display routing ip bgp vpnv4 all summary",
-            "display routing ip bgp vpnv4 all tags",
-            "display routing ip bgp vpnv4 rd <rd>  tags",
-            "display routing ip bgp vpnv4 rd <rd>  <ip>",
-            "display routing ip bgp vpnv4 rd <rd>  <ip/mask>",
-            "display routing ip bgp neighbors",
-            "display routing ip bgp summary",
-            "display routing ip bgp ipv4 unicast",
-            "display routing ip bgp ipv4 unicast <ip/mask>",
-            "display routing bgp neighbors",
-            "display routing bgp neighbors <ip>",
-            "display routing bgp ipv4 unicast <ip>",
-            "display routing bgp ipv4 unicast <ip/mask>"
+    String[] validCommands = new String[] {
+        "display routing ip bgp vpnv4 all",
+        "display routing ip bgp vpnv4 rd <rd>",
+        "display routing ip bgp vpnv4 all neighbors",
+        "display routing ip bgp vpnv4 all neighbors  <ip> routes",
+        "display routing ip bgp vpnv4 all  <ip/mask>",
+        "display routing ip bgp vpnv4 all summary",
+        "display routing ip bgp vpnv4 all tags",
+        "display routing ip bgp vpnv4 rd <rd>  tags",
+        "display routing ip bgp vpnv4 rd <rd>  <ip>",
+        "display routing ip bgp vpnv4 rd <rd>  <ip/mask>",
+        "display routing ip bgp neighbors",
+        "display routing ip bgp summary",
+        "display routing ip bgp ipv4 unicast",
+        "display routing ip bgp ipv4 unicast <ip/mask>",
+        "display routing bgp neighbors",
+        "display routing bgp neighbors <ip>",
+        "display routing bgp ipv4 unicast <ip>",
+        "display routing bgp ipv4 unicast <ip/mask>"
     };
-    private static final Logger logger = LoggerFactory.getLogger(VtyshCli.class);
+    private static final Logger LOG = LoggerFactory.getLogger(VtyshCli.class);
 
-    // @Override
+    @Override
     protected Object doExecute() throws Exception {
-        String sArg;
         cmd = cmd.trim();
-        if (cmd.equals("") || cmd.equals("help") ||
-            cmd.equals("-help") || cmd.equals("--help")) {
+        if (cmd.equals("") || cmd.equals("help") || cmd.equals("-help") || cmd.equals("--help")) {
             for (String help : validCommands) {
-                System.out.println(help);
+                session.getConsole().println(help);
             }
             return null;
         }
-        String args[] = cmd.split(" ");
+        String[] args = cmd.split(" ");
         if (args.length == 0) {
             return null;
         }
-        sArg = args[0];
-        if (sArg == null || sArg.trim().equals("")) {
-            System.out.println("Please provide a valid input.");
+        String firstArg = args[0];
+        if (firstArg == null || firstArg.trim().equals("")) {
+            session.getConsole().println("Please provide a valid input.");
             return null;
         }
-        switch (sArg) {
-        case "ip":
-        case "bgp":
-            handlerModule = BGPd;
-            break;
-        default:
-            System.out.println("Unknown command");
-            return null;
+        switch (firstArg) {
+            case "ip":
+            case "bgp":
+                handlerModule = BGPD;
+                break;
+            default:
+                session.getConsole().println("Unknown command");
+                return null;
         }
 
         switch (handlerModule) {
-        case BGPd:
-            try {
-                handleCommand(sArg, cmd);
-            } catch (IOException ioe) {
-                System.out.println("IOException thrown.");
-            }
-            break;
-        default:
-            break;
+            case BGPD:
+                try {
+                    handleCommand(firstArg, cmd);
+                } catch (IOException ioe) {
+                    session.getConsole().println("IOException thrown.");
+                }
+                break;
+            default:
+                break;
         }
         return null;
     }

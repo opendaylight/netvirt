@@ -13,7 +13,7 @@ import org.apache.karaf.shell.commands.Command;
 import org.apache.karaf.shell.commands.Option;
 import org.apache.karaf.shell.console.OsgiCommandSupport;
 import org.opendaylight.netvirt.bgpmanager.BgpManager;
-import org.opendaylight.netvirt.bgpmanager.thrift.gen.qbgpConstants;
+import org.opendaylight.netvirt.bgpmanager.thrift.gen.QbgpConstants;
 import org.opendaylight.netvirt.fibmanager.api.RouteOrigin;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -70,7 +70,7 @@ public class Network extends OsgiCommandSupport {
         BgpManager bm = Commands.getBgpManager();
         switch (action) {
             case "add":
-                int label = qbgpConstants.LBL_EXPLICIT_NULL;
+                int label = QbgpConstants.LBL_EXPLICIT_NULL;
                 if (pfx == null ) {
                     System.err.println("error: "+PFX+" is needed");
                     return null;
