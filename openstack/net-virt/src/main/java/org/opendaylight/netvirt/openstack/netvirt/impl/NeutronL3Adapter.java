@@ -940,16 +940,22 @@ public class NeutronL3Adapter extends AbstractHandler implements GatewayMacResol
     }
 
     private boolean isPortSecurityEnableUpdated(NeutronPort neutronPort) {
-        LOG.trace("isPortSecuirtyEnableUpdated:" + neutronPort);
-        if (neutronPort != null
-                && neutronPort.getOriginalPort() != null
-                && neutronPort.getOriginalPort().getPortSecurityEnabled() != null
-                && neutronPort.getPortSecurityEnabled() != null
-                && neutronPort.getOriginalPort().getPortSecurityEnabled() != neutronPort
-                        .getPortSecurityEnabled()) {
-            return true;
+        LOG.trace("isPortSecurityEnableUpdated: {}", neutronPort);
+        if (neutronPort == null) {
+            return false;
         }
-        return false;
+
+        NeutronPort originalPort = neutronPort.getOriginalPort();
+        if (originalPort == null) {
+            return false;
+        }
+
+        Boolean originalPortSecurityEnabled = originalPort.getPortSecurityEnabled();
+        if (originalPortSecurityEnabled == null) {
+            return false;
+        }
+
+        return originalPortSecurityEnabled.equals(neutronPort.getPortSecurityEnabled());
     }
 
 

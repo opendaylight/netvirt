@@ -1142,13 +1142,16 @@ public class OF13Provider implements ConfigInterface, NetworkingProvider {
                         if (segId != null && netType != null && dstAddr != null) {
                             programTunnelRules(netType, segId, dstAddr, srcBridgeNode, port, false);
                         }
-                    }
 
-                    if (network == tenantNetworkManager.getTenantNetwork(port)){
-                        programTunnelRules(networkType, segmentationId, dst, srcBridgeNode, port, false);
-                    }
-                    else{
-                        LOG.trace("Port {} is not part of network {}", port, network);
+                        String networkUUID = network.getNetworkUUID();
+                        String networkUUIDofTargetPort = neutronNetwork.getNetworkUUID();
+                        if (networkUUID != null && networkUUID.equals(networkUUIDofTargetPort)) {
+                            // TODO: Not sure why this is needed. Need to understand before asking reviews.
+                            programTunnelRules(networkType, segmentationId, dst, srcBridgeNode, port, false);
+                        }
+                        else{
+                            LOG.trace("Port {} is not part of network {}", port, network);
+                        }
                     }
                 }
             }
