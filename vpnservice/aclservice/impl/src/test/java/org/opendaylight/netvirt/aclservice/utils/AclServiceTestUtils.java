@@ -26,11 +26,14 @@ import java.util.stream.Stream;
 
 import org.junit.Assert;
 import org.opendaylight.genius.mdsalutil.ActionInfo;
+import org.opendaylight.genius.mdsalutil.InstructionInfo;
 import org.opendaylight.genius.mdsalutil.MatchInfo;
 import org.opendaylight.genius.mdsalutil.MatchInfoBase;
 import org.opendaylight.genius.mdsalutil.NxMatchFieldType;
 import org.opendaylight.genius.mdsalutil.NxMatchInfo;
 import org.opendaylight.genius.mdsalutil.actions.ActionLearn;
+import org.opendaylight.genius.mdsalutil.instructions.InstructionApplyActions;
+import org.opendaylight.genius.mdsalutil.instructions.InstructionGotoTable;
 import org.opendaylight.genius.mdsalutil.matches.MatchEthernetType;
 import org.opendaylight.genius.mdsalutil.matches.MatchIpProtocol;
 import org.opendaylight.genius.mdsalutil.matches.MatchIpv4Destination;
@@ -156,12 +159,30 @@ public class AclServiceTestUtils {
         return Stream.of(names).map(name -> new Uuid(name)).collect(Collectors.toList());
     }
 
+    public static void verifyActionTypeExist(InstructionInfo instructionInfo, Class<? extends ActionInfo> actionType) {
+        if (instructionInfo instanceof InstructionApplyActions) {
+            verifyActionTypeExist(((InstructionApplyActions) instructionInfo).getActionInfos(), actionType);
+        }
+    }
+
     public static void verifyActionTypeExist(List<ActionInfo> flowActions, Class<? extends ActionInfo> actionType) {
         assertTrue(flowActions.stream().anyMatch(actionInfo -> actionInfo.getClass().equals(actionType)));
     }
 
+    public static void verifyActionInfo(InstructionInfo instructionInfo, ActionInfo actionInfo) {
+        if (instructionInfo instanceof InstructionApplyActions) {
+            verifyActionInfo(((InstructionApplyActions) instructionInfo).getActionInfos(), actionInfo);
+        }
+    }
+
     public static void verifyActionInfo(List<ActionInfo> flowActions, ActionInfo actionInfo) {
         assertTrue(flowActions.contains(actionInfo));
+    }
+
+    public static void verifyActionLearn(InstructionInfo instructionInfo, ActionLearn actionLearn) {
+        if (instructionInfo instanceof InstructionApplyActions) {
+            verifyActionLearn(((InstructionApplyActions) instructionInfo).getActionInfos(), actionLearn);
+        }
     }
 
     public static void verifyActionLearn(List<ActionInfo> flowActions, ActionLearn actionLearn) {
