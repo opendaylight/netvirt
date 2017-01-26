@@ -112,7 +112,7 @@ public class StatelessEgressAclServiceImplTest {
         AclServiceTestUtils.verifyMatchInfo(firstRangeFlow.getMatchInfoList(),
                 NxMatchFieldType.nx_tcp_dst_with_mask, "80", "65535");
         assertTrue(firstRangeFlow.getMatchInfoList().contains(new MatchTcpFlags(2)));
-        AclServiceTestUtils.verifyActionInfo(firstRangeFlow.getInstructionInfoList().get(0).getActionInfos(),
+        AclServiceTestUtils.verifyActionInfo(firstRangeFlow.getInstructionInfoList().get(0),
                 new ActionNxResubmit(NwConstants.LPORT_DISPATCHER_TABLE));
 
     }
@@ -125,7 +125,7 @@ public class StatelessEgressAclServiceImplTest {
         assertEquals(10, installFlowValueSaver.getNumOfInvocations());
 
         FlowEntity firstRangeFlow = (FlowEntity) installFlowValueSaver.getInvocationParams(9).get(0);
-        AclServiceTestUtils.verifyActionInfo(firstRangeFlow.getInstructionInfoList().get(0).getActionInfos(),
+        AclServiceTestUtils.verifyActionInfo(firstRangeFlow.getInstructionInfoList().get(0),
                 new ActionNxResubmit(NwConstants.LPORT_DISPATCHER_TABLE));
     }
 

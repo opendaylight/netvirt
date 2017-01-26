@@ -112,7 +112,7 @@ public class StatelessIngressAclServiceImplTest {
         AclServiceTestUtils.verifyMatchInfo(firstRangeFlow.getMatchInfoList(),
                 NxMatchFieldType.nx_tcp_dst_with_mask, "80", "65535");
         assertTrue(firstRangeFlow.getMatchInfoList().contains(new MatchTcpFlags(2)));
-        AclServiceTestUtils.verifyActionInfo(firstRangeFlow.getInstructionInfoList().get(0).getActionInfos(),
+        AclServiceTestUtils.verifyActionInfo(firstRangeFlow.getInstructionInfoList().get(0),
                 new ActionNxResubmit(NwConstants.EGRESS_LPORT_DISPATCHER_TABLE));
     }
 
@@ -124,7 +124,7 @@ public class StatelessIngressAclServiceImplTest {
         assertEquals(7, installFlowValueSaver.getNumOfInvocations());
 
         FlowEntity firstRangeFlow = (FlowEntity) installFlowValueSaver.getInvocationParams(6).get(0);
-        AclServiceTestUtils.verifyActionInfo(firstRangeFlow.getInstructionInfoList().get(0).getActionInfos(),
+        AclServiceTestUtils.verifyActionInfo(firstRangeFlow.getInstructionInfoList().get(0),
                 new ActionNxResubmit(NwConstants.EGRESS_LPORT_DISPATCHER_TABLE));
     }
 
