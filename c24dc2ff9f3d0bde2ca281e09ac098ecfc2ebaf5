@@ -143,6 +143,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_cae2d202",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/NexthopManager.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 377,
+      "author": {
+        "id": 6465
+      },
+      "writtenOn": "2017-01-26T13:05:57Z",
+      "side": 1,
+      "message": "Vivek,\nwe have observed a situation when the prefix-to-interface entry is missed in the operational DS while VRFEntryListener is called and tries to create FIB entry (Bug 7685). The failures were sporadic only and we haven\u0027t debug logs. Could you advise please how to treat this sort of problems?\nThanks in advance.",
+      "parentUuid": "fafc7978_7cbbc672",
+      "revId": "c24dc2ff9f3d0bde2ca281e09ac098ecfc2ebaf5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_a309852e",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
         "patchSetId": 8
