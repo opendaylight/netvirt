@@ -100,7 +100,7 @@ public class L2GwTransportZoneListener
         if (tzNew.getTunnelType().equals(TunnelTypeVxlan.class)) {
             DataStoreJobCoordinator coordinator = DataStoreJobCoordinator.getInstance();
             AddL2GwDevicesToTransportZoneJob job =
-                    new AddL2GwDevicesToTransportZoneJob(dataBroker, itmRpcService, tzNew);
+                    new AddL2GwDevicesToTransportZoneJob(itmRpcService, tzNew);
             coordinator.enqueueJob(job.getJobKey(), job);
         }
     }

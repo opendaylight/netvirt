@@ -97,6 +97,8 @@ public class TransportZoneNotificationUtil {
      * If the TEP of the port's node exists in the TZ, it will not be added.
      * @param inter - the interface to update
      */
+    // TODO Clean up the exception handling
+    @SuppressWarnings("checkstyle:IllegalCatch")
     public void updateTrasportZone(Interface inter) {
         List<Port> ports = getPortsFromInterface(inter);
         //supports VPN aware VMs (multiple ports for one interface)
@@ -129,10 +131,12 @@ public class TransportZoneNotificationUtil {
         }
     }
 
+    // TODO Clean up the exception handling
+    @SuppressWarnings("checkstyle:IllegalCatch")
     public void updateTrasportZone(RouterDpnList routerDpnList) {
-        try{
-            InstanceIdentifier<TransportZone> inst = InstanceIdentifier.create(TransportZones.class).
-                    child(TransportZone.class, new TransportZoneKey(routerDpnList.getRouterId()));
+        try {
+            InstanceIdentifier<TransportZone> inst = InstanceIdentifier.create(TransportZones.class)
+                .child(TransportZone.class, new TransportZoneKey(routerDpnList.getRouterId()));
             TransportZone zone = mdsalUtils.read(LogicalDatastoreType.CONFIGURATION, inst);
 
             String subnetIp = ALL_SUBNETS;
@@ -213,7 +217,7 @@ public class TransportZoneNotificationUtil {
 
         // take all interfaces with parent-interface with physPortId name
         for (org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces
-                .Interface inter : inters) {
+                 .Interface inter : inters) {
             ParentRefs parent = inter.getAugmentation(ParentRefs.class);
             if (parent == null || !physPortId.equals(parent.getParentInterface())) {
                 continue;
@@ -282,7 +286,7 @@ public class TransportZoneNotificationUtil {
 
         Subnets subnets = findSubnets(zone.getSubnets(), subnetIp);
 
-        for(Vteps existingVtep : subnets.getVteps()){
+        for (Vteps existingVtep : subnets.getVteps()) {
             if (existingVtep.getDpnId().equals(dpnId)) {
                 return 0;
             }
@@ -337,9 +341,9 @@ public class TransportZoneNotificationUtil {
     }
 
     @SuppressWarnings("unchecked")
-    private Node getPortsNode(BigInteger dpnId) throws Exception{
-        InstanceIdentifier<BridgeRefEntry> bridgeRefInfoPath = InstanceIdentifier.
-                create(BridgeRefInfo.class).child(BridgeRefEntry.class, new BridgeRefEntryKey(dpnId));
+    private Node getPortsNode(BigInteger dpnId) throws Exception {
+        InstanceIdentifier<BridgeRefEntry> bridgeRefInfoPath =
+            InstanceIdentifier.create(BridgeRefInfo.class).child(BridgeRefEntry.class, new BridgeRefEntryKey(dpnId));
         BridgeRefEntry bridgeRefEntry = mdsalUtils.read(LogicalDatastoreType.OPERATIONAL, bridgeRefInfoPath);
         if (bridgeRefEntry == null) {
             throw new Exception("no bridge ref entry found for dpnId: " + dpnId);

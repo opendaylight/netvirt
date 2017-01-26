@@ -60,6 +60,8 @@ public class NeutronQosPolicyChangeListener implements ClusteredDataTreeChangeLi
     }
 
     @Override
+    // TODO Clean up the exception handling
+    @SuppressWarnings("checkstyle:IllegalCatch")
     public void close() throws Exception {
         if (listenerRegistration != null) {
             try {
