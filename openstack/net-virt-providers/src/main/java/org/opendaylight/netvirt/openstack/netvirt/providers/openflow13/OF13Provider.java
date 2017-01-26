@@ -1101,13 +1101,6 @@ public class OF13Provider implements ConfigInterface, NetworkingProvider {
                             programTunnelRules(netType, segId, dstAddr, srcBridgeNode, port, false);
                         }
                     }
-
-                    if (network == tenantNetworkManager.getTenantNetwork(port)){
-                        programTunnelRules(networkType, segmentationId, dst, srcBridgeNode, port, false);
-                    }
-                    else{
-                        LOG.trace("Port {} is not part of network {}", port, network);
-                    }
                 }
             }
         } catch (Exception e) {
