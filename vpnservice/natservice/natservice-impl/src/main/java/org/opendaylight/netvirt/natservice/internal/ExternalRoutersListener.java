@@ -2348,9 +2348,9 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
 
         List<InstructionInfo> instructions = new ArrayList<>();
         List<ActionInfo> actionsInfos = new ArrayList<>();
-        instructions.add(new InstructionInfo(InstructionType.apply_actions, actionsInfos));
         long groupId = NatUtil.createGroupId(NatUtil.getGroupIdKey(subnetId.getValue()), idManager);
         actionsInfos.add(new ActionInfo(ActionType.group, new String[] { String.valueOf(groupId) }));
+        instructions.add(new InstructionInfo(InstructionType.apply_actions, actionsInfos));
 
         String flowRef = getFlowRefNaptFib(dpId, NwConstants.NAPT_PFIB_TABLE, extVpnId, externalIp);
         BigInteger cookie = getCookieOutboundFlow(extVpnId);
