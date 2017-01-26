@@ -8,6 +8,9 @@
 
 package org.opendaylight.netvirt.bgpmanager.commands;
 
+import java.io.FileNotFoundException;
+import java.io.PrintStream;
+import java.util.List;
 import org.apache.karaf.shell.commands.Argument;
 import org.apache.karaf.shell.commands.Command;
 import org.apache.karaf.shell.commands.Option;
@@ -24,27 +27,24 @@ import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev1509
 import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.bgp.neighbors.UpdateSource;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 
-import java.io.PrintStream;
-import java.util.List;
-
 @Command(scope = "odl", name = "bgp-cache",
-         description = "Text dump of BGP config cache")
+        description = "Text dump of BGP config cache")
 public class Cache extends OsgiCommandSupport {
     private static final String LST = "--list";
     private static final String OFL = "--out-file";
 
-    @Argument(name="dummy", description="Argument not needed",
-              required=false, multiValued = false)
+    @Argument(name = "dummy", description = "Argument not needed",
+            required = false, multiValued = false)
     private String action = null;
 
-    @Option(name=LST, aliases={"-l"},
-            description="list vrfs and/or networks",
-            required=false, multiValued=true)
+    @Option(name = LST, aliases = {"-l"},
+            description = "list vrfs and/or networks",
+            required = false, multiValued = true)
     private List<String> list = null;
 
-    @Option(name=OFL, aliases={"-o"},
-            description="output file",
-            required=false, multiValued=false)
+    @Option(name = OFL, aliases = {"-o"},
+            description = "output file",
+            required = false, multiValued = false)
     private String ofile = null;
 
     private static final String HTSTR = "Host";
@@ -65,8 +65,7 @@ public class Cache extends OsgiCommandSupport {
     private static final String RDSTR = "RD";
 
     private Object usage() {
-        System.err.println
-            ("usage: bgp-cache ["+LST+" vrfs | networks] ["+OFL+" file-name]");
+        session.getConsole().println("usage: bgp-cache [" + LST + " vrfs | networks] [" + OFL + " file-name]");
         return null;
     }
 
@@ -79,13 +78,12 @@ public class Cache extends OsgiCommandSupport {
 
     @Override
     protected Object doExecute() throws Exception {
-        if (!Commands.bgpRunning()) {
+        if (!Commands.bgpRunning(session.getConsole())) {
             return null;
         }
-        Bgp config = Commands.getBgpManager().getConfig();
-        boolean list_vrfs = false;
-        boolean list_nets = false;
-        PrintStream ps = System.out;
+        boolean listVrfs = false;
+        boolean listNets = false;
+        PrintStream ps = session.getConsole();
 
         if (action != null) {
             return usage();
@@ -93,23 +91,23 @@ public class Cache extends OsgiCommandSupport {
         if (ofile != null) {
             try {
                 ps = new PrintStream(ofile);
-            } catch (Exception e) {
-                System.err.println("error: cannot create file "+ofile +"; exception: "+e);
+            } catch (FileNotFoundException e) {
+                session.getConsole().println("error: cannot create file " + ofile + "; exception: " + e);
                 return null;
             }
         }
         if (list != null) {
             for (String item : list) {
                 switch (item) {
-                    case "vrfs" :
-                        list_vrfs = true;
+                    case "vrfs":
+                        listVrfs = true;
                         break;
-                    case "networks" :
-                        list_nets = true;
+                    case "networks":
+                        listNets = true;
                         break;
                     default:
-                        System.err.println("error: unknown value for "+LST+": "+item);
-                    return null;
+                        session.getConsole().println("error: unknown value for " + LST + ": " + item);
+                        return null;
                 }
             }
         }
@@ -117,46 +115,47 @@ public class Cache extends OsgiCommandSupport {
         // legacy behaviour forces to check for a connection
         // that's initiated by default at startup without
         // writing to config.
-        String cHost = Commands.getBgpManager().getConfigHost();
-        int cPort = Commands.getBgpManager().getConfigPort();
+        String configHost = Commands.getBgpManager().getConfigHost();
+        int configPort = Commands.getBgpManager().getConfigPort();
         ps.printf("\nConfiguration Server\n\t%s  %s\n\t%s  %d\n",
-                  HTSTR, cHost, PTSTR, cPort);
+                HTSTR, configHost, PTSTR, configPort);
+        Bgp config = Commands.getBgpManager().getConfig();
         if (config == null) {
             return null;
         }
-        AsId a = config.getAsId();
-        if (a != null) {
-            int asNum = a.getLocalAs().intValue();
-            IpAddress routerId = a.getRouterId();
-            Long spt = a.getStalepathTime();
-            Boolean afb = a.isAnnounceFbit();
+        AsId asId = config.getAsId();
+        if (asId != null) {
+            int asNum = asId.getLocalAs().intValue();
+            IpAddress routerId = asId.getRouterId();
+            Long spt = asId.getStalepathTime();
+            Boolean afb = asId.isAnnounceFbit();
             String rid = (routerId == null) ? "<n/a>" : new String(routerId.getValue());
-            int s = (spt == null) ? 0 : spt.intValue();
             //F-bit is always set to ON (hardcoded), in SDN even though the controller is down
             //forwarding state shall be retained.
             String bit = "ON";
 
-            GracefulRestart g = config.getGracefulRestart();
-            if (g != null) {
-                s = g.getStalepathTime().intValue();
+            GracefulRestart gracefulRestart = config.getGracefulRestart();
+            if (gracefulRestart != null) {
+                spt = gracefulRestart.getStalepathTime();
             }
             ps.printf("\nBGP Router\n");
             ps.printf("\t%-15s  %d\n\t%-15s  %s\n\t%-15s  %s\n\t%-15s  %s\n",
-                      ASSTR, asNum, RISTR, rid, SPSTR, (s!=0?Integer.toString(s):"default"), FBSTR, bit);
+                    ASSTR, asNum, RISTR, rid, SPSTR, (spt == null || spt == 0) ? "default" : spt.toString(), FBSTR,
+                    bit);
         }
 
-        Logging l = config.getLogging();
-        if (l != null) {
-            ps.printf("\t%-15s  %s\n\t%-15s  %s\n", LFSTR, l.getFile(),
-            LLSTR, l.getLevel());
+        Logging logging = config.getLogging();
+        if (logging != null) {
+            ps.printf("\t%-15s  %s\n\t%-15s  %s\n", LFSTR, logging.getFile(),
+                    LLSTR, logging.getLevel());
         }
 
-        List<Neighbors> n = config.getNeighbors();
-        if (n != null)  {
+        List<Neighbors> neighbors = config.getNeighbors();
+        if (neighbors != null) {
             ps.printf("\nNeighbors\n");
-            for (Neighbors nbr : n) {
+            for (Neighbors nbr : neighbors) {
                 ps.printf("\t%s\n\t\t%-16s  %d\n", nbr.getAddress().getValue(),
-                          ASSTR, nbr.getRemoteAs().intValue());
+                        ASSTR, nbr.getRemoteAs().intValue());
                 EbgpMultihop en = nbr.getEbgpMultihop();
                 if (en != null) {
                     ps.printf("\t\t%-16s  %d\n", EBSTR, en.getNhops().intValue());
@@ -169,32 +168,33 @@ public class Cache extends OsgiCommandSupport {
                 List<AddressFamilies> afs = nbr.getAddressFamilies();
                 if (afs != null) {
                     for (AddressFamilies af : afs) {
-                        ps.printf(" %s", af.getSafi().intValue() == 4 ?
-                                            "IPv4-Labeled-Unicast" : "Unknown");
+                        ps.printf(" %s", af.getSafi().intValue() == 4 ? "IPv4-Labeled-Unicast" : "Unknown");
                     }
                 }
                 ps.printf("\n");
             }
         }
 
-        if (list_vrfs) {
-            List<Vrfs> v = config.getVrfs();
-            if (v != null) {
+        if (listVrfs) {
+            List<Vrfs> vrfs = config.getVrfs();
+            if (vrfs != null) {
                 ps.printf("\nVRFs\n");
-                for (Vrfs vrf : v)  {
-                    ps.printf("\t%s\n",vrf.getRd());
+                for (Vrfs vrf : vrfs) {
+                    ps.printf("\t%s\n", vrf.getRd());
                     ps.printf("\t\t%s  ", IRSTR);
-                    for (String rt : vrf.getImportRts())
-                    ps.printf("%s ", rt);
+                    for (String rt : vrf.getImportRts()) {
+                        ps.printf("%s ", rt);
+                    }
                     ps.printf("\n\t\t%s  ", ERSTR);
-                    for (String rt : vrf.getExportRts())
-                    ps.printf("%s ", rt);
+                    for (String rt : vrf.getExportRts()) {
+                        ps.printf("%s ", rt);
+                    }
                     ps.printf("\n");
                 }
             }
         }
 
-        if (list_nets) {
+        if (listNets) {
             List<Networks> ln = config.getNetworks();
             if (ln != null) {
                 ps.printf("\nNetworks\n");
@@ -204,7 +204,7 @@ public class Cache extends OsgiCommandSupport {
                     String nh = net.getNexthop().getValue();
                     int label = net.getLabel().intValue();
                     ps.printf("\t%s\n\t\t%-7s  %s\n\t\t%-7s  %s\n\t\t%-7s  %d\n",
-                              pfxlen, RDSTR, rd, NHSTR, nh, LBSTR, label);
+                            pfxlen, RDSTR, rd, NHSTR, nh, LBSTR, label);
                 }
             }
         }
