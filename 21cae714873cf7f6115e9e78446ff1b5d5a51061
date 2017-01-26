@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_b599b470",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnSubnetRouteHandler.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 104,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2017-01-26T01:41:29Z",
+      "side": 1,
+      "message": "do indents like this with 4 spaces pass checkstyle? Seems like things like this always needed 8 spaces.",
+      "revId": "21cae714873cf7f6115e9e78446ff1b5d5a51061",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
