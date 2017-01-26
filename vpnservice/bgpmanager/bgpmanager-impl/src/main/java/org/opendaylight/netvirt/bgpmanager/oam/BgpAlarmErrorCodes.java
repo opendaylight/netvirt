@@ -15,12 +15,12 @@ import java.util.Map;
  * Created by echiapt on 7/27/2015.
  */
 public enum BgpAlarmErrorCodes {
-    CEASE_MAX_PREFIX            (1, "BgpMaxPrefixesFailure"),
-    CEASE_PEER_UNCONFIG         (3, "BgpPeerUnconfigFailure") ,
-    CEASE_CONNECT_REJECT        (5, "BgpConnRejectFailure"),
-    CEASE_COLLISION_RESOLUTION  (7, "BgpCollisionResolutionFailure"),
-    CEASE_OUT_OF_RESOURCE       (8, "BgpOutOfResourcesFailure"),
-    ERROR_IGNORE                (-1,"UnknownErr");
+    CEASE_MAX_PREFIX(1, "BgpMaxPrefixesFailure"),
+    CEASE_PEER_UNCONFIG(3, "BgpPeerUnconfigFailure"),
+    CEASE_CONNECT_REJECT(5, "BgpConnRejectFailure"),
+    CEASE_COLLISION_RESOLUTION(7, "BgpCollisionResolutionFailure"),
+    CEASE_OUT_OF_RESOURCE(8, "BgpOutOfResourcesFailure"),
+    ERROR_IGNORE(-1, "UnknownErr");
 
     private final int error;
     private final String alarmType;
@@ -30,10 +30,11 @@ public enum BgpAlarmErrorCodes {
         this.alarmType = alarmType;
     }
 
-    private static final Map<Integer, BgpAlarmErrorCodes> intToTypeMap = new HashMap<Integer, BgpAlarmErrorCodes>();
+    private static final Map<Integer, BgpAlarmErrorCodes> INT_TO_TYPE_MAP = new HashMap<Integer, BgpAlarmErrorCodes>();
+
     static {
         for (BgpAlarmErrorCodes type : BgpAlarmErrorCodes.values()) {
-            intToTypeMap.put(type.error, type);
+            INT_TO_TYPE_MAP.put(type.error, type);
         }
 
     }
@@ -42,10 +43,11 @@ public enum BgpAlarmErrorCodes {
         return this.alarmType;
     }
 
-    public static BgpAlarmErrorCodes checkErrorSubcode(int i) {
-        BgpAlarmErrorCodes type = intToTypeMap.get(Integer.valueOf(i));
-        if (type == null)
+    public static BgpAlarmErrorCodes checkErrorSubcode(int subcode) {
+        BgpAlarmErrorCodes type = INT_TO_TYPE_MAP.get(subcode);
+        if (type == null) {
             return BgpAlarmErrorCodes.ERROR_IGNORE;
+        }
         return type;
     }
 }

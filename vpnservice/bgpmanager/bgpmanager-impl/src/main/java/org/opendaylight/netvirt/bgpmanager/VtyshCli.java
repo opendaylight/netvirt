@@ -33,74 +33,72 @@ public class VtyshCli extends OsgiCommandSupport {
     private static int serverPort = 2605;
     private static String serverName = "localhost";
     private static int handlerModule = 0;
-    private static final int BGPd = 1;
+    private static final int BGPD = 1;
     public static String passwordCheckStr = "Password:";
     public static String vtyPassword = "sdncbgpc";
     public static String noPaginationCmd = "terminal length 0";
     public static int sockTimeout = 5;
 
-    String[] validCommands = new String[]{
-            "display routing ip bgp vpnv4 all",
-            "display routing ip bgp vpnv4 rd <rd>",
-            "display routing ip bgp vpnv4 all neighbors",
-            "display routing ip bgp vpnv4 all neighbors  <ip> routes",
-            "display routing ip bgp vpnv4 all  <ip/mask>",
-            "display routing ip bgp vpnv4 all summary",
-            "display routing ip bgp vpnv4 all tags",
-            "display routing ip bgp vpnv4 rd <rd>  tags",
-            "display routing ip bgp vpnv4 rd <rd>  <ip>",
-            "display routing ip bgp vpnv4 rd <rd>  <ip/mask>",
-            "display routing ip bgp neighbors",
-            "display routing ip bgp summary",
-            "display routing ip bgp ipv4 unicast",
-            "display routing ip bgp ipv4 unicast <ip/mask>",
-            "display routing bgp neighbors",
-            "display routing bgp neighbors <ip>",
-            "display routing bgp ipv4 unicast <ip>",
-            "display routing bgp ipv4 unicast <ip/mask>"
+    String[] validCommands = new String[] {
+        "display routing ip bgp vpnv4 all",
+        "display routing ip bgp vpnv4 rd <rd>",
+        "display routing ip bgp vpnv4 all neighbors",
+        "display routing ip bgp vpnv4 all neighbors  <ip> routes",
+        "display routing ip bgp vpnv4 all  <ip/mask>",
+        "display routing ip bgp vpnv4 all summary",
+        "display routing ip bgp vpnv4 all tags",
+        "display routing ip bgp vpnv4 rd <rd>  tags",
+        "display routing ip bgp vpnv4 rd <rd>  <ip>",
+        "display routing ip bgp vpnv4 rd <rd>  <ip/mask>",
+        "display routing ip bgp neighbors",
+        "display routing ip bgp summary",
+        "display routing ip bgp ipv4 unicast",
+        "display routing ip bgp ipv4 unicast <ip/mask>",
+        "display routing bgp neighbors",
+        "display routing bgp neighbors <ip>",
+        "display routing bgp ipv4 unicast <ip>",
+        "display routing bgp ipv4 unicast <ip/mask>"
     };
-    private static final Logger logger = LoggerFactory.getLogger(VtyshCli.class);
+    private static final Logger LOG = LoggerFactory.getLogger(VtyshCli.class);
 
-    // @Override
+    @Override
     protected Object doExecute() throws Exception {
-        String sArg;
         cmd = cmd.trim();
-        if (cmd.equals("") || cmd.equals("help") ||
-            cmd.equals("-help") || cmd.equals("--help")) {
+        if (cmd.equals("") || cmd.equals("help") || cmd.equals("-help") || cmd.equals("--help")) {
             for (String help : validCommands) {
-                System.out.println(help);
+                session.getConsole().println(help);
             }
             return null;
         }
-        String args[] = cmd.split(" ");
+        String[] args = cmd.split(" ");
         if (args.length == 0) {
             return null;
         }
-        sArg = args[0];
-        if (sArg == null || sArg.trim().equals("")) {
-            System.out.println("Please provide a valid input.");
+        String firstArg = args[0];
+        if (firstArg == null || firstArg.trim().equals("")) {
+            session.getConsole().println("Please provide a valid input.");
             return null;
         }
-        switch (sArg) {
-        case "ip":
-        case "bgp":
-            handlerModule = BGPd;
-            break;
-        default:
-            System.out.println("Unknown command");
-            return null;
+        switch (firstArg) {
+            case "ip":
+            case "bgp":
+                handlerModule = BGPD;
+                break;
+            default:
+                session.getConsole().println("Unknown command");
+                return null;
         }
 
         switch (handlerModule) {
-        case BGPd:
-            try {
-                handleCommand(sArg, cmd);
-            } catch (IOException ioe) {
-                System.out.println("IOException thrown.");
-            }
-            break;
-        default:
-            break;
+            case BGPD:
+                try {
+                    handleCommand(firstArg, cmd);
+                } catch (IOException ioe) {
+                    session.getConsole().println("IOException thrown.");
+                }
+                break;
+            default:
+                break;
         }
         return null;
     }
@@ -113,56 +111,52 @@ public class VtyshCli extends OsgiCommandSupport {
         return serverName;
     }
 
-    public static void handleCommand(String arg, String cmd) throws IOException {
-
-        StringBuilder inputBgpCmd = new StringBuilder();
-
-        String str, prompt, replacedStr, inputCmd = null;
-        char cbuf[] = new char[10];
-        char op_buf[];
-        Socket socket = null;
-        PrintWriter out_to_socket = null;
-        BufferedReader in_from_socket = null;
+    public void handleCommand(String arg, String cmd) throws IOException {
+        char[] cbuf = new char[10];
+        char[] opBuf;
+        Socket socket;
+        PrintWriter outToSocket;
+        BufferedReader inFromSocket;
         StringBuilder sb = new StringBuilder();
-        int ip = 0, ret;
-        StringBuilder temp, temp2;
-        char ch, gt = '>', hashChar = '#';
-
-        inputBgpCmd.append("show " + cmd);
-
-        inputCmd = inputBgpCmd.toString();
+        int ip;
+        int ret;
+        StringBuilder temp;
+        StringBuilder temp2;
+        char ch;
+        char gt = '>';
+        char hashChar = '#';
 
         try {
             socket = new Socket(serverName, serverPort);
 
         } catch (UnknownHostException ioe) {
-            System.out.println("No host exists: " + ioe.getMessage());
+            session.getConsole().println("No host exists: " + ioe.getMessage());
             return;
         } catch (IOException ioe) {
-            System.out.println("I/O error occured " + ioe.getMessage());
+            session.getConsole().println("I/O error occured " + ioe.getMessage());
             return;
         }
         try {
             socket.setSoTimeout(sockTimeout * 1000);
-            out_to_socket = new PrintWriter(socket.getOutputStream(), true);
-            in_from_socket = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+            outToSocket = new PrintWriter(socket.getOutputStream(), true);
+            inFromSocket = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 
         } catch (IOException ioe) {
-            System.out.println("IOException thrown.");
+            session.getConsole().println("IOException thrown.");
             socket.close();
             return;
         }
         while (true) {
             try {
-                ret = in_from_socket.read(cbuf);
+                ret = inFromSocket.read(cbuf);
 
             } catch (SocketTimeoutException ste) {
-                System.out.println("Read from Socket timed Out while asking for password.");
+                session.getConsole().println("Read from Socket timed Out while asking for password.");
                 socket.close();
                 return;
             }
             if (ret == -1) {
-                System.out.println("Connection closed by BGPd.");
+                session.getConsole().println("Connection closed by BGPd.");
                 socket.close();
                 return;
             } else {
@@ -176,14 +170,14 @@ public class VtyshCli extends OsgiCommandSupport {
         }
 
         sb.setLength(0);
-        out_to_socket.println(vtyPassword);
+        outToSocket.println(vtyPassword);
 
         while (true) {
             try {
-                ip = in_from_socket.read();
+                ip = inFromSocket.read();
             } catch (SocketTimeoutException ste) {
-                System.out.println(sb.toString());
-                System.out.println("Read from Socket timed Out while verifying the password.");
+                session.getConsole().println(sb.toString());
+                session.getConsole().println("Read from Socket timed Out while verifying the password.");
                 socket.close();
                 return;
             }
@@ -195,8 +189,8 @@ public class VtyshCli extends OsgiCommandSupport {
                 }
                 break;
             } else if (ip == -1) {
-                System.out.println(sb.toString());
-                System.out.println("Connection closed by BGPd.");
+                session.getConsole().println(sb.toString());
+                session.getConsole().println("Connection closed by BGPd.");
                 socket.close();
                 return;
             } else {
@@ -207,23 +201,23 @@ public class VtyshCli extends OsgiCommandSupport {
         }
 
         String promptStr = sb.toString();
-        prompt = promptStr.trim();
+        String prompt = promptStr.trim();
         sb.setLength(0);
-        out_to_socket.println(noPaginationCmd);
+        outToSocket.println(noPaginationCmd);
         while (true) {
             try {
-                ip = in_from_socket.read();
+                ip = inFromSocket.read();
             } catch (SocketTimeoutException ste) {
-                System.out.println(sb.toString());
-                System.out.println("Read from Socket timed Out while sending the term len command..");
+                session.getConsole().println(sb.toString());
+                session.getConsole().println("Read from Socket timed Out while sending the term len command..");
                 socket.close();
                 return;
             }
             if ((ip == (int) gt) || (ip == (int) hashChar)) {
                 break;
             } else if (ip == -1) {
-                System.out.println(sb.toString());
-                System.out.println("Connection closed by BGPd.");
+                session.getConsole().println(sb.toString());
+                session.getConsole().println("Connection closed by BGPd.");
                 socket.close();
                 return;
             } else {
@@ -234,15 +228,16 @@ public class VtyshCli extends OsgiCommandSupport {
         }
         sb.setLength(0);
 
-        out_to_socket.println(inputCmd);
+        String inputCmd = "show " + cmd;
+        outToSocket.println(inputCmd);
         StringBuffer output = new StringBuffer();
         String errorMsg = "";
         while (true) {
-            op_buf = new char[100];
+            opBuf = new char[100];
             temp = new StringBuilder();
             temp2 = new StringBuilder();
             try {
-                ret = in_from_socket.read(op_buf);
+                ret = inFromSocket.read(opBuf);
 
             } catch (SocketTimeoutException ste) {
                 errorMsg = "Read from Socket timed Out while getting the data.";
@@ -252,16 +247,16 @@ public class VtyshCli extends OsgiCommandSupport {
                 errorMsg = "Connection closed by BGPd";
                 break;
             }
-            temp2.append(op_buf);
+            temp2.append(opBuf);
 
             if (temp2.toString().contains(inputCmd)) {
 
-                replacedStr = temp2.toString().replaceAll(inputCmd, "");
+                String replacedStr = temp2.toString().replaceAll(inputCmd, "");
                 temp.append(replacedStr);
                 temp2.setLength(0);
 
             } else {
-                temp.append(op_buf);
+                temp.append(opBuf);
                 temp2.setLength(0);
 
             }
@@ -277,9 +272,9 @@ public class VtyshCli extends OsgiCommandSupport {
             }
             temp.setLength(0);
         }
-        System.out.println(output.toString().trim());
+        session.getConsole().println(output.toString().trim());
         if (errorMsg.length() > 0) {
-            System.out.println(errorMsg);
+            session.getConsole().println(errorMsg);
         }
         socket.close();
 
