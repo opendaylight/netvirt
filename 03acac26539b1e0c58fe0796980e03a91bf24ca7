@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_ca3ad235",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/pom.xml",
+        "patchSetId": 7
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2017-01-26T13:59:43Z",
+      "side": 1,
+      "message": "do we want 4 spaces? I thought we pretty much moved to 2 spaces for poms and xml?",
+      "revId": "03acac26539b1e0c58fe0796980e03a91bf24ca7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
