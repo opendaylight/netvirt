@@ -2,6 +2,23 @@
   "comments": [
     {
       "key": {
+        "uuid": "fafc7978_c0ed918d",
+        "filename": "openstack/net-virt-providers/src/main/java/org/opendaylight/netvirt/openstack/netvirt/providers/openflow13/OF13Provider.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 193,
+      "author": {
+        "id": 5444
+      },
+      "writtenOn": "2017-01-26T20:16:00Z",
+      "side": 1,
+      "message": "perhaps we should make the logs also consistent in format.\n\ne.g.\n\"methodName: details: ...\"\n\nso this should be:\n\nLOG.trace(\"addTunnelPort: portName: {}\", portName);",
+      "revId": "dcbfcfdbf7219e1fcd5734ab2080a21089cd89db",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_95f8f0e6",
         "filename": "openstack/net-virt-providers/src/main/java/org/opendaylight/netvirt/openstack/netvirt/providers/openflow13/OF13Provider.java",
         "patchSetId": 2
@@ -31,6 +48,75 @@
       "side": 1,
       "message": "Actually using the check in line 175 saves the cost of executing node.getNodeId().getValue().\nI am ok with that",
       "parentUuid": "fafc7978_95f8f0e6",
+      "revId": "dcbfcfdbf7219e1fcd5734ab2080a21089cd89db",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_e0e8957e",
+        "filename": "openstack/net-virt-providers/src/main/java/org/opendaylight/netvirt/openstack/netvirt/providers/openflow13/OF13Provider.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 197,
+      "author": {
+        "id": 5444
+      },
+      "writtenOn": "2017-01-26T20:16:00Z",
+      "side": 1,
+      "message": "Vinh referring to line 196 here",
+      "parentUuid": "fafc7978_951470f6",
+      "revId": "dcbfcfdbf7219e1fcd5734ab2080a21089cd89db",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_60e5c5a7",
+        "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/SouthboundHandler.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 90,
+      "author": {
+        "id": 5444
+      },
+      "writtenOn": "2017-01-26T20:16:00Z",
+      "side": 1,
+      "message": "for better readability, maybe add a space after the \"{}\" on this line so there is a space before the \"Resource Data\" printed after\n\nwe can also consider making the format of the logs consistent. e.g.\n\nLOG.debug(\"ovsdbUpdate: ovsdbType: {}, action: {}, OVS node: {} \"",
+      "revId": "dcbfcfdbf7219e1fcd5734ab2080a21089cd89db",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_a0ee8d89",
+        "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/SouthboundHandler.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 91,
+      "author": {
+        "id": 5444
+      },
+      "writtenOn": "2017-01-26T20:16:00Z",
+      "side": 1,
+      "message": "there are two spaces after \"Data  : {}\", should be \"Data: {}\" to be consistent",
+      "revId": "dcbfcfdbf7219e1fcd5734ab2080a21089cd89db",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_40e241a0",
+        "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/SouthboundHandler.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 245,
+      "author": {
+        "id": 5444
+      },
+      "writtenOn": "2017-01-26T20:16:00Z",
+      "side": 1,
+      "message": "for consistency, we could use:\n\nLOG.trace(\"notifyNode: action: {}, Node: {}\", action, node);",
       "revId": "dcbfcfdbf7219e1fcd5734ab2080a21089cd89db",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
