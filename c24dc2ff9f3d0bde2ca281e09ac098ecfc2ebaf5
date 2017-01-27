@@ -161,6 +161,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_ec224e00",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/NexthopManager.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 377,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-01-27T14:29:05Z",
+      "side": 1,
+      "message": "There are two ways to handle such problems:\n\na. Wait for Operational write to succeed in VPNEngine before attemtping a Configuration DS write of VRF Entry.  This was actually creating performance issues for us on Boron builds as it takes unusually longer time to see VRFs processed because the callback of Operational Success in VPNEngine needs a thread scheduled by MDSAL to first indicate it and that thread should get the chance to run :) .\n\nb. Commit everything as is today in VPN Engine and do pendingVrfEntry handing to cover the sporadic problems. That is when the information we need becomes available (for example prefix-to-interface , vpn-to-extraroute, vpn-instance-op-data etc) we schedule teh pendingVrfENtries to be processed.  This might be an uglier design as can result in racing problems on the VRF handling side.\n\nc. use Config DS for prefix-to-Interface and vpn-to-extraroute, but prefix-to-interface is maintaining DPNID which is the current state and so using Config DS for the above two items is not semantically right.  Further number of prefixes are huge and so it will occupy lot of space and upgradability etc will apply !\n\nOn the Underline, we need to further think through this design.",
+      "parentUuid": "fafc7978_cae2d202",
+      "revId": "c24dc2ff9f3d0bde2ca281e09ac098ecfc2ebaf5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_a309852e",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
         "patchSetId": 8
