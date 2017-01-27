@@ -547,6 +547,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_aec15be6",
+        "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/impl/SecurityGroupCacheManagerImpl.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 134,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2017-01-27T20:59:23Z",
+      "side": 1,
+      "message": "Hi Kharthi,\n\nMy main concern is the code readability and cleanliness. In general, if you call a function that mutates parameters from multiple places in your codebase, you will find that it becomes increasingly error prone. Also, tt took Tai-san and I to go over the code at least two times to understand what you tried to do.\n\nFor for the suggestion to use neutronPortToDpIdCache in NeutronL3Adapter, if we use the above suggested method, we populate the cache ourselves. There is no extra read calls since we already have the bridge object",
+      "parentUuid": "fafc7978_ccddca44",
+      "revId": "4c67dd37a488c39ad0d5bd222fd8c64e621db3b1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_9c6e6ac8",
         "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/impl/TenantNetworkManagerImpl.java",
         "patchSetId": 5
