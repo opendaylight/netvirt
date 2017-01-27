@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_b69ed754",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/FibUtil.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 817,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-01-27T06:59:44Z",
+      "side": 1,
+      "message": "just do return \"gre-\" + tunnelList.stream().sorted().collect(Collectors.joining(\":\"));",
+      "revId": "799aaa05f2d1a4870b42bf27742b82f9e88afa78",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_f69fbf4e",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/NexthopManager.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 887,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-01-27T06:59:44Z",
+      "side": 1,
+      "message": "change it to FibUtil.getGreLbGroupId(availableDcGws). because we don\u0027t do anything with groupIdKey apart from getting groupId. I hope this is the same case in other places as well.",
+      "revId": "799aaa05f2d1a4870b42bf27742b82f9e88afa78",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_36aae770",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnUtil.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 1403,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-01-27T06:59:44Z",
+      "side": 1,
+      "message": "use + for concat. It internally uses StringBuilder :)",
+      "revId": "799aaa05f2d1a4870b42bf27742b82f9e88afa78",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
