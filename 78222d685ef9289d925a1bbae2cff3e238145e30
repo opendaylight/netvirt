@@ -36,6 +36,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_56032bb8",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 9
+      },
+      "lineNbr": 1141,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-01-27T04:35:13Z",
+      "side": 1,
+      "message": "Tali,\n\nThis review would need to land into Boron, where EVPN changes won\u0027t be available at all.\n\nFurther gateway_mac_address into the fib yang will be filled by EVPN only for EVPN-specific L3VPNs (those with L3VNI) and not for normal L3 Routers and classic L3BGPVPNs.   So we will not be able to take advantage of that gateway_mac_address for now.\n\nI totally agree, that we can revisit this once both the features land and how they can co-fetch information.  At that point, we will remove this extra DS.",
+      "parentUuid": "fafc7978_0fc50f5b",
+      "revId": "78222d685ef9289d925a1bbae2cff3e238145e30",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_291733ef",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
         "patchSetId": 9
@@ -71,6 +89,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_360027aa",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 9
+      },
+      "lineNbr": 1152,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-01-27T04:35:13Z",
+      "side": 1,
+      "message": "With this feature, having a valid source mac is mandatory :)\n\nSo if we are not able to retrieve it, you have to throw an ERROR, and we MUST NOT process this vpn interface at all.",
+      "parentUuid": "fafc7978_5565e843",
+      "revId": "78222d685ef9289d925a1bbae2cff3e238145e30",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_e9e36b03",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnUtil.java",
         "patchSetId": 9
@@ -100,6 +136,24 @@
       "side": 1,
       "message": "No, absent method of guava Optional is renamed to empty in Java SE Optional. I\u0027m replacing ternary operator with below. code\n\nreturn java.util.Optional.ofNullable(gwPort.orNull());",
       "parentUuid": "fafc7978_e9e36b03",
+      "revId": "78222d685ef9289d925a1bbae2cff3e238145e30",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_962c734c",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnUtil.java",
+        "patchSetId": 9
+      },
+      "lineNbr": 1350,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-01-27T04:35:13Z",
+      "side": 1,
+      "message": "Oh.. OK",
+      "parentUuid": "fafc7978_955f5072",
       "revId": "78222d685ef9289d925a1bbae2cff3e238145e30",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
