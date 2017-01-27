@@ -256,6 +256,30 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_71d59942",
+        "filename": "docs/specs/ipv6-distributed-router.rst",
+        "patchSetId": 1
+      },
+      "lineNbr": 48,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2017-01-27T11:11:16Z",
+      "side": 1,
+      "message": "Thanks @Gidi and @Daya. I\u0027ll start looking into the Option#1",
+      "parentUuid": "fafc7978_aaa14eab",
+      "range": {
+        "startLine": 47,
+        "startChar": 28,
+        "endLine": 48,
+        "endChar": 29
+      },
+      "revId": "976d7bbd2030e84f67b3b82780adbe501390d954",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_ad8bba66",
         "filename": "docs/specs/ipv6-distributed-router.rst",
         "patchSetId": 1
@@ -303,6 +327,24 @@
       "side": 1,
       "message": "so, to summarize for my understanding, host_macs per compute will not be implemented in phase 1 i.e a centralized approach, for N-S.\nwill you allocate host_macs for the SNAT switch to support multiple subnets in the external n/w or would you rely on the i/f macs in the snat vswitches in each of the subnets? IMO, using i/f macs would be sufficient with the centralized approach.\nfor E-W, we continue with existing mechanisms similar to what is used for IPv4?",
       "parentUuid": "1a622d24_2813180e",
+      "revId": "976d7bbd2030e84f67b3b82780adbe501390d954",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_11c40d91",
+        "filename": "docs/specs/ipv6-distributed-router.rst",
+        "patchSetId": 1
+      },
+      "lineNbr": 70,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2017-01-27T11:11:16Z",
+      "side": 1,
+      "message": "Yes @Daya, we will not be allocating any HOST_MACs. East-West would be supported in the existing manner (no changes over there for now).\n\nReg: HOST_MAC for SNAT Switch, we do not need any additional MAC since we will be using the router-gateway-port MAC which is created by Neutron.",
+      "parentUuid": "fafc7978_6a4e46c3",
       "revId": "976d7bbd2030e84f67b3b82780adbe501390d954",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
