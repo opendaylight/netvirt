@@ -11,7 +11,7 @@
 
 package org.opendaylight.netvirt.bgpmanager.oam;
 
-import static org.opendaylight.netvirt.bgpmanager.oam.BgpCounters.parse_ip_bgp_vpnv4_all_summary;
+import static org.opendaylight.netvirt.bgpmanager.oam.BgpCounters.parseIpBgpVpnv4AllSummary;
 import static org.opendaylight.netvirt.bgpmanager.oam.BgpCounters.resetFile;
 import java.util.Date;
 import java.util.HashMap;
@@ -49,7 +49,7 @@ public class BgpAlarms extends TimerTask {
                 if (bgpMgr.getConfig() != null) {
                     nbrList= bgpMgr.getConfig().getNeighbors();
                 }
-                parse_ip_bgp_vpnv4_all_summary(neighborStatusMap);
+                parseIpBgpVpnv4AllSummary(neighborStatusMap);
                 processNeighborStatusMap(neighborStatusMap, nbrList, neighborsRaisedAlarmStatusMap);
             }
 
