@@ -161,6 +161,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_8c88e223",
+        "filename": "docs/specs/conntrack-based-snat.rst",
+        "patchSetId": 17
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-01-27T13:58:16Z",
+      "side": 1,
+      "message": "But I believe a new conntrack session will get created on new NAPT Switch and translation rules will be put in place and traffic will continue.\n\nFrom the SNAT user side, there will be no loss of traffic seen for TCP on NAPT fail-over.  Some loss will be there for UDP and ICMP on NAPT fail-over.  But in both the case the traffic will not be a permanent drop at the end right?",
+      "parentUuid": "fafc7978_1126cd16",
+      "revId": "48342aaf9e8c864124d2a46ba01c266ceeb6d246",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_436899f5",
         "filename": "docs/specs/conntrack-based-snat.rst",
         "patchSetId": 17
@@ -314,6 +332,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_6c949e37",
+        "filename": "docs/specs/conntrack-based-snat.rst",
+        "patchSetId": 17
+      },
+      "lineNbr": 67,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-01-27T13:58:16Z",
+      "side": 1,
+      "message": "I don\u0027t think multiple external subnets for a router gateway (ie., external-fixed-ips from different subnets for the same router on its gateway side) ever works today.. \n\nChetan, can you please clarify the question?",
+      "parentUuid": "fafc7978_6cee5e24",
+      "revId": "48342aaf9e8c864124d2a46ba01c266ceeb6d246",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_fe47a649",
         "filename": "docs/specs/conntrack-based-snat.rst",
         "patchSetId": 17
@@ -379,6 +415,24 @@
       "side": 1,
       "message": "I changed the flow from the previous revision now the translation happens in table 44. My priority is in complete testing non-mpls first. But the flows should remain the same now I guess.",
       "parentUuid": "fafc7978_9188fd23",
+      "revId": "48342aaf9e8c864124d2a46ba01c266ceeb6d246",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_cc82eaff",
+        "filename": "docs/specs/conntrack-based-snat.rst",
+        "patchSetId": 17
+      },
+      "lineNbr": 71,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-01-27T13:58:16Z",
+      "side": 1,
+      "message": "Great thanks !",
+      "parentUuid": "fafc7978_d1356547",
       "revId": "48342aaf9e8c864124d2a46ba01c266ceeb6d246",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
