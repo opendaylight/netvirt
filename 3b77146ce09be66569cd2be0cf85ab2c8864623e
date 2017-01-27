@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_4c343ade",
+        "filename": "openstack/net-virt-providers/src/main/java/org/opendaylight/netvirt/openstack/netvirt/providers/openflow13/OF13Provider.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 1081,
+      "author": {
+        "id": 4058
+      },
+      "writtenOn": "2017-01-27T13:51:19Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_e3254d0b",
+      "range": {
+        "startLine": 1081,
+        "startChar": 96,
+        "endLine": 1081,
+        "endChar": 112
+      },
+      "revId": "3b77146ce09be66569cd2be0cf85ab2c8864623e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_43309956",
         "filename": "openstack/net-virt-providers/src/main/java/org/opendaylight/netvirt/openstack/netvirt/providers/openflow13/services/IngressAclService.java",
         "patchSetId": 7
@@ -36,6 +60,30 @@
       "writtenOn": "2017-01-24T17:40:01Z",
       "side": 1,
       "message": "Do we need the declaration of the variable here? It seems to me that it is used only in the if block starting at L 112.\n\nThe same comment would be applied to EgressAclService.java.",
+      "range": {
+        "startLine": 91,
+        "startChar": 9,
+        "endLine": 91,
+        "endChar": 56
+      },
+      "revId": "3b77146ce09be66569cd2be0cf85ab2c8864623e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_cc6e6ac9",
+        "filename": "openstack/net-virt-providers/src/main/java/org/opendaylight/netvirt/openstack/netvirt/providers/openflow13/services/IngressAclService.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 91,
+      "author": {
+        "id": 4058
+      },
+      "writtenOn": "2017-01-27T13:51:19Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_43309956",
       "range": {
         "startLine": 91,
         "startChar": 9,
@@ -71,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_8c9bc2c8",
+        "filename": "openstack/net-virt-providers/src/main/java/org/opendaylight/netvirt/openstack/netvirt/providers/openflow13/services/IngressAclService.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 112,
+      "author": {
+        "id": 4058
+      },
+      "writtenOn": "2017-01-27T13:51:19Z",
+      "side": 1,
+      "message": "The method portSecurityRule.getSecurityRemoteGroupID() will be called only one time per portSecurityRule.",
+      "parentUuid": "fafc7978_23c4753f",
+      "range": {
+        "startLine": 112,
+        "startChar": 28,
+        "endLine": 112,
+        "endChar": 71
+      },
+      "revId": "3b77146ce09be66569cd2be0cf85ab2c8864623e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_c3f48989",
         "filename": "openstack/net-virt-providers/src/main/java/org/opendaylight/netvirt/openstack/netvirt/providers/openflow13/services/IngressAclService.java",
         "patchSetId": 7
@@ -82,6 +154,30 @@
       "writtenOn": "2017-01-24T17:40:01Z",
       "side": 1,
       "message": "The if-block and the else-block calls the same method secGroupRemoteIPMap.get(portSecurityRule.getSecurityRemoteGroupID(). I think it\u0027s better to call the method once outside the if-block. Then, we can totally remove the else-block.\n\n\nThe same comment would be applied to EgressAclService.java.",
+      "range": {
+        "startLine": 119,
+        "startChar": 47,
+        "endLine": 119,
+        "endChar": 114
+      },
+      "revId": "3b77146ce09be66569cd2be0cf85ab2c8864623e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_acaa06d2",
+        "filename": "openstack/net-virt-providers/src/main/java/org/opendaylight/netvirt/openstack/netvirt/providers/openflow13/services/IngressAclService.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 119,
+      "author": {
+        "id": 4058
+      },
+      "writtenOn": "2017-01-27T13:51:19Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_c3f48989",
       "range": {
         "startLine": 119,
         "startChar": 47,
@@ -117,6 +213,30 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_8c82a250",
+        "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/impl/SecurityGroupCacheManagerImpl.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 56,
+      "author": {
+        "id": 4058
+      },
+      "writtenOn": "2017-01-27T13:51:19Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_9e093a2f",
+      "range": {
+        "startLine": 56,
+        "startChar": 8,
+        "endLine": 56,
+        "endChar": 118
+      },
+      "revId": "3b77146ce09be66569cd2be0cf85ab2c8864623e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_7ebbb672",
         "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/impl/SecurityGroupCacheManagerImpl.java",
         "patchSetId": 7
@@ -128,6 +248,24 @@
       "writtenOn": "2017-01-24T23:53:40Z",
       "side": 1,
       "message": "Could it be a public method in NeutronL3Adapter so that it can be used in SecurityServiceImpl.java:78 and possibly other places",
+      "revId": "3b77146ce09be66569cd2be0cf85ab2c8864623e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_6c877e62",
+        "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/impl/SecurityGroupCacheManagerImpl.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 57,
+      "author": {
+        "id": 4058
+      },
+      "writtenOn": "2017-01-27T13:51:19Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_7ebbb672",
       "revId": "3b77146ce09be66569cd2be0cf85ab2c8864623e",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -151,6 +289,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_cc7caa75",
+        "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/impl/SecurityGroupCacheManagerImpl.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 61,
+      "author": {
+        "id": 4058
+      },
+      "writtenOn": "2017-01-27T13:51:19Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_5e63521a",
+      "revId": "3b77146ce09be66569cd2be0cf85ab2c8864623e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_5eeeb28c",
         "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/impl/SecurityGroupCacheManagerImpl.java",
         "patchSetId": 7
@@ -162,6 +318,24 @@
       "writtenOn": "2017-01-24T23:53:40Z",
       "side": 1,
       "message": "I had a comment earlier about this, what is your thought?:\n\n\"The existing logic to retrieve neutron ports to avoid a timing issue (see bug 4205). We want to make sure that our changes here doesn\u0027t break the above fix.\nHow significance for the time that we save if reading from cache  first?\"",
+      "revId": "3b77146ce09be66569cd2be0cf85ab2c8864623e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_ccf30a09",
+        "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/impl/SecurityGroupCacheManagerImpl.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 108,
+      "author": {
+        "id": 4058
+      },
+      "writtenOn": "2017-01-27T13:51:19Z",
+      "side": 1,
+      "message": "We have verified that all the respective flows were removed correctly when the VM getting removed.\n\nIt will reduce the 4 read calls to DS, when the flows are installed for the created VM.",
+      "parentUuid": "fafc7978_5eeeb28c",
       "revId": "3b77146ce09be66569cd2be0cf85ab2c8864623e",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -191,6 +365,30 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_acf846e6",
+        "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/impl/SecurityGroupCacheManagerImpl.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 112,
+      "author": {
+        "id": 4058
+      },
+      "writtenOn": "2017-01-27T13:51:19Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_3e52ce13",
+      "range": {
+        "startLine": 112,
+        "startChar": 16,
+        "endLine": 112,
+        "endChar": 106
+      },
+      "revId": "3b77146ce09be66569cd2be0cf85ab2c8864623e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_bef51ecd",
         "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/impl/SecurityGroupCacheManagerImpl.java",
         "patchSetId": 7
@@ -202,6 +400,30 @@
       "writtenOn": "2017-01-24T22:04:53Z",
       "side": 1,
       "message": "Is this indent correct? I think the indent should be 4 white spaces here.",
+      "range": {
+        "startLine": 156,
+        "startChar": 0,
+        "endLine": 156,
+        "endChar": 9
+      },
+      "revId": "3b77146ce09be66569cd2be0cf85ab2c8864623e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_ecd9ae84",
+        "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/impl/SecurityGroupCacheManagerImpl.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 156,
+      "author": {
+        "id": 4058
+      },
+      "writtenOn": "2017-01-27T13:51:19Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_bef51ecd",
       "range": {
         "startLine": 156,
         "startChar": 0,
@@ -284,6 +506,30 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_2ce4563a",
+        "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/impl/SecurityServicesImpl.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 550,
+      "author": {
+        "id": 4058
+      },
+      "writtenOn": "2017-01-27T13:51:19Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_9e35ba48",
+      "range": {
+        "startLine": 550,
+        "startChar": 8,
+        "endLine": 550,
+        "endChar": 28
+      },
+      "revId": "3b77146ce09be66569cd2be0cf85ab2c8864623e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_becd1e60",
         "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/impl/SecurityServicesImpl.java",
         "patchSetId": 7
@@ -295,6 +541,30 @@
       "writtenOn": "2017-01-24T22:04:53Z",
       "side": 1,
       "message": "In this if-else-blocks, \"dpIdNodeMap.get(node.getNodeId())\" is called twice. But I think it\u0027s better to call it once. And, I think this doesn\u0027t need to call \"node.getNodeId()\", since this method has the target value of the NodeId as its parameter.\n\nTherefore, it would be like as follows.\n\n        Long dpid \u003d dpIdNodeMap.get(nodeId);\n        if (dpid \u003d\u003d null) {\n            dpid \u003d getDpidOfIntegrationBridge(node);\n            if (dpid \u003d\u003d 0L) {\n                return;\n            }\n            dpIdNodeMap.put(nodeId, dpid);\n        }",
+      "range": {
+        "startLine": 553,
+        "startChar": 10,
+        "endLine": 553,
+        "endChar": 43
+      },
+      "revId": "3b77146ce09be66569cd2be0cf85ab2c8864623e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_6c3c9e94",
+        "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/impl/SecurityServicesImpl.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 553,
+      "author": {
+        "id": 4058
+      },
+      "writtenOn": "2017-01-27T13:51:19Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_becd1e60",
       "range": {
         "startLine": 553,
         "startChar": 10,
@@ -365,6 +635,30 @@
       "writtenOn": "2017-01-24T22:04:53Z",
       "side": 1,
       "message": "Now, this message is not correct since checking the clean up cache is done at this point.",
+      "range": {
+        "startLine": 168,
+        "startChar": 27,
+        "endLine": 168,
+        "endChar": 75
+      },
+      "revId": "3b77146ce09be66569cd2be0cf85ab2c8864623e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_ac468621",
+        "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/impl/TenantNetworkManagerImpl.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 168,
+      "author": {
+        "id": 4058
+      },
+      "writtenOn": "2017-01-27T13:51:19Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_def8e2c6",
       "range": {
         "startLine": 168,
         "startChar": 27,
