@@ -13,14 +13,16 @@ import org.apache.karaf.shell.console.OsgiCommandSupport;
 import org.opendaylight.netvirt.fibmanager.L3VPNTransportTypes;
 import org.opendaylight.netvirt.fibmanager.api.IFibManager;
 
-@Command(scope = "vpnservice", name = "configureTransportType", description = "Configure Preferred Transport Type for L3VPN service")
-public class confTransportL3VPNCommand extends OsgiCommandSupport {
+@Command(scope = "vpnservice", name = "configureTransportType",
+    description = "Configure Preferred Transport Type for L3VPN service")
+public class ConfTransportL3VPNCommand extends OsgiCommandSupport {
     private IFibManager fibManager;
 
     @Option(name = "-s", aliases = {"--service"}, description = "Service", required = false, multiValued = false)
     String service;
 
-    @Option(name = "-t", aliases = {"--type"}, description = "Configure Transport Type", required = false, multiValued = false)
+    @Option(name = "-t", aliases = {"--type"}, description = "Configure Transport Type",
+        required = false, multiValued = false)
     String transportType;
 
     public void setFibManager(IFibManager fibManager) {
@@ -30,14 +32,15 @@ public class confTransportL3VPNCommand extends OsgiCommandSupport {
     @Override
     protected Object doExecute() throws Exception {
 
-        if (service == null || service.isEmpty() ||
-                !service.toUpperCase().equals("L3VPN")) {
+        if (service == null || service.isEmpty() || !service.toUpperCase().equals("L3VPN")) {
             session.getConsole().println("Please provide valid input for service ");
-            session.getConsole().println("exec configure-transport-type (-s | --service)  <L3VPN> (-t | --type) <VxLAN/GRE>");
+            session.getConsole().println(
+                "exec configure-transport-type (-s | --service)  <L3VPN> (-t | --type) <VxLAN/GRE>");
             return null;
         }
-        if (transportType == null || transportType.isEmpty() ||
-                (L3VPNTransportTypes.validateTransportType(transportType.toUpperCase()) == L3VPNTransportTypes.Invalid)) {
+        if (transportType == null || transportType.isEmpty()
+            ||
+            (L3VPNTransportTypes.validateTransportType(transportType.toUpperCase()) == L3VPNTransportTypes.Invalid)) {
             session.getConsole().println("Please provide valid input for Transport type");
             return null;
         }
@@ -48,14 +51,14 @@ public class confTransportL3VPNCommand extends OsgiCommandSupport {
             return null;
         }
 
-        if ((cachedTransType.equals(L3VPNTransportTypes.Invalid.getTransportType())) ||
-                (!fibManager.isVPNConfigured())) {
+        if ((cachedTransType.equals(L3VPNTransportTypes.Invalid.getTransportType()))
+            || (!fibManager.isVPNConfigured())) {
             fibManager.setConfTransType(service, transportType.toUpperCase());
             fibManager.writeConfTransTypeConfigDS();
         } else {
-            session.getConsole().println( "VPN service already configured with " + cachedTransType +
-                    " as the transport type. Please remove vpn service and configure" +
-                    " again. Changes were discarded.");
+            session.getConsole().println("VPN service already configured with " + cachedTransType
+                + " as the transport type. Please remove vpn service and configure"
+                + " again. Changes were discarded.");
         }
         return null;
     }
