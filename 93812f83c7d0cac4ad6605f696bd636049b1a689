@@ -117,6 +117,40 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_f1b986ea",
+        "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/impl/NeutronL3Adapter.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 1631,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2017-01-27T20:59:23Z",
+      "side": 1,
+      "message": "The name can be improved to show that we get port from cleanup cache prferably, something like \u0027getPortPreferablyFromCleanupCache\u0027",
+      "revId": "93812f83c7d0cac4ad6605f696bd636049b1a689",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_914e3ac0",
+        "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/impl/SecurityGroupCacheManagerImpl.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 54,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2017-01-27T20:59:23Z",
+      "side": 1,
+      "message": "make it volatile and initialize as empty List",
+      "revId": "93812f83c7d0cac4ad6605f696bd636049b1a689",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_f13a2635",
         "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/impl/SecurityGroupCacheManagerImpl.java",
         "patchSetId": 11
@@ -128,6 +162,40 @@
       "writtenOn": "2017-01-27T20:54:09Z",
       "side": 1,
       "message": "this isn\u0027t needed when using parameterized logging as this code is using. the slf4j logger will check isDebugEnabled before working on the simple arguments.",
+      "revId": "93812f83c7d0cac4ad6605f696bd636049b1a689",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_f11186ad",
+        "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/impl/SecurityGroupCacheManagerImpl.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 58,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2017-01-27T20:59:23Z",
+      "side": 1,
+      "message": "Not needed, see Tai-san\u0027s comment",
+      "revId": "93812f83c7d0cac4ad6605f696bd636049b1a689",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_31230e07",
+        "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/impl/SecurityGroupCacheManagerImpl.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 70,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2017-01-27T20:59:23Z",
+      "side": 1,
+      "message": "change is not needed",
       "revId": "93812f83c7d0cac4ad6605f696bd636049b1a689",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -162,6 +230,30 @@
       "writtenOn": "2017-01-27T19:41:49Z",
       "side": 1,
       "message": "Does this patch need this change? Is this change needed to fix the Bug 7445? If not, I think we should make this change in a different patch in order to make this patch as simple as possible.",
+      "range": {
+        "startLine": 112,
+        "startChar": 0,
+        "endLine": 136,
+        "endChar": 9
+      },
+      "revId": "93812f83c7d0cac4ad6605f696bd636049b1a689",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_115b6a88",
+        "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/impl/SecurityGroupCacheManagerImpl.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 136,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2017-01-27T20:59:23Z",
+      "side": 1,
+      "message": "Do you have plan to address Tai-san\u0027s comment about not checking for default SG?\n\nAnyhow, for this change you need to check if user delete/modify/add \u0027default\u0027 SG as well",
+      "parentUuid": "fafc7978_5172127d",
       "range": {
         "startLine": 112,
         "startChar": 0,
