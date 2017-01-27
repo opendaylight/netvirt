@@ -8,12 +8,12 @@
 
 package org.opendaylight.netvirt.natservice.internal;
 
+import com.google.common.base.Strings;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
-
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.genius.mdsalutil.ActionInfo;
 import org.opendaylight.genius.mdsalutil.BucketInfo;
@@ -31,8 +31,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.group.types.rev131018.Group
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.subnetmaps.Subnetmap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.google.common.base.Strings;
 
 public class ExternalNetworkGroupInstaller {
     private static final Logger LOG = LoggerFactory.getLogger(ExternalNetworkGroupInstaller.class);
@@ -181,7 +179,8 @@ public class ExternalNetworkGroupInstaller {
         }
     }
 
-    private GroupEntity buildExtNetGroupEntity(String macAddress, String subnetName, long groupId, String extInterface) {
+    private GroupEntity buildExtNetGroupEntity(String macAddress, String subnetName,
+                                               long groupId, String extInterface) {
         BigInteger dpId = NatUtil.getDpnForInterface(interfaceManager, extInterface);
         if (BigInteger.ZERO.equals(dpId)) {
             LOG.warn("No DPN for interface {}. NAT ext-net flow will not be installed", extInterface);

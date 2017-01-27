@@ -10,7 +10,6 @@ package org.opendaylight.netvirt.natservice.internal;
 import com.google.common.base.Optional;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.DataChangeListener;
-import org.opendaylight.controller.md.sal.common.api.data.AsyncDataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
@@ -27,12 +26,15 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class RouterPortsListener extends AsyncDataTreeChangeListenerBase<RouterPorts, RouterPortsListener> implements AutoCloseable{
+public class RouterPortsListener
+    extends AsyncDataTreeChangeListenerBase<RouterPorts, RouterPortsListener>
+    implements AutoCloseable {
+
     private static final Logger LOG = LoggerFactory.getLogger(RouterPortsListener.class);
     private ListenerRegistration<DataChangeListener> listenerRegistration;
     private final DataBroker dataBroker;
 
-    public RouterPortsListener (final DataBroker dataBroker) {
+    public RouterPortsListener(final DataBroker dataBroker) {
         super(RouterPorts.class, RouterPortsListener.class);
         this.dataBroker = dataBroker;
     }
@@ -55,9 +57,9 @@ public class RouterPortsListener extends AsyncDataTreeChangeListenerBase<RouterP
 
     @Override
     protected void add(final InstanceIdentifier<RouterPorts> identifier, final RouterPorts routerPorts) {
-        LOG.trace("Add router ports method - key: " + identifier + ", value=" + routerPorts );
+        LOG.trace("Add router ports method - key: " + identifier + ", value=" + routerPorts);
         Optional<RouterPorts> optRouterPorts = NatUtil.read(dataBroker, LogicalDatastoreType.OPERATIONAL, identifier);
-        if(optRouterPorts.isPresent()) {
+        if (optRouterPorts.isPresent()) {
             RouterPorts ports = optRouterPorts.get();
             String routerName = ports.getRouterId();
             MDSALUtil.syncUpdate(dataBroker, LogicalDatastoreType.OPERATIONAL, identifier,
@@ -67,19 +69,20 @@ public class RouterPortsListener extends AsyncDataTreeChangeListenerBase<RouterP
             String routerName = routerPorts.getRouterId();
             MDSALUtil.syncWrite(dataBroker, LogicalDatastoreType.OPERATIONAL, identifier,
                 new RouterPortsBuilder().setKey(new RouterPortsKey(routerName)).setRouterId(routerName)
-                        .setExternalNetworkId(routerPorts.getExternalNetworkId()).build());
+                    .setExternalNetworkId(routerPorts.getExternalNetworkId()).build());
         }
         //Check if the router is associated with any BGP VPN and update the association
         String routerName = routerPorts.getRouterId();
         Uuid vpnName = NatUtil.getVpnForRouter(dataBroker, routerName);
         if (vpnName != null) {
             InstanceIdentifier<Routermapping> routerMappingId = NatUtil.getRouterVpnMappingId(routerName);
-            Optional<Routermapping> optRouterMapping = NatUtil.read(dataBroker, LogicalDatastoreType.OPERATIONAL, routerMappingId);
-            if(!optRouterMapping.isPresent()){
+            Optional<Routermapping> optRouterMapping =
+                NatUtil.read(dataBroker, LogicalDatastoreType.OPERATIONAL, routerMappingId);
+            if (!optRouterMapping.isPresent()) {
                 Long vpnId = NatUtil.getVpnId(dataBroker, vpnName.getValue());
                 LOG.debug("Updating router {} to VPN {} association with Id {}", routerName, vpnName, vpnId);
                 Routermapping routerMapping = new RoutermappingBuilder().setKey(new RoutermappingKey(routerName))
-                                                 .setRouterName(routerName).setVpnName(vpnName.getValue()).setVpnId(vpnId).build();
+                    .setRouterName(routerName).setVpnName(vpnName.getValue()).setVpnId(vpnId).build();
                 MDSALUtil.syncWrite(dataBroker, LogicalDatastoreType.OPERATIONAL, routerMappingId, routerMapping);
             }
         }
@@ -87,18 +90,19 @@ public class RouterPortsListener extends AsyncDataTreeChangeListenerBase<RouterP
 
     @Override
     protected void remove(InstanceIdentifier<RouterPorts> identifier, RouterPorts routerPorts) {
-        LOG.trace("Remove router ports method - key: " + identifier + ", value=" + routerPorts );
+        LOG.trace("Remove router ports method - key: " + identifier + ", value=" + routerPorts);
         //MDSALUtil.syncDelete(dataBroker, LogicalDatastoreType.OPERATIONAL, identifier);
         //Remove the router to vpn association mapping entry if at all present
         String routerName = routerPorts.getRouterId();
         Uuid vpnName = NatUtil.getVpnForRouter(dataBroker, routerName);
         if (vpnName != null) {
-            MDSALUtil.syncDelete(dataBroker, LogicalDatastoreType.OPERATIONAL, NatUtil.getRouterVpnMappingId(routerName));
+            MDSALUtil.syncDelete(dataBroker, LogicalDatastoreType.OPERATIONAL,
+                NatUtil.getRouterVpnMappingId(routerName));
         }
     }
 
     @Override
     protected void update(InstanceIdentifier<RouterPorts> identifier, RouterPorts original, RouterPorts update) {
-        LOG.trace("Update router ports method - key: " + identifier + ", original=" + original + ", update=" + update );
+        LOG.trace("Update router ports method - key: " + identifier + ", original=" + original + ", update=" + update);
     }
 }
