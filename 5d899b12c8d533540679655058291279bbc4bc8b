@@ -2,6 +2,23 @@
   "comments": [
     {
       "key": {
+        "uuid": "fafc7978_8ee73740",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/pom.xml",
+        "patchSetId": 4
+      },
+      "lineNbr": 179,
+      "author": {
+        "id": 5867
+      },
+      "writtenOn": "2017-01-27T15:43:03Z",
+      "side": 1,
+      "message": "Is it \"normal\" that we need this here - is that how all projects do it? (I\u0027m seeing it for the first time.) Just wondering if this is something that should be defined higher up, like in odlparent, IFF there is an initial/*.xml (conditional), then do this thing.. just a thought.",
+      "revId": "5d899b12c8d533540679655058291279bbc4bc8b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_3669478c",
         "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/resources/org/opendaylight/blueprint/elanmanager.xml",
         "patchSetId": 4
@@ -19,6 +36,23 @@
         "endLine": 30,
         "endChar": 50
       },
+      "revId": "5d899b12c8d533540679655058291279bbc4bc8b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_2ec1eb80",
+        "filename": "vpnservice/features/src/main/features/features.xml",
+        "patchSetId": 4
+      },
+      "lineNbr": 83,
+      "author": {
+        "id": 5867
+      },
+      "writtenOn": "2017-01-27T15:43:03Z",
+      "side": 1,
+      "message": "careful if this is merged before the Karaf 4 feature work (see https://git.opendaylight.org/gerrit/#/c/50923/), you\u0027ll have to remember to amend c/50923 accordingly.",
       "revId": "5d899b12c8d533540679655058291279bbc4bc8b",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
