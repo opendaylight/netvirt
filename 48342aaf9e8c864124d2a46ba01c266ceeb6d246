@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_36c1472f",
+        "filename": "docs/specs/conntrack-based-snat.rst",
+        "patchSetId": 17
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 4269
+      },
+      "writtenOn": "2017-01-27T10:18:47Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_a3b6a588",
+      "revId": "48342aaf9e8c864124d2a46ba01c266ceeb6d246",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_c00c7c97",
         "filename": "docs/specs/conntrack-based-snat.rst",
         "patchSetId": 17
@@ -54,6 +72,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_16d1a3fb",
+        "filename": "docs/specs/conntrack-based-snat.rst",
+        "patchSetId": 17
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 4269
+      },
+      "writtenOn": "2017-01-27T10:18:47Z",
+      "side": 1,
+      "message": "Yes the tracking in handled by netfilter. It uses the tuples as below to track icmp connection uniquely with 192.168.111.254  being the extrenal IP.\n\nsrc\u003d192.168.111.254 dst\u003d192.168.111.23 type\u003d0 code\u003d0 id\u003d11138 mark\u003d0 zone\u003d5004 use\u003d1",
+      "parentUuid": "fafc7978_4658a456",
+      "revId": "48342aaf9e8c864124d2a46ba01c266ceeb6d246",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_434ff992",
         "filename": "docs/specs/conntrack-based-snat.rst",
         "patchSetId": 17
@@ -71,6 +107,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_f6cdff5e",
+        "filename": "docs/specs/conntrack-based-snat.rst",
+        "patchSetId": 17
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 4269
+      },
+      "writtenOn": "2017-01-27T10:18:47Z",
+      "side": 1,
+      "message": "As of now it will continue. Ovs has plans to introduce a way to delete the exisitng connections. The support should be available by 2.7. We need to explore it.",
+      "parentUuid": "fafc7978_434ff992",
+      "revId": "48342aaf9e8c864124d2a46ba01c266ceeb6d246",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_436899f5",
         "filename": "docs/specs/conntrack-based-snat.rst",
         "patchSetId": 17
@@ -82,6 +136,24 @@
       "writtenOn": "2017-01-24T17:52:00Z",
       "side": 1,
       "message": "So the changes to address this feature involves openflowplugin, genius and netvirt projects ?",
+      "revId": "48342aaf9e8c864124d2a46ba01c266ceeb6d246",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_56db2b1b",
+        "filename": "docs/specs/conntrack-based-snat.rst",
+        "patchSetId": 17
+      },
+      "lineNbr": 44,
+      "author": {
+        "id": 4269
+      },
+      "writtenOn": "2017-01-27T10:18:47Z",
+      "side": 1,
+      "message": "yes thats right.",
+      "parentUuid": "fafc7978_436899f5",
       "revId": "48342aaf9e8c864124d2a46ba01c266ceeb6d246",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -111,6 +183,30 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_564e8bc2",
+        "filename": "docs/specs/conntrack-based-snat.rst",
+        "patchSetId": 17
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 4269
+      },
+      "writtenOn": "2017-01-27T10:18:47Z",
+      "side": 1,
+      "message": "It is based on the idle timeout and is not controlled by ovs. In ovs down scenario if the ovs is back before netfilter entry times out, provided the ovs flows are intact, the connection should continue.",
+      "parentUuid": "fafc7978_80eef489",
+      "range": {
+        "startLine": 52,
+        "startChar": 49,
+        "endLine": 52,
+        "endChar": 58
+      },
+      "revId": "48342aaf9e8c864124d2a46ba01c266ceeb6d246",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_e3242dc8",
         "filename": "docs/specs/conntrack-based-snat.rst",
         "patchSetId": 17
@@ -128,6 +224,42 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_56fccb3e",
+        "filename": "docs/specs/conntrack-based-snat.rst",
+        "patchSetId": 17
+      },
+      "lineNbr": 65,
+      "author": {
+        "id": 4269
+      },
+      "writtenOn": "2017-01-27T10:18:47Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_e3242dc8",
+      "revId": "48342aaf9e8c864124d2a46ba01c266ceeb6d246",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_364b07b2",
+        "filename": "docs/specs/conntrack-based-snat.rst",
+        "patchSetId": 17
+      },
+      "lineNbr": 67,
+      "author": {
+        "id": 4269
+      },
+      "writtenOn": "2017-01-27T10:18:47Z",
+      "side": 1,
+      "message": "1)This will be controlled by ovs flows and will continue as such us. Netfilter does not alter layer2 attributes.\n\n2)The plan is to have a ovs flow per subnet. So only the port selection will be done by netfilter.",
+      "parentUuid": "fafc7978_86056cc4",
+      "revId": "48342aaf9e8c864124d2a46ba01c266ceeb6d246",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_fe47a649",
         "filename": "docs/specs/conntrack-based-snat.rst",
         "patchSetId": 17
@@ -139,6 +271,24 @@
       "writtenOn": "2017-01-24T17:52:00Z",
       "side": 1,
       "message": "Packets come from Table 19 directly to Table 44.. \nSimilarly packets come from Table 20 directly to Table 44 too.\n\nNot sure where Table 21 interference comes from.  Can you please clarify this?",
+      "revId": "48342aaf9e8c864124d2a46ba01c266ceeb6d246",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_96c75312",
+        "filename": "docs/specs/conntrack-based-snat.rst",
+        "patchSetId": 17
+      },
+      "lineNbr": 71,
+      "author": {
+        "id": 4269
+      },
+      "writtenOn": "2017-01-27T10:18:47Z",
+      "side": 1,
+      "message": "This was taken from a flat provider use case , to show how the conntrack flows will fit in. The netfilter check now happens in table 44 and There will not be any change in table 19.20.21 flows.",
+      "parentUuid": "fafc7978_fe47a649",
       "revId": "48342aaf9e8c864124d2a46ba01c266ceeb6d246",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -191,6 +341,24 @@
       "side": 1,
       "message": "Yes.. we might get it in OVS 2.7, I\u0027m not sure yet, Aswin can probably check once the feature is done",
       "parentUuid": "fafc7978_7e73b6b1",
+      "revId": "48342aaf9e8c864124d2a46ba01c266ceeb6d246",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_76cc6f36",
+        "filename": "docs/specs/conntrack-based-snat.rst",
+        "patchSetId": 17
+      },
+      "lineNbr": 208,
+      "author": {
+        "id": 4269
+      },
+      "writtenOn": "2017-01-27T10:18:47Z",
+      "side": 1,
+      "message": "Yes it is expected by ovs2.7",
+      "parentUuid": "fafc7978_267e40af",
       "revId": "48342aaf9e8c864124d2a46ba01c266ceeb6d246",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
