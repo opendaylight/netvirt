@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_3669478c",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/resources/org/opendaylight/blueprint/elanmanager.xml",
+        "patchSetId": 4
+      },
+      "lineNbr": 30,
+      "author": {
+        "id": 3276
+      },
+      "writtenOn": "2017-01-27T04:05:08Z",
+      "side": 1,
+      "message": "Yakir\u0027s https://git.opendaylight.org/gerrit/50778 is expected to take care of issues with restart on configuration change. If that one works, we can opt to retain default strategy of reload. Would appreciate comments/inputs on this.",
+      "range": {
+        "startLine": 30,
+        "startChar": 28,
+        "endLine": 30,
+        "endChar": 50
+      },
+      "revId": "5d899b12c8d533540679655058291279bbc4bc8b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
