@@ -7,6 +7,9 @@
  */
 package org.opendaylight.netvirt.natservice.internal;
 
+import com.google.common.primitives.Ints;
+import java.math.BigInteger;
+import java.util.HashSet;
 import org.opendaylight.controller.liblldp.NetUtils;
 import org.opendaylight.genius.mdsalutil.MetaDataUtil;
 import org.opendaylight.genius.mdsalutil.NWUtil;
@@ -20,14 +23,10 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.service.rev130709.Pa
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.math.BigInteger;
-import java.util.HashSet;
-import com.google.common.primitives.Ints;
-
 public class NaptPacketInHandler implements PacketProcessingListener {
 
     private static final Logger LOG = LoggerFactory.getLogger(NaptPacketInHandler.class);
-    private final static HashSet<String> incomingPacketMap = new HashSet<>();
+    private static final HashSet<String> INCOMING_PACKET_MAP = new HashSet<>();
     private final EventDispatcher naptEventdispatcher;
 
     public NaptPacketInHandler(EventDispatcher eventDispatcher) {
@@ -35,6 +34,8 @@ public class NaptPacketInHandler implements PacketProcessingListener {
     }
 
     @Override
+    // TODO Clean up the exception handling
+    @SuppressWarnings("checkstyle:IllegalCatch")
     public void onPacketReceived(PacketReceived packetReceived) {
         String internalIPAddress = "";
         int portNumber = 0;
@@ -66,7 +67,7 @@ public class NaptPacketInHandler implements PacketProcessingListener {
                     if (ipPkt.getPayload() instanceof TCP) {
                         TCP tcpPkt = (TCP) ipPkt.getPayload();
                         portNumber = tcpPkt.getSourcePort();
-                        if(portNumber < 0){
+                        if (portNumber < 0) {
                             portNumber = 32767 + portNumber + 32767 + 2;
                             LOG.trace("Retrieved and extracted TCP portNumber {}", portNumber);
                         }
@@ -75,7 +76,7 @@ public class NaptPacketInHandler implements PacketProcessingListener {
                     } else if (ipPkt.getPayload() instanceof UDP) {
                         UDP udpPkt = (UDP) ipPkt.getPayload();
                         portNumber = udpPkt.getSourcePort();
-                        if(portNumber < 0){
+                        if (portNumber < 0) {
                             portNumber = 32767 + portNumber + 32767 + 2;
                             LOG.trace("Retrieved and extracted UDP portNumber {}", portNumber);
                         }
@@ -90,42 +91,42 @@ public class NaptPacketInHandler implements PacketProcessingListener {
                     return;
                 }
 
-                if(internalIPAddress != null) {
+                if (internalIPAddress != null) {
                     String sourceIPPortKey = internalIPAddress + ":" + portNumber;
                     LOG.debug("NAT Service : sourceIPPortKey {} mapping maintained in the map", sourceIPPortKey);
-                    if (!incomingPacketMap.contains(sourceIPPortKey)) {
-                        incomingPacketMap.add(internalIPAddress + portNumber);
+                    if (!INCOMING_PACKET_MAP.contains(sourceIPPortKey)) {
+                        INCOMING_PACKET_MAP.add(internalIPAddress + portNumber);
                         LOG.trace("NAT Service : Processing new Packet");
                         BigInteger metadata = packetReceived.getMatch().getMetadata().getMetadata();
                         routerId = MetaDataUtil.getNatRouterIdFromMetadata(metadata);
-                        if( routerId <= 0) {
+                        if (routerId <= 0) {
                             LOG.error("NAT Service : Router ID is invalid");
                             return;
                         }
                         //send to Event Queue
-                        LOG.trace("NAT Service : Creating NaptEvent for routerId {} and sourceIp {} and Port {}", routerId,
-                                internalIPAddress, portNumber);
-                        NAPTEntryEvent naptEntryEvent = new NAPTEntryEvent(internalIPAddress,portNumber,routerId,
-                                operation,protocol, packetReceived, false);
+                        LOG.trace("NAT Service : Creating NaptEvent for routerId {} and sourceIp {} and Port {}",
+                            routerId, internalIPAddress, portNumber);
+                        NAPTEntryEvent naptEntryEvent = new NAPTEntryEvent(internalIPAddress, portNumber, routerId,
+                            operation, protocol, packetReceived, false);
                         naptEventdispatcher.addNaptEvent(naptEntryEvent);
                         LOG.trace("NAT Service : PacketInHandler sent event to NaptEventHandler");
                     } else {
                         LOG.trace("NAT Service : Packet already processed");
-                        NAPTEntryEvent naptEntryEvent = new NAPTEntryEvent(internalIPAddress,portNumber,routerId,
-                                operation,protocol, packetReceived, true);
+                        NAPTEntryEvent naptEntryEvent = new NAPTEntryEvent(internalIPAddress, portNumber, routerId,
+                            operation, protocol, packetReceived, true);
                         LOG.trace("NAT Service : PacketInHandler sent event to NaptEventHandler");
                     }
-                }else {
+                } else {
                     LOG.error("Nullpointer exception in retrieving internalIPAddress");
                 }
             }
-        }else {
+        } else {
             LOG.trace("Packet is not from the Outbound NAPT table");
         }
     }
 
     public void removeIncomingPacketMap(String sourceIPPortKey) {
-        incomingPacketMap.remove(sourceIPPortKey);
+        INCOMING_PACKET_MAP.remove(sourceIPPortKey);
         LOG.debug("NAT Service : sourceIPPortKey {} mapping is removed from map", sourceIPPortKey);
     }
 }

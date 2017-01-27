@@ -8,6 +8,7 @@
 package org.opendaylight.netvirt.natservice.internal;
 
 import com.google.common.base.Optional;
+import java.math.BigInteger;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
@@ -16,15 +17,15 @@ import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev14081
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.iana._if.type.rev140508.Tunnel;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.InterfacesState;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.router.interfaces.RouterInterface;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.OdlInterfaceRpcService;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.router.interfaces.RouterInterface;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import java.math.BigInteger;
 
-public class NatInterfaceStateChangeListener extends AsyncDataTreeChangeListenerBase<Interface, NatInterfaceStateChangeListener> implements
-        AutoCloseable {
+public class NatInterfaceStateChangeListener
+    extends AsyncDataTreeChangeListenerBase<Interface, NatInterfaceStateChangeListener>
+    implements AutoCloseable {
 
     private static final Logger LOG = LoggerFactory.getLogger(NatInterfaceStateChangeListener.class);
     private final DataBroker dataBroker;
@@ -52,6 +53,8 @@ public class NatInterfaceStateChangeListener extends AsyncDataTreeChangeListener
     }
 
     @Override
+    // TODO Clean up the exception handling
+    @SuppressWarnings("checkstyle:IllegalCatch")
     protected void add(InstanceIdentifier<Interface> identifier, Interface intrf) {
         try {
             final String interfaceName = intrf.getName();
@@ -65,8 +68,8 @@ public class NatInterfaceStateChangeListener extends AsyncDataTreeChangeListener
                     // Tunnel events are directly serviced
                     // by TunnelInterfacesStateListener present as part of VpnInterfaceManager
                     LOG.debug("NAT Service : Config Interface Name {}", configInterface.getName());
-                    RouterInterface routerInterface = NatUtil.getConfiguredRouterInterface
-                            (dataBroker, interfaceName);
+                    RouterInterface routerInterface =
+                        NatUtil.getConfiguredRouterInterface(dataBroker, interfaceName);
                     if (routerInterface != null) {
                         String routerName = routerInterface.getRouterName();
                         LOG.debug("NAT Service : Router Name {} ", routerInterface.getRouterName());
@@ -78,15 +81,17 @@ public class NatInterfaceStateChangeListener extends AsyncDataTreeChangeListener
                     }
                 }
             } else {
-                LOG.error("Unable to process add for interface {} ," +
-                        "since Interface ConfigDS entry absent for the same", interfaceName);
+                LOG.error("Unable to process add for interface {}, "
+                    + "since Interface ConfigDS entry absent for the same", interfaceName);
             }
         } catch (Exception e) {
-          LOG.error("Exception caught in Interface Operational State Up event", e);
+            LOG.error("Exception caught in Interface Operational State Up event", e);
         }
     }
 
     @Override
+    // TODO Clean up the exception handling
+    @SuppressWarnings("checkstyle:IllegalCatch")
     protected void remove(InstanceIdentifier<Interface> identifier, Interface intrf) {
         final String interfaceName = intrf.getName();
         try {
@@ -96,11 +101,11 @@ public class NatInterfaceStateChangeListener extends AsyncDataTreeChangeListener
                 try {
                     dpId = NatUtil.getDpIdFromInterface(intrf);
                 } catch (Exception e) {
-                    LOG.warn("NAT Service : Unable to retrieve DPNID from Interface operational data store for " +
-                            "Interface {}. Fetching from VPN Interface op data store. ", interfaceName, e);
+                    LOG.warn("NAT Service : Unable to retrieve DPNID from Interface operational data store for "
+                        + "Interface {}. Fetching from VPN Interface op data store. ", interfaceName, e);
                     InstanceIdentifier<VpnInterface> id = NatUtil.getVpnInterfaceIdentifier(interfaceName);
                     Optional<VpnInterface> optVpnInterface = NatUtil.read(dataBroker, LogicalDatastoreType
-                            .OPERATIONAL, id);
+                        .OPERATIONAL, id);
                     if (!optVpnInterface.isPresent()) {
                         LOG.debug("NAT Service : Interface {} is not a VPN Interface, ignoring.", interfaceName);
                         return;
@@ -108,7 +113,7 @@ public class NatInterfaceStateChangeListener extends AsyncDataTreeChangeListener
                     final VpnInterface vpnInterface = optVpnInterface.get();
                     dpId = vpnInterface.getDpnId();
                 }
-                if(dpId == null || dpId.equals(BigInteger.ZERO)){
+                if (dpId == null || dpId.equals(BigInteger.ZERO)) {
                     LOG.debug("NAT Service : Unable to get DPN ID for the Interface {}", interfaceName);
                     return;
                 }
@@ -120,11 +125,13 @@ public class NatInterfaceStateChangeListener extends AsyncDataTreeChangeListener
                 writeOperTxn.submit();
             }
         } catch (Exception e) {
-          LOG.error("NAT Service : Exception observed in handling deletion of VPN Interface {}. ", interfaceName, e);
+            LOG.error("NAT Service : Exception observed in handling deletion of VPN Interface {}. ", interfaceName, e);
         }
     }
 
     @Override
+    // TODO Clean up the exception handling
+    @SuppressWarnings("checkstyle:IllegalCatch")
     protected void update(InstanceIdentifier<Interface> identifier, Interface original, Interface update) {
         try {
             final String interfaceName = update.getName();
@@ -133,11 +140,12 @@ public class NatInterfaceStateChangeListener extends AsyncDataTreeChangeListener
                 BigInteger dpId;
                 try {
                     dpId = NatUtil.getDpIdFromInterface(update);
-                } catch (Exception e){
-                    LOG.warn("NAT Service : Unable to retrieve DPN ID from Interface operational data store for Interface {}. Fetching " +
-                            "from VPN Interface op data store. ", update.getName(), e);
+                } catch (Exception e) {
+                    LOG.warn("NAT Service : Unable to retrieve DPN ID from Interface operational data "
+                        + "store for Interface {}. Fetching from VPN Interface op data store. ", update.getName(), e);
                     InstanceIdentifier<VpnInterface> id = NatUtil.getVpnInterfaceIdentifier(interfaceName);
-                    Optional<VpnInterface> optVpnInterface = NatUtil.read(dataBroker, LogicalDatastoreType.OPERATIONAL, id);
+                    Optional<VpnInterface> optVpnInterface =
+                        NatUtil.read(dataBroker, LogicalDatastoreType.OPERATIONAL, id);
                     if (!optVpnInterface.isPresent()) {
                         LOG.debug("NAT Service : Interface {} is not a VPN Interface, ignoring.", interfaceName);
                         return;
@@ -145,7 +153,7 @@ public class NatInterfaceStateChangeListener extends AsyncDataTreeChangeListener
                     final VpnInterface vpnInterface = optVpnInterface.get();
                     dpId = vpnInterface.getDpnId();
                 }
-                if(dpId == null || dpId.equals(BigInteger.ZERO)){
+                if (dpId == null || dpId.equals(BigInteger.ZERO)) {
                     LOG.debug("NAT Service : Unable to get DPN ID for the Interface {}", interfaceName);
                     return;
                 }
@@ -155,19 +163,20 @@ public class NatInterfaceStateChangeListener extends AsyncDataTreeChangeListener
                 if (routerInterface != null) {
                     Interface.OperStatus originalOperStatus = original.getOperStatus();
                     Interface.OperStatus updateOperStatus = update.getOperStatus();
-                    if( originalOperStatus != updateOperStatus) {
+                    if (originalOperStatus != updateOperStatus) {
                         String routerName = routerInterface.getRouterName();
-                        if(updateOperStatus == Interface.OperStatus.Unknown) {
-                            LOG.debug("NAT Service : DPN {} connnected to the interface {} has gone down. Hence clearing" +
-                                    " the dpn-vpninterfaces-list entry from the neutron-router-dpns model" +
-                                    " in the ODL:L3VPN", dpId, interfaceName);
+                        if (updateOperStatus == Interface.OperStatus.Unknown) {
+                            LOG.debug("NAT Service : DPN {} connnected to the interface {} has gone down. "
+                                + "Hence clearing"
+                                + " the dpn-vpninterfaces-list entry from the neutron-router-dpns model"
+                                + " in the ODL:L3VPN", dpId, interfaceName);
                             //If the interface state is unknown, it means that the corressponding DPN has gone down.
                             //So remove the dpn-vpninterfaces-list from the neutron-router-dpns model.
                             NatUtil.removeFromNeutronRouterDpnsMap(dataBroker, routerName, dpId, writeOperTxn);
-                        }else if(updateOperStatus == Interface.OperStatus.Up){
-                            LOG.debug("NAT Service : DPN {} connnected to the interface {} has come up. Hence adding" +
-                                    " the dpn-vpninterfaces-list entry from the neutron-router-dpns model" +
-                                    " in the ODL:L3VPN", dpId, interfaceName);
+                        } else if (updateOperStatus == Interface.OperStatus.Up) {
+                            LOG.debug("NAT Service : DPN {} connnected to the interface {} has come up. Hence adding"
+                                + " the dpn-vpninterfaces-list entry from the neutron-router-dpns model"
+                                + " in the ODL:L3VPN", dpId, interfaceName);
                             handleRouterInterfacesUpEvent(routerName, interfaceName, writeOperTxn);
                         }
                     }
@@ -175,7 +184,8 @@ public class NatInterfaceStateChangeListener extends AsyncDataTreeChangeListener
                 writeOperTxn.submit();
             }
         } catch (Exception e) {
-            LOG.error("NAT Service : UPDATE : Exception observed in handling updation of VPN Interface {}. ", update.getName(), e);
+            LOG.error("NAT Service : UPDATE : Exception observed in handling updation of VPN Interface {}. ",
+                update.getName(), e);
         }
     }
 

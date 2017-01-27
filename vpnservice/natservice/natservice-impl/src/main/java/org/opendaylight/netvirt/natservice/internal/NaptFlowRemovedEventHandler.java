@@ -34,7 +34,7 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class NaptFlowRemovedEventHandler implements SalFlowListener{
+public class NaptFlowRemovedEventHandler implements SalFlowListener {
     private static final Logger LOG = LoggerFactory.getLogger(NaptFlowRemovedEventHandler.class);
     private final DataBroker dataBroker;
     private final IMdsalApiManager mdsalManager;
@@ -61,9 +61,8 @@ public class NaptFlowRemovedEventHandler implements SalFlowListener{
 
     private BigInteger getDpnId(String node) {
         //openflow:1]
-        String temp[] = node.split(":");
-        BigInteger dpnId = new BigInteger(temp[1]);
-        return dpnId;
+        String[] temp = node.split(":");
+        return new BigInteger(temp[1]);
 
     }
 
@@ -99,15 +98,16 @@ public class NaptFlowRemovedEventHandler implements SalFlowListener{
                 Ipv4Match internalIpv4Match = (Ipv4Match) layer3Match;
                 internalIpv4Address = internalIpv4Match.getIpv4Source();
             }
-            if(internalIpv4Address == null){
-                LOG.error("NaptFlowRemovedEventHandler : Matching internal IP is null while retrieving the value from the Outbound NAPT flow");
+            if (internalIpv4Address == null) {
+                LOG.error("NaptFlowRemovedEventHandler : Matching internal IP is null while retrieving the "
+                    + "value from the Outbound NAPT flow");
                 return;
             }
             //Get the internal IP as a string
             String internalIpv4AddressAsString = internalIpv4Address.getValue();
             String[] internalIpv4AddressParts = internalIpv4AddressAsString.split("/");
             String internalIpv4HostAddress = null;
-            if(internalIpv4AddressParts.length >= 1){
+            if (internalIpv4AddressParts.length >= 1) {
                 internalIpv4HostAddress = internalIpv4AddressParts[0];
             }
 
@@ -116,16 +116,17 @@ public class NaptFlowRemovedEventHandler implements SalFlowListener{
             Integer internalPortNumber = null;
             Layer4Match layer4Match = flowRemoved.getMatch().getLayer4Match();
             if (layer4Match instanceof TcpMatch) {
-                TcpMatchFields tcpMatchFields = (TcpMatchFields)layer4Match;
+                TcpMatchFields tcpMatchFields = (TcpMatchFields) layer4Match;
                 internalPortNumber = tcpMatchFields.getTcpSourcePort().getValue();
                 protocol = NAPTEntryEvent.Protocol.TCP;
-            }else if (layer4Match instanceof UdpMatch){
-                UdpMatchFields udpMatchFields = (UdpMatchFields)layer4Match;
+            } else if (layer4Match instanceof UdpMatch) {
+                UdpMatchFields udpMatchFields = (UdpMatchFields) layer4Match;
                 internalPortNumber = udpMatchFields.getUdpSourcePort().getValue();
                 protocol = NAPTEntryEvent.Protocol.UDP;
             }
-            if(protocol == null){
-                LOG.error("NaptFlowRemovedEventHandler : Matching protocol is null while retrieving the value from the Outbound NAPT flow");
+            if (protocol == null) {
+                LOG.error("NaptFlowRemovedEventHandler : Matching protocol is null while retrieving the value "
+                    + "from the Outbound NAPT flow");
                 return;
             }
 
@@ -140,9 +141,11 @@ public class NaptFlowRemovedEventHandler implements SalFlowListener{
             }
 
             //Get the external IP address and the port from the model
-            IpPortExternal ipPortExternal = NatUtil.getExternalIpPortMap(dataBroker, routerId, internalIpv4HostAddress, internalPortNumber.toString(), protocol);
+            IpPortExternal ipPortExternal = NatUtil.getExternalIpPortMap(dataBroker, routerId,
+                internalIpv4HostAddress, internalPortNumber.toString(), protocol);
             if (ipPortExternal == null) {
-                LOG.error("NaptFlowRemovedEventHandler : IpPortExternal not found, BGP vpn might be associated with router");
+                LOG.error("NaptFlowRemovedEventHandler : IpPortExternal not found, BGP vpn might be "
+                    + "associated with router");
                 //router must be associated with BGP vpn ID
                 long bgpVpnId = routerId;
                 LOG.debug("NaptFlowRemovedEventHandler : BGP VPN ID {}", bgpVpnId);
@@ -154,9 +157,11 @@ public class NaptFlowRemovedEventHandler implements SalFlowListener{
                 }
                 routerId = NatUtil.getVpnId(dataBroker, routerName);
                 LOG.debug("NaptFlowRemovedEventHandler : Router ID {}", routerId);
-                ipPortExternal = NatUtil.getExternalIpPortMap(dataBroker, routerId, internalIpv4HostAddress, internalPortNumber.toString(), protocol);
-                if(ipPortExternal == null) {
-                    LOG.error("NaptFlowRemovedEventHandler : IpPortExternal is null while queried from the model for routerId {}",routerId);
+                ipPortExternal = NatUtil.getExternalIpPortMap(dataBroker, routerId,
+                    internalIpv4HostAddress, internalPortNumber.toString(), protocol);
+                if (ipPortExternal == null) {
+                    LOG.error("NaptFlowRemovedEventHandler : IpPortExternal is null while queried from the "
+                        + "model for routerId {}", routerId);
                     return;
                 }
             }
@@ -164,21 +169,25 @@ public class NaptFlowRemovedEventHandler implements SalFlowListener{
             int externalPortNumber = ipPortExternal.getPortNum();
 
             //Create an NAPT event and place it in the queue.
-            NAPTEntryEvent naptEntryEvent = new NAPTEntryEvent(externalIpAddress, externalPortNumber, routerId, NAPTEntryEvent.Operation.DELETE, protocol, null, false);
+            NAPTEntryEvent naptEntryEvent = new NAPTEntryEvent(externalIpAddress, externalPortNumber,
+                routerId, NAPTEntryEvent.Operation.DELETE, protocol, null, false);
             naptEventdispatcher.addNaptEvent(naptEntryEvent);
 
             //Get the DPN ID from the Node
             InstanceIdentifier<Node> nodeRef = flowRemoved.getNode().getValue().firstIdentifierOf(Node.class);
             String dpn = nodeRef.firstKeyOf(Node.class).getId().getValue();
             BigInteger dpnId = getDpnId(dpn);
-            String switchFlowRef = NatUtil.getNaptFlowRef(dpnId, tableId, String.valueOf(routerId), internalIpv4HostAddress, internalPortNumber);
+            String switchFlowRef = NatUtil.getNaptFlowRef(dpnId, tableId, String.valueOf(routerId),
+                internalIpv4HostAddress, internalPortNumber);
 
             //Inform the MDSAL manager to inform about the flow removal.
-            LOG.debug("NaptFlowRemovedEventHandler : DPN ID {}, Metadata {}, SwitchFlowRef {}, internalIpv4HostAddress{}", dpnId, routerId, switchFlowRef, internalIpv4AddressAsString);
+            LOG.debug("NaptFlowRemovedEventHandler : DPN ID {}, Metadata {}, SwitchFlowRef {}, "
+                + "internalIpv4HostAddress{}", dpnId, routerId, switchFlowRef, internalIpv4AddressAsString);
             FlowEntity snatFlowEntity = NatUtil.buildFlowEntity(dpnId, tableId, switchFlowRef);
             mdsalManager.removeFlow(snatFlowEntity);
 
-            LOG.debug("Received flow removed notification due to idleTimeout of flow from switch for flowref {}",switchFlowRef);
+            LOG.debug("Received flow removed notification due to idleTimeout of flow from switch for flowref {}",
+                switchFlowRef);
             //Remove the SourceIP:Port key from the Napt packet handler map.
             String internalIpPortKey = internalIpv4HostAddress + ":" + internalPortNumber;
             naptPacketInHandler.removeIncomingPacketMap(internalIpPortKey);
@@ -187,7 +196,7 @@ public class NaptFlowRemovedEventHandler implements SalFlowListener{
             SessionAddress internalSessionAddress = new SessionAddress(internalIpv4HostAddress, internalPortNumber);
             naptManager.releaseIpExtPortMapping(routerId, internalSessionAddress, protocol);
             LOG.info("NaptFlowRemovedEventHandler : onSwitchFlowRemoved() exit");
-        }else {
+        } else {
             LOG.debug("Received flow removed notification due to flowdelete from switch for flowref");
         }
 

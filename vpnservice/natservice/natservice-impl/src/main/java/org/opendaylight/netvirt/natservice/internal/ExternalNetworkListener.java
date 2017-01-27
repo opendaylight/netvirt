@@ -35,12 +35,13 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class ExternalNetworkListener extends AsyncDataTreeChangeListenerBase<Networks, ExternalNetworkListener> implements AutoCloseable {
+public class ExternalNetworkListener extends AsyncDataTreeChangeListenerBase<Networks, ExternalNetworkListener>
+    implements AutoCloseable {
     private static final Logger LOG = LoggerFactory.getLogger(ExternalNetworkListener.class);
     private final DataBroker dataBroker;
     private final IMdsalApiManager mdsalManager;
 
-    public ExternalNetworkListener (final DataBroker dataBroker, final IMdsalApiManager mdsalManager) {
+    public ExternalNetworkListener(final DataBroker dataBroker, final IMdsalApiManager mdsalManager) {
         super(Networks.class, ExternalNetworkListener.class);
         this.dataBroker = dataBroker;
         this.mdsalManager = mdsalManager;
@@ -77,8 +78,10 @@ public class ExternalNetworkListener extends AsyncDataTreeChangeListenerBase<Net
 
     @Override
     protected void update(InstanceIdentifier<Networks> identifier, Networks original, Networks update) {
-        LOG.trace("NAT Service : External Network update mapping method - key: " + identifier + ", original=" + original + ", update=" + update );
-        //check if a new router has been added or an already existing router has been deleted from the external nw to router association
+        LOG.trace("NAT Service : External Network update mapping method - key: {}, original: {}, update: {}",
+            identifier, original, update );
+        //check if a new router has been added or an already existing router has been deleted from the external
+        // nw to router association
         List<Uuid> oldRtrs = original.getRouterIds();
         List<Uuid> newRtrs = update.getRouterIds();
         if (oldRtrs != newRtrs) {
@@ -108,12 +111,12 @@ public class ExternalNetworkListener extends AsyncDataTreeChangeListenerBase<Net
         LOG.trace("NAT Service : Add event - key: {}, value: {}", identifier, network);
         List<Uuid> routerList = network.getRouterIds();
 
-        if(routerList == null) {
+        if (routerList == null) {
             LOG.debug("No routers associated with external network {}", identifier);
             return;
         }
 
-        for(Uuid router: routerList) {
+        for (Uuid router: routerList) {
             String routerId = router.getValue();
             addOrDelDefFibRouteToSNAT(routerId, true);
         }
@@ -124,7 +127,7 @@ public class ExternalNetworkListener extends AsyncDataTreeChangeListenerBase<Net
         LOG.trace("NAT Service : Add event - key: {}, value: {}", identifier, network);
         List<Uuid> routerList = network.getRouterIds();
 
-        for(Uuid router: routerList) {
+        for (Uuid router: routerList) {
             String routerId = router.getValue();
             addOrDelDefFibRouteToSNAT(routerId, false);
         }
@@ -151,14 +154,14 @@ public class ExternalNetworkListener extends AsyncDataTreeChangeListenerBase<Net
     }
 
     private FlowEntity buildDefNATFlowEntity(BigInteger dpId, long vpnId) {
-
         InetAddress defaultIP = null;
 
         try {
             defaultIP = InetAddress.getByName("0.0.0.0");
 
         } catch (UnknownHostException e) {
-            LOG.error("NAT Service : UnknowHostException in buildDefNATFlowEntity. Failed  to build FIB Table Flow for Default Route to NAT table ");
+            LOG.error("NAT Service : UnknowHostException in buildDefNATFlowEntity. "
+                + "Failed to build FIB Table Flow for Default Route to NAT table ");
             return null;
         }
 
@@ -188,8 +191,9 @@ public class ExternalNetworkListener extends AsyncDataTreeChangeListenerBase<Net
 
     private void installDefNATRouteInDPN(BigInteger dpnId, long vpnId) {
         FlowEntity flowEntity = buildDefNATFlowEntity(dpnId, vpnId);
-        if(flowEntity == null) {
-            LOG.error("NAT Service : Flow entity received is NULL. Cannot proceed with installation of Default NAT flow");
+        if (flowEntity == null) {
+            LOG.error("NAT Service : Flow entity received is NULL. "
+                + "Cannot proceed with installation of Default NAT flow");
             return;
         }
         mdsalManager.installFlow(flowEntity);
@@ -197,8 +201,9 @@ public class ExternalNetworkListener extends AsyncDataTreeChangeListenerBase<Net
 
     private void removeDefNATRouteInDPN(BigInteger dpnId, long vpnId) {
         FlowEntity flowEntity = buildDefNATFlowEntity(dpnId, vpnId);
-        if(flowEntity == null) {
-            LOG.error("NAT Service : Flow entity received is NULL. Cannot proceed with installation of Default NAT flow");
+        if (flowEntity == null) {
+            LOG.error("NAT Service : Flow entity received is NULL. "
+                + "Cannot proceed with installation of Default NAT flow");
             return;
         }
         mdsalManager.removeFlow(flowEntity);
