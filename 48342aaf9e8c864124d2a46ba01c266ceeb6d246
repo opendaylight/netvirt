@@ -143,6 +143,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_1126cd16",
+        "filename": "docs/specs/conntrack-based-snat.rst",
+        "patchSetId": 17
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 4269
+      },
+      "writtenOn": "2017-01-27T13:40:15Z",
+      "side": 1,
+      "message": "This will be a limitation in the new implementation. We cannot re-install the existing translations.",
+      "parentUuid": "fafc7978_91a11dac",
+      "revId": "48342aaf9e8c864124d2a46ba01c266ceeb6d246",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_436899f5",
         "filename": "docs/specs/conntrack-based-snat.rst",
         "patchSetId": 17
@@ -278,6 +296,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_6cee5e24",
+        "filename": "docs/specs/conntrack-based-snat.rst",
+        "patchSetId": 17
+      },
+      "lineNbr": 67,
+      "author": {
+        "id": 4269
+      },
+      "writtenOn": "2017-01-27T13:40:15Z",
+      "side": 1,
+      "message": "Is this a case of multiple external subnets in the same router? If so it is not handled, we can think of adding a group which will select the flow in future to load balance.",
+      "parentUuid": "fafc7978_b12541ad",
+      "revId": "48342aaf9e8c864124d2a46ba01c266ceeb6d246",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_fe47a649",
         "filename": "docs/specs/conntrack-based-snat.rst",
         "patchSetId": 17
@@ -325,6 +361,24 @@
       "side": 1,
       "message": "In your flows you have shown the conntrack commit happen in Table 21 alone and that will work only for Flat/VLAN based external networks.  We have to cover MPLSOverGre and VXLAN based external networks too and for these two cases the packet will land from Table 20 and Table 19.  So my question was will this Spec cover type of external network other than VLAN/Flat ?",
       "parentUuid": "fafc7978_96c75312",
+      "revId": "48342aaf9e8c864124d2a46ba01c266ceeb6d246",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_d1356547",
+        "filename": "docs/specs/conntrack-based-snat.rst",
+        "patchSetId": 17
+      },
+      "lineNbr": 71,
+      "author": {
+        "id": 4269
+      },
+      "writtenOn": "2017-01-27T13:40:15Z",
+      "side": 1,
+      "message": "I changed the flow from the previous revision now the translation happens in table 44. My priority is in complete testing non-mpls first. But the flows should remain the same now I guess.",
+      "parentUuid": "fafc7978_9188fd23",
       "revId": "48342aaf9e8c864124d2a46ba01c266ceeb6d246",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
