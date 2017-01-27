@@ -179,6 +179,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_ce749f9e",
+        "filename": "docs/specs/conntrack-based-snat.rst",
+        "patchSetId": 17
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 4269
+      },
+      "writtenOn": "2017-01-27T15:31:07Z",
+      "side": 1,
+      "message": "TCP will have to  establish a new connection. Netfilter will reject the packets which has not gone through the handshake as it maintains the connection state.\n\nUDP and ICMP will have some loss but should continue after that.",
+      "parentUuid": "fafc7978_8c88e223",
+      "revId": "48342aaf9e8c864124d2a46ba01c266ceeb6d246",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_436899f5",
         "filename": "docs/specs/conntrack-based-snat.rst",
         "patchSetId": 17
