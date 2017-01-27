@@ -17,9 +17,9 @@ import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.netvirt.fibmanager.api.IFibManager;
 import org.opendaylight.netvirt.fibmanager.api.RouteOrigin;
 import org.opendaylight.netvirt.vpnmanager.api.IVpnManager;
+import org.opendaylight.netvirt.vpnmanager.api.intervpnlink.InterVpnLinkCache;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.RouterInterface;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.VrfEntry;
-import org.opendaylight.netvirt.vpnmanager.api.intervpnlink.InterVpnLinkCache;
 import org.osgi.framework.BundleContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -44,7 +44,7 @@ public class FibManagerImpl implements IFibManager {
             @Override
             public void run() {
                 final WaitingServiceTracker<IVpnManager> tracker = WaitingServiceTracker.create(
-                        IVpnManager.class, bundleContext);
+                    IVpnManager.class, bundleContext);
                 vpnmanager = tracker.waitForService(WaitingServiceTracker.FIVE_MINUTES);
                 LOG.info("FibManagerImpl initialized. IVpnManager={}", vpnmanager);
             }
@@ -66,7 +66,7 @@ public class FibManagerImpl implements IFibManager {
                                             String rd, String localNextHopIp,
                                             String remoteNextHopIp) {
         vrfEntryListener.populateExternalRoutesOnDpn(localDpnId, vpnId, rd,
-                localNextHopIp, remoteNextHopIp);
+            localNextHopIp, remoteNextHopIp);
     }
 
     @Override
@@ -74,7 +74,7 @@ public class FibManagerImpl implements IFibManager {
                                             String rd, String localNextHopIp,
                                             String remoteNextHopIp) {
         vrfEntryListener.populateInternalRoutesOnDpn(localDpnId, vpnId, rd,
-                localNextHopIp, remoteNextHopIp);
+            localNextHopIp, remoteNextHopIp);
     }
 
     @Override
@@ -82,7 +82,7 @@ public class FibManagerImpl implements IFibManager {
                                            String rd, String localNextHopIp,
                                            String remoteNextHopIp) {
         vrfEntryListener.cleanUpExternalRoutesOnDpn(dpnId, vpnId, rd,
-                localNextHopIp, remoteNextHopIp);
+            localNextHopIp, remoteNextHopIp);
     }
 
     @Override
@@ -90,7 +90,7 @@ public class FibManagerImpl implements IFibManager {
                                            String rd, String localNextHopIp,
                                            String remoteNextHopIp) {
         vrfEntryListener.cleanUpInternalRoutesOnDpn(dpnId, vpnId, rd,
-                localNextHopIp, remoteNextHopIp);
+            localNextHopIp, remoteNextHopIp);
     }
 
     @Override
@@ -141,23 +141,24 @@ public class FibManagerImpl implements IFibManager {
 
     @Override
     public void manageRemoteRouteOnDPN(boolean action,
-                                       BigInteger DpnId,
+                                       BigInteger dpnId,
                                        long vpnId,
-                                       String  rd,
+                                       String rd,
                                        String destPrefix,
                                        String destTepIp) {
-        vrfEntryListener.manageRemoteRouteOnDPN(action, DpnId, vpnId,rd, destPrefix, destTepIp);
+        vrfEntryListener.manageRemoteRouteOnDPN(action, dpnId, vpnId, rd, destPrefix, destTepIp);
     }
 
     @Override
     public void addOrUpdateFibEntry(DataBroker broker, String rd, String prefix, List<String> nextHopList,
                                     int label, RouteOrigin origin, WriteTransaction writeConfigTxn) {
-        FibUtil.addOrUpdateFibEntry(broker, rd, prefix , nextHopList, label, origin, writeConfigTxn);
+        FibUtil.addOrUpdateFibEntry(broker, rd, prefix, nextHopList, label, origin, writeConfigTxn);
     }
 
     @Override
     public void addFibEntryForRouterInterface(DataBroker broker, String rd, String prefix,
-                                              RouterInterface routerInterface, long label, WriteTransaction writeConfigTxn) {
+                                              RouterInterface routerInterface, long label,
+                                              WriteTransaction writeConfigTxn) {
         FibUtil.addFibEntryForRouterInterface(broker, rd, prefix, routerInterface, label, writeConfigTxn);
     }
 
@@ -172,8 +173,9 @@ public class FibManagerImpl implements IFibManager {
         FibUtil.removeFibEntry(broker, rd, prefix, writeConfigTxn);
     }
 
-    public void updateFibEntry(DataBroker broker, String rd, String prefix , List<String> nextHopList, WriteTransaction writeConfigTxn) {
-        FibUtil.updateFibEntry(broker, rd, prefix , nextHopList, writeConfigTxn);
+    public void updateFibEntry(DataBroker broker, String rd, String prefix, List<String> nextHopList,
+                               WriteTransaction writeConfigTxn) {
+        FibUtil.updateFibEntry(broker, rd, prefix, nextHopList, writeConfigTxn);
     }
 
     @Override
@@ -196,6 +198,6 @@ public class FibManagerImpl implements IFibManager {
     public void removeInterVPNLinkRouteFlows(final String interVpnLinkName,
                                              final boolean isVpnFirstEndPoint,
                                              final VrfEntry vrfEntry) {
-        vrfEntryListener.removeInterVPNLinkRouteFlows(interVpnLinkName, isVpnFirstEndPoint,vrfEntry);
+        vrfEntryListener.removeInterVPNLinkRouteFlows(interVpnLinkName, isVpnFirstEndPoint, vrfEntry);
     }
 }

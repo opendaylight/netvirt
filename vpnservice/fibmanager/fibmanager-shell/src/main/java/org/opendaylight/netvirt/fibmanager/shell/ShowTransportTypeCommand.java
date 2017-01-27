@@ -28,7 +28,8 @@ public class ShowTransportTypeCommand extends OsgiCommandSupport {
         session.getConsole().println(String.format(displayFormat, "ELAN" , "VXLAN"));
         session.getConsole().println(String.format(displayFormat, "L3VPN", cacheVal));
 
-        session.getConsole().println("----------------------------------------------------------------------------------------------------------------------");
+        session.getConsole().println("---------------------------------------"
+            + "-------------------------------------------------------------------------------");
 
         return null;
     }

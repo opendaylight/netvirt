@@ -77,8 +77,7 @@ public class FibRpcServiceImpl implements FibRpcService {
     }
 
     /**
-     * to install FIB routes on specified dpn with given instructions
-     *
+     * To install FIB routes on specified dpn with given instructions.
      */
     @Override
     public Future<RpcResult<Void>> createFibEntry(CreateFibEntryInput input) {
@@ -98,8 +97,7 @@ public class FibRpcServiceImpl implements FibRpcService {
     }
 
     /**
-     * to remove FIB/LFIB/TST routes from specified dpn
-     *
+     * To remove FIB/LFIB/TST routes from specified dpn.
      */
     @Override
     public Future<RpcResult<Void>> removeFibEntry(RemoveFibEntryInput input) {
@@ -135,7 +133,7 @@ public class FibRpcServiceImpl implements FibRpcService {
     }
 
     private void removeLocalFibEntry(BigInteger dpnId, long vpnId, String ipPrefix) {
-        String values[] = ipPrefix.split("/");
+        String[] values = ipPrefix.split("/");
         String ipAddress = values[0];
         int prefixLength = (values.length == 1) ? 0 : Integer.parseInt(values[1]);
         LOG.debug("Removing route from DPN. ip {} masklen {}", ipAddress, prefixLength);
@@ -152,7 +150,7 @@ public class FibRpcServiceImpl implements FibRpcService {
 
         matches.add(MatchEthernetType.IPV4);
 
-        if(prefixLength != 0) {
+        if (prefixLength != 0) {
             matches.add(new MatchIpv4Destination(destPrefix.getHostAddress(), Integer.toString(prefixLength)));
         }
 
@@ -161,8 +159,8 @@ public class FibRpcServiceImpl implements FibRpcService {
 
         int priority = DEFAULT_FIB_FLOW_PRIORITY + prefixLength;
         Flow flowEntity = MDSALUtil.buildFlowNew(NwConstants.L3_FIB_TABLE, flowRef,
-                priority, flowRef, 0, 0,
-                NwConstants.COOKIE_VM_FIB_TABLE, matches, null);
+            priority, flowRef, 0, 0,
+            NwConstants.COOKIE_VM_FIB_TABLE, matches, null);
 
         mdsalManager.removeFlow(dpnId, flowEntity);
 
@@ -179,48 +177,50 @@ public class FibRpcServiceImpl implements FibRpcService {
         LOG.debug("removing LFib entry with flow ref {}", flowRef);
 
         Flow flowEntity = MDSALUtil.buildFlowNew(NwConstants.L3_LFIB_TABLE, flowRef,
-                DEFAULT_FIB_FLOW_PRIORITY, flowRef, 0, 0,
-                NwConstants.COOKIE_VM_LFIB_TABLE, matches, null);
+            DEFAULT_FIB_FLOW_PRIORITY, flowRef, 0, 0,
+            NwConstants.COOKIE_VM_LFIB_TABLE, matches, null);
 
         mdsalManager.removeFlow(dpnId, flowEntity);
 
-        LOG.debug("LFIB Entry for dpID : {} label : {} removed successfully {}",dpnId, serviceId);
+        LOG.debug("LFIB Entry for dpID : {} label : {} removed successfully {}", dpnId, serviceId);
     }
 
     private void removeTunnelTableEntry(BigInteger dpnId, long serviceId) {
-        LOG.info("remove terminatingServiceActions called with DpnId = {} and label = {}", dpnId , serviceId);
+        LOG.info("remove terminatingServiceActions called with DpnId = {} and label = {}", dpnId, serviceId);
         List<MatchInfo> mkMatches = new ArrayList<MatchInfo>();
         // Matching metadata
         mkMatches.add(new MatchTunnelId(BigInteger.valueOf(serviceId)));
         Flow flowEntity = MDSALUtil.buildFlowNew(NwConstants.INTERNAL_TUNNEL_TABLE,
-                getFlowRef(dpnId, NwConstants.INTERNAL_TUNNEL_TABLE, serviceId, ""),
-                5, String.format("%s:%d","TST Flow Entry ",serviceId), 0, 0,
-                COOKIE_TUNNEL.add(BigInteger.valueOf(serviceId)), mkMatches, null);
+            getFlowRef(dpnId, NwConstants.INTERNAL_TUNNEL_TABLE, serviceId, ""),
+            5, String.format("%s:%d", "TST Flow Entry ", serviceId), 0, 0,
+            COOKIE_TUNNEL.add(BigInteger.valueOf(serviceId)), mkMatches, null);
         mdsalManager.removeFlow(dpnId, flowEntity);
-        LOG.debug("Terminating service Entry for dpID {} : label : {} removed successfully {}",dpnId, serviceId);
+        LOG.debug("Terminating service Entry for dpID {} : label : {} removed successfully {}", dpnId, serviceId);
     }
 
     private void makeTunnelTableEntry(BigInteger dpnId, long serviceId, List<Instruction> customInstructions) {
         List<MatchInfo> mkMatches = new ArrayList<MatchInfo>();
 
-        LOG.info("create terminatingServiceAction on DpnId = {} and serviceId = {} and actions = {}", dpnId , serviceId);
+        LOG.info("create terminatingServiceAction on DpnId = {} and serviceId = {} and actions = {}", dpnId, serviceId);
 
         mkMatches.add(new MatchTunnelId(BigInteger.valueOf(serviceId)));
 
         Flow terminatingServiceTableFlowEntity = MDSALUtil.buildFlowNew(NwConstants.INTERNAL_TUNNEL_TABLE,
-                getFlowRef(dpnId, NwConstants.INTERNAL_TUNNEL_TABLE, serviceId, ""), 5, String.format("%s:%d","TST Flow Entry ",serviceId),
-                0, 0, COOKIE_TUNNEL.add(BigInteger.valueOf(serviceId)),mkMatches, customInstructions);
+            getFlowRef(dpnId, NwConstants.INTERNAL_TUNNEL_TABLE, serviceId, ""), 5,
+            String.format("%s:%d", "TST Flow Entry ", serviceId),
+            0, 0, COOKIE_TUNNEL.add(BigInteger.valueOf(serviceId)), mkMatches, customInstructions);
 
         mdsalManager.installFlow(dpnId, terminatingServiceTableFlowEntity);
     }
 
     private long getIpAddress(byte[] rawIpAddress) {
         return (((rawIpAddress[0] & 0xFF) << (3 * 8)) + ((rawIpAddress[1] & 0xFF) << (2 * 8))
-                + ((rawIpAddress[2] & 0xFF) << (1 * 8)) + (rawIpAddress[3] & 0xFF)) & 0xffffffffL;
+            + ((rawIpAddress[2] & 0xFF) << (1 * 8)) + (rawIpAddress[3] & 0xFF)) & 0xffffffffL;
     }
 
-    private void makeLocalFibEntry(long vpnId, BigInteger dpnId, String ipPrefix, List<Instruction> customInstructions) {
-        String values[] = ipPrefix.split("/");
+    private void makeLocalFibEntry(long vpnId, BigInteger dpnId, String ipPrefix,
+                                   List<Instruction> customInstructions) {
+        String[] values = ipPrefix.split("/");
         String ipAddress = values[0];
         int prefixLength = (values.length == 1) ? 0 : Integer.parseInt(values[1]);
         LOG.debug("Adding route to DPN. ip {} masklen {}", ipAddress, prefixLength);
@@ -237,7 +237,7 @@ public class FibRpcServiceImpl implements FibRpcService {
 
         matches.add(MatchEthernetType.IPV4);
 
-        if(prefixLength != 0) {
+        if (prefixLength != 0) {
             matches.add(new MatchIpv4Destination(destPrefix.getHostAddress(), Integer.toString(prefixLength)));
         }
 
@@ -246,8 +246,8 @@ public class FibRpcServiceImpl implements FibRpcService {
 
         int priority = DEFAULT_FIB_FLOW_PRIORITY + prefixLength;
         Flow flowEntity = MDSALUtil.buildFlowNew(NwConstants.L3_FIB_TABLE, flowRef,
-                priority, flowRef, 0, 0,
-                NwConstants.COOKIE_VM_FIB_TABLE, matches, customInstructions);
+            priority, flowRef, 0, 0,
+            NwConstants.COOKIE_VM_FIB_TABLE, matches, customInstructions);
 
         mdsalManager.installFlow(dpnId, flowEntity);
 
@@ -270,46 +270,47 @@ public class FibRpcServiceImpl implements FibRpcService {
         String flowRef = getFlowRef(dpId, NwConstants.L3_LFIB_TABLE, serviceId, "");
 
         Flow flowEntity = MDSALUtil.buildFlowNew(NwConstants.L3_LFIB_TABLE, flowRef,
-                DEFAULT_FIB_FLOW_PRIORITY, flowRef, 0, 0,
-                NwConstants.COOKIE_VM_LFIB_TABLE, matches, instructions);
+            DEFAULT_FIB_FLOW_PRIORITY, flowRef, 0, 0,
+            NwConstants.COOKIE_VM_LFIB_TABLE, matches, instructions);
 
         mdsalManager.installFlow(dpId, flowEntity);
 
-        LOG.debug("LFIB Entry for dpID {} : label : {} modified successfully {}",dpId, serviceId );
+        LOG.debug("LFIB Entry for dpID {} : label : {} modified successfully {}", dpId, serviceId);
     }
 
     private String getFlowRef(BigInteger dpnId, short tableId, long id, String ipAddress) {
         return new StringBuilder(64).append(FLOWID_PREFIX).append(dpnId).append(NwConstants.FLOWID_SEPARATOR)
-                .append(tableId).append(NwConstants.FLOWID_SEPARATOR)
-                .append(id).append(NwConstants.FLOWID_SEPARATOR).append(ipAddress).toString();
+            .append(tableId).append(NwConstants.FLOWID_SEPARATOR)
+            .append(id).append(NwConstants.FLOWID_SEPARATOR).append(ipAddress).toString();
     }
 
     private synchronized void updateVpnToDpnAssociation(long vpnId, BigInteger dpnId, String ipAddr, String vpnName) {
         LOG.debug("Updating VPN to DPN list for dpn : {} for VPN: {} with ip: {}",
-                dpnId, vpnName, ipAddr);
+            dpnId, vpnName, ipAddr);
         String routeDistinguisher = getVpnRd(dataBroker, vpnName);
         String rd = (routeDistinguisher == null) ? vpnName : routeDistinguisher;
         synchronized (vpnName.intern()) {
             InstanceIdentifier<VpnToDpnList> id = getVpnToDpnListIdentifier(rd, dpnId);
             Optional<VpnToDpnList> dpnInVpn = MDSALUtil.read(dataBroker, LogicalDatastoreType.OPERATIONAL, id);
-            org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.vpn.instance.op.data.entry.vpn.to.dpn.list.IpAddresses
-                    ipAddress = new IpAddressesBuilder().setIpAddress(ipAddr).build();
+            org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.vpn
+                .instance.op.data.entry.vpn.to.dpn.list.IpAddresses ipAddress =
+                new IpAddressesBuilder().setIpAddress(ipAddr).build();
 
             if (dpnInVpn.isPresent()) {
                 MDSALUtil.syncWrite(dataBroker, LogicalDatastoreType.OPERATIONAL, id.child(
-                        org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance
-                                .op.data.vpn.instance.op.data.entry.vpn.to.dpn.list.IpAddresses.class,
-                        new IpAddressesKey(ipAddr)), ipAddress);
+                    org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance
+                        .op.data.vpn.instance.op.data.entry.vpn.to.dpn.list.IpAddresses.class,
+                    new IpAddressesKey(ipAddr)), ipAddress);
             } else {
                 MDSALUtil.syncUpdate(dataBroker, LogicalDatastoreType.OPERATIONAL,
-                        getVpnInstanceOpDataIdentifier(rd),
-                        getVpnInstanceOpData(rd, vpnId, vpnName));
+                    getVpnInstanceOpDataIdentifier(rd),
+                    getVpnInstanceOpData(rd, vpnId, vpnName));
                 VpnToDpnListBuilder vpnToDpnList = new VpnToDpnListBuilder().setDpnId(dpnId);
                 List<org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data
-                        .vpn.instance.op.data.entry.vpn.to.dpn.list.IpAddresses> ipAddresses = new ArrayList<>();
+                    .vpn.instance.op.data.entry.vpn.to.dpn.list.IpAddresses> ipAddresses = new ArrayList<>();
                 ipAddresses.add(ipAddress);
                 MDSALUtil.syncWrite(dataBroker, LogicalDatastoreType.OPERATIONAL, id,
-                        vpnToDpnList.setIpAddresses(ipAddresses).build());
+                    vpnToDpnList.setIpAddresses(ipAddresses).build());
                 LOG.debug("populate FIB on new dpn {} for VPN {}", dpnId, vpnName);
                 fibManager.populateFibOnNewDpn(dpnId, vpnId, rd, null);
             }
@@ -318,7 +319,7 @@ public class FibRpcServiceImpl implements FibRpcService {
 
     private synchronized void removeFromVpnDpnAssociation(long vpnId, BigInteger dpnId, String ipAddr, String vpnName) {
         LOG.debug("Removing association of VPN to DPN list for dpn : {} for VPN: {} with ip: {}",
-                dpnId, vpnName, ipAddr);
+            dpnId, vpnName, ipAddr);
         String routeDistinguisher = getVpnRd(dataBroker, vpnName);
         String rd = (routeDistinguisher == null) ? vpnName : routeDistinguisher;
         synchronized (vpnName.intern()) {
@@ -326,9 +327,11 @@ public class FibRpcServiceImpl implements FibRpcService {
             Optional<VpnToDpnList> dpnInVpn = MDSALUtil.read(dataBroker, LogicalDatastoreType.OPERATIONAL, id);
             if (dpnInVpn.isPresent()) {
                 List<org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data
-                        .vpn.instance.op.data.entry.vpn.to.dpn.list.IpAddresses> ipAddresses = dpnInVpn.get().getIpAddresses();
-                org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.vpn.instance.op.data.entry.vpn.to.dpn.list.IpAddresses
-                        ipAddress = new IpAddressesBuilder().setIpAddress(ipAddr).build();
+                    .vpn.instance.op.data.entry.vpn.to.dpn.list.IpAddresses> ipAddresses =
+                    dpnInVpn.get().getIpAddresses();
+                org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.vpn
+                    .instance.op.data.entry.vpn.to.dpn.list.IpAddresses ipAddress =
+                    new IpAddressesBuilder().setIpAddress(ipAddr).build();
 
                 if (ipAddresses != null && ipAddresses.remove(ipAddress)) {
                     if (ipAddresses.isEmpty()) {
@@ -341,9 +344,9 @@ public class FibRpcServiceImpl implements FibRpcService {
                         }
                     } else {
                         delete(dataBroker, LogicalDatastoreType.OPERATIONAL, id.child(
-                                org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data
-                                        .vpn.instance.op.data.entry.vpn.to.dpn.list.IpAddresses.class,
-                                new IpAddressesKey(ipAddr)));
+                            org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data
+                                .vpn.instance.op.data.entry.vpn.to.dpn.list.IpAddresses.class,
+                            new IpAddressesKey(ipAddr)));
                     }
                 }
             }
@@ -356,22 +359,21 @@ public class FibRpcServiceImpl implements FibRpcService {
         return MDSALUtil.read(broker, LogicalDatastoreType.CONFIGURATION, id).transform(VpnInstance::getVrfId).orNull();
     }
 
-    static InstanceIdentifier<VpnInstance>
-    getVpnInstanceToVpnIdIdentifier(String vpnName) {
+    static InstanceIdentifier<VpnInstance> getVpnInstanceToVpnIdIdentifier(String vpnName) {
         return InstanceIdentifier.builder(VpnInstanceToVpnId.class)
-                .child(VpnInstance.class, new VpnInstanceKey(vpnName)).build();
+            .child(VpnInstance.class, new VpnInstanceKey(vpnName)).build();
     }
 
 
     static InstanceIdentifier<VpnToDpnList> getVpnToDpnListIdentifier(String rd, BigInteger dpnId) {
         return InstanceIdentifier.builder(VpnInstanceOpData.class)
-                .child(VpnInstanceOpDataEntry.class, new VpnInstanceOpDataEntryKey(rd))
-                .child(VpnToDpnList.class, new VpnToDpnListKey(dpnId)).build();
+            .child(VpnInstanceOpDataEntry.class, new VpnInstanceOpDataEntryKey(rd))
+            .child(VpnToDpnList.class, new VpnToDpnListKey(dpnId)).build();
     }
 
     static InstanceIdentifier<VpnInstanceOpDataEntry> getVpnInstanceOpDataIdentifier(String rd) {
         return InstanceIdentifier.builder(VpnInstanceOpData.class)
-                .child(VpnInstanceOpDataEntry.class, new VpnInstanceOpDataEntryKey(rd)).build();
+            .child(VpnInstanceOpDataEntry.class, new VpnInstanceOpDataEntryKey(rd)).build();
     }
 
     static VpnInstanceOpDataEntry getVpnInstanceOpData(String rd, long vpnId, String vpnName) {
