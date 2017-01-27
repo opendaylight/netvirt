@@ -117,6 +117,40 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_f13a2635",
+        "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/impl/SecurityGroupCacheManagerImpl.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 58,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2017-01-27T20:54:09Z",
+      "side": 1,
+      "message": "this isn\u0027t needed when using parameterized logging as this code is using. the slf4j logger will check isDebugEnabled before working on the simple arguments.",
+      "revId": "93812f83c7d0cac4ad6605f696bd636049b1a689",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_b117fea2",
+        "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/impl/SecurityGroupCacheManagerImpl.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 113,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2017-01-27T20:54:09Z",
+      "side": 1,
+      "message": "The first line needs a period for proper javadoc. Might as well add the @return.",
+      "revId": "93812f83c7d0cac4ad6605f696bd636049b1a689",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_5172127d",
         "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/impl/SecurityGroupCacheManagerImpl.java",
         "patchSetId": 11
