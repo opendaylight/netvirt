@@ -14,39 +14,33 @@ import javax.management.ObjectName;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.lang.management.ManagementFactory;
 import java.net.Socket;
-import java.net.SocketException;
 import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
 import java.util.TimerTask;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import org.opendaylight.netvirt.bgpmanager.BgpManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 
-/**
- * Created by ECHIAPT on 8/4/2015.
- */
 public class BgpCounters extends TimerTask {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(BgpCounters.class);
-    public static BgpCountersBroadcaster bgpStatsBroadcaster = null;
-    public MBeanServer bgpStatsServer = null;
-    public  Map <String, String> countersMap = new HashMap<>();
+    private static BgpCountersBroadcaster bgpStatsBroadcaster = null;
+    private MBeanServer bgpStatsServer = null;
+    private Map<String, String> countersMap = new HashMap<>();
     private String bgpSdncMip = "127.0.0.1";
 
     public BgpCounters(String mipAddress) {
@@ -61,9 +55,9 @@ public class BgpCounters extends TimerTask {
             fetchCmdOutputs("cmd_ip_bgp_summary.txt","show ip bgp summary");
             fetchCmdOutputs("cmd_bgp_ipv4_unicast_statistics.txt", "show bgp ipv4 unicast statistics");
             fetchCmdOutputs("cmd_ip_bgp_vpnv4_all.txt", "show ip bgp vpnv4 all");
-            parse_ip_bgp_summary();
-            parse_bgp_ipv4_unicast_statistics();
-            parse_ip_bgp_vpnv4_all();
+            parseIpBgpSummary();
+            parseBgpIpv4UnicastStatistics();
+            parseIpBgpVpnv4All();
             if (LOGGER.isDebugEnabled()) {
                 dumpCounters();
             }
@@ -82,212 +76,101 @@ public class BgpCounters extends TimerTask {
             }
             bgpStatsBroadcaster.setBgpCountersMap(countersMap);
             LOGGER.debug("Finished updating the counters from BGP");
-        } catch (Exception e) {
+        } catch (IOException e) {
             LOGGER.error("Failed to publish bgp counters ", e);
         }
     }
 
-    public void dumpCounters () {
+    private void dumpCounters() {
         for (Map.Entry<String, String> entry : countersMap.entrySet()) {
             LOGGER.debug("{}, Value = {}", entry.getKey(), entry.getValue());
         }
     }
 
-    public void fetchCmdOutputs (String filename, String cmdName) throws  IOException  {
-        Socket socket;
-        int serverPort = 2605;
-        String serverName = bgpSdncMip;
-        int sockTimeout = 2;
-        PrintWriter out_to_socket;
-        BufferedReader in_from_socket;
-        char cbuf[] = new char[10];
-        char op_buf[];
-        StringBuilder sb = new StringBuilder();
-        int ip, ret;
-        StringBuilder temp;
-        char ch, gt = '>', hash = '#';
-        String vtyPassword = BgpConstants.QBGP_VTY_PASSWORD;
-        String passwordCheckStr = "Password:";
-        String enableString = "en";
-        String prompt, replacedStr;
+    void fetchCmdOutputs(String filename, String cmdName) throws IOException {
+        try (Socket socket = new Socket(bgpSdncMip, 2605);
+             PrintWriter toRouter = new PrintWriter(socket.getOutputStream(), true);
+             BufferedReader fromRouter = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+             BufferedWriter toFile = new BufferedWriter(new FileWriter(filename, true))) {
+            socket.setSoTimeout(2 * 1000);
 
-        try
-        {
-            socket = new Socket(serverName, serverPort);
+            // Wait for the password prompt
+            StringBuilder sb = new StringBuilder();
+            int read;
+            char[] cbuf = new char[10];
+            while (!sb.toString().contains("Password:")) {
+                if ((read = fromRouter.read(cbuf)) == -1) {
+                    LOGGER.error("Connection closed by BGPd.");
+                    return;
+                }
+                sb.append(cbuf, 0, read);
+            }
 
-        }
-        catch (UnknownHostException ioe) {
-            LOGGER.error("No host exists: " + ioe.getMessage());
-            return;
-        }
-        catch (IOException ioe) {
-            LOGGER.error("I/O error occured " + ioe.getMessage());
-            return;
-        }
-        try {
-            socket.setSoTimeout(sockTimeout*1000);
-            out_to_socket = new PrintWriter(socket.getOutputStream(), true);
-            in_from_socket = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+            // Send the password
+            toRouter.println(BgpConstants.QBGP_VTY_PASSWORD);
 
-        } catch (IOException ioe) {
-            LOGGER.error("IOException thrown.");
-            socket.close();
-            return;
-        }
-        while (true) {
-            try {
-                ret = in_from_socket.read(cbuf);
-            }
-            catch (SocketTimeoutException ste) {
-                LOGGER.error("Read from Socket timed Out while asking for password.");
-                socket.close();
-                return;
-            }
-            catch (IOException ioe) {
-                LOGGER.error("Caught IOException");
-                socket.close();
-                return;
-            }
-            if (ret == -1) {
-                LOGGER.error("Connection closed by BGPd.");
-                socket.close();
-                return;
-            } else {
-                sb.append(cbuf);
-                if (sb.toString().contains(passwordCheckStr)) {
-                    break;
+            // Wait for the prompt (ending with '>' or '#')
+            sb = new StringBuilder();
+            String prompt = null;
+            while (prompt == null) {
+                switch (read = fromRouter.read()) {
+                    case -1:
+                        LOGGER.error("Connection closed by BGPd, read {}", sb.toString());
+                        return;
+                    case '>':
+                        // Fall through
+                    case '#':
+                        prompt = sb.toString().trim();
+                        break;
+                    default:
+                        sb.append((char) read);
+                        break;
                 }
             }
-        }
 
-        sb.setLength(0);
-        out_to_socket.println(vtyPassword);
+            // Enable
+            toRouter.println("en");
 
-        while (true) {
-            try {
-                ip = in_from_socket.read();
+            // Wait for '#'
+            while ((read = fromRouter.read()) != '#') {
+                if (read == -1) {
+                    LOGGER.error("Connection closed by BGPd, read {}", sb.toString());
+                    return;
+                }
             }
-            catch (SocketTimeoutException ste) {
-                LOGGER.error(sb.toString());
-                LOGGER.error("Read from Socket timed Out while verifying the password.");
-                socket.close();
-                return;
-            }
-            if (ip == (int)gt || ip == (int)hash) {
-                break;
-            } else if (ip == -1) {
-                LOGGER.error(sb.toString());
-                LOGGER.error("Connection closed by BGPd.");
-                socket.close();
-                return;
-            } else {
-                ch = (char)ip;
-                sb.append(ch);
 
-            }
-        }
+            // Send the command
+            toRouter.println(cmdName);
 
-        prompt = sb.toString();
-        prompt = prompt.trim();
-        sb.setLength(0);
-        out_to_socket.println(enableString);
+            // Read all the router's output
+            sb = new StringBuilder();
+            cbuf = new char[1024];
+            while ((read = fromRouter.read(cbuf)) != -1) {
+                sb.append(cbuf, 0, read);
+            }
 
-        while (true) {
-            try {
-                ip = in_from_socket.read();
+            // Only keep output up to the last prompt
+            int lastPromptIndex = sb.lastIndexOf(prompt);
+            if (lastPromptIndex >= 0) {
+                sb.delete(lastPromptIndex, sb.length());
             }
-            catch (SocketTimeoutException ste) {
-                LOGGER.error(sb.toString());
-                LOGGER.error("Read from Socket timed Out while keying the en keyword.");
-                socket.close();
-                return;
-            }
-            if (ip == (int)hash) {
-                break;
-            } else if (ip == -1) {
-                LOGGER.error(sb.toString());
-                LOGGER.error("Connection closed by BGPd.");
-                socket.close();
-                return;
-            } else {
-                ch = (char)ip;
-                sb.append(ch);
 
-            }
-        }
-        sb.setLength(0);
-        temp = new StringBuilder();
-        File file;
-        FileWriter fileWritter;
-        BufferedWriter bufferWritter;
-
-        try {
-            file = new File(filename);
-            if (!file.exists()) {
-                file.createNewFile();
-            }
-            fileWritter = new FileWriter(file.getName(), true);
-            bufferWritter = new BufferedWriter(fileWritter);
+            // Store in the file
+            toFile.write(sb.toString().trim());
+        } catch (UnknownHostException e) {
+            LOGGER.error("Unknown host {}", bgpSdncMip, e);
+        } catch (SocketTimeoutException e) {
+            LOGGER.error("Socket timeout", e);
         } catch (IOException e) {
-            return;
-        }
-        out_to_socket.println(cmdName);
-        temp.setLength(0);
-        while (true) {
-            try {
-                op_buf = new char[100];
-                ret = in_from_socket.read(op_buf);
-
-            } catch (SocketTimeoutException ste) {
-                break;
-            } catch (SocketException soc) {
-                break;
-            } catch (IOException ioe) {
-                ioe.printStackTrace();
-                break;
-            }
-
-            if (ret == -1) {
-                break;
-            }
-            temp.append(op_buf);
-        }
-        String outputStr = temp.toString();
-        StringBuffer output = new StringBuffer();
-
-        outputStr.replaceAll("^\\s+|\\s+$", "");
-        output.append(outputStr);
-        if (output.toString().trim().contains(prompt)) {
-            int index = output.toString().lastIndexOf(prompt);
-            String newString = output.toString().substring(0, index);
-            output.setLength(0);
-            output.append(newString);
-        }
-        try {
-            bufferWritter.write(output.toString().trim());
-            temp.setLength(0);
-        } catch (IOException e) {
-            e.printStackTrace();
-            return;
-        }
-        try {
-            bufferWritter.close();
-            fileWritter.close();
-            socket.close();
-
-        } catch (IOException e) {
-            e.printStackTrace();
-            return;
+            LOGGER.error("I/O error", e);
         }
     }
 
-    public static boolean validate(final String ip){
+    private static boolean validate(final String ip) {
         if (ip == null || ip.equals("")) {
             return false;
         }
-        final String PATTERN =
-                "^(([01]?\\d\\d?|2[0-4]\\d|25[0-5])\\.){3}([01]?\\d\\d?|2[0-4]\\d|25[0-5])$";
-        Pattern pattern = Pattern.compile(PATTERN);
+        Pattern pattern = Pattern.compile("^(([01]?\\d\\d?|2[0-4]\\d|25[0-5])\\.){3}([01]?\\d\\d?|2[0-4]\\d|25[0-5])$");
         Matcher matcher = pattern.matcher(ip);
         return matcher.matches();
     }
@@ -306,61 +189,38 @@ public class BgpCounters extends TimerTask {
         </output>
      */
 
-    public void parse_ip_bgp_summary() {
+    private void parseIpBgpSummary() {
         File file = new File("cmd_ip_bgp_summary.txt");
-        Scanner scanner;
-        String lineFromFile;
-        List<String> inputStrs = new ArrayList<>();
-        int i = 0;
-        String as,rx, tx;
-        boolean startEntries = false;
-        String[] result;
-        String StrIP;
 
-        try {
-            scanner = new Scanner(file);
-        } catch (IOException e) {
-            LOGGER.error("Could not process the file " + file.getAbsolutePath());
-            return ;
-        }
-        while (scanner.hasNextLine()) {
-
-            lineFromFile = scanner.nextLine();
-            inputStrs.add(lineFromFile);
-        }
-        String str;
-        StringBuilder NbrInfoKey = new StringBuilder();
-
-        while (i < inputStrs.size()) {
-            str = inputStrs.get(i);
-            if (str.contains("State/PfxRcd")) {
-                startEntries = true;
-            } else if (startEntries == true) {
-                result = str.split("\\s+");
-               try {
-                    StrIP = result[0].trim();
-                    if (!validate(StrIP)) {
+        try (Scanner scanner = new Scanner(file)) {
+            boolean startEntries = false;
+            while (scanner.hasNextLine()) {
+                String str = scanner.nextLine();
+                if (str.contains("State/PfxRcd")) {
+                    startEntries = true;
+                } else if (startEntries) {
+                    String[] result = str.split("\\s+");
+                    if (result.length < 5) {
                         return;
                     }
-                    as = result[2];
-                    rx = result[3];
-                    tx = result[4];
+                    String strIp = result[0].trim();
+                    if (!validate(strIp)) {
+                        return;
+                    }
+                    final String as = result[2];
+                    final String rx = result[3];
+                    final String tx = result[4];
 
-                    NbrInfoKey.setLength(0);
-                    NbrInfoKey.append(BgpConstants.BGP_COUNTER_NBR_PKTS_RX).append(":").
-                           append("BGP_Nbr_IP_").append(StrIP).append("_AS_").append(as).append("_PktsReceived");
-                    countersMap.put(NbrInfoKey.toString(), rx);
-
-
-                    NbrInfoKey.setLength(0);
-                    NbrInfoKey.append(BgpConstants.BGP_COUNTER_NBR_PKTS_TX).append(":").
-                           append("BGP_Nbr_IP_").append(StrIP).append("_AS_").append(as).append("_PktsSent");
-                    countersMap.put(NbrInfoKey.toString(), tx);
-                } catch (Exception e) {
-                    return;
+                    countersMap.put(
+                            BgpConstants.BGP_COUNTER_NBR_PKTS_RX + ":BGP_Nbr_IP_" + strIp + "_AS_" + as + "_PktsReceived",
+                            rx);
+                    countersMap.put(
+                            BgpConstants.BGP_COUNTER_NBR_PKTS_TX + ":BGP_Nbr_IP_" + strIp + "_AS_" + as + "_PktsSent",
+                            tx);
                 }
             }
-            i++;
+        } catch (IOException e) {
+            LOGGER.error("Could not process the file {}", file.getAbsolutePath());
         }
  }
     /*
@@ -374,44 +234,27 @@ public class BgpCounters extends TimerTask {
         </output>
      */
 
-    public void parse_bgp_ipv4_unicast_statistics() {
-       File file = new File("cmd_bgp_ipv4_unicast_statistics.txt");
-       Scanner scanner;
-       String lineFromFile;
-       StringBuilder key = new StringBuilder();
-       String totPfx = "";
-       List<String> inputStrs = new ArrayList<>();
-       try {
-           scanner = new Scanner(file);
-       } catch (IOException e) {
-           System.err.println("Could not process the file " + file.getAbsolutePath());
-           return ;
-       }
-       while (scanner.hasNextLine()) {
-
-           lineFromFile = scanner.nextLine();
-           inputStrs.add(lineFromFile);
-       }
-
-       int i = 0;
-       String instr;
-       while (i < inputStrs.size()) {
-           instr = inputStrs.get(i);
-           if (instr.contains("Total Prefixes")) {
-               String[] result = instr.split(":");
-               try {
-                   totPfx = result[1].trim();
-               } catch (Exception e) {
-                   totPfx = "0";
-               }
-               break;
-           }
-           i++;
-       }
-        key.setLength(0);
-        key.append(BgpConstants.BGP_COUNTER_TOTAL_PFX).append(":").
-                append("Bgp_Total_Prefixes");
-        countersMap.put(key.toString(), totPfx);
+    private void parseBgpIpv4UnicastStatistics() {
+        File file = new File("cmd_bgp_ipv4_unicast_statistics.txt");
+        String totPfx = "";
+        try (Scanner scanner = new Scanner(file)) {
+            while (scanner.hasNextLine()) {
+                String instr = scanner.nextLine();
+                if (instr.contains("Total Prefixes")) {
+                    String[] result = instr.split(":");
+                    try {
+                        totPfx = result[1].trim();
+                    } catch (Exception e) {
+                        totPfx = "0";
+                    }
+                    break;
+                }
+            }
+        } catch (IOException e) {
+            LOGGER.error("Could not process the file {}", file.getAbsolutePath());
+            return;
+        }
+        countersMap.put(BgpConstants.BGP_COUNTER_TOTAL_PFX + ":Bgp_Total_Prefixes", totPfx);
     }
 
     /*
@@ -432,50 +275,36 @@ public class BgpCounters extends TimerTask {
         *>i17.18.17.17/32   10.183.181.25            0    100      0 ?
         </output>
      */
-    public void parse_ip_bgp_vpnv4_all() {
+    private void parseIpBgpVpnv4All() {
         File file = new File("cmd_ip_bgp_vpnv4_all.txt");
-        Scanner scanner;
-        String lineFromFile;
         List<String> inputStrs = new ArrayList<>();
 
-        try {
-            scanner = new Scanner(file);
+        try (Scanner scanner = new Scanner(file)) {
+            while (scanner.hasNextLine()) {
+                inputStrs.add(scanner.nextLine());
+            }
         } catch (IOException e) {
-            System.err.println("Could not process the file " + file.getAbsolutePath());
-            return ;
+            LOGGER.error("Could not process the file {}", file.getAbsolutePath());
+            return;
         }
-        while (scanner.hasNextLine()) {
-            lineFromFile = scanner.nextLine();
-            inputStrs.add(lineFromFile);
-        }
-        int i = 0;
-        String instr, rd;
-        while (i < inputStrs.size()) {
-            instr = inputStrs.get(i);
+        for (int i = 0; i < inputStrs.size(); i++) {
+            String instr = inputStrs.get(i);
             if (instr.contains("Route Distinguisher")) {
                 String[] result = instr.split(":");
-                rd = result[1].trim() + "_" + result[2].trim();
-                i = processRouteCount(rd, i + 1,  inputStrs);
-
+                String rd = result[1].trim() + "_" + result[2].trim();
+                i = processRouteCount(rd, i + 1, inputStrs);
             }
-            i++;
         }
-
     }
 
-    public int processRouteCount(String rd, int startIndex, List<String> inputStrs) {
+    private int processRouteCount(String rd, int startIndex, List<String> inputStrs) {
         int num = startIndex, route_count = 0;
-        String str;
-        StringBuilder key = new StringBuilder();
-        str = inputStrs.get(num);
+        String key = BgpConstants.BGP_COUNTER_RD_ROUTE_COUNT + ":BGP_RD_" + rd + "_route_count";
 
-        while (str != null && !str.trim().equals("") &&
-                num <inputStrs.size()) {
+        for (String str = inputStrs.get(num); str != null && !str.trim().equals("") && num < inputStrs.size();
+                str = inputStrs.get(num)) {
             if (str.contains("Route Distinguisher")) {
-                key.setLength(0);
-                key.append(BgpConstants.BGP_COUNTER_RD_ROUTE_COUNT).append(":").
-                        append("BGP_RD_").append(rd).append("_route_count");
-                countersMap.put(key.toString(), Integer.toString(route_count));
+                countersMap.put(key, Integer.toString(route_count));
                 return num - 1;
             }
             route_count++;
@@ -483,94 +312,65 @@ public class BgpCounters extends TimerTask {
             if (num == inputStrs.size()) {
                 break;
             }
-            str = inputStrs.get(num);
         }
         if (route_count == 0) {
             // Erroneous condition, should never happen.
             // Implies that the file contains marker for RD  without routes.
             // will form an infinite loop if not broken
             // by sending a big number back.
-            return ~0;
+            return Integer.MAX_VALUE;
         }
-        key.setLength(0);
-        key.append(BgpConstants.BGP_COUNTER_RD_ROUTE_COUNT).append(":").
-                append("BGP_RD_").append(rd).append("_route_count");
-        countersMap.put(key.toString(), Integer.toString(route_count));
+        countersMap.put(key, Integer.toString(route_count));
         return num - 1;
     }
 
-    public void resetCounters() {
+    private void resetCounters() {
         countersMap.clear();
         resetFile("cmd_ip_bgp_summary.txt");
         resetFile("cmd_bgp_ipv4_unicast_statistics.txt");
         resetFile("cmd_ip_bgp_vpnv4_all.txt");
     }
 
-    public static void resetFile(String fileName) {
-        File fileHndl = (new File(fileName));
-        PrintWriter writer;
-        boolean success;
-
-        success = fileHndl.delete();
-        if (!success) {
-            try {
-                writer = new PrintWriter(fileHndl);
-                writer.print("");
-                writer.close();
-            } catch (Exception e) {
-                return;
+    static void resetFile(String fileName) {
+        File file = (new File(fileName));
+        if (!file.delete()) {
+            try (PrintWriter pw = new PrintWriter(file)) {
+                pw.print("");
+            } catch (FileNotFoundException e) {
+                // Ignored
             }
         }
-
     }
 
-    public static Map<String, String> parse_ip_bgp_vpnv4_all_summary(Map<String, String> countMap) {
+    static Map<String, String> parseIpBgpVpnv4AllSummary(Map<String, String> countMap) {
         File file = new File("cmd_ip_bgp_vpnv4_all_summary.txt");
-        Scanner scanner;
-        String lineFromFile;
-        List<String> inputStrs = new ArrayList<>();
-        int i = 0;
-        boolean startEntries = false;
-        String[] result;
-        String StrIP;
 
-        try {
-            scanner = new Scanner(file);
-        } catch (IOException e) {
-            LOGGER.trace("Could not process the file " + file.getAbsolutePath());
-            return null;
-        }
-        while (scanner.hasNextLine()) {
+        try (Scanner scanner = new Scanner(file)) {
+            boolean startEntries = false;
+            while (scanner.hasNextLine()) {
+                String str = scanner.nextLine();
+                LOGGER.trace("str is:: {}", str);
+                if (str.contains("State/PfxRcd")) {
+                    startEntries = true;
+                } else if (startEntries) {
+                    String[] result = str.split("\\s+");
+                    if (result.length > 9) {
+                        String strIp = result[0].trim();
+                        LOGGER.trace("strIp " + strIp);
 
-            lineFromFile = scanner.nextLine();
-            inputStrs.add(lineFromFile);
-        }
-        String str;
-        while (i < inputStrs.size()) {
-            str = inputStrs.get(i);
-            LOGGER.trace("str is:: {}", str);
-            if (str.contains("State/PfxRcd")) {
-                startEntries = true;
-            } else if (startEntries == true) {
-                result = str.split("\\s+");
-                try {
-                    StrIP = result[0].trim();
-                    LOGGER.trace("strIP " + StrIP);
-
-                    if (!validate(StrIP)) {
-                        break;
+                        if (!validate(strIp)) {
+                            break;
+                        }
+                        String state_pfxRcvd = result[9];
+                        countMap.put(strIp, state_pfxRcvd);
                     }
-                    String state_pfxRcvd = result[9];
-                    countMap.put(StrIP, state_pfxRcvd);
-                } catch (Exception e) {
-                    LOGGER.trace("Exception {} caught while processing ip bgp vpnv4 all summary command output, e");
-                    i++;
-                    continue;
                 }
             }
-            i++;
+        } catch (IOException e) {
+            LOGGER.trace("Could not process the file {}", file.getAbsolutePath());
+            return null;
         }
+
         return countMap;
     }
-
 }
