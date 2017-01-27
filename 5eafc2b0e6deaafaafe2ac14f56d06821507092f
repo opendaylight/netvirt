@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_9158fa57",
+        "filename": "vpnservice/aclservice/impl/pom.xml",
+        "patchSetId": 2
+      },
+      "lineNbr": 169,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2017-01-27T22:36:18Z",
+      "side": 1,
+      "message": "this is from the other pushed I merged so remove this",
+      "revId": "5eafc2b0e6deaafaafe2ac14f56d06821507092f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_7155961c",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/pom.xml",
+        "patchSetId": 2
+      },
+      "lineNbr": 120,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2017-01-27T22:36:18Z",
+      "side": 1,
+      "message": "same comment",
+      "revId": "5eafc2b0e6deaafaafe2ac14f56d06821507092f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_d131e20c",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/pom.xml",
+        "patchSetId": 2
+      },
+      "lineNbr": 112,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2017-01-27T22:36:18Z",
+      "side": 1,
+      "message": "same comment.. looks like your rebase wasn\u0027t right and is picking up stuff it shouldn\u0027t",
+      "revId": "5eafc2b0e6deaafaafe2ac14f56d06821507092f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
