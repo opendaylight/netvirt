@@ -1,0 +1,142 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_51ddf26f",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 11
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 396
+      },
+      "writtenOn": "2017-01-27T19:41:49Z",
+      "side": 1,
+      "message": "Let\u0027s summarize changes in around 50 characters or less.\n\nFYI: http://chris.beams.io/posts/git-commit/\n\nFor example, I think it\u0027s better to say like \"Bug 7445: Improve the performance on bulk create.\"",
+      "range": {
+        "startLine": 7,
+        "startChar": 0,
+        "endLine": 7,
+        "endChar": 126
+      },
+      "revId": "93812f83c7d0cac4ad6605f696bd636049b1a689",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_11588a31",
+        "filename": "openstack/net-virt-providers/src/main/java/org/opendaylight/netvirt/openstack/netvirt/providers/openflow13/OF13Provider.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 1058,
+      "author": {
+        "id": 396
+      },
+      "writtenOn": "2017-01-27T19:41:49Z",
+      "side": 1,
+      "message": "I think this variable \"nodeId\" is used in the for-loop starting at the line 1080. Therefore, I think this line should be put just above the for-loop. Otherwise, this would cause unnecessary costs for some cases. Anyway, let\u0027s minimize the scope of variables.",
+      "range": {
+        "startLine": 1058,
+        "startChar": 8,
+        "endLine": 1058,
+        "endChar": 124
+      },
+      "revId": "93812f83c7d0cac4ad6605f696bd636049b1a689",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_51c4d291",
+        "filename": "openstack/net-virt-providers/src/main/java/org/opendaylight/netvirt/openstack/netvirt/providers/openflow13/services/IngressAclService.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 111,
+      "author": {
+        "id": 396
+      },
+      "writtenOn": "2017-01-27T19:41:49Z",
+      "side": 1,
+      "message": "I think this method calls the portSecurityRule.getSecurityRemoteGroupID() multiple times in this if-block. I think it\u0027s better to call the same method once, and store the return value into a variable.\n\nThe same comment would be applied to EgressAclService.java.",
+      "range": {
+        "startLine": 111,
+        "startChar": 28,
+        "endLine": 111,
+        "endChar": 71
+      },
+      "revId": "93812f83c7d0cac4ad6605f696bd636049b1a689",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_31482e2d",
+        "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/PortSecurityHandler.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 175,
+      "author": {
+        "id": 396
+      },
+      "writtenOn": "2017-01-27T19:41:49Z",
+      "side": 1,
+      "message": "Just FYI. I think this change is not needed from the view point of the performance.\n\nhttps://www.slf4j.org/faq.html#logging_performance",
+      "range": {
+        "startLine": 173,
+        "startChar": 0,
+        "endLine": 175,
+        "endChar": 9
+      },
+      "revId": "93812f83c7d0cac4ad6605f696bd636049b1a689",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_91559ac8",
+        "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/api/SecurityServicesManager.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 120,
+      "author": {
+        "id": 396
+      },
+      "writtenOn": "2017-01-27T19:41:49Z",
+      "side": 1,
+      "message": "Is this change needed? Here, you need to explain what the parameter is. However, this change looks like replacing the explanation with the name of the parameter.\n\nThat being said, I think even the original explanation doesn\u0027t explain enough about what the parameter means.",
+      "range": {
+        "startLine": 120,
+        "startChar": 26,
+        "endLine": 120,
+        "endChar": 37
+      },
+      "revId": "93812f83c7d0cac4ad6605f696bd636049b1a689",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_5172127d",
+        "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/impl/SecurityGroupCacheManagerImpl.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 136,
+      "author": {
+        "id": 396
+      },
+      "writtenOn": "2017-01-27T19:41:49Z",
+      "side": 1,
+      "message": "Does this patch need this change? Is this change needed to fix the Bug 7445? If not, I think we should make this change in a different patch in order to make this patch as simple as possible.",
+      "range": {
+        "startLine": 112,
+        "startChar": 0,
+        "endLine": 136,
+        "endChar": 9
+      },
+      "revId": "93812f83c7d0cac4ad6605f696bd636049b1a689",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
