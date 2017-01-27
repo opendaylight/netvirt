@@ -125,6 +125,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_91a11dac",
+        "filename": "docs/specs/conntrack-based-snat.rst",
+        "patchSetId": 17
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-01-27T11:53:44Z",
+      "side": 1,
+      "message": "Aswin, i meant the above question by Chetan ..",
+      "parentUuid": "fafc7978_b15c2127",
+      "revId": "48342aaf9e8c864124d2a46ba01c266ceeb6d246",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_436899f5",
         "filename": "docs/specs/conntrack-based-snat.rst",
         "patchSetId": 17
@@ -289,6 +307,24 @@
       "side": 1,
       "message": "This was taken from a flat provider use case , to show how the conntrack flows will fit in. The netfilter check now happens in table 44 and There will not be any change in table 19.20.21 flows.",
       "parentUuid": "fafc7978_fe47a649",
+      "revId": "48342aaf9e8c864124d2a46ba01c266ceeb6d246",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_9188fd23",
+        "filename": "docs/specs/conntrack-based-snat.rst",
+        "patchSetId": 17
+      },
+      "lineNbr": 71,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-01-27T11:53:44Z",
+      "side": 1,
+      "message": "In your flows you have shown the conntrack commit happen in Table 21 alone and that will work only for Flat/VLAN based external networks.  We have to cover MPLSOverGre and VXLAN based external networks too and for these two cases the packet will land from Table 20 and Table 19.  So my question was will this Spec cover type of external network other than VLAN/Flat ?",
+      "parentUuid": "fafc7978_96c75312",
       "revId": "48342aaf9e8c864124d2a46ba01c266ceeb6d246",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
