@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_94c8e875",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/pom.xml",
+        "patchSetId": 4
+      },
+      "lineNbr": 179,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2017-01-28T19:53:43Z",
+      "side": 1,
+      "message": "Yes, this is how it works today. I am not sure how it would look if in odlparent. The key piece is the file artifact. That is what gets the xml copied to the distribution and seems specific to the bundle so not sure how to make it generic for odlparent. We use this already in aclservice, dhcpservice and neutronvpn. ovsdb might use this also. This then corresponds to the features.xml copy of the config file.",
+      "parentUuid": "fafc7978_8ee73740",
+      "revId": "5d899b12c8d533540679655058291279bbc4bc8b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_3669478c",
         "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/resources/org/opendaylight/blueprint/elanmanager.xml",
         "patchSetId": 4
