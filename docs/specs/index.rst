@@ -24,5 +24,6 @@ Contents:
    Temporary SMAC Learning <temporary-smac-learning>
    VNI based L2 switching, L3 forwarding and NATing <vni-based-l2-switching-l3-forwarding-and-NATing>
    Netvirt counters <netvirt-statistics-spec>
+   Policy based path selection for multiple VxLAN tunnels <policy-based-path-selection>
    QoS Alert <qos-alert>
    DHCP Server with dynamic allocation pool <dhcp-dynamic-allocation-pool>
