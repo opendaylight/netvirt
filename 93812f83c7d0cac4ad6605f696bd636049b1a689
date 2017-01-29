@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_57c4c291",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 11
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 4058
+      },
+      "writtenOn": "2017-01-29T13:25:47Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_51ddf26f",
+      "range": {
+        "startLine": 7,
+        "startChar": 0,
+        "endLine": 7,
+        "endChar": 126
+      },
+      "revId": "93812f83c7d0cac4ad6605f696bd636049b1a689",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_11588a31",
         "filename": "openstack/net-virt-providers/src/main/java/org/opendaylight/netvirt/openstack/netvirt/providers/openflow13/OF13Provider.java",
         "patchSetId": 11
@@ -36,6 +60,30 @@
       "writtenOn": "2017-01-27T19:41:49Z",
       "side": 1,
       "message": "I think this variable \"nodeId\" is used in the for-loop starting at the line 1080. Therefore, I think this line should be put just above the for-loop. Otherwise, this would cause unnecessary costs for some cases. Anyway, let\u0027s minimize the scope of variables.",
+      "range": {
+        "startLine": 1058,
+        "startChar": 8,
+        "endLine": 1058,
+        "endChar": 124
+      },
+      "revId": "93812f83c7d0cac4ad6605f696bd636049b1a689",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_37c13e81",
+        "filename": "openstack/net-virt-providers/src/main/java/org/opendaylight/netvirt/openstack/netvirt/providers/openflow13/OF13Provider.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 1058,
+      "author": {
+        "id": 4058
+      },
+      "writtenOn": "2017-01-29T13:25:47Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_11588a31",
       "range": {
         "startLine": 1058,
         "startChar": 8,
@@ -71,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_d73712af",
+        "filename": "openstack/net-virt-providers/src/main/java/org/opendaylight/netvirt/openstack/netvirt/providers/openflow13/services/IngressAclService.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 111,
+      "author": {
+        "id": 4058
+      },
+      "writtenOn": "2017-01-29T13:25:47Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_51c4d291",
+      "range": {
+        "startLine": 111,
+        "startChar": 28,
+        "endLine": 111,
+        "endChar": 71
+      },
+      "revId": "93812f83c7d0cac4ad6605f696bd636049b1a689",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_31482e2d",
         "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/PortSecurityHandler.java",
         "patchSetId": 11
@@ -82,6 +154,30 @@
       "writtenOn": "2017-01-27T19:41:49Z",
       "side": 1,
       "message": "Just FYI. I think this change is not needed from the view point of the performance.\n\nhttps://www.slf4j.org/faq.html#logging_performance",
+      "range": {
+        "startLine": 173,
+        "startChar": 0,
+        "endLine": 175,
+        "endChar": 9
+      },
+      "revId": "93812f83c7d0cac4ad6605f696bd636049b1a689",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_77bbc60e",
+        "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/PortSecurityHandler.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 175,
+      "author": {
+        "id": 4058
+      },
+      "writtenOn": "2017-01-29T13:25:47Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_31482e2d",
       "range": {
         "startLine": 173,
         "startChar": 0,
@@ -117,6 +213,30 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_b73c0e95",
+        "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/api/SecurityServicesManager.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 120,
+      "author": {
+        "id": 4058
+      },
+      "writtenOn": "2017-01-29T13:25:47Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_91559ac8",
+      "range": {
+        "startLine": 120,
+        "startChar": 26,
+        "endLine": 120,
+        "endChar": 37
+      },
+      "revId": "93812f83c7d0cac4ad6605f696bd636049b1a689",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_f1b986ea",
         "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/impl/NeutronL3Adapter.java",
         "patchSetId": 11
@@ -134,6 +254,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_97558ac8",
+        "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/impl/NeutronL3Adapter.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 1631,
+      "author": {
+        "id": 4058
+      },
+      "writtenOn": "2017-01-29T13:25:47Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_f1b986ea",
+      "revId": "93812f83c7d0cac4ad6605f696bd636049b1a689",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_914e3ac0",
         "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/impl/SecurityGroupCacheManagerImpl.java",
         "patchSetId": 11
@@ -145,6 +283,24 @@
       "writtenOn": "2017-01-27T20:59:23Z",
       "side": 1,
       "message": "make it volatile and initialize as empty List",
+      "revId": "93812f83c7d0cac4ad6605f696bd636049b1a689",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_17423a10",
+        "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/impl/SecurityGroupCacheManagerImpl.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 54,
+      "author": {
+        "id": 4058
+      },
+      "writtenOn": "2017-01-29T13:25:47Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_914e3ac0",
       "revId": "93812f83c7d0cac4ad6605f696bd636049b1a689",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -185,6 +341,42 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_f72b362e",
+        "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/impl/SecurityGroupCacheManagerImpl.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 58,
+      "author": {
+        "id": 4058
+      },
+      "writtenOn": "2017-01-29T13:25:47Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_f13a2635",
+      "revId": "93812f83c7d0cac4ad6605f696bd636049b1a689",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_f7469622",
+        "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/impl/SecurityGroupCacheManagerImpl.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 58,
+      "author": {
+        "id": 4058
+      },
+      "writtenOn": "2017-01-29T13:25:47Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_f11186ad",
+      "revId": "93812f83c7d0cac4ad6605f696bd636049b1a689",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_31230e07",
         "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/impl/SecurityGroupCacheManagerImpl.java",
         "patchSetId": 11
@@ -202,6 +394,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_574b222b",
+        "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/impl/SecurityGroupCacheManagerImpl.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 70,
+      "author": {
+        "id": 4058
+      },
+      "writtenOn": "2017-01-29T13:25:47Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_31230e07",
+      "revId": "93812f83c7d0cac4ad6605f696bd636049b1a689",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_b117fea2",
         "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/impl/SecurityGroupCacheManagerImpl.java",
         "patchSetId": 11
@@ -213,6 +423,24 @@
       "writtenOn": "2017-01-27T20:54:09Z",
       "side": 1,
       "message": "The first line needs a period for proper javadoc. Might as well add the @return.",
+      "revId": "93812f83c7d0cac4ad6605f696bd636049b1a689",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_37481e2d",
+        "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/impl/SecurityGroupCacheManagerImpl.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 113,
+      "author": {
+        "id": 4058
+      },
+      "writtenOn": "2017-01-29T13:25:47Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_b117fea2",
       "revId": "93812f83c7d0cac4ad6605f696bd636049b1a689",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -254,6 +482,54 @@
       "side": 1,
       "message": "Do you have plan to address Tai-san\u0027s comment about not checking for default SG?\n\nAnyhow, for this change you need to check if user delete/modify/add \u0027default\u0027 SG as well",
       "parentUuid": "fafc7978_5172127d",
+      "range": {
+        "startLine": 112,
+        "startChar": 0,
+        "endLine": 136,
+        "endChar": 9
+      },
+      "revId": "93812f83c7d0cac4ad6605f696bd636049b1a689",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_7700e6aa",
+        "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/impl/SecurityGroupCacheManagerImpl.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 136,
+      "author": {
+        "id": 4058
+      },
+      "writtenOn": "2017-01-29T13:25:47Z",
+      "side": 1,
+      "message": "Yes, this patch needs this change to improve the performance by reducing the read call for the security group. Before one read request per VM will be processed to fetch the SecurityGroup by securityGrpUuid from the DS. To reduce this read request, We are caching the default SG and we will use isDefaultSecurityGroup() method to know whether the SG is default or not.",
+      "parentUuid": "fafc7978_5172127d",
+      "range": {
+        "startLine": 112,
+        "startChar": 0,
+        "endLine": 136,
+        "endChar": 9
+      },
+      "revId": "93812f83c7d0cac4ad6605f696bd636049b1a689",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_b731aea4",
+        "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/impl/SecurityGroupCacheManagerImpl.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 136,
+      "author": {
+        "id": 4058
+      },
+      "writtenOn": "2017-01-29T13:25:47Z",
+      "side": 1,
+      "message": "There is no option available to delete the default SG from the dashboard. Here we need the default SG, not the rules associated with the default SG. and We are using the securityGroupUUID to verify the security group is default or not. The securityGroupUUID of the default SG will never be changed even if we edit the rules of the default SG.\n\nSo, I think, We don\u0027t want to check or taken care the delete/modify/add operation of \u0027default\u0027 SG. If my understanding is wrong, please correct me",
+      "parentUuid": "fafc7978_115b6a88",
       "range": {
         "startLine": 112,
         "startChar": 0,
