@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_37ac9eed",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 9
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 670
+      },
+      "writtenOn": "2017-01-29T12:07:09Z",
+      "side": 1,
+      "message": "Move Depends-On: to the line before Change-Id:",
+      "revId": "143073051e4c82ed4266d5b4de16e8aa539ce86b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_77b6263f",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanNodeListener.java",
+        "patchSetId": 9
+      },
+      "lineNbr": 191,
+      "author": {
+        "id": 670
+      },
+      "writtenOn": "2017-01-29T12:07:09Z",
+      "side": 1,
+      "message": "these should probably be constant?\nwhat does this represent? ethernetMulticastStpOrLldp?",
+      "revId": "143073051e4c82ed4266d5b4de16e8aa539ce86b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
