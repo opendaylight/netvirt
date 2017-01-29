@@ -21,3 +21,4 @@ Contents:
    IPv6 L3 North-South support for Flat/VLAN based Provider Networks <ipv6-cvr-north-south>
    VNI based L2 switching, L3 forwarding and NATing <vni-based-l2-switching-l3-forwarding-and-NATing>
    Netvirt counters <netvirt-statistics-spec>
+   Policy based path selection for multiple VxLAN tunnels <policy-based-path-selection>
