@@ -565,6 +565,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_17599afe",
+        "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/impl/SecurityGroupCacheManagerImpl.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 134,
+      "author": {
+        "id": 4058
+      },
+      "writtenOn": "2017-01-29T13:25:47Z",
+      "side": 1,
+      "message": "Hi Vinh,\n\nAs neutronPortToDpIdCache is availble for only when L3 is enabled, We have introduced new cache that will cache the dpid and nodeId information. This cache will be more useful and will reduce the more number of read calls when we do bulk creation of VMs. If we use neutronPortToDpIdCache, It will lead to atleast one read call to the DS for querying dpId of the node.",
+      "parentUuid": "fafc7978_aec15be6",
+      "revId": "4c67dd37a488c39ad0d5bd222fd8c64e621db3b1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_9c6e6ac8",
         "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/impl/TenantNetworkManagerImpl.java",
         "patchSetId": 5
