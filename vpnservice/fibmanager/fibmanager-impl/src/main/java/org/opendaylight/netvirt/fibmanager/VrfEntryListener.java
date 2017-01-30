@@ -810,7 +810,7 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
             Extraroute extraRoute = getVpnToExtraroute(rd, vrfEntry.getDestPrefix());
             if (extraRoute != null) {
                 for (String nextHopIp : extraRoute.getNexthopIpList()) {
-                    LOG.debug("NextHop IP for destination {} is {}", vrfEntry.getDestPrefix(), nextHopIp);
+                    LOG.info("NextHop IP for destination {} is {}", vrfEntry.getDestPrefix(), nextHopIp);
                     if (nextHopIp != null) {
                         localNextHopInfo = FibUtil.getPrefixToInterface(dataBroker, vpnId, nextHopIp + "/32");
                         localNextHopIP = nextHopIp + "/32";
