@@ -345,7 +345,8 @@ public class NaptEventHandler {
                 protocolMatchInfo = MatchIpProtocol.TCP;
                 portMatchInfo = new MatchTcpDestinationPort(port);
             } else if (protocol == NAPTEntryEvent.Protocol.UDP) {
-                protocolMatchInfo = new MatchUdpDestinationPort(port);
+                protocolMatchInfo = MatchIpProtocol.UDP;
+                portMatchInfo = new MatchUdpDestinationPort(port);
             }
             //metaDataMatchInfo = new MatchMetadata(BigInteger.valueOf(vpnId), MetaDataUtil.METADATA_MASK_VRFID);
         }
