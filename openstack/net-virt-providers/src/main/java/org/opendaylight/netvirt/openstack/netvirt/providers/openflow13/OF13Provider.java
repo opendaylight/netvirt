@@ -1097,6 +1097,15 @@ public class OF13Provider implements ConfigInterface, NetworkingProvider {
      * network. If a cache is maintained to optimize the below flow addition, it will
      * work only for one unstack and restack. For the next unstack and restack,
      * it will not work since the cache would have been already deleted.
+     *
+     * @param network The neutron network of the new VM in the new compute node.
+     * @param networkType The network type of the new VM.
+     * @param segmentationId Segmentation ID of the new VM.
+     * @param src The IP address of the TEP of the new compute node.
+     * @param dst The IP address of the TEP of the destination node.
+     * @param srcBridgeNode The integraion bridge (br-int) of the new compute node.
+     * @param dstBridgeNode The integraion bridge (br-int) of the destination node.
+     * @param intf The interface of the new VM.
      */
     private void programTunnelRulesInNewNode(NeutronNetwork network,
                                              String networkType, String segmentationId,
