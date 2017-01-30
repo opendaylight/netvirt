@@ -746,7 +746,7 @@ public class VpnUtil {
         return false;
     }
 
-    static String getIpPrefix(String prefix) {
+    public static String getIpPrefix(String prefix) {
         String[] prefixValues = prefix.split("/");
         if (prefixValues.length == 1) {
             prefix = prefix + PREFIX_SEPARATOR + DEFAULT_PREFIX_LENGTH;
@@ -1429,6 +1429,15 @@ public class VpnUtil {
     public static BigInteger getPrimarySwitchForRouter(DataBroker dataBroker, String routerName) {
         RouterToNaptSwitch routerToNaptSwitch = getRouterToNaptSwitch(dataBroker, routerName);
         return routerToNaptSwitch != null ? routerToNaptSwitch.getPrimarySwitchId() : null;
+    }
+
+    static boolean isL3VpnOverVxLan(Long l3Vni) {
+        return (l3Vni != null && l3Vni != 0);
+    }
+
+    static   String getGatewayMac(String interfaceName) {
+        //OUI based MAC creation and use
+        return VpnConstants.DEFAULT_GATEWAY_MAC_ADDRESS;
     }
 
 }
