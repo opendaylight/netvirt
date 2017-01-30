@@ -13,6 +13,11 @@ module elan-config {
 
     container elan-config {
         config true;
+        leaf auto-create-bridge {
+            description "If true, auto-create default bridge";
+            type boolean;
+            default false;
+        }
         leaf int-bridge-gen-mac {
             description "If true, generate a mac, else use the bridge generated mac";
             type boolean;
