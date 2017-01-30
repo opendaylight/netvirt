@@ -68,4 +68,5 @@ public class VpnConstants {
             return status;
         }
     }
+    public static final String DEFAULT_GATEWAY_MAC_ADDRESS = "de:ad:be:ef:00:01";
 }

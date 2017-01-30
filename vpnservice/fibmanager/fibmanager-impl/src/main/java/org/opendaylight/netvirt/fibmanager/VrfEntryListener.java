@@ -2272,7 +2272,7 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
         if (routerInt != null && vpnToDpnList != null) {
             String routerId = routerInt.getUuid();
             String macAddress = routerInt.getMacAddress();
-            String ipValue = routerInt.getIpAddress();
+            String ipValue = vrfEntry.getDestPrefix();
             LOG.trace("createFibEntries - Router augmented vrfentry found for for router uuid:{}, ip:{}, mac:{}",
                 routerId, ipValue, macAddress);
             for (VpnToDpnList vpnDpn : vpnToDpnList) {
