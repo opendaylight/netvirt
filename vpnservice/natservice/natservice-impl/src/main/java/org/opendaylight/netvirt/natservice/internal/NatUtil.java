@@ -68,6 +68,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.op.rev160406.dpn
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.op.rev160406.dpn.endpoints.DPNTEPsInfoKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.op.rev160406.dpn.endpoints.dpn.teps.info.TunnelEndPoints;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeConnectorId;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.VrfEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.DpnRouters;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.LearntVpnVipToPortData;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.NeutronRouterDpns;
@@ -764,7 +765,9 @@ public class NatUtil {
                 log.error("addPrefix failed since nextHopIp cannot be null.");
                 return;
             }
-            fibManager.addOrUpdateFibEntry(broker, rd, prefix, Arrays.asList(nextHopIp), (int) label, origin, null);
+            fibManager.addOrUpdateFibEntry(broker, rd, null /*macAddress*/, prefix, Arrays.asList(nextHopIp),
+                    VrfEntry.EncapType.Mplsgre, (int)label, 0 /*l3vni*/, null /*gatewayMacAddress*/,
+                    origin, null /*writeTxn*/);
             bgpManager.advertisePrefix(rd, prefix, Arrays.asList(nextHopIp), (int) label);
             LOG.info("ADD: Added Fib entry rd {} prefix {} nextHop {} label {}", rd, prefix, nextHopIp, label);
         } catch (Exception e) {
