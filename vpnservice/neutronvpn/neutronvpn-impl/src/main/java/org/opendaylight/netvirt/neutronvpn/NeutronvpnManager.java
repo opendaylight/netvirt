@@ -826,9 +826,17 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
 
         List<L3vpn> vpns = input.getL3vpn();
         for (L3vpn vpn : vpns) {
-            List<String> existingRDs = NeutronvpnUtils.getExistingRDs(dataBroker);
             RpcError error = null;
             String msg;
+            if (NeutronvpnUtils.doesVpnExist(dataBroker, vpn.getId())) {
+                msg = String.format("Creation of L3VPN failed for VPN %s due to VPN with the same ID already present",
+                                vpn.getId().getValue());
+                LOG.warn(msg);
+                error = RpcResultBuilder.newWarning(ErrorType.PROTOCOL, "invalid-input", msg);
+                errorList.add(error);
+                warningcount++;
+                continue;
+            }
             if (vpn.getRouteDistinguisher() == null || vpn.getImportRT() == null || vpn.getExportRT() == null) {
                 msg = String.format("Creation of L3VPN failed for VPN %s due to absence of RD/iRT/eRT input",
                         vpn.getId().getValue());
@@ -847,6 +855,7 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
                 warningcount++;
                 continue;
             }
+            List<String> existingRDs = NeutronvpnUtils.getExistingRDs(dataBroker);
             if (existingRDs.contains(vpn.getRouteDistinguisher().get(0))) {
                 msg = String.format("Creation of L3VPN failed for VPN %s as another VPN with the same RD %s is already configured",
                         vpn.getId().getValue(), vpn.getRouteDistinguisher().get(0));
