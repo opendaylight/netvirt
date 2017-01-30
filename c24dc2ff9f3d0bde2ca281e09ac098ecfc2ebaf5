@@ -197,6 +197,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_636dc432",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/NexthopManager.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 377,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-01-30T16:39:16Z",
+      "side": 1,
+      "message": "We haven\u0027t observed this frequently in our 3-node runs.  I went through the code and I see only 2 writes go to Operational Datastore when processing addition of a VPNinterface.  One is the VPNInterface itself going into Oper and other is the prefix-to-interface.\n\nThe delay of write to operational datastore taking more time than the equivalent config DS for a VPNInterface would happen only when there are many adjacencies per vpnInterface.\n\nWhile we can put a happens-before relationship for operational datastore writes when compared to equivalent config datastore writes by using callback infra provided by DJC in the VPNEngine, am concerned that it may result in degraded performance at scale and could result in re-ordering too of config/inv writes compared to equivalent operational writes per vpn-interface.\n\nSince prefix-to-interface is available only once per VPNInterface, let us move the gateway-source-mac-address to prefix-to-interface itself instead of a brand new datastore.\n\nThat would not be cure the bug you have quoted, but it will minimize the impact that may be possible because of new datastore.\n\nWDYT?",
+      "parentUuid": "fafc7978_c3d8f055",
+      "revId": "c24dc2ff9f3d0bde2ca281e09ac098ecfc2ebaf5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_a309852e",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
         "patchSetId": 8
