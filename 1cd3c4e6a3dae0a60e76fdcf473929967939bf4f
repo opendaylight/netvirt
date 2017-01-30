@@ -1,0 +1,140 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_e87993fd",
+        "filename": "docs/specs/conntrack-based-snat.rst",
+        "patchSetId": 24
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2017-01-30T15:12:58Z",
+      "side": 1,
+      "message": "nit: You can remove the \"for translation\" in the following sentence.\n\ni.e., netfilter \"for translation\" along with the external ip",
+      "revId": "1cd3c4e6a3dae0a60e76fdcf473929967939bf4f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_e8bcf36e",
+        "filename": "docs/specs/conntrack-based-snat.rst",
+        "patchSetId": 24
+      },
+      "lineNbr": 71,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2017-01-30T15:12:58Z",
+      "side": 1,
+      "message": "Just a note: While talking to a local team that was doing some performance tests, they mentioned that using ct(....) in OVS flows has a direct impact on performance. So, we should ideally try to avoid any \"additional\" ct(...) for better results. Here I see that we are calling ct() twice in Line74. Can we optimize this and still achieve SNAT? If not, please ignore this comment.",
+      "revId": "1cd3c4e6a3dae0a60e76fdcf473929967939bf4f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_c89acf13",
+        "filename": "docs/specs/conntrack-based-snat.rst",
+        "patchSetId": 24
+      },
+      "lineNbr": 74,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2017-01-30T15:12:58Z",
+      "side": 1,
+      "message": "In Table46, the nat operation was performed with a source ip as 192.168.111.21. Whereas here we are matching on \"192.168.111.23\". Is this a typo or am i missing something?",
+      "revId": "1cd3c4e6a3dae0a60e76fdcf473929967939bf4f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_4809bf30",
+        "filename": "docs/specs/conntrack-based-snat.rst",
+        "patchSetId": 24
+      },
+      "lineNbr": 76,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2017-01-30T15:12:58Z",
+      "side": 1,
+      "message": "In the generated doc, these flows are not properly rendered. Can you please take a look.",
+      "revId": "1cd3c4e6a3dae0a60e76fdcf473929967939bf4f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_68b0038c",
+        "filename": "docs/specs/conntrack-based-snat.rst",
+        "patchSetId": 24
+      },
+      "lineNbr": 90,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2017-01-30T15:12:58Z",
+      "side": 1,
+      "message": "Is Table 43 a new table that is added for Conntrack based SNAT?",
+      "revId": "1cd3c4e6a3dae0a60e76fdcf473929967939bf4f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_48741fcf",
+        "filename": "docs/specs/conntrack-based-snat.rst",
+        "patchSetId": 24
+      },
+      "lineNbr": 210,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2017-01-30T15:12:58Z",
+      "side": 1,
+      "message": "What would be the default implementation? Will it be the existing one or the new Conntrack based SNAT impl?",
+      "revId": "1cd3c4e6a3dae0a60e76fdcf473929967939bf4f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_485b7f54",
+        "filename": "docs/specs/conntrack-based-snat.rst",
+        "patchSetId": 24
+      },
+      "lineNbr": 219,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2017-01-30T15:12:58Z",
+      "side": 1,
+      "message": "Please rephrase the second sentence as follows since its a bit misleading in the current state.\n\nOVS currently does not support SNAT connection tracking support for dpdk datapath. It would be supported in some future release.",
+      "revId": "1cd3c4e6a3dae0a60e76fdcf473929967939bf4f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_283c3be2",
+        "filename": "docs/specs/conntrack-based-snat.rst",
+        "patchSetId": 24
+      },
+      "lineNbr": 294,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2017-01-30T15:12:58Z",
+      "side": 1,
+      "message": "nit: /s/mode/modes\nnit: /s/Nat/NAT",
+      "revId": "1cd3c4e6a3dae0a60e76fdcf473929967939bf4f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
