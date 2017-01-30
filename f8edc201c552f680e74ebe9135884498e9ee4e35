@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_f7a4d658",
+        "filename": "openstack/commons/it/pom.xml",
+        "patchSetId": 1
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 2759
+      },
+      "writtenOn": "2017-01-30T03:26:05Z",
+      "side": 1,
+      "message": "It only matters for the root pom. All other poms we can set the name to anything. What\u0027s nice about this is that we can write a script later in autorelease to automatically notify the project that is failing autorelease builds by parsing the middle part as long as it\u0027s correctly configured.",
+      "parentUuid": "fafc7978_35adc489",
+      "revId": "f8edc201c552f680e74ebe9135884498e9ee4e35",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_15aa4070",
         "filename": "vpnservice/cloud-servicechain/cloud-servicechain-impl/pom.xml",
         "patchSetId": 1
