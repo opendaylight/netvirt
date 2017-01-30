@@ -314,6 +314,23 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_226f3ac7",
+        "filename": "docs/specs/conntrack-based-snat.rst",
+        "patchSetId": 17
+      },
+      "lineNbr": 66,
+      "author": {
+        "id": 4269
+      },
+      "writtenOn": "2017-01-30T05:10:36Z",
+      "side": 1,
+      "message": "@Tali\nTo match the inbound NAPT vpn-ids I suggest to change the vpn-id match in T26 and T46 to be 0x222e2\nso router vpn-id\u003d0x222e2 and ext-net vpn-id\u003d0x222e0\n\n@Aswin\nThe VPN id is now changed for the inbound NAT in table 43 now, the outbound NAT is now not dependent on the VPN id as we are checking the ct_state I think it should work fine.",
+      "revId": "48342aaf9e8c864124d2a46ba01c266ceeb6d246",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_364b07b2",
         "filename": "docs/specs/conntrack-based-snat.rst",
         "patchSetId": 17
@@ -362,6 +379,24 @@
       "side": 1,
       "message": "I don\u0027t think multiple external subnets for a router gateway (ie., external-fixed-ips from different subnets for the same router on its gateway side) ever works today.. \n\nChetan, can you please clarify the question?",
       "parentUuid": "fafc7978_6cee5e24",
+      "revId": "48342aaf9e8c864124d2a46ba01c266ceeb6d246",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_8248a65c",
+        "filename": "docs/specs/conntrack-based-snat.rst",
+        "patchSetId": 17
+      },
+      "lineNbr": 67,
+      "author": {
+        "id": 4269
+      },
+      "writtenOn": "2017-01-30T05:10:36Z",
+      "side": 1,
+      "message": "Chethan,\n\nTwo external subnet in a router is not supported with this spec, it can be considered as a further enhancement as suggested in the previous comment.",
+      "parentUuid": "fafc7978_3493fca4",
       "revId": "48342aaf9e8c864124d2a46ba01c266ceeb6d246",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -468,6 +503,23 @@
       "writtenOn": "2017-01-24T17:52:00Z",
       "side": 1,
       "message": "here you have swapped the metadata correctly :)",
+      "revId": "48342aaf9e8c864124d2a46ba01c266ceeb6d246",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_0274b697",
+        "filename": "docs/specs/conntrack-based-snat.rst",
+        "patchSetId": 17
+      },
+      "lineNbr": 199,
+      "author": {
+        "id": 4269
+      },
+      "writtenOn": "2017-01-30T05:10:36Z",
+      "side": 1,
+      "message": "@Tali\nWhat part of the implementation will be guarded by this config? Only the put_to_controller flow in the outbound NAPT table or are the more?\n\n@Aswin,\n\nYes it will the logic to punt to the controller and the related infrastructure will be guarded here.",
       "revId": "48342aaf9e8c864124d2a46ba01c266ceeb6d246",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
