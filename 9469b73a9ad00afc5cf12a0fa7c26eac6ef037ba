@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_f5d16bce",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/utils/ElanUtils.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 2024,
+      "author": {
+        "id": 3972
+      },
+      "writtenOn": "2017-01-30T19:16:05Z",
+      "side": 1,
+      "message": "It looks like this assumes that the network has at most one VXLAN segment.  In theory, I think there could be more, but I think that\u0027s an okay assumption for now.",
+      "revId": "9469b73a9ad00afc5cf12a0fa7c26eac6ef037ba",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
