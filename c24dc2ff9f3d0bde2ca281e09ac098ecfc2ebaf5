@@ -179,6 +179,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_c3d8f055",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/NexthopManager.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 377,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2017-01-30T15:57:00Z",
+      "side": 1,
+      "message": "Vivek,\n\nI\u0027m concerned that this patch will increase the frequency of this bug https://bugs.opendaylight.org/show_bug.cgi?id\u003d7685 since the oper DS transaction will take longer to complete after adding the new model\nwe are hitting this quite a lot in 3node setup",
+      "parentUuid": "fafc7978_ec224e00",
+      "revId": "c24dc2ff9f3d0bde2ca281e09ac098ecfc2ebaf5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_a309852e",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
         "patchSetId": 8
