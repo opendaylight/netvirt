@@ -473,8 +473,10 @@ public class FibUtil {
 
     // TODO Clean up the exception handling
     @SuppressWarnings("checkstyle:IllegalCatch")
-    public static void addOrUpdateFibEntry(DataBroker broker, String rd, String prefix, List<String> nextHopList,
-                                           int label, RouteOrigin origin, WriteTransaction writeConfigTxn) {
+    public static void addOrUpdateFibEntry(DataBroker broker, String rd, String macAddress, String prefix,
+                                           List<String> nextHopList, VrfEntry.EncapType encapType, int label,
+                                           long l3vni, String gatewayMacAddress, RouteOrigin origin,
+                                           WriteTransaction writeConfigTxn) {
         if (rd == null || rd.isEmpty()) {
             LOG.error("Prefix {} not associated with vpn", prefix);
             return;
@@ -489,15 +491,9 @@ public class FibUtil {
                     .child(VrfEntry.class, new VrfEntryKey(prefix)).build();
             Optional<VrfEntry> entry = MDSALUtil.read(broker, LogicalDatastoreType.CONFIGURATION, vrfEntryId);
 
-            if (!entry.isPresent()) {
-                VrfEntry vrfEntry = new VrfEntryBuilder().setDestPrefix(prefix).setNextHopAddressList(nextHopList)
-                    .setLabel((long) label).setOrigin(origin.getValue()).build();
-
-                if (writeConfigTxn != null) {
-                    writeConfigTxn.merge(LogicalDatastoreType.CONFIGURATION, vrfEntryId, vrfEntry, true);
-                } else {
-                    MDSALUtil.syncWrite(broker, LogicalDatastoreType.CONFIGURATION, vrfEntryId, vrfEntry);
-                }
+            if (! entry.isPresent()) {
+                writeFibEntryToDs(vrfEntryId, prefix, nextHopList, label, l3vni, encapType, origin, macAddress,
+                        gatewayMacAddress, writeConfigTxn, broker, false);
                 LOG.debug("Created vrfEntry for {} nexthop {} label {}", prefix, nextHopList, label);
             } else { // Found in MDSAL database
                 List<String> nh = entry.get().getNextHopAddressList();
@@ -506,14 +502,8 @@ public class FibUtil {
                         nh.add(nextHop);
                     }
                 }
-                VrfEntry vrfEntry = new VrfEntryBuilder().setDestPrefix(prefix).setNextHopAddressList(nh)
-                    .setLabel((long) label).setOrigin(origin.getValue()).build();
-
-                if (writeConfigTxn != null) {
-                    writeConfigTxn.merge(LogicalDatastoreType.CONFIGURATION, vrfEntryId, vrfEntry, true);
-                } else {
-                    MDSALUtil.syncUpdate(broker, LogicalDatastoreType.CONFIGURATION, vrfEntryId, vrfEntry);
-                }
+                writeFibEntryToDs(vrfEntryId, prefix, nh, label, l3vni, encapType, origin, macAddress,
+                        gatewayMacAddress, writeConfigTxn, broker, true);
                 LOG.debug("Updated vrfEntry for {} nexthop {} label {}", prefix, nh, label);
             }
         } catch (Exception e) {
@@ -522,6 +512,24 @@ public class FibUtil {
     }
 
     // TODO Clean up the exception handling
+    @SuppressWarnings("checkstyle:IllegalCatch")
+    public static void writeFibEntryToDs(InstanceIdentifier<VrfEntry> vrfEntryId, String prefix,
+                                         List<String> nextHopList, long label, Long l3vni,
+                                         VrfEntry.EncapType encapType, RouteOrigin origin, String macAddress,
+                                         String gatewayMacAddress, WriteTransaction writeConfigTxn, DataBroker broker,
+                                         boolean isUpdate) {
+        VrfEntryBuilder vrfEntryBuilder = new VrfEntryBuilder().setDestPrefix(prefix).setNextHopAddressList(nextHopList)
+                .setOrigin(origin.getValue());
+        buildVpnEncapSpecificInfo(vrfEntryBuilder, encapType, label, l3vni, macAddress, gatewayMacAddress);
+        if (writeConfigTxn != null) {
+            writeConfigTxn.merge(LogicalDatastoreType.CONFIGURATION, vrfEntryId, vrfEntryBuilder.build(), true);
+        } else if (isUpdate) {
+            MDSALUtil.syncUpdate(broker, LogicalDatastoreType.CONFIGURATION, vrfEntryId, vrfEntryBuilder.build());
+        } else {
+            MDSALUtil.syncWrite(broker, LogicalDatastoreType.CONFIGURATION, vrfEntryId, vrfEntryBuilder.build());
+        }
+    }
+
     @SuppressWarnings("checkstyle:IllegalCatch")
     public static void addFibEntryForRouterInterface(DataBroker broker,
                                                      String rd,
@@ -555,6 +563,16 @@ public class FibUtil {
         } catch (Exception e) {
             LOG.error("addFibEntryToDS: error ", e);
         }
+    }
+
+    private static void buildVpnEncapSpecificInfo(VrfEntryBuilder builder, VrfEntry.EncapType encapType, long label,
+                                                 long l3vni, String macAddress, String gatewayMac) {
+        if (encapType.equals(VrfEntry.EncapType.Mplsgre)) {
+            builder.setLabel(label);
+        } else {
+            builder.setL3vni(l3vni).setGatewayMacAddress(gatewayMac);
+        }
+        builder.setEncapType(encapType);
     }
 
     public static void removeFibEntry(DataBroker broker, String rd, String prefix, WriteTransaction writeConfigTxn) {

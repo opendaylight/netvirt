@@ -300,4 +300,24 @@
         <argument ref="dataBroker" />
         <argument ref="vpnManager" />
   </bean>
+
+  <bean id="l3vpnRegistry"
+        class="org.opendaylight.netvirt.vpnmanager.populator.registry.L3vpnRegistry"
+        init-method="init" destroy-method="close">
+  </bean>
+
+  <bean id="l3vpnOverMplsGrePopulator"
+        class="org.opendaylight.netvirt.vpnmanager.populator.impl.L3vpnOverMplsGrePopulator"
+        init-method="init" destroy-method="close">
+    <argument ref="vpnInterfaceManager" />
+    <argument ref="bgpmanager" />
+    <argument ref="fibManager" />
+  </bean>
+
+  <bean id="l3vpnOverVxlanPopulator"
+        class="org.opendaylight.netvirt.vpnmanager.populator.impl.L3vpnOverVxlanPopulator"
+        init-method="init" destroy-method="close">
+    <argument ref="bgpmanager" />
+    <argument ref="fibManager" />
+  </bean>
 </blueprint>
