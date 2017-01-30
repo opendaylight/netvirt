@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_42c19e7f",
+        "filename": "vpnservice/dhcpservice/dhcpservice-impl/src/main/java/org/opendaylight/netvirt/dhcpservice/DhcpSubnetListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 120,
+      "author": {
+        "id": 5975
+      },
+      "writtenOn": "2017-01-30T07:05:19Z",
+      "side": 1,
+      "message": "We can use a single transaction for on both objects as both are dependent.",
+      "parentUuid": "fafc7978_115ecd45",
+      "range": {
+        "startLine": 120,
+        "startChar": 84,
+        "endLine": 120,
+        "endChar": 86
+      },
+      "revId": "faa0fb7493e4514d334b109c48fed453eabd0631",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_f15a294f",
         "filename": "vpnservice/dhcpservice/dhcpservice-impl/src/main/java/org/opendaylight/netvirt/dhcpservice/DhcpSubnetListener.java",
         "patchSetId": 1
