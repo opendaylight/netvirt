@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_e2bc126f",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanBridgeManager.java",
+        "patchSetId": 22
+      },
+      "lineNbr": 460,
+      "author": {
+        "id": 670
+      },
+      "writtenOn": "2017-01-30T09:37:01Z",
+      "side": 1,
+      "message": "Read the genius review comments - I think you confuse how getPortNameForInterfaceDS is implemented (it doesn\u0027t read from datastore).",
+      "parentUuid": "fafc7978_0215d6f0",
+      "revId": "4301cc6a16daca92b3a1b84485a29b9d9ad4b1d0",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_a2032ab7",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/InterfaceStateChangeListener.java",
         "patchSetId": 22
@@ -30,6 +48,24 @@
       "writtenOn": "2017-01-30T07:34:32Z",
       "side": 1,
       "message": "Though it is not related to your change, can we make it with single log statement ? Not sure why we had both info/trace level logs here.\nsame comment for update/remove methods.",
+      "revId": "4301cc6a16daca92b3a1b84485a29b9d9ad4b1d0",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_62b0228c",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/InterfaceStateChangeListener.java",
+        "patchSetId": 22
+      },
+      "lineNbr": 65,
+      "author": {
+        "id": 670
+      },
+      "writtenOn": "2017-01-30T09:37:01Z",
+      "side": 1,
+      "message": "Please read the previous comments in the review. Abhinav requested this change. I can lose the trace, but it has additional info that can be useful.\nThe INFO should be there IMO, and it should not print the whole interface..",
+      "parentUuid": "fafc7978_a2032ab7",
       "revId": "4301cc6a16daca92b3a1b84485a29b9d9ad4b1d0",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
