@@ -439,6 +439,9 @@ public class VpnInstanceListener extends AsyncDataTreeChangeListenerBase<VpnInst
             List<org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.vpn
                 .instance.op.data.entry.vpntargets.VpnTarget>
                 opVpnTargetList = new ArrayList<>();
+            if (value.getL3vni() != null) {
+                builder.setL3vni(value.getL3vni());
+            }
             VpnTargets vpnTargets = config.getVpnTargets();
             if (vpnTargets != null) {
                 List<VpnTarget> vpnTargetList = vpnTargets.getVpnTarget();
@@ -469,7 +472,6 @@ public class VpnInstanceListener extends AsyncDataTreeChangeListenerBase<VpnInst
         }
         LOG.info("VpnInstanceOpData populated successfully for vpn {} rd {}", vpnInstanceName, rd);
     }
-
 
     private class PostAddVpnInstanceWorker implements FutureCallback<List<Void>> {
         VpnAfConfig config;
