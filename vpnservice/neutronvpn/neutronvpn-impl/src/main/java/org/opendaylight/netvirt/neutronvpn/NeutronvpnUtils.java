@@ -330,7 +330,7 @@ public class NeutronvpnUtils {
      * @param port the port
      * @return port_security_enabled status
      */
-    protected static Boolean getPortSecurityEnabled(Port port) {
+    protected static boolean getPortSecurityEnabled(Port port) {
         String deviceOwner = port.getDeviceOwner();
         if (deviceOwner != null && deviceOwner.startsWith("network:")) {
             // port with device owner of network:xxx is created by
@@ -1198,6 +1198,16 @@ public class NeutronvpnUtils {
             }
         }
         return existingRDs;
+    }
+
+    protected static boolean doesVpnExist(DataBroker broker, Uuid vpnId) {
+        InstanceIdentifier<VpnMap> vpnMapIdentifier = InstanceIdentifier.builder(VpnMaps.class).child(VpnMap.class,
+                new VpnMapKey(vpnId)).build();
+        Optional<VpnMap> optionalVpnMap = read(broker, LogicalDatastoreType.CONFIGURATION, vpnMapIdentifier);
+        if (optionalVpnMap.isPresent()) {
+            return true;
+        }
+        return false;
     }
 
 }
