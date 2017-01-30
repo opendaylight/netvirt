@@ -19,6 +19,23 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_78dbb21b",
+        "filename": "vpnservice/aclservice/api/pom.xml",
+        "patchSetId": 2
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2017-01-30T23:06:23Z",
+      "side": 1,
+      "message": "if these values can be used by tools then maybe we should have a single var to use here also?",
+      "revId": "5eafc2b0e6deaafaafe2ac14f56d06821507092f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_9158fa57",
         "filename": "vpnservice/aclservice/impl/pom.xml",
         "patchSetId": 2
