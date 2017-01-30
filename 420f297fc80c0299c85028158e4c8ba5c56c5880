@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_7790e6ec",
+        "filename": "pom.xml",
+        "patchSetId": 2
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 2759
+      },
+      "writtenOn": "2017-01-30T03:28:45Z",
+      "side": 0,
+      "message": "This is the root pom so should be \"netvirt\".",
+      "revId": "420f297fc80c0299c85028158e4c8ba5c56c5880",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
