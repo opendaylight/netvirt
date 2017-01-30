@@ -1431,4 +1431,13 @@ public class VpnUtil {
         return routerToNaptSwitch != null ? routerToNaptSwitch.getPrimarySwitchId() : null;
     }
 
+    static boolean isL3VpnOverVxLan(Long l3Vni) {
+        return (l3Vni != null && l3Vni != 0);
+    }
+
+    static   String getGatewayMac(String interfaceName) {
+        //OUI based MAC creation and use
+        return VpnConstants.DEFAULT_GATEWAY_MAC_ADDRESS;
+    }
+
 }
