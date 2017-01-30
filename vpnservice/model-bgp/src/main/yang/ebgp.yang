@@ -129,7 +129,6 @@ module ebgp {
     leaf macaddress {
       description "Mac address of the advertised host.";
       type string;
-      mandatory "true";
     }
     leaf bgp_control_plane_type{
       description "Specifies the route type";

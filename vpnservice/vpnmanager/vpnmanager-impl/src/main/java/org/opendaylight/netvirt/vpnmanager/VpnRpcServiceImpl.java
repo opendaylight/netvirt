@@ -157,7 +157,6 @@ public class VpnRpcServiceImpl implements VpnRpcService {
 
         Optional<InterVpnLinkDataComposite> optIVpnLink = InterVpnLinkCache.getInterVpnLinkByEndpoint(nexthop);
         if (optIVpnLink.isPresent()) {
-
             try {
                 InterVpnLinkUtil.handleStaticRoute(optIVpnLink.get(), vpnInstanceName, destination, nexthop,
                                                    label.intValue(),
