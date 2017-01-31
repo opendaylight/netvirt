@@ -1369,7 +1369,7 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
             //remove adjacency corr to prefix
             if (numAdj > 1) {
                 LOG.info("cleanUpOpDataForFib: remove adjacency for prefix: {} {}", vpnId, vrfEntry.getDestPrefix());
-                FibUtil.delete(dataBroker, LogicalDatastoreType.OPERATIONAL,
+                MDSALUtil.syncDelete(dataBroker, LogicalDatastoreType.OPERATIONAL,
                     FibUtil.getAdjacencyIdentifier(ifName, vrfEntry.getDestPrefix()));
             }
             if ((numAdj - 1) == 0) { //there are no adjacencies left for this vpn interface, clean up
