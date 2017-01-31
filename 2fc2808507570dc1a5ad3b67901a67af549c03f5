@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_2bd1d2fb",
+        "filename": "docs/specs/ipv6-l3vpn.rst",
+        "patchSetId": 2
+      },
+      "lineNbr": 113,
+      "author": {
+        "id": 6984
+      },
+      "writtenOn": "2017-01-31T10:03:30Z",
+      "side": 1,
+      "message": "yes, the BGP stack is totally independent of ODL controller, thrift messages exchanged between ODL and Quagga uses IPv4. That\u0027s why i put the word possibly, maybe you would prefer to remove it ?",
+      "parentUuid": "fafc7978_cbcf66af",
+      "revId": "2fc2808507570dc1a5ad3b67901a67af549c03f5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_2bc43291",
         "filename": "docs/specs/ipv6-l3vpn.rst",
         "patchSetId": 2
@@ -30,6 +48,24 @@
       "writtenOn": "2017-01-31T08:45:44Z",
       "side": 1,
       "message": "Please rephrase this sentence. In Line111, you have mentioned that Neutron router is associated with all the internal subnets. So its kind of repeated here.",
+      "revId": "2fc2808507570dc1a5ad3b67901a67af549c03f5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_0bf5ee82",
+        "filename": "docs/specs/ipv6-l3vpn.rst",
+        "patchSetId": 2
+      },
+      "lineNbr": 115,
+      "author": {
+        "id": 6984
+      },
+      "writtenOn": "2017-01-31T10:03:30Z",
+      "side": 1,
+      "message": "this was for the associateRouter REST API, but i understand your remark, i will rephrase the sentence accordingly",
+      "parentUuid": "fafc7978_2bc43291",
       "revId": "2fc2808507570dc1a5ad3b67901a67af549c03f5",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -70,6 +106,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_4b1d36bd",
+        "filename": "docs/specs/ipv6-l3vpn.rst",
+        "patchSetId": 2
+      },
+      "lineNbr": 158,
+      "author": {
+        "id": 6984
+      },
+      "writtenOn": "2017-01-31T10:03:30Z",
+      "side": 1,
+      "message": "that\u0027s the hard point, i require some help in writing these tables",
+      "parentUuid": "fafc7978_6bbe3a01",
+      "revId": "2fc2808507570dc1a5ad3b67901a67af549c03f5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_ab3782af",
         "filename": "docs/specs/ipv6-l3vpn.rst",
         "patchSetId": 2
@@ -81,6 +135,24 @@
       "writtenOn": "2017-01-31T08:45:44Z",
       "side": 1,
       "message": "I had a question in your previous patchset. Can you please clarify.\n\n\"Based on the review comments in IPv6 Distributed Routing patch[1], we are now pursuing a Centralized IPv6 router instead of distributed router. Do you see any impact to your use-case because of this?\n[1] https://git.opendaylight.org/gerrit/#/c/49909/1/docs/specs/ipv6-distributed-router.rst@48\"",
+      "revId": "2fc2808507570dc1a5ad3b67901a67af549c03f5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_ab602236",
+        "filename": "docs/specs/ipv6-l3vpn.rst",
+        "patchSetId": 2
+      },
+      "lineNbr": 200,
+      "author": {
+        "id": 6984
+      },
+      "writtenOn": "2017-01-31T10:03:30Z",
+      "side": 1,
+      "message": "If my understanding is right, centralized routing with ODL means routing tables translated to ovs tables ?\nIf that\u0027s true, since there are only /128 prefixes announced by BGP stacks, there is no impact on performances because of centralized routing.",
+      "parentUuid": "fafc7978_ab3782af",
       "revId": "2fc2808507570dc1a5ad3b67901a67af549c03f5",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -104,6 +176,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_cb5f6671",
+        "filename": "docs/specs/ipv6-l3vpn.rst",
+        "patchSetId": 2
+      },
+      "lineNbr": 234,
+      "author": {
+        "id": 6984
+      },
+      "writtenOn": "2017-01-31T10:03:30Z",
+      "side": 1,
+      "message": "i found out ebgp REST api to start BGP stack and add neighbors, i will update the spec accordingly",
+      "parentUuid": "fafc7978_eb418a0c",
+      "revId": "2fc2808507570dc1a5ad3b67901a67af549c03f5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_2b4b922c",
         "filename": "docs/specs/ipv6-l3vpn.rst",
         "patchSetId": 2
@@ -121,6 +211,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_2b543253",
+        "filename": "docs/specs/ipv6-l3vpn.rst",
+        "patchSetId": 2
+      },
+      "lineNbr": 274,
+      "author": {
+        "id": 6984
+      },
+      "writtenOn": "2017-01-31T10:03:30Z",
+      "side": 1,
+      "message": "yes, you\u0027re right",
+      "parentUuid": "fafc7978_2b4b922c",
+      "revId": "2fc2808507570dc1a5ad3b67901a67af549c03f5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_0bffae35",
         "filename": "docs/specs/ipv6-l3vpn.rst",
         "patchSetId": 2
@@ -132,6 +240,24 @@
       "writtenOn": "2017-01-31T09:41:08Z",
       "side": 1,
       "message": "In the current implementation, for IPv6 east-west support, the fib entries would be as shown below. Here you have mentioned that nextHopAddressList as DCGW_IPv6 address, can you please explain more on this DCGW_IPv6 address.\n\nopendaylight-user@root\u003efib-show \n   RD       Prefix                NextHop               Label    Origin \n-------------------------------------------------------------------\n   c52220b4-894e-4efc-9532-0361776cda9b  2001:db8:1111:0:f816:3eff:fecd:808d/128  192.168.121.48        70001    l      \n   c52220b4-894e-4efc-9532-0361776cda9b  2001:db8:1111:0:f816:3eff:fecd:808d/128  null                  70001    l      \n   c52220b4-894e-4efc-9532-0361776cda9b  2001:db8:2222:0:f816:3eff:fe39:ea9f/128  192.168.121.52        70008    l      \n   c52220b4-894e-4efc-9532-0361776cda9b  2001:db8:2222::1/128                        70007    l      \n   c52220b4-894e-4efc-9532-0361776cda9b  2001:db8:1111::1/128                        70005    l      \n   c52220b4-894e-4efc-9532-0361776cda9b  2001:db8:1111:0:f816:3eff:feea:c563/128  192.168.121.52        70006    l",
+      "revId": "2fc2808507570dc1a5ad3b67901a67af549c03f5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_0b74cecd",
+        "filename": "docs/specs/ipv6-l3vpn.rst",
+        "patchSetId": 2
+      },
+      "lineNbr": 329,
+      "author": {
+        "id": 6984
+      },
+      "writtenOn": "2017-01-31T10:03:30Z",
+      "side": 1,
+      "message": "maybe i misunderstand Srikanth in last meeting about DCGW IPv6 address requirement, i thought he told me that the whole network plan was IPv6, expect MPLS/GRE tunnels between DCGW and DPN. Can you confirm ?",
+      "parentUuid": "fafc7978_0bffae35",
       "revId": "2fc2808507570dc1a5ad3b67901a67af549c03f5",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
