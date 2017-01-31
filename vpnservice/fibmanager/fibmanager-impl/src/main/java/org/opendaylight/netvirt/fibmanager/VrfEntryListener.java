@@ -97,6 +97,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.Adj
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.PrefixToInterface;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.VpnInstanceOpData;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.VpnToExtraroute;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.adjacency.list.Adjacency;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.prefix.to._interface.VpnIds;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.prefix.to._interface.VpnIdsKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.prefix.to._interface.vpn.ids.Prefixes;
@@ -892,7 +893,7 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
         return null;
     }
 
-    private boolean deleteLabelRouteInfo(LabelRouteInfo lri, String vpnInstanceName) {
+    private boolean deleteLabelRouteInfo(LabelRouteInfo lri, String vpnInstanceName, WriteTransaction tx) {
         LOG.debug("deleting LRI : for label {} vpninstancename {}", lri.getLabel(), vpnInstanceName);
         InstanceIdentifier<LabelRouteInfo> lriId = InstanceIdentifier.builder(LabelRouteMap.class)
                 .child(LabelRouteInfo.class, new LabelRouteInfoKey((long) lri.getLabel())).build();
@@ -906,7 +907,11 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
         }
         if (vpnInstancesList.size() == 0) {
             LOG.debug("deleting LRI instance object for label {}", lri.getLabel());
-            FibUtil.delete(dataBroker, LogicalDatastoreType.OPERATIONAL, lriId);
+            if (tx != null) {
+                tx.delete(LogicalDatastoreType.OPERATIONAL, lriId);
+            } else {
+                FibUtil.delete(dataBroker, LogicalDatastoreType.OPERATIONAL, lriId);
+            }
             return true;
         } else {
             LOG.debug("updating LRI instance object for label {}", lri.getLabel());
@@ -1281,8 +1286,8 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
                                          final VrfEntry vrfEntry, final Extraroute extraRoute) {
             this.prefixInfo = prefixInfo;
             this.vpnId = vpnId;
-            this.rd= rd;
-            this.vrfEntry= vrfEntry;
+            this.rd = rd;
+            this.vrfEntry = vrfEntry;
             this.extraRoute = extraRoute;
         }
 
@@ -1290,6 +1295,7 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
         public List<ListenableFuture<Void>> call() throws Exception {
             // If another renderer(for eg : CSS) needs to be supported, check can be performed here
             // to call the respective helpers.
+            WriteTransaction writeOperTxn = dataBroker.newWriteOnlyTransaction();
 
             //First Cleanup LabelRouteInfo
             synchronized (vrfEntry.getLabel().toString().intern()) {
@@ -1299,14 +1305,14 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
                     Optional<VpnInstanceOpDataEntry> vpnInstanceOpDataEntryOptional = FibUtil.getVpnInstanceOpData(dataBroker, rd);
                     String vpnInstanceName = "";
                     if (vpnInstanceOpDataEntryOptional.isPresent()) {
-                            vpnInstanceName = vpnInstanceOpDataEntryOptional.get().getVpnInstanceName();
-                        }
-                    boolean lriRemoved = deleteLabelRouteInfo(lri, vpnInstanceName);
+                        vpnInstanceName = vpnInstanceOpDataEntryOptional.get().getVpnInstanceName();
+                    }
+                    boolean lriRemoved = deleteLabelRouteInfo(lri, vpnInstanceName, writeOperTxn);
                     if (lriRemoved) {
-                            String parentRd = lri.getParentVpnRd();
-                            FibUtil.releaseId(idManager, FibConstants.VPN_IDPOOL_NAME,
-                                            FibUtil.getNextHopLabelKey(parentRd, vrfEntry.getDestPrefix()));
-                        }
+                        String parentRd = lri.getParentVpnRd();
+                        FibUtil.releaseId(idManager, FibConstants.VPN_IDPOOL_NAME,
+                                FibUtil.getNextHopLabelKey(parentRd, vrfEntry.getDestPrefix()));
+                    }
                 } else {
                     FibUtil.releaseId(idManager, FibConstants.VPN_IDPOOL_NAME,
                                     FibUtil.getNextHopLabelKey(rd, vrfEntry.getDestPrefix()));
@@ -1328,8 +1334,8 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
                 }
             }
             if (extraRoute != null) {
-                FibUtil.delete(dataBroker, LogicalDatastoreType.OPERATIONAL,
-                        FibUtil.getVpnToExtrarouteIdentifier(rd, vrfEntry.getDestPrefix()));
+                writeOperTxn.delete(LogicalDatastoreType.OPERATIONAL,
+                    FibUtil.getVpnToExtrarouteIdentifier(rd, vrfEntry.getDestPrefix()));
             }
             Optional<Adjacencies> optAdjacencies = FibUtil.read(dataBroker, LogicalDatastoreType.OPERATIONAL,
                     FibUtil.getAdjListPath(ifName));
@@ -1339,17 +1345,31 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
             }
             //remove adjacency corr to prefix
             if (numAdj > 1) {
-                LOG.info("cleanUpOpDataForFib: remove adjacency for prefix: {} {}", vpnId, vrfEntry.getDestPrefix());
-                FibUtil.delete(dataBroker, LogicalDatastoreType.OPERATIONAL,
-                        FibUtil.getAdjacencyIdentifier(ifName, vrfEntry.getDestPrefix()));
+                boolean isPrimaryAdj = false;
+                List<Adjacency> adjacencyList = optAdjacencies.get().getAdjacency();
+                for (Adjacency adj : adjacencyList) {
+                    if (adj.getIpAddress().equals(vrfEntry.getDestPrefix())) {
+                        isPrimaryAdj = adj.isPrimaryAdjacency();
+                        break;
+                    }
+                }
+                //We should only delete secondary adjacencies, as primary adjacency is used to
+                //cleanup prefix-to-interface in the subscriber vpnInterfaceOpListener
+                if (!isPrimaryAdj) {
+                    LOG.info("cleanUpOpDataForFib: remove adjacency for prefix: {} {}", vpnId,
+                            vrfEntry.getDestPrefix());
+                    writeOperTxn.delete(LogicalDatastoreType.OPERATIONAL,
+                            FibUtil.getAdjacencyIdentifier(ifName, vrfEntry.getDestPrefix()));
+                }
             }
             if ((numAdj - 1) == 0) { //there are no adjacencies left for this vpn interface, clean up
                 //clean up the vpn interface from DpnToVpn list
                 LOG.trace("Clean up vpn interface {} from dpn {} to vpn {} list.", ifName, prefixInfo.getDpnId(), rd);
-                FibUtil.delete(dataBroker, LogicalDatastoreType.OPERATIONAL,
-                        FibUtil.getVpnInterfaceIdentifier(ifName));
+                writeOperTxn.delete(LogicalDatastoreType.OPERATIONAL, FibUtil.getVpnInterfaceIdentifier(ifName));
             }
-            return null;
+            List<ListenableFuture<Void>> futures = new ArrayList<>();
+            futures.add(writeOperTxn.submit());
+            return futures;
         }
     }
 
@@ -1399,7 +1419,7 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
                     if (vpnInstanceOpDataEntryOptional.isPresent()) {
                         vpnInstanceName = vpnInstanceOpDataEntryOptional.get().getVpnInstanceName();
                     }
-                    boolean lriRemoved = this.deleteLabelRouteInfo(lri, vpnInstanceName);
+                    boolean lriRemoved = this.deleteLabelRouteInfo(lri, vpnInstanceName, null);
                     if (lriRemoved) {
                         String parentRd = lri.getParentVpnRd();
                         FibUtil.releaseId(idManager, FibConstants.VPN_IDPOOL_NAME,
