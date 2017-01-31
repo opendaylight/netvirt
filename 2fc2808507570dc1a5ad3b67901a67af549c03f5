@@ -118,6 +118,23 @@
       "revId": "2fc2808507570dc1a5ad3b67901a67af549c03f5",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_0bffae35",
+        "filename": "docs/specs/ipv6-l3vpn.rst",
+        "patchSetId": 2
+      },
+      "lineNbr": 329,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2017-01-31T09:41:08Z",
+      "side": 1,
+      "message": "In the current implementation, for IPv6 east-west support, the fib entries would be as shown below. Here you have mentioned that nextHopAddressList as DCGW_IPv6 address, can you please explain more on this DCGW_IPv6 address.\n\nopendaylight-user@root\u003efib-show \n   RD       Prefix                NextHop               Label    Origin \n-------------------------------------------------------------------\n   c52220b4-894e-4efc-9532-0361776cda9b  2001:db8:1111:0:f816:3eff:fecd:808d/128  192.168.121.48        70001    l      \n   c52220b4-894e-4efc-9532-0361776cda9b  2001:db8:1111:0:f816:3eff:fecd:808d/128  null                  70001    l      \n   c52220b4-894e-4efc-9532-0361776cda9b  2001:db8:2222:0:f816:3eff:fe39:ea9f/128  192.168.121.52        70008    l      \n   c52220b4-894e-4efc-9532-0361776cda9b  2001:db8:2222::1/128                        70007    l      \n   c52220b4-894e-4efc-9532-0361776cda9b  2001:db8:1111::1/128                        70005    l      \n   c52220b4-894e-4efc-9532-0361776cda9b  2001:db8:1111:0:f816:3eff:feea:c563/128  192.168.121.52        70006    l",
+      "revId": "2fc2808507570dc1a5ad3b67901a67af549c03f5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
