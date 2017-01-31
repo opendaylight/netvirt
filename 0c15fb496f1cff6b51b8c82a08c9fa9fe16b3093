@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_0e517c62",
+        "filename": "vpnservice/model-bgp/src/main/yang/ebgp.yang",
+        "patchSetId": 2
+      },
+      "lineNbr": 237,
+      "author": {
+        "id": 3502
+      },
+      "writtenOn": "2017-01-31T11:53:17Z",
+      "side": 1,
+      "message": "layer_type, protocol_type and \u0027leaf type\u0027s enum appear to be similar. Why do we need three different types?",
+      "revId": "0c15fb496f1cff6b51b8c82a08c9fa9fe16b3093",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
