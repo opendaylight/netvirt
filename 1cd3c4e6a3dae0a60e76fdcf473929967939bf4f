@@ -177,6 +177,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_ab630219",
+        "filename": "docs/specs/conntrack-based-snat.rst",
+        "patchSetId": 24
+      },
+      "lineNbr": 90,
+      "author": {
+        "id": 670
+      },
+      "writtenOn": "2017-01-31T09:53:55Z",
+      "side": 1,
+      "message": "Just noticed this..\n\nIt seems the ODL based SNAT has the same issue - what was done currently is do the metadata write in tables 26/44, and then no additional table (and double resubmit) is needed.\n\nDouble resubmit is very confusing so I think it\u0027s preferable not to use it if possible.. Also I believe the ODL based and flow based SNAT should share the same tables and logic where possible.\n\nIs there are a reason we can\u0027t preserve the same behavior for flow based SNAT? Write metadata in 26/44 and get rid of table\u003d43?",
+      "parentUuid": "fafc7978_b5824350",
+      "revId": "1cd3c4e6a3dae0a60e76fdcf473929967939bf4f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_ab04a27e",
         "filename": "docs/specs/conntrack-based-snat.rst",
         "patchSetId": 24
