@@ -73,6 +73,30 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_abc78211",
+        "filename": "vpnservice/dhcpservice/dhcpservice-impl/src/main/java/org/opendaylight/netvirt/dhcpservice/DhcpSubnetListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 120,
+      "author": {
+        "id": 6928
+      },
+      "writtenOn": "2017-01-31T09:46:07Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_2210da00",
+      "range": {
+        "startLine": 120,
+        "startChar": 84,
+        "endLine": 120,
+        "endChar": 86
+      },
+      "revId": "faa0fb7493e4514d334b109c48fed453eabd0631",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_f15a294f",
         "filename": "vpnservice/dhcpservice/dhcpservice-impl/src/main/java/org/opendaylight/netvirt/dhcpservice/DhcpSubnetListener.java",
         "patchSetId": 1
@@ -84,6 +108,30 @@
       "writtenOn": "2017-01-27T13:11:33Z",
       "side": 1,
       "message": "Same comment",
+      "range": {
+        "startLine": 140,
+        "startChar": 62,
+        "endLine": 140,
+        "endChar": 64
+      },
+      "revId": "faa0fb7493e4514d334b109c48fed453eabd0631",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_6be59aa7",
+        "filename": "vpnservice/dhcpservice/dhcpservice-impl/src/main/java/org/opendaylight/netvirt/dhcpservice/DhcpSubnetListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 140,
+      "author": {
+        "id": 6928
+      },
+      "writtenOn": "2017-01-31T09:46:07Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_f15a294f",
       "range": {
         "startLine": 140,
         "startChar": 62,
