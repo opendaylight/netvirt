@@ -269,6 +269,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_bf185c85",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/NexthopManager.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 377,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-01-31T17:06:02Z",
+      "side": 1,
+      "message": "A Standard DEFAULT-GATEWAY-MAC is filled for all prefixes in a given EVPN review which is not the same as the proper source MAC Address that is derived here.\n\nThat Standard MAC Address should be generated one per broadcast domain there (code yet to come), whereas here the source MAC Address would one per port.  So the source-mac here and the gateway_mac_address in fib.yang of EVPN are NOT COMPARABLE.\n\nI do agree with you this would cause potential confusion.\n\nLet me come back on this after discussion with EVPN folks here tomorrow.",
+      "parentUuid": "fafc7978_1f924857",
+      "revId": "c24dc2ff9f3d0bde2ca281e09ac098ecfc2ebaf5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_a309852e",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
         "patchSetId": 8
