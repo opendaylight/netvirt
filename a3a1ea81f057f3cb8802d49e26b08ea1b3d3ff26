@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_29f6fad7",
+        "filename": "docs/specs/conntrack-based-snat.rst",
+        "patchSetId": 25
+      },
+      "lineNbr": 91,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2017-01-31T13:32:22Z",
+      "side": 1,
+      "message": "Based on the review comments from the previous patchset, do we have a consensus on updating \"NAPT INBOUND to 43 and use table 44 for metadata + goto\"?\n\nIf so, IMHO we should also update the other SPECs/docs that reflect NATP INbound Table Id as 44.",
+      "revId": "a3a1ea81f057f3cb8802d49e26b08ea1b3d3ff26",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
