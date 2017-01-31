@@ -563,6 +563,30 @@
       "revId": "93812f83c7d0cac4ad6605f696bd636049b1a689",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_ae12f0b1",
+        "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/impl/SecurityGroupCacheManagerImpl.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 136,
+      "author": {
+        "id": 4058
+      },
+      "writtenOn": "2017-01-31T11:35:11Z",
+      "side": 1,
+      "message": "We have tried to delete the default SG by following commands,\n1) openstack security group delete default\n2) neutron security-group-delete \u003cSGId\u003e\n\nBoth commands are executed successfully, but still default SG is available in the horizon. It seems like we cannot delete the default SG through command as well.\n\nOr please provide us the exact command that you tried before to delete the default SG.",
+      "parentUuid": "fafc7978_98c136e7",
+      "range": {
+        "startLine": 112,
+        "startChar": 0,
+        "endLine": 136,
+        "endChar": 9
+      },
+      "revId": "93812f83c7d0cac4ad6605f696bd636049b1a689",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
