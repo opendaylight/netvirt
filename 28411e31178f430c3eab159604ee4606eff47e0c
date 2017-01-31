@@ -36,6 +36,24 @@
     },
     {
       "key": {
+        "uuid": "1a622d24_93d2465a",
+        "filename": "docs/specs/ipv6-l3vpn.rst",
+        "patchSetId": 1
+      },
+      "lineNbr": 116,
+      "author": {
+        "id": 6984
+      },
+      "writtenOn": "2017-01-31T10:03:30Z",
+      "side": 1,
+      "message": "yes, it relies on IPv6 North South spec from Sridhar",
+      "parentUuid": "1a622d24_84332b61",
+      "revId": "28411e31178f430c3eab159604ee4606eff47e0c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_a43d872d",
         "filename": "docs/specs/ipv6-l3vpn.rst",
         "patchSetId": 1
@@ -64,6 +82,24 @@
       "writtenOn": "2017-01-24T14:28:18Z",
       "side": 1,
       "message": "Agree. All Specs are now including the pipeline changes.",
+      "parentUuid": "1a622d24_a43d872d",
+      "revId": "28411e31178f430c3eab159604ee4606eff47e0c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_13c6369a",
+        "filename": "docs/specs/ipv6-l3vpn.rst",
+        "patchSetId": 1
+      },
+      "lineNbr": 134,
+      "author": {
+        "id": 6984
+      },
+      "writtenOn": "2017-01-31T10:03:30Z",
+      "side": 1,
+      "message": "you\u0027re right, i will add this pipeline",
       "parentUuid": "1a622d24_a43d872d",
       "revId": "28411e31178f430c3eab159604ee4606eff47e0c",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
@@ -122,6 +158,24 @@
     },
     {
       "key": {
+        "uuid": "1a622d24_b35b02f5",
+        "filename": "docs/specs/ipv6-l3vpn.rst",
+        "patchSetId": 1
+      },
+      "lineNbr": 198,
+      "author": {
+        "id": 6984
+      },
+      "writtenOn": "2017-01-31T10:03:30Z",
+      "side": 1,
+      "message": "According to latest version of L3VPNService userguide, there is no REST api to set ip address of the bgp speaker.",
+      "parentUuid": "1a622d24_241977d7",
+      "revId": "28411e31178f430c3eab159604ee4606eff47e0c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_04755bf9",
         "filename": "docs/specs/ipv6-l3vpn.rst",
         "patchSetId": 1
@@ -169,6 +223,30 @@
     },
     {
       "key": {
+        "uuid": "1a622d24_730ccaed",
+        "filename": "docs/specs/ipv6-l3vpn.rst",
+        "patchSetId": 1
+      },
+      "lineNbr": 200,
+      "author": {
+        "id": 6984
+      },
+      "writtenOn": "2017-01-31T10:03:30Z",
+      "side": 1,
+      "message": "i understand you would like to add this text in the spec right ?",
+      "parentUuid": "1a622d24_04755bf9",
+      "range": {
+        "startLine": 200,
+        "startChar": 68,
+        "endLine": 200,
+        "endChar": 74
+      },
+      "revId": "28411e31178f430c3eab159604ee4606eff47e0c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_88b580cf",
         "filename": "docs/specs/ipv6-l3vpn.rst",
         "patchSetId": 1
@@ -197,6 +275,30 @@
       "writtenOn": "2017-01-13T20:10:01Z",
       "side": 1,
       "message": "Why do we need this? Isn\u0027t this we are trying to achieve through BGP advertisements?",
+      "range": {
+        "startLine": 219,
+        "startChar": 1,
+        "endLine": 221,
+        "endChar": 26
+      },
+      "revId": "28411e31178f430c3eab159604ee4606eff47e0c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_932ec641",
+        "filename": "docs/specs/ipv6-l3vpn.rst",
+        "patchSetId": 1
+      },
+      "lineNbr": 221,
+      "author": {
+        "id": 6984
+      },
+      "writtenOn": "2017-01-31T10:03:30Z",
+      "side": 1,
+      "message": "This configuration should be done on the DCGW, and i don\u0027t know if it can be managed by ODL to create MPLS/GRE endpoint. Can you confirm ?",
+      "parentUuid": "1a622d24_e4713f0d",
       "range": {
         "startLine": 219,
         "startChar": 1,
