@@ -36,6 +36,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_0eadfc31",
+        "filename": "vpnservice/aclservice/api/pom.xml",
+        "patchSetId": 2
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 4540
+      },
+      "writtenOn": "2017-01-31T12:12:10Z",
+      "side": 1,
+      "message": "Unfortunately that can\u0027t work, Maven doesn\u0027t evaluate variables twice (so you can\u0027t have a template variable).",
+      "parentUuid": "fafc7978_78dbb21b",
+      "revId": "5eafc2b0e6deaafaafe2ac14f56d06821507092f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_9158fa57",
         "filename": "vpnservice/aclservice/impl/pom.xml",
         "patchSetId": 2
@@ -47,6 +65,24 @@
       "writtenOn": "2017-01-27T22:36:18Z",
       "side": 1,
       "message": "this is from the other pushed I merged so remove this",
+      "revId": "5eafc2b0e6deaafaafe2ac14f56d06821507092f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_cebbf470",
+        "filename": "vpnservice/aclservice/impl/pom.xml",
+        "patchSetId": 2
+      },
+      "lineNbr": 169,
+      "author": {
+        "id": 4540
+      },
+      "writtenOn": "2017-01-31T12:12:10Z",
+      "side": 1,
+      "message": "It\u0027s fine as-is, compare the base v. patchset 2, not patchset 1 to patchset 2 (the latter diff includes the rebase but that\u0027s not part of Jamo\u0027s patch).",
+      "parentUuid": "fafc7978_9158fa57",
       "revId": "5eafc2b0e6deaafaafe2ac14f56d06821507092f",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
