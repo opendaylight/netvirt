@@ -2,6 +2,23 @@
   "comments": [
     {
       "key": {
+        "uuid": "fafc7978_c94ace82",
+        "filename": "docs/specs/conntrack-based-snat.rst",
+        "patchSetId": 25
+      },
+      "lineNbr": 73,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2017-01-31T14:14:34Z",
+      "side": 1,
+      "message": "You have to change the metadata in the outbound direction too. It may work now but will stop working after the hairpinning pipeline change [1].\n\nThe packet in now routed directly to the ext-net group after traversing the SNAT pipeline. After haripinning, it will be transmitted back to the FIB to check if the destination is also FIP and it not must arrive with metadata reflecting the internal VPN\n\n[1] http://docs.opendaylight.org/en/latest/submodules/netvirt/docs/specs/hairpinning-flat-vlan.html",
+      "revId": "a3a1ea81f057f3cb8802d49e26b08ea1b3d3ff26",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_29f6fad7",
         "filename": "docs/specs/conntrack-based-snat.rst",
         "patchSetId": 25
