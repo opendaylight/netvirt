@@ -583,6 +583,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_b8bcfa6d",
+        "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/impl/SecurityGroupCacheManagerImpl.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 134,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2017-01-31T04:17:26Z",
+      "side": 1,
+      "message": "Please see my comment as email",
+      "parentUuid": "fafc7978_17599afe",
+      "revId": "4c67dd37a488c39ad0d5bd222fd8c64e621db3b1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_9c6e6ac8",
         "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/impl/TenantNetworkManagerImpl.java",
         "patchSetId": 5
