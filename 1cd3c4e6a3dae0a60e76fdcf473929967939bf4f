@@ -213,6 +213,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_4e1a646f",
+        "filename": "docs/specs/conntrack-based-snat.rst",
+        "patchSetId": 24
+      },
+      "lineNbr": 90,
+      "author": {
+        "id": 670
+      },
+      "writtenOn": "2017-01-31T10:19:06Z",
+      "side": 1,
+      "message": "Ahh, gotcha, so the main difference is how we go from table 44 to table 47. It really seems that resubmit and now ct(table\u003dX) don\u0027t play nice with how metadata was intended to be used.\nWe do abuse that a lot already though, so I guess this is just one more case of it :(\n\nMaybe instead of doing a double resubmit, we can define a new table\u003d48 (though it\u0027s already taken, might need some number changes), and then do \u0027table\u003d47 actions\u003dwrite_metadata,goto_table:48\u0027 ?\nI *think* that might look better, since we avoid double resubmit and use metadata+goto as intended.",
+      "parentUuid": "fafc7978_8b1d5e76",
+      "revId": "1cd3c4e6a3dae0a60e76fdcf473929967939bf4f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_ab04a27e",
         "filename": "docs/specs/conntrack-based-snat.rst",
         "patchSetId": 24
