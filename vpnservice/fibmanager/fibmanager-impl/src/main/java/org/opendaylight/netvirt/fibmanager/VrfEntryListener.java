@@ -1369,12 +1369,12 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
             //remove adjacency corr to prefix
             if (numAdj > 1) {
                 LOG.info("cleanUpOpDataForFib: remove adjacency for prefix: {} {}", vpnId, vrfEntry.getDestPrefix());
-                FibUtil.delete(dataBroker, LogicalDatastoreType.OPERATIONAL,
+                MDSALUtil.syncDelete(dataBroker, LogicalDatastoreType.OPERATIONAL,
                     FibUtil.getAdjacencyIdentifier(ifName, vrfEntry.getDestPrefix()));
             }
             if ((numAdj - 1) == 0) { //there are no adjacencies left for this vpn interface, clean up
                 //clean up the vpn interface from DpnToVpn list
-                LOG.trace("Clean up vpn interface {} from dpn {} to vpn {} list.", ifName, prefixInfo.getDpnId(), rd);
+                LOG.info("Clean up vpn interface {} from dpn {} to vpn {} list.", ifName, prefixInfo.getDpnId(), rd);
                 FibUtil.delete(dataBroker, LogicalDatastoreType.OPERATIONAL,
                     FibUtil.getVpnInterfaceIdentifier(ifName));
             }
