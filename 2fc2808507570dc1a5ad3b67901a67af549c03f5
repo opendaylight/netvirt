@@ -37,6 +37,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_ce5f7471",
+        "filename": "docs/specs/ipv6-l3vpn.rst",
+        "patchSetId": 2
+      },
+      "lineNbr": 113,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2017-01-31T11:51:27Z",
+      "side": 1,
+      "message": "Its fine, thanks.",
+      "parentUuid": "fafc7978_2bd1d2fb",
+      "revId": "2fc2808507570dc1a5ad3b67901a67af549c03f5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_2bc43291",
         "filename": "docs/specs/ipv6-l3vpn.rst",
         "patchSetId": 2
@@ -124,6 +142,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_2e544053",
+        "filename": "docs/specs/ipv6-l3vpn.rst",
+        "patchSetId": 2
+      },
+      "lineNbr": 158,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2017-01-31T11:51:27Z",
+      "side": 1,
+      "message": "I think @Daya/@Srikanth/@Vivek will be able to help you here.",
+      "parentUuid": "fafc7978_4b1d36bd",
+      "revId": "2fc2808507570dc1a5ad3b67901a67af549c03f5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_ab3782af",
         "filename": "docs/specs/ipv6-l3vpn.rst",
         "patchSetId": 2
@@ -153,6 +189,24 @@
       "side": 1,
       "message": "If my understanding is right, centralized routing with ODL means routing tables translated to ovs tables ?\nIf that\u0027s true, since there are only /128 prefixes announced by BGP stacks, there is no impact on performances because of centralized routing.",
       "parentUuid": "fafc7978_ab3782af",
+      "revId": "2fc2808507570dc1a5ad3b67901a67af549c03f5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_8ecc4c37",
+        "filename": "docs/specs/ipv6-l3vpn.rst",
+        "patchSetId": 2
+      },
+      "lineNbr": 200,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2017-01-31T11:51:27Z",
+      "side": 1,
+      "message": "Yes, the basic routing functionality would be implemented via the ovs flows but all the traffic will go out from the NAPT Switch and not from the respective compute nodes. It is essentially similar to the SNAT use-case we have today (except that we do not do any NAT operation for IPv6 addresses). \n\nWhen you advertise /128 prefixes, do you intend to provide the next-hop as the router-gateway-port IP?",
+      "parentUuid": "fafc7978_ab602236",
       "revId": "2fc2808507570dc1a5ad3b67901a67af549c03f5",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -258,6 +312,24 @@
       "side": 1,
       "message": "maybe i misunderstand Srikanth in last meeting about DCGW IPv6 address requirement, i thought he told me that the whole network plan was IPv6, expect MPLS/GRE tunnels between DCGW and DPN. Can you confirm ?",
       "parentUuid": "fafc7978_0bffae35",
+      "revId": "2fc2808507570dc1a5ad3b67901a67af549c03f5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_ee5a3882",
+        "filename": "docs/specs/ipv6-l3vpn.rst",
+        "patchSetId": 2
+      },
+      "lineNbr": 329,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2017-01-31T11:51:27Z",
+      "side": 1,
+      "message": "I\u0027ll let @Srikanth to comment on this.",
+      "parentUuid": "fafc7978_0b74cecd",
       "revId": "2fc2808507570dc1a5ad3b67901a67af549c03f5",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
