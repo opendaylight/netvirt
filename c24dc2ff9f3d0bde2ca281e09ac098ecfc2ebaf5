@@ -233,6 +233,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_844b8b58",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/NexthopManager.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 377,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-01-31T14:24:21Z",
+      "side": 1,
+      "message": "If 1 adjacency takes longer time to write to OPERATIONAL, but CONFIG DS VRF Write completes before that, we need to address that from the infra perspective.\n\nTuning services for infra specific problem , we will land up trying to catch a running target.\n\nA VRF Entry represents a configuration and not a state.\n\nI have not looked at the ECMP spec yet. There are many operational datastores that are revisited to make a successfuly VRF entry to be processed by VRFManager today and it includes operational vpn interface, operational vpn-instance-op-data, operational prefix-to-interface, operation label-route-map, operationa vpn-to-extra-route map among some.\n\nSo it would be narrow that only for this use case we need to put the gateway-mac-address inside the VRF Entry.\n\nI request that if we can\u0027t have 1 OPERATIONAL ENTRY in-memory write is not showing up on time but the equivalent CONFIG DS ENTRY (which additionally persists data) has fired and even executing, then it is definitely some MD-SAL infra issue.",
+      "parentUuid": "fafc7978_c92c8e4d",
+      "revId": "c24dc2ff9f3d0bde2ca281e09ac098ecfc2ebaf5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_a309852e",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
         "patchSetId": 8
