@@ -215,6 +215,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_c92c8e4d",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/NexthopManager.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 377,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2017-01-31T13:34:54Z",
+      "side": 1,
+      "message": "We have only one adjacency per VM. It was seen both in manual runs and csit of 1-node/3-node.\n\nWhat do you think about adding the gw-mac-address to the vrfEntry similarly to the ECMP change? I\u0027m not saying to push this entire patch into Boron, just add this leaf to the FIB module.\nThis would definitively not create any new issues similar to what we are seeing with prefix-to-interface and also it seems more logical to me to keep (as much as we can) a unified model for all types of networks/use cases.",
+      "parentUuid": "fafc7978_636dc432",
+      "revId": "c24dc2ff9f3d0bde2ca281e09ac098ecfc2ebaf5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_a309852e",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
         "patchSetId": 8
