@@ -303,6 +303,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_893446df",
+        "filename": "docs/specs/conntrack-based-snat.rst",
+        "patchSetId": 24
+      },
+      "lineNbr": 90,
+      "author": {
+        "id": 4269
+      },
+      "writtenOn": "2017-01-31T13:02:26Z",
+      "side": 1,
+      "message": "I am not really sure about the impact. But change in table number requires other services which submits to inbound nat table to rewrite the flow.",
+      "parentUuid": "fafc7978_4e1d44bd",
+      "revId": "1cd3c4e6a3dae0a60e76fdcf473929967939bf4f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_ab04a27e",
         "filename": "docs/specs/conntrack-based-snat.rst",
         "patchSetId": 24
