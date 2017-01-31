@@ -194,6 +194,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_0b3cce2e",
+        "filename": "docs/specs/conntrack-based-snat.rst",
+        "patchSetId": 24
+      },
+      "lineNbr": 91,
+      "author": {
+        "id": 4269
+      },
+      "writtenOn": "2017-01-31T09:26:24Z",
+      "side": 1,
+      "message": "The execution is sequential, first resubmit writes the metadata and then it will be resubmitted. I verified it.",
+      "parentUuid": "fafc7978_ab04a27e",
+      "revId": "1cd3c4e6a3dae0a60e76fdcf473929967939bf4f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_48741fcf",
         "filename": "docs/specs/conntrack-based-snat.rst",
         "patchSetId": 24
