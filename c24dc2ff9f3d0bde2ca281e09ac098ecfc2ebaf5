@@ -251,6 +251,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_1f924857",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/NexthopManager.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 377,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2017-01-31T16:04:55Z",
+      "side": 1,
+      "message": "My bad. I meant this is part of EVPN changes and not part of ECMP. The yang changes are in [1] and got couple of +1 and +2\n\nThe code populating the gateway-mac from VpnInterface is in [2] and seems like it\u0027s generic enough to be extended to all UCs.\n\nSo why is this case different?  I\u0027m afraid of having maintenance issues in Carbon because of multiple models storing the same type of information for different use cases.\n\n[1] https://git.opendaylight.org/gerrit/#/c/50347/13/vpnservice/fibmanager/fibmanager-api/src/main/yang/odl-fib.yang\n[2]https://git.opendaylight.org/gerrit/#/c/46256/41/vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/populator/impl/L3vpnPopulator.java",
+      "parentUuid": "fafc7978_844b8b58",
+      "revId": "c24dc2ff9f3d0bde2ca281e09ac098ecfc2ebaf5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_a309852e",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
         "patchSetId": 8
