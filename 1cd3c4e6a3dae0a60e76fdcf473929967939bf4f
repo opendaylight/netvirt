@@ -195,6 +195,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_8b1d5e76",
+        "filename": "docs/specs/conntrack-based-snat.rst",
+        "patchSetId": 24
+      },
+      "lineNbr": 90,
+      "author": {
+        "id": 4269
+      },
+      "writtenOn": "2017-01-31T10:09:44Z",
+      "side": 1,
+      "message": "The write_metadata needs to be last in action set(one of the exception being goto). \nSince we are submitting a copy to ct in table 44, the write metadata [1] succeeding the ct_action will not have any effect on the packet comes back to table 47.\n\n[1]table\u003d44,actions\u003dct\u0027(\u0027table\u003d47,zone\u003d1,nat\u0027)\u0027,write_metadata:0x222e0/0xfffffffe\n\nWe cannot have a goto in table 47 since we are submitting to a table of lower no. So ended up using two resubmit.\n\nIn the current implementation the table 44 uses goto to table 47 hence we are using write_metatdata.\n\nThere is an option for ct action to submit back to the same table(44 here) and we can check the ct state and have one more flow to  write the metadata. But ovs docs strongly recommend not to do this.\n\nI thought this implementation will have minimal impact to the existing one.",
+      "parentUuid": "fafc7978_ab630219",
+      "revId": "1cd3c4e6a3dae0a60e76fdcf473929967939bf4f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_ab04a27e",
         "filename": "docs/specs/conntrack-based-snat.rst",
         "patchSetId": 24
