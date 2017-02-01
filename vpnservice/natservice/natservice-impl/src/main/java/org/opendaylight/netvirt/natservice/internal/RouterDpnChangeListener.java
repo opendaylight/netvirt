@@ -26,7 +26,11 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.group.types.rev131018.Group
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.NeutronRouterDpns;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.neutron.router.dpns.RouterDpnList;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.neutron.router.dpns.router.dpn.list.DpnVpninterfacesList;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.VpnInstanceOpDataEntry;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ExternalSubnets;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ext.routers.Routers;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.external.subnets.Subnets;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.external.subnets.SubnetsKey;
 import org.opendaylight.yangtools.concepts.ListenerRegistration;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
@@ -85,7 +89,8 @@ public class RouterDpnChangeListener
         InstanceIdentifier<Routers> id = NatUtil.buildRouterIdentifier(routerId);
         Optional<Routers> routerData = NatUtil.read(dataBroker, LogicalDatastoreType.CONFIGURATION, id);
         if (routerData.isPresent()) {
-            Uuid networkId = routerData.get().getNetworkId();
+            Routers router = routerData.get();
+            Uuid networkId = router.getNetworkId();
             if (networkId != null) {
                 LOG.debug("Router {} is associated with ext nw {}", routerId, networkId);
                 Uuid vpnName = NatUtil.getVpnForRouter(dataBroker, routerId);
@@ -101,6 +106,7 @@ public class RouterDpnChangeListener
                     //Install default entry in FIB to SNAT table
                     LOG.debug("Installing default route in FIB on dpn {} for router {} with vpn {}...",
                         dpnId, routerId, vpnId);
+                    installDefaultNatRouteForRouterExternalSubnets(dpnId, router.getExternalSubnetIds());
                     snatDefaultRouteProgrammer.installDefNATRouteInDPN(dpnId, vpnId);
                 } else {
                     LOG.debug("External BGP vpn associated to router {}", routerId);
@@ -118,11 +124,12 @@ public class RouterDpnChangeListener
                     //Install default entry in FIB to SNAT table
                     LOG.debug("Installing default route in FIB on dpn {} for routerId {} with vpnId {}...",
                         dpnId, routerId, vpnId);
+                    installDefaultNatRouteForRouterExternalSubnets(dpnId, router.getExternalSubnetIds());
                     snatDefaultRouteProgrammer.installDefNATRouteInDPN(dpnId, vpnId, routId);
                 }
                 extNetGroupInstaller.installExtNetGroupEntries(networkId, dpnId);
 
-                if (routerData.get().isEnableSnat()) {
+                if (router.isEnableSnat()) {
                     LOG.info("SNAT enabled for router {}", routerId);
                     handleSNATForDPN(dpnId, routerId, vpnId);
                 } else {
@@ -143,7 +150,8 @@ public class RouterDpnChangeListener
         InstanceIdentifier<Routers> id = NatUtil.buildRouterIdentifier(routerId);
         Optional<Routers> routerData = NatUtil.read(dataBroker, LogicalDatastoreType.CONFIGURATION, id);
         if (routerData.isPresent()) {
-            Uuid networkId = routerData.get().getNetworkId();
+            Routers router = routerData.get();
+            Uuid networkId = router.getNetworkId();
             if (networkId != null) {
                 LOG.debug("Router {} is associated with ext nw {}", routerId, networkId);
                 Uuid vpnName = NatUtil.getVpnForRouter(dataBroker, routerId);
@@ -157,7 +165,9 @@ public class RouterDpnChangeListener
                     }
                     LOG.debug("Retrieved vpnId {} for router {}", vpnId, routerId);
                     //Remove default entry in FIB
-                    LOG.debug("Removing default route in FIB on dpn {} for vpn {} ...", dpnId, vpnName);
+                    LOG.debug("Removing default routes in FIB on dpn {} for vpn {} ...", dpnId, vpnName);
+                    removeDefaultNatRouteForRouterExternalSubnets(dpnId, new Uuid(routerId),
+                            router.getExternalSubnetIds());
                     snatDefaultRouteProgrammer.removeDefNATRouteInDPN(dpnId, vpnId);
                 } else {
                     LOG.debug("External vpn associated to router {}", routerId);
@@ -174,10 +184,12 @@ public class RouterDpnChangeListener
                     LOG.debug("Retrieved vpnId {} for router {}", vpnId, routerId);
                     //Remove default entry in FIB
                     LOG.debug("Removing default route in FIB on dpn {} for vpn {} ...", dpnId, vpnName);
+                    removeDefaultNatRouteForRouterExternalSubnets(dpnId, new Uuid(routerId),
+                            router.getExternalSubnetIds());
                     snatDefaultRouteProgrammer.removeDefNATRouteInDPN(dpnId, vpnId, routId);
                 }
 
-                if (routerData.get().isEnableSnat()) {
+                if (router.isEnableSnat()) {
                     LOG.info("SNAT enabled for router {}", routerId);
                     removeSNATFromDPN(dpnId, routerId, vpnId);
                 } else {
@@ -364,5 +376,73 @@ public class RouterDpnChangeListener
         } catch (Exception ex) {
             LOG.debug("Exception while handling naptSwitch down for router {} : {}", routerName, ex);
         }
+    }
+
+    private void installDefaultNatRouteForRouterExternalSubnets(BigInteger dpnId, List<Uuid> externalSubnetIds) {
+        if (externalSubnetIds == null) {
+            LOG.debug("No external subnets for router");
+            return;
+        }
+
+        for (Uuid subnetId : externalSubnetIds) {
+            InstanceIdentifier<VpnInstanceOpDataEntry> subnetIdentifier =
+                    NatUtil.getVpnInstanceOpDataIdentifier(subnetId.getValue());
+            Optional<VpnInstanceOpDataEntry> subnetVpnInstanceOp = NatUtil.read(dataBroker,
+                    LogicalDatastoreType.OPERATIONAL, subnetIdentifier);
+            if (subnetVpnInstanceOp.isPresent()) {
+                long vpnIdForSubnet = NatUtil.readVpnId(dataBroker, subnetVpnInstanceOp.get().getVrfId());
+                LOG.debug("Installing default routes in FIB on dpn {} for subnetId {} with vpnId {}.",
+                        dpnId, subnetId, vpnIdForSubnet);
+                snatDefaultRouteProgrammer.installDefNATRouteInDPN(dpnId, vpnIdForSubnet);
+            }
+        }
+    }
+
+    private void removeDefaultNatRouteForRouterExternalSubnets(BigInteger dpnId, Uuid removedRouterId,
+            List<Uuid> externalSubnetIds) {
+        if (externalSubnetIds == null) {
+            LOG.debug("No external subnets for router");
+            return;
+        }
+
+        for (Uuid subnetId : externalSubnetIds) {
+            if (shouldRemoveDefaultNatRouterFlowForSubnetAndDpn(subnetId, removedRouterId, dpnId)) {
+                InstanceIdentifier<VpnInstanceOpDataEntry> subnetIdentifier =
+                        NatUtil.getVpnInstanceOpDataIdentifier(subnetId.getValue());
+                Optional<VpnInstanceOpDataEntry> subnetVpnInstanceOp = NatUtil.read(dataBroker,
+                        LogicalDatastoreType.OPERATIONAL, subnetIdentifier);
+                if (subnetVpnInstanceOp.isPresent()) {
+                    long vpnIdForSubnet = NatUtil.readVpnId(dataBroker, subnetVpnInstanceOp.get().getVrfId());
+                    LOG.debug("Removing default routes in FIB on dpn {} for subnetId {} with vpnId {}.",
+                            dpnId, subnetId, vpnIdForSubnet);
+                    snatDefaultRouteProgrammer.removeDefNATRouteInDPN(dpnId, vpnIdForSubnet);
+                } else {
+                    LOG.debug("No VPN instance for subnet {}, will not remove default router in FIB", subnetId);
+                }
+            }
+        }
+    }
+
+    private boolean shouldRemoveDefaultNatRouterFlowForSubnetAndDpn(Uuid subnetId,
+            Uuid removedRouterId, BigInteger dpnId) {
+        InstanceIdentifier<Subnets> subnetsIdentifier = InstanceIdentifier.builder(ExternalSubnets.class)
+                .child(Subnets.class, new SubnetsKey(subnetId)).build();
+        Optional<Subnets> optionalSubnets = NatUtil.read(dataBroker,
+                LogicalDatastoreType.CONFIGURATION, subnetsIdentifier);
+        if (optionalSubnets.isPresent()) {
+            Subnets subnet = optionalSubnets.get();
+            List<Uuid> routerIdsForSubnet = subnet.getRouterIds();
+            routerIdsForSubnet.remove(removedRouterId);
+            for (Uuid routerId : routerIdsForSubnet) {
+                if (NatUtil.isDpnBelongsToRouterVrf(dataBroker, routerId, dpnId)) {
+                    LOG.debug("DPN {} is still in use for external subnet, will not remove default router in FIB "
+                            + "for subnetId {}", dpnId, subnetId);
+                    return false;
+                }
+            }
+        }
+
+        LOG.debug("Should remove default router in FIB on dpn {} for subnetId {}", dpnId, subnetId);
+        return true;
     }
 }

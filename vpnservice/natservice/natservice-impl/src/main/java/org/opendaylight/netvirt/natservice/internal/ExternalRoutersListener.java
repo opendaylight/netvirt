@@ -1438,6 +1438,11 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
             String routerName = router.getRouterName();
             LOG.info("Removing default NAT route from FIB on all dpns part of router {} ", routerName);
             addOrDelDefFibRouteToSNAT(routerName, false);
+            List<Uuid> externalSubnetIds = router.getExternalSubnetIds();
+            for (Uuid externalSubnetId : externalSubnetIds) {
+//                addOrDelDefaultFibRouteForSNAT(routerName, create);
+            }
+
             Uuid networkUuid = router.getNetworkId();
             Long routerId = NatUtil.getVpnId(dataBroker, routerName);
             if (routerId == NatConstants.INVALID_ID) {
