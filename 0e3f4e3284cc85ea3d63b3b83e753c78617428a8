@@ -1,0 +1,72 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_02f4a859",
+        "filename": "docs/specs/acl-stats.rst",
+        "patchSetId": 23
+      },
+      "lineNbr": 153,
+      "author": {
+        "id": 3511
+      },
+      "writtenOn": "2017-02-01T11:45:56Z",
+      "side": 1,
+      "message": "missing timestamp of the stat",
+      "revId": "0e3f4e3284cc85ea3d63b3b83e753c78617428a8",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_c2e2a09e",
+        "filename": "docs/specs/acl-stats.rst",
+        "patchSetId": 23
+      },
+      "lineNbr": 154,
+      "author": {
+        "id": 3511
+      },
+      "writtenOn": "2017-02-01T11:45:56Z",
+      "side": 1,
+      "message": "what is the frequency of this sampling?\nyou should consider that in the configuration part",
+      "revId": "0e3f4e3284cc85ea3d63b3b83e753c78617428a8",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_42bcf069",
+        "filename": "docs/specs/acl-stats.rst",
+        "patchSetId": 23
+      },
+      "lineNbr": 208,
+      "author": {
+        "id": 3511
+      },
+      "writtenOn": "2017-02-01T11:45:56Z",
+      "side": 1,
+      "message": "add enable/disable flag for this feature",
+      "revId": "0e3f4e3284cc85ea3d63b3b83e753c78617428a8",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_8286d8b7",
+        "filename": "docs/specs/acl-stats.rst",
+        "patchSetId": 23
+      },
+      "lineNbr": 212,
+      "author": {
+        "id": 3511
+      },
+      "writtenOn": "2017-02-01T11:45:56Z",
+      "side": 1,
+      "message": "since OF rpc\u0027s are cluster aware you should consider it in this spec",
+      "revId": "0e3f4e3284cc85ea3d63b3b83e753c78617428a8",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
