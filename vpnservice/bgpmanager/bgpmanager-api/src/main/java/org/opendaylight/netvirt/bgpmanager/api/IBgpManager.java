@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 - 2016 Ericsson India Global Services Pvt Ltd. and others.  All rights reserved.
+ * Copyright © 2015, 2017 Ericsson India Global Services Pvt Ltd. and others.  All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
@@ -14,89 +14,43 @@ import org.opendaylight.netvirt.fibmanager.api.RouteOrigin;
 
 public interface IBgpManager {
 
-    /**
-     *
-     * @param rd
-     * @param importRts
-     * @param exportRts
-     */
     void addVrf(String rd, Collection<String> importRts, Collection<String> exportRts);
 
-    /**
-     *
-     * @param rd
-     * @param removeFibTable
-     */
     void deleteVrf(String rd, boolean removeFibTable);
 
     /**
      * Adds one or more routes, as many as nexthops provided, in a BGP neighbour. It persists VrfEntry in datastore
-     * and sends the BGP message
-     *
-     * @param rd
-     * @param prefix
-     * @param nextHopList
-     * @param vpnLabel
+     * and sends the BGP message.
      */
-    void addPrefix(String rd, String prefix, List<String> nextHopList, int vpnLabel, RouteOrigin origin) throws Exception;
+    void addPrefix(String rd, String prefix, List<String> nextHopList, int vpnLabel, RouteOrigin origin);
 
     /**
-     * Adds a route in a BGP neighbour. It persists the VrfEntry in Datastore and sends the BGP message
-     *
-     * @param rd
-     * @param prefix
-     * @param nextHop
-     * @param vpnLabel
+     * Adds a route in a BGP neighbour. It persists the VrfEntry in Datastore and sends the BGP message.
      */
     void addPrefix(String rd, String prefix, String nextHop, int vpnLabel, RouteOrigin origin) throws Exception;
 
-
-    /**
-     *
-     * @param rd
-     * @param prefix
-     */
     void deletePrefix(String rd, String prefix);
 
-    /**
-     *
-     * @param fileName
-     * @param logLevel
-     */
     void setQbgpLog(String fileName, String logLevel);
 
     /**
      * Advertises a Prefix to a BGP neighbour, using several nexthops. Only sends the BGP messages, no writing to
-     * MD-SAL
-     *
-     * @param rd
-     * @param prefix
-     * @param nextHopList
-     * @param vpnLabel
+     * MD-SAL.
      */
     void advertisePrefix(String rd, String prefix, List<String> nextHopList, int vpnLabel);
 
     /**
-     * Advertises a Prefix to a BGP neighbour. Only sends the BGP messages, no writing to MD-SAL
-     *
-     * @param rd
-     * @param prefix
-     * @param nextHop
-     * @param vpnLabel
+     * Advertises a Prefix to a BGP neighbour. Only sends the BGP messages, no writing to MD-SAL.
      */
     void advertisePrefix(String rd, String prefix, String nextHop, int vpnLabel);
 
-    /**
-     *
-     * @param rd
-     * @param prefix
-     */
     void withdrawPrefix(String rd, String prefix);
-
 
     String getDCGwIP();
 
     void sendNotificationEvent(String pfx, int code, int subcode);
+
     void setQbgprestartTS(long qbgprestartTS);
+
     void bgpRestarted();
 }
