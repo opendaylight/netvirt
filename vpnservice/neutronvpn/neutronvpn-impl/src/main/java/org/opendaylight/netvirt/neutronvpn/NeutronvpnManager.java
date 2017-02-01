@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 - 2016 Ericsson India Global Services Pvt Ltd. and others.  All rights reserved.
+ * Copyright (c) 2015, 2017 Ericsson India Global Services Pvt Ltd. and others.  All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
@@ -1929,21 +1929,12 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
         return NeutronvpnUtils.getNeutronPort(dataBroker, portId);
     }
 
-    protected List<Uuid> getSubnetsforVpn(Uuid vpnid) {
-        List<Uuid> subnets = new ArrayList<>();
-        // read subnetmaps
-        InstanceIdentifier<Subnetmaps> subnetmapsid = InstanceIdentifier.builder(Subnetmaps.class).build();
-        Optional<Subnetmaps> subnetmaps = NeutronvpnUtils.read(dataBroker, LogicalDatastoreType.CONFIGURATION,
-                subnetmapsid);
-        if (subnetmaps.isPresent() && subnetmaps.get().getSubnetmap() != null) {
-            List<Subnetmap> subnetMapList = subnetmaps.get().getSubnetmap();
-            for (Subnetmap subnetMap : subnetMapList) {
-                if (subnetMap.getVpnId() != null && subnetMap.getVpnId().equals(vpnid)) {
-                    subnets.add(subnetMap.getId());
-                }
-            }
-        }
-        return subnets;
+    protected Uuid getNetworkForSubnet(Uuid subnetId) {
+        return NeutronvpnUtils.getNetworkForSubnet(dataBroker, subnetId);
+    }
+
+    protected List<Uuid> getNetworksForVpn(Uuid vpnId) {
+        return NeutronvpnUtils.getNetworksforVpn(dataBroker, vpnId);
     }
 
     /**
@@ -2036,7 +2027,7 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
                     result.add("");
 
                     Uuid vpnid = Vpn.getId();
-                    List<Uuid> subnetList = getSubnetsforVpn(vpnid);
+                    List<Uuid> subnetList = NeutronvpnUtils.getSubnetsforVpn(dataBroker, vpnid);
                     if (!subnetList.isEmpty()) {
                         for (Uuid subnetuuid : subnetList) {
                             result.add(String.format(" %-76s ", subnetuuid.getValue()));
