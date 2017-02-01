@@ -14,6 +14,7 @@ import java.util.List;
 import java.util.Set;
 
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
+import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
 import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
@@ -608,12 +609,13 @@ public class NeutronvpnNatManager implements AutoCloseable {
         }
     }
 
-    public void updateOrAddExternalSubnet(Uuid networkId, Uuid subnetId, List<Uuid> routerIds) {
+    public void updateOrAddExternalSubnet(Uuid networkId, Uuid subnetId, List<Uuid> routerIds,
+            WriteTransaction writeConfigTxn) {
         Optional<Subnets> optionalExternalSubnets = NeutronvpnUtils.getOptionalExternalSubnets(dataBroker, subnetId);
         if (optionalExternalSubnets.isPresent()) {
             LOG.trace("Will update external subnet {} with networkId {} and routerIds {}",
                     subnetId, networkId, routerIds);
-            updateExternalSubnet(networkId, subnetId, routerIds);
+            updateExternalSubnet(networkId, subnetId, routerIds, writeConfigTxn);
         } else {
             LOG.trace("Will add external subnet {} with networkId {} and routerIds {}",
                     subnetId, networkId, routerIds);
@@ -634,26 +636,36 @@ public class NeutronvpnNatManager implements AutoCloseable {
         }
     }
 
-    public void updateExternalSubnet(Uuid networkId, Uuid subnetId, List<Uuid> routerIds) {
+    public void updateExternalSubnet(Uuid networkId, Uuid subnetId, List<Uuid> routerIds,
+            WriteTransaction writeConfigTxn) {
         InstanceIdentifier<Subnets> subnetsIdentifier = InstanceIdentifier.builder(ExternalSubnets.class)
                 .child(Subnets.class, new SubnetsKey(subnetId)).build();
         try {
             Subnets newExternalSubnets = createSubnets(subnetId, networkId, routerIds);
             LOG.info("Updating external subnet {}", newExternalSubnets);
-            SingleTransactionDataBroker.syncUpdate(dataBroker, LogicalDatastoreType.CONFIGURATION, subnetsIdentifier,
-                    newExternalSubnets);
+            if (writeConfigTxn != null) {
+                writeConfigTxn.put(LogicalDatastoreType.CONFIGURATION, subnetsIdentifier, newExternalSubnets);
+            } else {
+                SingleTransactionDataBroker.syncUpdate(dataBroker, LogicalDatastoreType.CONFIGURATION,
+                        subnetsIdentifier, newExternalSubnets);
+            }
         } catch (TransactionCommitFailedException ex) {
             LOG.error("Update of External Subnets {} failed {}", subnetId, ex.getMessage());
         }
     }
 
-    public void removeExternalSubnet(Uuid subnetId) {
+    public void removeExternalSubnet(Uuid subnetId, WriteTransaction writeConfigTxn) {
         InstanceIdentifier<Subnets> subnetsIdentifier = InstanceIdentifier.builder(ExternalSubnets.class)
                 .child(Subnets.class, new SubnetsKey(subnetId)).build();
 
         try {
             LOG.info("Removing external subnet {}", subnetId);
-            SingleTransactionDataBroker.syncDelete(dataBroker, LogicalDatastoreType.CONFIGURATION, subnetsIdentifier);
+            if (writeConfigTxn != null) {
+                writeConfigTxn.delete(LogicalDatastoreType.CONFIGURATION, subnetsIdentifier);
+            } else {
+                SingleTransactionDataBroker.syncDelete(dataBroker, LogicalDatastoreType.CONFIGURATION,
+                        subnetsIdentifier);
+            }
         } catch (TransactionCommitFailedException ex) {
             LOG.error("Deletion of External Subnets {} failed {}", subnetId, ex.getMessage());
         }
@@ -675,7 +687,7 @@ public class NeutronvpnNatManager implements AutoCloseable {
                 LOG.debug("Will add routerID {} for external subnet.",
                         routerId, subnetId);
                 routerIds.add(routerId);
-                updateExternalSubnet(networkId, subnetId, routerIds);
+                updateExternalSubnet(networkId, subnetId, routerIds, null);
             }
         }
     }
