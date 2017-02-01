@@ -23,6 +23,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 import org.opendaylight.netvirt.openstack.netvirt.api.NetworkingProvider;
 import org.opendaylight.netvirt.openstack.netvirt.api.OvsdbInventoryService;
 import org.opendaylight.netvirt.utils.servicehelper.ServiceHelper;
+import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.NodeId;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Node;
 import org.osgi.framework.ServiceReference;
 
@@ -36,7 +37,7 @@ public class ProviderNetworkManagerImplTest {
 
     @Mock private OvsdbInventoryService ovsdbInventoryService;
 
-    @Spy private Map<Node, NetworkingProvider> nodeToProviderMapping = new HashMap<>();
+    @Spy private Map<NodeId, NetworkingProvider> nodeToProviderMapping = new HashMap<>();
 
     /**
      * Test method {@link ProviderNetworkManagerImpl#getProvider(Node)}
@@ -46,8 +47,10 @@ public class ProviderNetworkManagerImplTest {
         // TODO test the method with no networkingProvider in the map
         // Could not be done as ProviderEntry is a private inner class of ProviderNetworkManagerImpl
         Node node = mock(Node.class);
+        NodeId nodeId = mock(NodeId.class);
         NetworkingProvider networkingProvider = mock(NetworkingProvider.class);
-        nodeToProviderMapping.put(node, networkingProvider);
+        when(node.getNodeId()).thenReturn(nodeId);
+        nodeToProviderMapping.put(nodeId, networkingProvider);
         assertEquals("Error, did not return the networkingProvider of the specified node", networkingProvider, providerNetworkManagerImpl.getProvider(node));
     }
 
