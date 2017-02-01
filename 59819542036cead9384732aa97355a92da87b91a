@@ -1,0 +1,123 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_ffab0487",
+        "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/impl/NeutronL3Adapter.java",
+        "patchSetId": 12
+      },
+      "lineNbr": 1636,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2017-02-01T18:34:27Z",
+      "side": 1,
+      "message": "please change text to getPortPreferablyFromCleanupCache",
+      "revId": "59819542036cead9384732aa97355a92da87b91a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_ff5824fc",
+        "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/impl/SecurityServicesImpl.java",
+        "patchSetId": 12
+      },
+      "lineNbr": 82,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2017-02-01T18:34:27Z",
+      "side": 1,
+      "message": "you already log an error message if port \u003d\u003d null in the method getPortPreferablyFromCleanupCache",
+      "revId": "59819542036cead9384732aa97355a92da87b91a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_df5d60eb",
+        "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/impl/SecurityServicesImpl.java",
+        "patchSetId": 12
+      },
+      "lineNbr": 117,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2017-02-01T18:34:27Z",
+      "side": 1,
+      "message": "same comment as above",
+      "revId": "59819542036cead9384732aa97355a92da87b91a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_1fe4080c",
+        "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/impl/SecurityServicesImpl.java",
+        "patchSetId": 12
+      },
+      "lineNbr": 143,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2017-02-01T18:34:27Z",
+      "side": 1,
+      "message": "same comment as above",
+      "revId": "59819542036cead9384732aa97355a92da87b91a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_5fee90ed",
+        "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/impl/SecurityServicesImpl.java",
+        "patchSetId": 12
+      },
+      "lineNbr": 193,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2017-02-01T18:34:27Z",
+      "side": 1,
+      "message": "same comment as above",
+      "revId": "59819542036cead9384732aa97355a92da87b91a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_9fbf58d0",
+        "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/impl/SecurityServicesImpl.java",
+        "patchSetId": 12
+      },
+      "lineNbr": 219,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2017-02-01T18:34:27Z",
+      "side": 1,
+      "message": "same comment as above",
+      "revId": "59819542036cead9384732aa97355a92da87b91a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_ffb4a4f3",
+        "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/impl/TenantNetworkManagerImpl.java",
+        "patchSetId": 12
+      },
+      "lineNbr": 165,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2017-02-01T18:34:27Z",
+      "side": 1,
+      "message": "not needed?",
+      "revId": "59819542036cead9384732aa97355a92da87b91a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
