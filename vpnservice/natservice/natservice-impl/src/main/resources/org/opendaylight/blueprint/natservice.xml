@@ -63,6 +63,13 @@
     <argument ref="mdsalUtils" />
   </bean>
 
+  <bean id="externalSubneVpnInstanceListener"
+        class="org.opendaylight.netvirt.natservice.internal.ExternalSubnetVpnInstanceListener"
+        init-method="init" destroy-method="close">
+    <argument ref="dataBroker" />
+    <argument ref="sNATDefaultRouteProgrammer" />
+  </bean>
+
   <bean id="naptManager"
         class="org.opendaylight.netvirt.natservice.internal.NaptManager">
     <argument ref="dataBroker" />
@@ -169,6 +176,8 @@
   <bean id="sNATDefaultRouteProgrammer"
         class="org.opendaylight.netvirt.natservice.internal.SNATDefaultRouteProgrammer">
     <argument ref="mdsalUtils" />
+    <argument ref="dataBroker" />
+    <argument ref="idManagerService" />
   </bean>
 
   <bean id="naptSwitchHA"
