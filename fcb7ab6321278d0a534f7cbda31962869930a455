@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_3f746998",
+        "filename": "docs/specs/conntrack-based-snat.rst",
+        "patchSetId": 26
+      },
+      "lineNbr": 75,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2017-02-01T06:55:59Z",
+      "side": 1,
+      "message": "I think it would be better to add nw_src as part of the match here to prepare of the hairpinning metadata changes",
+      "range": {
+        "startLine": 75,
+        "startChar": 22,
+        "endLine": 75,
+        "endChar": 67
+      },
+      "revId": "fcb7ab6321278d0a534f7cbda31962869930a455",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
