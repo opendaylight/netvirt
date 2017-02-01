@@ -96,6 +96,30 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_9f20f54a",
+        "filename": "docs/specs/ecmp-bgp-l3vpn.rst",
+        "patchSetId": 6
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-02-01T07:57:56Z",
+      "side": 1,
+      "message": "Barak, As discussed over email, i have added some more content which explains this.",
+      "parentUuid": "fafc7978_3cc13ee5",
+      "range": {
+        "startLine": 33,
+        "startChar": 0,
+        "endLine": 34,
+        "endChar": 73
+      },
+      "revId": "30ea5825d736184ba912c2bb553be068c7231b28",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_17219a9f",
         "filename": "docs/specs/ecmp-bgp-l3vpn.rst",
         "patchSetId": 6
@@ -107,6 +131,30 @@
       "writtenOn": "2017-01-29T09:44:25Z",
       "side": 1,
       "message": "Note that I checked OF select group with watch_port property + BFD monitoring enabled in OVS 2.5 on VxLAN tunnel ports and tunnel port liveness monitoring is affected by the BFD status. As a result, OVS stopped sending traffic to buckets with BFD status down.\n\nIf you can assume BFD is enabled, letting OVS monitor the VxLAN buckets is preferred over ODL monitoring since it minimizes the amount of traffic loss and also keeps the models/implementation neat.",
+      "range": {
+        "startLine": 232,
+        "startChar": 0,
+        "endLine": 233,
+        "endChar": 26
+      },
+      "revId": "30ea5825d736184ba912c2bb553be068c7231b28",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_7f1d510f",
+        "filename": "docs/specs/ecmp-bgp-l3vpn.rst",
+        "patchSetId": 6
+      },
+      "lineNbr": 233,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-02-01T07:57:56Z",
+      "side": 1,
+      "message": "Yes Tali, Updated the doc with this comment. Will test watch_port behavior in our setup and leverage watch_port if it works.",
+      "parentUuid": "fafc7978_17219a9f",
       "range": {
         "startLine": 232,
         "startChar": 0,
