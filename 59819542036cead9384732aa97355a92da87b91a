@@ -36,6 +36,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_76da9679",
+        "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/impl/SecurityServicesImpl.java",
+        "patchSetId": 12
+      },
+      "lineNbr": 82,
+      "author": {
+        "id": 396
+      },
+      "writtenOn": "2017-02-01T19:35:22Z",
+      "side": 1,
+      "message": "Good catch!\n\nConsidering the situation that the target port is null is not a problematic situation for the getPortPreferablyFromCleanupCache() itself, I think we get rid of the ERROR message of the getPortPreferablyFromCleanupCache() instead of the message here.\n\n\nBy the way, I\u0027m not sure if the log level should be error or not.\n\nFYI: https://wiki.opendaylight.org/view/BestPractices/Logging_Best_Practices#ERROR",
+      "parentUuid": "fafc7978_ff5824fc",
+      "revId": "59819542036cead9384732aa97355a92da87b91a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_df5d60eb",
         "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/impl/SecurityServicesImpl.java",
         "patchSetId": 12
