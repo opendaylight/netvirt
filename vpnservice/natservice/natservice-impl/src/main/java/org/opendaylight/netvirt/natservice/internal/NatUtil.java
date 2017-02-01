@@ -17,6 +17,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.ExecutionException;
@@ -27,14 +28,20 @@ import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.mdsalutil.ActionInfo;
 import org.opendaylight.genius.mdsalutil.FlowEntity;
+import org.opendaylight.genius.mdsalutil.InstructionInfo;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.mdsalutil.MatchInfo;
+import org.opendaylight.genius.mdsalutil.MetaDataUtil;
 import org.opendaylight.genius.mdsalutil.NwConstants;
+import org.opendaylight.genius.mdsalutil.actions.ActionGroup;
 import org.opendaylight.genius.mdsalutil.actions.ActionNxResubmit;
 import org.opendaylight.genius.mdsalutil.actions.ActionOutput;
 import org.opendaylight.genius.mdsalutil.actions.ActionPushVlan;
 import org.opendaylight.genius.mdsalutil.actions.ActionRegLoad;
 import org.opendaylight.genius.mdsalutil.actions.ActionSetFieldVlanVid;
+import org.opendaylight.genius.mdsalutil.instructions.InstructionApplyActions;
+import org.opendaylight.genius.mdsalutil.matches.MatchEthernetType;
+import org.opendaylight.genius.mdsalutil.matches.MatchMetadata;
 import org.opendaylight.netvirt.bgpmanager.api.IBgpManager;
 import org.opendaylight.netvirt.fibmanager.api.IFibManager;
 import org.opendaylight.netvirt.fibmanager.api.RouteOrigin;
@@ -93,6 +100,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.id.to.vpn.instance.VpnIdsKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.VpnInstanceOpDataEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.VpnInstanceOpDataEntryKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.vpn.instance.op.data.entry.VpnToDpnList;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ExtRouters;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ExternalIpsCounter;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ExternalNetworks;
@@ -291,6 +299,11 @@ public class NatUtil {
                 + port;
     }
 
+    public static String getFlowRefFib(BigInteger dpnId, short tableId, long vpnId) {
+        return NatConstants.NAPT_FLOWID_PREFIX + dpnId + NatConstants.FLOWID_SEPARATOR + tableId + NatConstants
+                .FLOWID_SEPARATOR + vpnId;
+    }
+
     /*
         getNetworkIdFromRouterId() returns the network-id from the below model using the router-id as the key
                container ext-routers {
@@ -479,7 +492,6 @@ public class NatUtil {
     }
 
     public static long readVpnId(DataBroker broker, String vpnName) {
-
         InstanceIdentifier<org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn
             .instance.to.vpn.id.VpnInstance> id = getVpnInstanceToVpnIdIdentifier(vpnName);
         Optional<org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn
@@ -489,6 +501,7 @@ public class NatUtil {
         if (vpnInstance.isPresent()) {
             vpnId = vpnInstance.get().getVpnId();
         }
+
         return vpnId;
     }
 
@@ -1653,8 +1666,26 @@ public class NatUtil {
         MDSALUtil.syncWrite(dataBroker, LogicalDatastoreType.CONFIGURATION, buildRouterIdentifier(routerId), rtrs);
     }
 
-    static String getExtGwMacAddFromRouterId(DataBroker broker, long routerId) {
+    static FlowEntity buildDefaultNATFlowEntityForExternalSubnet(BigInteger dpId, long vpnId, String subnetId,
+            IdManagerService idManager) {
+        List<MatchInfo> matches = new ArrayList<>();
+        matches.add(MatchEthernetType.IPV4);
+        //add match for vrfid
+        matches.add(new MatchMetadata(MetaDataUtil.getVpnIdMetadata(vpnId), MetaDataUtil.METADATA_MASK_VRFID));
 
+        List<InstructionInfo> instructions = new ArrayList<>();
+        List<ActionInfo> actionsInfo = new ArrayList<>();
+        long groupId = createGroupId(NatUtil.getGroupIdKey(subnetId), idManager);
+        actionsInfo.add(new ActionGroup(groupId));
+        String flowRef = getFlowRefFib(dpId, NwConstants.L3_FIB_TABLE, vpnId);
+        instructions.add(new InstructionApplyActions(actionsInfo));
+        FlowEntity flowEntity = MDSALUtil.buildFlowEntity(dpId, NwConstants.L3_FIB_TABLE, flowRef,
+                NatConstants.DEFAULT_DNAT_FLOW_PRIORITY, flowRef, 0, 0,
+                NwConstants.COOKIE_DNAT_TABLE, matches, instructions);
+        return flowEntity;
+    }
+
+    static String getExtGwMacAddFromRouterId(DataBroker broker, long routerId) {
         String routerName = getRouterName(broker, routerId);
         InstanceIdentifier id = buildRouterIdentifier(routerName);
         Optional<Routers> routerData = read(broker, LogicalDatastoreType.CONFIGURATION, id);
@@ -1662,5 +1693,27 @@ public class NatUtil {
             return routerData.get().getExtGwMacAddress();
         }
         return null;
+    }
+
+    static boolean isDpnBelongsToRouterVrf(DataBroker dataBroker, Uuid routerId, BigInteger dpnId) {
+        InstanceIdentifier<VpnInstanceOpDataEntry> routerVpnInstanceIdentifier =
+                NatUtil.getVpnInstanceOpDataIdentifier(routerId.getValue());
+        Optional<VpnInstanceOpDataEntry> routerVpnInstanceOp = read(dataBroker,
+                LogicalDatastoreType.OPERATIONAL, routerVpnInstanceIdentifier);
+        if (routerVpnInstanceOp.isPresent()) {
+            List<VpnToDpnList> dpnListInVpn = routerVpnInstanceOp.get().getVpnToDpnList();
+            if (dpnListInVpn != null && !dpnListInVpn.isEmpty()) {
+                Iterator<VpnToDpnList> iteratorVpnToDpnList = dpnListInVpn.iterator();
+                while (iteratorVpnToDpnList.hasNext()) {
+                    VpnToDpnList next = iteratorVpnToDpnList.next();
+                    if (next.getDpnId().equals(dpnId)) {
+                        LOG.debug("DPN {} is use for routerId {}", dpnId, routerId);
+                        return true;
+                    }
+                }
+            }
+        }
+
+        return false;
     }
 }

@@ -22,6 +22,7 @@ import org.opendaylight.genius.mdsalutil.instructions.InstructionGotoTable;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.genius.mdsalutil.matches.MatchEthernetType;
 import org.opendaylight.genius.mdsalutil.matches.MatchMetadata;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.IdManagerService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,12 +36,9 @@ public class SNATDefaultRouteProgrammer {
     }
 
     private FlowEntity buildDefNATFlowEntity(BigInteger dpId, long vpnId) {
-
         InetAddress defaultIP = null;
-
         try {
             defaultIP = InetAddress.getByName("0.0.0.0");
-
         } catch (UnknownHostException e) {
             LOG.error("UnknowHostException in buildDefNATFlowEntity. Failed  to build FIB Table Flow for "
                 + "Default Route to NAT table ");
@@ -60,21 +58,17 @@ public class SNATDefaultRouteProgrammer {
         List<InstructionInfo> instructions = new ArrayList<>();
         instructions.add(new InstructionGotoTable(NwConstants.PSNAT_TABLE));
 
-        String flowRef = getFlowRefFib(dpId, NwConstants.L3_FIB_TABLE, vpnId);
+        String flowRef = NatUtil.getFlowRefFib(dpId, NwConstants.L3_FIB_TABLE, vpnId);
 
         FlowEntity flowEntity = MDSALUtil.buildFlowEntity(dpId, NwConstants.L3_FIB_TABLE, flowRef,
             NatConstants.DEFAULT_DNAT_FLOW_PRIORITY, flowRef, 0, 0,
             NwConstants.COOKIE_DNAT_TABLE, matches, instructions);
 
         return flowEntity;
-
-
     }
 
     private FlowEntity buildDefNATFlowEntity(BigInteger dpId, long bgpVpnId, long routerId) {
-
         InetAddress defaultIP = null;
-
         try {
             defaultIP = InetAddress.getByName("0.0.0.0");
 
@@ -97,7 +91,7 @@ public class SNATDefaultRouteProgrammer {
         List<InstructionInfo> instructions = new ArrayList<>();
         instructions.add(new InstructionGotoTable(NwConstants.PSNAT_TABLE));
 
-        String flowRef = getFlowRefFib(dpId, NwConstants.L3_FIB_TABLE, routerId);
+        String flowRef = NatUtil.getFlowRefFib(dpId, NwConstants.L3_FIB_TABLE, routerId);
 
         FlowEntity flowEntity = MDSALUtil.buildFlowEntity(dpId, NwConstants.L3_FIB_TABLE, flowRef,
             NatConstants.DEFAULT_DNAT_FLOW_PRIORITY, flowRef, 0, 0,
@@ -106,11 +100,6 @@ public class SNATDefaultRouteProgrammer {
         return flowEntity;
 
 
-    }
-
-    private String getFlowRefFib(BigInteger dpnId, short tableId, long routerID) {
-        return NatConstants.NAPT_FLOWID_PREFIX + dpnId + NatConstants.FLOWID_SEPARATOR + tableId + NatConstants
-                .FLOWID_SEPARATOR + routerID;
     }
 
     void installDefNATRouteInDPN(BigInteger dpnId, long vpnId) {
@@ -125,6 +114,17 @@ public class SNATDefaultRouteProgrammer {
 
     void installDefNATRouteInDPN(BigInteger dpnId, long bgpVpnId, long routerId) {
         FlowEntity flowEntity = buildDefNATFlowEntity(dpnId, bgpVpnId, routerId);
+        if (flowEntity == null) {
+            LOG.error("Flow entity received is NULL. Cannot proceed with installation of Default NAT flow");
+            return;
+        }
+        NatServiceCounters.install_default_nat_flow.inc();
+        mdsalManager.installFlow(flowEntity);
+    }
+
+    void installDefNATRouteInDPN(BigInteger dpnId, long vpnId, String subnetId,
+            IdManagerService idManager) {
+        FlowEntity flowEntity = NatUtil.buildDefaultNATFlowEntityForExternalSubnet(dpnId, vpnId, subnetId, idManager);
         if (flowEntity == null) {
             LOG.error("Flow entity received is NULL. Cannot proceed with installation of Default NAT flow");
             return;
