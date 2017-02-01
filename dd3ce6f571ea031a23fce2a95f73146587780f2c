@@ -87,6 +87,23 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_45ed1ac3",
+        "filename": "docs/specs/ecmp-bgp-l3vpn.rst",
+        "patchSetId": 8
+      },
+      "lineNbr": 148,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-01T17:02:07Z",
+      "side": 1,
+      "message": "Will the use-case continue to cover an extra-route with two different nexthops, but that is on a VPN which has only a single RD provided.\n(This would retain the benefit on intra-dc loadbalancing for that extra-route).",
+      "revId": "dd3ce6f571ea031a23fce2a95f73146587780f2c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_a595e641",
         "filename": "docs/specs/ecmp-bgp-l3vpn.rst",
         "patchSetId": 8
@@ -98,6 +115,74 @@
       "writtenOn": "2017-02-01T12:54:18Z",
       "side": 1,
       "message": "what about vpninstance-op-data as I see that is identified by an rd today?  It is a widely used datastore.",
+      "revId": "dd3ce6f571ea031a23fce2a95f73146587780f2c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_2b5d4722",
+        "filename": "docs/specs/ecmp-bgp-l3vpn.rst",
+        "patchSetId": 8
+      },
+      "lineNbr": 281,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-01T17:02:07Z",
+      "side": 1,
+      "message": "If an extra-route is on the same subnet as the originator of the ping within the DC, does such traffic get load balanced?",
+      "revId": "dd3ce6f571ea031a23fce2a95f73146587780f2c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_7009fe30",
+        "filename": "docs/specs/ecmp-bgp-l3vpn.rst",
+        "patchSetId": 8
+      },
+      "lineNbr": 295,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-01T17:02:07Z",
+      "side": 1,
+      "message": "This translates to an rd1 + prefix + nexthop1 advertisement followed by another advertisement of rd2 + prefix +nexthop2, assuming a VPN has an RD list of two RDs.\n\nDo we support loadbalancing for an extraroute reachable through N number of VMs (N more than 2).\n\nSimilarly, if the VPN has more than 2 RDs, randomly some RDs (equal to number of nexthops) will be selected and available nextHops for an extra-route will be distributed with such RDs.\n\n{OR}\n\nThe same extra route will be advertised on all RDs one-by-one with all possible nexthops?",
+      "revId": "dd3ce6f571ea031a23fce2a95f73146587780f2c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_ab1ad76b",
+        "filename": "docs/specs/ecmp-bgp-l3vpn.rst",
+        "patchSetId": 8
+      },
+      "lineNbr": 296,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-01T17:02:07Z",
+      "side": 1,
+      "message": "Similarly will this Spec implementation cover handling import/export targets across BGPVPNs that hold such ECMP-balanced extra-routes?",
+      "revId": "dd3ce6f571ea031a23fce2a95f73146587780f2c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_cb03dbb6",
+        "filename": "docs/specs/ecmp-bgp-l3vpn.rst",
+        "patchSetId": 8
+      },
+      "lineNbr": 312,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-01T17:02:07Z",
+      "side": 1,
+      "message": "is the load balancing applicable only for IP Traffic (or) it covers all types of traffic - for example an ARPing for an extra-route which is realized with multiple nexthops?",
       "revId": "dd3ce6f571ea031a23fce2a95f73146587780f2c",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
