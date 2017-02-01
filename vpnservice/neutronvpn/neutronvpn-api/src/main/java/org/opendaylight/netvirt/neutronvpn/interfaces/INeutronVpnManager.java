@@ -23,8 +23,6 @@ public interface INeutronVpnManager {
 
     void removeSubnetFromVpn(Uuid vpnId, Uuid subnet);
 
-    List<Uuid> getSubnetsforVpn(Uuid vpnid);
-
     List<String> showVpnConfigCLI(Uuid vuuid);
 
     List<String> showNeutronPortsCLI();
@@ -42,6 +40,10 @@ public interface INeutronVpnManager {
     String getVifPortName(Port port);
 
     Collection<Uuid> getSubnetIdsForGatewayIp(IpAddress ipAddress);
+
+    Uuid getNetworkForSubnet(Uuid subnetId);
+
+    List<Uuid> getNetworksForVpn(Uuid vpnId);
 
 }
 
