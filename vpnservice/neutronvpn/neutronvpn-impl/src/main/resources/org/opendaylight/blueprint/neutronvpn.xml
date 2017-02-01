@@ -94,6 +94,14 @@
     <argument ref="dataBroker" />
     <argument ref="neutronvpnManager" />
     <argument ref="neutronvpnNatManager" />
+    <argument ref="neutronExternalSubnetHandler" />
+  </bean>
+
+  <bean id="neutronExternalSubnetHandler"
+        class="org.opendaylight.netvirt.neutronvpn.NeutronExternalSubnetHandler"
+        destroy-method="close">
+    <argument ref="neutronvpnManager" />
+    <argument ref="neutronvpnNatManager" />
   </bean>
 
   <bean id="neutronRouterChangeListener"
