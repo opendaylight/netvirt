@@ -31,14 +31,20 @@ import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFaile
 import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
 import org.opendaylight.genius.mdsalutil.ActionInfo;
 import org.opendaylight.genius.mdsalutil.FlowEntity;
+import org.opendaylight.genius.mdsalutil.InstructionInfo;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.mdsalutil.MatchInfo;
+import org.opendaylight.genius.mdsalutil.MetaDataUtil;
 import org.opendaylight.genius.mdsalutil.NwConstants;
+import org.opendaylight.genius.mdsalutil.actions.ActionGroup;
 import org.opendaylight.genius.mdsalutil.actions.ActionNxResubmit;
 import org.opendaylight.genius.mdsalutil.actions.ActionOutput;
 import org.opendaylight.genius.mdsalutil.actions.ActionPushVlan;
 import org.opendaylight.genius.mdsalutil.actions.ActionRegLoad;
 import org.opendaylight.genius.mdsalutil.actions.ActionSetFieldVlanVid;
+import org.opendaylight.genius.mdsalutil.instructions.InstructionApplyActions;
+import org.opendaylight.genius.mdsalutil.matches.MatchEthernetType;
+import org.opendaylight.genius.mdsalutil.matches.MatchMetadata;
 import org.opendaylight.netvirt.bgpmanager.api.IBgpManager;
 import org.opendaylight.netvirt.fibmanager.api.IFibManager;
 import org.opendaylight.netvirt.fibmanager.api.RouteOrigin;
@@ -294,6 +300,11 @@ public class NatUtil {
                 .FLOWID_SEPARATOR + destPrefix.getHostAddress();
     }
 
+    public static String getFlowRef(BigInteger dpnId, short tableId, InetAddress destPrefix, long vpnId) {
+        return NatConstants.NAPT_FLOWID_PREFIX + dpnId + NatConstants.FLOWID_SEPARATOR + tableId + NatConstants
+                .FLOWID_SEPARATOR + vpnId;
+    }
+
     public static String getNaptFlowRef(BigInteger dpnId, short tableId, String routerID, String ip, int port) {
         return NatConstants.NAPT_FLOWID_PREFIX + dpnId + NatConstants.FLOWID_SEPARATOR + tableId + NatConstants
                 .FLOWID_SEPARATOR + routerID + NatConstants.FLOWID_SEPARATOR + ip + NatConstants.FLOWID_SEPARATOR
@@ -488,7 +499,6 @@ public class NatUtil {
     }
 
     public static long readVpnId(DataBroker broker, String vpnName) {
-
         InstanceIdentifier<org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn
             .instance.to.vpn.id.VpnInstance> id = getVpnInstanceToVpnIdIdentifier(vpnName);
         Optional<org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn
@@ -498,6 +508,7 @@ public class NatUtil {
         if (vpnInstance.isPresent()) {
             vpnId = vpnInstance.get().getVpnId();
         }
+
         return vpnId;
     }
 
@@ -1660,8 +1671,35 @@ public class NatUtil {
         MDSALUtil.syncWrite(dataBroker, LogicalDatastoreType.CONFIGURATION, buildRouterIdentifier(routerId), rtrs);
     }
 
-    static String getExtGwMacAddFromRouterId(DataBroker broker, long routerId) {
+    static FlowEntity buildDefaultNATFlowEntityForExternalSubnet(BigInteger dpId, long vpnId, String subnetId,
+            IdManagerService idManager) {
+        InetAddress defaultIP = null;
+        try {
+            defaultIP = InetAddress.getByName("0.0.0.0");
+        } catch (UnknownHostException e) {
+            LOG.error("NAT Service : UnknowHostException in buildDefNATFlowEntityForExternalSubnet. "
+                + "Failed to build FIB Table Flow for Default Route to NAT.");
+            return null;
+        }
 
+        List<MatchInfo> matches = new ArrayList<>();
+        matches.add(MatchEthernetType.IPV4);
+        //add match for vrfid
+        matches.add(new MatchMetadata(MetaDataUtil.getVpnIdMetadata(vpnId), MetaDataUtil.METADATA_MASK_VRFID));
+
+        List<InstructionInfo> instructions = new ArrayList<>();
+        List<ActionInfo> actionsInfo = new ArrayList<>();
+        long groupId = createGroupId(NatUtil.getGroupIdKey(subnetId), idManager);
+        actionsInfo.add(new ActionGroup(groupId));
+        String flowRef = getFlowRef(dpId, NwConstants.L3_FIB_TABLE, defaultIP, vpnId);
+        instructions.add(new InstructionApplyActions(actionsInfo));
+        FlowEntity flowEntity = MDSALUtil.buildFlowEntity(dpId, NwConstants.L3_FIB_TABLE, flowRef,
+                NatConstants.DEFAULT_DNAT_FLOW_PRIORITY, flowRef, 0, 0,
+                NwConstants.COOKIE_DNAT_TABLE, matches, instructions);
+        return flowEntity;
+    }
+
+    static String getExtGwMacAddFromRouterId(DataBroker broker, long routerId) {
         String routerName = getRouterName(broker, routerId);
         InstanceIdentifier id = buildRouterIdentifier(routerName);
         Optional<Routers> routerData = read(broker, LogicalDatastoreType.CONFIGURATION, id);
