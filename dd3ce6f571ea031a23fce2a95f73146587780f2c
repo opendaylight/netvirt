@@ -203,6 +203,40 @@
       "revId": "dd3ce6f571ea031a23fce2a95f73146587780f2c",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_2bb1c7f8",
+        "filename": "docs/specs/ecmp-bgp-l3vpn.rst",
+        "patchSetId": 8
+      },
+      "lineNbr": 366,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-01T17:18:02Z",
+      "side": 1,
+      "message": "this answered a previous question of mine :)",
+      "revId": "dd3ce6f571ea031a23fce2a95f73146587780f2c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_cb9f5b5e",
+        "filename": "docs/specs/ecmp-bgp-l3vpn.rst",
+        "patchSetId": 8
+      },
+      "lineNbr": 467,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-01T17:18:02Z",
+      "side": 1,
+      "message": "Since the talk is primarily only about extra-routes within a DC and imported routes from BGP (both with multiple paths), for network-associated BGPVPNs , does the user need to use static-routes RPC in order get the benefit of ECMP ?",
+      "revId": "dd3ce6f571ea031a23fce2a95f73146587780f2c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
