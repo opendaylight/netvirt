@@ -214,6 +214,15 @@ public class NeutronvpnUtils {
         return null;
     }
 
+    protected static Uuid getNetworkForSubnet(DataBroker broker, Uuid subnetId) {
+        InstanceIdentifier<Subnetmap> subnetmapIdentifier = buildSubnetMapIdentifier(subnetId);
+        Optional<Subnetmap> optionalSubnetMap = read(broker, LogicalDatastoreType.CONFIGURATION, subnetmapIdentifier);
+        if (optionalSubnetMap.isPresent()) {
+            return optionalSubnetMap.get().getNetworkId();
+        }
+        return null;
+    }
+
     // @param external vpn - true if external vpn being fetched, false for internal vpn
     protected static Uuid getVpnForRouter(DataBroker broker, Uuid routerId, Boolean externalVpn) {
         InstanceIdentifier<VpnMaps> vpnMapsIdentifier = InstanceIdentifier.builder(VpnMaps.class).build();
@@ -248,6 +257,33 @@ public class NeutronvpnUtils {
             return vpnMap.getRouterId();
         }
         return null;
+    }
+
+    protected static List<Uuid> getNetworksforVpn(DataBroker broker, Uuid vpnId) {
+        InstanceIdentifier<VpnMap> vpnMapIdentifier = InstanceIdentifier.builder(VpnMaps.class).child(VpnMap.class,
+                new VpnMapKey(vpnId)).build();
+        Optional<VpnMap> optionalVpnMap = read(broker, LogicalDatastoreType.CONFIGURATION, vpnMapIdentifier);
+        if (optionalVpnMap.isPresent()) {
+            VpnMap vpnMap = optionalVpnMap.get();
+            return vpnMap.getNetworkIds();
+        }
+        return null;
+    }
+
+    protected static List<Uuid> getSubnetsforVpn(DataBroker broker, Uuid vpnid) {
+        List<Uuid> subnets = new ArrayList<>();
+        // read subnetmaps
+        InstanceIdentifier<Subnetmaps> subnetmapsid = InstanceIdentifier.builder(Subnetmaps.class).build();
+        Optional<Subnetmaps> subnetmaps = read(broker, LogicalDatastoreType.CONFIGURATION, subnetmapsid);
+        if (subnetmaps.isPresent() && subnetmaps.get().getSubnetmap() != null) {
+            List<Subnetmap> subnetMapList = subnetmaps.get().getSubnetmap();
+            for (Subnetmap subnetMap : subnetMapList) {
+                if (subnetMap.getVpnId() != null && subnetMap.getVpnId().equals(vpnid)) {
+                    subnets.add(subnetMap.getId());
+                }
+            }
+        }
+        return subnets;
     }
 
     protected static String getNeutronPortNameFromVpnPortFixedIp(DataBroker broker, String vpnName, String fixedIp) {
