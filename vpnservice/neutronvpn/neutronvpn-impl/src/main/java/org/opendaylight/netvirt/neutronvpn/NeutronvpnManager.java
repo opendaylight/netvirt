@@ -1490,7 +1490,14 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
 
     protected void removeSubnetFromVpn(final Uuid vpnId, Uuid subnet) {
         LOG.debug("Removing subnet {} from vpn {}", subnet.getValue(), vpnId.getValue());
-        final Uuid routerId = NeutronvpnUtils.getVpnMap(dataBroker, vpnId).getRouterId();
+        VpnMap vpnMap = NeutronvpnUtils.getVpnMap(dataBroker, vpnId);
+        if (vpnMap == null) {
+            LOG.debug("No vpnMap for vpnId {}, cannot remove subnet {} from VPN",
+                    vpnId.getValue(), subnet.getValue());
+            return;
+        }
+
+        final Uuid routerId = vpnMap.getRouterId();
         Subnetmap sn = NeutronvpnUtils.getSubnetmap(dataBroker, subnet);
         if (sn != null) {
             // Check if there are ports on this subnet; remove corresponding vpn-interfaces

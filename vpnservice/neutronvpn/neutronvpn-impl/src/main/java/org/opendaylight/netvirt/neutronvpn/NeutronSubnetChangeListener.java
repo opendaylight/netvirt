@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 Ericsson India Global Services Pvt Ltd. and others.  All rights reserved.
+ * Copyright (c) 2016, 2017 Ericsson India Global Services Pvt Ltd. and others.  All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
@@ -8,12 +8,16 @@
 package org.opendaylight.netvirt.neutronvpn;
 
 import com.google.common.base.Optional;
+import com.google.common.util.concurrent.ListenableFuture;
+
 import java.util.ArrayList;
 import java.util.List;
 
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
+import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
+import org.opendaylight.genius.datastoreutils.DataStoreJobCoordinator;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.networkmaps.NetworkMap;
@@ -33,13 +37,15 @@ public class NeutronSubnetChangeListener extends AsyncDataTreeChangeListenerBase
     private final DataBroker dataBroker;
     private final NeutronvpnManager nvpnManager;
     private final NeutronvpnNatManager nvpnNatManager;
+    private final NeutronExternalSubnetHandler externalSubnetHandler;
 
     public NeutronSubnetChangeListener(final DataBroker dataBroker, final NeutronvpnManager neutronvpnManager,
-            final NeutronvpnNatManager neutronvpnNatMgr) {
+            final NeutronvpnNatManager neutronvpnNatMgr, final NeutronExternalSubnetHandler externalSubnetHandler) {
         super(Subnet.class, NeutronSubnetChangeListener.class);
         this.dataBroker = dataBroker;
-        nvpnManager = neutronvpnManager;
-        nvpnNatManager = neutronvpnNatMgr;
+        this.nvpnManager = neutronvpnManager;
+        this.nvpnNatManager = neutronvpnNatMgr;
+        this.externalSubnetHandler = externalSubnetHandler;
     }
 
     public void start() {
@@ -72,21 +78,25 @@ public class NeutronSubnetChangeListener extends AsyncDataTreeChangeListenerBase
             return;
         }
 
-        handleNeutronSubnetCreated(input.getUuid(), String.valueOf(input.getCidr().getValue()), networkId,
-                input.getTenantId());
-        if (NeutronvpnUtils.getIsExternal(network) && NeutronvpnUtils.isFlatOrVlanNetwork(network)) {
-            LOG.trace("Added subnet {} part of external network {} will add NAT external subnet", input, networkId);
-            nvpnManager.createVpnInstanceForSubnet(input.getUuid());
-            nvpnNatManager.updateOrAddExternalSubnet(networkId, subnetId, null);
-        }
-
         NeutronvpnUtils.addToSubnetCache(input);
+        final DataStoreJobCoordinator subnetDataStoreCoordinator = DataStoreJobCoordinator.getInstance();
+        subnetDataStoreCoordinator.enqueueJob("SUBNET- " + subnetId.getValue(), () -> {
+            WriteTransaction writeConfigTxn = dataBroker.newWriteOnlyTransaction();
+            handleNeutronSubnetCreated(input.getUuid(), String.valueOf(input.getCidr().getValue()), networkId,
+                    input.getTenantId());
+            externalSubnetHandler.handleExternalSubnetAdded(network, subnetId, null, writeConfigTxn);
+
+            List<ListenableFuture<Void>> futures = new ArrayList<>();
+            futures.add(writeConfigTxn.submit());
+            return futures;
+        });
     }
 
     @Override
     protected void remove(InstanceIdentifier<Subnet> identifier, Subnet input) {
         LOG.trace("Removing subnet : key: {}, value={}", identifier, input);
         Uuid networkId = input.getNetworkId();
+        Uuid subnetId = input.getUuid();
         Network network = NeutronvpnUtils.getNeutronNetwork(dataBroker, networkId);
         if (network == null || !NeutronvpnUtils.isNetworkTypeSupported(network)) {
             //FIXME: This should be removed when support for GRE network types is added
@@ -95,21 +105,25 @@ public class NeutronSubnetChangeListener extends AsyncDataTreeChangeListenerBase
                 + " Skipping the processing of Subnet remove DCN", input.getName(), network);
             return;
         }
-        handleNeutronSubnetDeleted(input.getUuid(), networkId, null);
-        if (NeutronvpnUtils.getIsExternal(network) && NeutronvpnUtils.isFlatOrVlanNetwork(network)) {
-            LOG.trace("Removed subnet {} part of external network {} will remove NAT external subnet",
-                    input, networkId);
-            nvpnManager.removeVpnInstanceForSubnet(input.getUuid());
-            nvpnNatManager.removeExternalSubnet(input.getUuid());
-        }
 
         NeutronvpnUtils.removeFromSubnetCache(input);
+        final DataStoreJobCoordinator subnetDataStoreCoordinator = DataStoreJobCoordinator.getInstance();
+        subnetDataStoreCoordinator.enqueueJob("SUBNET- " + subnetId.getValue(), () -> {
+            WriteTransaction writeConfigTxn = dataBroker.newWriteOnlyTransaction();
+            handleNeutronSubnetDeleted(input.getUuid(), networkId, null);
+            externalSubnetHandler.handleExternalSubnetRemoved(network, subnetId, writeConfigTxn);
+
+            List<ListenableFuture<Void>> futures = new ArrayList<>();
+            futures.add(writeConfigTxn.submit());
+            return futures;
+        });
     }
 
     @Override
     protected void update(InstanceIdentifier<Subnet> identifier, Subnet original, Subnet update) {
         LOG.trace("Updating Subnet : key: {}, original value={}, update value={}", identifier, original, update);
         Uuid networkId = update.getNetworkId();
+        Uuid subnetId = update.getUuid();
         Network network = NeutronvpnUtils.getNeutronNetwork(dataBroker, networkId);
         if (network == null || !NeutronvpnUtils.isNetworkTypeSupported(network)) {
             LOG.error("neutron vpn doesn't support vlan/gre network provider type for the port {} "
@@ -117,14 +131,18 @@ public class NeutronSubnetChangeListener extends AsyncDataTreeChangeListenerBase
                 + " Skipping the processing of Subnet update DCN", update.getName(), network);
             return;
         }
-        handleNeutronSubnetUpdated(update.getUuid(), network, update.getTenantId());
-        if (NeutronvpnUtils.getIsExternal(network) && NeutronvpnUtils.isFlatOrVlanNetwork(network)) {
-            LOG.trace("Updated subnet {} part of external network {} will update NAT external subnet",
-                    update.getUuid(), networkId);
-            nvpnNatManager.updateExternalSubnet(networkId, update.getUuid(), null);
-        }
 
-        NeutronvpnUtils.addToSubnetCache(update);
+        final DataStoreJobCoordinator portDataStoreCoordinator = DataStoreJobCoordinator.getInstance();
+        portDataStoreCoordinator.enqueueJob("SUBNET- " + subnetId.getValue(), () -> {
+            WriteTransaction writeConfigTxn = dataBroker.newWriteOnlyTransaction();
+            handleNeutronSubnetUpdated(subnetId, network, update.getTenantId());
+            externalSubnetHandler.handleExternalSubnetUpdated(network, subnetId, null, writeConfigTxn);
+            NeutronvpnUtils.addToSubnetCache(update);
+
+            List<ListenableFuture<Void>> futures = new ArrayList<>();
+            futures.add(writeConfigTxn.submit());
+            return futures;
+        });
     }
 
     private void handleNeutronSubnetCreated(Uuid subnetId, String subnetIp, Uuid networkId, Uuid tenantId) {
@@ -139,7 +157,7 @@ public class NeutronSubnetChangeListener extends AsyncDataTreeChangeListenerBase
         if (vpnId != null) {
             nvpnManager.removeSubnetFromVpn(vpnId, subnetId);
         }
-        if (networkId != null)  {
+        if (networkId != null) {
             deleteSubnetToNetworkMapping(subnetId, networkId);
         }
         nvpnManager.deleteSubnetMapNode(subnetId);
