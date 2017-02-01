@@ -54,6 +54,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_16386a9f",
+        "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/impl/SecurityServicesImpl.java",
+        "patchSetId": 12
+      },
+      "lineNbr": 82,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2017-02-01T19:49:28Z",
+      "side": 1,
+      "message": "A WARN message would be fine. I think we can put the WARN message in the getPortPreferablyFromCleanupCache(). That way we can prevent code duplication for logging each time the method is invoked.",
+      "parentUuid": "fafc7978_76da9679",
+      "revId": "59819542036cead9384732aa97355a92da87b91a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_df5d60eb",
         "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/impl/SecurityServicesImpl.java",
         "patchSetId": 12
