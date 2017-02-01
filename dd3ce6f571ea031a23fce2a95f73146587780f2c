@@ -1,0 +1,106 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_65a65e12",
+        "filename": "docs/specs/ecmp-bgp-l3vpn.rst",
+        "patchSetId": 8
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-01T12:54:18Z",
+      "side": 1,
+      "message": "OVS -\u003e DC-GW traffic",
+      "revId": "dd3ce6f571ea031a23fce2a95f73146587780f2c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_c5e46a3d",
+        "filename": "docs/specs/ecmp-bgp-l3vpn.rst",
+        "patchSetId": 8
+      },
+      "lineNbr": 49,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-01T12:54:18Z",
+      "side": 1,
+      "message": "OVS -\u003e DC-GW tunnel.  Intra-DC traffic won\u0027t be affected because of DC-GW Tunnel issues right?",
+      "revId": "dd3ce6f571ea031a23fce2a95f73146587780f2c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_8548a22e",
+        "filename": "docs/specs/ecmp-bgp-l3vpn.rst",
+        "patchSetId": 8
+      },
+      "lineNbr": 58,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-01T12:54:18Z",
+      "side": 1,
+      "message": "is this enhancement planned for Ocata release?",
+      "revId": "dd3ce6f571ea031a23fce2a95f73146587780f2c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_65593efe",
+        "filename": "docs/specs/ecmp-bgp-l3vpn.rst",
+        "patchSetId": 8
+      },
+      "lineNbr": 91,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-01T12:54:18Z",
+      "side": 1,
+      "message": "a new line is required before cookie start for the next table 21 rule.  Also please fix the flow line.",
+      "revId": "dd3ce6f571ea031a23fce2a95f73146587780f2c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_e5036eb6",
+        "filename": "docs/specs/ecmp-bgp-l3vpn.rst",
+        "patchSetId": 8
+      },
+      "lineNbr": 95,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-01T12:54:18Z",
+      "side": 1,
+      "message": "what is the ingress flow on the two other DPNs that are nexhops for 10.0.0.1/32?",
+      "revId": "dd3ce6f571ea031a23fce2a95f73146587780f2c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_a595e641",
+        "filename": "docs/specs/ecmp-bgp-l3vpn.rst",
+        "patchSetId": 8
+      },
+      "lineNbr": 272,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-01T12:54:18Z",
+      "side": 1,
+      "message": "what about vpninstance-op-data as I see that is identified by an rd today?  It is a widely used datastore.",
+      "revId": "dd3ce6f571ea031a23fce2a95f73146587780f2c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
