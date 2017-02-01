@@ -1934,21 +1934,12 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
         return NeutronvpnUtils.getNeutronPort(dataBroker, portId);
     }
 
-    protected List<Uuid> getSubnetsforVpn(Uuid vpnid) {
-        List<Uuid> subnets = new ArrayList<>();
-        // read subnetmaps
-        InstanceIdentifier<Subnetmaps> subnetmapsid = InstanceIdentifier.builder(Subnetmaps.class).build();
-        Optional<Subnetmaps> subnetmaps = NeutronvpnUtils.read(dataBroker, LogicalDatastoreType.CONFIGURATION,
-                subnetmapsid);
-        if (subnetmaps.isPresent() && subnetmaps.get().getSubnetmap() != null) {
-            List<Subnetmap> subnetMapList = subnetmaps.get().getSubnetmap();
-            for (Subnetmap subnetMap : subnetMapList) {
-                if (subnetMap.getVpnId() != null && subnetMap.getVpnId().equals(vpnid)) {
-                    subnets.add(subnetMap.getId());
-                }
-            }
-        }
-        return subnets;
+    protected Uuid getNetworkForSubnet(Uuid subnetId) {
+        return NeutronvpnUtils.getNetworkForSubnet(dataBroker, subnetId);
+    }
+
+    protected List<Uuid> getNetworksForVpn(Uuid vpnId) {
+        return NeutronvpnUtils.getNetworksforVpn(dataBroker, vpnId);
     }
 
     /**
@@ -2045,7 +2036,7 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
                     result.add("");
 
                     Uuid vpnid = vpn.getId();
-                    List<Uuid> subnetList = getSubnetsforVpn(vpnid);
+                    List<Uuid> subnetList = NeutronvpnUtils.getSubnetsforVpn(dataBroker, vpnid);
                     if (!subnetList.isEmpty()) {
                         for (Uuid subnetuuid : subnetList) {
                             result.add(String.format(" %-76s ", subnetuuid.getValue()));
