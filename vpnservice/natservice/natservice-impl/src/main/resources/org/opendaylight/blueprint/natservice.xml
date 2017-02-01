@@ -62,6 +62,20 @@
     <argument ref="mdsalUtils" />
   </bean>
 
+  <bean id="externalSubnetListener"
+        class="org.opendaylight.netvirt.natservice.internal.ExternalSubnetListener"
+        init-method="init" destroy-method="close">
+    <argument ref="dataBroker" />
+    <argument ref="mdsalUtils" />
+  </bean>
+
+  <bean id="externalSubneVpnInstanceOpDataListener"
+        class="org.opendaylight.netvirt.natservice.internal.ExternalSubnetVpnInstanceOpDataListener"
+        init-method="init" destroy-method="close">
+    <argument ref="dataBroker" />
+    <argument ref="mdsalUtils" />
+  </bean>
+
   <bean id="naptManager"
         class="org.opendaylight.netvirt.natservice.internal.NaptManager">
     <argument ref="dataBroker" />

@@ -9,23 +9,12 @@ package org.opendaylight.netvirt.natservice.internal;
 
 import com.google.common.base.Optional;
 import java.math.BigInteger;
-import java.net.InetAddress;
-import java.net.UnknownHostException;
-import java.util.ArrayList;
 import java.util.List;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
 import org.opendaylight.genius.mdsalutil.FlowEntity;
-import org.opendaylight.genius.mdsalutil.InstructionInfo;
-import org.opendaylight.genius.mdsalutil.MDSALUtil;
-import org.opendaylight.genius.mdsalutil.MatchInfo;
-import org.opendaylight.genius.mdsalutil.MetaDataUtil;
-import org.opendaylight.genius.mdsalutil.NwConstants;
-import org.opendaylight.genius.mdsalutil.instructions.InstructionGotoTable;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
-import org.opendaylight.genius.mdsalutil.matches.MatchEthernetType;
-import org.opendaylight.genius.mdsalutil.matches.MatchMetadata;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.VpnInstanceOpDataEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.vpn.instance.op.data.entry.VpnToDpnList;
@@ -153,54 +142,18 @@ public class ExternalNetworkListener extends AsyncDataTreeChangeListenerBase<Net
         }
     }
 
-    private FlowEntity buildDefNATFlowEntity(BigInteger dpId, long vpnId) {
-        InetAddress defaultIP = null;
-
-        try {
-            defaultIP = InetAddress.getByName("0.0.0.0");
-
-        } catch (UnknownHostException e) {
-            LOG.error("NAT Service : UnknowHostException in buildDefNATFlowEntity. "
-                + "Failed to build FIB Table Flow for Default Route to NAT table ");
-            return null;
-        }
-
-        List<MatchInfo> matches = new ArrayList<>();
-        matches.add(MatchEthernetType.IPV4);
-
-        //add match for default route "0.0.0.0/0"
-        //matches.add(new MatchInfo(MatchFieldType.ipv4_src, new long[] {
-        //        NatUtil.getIpAddress(defaultIP.getAddress()), 0 }));
-
-        //add match for vrfid
-        matches.add(new MatchMetadata(MetaDataUtil.getVpnIdMetadata(vpnId), MetaDataUtil.METADATA_MASK_VRFID));
-
-        List<InstructionInfo> instructions = new ArrayList<>();
-        instructions.add(new InstructionGotoTable(NwConstants.PSNAT_TABLE));
-
-        String flowRef = NatUtil.getFlowRef(dpId, NwConstants.L3_FIB_TABLE, defaultIP);
-
-        FlowEntity flowEntity = MDSALUtil.buildFlowEntity(dpId, NwConstants.L3_FIB_TABLE, flowRef,
-                NatConstants.DEFAULT_DNAT_FLOW_PRIORITY, flowRef, 0, 0,
-                NwConstants.COOKIE_DNAT_TABLE, matches, instructions);
-
-        return flowEntity;
-
-
-    }
-
     private void installDefNATRouteInDPN(BigInteger dpnId, long vpnId) {
-        FlowEntity flowEntity = buildDefNATFlowEntity(dpnId, vpnId);
+        FlowEntity flowEntity = NatUtil.buildDefaultNATFlowEntity(dpnId, vpnId);
         if (flowEntity == null) {
             LOG.error("NAT Service : Flow entity received is NULL. "
-                + "Cannot proceed with installation of Default NAT flow");
+                    + "Cannot proceed with installation of Default NAT flow");
             return;
         }
         mdsalManager.installFlow(flowEntity);
     }
 
     private void removeDefNATRouteInDPN(BigInteger dpnId, long vpnId) {
-        FlowEntity flowEntity = buildDefNATFlowEntity(dpnId, vpnId);
+        FlowEntity flowEntity = NatUtil.buildDefaultNATFlowEntity(dpnId, vpnId);
         if (flowEntity == null) {
             LOG.error("NAT Service : Flow entity received is NULL. "
                 + "Cannot proceed with installation of Default NAT flow");
