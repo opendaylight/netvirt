@@ -587,6 +587,30 @@
       "revId": "93812f83c7d0cac4ad6605f696bd636049b1a689",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_eb1dff74",
+        "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/impl/SecurityGroupCacheManagerImpl.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 136,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2017-02-01T18:34:27Z",
+      "side": 1,
+      "message": "If you delete the default SG - a new one will be created automatically with new id. So your cache still hold on to the old default SG, isn\u0027t it?\n\nHere are the commands:\n[stack@control2 devstack]$ l-sg\n+--------------------------------------+---------+------------------------+\n| Id                                   | Name    | Description            |\n+--------------------------------------+---------+------------------------+\n| 0612e2d4-3e7e-4efb-935f-716955b155a8 | default | Default security group |\n+--------------------------------------+---------+------------------------+\n[stack@control2 devstack]$ alias l-sg\nalias l-sg\u003d\u0027nv secgroup-list\u0027\n[stack@control2 devstack]$ nova secgroup-list\n+--------------------------------------+---------+------------------------+\n| Id                                   | Name    | Description            |\n+--------------------------------------+---------+------------------------+\n| 0612e2d4-3e7e-4efb-935f-716955b155a8 | default | Default security group |\n+--------------------------------------+---------+------------------------+\n[stack@control2 devstack]$ nova secgroup-delete default\n+--------------------------------------+---------+------------------------+\n| Id                                   | Name    | Description            |\n+--------------------------------------+---------+------------------------+\n| 0612e2d4-3e7e-4efb-935f-716955b155a8 | default | Default security group |\n+--------------------------------------+---------+------------------------+\n[stack@control2 devstack]$ nova secgroup-list          \n+--------------------------------------+---------+------------------------+\n| Id                                   | Name    | Description            |\n+--------------------------------------+---------+------------------------+\n| 4ab29b3f-42f8-4e86-9b1d-9ff2ab728d6c | default | Default security group |\n+--------------------------------------+---------+------------------------+",
+      "parentUuid": "fafc7978_ae12f0b1",
+      "range": {
+        "startLine": 112,
+        "startChar": 0,
+        "endLine": 136,
+        "endChar": 9
+      },
+      "revId": "93812f83c7d0cac4ad6605f696bd636049b1a689",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
