@@ -22,7 +22,6 @@ import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
-
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
@@ -334,7 +333,7 @@ public class NatUtil {
 
     static Uuid getNetworkIdFromRouterName(DataBroker broker, String routerName) {
         if (routerName == null) {
-            LOG.error("getNetworkIdFromRouterName - empty routerName received");
+            LOG.error("NAT Service : getNetworkIdFromRouterName - empty routerName received");
             return null;
         }
         InstanceIdentifier id = buildRouterIdentifier(routerName);
@@ -451,7 +450,7 @@ public class NatUtil {
 
     public static BigInteger getPrimaryNaptfromRouterName(DataBroker broker, String routerName) {
         if (routerName == null) {
-            LOG.error("getPrimaryNaptfromRouterName - empty routerName received");
+            LOG.error("NAT Service : getPrimaryNaptfromRouterName - empty routerName received");
             return null;
         }
         InstanceIdentifier id = buildNaptSwitchIdentifier(routerName);
@@ -754,7 +753,7 @@ public class NatUtil {
     public static String getAssociatedVPN(DataBroker dataBroker, Uuid networkId, Logger log) {
         Uuid vpnUuid = NatUtil.getVpnIdfromNetworkId(dataBroker, networkId);
         if (vpnUuid == null) {
-            log.error("No VPN instance associated with ext network {}", networkId);
+            log.error("NAT Service : No VPN instance associated with ext network {}", networkId);
             return null;
         }
         return vpnUuid.getValue();
@@ -767,25 +766,51 @@ public class NatUtil {
                                       IFibManager fibManager,
                                       String vpnName,
                                       String rd,
+                                      String macAddress,
                                       String prefix,
                                       String nextHopIp,
+                                      VrfEntry.EncapType extNwProviderType,
                                       long label,
-                                      Logger log, RouteOrigin origin, BigInteger dpId) {
+                                      long l3Vni,
+                                      Logger log,
+                                      String gwMacAddress,
+                                      WriteTransaction writeTx,
+                                      RouteOrigin origin,BigInteger dpId) {
         try {
-            LOG.info("ADD: Adding Fib entry rd {} prefix {} nextHop {} label {}", rd, prefix, nextHopIp, label);
+            //If l3vni value = 0 or -1 means external network provider type is other than VxLAN
+            if (l3Vni == 0 || l3Vni == NatConstants.INVALID_ID) {
+                LOG.info("NAT Service : ADD: Adding Fib entry rd {} prefix {} nextHop {} label {} gwMacAddress {} "
+                        + "for External Network Provider Type Encapsulation {}", rd, prefix, nextHopIp, label,
+                        gwMacAddress, extNwProviderType);
+            } else {
+                LOG.info("NAT Service : ADD: Adding Fib entry rd {} prefix {} nextHop {} l3vni {} gwMacAddress {} "
+                        + "for External Network Provider Type Encapsulation {}", rd, prefix, nextHopIp, l3Vni,
+                        gwMacAddress, extNwProviderType);
+            }
             if (nextHopIp == null) {
-                log.error("addPrefix failed since nextHopIp cannot be null.");
+                log.error("NAT Service : addPrefix failed since nextHopIp cannot be null.");
                 return;
             }
             addPrefixToInterface(broker, getVpnId(broker, vpnName), prefix, dpId, /*isNatPrefix*/ true);
-            fibManager.addOrUpdateFibEntry(broker, rd, null /*macAddress*/, prefix,
-                    Collections.singletonList(nextHopIp), VrfEntry.EncapType.Mplsgre, (int)label, 0 /*l3vni*/,
-                    null /*gatewayMacAddress*/, origin, null /*writeTxn*/);
-            bgpManager.advertisePrefix(rd, null /*macAddress*/, prefix, Collections.singletonList(nextHopIp),
-                    VrfEntry.EncapType.Mplsgre, (int)label, 0 /*l3vni*/, null /*gatewayMac*/);
-            LOG.info("ADD: Added Fib entry rd {} prefix {} nextHop {} label {}", rd, prefix, nextHopIp, label);
+            //Advertise to FIB Manager
+            fibManager.addOrUpdateFibEntry(broker, rd, macAddress, prefix,
+                    Collections.singletonList(nextHopIp), extNwProviderType,
+                    (int) label, l3Vni, gwMacAddress, origin, writeTx);
+            //Advertise to BGP Manager
+            bgpManager.advertisePrefix(rd, macAddress, prefix, Collections.singletonList(nextHopIp),
+                    extNwProviderType, (int) label, l3Vni, gwMacAddress);
+            if (l3Vni == 0 || l3Vni == NatConstants.INVALID_ID) {
+                LOG.info("NAT Service : ADD: Added Fib entry rd {} prefix {} nextHop {} label {} gwMacAddress {} "
+                        + "for External Network Provider Type Encapsulation {}", rd, prefix, nextHopIp, label,
+                        gwMacAddress, extNwProviderType);
+            } else {
+                LOG.info("NAT Service : ADD: Added Fib entry rd {} prefix {} nextHop {} l3vni {} gwMacAddress {} "
+                        + "for External Network Provider Type Encapsulation {}", rd, prefix, nextHopIp, l3Vni,
+                        gwMacAddress, extNwProviderType);
+            }
+
         } catch (Exception e) {
-            log.error("Add prefix failed", e);
+            log.error("NAT Service : Exception {} in Add prefix", e);
         }
     }
 
@@ -802,7 +827,8 @@ public class NatUtil {
         try {
             SingleTransactionDataBroker.syncWrite(broker, LogicalDatastoreType.OPERATIONAL, prefixId, prefix);
         } catch (TransactionCommitFailedException e) {
-            LOG.error("Failed to write prefxi-to-interface for {} vpn-id {} DPN {}", ipPrefix, vpnId, dpId);
+            LOG.error("NAT Service : Failed to write prefxi-to-interface for {} vpn-id {} DPN {}", ipPrefix, vpnId,
+                    dpId);
         }
     }
 
@@ -895,12 +921,12 @@ public class NatUtil {
     public static void removePrefixFromBGP(DataBroker broker, IBgpManager bgpManager, IFibManager fibManager,
                                            String rd, String prefix, Logger log) {
         try {
-            LOG.info("REMOVE: Removing Fib entry rd {} prefix {}", rd, prefix);
+            LOG.info("NAT Service : REMOVE: Removing Fib entry rd {} prefix {}", rd, prefix);
             fibManager.removeFibEntry(broker, rd, prefix, null);
             bgpManager.withdrawPrefix(rd, prefix);
-            LOG.info("REMOVE: Removed Fib entry rd {} prefix {}", rd, prefix);
+            LOG.info("NAT Service : REMOVE: Removed Fib entry rd {} prefix {}", rd, prefix);
         } catch (Exception e) {
-            log.error("Delete prefix failed", e);
+            log.error("NAT Service : Delete prefix failed", e);
         }
     }
 
@@ -1421,8 +1447,8 @@ public class NatUtil {
                 .getEgressActionsForInterface(egressActionsBuilder.build());
             RpcResult<GetEgressActionsForInterfaceOutput> rpcResult = result.get();
             if (!rpcResult.isSuccessful()) {
-                LOG.warn("RPC Call to Get egress actions for interface {} returned with Errors {}", ifName,
-                    rpcResult.getErrors());
+                LOG.warn("NAT Service : RPC Call to Get egress actions for interface {} returned with Errors {}",
+                        ifName, rpcResult.getErrors());
             } else {
                 List<Action> actions = rpcResult.getResult().getAction();
                 for (Action action : actions) {
@@ -1451,7 +1477,7 @@ public class NatUtil {
                 }
             }
         } catch (InterruptedException | ExecutionException e) {
-            LOG.warn("Exception when egress actions for interface {}", ifName, e);
+            LOG.warn("NAT Service : Exception when egress actions for interface {}", ifName, e);
         }
         return listActionInfo;
     }
@@ -1468,7 +1494,7 @@ public class NatUtil {
             portsOptional = read(broker, LogicalDatastoreType.CONFIGURATION, portsIdentifier);
 
         if (!portsOptional.isPresent() || portsOptional.get().getPort() == null) {
-            LOG.trace("No neutron ports found");
+            LOG.trace("NAT Service : No neutron ports found");
             return Collections.EMPTY_LIST;
         }
 
@@ -1533,7 +1559,7 @@ public class NatUtil {
 
         IpAddress gatewayIp = subnetOpt.get().getGatewayIp();
         if (gatewayIp == null) {
-            LOG.trace("No GW ip found for subnet {}", subnetId.getValue());
+            LOG.trace("NAT Service : No GW ip found for subnet {}", subnetId.getValue());
             return null;
         }
 
@@ -1553,7 +1579,7 @@ public class NatUtil {
             return learntIpToPortOpt.get().getMacAddress();
         }
 
-        LOG.error("No resolution was found to GW ip {} in subnet {}", gatewayIp, subnetId.getValue());
+        LOG.error("NAT Service : No resolution was found to GW ip {} in subnet {}", gatewayIp, subnetId.getValue());
         return null;
     }
 
@@ -1611,10 +1637,8 @@ public class NatUtil {
 
             @Override
             public void onFailure(Throwable error) {
-                LOG.error("NAT Service : Error in Datastore operation", error);
+                LOG.error("NAT Service : Error {} in Datastore operation", error);
             }
-
-            ;
         };
 
     static <T extends DataObject> void delete(DataBroker broker, LogicalDatastoreType datastoreType,
@@ -1725,7 +1749,6 @@ public class NatUtil {
     }
 
     public static boolean isIpInSubnet(String ipAddress, String start, String end) {
-
         try {
             long ipLo = ipToLong(InetAddress.getByName(start));
             long ipHi = ipToLong(InetAddress.getByName(end));
@@ -1746,6 +1769,7 @@ public class NatUtil {
         }
         return result;
     }
+
 
     static VrfEntry.EncapType getExtNwProviderType(DataBroker broker, String rd) {
         long l3Vni = getL3Vni(broker, rd);
@@ -1836,8 +1860,8 @@ public class NatUtil {
         matchInfo.add(new MatchMetadata(MetaDataUtil.getVpnIdMetadata(vpnId), MetaDataUtil.METADATA_MASK_VRFID));
         matchInfo.add(new MatchEthernetDestination(new MacAddress(gwMacAddress)));
         LOG.debug("NAT Service : Create SNAT Reverse Traffic Flow in table {} on DpnId = {} "
-                + "for External Vpn Id = {} and GwMacAddress = {}", NwConstants.INBOUND_NAPT_TABLE, dpnId, vpnId,
-                gwMacAddress);
+                        + "for External Vpn Id = {} and GwMacAddress = {}", NwConstants.INBOUND_NAPT_TABLE, dpnId,
+                vpnId, gwMacAddress);
         // Install the flow entry in L3_GW_MAC_TABLE
         String flowRef = getFlowRef(dpnId, NwConstants.L3_GW_MAC_TABLE, vpnId, gwMacAddress);
         Flow l3GwMacTableFlowEntity = MDSALUtil.buildFlowNew(NwConstants.L3_GW_MAC_TABLE,
@@ -1854,8 +1878,8 @@ public class NatUtil {
         matchInfo.add(new MatchMetadata(MetaDataUtil.getVpnIdMetadata(vpnId), MetaDataUtil.METADATA_MASK_VRFID));
         matchInfo.add(new MatchEthernetSource(new MacAddress(gwMacAddress)));
         LOG.debug("NAT Service : Remove SNAT Reverse Traffic Flow in table {} on DpnId = {} "
-                + "for External Vpn Id = {} and gwMacAddress = {}", NwConstants.INBOUND_NAPT_TABLE, dpnId, vpnId,
-                gwMacAddress);
+                        + "for External Vpn Id = {} and gwMacAddress = {}", NwConstants.INBOUND_NAPT_TABLE, dpnId,
+                vpnId, gwMacAddress);
         // Remove the flow entry in L3_GW_MAC_TABLE
         String flowRef = getFlowRef(dpnId, NwConstants.L3_GW_MAC_TABLE, vpnId, gwMacAddress);
         Flow l3GwMacTableFlowEntity = MDSALUtil.buildFlowNew(NwConstants.L3_GW_MAC_TABLE,
