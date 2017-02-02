@@ -11,11 +11,13 @@ package org.opendaylight.netvirt.natservice.internal;
 import com.google.common.base.Optional;
 import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
+import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.interfacemanager.globals.IfmConstants;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
@@ -26,6 +28,9 @@ import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.genius.mdsalutil.matches.MatchEthernetDestination;
 import org.opendaylight.genius.mdsalutil.matches.MatchEthernetSource;
 import org.opendaylight.genius.mdsalutil.matches.MatchMetadata;
+import org.opendaylight.netvirt.bgpmanager.api.IBgpManager;
+import org.opendaylight.netvirt.fibmanager.api.IFibManager;
+import org.opendaylight.netvirt.fibmanager.api.RouteOrigin;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.MacAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.tables.table.Flow;
@@ -47,6 +52,40 @@ import org.slf4j.LoggerFactory;
 public class NatEvpnUtil {
 
     private static final Logger LOG = LoggerFactory.getLogger(NatEvpnUtil.class);
+
+    @SuppressWarnings("checkstyle:IllegalCatch")
+    public static void addRoutesForVxLanProvType(DataBroker broker,
+                                      IBgpManager bgpManager,
+                                      IFibManager fibManager,
+                                      String vpnName,
+                                      String rd,
+                                      String prefix,
+                                      String nextHopIp,
+                                      long l3Vni,
+                                      String gwMacAddress,
+                                      WriteTransaction writeTx,
+                                      RouteOrigin origin,BigInteger dpId) {
+        try {
+            LOG.info("NAT Service : ADD: Adding Fib entry rd {} prefix {} nextHop {} l3Vni {}", rd, prefix, nextHopIp,
+                    l3Vni);
+            if (nextHopIp == null) {
+                LOG.error("NAT Service : addPrefix failed since nextHopIp cannot be null for prefix {}", prefix);
+                return;
+            }
+            NatUtil.addPrefixToInterface(broker, NatUtil.getVpnId(broker, vpnName), prefix, dpId, /*isNatPrefix*/ true);
+
+            fibManager.addOrUpdateFibEntry(broker, rd, null /*macAddress*/, prefix,
+                    Collections.singletonList(nextHopIp), VrfEntry.EncapType.Vxlan, 0 /*label*/, l3Vni,
+                    gwMacAddress, origin, writeTx);
+
+            bgpManager.advertisePrefix(rd, null /*macAddress*/, prefix, Collections.singletonList(nextHopIp),
+                    VrfEntry.EncapType.Vxlan, 0 /*label*/, l3Vni, gwMacAddress);
+            LOG.info("NAT Service : ADD: Added Fib entry rd {} prefix {} nextHop {} l3Vni {}", rd, prefix, nextHopIp,
+                    l3Vni);
+        } catch (Exception e) {
+            LOG.error("NAT Service : Exception {} in add routes for prefix {}", e, prefix);
+        }
+    }
 
     static VrfEntry.EncapType getExtNwProviderType(DataBroker broker, String rd) {
         long l3Vni = getL3Vni(broker, rd);
