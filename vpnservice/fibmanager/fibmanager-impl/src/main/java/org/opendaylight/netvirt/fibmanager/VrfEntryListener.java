@@ -72,6 +72,7 @@ import org.opendaylight.genius.utils.batching.ResourceHandler;
 import org.opendaylight.genius.utils.batching.SubTransaction;
 import org.opendaylight.genius.utils.batching.SubTransactionImpl;
 import org.opendaylight.netvirt.fibmanager.NexthopManager.AdjacencyResult;
+import org.opendaylight.netvirt.fibmanager.api.IFibManager;
 import org.opendaylight.netvirt.fibmanager.api.RouteOrigin;
 import org.opendaylight.netvirt.vpnmanager.api.IVpnManager;
 import org.opendaylight.netvirt.vpnmanager.api.intervpnlink.InterVpnLinkCache;
@@ -152,6 +153,7 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
     private ItmRpcService itmManager;
     private final OdlInterfaceRpcService interfaceManager;
     private final IdManagerService idManager;
+    private final IFibManager fibManager;
     private static final BigInteger COOKIE_VM_FIB_TABLE = new BigInteger("8000003", 16);
     private static final int DEFAULT_FIB_FLOW_PRIORITY = 10;
     private static final int LFIB_INTERVPN_PRIORITY = 1;
@@ -168,13 +170,14 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
 
     public VrfEntryListener(final DataBroker dataBroker, final IMdsalApiManager mdsalApiManager,
                             final NexthopManager nexthopManager, final OdlInterfaceRpcService interfaceManager,
-                            final IdManagerService idManager) {
+                            final IdManagerService idManager, final IFibManager fibManager) {
         super(VrfEntry.class, VrfEntryListener.class);
         this.dataBroker = dataBroker;
         this.mdsalManager = mdsalApiManager;
         this.nextHopManager = nexthopManager;
         this.interfaceManager = interfaceManager;
         this.idManager = idManager;
+        this.fibManager = fibManager;
 
         batchSize = Integer.getInteger("batch.size");
         if (batchSize == null) {
@@ -271,7 +274,7 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
         }
 
         // Handle Internal Routes next (ie., STATIC only)
-        if (FibUtil.isControllerManagedNonInterVpnLinkRoute(RouteOrigin.value(update.getOrigin()))) {
+        if (fibManager.isControllerManagedNonInterVpnLinkRoute(RouteOrigin.value(update.getOrigin()))) {
             SubnetRoute subnetRoute = update.getAugmentation(SubnetRoute.class);
             /* Ignore SubnetRoute entry, as it will be driven by createFibEntries call down below */
             if (subnetRoute == null) {
@@ -1881,7 +1884,8 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
                         WriteTransaction writeCfgTxn = dataBroker.newWriteOnlyTransaction();
                         for (VrfEntry vrfEntry : vrfTable.get().getVrfEntry()) {
                             // Handle Internal Routes only (i.e., STATIC for now)
-                            if (RouteOrigin.value(vrfEntry.getOrigin()) == RouteOrigin.STATIC) {
+                            if (fibManager.isControllerManagedNonInterVpnLinkRoute(RouteOrigin
+                                    .valueOf(vrfEntry.getOrigin()))) {
                                 SubnetRoute subnetRoute = vrfEntry.getAugmentation(SubnetRoute.class);
                                     /* Ignore SubnetRoute entry */
                                 if (subnetRoute == null) {
@@ -2055,7 +2059,8 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
                         WriteTransaction writeTransaction = dataBroker.newWriteOnlyTransaction();
                         for (VrfEntry vrfEntry : vrfTable.get().getVrfEntry()) {
                             // Handle Internal Routes only (i.e, STATIC for now)
-                            if (RouteOrigin.value(vrfEntry.getOrigin()) == RouteOrigin.STATIC) {
+                            if (fibManager.isControllerManagedNonInterVpnLinkRoute(RouteOrigin
+                                    .valueOf(vrfEntry.getOrigin()))) {
                                 SubnetRoute subnetRoute = vrfEntry.getAugmentation(SubnetRoute.class);
                                     /* Ignore SubnetRoute entry */
                                 if (subnetRoute == null) {

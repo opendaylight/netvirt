@@ -696,16 +696,4 @@ public class FibUtil {
         }
     }
 
-    public static boolean isControllerManagedRoute(RouteOrigin routeOrigin) {
-        return routeOrigin == RouteOrigin.STATIC
-            || routeOrigin == RouteOrigin.CONNECTED
-            || routeOrigin == RouteOrigin.LOCAL
-            || routeOrigin == RouteOrigin.INTERVPN;
-    }
-
-    public static boolean isControllerManagedNonInterVpnLinkRoute(RouteOrigin routeOrigin) {
-        return routeOrigin == RouteOrigin.STATIC
-            || routeOrigin == RouteOrigin.CONNECTED
-            || routeOrigin == RouteOrigin.LOCAL;
-    }
 }

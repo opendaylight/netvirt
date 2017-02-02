@@ -45,6 +45,7 @@
     <argument ref="nexthopManager"/>
     <argument ref="odlInterfaceRpcService"/>
     <argument ref="idManagerService"/>
+    <argument ref="fibManagerImpl"/>
   </bean>
 
   <bean id="fibRpcServiceImpl" class="org.opendaylight.netvirt.fibmanager.FibRpcServiceImpl">
