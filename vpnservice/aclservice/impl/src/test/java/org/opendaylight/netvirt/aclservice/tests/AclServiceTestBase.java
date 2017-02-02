@@ -50,8 +50,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.instances.ElanInstanceBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.interfaces.ElanInterface;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.interfaces.ElanInterfaceBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.constants.rev150712.EthertypeBase;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.constants.rev150712.EthertypeV4;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -59,7 +57,7 @@ import org.slf4j.LoggerFactory;
 
 public abstract class AclServiceTestBase {
 
-    private static final Logger LOG = LoggerFactory.getLogger(AclServiceTestBase.class);
+    public static final Logger LOG = LoggerFactory.getLogger(AclServiceTestBase.class);
 
     static final String PORT_MAC_1 = "0D:AA:D8:42:30:F3";
     static final String PORT_MAC_2 = "0D:AA:D8:42:30:F4";
@@ -118,8 +116,7 @@ public abstract class AclServiceTestBase {
 
     @Test
     public void newInterfaceWithEtherTypeAcl() throws Exception {
-        Matches matches = newMatch(EthertypeV4.class, -1, -1,-1, -1,
-            null, AclConstants.IPV4_ALL_NETWORK, (short)-1);
+        Matches matches = newMatch(-1, -1, -1,-1, false, true, (short)-1);
         dataBrokerUtil.put(ImmutableIdentifiedAceBuilder.builder()
             .sgUuid(SG_UUID_1)
             .newRuleName(SR_UUID_1_1)
@@ -127,8 +124,7 @@ public abstract class AclServiceTestBase {
             .newDirection(DirectionEgress.class)
             .build());
 
-        matches = newMatch(EthertypeV4.class, -1, -1,-1, -1,
-            AclConstants.IPV4_ALL_NETWORK, null, (short)-1);
+        matches = newMatch(-1, -1, -1,-1, true, false, (short)-1);
         dataBrokerUtil.put(ImmutableIdentifiedAceBuilder.builder()
             .sgUuid(SG_UUID_1)
             .newRuleName(SR_UUID_1_2)
@@ -151,16 +147,16 @@ public abstract class AclServiceTestBase {
     @Test
     public void newInterfaceWithTcpDstAcl() throws Exception {
         // Given
-        Matches matches = newMatch(EthertypeV4.class, -1, -1, 80, 80,
-            null, AclConstants.IPV4_ALL_NETWORK, (short)NwConstants.IP_PROT_TCP);
+        Matches matches = newMatch(-1, -1, 80, 80, false, true,
+                (short)NwConstants.IP_PROT_TCP);
         dataBrokerUtil.put(ImmutableIdentifiedAceBuilder.builder()
             .sgUuid(SG_UUID_1)
             .newRuleName(SR_UUID_1_1)
             .newMatches(matches)
             .newDirection(DirectionEgress.class)
             .newRemoteGroupId(new Uuid(SG_UUID_1)).build());
-        matches = newMatch(EthertypeV4.class, -1, -1, 80, 80,
-            AclConstants.IPV4_ALL_NETWORK, null, (short)NwConstants.IP_PROT_TCP);
+        matches = newMatch(-1, -1, 80, 80, true,
+                false, (short)NwConstants.IP_PROT_TCP);
 
         dataBrokerUtil.put(ImmutableIdentifiedAceBuilder.builder()
             .sgUuid(SG_UUID_1)
@@ -184,8 +180,8 @@ public abstract class AclServiceTestBase {
     @Test
     public void newInterfaceWithUdpDstAcl() throws Exception {
         // Given
-        Matches matches = newMatch(EthertypeV4.class, -1, -1, 80, 80,
-            null, AclConstants.IPV4_ALL_NETWORK, (short)NwConstants.IP_PROT_UDP);
+        Matches matches = newMatch(-1, -1, 80, 80, false, true,
+                (short)NwConstants.IP_PROT_UDP);
         dataBrokerUtil.put(ImmutableIdentifiedAceBuilder.builder()
             .sgUuid(SG_UUID_1)
             .newRuleName(SR_UUID_1_1)
@@ -193,8 +189,8 @@ public abstract class AclServiceTestBase {
             .newDirection(DirectionEgress.class)
             .build());
 
-        matches = newMatch(EthertypeV4.class, -1, -1, 80, 80,
-            AclConstants.IPV4_ALL_NETWORK, null, (short)NwConstants.IP_PROT_UDP);
+        matches = newMatch(-1, -1, 80, 80, true, false,
+                (short)NwConstants.IP_PROT_UDP);
         dataBrokerUtil.put(ImmutableIdentifiedAceBuilder.builder()
             .sgUuid(SG_UUID_1)
             .newRuleName(SR_UUID_1_2)
@@ -217,8 +213,8 @@ public abstract class AclServiceTestBase {
     @Test
     public void newInterfaceWithIcmpAcl() throws Exception {
         // Given
-        Matches matches = newMatch(EthertypeV4.class, -1, -1, 2, 3,
-            null, AclConstants.IPV4_ALL_NETWORK, (short)NwConstants.IP_PROT_ICMP);
+        Matches matches = newMatch(-1, -1, 2, 3, false, true,
+                (short)NwConstants.IP_PROT_ICMP);
         dataBrokerUtil.put(ImmutableIdentifiedAceBuilder.builder()
             .sgUuid(SG_UUID_1)
             .newRuleName(SR_UUID_1_1)
@@ -226,8 +222,8 @@ public abstract class AclServiceTestBase {
             .newDirection(DirectionEgress.class)
             .newRemoteGroupId(new Uuid(SG_UUID_1)).build());
 
-        matches = newMatch( EthertypeV4.class, -1, -1, 2, 3,
-            AclConstants.IPV4_ALL_NETWORK, null, (short)NwConstants.IP_PROT_ICMP);
+        matches = newMatch(-1, -1, 2, 3, true, false,
+                (short)NwConstants.IP_PROT_ICMP);
         dataBrokerUtil.put(ImmutableIdentifiedAceBuilder.builder()
             .sgUuid(SG_UUID_1)
             .newRuleName(SR_UUID_1_2)
@@ -250,16 +246,14 @@ public abstract class AclServiceTestBase {
     @Test
     public void newInterfaceWithDstPortRange() throws Exception {
         // Given
-        Matches matches = newMatch(EthertypeV4.class, -1, -1, 333, 777,
-            null, AclConstants.IPV4_ALL_NETWORK, (short)NwConstants.IP_PROT_TCP);
+        Matches matches = newMatch(-1, -1, 333, 777, false, true, (short)NwConstants.IP_PROT_TCP);
         dataBrokerUtil.put(ImmutableIdentifiedAceBuilder.builder()
             .sgUuid(SG_UUID_1)
             .newRuleName(SR_UUID_1_1)
             .newMatches(matches)
             .newDirection(DirectionEgress.class)
             .build());
-        matches = newMatch(EthertypeV4.class, -1, -1, 2000, 2003,
-            AclConstants.IPV4_ALL_NETWORK, null, (short)NwConstants.IP_PROT_UDP);
+        matches = newMatch(-1, -1, 2000, 2003, true, false, (short)NwConstants.IP_PROT_UDP);
 
         dataBrokerUtil.put(ImmutableIdentifiedAceBuilder.builder()
             .sgUuid(SG_UUID_1)
@@ -282,16 +276,16 @@ public abstract class AclServiceTestBase {
     @Test
     public void newInterfaceWithDstAllPorts() throws Exception {
         // Given
-        Matches matches = newMatch(EthertypeV4.class, -1, -1, 1, 65535,
-            null, AclConstants.IPV4_ALL_NETWORK, (short)NwConstants.IP_PROT_TCP);
+        Matches matches = newMatch(-1, -1, 1, 65535, false,
+            true, (short)NwConstants.IP_PROT_TCP);
         dataBrokerUtil.put(ImmutableIdentifiedAceBuilder.builder()
             .sgUuid(SG_UUID_1)
             .newRuleName(SR_UUID_1_1)
             .newMatches(matches)
             .newDirection(DirectionEgress.class)
             .build());
-        matches = newMatch(EthertypeV4.class, -1, -1, 1, 65535,
-            AclConstants.IPV4_ALL_NETWORK, null, (short)NwConstants.IP_PROT_UDP);
+        matches = newMatch(-1, -1, 1, 65535, true,
+            false, (short)NwConstants.IP_PROT_UDP);
 
         dataBrokerUtil.put(ImmutableIdentifiedAceBuilder.builder()
             .sgUuid(SG_UUID_1)
@@ -314,10 +308,8 @@ public abstract class AclServiceTestBase {
     @Test
     public void newInterfaceWithTwoAclsHavingSameRules() throws Exception {
         // Given
-        Matches icmpEgressMatches = newMatch(EthertypeV4.class, -1, -1, 2, 3, null, AclConstants.IPV4_ALL_NETWORK,
-                (short) NwConstants.IP_PROT_ICMP);
-        Matches icmpIngressMatches = newMatch(EthertypeV4.class, -1, -1, 2, 3, AclConstants.IPV4_ALL_NETWORK, null,
-                (short) NwConstants.IP_PROT_ICMP);
+        Matches icmpEgressMatches = newMatch(-1, -1, 2, 3, false, true, (short) NwConstants.IP_PROT_ICMP);
+        Matches icmpIngressMatches = newMatch(-1, -1, 2, 3, true, false, (short) NwConstants.IP_PROT_ICMP);
 
         dataBrokerUtil.put(ImmutableIdentifiedAceBuilder.builder().sgUuid(SG_UUID_1).newRuleName(SR_UUID_1_1)
                 .newMatches(icmpEgressMatches).newDirection(DirectionEgress.class).build());
@@ -417,9 +409,8 @@ public abstract class AclServiceTestBase {
     }
 
     // TODO refactor this instead of stealing it from org.opendaylight.netvirt.neutronvpn.NeutronSecurityRuleListener
-    private Matches newMatch( Class<? extends EthertypeBase> newEtherType,
-            int srcLowerPort, int srcUpperPort, int destLowerPort, int destupperPort, String srcRemoteIpPrefix,
-            String dstRemoteIpPrefix, short protocol) {
+    protected Matches newMatch(int srcLowerPort, int srcUpperPort, int destLowerPort, int destupperPort,
+            boolean srcRemoteIpPrefix, boolean dstRemoteIpPrefix, short protocol) {
         AceIpBuilder aceIpBuilder = new AceIpBuilder();
         if (destLowerPort != -1) {
             DestinationPortRangeBuilder destinationPortRangeBuilder = new DestinationPortRangeBuilder();
@@ -428,11 +419,11 @@ public abstract class AclServiceTestBase {
             aceIpBuilder.setDestinationPortRange(destinationPortRangeBuilder.build());
         }
         AceIpv4Builder aceIpv4Builder = new AceIpv4Builder();
-        if (srcRemoteIpPrefix != null) {
-            aceIpv4Builder.setSourceIpv4Network(new Ipv4Prefix(srcRemoteIpPrefix));
+        if (srcRemoteIpPrefix) {
+            aceIpv4Builder.setSourceIpv4Network(new Ipv4Prefix(AclConstants.IPV4_ALL_NETWORK));
         }
-        if (dstRemoteIpPrefix != null) {
-            aceIpv4Builder.setSourceIpv4Network(new Ipv4Prefix(dstRemoteIpPrefix));
+        if (dstRemoteIpPrefix) {
+            aceIpv4Builder.setSourceIpv4Network(new Ipv4Prefix(AclConstants.IPV4_ALL_NETWORK));
         }
         if (protocol != -1) {
             aceIpBuilder.setProtocol(protocol);
