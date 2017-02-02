@@ -27,6 +27,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.Neu
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.neutron.router.dpns.RouterDpnList;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.neutron.router.dpns.router.dpn.list.DpnVpninterfacesList;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ExternalSubnets;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ProviderTypes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ext.routers.Routers;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.external.subnets.Subnets;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.external.subnets.SubnetsKey;
@@ -36,8 +37,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class RouterDpnChangeListener
-    extends AsyncDataTreeChangeListenerBase<DpnVpninterfacesList, RouterDpnChangeListener>
-    implements AutoCloseable {
+        extends AsyncDataTreeChangeListenerBase<DpnVpninterfacesList, RouterDpnChangeListener>
+        implements AutoCloseable {
 
     private static final Logger LOG = LoggerFactory.getLogger(RouterDpnChangeListener.class);
     private ListenerRegistration<DataChangeListener> listenerRegistration;
@@ -259,7 +260,7 @@ public class RouterDpnChangeListener
                 List<BucketInfo> bucketInfo = naptSwitchHA.handleGroupInNeighborSwitches(dpnId, routerName, naptSwitch);
                 if (bucketInfo == null) {
                     LOG.debug("Failed to populate bucketInfo for dpnId {} routername {} naptSwitch {}",
-                        dpnId, routerName, naptSwitch);
+                            dpnId, routerName, naptSwitch);
                     return;
                 }
                 naptSwitchHA.installSnatGroupEntry(dpnId, bucketInfo, routerName);
@@ -298,7 +299,16 @@ public class RouterDpnChangeListener
             return;
         }
         externalIpCache = NatUtil.getExternalIpsForRouter(dataBroker, routerId);
-        externalIpLabel = NatUtil.getExternalIpsLabelForRouter(dataBroker, routerId);
+        ProviderTypes extNwProvType = NatEvpnUtil.getExtNwProvTypeFromRouterName(dataBroker, routerName);
+        if (extNwProvType == null) {
+            return;
+        }
+        //Get the external IP labels other than VXLAN provider type. Since label is not applicable for VXLAN
+        if (extNwProvType == ProviderTypes.VXLAN) {
+            externalIpLabel = null;
+        } else {
+            externalIpLabel = NatUtil.getExternalIpsLabelForRouter(dataBroker, routerId);
+        }
         BigInteger naptSwitch = NatUtil.getPrimaryNaptfromRouterName(dataBroker, routerName);
         if (naptSwitch == null || naptSwitch.equals(BigInteger.ZERO)) {
             LOG.debug("No naptSwitch is selected for router {}", routerName);
@@ -335,7 +345,7 @@ public class RouterDpnChangeListener
                 GroupEntity groupEntity = null;
                 try {
                     groupEntity = MDSALUtil.buildGroupEntity(dpnId, groupId, routerName,
-                        GroupTypes.GroupAll, null);
+                         GroupTypes.GroupAll, null);
                     LOG.info("NAT Service : Removing NAPT GroupEntity:{}", groupEntity);
                     mdsalManager.removeGroup(groupEntity);
                 } catch (Exception ex) {
@@ -343,7 +353,7 @@ public class RouterDpnChangeListener
                     return;
                 }
                 LOG.debug("NAT Service : Removed default SNAT miss entry flow for dpnID {} with routerName {}",
-                    dpnId, routerName);
+                        dpnId, routerName);
             } else {
                 naptSwitchHA.removeSnatFlowsInOldNaptSwitch(routerName, naptSwitch, externalIpLabel);
                 //remove table 26 flow ppointing to table46
