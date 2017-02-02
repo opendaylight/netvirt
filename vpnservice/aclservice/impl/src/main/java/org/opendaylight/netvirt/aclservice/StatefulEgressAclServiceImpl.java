@@ -67,13 +67,13 @@ public class StatefulEgressAclServiceImpl extends AbstractEgressAclServiceImpl {
     }
 
     @Override
-    protected String syncSpecificAclFlow(BigInteger dpId, int lportTag, int addOrRemove, int priority, Ace ace,
-            String portId, Map<String, List<MatchInfoBase>> flowMap, String flowName) {
-        List<MatchInfoBase> flows = flowMap.get(flowName);
+    protected String syncSpecificAclFlow(BigInteger dpId, int lportTag, int addOrRemove, Ace ace, String portId,
+            Map<String, List<MatchInfoBase>> flowMap, String flowName) {
+        List<MatchInfoBase> matches = flowMap.get(flowName);
         flowName += "Egress" + lportTag + ace.getKey().getRuleName();
-        flows.add(AclServiceUtils.buildLPortTagMatch(lportTag));
-        flows.add(new NxMatchInfo(NxMatchFieldType.ct_state,
-            new long[] {AclConstants.TRACKED_NEW_CT_STATE, AclConstants.TRACKED_NEW_CT_STATE_MASK}));
+        matches.add(AclServiceUtils.buildLPortTagMatch(lportTag));
+        matches.add(new NxMatchInfo(NxMatchFieldType.ct_state,
+                new long[] {AclConstants.TRACKED_NEW_CT_STATE, AclConstants.TRACKED_NEW_CT_STATE_MASK}));
 
         Long elanId = AclServiceUtils.getElanIdFromInterface(portId, dataBroker);
         List<ActionInfo> actionsInfos = new ArrayList<>();
@@ -81,9 +81,25 @@ public class StatefulEgressAclServiceImpl extends AbstractEgressAclServiceImpl {
             new String[] {"1", "0", elanId.toString(), "255"}, 2));
         List<InstructionInfo> instructions = getDispatcherTableResubmitInstructions(actionsInfos);
 
+        // For flows related remote ACL, unique flow priority is used for
+        // each flow to avoid overlapping flows
+        int priority = getEgressSpecificAclFlowPriority(dpId, addOrRemove, flowName);
+
         syncFlow(dpId, NwConstants.INGRESS_ACL_FILTER_TABLE, flowName, priority, "ACL", 0, 0,
-                AclConstants.COOKIE_ACL_BASE, flows, instructions, addOrRemove);
+                AclConstants.COOKIE_ACL_BASE, matches, instructions, addOrRemove);
         return flowName;
+    }
+
+    private int getEgressSpecificAclFlowPriority(BigInteger dpId, int addOrRemove, String flowName) {
+        int priority;
+        if (addOrRemove == NwConstants.DEL_FLOW) {
+            priority = aclServiceUtils.releaseAndRemoveFlowPriorityFromCache(dpId, NwConstants.INGRESS_ACL_FILTER_TABLE,
+                    flowName);
+        } else {
+            priority = aclServiceUtils.allocateAndSaveFlowPriorityInCache(dpId, NwConstants.INGRESS_ACL_FILTER_TABLE,
+                    flowName);
+        }
+        return priority;
     }
 
     /**

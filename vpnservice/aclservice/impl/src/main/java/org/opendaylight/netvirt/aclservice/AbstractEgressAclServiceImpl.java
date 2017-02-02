@@ -187,22 +187,19 @@ public abstract class AbstractEgressAclServiceImpl extends AbstractAclServiceImp
             if (syncAllowedAddresses != null) {
                 flowMap = AclServiceUtils.getFlowForAllowedAddresses(syncAllowedAddresses, flowMap, false);
             } else if (aceAttr.getRemoteGroupId() != null) {
-                flowMap = aclServiceUtils.getFlowForRemoteAcl(aceAttr.getRemoteGroupId(), portId, flowMap,
-                    false);
+                flowMap = aclServiceUtils.getFlowForRemoteAcl(aceAttr.getRemoteGroupId(), portId, flowMap, false);
             }
         }
         if (null == flowMap) {
             LOG.error("Failed to apply ACL {} lportTag {}", ace.getKey(), lportTag);
             return;
         }
-        int priority = this.aclDataUtil.getAclFlowPriority(aclName);
-        // The flow map contains list of flows if port range is selected.
         for (String flowName : flowMap.keySet()) {
-            flowName = syncSpecificAclFlow(dpId, lportTag, addOrRemove, priority, ace, portId, flowMap, flowName);
+            syncSpecificAclFlow(dpId, lportTag, addOrRemove, ace, portId, flowMap, flowName);
         }
     }
 
-    protected abstract String syncSpecificAclFlow(BigInteger dpId, int lportTag, int addOrRemove, int priority, Ace ace,
+    protected abstract String syncSpecificAclFlow(BigInteger dpId, int lportTag, int addOrRemove, Ace ace,
             String portId, Map<String, List<MatchInfoBase>> flowMap, String flowName);
 
     /**

@@ -21,10 +21,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
-
 import javax.inject.Inject;
 import javax.inject.Singleton;
-
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
@@ -47,6 +45,7 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.cont
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.acl.access.list.entries.Ace;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpPrefix;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Prefix;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.Interfaces;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.InterfacesState;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface;
@@ -56,6 +55,10 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.instru
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.AllocateIdInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.AllocateIdInputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.AllocateIdOutput;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.CreateIdPoolInput;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.CreateIdPoolInputBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.DeleteIdPoolInput;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.DeleteIdPoolInputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.IdManagerService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.ReleaseIdInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.ReleaseIdInputBuilder;
@@ -100,12 +103,14 @@ public final class AclServiceUtils {
 
     private final AclDataUtil aclDataUtil;
     private final AclserviceConfig config;
+    private final IdManagerService idManager;
 
     @Inject
-    public AclServiceUtils(AclDataUtil aclDataUtil, AclserviceConfig config) {
+    public AclServiceUtils(AclDataUtil aclDataUtil, AclserviceConfig config, IdManagerService idManager) {
         super();
         this.aclDataUtil = aclDataUtil;
         this.config = config;
+        this.idManager = idManager;
     }
 
     /**
@@ -470,12 +475,17 @@ public final class AclServiceUtils {
         IpPrefix ipPrefix = ipPrefixOrAddress.getIpPrefix();
         MatchFieldType matchFieldType;
         if (ipPrefix != null) {
-            if (ipPrefix.getIpv4Prefix() != null) {
+            Ipv4Prefix ipv4Prefix = ipPrefix.getIpv4Prefix();
+            if (ipv4Prefix != null) {
                 flowMatches.add(new MatchInfo(MatchFieldType.eth_type, new long[] {NwConstants.ETHTYPE_IPV4}));
-                String[] ipaddressValues = ipPrefix.getIpv4Prefix().getValue().split("/");
-                matchFieldType = matchCriteria == MatchCriteria.MATCH_SOURCE
-                        ? MatchFieldType.ipv4_source : MatchFieldType.ipv4_destination;
-                flowMatches.add(new MatchInfo(matchFieldType, new String[] {ipaddressValues[0], ipaddressValues[1]}));
+
+                if (!ipv4Prefix.getValue().equals(AclConstants.IPV4_ALL_NETWORK)) {
+                    String[] ipaddressValues = ipv4Prefix.getValue().split("/");
+                    matchFieldType = matchCriteria == MatchCriteria.MATCH_SOURCE ? MatchFieldType.ipv4_source
+                            : MatchFieldType.ipv4_destination;
+                    flowMatches
+                            .add(new MatchInfo(matchFieldType, new String[] {ipaddressValues[0], ipaddressValues[1]}));
+                }
             } else {
                 matchFieldType = matchCriteria == MatchCriteria.MATCH_SOURCE
                         ? MatchFieldType.ipv6_source : MatchFieldType.ipv6_destination;
@@ -534,9 +544,7 @@ public final class AclServiceUtils {
     }
 
     public Map<String, List<MatchInfoBase>> getFlowForRemoteAcl(Uuid remoteAclId, String ignoreInterfaceId,
-                                                                       Map<String, List<MatchInfoBase>>
-                                                                               flowMatchesMap, boolean
-                                                                               isSourceIpMacMatch) {
+            Map<String, List<MatchInfoBase>> flowMatchesMap, boolean isSourceIpMacMatch) {
         List<AclInterface> interfaceList = aclDataUtil.getInterfaceList(remoteAclId);
         if (flowMatchesMap == null || interfaceList == null || interfaceList.isEmpty()) {
             return null;
@@ -556,19 +564,17 @@ public final class AclServiceUtils {
                 for (AllowedAddressPairs aap : allowedAddressPair) {
                     List<MatchInfoBase> matchInfoBaseList;
                     String flowId;
-                    if (flows.contains(ipv4Match) && isIPv4Address(aap)) {
+                    if (flows.contains(ipv4Match) && isIPv4Address(aap) && isNotIpv4AllNetwork(aap)) {
                         matchInfoBaseList = updateAAPMatches(isSourceIpMacMatch, flows, aap);
-                        flowId = flowName + "_ipv4_remoteACL_interface_aap_" + aap.getKey();
+                        flowId = flowName + "_ipv4_remoteACL_interface_aap_" + getAapFlowId(aap);
                         updatedFlowMatchesMap.put(flowId, matchInfoBaseList);
                     } else if (flows.contains(ipv6Match) && !isIPv4Address(aap)) {
                         matchInfoBaseList = updateAAPMatches(isSourceIpMacMatch, flows, aap);
-                        flowId = flowName + "_ipv6_remoteACL_interface_aap_" +  aap.getKey();
+                        flowId = flowName + "_ipv6_remoteACL_interface_aap_" + getAapFlowId(aap);
                         updatedFlowMatchesMap.put(flowId, matchInfoBaseList);
                     }
                 }
-
             }
-
         }
         return updatedFlowMatchesMap;
     }
@@ -610,19 +616,32 @@ public final class AclServiceUtils {
             for (AllowedAddressPairs aap : syncAllowedAddresses) {
                 List<MatchInfoBase> matchInfoBaseList;
                 String flowId;
-                if (flows.contains(ipv4Match) && isIPv4Address(aap)) {
+                if (flows.contains(ipv4Match) && isIPv4Address(aap) && isNotIpv4AllNetwork(aap)) {
                     matchInfoBaseList = updateAAPMatches(isSourceIpMacMatch, flows, aap);
-                    flowId = flowName + "_ipv4_remoteACL_interface_aap_" + aap.getKey();
+                    flowId = flowName + "_ipv4_remoteACL_interface_aap_" + getAapFlowId(aap);
                     updatedFlowMatchesMap.put(flowId, matchInfoBaseList);
                 } else if (flows.contains(ipv6Match) && !isIPv4Address(aap)) {
                     matchInfoBaseList = updateAAPMatches(isSourceIpMacMatch, flows, aap);
-                    flowId = flowName + "_ipv6_remoteACL_interface_aap_" + aap.getKey();
+                    flowId = flowName + "_ipv6_remoteACL_interface_aap_" + getAapFlowId(aap);
                     updatedFlowMatchesMap.put(flowId, matchInfoBaseList);
                 }
             }
 
         }
         return updatedFlowMatchesMap;
+    }
+
+    protected static boolean isNotIpv4AllNetwork(AllowedAddressPairs aap) {
+        IpPrefix ipPrefix = aap.getIpAddress().getIpPrefix();
+        if (ipPrefix != null && ipPrefix.getIpv4Prefix() != null
+                && ipPrefix.getIpv4Prefix().getValue().equals(AclConstants.IPV4_ALL_NETWORK)) {
+            return false;
+        }
+        return true;
+    }
+
+    private static String getAapFlowId(AllowedAddressPairs aap) {
+        return aap.getMacAddress().getValue() + "_" + String.valueOf(aap.getIpAddress().getValue());
     }
 
     public static Long getElanIdFromInterface(String elanInterfaceName,DataBroker broker) {
@@ -771,6 +790,35 @@ public final class AclServiceUtils {
     }
 
     /**
+     * Allocate and save flow priority in cache.
+     *
+     * @param key the key
+     * @return the integer
+     */
+    public Integer allocateAndSaveFlowPriorityInCache(BigInteger dpId, short tableId, String key) {
+        String poolName = getAclPoolName(dpId, tableId);
+        Integer flowPriority = AclServiceUtils.allocateId(this.idManager, poolName, key);
+        this.aclDataUtil.addAclFlowPriority(key, flowPriority);
+        return flowPriority;
+    }
+
+    /**
+     * Release and remove flow priority from cache.
+     *
+     * @param key the key
+     * @return the integer
+     */
+    public Integer releaseAndRemoveFlowPriorityFromCache(BigInteger dpId, short tableId, String key) {
+        String poolName = getAclPoolName(dpId, tableId);
+        AclServiceUtils.releaseId(this.idManager, poolName, key);
+        Integer flowPriority = this.aclDataUtil.removeAclFlowPriority(key);
+        if (flowPriority == null) {
+            flowPriority = AclConstants.PROTO_MATCH_PRIORITY;
+        }
+        return flowPriority;
+    }
+
+    /**
      * Indicates whether the interface has port security enabled.
      * @param aclInterface the interface.
      * @return true if port is security enabled.
@@ -778,5 +826,74 @@ public final class AclServiceUtils {
     public static boolean isOfInterest(AclInterface aclInterface) {
         return aclInterface != null && aclInterface.getPortSecurityEnabled() != null
                 && aclInterface.isPortSecurityEnabled();
+    }
+
+    /**
+     * Creates the id pool.
+     *
+     * @param poolName the pool name
+     */
+    public void createIdPool(String poolName) {
+        CreateIdPoolInput createPool = new CreateIdPoolInputBuilder()
+                .setPoolName(poolName).setLow(AclConstants.ACL_FLOW_PRIORITY_POOL_START)
+                .setHigh(AclConstants.ACL_FLOW_PRIORITY_POOL_END).build();
+        try {
+            Future<RpcResult<Void>> result = this.idManager.createIdPool(createPool);
+            if ((result != null) && (result.get().isSuccessful())) {
+                LOG.debug("Created IdPool for {}", poolName);
+            }
+        } catch (InterruptedException | ExecutionException e) {
+            LOG.error("Failed to create ID pool [{}] for ACL flow priority", poolName, e);
+            throw new RuntimeException("Failed to create ID pool for ACL flow priority", e);
+        }
+    }
+
+    /**
+     * Delete id pool.
+     *
+     * @param poolName the pool name
+     */
+    public void deleteIdPool(String poolName) {
+        DeleteIdPoolInput deletePool = new DeleteIdPoolInputBuilder().setPoolName(poolName).build();
+        try {
+            Future<RpcResult<Void>> result = this.idManager.deleteIdPool(deletePool);
+            if ((result != null) && (result.get().isSuccessful())) {
+                LOG.debug("Deleted IdPool for {}", poolName);
+            }
+        } catch (InterruptedException | ExecutionException e) {
+            LOG.error("Failed to delete ID pool [{}] for ACL flow priority", poolName, e);
+            throw new RuntimeException("Failed to create ID pool for ACL flow priority", e);
+        }
+    }
+
+    /**
+     * Gets the acl pool name.
+     *
+     * @param dpId the dp id
+     * @param tableId the table id
+     * @return the acl pool name
+     */
+    public static String getAclPoolName(BigInteger dpId, short tableId) {
+        return AclConstants.ACL_FLOW_PRIORITY_POOL_NAME + "." + dpId + "." + tableId;
+    }
+
+    /**
+     * Creates the acl id pools.
+     *
+     * @param dpId the dp id
+     */
+    public void createAclIdPools(BigInteger dpId) {
+        createIdPool(getAclPoolName(dpId, NwConstants.INGRESS_ACL_FILTER_TABLE));
+        createIdPool(getAclPoolName(dpId, NwConstants.EGRESS_ACL_FILTER_TABLE));
+    }
+
+    /**
+     * Delete acl id pools.
+     *
+     * @param dpId the dp id
+     */
+    public void deleteAclIdPools(BigInteger dpId) {
+        deleteIdPool(getAclPoolName(dpId, NwConstants.INGRESS_ACL_FILTER_TABLE));
+        deleteIdPool(getAclPoolName(dpId, NwConstants.EGRESS_ACL_FILTER_TABLE));
     }
 }

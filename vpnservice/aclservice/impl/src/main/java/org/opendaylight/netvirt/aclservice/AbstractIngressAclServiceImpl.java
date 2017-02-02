@@ -13,7 +13,6 @@ import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
@@ -198,8 +197,7 @@ public abstract class AbstractIngressAclServiceImpl extends AbstractAclServiceIm
             if (syncAllowedAddresses != null) {
                 flowMap = AclServiceUtils.getFlowForAllowedAddresses(syncAllowedAddresses, flowMap, true);
             } else if (aceAttr.getRemoteGroupId() != null) {
-                flowMap = aclServiceUtils.getFlowForRemoteAcl(aceAttr.getRemoteGroupId(), portId, flowMap,
-                        true);
+                flowMap = aclServiceUtils.getFlowForRemoteAcl(aceAttr.getRemoteGroupId(), portId, flowMap, true);
             }
         }
         if (null == flowMap) {
@@ -207,12 +205,12 @@ public abstract class AbstractIngressAclServiceImpl extends AbstractAclServiceIm
             return;
         }
         for (String flowName : flowMap.keySet()) {
-            flowName = syncSpecificAclFlow(dpId, lportTag, addOrRemove, aclName, ace, portId, flowMap, flowName);
+            syncSpecificAclFlow(dpId, lportTag, addOrRemove, ace, portId, flowMap, flowName);
         }
     }
 
-    protected abstract String syncSpecificAclFlow(BigInteger dpId, int lportTag, int addOrRemove, String aclName,
-            Ace ace, String portId, Map<String, List<MatchInfoBase>> flowMap, String flowName);
+    protected abstract String syncSpecificAclFlow(BigInteger dpId, int lportTag, int addOrRemove, Ace ace,
+            String portId, Map<String, List<MatchInfoBase>> flowMap, String flowName);
 
     /**
      * Add rule to ensure only DHCP server traffic from the specified mac is

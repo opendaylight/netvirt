@@ -112,10 +112,12 @@ public class AclDataUtil {
     /**
      * Removes the acl flow priority from the cache.
      *
-     * @param aclName the acl name
+     * @param key the key
+     * @return the previous value associated with key, or null if there was no
+     *         mapping for key.
      */
-    public void removeAclFlowPriority(final String aclName) {
-        this.aclFlowPriorityMap.remove(aclName);
+    public Integer removeAclFlowPriority(final String key) {
+        return this.aclFlowPriorityMap.remove(key);
     }
 
     /**
