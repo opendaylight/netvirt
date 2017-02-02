@@ -63,6 +63,7 @@ public final class AclConstants {
     public static final int TRACKED_INV_CT_STATE_MASK = 0x30;
 
     public static final String IPV4_ALL_NETWORK = "0.0.0.0/0";
+    public static final String IPV6_ALL_NETWORK = "::/0";
     public static final long TCP_FLAG_SYN = 1 << 1;
     public static final long TCP_FLAG_ACK = 1 << 4;
     public static final long TCP_FLAG_SYN_ACK = TCP_FLAG_SYN + TCP_FLAG_ACK;
