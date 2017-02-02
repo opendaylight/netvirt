@@ -1431,4 +1431,10 @@ public class VpnUtil {
         return routerToNaptSwitch != null ? routerToNaptSwitch.getPrimarySwitchId() : null;
     }
 
+    public static boolean isControllerManagedNonInterVpnLinkRoute(RouteOrigin routeOrigin) {
+        return routeOrigin == RouteOrigin.STATIC
+                || routeOrigin == RouteOrigin.CONNECTED
+                || routeOrigin == RouteOrigin.LOCAL;
+    }
+
 }

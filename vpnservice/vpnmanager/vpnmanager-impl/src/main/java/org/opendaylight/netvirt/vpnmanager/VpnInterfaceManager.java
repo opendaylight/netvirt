@@ -923,7 +923,8 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
             if (vrfEntries != null) {
                 for (VrfEntry vrfEntry : vrfEntries) {
                     try {
-                        if (RouteOrigin.value(vrfEntry.getOrigin()) != RouteOrigin.STATIC) {
+                        if (!VpnUtil.isControllerManagedNonInterVpnLinkRoute(RouteOrigin
+                                .valueOf(vrfEntry.getOrigin()))) {
                             continue;
                         }
                         String prefix = vrfEntry.getDestPrefix();
