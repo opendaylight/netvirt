@@ -45,6 +45,7 @@ public class ElanInterfaceStateChangeListener
         elanInterfaceManager = ifManager;
     }
 
+    @Override
     public void init() {
         registerListener(LogicalDatastoreType.OPERATIONAL, broker);
     }
@@ -125,7 +126,7 @@ public class ElanInterfaceStateChangeListener
     }
 
     @Override
-    public void close() throws Exception {
+    public void close() {
 
     }
 

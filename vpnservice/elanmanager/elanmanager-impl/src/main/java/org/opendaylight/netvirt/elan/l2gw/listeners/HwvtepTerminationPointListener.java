@@ -88,7 +88,7 @@ public class HwvtepTerminationPointListener
 
     @Override
     @SuppressWarnings("checkstyle:IllegalCatch")
-    public void close() throws Exception {
+    public void close() {
         if (lstnerRegistration != null) {
             try {
                 // TODO use https://git.opendaylight.org/gerrit/#/c/44145/ when merged, and remove @SuppressWarnings

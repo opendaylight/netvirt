@@ -233,7 +233,7 @@ public class DhcpSubnetListener extends AsyncClusteredDataTreeChangeListenerBase
     }
 
     @Override
-    public void close() throws Exception {
+    public void close() {
         super.close();
         LOG.info("DhcpSubnetListener Closed");
     }

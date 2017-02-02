@@ -54,7 +54,7 @@ public class DhcpInterfaceConfigListener
     }
 
     @Override
-    public void close() throws Exception {
+    public void close() {
         super.close();
         LOG.info("DhcpInterfaceConfigListener Closed");
     }

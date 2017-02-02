@@ -498,7 +498,7 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
     // TODO Clean up the exception handling
     @SuppressWarnings("checkstyle:IllegalCatch")
     @Override
-    public void close() throws Exception {
+    public void close() {
         if (listenerRegistration != null) {
             try {
                 listenerRegistration.close();

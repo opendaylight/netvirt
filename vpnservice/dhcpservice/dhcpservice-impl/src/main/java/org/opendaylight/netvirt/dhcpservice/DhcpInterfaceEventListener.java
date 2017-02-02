@@ -53,7 +53,7 @@ public class DhcpInterfaceEventListener
     }
 
     @Override
-    public void close() throws Exception {
+    public void close() {
         super.close();
         LOG.info("DhcpInterfaceEventListener Closed");
     }

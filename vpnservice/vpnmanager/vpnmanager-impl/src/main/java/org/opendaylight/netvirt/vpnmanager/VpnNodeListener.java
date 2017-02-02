@@ -64,7 +64,7 @@ public class VpnNodeListener extends AsyncClusteredDataTreeChangeListenerBase<No
     }
 
     @Override
-    public void close() throws Exception {
+    public void close() {
         super.close();
     }
 
