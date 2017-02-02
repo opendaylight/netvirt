@@ -1,0 +1,94 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_c358df58",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronPortChangeListener.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 3276
+      },
+      "writtenOn": "2017-02-02T08:49:22Z",
+      "side": 1,
+      "message": "no, 2015, 2017. Stephen corrected me on this :)",
+      "parentUuid": "fafc7978_62e93480",
+      "revId": "aa828538ffeb0e05a949696377c405ec26cf3dcd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_43450f6f",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronTrunkChangeListener.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 56,
+      "author": {
+        "id": 3276
+      },
+      "writtenOn": "2017-02-02T08:49:22Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_e29364f8",
+      "revId": "aa828538ffeb0e05a949696377c405ec26cf3dcd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_234a8b80",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronTrunkChangeListener.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 65,
+      "author": {
+        "id": 3276
+      },
+      "writtenOn": "2017-02-02T08:49:22Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_c290e0ee",
+      "revId": "aa828538ffeb0e05a949696377c405ec26cf3dcd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_835ed743",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronTrunkChangeListener.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 87,
+      "author": {
+        "id": 3276
+      },
+      "writtenOn": "2017-02-02T08:49:22Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_62b77487",
+      "revId": "aa828538ffeb0e05a949696377c405ec26cf3dcd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_e34fe390",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnUtils.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 865,
+      "author": {
+        "id": 3276
+      },
+      "writtenOn": "2017-02-02T08:49:22Z",
+      "side": 1,
+      "message": "Changing Trunk listener to clustered, I didn\u0027t realize I was using non clustered listener.",
+      "parentUuid": "fafc7978_026948f9",
+      "revId": "aa828538ffeb0e05a949696377c405ec26cf3dcd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
