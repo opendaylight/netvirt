@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 Ericsson India Global Services Pvt Ltd. and others. All rights reserved.
+ * Copyright (c) 2016, 2017 Ericsson India Global Services Pvt Ltd. and others. All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
@@ -10,11 +10,7 @@ package org.opendaylight.netvirt.aclservice.utils;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import org.opendaylight.ovsdb.utils.config.ConfigProperties;
 
 /**
  * The class to have ACL related constants.
@@ -102,20 +98,4 @@ public final class AclConstants {
         icmpv6NdList.add(ICMPV6_TYPE_NA);
         return icmpv6NdList;
     }
-
-    private static Map<String, Object> globalConf = Collections.synchronizedMap(new HashMap<>());
-
-    public static String getGlobalConf(String key, String defaultValue) {
-        String ret = defaultValue;
-        String value = (String)globalConf.get(key);
-        if (value == null) {
-            String propertyStr = ConfigProperties.getProperty(AclConstants.class, key);
-            if (propertyStr != null) {
-                ret = propertyStr;
-            }
-            globalConf.put(key, ret);
-        }
-        return ret;
-    }
-
 }
