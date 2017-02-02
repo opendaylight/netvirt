@@ -27,6 +27,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.Neu
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.neutron.router.dpns.RouterDpnList;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.neutron.router.dpns.router.dpn.list.DpnVpninterfacesList;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ExternalSubnets;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ProviderTypes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ext.routers.Routers;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.external.subnets.Subnets;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.external.subnets.SubnetsKey;
@@ -81,7 +82,7 @@ public class RouterDpnChangeListener
 
     @Override
     protected void add(final InstanceIdentifier<DpnVpninterfacesList> identifier, final DpnVpninterfacesList dpnInfo) {
-        LOG.trace("Add event - key: {}, value: {}", identifier, dpnInfo);
+        LOG.trace("NAT Service : Add event - key: {}, value: {}", identifier, dpnInfo);
         final String routerId = identifier.firstKeyOf(RouterDpnList.class).getRouterId();
         BigInteger dpnId = dpnInfo.getDpnId();
         //check router is associated to external network
@@ -91,33 +92,33 @@ public class RouterDpnChangeListener
             Routers router = routerData.get();
             Uuid networkId = router.getNetworkId();
             if (networkId != null) {
-                LOG.debug("Router {} is associated with ext nw {}", routerId, networkId);
+                LOG.debug("NAT Service : Router {} is associated with ext nw {}", routerId, networkId);
                 Uuid vpnName = NatUtil.getVpnForRouter(dataBroker, routerId);
                 Long vpnId;
                 if (vpnName == null) {
-                    LOG.debug("Internal vpn associated to router {}", routerId);
+                    LOG.debug("NAT Service : Internal vpn associated to router {}", routerId);
                     vpnId = NatUtil.getVpnId(dataBroker, routerId);
                     if (vpnId == NatConstants.INVALID_ID) {
-                        LOG.error("Invalid vpnId returned for routerName {}", routerId);
+                        LOG.error("NAT Service : Invalid vpnId returned for routerName {}", routerId);
                         return;
                     }
-                    LOG.debug("Retrieved vpnId {} for router {}", vpnId, routerId);
+                    LOG.debug("NAT Service : Retrieved vpnId {} for router {}", vpnId, routerId);
                     //Install default entry in FIB to SNAT table
-                    LOG.debug("Installing default route in FIB on dpn {} for router {} with vpn {}...",
+                    LOG.debug("NAT Service : Installing default route in FIB on dpn {} for router {} with vpn {}...",
                         dpnId, routerId, vpnId);
                     installDefaultNatRouteForRouterExternalSubnets(dpnId,
                             NatUtil.getExternalSubnetIdsFromExternalIps(router.getExternalIps()));
                     snatDefaultRouteProgrammer.installDefNATRouteInDPN(dpnId, vpnId);
                 } else {
-                    LOG.debug("External BGP vpn associated to router {}", routerId);
+                    LOG.debug("NAT Service : External BGP vpn associated to router {}", routerId);
                     vpnId = NatUtil.getVpnId(dataBroker, vpnName.getValue());
                     if (vpnId == NatConstants.INVALID_ID) {
-                        LOG.error("Invalid vpnId returned for routerName {}", routerId);
+                        LOG.error("NAT Service : Invalid vpnId returned for routerName {}", routerId);
                         return;
                     }
                     Long routId = NatUtil.getVpnId(dataBroker, routerId);
                     if (routId == NatConstants.INVALID_ID) {
-                        LOG.error("Invalid routId returned for routerName {}", routerId);
+                        LOG.error("NAT Service : Invalid routId returned for routerName {}", routerId);
                         return;
                     }
                     LOG.debug("Retrieved vpnId {} for router {}", vpnId, routerId);
@@ -138,13 +139,13 @@ public class RouterDpnChangeListener
                 }
             }
         } else {
-            LOG.debug("Router {} is not associated with External network", routerId);
+            LOG.debug("NAT Service : Router {} is not associated with External network", routerId);
         }
     }
 
     @Override
     protected void remove(InstanceIdentifier<DpnVpninterfacesList> identifier, DpnVpninterfacesList dpnInfo) {
-        LOG.trace("Remove event - key: {}, value: {}", identifier, dpnInfo);
+        LOG.trace("NAT Service : Remove event - key: {}, value: {}", identifier, dpnInfo);
         final String routerId = identifier.firstKeyOf(RouterDpnList.class).getRouterId();
         BigInteger dpnId = dpnInfo.getDpnId();
         //check router is associated to external network
@@ -154,35 +155,35 @@ public class RouterDpnChangeListener
             Routers router = routerData.get();
             Uuid networkId = router.getNetworkId();
             if (networkId != null) {
-                LOG.debug("Router {} is associated with ext nw {}", routerId, networkId);
+                LOG.debug("NAT Service : Router {} is associated with ext nw {}", routerId, networkId);
                 Uuid vpnName = NatUtil.getVpnForRouter(dataBroker, routerId);
                 Long vpnId;
                 if (vpnName == null) {
-                    LOG.debug("Internal vpn associated to router {}", routerId);
+                    LOG.debug("NAT Service : Internal vpn associated to router {}", routerId);
                     vpnId = NatUtil.getVpnId(dataBroker, routerId);
                     if (vpnId == NatConstants.INVALID_ID) {
-                        LOG.error("Invalid vpnId returned for routerName {}", routerId);
+                        LOG.error("NAT Service : Invalid vpnId returned for routerName {}", routerId);
                         return;
                     }
-                    LOG.debug("Retrieved vpnId {} for router {}", vpnId, routerId);
+                    LOG.debug("NAT Service : Retrieved vpnId {} for router {}", vpnId, routerId);
                     //Remove default entry in FIB
-                    LOG.debug("Removing default route in FIB on dpn {} for vpn {} ...", dpnId, vpnName);
+                    LOG.debug("NAT Service : Removing default route in FIB on dpn {} for vpn {} ...", dpnId, vpnName);
                     snatDefaultRouteProgrammer.removeDefNATRouteInDPN(dpnId, vpnId);
                 } else {
-                    LOG.debug("External vpn associated to router {}", routerId);
+                    LOG.debug("NAT Service : External vpn associated to router {}", routerId);
                     vpnId = NatUtil.getVpnId(dataBroker, vpnName.getValue());
                     if (vpnId == NatConstants.INVALID_ID) {
-                        LOG.error("Invalid vpnId returned for routerName {}", routerId);
+                        LOG.error("NAT Service : Invalid vpnId returned for routerName {}", routerId);
                         return;
                     }
                     Long routId = NatUtil.getVpnId(dataBroker, routerId);
                     if (routId == NatConstants.INVALID_ID) {
-                        LOG.error("Invalid routId returned for routerName {}", routerId);
+                        LOG.error("NAT Service : Invalid routId returned for routerName {}", routerId);
                         return;
                     }
-                    LOG.debug("Retrieved vpnId {} for router {}", vpnId, routerId);
+                    LOG.debug("NAT Service : Retrieved vpnId {} for router {}", vpnId, routerId);
                     //Remove default entry in FIB
-                    LOG.debug("Removing default route in FIB on dpn {} for vpn {} ...", dpnId, vpnName);
+                    LOG.debug("NAT Service : Removing default route in FIB on dpn {} for vpn {} ...", dpnId, vpnName);
                     snatDefaultRouteProgrammer.removeDefNATRouteInDPN(dpnId, vpnId, routId);
                 }
 
@@ -190,7 +191,8 @@ public class RouterDpnChangeListener
                     LOG.info("SNAT enabled for router {}", routerId);
                     removeSNATFromDPN(dpnId, routerId, vpnId);
                 } else {
-                    LOG.info("SNAT is not enabled for router {} to handle removeDPN event {}", routerId, dpnId);
+                    LOG.info("NAT Service : SNAT is not enabled for router {} to handle removeDPN event {}", routerId,
+                            dpnId);
                 }
             }
         }
@@ -199,7 +201,7 @@ public class RouterDpnChangeListener
     @Override
     protected void update(InstanceIdentifier<DpnVpninterfacesList> identifier, DpnVpninterfacesList original,
                           DpnVpninterfacesList update) {
-        LOG.trace("Update event - key: {}, original: {}, update: {}", identifier, original, update);
+        LOG.trace("NAT Service : Update event - key: {}, original: {}, update: {}", identifier, original, update);
     }
 
     // TODO Clean up the exception handling
@@ -212,20 +214,21 @@ public class RouterDpnChangeListener
         try {
             Long routerId = NatUtil.getVpnId(dataBroker, routerName);
             if (routerId == NatConstants.INVALID_ID) {
-                LOG.error("Invalid routerId returned for routerName {}", routerName);
+                LOG.error("NAT Service : Invalid routerId returned for routerName {}", routerName);
                 return;
             }
             BigInteger naptId = NatUtil.getPrimaryNaptfromRouterName(dataBroker, routerName);
             if (naptId == null || naptId.equals(BigInteger.ZERO) || !naptSwitchHA.getSwitchStatus(naptId)) {
-                LOG.debug("No NaptSwitch is selected for router {}", routerName);
+                LOG.debug("NAT Service : No NaptSwitch is selected for router {}", routerName);
 
                 naptSwitch = dpnId;
                 boolean naptstatus = naptSwitchHA.updateNaptSwitch(routerName, naptSwitch);
                 if (!naptstatus) {
-                    LOG.error("Failed to update newNaptSwitch {} for routername {}", naptSwitch, routerName);
+                    LOG.error("NAT Service : Failed to update newNaptSwitch {} for routername {}", naptSwitch,
+                            routerName);
                     return;
                 }
-                LOG.debug("Switch {} is elected as NaptSwitch for router {}", dpnId, routerName);
+                LOG.debug("NAT Service : Switch {} is elected as NaptSwitch for router {}", dpnId, routerName);
 
                 Routers extRouters = NatUtil.getRoutersFromConfigDS(dataBroker, routerName);
                 if (extRouters != null) {
@@ -238,27 +241,29 @@ public class RouterDpnChangeListener
                 FlowEntity flowEntity = naptSwitchHA.buildSnatFlowEntityForNaptSwitch(dpnId, routerName,
                     routerVpnId, NatConstants.ADD_FLOW);
                 if (flowEntity == null) {
-                    LOG.debug("Failed to populate flowentity for router {} with dpnId {}", routerName, dpnId);
+                    LOG.debug("NAT Service : Failed to populate flowentity for router {} with dpnId {}", routerName,
+                            dpnId);
                     return;
                 }
-                LOG.debug("Successfully installed flow for dpnId {} router {}", dpnId, routerName);
+                LOG.debug("NAT Service : Successfully installed flow for dpnId {} router {}", dpnId, routerName);
                 mdsalManager.installFlow(flowEntity);
                 //Removing primary flows from old napt switch
                 if (naptId != null && !naptId.equals(BigInteger.ZERO)) {
-                    LOG.debug("Removing primary flows from old napt switch {} for router {}", naptId, routerName);
+                    LOG.debug("NAT Service : Removing primary flows from old napt switch {} for router {}", naptId,
+                            routerName);
                     naptSwitchHA.removeSnatFlowsInOldNaptSwitch(routerName, naptId, null);
                 }
             } else if (naptId.equals(dpnId)) {
-                LOG.debug("NaptSwitch {} gone down during cluster reboot came alive", naptId);
+                LOG.debug("NAT Service : NaptSwitch {} gone down during cluster reboot came alive", naptId);
             } else {
 
-                LOG.debug("Napt switch with Id {} is already elected for router {}", naptId, routerName);
+                LOG.debug("NAT Service : Napt switch with Id {} is already elected for router {}", naptId, routerName);
                 naptSwitch = naptId;
 
                 //installing group
                 List<BucketInfo> bucketInfo = naptSwitchHA.handleGroupInNeighborSwitches(dpnId, routerName, naptSwitch);
                 if (bucketInfo == null) {
-                    LOG.debug("Failed to populate bucketInfo for dpnId {} routername {} naptSwitch {}",
+                    LOG.debug("NAT Service : Failed to populate bucketInfo for dpnId {} routername {} naptSwitch {}",
                         dpnId, routerName, naptSwitch);
                     return;
                 }
@@ -269,15 +274,16 @@ public class RouterDpnChangeListener
                 FlowEntity flowEntity =
                     naptSwitchHA.buildSnatFlowEntity(dpnId, routerName, groupId, routerVpnId, NatConstants.ADD_FLOW);
                 if (flowEntity == null) {
-                    LOG.debug("Failed to populate flowentity for router {} with dpnId {} groupId {}",
+                    LOG.debug("NAT Service : Failed to populate flowentity for router {} with dpnId {} groupId {}",
                         routerName, dpnId, groupId);
                     return;
                 }
-                LOG.debug("Successfully installed flow for dpnId {} router {} group {}", dpnId, routerName, groupId);
+                LOG.debug("NAT Service : Successfully installed flow for dpnId {} router {} group {}", dpnId,
+                        routerName, groupId);
                 mdsalManager.installFlow(flowEntity);
             }
         } catch (Exception ex) {
-            LOG.error("Exception in handleSNATForDPN method : {}", ex);
+            LOG.error("NAT Service : Exception in handleSNATForDPN method : {}", ex);
         }
     }
 
@@ -294,21 +300,30 @@ public class RouterDpnChangeListener
         HashMap<String, Long> externalIpLabel;
         Long routerId = NatUtil.getVpnId(dataBroker, routerName);
         if (routerId == NatConstants.INVALID_ID) {
-            LOG.error("Invalid routerId returned for routerName {}", routerName);
+            LOG.error("NAT Service : Invalid routerId returned for routerName {}", routerName);
+            return;
+        }
+        ProviderTypes extNwProviderType = NatEvpnUtil.getExtNwProviderTypeFromRouterName(dataBroker,routerName);
+        if (extNwProviderType == null) {
             return;
         }
         externalIpCache = NatUtil.getExternalIpsForRouter(dataBroker, routerId);
-        externalIpLabel = NatUtil.getExternalIpsLabelForRouter(dataBroker, routerId);
+        //Get the external IP labels other than VXLAN provider type. Since label is not applicable for VXLAN
+        if (extNwProviderType.getName().equals(NatConstants.PROVIDER_TYPE_VXLAN)) {
+            externalIpLabel = null;
+        } else {
+            externalIpLabel = NatUtil.getExternalIpsLabelForRouter(dataBroker, routerId);
+        }
         BigInteger naptSwitch = NatUtil.getPrimaryNaptfromRouterName(dataBroker, routerName);
         if (naptSwitch == null || naptSwitch.equals(BigInteger.ZERO)) {
-            LOG.debug("No naptSwitch is selected for router {}", routerName);
+            LOG.debug("NAT Service : No naptSwitch is selected for router {}", routerName);
             return;
         }
         try {
             boolean naptStatus =
                 naptSwitchHA.isNaptSwitchDown(routerName, dpnId, naptSwitch, routerVpnId, externalIpCache);
             if (!naptStatus) {
-                LOG.debug("NaptSwitchDown: Switch with DpnId {} is not naptSwitch for router {}",
+                LOG.debug("NAT Service : NaptSwitchDown: Switch with DpnId {} is not naptSwitch for router {}",
                     dpnId, routerName);
                 long groupId = NatUtil.createGroupId(NatUtil.getGroupIdKey(routerName), idManager);
                 FlowEntity flowEntity = null;
@@ -316,7 +331,7 @@ public class RouterDpnChangeListener
                     flowEntity = naptSwitchHA.buildSnatFlowEntity(dpnId, routerName, groupId, routerVpnId,
                         NatConstants.DEL_FLOW);
                     if (flowEntity == null) {
-                        LOG.debug("Failed to populate flowentity for router {} with dpnId {} groupIs {}",
+                        LOG.debug("NAT Service : Failed to populate flowentity for router {} with dpnId {} groupIs {}",
                             routerName, dpnId, groupId);
                         return;
                     }
@@ -346,13 +361,14 @@ public class RouterDpnChangeListener
                     dpnId, routerName);
             } else {
                 naptSwitchHA.removeSnatFlowsInOldNaptSwitch(routerName, naptSwitch, externalIpLabel);
-                //remove table 26 flow ppointing to table46
+                //remove table 26 flow pointing to table46
                 FlowEntity flowEntity = null;
                 try {
                     flowEntity = naptSwitchHA.buildSnatFlowEntityForNaptSwitch(dpnId, routerName, routerVpnId,
                         NatConstants.DEL_FLOW);
                     if (flowEntity == null) {
-                        LOG.debug("Failed to populate flowentity for router {} with dpnId {}", routerName, dpnId);
+                        LOG.debug("NAT Service : Failed to populate flowentity for router {} with dpnId {}", routerName,
+                                dpnId);
                         return;
                     }
                     LOG.debug("NAT Service : Removing default SNAT miss entry flow entity for router {} with "
@@ -371,7 +387,7 @@ public class RouterDpnChangeListener
                 naptSwitchHA.bestEffortDeletion(routerId, routerName, externalIpLabel);
             }
         } catch (Exception ex) {
-            LOG.debug("Exception while handling naptSwitch down for router {} : {}", routerName, ex);
+            LOG.debug("NAT Service : Exception while handling naptSwitch down for router {} : {}", routerName, ex);
         }
     }
 
