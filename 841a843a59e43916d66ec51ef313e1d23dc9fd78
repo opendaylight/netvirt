@@ -88,6 +88,24 @@
       "revId": "841a843a59e43916d66ec51ef313e1d23dc9fd78",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_dc1d6075",
+        "filename": "docs/specs/conntrack-based-snat.rst",
+        "patchSetId": 27
+      },
+      "lineNbr": 95,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2017-02-02T16:36:08Z",
+      "side": 1,
+      "message": "As part of hairpinning changes, the snat pipeline and FIB will start using the vpn-id of the subnet rather than the vpn-id of the ext-net for FIP entries in flat/VLAN networks.\n\nFor DNAT traffic to FIP the vpn id can be switched from extnet-\u003esubnet in table 19 since the FIP ip to mac mapping is 1:1 so the subnet is known. \n\nFor reverse SNAT traffic it\u0027s not possible to make the translation in table 19.\nSince router-gw could have multiple ip addresses from different subnets in the same ext-net mapped to a single mac address so the translation extnet-\u003esubnet vpn-id has to be delayed to match the specific router-gw dest-ip in table 21.",
+      "parentUuid": "fafc7978_7cf8b47c",
+      "revId": "841a843a59e43916d66ec51ef313e1d23dc9fd78",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
