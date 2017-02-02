@@ -119,6 +119,14 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
         + fixedConntrackEgressFlowsPort3
         + icmpEgressFlowsPort3
     }
+
+    static def aapWithIpv4AllFlows() {
+        fixedIngressFlowsPort4
+        + fixedConntrackIngressFlowsPort4
+        + fixedEgressFlowsPort4
+        + fixedConntrackEgressFlowsPort4
+    }
+
     static def fixedConntrackIngressFlowsPort1() {
         #[
            new FlowEntity(123bi) => [
@@ -532,6 +540,172 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
                     new MatchEthernetSource(new MacAddress("0D:AA:D8:42:30:F5")),
                     new MatchEthernetType(2048L),
                     new MatchIpv4Source("10.0.0.3", "24")
+                ]
+                priority = 61010
+                tableId = 40 as short
+            ],
+            new FlowEntity(123bi) => [
+                cookie = 110100481bi
+                flowId = "Egress_Fixed_Conntrk_Drop123_987_Tracked_New"
+                flowName = "ACL"
+                instructionInfoList = #[
+                    new InstructionApplyActions(#[
+                        new ActionDrop()
+                    ])
+                ]
+                matchInfoList = #[
+                    new MatchMetadata(1085217976614912bi, 1152920405095219200bi),
+                    new NxMatchInfoBuilder >> [
+                        matchField = NxMatchFieldType.ct_state
+                        matchValues = #[
+                            33L,
+                            33L
+                        ]
+                    ]
+                ]
+                priority = 50
+                tableId = 252 as short
+            ],
+            new FlowEntity(123bi) => [
+                cookie = 110100481bi
+                flowId = "Egress_Fixed_Conntrk_Drop123_987_Tracked_Invalid"
+                flowName = "ACL"
+                instructionInfoList = #[
+                    new InstructionApplyActions(#[
+                        new ActionDrop()
+                    ])
+                ]
+                matchInfoList = #[
+                    new MatchMetadata(1085217976614912bi, 1152920405095219200bi),
+                    new NxMatchInfoBuilder >> [
+                        matchField = NxMatchFieldType.ct_state
+                        matchValues = #[
+                            48L,
+                            48L
+                        ]
+                    ]
+                ]
+                priority = 62015
+                tableId = 252 as short
+            ]
+        ]
+    }
+
+    static def fixedConntrackIngressFlowsPort4() {
+        #[
+            new FlowEntity(123bi) => [
+                cookie = 110100480bi
+                flowId = "Ingress_Fixed_Conntrk_123_0D:AA:D8:42:30:F6_10.0.0.4/24_Recirc"
+                flowName = "ACL"
+                instructionInfoList = #[
+                    new InstructionApplyActions(#[
+                        new ActionNxConntrack(2, 0, 0, 5000, 252 as short)
+                    ])
+                ]
+                matchInfoList = #[
+                    new MatchEthernetType(2048L),
+                    new MatchEthernetDestination(new MacAddress("0D:AA:D8:42:30:F6")),
+                    new MatchEthernetType(2048L),
+                    new MatchIpv4Destination("10.0.0.4", "24")
+                ]
+                priority = 61010
+                tableId = 251 as short
+            ],
+            new FlowEntity(123bi) => [
+                cookie = 110100480bi
+                flowId = "Ingress_Fixed_Conntrk_123_0D:AA:D8:42:30:F6_0.0.0.0/0_Recirc"
+                flowName = "ACL"
+                instructionInfoList = #[
+                    new InstructionApplyActions(#[
+                        new ActionNxConntrack(2, 0, 0, 5000, 252 as short)
+                    ])
+                ]
+                matchInfoList = #[
+                    new MatchEthernetType(2048L),
+                    new MatchEthernetDestination(new MacAddress("0D:AA:D8:42:30:F6")),
+                    new MatchEthernetType(2048L)
+                ]
+                priority = 61010
+                tableId = 251 as short
+            ],
+            new FlowEntity(123bi) => [
+                cookie = 110100481bi
+                flowId = "Ingress_Fixed_Conntrk_Drop123_987_Tracked_New"
+                flowName = "ACL"
+                instructionInfoList = #[
+                    new InstructionApplyActions(#[
+                        new ActionDrop()
+                    ])
+                ]
+                matchInfoList = #[
+                    new MatchMetadata(1085217976614912bi, 1152920405095219200bi),
+                    new NxMatchInfoBuilder >> [
+                        matchField = NxMatchFieldType.ct_state
+                        matchValues = #[
+                            33L,
+                            33L
+                        ]
+                    ]
+                ]
+                priority = 50
+                tableId = 41 as short
+            ],
+            new FlowEntity(123bi) => [
+                cookie = 110100481bi
+                flowId = "Ingress_Fixed_Conntrk_Drop123_987_Tracked_Invalid"
+                flowName = "ACL"
+                instructionInfoList = #[
+                    new InstructionApplyActions(#[
+                        new ActionDrop()
+                    ])
+                ]
+                matchInfoList = #[
+                    new MatchMetadata(1085217976614912bi, 1152920405095219200bi),
+                    new NxMatchInfoBuilder >> [
+                        matchField = NxMatchFieldType.ct_state
+                        matchValues = #[
+                            48L,
+                            48L
+                        ]
+                    ]
+                ]
+                priority = 62015
+                tableId = 41 as short
+            ]
+        ]
+    }
+
+    static def fixedConntrackEgressFlowsPort4() {
+        #[
+            new FlowEntity(123bi) => [
+                cookie = 110100480bi
+                flowId = "Egress_Fixed_Conntrk_123_0D:AA:D8:42:30:F6_10.0.0.4/24_Recirc"
+                flowName = "ACL"
+                instructionInfoList = #[
+                    new InstructionApplyActions(#[
+                        new ActionNxConntrack(2, 0, 0, 5000, 41 as short)
+                    ])
+                ]
+                matchInfoList = #[
+                    new MatchEthernetSource(new MacAddress("0D:AA:D8:42:30:F6")),
+                    new MatchEthernetType(2048L),
+                    new MatchIpv4Source("10.0.0.4", "24")
+                ]
+                priority = 61010
+                tableId = 40 as short
+            ],
+            new FlowEntity(123bi) => [
+                cookie = 110100480bi
+                flowId = "Egress_Fixed_Conntrk_123_0D:AA:D8:42:30:F6_0.0.0.0/0_Recirc"
+                flowName = "ACL"
+                instructionInfoList = #[
+                    new InstructionApplyActions(#[
+                        new ActionNxConntrack(2, 0, 0, 5000, 41 as short)
+                    ])
+                ]
+                matchInfoList = #[
+                    new MatchEthernetSource(new MacAddress("0D:AA:D8:42:30:F6")),
+                    new MatchEthernetType(2048L)
                 ]
                 priority = 61010
                 tableId = 40 as short
