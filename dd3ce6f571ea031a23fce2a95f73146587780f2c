@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_f1e210d4",
+        "filename": "docs/specs/ecmp-bgp-l3vpn.rst",
+        "patchSetId": 8
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-02-02T04:56:11Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_65a65e12",
+      "revId": "dd3ce6f571ea031a23fce2a95f73146587780f2c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_c5e46a3d",
         "filename": "docs/specs/ecmp-bgp-l3vpn.rst",
         "patchSetId": 8
@@ -30,6 +48,24 @@
       "writtenOn": "2017-02-01T12:54:18Z",
       "side": 1,
       "message": "OVS -\u003e DC-GW tunnel.  Intra-DC traffic won\u0027t be affected because of DC-GW Tunnel issues right?",
+      "revId": "dd3ce6f571ea031a23fce2a95f73146587780f2c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_b1d8881e",
+        "filename": "docs/specs/ecmp-bgp-l3vpn.rst",
+        "patchSetId": 8
+      },
+      "lineNbr": 49,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-02-02T04:56:11Z",
+      "side": 1,
+      "message": "Yes, DC-GW tunnel status won\u0027t impact intra-DC traffic.",
+      "parentUuid": "fafc7978_c5e46a3d",
       "revId": "dd3ce6f571ea031a23fce2a95f73146587780f2c",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -53,6 +89,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_3104987a",
+        "filename": "docs/specs/ecmp-bgp-l3vpn.rst",
+        "patchSetId": 8
+      },
+      "lineNbr": 58,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-02-02T04:56:11Z",
+      "side": 1,
+      "message": "not sure. you are the best person to tell about this.\nAs per Vishal, it is a small fix in odl driver code.\n\nhttps://review.openstack.org/#/c/296289/8/networking_bgpvpn/neutron/services/service_drivers/opendaylight/odl.py\n\nComment out call to self._scrub_rd_list method on line 64, or change the method _scrub_rd_list to do nothing [or just log].",
+      "parentUuid": "fafc7978_8548a22e",
+      "revId": "dd3ce6f571ea031a23fce2a95f73146587780f2c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_65593efe",
         "filename": "docs/specs/ecmp-bgp-l3vpn.rst",
         "patchSetId": 8
@@ -64,6 +118,24 @@
       "writtenOn": "2017-02-01T12:54:18Z",
       "side": 1,
       "message": "a new line is required before cookie start for the next table 21 rule.  Also please fix the flow line.",
+      "revId": "dd3ce6f571ea031a23fce2a95f73146587780f2c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_91f8e47d",
+        "filename": "docs/specs/ecmp-bgp-l3vpn.rst",
+        "patchSetId": 8
+      },
+      "lineNbr": 91,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-02-02T04:56:11Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_65593efe",
       "revId": "dd3ce6f571ea031a23fce2a95f73146587780f2c",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -87,6 +159,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_71f58082",
+        "filename": "docs/specs/ecmp-bgp-l3vpn.rst",
+        "patchSetId": 8
+      },
+      "lineNbr": 95,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-02-02T04:56:11Z",
+      "side": 1,
+      "message": "It will LB traffic b/w local VM and remote CN\u0027s VxLAN tunnel on which another VM resides.",
+      "parentUuid": "fafc7978_e5036eb6",
+      "revId": "dd3ce6f571ea031a23fce2a95f73146587780f2c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_45ed1ac3",
         "filename": "docs/specs/ecmp-bgp-l3vpn.rst",
         "patchSetId": 8
@@ -98,6 +188,24 @@
       "writtenOn": "2017-02-01T17:02:07Z",
       "side": 1,
       "message": "Will the use-case continue to cover an extra-route with two different nexthops, but that is on a VPN which has only a single RD provided.\n(This would retain the benefit on intra-dc loadbalancing for that extra-route).",
+      "revId": "dd3ce6f571ea031a23fce2a95f73146587780f2c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_d1f26c99",
+        "filename": "docs/specs/ecmp-bgp-l3vpn.rst",
+        "patchSetId": 8
+      },
+      "lineNbr": 148,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-02-02T04:56:11Z",
+      "side": 1,
+      "message": "The existing behavior is retained (i.e. replacing old nexthop with new one) when single rd is configured. But if you want ECMP behavior, you should have multiple rd\u0027s even for intra-dc traffic. This was a pre-requisite.",
+      "parentUuid": "fafc7978_45ed1ac3",
       "revId": "dd3ce6f571ea031a23fce2a95f73146587780f2c",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -121,6 +229,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_b1efe8af",
+        "filename": "docs/specs/ecmp-bgp-l3vpn.rst",
+        "patchSetId": 8
+      },
+      "lineNbr": 272,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-02-02T04:56:11Z",
+      "side": 1,
+      "message": "we just use primary-rd (i.e. one rd is chosen as primary from the list of rd\u0027s) to populate this data store.",
+      "parentUuid": "fafc7978_a595e641",
+      "revId": "dd3ce6f571ea031a23fce2a95f73146587780f2c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_2b5d4722",
         "filename": "docs/specs/ecmp-bgp-l3vpn.rst",
         "patchSetId": 8
@@ -132,6 +258,24 @@
       "writtenOn": "2017-02-01T17:02:07Z",
       "side": 1,
       "message": "If an extra-route is on the same subnet as the originator of the ping within the DC, does such traffic get load balanced?",
+      "revId": "dd3ce6f571ea031a23fce2a95f73146587780f2c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_b146c8bd",
+        "filename": "docs/specs/ecmp-bgp-l3vpn.rst",
+        "patchSetId": 8
+      },
+      "lineNbr": 281,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-02-02T04:56:11Z",
+      "side": 1,
+      "message": "ECMP for intra-subnet is not supported in this implementation and not came as a requirement.\nMoreover extra-routes are mostly reachable via L3, since these routes always in different subnet from neutron network and BGP routes.",
+      "parentUuid": "fafc7978_2b5d4722",
       "revId": "dd3ce6f571ea031a23fce2a95f73146587780f2c",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -155,6 +299,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_f117b0a1",
+        "filename": "docs/specs/ecmp-bgp-l3vpn.rst",
+        "patchSetId": 8
+      },
+      "lineNbr": 295,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-02-02T04:56:11Z",
+      "side": 1,
+      "message": "Yes, there is no restriction for having no. of VMs. But we should have *N* Rds for *N* nexthops. since it uses rd1+prefix+nexthop1, rd2+prefix+nexthop2, r3+prefix+nexthop3 for route advertisement.",
+      "parentUuid": "fafc7978_7009fe30",
+      "revId": "dd3ce6f571ea031a23fce2a95f73146587780f2c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_ab1ad76b",
         "filename": "docs/specs/ecmp-bgp-l3vpn.rst",
         "patchSetId": 8
@@ -166,6 +328,24 @@
       "writtenOn": "2017-02-01T17:02:07Z",
       "side": 1,
       "message": "Similarly will this Spec implementation cover handling import/export targets across BGPVPNs that hold such ECMP-balanced extra-routes?",
+      "revId": "dd3ce6f571ea031a23fce2a95f73146587780f2c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_510ddc8f",
+        "filename": "docs/specs/ecmp-bgp-l3vpn.rst",
+        "patchSetId": 8
+      },
+      "lineNbr": 296,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-02-02T04:56:11Z",
+      "side": 1,
+      "message": "Yes, self imported routes are covered.",
+      "parentUuid": "fafc7978_ab1ad76b",
       "revId": "dd3ce6f571ea031a23fce2a95f73146587780f2c",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -189,6 +369,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_91262415",
+        "filename": "docs/specs/ecmp-bgp-l3vpn.rst",
+        "patchSetId": 8
+      },
+      "lineNbr": 312,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-02-02T04:56:11Z",
+      "side": 1,
+      "message": "It supports only L3 IP traffic.",
+      "parentUuid": "fafc7978_cb03dbb6",
+      "revId": "dd3ce6f571ea031a23fce2a95f73146587780f2c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_0bd4c31e",
         "filename": "docs/specs/ecmp-bgp-l3vpn.rst",
         "patchSetId": 8
@@ -200,6 +398,24 @@
       "writtenOn": "2017-02-01T17:04:38Z",
       "side": 1,
       "message": "here do we load balance such imported BGP routes, even if such routes carry same (RD + Imported Prefix) but unique nexthops ?",
+      "revId": "dd3ce6f571ea031a23fce2a95f73146587780f2c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_7123c005",
+        "filename": "docs/specs/ecmp-bgp-l3vpn.rst",
+        "patchSetId": 8
+      },
+      "lineNbr": 319,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-02-02T04:56:11Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_0bd4c31e",
       "revId": "dd3ce6f571ea031a23fce2a95f73146587780f2c",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -223,6 +439,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_d120acf9",
+        "filename": "docs/specs/ecmp-bgp-l3vpn.rst",
+        "patchSetId": 8
+      },
+      "lineNbr": 366,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-02-02T04:56:11Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_2bb1c7f8",
+      "revId": "dd3ce6f571ea031a23fce2a95f73146587780f2c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_cb9f5b5e",
         "filename": "docs/specs/ecmp-bgp-l3vpn.rst",
         "patchSetId": 8
@@ -234,6 +468,24 @@
       "writtenOn": "2017-02-01T17:18:02Z",
       "side": 1,
       "message": "Since the talk is primarily only about extra-routes within a DC and imported routes from BGP (both with multiple paths), for network-associated BGPVPNs , does the user need to use static-routes RPC in order get the benefit of ECMP ?",
+      "revId": "dd3ce6f571ea031a23fce2a95f73146587780f2c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_117a34f1",
+        "filename": "docs/specs/ecmp-bgp-l3vpn.rst",
+        "patchSetId": 8
+      },
+      "lineNbr": 467,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-02-02T04:56:11Z",
+      "side": 1,
+      "message": "not required. you can still use router-update command to configure static route like below.\n\nneutron router-update ROUTER1 --routes type\u003ddict list\u003dtrue destination\u003d120.0.0.0/24,nexthop\u003d40.1.1.2 destination\u003d120.0.0.0/24,nexthop\u003d40.1.1.3 destination\u003d121.0.0.0/24,nexthop\u003d40.1.1.2 destination\u003d121.0.0.0/24,nexthop\u003d40.1.1.3 destination\u003d121.0.0.0/24,nexthop\u003d40.1.1.4",
+      "parentUuid": "fafc7978_cb9f5b5e",
       "revId": "dd3ce6f571ea031a23fce2a95f73146587780f2c",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
