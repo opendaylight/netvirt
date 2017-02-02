@@ -52,6 +52,24 @@
       "revId": "841a843a59e43916d66ec51ef313e1d23dc9fd78",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_d94f3291",
+        "filename": "docs/specs/conntrack-based-snat.rst",
+        "patchSetId": 27
+      },
+      "lineNbr": 95,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2017-02-02T13:45:17Z",
+      "side": 1,
+      "message": "There would be no place to switch from ext-net vpn-id to ext-subnet vpn-id other than in table 21 after the hairpinning related changes http://docs.opendaylight.org/en/latest/submodules/netvirt/docs/specs/hairpinning-flat-vlan.html#ingress-traffic-from-the-internet-to-vm-with-no-associated-floating-ip-napt-switch",
+      "parentUuid": "fafc7978_f9631618",
+      "revId": "841a843a59e43916d66ec51ef313e1d23dc9fd78",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
