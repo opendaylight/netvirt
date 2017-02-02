@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_8389b7cc",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 1372,
+      "author": {
+        "id": 6465
+      },
+      "writtenOn": "2017-02-02T09:09:23Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_c963ee18",
+      "range": {
+        "startLine": 1372,
+        "startChar": 25,
+        "endLine": 1372,
+        "endChar": 26
+      },
+      "revId": "f7c2958aa1ff8bfff5be881d7fdb348d00bde6d8",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_09133667",
         "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
         "patchSetId": 2
@@ -42,6 +66,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_b12c08ad",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 1377,
+      "author": {
+        "id": 6465
+      },
+      "writtenOn": "2017-02-02T09:09:23Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_09133667",
+      "revId": "f7c2958aa1ff8bfff5be881d7fdb348d00bde6d8",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_8981e691",
         "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
         "patchSetId": 2
@@ -53,6 +95,29 @@
       "writtenOn": "2017-01-31T14:14:59Z",
       "side": 1,
       "message": "let us make sure that we donot accidentally remove the primary adjacency as that is what is required for post processing vpninterface removal.",
+      "revId": "f7c2958aa1ff8bfff5be881d7fdb348d00bde6d8",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_910c6444",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 1379,
+      "author": {
+        "id": 6465
+      },
+      "writtenOn": "2017-02-02T09:09:23Z",
+      "side": 1,
+      "message": "Vivek,\nI\u0027m sorry but I didn\u0027t understand what do you mean at line 1379 comment. Should I add a primary adjacency check before deleting the adjacency at line 1372 ? If it\u0027s primary, then not delete it?\nThanks.",
+      "range": {
+        "startLine": 1379,
+        "startChar": 29,
+        "endLine": 1379,
+        "endChar": 37
+      },
       "revId": "f7c2958aa1ff8bfff5be881d7fdb348d00bde6d8",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
