@@ -70,11 +70,6 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
             <groupId>org.opendaylight.controller</groupId>
             <artifactId>sal-binding-broker-impl</artifactId>
         </dependency>
-        <!--dependency>
-          <groupId>org.opendaylight.vpnservice</groupId>
-          <artifactId>lockmanager-api</artifactId>
-          <version>${vpnservices.version}</version>
-        </dependency-->
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>elanmanager-api</artifactId>
@@ -94,11 +89,6 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
             <groupId>org.opendaylight.infrautils</groupId>
             <artifactId>counters-api</artifactId>
             <version>${infrautils.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.opendaylight.genius</groupId>
-            <artifactId>lockmanager-api</artifactId>
-            <version>${genius.version}</version>
         </dependency>
         <dependency>
             <groupId>org.opendaylight.genius</groupId>
