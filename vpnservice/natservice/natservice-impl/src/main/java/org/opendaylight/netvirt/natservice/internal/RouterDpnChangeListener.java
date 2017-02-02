@@ -337,7 +337,7 @@ public class RouterDpnChangeListener
                     dpnId, routerName);
             } else {
                 naptSwitchHA.removeSnatFlowsInOldNaptSwitch(routerName, naptSwitch, externalIpLabel);
-                //remove table 26 flow ppointing to table46
+                //remove table 26 flow pointing to table46
                 FlowEntity flowEntity = null;
                 try {
                     flowEntity = naptSwitchHA.buildSnatFlowEntityForNaptSwitch(dpnId, routerName, routerVpnId,

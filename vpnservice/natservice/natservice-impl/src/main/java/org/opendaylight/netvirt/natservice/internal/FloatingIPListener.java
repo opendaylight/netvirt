@@ -34,6 +34,7 @@ import org.opendaylight.genius.mdsalutil.instructions.InstructionApplyActions;
 import org.opendaylight.genius.mdsalutil.instructions.InstructionGotoTable;
 import org.opendaylight.genius.mdsalutil.instructions.InstructionWriteMetadata;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
+import org.opendaylight.genius.mdsalutil.matches.MatchEthernetDestination;
 import org.opendaylight.genius.mdsalutil.matches.MatchEthernetType;
 import org.opendaylight.genius.mdsalutil.matches.MatchIpv4Destination;
 import org.opendaylight.genius.mdsalutil.matches.MatchIpv4Source;
@@ -83,7 +84,7 @@ public class FloatingIPListener extends AsyncDataTreeChangeListenerBase<Internal
             final WaitingServiceTracker<FloatingIPHandler> tracker = WaitingServiceTracker.create(
                     FloatingIPHandler.class, bundleContext);
             floatingIPHandler = tracker.waitForService(WaitingServiceTracker.FIVE_MINUTES);
-            LOG.info("FloatingIPListener initialized. FloatingIPHandler={}", floatingIPHandler);
+            LOG.info("NAT Service : FloatingIPListener initialized. FloatingIPHandler={}", floatingIPHandler);
         });
     }
 
@@ -106,27 +107,36 @@ public class FloatingIPListener extends AsyncDataTreeChangeListenerBase<Internal
     @Override
     protected void add(final InstanceIdentifier<InternalToExternalPortMap> identifier,
                        final InternalToExternalPortMap mapping) {
-        LOG.trace("FloatingIPListener add ip mapping method - key: " + identifier + ", value=" + mapping);
+        LOG.trace("NAT Service : FloatingIPListener add ip mapping method - key: " + identifier + ", value=" + mapping);
         processFloatingIPAdd(identifier, mapping);
     }
 
     @Override
     protected void remove(InstanceIdentifier<InternalToExternalPortMap> identifier, InternalToExternalPortMap mapping) {
-        LOG.trace("FloatingIPListener remove ip mapping method - key: " + identifier + ", value=" + mapping);
+        LOG.trace("NAT Service : FloatingIPListener remove ip mapping method - key: " + identifier + ", value="
+                + mapping);
         processFloatingIPDel(identifier, mapping);
     }
 
     @Override
     protected void update(InstanceIdentifier<InternalToExternalPortMap> identifier, InternalToExternalPortMap
             original, InternalToExternalPortMap update) {
-        LOG.trace("FloatingIPListener update ip mapping method - key: {}, original: {}, update: {}",
+        LOG.trace("NAT Service : FloatingIPListener update ip mapping method - key: {}, original: {}, update: {}",
             identifier, original, update);
     }
 
     private FlowEntity buildPreDNATFlowEntity(BigInteger dpId, InternalToExternalPortMap mapping, long routerId, long
             associatedVpn) {
         String externalIp = mapping.getExternalIp();
-        LOG.info("NAT Service : Bulding DNAT Flow entity for ip {} ", externalIp);
+        Uuid floatingIpId = mapping.getExternalId();
+        //Get the FIP MAC address for DNAT
+        String floatingIpPortMacAddress = NatUtil.getFloatingIpPortMacFromFloatingIpId(dataBroker, floatingIpId);
+        if (floatingIpPortMacAddress == null) {
+            LOG.error("NAT Service : Unable to retrieve floatingIpPortMacAddress from Floating IP UUID {} in "
+                    + "FloatingIPListener.buildPreDNATFlowEntity()", floatingIpId );
+            return null;
+        }
+        LOG.info("NAT Service : Building DNAT Flow entity for ip {} ", externalIp);
         long segmentId = (associatedVpn == NatConstants.INVALID_ID) ? routerId : associatedVpn;
         LOG.debug("NAT Service : Segment id {} in build preDNAT Flow", segmentId);
 
@@ -134,6 +144,8 @@ public class FloatingIPListener extends AsyncDataTreeChangeListenerBase<Internal
         matches.add(MatchEthernetType.IPV4);
 
         matches.add(new MatchIpv4Destination(externalIp, "32"));
+        //Match Destination Floating IP MAC Address on table = 25 (PDNAT_TABLE)
+        matches.add(new MatchEthernetDestination(new MacAddress(floatingIpPortMacAddress)));
 
 //        matches.add(new MatchMetadata(
 //                BigInteger.valueOf(vpnId), MetaDataUtil.METADATA_MASK_VRFID));
@@ -228,7 +240,7 @@ public class FloatingIPListener extends AsyncDataTreeChangeListenerBase<Internal
     private FlowEntity buildSNATFlowEntity(BigInteger dpId, InternalToExternalPortMap mapping, long vpnId, Uuid
             externalNetworkId) {
         String internalIp = mapping.getInternalIp();
-        LOG.info("Building SNAT Flow entity for ip {} ", internalIp);
+        LOG.info("NAT Service : Building SNAT Flow entity for ip {} ", internalIp);
 
         ProviderTypes provType = NatUtil.getProviderTypefromNetworkId(dataBroker, externalNetworkId);
         if (provType == null) {
@@ -252,19 +264,20 @@ public class FloatingIPListener extends AsyncDataTreeChangeListenerBase<Internal
         if (macAddress != null) {
             actionsInfo.add(new ActionSetFieldEthernetSource(new MacAddress(macAddress)));
         } else {
-            LOG.warn("No MAC address found for floating IP {}", externalIp);
+            LOG.warn("NAT Service : No MAC address found for floating IP {}", externalIp);
         }
 
-        if (provType != ProviderTypes.GRE) {
+        if (provType != ProviderTypes.GRE && provType != ProviderTypes.VXLAN) {
             Uuid subnetId = NatUtil.getFloatingIpPortSubnetIdFromFloatingIpId(dataBroker, floatingIpId);
             if (subnetId != null) {
                 long groupId = NatUtil.createGroupId(NatUtil.getGroupIdKey(subnetId.getValue()), idManager);
                 actionsInfo.add(new ActionGroup(groupId));
             } else {
-                LOG.warn("No neutron Subnet found for floating IP {}", externalIp);
+                LOG.warn("NAT Service : No neutron Subnet found for floating IP {}", externalIp);
             }
         } else {
-            LOG.trace("NAT Service : External Network Provider Type is {}, resubmit to FIB", provType.toString());
+            LOG.trace("NAT Service : External Network Provider Type is {} for floating IP {}, resubmit to FIB "
+                    + "(table28->21)", provType.toString(), externalIp);
             actionsInfo.add(new ActionNxResubmit(NwConstants.L3_FIB_TABLE));
         }
 
@@ -346,7 +359,7 @@ public class FloatingIPListener extends AsyncDataTreeChangeListenerBase<Internal
 
     private void processFloatingIPAdd(final InstanceIdentifier<InternalToExternalPortMap> identifier,
                                       final InternalToExternalPortMap mapping) {
-        LOG.trace("Add event - key: {}, value: {}", identifier, mapping);
+        LOG.trace("NAT Service : Add event - key: {}, value: {}", identifier, mapping);
 
         final String routerId = identifier.firstKeyOf(RouterPorts.class).getRouterId();
         final PortsKey pKey = identifier.firstKeyOf(Ports.class);
@@ -358,7 +371,7 @@ public class FloatingIPListener extends AsyncDataTreeChangeListenerBase<Internal
 
     private void processFloatingIPDel(final InstanceIdentifier<InternalToExternalPortMap> identifier,
                                       final InternalToExternalPortMap mapping) {
-        LOG.trace("Del event - key: {}, value: {}", identifier, mapping);
+        LOG.trace("NAT Service : Del event - key: {}, value: {}", identifier, mapping);
 
         final String routerId = identifier.firstKeyOf(RouterPorts.class).getRouterId();
         final PortsKey pKey = identifier.firstKeyOf(Ports.class);
@@ -450,7 +463,7 @@ public class FloatingIPListener extends AsyncDataTreeChangeListenerBase<Internal
         //Check if the router to vpn association is present
         long associatedVpnId = NatUtil.getAssociatedVpn(dataBroker, routerName);
         if (associatedVpnId == NatConstants.INVALID_ID) {
-            LOG.debug("NAT Service : Router {} is not assicated with any BGP VPN instance", routerName);
+            LOG.debug("NAT Service : Router {} is not associated with any BGP VPN instance", routerName);
         } else {
             LOG.debug("NAT Service : Router {} is associated with VPN Instance with Id {}",
                 routerName, associatedVpnId);
@@ -538,26 +551,41 @@ public class FloatingIPListener extends AsyncDataTreeChangeListenerBase<Internal
             return;
         }
         removeSNATTblEntry(dpnId, internalIp, externalIp, routerId, vpnId);
-
-        long label = getOperationalIpMapping(routerName, interfaceName, internalIp);
-        if (label < 0) {
-            LOG.error("NAT Service : Could not retrieve label for prefix {} in router {}", internalIp, routerId);
+        ProviderTypes extNwProviderType = NatUtil.getProviderTypefromNetworkId(dataBroker, extNwId);
+        if (extNwProviderType == null) {
+            LOG.error("NAT Service : Could not retrieve provider type for external network {}", extNwId);
             return;
         }
-        floatingIPHandler.onRemoveFloatingIp(dpnId, routerName, extNwId, mapping, (int) label);
+        if (extNwProviderType.getName().equals("VXLAN")) {
+            //label value is zero for VXLAN provider type
+            floatingIPHandler.onRemoveFloatingIp(dpnId, routerName, extNwId, mapping, 0);
+        } else {
+            long label = getOperationalIpMapping(routerName, interfaceName, internalIp);
+            if (label < 0) {
+                LOG.error("NAT Service : Could not retrieve label for prefix {} in router {}", internalIp, routerId);
+                return;
+            }
+            floatingIPHandler.onRemoveFloatingIp(dpnId, routerName, extNwId, mapping, (int) label);
+        }
         removeOperationalDS(routerName, interfaceName, internalIp, externalIp);
     }
 
     void removeNATFlowEntries(BigInteger dpnId, String interfaceName, String vpnName, String routerName,
                               InternalToExternalPortMap mapping) {
-        String internalIp = mapping.getInternalIp();
-        String externalIp = mapping.getExternalIp();
+        Uuid floatingIpId = mapping.getExternalId();
+        String floatingIpPortMacAddress = NatUtil.getFloatingIpPortMacFromFloatingIpId(dataBroker, floatingIpId);
+        if (floatingIpPortMacAddress == null) {
+            LOG.error("NAT Service : Could not retrieve floating IpPortMacAddress from floating IP UUID {} to "
+                    + "remove NAT Flow entries in FloatingIPListener.removeNATFlowEntries()", floatingIpId);
+            return;
+        }
         long routerId = NatUtil.getVpnId(dataBroker, routerName);
         if (routerId == NatConstants.INVALID_ID) {
             LOG.warn("NAT Service : Could not retrieve router id for {} to remove NAT Flow entries", routerName);
             return;
         }
-
+        String internalIp = mapping.getInternalIp();
+        String externalIp = mapping.getExternalIp();
         long vpnId = NatUtil.getVpnId(dataBroker, vpnName);
         if (vpnId == NatConstants.INVALID_ID) {
             LOG.warn("NAT Service : VPN Id not found for {} to remove NAT flow entries {}", vpnName, internalIp);
@@ -568,12 +596,30 @@ public class FloatingIPListener extends AsyncDataTreeChangeListenerBase<Internal
 
         removeSNATTblEntry(dpnId, internalIp, externalIp, routerId, vpnId);
 
-        long label = getOperationalIpMapping(routerName, interfaceName, internalIp);
-        if (label < 0) {
-            LOG.error("NAT Service : Could not retrieve label for prefix {} in router {}", internalIp, routerId);
+        ProviderTypes extNwProviderType = NatUtil.getExtNwProviderTypeFromRouterName(dataBroker, routerName);
+        if (extNwProviderType == null) {
             return;
         }
-        floatingIPHandler.cleanupFibEntries(dpnId, vpnName, externalIp, label);
+        if (extNwProviderType.getName().equals("VXLAN")) {
+            String rd = NatUtil.getVpnRd(dataBroker, vpnName);
+            long l3Vni = NatUtil.getL3Vni(dataBroker, rd);
+            LOG.debug("NAT Service : Retrieved values of vpnName = {} and l3vni = {} for Removing Floating IP = {} "
+                    + "in FloatingIPListener.removeNATFlowEntries() for external network provider type {}",
+                    vpnName, l3Vni, externalIp, extNwProviderType.getName());
+            floatingIPHandler.cleanupFibEntries(dpnId, vpnName, externalIp, l3Vni, extNwProviderType,
+                    floatingIpPortMacAddress);
+        } else {
+            long label = getOperationalIpMapping(routerName, interfaceName, internalIp);
+            if (label < 0) {
+                LOG.error("NAT Service : Could not retrieve label for prefix {} in router {}", internalIp, routerId);
+                return;
+            }
+            LOG.debug("NAT Service : Retrieved values of vpnName = {} and label = {} for Removing Floating IP = {} "
+                    + "in FloatingIPListener.removeNATFlowEntries() for external network provider type {}",
+                    vpnName, label, externalIp, extNwProviderType.getName());
+            floatingIPHandler.cleanupFibEntries(dpnId, vpnName, externalIp, label, extNwProviderType,
+                    floatingIpPortMacAddress);
+        }
         removeOperationalDS(routerName, interfaceName, internalIp, externalIp);
     }
 
@@ -597,12 +643,12 @@ public class FloatingIPListener extends AsyncDataTreeChangeListenerBase<Internal
                 InternalToExternalPortMapKey(internalIp)).setInternalIp(internalIp).setExternalIp(externalIp)
                 .setLabel(label).build();
         if (optPorts.isPresent()) {
-            LOG.debug("Ports {} entry already present. Updating intExtPortMap for internal ip {}", interfaceName,
-                    internalIp);
+            LOG.debug("NAT Service : Ports {} entry already present. Updating intExtPortMap for internal ip {}",
+                    interfaceName, internalIp);
             MDSALUtil.syncWrite(dataBroker, LogicalDatastoreType.OPERATIONAL, portsId.child(InternalToExternalPortMap
                     .class, new InternalToExternalPortMapKey(internalIp)), intExtPortMap);
         } else {
-            LOG.debug("Adding Ports entry {} along with intExtPortMap {}", interfaceName, internalIp);
+            LOG.debug("NAT Service : Adding Ports entry {} along with intExtPortMap {}", interfaceName, internalIp);
             List<InternalToExternalPortMap> intExtPortMapList = new ArrayList<>();
             intExtPortMapList.add(intExtPortMap);
             Ports ports = new PortsBuilder().setKey(new PortsKey(interfaceName)).setPortName(interfaceName)
@@ -612,7 +658,7 @@ public class FloatingIPListener extends AsyncDataTreeChangeListenerBase<Internal
     }
 
     void removeOperationalDS(String routerId, String interfaceName, String internalIp, String externalIp) {
-        LOG.info("Remove operational DS for floating ip config: {}", internalIp);
+        LOG.info("NAT Service : Remove operational DS for floating ip config: {}", internalIp);
         InstanceIdentifier<InternalToExternalPortMap> intExtPortMapId = NatUtil.getIntExtPortMapIdentifier(routerId,
                 interfaceName, internalIp);
         MDSALUtil.syncDelete(dataBroker, LogicalDatastoreType.OPERATIONAL, intExtPortMapId);
