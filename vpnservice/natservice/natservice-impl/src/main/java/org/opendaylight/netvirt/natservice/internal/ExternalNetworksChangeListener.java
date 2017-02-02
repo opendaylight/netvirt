@@ -230,7 +230,7 @@ public class ExternalNetworksChangeListener
                     LOG.debug("NAT Service : About to call advToBgpAndInstallFibAndTsFlows for dpnId {}, "
                         + "vpnName {} and externalIp {}", dpnId, vpnName, externalIp);
                     externalRouterListener.advToBgpAndInstallFibAndTsFlows(dpnId, NwConstants.INBOUND_NAPT_TABLE,
-                        vpnName, NatUtil.getVpnId(dataBroker, routerId.getValue()), externalIp, vpnService,
+                        vpnName, NatUtil.getVpnId(dataBroker, routerId.getValue()),networkId, externalIp, vpnService,
                         fibService, bgpManager, dataBroker, LOG);
                 }
             } else {

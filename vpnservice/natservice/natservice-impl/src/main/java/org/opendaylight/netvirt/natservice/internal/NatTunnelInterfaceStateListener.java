@@ -19,6 +19,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.Future;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
+import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
 import org.opendaylight.genius.mdsalutil.BucketInfo;
@@ -46,8 +47,10 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fib.rpc.rev160121.C
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fib.rpc.rev160121.FibRpcService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fib.rpc.rev160121.RemoveFibEntryInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fib.rpc.rev160121.RemoveFibEntryInputBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.VrfEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.dpn.routers.DpnRoutersList;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.dpn.routers.dpn.routers.list.RoutersList;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ProviderTypes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ext.routers.Routers;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.floating.ip.info.RouterPorts;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.floating.ip.info.router.ports.Ports;
@@ -186,8 +189,17 @@ public class NatTunnelInterfaceStateListener
             LOG.error("NAT Service : SNAT -> Invalid routerId returned for routerName {}", routerName);
             return;
         }
+        ProviderTypes extNwProviderType = NatUtil.getExtNwProviderTypeFromRouterName(dataBroker,routerName);
+        if (extNwProviderType == null) {
+            return;
+        }
         externalIpCache = NatUtil.getExternalIpsForRouter(dataBroker, routerId);
-        externalIpLabel = NatUtil.getExternalIpsLabelForRouter(dataBroker, routerId);
+        //Get the external IP labels other than VXLAN provider type. Since label is not applicable for VXLAN
+        if (extNwProviderType.getName().equals("VXLAN")) {
+            externalIpLabel = null;
+        } else {
+            externalIpLabel = NatUtil.getExternalIpsLabelForRouter(dataBroker, routerId);
+        }
         try {
             final String externalVpnName = NatUtil.getAssociatedVPN(dataBroker, networkId, LOG);
             if (externalVpnName == null) {
@@ -238,7 +250,7 @@ public class NatTunnelInterfaceStateListener
                     dpnId, routerName);
             } else {
                 naptSwitchHA.removeSnatFlowsInOldNaptSwitch(routerName, dpnId, externalIpLabel);
-                //remove table 26 flow ppointing to table46
+                //remove table 26 flow pointing to table46
                 FlowEntity flowEntity = null;
                 try {
                     flowEntity = naptSwitchHA.buildSnatFlowEntityForNaptSwitch(dpnId, routerName, routerVpnId,
@@ -305,7 +317,7 @@ public class NatTunnelInterfaceStateListener
                     }
                     break;
                 default:
-                    LOG.warn("hndlTepEvntsForDpn: unknown tunnelAction: {}", tunnelAction);
+                    LOG.warn("NAT Service : hndlTepEvntsForDpn: unknown tunnelAction: {}", tunnelAction);
                     break;
             }
         } catch (Exception e) {
@@ -522,7 +534,7 @@ public class NatTunnelInterfaceStateListener
                                            String destTepIp, String tunnelName, long routerId,
                                            Optional<Routers> routerData, String nextHopIp) {
         if (!routerData.isPresent()) {
-            LOG.warn("hndlTepAddOnNaptSwitch: routerData is not present");
+            LOG.warn("NAT Service : hndlTepAddOnNaptSwitch: routerData is not present");
             return false;
         }
         String routerName = routerData.get().getRouterName();
@@ -591,28 +603,61 @@ public class NatTunnelInterfaceStateListener
         FIB manager.
         */
         String rd = NatUtil.getVpnRd(dataBroker, externalVpnName);
+        VrfEntry.EncapType extNwProviderTypeEncap = NatUtil.getExtNwProviderType(dataBroker, rd);
+        ProviderTypes extNwProviderType = NatUtil.getProviderTypefromNetworkId(dataBroker, networkId);
+        if (extNwProviderType == null) {
+            LOG.error("NAT Service : Unable to retrieve the External Network Provider Type from external network ID {} "
+                    + "in NatTunnelInterfaceStateListener.hndlTepAddOnNaptSwitch()", networkId);
+            return false;
+        }
+        String macAddress = null;
+        String gwMacAddress = null;
+        long l3Vni = 0;
+        long serviceId = 0;
+        WriteTransaction writeTx = dataBroker.newWriteOnlyTransaction();
         if (externalIps != null) {
             for (final String externalIp : externalIps) {
-                Long label = externalRouterListner.checkExternalIpLabel(routerId,
-                    externalIp);
-                if (label == null || label == NatConstants.INVALID_ID) {
-                    LOG.debug("NAT Service : SNAT -> Unable to advertise to the DC GW since label is invalid");
-                    return false;
+                if (extNwProviderType.getName().equals("VXLAN")) {
+                    //get l3Vni value for external VPN
+                    l3Vni = NatUtil.getL3Vni(dataBroker, rd);
+                    if (l3Vni == NatConstants.INVALID_ID) {
+                        LOG.error("NAT Service : Unable to retrieve L3VNI value for External IP {} with Provider Type "
+                                        + "{} in NatTunnelInterfaceStateListener.hndlTepAddForDnatInEachRtr() "
+                                        + "SNAT -> Unable to advertise to the DC GW since l3vni value is invalid",
+                                externalIp, extNwProviderType.getName());
+                        return false;
+                    }
+                    LOG.debug("NAT Service : SNAT -> Advertise the route to the externalIp {} with provider type {} "
+                            + "having nextHopIp {}", externalIp, extNwProviderType.getName(), nextHopIp);
+                    NatUtil.addPrefixToBGP(dataBroker, bgpManager, fibManager, externalVpnName, rd, macAddress,
+                            externalIp, nextHopIp, extNwProviderTypeEncap, 0, l3Vni, LOG, gwMacAddress, writeTx,
+                            RouteOrigin.STATIC, srcDpnId);
+                    //If external provider type is VXLAN then service id would be l3vni
+                    serviceId = l3Vni;
+                    LOG.debug("NAT Service : SNAT -> Install custom FIB routes (Table 21 -> l3vni to Tunnel port)");
+                } else {
+                    Long label = externalRouterListner.checkExternalIpLabel(routerId,
+                            externalIp);
+                    if (label == null || label == NatConstants.INVALID_ID) {
+                        LOG.debug("NAT Service : SNAT -> Unable to advertise to the DC GW since label is invalid");
+                        return false;
+                    }
+                    LOG.debug("NAT Service : SNAT -> Advertise the route to the externalIp {} with provider type {} "
+                            + "having nextHopIp {}", externalIp,extNwProviderType.getName(), nextHopIp);
+                    NatUtil.addPrefixToBGP(dataBroker, bgpManager, fibManager, externalVpnName, rd, macAddress,
+                            externalIp, nextHopIp, extNwProviderTypeEncap, label, l3Vni, LOG, gwMacAddress, writeTx,
+                            RouteOrigin.STATIC, srcDpnId);
+                    //If external provider type is other than VXLAN then service id would be label
+                    serviceId = label;
+                    LOG.debug("NAT Service : SNAT -> Install custom FIB routes (Table 21 -> Push MPLS label to "
+                            + "Tunnel port");
                 }
-
-                LOG.debug("NAT Service : SNAT -> Advertise the route to the externalIp {} having nextHopIp {}",
-                    externalIp, nextHopIp);
-                NatUtil.addPrefixToBGP(dataBroker, bgpManager, fibManager, externalVpnName, rd, externalIp,
-                    nextHopIp, label, LOG, RouteOrigin.STATIC, srcDpnId);
-
-                LOG.debug("NAT Service : SNAT -> Install custom FIB routes "
-                    + "(Table 21 -> Push MPLS label to Tunnel port");
                 List<Instruction> customInstructions = new ArrayList<>();
                 customInstructions.add(new InstructionGotoTable(NwConstants.INBOUND_NAPT_TABLE).buildInstruction(0));
                 CreateFibEntryInput input =
                     new CreateFibEntryInputBuilder().setVpnName(externalVpnName).setSourceDpid(srcDpnId)
                         .setInstruction(customInstructions).setIpAddress(externalIp + "/32")
-                        .setServiceId(label).setInstruction(customInstructions).build();
+                        .setServiceId(serviceId).setInstruction(customInstructions).build();
                 Future<RpcResult<Void>> future = fibRpcService.createFibEntry(input);
                 ListenableFuture<RpcResult<Void>> listenableFuture = JdkFutureAdapters.listenInPoolThread(future);
 
@@ -653,17 +698,33 @@ public class NatTunnelInterfaceStateListener
             return;
         }
         RouterPorts routerPorts = optRouterPorts.get();
-        List<Ports> interfaces = routerPorts.getPorts();
-
         Uuid extNwId = routerPorts.getExternalNetworkId();
+        ProviderTypes extNwProviderType = NatUtil.getProviderTypefromNetworkId(dataBroker, extNwId);
+        if (extNwProviderType == null) {
+            LOG.error("NAT Service : Unable to retrieve the External Network Provider Type from external network ID {} "
+                    + "in NatTunnelInterfaceStateListener.hndlTepAddForDnatInEachRtr()", extNwId);
+            return;
+        }
         final String vpnName = NatUtil.getAssociatedVPN(dataBroker, extNwId, LOG);
         if (vpnName == null) {
             LOG.info("NAT Service : DNAT -> No External VPN associated with ext nw {} for router {}",
                 extNwId, routerName);
             return;
         }
-
         String rd = NatUtil.getVpnRd(dataBroker, vpnName);
+        if (rd == null) {
+            LOG.error("NAT Service : Unable to retrieve the RD from VpnName {} "
+                    + "in NatTunnelInterfaceStateListener.hndlTepAddForDnatInEachRtr()", vpnName);
+            return;
+        }
+        VrfEntry.EncapType extNwProviderTypeEncap = NatUtil.getExtNwProviderType(dataBroker, rd);
+        String macAddress = null;
+        String gwMacAddress = null;
+        long l3Vni = 0;
+        long label = 0;
+        long serviceId = 0;
+        WriteTransaction writeTx = dataBroker.newWriteOnlyTransaction();
+        List<Ports> interfaces = routerPorts.getPorts();
         for (Ports port : interfaces) {
             //Get the DPN on which this interface resides
             final String interfaceName = port.getPortName();
@@ -686,40 +747,68 @@ public class NatTunnelInterfaceStateListener
                 LOG.debug("NAT Service : DNAT -> Advertising the FIB route to the floating IP {} configured "
                     + "for the port: {}",
                     externalIp, interfaceName);
-                long label = floatingIPListener.getOperationalIpMapping(routerName, interfaceName, internalIp);
-                if (label == NatConstants.INVALID_ID) {
-                    LOG.debug("NAT Service : DNAT -> Unable to advertise to the DC GW since label is invalid");
-                    return;
+                if (extNwProviderType.getName().equals("VXLAN")) {
+                    //get l3Vni value for external VPN
+                    l3Vni = NatUtil.getL3Vni(dataBroker, rd);
+                    if (l3Vni == NatConstants.INVALID_ID) {
+                        LOG.error("NAT Service : Unable to retrieve L3VNI value for External IP {} with Provider Type "
+                                + "{} in NatTunnelInterfaceStateListener.hndlTepAddForDnatInEachRtr() "
+                                + "DNAT -> Unable to advertise to the DC GW since l3vni value is invalid",
+                                externalIp,extNwProviderType.getName());
+                        return;
+                    }
+                    LOG.debug("NAT Service : DNAT -> Advertise the route to the externalIp {} with provider type {} "
+                            + "having nextHopIp {}", externalIp,extNwProviderType.getName(), nextHopIp);
+                    NatUtil.addPrefixToBGP(dataBroker, bgpManager, fibManager, vpnName, rd, macAddress,
+                            externalIp + "/32", nextHopIp, extNwProviderTypeEncap, label, l3Vni, LOG, gwMacAddress,
+                            writeTx, RouteOrigin.STATIC, fipCfgdDpnId);
+                    //If external provider type is VXLAN then service id would be l3vni
+                    serviceId = l3Vni;
+                    LOG.debug("NAT Service : DNAT -> Install custom FIB routes (Table 21 -> l3vni to Tunnel port");
+                } else {
+                    label = floatingIPListener.getOperationalIpMapping(routerName, interfaceName, internalIp);
+                    if (label == NatConstants.INVALID_ID) {
+                        LOG.debug("NAT Service : DNAT -> Unable to advertise to the DC GW since label is invalid");
+                        return;
+                    }
+                    LOG.debug("NAT Service : DNAT -> Advertise the route to the externalIp {} with provider type {} "
+                            + "having nextHopIp {}", externalIp,extNwProviderType.getName(), nextHopIp);
+                    NatUtil.addPrefixToBGP(dataBroker, bgpManager, fibManager, vpnName, rd, macAddress,
+                            externalIp + "/32", nextHopIp, extNwProviderTypeEncap, label, l3Vni, LOG, gwMacAddress,
+                            writeTx, RouteOrigin.STATIC, fipCfgdDpnId);
+                    //If external provider type is other than VXLAN then service id would be label
+                    serviceId = label;
+                    LOG.debug("NAT Service : DNAT -> Install custom FIB routes (Table 21 -> Push MPLS label to "
+                            + "Tunnel port");
                 }
-                NatUtil.addPrefixToBGP(dataBroker, bgpManager, fibManager, vpnName, rd,
-                    externalIp + "/32", nextHopIp, label, LOG, RouteOrigin.STATIC, fipCfgdDpnId);
-
-                //Install custom FIB routes (Table 21 -> Push MPLS label to Tunnel port
+                    //Install custom FIB routes (Table 21 -> Push MPLS label to Tunnel port)
                 List<Instruction> customInstructions = new ArrayList<>();
                 customInstructions.add(new InstructionGotoTable(NwConstants.PDNAT_TABLE).buildInstruction(0));
                 CreateFibEntryInput input = new CreateFibEntryInputBuilder().setVpnName(vpnName)
-                    .setSourceDpid(fipCfgdDpnId).setInstruction(customInstructions)
-                    .setIpAddress(externalIp + "/32").setServiceId(label).setInstruction(customInstructions).build();
+                        .setSourceDpid(fipCfgdDpnId).setInstruction(customInstructions)
+                        .setIpAddress(externalIp + "/32").setServiceId(serviceId).setInstruction(customInstructions)
+                        .build();
                 Future<RpcResult<Void>> future = fibRpcService.createFibEntry(input);
                 ListenableFuture<RpcResult<Void>> listenableFuture = JdkFutureAdapters.listenInPoolThread(future);
 
                 Futures.addCallback(listenableFuture, new FutureCallback<RpcResult<Void>>() {
 
-                    @Override
-                    public void onFailure(Throwable error) {
-                        LOG.error("NAT Service : DNAT -> Error in generate label or fib install process", error);
-                    }
-
-                    @Override
-                    public void onSuccess(RpcResult<Void> result) {
-                        if (result.isSuccessful()) {
-                            LOG.info("NAT Service : DNAT -> Successfully installed custom FIB routes for prefix {}",
-                                externalIp);
-                        } else {
-                            LOG.error("NAT Service : DNAT -> Error in rpc call to create custom Fib "
-                                + "entries for prefix {} in DPN {}, {}", externalIp, fipCfgdDpnId, result.getErrors());
+                        @Override
+                        public void onFailure(Throwable error) {
+                            LOG.error("NAT Service : DNAT -> Error in generate label or fib install process", error);
                         }
-                    }
+
+                        @Override
+                        public void onSuccess(RpcResult<Void> result) {
+                            if (result.isSuccessful()) {
+                                LOG.info("NAT Service : DNAT -> Successfully installed custom FIB routes for prefix {}",
+                                        externalIp);
+                            } else {
+                                LOG.error("NAT Service : DNAT -> Error in rpc call to create custom Fib "
+                                        + "entries for prefix {} in DPN {}, {}", externalIp, fipCfgdDpnId,
+                                        result.getErrors());
+                            }
+                        }
                 });
             }
         }
@@ -836,8 +925,13 @@ public class NatTunnelInterfaceStateListener
             return;
         }
         RouterPorts routerPorts = optRouterPorts.get();
-        List<Ports> interfaces = routerPorts.getPorts();
         Uuid extNwId = routerPorts.getExternalNetworkId();
+        ProviderTypes extNwProviderType = NatUtil.getProviderTypefromNetworkId(dataBroker, extNwId);
+        if (extNwProviderType == null) {
+            LOG.error("NAT Service : Unable to retrieve the Provider Type for external network ID {} "
+                    + "in NatTunnelInterfaceStateListener.hndlTepDelForDnatInEachRtr()", extNwId);
+            return;
+        }
         final String vpnName = NatUtil.getAssociatedVPN(dataBroker, extNwId, LOG);
         if (vpnName == null) {
             LOG.info("NAT Service : DNAT -> No External VPN associated with Ext N/W {} for Router {}",
@@ -845,6 +939,12 @@ public class NatTunnelInterfaceStateListener
             return;
         }
         String rd = NatUtil.getVpnRd(dataBroker, vpnName);
+        if (rd == null) {
+            LOG.error("NAT Service : Unable to retrieve the RD from VpnName {} "
+                    + "in NatTunnelInterfaceStateListener.hndlTepDelForDnatInEachRtr()", vpnName);
+            return;
+        }
+        List<Ports> interfaces = routerPorts.getPorts();
         for (Ports port : interfaces) {
             //Get the DPN on which this interface resides
             String interfaceName = port.getPortName();
@@ -861,6 +961,7 @@ public class NatTunnelInterfaceStateListener
                 continue;
             }
             List<InternalToExternalPortMap> intExtPortMapList = port.getInternalToExternalPortMap();
+            long serviceId = 0;
             for (InternalToExternalPortMap intExtPortMap : intExtPortMapList) {
                 String internalIp = intExtPortMap.getInternalIp();
                 String externalIp = intExtPortMap.getExternalIp();
@@ -868,14 +969,29 @@ public class NatTunnelInterfaceStateListener
                     + "configured for the port: {}",
                     externalIp, interfaceName);
                 NatUtil.removePrefixFromBGP(dataBroker, bgpManager, fibManager, rd, externalIp + "/32", LOG);
-                long label = floatingIPListener.getOperationalIpMapping(routerName, interfaceName, internalIp);
-                if (label == NatConstants.INVALID_ID) {
-                    LOG.debug("NAT Service : DNAT -> Unable to remove the table 21 entry pushing the "
-                        + "MPLS label to the tunnel since label is invalid");
-                    return;
+                if (extNwProviderType.getName().equals("VXLAN")) {
+                    //get l3Vni value for external VPN
+                    long l3Vni = NatUtil.getL3Vni(dataBroker, rd);
+                    if (l3Vni == NatConstants.INVALID_ID) {
+                        LOG.error("NAT Service : Unable to retrieve L3VNI value for External IP {} with Provider Type "
+                                        + "{} in NatTunnelInterfaceStateListener.hndlTepDelForDnatInEachRtr() "
+                                        + "DNAT -> Unable to remove the table 21 entry pushing l3vni value to the "
+                                + "tunnel since l3vni is invalid", externalIp,extNwProviderType.getName());
+                        return;
+                    }
+                    serviceId = l3Vni;
+                } else {
+                    //Other than VXLAN Provider type
+                    long label = floatingIPListener.getOperationalIpMapping(routerName, interfaceName, internalIp);
+                    if (label == NatConstants.INVALID_ID) {
+                        LOG.debug("NAT Service : DNAT -> Unable to remove the table 21 entry pushing the "
+                            + "MPLS label to the tunnel since label is invalid");
+                        return;
+                    }
+                    serviceId = label;
                 }
                 RemoveFibEntryInput input = new RemoveFibEntryInputBuilder().setVpnName(vpnName)
-                    .setSourceDpid(fipCfgdDpnId).setIpAddress(externalIp + "/32").setServiceId(label).build();
+                    .setSourceDpid(fipCfgdDpnId).setIpAddress(externalIp + "/32").setServiceId(serviceId).build();
                 Future<RpcResult<Void>> future = fibRpcService.removeFibEntry(input);
                 ListenableFuture<RpcResult<Void>> listenableFuture = JdkFutureAdapters.listenInPoolThread(future);
 
@@ -883,18 +999,33 @@ public class NatTunnelInterfaceStateListener
 
                     @Override
                     public void onFailure(Throwable error) {
-                        LOG.error("NAT Service : DNAT -> Error in removing the table 21 entry pushing "
-                            + "the MPLS label to the tunnel since label is invalid ", error);
+                        if (extNwProviderType.getName().equals("VXLAN")) {
+                            LOG.error("NAT Service : DNAT -> Error in removing the table 21 entry pushing "
+                                    + "the l3vni value to the tunnel since l3vni is invalid ", error);
+                        } else {
+                            LOG.error("NAT Service : DNAT -> Error in removing the table 21 entry pushing "
+                                    + "the MPLS label to the tunnel since label is invalid ", error);
+                        }
                     }
 
                     @Override
                     public void onSuccess(RpcResult<Void> result) {
                         if (result.isSuccessful()) {
-                            LOG.info("NAT Service : DNAT -> Successfully removed the entry pushing the "
-                                + "MPLS label to the tunnel");
+                            if (extNwProviderType.getName().equals("VXLAN")) {
+                                LOG.info("NAT Service : DNAT -> Successfully removed the entry pushing the "
+                                        + "l3vni value to the tunnel");
+                            } else {
+                                LOG.info("NAT Service : DNAT -> Successfully removed the entry pushing the "
+                                        + "MPLS label to the tunnel");
+                            }
                         } else {
-                            LOG.error("NAT Service : DNAT -> Error in fib rpc call to remove the table 21 "
-                                + "entry pushing the MPLS label to the tunnnel due to {}", result.getErrors());
+                            if (extNwProviderType.getName().equals("VXLAN")) {
+                                LOG.error("NAT Service : DNAT -> Error in fib rpc call to remove the table 21 "
+                                        + "entry pushing the l3vni value to the tunnnel due to {}", result.getErrors());
+                            } else {
+                                LOG.error("NAT Service : DNAT -> Error in fib rpc call to remove the table 21 "
+                                        + "entry pushing the MPLS label to the tunnnel due to {}", result.getErrors());
+                            }
                         }
                     }
                 });
