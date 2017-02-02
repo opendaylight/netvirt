@@ -60,4 +60,9 @@ public class AclServiceStatefulTest extends AclServiceTestBase {
         // TODO Fix up — this is broken since the Genius InstructionInfo clean-up
         //assertFlowsInAnyOrder(FlowEntryObjectsStateful.icmpFlowsForTwoAclsHavingSameRules());
     }
+
+    @Override
+    void newInterfaceWithAapIpv4AllCheck() {
+        assertFlowsInAnyOrder(FlowEntryObjectsStateful.aapWithIpv4AllFlows());
+    }
 }

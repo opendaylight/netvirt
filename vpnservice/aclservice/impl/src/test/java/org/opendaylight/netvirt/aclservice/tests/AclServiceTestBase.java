@@ -65,9 +65,11 @@ public abstract class AclServiceTestBase {
     static final String PORT_MAC_1 = "0D:AA:D8:42:30:F3";
     static final String PORT_MAC_2 = "0D:AA:D8:42:30:F4";
     static final String PORT_MAC_3 = "0D:AA:D8:42:30:F5";
+    static final String PORT_MAC_4 = "0D:AA:D8:42:30:F6";
     static final String PORT_1 = "port1";
     static final String PORT_2 = "port2";
     static final String PORT_3 = "port3";
+    static final String PORT_4 = "port4";
     static String SG_UUID  = "85cc3048-abc3-43cc-89b3-377341426ac5";
     static String SR_UUID_1 = "85cc3048-abc3-43cc-89b3-377341426ac6";
     static String SR_UUID_2 = "85cc3048-abc3-43cc-89b3-377341426ac7";
@@ -81,6 +83,7 @@ public abstract class AclServiceTestBase {
     static String IP_PREFIX_1 = "10.0.0.1/24";
     static String IP_PREFIX_2 = "10.0.0.2/24";
     static String IP_PREFIX_3 = "10.0.0.3/24";
+    static String IP_PREFIX_4 = "10.0.0.4/24";
     static long ELAN_TAG = 5000L;
 
     protected static final Integer FLOW_PRIORITY_SG_1 = 1001;
@@ -343,6 +346,27 @@ public abstract class AclServiceTestBase {
 
     abstract void newInterfaceWithTwoAclsHavingSameRulesCheck();
 
+    /**
+     * Test new interface with allowed-address-pair (AAP) having IP prefix
+     * 0.0.0.0/0.
+     *
+     * @throws Exception the exception
+     */
+    @Test
+    public void newInterfaceWithAapIpv4All() throws Exception {
+        LOG.info("newInterfaceWithAapIpv4All test - start");
+        // When
+        putNewStateInterface(dataBroker, PORT_4, PORT_MAC_4);
+
+        asyncEventsWaiter.awaitEventsConsumption();
+
+        // Then
+        newInterfaceWithAapIpv4AllCheck();
+        LOG.info("newInterfaceWithAapIpv4All test - end");
+    }
+
+    abstract void newInterfaceWithAapIpv4AllCheck();
+
     // TODO Remove this from here, use the one about to be merged in TestIMdsalApiManager
     // under https://git.opendaylight.org/gerrit/#/c/47842/ *BUT* remember to integrate
     // the ignore ordering fix recently added here to there...
@@ -383,19 +407,15 @@ public abstract class AclServiceTestBase {
         }
     }
 
-    private void newAllowedAddressPair(String portName, List<String> sgUuidList, String ipAddress, String macAddress)
+    private void newAllowedAddressPair(String portName, List<String> sgUuidList, List<AllowedAddressPairs> aapList)
             throws TransactionCommitFailedException {
-        AllowedAddressPairs allowedAddressPair = new AllowedAddressPairsBuilder()
-                .setIpAddress(new IpPrefixOrAddress(new IpPrefix(ipAddress.toCharArray())))
-                .setMacAddress(new MacAddress(macAddress))
-                .build();
         List<Uuid> sgList = sgUuidList.stream().map(Uuid::new).collect(Collectors.toList());
 
         dataBrokerUtil.put(ImmutableIdentifiedInterfaceWithAclBuilder.builder()
             .interfaceName(portName)
             .portSecurity(true)
             .addAllNewSecurityGroups(sgList)
-            .addIfAllowedAddressPair(allowedAddressPair).build());
+            .addAllIfAllowedAddressPairs(aapList).build());
     }
 
     private void newElan(String elanName, long elanId) throws TransactionCommitFailedException {
@@ -446,14 +466,29 @@ public abstract class AclServiceTestBase {
 
     }
 
+    private AllowedAddressPairs buildAap(String ipAddress, String macAddress) {
+        return new AllowedAddressPairsBuilder()
+                .setIpAddress(new IpPrefixOrAddress(new IpPrefix(ipAddress.toCharArray())))
+                .setMacAddress(new MacAddress(macAddress)).build();
+    }
+
     public void setUpData() throws Exception {
         newElan(ELAN, ELAN_TAG);
         newElanInterface(ELAN, PORT_1 ,true);
         newElanInterface(ELAN, PORT_2, true);
         newElanInterface(ELAN, PORT_3, true);
-        newAllowedAddressPair(PORT_1, Collections.singletonList(SG_UUID_1), IP_PREFIX_1, PORT_MAC_1);
-        newAllowedAddressPair(PORT_2, Collections.singletonList(SG_UUID_1), IP_PREFIX_2, PORT_MAC_2);
-        newAllowedAddressPair(PORT_3, Arrays.asList(SG_UUID_1, SG_UUID_2), IP_PREFIX_3, PORT_MAC_3);
+        newElanInterface(ELAN, PORT_4, true);
+
+        final AllowedAddressPairs aapPort1 = buildAap(IP_PREFIX_1, PORT_MAC_1);
+        final AllowedAddressPairs aapPort2 = buildAap(IP_PREFIX_2, PORT_MAC_2);
+        final AllowedAddressPairs aapPort3 = buildAap(IP_PREFIX_3, PORT_MAC_3);
+        final AllowedAddressPairs aapPort4 = buildAap(IP_PREFIX_4, PORT_MAC_4);
+
+        newAllowedAddressPair(PORT_1, Collections.singletonList(SG_UUID_1), Collections.singletonList(aapPort1));
+        newAllowedAddressPair(PORT_2, Collections.singletonList(SG_UUID_1), Collections.singletonList(aapPort2));
+        newAllowedAddressPair(PORT_3, Arrays.asList(SG_UUID_1, SG_UUID_2), Collections.singletonList(aapPort3));
+        newAllowedAddressPair(PORT_4, Collections.singletonList(SG_UUID_1),
+                Arrays.asList(aapPort4, buildAap(AclConstants.IPV4_ALL_NETWORK, PORT_MAC_4)));
     }
 
 }
