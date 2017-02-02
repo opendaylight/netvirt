@@ -76,11 +76,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rpcs.rev160406.G
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rpcs.rev160406.GetTunnelInterfaceNameOutput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rpcs.rev160406.ItmRpcService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.group.types.rev131018.GroupTypes;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fib.rpc.rev160121.CreateFibEntryInput;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fib.rpc.rev160121.CreateFibEntryInputBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fib.rpc.rev160121.FibRpcService;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fib.rpc.rev160121.RemoveFibEntryInput;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fib.rpc.rev160121.RemoveFibEntryInputBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fib.rpc.rev160121.*;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.VrfEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ExtRouters;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ExternalIpsCounter;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.IntextIpPortMap;
@@ -878,6 +875,52 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
                                                 final Logger log) {
         LOG.debug("NAT Service : advToBgpAndInstallFibAndTsFlows() entry for DPN ID {}, tableId {}, vpnname {} "
             + "and externalIp {}", dpnId, tableId, vpnName, externalIp);
+        String nextHopIp = NatUtil.getEndpointIpAddressForDPN(dataBroker, dpnId);
+        String rd = NatUtil.getVpnRd(dataBroker, vpnName);
+        VrfEntry.EncapType extNwProviderType = NatUtil.getExtNwProviderType(dataBroker, rd);
+        if(extNwProviderType == null){
+            LOG.debug("NAT Service : Unable to retrieve the External Network Provider Type. Hence returning");
+            return;
+        }
+        switch(extNwProviderType){
+            case Vxlan:
+                /*
+                1) Install the routes in the FIB table and advertise the same to the BGP manager
+                2) VM to DC GW Traffic : SNAT UC : Install flow in the FIB table -> Push the traffic on to the VxLAN
+                    tunnel port
+                3) DC GW to VM Traffic : SNAT UC : Install the flow in the MyMac -> Inbound NAPT table
+                4) SNAT + DNAT UC (Multiple switch scenario) :
+                   Install flow in the FIB table (NAPT Switch) -> Internal Tunnel Port.
+                5) SNAT + DNAT UC (Same switch scenario) :
+                   Install flow in the FIB table -> Inbound NAPT table
+                */
+
+                LOG.debug("NAT Service : PROVIDER TYPE : VxLAN :" +
+                        "Install the routes in the FIB table and advertise the same to the BGP manager");
+                String macAddress = ""; //TO DO : Is this the VM mac ? Get the MAC address from ... where ?
+                String gwMacAddress = ""; //TO DO : Is this the router GW MAC ? Get the MAC address from the NAPT model
+                long l3Vni = NatUtil.getL3Vni(dataBroker, rd);
+                NatUtil.addRoutesForVxLanProvType(dataBroker, bgpManager, fibManager, rd, macAddress, externalIp,
+                        nextHopIp, l3Vni, log, gwMacAddress, RouteOrigin.STATIC);
+
+                LOG.debug("NAT Service : VM to DC GW Traffic : SNAT UC : Install flow in the FIB table -> " +
+                        "Push the traffic on to the VxLAN tunnel port.");
+                LOG.debug("NAT Service : Install custom FIB routes");
+                CreateEvpnFlowsInput createEvpnFlowsInput = new CreateEvpnFlowsInputBuilder().setRd(rd).setDestIp(externalIp).build();
+                Future<RpcResult<Void>> evpnFlowsFuture = fibService.createEvpnFlows(createEvpnFlowsInput);
+                JdkFutureAdapters.listenInPoolThread(evpnFlowsFuture);
+
+                //DC GW to VM Traffic : SNAT UC : Install the flow in the MyMac -> Inbound NAPT table
+
+
+
+                //SNAT + DNAT UC (Multiple switch scenario) :
+                // Install flow in the Internal tunnel table -> Inbound NAPT table
+                //SNAT + DNAT UC (Same switch scenario) :
+                // Install flow in the FIB table -> Inbound NAPT table
+                break;
+            case Mplsgre:
+
         //Generate VPN label for the external IP
         GenerateVpnLabelInput labelInput = new GenerateVpnLabelInputBuilder().setVpnName(vpnName)
             .setIpPrefix(externalIp).build();
@@ -925,8 +968,6 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
                         }
 
                         //Inform BGP
-                        String rd = NatUtil.getVpnRd(dataBroker, vpnName);
-                        String nextHopIp = NatUtil.getEndpointIpAddressForDPN(dataBroker, dpnId);
                         NatUtil.addPrefixToBGP(dataBroker, bgpManager, fibManager, rd, externalIp,
                             nextHopIp, label, log, RouteOrigin.STATIC);
 
@@ -967,6 +1008,8 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
                 }
             }
         });
+                break;
+        }
     }
 
     private void makeLFibTableEntry(BigInteger dpId, long serviceId, short tableId) {

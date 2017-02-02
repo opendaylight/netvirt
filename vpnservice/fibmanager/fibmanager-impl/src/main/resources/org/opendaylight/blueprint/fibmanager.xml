@@ -51,6 +51,9 @@
     <argument ref="dataBroker"/>
     <argument ref="mdsalUtils"/>
     <argument ref="fibManagerImpl"/>
+    <argument ref="odlInterfaceRpcService" />
+    <argument ref="nexthopManager" />
+    <argument ref="idManagerService" />
   </bean>
   <service ref="fibRpcServiceImpl"
            interface="org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fib.rpc.rev160121.FibRpcService"/>
