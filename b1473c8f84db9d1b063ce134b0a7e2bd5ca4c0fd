@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_633c9330",
+        "filename": "vpnservice/features/pom.xml",
+        "patchSetId": 5
+      },
+      "lineNbr": 203,
+      "author": {
+        "id": 2589
+      },
+      "writtenOn": "2017-02-02T12:37:33Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_7bc1fae3",
+      "revId": "b1473c8f84db9d1b063ce134b0a7e2bd5ca4c0fd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_fbacca37",
         "filename": "vpnservice/pom.xml",
         "patchSetId": 5
@@ -30,6 +48,24 @@
       "writtenOn": "2017-01-27T00:50:20Z",
       "side": 1,
       "message": "is there a need to include plugin?",
+      "revId": "b1473c8f84db9d1b063ce134b0a7e2bd5ca4c0fd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_03de6711",
+        "filename": "vpnservice/pom.xml",
+        "patchSetId": 5
+      },
+      "lineNbr": 36,
+      "author": {
+        "id": 2589
+      },
+      "writtenOn": "2017-02-02T12:37:33Z",
+      "side": 1,
+      "message": "Yes, we are also going to add a new counter service to it (as a next step))",
+      "parentUuid": "fafc7978_fbacca37",
       "revId": "b1473c8f84db9d1b063ce134b0a7e2bd5ca4c0fd",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -53,6 +89,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_032ca701",
+        "filename": "vpnservice/statistics-plugin/api/pom.xml",
+        "patchSetId": 5
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 2589
+      },
+      "writtenOn": "2017-02-02T12:37:33Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_db6d8606",
+      "revId": "b1473c8f84db9d1b063ce134b0a7e2bd5ca4c0fd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_1b770ed6",
         "filename": "vpnservice/statistics-plugin/api/src/main/yang/statistics-plugin.yang",
         "patchSetId": 5
@@ -64,6 +118,24 @@
       "writtenOn": "2017-01-27T00:50:20Z",
       "side": 1,
       "message": "shorten this to just urn:opendaylight:netvirt:statistics:plugin",
+      "revId": "b1473c8f84db9d1b063ce134b0a7e2bd5ca4c0fd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_02502831",
+        "filename": "vpnservice/statistics-plugin/api/src/main/yang/statistics-plugin.yang",
+        "patchSetId": 5
+      },
+      "lineNbr": 3,
+      "author": {
+        "id": 2589
+      },
+      "writtenOn": "2017-02-02T12:37:33Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_1b770ed6",
       "revId": "b1473c8f84db9d1b063ce134b0a7e2bd5ca4c0fd",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -87,6 +159,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_6245b46f",
+        "filename": "vpnservice/statistics-plugin/api/src/main/yang/statistics-plugin.yang",
+        "patchSetId": 5
+      },
+      "lineNbr": 6,
+      "author": {
+        "id": 2589
+      },
+      "writtenOn": "2017-02-02T12:37:33Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_fb732ae5",
+      "revId": "b1473c8f84db9d1b063ce134b0a7e2bd5ca4c0fd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_5b81968e",
         "filename": "vpnservice/statistics-plugin/impl/pom.xml",
         "patchSetId": 5
@@ -98,6 +188,24 @@
       "writtenOn": "2017-01-27T00:50:20Z",
       "side": 1,
       "message": "tabs are 2 spaces",
+      "revId": "b1473c8f84db9d1b063ce134b0a7e2bd5ca4c0fd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_c3dbbf19",
+        "filename": "vpnservice/statistics-plugin/impl/pom.xml",
+        "patchSetId": 5
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 2589
+      },
+      "writtenOn": "2017-02-02T12:37:33Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_5b81968e",
       "revId": "b1473c8f84db9d1b063ce134b0a7e2bd5ca4c0fd",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -121,6 +229,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_e309a396",
+        "filename": "vpnservice/statistics-plugin/impl/pom.xml",
+        "patchSetId": 5
+      },
+      "lineNbr": 4,
+      "author": {
+        "id": 2589
+      },
+      "writtenOn": "2017-02-02T12:37:33Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_3b7e52af",
+      "revId": "b1473c8f84db9d1b063ce134b0a7e2bd5ca4c0fd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_9b313e0e",
         "filename": "vpnservice/statistics-plugin/impl/pom.xml",
         "patchSetId": 5
@@ -132,6 +258,24 @@
       "writtenOn": "2017-01-27T00:50:20Z",
       "side": 1,
       "message": "use group and version from parent",
+      "revId": "b1473c8f84db9d1b063ce134b0a7e2bd5ca4c0fd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_4336af53",
+        "filename": "vpnservice/statistics-plugin/impl/pom.xml",
+        "patchSetId": 5
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 2589
+      },
+      "writtenOn": "2017-02-02T12:37:33Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_9b313e0e",
       "revId": "b1473c8f84db9d1b063ce134b0a7e2bd5ca4c0fd",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -155,6 +299,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_233bab3b",
+        "filename": "vpnservice/statistics-plugin/impl/pom.xml",
+        "patchSetId": 5
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 2589
+      },
+      "writtenOn": "2017-02-02T12:37:33Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_3b55b21d",
+      "revId": "b1473c8f84db9d1b063ce134b0a7e2bd5ca4c0fd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_bb49a28d",
         "filename": "vpnservice/statistics-plugin/impl/pom.xml",
         "patchSetId": 5
@@ -166,6 +328,24 @@
       "writtenOn": "2017-01-27T00:50:20Z",
       "side": 1,
       "message": "whitespace",
+      "revId": "b1473c8f84db9d1b063ce134b0a7e2bd5ca4c0fd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_23044b7a",
+        "filename": "vpnservice/statistics-plugin/impl/pom.xml",
+        "patchSetId": 5
+      },
+      "lineNbr": 37,
+      "author": {
+        "id": 2589
+      },
+      "writtenOn": "2017-02-02T12:37:33Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_bb49a28d",
       "revId": "b1473c8f84db9d1b063ce134b0a7e2bd5ca4c0fd",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -189,6 +369,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_83f8977d",
+        "filename": "vpnservice/statistics-plugin/impl/pom.xml",
+        "patchSetId": 5
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 2589
+      },
+      "writtenOn": "2017-02-02T12:37:33Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_5b587656",
+      "revId": "b1473c8f84db9d1b063ce134b0a7e2bd5ca4c0fd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_1b254ec2",
         "filename": "vpnservice/statistics-plugin/impl/src/main/java/org/opendaylight/statisticsplugin/impl/CounterResultDataStructure.java",
         "patchSetId": 5
@@ -200,6 +398,24 @@
       "writtenOn": "2017-01-27T00:50:20Z",
       "side": 1,
       "message": "isn\u0027t results always not null since the constructor adds the hashmap but it is empty?",
+      "revId": "b1473c8f84db9d1b063ce134b0a7e2bd5ca4c0fd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_02378800",
+        "filename": "vpnservice/statistics-plugin/impl/src/main/java/org/opendaylight/statisticsplugin/impl/CounterResultDataStructure.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 2589
+      },
+      "writtenOn": "2017-02-02T12:37:33Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_1b254ec2",
       "revId": "b1473c8f84db9d1b063ce134b0a7e2bd5ca4c0fd",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -223,6 +439,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_825b7853",
+        "filename": "vpnservice/statistics-plugin/impl/src/main/java/org/opendaylight/statisticsplugin/impl/CounterResultDataStructure.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 57,
+      "author": {
+        "id": 2589
+      },
+      "writtenOn": "2017-02-02T12:37:33Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_7b361a05",
+      "revId": "b1473c8f84db9d1b063ce134b0a7e2bd5ca4c0fd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_3b2c92ab",
         "filename": "vpnservice/statistics-plugin/impl/src/main/java/org/opendaylight/statisticsplugin/impl/CounterResultDataStructure.java",
         "patchSetId": 5
@@ -234,6 +468,24 @@
       "writtenOn": "2017-01-27T00:50:20Z",
       "side": 1,
       "message": "checkstyle will need spaces... speaking of, we should just enable checkstyle for this as it goes in so that we have it from the start.",
+      "revId": "b1473c8f84db9d1b063ce134b0a7e2bd5ca4c0fd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_a25e7c43",
+        "filename": "vpnservice/statistics-plugin/impl/src/main/java/org/opendaylight/statisticsplugin/impl/CounterResultDataStructure.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 68,
+      "author": {
+        "id": 2589
+      },
+      "writtenOn": "2017-02-02T12:37:33Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_3b2c92ab",
       "revId": "b1473c8f84db9d1b063ce134b0a7e2bd5ca4c0fd",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -257,6 +509,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_42419059",
+        "filename": "vpnservice/statistics-plugin/impl/src/main/java/org/opendaylight/statisticsplugin/impl/CounterRetriever.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 55,
+      "author": {
+        "id": 2589
+      },
+      "writtenOn": "2017-02-02T12:37:33Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_7b1d7a73",
+      "revId": "b1473c8f84db9d1b063ce134b0a7e2bd5ca4c0fd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_9b181e86",
         "filename": "vpnservice/statistics-plugin/impl/src/main/java/org/opendaylight/statisticsplugin/impl/CounterRetriever.java",
         "patchSetId": 5
@@ -268,6 +538,24 @@
       "writtenOn": "2017-01-27T00:50:20Z",
       "side": 1,
       "message": "final",
+      "revId": "b1473c8f84db9d1b063ce134b0a7e2bd5ca4c0fd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_a225dcc3",
+        "filename": "vpnservice/statistics-plugin/impl/src/main/java/org/opendaylight/statisticsplugin/impl/CounterRetriever.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 63,
+      "author": {
+        "id": 2589
+      },
+      "writtenOn": "2017-02-02T12:37:33Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_9b181e86",
       "revId": "b1473c8f84db9d1b063ce134b0a7e2bd5ca4c0fd",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -291,6 +579,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_021e6870",
+        "filename": "vpnservice/statistics-plugin/impl/src/main/java/org/opendaylight/statisticsplugin/impl/CounterRetriever.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 148,
+      "author": {
+        "id": 2589
+      },
+      "writtenOn": "2017-02-02T12:37:33Z",
+      "side": 1,
+      "message": "Doing that causes initialization errors when starting the bundle in KARAF",
+      "parentUuid": "fafc7978_bb17e250",
+      "revId": "b1473c8f84db9d1b063ce134b0a7e2bd5ca4c0fd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_96ff5301",
         "filename": "vpnservice/statistics-plugin/impl/src/main/java/org/opendaylight/statisticsplugin/impl/CountersUtils.java",
         "patchSetId": 5
@@ -302,6 +608,24 @@
       "writtenOn": "2017-01-27T00:50:20Z",
       "side": 1,
       "message": "checkstyle will complain on order",
+      "revId": "b1473c8f84db9d1b063ce134b0a7e2bd5ca4c0fd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_a20cbc43",
+        "filename": "vpnservice/statistics-plugin/impl/src/main/java/org/opendaylight/statisticsplugin/impl/CountersUtils.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 2589
+      },
+      "writtenOn": "2017-02-02T12:37:33Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_96ff5301",
       "revId": "b1473c8f84db9d1b063ce134b0a7e2bd5ca4c0fd",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -325,6 +649,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_450fda30",
+        "filename": "vpnservice/statistics-plugin/impl/src/main/java/org/opendaylight/statisticsplugin/impl/StatisticsPluginImpl.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 44,
+      "author": {
+        "id": 2589
+      },
+      "writtenOn": "2017-02-02T12:37:33Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_d609db2d",
+      "revId": "b1473c8f84db9d1b063ce134b0a7e2bd5ca4c0fd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_1613635d",
         "filename": "vpnservice/statistics-plugin/impl/src/main/java/org/opendaylight/statisticsplugin/impl/StatisticsPluginImpl.java",
         "patchSetId": 5
@@ -336,6 +678,24 @@
       "writtenOn": "2017-01-27T00:50:20Z",
       "side": 1,
       "message": "are these debug or more trace?",
+      "revId": "b1473c8f84db9d1b063ce134b0a7e2bd5ca4c0fd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_853702e3",
+        "filename": "vpnservice/statistics-plugin/impl/src/main/java/org/opendaylight/statisticsplugin/impl/StatisticsPluginImpl.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 58,
+      "author": {
+        "id": 2589
+      },
+      "writtenOn": "2017-02-02T12:37:33Z",
+      "side": 1,
+      "message": "Changed to \"trace\"",
+      "parentUuid": "fafc7978_1613635d",
       "revId": "b1473c8f84db9d1b063ce134b0a7e2bd5ca4c0fd",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -359,6 +719,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_853ee2b6",
+        "filename": "vpnservice/statistics-plugin/impl/src/main/java/org/opendaylight/statisticsplugin/impl/StatisticsPluginImpl.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 132,
+      "author": {
+        "id": 2589
+      },
+      "writtenOn": "2017-02-02T12:37:33Z",
+      "side": 1,
+      "message": "We prefer to have this for the detailed log message",
+      "parentUuid": "fafc7978_361ae76e",
+      "revId": "b1473c8f84db9d1b063ce134b0a7e2bd5ca4c0fd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_f6369fe6",
         "filename": "vpnservice/statistics-plugin/impl/src/main/java/org/opendaylight/statisticsplugin/impl/StatisticsPluginImpl.java",
         "patchSetId": 5
@@ -370,6 +748,24 @@
       "writtenOn": "2017-01-27T00:50:20Z",
       "side": 1,
       "message": "whitespace",
+      "revId": "b1473c8f84db9d1b063ce134b0a7e2bd5ca4c0fd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_e54b6e57",
+        "filename": "vpnservice/statistics-plugin/impl/src/main/java/org/opendaylight/statisticsplugin/impl/StatisticsPluginImpl.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 233,
+      "author": {
+        "id": 2589
+      },
+      "writtenOn": "2017-02-02T12:37:33Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_f6369fe6",
       "revId": "b1473c8f84db9d1b063ce134b0a7e2bd5ca4c0fd",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -404,6 +800,24 @@
       "writtenOn": "2017-01-27T00:50:20Z",
       "side": 1,
       "message": "thank you for using just api and impl",
+      "revId": "b1473c8f84db9d1b063ce134b0a7e2bd5ca4c0fd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_23ed6bc4",
+        "filename": "vpnservice/statistics-plugin/pom.xml",
+        "patchSetId": 5
+      },
+      "lineNbr": 37,
+      "author": {
+        "id": 2589
+      },
+      "writtenOn": "2017-02-02T12:37:33Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_b67377b0",
       "revId": "b1473c8f84db9d1b063ce134b0a7e2bd5ca4c0fd",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
