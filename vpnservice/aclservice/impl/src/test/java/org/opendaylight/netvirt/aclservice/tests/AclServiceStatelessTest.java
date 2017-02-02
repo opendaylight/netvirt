@@ -19,6 +19,8 @@ public class AclServiceStatelessTest extends AclServiceTestBase {
             new AclServiceTestModule(SecurityGroupMode.Stateless),
             new TestableDataTreeChangeListenerModule());
 
+    private FlowEntryObjectsStateless ipv4statelessentries = new FlowEntryObjectsStateless();
+
     @Override
     void newInterfaceCheck() {
         assertFlowsInAnyOrder(FlowEntryObjectsStateless.expectedFlows(PORT_MAC_1));
@@ -26,37 +28,37 @@ public class AclServiceStatelessTest extends AclServiceTestBase {
 
     @Override
     void newInterfaceWithEtherTypeAclCheck() {
-        assertFlowsInAnyOrder(FlowEntryObjectsStateless.etherFlows());
+        assertFlowsInAnyOrder(ipv4statelessentries.etherFlows());
     }
 
     @Override
     public void newInterfaceWithTcpDstAclCheck() {
-        assertFlowsInAnyOrder(FlowEntryObjectsStateless.tcpFlows());
+        assertFlowsInAnyOrder(ipv4statelessentries.tcpFlows());
     }
 
     @Override
     public void newInterfaceWithUdpDstAclCheck() {
-        assertFlowsInAnyOrder(FlowEntryObjectsStateless.udpFlows());
+        assertFlowsInAnyOrder(ipv4statelessentries.udpFlows());
     }
 
     @Override
     public void newInterfaceWithIcmpAclCheck() {
-        assertFlowsInAnyOrder(FlowEntryObjectsStateless.icmpFlows());
+        assertFlowsInAnyOrder(ipv4statelessentries.icmpFlows());
     }
 
     @Override
     public void newInterfaceWithDstPortRangeCheck() {
-        assertFlowsInAnyOrder(FlowEntryObjectsStateless.dstRangeFlows());
+        assertFlowsInAnyOrder(ipv4statelessentries.dstRangeFlows());
     }
 
     @Override
     public void newInterfaceWithDstAllPortsCheck() {
-        assertFlowsInAnyOrder(FlowEntryObjectsStateless.dstAllFlows());
+        assertFlowsInAnyOrder(ipv4statelessentries.dstAllFlows());
     }
 
     @Override
-    void newInterfaceWithTwoAclsHavingSameRulesCheck() {
-        assertFlowsInAnyOrder(FlowEntryObjectsStateless.icmpFlowsForTwoAclsHavingSameRules());
+    public void newInterfaceWithTwoAclsHavingSameRulesCheck() {
+        assertFlowsInAnyOrder(ipv4statelessentries.icmpFlowsForTwoAclsHavingSameRules());
     }
 
 }

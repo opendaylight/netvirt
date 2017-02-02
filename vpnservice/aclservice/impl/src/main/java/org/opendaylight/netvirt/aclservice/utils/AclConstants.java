@@ -59,6 +59,7 @@ public final class AclConstants {
     public static final int TRACKED_INV_CT_STATE_MASK = 0x30;
 
     public static final String IPV4_ALL_NETWORK = "0.0.0.0/0";
+    public static final String IPV6_ALL_NETWORK = "::/0";
     public static final long TCP_FLAG_SYN = 1 << 1;
     public static final long TCP_FLAG_ACK = 1 << 4;
     public static final long TCP_FLAG_SYN_ACK = TCP_FLAG_SYN + TCP_FLAG_ACK;
@@ -87,6 +88,19 @@ public final class AclConstants {
     public static final String ACL_FLOW_PRIORITY_POOL_NAME = "acl.flow.priorities.pool";
     public static final long ACL_FLOW_PRIORITY_POOL_START = 1000L;
     public static final long ACL_FLOW_PRIORITY_POOL_END = 60000L;
+
+    public static final int SOURCE_LOWER_PORT_UNSPECIFIED = -1;
+    public static final int SOURCE_UPPER_PORT_UNSPECIFIED = -1;
+    public static final int DEST_LOWER_PORT_UNSPECIFIED = -1;
+    public static final int DEST_UPPER_PORT_UNSPECIFIED = -1;
+    public static final int DEST_LOWER_PORT_HTTP = 80;
+    public static final int DEST_LOWER_PORT_2 = 2;
+    public static final int DEST_UPPER_PORT_3 = 3;
+    public static final int DEST_UPPER_PORT_HTTP = 80;
+    public static final int SOURCE_REMOTE_IP_PREFIX_SPECIFIED = 1;
+    public static final int SOURCE_REMOTE_IP_PREFIX_UNSPECIFIED = -1;
+    public static final int DEST_REMOTE_IP_PREFIX_SPECIFIED = 1;
+    public static final int DEST_REMOTE_IP_PREFIX_UNSPECIFIED = -1;
 
     private AclConstants() {
     }
