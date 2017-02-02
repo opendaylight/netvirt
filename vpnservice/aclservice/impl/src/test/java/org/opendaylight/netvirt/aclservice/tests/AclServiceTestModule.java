@@ -12,8 +12,6 @@ import static org.opendaylight.yangtools.testutils.mockito.MoreAnswers.realOrExc
 
 import com.google.common.util.concurrent.Futures;
 import com.google.inject.AbstractModule;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.concurrent.Future;
 import org.mockito.Mockito;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
@@ -80,13 +78,6 @@ public class AclServiceTestModule extends AbstractModule {
 
     private abstract static class TestIdManagerService implements IdManagerService {
 
-        private static Map<String, Integer> cacheMap = new HashMap<>();
-
-        static {
-            cacheMap.put(AclServiceTestBase.SG_UUID_1, AclServiceTestBase.FLOW_PRIORITY_SG_1);
-            cacheMap.put(AclServiceTestBase.SG_UUID_2, AclServiceTestBase.FLOW_PRIORITY_SG_2);
-        }
-
         @Override
         public Future<RpcResult<Void>> createIdPool(CreateIdPoolInput input) {
             return Futures.immediateFuture(RpcResultBuilder.<Void>success().build());
@@ -95,7 +86,8 @@ public class AclServiceTestModule extends AbstractModule {
         @Override
         public Future<RpcResult<AllocateIdOutput>> allocateId(AllocateIdInput input) {
             String key = input.getIdKey();
-            long flowPriority = cacheMap.get(key) == null ? AclConstants.PROTO_MATCH_PRIORITY : cacheMap.get(key);
+            long flowPriority = IdHelper.getFlowPriority(key) == null ? AclConstants.PROTO_MATCH_PRIORITY
+                    : IdHelper.getFlowPriority(key);
             AllocateIdOutputBuilder output = new AllocateIdOutputBuilder();
             output.setIdValue(flowPriority);
 

@@ -920,7 +920,7 @@ class FlowEntryObjectsStateless extends FlowEntryObjectsBase {
                         ]
                     ]
                 ]
-                priority = AclServiceTestBase.FLOW_PRIORITY_SG_1
+                priority = IdHelper.getFlowPriority(flowId)
                 tableId = 252 as short
             ],
             new FlowEntity(123bi) => [
@@ -947,7 +947,7 @@ class FlowEntryObjectsStateless extends FlowEntryObjectsBase {
                         ]
                     ]
                 ]
-                priority = AclServiceTestBase.FLOW_PRIORITY_SG_2
+                priority = IdHelper.getFlowPriority(flowId)
                 tableId = 252 as short
             ]
         ]
@@ -979,7 +979,7 @@ class FlowEntryObjectsStateless extends FlowEntryObjectsBase {
                         ]
                     ]
                 ]
-                priority = AclServiceTestBase.FLOW_PRIORITY_SG_1
+                priority = IdHelper.getFlowPriority(flowId)
                 tableId = 41 as short
             ],
             new FlowEntity(123bi) => [
@@ -1006,7 +1006,7 @@ class FlowEntryObjectsStateless extends FlowEntryObjectsBase {
                         ]
                     ]
                 ]
-                priority = AclServiceTestBase.FLOW_PRIORITY_SG_2
+                priority = IdHelper.getFlowPriority(flowId)
                 tableId = 41 as short
             ]
         ]

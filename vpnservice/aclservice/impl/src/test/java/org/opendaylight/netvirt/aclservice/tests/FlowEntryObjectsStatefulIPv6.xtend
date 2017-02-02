@@ -100,9 +100,7 @@ class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
         #[
             new FlowEntity(123bi) => [
                 cookie = 110100480bi
-                flowId = "ETHERnull_ipv6_remoteACL_interface_aap_AllowedAddressPairsKey "
-                        +"[_macAddress=MacAddress [_value=0D:AA:D8:42:30:F3], _ipAddress=IpPrefixOrAddress "
-                        +"[_ipPrefix=IpPrefix [_ipv6Prefix=Ipv6Prefix [_value=2001:db8:1::/64]]]]"
+                flowId = "ETHERnull_ipv6_remoteACL_interface_aap_0D:AA:D8:42:30:F3_2001:db8:1::/64"
                         +"Ingress98785cc3048-abc3-43cc-89b3-377341426ac7"
                 flowName = "ACL"
                 instructionInfoList = #[
@@ -126,14 +124,12 @@ class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
                         ]
                     ]
                 ]
-                priority = AclServiceTestBase.FLOW_PRIORITY_SG_1
+                priority = IdHelper.getFlowPriority(flowId)
                 tableId = 252 as short
             ],
             new FlowEntity(123bi) => [
                 cookie = 110100480bi
-                flowId = "ETHERnull_ipv6_remoteACL_interface_aap_AllowedAddressPairsKey "
-                        +"[_macAddress=MacAddress [_value=0D:AA:D8:42:30:F4], _ipAddress=IpPrefixOrAddress "
-                        +"[_ipPrefix=IpPrefix [_ipv6Prefix=Ipv6Prefix [_value=2001:db8:2::/64]]]]"
+                flowId = "ETHERnull_ipv6_remoteACL_interface_aap_0D:AA:D8:42:30:F4_2001:db8:2::/64"
                         +"Ingress98785cc3048-abc3-43cc-89b3-377341426ac7"
                 flowName = "ACL"
                 instructionInfoList = #[
@@ -157,7 +153,7 @@ class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
                         ]
                     ]
                 ]
-                priority = AclServiceTestBase.FLOW_PRIORITY_SG_1
+                priority = IdHelper.getFlowPriority(flowId)
                 tableId = 252 as short
             ]
         ]
@@ -521,7 +517,7 @@ class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
                         ]
                     ]
                 ]
-                priority = AclServiceTestBase.FLOW_PRIORITY_SG_1
+                priority = IdHelper.getFlowPriority(flowId)
                 tableId = 41 as short
             ]
         ]
@@ -552,7 +548,7 @@ class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
                         ]
                     ]
                 ]
-                priority = AclServiceTestBase.FLOW_PRIORITY_SG_1
+                priority = IdHelper.getFlowPriority(flowId)
                 tableId = 41 as short
             ]
         ]
@@ -591,7 +587,7 @@ class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
                         ]
                     ]
                 ]
-                priority = AclServiceTestBase.FLOW_PRIORITY_SG_1
+                priority = IdHelper.getFlowPriority(flowId)
                 tableId = 252 as short
             ]
         ]
@@ -630,7 +626,7 @@ class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
                         ]
                     ]
                 ]
-                priority = AclServiceTestBase.FLOW_PRIORITY_SG_1
+                priority = IdHelper.getFlowPriority(flowId)
                 tableId = 252 as short
             ]
         ]
@@ -640,9 +636,7 @@ class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
         #[
             new FlowEntity(123bi) => [
                 cookie = 110100480bi
-                flowId = "TCP_DESTINATION_80_65535_ipv6_remoteACL_interface_aap_AllowedAddressPairsKey "
-                        +"[_macAddress=MacAddress [_value=0D:AA:D8:42:30:F3], _ipAddress=IpPrefixOrAddress "
-                        +"[_ipPrefix=IpPrefix [_ipv6Prefix=Ipv6Prefix [_value=2001:db8:1::/64]]]]"
+                flowId = "TCP_DESTINATION_80_65535_ipv6_remoteACL_interface_aap_0D:AA:D8:42:30:F3_2001:db8:1::/64"
                         +"Egress98785cc3048-abc3-43cc-89b3-377341426ac6"
                 flowName = "ACL"
                 instructionInfoList = #[
@@ -674,12 +668,12 @@ class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
                         ]
                     ]
                 ]
-                priority = AclServiceTestBase.FLOW_PRIORITY_SG_1
+                priority = IdHelper.getFlowPriority(flowId)
                 tableId = 41 as short
             ],
             new FlowEntity(123bi) => [
                 cookie = 110100480bi
-                flowId = "TCP_DESTINATION_80_65535_ipv6_remoteACL_interface_aap_AllowedAddressPairsKey [_macAddress=MacAddress [_value=0D:AA:D8:42:30:F4], _ipAddress=IpPrefixOrAddress [_ipPrefix=IpPrefix [_ipv6Prefix=Ipv6Prefix [_value=2001:db8:2::/64]]]]Egress98785cc3048-abc3-43cc-89b3-377341426ac6"
+                flowId = "TCP_DESTINATION_80_65535_ipv6_remoteACL_interface_aap_0D:AA:D8:42:30:F4_2001:db8:2::/64Egress98785cc3048-abc3-43cc-89b3-377341426ac6"
                 flowName = "ACL"
                 instructionInfoList = #[
                     new InstructionApplyActions(#[
@@ -710,7 +704,7 @@ class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
                         ]
                     ]
                 ]
-                priority = AclServiceTestBase.FLOW_PRIORITY_SG_1
+                priority = IdHelper.getFlowPriority(flowId)
                 tableId = 41 as short
             ]
         ]
@@ -749,7 +743,7 @@ class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
                         ]
                     ]
                 ]
-                priority = AclServiceTestBase.FLOW_PRIORITY_SG_1
+                priority = IdHelper.getFlowPriority(flowId)
                 tableId = 41 as short
             ]
         ]
@@ -759,9 +753,7 @@ class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
         #[
             new FlowEntity(123bi) => [
                 cookie = 110100480bi
-                flowId = "UDP_DESTINATION_80_65535_ipv6_remoteACL_interface_aap_AllowedAddressPairsKey "
-                        +"[_macAddress=MacAddress [_value=0D:AA:D8:42:30:F3], _ipAddress=IpPrefixOrAddress "
-                        +"[_ipPrefix=IpPrefix [_ipv6Prefix=Ipv6Prefix [_value=2001:db8:1::/64]]]]"
+                flowId = "UDP_DESTINATION_80_65535_ipv6_remoteACL_interface_aap_0D:AA:D8:42:30:F3_2001:db8:1::/64"
                         +"Ingress98785cc3048-abc3-43cc-89b3-377341426ac7"
                 flowName = "ACL"
                 instructionInfoList = #[
@@ -793,12 +785,12 @@ class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
                         ]
                     ]
                 ]
-                priority = AclServiceTestBase.FLOW_PRIORITY_SG_1
+                priority = IdHelper.getFlowPriority(flowId)
                 tableId = 252 as short
             ],
             new FlowEntity(123bi) => [
                 cookie = 110100480bi
-                flowId = "UDP_DESTINATION_80_65535_ipv6_remoteACL_interface_aap_AllowedAddressPairsKey [_macAddress=MacAddress [_value=0D:AA:D8:42:30:F4], _ipAddress=IpPrefixOrAddress [_ipPrefix=IpPrefix [_ipv6Prefix=Ipv6Prefix [_value=2001:db8:2::/64]]]]Ingress98785cc3048-abc3-43cc-89b3-377341426ac7"
+                flowId = "UDP_DESTINATION_80_65535_ipv6_remoteACL_interface_aap_0D:AA:D8:42:30:F4_2001:db8:2::/64Ingress98785cc3048-abc3-43cc-89b3-377341426ac7"
                 flowName = "ACL"
                 instructionInfoList = #[
                     new InstructionApplyActions(#[
@@ -829,7 +821,7 @@ class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
                         ]
                     ]
                 ]
-                priority = AclServiceTestBase.FLOW_PRIORITY_SG_1
+                priority = IdHelper.getFlowPriority(flowId)
                 tableId = 252 as short
             ]
         ]
@@ -868,7 +860,7 @@ class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
                         ]
                     ]
                 ]
-                priority = AclServiceTestBase.FLOW_PRIORITY_SG_1
+                priority = IdHelper.getFlowPriority(flowId)
                 tableId = 41 as short
             ]
         ]
@@ -901,7 +893,7 @@ class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
                         ]
                     ]
                 ]
-                priority = AclServiceTestBase.FLOW_PRIORITY_SG_1
+                priority = IdHelper.getFlowPriority(flowId)
                 tableId = 252 as short
             ]
         ]
@@ -934,7 +926,7 @@ class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
                         ]
                     ]
                 ]
-                priority = AclServiceTestBase.FLOW_PRIORITY_SG_1
+                priority = IdHelper.getFlowPriority(flowId)
                 tableId = 252 as short
             ]
         ]
@@ -944,9 +936,7 @@ class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
         #[
             new FlowEntity(123bi) => [
                 cookie = 110100480bi
-                flowId = "ICMP_V6_DESTINATION_23__ipv6_remoteACL_interface_aap_AllowedAddressPairsKey "
-                        +"[_macAddress=MacAddress [_value=0D:AA:D8:42:30:F3], _ipAddress=IpPrefixOrAddress "
-                        +"[_ipPrefix=IpPrefix [_ipv6Prefix=Ipv6Prefix [_value=2001:db8:1::/64]]]]"
+                flowId = "ICMP_V6_DESTINATION_23__ipv6_remoteACL_interface_aap_0D:AA:D8:42:30:F3_2001:db8:1::/64"
                         +"Egress98785cc3048-abc3-43cc-89b3-377341426ac6"
                 flowName = "ACL"
                 instructionInfoList = #[
@@ -972,14 +962,12 @@ class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
                         ]
                     ]
                 ]
-                priority = AclServiceTestBase.FLOW_PRIORITY_SG_1
+                priority = IdHelper.getFlowPriority(flowId)
                 tableId = 41 as short
             ],
             new FlowEntity(123bi) => [
                 cookie = 110100480bi
-                flowId = "ICMP_V6_DESTINATION_23__ipv6_remoteACL_interface_aap_AllowedAddressPairsKey "
-                        +"[_macAddress=MacAddress [_value=0D:AA:D8:42:30:F4], _ipAddress=IpPrefixOrAddress "
-                        +"[_ipPrefix=IpPrefix [_ipv6Prefix=Ipv6Prefix [_value=2001:db8:2::/64]]]]"
+                flowId = "ICMP_V6_DESTINATION_23__ipv6_remoteACL_interface_aap_0D:AA:D8:42:30:F4_2001:db8:2::/64"
                         +"Egress98785cc3048-abc3-43cc-89b3-377341426ac6"
                 flowName = "ACL"
                 instructionInfoList = #[
@@ -1005,7 +993,7 @@ class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
                         ]
                     ]
                 ]
-                priority = AclServiceTestBase.FLOW_PRIORITY_SG_1
+                priority = IdHelper.getFlowPriority(flowId)
                 tableId = 41 as short
             ]
         ]
@@ -1044,7 +1032,7 @@ class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
                         ]
                     ]
                 ]
-                priority = AclServiceTestBase.FLOW_PRIORITY_SG_1
+                priority = IdHelper.getFlowPriority(flowId)
                 tableId = 252 as short
             ]
         ]
@@ -1083,7 +1071,7 @@ class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
                         ]
                     ]
                 ]
-                priority = AclServiceTestBase.FLOW_PRIORITY_SG_1
+                priority = IdHelper.getFlowPriority(flowId)
                 tableId = 41 as short
             ],
             new FlowEntity(123bi) => [
@@ -1117,7 +1105,7 @@ class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
                         ]
                     ]
                 ]
-                priority = AclServiceTestBase.FLOW_PRIORITY_SG_1
+                priority = IdHelper.getFlowPriority(flowId)
                 tableId = 41 as short
             ],
             new FlowEntity(123bi) => [
@@ -1151,7 +1139,7 @@ class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
                         ]
                     ]
                 ]
-                priority = AclServiceTestBase.FLOW_PRIORITY_SG_1
+                priority = IdHelper.getFlowPriority(flowId)
                 tableId = 41 as short
             ],
             new FlowEntity(123bi) => [
@@ -1185,7 +1173,7 @@ class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
                         ]
                     ]
                 ]
-                priority = AclServiceTestBase.FLOW_PRIORITY_SG_1
+                priority = IdHelper.getFlowPriority(flowId)
                 tableId = 41 as short
             ],
             new FlowEntity(123bi) => [
@@ -1219,7 +1207,7 @@ class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
                         ]
                     ]
                 ]
-                priority = AclServiceTestBase.FLOW_PRIORITY_SG_1
+                priority = IdHelper.getFlowPriority(flowId)
                 tableId = 41 as short
             ],
             new FlowEntity(123bi) => [
@@ -1253,7 +1241,7 @@ class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
                         ]
                     ]
                 ]
-                priority = AclServiceTestBase.FLOW_PRIORITY_SG_1
+                priority = IdHelper.getFlowPriority(flowId)
                 tableId = 41 as short
             ],
             new FlowEntity(123bi) => [
@@ -1287,7 +1275,7 @@ class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
                         ]
                     ]
                 ]
-                priority = AclServiceTestBase.FLOW_PRIORITY_SG_1
+                priority = IdHelper.getFlowPriority(flowId)
                 tableId = 41 as short
             ],
             new FlowEntity(123bi) => [
@@ -1321,7 +1309,7 @@ class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
                         ]
                     ]
                 ]
-                priority = AclServiceTestBase.FLOW_PRIORITY_SG_1
+                priority = IdHelper.getFlowPriority(flowId)
                 tableId = 41 as short
             ]
         ]
@@ -1353,7 +1341,7 @@ class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
                         ]
                     ]
                 ]
-                priority = AclServiceTestBase.FLOW_PRIORITY_SG_1
+                priority = IdHelper.getFlowPriority(flowId)
                 tableId = 252 as short
             ]
         ]
@@ -1385,7 +1373,7 @@ class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
                         ]
                     ]
                 ]
-                priority = AclServiceTestBase.FLOW_PRIORITY_SG_1
+                priority = IdHelper.getFlowPriority(flowId)
                 tableId = 41 as short
             ]
          ]
@@ -1419,7 +1407,7 @@ class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
                         ]
                     ]
                 ]
-                priority = AclServiceTestBase.FLOW_PRIORITY_SG_1
+                priority = IdHelper.getFlowPriority(flowId)
                 tableId = 252 as short
             ],
             new FlowEntity(123bi) => [
@@ -1447,7 +1435,7 @@ class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
                         ]
                     ]
                 ]
-                priority = AclServiceTestBase.FLOW_PRIORITY_SG_2
+                priority = IdHelper.getFlowPriority(flowId)
                 tableId = 252 as short
             ]
         ]
@@ -1480,7 +1468,7 @@ class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
                         ]
                     ]
                 ]
-                priority = AclServiceTestBase.FLOW_PRIORITY_SG_1
+                priority = IdHelper.getFlowPriority(flowId)
                 tableId = 41 as short
             ],
             new FlowEntity(123bi) => [
@@ -1508,7 +1496,7 @@ class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
                         ]
                     ]
                 ]
-                priority = AclServiceTestBase.FLOW_PRIORITY_SG_2
+                priority = IdHelper.getFlowPriority(flowId)
                 tableId = 41 as short
             ]
         ]

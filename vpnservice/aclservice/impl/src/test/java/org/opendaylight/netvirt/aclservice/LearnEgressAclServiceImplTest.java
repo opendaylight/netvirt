@@ -56,6 +56,7 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.packet.fields.rev160218.acl.transport.header.fields.DestinationPortRangeBuilder;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.MacAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.IdManagerService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.config.rev160806.AclserviceConfig;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.DirectionEgress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.IpPrefixOrAddress;
@@ -74,6 +75,7 @@ public class LearnEgressAclServiceImplTest {
     @Mock WriteTransaction mockWriteTx;
     @Mock ReadOnlyTransaction mockReadTx;
     @Mock AclserviceConfig config;
+    @Mock IdManagerService idManager;
 
     MethodInvocationParamSaver<Void> installFlowValueSaver = null;
     MethodInvocationParamSaver<Void> removeFlowValueSaver = null;
@@ -83,7 +85,7 @@ public class LearnEgressAclServiceImplTest {
     @Before
     public void setUp() {
         AclDataUtil aclDataUtil = new AclDataUtil();
-        AclServiceUtils aclServiceUtils = new AclServiceUtils(aclDataUtil, config);
+        AclServiceUtils aclServiceUtils = new AclServiceUtils(aclDataUtil, config, idManager);
         testedService = new LearnEgressAclServiceImpl(dataBroker, mdsalManager, aclDataUtil, aclServiceUtils);
         doReturn(Futures.immediateCheckedFuture(null)).when(mockWriteTx).submit();
         doReturn(mockReadTx).when(dataBroker).newReadOnlyTransaction();
