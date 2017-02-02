@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_d909f296",
+        "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/impl/NeutronL3Adapter.java",
+        "patchSetId": 12
+      },
+      "lineNbr": 1636,
+      "author": {
+        "id": 4058
+      },
+      "writtenOn": "2017-02-02T13:05:49Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_ffab0487",
+      "revId": "59819542036cead9384732aa97355a92da87b91a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_ff5824fc",
         "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/impl/SecurityServicesImpl.java",
         "patchSetId": 12
@@ -72,6 +90,42 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_b9f22e98",
+        "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/impl/SecurityServicesImpl.java",
+        "patchSetId": 12
+      },
+      "lineNbr": 82,
+      "author": {
+        "id": 4058
+      },
+      "writtenOn": "2017-02-02T13:05:49Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_16386a9f",
+      "revId": "59819542036cead9384732aa97355a92da87b91a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_59f50282",
+        "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/impl/SecurityServicesImpl.java",
+        "patchSetId": 12
+      },
+      "lineNbr": 82,
+      "author": {
+        "id": 4058
+      },
+      "writtenOn": "2017-02-02T13:05:49Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_ff5824fc",
+      "revId": "59819542036cead9384732aa97355a92da87b91a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_df5d60eb",
         "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/impl/SecurityServicesImpl.java",
         "patchSetId": 12
@@ -83,6 +137,24 @@
       "writtenOn": "2017-02-01T18:34:27Z",
       "side": 1,
       "message": "same comment as above",
+      "revId": "59819542036cead9384732aa97355a92da87b91a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_99ef6ab0",
+        "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/impl/SecurityServicesImpl.java",
+        "patchSetId": 12
+      },
+      "lineNbr": 117,
+      "author": {
+        "id": 4058
+      },
+      "writtenOn": "2017-02-02T13:05:49Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_df5d60eb",
       "revId": "59819542036cead9384732aa97355a92da87b91a",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -106,6 +178,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_d930d258",
+        "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/impl/SecurityServicesImpl.java",
+        "patchSetId": 12
+      },
+      "lineNbr": 143,
+      "author": {
+        "id": 4058
+      },
+      "writtenOn": "2017-02-02T13:05:49Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_1fe4080c",
+      "revId": "59819542036cead9384732aa97355a92da87b91a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_5fee90ed",
         "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/impl/SecurityServicesImpl.java",
         "patchSetId": 12
@@ -117,6 +207,24 @@
       "writtenOn": "2017-02-01T18:34:27Z",
       "side": 1,
       "message": "same comment as above",
+      "revId": "59819542036cead9384732aa97355a92da87b91a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_39363e53",
+        "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/impl/SecurityServicesImpl.java",
+        "patchSetId": 12
+      },
+      "lineNbr": 193,
+      "author": {
+        "id": 4058
+      },
+      "writtenOn": "2017-02-02T13:05:49Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_5fee90ed",
       "revId": "59819542036cead9384732aa97355a92da87b91a",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -140,6 +248,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_193b7a3b",
+        "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/impl/SecurityServicesImpl.java",
+        "patchSetId": 12
+      },
+      "lineNbr": 219,
+      "author": {
+        "id": 4058
+      },
+      "writtenOn": "2017-02-02T13:05:49Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_9fbf58d0",
+      "revId": "59819542036cead9384732aa97355a92da87b91a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_ffb4a4f3",
         "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/impl/TenantNetworkManagerImpl.java",
         "patchSetId": 12
@@ -151,6 +277,24 @@
       "writtenOn": "2017-02-01T18:34:27Z",
       "side": 1,
       "message": "not needed?",
+      "revId": "59819542036cead9384732aa97355a92da87b91a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_39ff5e69",
+        "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/impl/TenantNetworkManagerImpl.java",
+        "patchSetId": 12
+      },
+      "lineNbr": 165,
+      "author": {
+        "id": 4058
+      },
+      "writtenOn": "2017-02-02T13:05:49Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_ffb4a4f3",
       "revId": "59819542036cead9384732aa97355a92da87b91a",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
