@@ -36,6 +36,8 @@ public class NatConstants {
     public static final int DEFAULT_TS_FLOW_PRIORITY = 10;
     public static final short DEFAULT_PREFIX = 32;
     public static final long DEFAULT_L3VNI_VALUE = 0;
+    public static final int DEFAULT_LABEL_VALUE = 0;
+    public static final String DNAT_FLOW_NAME = "DNAT";
 
     // Flow Actions
     public static final int ADD_FLOW = 0;

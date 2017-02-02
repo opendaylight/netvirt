@@ -137,6 +137,7 @@
     <argument ref="naptPacketInHandler" />
     <argument ref="fibManager" />
     <argument ref="vpnManager"/>
+    <argument ref="evpnSnatFlowProgrammer"/>
   </bean>
 
   <bean id="externalNetworksChangeListener"
@@ -278,6 +279,14 @@
     <argument ref="dataBroker"/>
     <argument ref="neutronvpnManager" />
   </bean>
+
   <service ref="natRpcServiceImpl"
            interface="org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rpc.rev170209.OdlNatRpcService"/>
+
+  <bean id="evpnSnatFlowProgrammer" class="org.opendaylight.netvirt.natservice.internal.EvpnSnatFlowProgrammer">
+    <argument ref="dataBroker" />
+    <argument ref="mdsalUtils" />
+    <argument ref="bgpManager" />
+    <argument ref="fibManager" />
+  </bean>
 </blueprint>
