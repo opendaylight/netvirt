@@ -1,0 +1,395 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_f24deb73",
+        "filename": "docs/specs/discovery_of_directly_connected_pnfs.rst",
+        "patchSetId": 6
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2017-02-02T20:35:33Z",
+      "side": 1,
+      "message": ", connected to the hypervisors L2 broadcast domain and configured with ip from one of the neutron subnets.",
+      "range": {
+        "startLine": 10,
+        "startChar": 47,
+        "endLine": 10,
+        "endChar": 112
+      },
+      "revId": "00f9beb386e7d42310902dccffe9c2c207026214",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_d279c794",
+        "filename": "docs/specs/discovery_of_directly_connected_pnfs.rst",
+        "patchSetId": 6
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2017-02-02T20:35:33Z",
+      "side": 1,
+      "message": "Ideally, L2/L3 communication between VM instances and PNFs on flat/VLAN networks would be routed similarly to inter-VM communication. However, there are two main issues preventing direct communication to PNFs",
+      "range": {
+        "startLine": 12,
+        "startChar": 0,
+        "endLine": 12,
+        "endChar": 46
+      },
+      "revId": "00f9beb386e7d42310902dccffe9c2c207026214",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_326f73c7",
+        "filename": "docs/specs/discovery_of_directly_connected_pnfs.rst",
+        "patchSetId": 6
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2017-02-02T20:35:33Z",
+      "side": 1,
+      "message": "in the same",
+      "range": {
+        "startLine": 14,
+        "startChar": 55,
+        "endLine": 14,
+        "endChar": 60
+      },
+      "revId": "00f9beb386e7d42310902dccffe9c2c207026214",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_7268dbba",
+        "filename": "docs/specs/discovery_of_directly_connected_pnfs.rst",
+        "patchSetId": 6
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2017-02-02T20:35:33Z",
+      "side": 1,
+      "message": "in the other direction,",
+      "range": {
+        "startLine": 16,
+        "startChar": 192,
+        "endLine": 16,
+        "endChar": 196
+      },
+      "revId": "00f9beb386e7d42310902dccffe9c2c207026214",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_1274ef97",
+        "filename": "docs/specs/discovery_of_directly_connected_pnfs.rst",
+        "patchSetId": 6
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2017-02-02T20:35:33Z",
+      "side": 1,
+      "message": "to route the traffic to the PNF ip thus this traffic is dropped.",
+      "range": {
+        "startLine": 16,
+        "startChar": 190,
+        "endLine": 16,
+        "endChar": 192
+      },
+      "revId": "00f9beb386e7d42310902dccffe9c2c207026214",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_b26243d6",
+        "filename": "docs/specs/discovery_of_directly_connected_pnfs.rst",
+        "patchSetId": 6
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2017-02-02T20:35:33Z",
+      "side": 1,
+      "message": "because the ARP responder flow for router-interface addresses is programmed per VM port.",
+      "range": {
+        "startLine": 16,
+        "startChar": 246,
+        "endLine": 16,
+        "endChar": 247
+      },
+      "revId": "00f9beb386e7d42310902dccffe9c2c207026214",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_32a65311",
+        "filename": "docs/specs/discovery_of_directly_connected_pnfs.rst",
+        "patchSetId": 6
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2017-02-02T20:35:33Z",
+      "side": 1,
+      "message": "for ip addresses that have not been statically configured by OpenStack",
+      "range": {
+        "startLine": 22,
+        "startChar": 91,
+        "endLine": 22,
+        "endChar": 161
+      },
+      "revId": "00f9beb386e7d42310902dccffe9c2c207026214",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_12ab4fd9",
+        "filename": "docs/specs/discovery_of_directly_connected_pnfs.rst",
+        "patchSetId": 6
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2017-02-02T20:35:33Z",
+      "side": 1,
+      "message": "not vpn-id?",
+      "range": {
+        "startLine": 25,
+        "startChar": 48,
+        "endLine": 25,
+        "endChar": 78
+      },
+      "revId": "00f9beb386e7d42310902dccffe9c2c207026214",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_52acb7ed",
+        "filename": "docs/specs/discovery_of_directly_connected_pnfs.rst",
+        "patchSetId": 6
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2017-02-02T20:35:33Z",
+      "side": 1,
+      "message": "typo: reply\ncheck out all occurrences",
+      "range": {
+        "startLine": 27,
+        "startChar": 21,
+        "endLine": 27,
+        "endChar": 26
+      },
+      "revId": "00f9beb386e7d42310902dccffe9c2c207026214",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_f2820b51",
+        "filename": "docs/specs/discovery_of_directly_connected_pnfs.rst",
+        "patchSetId": 6
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2017-02-02T20:35:33Z",
+      "side": 1,
+      "message": "was not designed for monitoring of devices behind flat/VLAN provider network ports in terms of: \n\n* determining the source ip/mac of the ARP requests\n* preventing mac movements on the network",
+      "range": {
+        "startLine": 39,
+        "startChar": 18,
+        "endLine": 39,
+        "endChar": 57
+      },
+      "revId": "00f9beb386e7d42310902dccffe9c2c207026214",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_d2870760",
+        "filename": "docs/specs/discovery_of_directly_connected_pnfs.rst",
+        "patchSetId": 6
+      },
+      "lineNbr": 44,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2017-02-02T20:35:33Z",
+      "side": 1,
+      "message": "provider",
+      "range": {
+        "startLine": 44,
+        "startChar": 66,
+        "endLine": 44,
+        "endChar": 74
+      },
+      "revId": "00f9beb386e7d42310902dccffe9c2c207026214",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_b2908396",
+        "filename": "docs/specs/discovery_of_directly_connected_pnfs.rst",
+        "patchSetId": 6
+      },
+      "lineNbr": 53,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2017-02-02T20:35:33Z",
+      "side": 1,
+      "message": "a new vrf entry with subnet-route augmentation will be created for each neutron subnet\n\nAll the rest of the sentence is not a change",
+      "range": {
+        "startLine": 53,
+        "startChar": 86,
+        "endLine": 53,
+        "endChar": 108
+      },
+      "revId": "00f9beb386e7d42310902dccffe9c2c207026214",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_72dd7b70",
+        "filename": "docs/specs/discovery_of_directly_connected_pnfs.rst",
+        "patchSetId": 6
+      },
+      "lineNbr": 64,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2017-02-02T20:35:33Z",
+      "side": 1,
+      "message": "This is the place to mention from which compute it shell be sent",
+      "range": {
+        "startLine": 64,
+        "startChar": 80,
+        "endLine": 64,
+        "endChar": 86
+      },
+      "revId": "00f9beb386e7d42310902dccffe9c2c207026214",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_b2bec3fd",
+        "filename": "docs/specs/discovery_of_directly_connected_pnfs.rst",
+        "patchSetId": 6
+      },
+      "lineNbr": 76,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2017-02-02T20:35:33Z",
+      "side": 1,
+      "message": "sure?",
+      "range": {
+        "startLine": 76,
+        "startChar": 85,
+        "endLine": 76,
+        "endChar": 98
+      },
+      "revId": "00f9beb386e7d42310902dccffe9c2c207026214",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_3242d310",
+        "filename": "docs/specs/discovery_of_directly_connected_pnfs.rst",
+        "patchSetId": 6
+      },
+      "lineNbr": 77,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2017-02-02T20:35:33Z",
+      "side": 1,
+      "message": "of the NAPT switch?",
+      "range": {
+        "startLine": 77,
+        "startChar": 160,
+        "endLine": 77,
+        "endChar": 173
+      },
+      "revId": "00f9beb386e7d42310902dccffe9c2c207026214",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_d26387af",
+        "filename": "docs/specs/discovery_of_directly_connected_pnfs.rst",
+        "patchSetId": 6
+      },
+      "lineNbr": 94,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2017-02-02T20:35:33Z",
+      "side": 1,
+      "message": "as this feature depends on hairpinning you must mention it and must use the same vpn-id terminology from the hairpinning pipeline. Here, for example the vpn-id is the ext-subnet-id rather than ext-net-id",
+      "range": {
+        "startLine": 94,
+        "startChar": 1,
+        "endLine": 94,
+        "endChar": 5
+      },
+      "revId": "00f9beb386e7d42310902dccffe9c2c207026214",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_d20a67d1",
+        "filename": "docs/specs/discovery_of_directly_connected_pnfs.rst",
+        "patchSetId": 6
+      },
+      "lineNbr": 215,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2017-02-02T20:35:33Z",
+      "side": 1,
+      "message": "This must be protected with config at some level\n* global\n* per network\n* per network type\n\nAlso state what will be the default config",
+      "range": {
+        "startLine": 215,
+        "startChar": 0,
+        "endLine": 215,
+        "endChar": 4
+      },
+      "revId": "00f9beb386e7d42310902dccffe9c2c207026214",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
