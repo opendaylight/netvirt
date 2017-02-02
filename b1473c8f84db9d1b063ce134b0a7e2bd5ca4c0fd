@@ -615,6 +615,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_99900aee",
+        "filename": "vpnservice/statistics-plugin/impl/src/main/java/org/opendaylight/statisticsplugin/impl/CounterRetriever.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 148,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2017-02-02T13:38:25Z",
+      "side": 1,
+      "message": "I meant move the two methods, init and close up closer to the constructor so that the layout looks similar to the other bundles.",
+      "parentUuid": "fafc7978_021e6870",
+      "revId": "b1473c8f84db9d1b063ce134b0a7e2bd5ca4c0fd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_96ff5301",
         "filename": "vpnservice/statistics-plugin/impl/src/main/java/org/opendaylight/statisticsplugin/impl/CountersUtils.java",
         "patchSetId": 5
