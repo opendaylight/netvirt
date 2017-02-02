@@ -11,7 +11,6 @@ import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.genius.mdsalutil.ActionInfo;
 import org.opendaylight.genius.mdsalutil.InstructionInfo;
@@ -80,23 +79,38 @@ public class StatefulIngressAclServiceImpl extends AbstractIngressAclServiceImpl
     }
 
     @Override
-    protected String syncSpecificAclFlow(BigInteger dpId, int lportTag, int addOrRemove, String aclName, Ace ace,
-            String portId, Map<String, List<MatchInfoBase>> flowMap, String flowName) {
-        List<MatchInfoBase> flows = flowMap.get(flowName);
+    protected String syncSpecificAclFlow(BigInteger dpId, int lportTag, int addOrRemove, Ace ace, String portId,
+            Map<String, List<MatchInfoBase>> flowMap, String flowName) {
+        List<MatchInfoBase> matches = flowMap.get(flowName);
         flowName += "Ingress" + lportTag + ace.getKey().getRuleName();
-        flows.add(AclServiceUtils.buildLPortTagMatch(lportTag));
-        flows.add(new NxMatchInfo(NxMatchFieldType.ct_state,
+        matches.add(AclServiceUtils.buildLPortTagMatch(lportTag));
+        matches.add(new NxMatchInfo(NxMatchFieldType.ct_state,
                 new long[] {AclConstants.TRACKED_NEW_CT_STATE, AclConstants.TRACKED_NEW_CT_STATE_MASK}));
 
         Long elanTag = AclServiceUtils.getElanIdFromInterface(portId, dataBroker);
         List<ActionInfo> actionsInfos = new ArrayList<>();
         actionsInfos.add(new ActionNxConntrack(2, 1, 0, elanTag.intValue(), (short) 255));
         List<InstructionInfo> instructions = getDispatcherTableResubmitInstructions(actionsInfos);
-        int priority = this.aclDataUtil.getAclFlowPriority(aclName);
+
+        // For flows related remote ACL, unique flow priority is used for
+        // each flow to avoid overlapping flows
+        int priority = getIngressSpecificAclFlowPriority(dpId, addOrRemove, flowName);
 
         syncFlow(dpId, NwConstants.EGRESS_ACL_FILTER_TABLE, flowName, priority, "ACL", 0, 0,
-                AclConstants.COOKIE_ACL_BASE, flows, instructions, addOrRemove);
+                AclConstants.COOKIE_ACL_BASE, matches, instructions, addOrRemove);
         return flowName;
+    }
+
+    private int getIngressSpecificAclFlowPriority(BigInteger dpId, int addOrRemove, String flowName) {
+        int priority;
+        if (addOrRemove == NwConstants.DEL_FLOW) {
+            priority = aclServiceUtils.releaseAndRemoveFlowPriorityFromCache(dpId, NwConstants.EGRESS_ACL_FILTER_TABLE,
+                    flowName);
+        } else {
+            priority = aclServiceUtils.allocateAndSaveFlowPriorityInCache(dpId, NwConstants.EGRESS_ACL_FILTER_TABLE,
+                    flowName);
+        }
+        return priority;
     }
 
     /**
