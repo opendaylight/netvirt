@@ -125,6 +125,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_f11df074",
+        "filename": "docs/specs/ecmp-bgp-l3vpn.rst",
+        "patchSetId": 8
+      },
+      "lineNbr": 58,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-02-02T06:08:06Z",
+      "side": 1,
+      "message": "Okay, will work with Vishal to get this in.",
+      "parentUuid": "fafc7978_f19a1013",
+      "revId": "dd3ce6f571ea031a23fce2a95f73146587780f2c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_65593efe",
         "filename": "docs/specs/ecmp-bgp-l3vpn.rst",
         "patchSetId": 8
@@ -522,6 +540,24 @@
       "side": 1,
       "message": "for a network associated bgpvpn, the router entity is not available, so the above API does not apply.  \n\nI believe we MUST cover manual configuration of static routes (via ODL API to support network associated bgpvpns).",
       "parentUuid": "fafc7978_117a34f1",
+      "revId": "dd3ce6f571ea031a23fce2a95f73146587780f2c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_51131c66",
+        "filename": "docs/specs/ecmp-bgp-l3vpn.rst",
+        "patchSetId": 8
+      },
+      "lineNbr": 467,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-02-02T06:08:06Z",
+      "side": 1,
+      "message": "Looks like there is no neutron config model present for bgpvpn network associated static routes. \nNot sure this has to be taken as part of this spec.\nTo start with, we can impose bgp router association for ecmp to work.",
+      "parentUuid": "fafc7978_f1c170e5",
       "revId": "dd3ce6f571ea031a23fce2a95f73146587780f2c",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
