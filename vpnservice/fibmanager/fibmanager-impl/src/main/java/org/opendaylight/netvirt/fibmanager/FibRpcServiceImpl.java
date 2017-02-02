@@ -38,11 +38,10 @@ import org.opendaylight.genius.mdsalutil.matches.MatchTunnelId;
 import org.opendaylight.netvirt.fibmanager.api.IFibManager;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.tables.table.Flow;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.instruction.list.Instruction;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fib.rpc.rev160121.CleanupDpnForVpnInput;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fib.rpc.rev160121.CreateFibEntryInput;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fib.rpc.rev160121.FibRpcService;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fib.rpc.rev160121.PopulateFibOnDpnInput;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fib.rpc.rev160121.RemoveFibEntryInput;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.IdManagerService;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.OdlInterfaceRpcService;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fib.rpc.rev160121.*;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.VrfEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.VpnInstanceOpData;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.VpnInstanceToVpnId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.VpnInstanceOpDataEntry;
@@ -68,12 +67,19 @@ public class FibRpcServiceImpl implements FibRpcService {
     private final DataBroker dataBroker;
     private final IMdsalApiManager mdsalManager;
     private final IFibManager fibManager;
+    private final OdlInterfaceRpcService interfaceManager;
+    private final NexthopManager nextHopManager;
+    private final IdManagerService idManager;
 
     public FibRpcServiceImpl(final DataBroker dataBroker, final IMdsalApiManager mdsalManager,
-                             final IFibManager fibManager) {
+                             final IFibManager fibManager,OdlInterfaceRpcService interfaceManager,
+                             final NexthopManager nextHopManager, final IdManagerService idManager) {
         this.dataBroker = dataBroker;
         this.mdsalManager = mdsalManager;
         this.fibManager = fibManager;
+        this.interfaceManager = interfaceManager;
+        this.nextHopManager = nextHopManager;
+        this.idManager = idManager;
     }
 
     /**
@@ -129,6 +135,22 @@ public class FibRpcServiceImpl implements FibRpcService {
     @Override
     public Future<RpcResult<Void>> cleanupDpnForVpn(CleanupDpnForVpnInput input) {
         fibManager.cleanUpDpnForVpn(input.getDpid(), input.getVpnId(), input.getRd(), null);
+        return Futures.immediateFuture(RpcResultBuilder.<Void>success().build());
+    }
+
+    @Override
+    public Future<RpcResult<Void>> createEvpnFlows(CreateEvpnFlowsInput input) {
+        InstanceIdentifier<VrfEntry> vrfEntryId = VrfEntryListener.getVrfEntryId(input.getRd(), input.getDestIp());
+        Optional<VrfEntry> vrfEntryData = FibUtil.read(dataBroker, LogicalDatastoreType.CONFIGURATION, vrfEntryId);
+        VrfEntry vrfEntry = null;
+        if (vrfEntryData.isPresent()) {
+            vrfEntry = vrfEntryData.get();
+        }
+        if(vrfEntry == null){
+            Futures.immediateFuture(RpcResultBuilder.<Void>failed().build());;
+        }
+
+        FibUtil.createEvpnFlows(vrfEntryId, vrfEntry, dataBroker, mdsalManager, nextHopManager, interfaceManager, idManager);
         return Futures.immediateFuture(RpcResultBuilder.<Void>success().build());
     }
 
