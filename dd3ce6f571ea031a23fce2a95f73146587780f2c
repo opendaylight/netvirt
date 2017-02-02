@@ -107,6 +107,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_f19a1013",
+        "filename": "docs/specs/ecmp-bgp-l3vpn.rst",
+        "patchSetId": 8
+      },
+      "lineNbr": 58,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-02T05:33:22Z",
+      "side": 1,
+      "message": "I put this question, because am aware this is not being driven for Ocata release.  If you need this in Ocata release, please talk to Daya/Vishal and reconfirm the same.",
+      "parentUuid": "fafc7978_3104987a",
+      "revId": "dd3ce6f571ea031a23fce2a95f73146587780f2c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_65593efe",
         "filename": "docs/specs/ecmp-bgp-l3vpn.rst",
         "patchSetId": 8
@@ -486,6 +504,24 @@
       "side": 1,
       "message": "not required. you can still use router-update command to configure static route like below.\n\nneutron router-update ROUTER1 --routes type\u003ddict list\u003dtrue destination\u003d120.0.0.0/24,nexthop\u003d40.1.1.2 destination\u003d120.0.0.0/24,nexthop\u003d40.1.1.3 destination\u003d121.0.0.0/24,nexthop\u003d40.1.1.2 destination\u003d121.0.0.0/24,nexthop\u003d40.1.1.3 destination\u003d121.0.0.0/24,nexthop\u003d40.1.1.4",
       "parentUuid": "fafc7978_cb9f5b5e",
+      "revId": "dd3ce6f571ea031a23fce2a95f73146587780f2c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_f1c170e5",
+        "filename": "docs/specs/ecmp-bgp-l3vpn.rst",
+        "patchSetId": 8
+      },
+      "lineNbr": 467,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-02T05:33:22Z",
+      "side": 1,
+      "message": "for a network associated bgpvpn, the router entity is not available, so the above API does not apply.  \n\nI believe we MUST cover manual configuration of static routes (via ODL API to support network associated bgpvpns).",
+      "parentUuid": "fafc7978_117a34f1",
       "revId": "dd3ce6f571ea031a23fce2a95f73146587780f2c",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
