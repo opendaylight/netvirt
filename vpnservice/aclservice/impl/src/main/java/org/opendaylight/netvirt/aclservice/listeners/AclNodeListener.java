@@ -32,6 +32,7 @@ import org.opendaylight.genius.mdsalutil.NxMatchInfo;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.genius.mdsalutil.packet.IPProtocols;
 import org.opendaylight.netvirt.aclservice.utils.AclConstants;
+import org.opendaylight.netvirt.aclservice.utils.AclServiceUtils;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.FlowCapableNode;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.Nodes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.Node;
@@ -55,16 +56,19 @@ public class AclNodeListener extends AsyncDataTreeChangeListenerBase<FlowCapable
     private final IMdsalApiManager mdsalManager;
     private final AclserviceConfig config;
     private final DataBroker dataBroker;
+    private final AclServiceUtils aclServiceUtils;
 
     private SecurityGroupMode securityGroupMode = null;
 
     @Inject
-    public AclNodeListener(final IMdsalApiManager mdsalManager, DataBroker dataBroker, AclserviceConfig config) {
+    public AclNodeListener(final IMdsalApiManager mdsalManager, DataBroker dataBroker, AclserviceConfig config,
+            AclServiceUtils aclServiceUtils) {
         super(FlowCapableNode.class, AclNodeListener.class);
 
         this.mdsalManager = mdsalManager;
         this.dataBroker = dataBroker;
         this.config = config;
+        this.aclServiceUtils = aclServiceUtils;
     }
 
     @Override
@@ -85,7 +89,9 @@ public class AclNodeListener extends AsyncDataTreeChangeListenerBase<FlowCapable
 
     @Override
     protected void remove(InstanceIdentifier<FlowCapableNode> key, FlowCapableNode dataObjectModification) {
-        // do nothing
+        NodeKey nodeKey = key.firstKeyOf(Node.class);
+        BigInteger dpnId = MDSALUtil.getDpnIdFromNodeName(nodeKey.getId());
+        this.aclServiceUtils.deleteAclIdPools(dpnId);
     }
 
     @Override
@@ -100,6 +106,8 @@ public class AclNodeListener extends AsyncDataTreeChangeListenerBase<FlowCapable
         NodeKey nodeKey = key.firstKeyOf(Node.class);
         BigInteger dpnId = MDSALUtil.getDpnIdFromNodeName(nodeKey.getId());
         createTableDefaultEntries(dpnId);
+
+        this.aclServiceUtils.createAclIdPools(dpnId);
     }
 
     /**

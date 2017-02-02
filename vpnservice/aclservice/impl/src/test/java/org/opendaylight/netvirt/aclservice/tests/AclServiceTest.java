@@ -78,13 +78,10 @@ public class AclServiceTest {
     private static String SR_UUID_2_1 = "85cc3048-abc3-43cc-89b3-377341426a21";
     private static String SR_UUID_2_2 = "85cc3048-abc3-43cc-89b3-377341426a22";
     private static String ELAN = "elan1";
-    private static String IP_PREFIX_1 = "10.0.0.1/24";
-    private static String IP_PREFIX_2 = "10.0.0.2/24";
-    private static String IP_PREFIX_3 = "10.0.0.3/24";
+    private static String IP_PREFIX_1 = "10.0.0.1/32";
+    private static String IP_PREFIX_2 = "10.0.0.2/32";
+    private static String IP_PREFIX_3 = "10.0.0.3/32";
     private static long ELAN_TAG = 5000L;
-
-    protected static final Integer FLOW_PRIORITY_SG_1 = 1001;
-    protected static final Integer FLOW_PRIORITY_SG_2 = 1002;
 
     @Inject DataBroker dataBroker;
     @Inject DataBrokerPairsUtil dataBrokerUtil;
@@ -275,6 +272,7 @@ public class AclServiceTest {
 
     @Test
     public void newInterfaceWithDstAllPorts() throws Exception {
+        LOG.info("newInterfaceWithDstAllPorts - start");
         // Given
         setUpData();
         Matches matches = newMatch(EthertypeV4.class, -1, -1, 1, 65535,
@@ -303,6 +301,7 @@ public class AclServiceTest {
 
         // Then
         assertFlowsInAnyOrder(FlowEntryObjects.dstAllFlows());
+        LOG.info("newInterfaceWithDstAllPorts - end");
     }
 
     @Test

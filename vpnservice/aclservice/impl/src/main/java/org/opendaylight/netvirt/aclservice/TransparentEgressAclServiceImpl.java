@@ -64,8 +64,8 @@ public class TransparentEgressAclServiceImpl extends AbstractEgressAclServiceImp
     }
 
     @Override
-    protected String syncSpecificAclFlow(BigInteger dpId, int lportTag, int addOrRemove, int priority, Ace ace,
-            String portId, Map<String, List<MatchInfoBase>> flowMap, String flowName) {
+    protected String syncSpecificAclFlow(BigInteger dpId, int lportTag, int addOrRemove, Ace ace, String portId,
+            Map<String, List<MatchInfoBase>> flowMap, String flowName) {
         // Not in use here. programAceRule function is overridden.
         return null;
     }

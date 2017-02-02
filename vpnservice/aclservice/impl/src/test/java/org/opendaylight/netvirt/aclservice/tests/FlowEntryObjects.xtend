@@ -358,7 +358,7 @@ class FlowEntryObjects {
             ],
             new FlowEntity(123bi) => [
                 cookie = 110100480bi
-                flowId = "Ingress_Fixed_Conntrk_123_0D:AA:D8:42:30:F3_10.0.0.1/24_Recirc"
+                flowId = "Ingress_Fixed_Conntrk_123_0D:AA:D8:42:30:F3_10.0.0.1/32_Recirc"
             flowName = "ACL"
             instructionInfoList = #[
                 new InstructionInfo(InstructionType.apply_actions, #[
@@ -397,7 +397,7 @@ class FlowEntryObjects {
                 matchField = MatchFieldType.ipv4_destination
                 stringMatchValues = #[
                     "10.0.0.1",
-                "24"
+                "32"
                         ]
                     ]
                 ]
@@ -806,7 +806,7 @@ class FlowEntryObjects {
             ],
             new FlowEntity(123bi) => [
                 cookie = 110100480bi
-                flowId = "Egress_Fixed_Conntrk_123_0D:AA:D8:42:30:F3_10.0.0.1/24_Recirc"
+                flowId = "Egress_Fixed_Conntrk_123_0D:AA:D8:42:30:F3_10.0.0.1/32_Recirc"
                 flowName = "ACL"
                 instructionInfoList = #[
                     new InstructionInfo(InstructionType.apply_actions, #[
@@ -839,7 +839,7 @@ class FlowEntryObjects {
                         matchField = MatchFieldType.ipv4_source
                         stringMatchValues = #[
                             "10.0.0.1",
-                            "24"
+                            "32"
                         ]
                     ]
                 ]
@@ -1120,7 +1120,7 @@ class FlowEntryObjects {
             ],
             new FlowEntity(123bi) => [
                 cookie = 110100480bi
-                flowId = "Ingress_Fixed_Conntrk_123_0D:AA:D8:42:30:F4_10.0.0.2/24_Recirc"
+                flowId = "Ingress_Fixed_Conntrk_123_0D:AA:D8:42:30:F4_10.0.0.2/32_Recirc"
                 flowName = "ACL"
                 instructionInfoList = #[
                     new InstructionInfo(InstructionType.apply_actions, #[
@@ -1159,7 +1159,7 @@ class FlowEntryObjects {
                         matchField = MatchFieldType.ipv4_destination
                         stringMatchValues = #[
                             "10.0.0.2",
-                            "24"
+                            "32"
                         ]
                     ]
                 ]
@@ -1173,9 +1173,7 @@ class FlowEntryObjects {
         #[
             new FlowEntity(123bi) => [
                 cookie = 110100480bi
-                flowId = "ETHERnull_ipv4_remoteACL_interface_aap_AllowedAddressPairsKey "
-                        +"[_macAddress=MacAddress [_value=0D:AA:D8:42:30:F3], _ipAddress=IpPrefixOrAddress "
-                        +"[_ipPrefix=IpPrefix [_ipv4Prefix=Ipv4Prefix [_value=10.0.0.1/24]]]]"
+                flowId = "ETHERnull_ipv4_remoteACL_interface_aap_0D:AA:D8:42:30:F3_10.0.0.1/32"
                         +"Ingress98785cc3048-abc3-43cc-89b3-377341426ac7"
                 flowName = "ACL"
                 instructionInfoList = #[
@@ -1209,7 +1207,7 @@ class FlowEntryObjects {
                         matchField = MatchFieldType.ipv4_source
                         stringMatchValues = #[
                             "10.0.0.1",
-                            "24"
+                            "32"
                         ]
                     ],
                     new MatchInfoBuilder >> [
@@ -1239,14 +1237,12 @@ class FlowEntryObjects {
                         ]
                     ]
                 ]
-                priority = AclServiceTest.FLOW_PRIORITY_SG_1
+                priority = IdHelper.getFlowPriority(flowId)
                 tableId = 252 as short
             ],
             new FlowEntity(123bi) => [
                 cookie = 110100480bi
-                flowId = "ETHERnull_ipv4_remoteACL_interface_aap_AllowedAddressPairsKey "
-                        +"[_macAddress=MacAddress [_value=0D:AA:D8:42:30:F4], _ipAddress=IpPrefixOrAddress "
-                        +"[_ipPrefix=IpPrefix [_ipv4Prefix=Ipv4Prefix [_value=10.0.0.2/24]]]]"
+                flowId = "ETHERnull_ipv4_remoteACL_interface_aap_0D:AA:D8:42:30:F4_10.0.0.2/32"
                         +"Ingress98785cc3048-abc3-43cc-89b3-377341426ac7"
                 flowName = "ACL"
                 instructionInfoList = #[
@@ -1280,7 +1276,7 @@ class FlowEntryObjects {
                         matchField = MatchFieldType.ipv4_source
                         stringMatchValues = #[
                             "10.0.0.2",
-                            "24"
+                            "32"
                         ]
                     ],
                     new MatchInfoBuilder >> [
@@ -1310,7 +1306,7 @@ class FlowEntryObjects {
                         ]
                     ]
                 ]
-                priority = AclServiceTest.FLOW_PRIORITY_SG_1
+                priority = IdHelper.getFlowPriority(flowId)
                 tableId = 252 as short
             ]
         ]
@@ -1714,7 +1710,7 @@ class FlowEntryObjects {
             ],
             new FlowEntity(123bi) => [
                 cookie = 110100480bi
-                flowId = "Egress_Fixed_Conntrk_123_0D:AA:D8:42:30:F4_10.0.0.2/24_Recirc"
+                flowId = "Egress_Fixed_Conntrk_123_0D:AA:D8:42:30:F4_10.0.0.2/32_Recirc"
                 flowName = "ACL"
                 instructionInfoList = #[
                     new InstructionInfo(InstructionType.apply_actions, #[
@@ -1747,7 +1743,7 @@ class FlowEntryObjects {
                         matchField = MatchFieldType.ipv4_source
                         stringMatchValues = #[
                             "10.0.0.2",
-                            "24"
+                            "32"
                         ]
                     ]
                 ]
@@ -1812,7 +1808,7 @@ class FlowEntryObjects {
                         ]
                     ]
                 ]
-                priority = AclServiceTest.FLOW_PRIORITY_SG_1
+                priority = IdHelper.getFlowPriority(flowId)
                 tableId = 41 as short
             ]
         ]
@@ -1872,7 +1868,7 @@ class FlowEntryObjects {
                         ]
                     ]
                 ]
-                priority = AclServiceTest.FLOW_PRIORITY_SG_1
+                priority = IdHelper.getFlowPriority(flowId)
                 tableId = 41 as short
             ]
         ]
@@ -1945,7 +1941,7 @@ class FlowEntryObjects {
                         ]
                     ]
                 ]
-                priority = AclServiceTest.FLOW_PRIORITY_SG_1
+                priority = IdHelper.getFlowPriority(flowId)
                 tableId = 252 as short
             ]
         ]
@@ -2018,7 +2014,7 @@ class FlowEntryObjects {
                         ]
                     ]
                 ]
-                priority = AclServiceTest.FLOW_PRIORITY_SG_1
+                priority = IdHelper.getFlowPriority(flowId)
                 tableId = 252 as short
             ]
         ]
@@ -2028,9 +2024,7 @@ class FlowEntryObjects {
         #[
             new FlowEntity(123bi) => [
                 cookie = 110100480bi
-                flowId = "TCP_DESTINATION_80_65535_ipv4_remoteACL_interface_aap_AllowedAddressPairsKey "
-                        +"[_macAddress=MacAddress [_value=0D:AA:D8:42:30:F3], _ipAddress=IpPrefixOrAddress "
-                        +"[_ipPrefix=IpPrefix [_ipv4Prefix=Ipv4Prefix [_value=10.0.0.1/24]]]]"
+                flowId = "TCP_DESTINATION_80_65535_ipv4_remoteACL_interface_aap_0D:AA:D8:42:30:F3_10.0.0.1/32"
                         +"Egress98785cc3048-abc3-43cc-89b3-377341426ac6"
                 flowName = "ACL"
                 instructionInfoList = #[
@@ -2064,7 +2058,7 @@ class FlowEntryObjects {
                         matchField = MatchFieldType.ipv4_destination
                         stringMatchValues = #[
                             "10.0.0.1",
-                            "24"
+                            "32"
                         ]
                     ],
                     new MatchInfoBuilder >> [
@@ -2107,12 +2101,12 @@ class FlowEntryObjects {
                         ]
                     ]
                 ]
-                priority = AclServiceTest.FLOW_PRIORITY_SG_1
+                priority = IdHelper.getFlowPriority(flowId)
                 tableId = 41 as short
             ],
             new FlowEntity(123bi) => [
                 cookie = 110100480bi
-                flowId = "TCP_DESTINATION_80_65535_ipv4_remoteACL_interface_aap_AllowedAddressPairsKey [_macAddress=MacAddress [_value=0D:AA:D8:42:30:F4], _ipAddress=IpPrefixOrAddress [_ipPrefix=IpPrefix [_ipv4Prefix=Ipv4Prefix [_value=10.0.0.2/24]]]]Egress98785cc3048-abc3-43cc-89b3-377341426ac6"
+                flowId = "TCP_DESTINATION_80_65535_ipv4_remoteACL_interface_aap_0D:AA:D8:42:30:F4_10.0.0.2/32Egress98785cc3048-abc3-43cc-89b3-377341426ac6"
                 flowName = "ACL"
                 instructionInfoList = #[
                     new InstructionInfo(InstructionType.apply_actions, #[
@@ -2145,7 +2139,7 @@ class FlowEntryObjects {
                         matchField = MatchFieldType.ipv4_destination
                         stringMatchValues = #[
                             "10.0.0.2",
-                            "24"
+                            "32"
                         ]
                     ],
                     new MatchInfoBuilder >> [
@@ -2188,7 +2182,7 @@ class FlowEntryObjects {
                         ]
                     ]
                 ]
-                priority = AclServiceTest.FLOW_PRIORITY_SG_1
+                priority = IdHelper.getFlowPriority(flowId)
                 tableId = 41 as short
             ]
         ]
@@ -2261,7 +2255,7 @@ class FlowEntryObjects {
                         ]
                     ]
                 ]
-                priority = AclServiceTest.FLOW_PRIORITY_SG_1
+                priority = IdHelper.getFlowPriority(flowId)
                 tableId = 41 as short
             ]
         ]
@@ -2271,9 +2265,7 @@ class FlowEntryObjects {
         #[
             new FlowEntity(123bi) => [
                 cookie = 110100480bi
-                flowId = "UDP_DESTINATION_80_65535_ipv4_remoteACL_interface_aap_AllowedAddressPairsKey "
-                        +"[_macAddress=MacAddress [_value=0D:AA:D8:42:30:F3], _ipAddress=IpPrefixOrAddress "
-                        +"[_ipPrefix=IpPrefix [_ipv4Prefix=Ipv4Prefix [_value=10.0.0.1/24]]]]"
+                flowId = "UDP_DESTINATION_80_65535_ipv4_remoteACL_interface_aap_0D:AA:D8:42:30:F3_10.0.0.1/32"
                         +"Ingress98785cc3048-abc3-43cc-89b3-377341426ac7"
                 flowName = "ACL"
                 instructionInfoList = #[
@@ -2307,7 +2299,7 @@ class FlowEntryObjects {
                         matchField = MatchFieldType.ipv4_source
                         stringMatchValues = #[
                             "10.0.0.1",
-                            "24"
+                            "32"
                         ]
                     ],
                     new MatchInfoBuilder >> [
@@ -2350,12 +2342,12 @@ class FlowEntryObjects {
                         ]
                     ]
                 ]
-                priority = AclServiceTest.FLOW_PRIORITY_SG_1
+                priority = IdHelper.getFlowPriority(flowId)
                 tableId = 252 as short
             ],
             new FlowEntity(123bi) => [
                 cookie = 110100480bi
-                flowId = "UDP_DESTINATION_80_65535_ipv4_remoteACL_interface_aap_AllowedAddressPairsKey [_macAddress=MacAddress [_value=0D:AA:D8:42:30:F4], _ipAddress=IpPrefixOrAddress [_ipPrefix=IpPrefix [_ipv4Prefix=Ipv4Prefix [_value=10.0.0.2/24]]]]Ingress98785cc3048-abc3-43cc-89b3-377341426ac7"
+                flowId = "UDP_DESTINATION_80_65535_ipv4_remoteACL_interface_aap_0D:AA:D8:42:30:F4_10.0.0.2/32Ingress98785cc3048-abc3-43cc-89b3-377341426ac7"
                 flowName = "ACL"
                 instructionInfoList = #[
                     new InstructionInfo(InstructionType.apply_actions, #[
@@ -2388,7 +2380,7 @@ class FlowEntryObjects {
                         matchField = MatchFieldType.ipv4_source
                         stringMatchValues = #[
                             "10.0.0.2",
-                            "24"
+                            "32"
                         ]
                     ],
                     new MatchInfoBuilder >> [
@@ -2431,7 +2423,7 @@ class FlowEntryObjects {
                         ]
                     ]
                 ]
-                priority = AclServiceTest.FLOW_PRIORITY_SG_1
+                priority = IdHelper.getFlowPriority(flowId)
                 tableId = 252 as short
             ]
         ]
@@ -2504,7 +2496,7 @@ class FlowEntryObjects {
                         ]
                     ]
                 ]
-                priority = AclServiceTest.FLOW_PRIORITY_SG_1
+                priority = IdHelper.getFlowPriority(flowId)
                 tableId = 41 as short
             ]
         ]
@@ -2577,7 +2569,7 @@ class FlowEntryObjects {
                         ]
                     ]
                 ]
-                priority = AclServiceTest.FLOW_PRIORITY_SG_1
+                priority = IdHelper.getFlowPriority(flowId)
                 tableId = 252 as short
             ]
         ]
@@ -2650,7 +2642,7 @@ class FlowEntryObjects {
                         ]
                     ]
                 ]
-                priority = AclServiceTest.FLOW_PRIORITY_SG_1
+                priority = IdHelper.getFlowPriority(flowId)
                 tableId = 252 as short
             ]
         ]
@@ -2660,9 +2652,7 @@ class FlowEntryObjects {
         #[
             new FlowEntity(123bi) => [
                 cookie = 110100480bi
-                flowId = "ICMP_V4_DESTINATION_23__ipv4_remoteACL_interface_aap_AllowedAddressPairsKey "
-                        +"[_macAddress=MacAddress [_value=0D:AA:D8:42:30:F3], _ipAddress=IpPrefixOrAddress "
-                        +"[_ipPrefix=IpPrefix [_ipv4Prefix=Ipv4Prefix [_value=10.0.0.1/24]]]]"
+                flowId = "ICMP_V4_DESTINATION_23__ipv4_remoteACL_interface_aap_0D:AA:D8:42:30:F3_10.0.0.1/32"
                         +"Egress98785cc3048-abc3-43cc-89b3-377341426ac6"
                 flowName = "ACL"
                 instructionInfoList = #[
@@ -2696,7 +2686,7 @@ class FlowEntryObjects {
                         matchField = MatchFieldType.ipv4_destination
                         stringMatchValues = #[
                             "10.0.0.1",
-                            "24"
+                            "32"
                         ]
                     ],
                     new MatchInfoBuilder >> [
@@ -2739,14 +2729,12 @@ class FlowEntryObjects {
                         ]
                     ]
                 ]
-                priority = AclServiceTest.FLOW_PRIORITY_SG_1
+                priority = IdHelper.getFlowPriority(flowId)
                 tableId = 41 as short
             ],
             new FlowEntity(123bi) => [
                 cookie = 110100480bi
-                flowId = "ICMP_V4_DESTINATION_23__ipv4_remoteACL_interface_aap_AllowedAddressPairsKey "
-                        +"[_macAddress=MacAddress [_value=0D:AA:D8:42:30:F4], _ipAddress=IpPrefixOrAddress "
-                        +"[_ipPrefix=IpPrefix [_ipv4Prefix=Ipv4Prefix [_value=10.0.0.2/24]]]]"
+                flowId = "ICMP_V4_DESTINATION_23__ipv4_remoteACL_interface_aap_0D:AA:D8:42:30:F4_10.0.0.2/32"
                         +"Egress98785cc3048-abc3-43cc-89b3-377341426ac6"
                 flowName = "ACL"
                 instructionInfoList = #[
@@ -2780,7 +2768,7 @@ class FlowEntryObjects {
                         matchField = MatchFieldType.ipv4_destination
                         stringMatchValues = #[
                             "10.0.0.2",
-                            "24"
+                            "32"
                         ]
                     ],
                     new MatchInfoBuilder >> [
@@ -2823,7 +2811,7 @@ class FlowEntryObjects {
                         ]
                     ]
                 ]
-                priority = AclServiceTest.FLOW_PRIORITY_SG_1
+                priority = IdHelper.getFlowPriority(flowId)
                 tableId = 41 as short
             ]
         ]
@@ -2896,7 +2884,7 @@ class FlowEntryObjects {
                         ]
                     ]
                 ]
-                priority = AclServiceTest.FLOW_PRIORITY_SG_1
+                priority = IdHelper.getFlowPriority(flowId)
                 tableId = 252 as short
             ]
         ]
@@ -2969,7 +2957,7 @@ class FlowEntryObjects {
                         ]
                     ]
                 ]
-                priority = AclServiceTest.FLOW_PRIORITY_SG_1
+                priority = IdHelper.getFlowPriority(flowId)
                 tableId = 41 as short
             ],
             new FlowEntity(123bi) => [
@@ -3037,7 +3025,7 @@ class FlowEntryObjects {
                         ]
                     ]
                 ]
-                priority = AclServiceTest.FLOW_PRIORITY_SG_1
+                priority = IdHelper.getFlowPriority(flowId)
                 tableId = 41 as short
             ],
             new FlowEntity(123bi) => [
@@ -3105,7 +3093,7 @@ class FlowEntryObjects {
                         ]
                     ]
                 ]
-                priority = AclServiceTest.FLOW_PRIORITY_SG_1
+                priority = IdHelper.getFlowPriority(flowId)
                 tableId = 41 as short
             ],
             new FlowEntity(123bi) => [
@@ -3173,7 +3161,7 @@ class FlowEntryObjects {
                         ]
                     ]
                 ]
-                priority = AclServiceTest.FLOW_PRIORITY_SG_1
+                priority = IdHelper.getFlowPriority(flowId)
                 tableId = 41 as short
             ],
             new FlowEntity(123bi) => [
@@ -3241,7 +3229,7 @@ class FlowEntryObjects {
                         ]
                     ]
                 ]
-                priority = AclServiceTest.FLOW_PRIORITY_SG_1
+                priority = IdHelper.getFlowPriority(flowId)
                 tableId = 41 as short
             ],
             new FlowEntity(123bi) => [
@@ -3309,7 +3297,7 @@ class FlowEntryObjects {
                         ]
                     ]
                 ]
-                priority = AclServiceTest.FLOW_PRIORITY_SG_1
+                priority = IdHelper.getFlowPriority(flowId)
                 tableId = 41 as short
             ],
             new FlowEntity(123bi) => [
@@ -3377,7 +3365,7 @@ class FlowEntryObjects {
                         ]
                     ]
                 ]
-                priority = AclServiceTest.FLOW_PRIORITY_SG_1
+                priority = IdHelper.getFlowPriority(flowId)
                 tableId = 41 as short
             ],
             new FlowEntity(123bi) => [
@@ -3445,7 +3433,7 @@ class FlowEntryObjects {
                         ]
                     ]
                 ]
-                priority = AclServiceTest.FLOW_PRIORITY_SG_1
+                priority = IdHelper.getFlowPriority(flowId)
                 tableId = 41 as short
             ]
         ]
@@ -3511,7 +3499,7 @@ class FlowEntryObjects {
                         ]
                     ]
                 ]
-                priority = AclServiceTest.FLOW_PRIORITY_SG_1
+                priority = IdHelper.getFlowPriority(flowId)
                 tableId = 252 as short
             ]
         ]
@@ -3577,7 +3565,7 @@ class FlowEntryObjects {
                         ]
                     ]
                 ]
-                priority = AclServiceTest.FLOW_PRIORITY_SG_1
+                priority = IdHelper.getFlowPriority(flowId)
                 tableId = 41 as short
             ]
          ]
@@ -4483,7 +4471,7 @@ class FlowEntryObjects {
             ],
             new FlowEntity(123bi) => [
                 cookie = 110100480bi
-                flowId = "Ingress_Fixed_Conntrk_123_0D:AA:D8:42:30:F5_10.0.0.3/24_Recirc"
+                flowId = "Ingress_Fixed_Conntrk_123_0D:AA:D8:42:30:F5_10.0.0.3/32_Recirc"
                 flowName = "ACL"
                 instructionInfoList = #[
                     new InstructionInfo(InstructionType.apply_actions, #[
@@ -4522,7 +4510,7 @@ class FlowEntryObjects {
                         matchField = MatchFieldType.ipv4_destination
                         stringMatchValues = #[
                             "10.0.0.3",
-                            "24"
+                            "32"
                         ]
                     ]
                 ]
@@ -4930,7 +4918,7 @@ class FlowEntryObjects {
             ],
             new FlowEntity(123bi) => [
                 cookie = 110100480bi
-                flowId = "Egress_Fixed_Conntrk_123_0D:AA:D8:42:30:F5_10.0.0.3/24_Recirc"
+                flowId = "Egress_Fixed_Conntrk_123_0D:AA:D8:42:30:F5_10.0.0.3/32_Recirc"
                 flowName = "ACL"
                 instructionInfoList = #[
                     new InstructionInfo(InstructionType.apply_actions, #[
@@ -4963,7 +4951,7 @@ class FlowEntryObjects {
                         matchField = MatchFieldType.ipv4_source
                         stringMatchValues = #[
                             "10.0.0.3",
-                            "24"
+                            "32"
                         ]
                     ]
                 ]
@@ -5040,7 +5028,7 @@ class FlowEntryObjects {
                         ]
                     ]
                 ]
-                priority = AclServiceTest.FLOW_PRIORITY_SG_1
+                priority = IdHelper.getFlowPriority(flowId)
                 tableId = 252 as short
             ],
             new FlowEntity(123bi) => [
@@ -5108,7 +5096,7 @@ class FlowEntryObjects {
                         ]
                     ]
                 ]
-                priority = AclServiceTest.FLOW_PRIORITY_SG_2
+                priority = IdHelper.getFlowPriority(flowId)
                 tableId = 252 as short
             ]
         ]
@@ -5181,7 +5169,7 @@ class FlowEntryObjects {
                         ]
                     ]
                 ]
-                priority = AclServiceTest.FLOW_PRIORITY_SG_1
+                priority = IdHelper.getFlowPriority(flowId)
                 tableId = 41 as short
             ],
             new FlowEntity(123bi) => [
@@ -5249,7 +5237,7 @@ class FlowEntryObjects {
                         ]
                     ]
                 ]
-                priority = AclServiceTest.FLOW_PRIORITY_SG_2
+                priority = IdHelper.getFlowPriority(flowId)
                 tableId = 41 as short
             ]
         ]

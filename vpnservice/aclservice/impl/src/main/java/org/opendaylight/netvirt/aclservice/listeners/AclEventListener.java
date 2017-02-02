@@ -20,14 +20,11 @@ import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
 import org.opendaylight.netvirt.aclservice.api.AclServiceManager;
 import org.opendaylight.netvirt.aclservice.api.utils.AclInterface;
 import org.opendaylight.netvirt.aclservice.utils.AclClusterUtil;
-import org.opendaylight.netvirt.aclservice.utils.AclConstants;
 import org.opendaylight.netvirt.aclservice.utils.AclDataUtil;
-import org.opendaylight.netvirt.aclservice.utils.AclServiceUtils;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.AccessLists;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.Acl;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.acl.access.list.entries.Ace;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.IdManagerService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.SecurityRuleAttr;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
@@ -43,17 +40,15 @@ public class AclEventListener extends AsyncDataTreeChangeListenerBase<Acl, AclEv
     private final AclClusterUtil aclClusterUtil;
     private final DataBroker dataBroker;
     private final AclDataUtil aclDataUtil;
-    private final IdManagerService idManager;
 
     @Inject
     public AclEventListener(AclServiceManager aclServiceManager, AclClusterUtil aclClusterUtil, DataBroker dataBroker,
-            AclDataUtil aclDataUtil, IdManagerService idManager) {
+            AclDataUtil aclDataUtil) {
         super(Acl.class, AclEventListener.class);
         this.aclServiceManager = aclServiceManager;
         this.aclClusterUtil = aclClusterUtil;
         this.dataBroker = dataBroker;
         this.aclDataUtil = aclDataUtil;
-        this.idManager = idManager;
     }
 
     @Override
@@ -72,7 +67,6 @@ public class AclEventListener extends AsyncDataTreeChangeListenerBase<Acl, AclEv
 
     @Override
     protected void remove(InstanceIdentifier<Acl> key, Acl acl) {
-        updateAclFlowPriorityCache(acl.getAclName(), AclServiceManager.Action.REMOVE);
         updateRemoteAclCache(acl.getAccessListEntries().getAce(), acl.getAclName(), AclServiceManager.Action.REMOVE);
     }
 
@@ -109,7 +103,6 @@ public class AclEventListener extends AsyncDataTreeChangeListenerBase<Acl, AclEv
 
     @Override
     protected void add(InstanceIdentifier<Acl> key, Acl acl) {
-        updateAclFlowPriorityCache(acl.getAclName(), AclServiceManager.Action.ADD);
         updateRemoteAclCache(acl.getAccessListEntries().getAce(), acl.getAclName(), AclServiceManager.Action.ADD);
     }
 
@@ -133,23 +126,6 @@ public class AclEventListener extends AsyncDataTreeChangeListenerBase<Acl, AclEv
                     aclDataUtil.removeRemoteAclId(aceAttributes.getRemoteGroupId(), new Uuid(aclName));
                 }
             }
-        }
-    }
-
-    /**
-     * Update acl flow priority cache.
-     *
-     * @param aclName the acl name
-     * @param action the action
-     */
-    private void updateAclFlowPriorityCache(String aclName, AclServiceManager.Action action) {
-        if (action == AclServiceManager.Action.ADD) {
-            Integer flowPriority =
-                    AclServiceUtils.allocateId(this.idManager, AclConstants.ACL_FLOW_PRIORITY_POOL_NAME, aclName);
-            aclDataUtil.addAclFlowPriority(aclName, flowPriority);
-        } else {
-            AclServiceUtils.releaseId(this.idManager, AclConstants.ACL_FLOW_PRIORITY_POOL_NAME, aclName);
-            aclDataUtil.removeAclFlowPriority(aclName);
         }
     }
 
