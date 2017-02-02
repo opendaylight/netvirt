@@ -9,19 +9,41 @@
 package org.opendaylight.netvirt.natservice.internal;
 
 import com.google.common.base.Optional;
+import java.math.BigInteger;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
+import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.interfacemanager.globals.IfmConstants;
+import org.opendaylight.genius.mdsalutil.MDSALUtil;
+import org.opendaylight.genius.mdsalutil.MatchInfo;
+import org.opendaylight.genius.mdsalutil.MetaDataUtil;
+import org.opendaylight.genius.mdsalutil.NwConstants;
+import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
+import org.opendaylight.genius.mdsalutil.matches.MatchEthernetDestination;
+import org.opendaylight.genius.mdsalutil.matches.MatchEthernetSource;
+import org.opendaylight.genius.mdsalutil.matches.MatchMetadata;
+import org.opendaylight.netvirt.bgpmanager.api.IBgpManager;
+import org.opendaylight.netvirt.fibmanager.api.IFibManager;
+import org.opendaylight.netvirt.fibmanager.api.RouteOrigin;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.MacAddress;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.tables.table.Flow;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.instruction.list.Instruction;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.AllocateIdInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.AllocateIdInputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.AllocateIdOutput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.IdManagerService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.ReleaseIdInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.ReleaseIdInputBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.VrfEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.VpnInstanceOpDataEntry;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ProviderTypes;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.slf4j.Logger;
@@ -115,4 +137,90 @@ public class NatEvpnUtil {
     private static boolean isL3VpnOverVxLan(Long l3Vni) {
         return (l3Vni != null && l3Vni != 0);
     }
+
+    static ProviderTypes getExtNwProvTypeFromRouterName(DataBroker dataBroker, String routerName) {
+        ProviderTypes extNwProviderType = null;
+        Uuid externalNetworkId = NatUtil.getNetworkIdFromRouterName(dataBroker,routerName);
+        if (externalNetworkId == null) {
+            LOG.error("NAT Service : Could not retrieve external network UUID for router {}", routerName);
+            return extNwProviderType;
+        }
+        extNwProviderType = NatUtil.getProviderTypefromNetworkId(dataBroker, externalNetworkId);
+        if (extNwProviderType == null) {
+            LOG.error("NAT Service : Could not retrieve provider type for external network {} ", externalNetworkId);
+            return extNwProviderType;
+        }
+        return extNwProviderType;
+    }
+
+    @SuppressWarnings("checkstyle:IllegalCatch")
+    public static void addRoutesForVxLanProvType(DataBroker broker,
+                                                 IBgpManager bgpManager,
+                                                 IFibManager fibManager,
+                                                 String vpnName,
+                                                 String rd,
+                                                 String prefix,
+                                                 String nextHopIp,
+                                                 long l3Vni,
+                                                 String interfaceName,
+                                                 String gwMacAddress,
+                                                 WriteTransaction writeTx,
+                                                 RouteOrigin origin, BigInteger dpId) {
+        try {
+            LOG.info("NAT Service : ADD: Adding Fib entry rd {} prefix {} nextHop {} l3Vni {}", rd, prefix, nextHopIp,
+                    l3Vni);
+            if (nextHopIp == null) {
+                LOG.error("NAT Service : addPrefix failed since nextHopIp cannot be null for prefix {}", prefix);
+                return;
+            }
+            NatUtil.addPrefixToInterface(broker, NatUtil.getVpnId(broker, vpnName), interfaceName, prefix, dpId,
+                    /*isNatPrefix*/ true, ProviderTypes.VXLAN);
+
+            fibManager.addOrUpdateFibEntry(broker, rd, null /*macAddress*/, prefix,
+                    Collections.singletonList(nextHopIp), VrfEntry.EncapType.Vxlan, NatConstants.DEFAULT_LABEL_VALUE,
+                    l3Vni, gwMacAddress, origin, writeTx);
+            /* Publish to Bgp only if its an INTERNET VPN */
+            if ((rd != null) && (!rd.equalsIgnoreCase(vpnName))) {
+                bgpManager.advertisePrefix(rd, null /*macAddress*/, prefix, Collections.singletonList(nextHopIp),
+                        VrfEntry.EncapType.Vxlan, NatConstants.DEFAULT_LABEL_VALUE, l3Vni, gwMacAddress);
+            }
+            LOG.info("NAT Service : ADD: Added Fib entry rd {} prefix {} nextHop {} l3Vni {}", rd, prefix,
+                        nextHopIp, l3Vni);
+        } catch (Exception e) {
+            LOG.error("NAT Service : Exception {} in add routes for prefix {}", e, prefix);
+        }
+    }
+
+    static void makeL3GwMacTableEntry(final BigInteger dpnId, final long vpnId, String macAddress,
+                                      List<Instruction> customInstructions, IMdsalApiManager mdsalManager) {
+        List<MatchInfo> matchInfo = new ArrayList<>();
+        matchInfo.add(new MatchMetadata(MetaDataUtil.getVpnIdMetadata(vpnId), MetaDataUtil.METADATA_MASK_VRFID));
+        matchInfo.add(new MatchEthernetDestination(new MacAddress(macAddress)));
+        LOG.debug("NAT Service : Create flow table {} -> table {} for External Vpn Id = {} and MacAddress = {} on "
+                + "DpnId = {}", NwConstants.L3_GW_MAC_TABLE, NwConstants.INBOUND_NAPT_TABLE, vpnId, macAddress, dpnId);
+        // Install the flow entry in L3_GW_MAC_TABLE
+        String flowRef = NatUtil.getFlowRef(dpnId, NwConstants.L3_GW_MAC_TABLE, vpnId, macAddress);
+        Flow l3GwMacTableFlowEntity = MDSALUtil.buildFlowNew(NwConstants.L3_GW_MAC_TABLE,
+                flowRef, 21, flowRef, 0, 0, NwConstants.COOKIE_L3_GW_MAC_TABLE, matchInfo, customInstructions);
+
+        mdsalManager.installFlow(dpnId, l3GwMacTableFlowEntity);
+        LOG.debug("NAT Service : Successfully created flow entity {} on DPN = {}", l3GwMacTableFlowEntity, dpnId);
+    }
+
+    static void removeL3GwMacTableEntry(final BigInteger dpnId, final long vpnId, final String macAddress,
+                                        IMdsalApiManager mdsalManager) {
+        List<MatchInfo> matchInfo = new ArrayList<>();
+        matchInfo.add(new MatchMetadata(MetaDataUtil.getVpnIdMetadata(vpnId), MetaDataUtil.METADATA_MASK_VRFID));
+        matchInfo.add(new MatchEthernetSource(new MacAddress(macAddress)));
+        LOG.debug("NAT Service : Remove flow table {} -> table {} for External Vpn Id = {} and MacAddress = {} on "
+                + "DpnId = {}", NwConstants.L3_GW_MAC_TABLE, NwConstants.INBOUND_NAPT_TABLE, vpnId, macAddress, dpnId);
+        // Remove the flow entry in L3_GW_MAC_TABLE
+        String flowRef = NatUtil.getFlowRef(dpnId, NwConstants.L3_GW_MAC_TABLE, vpnId, macAddress);
+        Flow l3GwMacTableFlowEntity = MDSALUtil.buildFlowNew(NwConstants.L3_GW_MAC_TABLE,
+                flowRef, 21, flowRef, 0, 0, NwConstants.COOKIE_L3_GW_MAC_TABLE, matchInfo, null);
+
+        mdsalManager.removeFlow(dpnId, l3GwMacTableFlowEntity);
+        LOG.debug("NAT Service : Successfully removed flow entity {} on DPN = {}", l3GwMacTableFlowEntity, dpnId);
+    }
+
 }

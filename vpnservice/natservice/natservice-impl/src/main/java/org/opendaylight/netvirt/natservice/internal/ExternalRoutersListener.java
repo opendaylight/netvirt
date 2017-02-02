@@ -86,6 +86,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev16011
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.IntextIpPortMap;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.NaptSwitches;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ProtocolTypes;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ProviderTypes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.RouterIdName;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ext.routers.Routers;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ext.routers.RoutersKey;
@@ -140,6 +141,7 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
     private final NaptPacketInHandler naptPacketInHandler;
     private final IFibManager fibManager;
     private final IVpnManager vpnManager;
+    private final EvpnSnatFlowProgrammer evpnSnatFlowProgrammer;
     private static final BigInteger COOKIE_TUNNEL = new BigInteger("9000000", 16);
     static final BigInteger COOKIE_VM_LFIB_TABLE = new BigInteger("8000022", 16);
 
@@ -156,7 +158,8 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
                                    final NaptEventHandler naptEventHandler,
                                    final NaptPacketInHandler naptPacketInHandler,
                                    final IFibManager fibManager,
-                                   final IVpnManager vpnManager) {
+                                   final IVpnManager vpnManager,
+                                   final EvpnSnatFlowProgrammer evpnSnatFlowProgrammer) {
         super(Routers.class, ExternalRoutersListener.class);
         this.dataBroker = dataBroker;
         this.mdsalManager = mdsalManager;
@@ -173,6 +176,7 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
         this.naptPacketInHandler = naptPacketInHandler;
         this.fibManager = fibManager;
         this.vpnManager = vpnManager;
+        this.evpnSnatFlowProgrammer = evpnSnatFlowProgrammer;
     }
 
     @Override
@@ -892,7 +896,31 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
                                                 final IBgpManager bgpManager, final DataBroker dataBroker,
                                                 final Logger log) {
         LOG.debug("NAT Service : advToBgpAndInstallFibAndTsFlows() entry for DPN ID {}, tableId {}, vpnname {} "
-            + "and externalIp {}", dpnId, tableId, vpnName, externalIp);
+                + "and externalIp {}", dpnId, tableId, vpnName, externalIp);
+        String routerName = NatUtil.getRouterName(dataBroker, routerId);
+        if (routerName == null) {
+            LOG.error("NAT Service : Unable to retrieve the Router Name from Router ID {}", routerId);
+            return;
+        }
+        String nextHopIp = NatUtil.getEndpointIpAddressForDPN(dataBroker, dpnId);
+        String rd = NatUtil.getVpnRd(dataBroker, vpnName);
+        if (rd == null || rd.isEmpty()) {
+            LOG.error("NAT Service : Unable to get RD for VPN Name {}", vpnName);
+            return;
+        }
+        ProviderTypes extNwProvType = NatEvpnUtil.getExtNwProvTypeFromRouterName(dataBroker, routerName);
+        if (extNwProvType == null) {
+            return;
+        }
+        if (extNwProvType == ProviderTypes.VXLAN) {
+            WriteTransaction writeTx = dataBroker.newWriteOnlyTransaction();
+            evpnSnatFlowProgrammer.evpnAdvToBgpAndInstallFibAndTsFlows(dpnId, tableId, externalIp, vpnName, rd,
+                    nextHopIp, writeTx, routerId);
+            if (writeTx != null) {
+                writeTx.submit();
+            }
+            return;
+        }
         //Generate VPN label for the external IP
         GenerateVpnLabelInput labelInput = new GenerateVpnLabelInputBuilder().setVpnName(vpnName)
             .setIpPrefix(externalIp).build();
@@ -935,13 +963,9 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
                             }
                         } else {
                             LOG.error("NAT Service : Failed to write label {} for externalIp {} for "
-                                    + "routerId {} in DS",
-                                label, externalIp, routerId);
+                                    + "routerId {} in DS", label, externalIp, routerId);
                         }
-
                         //Inform BGP
-                        String rd = NatUtil.getVpnRd(dataBroker, vpnName);
-                        String nextHopIp = NatUtil.getEndpointIpAddressForDPN(dataBroker, dpnId);
                         NatUtil.addPrefixToBGP(dataBroker, bgpManager, fibManager, vpnName, rd,
                             externalIp, nextHopIp, label, log, RouteOrigin.STATIC, dpnId);
 
@@ -1893,8 +1917,23 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
 
     protected void delFibTsAndReverseTraffic(final BigInteger dpnId, long routerId, String extIp,
                                              final String vpnName, long tempLabel) {
-        LOG.debug("Removing fib entry for externalIp {} in routerId {}", extIp, routerId);
-
+        LOG.debug("NAT Service : Removing fib entry for externalIp {} in routerId {}", extIp, routerId);
+        String routerName = NatUtil.getRouterName(dataBroker,routerId);
+        if (routerName == null) {
+            LOG.error("NAT Service : Could not retrieve Router Name from Router ID {} ", routerId);
+            return;
+        }
+        ProviderTypes extNwProvType = NatEvpnUtil.getExtNwProvTypeFromRouterName(dataBroker,routerName);
+        if (extNwProvType == null) {
+            return;
+        }
+        /*  Remove the flow table19->44 and table36->44 entries for SNAT reverse traffic flow if the
+         * external network provided type is VxLAN
+         */
+        if (extNwProvType == ProviderTypes.VXLAN) {
+            evpnSnatFlowProgrammer.evpnDelFibTsAndReverseTraffic(dpnId, routerId, extIp, vpnName);
+            return;
+        }
         if (tempLabel < 0 || tempLabel == NatConstants.INVALID_ID) {
             LOG.error("NAT Service : Label not found for externalIp {} with router id {}", extIp, routerId);
             return;
@@ -1921,8 +1960,7 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
                     } else {
                         String errMsg =
                             String.format("RPC call to remove custom FIB entries on dpn %s for prefix %s "
-                                    + "Failed - %s",
-                                dpnId, externalIp, result.getErrors());
+                                    + "Failed - %s", dpnId, externalIp, result.getErrors());
                         LOG.error(errMsg);
                         return Futures.immediateFailedFuture(new RuntimeException(errMsg));
                     }
@@ -1949,7 +1987,23 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
     }
 
     private void delFibTsAndReverseTraffic(final BigInteger dpnId, long routerId, String extIp, final String vpnName) {
-        LOG.debug("Removing fib entry for externalIp {} in routerId {}", extIp, routerId);
+        LOG.debug("NAT Service : Removing fib entry for externalIp {} in routerId {}", extIp, routerId);
+        String routerName = NatUtil.getRouterName(dataBroker,routerId);
+        if (routerName == null) {
+            LOG.error("NAT Service : Could not retrieve Router Name from Router ID {} ", routerId);
+            return;
+        }
+        ProviderTypes extNwProvType = NatEvpnUtil.getExtNwProvTypeFromRouterName(dataBroker,routerName);
+        if (extNwProvType == null) {
+            return;
+        }
+        /* Remove the flow table19->44 and table36->44 entries for SNAT reverse traffic flow if the
+         *  external network provided type is VxLAN
+         */
+        if (extNwProvType == ProviderTypes.VXLAN) {
+            evpnSnatFlowProgrammer.evpnDelFibTsAndReverseTraffic(dpnId, routerId, extIp, vpnName);
+            return;
+        }
         //Get IPMaps from the DB for the router ID
         List<IpMap> dbIpMaps = NaptManager.getIpMapList(dataBroker, routerId);
         if (dbIpMaps == null || dbIpMaps.isEmpty()) {
