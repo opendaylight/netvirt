@@ -61,4 +61,10 @@ public class AclServiceStatelessTest extends AclServiceTestBase {
         assertFlowsInAnyOrder(ipv4statelessentries.icmpFlowsForTwoAclsHavingSameRules());
     }
 
+    @Override
+    void newInterfaceWithAapIpv4AllCheck() {
+        // TODO Auto-generated method stub
+
+    }
+
 }
