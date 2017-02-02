@@ -62,4 +62,9 @@ public class AclServiceStatefulTestIPv6 extends AclServiceTestBaseIPv6 {
     void newInterfaceWithTwoAclsHavingSameRulesCheck() {
         assertFlowsInAnyOrder(ipv6statefulentries.icmpFlowsForTwoAclsHavingSameRules());
     }
+
+    @Override
+    void newInterfaceWithAapIpv4AllCheck() {
+        // TODO Auto-generated method stub
+    }
 }

@@ -17,6 +17,7 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.cont
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv6Prefix;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.PortNumber;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.packet.fields.rev160218.acl.transport.header.fields.DestinationPortRangeBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.interfaces._interface.AllowedAddressPairs;
 
 public abstract class AclServiceTestBaseIPv6 extends AclServiceTestBase {
 
@@ -58,8 +59,13 @@ public abstract class AclServiceTestBaseIPv6 extends AclServiceTestBase {
         newElanInterface(ELAN, PORT_1 ,true);
         newElanInterface(ELAN, PORT_2, true);
         newElanInterface(ELAN, PORT_3, true);
-        newAllowedAddressPair(PORT_1, Arrays.asList(SG_UUID_1), IPv6_PREFIX_1, PORT_MAC_1);
-        newAllowedAddressPair(PORT_2, Arrays.asList(SG_UUID_1), IPv6_PREFIX_2, PORT_MAC_2);
-        newAllowedAddressPair(PORT_3, Arrays.asList(SG_UUID_1, SG_UUID_2), IPv6_PREFIX_3, PORT_MAC_3);
+
+        final AllowedAddressPairs aapPort1 = buildAap(IPv6_PREFIX_1, PORT_MAC_1);
+        final AllowedAddressPairs aapPort2 = buildAap(IPv6_PREFIX_2, PORT_MAC_2);
+        final AllowedAddressPairs aapPort3 = buildAap(IPv6_PREFIX_3, PORT_MAC_3);
+
+        newAllowedAddressPair(PORT_1, Arrays.asList(SG_UUID_1), Arrays.asList(aapPort1));
+        newAllowedAddressPair(PORT_2, Arrays.asList(SG_UUID_1), Arrays.asList(aapPort2));
+        newAllowedAddressPair(PORT_3, Arrays.asList(SG_UUID_1, SG_UUID_2), Arrays.asList(aapPort3));
     }
 }

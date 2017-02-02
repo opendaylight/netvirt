@@ -51,6 +51,7 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.cont
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.acl.access.list.entries.Ace;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpPrefix;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Prefix;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.Interfaces;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.InterfacesState;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface;
@@ -445,10 +446,13 @@ public final class AclServiceUtils {
         List<MatchInfoBase> flowMatches = new ArrayList<>();
         IpPrefix ipPrefix = ipPrefixOrAddress.getIpPrefix();
         if (ipPrefix != null) {
-            if (ipPrefix.getIpv4Prefix() != null) {
+            Ipv4Prefix ipv4Prefix = ipPrefix.getIpv4Prefix();
+            if (ipv4Prefix != null) {
                 flowMatches.add(MatchEthernetType.IPV4);
-                flowMatches.add(matchCriteria == MatchCriteria.MATCH_SOURCE ? new MatchIpv4Source(
-                        ipPrefix.getIpv4Prefix()) : new MatchIpv4Destination(ipPrefix.getIpv4Prefix()));
+                if (!ipv4Prefix.getValue().equals(AclConstants.IPV4_ALL_NETWORK)) {
+                    flowMatches.add(matchCriteria == MatchCriteria.MATCH_SOURCE ? new MatchIpv4Source(ipv4Prefix)
+                            : new MatchIpv4Destination(ipv4Prefix));
+                }
             } else {
                 flowMatches.add(MatchEthernetType.IPV6);
                 flowMatches.add(matchCriteria == MatchCriteria.MATCH_SOURCE ? new MatchIpv6Source(
