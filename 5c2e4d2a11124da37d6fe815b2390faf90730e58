@@ -1,0 +1,40 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_b96cee9d",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronPortChangeListener.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 238,
+      "author": {
+        "id": 3276
+      },
+      "writtenOn": "2017-02-02T13:02:14Z",
+      "side": 1,
+      "message": "good idea, will do that.",
+      "parentUuid": "fafc7978_39f47ef1",
+      "revId": "5c2e4d2a11124da37d6fe815b2390faf90730e58",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_99692a8e",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnUtils.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 3276
+      },
+      "writtenOn": "2017-02-02T13:02:14Z",
+      "side": 1,
+      "message": "not sure if came in rebase or IDE added it. have fixed locally already.",
+      "parentUuid": "fafc7978_59da2279",
+      "revId": "5c2e4d2a11124da37d6fe815b2390faf90730e58",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
