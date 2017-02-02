@@ -107,17 +107,6 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
         </dependency>
     </dependencies>
 
-    <build>
-        <plugins>
-            <plugin>
-                <artifactId>maven-checkstyle-plugin</artifactId>
-                <configuration>
-                    <propertyExpansion>checkstyle.violationSeverity=error</propertyExpansion>
-                </configuration>
-            </plugin>
-        </plugins>
-    </build>
-
     <!--
         Maven Site Configuration
 

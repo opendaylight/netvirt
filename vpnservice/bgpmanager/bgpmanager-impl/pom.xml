@@ -94,21 +94,6 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
 
     </dependencies>
 
-    <build>
-        <plugins>
-            <plugin>
-                <artifactId>maven-checkstyle-plugin</artifactId>
-                <configuration>
-                    <propertyExpansion>checkstyle.violationSeverity=error</propertyExpansion>
-                    <excludes>
-                        org/opendaylight/yang/gen/**,
-                        **/thrift/gen/*.java
-                    </excludes>
-                </configuration>
-            </plugin>
-        </plugins>
-    </build>
-
     <!--
         Maven Site Configuration
 
