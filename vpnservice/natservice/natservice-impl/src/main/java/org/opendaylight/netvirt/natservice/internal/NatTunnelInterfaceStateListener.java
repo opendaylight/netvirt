@@ -19,6 +19,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.Future;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
+import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
 import org.opendaylight.genius.mdsalutil.BucketInfo;
@@ -46,6 +47,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fib.rpc.rev160121.C
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fib.rpc.rev160121.FibRpcService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fib.rpc.rev160121.RemoveFibEntryInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fib.rpc.rev160121.RemoveFibEntryInputBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.VrfEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.dpn.routers.DpnRoutersList;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.dpn.routers.dpn.routers.list.RoutersList;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ext.routers.Routers;
@@ -591,6 +593,11 @@ public class NatTunnelInterfaceStateListener
         FIB manager.
         */
         String rd = NatUtil.getVpnRd(dataBroker, externalVpnName);
+        VrfEntry.EncapType extNwProviderTypeEncap = NatUtil.getExtNwProviderType(dataBroker, rd);
+        String macAddress = null;
+        String gwMacAddress = null;
+        long l3Vni = 0;
+        WriteTransaction writeTx = dataBroker.newWriteOnlyTransaction();
         if (externalIps != null) {
             for (final String externalIp : externalIps) {
                 Long label = externalRouterListner.checkExternalIpLabel(routerId,
@@ -602,8 +609,8 @@ public class NatTunnelInterfaceStateListener
 
                 LOG.debug("NAT Service : SNAT -> Advertise the route to the externalIp {} having nextHopIp {}",
                     externalIp, nextHopIp);
-                NatUtil.addPrefixToBGP(dataBroker, bgpManager, fibManager, rd, externalIp, nextHopIp,
-                    label, LOG, RouteOrigin.STATIC);
+                NatUtil.addPrefixToBGP(dataBroker, bgpManager, fibManager, rd, macAddress, externalIp, nextHopIp,
+                        extNwProviderTypeEncap, label, l3Vni,LOG, gwMacAddress, writeTx, RouteOrigin.STATIC);
 
                 LOG.debug("NAT Service : SNAT -> Install custom FIB routes "
                     + "(Table 21 -> Push MPLS label to Tunnel port");
@@ -691,8 +698,13 @@ public class NatTunnelInterfaceStateListener
                     LOG.debug("NAT Service : DNAT -> Unable to advertise to the DC GW since label is invalid");
                     return;
                 }
-                NatUtil.addPrefixToBGP(dataBroker, bgpManager, fibManager, rd, externalIp + "/32",
-                    nextHopIp, label, LOG, RouteOrigin.STATIC);
+                VrfEntry.EncapType extNwProviderTypeEncap = NatUtil.getExtNwProviderType(dataBroker, rd);
+                String macAddress = null;
+                String gwMacAddress = null;
+                long l3Vni = 0;
+                WriteTransaction writeTx = dataBroker.newWriteOnlyTransaction();
+                NatUtil.addPrefixToBGP(dataBroker, bgpManager, fibManager, rd, macAddress, externalIp + "/32",
+                    nextHopIp, extNwProviderTypeEncap, label, l3Vni, LOG, gwMacAddress, writeTx, RouteOrigin.STATIC);
 
                 //Install custom FIB routes (Table 21 -> Push MPLS label to Tunnel port
                 List<Instruction> customInstructions = new ArrayList<>();

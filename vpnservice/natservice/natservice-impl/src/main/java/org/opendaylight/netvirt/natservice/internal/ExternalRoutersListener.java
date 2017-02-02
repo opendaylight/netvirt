@@ -81,11 +81,13 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fib.rpc.rev160121.C
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fib.rpc.rev160121.FibRpcService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fib.rpc.rev160121.RemoveFibEntryInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fib.rpc.rev160121.RemoveFibEntryInputBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.VrfEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ExtRouters;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ExternalIpsCounter;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.IntextIpPortMap;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.NaptSwitches;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ProtocolTypes;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ProviderTypes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.RouterIdName;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ext.routers.Routers;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ext.routers.RoutersKey;
@@ -639,13 +641,18 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
         LOG.debug("NAT Service : buildSnatFlowEntity is called for dpId {}, routerName {} and groupId {}",
             dpId, routerName, groupId);
         long routerId = NatUtil.getVpnId(dataBroker, routerName);
+        //Non-NAPT to NAPT communication, tunnel id will be setting with router-lport-tag which will be carved
+        // out per router (36->Group on Non-NAPT Switch)
+        long routerLportTag = NatUtil.createLPortTagForRouter(routerName,idManager);
+        LOG.trace("NAT Service : Created Router_lPort_Tag = {} from ID Manager Successfully for Router ID = {}"
+                + "(table36->Group on Non-NAPT switch flow)", routerLportTag, routerId);
         List<MatchInfo> matches = new ArrayList<>();
         matches.add(MatchEthernetType.IPV4);
         matches.add(new MatchMetadata(MetaDataUtil.getVpnIdMetadata(routerId), MetaDataUtil.METADATA_MASK_VRFID));
 
         List<ActionInfo> actionsInfo = new ArrayList<>();
 
-        actionsInfo.add(new ActionSetFieldTunnelId(BigInteger.valueOf(routerId)));
+        actionsInfo.add(new ActionSetFieldTunnelId(BigInteger.valueOf(routerLportTag)));
         LOG.debug("NAT Service : Setting the tunnel to the list of action infos {}", actionsInfo);
         actionsInfo.add(new ActionGroup(groupId));
         List<InstructionInfo> instructions = new ArrayList<>();
@@ -690,12 +697,15 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
     }
 
     private FlowEntity buildTsFlowEntity(BigInteger dpId, String routerName) {
-
         BigInteger routerId = BigInteger.valueOf(NatUtil.getVpnId(dataBroker, routerName));
         List<MatchInfo> matches = new ArrayList<>();
+        //Non-NAPT to NAPT communication, tunnel id will be setting with router-lport-tag which will be carved
+        // out per router (36->46 on NAPT Switch)
+        long routerLportTag = NatUtil.createLPortTagForRouter(routerName,idManager);
+        LOG.trace("NAT Service : Created Router_lPort_Tag = {} from ID Manager Successfully for Router ID = {}"
+                + "(table36->table46 on NAPT switch flow)", routerLportTag, routerId);
         matches.add(MatchEthernetType.IPV4);
-        matches.add(new MatchTunnelId(routerId));
-
+        matches.add(new MatchTunnelId(BigInteger.valueOf(routerLportTag)));
         List<InstructionInfo> instructions = new ArrayList<>();
         instructions.add(new InstructionWriteMetadata(MetaDataUtil.getVpnIdMetadata(routerId.longValue()),
             MetaDataUtil.METADATA_MASK_VRFID));
@@ -853,7 +863,7 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
     }
 
     private void handleSnatReverseTraffic(BigInteger dpnId, long routerId, String externalIp) {
-        LOG.debug("NAT Service : handleSnatReverseTraffic() entry for DPN ID, routerId, externalIp: {}",
+        LOG.debug("NAT Service : handleSnatReverseTraffic() entry for DPN ID = {}, routerId = {}, externalIp = {}",
             dpnId, routerId, externalIp);
         Uuid networkId = NatUtil.getNetworkIdFromRouterId(dataBroker, routerId);
         if (networkId == null) {
@@ -862,113 +872,202 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
         }
         final String vpnName = NatUtil.getAssociatedVPN(dataBroker, networkId, LOG);
         if (vpnName == null) {
-            LOG.error("NAT Service : No VPN associated with ext nw {} to handle add external ip "
-                    + "configuration {} in router {}",
+            LOG.error("NAT Service : No VPN associated with ext nw {} to handle add external ip {} "
+                    + "configuration in router {}",
                 networkId, externalIp, routerId);
             return;
         }
         advToBgpAndInstallFibAndTsFlows(dpnId, NwConstants.INBOUND_NAPT_TABLE, vpnName, routerId,
-            externalIp, vpnService, fibService, bgpManager, dataBroker, LOG);
-        LOG.debug("NAT Service : handleSnatReverseTraffic() exit for DPN ID, routerId, externalIp : {}",
+                networkId,externalIp, vpnService, fibService, bgpManager, dataBroker, LOG);
+        LOG.debug("NAT Service : handleSnatReverseTraffic() exit for DPN ID = {}, routerId = {}, externalIp = {}",
             dpnId, routerId, externalIp);
     }
 
     public void advToBgpAndInstallFibAndTsFlows(final BigInteger dpnId, final short tableId, final String vpnName,
-                                                final long routerId, final String externalIp,
-                                                VpnRpcService vpnService, final FibRpcService fibService,
-                                                final IBgpManager bgpManager, final DataBroker dataBroker,
-                                                final Logger log) {
-        LOG.debug("NAT Service : advToBgpAndInstallFibAndTsFlows() entry for DPN ID {}, tableId {}, vpnname {} "
-            + "and externalIp {}", dpnId, tableId, vpnName, externalIp);
-        //Generate VPN label for the external IP
-        GenerateVpnLabelInput labelInput = new GenerateVpnLabelInputBuilder().setVpnName(vpnName)
-            .setIpPrefix(externalIp).build();
-        Future<RpcResult<GenerateVpnLabelOutput>> labelFuture = vpnService.generateVpnLabel(labelInput);
+                                                final long routerId, final Uuid externalNetworkId,
+                                                final String externalIp, VpnRpcService vpnService,
+                                                final FibRpcService fibService, final IBgpManager bgpManager,
+                                                final DataBroker dataBroker, final Logger log) {
+        LOG.debug("NAT Service : advToBgpAndInstallFibAndTsFlows() entry for DPN ID = {}, tableId = {}, vpnname = {} "
+                + "and externalIp = {}", dpnId, tableId, vpnName, externalIp);
+        ProviderTypes extNwProviderType = NatUtil.getProviderTypefromNetworkId(dataBroker, externalNetworkId);
+        if (extNwProviderType == null) {
+            LOG.error("NAT Service : Unable to retrieve the External Network Provider Type. Hence returning");
+            return;
+        }
+        String nextHopIp = NatUtil.getEndpointIpAddressForDPN(dataBroker, dpnId);
+        String rd = NatUtil.getVpnRd(dataBroker, vpnName);
+        long l3Vni = NatUtil.getL3Vni(dataBroker, rd);
+        VrfEntry.EncapType extNwProviderTypeEncap = NatUtil.getExtNwProviderType(dataBroker, rd);
+        String macAddress = null;
+        WriteTransaction writeTx = dataBroker.newWriteOnlyTransaction();
+        // Get the External Gateway MAC Address which is Router gateway MAC address for SNAT
+        String gwMacAddress = NatUtil.getExtGwMacAddFromRouterId(dataBroker, routerId);
+        if (gwMacAddress != null) {
+            LOG.debug("NAT Service : External Gateway MAC address {} found for External Router ID {}",
+                    gwMacAddress, routerId);
+        } else {
+            LOG.error("NAT Service : No External Gateway MAC address found for External Router ID {}",
+                    routerId);
+            return;
+        }
+        if (extNwProviderType.getName().equals("VXLAN")) {
+                /*
+                1) Install the flow 36->44 (FIP VM on DPN1 is responding back to external fixed IP on DPN2)
+                {DNAT to SNAT traffic on different Hypervisor}
 
-        //On successful generation of the VPN label, advertise the route to the BGP and install the FIB routes.
-        ListenableFuture<RpcResult<Void>> future =
-            Futures.transform(JdkFutureAdapters.listenInPoolThread(labelFuture),
-                (AsyncFunction<RpcResult<GenerateVpnLabelOutput>, RpcResult<Void>>) result -> {
-                    if (result.isSuccessful()) {
-                        LOG.debug("NAT Service : inside apply with result success");
-                        GenerateVpnLabelOutput output = result.getResult();
-                        final long label = output.getLabel();
+                2) Install the flow 21->44 (FIP VM on DPN1 is responding back to external fixed IP on DPN1 itself)
+                {DNAT to SNAT traffic on Same Hypervisor}
 
-                        int externalIpInDsFlag = 0;
-                        //Get IPMaps from the DB for the router ID
-                        List<IpMap> dbIpMaps = NaptManager.getIpMapList(dataBroker, routerId);
-                        if (dbIpMaps != null) {
-                            for (IpMap dbIpMap : dbIpMaps) {
-                                String dbExternalIp = dbIpMap.getExternalIp();
-                                //Select the IPMap, whose external IP is the IP for which FIB is installed
-                                if (dbExternalIp.contains(externalIp)) {
-                                    String dbInternalIp = dbIpMap.getInternalIp();
-                                    IpMapKey dbIpMapKey = dbIpMap.getKey();
-                                    LOG.debug("Setting label {} for internalIp {} and externalIp {}",
-                                        label, dbInternalIp, externalIp);
-                                    IpMap newIpm = new IpMapBuilder().setKey(dbIpMapKey).setInternalIp(dbInternalIp)
-                                        .setExternalIp(dbExternalIp).setLabel(label).build();
-                                    MDSALUtil.syncWrite(dataBroker, LogicalDatastoreType.OPERATIONAL,
-                                        naptManager.getIpMapIdentifier(routerId, dbInternalIp), newIpm);
-                                    externalIpInDsFlag++;
-                                }
-                            }
-                            if (externalIpInDsFlag <= 0) {
-                                LOG.debug("NAT Service : External Ip {} not found in DS, Failed to update label {} "
-                                    + "for routerId {} in DS", externalIp, label, routerId);
-                                String errMsg = String.format("Failed to update label %s due to external Ip %s not"
-                                    + " found in DS for router %s", label, externalIp, routerId);
-                                return Futures.immediateFailedFuture(new Exception(errMsg));
-                            }
-                        } else {
-                            LOG.error("NAT Service : Failed to write label {} for externalIp {} for "
-                                    + "routerId {} in DS",
-                                label, externalIp, routerId);
-                        }
+                3) Install the flow 19->44 (DC-GW is responding back to VM) {SNAT Reverse traffic})
 
-                        //Inform BGP
-                        String rd = NatUtil.getVpnRd(dataBroker, vpnName);
-                        String nextHopIp = NatUtil.getEndpointIpAddressForDPN(dataBroker, dpnId);
-                        NatUtil.addPrefixToBGP(dataBroker, bgpManager, fibManager, rd, externalIp,
-                            nextHopIp, label, log, RouteOrigin.STATIC);
+                */
+            LOG.debug("NAT Service : PROVIDER TYPE : VxLAN :"
+                    + "Install the routes in the FIB table and advertise the same to the BGP manager");
+            //Inform to BGP
+            NatUtil.addPrefixToBGP(dataBroker, bgpManager, fibManager, rd, macAddress, externalIp,
+                    nextHopIp, extNwProviderTypeEncap, 0, l3Vni, log, gwMacAddress, writeTx,
+                    RouteOrigin.STATIC);
 
-                        //Install custom FIB routes
-                        List<Instruction> customInstructions = new ArrayList<>();
-                        customInstructions.add(new InstructionGotoTable(tableId).buildInstruction(0));
-                        makeTunnelTableEntry(dpnId, label, customInstructions);
-                        makeLFibTableEntry(dpnId, label, tableId);
+            LOG.debug("NAT Service : Install custom FIB routes for external network prefix {} with "
+                    + "provider type as {}", externalIp, extNwProviderTypeEncap);
+            //Install custom FIB routes
+            List<Instruction> customInstructions = new ArrayList<>();
+            customInstructions.add(new InstructionGotoTable(tableId).buildInstruction(0));
+            //Install the flow from table 36->44 (SNAT to DNAT reverse Traffic: If traffic is Initiated from
+            // NAPT to FIP DPN)
+            makeTunnelTableEntry(dpnId, l3Vni, customInstructions);
+            //Install the flow from table 19->44 (SNAT reverse traffic: If the traffic is Initiated from
+            // DC-GW to VM (SNAT response traffic))
+            long vpnId = NatUtil.getVpnId(dataBroker, vpnName);
+            NatUtil.makeL3GwMacTableEntry(dpnId, vpnId, gwMacAddress, customInstructions, mdsalManager);
 
-                        String fibExternalIp = externalIp.contains("/32") ? externalIp : (externalIp + "/32");
-                        CreateFibEntryInput input = new CreateFibEntryInputBuilder().setVpnName(vpnName)
-                            .setSourceDpid(dpnId).setIpAddress(fibExternalIp).setServiceId(label)
-                            .setInstruction(customInstructions).build();
-                        Future<RpcResult<Void>> future1 = fibService.createFibEntry(input);
-                        return JdkFutureAdapters.listenInPoolThread(future1);
-                    } else {
-                        LOG.error("NAT Service : inside apply with result failed");
-                        String errMsg = String.format("Could not retrieve the label for prefix %s in VPN %s, %s",
-                            externalIp, vpnName, result.getErrors());
-                        return Futures.immediateFailedFuture(new RuntimeException(errMsg));
-                    }
-                });
+            //Install the flow from table 21->44 (FIP VM to Non-FIP VM SNAT Reverse Traffic on Same DPN)
+            String fibExternalIp = externalIp.contains("/32") ? externalIp : (externalIp + "/32");
+            CreateFibEntryInput input = new CreateFibEntryInputBuilder().setVpnName(vpnName)
+                    .setSourceDpid(dpnId).setIpAddress(fibExternalIp).setServiceId(l3Vni)
+                    .setInstruction(customInstructions).build();
 
-        Futures.addCallback(future, new FutureCallback<RpcResult<Void>>() {
+            Future<RpcResult<Void>> future1 = fibService.createFibEntry(input);
+            ListenableFuture<RpcResult<Void>> futureVxlan = JdkFutureAdapters.listenInPoolThread(future1);
 
-            @Override
-            public void onFailure(Throwable error) {
-                log.error("NAT Service : Error in generate label or fib install process", error);
-            }
+            Futures.addCallback(futureVxlan, new FutureCallback<RpcResult<Void>>() {
 
-            @Override
-            public void onSuccess(RpcResult<Void> result) {
-                if (result.isSuccessful()) {
-                    log.info("NAT Service : Successfully installed custom FIB routes for prefix {}", externalIp);
-                } else {
-                    log.error("NAT Service : Error in rpc call to create custom Fib entries for prefix {} in "
-                        + "DPN {}, {}", externalIp, dpnId, result.getErrors());
+                @Override
+                public void onFailure(Throwable error) {
+                    log.error("NAT Service : Error in custom fib routes install process for prefix {} in "
+                            + "DPN {}", externalIp, dpnId, error);
                 }
-            }
-        });
+
+                @Override
+                public void onSuccess(RpcResult<Void> result) {
+                    if (result.isSuccessful()) {
+                        log.info("NAT Service : Successfully installed custom FIB routes for prefix {} in "
+                                + "DPN {}", externalIp, dpnId);
+                    } else {
+                        log.error("NAT Service : Error in rpc call to create custom Fib entries for "
+                                + "prefix {} in DPN {}, {}", externalIp, dpnId, result.getErrors());
+                    }
+                }
+            });
+        } else {
+            //Handling Other than VXLAN Provider type
+            LOG.debug("NAT Service : PROVIDER TYPE : {} :"
+                    + "Install the routes in the FIB table and advertise the same to the BGP manager",
+                    extNwProviderType);
+
+            //Generate VPN label for the external IP
+            GenerateVpnLabelInput labelInput = new GenerateVpnLabelInputBuilder().setVpnName(vpnName)
+                    .setIpPrefix(externalIp).build();
+            Future<RpcResult<GenerateVpnLabelOutput>> labelFuture = vpnService.generateVpnLabel(labelInput);
+
+            //On successful generation of the VPN label, advertise the route to the BGP and install the FIB routes.
+            ListenableFuture<RpcResult<Void>> future =
+                    Futures.transform(JdkFutureAdapters.listenInPoolThread(labelFuture),
+                            (AsyncFunction<RpcResult<GenerateVpnLabelOutput>, RpcResult<Void>>) result -> {
+                            if (result.isSuccessful()) {
+                                LOG.debug("NAT Service : inside apply with result success");
+                                GenerateVpnLabelOutput output = result.getResult();
+                                final long label = output.getLabel();
+                                int externalIpInDsFlag = 0;
+                               //Get IPMaps from the DB for the router ID
+                                List<IpMap> dbIpMaps = NaptManager.getIpMapList(dataBroker, routerId);
+                                if (dbIpMaps != null) {
+                                    for (IpMap dbIpMap : dbIpMaps) {
+                                        String dbExternalIp = dbIpMap.getExternalIp();
+                                            //Select the IPMap, whose external IP is the IP for which
+                                            // FIB is installed
+                                        if (dbExternalIp.contains(externalIp)) {
+                                            String dbInternalIp = dbIpMap.getInternalIp();
+                                            IpMapKey dbIpMapKey = dbIpMap.getKey();
+                                            LOG.debug("Setting label {} for internalIp {} and externalIp {}",
+                                                        label, dbInternalIp, externalIp);
+                                            IpMap newIpm = new IpMapBuilder().setKey(dbIpMapKey)
+                                                        .setInternalIp(dbInternalIp)
+                                                        .setExternalIp(dbExternalIp).setLabel(label).build();
+                                            MDSALUtil.syncWrite(dataBroker, LogicalDatastoreType.OPERATIONAL,
+                                                        naptManager.getIpMapIdentifier(routerId, dbInternalIp), newIpm);
+                                            externalIpInDsFlag++;
+                                        }
+                                    }
+                                    if (externalIpInDsFlag <= 0) {
+                                        LOG.debug("NAT Service : External Ip {} not found in DS, Failed to "
+                                                            + "update label {} for routerId {} in DS",
+                                                    externalIp, label, routerId);
+                                        String errMsg = String.format("Failed to update label %s due to "
+                                                            + "external Ip %s not found in DS for router %s", label,
+                                                    externalIp, routerId);
+                                        return Futures.immediateFailedFuture(new Exception(errMsg));
+                                    }
+                                } else {
+                                    LOG.error("NAT Service : Failed to write label {} for externalIp {} for "
+                                                        + "routerId {} in DS", label, externalIp, routerId);
+                                }
+                                //Inform BGP
+                                NatUtil.addPrefixToBGP(dataBroker, bgpManager, fibManager, rd, macAddress,
+                                            externalIp, nextHopIp, extNwProviderTypeEncap, label, l3Vni, log,
+                                            gwMacAddress, writeTx, RouteOrigin.STATIC);
+                                LOG.debug("NAT Service : Install custom FIB routes for external network "
+                                        + "prefix {} with provider type as {}", externalIp, extNwProviderTypeEncap);
+                                //Install custom FIB routes
+                                List<Instruction> customInstructions = new ArrayList<>();
+                                customInstructions.add(new InstructionGotoTable(tableId).buildInstruction(0));
+                                makeTunnelTableEntry(dpnId, label, customInstructions);
+                                makeLFibTableEntry(dpnId, label, tableId);
+
+                                String fibExternalIp = externalIp.contains("/32") ? externalIp : (externalIp
+                                            + "/32");
+                                CreateFibEntryInput input = new CreateFibEntryInputBuilder().setVpnName(vpnName)
+                                            .setSourceDpid(dpnId).setIpAddress(fibExternalIp).setServiceId(label)
+                                            .setInstruction(customInstructions).build();
+                                Future<RpcResult<Void>> future1 = fibService.createFibEntry(input);
+                                return JdkFutureAdapters.listenInPoolThread(future1);
+                            } else {
+                                LOG.error("NAT Service : inside apply with result failed");
+                                String errMsg = String.format("Could not retrieve the label for "
+                                            + "prefix %s in VPN %s, %s", externalIp, vpnName, result.getErrors());
+                                return Futures.immediateFailedFuture(new RuntimeException(errMsg));
+                            }
+                        });
+            Futures.addCallback(future, new FutureCallback<RpcResult<Void>>() {
+
+                @Override
+                public void onFailure(Throwable error) {
+                    log.error("NAT Service : Error in generate label or fib install process", error);
+                }
+
+                @Override
+                public void onSuccess(RpcResult<Void> result) {
+                    if (result.isSuccessful()) {
+                        log.info("NAT Service : Successfully installed custom FIB routes for prefix {}",
+                                externalIp);
+                    } else {
+                        log.error("NAT Service : Error in rpc call to create custom Fib entries for prefix {} in "
+                                + "DPN {}, {}", externalIp, dpnId, result.getErrors());
+                    }
+                }
+            });
+        }
     }
 
     private void makeLFibTableEntry(BigInteger dpId, long serviceId, short tableId) {
@@ -1394,9 +1493,9 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
                         + "added after gateway-set");
                     dpnId = NatUtil.getPrimaryNaptfromRouterId(dataBroker, routerId);
                 }
-                advToBgpAndInstallFibAndTsFlows(dpnId, NwConstants.INBOUND_NAPT_TABLE, vpnName, routerId,
-                    leastLoadedExtIp + "/" + leastLoadedExtIpPrefix,
-                    vpnService, fibService, bgpManager, dataBroker, LOG);
+                advToBgpAndInstallFibAndTsFlows(dpnId, NwConstants.INBOUND_NAPT_TABLE, vpnName, routerId,networkId,
+                        leastLoadedExtIp + "/" + leastLoadedExtIpPrefix,
+                        vpnService, fibService, bgpManager, dataBroker, LOG);
             }
         }
     }
@@ -1561,6 +1660,8 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
                 .child(RouterToNaptSwitch.class, new RouterToNaptSwitchKey(routerName)).build();
         LOG.debug("NAPT Service : Removing NaptSwitch and Router for the router {} from datastore", routerName);
         MDSALUtil.syncDelete(dataBroker, LogicalDatastoreType.CONFIGURATION, id);
+        //Release router_lPort_tag from the ID Pool
+        NatUtil.removeLPortTagForRouter(routerName,idManager);
     }
 
     public void removeNaptFlowsFromActiveSwitch(long routerId, String routerName,
