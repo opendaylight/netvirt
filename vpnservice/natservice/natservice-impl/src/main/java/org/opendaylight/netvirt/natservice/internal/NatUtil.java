@@ -664,7 +664,8 @@ public class NatUtil {
                 LOG.error("NAT Service : addPrefix prefix {} rd {} failed since nextHopIp cannot be null.", prefix, rd);
                 return;
             }
-            addPrefixToInterface(broker, getVpnId(broker, vpnName), prefix, dpId, /*isNatPrefix*/ true);
+            addPrefixToInterface(broker, getVpnId(broker, vpnName), null /*interfaceName*/,prefix, dpId,
+                    /*isNatPrefix*/ true);
             fibManager.addOrUpdateFibEntry(broker, rd, null /*macAddress*/, prefix,
                     Collections.singletonList(nextHopIp), VrfEntry.EncapType.Mplsgre, (int)label, 0 /*l3vni*/,
                     null /*gatewayMacAddress*/, origin, null /*writeTxn*/);
@@ -681,16 +682,15 @@ public class NatUtil {
         }
     }
 
-    static void addPrefixToInterface(DataBroker broker, long vpnId, String ipPrefix, BigInteger dpId,
-            boolean isNatPrefix) {
+    static void addPrefixToInterface(DataBroker broker, long vpnId, String interfaceName, String ipPrefix,
+                                     BigInteger dpId, boolean isNatPrefix) {
         InstanceIdentifier<Prefixes> prefixId = InstanceIdentifier.builder(PrefixToInterface.class)
                 .child(org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.prefix.to._interface
                         .VpnIds.class, new org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.prefix
                         .to._interface.VpnIdsKey(vpnId))
                 .child(Prefixes.class, new PrefixesKey(ipPrefix)).build();
-
-        Prefixes prefix = new PrefixesBuilder().setDpnId(dpId).setIpAddress(ipPrefix).setNatPrefix(isNatPrefix)
-                .build();
+        Prefixes prefix = new PrefixesBuilder().setDpnId(dpId).setIpAddress(ipPrefix).setVpnInterfaceName(interfaceName)
+                    .setNatPrefix(isNatPrefix).build();
         try {
             SingleTransactionDataBroker.syncWrite(broker, LogicalDatastoreType.OPERATIONAL, prefixId, prefix);
         } catch (TransactionCommitFailedException e) {
