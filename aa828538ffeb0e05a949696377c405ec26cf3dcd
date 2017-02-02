@@ -89,6 +89,24 @@
       "revId": "aa828538ffeb0e05a949696377c405ec26cf3dcd",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_79e72613",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnUtils.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 865,
+      "author": {
+        "id": 3276
+      },
+      "writtenOn": "2017-02-02T13:02:14Z",
+      "side": 1,
+      "message": "I\u0027m in two minds on how to do this, hence the WiP marker. I want to keep this as lean as possible. Once Alon\u0027s patch lands then I\u0027ll see what works out best... using cache+read so refs get filled from neutronPortChangeistener, or update parentRefs from TrunkChangeListener when subports are added/deleted. Might likely go with cache-only and update Refs from subport add/delete combined.",
+      "parentUuid": "fafc7978_b9beaefd",
+      "revId": "aa828538ffeb0e05a949696377c405ec26cf3dcd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
