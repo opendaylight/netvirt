@@ -1,0 +1,191 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_7f927158",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/FibUtil.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 749,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-02-02T05:48:36Z",
+      "side": 1,
+      "message": "change the method name isTunnelInterface",
+      "revId": "e0ee2e47eaa38ab1f6263cf26d5efe0810767407",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_425eb0e7",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/NexthopManager.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 310,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-02-02T05:48:36Z",
+      "side": 1,
+      "message": "add comment on how ipAddress is chosen.",
+      "revId": "e0ee2e47eaa38ab1f6263cf26d5efe0810767407",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_625934fe",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/NexthopManager.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 311,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-02-02T05:48:36Z",
+      "side": 1,
+      "message": "space before :",
+      "revId": "e0ee2e47eaa38ab1f6263cf26d5efe0810767407",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_826ff891",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 821,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-02-02T05:48:36Z",
+      "side": 1,
+      "message": "initialize with FibConstants.INVALID_GROUP_ID",
+      "revId": "e0ee2e47eaa38ab1f6263cf26d5efe0810767407",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_51a03c43",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 1551,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-02-02T05:48:36Z",
+      "side": 1,
+      "message": "the same logic is used in the above method. i hope it is for retrieving last route for the given extra-route in delete scenario. you can move this to common method like getLastRoutePathExtraRoute(...)",
+      "revId": "e0ee2e47eaa38ab1f6263cf26d5efe0810767407",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_d1938cf8",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 1945,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-02-02T05:48:36Z",
+      "side": 1,
+      "message": "space before (",
+      "revId": "e0ee2e47eaa38ab1f6263cf26d5efe0810767407",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_718620bb",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 1946,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-02-02T05:48:36Z",
+      "side": 1,
+      "message": "should it be error log ?",
+      "revId": "e0ee2e47eaa38ab1f6263cf26d5efe0810767407",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_b19088ed",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 1951,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-02-02T05:48:36Z",
+      "side": 1,
+      "message": "here too.",
+      "revId": "e0ee2e47eaa38ab1f6263cf26d5efe0810767407",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_51b79c86",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 2008,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-02-02T05:48:36Z",
+      "side": 1,
+      "message": "here too.",
+      "revId": "e0ee2e47eaa38ab1f6263cf26d5efe0810767407",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_b155281f",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 2134,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-02-02T05:48:36Z",
+      "side": 1,
+      "message": "can we do with parallel stream with making prefixIpList as CopyOnWriteArrayList",
+      "revId": "e0ee2e47eaa38ab1f6263cf26d5efe0810767407",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_513cbce2",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 1665,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-02-02T05:48:36Z",
+      "side": 1,
+      "message": "remove it if not required.",
+      "revId": "e0ee2e47eaa38ab1f6263cf26d5efe0810767407",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
