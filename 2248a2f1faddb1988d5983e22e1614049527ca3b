@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_1c1248b1",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnUtil.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 1434,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-02T15:45:56Z",
+      "side": 1,
+      "message": "please export this and the other isControllerManagedRoute via IFibManager and use it directly wherever you need.\n\nLet us please avoid duplicating this method here.",
+      "range": {
+        "startLine": 1433,
+        "startChar": 0,
+        "endLine": 1434,
+        "endChar": 70
+      },
+      "revId": "2248a2f1faddb1988d5983e22e1614049527ca3b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
