@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_c6fc6d41",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronPortChangeListener.java",
+        "patchSetId": 14
+      },
+      "lineNbr": 151,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-02T11:22:54Z",
+      "side": 1,
+      "message": "indentation check",
+      "revId": "33319e39529c5fe14a4a2bbf38f7a477bec1877d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_0664b520",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronPortChangeListener.java",
+        "patchSetId": 14
+      },
+      "lineNbr": 190,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-02T11:22:54Z",
+      "side": 1,
+      "message": "is this piece of else code to handle a port that inherited a network-wide qos policy ?",
+      "revId": "33319e39529c5fe14a4a2bbf38f7a477bec1877d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
