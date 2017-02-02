@@ -1863,7 +1863,8 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
                         WriteTransaction writeCfgTxn = dataBroker.newWriteOnlyTransaction();
                         for (VrfEntry vrfEntry : vrfTable.get().getVrfEntry()) {
                             // Handle Internal Routes only (i.e., STATIC for now)
-                            if (RouteOrigin.value(vrfEntry.getOrigin()) == RouteOrigin.STATIC) {
+                            if (FibUtil.isControllerManagedNonInterVpnLinkRoute(RouteOrigin
+                                    .valueOf(vrfEntry.getOrigin()))) {
                                 SubnetRoute subnetRoute = vrfEntry.getAugmentation(SubnetRoute.class);
                                     /* Ignore SubnetRoute entry */
                                 if (subnetRoute == null) {
@@ -2037,7 +2038,8 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
                         WriteTransaction writeTransaction = dataBroker.newWriteOnlyTransaction();
                         for (VrfEntry vrfEntry : vrfTable.get().getVrfEntry()) {
                             // Handle Internal Routes only (i.e, STATIC for now)
-                            if (RouteOrigin.value(vrfEntry.getOrigin()) == RouteOrigin.STATIC) {
+                            if (FibUtil.isControllerManagedNonInterVpnLinkRoute(RouteOrigin
+                                    .valueOf(vrfEntry.getOrigin()))) {
                                 SubnetRoute subnetRoute = vrfEntry.getAugmentation(SubnetRoute.class);
                                     /* Ignore SubnetRoute entry */
                                 if (subnetRoute == null) {
