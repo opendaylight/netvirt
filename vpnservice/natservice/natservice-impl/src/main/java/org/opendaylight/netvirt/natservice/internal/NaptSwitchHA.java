@@ -852,6 +852,11 @@ public class NaptSwitchHA {
             //Install Fib entries for ExternalIps & program 36 -> 44
             List<String> externalIps = NatUtil.getExternalIpsForRouter(dataBroker, routerId);
             String rd = NatUtil.getVpnRd(dataBroker, vpnName);
+            Uuid externalNetworkId = NatUtil.getNetworkIdFromRouterId(dataBroker, routerId);
+            if (externalNetworkId == null) {
+                LOG.error("NAT Service : External NetworkId is null for the router ID {}", routerId);
+                return;
+            }
             if (externalIps != null) {
                 for (String externalIp : externalIps) {
                     removeFibEntry(rd, externalIp);
@@ -859,7 +864,8 @@ public class NaptSwitchHA {
                         + "with vpnName {} and externalIp {}",
                         naptSwitch, vpnName, externalIp);
                     externalRouterListener.advToBgpAndInstallFibAndTsFlows(naptSwitch, NwConstants.INBOUND_NAPT_TABLE,
-                        vpnName, routerId, externalIp, vpnService, fibService, bgpManager, dataBroker, LOG);
+                            vpnName, routerId, externalNetworkId,externalIp, vpnService, fibService, bgpManager,
+                            dataBroker, LOG);
                     LOG.debug("NAT Service : Successfully added fib entries in naptswitch {} for "
                         + "router {} with external IP {}", naptSwitch,
                         routerId, externalIp);
