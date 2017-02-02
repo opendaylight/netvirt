@@ -72,6 +72,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_39a0fe42",
+        "filename": "vpnservice/pom.xml",
+        "patchSetId": 5
+      },
+      "lineNbr": 36,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2017-02-02T13:37:00Z",
+      "side": 1,
+      "message": "Sorry, I meant do we need the word plugin in the bundle name?",
+      "parentUuid": "fafc7978_03de6711",
+      "revId": "b1473c8f84db9d1b063ce134b0a7e2bd5ca4c0fd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_db6d8606",
         "filename": "vpnservice/statistics-plugin/api/pom.xml",
         "patchSetId": 5
