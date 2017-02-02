@@ -19,7 +19,7 @@
 
   <modelVersion>4.0.0</modelVersion>
   <artifactId>model-bgp</artifactId>
-  <version>${model.bgp.version}</version>
+  <version>2013.07.15.10-SNAPSHOT</version>
   <name>${project.artifactId}</name>
   <description>${project.artifactId}</description>
   <packaging>bundle</packaging>
