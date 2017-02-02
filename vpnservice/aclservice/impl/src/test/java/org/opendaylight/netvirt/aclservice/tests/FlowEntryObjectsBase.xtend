@@ -22,7 +22,7 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.
 
 class FlowEntryObjectsBase {
 
-    static def fixedFlowsPort1() {
+    def fixedFlowsPort1() {
         #[ fixedIngressFlowsPort1, fixedEgressFlowsPort1 ]
     }
 

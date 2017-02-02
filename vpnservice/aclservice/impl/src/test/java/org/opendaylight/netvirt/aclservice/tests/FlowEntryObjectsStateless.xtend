@@ -29,11 +29,7 @@ import static extension org.opendaylight.mdsal.binding.testutils.XtendBuilderExt
 
 class FlowEntryObjectsStateless extends FlowEntryObjectsBase {
 
-    static def fixedFlowsPort1() {
-        #[ fixedIngressFlowsPort1, fixedEgressFlowsPort1 ]
-    }
-
-    static def etherFlows() {
+    protected def etherFlows() {
         fixedIngressFlowsPort1
         + etherFlowIngressPort1
         + fixedEgressFlowsPort1
@@ -44,7 +40,7 @@ class FlowEntryObjectsStateless extends FlowEntryObjectsBase {
         + etheregressFlowPort2
     }
 
-    static def tcpFlows() {
+    protected def tcpFlows() {
         fixedIngressFlowsPort1
         + tcpIngressFlowPort1
         + fixedEgressFlowsPort1
@@ -55,37 +51,37 @@ class FlowEntryObjectsStateless extends FlowEntryObjectsBase {
         + tcpEgressFlowPort2
     }
 
-    static def udpFlows() {
+    protected def udpFlows() {
         fixedIngressFlowsPort1
         + fixedEgressFlowsPort1
         + fixedIngressFlowsPort2
         + fixedEgrssFlowsPort2
     }
 
-    static def icmpFlows() {
+    protected def icmpFlows() {
         fixedIngressFlowsPort1
         + fixedEgressFlowsPort1
         + fixedIngressFlowsPort2
         + fixedEgrssFlowsPort2
     }
 
-    static def dstRangeFlows() {
+    protected def dstRangeFlows() {
         fixedIngressFlowsPort1
         + fixedEgressFlowsPort1
         + tcpEgressRangeFlows
     }
 
-    static def dstAllFlows() {
+    protected def dstAllFlows() {
         fixedIngressFlowsPort1
         + fixedEgressFlowsPort1
     }
 
-    static def icmpFlowsForTwoAclsHavingSameRules() {
+    protected def icmpFlowsForTwoAclsHavingSameRules() {
         fixedIngressFlowsPort3
         + fixedEgressFlowsPort3
     }
 
-    static def etherFlowIngressPort1() {
+    protected def etherFlowIngressPort1() {
         #[
             new FlowEntity(123bi) => [
             cookie = 110100480bi
@@ -106,7 +102,7 @@ class FlowEntryObjectsStateless extends FlowEntryObjectsBase {
         ]
      ]
  }
-    static def etherFlowEgressPort1() {
+    protected def etherFlowEgressPort1() {
         #[
             new FlowEntity(123bi) => [
                 cookie = 110100480bi
@@ -127,7 +123,7 @@ class FlowEntryObjectsStateless extends FlowEntryObjectsBase {
             ]
         ]
     }
-    static def etherIngressFlowsPort2() {
+    protected def etherIngressFlowsPort2() {
         #[
                new FlowEntity(123bi) => [
                 cookie = 110100480bi
@@ -166,7 +162,7 @@ class FlowEntryObjectsStateless extends FlowEntryObjectsBase {
         ]
     }
 
-    static def etherEgressFlowsPort1() {
+    protected def etherEgressFlowsPort1() {
         #[
             new FlowEntity(123bi) => [
                 cookie = 110100480bi
@@ -188,7 +184,7 @@ class FlowEntryObjectsStateless extends FlowEntryObjectsBase {
         ]
     }
 
-    static def etheregressFlowPort2() {
+    protected def etheregressFlowPort2() {
         #[
            new FlowEntity(123bi) => [
                 cookie = 110100480bi
@@ -210,7 +206,7 @@ class FlowEntryObjectsStateless extends FlowEntryObjectsBase {
         ]
     }
 
-    static def tcpIngressFlowPort1() {
+    protected def tcpIngressFlowPort1() {
         #[
                 new FlowEntity(123bi) => [
                     cookie = 110100480bi
@@ -241,7 +237,7 @@ class FlowEntryObjectsStateless extends FlowEntryObjectsBase {
         ]
     }
 
-    static def tcpIngressFlowPort2() {
+    protected def tcpIngressFlowPort2() {
         #[
             new FlowEntity(123bi) => [
                 cookie = 110100480bi
@@ -272,7 +268,7 @@ class FlowEntryObjectsStateless extends FlowEntryObjectsBase {
         ]
     }
 
-    static def tcpEgressFlowPort1() {
+    protected def tcpEgressFlowPort1() {
         #[
             new FlowEntity(123bi) => [
                 cookie = 110100480bi
@@ -303,7 +299,7 @@ class FlowEntryObjectsStateless extends FlowEntryObjectsBase {
         ]
     }
 
-    static def tcpEgressFlowPort2() {
+    protected def tcpEgressFlowPort2() {
         #[
             new FlowEntity(123bi) => [
                 cookie = 110100480bi
@@ -360,7 +356,7 @@ class FlowEntryObjectsStateless extends FlowEntryObjectsBase {
         ]
     }
 
-    static def udpEgressFlowsPort1() {
+    protected def udpEgressFlowsPort1() {
         #[
              new FlowEntity(123bi) => [
                 cookie = 110100480bi
@@ -398,7 +394,7 @@ class FlowEntryObjectsStateless extends FlowEntryObjectsBase {
         ]
     }
 
-    static def udpIngressFlowsPort2() {
+    protected def udpIngressFlowsPort2() {
         #[
             new FlowEntity(123bi) => [
                 cookie = 110100480bi
@@ -476,7 +472,7 @@ class FlowEntryObjectsStateless extends FlowEntryObjectsBase {
         ]
     }
 
-    static def udpEgressFlowsPort2() {
+    protected def udpEgressFlowsPort2() {
         #[
             new FlowEntity(123bi) => [
                 cookie = 110100480bi
@@ -514,7 +510,7 @@ class FlowEntryObjectsStateless extends FlowEntryObjectsBase {
         ]
     }
 
-    static def icmpIngressFlowsPort1() {
+    protected def icmpIngressFlowsPort1() {
         #[
             new FlowEntity(123bi) => [
                 cookie = 110100480bi
@@ -546,7 +542,7 @@ class FlowEntryObjectsStateless extends FlowEntryObjectsBase {
         ]
     }
 
-    static def icmpIngressFlowsPort2() {
+    protected def icmpIngressFlowsPort2() {
         #[
             new FlowEntity(123bi) => [
                 cookie = 110100480bi
@@ -578,7 +574,7 @@ class FlowEntryObjectsStateless extends FlowEntryObjectsBase {
         ]
     }
 
-    static def icmpEgressFlowsPort2() {
+    protected def icmpEgressFlowsPort2() {
         #[
             new FlowEntity(123bi) => [
                 cookie = 110100480bi
@@ -647,7 +643,7 @@ class FlowEntryObjectsStateless extends FlowEntryObjectsBase {
         ]
     }
 
-    static def udpIngressPortRangeFlows() {
+    protected def udpIngressPortRangeFlows() {
         #[
             new FlowEntity(123bi) => [
                 cookie = 110100480bi
@@ -685,7 +681,7 @@ class FlowEntryObjectsStateless extends FlowEntryObjectsBase {
         ]
     }
 
-    static def tcpEgressRangeFlows() {
+    protected def tcpEgressRangeFlows() {
         #[
             new FlowEntity(123bi) => [
                 cookie = 110100480bi
@@ -898,7 +894,7 @@ class FlowEntryObjectsStateless extends FlowEntryObjectsBase {
         ]
     }
 
-   static def icmpIngressFlowsPort3() {
+   protected def icmpIngressFlowsPort3() {
         #[
             new FlowEntity(123bi) => [
                 cookie = 110100480bi
@@ -957,7 +953,7 @@ class FlowEntryObjectsStateless extends FlowEntryObjectsBase {
         ]
     }
 
-    static def icmpEgressFlowsPort3() {
+    protected def icmpEgressFlowsPort3() {
         #[
             new FlowEntity(123bi) => [
                 cookie = 110100480bi
