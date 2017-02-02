@@ -10,6 +10,7 @@ package org.opendaylight.netvirt.natservice.internal;
 import java.math.BigInteger;
 
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ProviderTypes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.floating.ip.info.router.ports.ports.InternalToExternalPortMap;
 
 public interface FloatingIPHandler {
@@ -20,5 +21,6 @@ public interface FloatingIPHandler {
     void onRemoveFloatingIp(BigInteger dpnId, String routerId, Uuid networkId, InternalToExternalPortMap mapping,
                             long label);
 
-    void cleanupFibEntries(BigInteger dpnId, String vpnName, String externalIp, long label);
+    void cleanupFibEntries(BigInteger dpnId, String vpnName, String externalIp, long label,
+                           ProviderTypes extNwProviderType,String floatingIpPortMacAddress);
 }

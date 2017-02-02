@@ -550,14 +550,20 @@ public class FloatingIPListener extends AsyncDataTreeChangeListenerBase<Internal
 
     void removeNATFlowEntries(BigInteger dpnId, String interfaceName, String vpnName, String routerName,
                               InternalToExternalPortMap mapping) {
-        String internalIp = mapping.getInternalIp();
-        String externalIp = mapping.getExternalIp();
+        Uuid floatingIpId = mapping.getExternalId();
+        String floatingIpPortMacAddress = NatUtil.getFloatingIpPortMacFromFloatingIpId(dataBroker, floatingIpId);
+        if (floatingIpPortMacAddress == null) {
+            LOG.error("NAT Service : Could not retrieve floating IpPortMacAddress from floating IP UUID {} to "
+                    + "remove NAT Flow entries in FloatingIPListener.removeNATFlowEntries()", floatingIpId);
+            return;
+        }
         long routerId = NatUtil.getVpnId(dataBroker, routerName);
         if (routerId == NatConstants.INVALID_ID) {
             LOG.warn("NAT Service : Could not retrieve router id for {} to remove NAT Flow entries", routerName);
             return;
         }
-
+        String internalIp = mapping.getInternalIp();
+        String externalIp = mapping.getExternalIp();
         long vpnId = NatUtil.getVpnId(dataBroker, vpnName);
         if (vpnId == NatConstants.INVALID_ID) {
             LOG.warn("NAT Service : VPN Id not found for {} to remove NAT flow entries {}", vpnName, internalIp);
@@ -573,7 +579,33 @@ public class FloatingIPListener extends AsyncDataTreeChangeListenerBase<Internal
             LOG.error("NAT Service : Could not retrieve label for prefix {} in router {}", internalIp, routerId);
             return;
         }
-        floatingIPHandler.cleanupFibEntries(dpnId, vpnName, externalIp, label);
+        Uuid externalNetworkId = NatUtil.getNetworkIdFromRouterName(dataBroker,routerName);
+        if (externalNetworkId == null) {
+            LOG.error("NAT Service : Could not retrieve external network UUID for router {} to remove NAT "
+                    + "Flow entries in FloatingIPListener.removeNATFlowEntries()", routerName);
+            return;
+        }
+        ProviderTypes extNwProviderType = NatUtil.getProviderTypefromNetworkId(dataBroker, externalNetworkId);
+        if (externalNetworkId == null) {
+            LOG.error("NAT Service : Could not retrieve external network provider type for external network {} to "
+                    + "remove NAT Flow entries in FloatingIPListener.removeNATFlowEntries()", externalNetworkId);
+            return;
+        }
+        if (extNwProviderType.getName().equals("VXLAN")) {
+            String rd = NatUtil.getVpnRd(dataBroker, vpnName);
+            long l3Vni = NatUtil.getL3Vni(dataBroker, rd);
+            LOG.debug("NAT Service : Retrieved values of vpnName = {} and l3vni = {} for Removing Floating IP = {} "
+                    + "in FloatingIPListener.removeNATFlowEntries() for external network provider type {}",
+                    vpnName, l3Vni, externalIp, extNwProviderType.getName());
+            floatingIPHandler.cleanupFibEntries(dpnId, vpnName, externalIp, l3Vni, extNwProviderType,
+                    floatingIpPortMacAddress);
+        } else {
+            LOG.debug("NAT Service : Retrieved values of vpnName = {} and label = {} for Removing Floating IP = {} "
+                    + "in FloatingIPListener.removeNATFlowEntries() for external network provider type {}",
+                    vpnName, label, externalIp, extNwProviderType.getName());
+            floatingIPHandler.cleanupFibEntries(dpnId, vpnName, externalIp, label, extNwProviderType,
+                    floatingIpPortMacAddress);
+        }
         removeOperationalDS(routerName, interfaceName, internalIp, externalIp);
     }
 
