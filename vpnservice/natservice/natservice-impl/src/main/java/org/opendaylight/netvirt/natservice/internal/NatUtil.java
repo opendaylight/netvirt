@@ -25,16 +25,21 @@ import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.genius.interfacemanager.globals.IfmConstants;
 import org.opendaylight.genius.mdsalutil.ActionInfo;
 import org.opendaylight.genius.mdsalutil.FlowEntity;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.mdsalutil.MatchInfo;
+import org.opendaylight.genius.mdsalutil.MetaDataUtil;
 import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.genius.mdsalutil.actions.ActionNxResubmit;
 import org.opendaylight.genius.mdsalutil.actions.ActionOutput;
 import org.opendaylight.genius.mdsalutil.actions.ActionPushVlan;
 import org.opendaylight.genius.mdsalutil.actions.ActionRegLoad;
 import org.opendaylight.genius.mdsalutil.actions.ActionSetFieldVlanVid;
+import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
+import org.opendaylight.genius.mdsalutil.matches.MatchEthernetSource;
+import org.opendaylight.genius.mdsalutil.matches.MatchMetadata;
 import org.opendaylight.netvirt.bgpmanager.api.IBgpManager;
 import org.opendaylight.netvirt.fibmanager.api.IFibManager;
 import org.opendaylight.netvirt.fibmanager.api.RouteOrigin;
@@ -47,15 +52,20 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.Interfaces;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.InterfaceKey;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.MacAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.action.types.rev131112.action.action.OutputActionCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.action.types.rev131112.action.action.PushVlanActionCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.action.types.rev131112.action.action.SetFieldCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.action.types.rev131112.action.list.Action;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.tables.table.Flow;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.instruction.list.Instruction;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.AllocateIdInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.AllocateIdInputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.AllocateIdOutput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.IdManagerService;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.ReleaseIdInput;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.ReleaseIdInputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.GetDpidFromInterfaceInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.GetDpidFromInterfaceInputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.GetDpidFromInterfaceOutput;
@@ -747,25 +757,50 @@ public class NatUtil {
                                       IBgpManager bgpManager,
                                       IFibManager fibManager,
                                       String rd,
+                                      String macAddress,
                                       String prefix,
                                       String nextHopIp,
+                                      VrfEntry.EncapType extNwProviderType,
                                       long label,
+                                      long l3Vni,
                                       Logger log,
+                                      String gwMacAddress,
+                                      WriteTransaction writeTx,
                                       RouteOrigin origin) {
         try {
-            LOG.info("ADD: Adding Fib entry rd {} prefix {} nextHop {} label {}", rd, prefix, nextHopIp, label);
+            //If l3vni value = 0 means external network provider type is other than VxLAN
+            if (l3Vni == 0) {
+                LOG.info("NAT Service : ADD: Added Fib entry rd {} prefix {} nextHop {} label {} gwMacAddress {} "
+                        + "for External Network Provider Type Encapsulation {}", rd, prefix, nextHopIp, label,
+                        gwMacAddress, extNwProviderType);
+            } else {
+                LOG.info("NAT Service : ADD: Added Fib entry rd {} prefix {} nextHop {} l3vni {} gwMacAddress {} "
+                        + "for External Network Provider Type Encapsulation {}", rd, prefix, nextHopIp, l3Vni,
+                        gwMacAddress, extNwProviderType);
+            }
             if (nextHopIp == null) {
-                log.error("addPrefix failed since nextHopIp cannot be null.");
+                log.error("NAT Service : addPrefix failed since nextHopIp cannot be null.");
                 return;
             }
-            fibManager.addOrUpdateFibEntry(broker, rd, null /*macAddress*/, prefix,
-                    Collections.singletonList(nextHopIp), VrfEntry.EncapType.Mplsgre, (int)label, 0 /*l3vni*/,
-                    null /*gatewayMacAddress*/, origin, null /*writeTxn*/);
-            bgpManager.advertisePrefix(rd, null /*macAddress*/, prefix, Collections.singletonList(nextHopIp),
-                    VrfEntry.EncapType.Mplsgre, (int)label, 0 /*l3vni*/, null /*gatewayMac*/);
-            LOG.info("ADD: Added Fib entry rd {} prefix {} nextHop {} label {}", rd, prefix, nextHopIp, label);
+            //Advertise to FIB Manager
+            fibManager.addOrUpdateFibEntry(broker, rd, macAddress, prefix,
+                    Collections.singletonList(nextHopIp), extNwProviderType,
+                    (int) label, l3Vni, gwMacAddress, origin, writeTx);
+            //Advertise to BGP Manager
+            bgpManager.advertisePrefix(rd, macAddress, prefix, Collections.singletonList(nextHopIp),
+                    extNwProviderType, (int) label, l3Vni, gwMacAddress);
+            if (l3Vni == 0) {
+                LOG.info("NAT Service : ADD: Added Fib entry rd {} prefix {} nextHop {} label {} gwMacAddress {} "
+                        + "for External Network Provider Type Encapsulation {}", rd, prefix, nextHopIp, label,
+                        gwMacAddress, extNwProviderType);
+            } else {
+                LOG.info("NAT Service : ADD: Added Fib entry rd {} prefix {} nextHop {} l3vni {} gwMacAddress {} "
+                        + "for External Network Provider Type Encapsulation {}", rd, prefix, nextHopIp, l3Vni,
+                        gwMacAddress, extNwProviderType);
+            }
+
         } catch (Exception e) {
-            log.error("Add prefix failed", e);
+            log.error("NAT Service : Add prefix failed", e);
         }
     }
 
@@ -1661,5 +1696,87 @@ public class NatUtil {
             return routerData.get().getExtGwMacAddress();
         }
         return null;
+    }
+
+    static VrfEntry.EncapType getExtNwProviderType(DataBroker broker, String rd) {
+        long l3Vni = getL3Vni(broker, rd);
+        if (l3Vni != NatConstants.INVALID_ID && l3Vni != 0) {
+            return VrfEntry.EncapType.Vxlan;
+        }
+        return VrfEntry.EncapType.Mplsgre;
+    }
+
+    static long getL3Vni(DataBroker broker, String rd) {
+        VpnInstanceOpDataEntry vpnInstanceOpDataEntry = getVpnInstanceOpData(broker, rd);
+        if (vpnInstanceOpDataEntry == null) {
+            return NatConstants.INVALID_ID;
+        }
+        Long l3Vni = vpnInstanceOpDataEntry.getL3vni();
+        if (l3Vni == null || l3Vni == NatConstants.INVALID_ID) {
+            return NatConstants.INVALID_ID;
+        }
+        return l3Vni;
+    }
+
+    static VpnInstanceOpDataEntry getVpnInstanceOpData(DataBroker broker, String rd) {
+        InstanceIdentifier<VpnInstanceOpDataEntry> id = getVpnInstanceOpDataIdentifier(rd);
+        Optional<VpnInstanceOpDataEntry> vpnInstanceOpData = read(broker, LogicalDatastoreType.OPERATIONAL, id);
+        if (vpnInstanceOpData.isPresent()) {
+            return vpnInstanceOpData.get();
+        }
+        return null;
+    }
+
+    static void makeL3GwMacTableEntry(BigInteger dpnId, final long vpnId, String gwMacAddress,
+                                      List<Instruction> customInstructions, IMdsalApiManager mdsalManager) {
+        List<MatchInfo> matchInfo = new ArrayList<>();
+        matchInfo.add(new MatchMetadata(MetaDataUtil.getVpnIdMetadata(vpnId), MetaDataUtil.METADATA_MASK_VRFID));
+        matchInfo.add(new MatchEthernetSource(new MacAddress(gwMacAddress)));
+        LOG.debug("NAT Service : Create SNAT Reverse Traffic Flow (INBOUND_NAPT_TABLE) on DpnId = {} "
+                + "for External Vpn Id = {} and GwMacAddress = {}", dpnId, vpnId, gwMacAddress);
+        // Install the flow entry in L3_GW_MAC_TABLE
+        String flowRef = getFlowRef(dpnId, NwConstants.L3_GW_MAC_TABLE, vpnId, gwMacAddress);
+        Flow l3GwMacTableFlowEntity = MDSALUtil.buildFlowNew(NwConstants.L3_GW_MAC_TABLE,
+                flowRef, 5, flowRef, 0, 0, NwConstants.COOKIE_L3_GW_MAC_TABLE, matchInfo, customInstructions);
+
+        mdsalManager.installFlow(dpnId, l3GwMacTableFlowEntity);
+
+    }
+
+    static long createLPortTagForRouter(String routerIdKey, IdManagerService idManager) {
+        LOG.debug("NAT Service : Create Router_lPort_Tag from ID Manager for Non-NAPT Switch to NAPT Switch to use "
+                + "Tunnel ID");
+        AllocateIdInput getIdInput = new AllocateIdInputBuilder()
+                .setPoolName(IfmConstants.IFM_IDPOOL_NAME).setIdKey(routerIdKey)
+                .build();
+        try {
+            Future<RpcResult<AllocateIdOutput>> result = idManager.allocateId(getIdInput);
+            RpcResult<AllocateIdOutput> rpcResult = result.get();
+            return rpcResult.getResult().getIdValue();
+        } catch (NullPointerException | InterruptedException | ExecutionException e) {
+            LOG.trace("NAT Service : idManager Failed with exception {} while creating Router_lPort_Tag "
+                    + "from pool with key {} ", e.getStackTrace(), routerIdKey);
+        }
+        return 0;
+    }
+
+    static void removeLPortTagForRouter(String routerIdKey, IdManagerService idManager) {
+        LOG.debug("NAT Service : Remove Router_lPort_Tag ID Pool for Non-NAPT Switch to NAPT Switch to use Tunnel ID");
+        ReleaseIdInput getIdInput = new ReleaseIdInputBuilder()
+                .setPoolName(IfmConstants.IFM_IDPOOL_NAME).setIdKey(routerIdKey)
+                .build();
+        try {
+            Future<RpcResult<Void>> result = idManager.releaseId(getIdInput);
+            RpcResult<Void> rpcResult = result.get();
+            if (!rpcResult.isSuccessful()) {
+                LOG.error("NAT Service : idManager Failed to remove Router_lPort_Tag from pool {}",
+                        rpcResult.getErrors());
+            }
+            LOG.debug("NAT Service : idManager successfully removed Router_lPort_Tag from pool with key {}",
+                    routerIdKey);
+        } catch (NullPointerException | InterruptedException | ExecutionException e) {
+            LOG.trace("NAT Service : idManager Failed with exception {} while removing Router_lPort_Tag from pool "
+                    + "with key {} ", e.getStackTrace(), routerIdKey);
+        }
     }
 }
