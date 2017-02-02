@@ -294,7 +294,7 @@ public class NeutronvpnNatManager implements AutoCloseable {
             }
             rtrList.add(routerId);
             builder.setRouterIds(rtrList);
-            if (providerNwType != ProviderTypes.GRE) {
+            if (providerNwType != ProviderTypes.GRE && providerNwType != ProviderTypes.VXLAN) {
                 builder.setVpnid(extNetId);
             }
 
