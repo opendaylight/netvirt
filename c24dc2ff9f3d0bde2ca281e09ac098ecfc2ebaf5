@@ -287,6 +287,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_cd2125fe",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/NexthopManager.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 377,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-03T14:03:41Z",
+      "side": 1,
+      "message": "After discussion with EVPN folks here, we decided to use the gateway_mac_address field of VRFEntry as the value stored there has the same semantics in EVPN too..\n\nYou could see that the next set of PSes reflect that.",
+      "parentUuid": "fafc7978_bf185c85",
+      "revId": "c24dc2ff9f3d0bde2ca281e09ac098ecfc2ebaf5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_a309852e",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
         "patchSetId": 8
