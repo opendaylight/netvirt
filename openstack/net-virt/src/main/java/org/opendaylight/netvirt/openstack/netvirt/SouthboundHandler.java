@@ -8,13 +8,18 @@
 
 package org.opendaylight.netvirt.openstack.netvirt;
 
+import java.net.InetAddress;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
 
 import org.opendaylight.netvirt.openstack.netvirt.api.Action;
 import org.opendaylight.netvirt.openstack.netvirt.api.BridgeConfigurationManager;
 import org.opendaylight.netvirt.openstack.netvirt.api.ConfigurationService;
 import org.opendaylight.netvirt.openstack.netvirt.api.Constants;
 import org.opendaylight.netvirt.openstack.netvirt.api.EventDispatcher;
+import org.opendaylight.netvirt.openstack.netvirt.api.L2ForwardingProvider;
 import org.opendaylight.netvirt.openstack.netvirt.api.NetworkingProviderManager;
 import org.opendaylight.netvirt.openstack.netvirt.api.NodeCacheListener;
 import org.opendaylight.netvirt.openstack.netvirt.api.NodeCacheManager;
@@ -24,12 +29,15 @@ import org.opendaylight.netvirt.openstack.netvirt.api.Southbound;
 import org.opendaylight.netvirt.openstack.netvirt.api.TenantNetworkManager;
 import org.opendaylight.netvirt.openstack.netvirt.translator.NeutronNetwork;
 import org.opendaylight.netvirt.openstack.netvirt.translator.NeutronPort;
+import org.opendaylight.netvirt.openstack.netvirt.translator.crud.INeutronNetworkCRUD;
 import org.opendaylight.netvirt.openstack.netvirt.impl.DistributedArpService;
 import org.opendaylight.netvirt.openstack.netvirt.impl.NeutronL3Adapter;
 import org.opendaylight.netvirt.utils.servicehelper.ServiceHelper;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.rev150105.InterfaceTypeVxlan;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.rev150105.OvsdbBridgeAugmentation;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.rev150105.OvsdbNodeAugmentation;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.rev150105.OvsdbTerminationPointAugmentation;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.rev150105.ovsdb.port._interface.attributes.Options;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Node;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.node.TerminationPoint;
 import org.opendaylight.yangtools.yang.binding.DataObject;
@@ -55,9 +63,11 @@ public class SouthboundHandler extends AbstractHandler
     private volatile NeutronL3Adapter neutronL3Adapter;
     private volatile DistributedArpService distributedArpService;
     private volatile NodeCacheManager nodeCacheManager;
+    private volatile INeutronNetworkCRUD neutronNetworkCache;
     private volatile OvsdbInventoryService ovsdbInventoryService;
     private volatile Southbound southbound;
     private volatile VLANProvider vlanProvider;
+    private volatile L2ForwardingProvider l2ForwardingProvider;
 
     private SouthboundEvent.Type ovsdbTypeToSouthboundEventType(OvsdbType ovsdbType) {
         SouthboundEvent.Type type = SouthboundEvent.Type.NODE;
@@ -347,6 +357,64 @@ public class SouthboundHandler extends AbstractHandler
                 programVLANNetworkFlowProvider(node, port, network, neutronPort, true);
             }
         }
+        // Filter Vxlan interface request and install table#110 unicast flow (Bug 7392).
+        if (null != port.getInterfaceType() && null != port.getOfport()) {
+            if(port.getInterfaceType().equals(InterfaceTypeVxlan.class)) {
+                List<Options> optionList = port.getOptions();
+                if (null != optionList && !optionList.isEmpty()) {
+                    optionList.stream().filter(option -> isRemoteIp(option)).forEach(option ->
+                            handleTunnelOut(node, option.getValue(), port.getOfport()));
+                }
+            }
+        }
+    }
+
+    private boolean isRemoteIp(Options option) {
+        return option.getOption().equals(Constants.TUNNEL_ENDPOINT_KEY_REMOTE);
+    }
+
+    private void handleTunnelOut(Node node, String remoteIp, Long ofPort) {
+        List<Node> nodes = nodeCacheManager.getBridgeNodes();
+        if (null != nodes && !nodes.isEmpty()) {
+            nodes.stream().filter(dstnode -> isDstNode(node, dstnode)).forEach(dstnode ->
+                    programTunnelOut(node, dstnode, remoteIp, ofPort));
+        }
+    }
+
+    private boolean isDstNode(Node node, Node dstnode) {
+        return !(node.getNodeId().getValue().equals(dstnode.getNodeId().getValue()));
+    }
+
+    private void programTunnelOut(Node node, Node dstnode, String remoteIp, Long ofPort) {
+        InetAddress dst = configurationService.getTunnelEndPoint(dstnode);
+        String dstIp = dst.getHostAddress();
+        if (remoteIp.equals(dstIp)) {
+            List<OvsdbTerminationPointAugmentation> ports = southbound.readTerminationPointAugmentations(dstnode);
+            for (OvsdbTerminationPointAugmentation destport : ports) {
+                NeutronPort neutronPort = tenantNetworkManager.getTenantPort(destport);
+                if (neutronPort != null) {
+                    final String networkUUID = neutronPort.getNetworkUUID();
+                    NeutronNetwork neutronNetwork = neutronNetworkCache.getNetwork(networkUUID);
+                    if (null == neutronNetwork) {
+                        neutronNetwork = neutronL3Adapter.getNetworkFromCleanupCache(networkUUID);
+                    }
+                    final String segmentationId = neutronNetwork != null ? neutronNetwork.getProviderSegmentationID() : null;
+                    final String macAddress = neutronPort.getMacAddress();
+                    long dpid = getIntegrationBridgeOFDPID(node);
+                    if (null != l2ForwardingProvider) {
+                        l2ForwardingProvider.programTunnelOut(dpid, segmentationId, ofPort, macAddress, true);
+                    }
+                }
+            }
+        }
+    }
+
+    private long getIntegrationBridgeOFDPID(Node node) {
+        long dpid = 0L;
+        if (southbound.getBridgeName(node).equals(configurationService.getIntegrationBridgeName())) {
+            dpid = southbound.getDataPathId(node);
+        }
+        return dpid;
     }
 
     private void programVLANNetworkFlowProvider(final Node node, final OvsdbTerminationPointAugmentation port,
@@ -428,7 +496,6 @@ public class SouthboundHandler extends AbstractHandler
             southbound.deleteBridge(node);
         }
     }
-
     @Override
     public void setDependencies(ServiceReference serviceReference) {
         configurationService =
@@ -456,9 +523,16 @@ public class SouthboundHandler extends AbstractHandler
         ovsdbInventoryService.listenerAdded(this);
         vlanProvider =
                 (VLANProvider) ServiceHelper.getGlobalInstance(VLANProvider.class, this);
+        l2ForwardingProvider =
+                (L2ForwardingProvider) ServiceHelper.getGlobalInstance(L2ForwardingProvider.class, this);
     }
 
     @Override
     public void setDependencies(Object impl) {
+        if (impl instanceof INeutronNetworkCRUD) {
+            neutronNetworkCache = (INeutronNetworkCRUD)impl;
+        } else if (impl instanceof L2ForwardingProvider) {
+            l2ForwardingProvider = (L2ForwardingProvider)impl;
+        }
     }
 }
