@@ -48,6 +48,8 @@ public class IdHelper {
         flowPriorityCacheMap.put("TCP_DESTINATION_352_65504Egress98785cc3048-abc3-43cc-89b3-377341426ac6", 1024);
         flowPriorityCacheMap.put("TCP_DESTINATION_384_65408Egress98785cc3048-abc3-43cc-89b3-377341426ac6", 1025);
         flowPriorityCacheMap.put("TCP_DESTINATION_768_65528Egress98785cc3048-abc3-43cc-89b3-377341426ac6", 1026);
+        flowPriorityCacheMap.put("ICMP_V4_DESTINATION_23__ipv4_remoteACL_interface_aap_0D:AA:D8:42:30:F4_10.0.0.100/32Egress98785cc3048-abc3-43cc-89b3-377341426ac6", 1027);
+        flowPriorityCacheMap.put("ICMP_V4_DESTINATION_23__ipv4_remoteACL_interface_aap_0D:AA:D8:42:30:A4_10.0.0.101/32Egress98785cc3048-abc3-43cc-89b3-377341426ac6", 1028);
     }
 
     public static Integer getFlowPriority(String key) {

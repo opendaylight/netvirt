@@ -8,14 +8,21 @@
 package org.opendaylight.netvirt.aclservice.tests;
 
 import static org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType.CONFIGURATION;
+import static org.opendaylight.mdsal.binding.testutils.AssertDataObjects.assertEqualBeans;
 import static org.opendaylight.netvirt.aclservice.tests.StateInterfaceBuilderHelper.putNewStateInterface;
 
+import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 import javax.inject.Inject;
-
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -440,9 +447,89 @@ public abstract class AclServiceTestBase {
 
     abstract void newInterfaceWithAapIpv4AllCheck();
 
+    @Test
+    public void newInterfaceWithAap() throws Exception {
+        LOG.info("newInterfaceWithAap test - start");
+
+        // AAP with same MAC and different IP
+        AllowedAddressPairs aapWithSameMac = buildAap("10.0.0.100/32", PORT_MAC_2);
+        // AAP with different MAC and different IP
+        AllowedAddressPairs aapWithDifferentMac = buildAap("10.0.0.101/32", "0D:AA:D8:42:30:A4");
+
+        try {
+            newAllowedAddressPair(PORT_1, Collections.singletonList(SG_UUID_1), Collections.singletonList(AAP_PORT_1));
+            newAllowedAddressPair(PORT_2, Collections.singletonList(SG_UUID_1),
+                    Arrays.asList(AAP_PORT_2, aapWithSameMac, aapWithDifferentMac));
+
+            prepareInterfaceWithIcmpAcl();
+            // When
+            putNewStateInterface(dataBroker, PORT_1, PORT_MAC_1);
+            putNewStateInterface(dataBroker, PORT_2, PORT_MAC_2);
+
+            asyncEventsWaiter.awaitEventsConsumption();
+
+            // Then
+            newInterfaceWithAapCheck();
+        } finally {
+            LOG.info("newInterfaceWithAap test - end");
+        }
+    }
+
+    abstract void newInterfaceWithAapCheck();
+
     protected void assertFlowsInAnyOrder(Iterable<FlowEntity> expectedFlows) {
         coordinatorEventsWaiter.awaitEventsConsumption();
         mdsalApiManager.assertFlowsInAnyOrder(expectedFlows);
+    }
+
+    protected void assertFlowsIgnoreDuplicates(Iterable<FlowEntity> expectedFlowEntities) {
+        List<FlowEntity> actualFlowEntities = mdsalApiManager.getFlows();
+
+        Map<String, FlowEntity> actualFlowsMap = actualFlowEntities.stream()
+                .collect(Collectors.toMap(fe -> fe.getFlowId(), fe -> fe, (f1, f2) -> f1));
+        Map<String, FlowEntity> expectedFlowsMap = Lists.newArrayList(expectedFlowEntities).stream()
+                .collect(Collectors.toMap(fe -> fe.getFlowId(), fe -> fe, (f1, f2) -> f1));
+
+        // Remove duplicates by using Set
+        Set<FlowEntity> actualFlows = new HashSet<>(actualFlowsMap.values());
+        Set<FlowEntity> expectedFlows = new LinkedHashSet<>(expectedFlowsMap.values());
+
+        LOG.info("Expected flows size: {}. Actual flows size: {}", expectedFlows.size(), actualFlows.size());
+        if (expectedFlows.size() != actualFlows.size()) {
+            LOG.warn("Expected {} flows but found {} flows", expectedFlows.size(), actualFlows.size());
+        }
+
+        Set<String> actualFlowsKeySet = actualFlowsMap.keySet();
+        Set<String> expectedFlowsKeySet = expectedFlowsMap.keySet();
+
+        Set<String> extraFlows = Sets.newHashSet(actualFlowsKeySet);
+        extraFlows.removeAll(expectedFlowsKeySet);
+        Assert.assertTrue("Found extra flows: " + extraFlows, extraFlows.isEmpty());
+
+        Set<String> missingFlows = Sets.newHashSet(expectedFlowsKeySet);
+        missingFlows.removeAll(actualFlowsKeySet);
+        Assert.assertTrue("Missing flows: " + missingFlows, missingFlows.isEmpty());
+
+        Set<FlowEntity> actualFlowsInSameOrder = new LinkedHashSet<>();
+        try {
+            expectedFlowsMap.forEach((key, value) -> {
+                FlowEntity actualFlow = actualFlowsMap.get(key);
+                Assert.assertNotNull("Flow with ID [" + key + "] not found", actualFlow);
+
+                actualFlowsInSameOrder.add(actualFlow);
+                try {
+                    assertEqualBeans(value, actualFlow);
+                } catch (AssertionError e) {
+                    throw new AssertionError(
+                            "Expected and actual flow having ID [" + actualFlow.getFlowId() + "] do not match", e);
+                }
+            });
+        } catch (AssertionError e) {
+            LOG.warn("actual flows  : {}", actualFlows);
+            LOG.warn("actual flows in same order (partial)  : {}", actualFlowsInSameOrder);
+            LOG.warn("expected flows: {}", expectedFlows);
+            throw e;
+        }
     }
 
     protected void prepareInterfaceWithIcmpAcl() throws TransactionCommitFailedException {
