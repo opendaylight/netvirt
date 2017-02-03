@@ -7,12 +7,11 @@
  */
 package org.opendaylight.netvirt.aclservice.tests
 
+import org.opendaylight.genius.mdsalutil.FlowEntity
+import org.opendaylight.genius.mdsalutil.MetaDataUtil
 import org.opendaylight.genius.mdsalutil.actions.ActionNxConntrack
 import org.opendaylight.genius.mdsalutil.actions.ActionNxResubmit
-import org.opendaylight.genius.mdsalutil.FlowEntity
 import org.opendaylight.genius.mdsalutil.instructions.InstructionApplyActions
-import org.opendaylight.genius.mdsalutil.instructions.InstructionWriteMetadata
-import org.opendaylight.genius.mdsalutil.instructions.InstructionGotoTable
 import org.opendaylight.genius.mdsalutil.matches.MatchArpSha
 import org.opendaylight.genius.mdsalutil.matches.MatchEthernetType
 import org.opendaylight.genius.mdsalutil.matches.MatchIcmpv4
@@ -20,18 +19,16 @@ import org.opendaylight.genius.mdsalutil.matches.MatchIcmpv6
 import org.opendaylight.genius.mdsalutil.matches.MatchIpProtocol
 import org.opendaylight.genius.mdsalutil.matches.MatchIpv4Destination
 import org.opendaylight.genius.mdsalutil.matches.MatchIpv4Source
+import org.opendaylight.genius.mdsalutil.matches.MatchMetadata
 import org.opendaylight.genius.mdsalutil.matches.MatchTcpFlags
 import org.opendaylight.genius.mdsalutil.matches.MatchUdpDestinationPort
 import org.opendaylight.genius.mdsalutil.matches.MatchUdpSourcePort
 import org.opendaylight.genius.mdsalutil.nxmatches.NxMatchCtState
+import org.opendaylight.genius.mdsalutil.nxmatches.NxMatchRegister
 import org.opendaylight.genius.mdsalutil.nxmatches.NxMatchTcpDestinationPort
 import org.opendaylight.genius.mdsalutil.nxmatches.NxMatchUdpDestinationPort
-import org.opendaylight.genius.mdsalutil.MetaDataUtil
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.MacAddress
-
-import org.opendaylight.genius.mdsalutil.nxmatches.NxMatchRegister
 import org.opendaylight.yang.gen.v1.urn.opendaylight.openflowjava.nx.match.rev140421.NxmNxReg6
-import org.opendaylight.genius.mdsalutil.matches.MatchMetadata
 
 class FlowEntryObjectsStateless extends FlowEntryObjectsBase {
 

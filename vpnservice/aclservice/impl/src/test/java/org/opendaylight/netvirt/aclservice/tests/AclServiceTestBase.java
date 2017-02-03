@@ -402,6 +402,33 @@ public abstract class AclServiceTestBase {
 
     abstract void newInterfaceWithAapIpv4AllCheck();
 
+    @Test
+    public void newInterfaceWithAap() throws Exception {
+        LOG.info("newInterfaceWithAap test - start");
+
+        // AAP with same MAC and different IP
+        AllowedAddressPairs aapWithSameMac = buildAap("10.0.0.100/32", PORT_MAC_2);
+        // AAP with different MAC and different IP
+        AllowedAddressPairs aapWithDifferentMac = buildAap("10.0.0.101/32", "0D:AA:D8:42:30:A4");
+
+        newAllowedAddressPair(PORT_1, Collections.singletonList(SG_UUID_1), Collections.singletonList(AAP_PORT_1));
+        newAllowedAddressPair(PORT_2, Collections.singletonList(SG_UUID_1),
+                Arrays.asList(AAP_PORT_2, aapWithSameMac, aapWithDifferentMac));
+
+        prepareInterfaceWithIcmpAcl();
+        // When
+        putNewStateInterface(dataBroker, PORT_1, PORT_MAC_1);
+        putNewStateInterface(dataBroker, PORT_2, PORT_MAC_2);
+
+        asyncEventsWaiter.awaitEventsConsumption();
+
+        // Then
+        newInterfaceWithAapCheck();
+        LOG.info("newInterfaceWithAap test - end");
+    }
+
+    abstract void newInterfaceWithAapCheck();
+
     protected void assertFlowsInAnyOrder(Iterable<FlowEntity> expectedFlows) {
         asyncEventsWaiter.awaitEventsConsumption();
         coordinatorEventsWaiter.awaitEventsConsumption();
