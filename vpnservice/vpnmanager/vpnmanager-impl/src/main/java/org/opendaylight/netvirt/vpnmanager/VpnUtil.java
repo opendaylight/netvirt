@@ -724,12 +724,7 @@ public class VpnUtil {
 
     static boolean isVpnInterfaceConfigured(DataBroker broker, String interfaceName) {
         InstanceIdentifier<VpnInterface> interfaceId = getVpnInterfaceIdentifier(interfaceName);
-        Optional<VpnInterface> configuredVpnInterface = read(broker, LogicalDatastoreType.CONFIGURATION, interfaceId);
-
-        if (configuredVpnInterface.isPresent()) {
-            return true;
-        }
-        return false;
+        return read(broker, LogicalDatastoreType.CONFIGURATION, interfaceId).isPresent();
     }
 
     static boolean isInterfaceAssociatedWithVpn(DataBroker broker, String vpnName, String interfaceName) {
@@ -1351,11 +1346,7 @@ public class VpnUtil {
             if (dpnToVpns != null) {
                 for (VpnToDpnList dpn : dpnToVpns) {
                     if (dpn.getDpnId().equals(dpnId)) {
-                        if (dpn.getVpnInterfaces().contains(vpnInterface.getName())) {
-                            return true;
-                        } else {
-                            return false;
-                        }
+                        return dpn.getVpnInterfaces().contains(vpnInterface.getName());
                     }
                 }
             }

@@ -83,9 +83,6 @@ public class TunnelCmd  extends MergeCommand<Tunnels, PhysicalSwitchAugmentation
                 orig.getRemoteLocatorRef().getValue();
         TpId tpId1 = remoteLocatorRefUpdated.firstKeyOf(TerminationPoint.class).getTpId();
         TpId tpId2 = remoteLocatorRefOriginal.firstKeyOf(TerminationPoint.class).getTpId();
-        if (tpId1.equals(tpId2)) {
-            return true;
-        }
-        return false;
+        return tpId1.equals(tpId2);
     }
 }

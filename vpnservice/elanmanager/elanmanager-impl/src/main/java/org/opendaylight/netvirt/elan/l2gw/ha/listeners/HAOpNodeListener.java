@@ -80,19 +80,14 @@ public class HAOpNodeListener extends HwvtepNodeBaseListener implements DataTree
 
     boolean areBothGlobalAndPsNodeAvailable(InstanceIdentifier<Node> key) {
         String id = key.firstKeyOf(Node.class).getNodeId().getValue();
-        String psId = null;
-        String globalId = null;
+        String globalId;
 
         if (id.indexOf(HwvtepHAUtil.PHYSICALSWITCH) > 0) {
-            psId = id;
             globalId = id.substring(0, id.indexOf(HwvtepHAUtil.PHYSICALSWITCH));
         } else {
             globalId = id;
         }
-        if (availableGlobalNodes.containsKey(globalId) && availablePsNodes.containsKey(globalId)) {
-            return true;
-        }
-        return false;
+        return availableGlobalNodes.containsKey(globalId) && availablePsNodes.containsKey(globalId);
     }
 
     public HAOpNodeListener(DataBroker db, HAEventHandler haEventHandler) throws Exception {

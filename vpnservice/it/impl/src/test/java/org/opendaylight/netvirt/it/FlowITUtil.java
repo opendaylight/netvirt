@@ -352,7 +352,7 @@ public class FlowITUtil {
             return false;
         }
 
-        if (!Objects.equals(obj1.getNxmOfEthSrc(), obj2.getNxmOfEthSrc())
+        return !(!Objects.equals(obj1.getNxmOfEthSrc(), obj2.getNxmOfEthSrc())
                 || !Objects.equals(obj1.getNxmOfArpOp(), obj2.getNxmOfArpOp())
                 || !Objects.equals(obj1.getNxmOfUdpDst(), obj2.getNxmOfUdpDst())
                 || !Objects.equals(obj1.getNxmNxNshc3(), obj2.getNxmNxNshc3())
@@ -377,11 +377,7 @@ public class FlowITUtil {
                 || !Objects.equals(obj1.getNxmNxCtState(), obj2.getNxmNxCtState())
                 || !Objects.equals(obj1.getNxmNxTunIpv4Src(), obj2.getNxmNxTunIpv4Src())
                 || !Objects.equals(obj1.getNxmOfIpDst(), obj2.getNxmOfIpDst())
-                || !Objects.equals(obj1.getNxmNxNsp(), obj2.getNxmNxNsp())) {
-            return false;
-        }
-
-        return true;
+                || !Objects.equals(obj1.getNxmNxNsp(), obj2.getNxmNxNsp()));
     }
 
     class MatchAugmentationIterator {

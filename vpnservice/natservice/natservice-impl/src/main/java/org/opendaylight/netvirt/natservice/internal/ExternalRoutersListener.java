@@ -2146,10 +2146,7 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
             InstanceIdentifier.builder(ExtRouters.class)
                 .child(Routers.class, new RoutersKey(routerUuid.getValue())).build();
         Optional<Routers> routerData = read(dataBroker, LogicalDatastoreType.CONFIGURATION, routerInstanceIndentifier);
-        if (routerData.isPresent() && routerData.get().isEnableSnat()) {
-            return true;
-        }
-        return false;
+        return routerData.isPresent() && routerData.get().isEnableSnat();
     }
 
     public void installFlowsWithUpdatedVpnId(BigInteger primarySwitchId, String routerName, long bgpVpnId,

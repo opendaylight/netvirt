@@ -643,11 +643,7 @@ public final class AclServiceUtils {
     }
 
     public static boolean containsMatchFieldType(List<MatchInfoBase> flows, NxMatchFieldType type) {
-        MatchInfoBase mib = getMatchInfoByType(flows, type);
-        if (mib != null) {
-            return true;
-        }
-        return false;
+        return getMatchInfoByType(flows, type) != null;
     }
 
     public static boolean containsTcpMatchField(List<MatchInfoBase> flows) {

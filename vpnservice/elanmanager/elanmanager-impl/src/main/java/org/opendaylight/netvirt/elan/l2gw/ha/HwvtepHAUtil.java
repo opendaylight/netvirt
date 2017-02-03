@@ -211,10 +211,7 @@ public class HwvtepHAUtil {
     }
 
     public static boolean isEmptyList(List list) {
-        if (list == null || list.size() == 0) {
-            return true;
-        }
-        return false;
+        return list == null || list.size() == 0;
     }
 
     public static void mergeManagedByNode(Node psNode,

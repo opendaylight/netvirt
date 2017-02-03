@@ -200,12 +200,7 @@ public class Ipv6ServiceUtils {
     }
 
     public boolean validateChecksum(byte[] packet, Ipv6Header ip6Hdr, int recvChecksum) {
-        int checksum = calcIcmpv6Checksum(packet, ip6Hdr);
-
-        if (checksum == recvChecksum) {
-            return true;
-        }
-        return false;
+        return calcIcmpv6Checksum(packet, ip6Hdr) == recvChecksum;
     }
 
     private long getSummation(Ipv6Address addr) {

@@ -79,10 +79,7 @@ public class RemoteUcastCmd extends MergeCommand<RemoteUcastMacs,
                 .getHwvtepNodeName();
         InstanceIdentifier<?> origMacRefIdentifier = orig.getLogicalSwitchRef().getValue();
         HwvtepNodeName origMacNodeName = origMacRefIdentifier.firstKeyOf(LogicalSwitches.class).getHwvtepNodeName();
-        if (updated.getMacEntryKey().equals(orig.getMacEntryKey())
-                && updatedMacNodeName.equals(origMacNodeName)) {
-            return true;
-        }
-        return false;
+        return updated.getMacEntryKey().equals(orig.getMacEntryKey())
+                && updatedMacNodeName.equals(origMacNodeName);
     }
 }
