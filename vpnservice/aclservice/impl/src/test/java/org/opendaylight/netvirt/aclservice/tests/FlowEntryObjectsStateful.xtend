@@ -7,10 +7,12 @@
  */
 package org.opendaylight.netvirt.aclservice.tests
 
+import org.opendaylight.genius.mdsalutil.FlowEntity
+import org.opendaylight.genius.mdsalutil.MetaDataUtil
+import org.opendaylight.genius.mdsalutil.NwConstants
+import org.opendaylight.genius.mdsalutil.actions.ActionDrop
 import org.opendaylight.genius.mdsalutil.actions.ActionNxConntrack
 import org.opendaylight.genius.mdsalutil.actions.ActionNxResubmit
-import org.opendaylight.genius.mdsalutil.actions.ActionDrop
-import org.opendaylight.genius.mdsalutil.FlowEntity
 import org.opendaylight.genius.mdsalutil.instructions.InstructionApplyActions
 import org.opendaylight.genius.mdsalutil.matches.MatchArpSha
 import org.opendaylight.genius.mdsalutil.matches.MatchEthernetDestination
@@ -21,19 +23,15 @@ import org.opendaylight.genius.mdsalutil.matches.MatchIcmpv6
 import org.opendaylight.genius.mdsalutil.matches.MatchIpProtocol
 import org.opendaylight.genius.mdsalutil.matches.MatchIpv4Destination
 import org.opendaylight.genius.mdsalutil.matches.MatchIpv4Source
+import org.opendaylight.genius.mdsalutil.matches.MatchMetadata
 import org.opendaylight.genius.mdsalutil.matches.MatchUdpDestinationPort
 import org.opendaylight.genius.mdsalutil.matches.MatchUdpSourcePort
 import org.opendaylight.genius.mdsalutil.nxmatches.NxMatchCtState
+import org.opendaylight.genius.mdsalutil.nxmatches.NxMatchRegister
 import org.opendaylight.genius.mdsalutil.nxmatches.NxMatchTcpDestinationPort
 import org.opendaylight.genius.mdsalutil.nxmatches.NxMatchUdpDestinationPort
-import org.opendaylight.genius.mdsalutil.MetaDataUtil
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.MacAddress
-
-import org.opendaylight.genius.mdsalutil.matches.MatchArpSha
-import org.opendaylight.genius.mdsalutil.NwConstants
-import org.opendaylight.genius.mdsalutil.nxmatches.NxMatchRegister
 import org.opendaylight.yang.gen.v1.urn.opendaylight.openflowjava.nx.match.rev140421.NxmNxReg6
-import org.opendaylight.genius.mdsalutil.matches.MatchMetadata
 
 class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
 
@@ -137,6 +135,14 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
         + aapIpv4AllFlowsPort2
     }
 
+    protected def aapFlows() {
+        icmpFlows()
+        + aapRemoteFlowsPort1
+        // TODO: Temporarily adding duplicate flows to make TC pass. It needs to be removed later.
+        + aapRemoteFlowsPort1
+        + aapFlowsPort2
+    }
+
     protected def aapIpv4AllFlowsPort2() {
         #[
             new FlowEntity(123bi) => [
@@ -190,6 +196,108 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
                 tableId = NwConstants.INGRESS_ACL_TABLE
             ]
          ]
+    }
+
+    protected def aapRemoteFlowsPort1() {
+        #[
+            remoteIngressFlowsPort("10.0.0.100"),
+            remoteIngressFlowsPort("10.0.0.101"),
+
+            remoteEgressFlowsPort("10.0.0.100"),
+            remoteEgressFlowsPort("10.0.0.101")
+         ]
+    }
+
+    protected def aapFlowsPort2() {
+        #[
+            new FlowEntity(123bi) => [
+                cookie = 110100480bi
+                flowId = "Egress_Fixed_Conntrk_123_0D:AA:D8:42:30:F4_10.0.0.100/32_Recirc"
+                flowName = "ACL"
+                instructionInfoList = #[
+                    new InstructionApplyActions(#[
+                        new ActionNxConntrack(2, 0, 0, 5000, NwConstants.INGRESS_ACL_REMOTE_ACL_TABLE)
+                    ])
+                ]
+                matchInfoList = #[
+                    new MatchEthernetSource(new MacAddress("0D:AA:D8:42:30:F4")),
+                    new MatchEthernetType(2048L),
+                    new MatchIpv4Source("10.0.0.100", "32")
+                ]
+                priority = 61010
+                tableId = NwConstants.INGRESS_ACL_TABLE
+            ],
+            new FlowEntity(123bi) => [
+                cookie = 110100480bi
+                flowId = "Ingress_Fixed_Conntrk_123_0D:AA:D8:42:30:F4_10.0.0.100/32_Recirc"
+                flowName = "ACL"
+                instructionInfoList = #[
+                    new InstructionApplyActions(#[
+                        new ActionNxConntrack(2, 0, 0, 5000, NwConstants.EGRESS_ACL_REMOTE_ACL_TABLE)
+                    ])
+                ]
+                matchInfoList = #[
+                    new MatchEthernetType(2048L),
+                    new MatchEthernetDestination(new MacAddress("0D:AA:D8:42:30:F4")),
+                    new MatchEthernetType(2048L),
+                    new MatchIpv4Destination("10.0.0.100", "32")
+                ]
+                priority = 61010
+                tableId = NwConstants.EGRESS_ACL_TABLE
+            ],
+            new FlowEntity(123bi) => [
+                cookie = 110100480bi
+                flowId = "Egress_Fixed_Conntrk_123_0D:AA:D8:42:30:A4_10.0.0.101/32_Recirc"
+                flowName = "ACL"
+                instructionInfoList = #[
+                    new InstructionApplyActions(#[
+                        new ActionNxConntrack(2, 0, 0, 5000, NwConstants.INGRESS_ACL_REMOTE_ACL_TABLE)
+                    ])
+                ]
+                matchInfoList = #[
+                    new MatchEthernetSource(new MacAddress("0D:AA:D8:42:30:A4")),
+                    new MatchEthernetType(2048L),
+                    new MatchIpv4Source("10.0.0.101", "32")
+                ]
+                priority = 61010
+                tableId = NwConstants.INGRESS_ACL_TABLE
+            ],
+            new FlowEntity(123bi) => [
+                cookie = 110100480bi
+                flowId = "Ingress_Fixed_Conntrk_123_0D:AA:D8:42:30:A4_10.0.0.101/32_Recirc"
+                flowName = "ACL"
+                instructionInfoList = #[
+                    new InstructionApplyActions(#[
+                        new ActionNxConntrack(2, 0, 0, 5000, NwConstants.EGRESS_ACL_REMOTE_ACL_TABLE)
+                    ])
+                ]
+                matchInfoList = #[
+                    new MatchEthernetType(2048L),
+                    new MatchEthernetDestination(new MacAddress("0D:AA:D8:42:30:A4")),
+                    new MatchEthernetType(2048L),
+                    new MatchIpv4Destination("10.0.0.101", "32")
+                ]
+                priority = 61010
+                tableId = NwConstants.EGRESS_ACL_TABLE
+            ],
+            new FlowEntity(123bi) => [
+                cookie = 110100480bi
+                flowId = "Egress_ARP_123_987_0D:AA:D8:42:30:A4"
+                flowName = "ACL"
+                instructionInfoList = #[
+                    new InstructionApplyActions(#[
+                        new ActionNxResubmit(17 as short)
+                    ])
+                ]
+                matchInfoList = #[
+                    new MatchEthernetType(2054L),
+                    new MatchArpSha(new MacAddress("0D:AA:D8:42:30:A4")),
+                    new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG)
+                ]
+                priority = 63010
+                tableId = NwConstants.INGRESS_ACL_TABLE
+            ]
+        ]
     }
 
     protected def fixedConntrackIngressFlowsPort1() {
