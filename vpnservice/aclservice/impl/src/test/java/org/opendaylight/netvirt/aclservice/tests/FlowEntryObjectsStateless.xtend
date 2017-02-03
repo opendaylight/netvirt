@@ -7,9 +7,10 @@
  */
 package org.opendaylight.netvirt.aclservice.tests
 
+import org.opendaylight.genius.mdsalutil.FlowEntity
+import org.opendaylight.genius.mdsalutil.MetaDataUtil
 import org.opendaylight.genius.mdsalutil.actions.ActionNxConntrack
 import org.opendaylight.genius.mdsalutil.actions.ActionNxResubmit
-import org.opendaylight.genius.mdsalutil.FlowEntity
 import org.opendaylight.genius.mdsalutil.instructions.InstructionApplyActions
 import org.opendaylight.genius.mdsalutil.matches.MatchEthernetType
 import org.opendaylight.genius.mdsalutil.matches.MatchIcmpv4
@@ -24,9 +25,6 @@ import org.opendaylight.genius.mdsalutil.matches.MatchUdpSourcePort
 import org.opendaylight.genius.mdsalutil.nxmatches.NxMatchCtState
 import org.opendaylight.genius.mdsalutil.nxmatches.NxMatchTcpDestinationPort
 import org.opendaylight.genius.mdsalutil.nxmatches.NxMatchUdpDestinationPort
-import org.opendaylight.genius.mdsalutil.MetaDataUtil
-
-import static extension org.opendaylight.mdsal.binding.testutils.XtendBuilderExtensions.operator_doubleGreaterThan
 
 class FlowEntryObjectsStateless extends FlowEntryObjectsBase {
 
