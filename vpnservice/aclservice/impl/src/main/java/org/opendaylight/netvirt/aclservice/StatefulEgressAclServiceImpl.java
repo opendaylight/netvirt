@@ -136,7 +136,7 @@ public class StatefulEgressAclServiceImpl extends AbstractEgressAclServiceImpl {
     private void programEgressAclFixedConntrackRule(BigInteger dpid, List<AllowedAddressPairs> allowedAddresses,
             int lportTag, String portId, Action action, int write) {
         programConntrackRecircRules(dpid, allowedAddresses, AclConstants.CT_STATE_UNTRACKED_PRIORITY,
-            "Recirc", portId, write );
+            "Recirc", portId, write);
         programEgressConntrackDropRules(dpid, lportTag, write);
         LOG.info("programEgressAclFixedConntrackRule :  default connection tracking rule are added.");
     }

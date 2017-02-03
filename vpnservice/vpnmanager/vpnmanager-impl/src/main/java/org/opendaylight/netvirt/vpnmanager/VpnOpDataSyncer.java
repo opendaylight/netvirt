@@ -83,7 +83,7 @@ public class VpnOpDataSyncer {
                     notifyTask.wait(maxWaitMillis);
                     elapsedTimeNs = System.nanoTime() - t0;
 
-                    if ( elapsedTimeNs < (maxWaitMillis * 1000000) ) {
+                    if (elapsedTimeNs < (maxWaitMillis * 1000000)) {
                         // Thread woken up before timeout
                         LOG.debug("Its been reported that VPN {} is now ready", vpnName);
                         dataReady = true;
@@ -92,7 +92,7 @@ public class VpnOpDataSyncer {
                         LOG.debug("Vpn {} OpData not ready after {}ms", vpnName, maxWaitMillis);
                         dataReady = false;
                     }
-                } catch ( InterruptedException e ) {
+                } catch (InterruptedException e) {
                     dataReady = true;
                 }
             }

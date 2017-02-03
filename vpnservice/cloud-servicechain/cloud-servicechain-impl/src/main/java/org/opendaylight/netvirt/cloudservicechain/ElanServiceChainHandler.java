@@ -74,7 +74,7 @@ public class ElanServiceChainHandler {
 
         // Find the ElanInstance
         Optional<ElanInstance> elanInstance = ElanServiceChainUtils.getElanInstanceByName(broker, elanName);
-        if ( !elanInstance.isPresent() ) {
+        if (!elanInstance.isPresent()) {
             LOG.debug("Could not find an Elan Instance with name={}", elanName);
             return;
         }
@@ -89,7 +89,7 @@ public class ElanServiceChainHandler {
         ElanServiceChainUtils.updateElanToLportTagMap(broker, elanName, elanLportTag, scfTag, addOrRemove);
 
         Long vni = elanInstance.get().getSegmentationId();
-        if ( vni == null ) {
+        if (vni == null) {
             LOG.warn("There is no VNI for elan {}. VNI is mandatory. Returning", elanName);
             return;
         }
@@ -120,7 +120,7 @@ public class ElanServiceChainHandler {
             return;
         }
         Optional<ElanInstance> elanInstance = ElanServiceChainUtils.getElanInstanceByName(broker, elanName);
-        if ( !elanInstance.isPresent() ) {
+        if (!elanInstance.isPresent()) {
             LOG.warn("Could not find ElanInstance for name {}", elanName);
             return;
         }
@@ -132,13 +132,13 @@ public class ElanServiceChainHandler {
         }
 
         List<ElanToPseudoPortData> elanToPseudoPortDataList = elanServiceChainState.get().getElanToPseudoPortData();
-        if ( elanToPseudoPortDataList == null || elanToPseudoPortDataList.isEmpty() ) {
+        if (elanToPseudoPortDataList == null || elanToPseudoPortDataList.isEmpty()) {
             LOG.info("Could not find elan {} with elanPseudoPort {} participating in any ServiceChain",
                      elanName, elanLportTag);
             return;
         }
 
-        if ( elanInstance.get().getElanTag() == null ) {
+        if (elanInstance.get().getElanTag() == null) {
             LOG.info("Could not find elanTag for elan {} ", elanName);
             return;
         }

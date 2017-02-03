@@ -91,7 +91,7 @@ public class NodeConnectedHandler {
                  The reason being if it is done in the same transaction,
                  hwvtep plugin is not able to proess this update and send vlanbindings to device
                  as it is expecting the logical switch to be already present in operational ds
-                 (created in the device )
+                 (created in the device)
                  */
                 HAJobScheduler.getInstance().submitJob(() -> {
                     try {

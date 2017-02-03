@@ -61,24 +61,24 @@ public class VpnToDpnListener implements OdlL3vpnListener {
     private void programVpnScfFlowsOnDpn(BigInteger dpnId, String vpnName, String rd, int addOrRemove) {
         String addedOrRemovedTxt = addOrRemove == NwConstants.ADD_FLOW ? " added " : " removed";
         LOG.debug("DpnToVpn {} event received: dpn={}  vpn={}  rd={}", addedOrRemovedTxt, dpnId, vpnName, rd);
-        if ( dpnId == null ) {
+        if (dpnId == null) {
             LOG.warn("Dpn to Vpn {} event received, but no DPN specified in event", addedOrRemovedTxt);
             return;
         }
 
-        if ( vpnName == null ) {
+        if (vpnName == null) {
             LOG.warn("Dpn to Vpn {} event received, but no VPN specified in event", addedOrRemovedTxt);
             return;
         }
 
-        if ( rd == null ) {
+        if (rd == null) {
             LOG.warn("Dpn to Vpn {} event received, but no RD specified in event", addedOrRemovedTxt);
             return;
         }
 
         Optional<VpnToPseudoPortData> optVpnToPseudoPortInfo = VpnServiceChainUtils.getVpnPseudoPortData(broker, rd);
 
-        if ( !optVpnToPseudoPortInfo.isPresent() ) {
+        if (!optVpnToPseudoPortInfo.isPresent()) {
             LOG.debug("Dpn to Vpn {} event received: Could not find VpnPseudoLportTag for VPN name={}  rd={}",
                       addedOrRemovedTxt, vpnName, rd);
             return;

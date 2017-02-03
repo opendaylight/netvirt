@@ -66,20 +66,20 @@ public class ExternalNetworkListener extends AsyncDataTreeChangeListenerBase<Net
     @Override
     protected void add(final InstanceIdentifier<Networks> identifier,
                        final Networks nw) {
-        LOG.trace("NAT Service : External Network add mapping method - key: " + identifier + ", value=" + nw );
+        LOG.trace("NAT Service : External Network add mapping method - key: " + identifier + ", value=" + nw);
         processExternalNwAdd(identifier, nw);
     }
 
     @Override
     protected void remove(InstanceIdentifier<Networks> identifier, Networks nw) {
-        LOG.trace("NAT Service : External Network remove mapping method - key: " + identifier + ", value=" + nw );
+        LOG.trace("NAT Service : External Network remove mapping method - key: " + identifier + ", value=" + nw);
         processExternalNwDel(identifier, nw);
     }
 
     @Override
     protected void update(InstanceIdentifier<Networks> identifier, Networks original, Networks update) {
         LOG.trace("NAT Service : External Network update mapping method - key: {}, original: {}, update: {}",
-            identifier, original, update );
+            identifier, original, update);
         //check if a new router has been added or an already existing router has been deleted from the external
         // nw to router association
         List<Uuid> oldRtrs = original.getRouterIds();

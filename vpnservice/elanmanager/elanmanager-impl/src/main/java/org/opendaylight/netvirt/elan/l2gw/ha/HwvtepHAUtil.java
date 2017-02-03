@@ -80,7 +80,7 @@ public class HwvtepHAUtil {
 
     static HwvtepHACache hwvtepHACache = HwvtepHACache.getInstance();
 
-    public static HwvtepPhysicalLocatorRef buildLocatorRef(InstanceIdentifier<Node> nodeIid, String tepIp ) {
+    public static HwvtepPhysicalLocatorRef buildLocatorRef(InstanceIdentifier<Node> nodeIid, String tepIp) {
         InstanceIdentifier<TerminationPoint> tepId = buildTpId(nodeIid, tepIp);
         return new HwvtepPhysicalLocatorRef(tepId);
     }
@@ -93,7 +93,7 @@ public class HwvtepHAUtil {
         return new Uuid(java.util.UUID.nameUUIDFromBytes(key.getBytes()).toString());
     }
 
-    public static InstanceIdentifier<TerminationPoint> buildTpId(InstanceIdentifier<Node> nodeIid,String tepIp ) {
+    public static InstanceIdentifier<TerminationPoint> buildTpId(InstanceIdentifier<Node> nodeIid,String tepIp) {
         String tpKeyStr = TEP_PREFIX + tepIp;
         TerminationPointKey tpKey = new TerminationPointKey(new TpId(tpKeyStr));
         InstanceIdentifier<TerminationPoint> plIid = nodeIid.child(TerminationPoint.class, tpKey);

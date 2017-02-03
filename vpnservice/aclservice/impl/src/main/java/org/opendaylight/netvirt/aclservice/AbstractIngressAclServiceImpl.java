@@ -144,7 +144,7 @@ public abstract class AbstractIngressAclServiceImpl extends AbstractAclServiceIm
             return false;
         }
 
-        for (Uuid sgUuid :aclUuidList ) {
+        for (Uuid sgUuid :aclUuidList) {
             Acl acl = AclServiceUtils.getAcl(dataBroker, sgUuid.getValue());
             if (null == acl) {
                 LOG.warn("The ACL is empty");

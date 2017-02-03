@@ -184,7 +184,7 @@ public class InterVpnLinkListener extends AsyncDataTreeChangeListenerBase<InterV
             boolean vpn1Ready =
                 vpnOpDataSyncer.waitForVpnDataReady(VpnOpDataSyncer.VpnOpDataType.vpnInstanceToId, vpn1Name,
                                                     VpnConstants.PER_VPN_INSTANCE_MAX_WAIT_TIME_IN_MILLISECONDS);
-            if ( !vpn1Ready ) {
+            if (!vpn1Ready) {
                 String errMsg =
                     "InterVpnLink " + add.getName() + " creation error: Operational Data for VPN " + vpn1Name
                         + " not ready after " + VpnConstants.PER_INTERFACE_MAX_WAIT_TIME_IN_MILLISECONDS
@@ -198,7 +198,7 @@ public class InterVpnLinkListener extends AsyncDataTreeChangeListenerBase<InterV
             boolean vpn1Ready =
                 vpnOpDataSyncer.waitForVpnDataReady(VpnOpDataSyncer.VpnOpDataType.vpnInstanceToId,vpn2Name,
                                                     VpnConstants.PER_VPN_INSTANCE_MAX_WAIT_TIME_IN_MILLISECONDS);
-            if ( !vpn1Ready ) {
+            if (!vpn1Ready) {
                 String errMsg =
                     "InterVpnLink " + add.getName() + " creation error: Operational Data for VPN " + vpn2Name
                         + " not ready after " + VpnConstants.PER_INTERFACE_MAX_WAIT_TIME_IN_MILLISECONDS
@@ -266,7 +266,7 @@ public class InterVpnLinkListener extends AsyncDataTreeChangeListenerBase<InterV
         if (vpnLink.isBgpRoutesLeaking()) {
             originsToConsider.add(RouteOrigin.BGP);
         }
-        if ( vpnLink.isConnectedRoutesLeaking() ) {
+        if (vpnLink.isConnectedRoutesLeaking()) {
             originsToConsider.add(RouteOrigin.CONNECTED);
         }
 
@@ -274,7 +274,7 @@ public class InterVpnLinkListener extends AsyncDataTreeChangeListenerBase<InterV
                  + static route when next hop is a VM, the DC-GW or a DPNIP
                  + static route when next hop is an Inter-VPN Link
           Only the 1st type should be considered since the 2nd has a special treatment */
-        if ( vpnLink.isStaticRoutesLeaking() ) {
+        if (vpnLink.isStaticRoutesLeaking()) {
             originsToConsider.add(RouteOrigin.STATIC);
         }
         String vpn1Uuid = vpnLink.getFirstEndpoint().getVpnUuid().getValue();

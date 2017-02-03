@@ -70,7 +70,7 @@ public class VrfListener extends AbstractDataChangeListener<VrfEntry> implements
 
     @Override
     public void close() throws Exception {
-        if ( listenerRegistration != null ) {
+        if (listenerRegistration != null) {
             listenerRegistration.close();
         }
     }
@@ -88,7 +88,7 @@ public class VrfListener extends AbstractDataChangeListener<VrfEntry> implements
     protected void update(InstanceIdentifier<VrfEntry> identifier, VrfEntry original, VrfEntry update) {
         LOG.debug("VrfEntry updated: id={}  vrfEntry=[ destination={}, nexthops=[{}],  label={} ]",
                   identifier, update.getDestPrefix(), update.getNextHopAddressList(), update.getLabel());
-        if ( original.getLabel() != update.getLabel() ) {
+        if (original.getLabel() != update.getLabel()) {
             remove(identifier, original);
             add(identifier, update);
         }
@@ -112,13 +112,13 @@ public class VrfListener extends AbstractDataChangeListener<VrfEntry> implements
      */
     protected void programLabelInAllVpnDpns(String vpnRd, VrfEntry vrfEntry, int addOrRemove) {
         Long vpnPseudoLPortTag = VpnPseudoPortCache.getVpnPseudoPortTagFromCache(vpnRd);
-        if ( vpnPseudoLPortTag == null ) {
+        if (vpnPseudoLPortTag == null) {
             LOG.debug("Vpn with rd={} not related to any VpnPseudoPort", vpnRd);
             return;
         }
 
         Optional<VpnInstanceOpDataEntry> vpnOpData = VpnServiceChainUtils.getVpnInstanceOpData(broker, vpnRd);
-        if ( ! vpnOpData.isPresent()) {
+        if (! vpnOpData.isPresent()) {
             LOG.warn("Could not find operational data for VPN with RD={}", vpnRd);
             return;
         }

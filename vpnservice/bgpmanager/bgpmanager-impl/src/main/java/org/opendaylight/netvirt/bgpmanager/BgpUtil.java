@@ -127,7 +127,7 @@ public class BgpUtil {
     }
 
     // Convert ProtocolType to thrift protocol_type
-    public static protocol_type convertToThriftProtocolType(BgpControlPlaneType protocolType ) {
+    public static protocol_type convertToThriftProtocolType(BgpControlPlaneType protocolType) {
         // TODO: add implementation
         return protocol_type.PROTOCOL_ANY;
     }

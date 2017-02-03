@@ -85,7 +85,7 @@ public class DhcpInterfaceConfigListener
                 futures.add(unbindTx.submit());
             }
             return futures;
-        }, DhcpMConstants.RETRY_COUNT );
+        }, DhcpMConstants.RETRY_COUNT);
     }
 
     @Override
@@ -113,7 +113,7 @@ public class DhcpInterfaceConfigListener
                 futures.add(bindServiceTx.submit());
             }
             return futures;
-        }, DhcpMConstants.RETRY_COUNT );
+        }, DhcpMConstants.RETRY_COUNT);
     }
 
     @Override

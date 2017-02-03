@@ -25,7 +25,7 @@ public class NodeIIdMatcher extends ArgumentMatcher<InstanceIdentifier<Node>> {
     @Override
     public boolean matches(Object nodeIId) {
 
-        if ( ! ( nodeIId instanceof InstanceIdentifier<?>) ) {
+        if (! (nodeIId instanceof InstanceIdentifier<?>)) {
             return false;
         }
         boolean result = false;
@@ -33,18 +33,18 @@ public class NodeIIdMatcher extends ArgumentMatcher<InstanceIdentifier<Node>> {
             InstanceIdentifier<Node> actualNodeIId = (InstanceIdentifier<Node>) nodeIId;
             List<PathArgument> expectedNodeIIdPath = this.expectedNodeIId.getPath();
             List<PathArgument> actualNodeIIdPath = actualNodeIId.getPath();
-            if ( expectedNodeIIdPath.size() != actualNodeIIdPath.size() ) {
+            if (expectedNodeIIdPath.size() != actualNodeIIdPath.size()) {
                 return false;
             }
 
-            for ( int i = 0; i < expectedNodeIIdPath.size(); i++ ) {
-                if ( expectedNodeIIdPath.get(i).compareTo(actualNodeIIdPath.get(i)) != 0 ) {
+            for (int i = 0; i < expectedNodeIIdPath.size(); i++) {
+                if (expectedNodeIIdPath.get(i).compareTo(actualNodeIIdPath.get(i)) != 0) {
                     result = false;
                     break;
                 }
             }
 
-        } catch ( ClassCastException e ) {
+        } catch (ClassCastException e) {
             return false;
         }
 

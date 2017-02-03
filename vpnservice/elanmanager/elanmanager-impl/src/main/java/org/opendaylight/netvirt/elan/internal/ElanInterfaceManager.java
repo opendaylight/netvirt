@@ -355,7 +355,7 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
                     }
                     elanUtils.deleteMacFlows(elanInfo, interfaceInfo, macEntry, deleteFlowGroupTx);
                     return macAddress;
-                } ).collect(Collectors.toList());
+                }).collect(Collectors.toList());
 
                 // Removing all those MACs from External Devices belonging
                 // to this ELAN
@@ -379,7 +379,7 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
                         tx.delete(LogicalDatastoreType.OPERATIONAL,
                                 ElanUtils.getMacEntryOperationalDataPath(elanName, macAddress));
                     }
-                } );
+                });
             }
         }
         tx.delete(LogicalDatastoreType.OPERATIONAL, elanInterfaceId);

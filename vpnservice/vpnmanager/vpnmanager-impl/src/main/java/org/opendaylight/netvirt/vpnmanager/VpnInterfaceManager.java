@@ -982,7 +982,7 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
     @SuppressWarnings("checkstyle:IllegalCatch")
     @Override
     public void remove(InstanceIdentifier<VpnInterface> identifier, VpnInterface vpnInterface) {
-        LOG.trace("Remove event - key: {}, value: {}" ,identifier, vpnInterface );
+        LOG.trace("Remove event - key: {}, value: {}" ,identifier, vpnInterface);
         LOG.info("VPN Interface remove event - intfName {}" ,vpnInterface.getName());
         removeInterfaceFromUnprocessedList(identifier, vpnInterface);
 
@@ -1240,7 +1240,7 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
         // do not need to proceed with adding/removing interface mac as l3_gwmac_table flow entry
         Optional<VpnPortipToPort> routerInterfaceOptional = VpnUtil.getRouterInterfaceForVpnInterface(dataBroker,
                 vpnInterfaceName, vpnInstanceName, subnetUuid);
-        if (routerInterfaceOptional.isPresent() && routerInterfaceOptional.get().getMacAddress() != null ) {
+        if (routerInterfaceOptional.isPresent() && routerInterfaceOptional.get().getMacAddress() != null) {
             return;
         }
         VpnUtil.setupGwMacIfExternalVpn(dataBroker, mdsalManager, dpId, vpnInterfaceName,

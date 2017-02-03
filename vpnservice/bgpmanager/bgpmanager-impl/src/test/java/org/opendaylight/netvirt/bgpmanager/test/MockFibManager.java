@@ -25,7 +25,7 @@ public class MockFibManager extends AbstractMockFibManager<VrfEntry> {
 
     private ListenerRegistration<MockFibManager> listenerRegistration;
 
-    public MockFibManager( final DataBroker db) {
+    public MockFibManager(final DataBroker db) {
         super() ;
         registerListener(db) ;
     }

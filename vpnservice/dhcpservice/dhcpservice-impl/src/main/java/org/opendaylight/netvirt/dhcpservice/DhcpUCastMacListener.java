@@ -103,7 +103,7 @@ public class DhcpUCastMacListener
                 (InstanceIdentifier<LogicalSwitches>) add.getLogicalSwitchRef().getValue();
         Optional<LogicalSwitches> logicalSwitchOptional =
                 MDSALUtil.read(broker, LogicalDatastoreType.OPERATIONAL, logicalSwitchRef);
-        if ( !logicalSwitchOptional.isPresent() ) {
+        if (!logicalSwitchOptional.isPresent()) {
             LOG.error("Logical Switch ref doesn't have data {}", logicalSwitchRef);
             return;
         }

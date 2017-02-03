@@ -102,7 +102,7 @@ public class ElanServiceChainUtils {
             int instructionKey = 0;
             List<Instruction> instructions = new ArrayList<>();
             List<ActionInfo> actionsInfos = new ArrayList<>();
-            actionsInfos.add( new ActionRegLoad(NxmNxReg2.class, 0, 31, scfTag));
+            actionsInfos.add(new ActionRegLoad(NxmNxReg2.class, 0, 31, scfTag));
             instructions.add(MDSALUtil.buildApplyActionsInstruction(MDSALUtil
                     .buildActions(actionsInfos),instructionKey++));
             instructions.add(MDSALUtil.buildAndGetGotoTableInstruction(tableId, instructionKey++));
@@ -140,7 +140,7 @@ public class ElanServiceChainUtils {
                                                      int elanLportTag, long elanTag, int addOrRemove) {
         LOG.info("L2-ServiceChaining: programLPortDispatcherFromScf dpId={} elanLportTag={} elanTag={} addOrRemove={} ",
                  dpnId, elanLportTag, elanTag, addOrRemove);
-        String flowRef = buildLportDispFromScfFlowRef(elanTag, elanLportTag );
+        String flowRef = buildLportDispFromScfFlowRef(elanTag, elanLportTag);
         if (addOrRemove == NwConstants.ADD_FLOW) {
             List<MatchInfo> matches = Collections.singletonList(
                     new MatchMetadata(MetaDataUtil.getMetaDataForLPortDispatcher(elanLportTag,
@@ -154,7 +154,7 @@ public class ElanServiceChainUtils {
                             MetaDataUtil.METADATA_MASK_SERVICE.or(BigInteger.ONE),
                             instructionKey++),
                     MDSALUtil.buildAndGetGotoTableInstruction(NwConstants.ELAN_SMAC_TABLE,
-                            instructionKey++) );
+                            instructionKey++));
 
             Flow flow =
                     MDSALUtil.buildFlowNew(NwConstants.LPORT_DISPATCHER_TABLE, flowRef,
@@ -261,7 +261,7 @@ public class ElanServiceChainUtils {
                 .augmentation(ElanServiceChainState.class)
                 .child(ElanToPseudoPortData.class, new ElanToPseudoPortDataKey(key)).build();
 
-        if ( addOrRemove == NwConstants.ADD_FLOW ) {
+        if (addOrRemove == NwConstants.ADD_FLOW) {
             ElanToPseudoPortData newValue =
                     new ElanToPseudoPortDataBuilder().setKey(key).setElanLportTag(new Long(lportTag))
                                                      .setScfTag(scfTag).build();
