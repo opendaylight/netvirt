@@ -67,4 +67,10 @@ public class AclServiceStatefulTestIPv6 extends AclServiceTestBaseIPv6 {
     void newInterfaceWithAapIpv4AllCheck() {
         // TODO Auto-generated method stub
     }
+
+    @Override
+    void newInterfaceWithAapCheck() {
+        // TODO Auto-generated method stub
+
+    }
 }

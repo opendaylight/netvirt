@@ -67,4 +67,10 @@ public class AclServiceStatelessTest extends AclServiceTestBase {
 
     }
 
+    @Override
+    void newInterfaceWithAapCheck() {
+        // TODO Auto-generated method stub
+
+    }
+
 }

@@ -8,13 +8,21 @@
 package org.opendaylight.netvirt.aclservice.tests;
 
 import static org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType.CONFIGURATION;
+import static org.opendaylight.mdsal.binding.testutils.AssertDataObjects.assertEqualBeans;
 import static org.opendaylight.netvirt.aclservice.tests.StateInterfaceBuilderHelper.putNewStateInterface;
 
+import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 import javax.inject.Inject;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -80,6 +88,11 @@ public abstract class AclServiceTestBase {
     static String IP_PREFIX_4 = "10.0.0.4/32";
     static long ELAN_TAG = 5000L;
 
+    static final AllowedAddressPairs AAP_PORT_1 = buildAap(IP_PREFIX_1, PORT_MAC_1);
+    static final AllowedAddressPairs AAP_PORT_2 = buildAap(IP_PREFIX_2, PORT_MAC_2);
+    static final AllowedAddressPairs AAP_PORT_3 = buildAap(IP_PREFIX_3, PORT_MAC_3);
+    static final AllowedAddressPairs AAP_PORT_4 = buildAap(IP_PREFIX_4, PORT_MAC_4);
+
     @Inject DataBroker dataBroker;
     @Inject DataBrokerPairsUtil dataBrokerUtil;
     SingleTransactionDataBroker singleTransactionDataBroker;
@@ -95,6 +108,8 @@ public abstract class AclServiceTestBase {
     @Test
     public void newInterface() throws Exception {
         LOG.info("newInterface - start");
+
+        newAllowedAddressPair(PORT_1, Collections.singletonList(SG_UUID_1), Collections.singletonList(AAP_PORT_1));
         // Given
         // putNewInterface(dataBroker, "port1", true, Collections.emptyList(), Collections.emptyList());
         dataBrokerUtil.put(ImmutableIdentifiedInterfaceWithAclBuilder.builder()
@@ -116,6 +131,10 @@ public abstract class AclServiceTestBase {
     @Test
     public void newInterfaceWithEtherTypeAcl() throws Exception {
         LOG.info("newInterfaceWithEtherTypeAcl - start");
+
+        newAllowedAddressPair(PORT_1, Collections.singletonList(SG_UUID_1), Collections.singletonList(AAP_PORT_1));
+        newAllowedAddressPair(PORT_2, Collections.singletonList(SG_UUID_1), Collections.singletonList(AAP_PORT_2));
+
         Matches matches = newMatch(AclConstants.SOURCE_LOWER_PORT_UNSPECIFIED,
             AclConstants.SOURCE_UPPER_PORT_UNSPECIFIED, AclConstants.DEST_LOWER_PORT_UNSPECIFIED,
             AclConstants.DEST_UPPER_PORT_UNSPECIFIED, AclConstants.SOURCE_REMOTE_IP_PREFIX_UNSPECIFIED,
@@ -153,6 +172,10 @@ public abstract class AclServiceTestBase {
     @Test
     public void newInterfaceWithTcpDstAcl() throws Exception {
         LOG.info("newInterfaceWithTcpDstAcl - start");
+
+        newAllowedAddressPair(PORT_1, Collections.singletonList(SG_UUID_1), Collections.singletonList(AAP_PORT_1));
+        newAllowedAddressPair(PORT_2, Collections.singletonList(SG_UUID_1), Collections.singletonList(AAP_PORT_2));
+
         // Given
         Matches matches = newMatch(AclConstants.SOURCE_LOWER_PORT_UNSPECIFIED,
             AclConstants.SOURCE_UPPER_PORT_UNSPECIFIED, AclConstants.DEST_LOWER_PORT_HTTP,
@@ -192,6 +215,9 @@ public abstract class AclServiceTestBase {
     @Test
     public void newInterfaceWithUdpDstAcl() throws Exception {
         LOG.info("newInterfaceWithUdpDstAcl - start");
+
+        newAllowedAddressPair(PORT_1, Collections.singletonList(SG_UUID_1), Collections.singletonList(AAP_PORT_1));
+        newAllowedAddressPair(PORT_2, Collections.singletonList(SG_UUID_1), Collections.singletonList(AAP_PORT_2));
         // Given
         Matches matches = newMatch(AclConstants.SOURCE_LOWER_PORT_UNSPECIFIED,
             AclConstants.SOURCE_UPPER_PORT_UNSPECIFIED, AclConstants.DEST_LOWER_PORT_HTTP,
@@ -231,6 +257,9 @@ public abstract class AclServiceTestBase {
     @Test
     public void newInterfaceWithIcmpAcl() throws Exception {
         LOG.info("newInterfaceWithIcmpAcl - start");
+
+        newAllowedAddressPair(PORT_1, Collections.singletonList(SG_UUID_1), Collections.singletonList(AAP_PORT_1));
+        newAllowedAddressPair(PORT_2, Collections.singletonList(SG_UUID_1), Collections.singletonList(AAP_PORT_2));
         // Given
         prepareInterfaceWithIcmpAcl();
 
@@ -250,6 +279,8 @@ public abstract class AclServiceTestBase {
     @Test
     public void newInterfaceWithDstPortRange() throws Exception {
         LOG.info("newInterfaceWithDstPortRange - start");
+
+        newAllowedAddressPair(PORT_1, Collections.singletonList(SG_UUID_1), Collections.singletonList(AAP_PORT_1));
         // Given
         Matches matches = newMatch(AclConstants.SOURCE_LOWER_PORT_UNSPECIFIED,
             AclConstants.SOURCE_UPPER_PORT_UNSPECIFIED, 333, 777,
@@ -287,6 +318,8 @@ public abstract class AclServiceTestBase {
     @Test
     public void newInterfaceWithDstAllPorts() throws Exception {
         LOG.info("newInterfaceWithDstAllPorts - start");
+
+        newAllowedAddressPair(PORT_1, Collections.singletonList(SG_UUID_1), Collections.singletonList(AAP_PORT_1));
         // Given
         Matches matches = newMatch(AclConstants.SOURCE_LOWER_PORT_UNSPECIFIED,
             AclConstants.SOURCE_UPPER_PORT_UNSPECIFIED, 1, 65535,
@@ -324,6 +357,8 @@ public abstract class AclServiceTestBase {
     @Test
     public void newInterfaceWithTwoAclsHavingSameRules() throws Exception {
         LOG.info("newInterfaceWithTwoAclsHavingSameRules - start");
+
+        newAllowedAddressPair(PORT_3, Arrays.asList(SG_UUID_1, SG_UUID_2), Collections.singletonList(AAP_PORT_3));
         // Given
         Matches icmpEgressMatches = newMatch(AclConstants.SOURCE_LOWER_PORT_UNSPECIFIED,
             AclConstants.SOURCE_UPPER_PORT_UNSPECIFIED, AclConstants.DEST_LOWER_PORT_2, AclConstants.DEST_UPPER_PORT_3,
@@ -360,6 +395,8 @@ public abstract class AclServiceTestBase {
 
     @Test
     public void newInterfaceWithIcmpAclHavingOverlappingMac() throws Exception {
+        newAllowedAddressPair(PORT_1, Collections.singletonList(SG_UUID_1), Collections.singletonList(AAP_PORT_1));
+        newAllowedAddressPair(PORT_2, Collections.singletonList(SG_UUID_1), Collections.singletonList(AAP_PORT_2));
         // Given
         prepareInterfaceWithIcmpAcl();
 
@@ -389,8 +426,15 @@ public abstract class AclServiceTestBase {
     @Ignore
     public void newInterfaceWithAapIpv4All() throws Exception {
         LOG.info("newInterfaceWithAapIpv4All test - start");
+
+        newAllowedAddressPair(PORT_1, Collections.singletonList(SG_UUID_1), Collections.singletonList(AAP_PORT_1));
+        newAllowedAddressPair(PORT_2, Collections.singletonList(SG_UUID_1),
+                Arrays.asList(AAP_PORT_2, buildAap(AclConstants.IPV4_ALL_NETWORK, PORT_MAC_2)));
+
+        prepareInterfaceWithIcmpAcl();
         // When
-        putNewStateInterface(dataBroker, PORT_4, PORT_MAC_4);
+        putNewStateInterface(dataBroker, PORT_1, PORT_MAC_1);
+        putNewStateInterface(dataBroker, PORT_2, PORT_MAC_2);
 
         asyncEventsWaiter.awaitEventsConsumption();
 
@@ -401,8 +445,88 @@ public abstract class AclServiceTestBase {
 
     abstract void newInterfaceWithAapIpv4AllCheck();
 
+    @Test
+    public void newInterfaceWithAap() throws Exception {
+        LOG.info("newInterfaceWithAap test - start");
+
+        // AAP with same MAC and different IP
+        AllowedAddressPairs aapWithSameMac = buildAap("10.0.0.100/32", PORT_MAC_2);
+        // AAP with different MAC and different IP
+        AllowedAddressPairs aapWithDifferentMac = buildAap("10.0.0.101/32", "0D:AA:D8:42:30:A4");
+
+        try {
+            newAllowedAddressPair(PORT_1, Collections.singletonList(SG_UUID_1), Collections.singletonList(AAP_PORT_1));
+            newAllowedAddressPair(PORT_2, Collections.singletonList(SG_UUID_1),
+                    Arrays.asList(AAP_PORT_2, aapWithSameMac, aapWithDifferentMac));
+
+            prepareInterfaceWithIcmpAcl();
+            // When
+            putNewStateInterface(dataBroker, PORT_1, PORT_MAC_1);
+            putNewStateInterface(dataBroker, PORT_2, PORT_MAC_2);
+
+            asyncEventsWaiter.awaitEventsConsumption();
+
+            // Then
+            newInterfaceWithAapCheck();
+        } finally {
+            LOG.info("newInterfaceWithAap test - end");
+        }
+    }
+
+    abstract void newInterfaceWithAapCheck();
+
     protected void assertFlowsInAnyOrder(Iterable<FlowEntity> expectedFlows) {
         mdsalApiManager.assertFlowsInAnyOrder(expectedFlows);
+    }
+
+    protected void assertFlowsIgnoreDuplicates(Iterable<FlowEntity> expectedFlowEntities) {
+        List<FlowEntity> actualFlowEntities = mdsalApiManager.getFlows();
+
+        Map<String, FlowEntity> actualFlowsMap = actualFlowEntities.stream()
+                .collect(Collectors.toMap(fe -> fe.getFlowId(), fe -> fe, (f1, f2) -> f1));
+        Map<String, FlowEntity> expectedFlowsMap = Lists.newArrayList(expectedFlowEntities).stream()
+                .collect(Collectors.toMap(fe -> fe.getFlowId(), fe -> fe, (f1, f2) -> f1));
+
+        // Remove duplicates by using Set
+        Set<FlowEntity> actualFlows = new HashSet<>(actualFlowsMap.values());
+        Set<FlowEntity> expectedFlows = new LinkedHashSet<>(expectedFlowsMap.values());
+
+        LOG.info("Expected flows size: {}. Actual flows size: {}", expectedFlows.size(), actualFlows.size());
+        if (expectedFlows.size() != actualFlows.size()) {
+            LOG.warn("Expected {} flows but found {} flows", expectedFlows.size(), actualFlows.size());
+        }
+
+        Set<String> actualFlowsKeySet = actualFlowsMap.keySet();
+        Set<String> expectedFlowsKeySet = expectedFlowsMap.keySet();
+
+        Set<String> extraFlows = Sets.newHashSet(actualFlowsKeySet);
+        extraFlows.removeAll(expectedFlowsKeySet);
+        Assert.assertTrue("Found extra flows: " + extraFlows, extraFlows.isEmpty());
+
+        Set<String> missingFlows = Sets.newHashSet(expectedFlowsKeySet);
+        missingFlows.removeAll(actualFlowsKeySet);
+        Assert.assertTrue("Missing flows: " + missingFlows, missingFlows.isEmpty());
+
+        Set<FlowEntity> actualFlowsInSameOrder = new LinkedHashSet<>();
+        try {
+            expectedFlowsMap.forEach((key, value) -> {
+                FlowEntity actualFlow = actualFlowsMap.get(key);
+                Assert.assertNotNull("Flow with ID [" + key + "] not found", actualFlow);
+
+                actualFlowsInSameOrder.add(actualFlow);
+                try {
+                    assertEqualBeans(value, actualFlow);
+                } catch (AssertionError e) {
+                    throw new AssertionError(
+                            "Expected and actual flow having ID [" + actualFlow.getFlowId() + "] do not match", e);
+                }
+            });
+        } catch (AssertionError e) {
+            LOG.warn("actual flows  : {}", actualFlows);
+            LOG.warn("actual flows in same order (partial)  : {}", actualFlowsInSameOrder);
+            LOG.warn("expected flows: {}", expectedFlows);
+            throw e;
+        }
     }
 
     protected void prepareInterfaceWithIcmpAcl() throws TransactionCommitFailedException {
@@ -488,7 +612,7 @@ public abstract class AclServiceTestBase {
         return matchesBuilder.build();
     }
 
-    protected AllowedAddressPairs buildAap(String ipAddress, String macAddress) {
+    protected static AllowedAddressPairs buildAap(String ipAddress, String macAddress) {
         return new AllowedAddressPairsBuilder()
                 .setIpAddress(new IpPrefixOrAddress(new IpPrefix(ipAddress.toCharArray())))
                 .setMacAddress(new MacAddress(macAddress)).build();
@@ -500,17 +624,6 @@ public abstract class AclServiceTestBase {
         newElanInterface(ELAN, PORT_2, true);
         newElanInterface(ELAN, PORT_3, true);
         newElanInterface(ELAN, PORT_4, true);
-
-        final AllowedAddressPairs aapPort1 = buildAap(IP_PREFIX_1, PORT_MAC_1);
-        final AllowedAddressPairs aapPort2 = buildAap(IP_PREFIX_2, PORT_MAC_2);
-        final AllowedAddressPairs aapPort3 = buildAap(IP_PREFIX_3, PORT_MAC_3);
-        final AllowedAddressPairs aapPort4 = buildAap(IP_PREFIX_4, PORT_MAC_4);
-
-        newAllowedAddressPair(PORT_1, Collections.singletonList(SG_UUID_1), Collections.singletonList(aapPort1));
-        newAllowedAddressPair(PORT_2, Collections.singletonList(SG_UUID_1), Collections.singletonList(aapPort2));
-        newAllowedAddressPair(PORT_3, Arrays.asList(SG_UUID_1, SG_UUID_2), Collections.singletonList(aapPort3));
-        newAllowedAddressPair(PORT_4, Collections.singletonList(SG_UUID_1),
-                Arrays.asList(aapPort4, buildAap(AclConstants.IPV4_ALL_NETWORK, PORT_MAC_4)));
     }
 
 }
