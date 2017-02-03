@@ -910,11 +910,7 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
 
     private boolean isVpnPresentInDpn(String rd, BigInteger dpnId) {
         InstanceIdentifier<VpnToDpnList> id = FibUtil.getVpnToDpnListIdentifier(rd, dpnId);
-        Optional<VpnToDpnList> dpnInVpn = FibUtil.read(dataBroker, LogicalDatastoreType.OPERATIONAL, id);
-        if (dpnInVpn.isPresent()) {
-            return true;
-        }
-        return false;
+        return FibUtil.read(dataBroker, LogicalDatastoreType.OPERATIONAL, id).isPresent();
     }
 
     private LabelRouteInfo getLabelRouteInfo(Long label) {

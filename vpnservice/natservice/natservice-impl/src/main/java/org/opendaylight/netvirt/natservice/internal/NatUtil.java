@@ -1518,11 +1518,7 @@ public class NatUtil {
     }
 
     public static boolean isIPv6Subnet(String prefix) {
-        IpPrefix ipPrefix = new IpPrefix(prefix.toCharArray());
-        if (ipPrefix.getIpv6Prefix() != null) {
-            return true;
-        }
-        return false;
+        return new IpPrefix(prefix.toCharArray()).getIpv6Prefix() != null;
     }
 
     static InstanceIdentifier<DpnRoutersList> getDpnRoutersId(BigInteger dpnId) {

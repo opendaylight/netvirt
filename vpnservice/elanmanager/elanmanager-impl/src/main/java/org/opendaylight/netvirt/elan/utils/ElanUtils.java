@@ -2006,10 +2006,7 @@ public class ElanUtils {
 
     public static boolean isEtreeRootInterfaceByInterfaceName(DataBroker broker, String interfaceName) {
         EtreeInterface etreeInterface = getEtreeInterfaceByElanInterfaceName(broker, interfaceName);
-        if (etreeInterface != null && etreeInterface.getEtreeInterfaceType() == EtreeInterfaceType.Root) {
-            return true;
-        }
-        return false;
+        return etreeInterface != null && etreeInterface.getEtreeInterfaceType() == EtreeInterfaceType.Root;
     }
 
     public void handleDmacRedirectToDispatcherFlows(Long elanTag, String displayName,

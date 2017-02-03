@@ -1239,11 +1239,7 @@ public class NeutronvpnUtils {
     protected static boolean doesVpnExist(DataBroker broker, Uuid vpnId) {
         InstanceIdentifier<VpnMap> vpnMapIdentifier = InstanceIdentifier.builder(VpnMaps.class).child(VpnMap.class,
                 new VpnMapKey(vpnId)).build();
-        Optional<VpnMap> optionalVpnMap = read(broker, LogicalDatastoreType.CONFIGURATION, vpnMapIdentifier);
-        if (optionalVpnMap.isPresent()) {
-            return true;
-        }
-        return false;
+        return read(broker, LogicalDatastoreType.CONFIGURATION, vpnMapIdentifier).isPresent();
     }
 
 }
