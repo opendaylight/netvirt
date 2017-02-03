@@ -42,7 +42,7 @@ public class TerminationPointCmd extends MergeCommand<TerminationPoint, NodeBuil
     }
 
     @Override
-    protected InstanceIdentifier<TerminationPoint> generateId(InstanceIdentifier<Node> id, TerminationPoint node) {
+    public InstanceIdentifier<TerminationPoint> generateId(InstanceIdentifier<Node> id, TerminationPoint node) {
         return id.child(TerminationPoint.class, node.getKey());
     }
 

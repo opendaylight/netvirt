@@ -46,7 +46,7 @@ public class LocalMcastCmd
     }
 
     @Override
-    protected InstanceIdentifier<LocalMcastMacs> generateId(InstanceIdentifier<Node> id, LocalMcastMacs node) {
+    public InstanceIdentifier<LocalMcastMacs> generateId(InstanceIdentifier<Node> id, LocalMcastMacs node) {
         HwvtepLogicalSwitchRef lsRef = HwvtepHAUtil.convertLogicalSwitchRef(node.getKey().getLogicalSwitchRef(), id);
         LocalMcastMacsKey key = new LocalMcastMacsKey(lsRef, node.getMacEntryKey());
 

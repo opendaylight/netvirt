@@ -237,8 +237,8 @@ public class NodeConnectedHandler {
         Node existingHANode = existingHANodeOptional.isPresent() ? existingHANodeOptional.get() : null;
         HwvtepGlobalAugmentation existingHAData = HwvtepHAUtil.getGlobalAugmentationOfNode(existingHANode);
 
-        globalAugmentationMerger.mergeOperationalData(haBuilder, existingHAData, childData, haNodePath);
-        globalNodeMerger.mergeOperationalData(haNodeBuilder, existingHANode, childNode, haNodePath);
+        //globalAugmentationMerger.mergeOperationalData(haBuilder, existingHAData, childData, haNodePath);
+        //globalNodeMerger.mergeOperationalData(haNodeBuilder, existingHANode, childNode, haNodePath);
 
         haBuilder.setManagers(HwvtepHAUtil.buildManagersForHANode(childNode, existingHANodeOptional));
         haBuilder.setSwitches(HwvtepHAUtil.buildSwitchesForHANode(childNode, haNodePath, existingHANodeOptional));
