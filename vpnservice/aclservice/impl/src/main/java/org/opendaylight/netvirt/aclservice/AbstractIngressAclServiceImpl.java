@@ -131,8 +131,16 @@ public abstract class AbstractIngressAclServiceImpl extends AbstractAclServiceIm
             ingressAclDhcpv6AllowServerTraffic(dpid, dhcpMacAddress, lportTag, addOrRemove,
                     AclConstants.PROTO_PREFIX_MATCH_PRIORITY);
             ingressAclIcmpv6AllowedTraffic(dpid, lportTag, addOrRemove);
+
+            programArpRule(dpid, lportTag, addOrRemove);
         }
-        programArpRule(dpid, lportTag, addOrRemove);
+    }
+
+    @Override
+    protected void updateArpForAllowedAddressPairs(BigInteger dpId, int lportTag, List<AllowedAddressPairs> deletedAAP,
+            List<AllowedAddressPairs> addedAAP) {
+        // Nothing to do for port update as ingress ARP flow is based only on lportTag
+
     }
 
     @Override

@@ -11,7 +11,8 @@ import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-
+import java.util.Set;
+import java.util.stream.Collectors;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.mdsalutil.ActionInfo;
@@ -122,8 +123,23 @@ public abstract class AbstractEgressAclServiceImpl extends AbstractAclServiceImp
             egressAclDhcpv6DropServerTraffic(dpid, dhcpMacAddress, lportTag, addOrRemove);
             egressAclIcmpv6DropRouterAdvts(dpid, lportTag, addOrRemove);
             egressAclIcmpv6AllowedList(dpid, lportTag, addOrRemove);
+
+            programArpRule(dpid, allowedAddresses, lportTag, addOrRemove);
         }
-        programArpRule(dpid, allowedAddresses, lportTag, addOrRemove);
+    }
+
+    @Override
+    protected void updateArpForAllowedAddressPairs(BigInteger dpId, int lportTag, List<AllowedAddressPairs> deletedAAP,
+            List<AllowedAddressPairs> addedAAP) {
+        Set<MacAddress> deletedAAPmacs =
+                deletedAAP.stream().map(aap -> aap.getMacAddress()).collect(Collectors.toSet());
+        Set<MacAddress> addedAAPmacs = addedAAP.stream().map(aap -> aap.getMacAddress()).collect(Collectors.toSet());
+
+        // Remove common macs to avoid delete and add of ARP flows having same MAC.
+        deletedAAPmacs.removeAll(addedAAPmacs);
+
+        programArpRule(dpId, deletedAAPmacs, lportTag, NwConstants.DEL_FLOW);
+        programArpRule(dpId, addedAAPmacs, lportTag, NwConstants.ADD_FLOW);
     }
 
     @Override
@@ -309,25 +325,38 @@ public abstract class AbstractEgressAclServiceImpl extends AbstractAclServiceImp
     }
 
     /**
-     * Adds the rule to allow arp packets.
+     * Program arp rule.
      *
-     * @param dpId the dpId
+     * @param dpId the dp id
      * @param allowedAddresses the allowed addresses
      * @param lportTag the lport tag
      * @param addOrRemove whether to add or remove the flow
      */
     protected void programArpRule(BigInteger dpId, List<AllowedAddressPairs> allowedAddresses, int lportTag,
             int addOrRemove) {
-        for (AllowedAddressPairs allowedAddress : allowedAddresses) {
-            MacAddress attachMac = allowedAddress.getMacAddress();
+        // Collecting macs as a set to avoid duplicate
+        Set<MacAddress> macs = allowedAddresses.stream().map(aap -> aap.getMacAddress()).collect(Collectors.toSet());
+        programArpRule(dpId, macs, lportTag, addOrRemove);
+    }
+
+    /**
+     * Adds the rule to allow arp packets.
+     *
+     * @param dpId the dpId
+     * @param macs the set of MACs
+     * @param lportTag the lport tag
+     * @param addOrRemove whether to add or remove the flow
+     */
+    protected void programArpRule(BigInteger dpId, Set<MacAddress> macs, int lportTag, int addOrRemove) {
+        for (MacAddress mac : macs) {
             List<MatchInfo> matches = new ArrayList<>();
             matches.add(MatchEthernetType.ARP);
-            matches.add(new MatchArpSha(attachMac));
+            matches.add(new MatchArpSha(mac));
             matches.add(AclServiceUtils.buildLPortTagMatch(lportTag));
 
             List<InstructionInfo> instructions = getDispatcherTableResubmitInstructions(new ArrayList<>());
 
-            String flowName = "Egress_ARP_" + dpId + "_" + attachMac.getValue();
+            String flowName = "Egress_ARP_" + dpId + "_" + mac.getValue();
             syncFlow(dpId, NwConstants.INGRESS_ACL_TABLE, flowName,
                     AclConstants.PROTO_ARP_TRAFFIC_MATCH_PRIORITY, "ACL", 0, 0,
                     AclConstants.COOKIE_ACL_BASE, matches, instructions, addOrRemove);
