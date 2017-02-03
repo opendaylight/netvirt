@@ -202,6 +202,10 @@
     <argument ref="dataBroker" />
   </bean>
 
+  <bean id="hAListeners" class="org.opendaylight.netvirt.elan.l2gw.ha.listeners.HAListeners">
+    <argument ref="dataBroker" />
+  </bean>
+
   <bean id="haOpNodeListener" class="org.opendaylight.netvirt.elan.l2gw.ha.listeners.HAOpNodeListener">
     <argument ref="dataBroker" />
     <argument ref="haEventHandler" />

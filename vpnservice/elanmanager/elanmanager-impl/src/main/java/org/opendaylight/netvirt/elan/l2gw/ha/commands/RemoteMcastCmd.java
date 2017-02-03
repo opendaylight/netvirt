@@ -45,7 +45,7 @@ public class RemoteMcastCmd extends
     }
 
     @Override
-    protected InstanceIdentifier<RemoteMcastMacs> generateId(InstanceIdentifier<Node> id, RemoteMcastMacs node) {
+    public InstanceIdentifier<RemoteMcastMacs> generateId(InstanceIdentifier<Node> id, RemoteMcastMacs node) {
         HwvtepLogicalSwitchRef lsRef = HwvtepHAUtil.convertLogicalSwitchRef(node.getKey().getLogicalSwitchRef(), id);
         RemoteMcastMacsKey key = new RemoteMcastMacsKey(lsRef, node.getMacEntryKey());
 
