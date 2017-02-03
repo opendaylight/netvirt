@@ -63,7 +63,13 @@ public class AclServiceStatelessTest extends AclServiceTestBase {
 
     @Override
     void newInterfaceWithAapIpv4AllCheck() {
-        // TODO Auto-generated method stub
+        // TODO: To be handled
+
+    }
+
+    @Override
+    void newInterfaceWithAapCheck() {
+        // TODO: To be handled
 
     }
 
