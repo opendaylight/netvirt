@@ -346,6 +346,69 @@ DNAT Reverse Traffic from Local DPN to External IP
 | SNAT Table (28) ``match: vpn-id=external-vpn-id nw-src=floating-ip-src-vm set eth-src=floating-ip-src-vm-mac-address`` =>
 | L3 FIB Table (21) ``match: vpn-id=external-vpn-id nw-dst=external-floating-ip set eth-dst=external-mac-address tun-id=external-l3vni, output to ext-vxlan-tun-port``
 
+DNAT to DNAT Traffic (Intra DC)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+a) FIP VM to FIP VM on Different DPN
+
+DPN1:
+~~~~~~~~
+| Classifier Table (0) =>
+| Lport Dispatcher Table (17) ``l3vpn service: set vpn-id=l3vpn-id`` =>
+| L3 Gateway MAC Table (19) ``match: vpn-id=l3vpn-id, dst-mac=vpn-subnet-gateway-mac-address`` =>
+| L3 FIB Table (21) ``match: vpn-id=l3vpn-id`` =>
+| PSNAT Table (26) ``match: vpn-id=l3vpn-id nw-src=src-vm-ip set ip-src=floating-ip-src-vm, vpn-id=external-vpn-id`` =>
+| SNAT Table (28) ``match: vpn-id=external-vpn-id nw-src=floating-ip-src-vm set eth-src=floating-ip-src-vm-mac-address`` =>
+| L3 FIB Table (21) ``match: vpn-id=external-vpn-id nw-dst=destination-floating-ip set eth-dst= floating-ip-dst-vm-mac-address tun-id=external-l3vni, output to vxlan-tun-port``
+
+
+DPN2:
+~~~~~~~~
+| Classifier Table (0) =>
+| Internal Tunnel Table (36) ``match: tun-id= external-l3vni`` =>
+| PDNAT Table (25) ``match: nw-dst=floating-ip set ip-dst=dst-vm-ip, vpn-id=l3vpn-id`` =>
+| DNAT Table (27)  ``match: vpn-id=l3vpn-id,nw-dst=dst-vm-ip`` =>
+| L3 FIB Table (21) ``match: vpn-id=l3vpn-id, nw-dst=dst-vm-ip set output to nexthopgroup-dst-vm`` =>
+| NextHopGroup-dst-vm: ``set-eth-dst dst-mac-vm, reg6=dst-vm-lport-tag`` =>
+| Lport Egress Table (220) ``Output to dst vm port``
+
+b) FIP VM to FIP VM on same DPN
+
+| Classifier Table (0) =>
+| Lport Dispatcher Table (17) ``l3vpn service: set vpn-id=l3vpn-id`` =>
+| L3 FIB Table (21) ``match: vpn-id=l3vpn-id`` =>
+| PSNAT Table (26) ``match: vpn-id=l3vpn-id nw-src=src-vm-ip set ip-src=floating-ip-src-vm, vpn-id=external-vpn-id`` =>
+| SNAT Table (28) ``match: vpn-id=external-vpn-id nw-src=floating-ip-src-vm set eth-src=floating-ip-src-vm-mac-address`` =>
+| L3 FIB Table (21) ``match: vpn-id=external-vpn-id nw-dst=destination-floating-ip set eth-dst= floating-ip-dst-vm-mac-address`` =>
+| PDNAT Table (25) ``match: nw-dst=floating-ip set ip-dst=dst-vm-ip, vpn-id=l3vpn-id`` =>
+| DNAT Table (27)  ``match: vpn-id=l3vpn-id,nw-dst=dst-vm-ip`` =>
+| L3 FIB Table (21) ``match: vpn-id=l3vpn-id, nw-dst=dst-vm-ip set output to nexthopgroup-dst-vm`` =>
+| NextHopGroup-dst-vm: ``set-eth-dst dst-mac-vm, reg6=dst-vm-lport-tag`` =>
+| Lport Egress Table (220) ``Output to dst vm port``
+
+SNAT to DNAT Traffic (Intra DC)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+SNAT DPN:
+~~~~~~~~~
+| Classifier Table (0) =>
+| Lport Dispatcher Table (17) ``l3vpn service: set vpn-id=l3vpn-id`` =>
+| L3 Gateway MAC Table (19) ``match: vpn-id=l3vpn-id, dst-mac=vpn-subnet-gateway-mac-address`` =>
+| L3 FIB Table (21) ``match: vpn-id=l3vpn-id`` =>
+| PSNAT Table (26) ``match: vpn-id=l3vpn-id`` =>
+| Outbound NAPT Table (46) ``match: nw-src=vm-ip,port=int-port set src-ip=router-gateway-ip,vpn-id=external-vpn-id,port=ext-port`` =>
+| NAPT PFIB Table (47) ``match: vpn-id=external-vpn-id`` =>
+| L3 FIB Table (21) ``match: vpn-id=external-vpn-id nw-dst=external-entity-ip set eth-dst=external-entity-mac tun-id=external-l3vni, output to vxlan-tun-port``
+
+DNAT DPN:
+~~~~~~~~~
+| Classifier Table (0) =>
+| Internal Tunnel Table (36) ``match: tun-id= external-l3vni`` =>
+| PDNAT Table (25) ``match: nw-dst=floating-ip set ip-dst=dst-vm-ip, vpn-id=l3vpn-id`` =>
+| DNAT Table (27)  ``match: vpn-id=l3vpn-id,nw-dst=dst-vm-ip`` =>
+| L3 FIB Table (21) ``match: vpn-id=l3vpn-id, nw-dst=dst-vm-ip set output to nexthopgroup-dst-vm`` =>
+| NextHopGroup-dst-vm: ``set-eth-dst dst-mac-vm, reg6=dst-vm-lport-tag`` =>
+| Lport Egress Table (220) ``Output to dst vm port``
+
 More details of the NAT pipeline changes are in the NAT Service section of this spec.
 
 Yang changes
