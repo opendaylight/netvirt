@@ -25,6 +25,7 @@ public final class Constants {
      * @see http://docs.openstack.org/grizzly/openstack-network/admin/content/ovs_quantum_plugin.html
      */
     public static final String TUNNEL_ENDPOINT_KEY = "local_ip";
+    public static final String TUNNEL_ENDPOINT_KEY_REMOTE = "remote_ip";
     public static final String INTEGRATION_BRIDGE = "br-int";
     public static final String NETWORK_BRIDGE = "br-net";
     public static final String EXTERNAL_BRIDGE = "br-ex";
