@@ -27,6 +27,7 @@ import org.opendaylight.netvirt.openstack.netvirt.api.IcmpEchoProvider;
 import org.opendaylight.netvirt.openstack.netvirt.api.InboundNatProvider;
 import org.opendaylight.netvirt.openstack.netvirt.api.IngressAclProvider;
 import org.opendaylight.netvirt.openstack.netvirt.api.L3ForwardingProvider;
+import org.opendaylight.netvirt.openstack.netvirt.api.L2ForwardingProvider;
 import org.opendaylight.netvirt.openstack.netvirt.api.LoadBalancerProvider;
 import org.opendaylight.netvirt.openstack.netvirt.api.MultiTenantAwareRouter;
 import org.opendaylight.netvirt.openstack.netvirt.api.NetworkingProviderManager;
@@ -256,7 +257,7 @@ public class ConfigActivator implements BundleActivator {
         // addingService may not be called if the service is already available when the ServiceTracker
         // is started
         trackService(context, INeutronNetworkCRUD.class, tenantNetworkManager, networkHandler, lBaaSHandler,
-                lBaaSPoolHandler, lBaaSPoolMemberHandler, neutronL3Adapter, distributedArpService, vlanProvider);
+                lBaaSPoolHandler, lBaaSPoolMemberHandler, neutronL3Adapter, distributedArpService, vlanProvider, southboundHandler);
         trackService(context, INeutronSubnetCRUD.class, lBaaSHandler, lBaaSPoolHandler, lBaaSPoolMemberHandler,
                 securityServices, neutronL3Adapter);
         trackService(context, INeutronPortCRUD.class, tenantNetworkManager, lBaaSHandler, lBaaSPoolHandler,
@@ -265,6 +266,7 @@ public class ConfigActivator implements BundleActivator {
         trackService(context, INeutronLoadBalancerCRUD.class, lBaaSHandler, lBaaSPoolHandler, lBaaSPoolMemberHandler);
         trackService(context, INeutronLoadBalancerPoolCRUD.class, lBaaSHandler, lBaaSPoolMemberHandler);
         trackService(context, LoadBalancerProvider.class, lBaaSHandler, lBaaSPoolHandler, lBaaSPoolMemberHandler);
+        trackService(context, L2ForwardingProvider.class, southboundHandler);
         trackService(context, ArpProvider.class, neutronL3Adapter, distributedArpService);
         trackService(context, VLANProvider.class, neutronL3Adapter, vlanProvider);
         trackService(context, InboundNatProvider.class, neutronL3Adapter);
