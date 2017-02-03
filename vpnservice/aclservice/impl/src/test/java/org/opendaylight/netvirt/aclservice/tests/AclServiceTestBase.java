@@ -8,13 +8,21 @@
 package org.opendaylight.netvirt.aclservice.tests;
 
 import static org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType.CONFIGURATION;
+import static org.opendaylight.mdsal.binding.testutils.AssertDataObjects.assertEqualBeans;
 import static org.opendaylight.netvirt.aclservice.tests.StateInterfaceBuilderHelper.putNewStateInterface;
 
+import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 import javax.inject.Inject;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Rule;
@@ -443,6 +451,33 @@ public abstract class AclServiceTestBase {
     }
 
     abstract void newInterfaceWithAapIpv4AllCheck();
+
+    @Test
+    public void newInterfaceWithAap() throws Exception {
+        LOG.info("newInterfaceWithAap test - start");
+
+        // AAP with same MAC and different IP
+        AllowedAddressPairs aapWithSameMac = buildAap("10.0.0.100/32", PORT_MAC_2);
+        // AAP with different MAC and different IP
+        AllowedAddressPairs aapWithDifferentMac = buildAap("10.0.0.101/32", "0D:AA:D8:42:30:A4");
+
+        newAllowedAddressPair(PORT_1, Collections.singletonList(SG_UUID_1), Collections.singletonList(AAP_PORT_1));
+        newAllowedAddressPair(PORT_2, Collections.singletonList(SG_UUID_1),
+                Arrays.asList(AAP_PORT_2, aapWithSameMac, aapWithDifferentMac));
+
+        prepareInterfaceWithIcmpAcl();
+        // When
+        putNewStateInterface(dataBroker, PORT_1, PORT_MAC_1);
+        putNewStateInterface(dataBroker, PORT_2, PORT_MAC_2);
+
+        asyncEventsWaiter.awaitEventsConsumption();
+
+        // Then
+        newInterfaceWithAapCheck();
+        LOG.info("newInterfaceWithAap test - end");
+    }
+
+    abstract void newInterfaceWithAapCheck();
 
     protected void assertFlowsInAnyOrder(Iterable<FlowEntity> expectedFlows) {
         asyncEventsWaiter.awaitEventsConsumption();
