@@ -198,7 +198,7 @@ public class NeutronSecurityRuleListener
             }
         } else {
             if (securityRule.getEthertype() != null) {
-                handleEtherType( securityRule, aceIpBuilder);
+                handleEtherType(securityRule, aceIpBuilder);
             }
         }
 

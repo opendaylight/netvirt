@@ -606,7 +606,7 @@ public class NatTunnelInterfaceStateListener
                     label, LOG, RouteOrigin.STATIC);
 
                 LOG.debug("NAT Service : SNAT -> Install custom FIB routes "
-                    + "( Table 21 -> Push MPLS label to Tunnel port");
+                    + "(Table 21 -> Push MPLS label to Tunnel port");
                 List<Instruction> customInstructions = new ArrayList<>();
                 customInstructions.add(new InstructionGotoTable(NwConstants.INBOUND_NAPT_TABLE).buildInstruction(0));
                 CreateFibEntryInput input =
@@ -694,7 +694,7 @@ public class NatTunnelInterfaceStateListener
                 NatUtil.addPrefixToBGP(dataBroker, bgpManager, fibManager, rd, externalIp + "/32",
                     nextHopIp, label, LOG, RouteOrigin.STATIC);
 
-                //Install custom FIB routes ( Table 21 -> Push MPLS label to Tunnel port
+                //Install custom FIB routes (Table 21 -> Push MPLS label to Tunnel port
                 List<Instruction> customInstructions = new ArrayList<>();
                 customInstructions.add(new InstructionGotoTable(NwConstants.PDNAT_TABLE).buildInstruction(0));
                 CreateFibEntryInput input = new CreateFibEntryInputBuilder().setVpnName(vpnName)

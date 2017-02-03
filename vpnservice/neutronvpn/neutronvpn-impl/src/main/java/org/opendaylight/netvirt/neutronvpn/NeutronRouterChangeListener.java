@@ -119,14 +119,14 @@ public class NeutronRouterChangeListener extends AsyncDataTreeChangeListenerBase
         List<Routes> interVpnLinkRoutes = new ArrayList<>();
         List<Routes> otherRoutes = new ArrayList<>();
         HashMap<String, InterVpnLink> nexthopsXinterVpnLinks = new HashMap<>();
-        for ( Routes route : routes ) {
+        for (Routes route : routes) {
             String nextHop = String.valueOf(route.getNexthop().getValue());
             // Nexthop is another VPN?
             Optional<InterVpnLink> interVpnLink = NeutronvpnUtils.getInterVpnLinkByEndpointIp(dataBroker, nextHop);
-            if ( interVpnLink.isPresent() ) {
+            if (interVpnLink.isPresent()) {
                 Optional<InterVpnLinkState> interVpnLinkState =
                         NeutronvpnUtils.getInterVpnLinkState(dataBroker, interVpnLink.get().getName());
-                if ( interVpnLinkState.isPresent()
+                if (interVpnLinkState.isPresent()
                     && interVpnLinkState.get().getState() == InterVpnLinkState.State.Active) {
                     interVpnLinkRoutes.add(route);
                     nexthopsXinterVpnLinks.put(nextHop, interVpnLink.get());
@@ -139,7 +139,7 @@ public class NeutronRouterChangeListener extends AsyncDataTreeChangeListenerBase
             }
         }
 
-        if ( addedOrRemoved == NwConstants.ADD_FLOW ) {
+        if (addedOrRemoved == NwConstants.ADD_FLOW) {
             nvpnManager.addInterVpnRoutes(vpnName, interVpnLinkRoutes, nexthopsXinterVpnLinks);
             nvpnManager.updateVpnInterfaceWithExtraRouteAdjacency(vpnName, otherRoutes);
         } else {

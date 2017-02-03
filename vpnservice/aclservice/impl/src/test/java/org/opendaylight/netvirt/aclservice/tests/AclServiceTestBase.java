@@ -227,7 +227,7 @@ public abstract class AclServiceTestBase {
             .newDirection(DirectionEgress.class)
             .newRemoteGroupId(new Uuid(SG_UUID_1)).build());
 
-        matches = newMatch( EthertypeV4.class, -1, -1, 2, 3,
+        matches = newMatch(EthertypeV4.class, -1, -1, 2, 3,
             AclConstants.IPV4_ALL_NETWORK, null, (short)NwConstants.IP_PROT_ICMP);
         dataBrokerUtil.put(ImmutableIdentifiedAceBuilder.builder()
             .sgUuid(SG_UUID_1)
@@ -383,7 +383,7 @@ public abstract class AclServiceTestBase {
         }
     }
 
-    private void newAllowedAddressPair(String portName, List<String> sgUuidList, String ipAddress, String macAddress )
+    private void newAllowedAddressPair(String portName, List<String> sgUuidList, String ipAddress, String macAddress)
             throws TransactionCommitFailedException {
         AllowedAddressPairs allowedAddressPair = new AllowedAddressPairsBuilder()
                 .setIpAddress(new IpPrefixOrAddress(new IpPrefix(ipAddress.toCharArray())))
@@ -418,7 +418,7 @@ public abstract class AclServiceTestBase {
     }
 
     // TODO refactor this instead of stealing it from org.opendaylight.netvirt.neutronvpn.NeutronSecurityRuleListener
-    private Matches newMatch( Class<? extends EthertypeBase> newEtherType,
+    private Matches newMatch(Class<? extends EthertypeBase> newEtherType,
             int srcLowerPort, int srcUpperPort, int destLowerPort, int destupperPort, String srcRemoteIpPrefix,
             String dstRemoteIpPrefix, short protocol) {
         AceIpBuilder aceIpBuilder = new AceIpBuilder();

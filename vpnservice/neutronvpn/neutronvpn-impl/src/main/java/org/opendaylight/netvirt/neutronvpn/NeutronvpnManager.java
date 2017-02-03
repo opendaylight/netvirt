@@ -1242,11 +1242,11 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
      */
     public void addInterVpnRoutes(Uuid vpnName, List<Routes> interVpnLinkRoutes,
                                   HashMap<String, InterVpnLink> nexthopsXinterVpnLinks) {
-        for ( Routes route : interVpnLinkRoutes ) {
+        for (Routes route : interVpnLinkRoutes) {
             String nexthop = String.valueOf(route.getNexthop().getValue());
             String destination = String.valueOf(route.getDestination().getValue());
             InterVpnLink interVpnLink = nexthopsXinterVpnLinks.get(nexthop);
-            if ( isNexthopTheOtherVpnLinkEndpoint(nexthop, vpnName.getValue(), interVpnLink) ) {
+            if (isNexthopTheOtherVpnLinkEndpoint(nexthop, vpnName.getValue(), interVpnLink)) {
                 AddStaticRouteInput rpcInput =
                         new AddStaticRouteInputBuilder().setDestination(destination).setNexthop(nexthop)
                                 .setVpnInstanceName(vpnName.getValue())
@@ -1255,7 +1255,7 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
                 RpcResult<AddStaticRouteOutput> rpcResult;
                 try {
                     rpcResult = labelOuputFtr.get();
-                    if ( rpcResult.isSuccessful() ) {
+                    if (rpcResult.isSuccessful()) {
                         LOG.debug("Label generated for destination {} is: {}",
                                 destination, rpcResult.getResult().getLabel());
                     } else {
@@ -1268,7 +1268,7 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
             } else {
                 // Any other case is a fault.
                 LOG.warn("route with destination {} and nexthop {} does not apply to any InterVpnLink",
-                        String.valueOf(route.getDestination().getValue()), nexthop );
+                        String.valueOf(route.getDestination().getValue()), nexthop);
                 continue;
             }
         }
@@ -1284,11 +1284,11 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
      */
     public void removeInterVpnRoutes(Uuid vpnName, List<Routes> interVpnLinkRoutes,
                                      HashMap<String, InterVpnLink> nexthopsXinterVpnLinks) {
-        for ( Routes route : interVpnLinkRoutes ) {
+        for (Routes route : interVpnLinkRoutes) {
             String nexthop = String.valueOf(route.getNexthop().getValue());
             String destination = String.valueOf(route.getDestination().getValue());
             InterVpnLink interVpnLink = nexthopsXinterVpnLinks.get(nexthop);
-            if ( isNexthopTheOtherVpnLinkEndpoint(nexthop, vpnName.getValue(), interVpnLink) ) {
+            if (isNexthopTheOtherVpnLinkEndpoint(nexthop, vpnName.getValue(), interVpnLink)) {
                 RemoveStaticRouteInput rpcInput =
                         new RemoveStaticRouteInputBuilder().setDestination(destination).setNexthop(nexthop)
                                 .setVpnInstanceName(vpnName.getValue())
@@ -1297,7 +1297,7 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
             } else {
                 // Any other case is a fault.
                 LOG.warn("route with destination {} and nexthop {} does not apply to any InterVpnLink",
-                        String.valueOf(route.getDestination().getValue()), nexthop );
+                        String.valueOf(route.getDestination().getValue()), nexthop);
                 continue;
             }
         }
@@ -1310,10 +1310,10 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
     private boolean isNexthopTheOtherVpnLinkEndpoint(String nexthop, String thisVpnUuid, InterVpnLink interVpnLink) {
         return
                 interVpnLink != null
-                        && (   (interVpnLink.getFirstEndpoint().getVpnUuid().getValue().equals(thisVpnUuid)
+                        && ((interVpnLink.getFirstEndpoint().getVpnUuid().getValue().equals(thisVpnUuid)
                         && interVpnLink.getSecondEndpoint().getIpAddress().getValue().equals(nexthop))
-                        || (interVpnLink.getSecondEndpoint().getVpnUuid().getValue().equals(thisVpnUuid )
-                        && interVpnLink.getFirstEndpoint().getIpAddress().getValue().equals(nexthop)) );
+                        || (interVpnLink.getSecondEndpoint().getVpnUuid().getValue().equals(thisVpnUuid)
+                        && interVpnLink.getFirstEndpoint().getIpAddress().getValue().equals(nexthop)));
     }
 
     protected List<Adjacency> getAdjacencyforExtraRoute(Uuid vpnId, List<Routes> routeList, String fixedIp) {

@@ -87,7 +87,7 @@ public class VpnToElanFallbackNodeListener extends AsyncDataTreeChangeListenerBa
     @Override
     protected void remove(InstanceIdentifier<Node> identifier, Node del) {
         BigInteger dpnId = getDpnIdFromNodeId(del.getNodeId());
-        if ( dpnId == null ) {
+        if (dpnId == null) {
             return;
         }
 
@@ -107,7 +107,7 @@ public class VpnToElanFallbackNodeListener extends AsyncDataTreeChangeListenerBa
     @Override
     protected void add(InstanceIdentifier<Node> identifier, Node add) {
         BigInteger dpnId = getDpnIdFromNodeId(add.getNodeId());
-        if ( dpnId == null ) {
+        if (dpnId == null) {
             return;
         }
 

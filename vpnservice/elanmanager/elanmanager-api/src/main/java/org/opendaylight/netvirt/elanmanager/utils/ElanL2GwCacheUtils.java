@@ -99,7 +99,7 @@ public class ElanL2GwCacheUtils {
 
         List<L2GatewayDevice> l2GwDevices = new ArrayList<>();
         for (ConcurrentMap<String, L2GatewayDevice> l2gwDevices : cachedMap.values()) {
-            for (L2GatewayDevice l2gwDevice : l2gwDevices.values() ) {
+            for (L2GatewayDevice l2gwDevice : l2gwDevices.values()) {
                 l2GwDevices.add(l2gwDevice);
             }
         }

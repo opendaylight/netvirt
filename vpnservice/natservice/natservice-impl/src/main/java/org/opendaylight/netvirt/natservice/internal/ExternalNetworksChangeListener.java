@@ -40,7 +40,7 @@ import org.slf4j.LoggerFactory;
 
 public class ExternalNetworksChangeListener
         extends AsyncDataTreeChangeListenerBase<Networks, ExternalNetworksChangeListener> {
-    private static final Logger LOG = LoggerFactory.getLogger( ExternalNetworksChangeListener.class);
+    private static final Logger LOG = LoggerFactory.getLogger(ExternalNetworksChangeListener.class);
     private ListenerRegistration<DataChangeListener> listenerRegistration;
     private final DataBroker dataBroker;
     private final IMdsalApiManager mdsalManager;
@@ -60,7 +60,7 @@ public class ExternalNetworksChangeListener
                                           final IBgpManager bgpManager,
                                           final VpnRpcService vpnService,
                                           final FibRpcService fibService) {
-        super( Networks.class, ExternalNetworksChangeListener.class );
+        super(Networks.class, ExternalNetworksChangeListener.class);
         this.dataBroker = dataBroker;
         this.mdsalManager = mdsalManager;
         this.floatingIpListener = floatingIpListener;
@@ -95,28 +95,28 @@ public class ExternalNetworksChangeListener
 
     @Override
     protected void remove(InstanceIdentifier<Networks> identifier, Networks networks) {
-        if ( identifier == null || networks == null || networks.getRouterIds().isEmpty() ) {
-            LOG.info( "ExternalNetworksChangeListener:remove:: returning without processing since "
-                + "networks/identifier is null"  );
+        if (identifier == null || networks == null || networks.getRouterIds().isEmpty()) {
+            LOG.info("ExternalNetworksChangeListener:remove:: returning without processing since "
+                + "networks/identifier is null");
             return;
         }
 
-        for ( Uuid routerId: networks.getRouterIds() ) {
+        for (Uuid routerId: networks.getRouterIds()) {
             String routerName = routerId.toString();
 
             InstanceIdentifier<RouterToNaptSwitch> routerToNaptSwitchInstanceIdentifier =
-                    getRouterToNaptSwitchInstanceIdentifier( routerName);
+                    getRouterToNaptSwitchInstanceIdentifier(routerName);
 
-            MDSALUtil.syncDelete( dataBroker, LogicalDatastoreType.OPERATIONAL, routerToNaptSwitchInstanceIdentifier );
+            MDSALUtil.syncDelete(dataBroker, LogicalDatastoreType.OPERATIONAL, routerToNaptSwitchInstanceIdentifier);
 
-            LOG.debug( "ExternalNetworksChangeListener:delete:: successful deletion of data in "
+            LOG.debug("ExternalNetworksChangeListener:delete:: successful deletion of data in "
                 + "napt-switches container");
         }
     }
 
     private static InstanceIdentifier<RouterToNaptSwitch> getRouterToNaptSwitchInstanceIdentifier(String routerName) {
-        return  InstanceIdentifier.builder( NaptSwitches.class )
-                        .child( RouterToNaptSwitch.class, new RouterToNaptSwitchKey(routerName)).build();
+        return  InstanceIdentifier.builder(NaptSwitches.class)
+                        .child(RouterToNaptSwitch.class, new RouterToNaptSwitchKey(routerName)).build();
     }
 
     @Override
@@ -199,7 +199,7 @@ public class ExternalNetworksChangeListener
             InstanceIdentifier<RouterToNaptSwitch> routerToNaptSwitch =
                 NatUtil.buildNaptSwitchRouterIdentifier(routerId.getValue());
             Optional<RouterToNaptSwitch> rtrToNapt =
-                MDSALUtil.read(dataBroker, LogicalDatastoreType.CONFIGURATION, routerToNaptSwitch );
+                MDSALUtil.read(dataBroker, LogicalDatastoreType.CONFIGURATION, routerToNaptSwitch);
             if (rtrToNapt.isPresent()) {
                 dpnId = rtrToNapt.get().getPrimarySwitchId();
             }

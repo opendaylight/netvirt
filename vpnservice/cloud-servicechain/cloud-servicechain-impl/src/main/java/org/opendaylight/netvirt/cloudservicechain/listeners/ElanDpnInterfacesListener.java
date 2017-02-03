@@ -126,7 +126,7 @@ public class ElanDpnInterfacesListener extends AsyncDataTreeChangeListenerBase<D
     private void handleUpdate(BigInteger dpnId, String elanName,  short tableId, int elanLportTag, long scfTag,
                               int addOrRemove) {
         Optional<ElanInstance> elanInstance = ElanServiceChainUtils.getElanInstanceByName(broker, elanName);
-        if ( !elanInstance.isPresent() ) {
+        if (!elanInstance.isPresent()) {
             LOG.debug("Could not find an ELAN Instance with name={}", elanName);
             return;
         }

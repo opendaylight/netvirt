@@ -215,25 +215,25 @@ public class DHCP extends Packet {
         return this;
     }
 
-    public DHCP setHops(byte dhcpHops ) {
+    public DHCP setHops(byte dhcpHops) {
         byte[] hops = BitBufferHelper.toByteArray(dhcpHops);
         fieldValues.put(HOPS, hops);
         return this;
     }
 
-    public DHCP setXid(int dhcpXid ) {
+    public DHCP setXid(int dhcpXid) {
         byte[] xid = BitBufferHelper.toByteArray(dhcpXid);
         fieldValues.put(XID, xid);
         return this;
     }
 
-    public DHCP setSecs(short dhcpSecs ) {
+    public DHCP setSecs(short dhcpSecs) {
         byte[] secs = BitBufferHelper.toByteArray(dhcpSecs);
         fieldValues.put(SECS, secs);
         return this;
     }
 
-    public DHCP setFlags(short dhcpFlags ) {
+    public DHCP setFlags(short dhcpFlags) {
         byte[] flags = BitBufferHelper.toByteArray(dhcpFlags);
         fieldValues.put(FLAGS, flags);
         return this;
@@ -244,13 +244,13 @@ public class DHCP extends Packet {
         return this;
     }
 
-    public DHCP setCiaddr(int dhcpCiaddr ) {
+    public DHCP setCiaddr(int dhcpCiaddr) {
         byte[] ciaddr = BitBufferHelper.toByteArray(dhcpCiaddr);
         fieldValues.put(CIADDR, ciaddr);
         return this;
     }
 
-    public DHCP setCiaddr(InetAddress dhcpCiaddr ) {
+    public DHCP setCiaddr(InetAddress dhcpCiaddr) {
         byte[] ciaddr = dhcpCiaddr.getAddress();
         fieldValues.put(CIADDR, ciaddr);
         return this;
@@ -267,13 +267,13 @@ public class DHCP extends Packet {
         return this;
     }
 
-    public DHCP setYiaddr(int dhcpYiaddr ) {
+    public DHCP setYiaddr(int dhcpYiaddr) {
         byte[] yiaddr = BitBufferHelper.toByteArray(dhcpYiaddr);
         fieldValues.put(YIADDR, yiaddr);
         return this;
     }
 
-    public DHCP setYiaddr(InetAddress dhcpYiaddr ) {
+    public DHCP setYiaddr(InetAddress dhcpYiaddr) {
         byte[] yiaddr = dhcpYiaddr.getAddress();
         fieldValues.put(YIADDR, yiaddr);
         return this;
@@ -290,13 +290,13 @@ public class DHCP extends Packet {
         return this;
     }
 
-    public DHCP setSiaddr(int dhcpSiaddr ) {
+    public DHCP setSiaddr(int dhcpSiaddr) {
         byte[] siaddr = BitBufferHelper.toByteArray(dhcpSiaddr);
         fieldValues.put(SIADDR, siaddr);
         return this;
     }
 
-    public DHCP setSiaddr(InetAddress dhcpSiaddr ) {
+    public DHCP setSiaddr(InetAddress dhcpSiaddr) {
         byte[] siaddr = dhcpSiaddr.getAddress();
         fieldValues.put(SIADDR, siaddr);
         return this;
@@ -313,13 +313,13 @@ public class DHCP extends Packet {
         return this;
     }
 
-    public DHCP setGiaddr(int dhcpGiaddr ) {
+    public DHCP setGiaddr(int dhcpGiaddr) {
         byte[] giaddr = BitBufferHelper.toByteArray(dhcpGiaddr);
         fieldValues.put(GIADDR, giaddr);
         return this;
     }
 
-    public DHCP setGiaddr(InetAddress dhcpGiaddr ) {
+    public DHCP setGiaddr(InetAddress dhcpGiaddr) {
         byte[] giaddr = dhcpGiaddr.getAddress();
         fieldValues.put(GIADDR, giaddr);
         return this;
@@ -346,7 +346,7 @@ public class DHCP extends Packet {
         return this;
     }
 
-    public DHCP setMcookie(int dhcpMc ) {
+    public DHCP setMcookie(int dhcpMc) {
         byte[] mc = BitBufferHelper.toByteArray(dhcpMc);
         fieldValues.put(MCOOKIE, mc);
         return this;

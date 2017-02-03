@@ -84,7 +84,7 @@ public class InterVpnLinkService {
 
         // 1st criteria is to select those DPNs where there is no InterVpnLink at all
         List<BigInteger> dpnsWithNoIVL = findDPNsWithNoInterVpnLink(dpnIdPool, allInterVpnLinks);
-        if ( dpnsWithNoIVL.size() >= numberOfDpns ) {
+        if (dpnsWithNoIVL.size() >= numberOfDpns) {
             return dpnsWithNoIVL.subList(0, numberOfDpns); // Best case scenario
         }
 
@@ -119,8 +119,8 @@ public class InterVpnLinkService {
     private List<BigInteger> findDPNsWithNoInterVpnLink(List<BigInteger> dpnList,
                                                         List<InterVpnLinkDataComposite> interVpnLinks) {
         List<BigInteger> occupiedDpns = new ArrayList<>();
-        for ( InterVpnLinkDataComposite ivl : interVpnLinks ) {
-            if ( ivl.isActive() ) {
+        for (InterVpnLinkDataComposite ivl : interVpnLinks) {
+            if (ivl.isActive()) {
                 occupiedDpns.addAll(ivl.getFirstEndpointDpns());
                 occupiedDpns.addAll(ivl.getSecondEndpointDpns());
             }
@@ -146,7 +146,7 @@ public class InterVpnLinkService {
         List<InterVpnLinkDataComposite> sameGroupInterVpnLinks = findInterVpnLinksSameGroup(interVpnLink,
                                                                                             allInterVpnLinks);
         Set<BigInteger> resultDpns = new HashSet<>();
-        for ( InterVpnLinkDataComposite ivl : sameGroupInterVpnLinks ) {
+        for (InterVpnLinkDataComposite ivl : sameGroupInterVpnLinks) {
             resultDpns.addAll(ivl.getFirstEndpointDpns());
             resultDpns.addAll(ivl.getSecondEndpointDpns());
         }
@@ -179,13 +179,13 @@ public class InterVpnLinkService {
     }
 
     private boolean haveSameIRTs(List<String> irts1, List<String> irts2) {
-        if ( irts1 == null && irts2 == null ) {
+        if (irts1 == null && irts2 == null) {
             return true;
         }
-        if ( (irts1 == null && irts2 != null) || (irts1 != null && irts2 == null) ) {
+        if ((irts1 == null && irts2 != null) || (irts1 != null && irts2 == null)) {
             return false;
         }
-        if ( irts1.size() != irts2.size() ) {
+        if (irts1.size() != irts2.size()) {
             return false;
         }
         irts1.sort(/*comparator*/ null);
@@ -200,18 +200,18 @@ public class InterVpnLinkService {
         List<String> vpnToMatch2IRTs = getIRTsByVpnName(ivpnLinkToMatch.getSecondEndpoint().getVpnUuid().getValue());
 
         Predicate<InterVpnLinkDataComposite> areSameGroup = (ivl) -> {
-            if ( ivl.getInterVpnLinkName().equals(ivpnLinkToMatch.getName())) {
+            if (ivl.getInterVpnLinkName().equals(ivpnLinkToMatch.getName())) {
                 return false; // ivl and ivpnLinlToMatch are the same InterVpnLink
             }
             String vpn1Name = ivl.getFirstEndpointVpnUuid().orNull();
             String vpn2Name = ivl.getSecondEndpointVpnUuid().orNull();
-            if ( vpn1Name == null ) {
+            if (vpn1Name == null) {
                 return false;
             }
             List<String> vpn1IRTs = getIRTsByVpnName(vpn1Name);
             List<String> vpn2IRTs = getIRTsByVpnName(vpn2Name);
             return (haveSameIRTs(vpn1IRTs, vpnToMatch1IRTs) && haveSameIRTs(vpn2IRTs, vpnToMatch2IRTs)
-                    || (haveSameIRTs(vpn1IRTs, vpnToMatch2IRTs) && haveSameIRTs(vpn2IRTs, vpnToMatch1IRTs)) );
+                    || (haveSameIRTs(vpn1IRTs, vpnToMatch2IRTs) && haveSameIRTs(vpn2IRTs, vpnToMatch1IRTs)));
         };
 
         return interVpnLinks.stream().filter(areSameGroup).collect(Collectors.toList());
@@ -247,20 +247,20 @@ public class InterVpnLinkService {
         // Retrieving all Routers
         InstanceIdentifier<Routers> routersIid = InstanceIdentifier.builder(Neutron.class).child(Routers.class).build();
         Optional<Routers> routerOpData = MDSALUtil.read(dataBroker, LogicalDatastoreType.CONFIGURATION, routersIid);
-        if ( !routerOpData.isPresent() ) {
+        if (!routerOpData.isPresent()) {
 
             return;
         }
         List<Router> routers = routerOpData.get().getRouter();
-        for ( Router router : routers ) {
+        for (Router router : routers) {
             String vpnId = routerXL3VpnMap.get(router.getUuid().getValue());
-            if ( vpnId == null ) {
+            if (vpnId == null) {
                 LOG.warn("Could not find suitable VPN for router {}", router.getUuid());
                 continue; // with next router
             }
             List<Routes> routerRoutes = router.getRoutes();
-            if ( routerRoutes != null ) {
-                for ( Routes route : routerRoutes ) {
+            if (routerRoutes != null) {
+                for (Routes route : routerRoutes) {
                     handleStaticRoute(vpnId, route, interVpnLink);
                 }
             }
@@ -286,7 +286,7 @@ public class InterVpnLinkService {
 
         // is nexthop the other endpoint's IP
         String otherEndpoint = interVpnLink.getOtherEndpoint(vpnId);
-        if ( !routeNextHop.equals(otherEndpoint) ) {
+        if (!routeNextHop.equals(otherEndpoint)) {
             LOG.debug("VPN {}: Route to {} nexthop={} points to an InterVpnLink endpoint, but its not "
                       + "the other endpoint. Other endpoint is {}",
                       vpnId, destination, routeNextHop, otherEndpoint);
@@ -295,7 +295,7 @@ public class InterVpnLinkService {
 
         // Lets work: 1) write Fibentry, 2) advertise to BGP and 3) check if it must be leaked
         String vpnRd = VpnUtil.getVpnRd(dataBroker, vpnId);
-        if ( vpnRd == null ) {
+        if (vpnRd == null) {
             LOG.warn("Could not find Route-Distinguisher for VpnName {}", vpnId);
             return;
         }

@@ -76,14 +76,14 @@ public class LogicalSwitchesCmdTest  extends AbstractDataBrokerTest {
 
     @Test
     public void testD1Connect() throws Exception {
-        srcData = getData(new LogicalSwitches[] {logicalSwitches[0], logicalSwitches[1]} );
+        srcData = getData(new LogicalSwitches[] {logicalSwitches[0], logicalSwitches[1]});
         cmd.mergeOperationalData(dstBuilder, existingData, srcData, haNodePath);
         assertEquals("should copy the logical switches ", 2, dstBuilder.getLogicalSwitches().size());
     }
 
     @Test
     public void testD2Connect() throws Exception {
-        existingData = getData(new LogicalSwitches[] {logicalSwitches[0], logicalSwitches[1]} );
+        existingData = getData(new LogicalSwitches[] {logicalSwitches[0], logicalSwitches[1]});
         srcData = getData(new LogicalSwitches[]{logicalSwitches[0], logicalSwitches[1],
                 logicalSwitches[2], logicalSwitches[3]});
         cmd.mergeOperationalData(dstBuilder, existingData, srcData, haNodePath);

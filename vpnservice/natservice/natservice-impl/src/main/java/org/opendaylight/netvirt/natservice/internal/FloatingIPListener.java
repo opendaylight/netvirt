@@ -106,13 +106,13 @@ public class FloatingIPListener extends AsyncDataTreeChangeListenerBase<Internal
     @Override
     protected void add(final InstanceIdentifier<InternalToExternalPortMap> identifier,
                        final InternalToExternalPortMap mapping) {
-        LOG.trace("FloatingIPListener add ip mapping method - key: " + identifier + ", value=" + mapping );
+        LOG.trace("FloatingIPListener add ip mapping method - key: " + identifier + ", value=" + mapping);
         processFloatingIPAdd(identifier, mapping);
     }
 
     @Override
     protected void remove(InstanceIdentifier<InternalToExternalPortMap> identifier, InternalToExternalPortMap mapping) {
-        LOG.trace("FloatingIPListener remove ip mapping method - key: " + identifier + ", value=" + mapping );
+        LOG.trace("FloatingIPListener remove ip mapping method - key: " + identifier + ", value=" + mapping);
         processFloatingIPDel(identifier, mapping);
     }
 
@@ -488,7 +488,7 @@ public class FloatingIPListener extends AsyncDataTreeChangeListenerBase<Internal
             return;
         }
         //Create the DNAT and SNAT table entries
-        FlowEntity preFlowEntity = buildPreDNATFlowEntity(dpnId, mapping, routerId, associatedVpnId );
+        FlowEntity preFlowEntity = buildPreDNATFlowEntity(dpnId, mapping, routerId, associatedVpnId);
         mdsalManager.installFlow(preFlowEntity);
 
         FlowEntity flowEntity = buildDNATFlowEntity(dpnId, mapping, routerId, associatedVpnId);
