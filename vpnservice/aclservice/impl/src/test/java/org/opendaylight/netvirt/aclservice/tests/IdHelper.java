@@ -54,6 +54,8 @@ public class IdHelper {
         idCacheMap.put("TCP_DESTINATION_80_65535_remoteACL_id_85cc3048-abc3-43cc-89b3-377341426ac5Egress98785cc3048-abc3-43cc-89b3-377341426ac6", 61010);
         idCacheMap.put("85cc3048-abc3-43cc-89b3-377341426ac5", 1 << 1);
         idCacheMap.put("85cc3048-abc3-43cc-89b3-377341426ac8", 2 << 1);
+        idCacheMap.put("ICMP_V4_DESTINATION_23__ipv4_remoteACL_interface_aap_0D:AA:D8:42:30:F4_10.0.0.100/32Egress98785cc3048-abc3-43cc-89b3-377341426ac6", 1027);
+        idCacheMap.put("ICMP_V4_DESTINATION_23__ipv4_remoteACL_interface_aap_0D:AA:D8:42:30:A4_10.0.0.101/32Egress98785cc3048-abc3-43cc-89b3-377341426ac6", 1028);
     }
 
     public static Integer getId(String key) {
