@@ -276,30 +276,6 @@ public class OF13Provider implements ConfigInterface, NetworkingProvider {
          */
 
         handleTunnelUnknownUcastFloodOut(dpid, TABLE_1_ISOLATE_TENANT, TABLE_2_LOCAL_FORWARD, segmentationId, localPort, true);
-
-        /*
-         * TODO : Optimize the following 2 writes to be restricted only for the very first port known in a segment.
-         */
-        /*
-         * Table(1) Rule #3
-         * ----------------
-         * Match:  Any remaining Ingress Local VM Packets
-         * Action: Drop w/ a low priority
-         * -------------------------------------------
-         * table=1,priority=8192,tun_id=0x5 actions=goto_table:2
-         */
-
-        handleTunnelMiss(dpid, TABLE_1_ISOLATE_TENANT, TABLE_2_LOCAL_FORWARD, segmentationId, true);
-
-        /*
-         * Table(2) Rule #3
-         * ----------------
-         * Match: Any Remaining Flows w/a TunID
-         * Action: Drop w/ a low priority
-         * table=2,priority=8192,tun_id=0x5 actions=drop
-         */
-
-        handleLocalTableMiss(dpid, TABLE_2_LOCAL_FORWARD, segmentationId, true);
     }
 
     private void removeLocalBridgeRules(Node node, Long dpid, String segmentationId, String attachedMac, long localPort) {
@@ -416,30 +392,6 @@ public class OF13Provider implements ConfigInterface, NetworkingProvider {
 
     /* Remove tunnel rules if last node in this tenant network */
     private void removePerTunnelRules(Node node, Long dpid, String segmentationId, long tunnelOFPort) {
-        /*
-         * TODO : Optimize the following 2 writes to be restricted only for the very first port known in a segment.
-         */
-        /*
-         * Table(1) Rule #3
-         * ----------------
-         * Match:  Any remaining Ingress Local VM Packets
-         * Action: Drop w/ a low priority
-         * -------------------------------------------
-         * table=1,priority=8192,tun_id=0x5 actions=goto_table:2
-         */
-
-        handleTunnelMiss(dpid, TABLE_1_ISOLATE_TENANT, TABLE_2_LOCAL_FORWARD, segmentationId, false);
-
-        /*
-         * Table(2) Rule #3
-         * ----------------
-         * Match: Any Remaining Flows w/a TunID
-         * Action: Drop w/ a low priority
-         * table=2,priority=8192,tun_id=0x5 actions=drop
-         */
-
-        handleLocalTableMiss(dpid, TABLE_2_LOCAL_FORWARD, segmentationId, false);
-
         /*
          * Table(0) Rule #2
          * ----------------
@@ -1597,20 +1549,6 @@ public class OF13Provider implements ConfigInterface, NetworkingProvider {
 
     /*
      * (Table:1) Table Drain w/ Catch All
-     * Match: Tunnel ID
-     * Action: GOTO Local Table (10)
-     * table=2,priority=8192,tun_id=0x5 actions=drop
-     */
-
-    private void handleTunnelMiss(Long dpidLong, Short writeTable,
-            Short goToTableId, String segmentationId,
-            boolean write) {
-        l2ForwardingProvider.programTunnelMiss(dpidLong, segmentationId, write);
-    }
-
-
-    /*
-     * (Table:1) Table Drain w/ Catch All
      * Match: Vlan ID
      * Action: Output port eth interface
      * table=1,priority=8192,vlan_id=0x5 actions= output port:eth1
@@ -1673,18 +1611,6 @@ public class OF13Provider implements ConfigInterface, NetworkingProvider {
     private void handleLocalVlanBcastOut(Long dpidLong, Short writeTable, String segmentationId,
                                          Long localPort, Long ethPort, boolean write) {
         l2ForwardingProvider.programLocalVlanBcastOut(dpidLong, segmentationId, localPort, ethPort, write);
-    }
-
-    /*
-     * (Table:1) Local Table Miss
-     * Match: Any Remaining Flows w/a TunID
-     * Action: Drop w/ a low priority
-     * table=2,priority=8192,tun_id=0x5 actions=drop
-     */
-
-    private void handleLocalTableMiss(Long dpidLong, Short writeTable,
-            String segmentationId, boolean write) {
-        l2ForwardingProvider.programLocalTableMiss(dpidLong, segmentationId, write);
     }
 
     /*
