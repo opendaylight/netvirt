@@ -209,9 +209,6 @@ public class OF13ProviderTest {
         MemberModifier.suppress(MemberMatcher.method(OF13Provider.class, "handleLocalBcastOut", Long.class, Short.class, String.class, Long.class, boolean.class));
         MemberModifier.suppress(MemberMatcher.method(OF13Provider.class, "handleTunnelFloodOut", Long.class, Short.class, Short.class, String.class, Long.class, boolean.class));
         MemberModifier.suppress(MemberMatcher.method(OF13Provider.class, "handleTunnelUnknownUcastFloodOut", Long.class, Short.class, Short.class, String.class, Long.class, boolean.class));
-        MemberModifier.suppress(MemberMatcher.method(OF13Provider.class, "handleTunnelMiss", Long.class, Short.class, Short.class, String.class, boolean.class));
-        MemberModifier.suppress(MemberMatcher.method(OF13Provider.class, "handleLocalTableMiss", Long.class, Short.class, String.class, boolean.class));
-
 
         Whitebox.invokeMethod(of13Provider, "programLocalBridgeRules", mock(Node.class), Long.valueOf("45"), SEG_ID, MAC_ADDRESS, LOCAL_PORT);
 
@@ -221,8 +218,6 @@ public class OF13ProviderTest {
         PowerMockito.verifyPrivate(of13Provider, times(1)).invoke("handleLocalBcastOut", anyLong(), anyShort(), anyString(), anyLong(), anyBoolean());
         PowerMockito.verifyPrivate(of13Provider, times(1)).invoke("handleTunnelFloodOut", anyLong(), anyShort(), anyShort(), anyString(), anyLong(), anyBoolean());
         PowerMockito.verifyPrivate(of13Provider, times(1)).invoke("handleTunnelUnknownUcastFloodOut", anyLong(), anyShort(), anyShort(), anyString(), anyLong(), anyBoolean());
-        PowerMockito.verifyPrivate(of13Provider, times(1)).invoke("handleTunnelMiss", anyLong(), anyShort(), anyShort(), anyString(), anyBoolean());
-        PowerMockito.verifyPrivate(of13Provider, times(1)).invoke("handleLocalTableMiss", anyLong(), anyShort(), anyString(), anyBoolean());
     }
 
     @Test
@@ -273,16 +268,12 @@ public class OF13ProviderTest {
         MemberModifier.suppress(MemberMatcher.method(OF13Provider.class, "handleTunnelIn", Long.class, Short.class, Short.class, String.class, Long.class, boolean.class));
         MemberModifier.suppress(MemberMatcher.method(OF13Provider.class, "handleTunnelFloodOut", Long.class, Short.class, Short.class, String.class, Long.class, boolean.class));
         MemberModifier.suppress(MemberMatcher.method(OF13Provider.class, "handleTunnelUnknownUcastFloodOut", Long.class, Short.class, Short.class, String.class, Long.class, boolean.class));
-        MemberModifier.suppress(MemberMatcher.method(OF13Provider.class, "handleTunnelMiss", Long.class, Short.class, Short.class, String.class, boolean.class));
-        MemberModifier.suppress(MemberMatcher.method(OF13Provider.class, "handleLocalTableMiss", Long.class, Short.class, String.class, boolean.class));
 
         Whitebox.invokeMethod(of13Provider, "removePerTunnelRules", mock(Node.class), Long.valueOf("45"), SEG_ID, LOCAL_PORT);
 
         PowerMockito.verifyPrivate(of13Provider, times(1)).invoke("handleTunnelIn", anyLong(), anyShort(), anyShort(), anyString(), anyLong(), anyBoolean());
         PowerMockito.verifyPrivate(of13Provider, times(1)).invoke("handleTunnelFloodOut", anyLong(), anyShort(), anyShort(), anyString(), anyLong(), anyBoolean());
         PowerMockito.verifyPrivate(of13Provider, times(1)).invoke("handleTunnelUnknownUcastFloodOut", anyLong(), anyShort(), anyShort(), anyString(), anyLong(), anyBoolean());
-        PowerMockito.verifyPrivate(of13Provider, times(1)).invoke("handleTunnelMiss", anyLong(), anyShort(), anyShort(), anyString(), anyBoolean());
-        PowerMockito.verifyPrivate(of13Provider, times(1)).invoke("handleLocalTableMiss", anyLong(), anyShort(), anyString(), anyBoolean());
     }
 
     @Test
