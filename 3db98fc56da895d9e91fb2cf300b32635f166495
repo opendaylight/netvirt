@@ -16,6 +16,24 @@
       "revId": "3db98fc56da895d9e91fb2cf300b32635f166495",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_794efb70",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 1400,
+      "author": {
+        "id": 6465
+      },
+      "writtenOn": "2017-02-05T10:29:24Z",
+      "side": 1,
+      "message": "Vivek, \nwe checked out and it works correct :) We understand that it is ensured by the fact that DJC is not going to the next job with same KEY in the queue, until it has finished the processing of current job and all futures done. \nThanks.",
+      "parentUuid": "fafc7978_57f669d8",
+      "revId": "3db98fc56da895d9e91fb2cf300b32635f166495",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
