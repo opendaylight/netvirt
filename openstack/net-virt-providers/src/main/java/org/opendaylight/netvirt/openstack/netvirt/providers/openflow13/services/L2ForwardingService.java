@@ -35,6 +35,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.ta
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.tables.table.FlowKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.flow.InstructionsBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.flow.MatchBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.FlowCookie;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.instruction.instruction.ApplyActionsCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.instruction.instruction.ApplyActionsCaseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.instruction.instruction.apply.actions._case.ApplyActions;
@@ -81,6 +82,8 @@ public class L2ForwardingService extends AbstractServiceInstance implements Conf
         MatchUtils.createDestEthMatch(matchBuilder, new MacAddress(attachedMac), null);
         flowBuilder.setMatch(matchBuilder.build());
 
+        flowBuilder.setCookie(new FlowCookie(BigInteger.valueOf(localPort)));
+
         // Add Flow Attributes
         String flowName = "UcastOut_" + segmentationId + "_" + localPort + "_" + attachedMac;
         FlowUtils.initFlowBuilder(flowBuilder, flowName, getTable());
@@ -97,6 +100,7 @@ public class L2ForwardingService extends AbstractServiceInstance implements Conf
             InstructionUtils.setFlowBuilderInstruction(flowBuilder, setOutputPortInstruction);
             writeFlow(flowBuilder, nodeBuilder);
         } else {
+            flowBuilder.setCookieMask(new FlowCookie(BigInteger.valueOf(-1)));
             removeFlow(flowBuilder, nodeBuilder);
         }
     }
@@ -439,6 +443,7 @@ public class L2ForwardingService extends AbstractServiceInstance implements Conf
     }
 
 
+
     /*
      * (Table:1) Egress Tunnel Traffic
      * Match: Destination Ethernet Addr and Local InPort
@@ -463,6 +468,8 @@ public class L2ForwardingService extends AbstractServiceInstance implements Conf
 
         // Add Flow Attributes
         String flowName = "TunnelOut_" + segmentationId + "_" + OFPortOut + "_" + attachedMac;
+
+        flowBuilder.setCookie(new FlowCookie(BigIntegervalueOf(OFPortOut)));
         FlowUtils.initFlowBuilder(flowBuilder, flowName, getTable());
 
         if (write) {
@@ -478,6 +485,7 @@ public class L2ForwardingService extends AbstractServiceInstance implements Conf
 
             writeFlow(flowBuilder, nodeBuilder);
         } else {
+            flowBuilder.setCookieMask(new FlowCookie(BigInteger.valueOf(-1)));
             removeFlow(flowBuilder, nodeBuilder);
         }
     }
