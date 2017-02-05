@@ -46,7 +46,7 @@ public class LocalMcastCmd
     }
 
     @Override
-    protected InstanceIdentifier<LocalMcastMacs> generateId(InstanceIdentifier<Node> id, LocalMcastMacs node) {
+    public InstanceIdentifier<LocalMcastMacs> generateId(InstanceIdentifier<Node> id, LocalMcastMacs node) {
         HwvtepLogicalSwitchRef lsRef = HwvtepHAUtil.convertLogicalSwitchRef(node.getKey().getLogicalSwitchRef(), id);
         LocalMcastMacsKey key = new LocalMcastMacsKey(lsRef, node.getMacEntryKey());
 
@@ -107,4 +107,10 @@ public class LocalMcastCmd
         }
         return false;
     }
+
+    @Override
+    public LocalMcastMacs withoutUuid(LocalMcastMacs data) {
+        return new LocalMcastMacsBuilder(data).setMacEntryUuid(null).build();
+    }
+
 }

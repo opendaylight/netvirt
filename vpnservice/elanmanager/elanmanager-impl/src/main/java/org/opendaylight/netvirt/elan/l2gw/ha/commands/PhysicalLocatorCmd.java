@@ -35,7 +35,7 @@ public class PhysicalLocatorCmd extends MergeCommand<TerminationPoint, NodeBuild
     }
 
     @Override
-    protected InstanceIdentifier<TerminationPoint> generateId(InstanceIdentifier<Node> id, TerminationPoint node) {
+    public InstanceIdentifier<TerminationPoint> generateId(InstanceIdentifier<Node> id, TerminationPoint node) {
         return id.child(TerminationPoint.class, node.getKey());
     }
 
@@ -65,5 +65,10 @@ public class PhysicalLocatorCmd extends MergeCommand<TerminationPoint, NodeBuild
             return true;
         }
         return false;
+    }
+
+    @Override
+    public TerminationPoint withoutUuid(TerminationPoint data) {
+        return data;
     }
 }

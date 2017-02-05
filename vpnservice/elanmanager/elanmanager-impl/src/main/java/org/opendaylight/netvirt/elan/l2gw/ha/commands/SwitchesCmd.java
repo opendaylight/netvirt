@@ -43,7 +43,7 @@ public class SwitchesCmd extends MergeCommand<Switches, HwvtepGlobalAugmentation
     }
 
     @Override
-    protected InstanceIdentifier<Switches> generateId(InstanceIdentifier<Node> id, Switches node) {
+    public InstanceIdentifier<Switches> generateId(InstanceIdentifier<Node> id, Switches node) {
         SwitchesKey switchesKey = transform(id, node).getKey();
         return id.augmentation(HwvtepGlobalAugmentation.class).child(Switches.class, switchesKey);
     }
@@ -83,5 +83,10 @@ public class SwitchesCmd extends MergeCommand<Switches, HwvtepGlobalAugmentation
     @Override
     public boolean areEqual(Switches switchA, Switches switchB) {
         return true;
+    }
+
+    @Override
+    public Switches withoutUuid(Switches data) {
+        return data;
     }
 }
