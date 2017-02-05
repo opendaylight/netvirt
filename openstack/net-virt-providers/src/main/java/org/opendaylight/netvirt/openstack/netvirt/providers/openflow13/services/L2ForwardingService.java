@@ -35,6 +35,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.ta
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.tables.table.FlowKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.flow.InstructionsBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.flow.MatchBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.FlowCookie;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.instruction.instruction.ApplyActionsCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.instruction.instruction.ApplyActionsCaseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.instruction.instruction.apply.actions._case.ApplyActions;
@@ -80,6 +81,22 @@ public class L2ForwardingService extends AbstractServiceInstance implements Conf
         MatchUtils.createTunnelIDMatch(matchBuilder, new BigInteger(segmentationId));
         MatchUtils.createDestEthMatch(matchBuilder, new MacAddress(attachedMac), null);
         flowBuilder.setMatch(matchBuilder.build());
+
+        String[] macAddressParts = attachedMac.split(":");
+        byte[] portBytes = new byte[8];
+        byte[] macBytes = new byte[6];
+        byte[] cookieBytes = new byte[20];
+
+        longToByteArray(localPort,portBytes);
+
+        /*for(int i=0; i<6; i++){
+           Integer hex = Integer.parseInt(macAddressParts[i], 16);
+           macBytes[i]=hex.byteValue();
+        }*/
+        System.arraycopy(portBytes, 0, cookieBytes, 0, portBytes.length);
+        //System.arraycopy(macBytes, 0, cookieBytes, portBytes.length, macBytes.length);
+        flowBuilder.setCookie(new FlowCookie(new BigInteger(portBytes)));
+        flowBuilder.setCookieMask(new FlowCookie(new BigInteger(portBytes)));
 
         // Add Flow Attributes
         String flowName = "UcastOut_" + segmentationId + "_" + localPort + "_" + attachedMac;
@@ -438,6 +455,24 @@ public class L2ForwardingService extends AbstractServiceInstance implements Conf
         }
     }
 
+     private static void longToByteArray(long l, byte[] b) {
+        b[7] = (byte) (l);
+        l >>>= 8;
+        b[6] = (byte) (l);
+        l >>>= 8;
+        b[5] = (byte) (l);
+        l >>>= 8;
+        b[4] = (byte) (l);
+        l >>>= 8;
+        b[3] = (byte) (l);
+        l >>>= 8;
+        b[2] = (byte) (l);
+        l >>>= 8;
+        b[1] = (byte) (l);
+        l >>>= 8;
+        b[0] = (byte) (l);
+    }
+
 
     /*
      * (Table:1) Egress Tunnel Traffic
@@ -463,6 +498,21 @@ public class L2ForwardingService extends AbstractServiceInstance implements Conf
 
         // Add Flow Attributes
         String flowName = "TunnelOut_" + segmentationId + "_" + OFPortOut + "_" + attachedMac;
+        String[] macAddressParts = attachedMac.split(":");
+        byte[] portBytes = new byte[8];
+        byte[] macBytes = new byte[6];
+        byte[] cookieBytes = new byte[20];
+       
+        longToByteArray(OFPortOut,portBytes); 
+        
+        /*for(int i=0; i<6; i++){
+           Integer hex = Integer.parseInt(macAddressParts[i], 16);
+           macBytes[i]=hex.byteValue();
+        }*/
+        System.arraycopy(portBytes, 0, cookieBytes, 0, portBytes.length);
+        //System.arraycopy(macBytes, 0, cookieBytes, portBytes.length, macBytes.length);
+        flowBuilder.setCookie(new FlowCookie(new BigInteger(portBytes)));
+        flowBuilder.setCookieMask(new FlowCookie(new BigInteger(portBytes)));
         FlowUtils.initFlowBuilder(flowBuilder, flowName, getTable());
 
         if (write) {
