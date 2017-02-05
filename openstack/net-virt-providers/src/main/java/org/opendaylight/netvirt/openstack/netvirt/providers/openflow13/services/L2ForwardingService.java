@@ -35,6 +35,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.ta
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.tables.table.FlowKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.flow.InstructionsBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.flow.MatchBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.FlowCookie;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.instruction.instruction.ApplyActionsCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.instruction.instruction.ApplyActionsCaseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.instruction.instruction.apply.actions._case.ApplyActions;
@@ -83,6 +84,7 @@ public class L2ForwardingService extends AbstractServiceInstance implements Conf
 
         // Add Flow Attributes
         String flowName = "UcastOut_" + segmentationId + "_" + localPort + "_" + attachedMac;
+        flowBuilder.setCookie(new FlowCookie(new BigInteger(flowName.getBytes())));
         FlowUtils.initFlowBuilder(flowBuilder, flowName, getTable());
 
         if (write) {
@@ -504,6 +506,7 @@ public class L2ForwardingService extends AbstractServiceInstance implements Conf
 
         // Add Flow Attributes
         String flowName = "TunnelOut_" + segmentationId + "_" + OFPortOut + "_" + attachedMac;
+        flowBuilder.setCookie(new FlowCookie(new BigInteger(flowName.getBytes())));
         FlowUtils.initFlowBuilder(flowBuilder, flowName, getTable());
 
         if (write) {
