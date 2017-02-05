@@ -1,0 +1,8 @@
+Code-Review+1: Victor Pickard <vpickard@redhat.com>
+Code-Review+2: Alon Kochba <alonko@hpe.com>
+Verified+1: Alon Kochba <alonko@hpe.com>
+Submitted-by: Alon Kochba <alonko@hpe.com>
+Submitted-at: Sun, 05 Feb 2017 19:51:25 +0000
+Reviewed-on: https://git.opendaylight.org/gerrit/51023
+Project: netvirt
+Branch: refs/heads/master
