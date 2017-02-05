@@ -14,6 +14,7 @@ import com.google.common.base.Optional;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -214,6 +215,13 @@ public class HwvtepHAUtil {
 
     public static boolean isEmptyList(List list) {
         if (list == null || list.size() == 0) {
+            return true;
+        }
+        return false;
+    }
+
+    public static boolean isEmpty(Collection collection) {
+        if (collection == null || collection.isEmpty()) {
             return true;
         }
         return false;
