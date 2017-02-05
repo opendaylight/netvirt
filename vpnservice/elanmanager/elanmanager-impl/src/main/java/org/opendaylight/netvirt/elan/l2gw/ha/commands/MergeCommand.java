@@ -214,9 +214,11 @@ public abstract class MergeCommand<T extends DataObject, Y extends Builder, Z ex
 
     public abstract void setData(Y builder, List<T> data);
 
-    protected abstract InstanceIdentifier<T> generateId(InstanceIdentifier<Node> id, T node);
+    public abstract InstanceIdentifier<T> generateId(InstanceIdentifier<Node> id, T node);
 
     public abstract String getKey(T data);
 
     public abstract String getDescription();
+
+    public abstract T withoutUuid(T data);
 }
