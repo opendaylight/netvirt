@@ -55,6 +55,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_31c0072a",
+        "filename": "vpnservice/fibmanager/fibmanager-api/src/main/java/org/opendaylight/netvirt/fibmanager/api/IFibManager.java",
+        "patchSetId": 18
+      },
+      "lineNbr": 68,
+      "author": {
+        "id": 6321
+      },
+      "writtenOn": "2017-02-06T12:23:16Z",
+      "side": 1,
+      "message": "Use existing API with gwMacAddress field. Done",
+      "parentUuid": "fafc7978_248f26ce",
+      "revId": "69b1b3d5694813693afeeb5bb151214da3468c43",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_5f0957dc",
         "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/FibManagerImpl.java",
         "patchSetId": 18
@@ -89,6 +107,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_91de1310",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/FibUtil.java",
+        "patchSetId": 18
+      },
+      "lineNbr": 140,
+      "author": {
+        "id": 6321
+      },
+      "writtenOn": "2017-02-06T12:23:16Z",
+      "side": 1,
+      "message": "Removed",
+      "parentUuid": "fafc7978_3fa0d39e",
+      "revId": "69b1b3d5694813693afeeb5bb151214da3468c43",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_1f9b4f73",
         "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/FibUtil.java",
         "patchSetId": 18
@@ -100,6 +136,24 @@
       "writtenOn": "2017-02-06T09:15:07Z",
       "side": 1,
       "message": "same comment here, do we need this here?",
+      "revId": "69b1b3d5694813693afeeb5bb151214da3468c43",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_71e1efcf",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/FibUtil.java",
+        "patchSetId": 18
+      },
+      "lineNbr": 697,
+      "author": {
+        "id": 6321
+      },
+      "writtenOn": "2017-02-06T12:23:16Z",
+      "side": 1,
+      "message": "Removed.",
+      "parentUuid": "fafc7978_1f9b4f73",
       "revId": "69b1b3d5694813693afeeb5bb151214da3468c43",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -123,6 +177,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_11f98380",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/NexthopManager.java",
+        "patchSetId": 18
+      },
+      "lineNbr": 385,
+      "author": {
+        "id": 6321
+      },
+      "writtenOn": "2017-02-06T12:23:16Z",
+      "side": 1,
+      "message": "Oops ! Removed this method. Passing gwMac to createLocalNextHop",
+      "parentUuid": "fafc7978_bfde833d",
+      "revId": "69b1b3d5694813693afeeb5bb151214da3468c43",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_bfacc3a1",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
         "patchSetId": 18
@@ -134,6 +206,24 @@
       "writtenOn": "2017-02-06T09:15:07Z",
       "side": 1,
       "message": "getGatewayMacAddressForInterface()",
+      "revId": "69b1b3d5694813693afeeb5bb151214da3468c43",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_d1e89bb6",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 18
+      },
+      "lineNbr": 1209,
+      "author": {
+        "id": 6321
+      },
+      "writtenOn": "2017-02-06T12:23:16Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_bfacc3a1",
       "revId": "69b1b3d5694813693afeeb5bb151214da3468c43",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
