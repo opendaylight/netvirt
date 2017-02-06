@@ -11,7 +11,12 @@ import static org.opendaylight.controller.md.sal.common.api.data.LogicalDatastor
 import static org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType.OPERATIONAL;
 
 import com.google.common.base.Optional;
+import com.google.common.util.concurrent.ListeningExecutorService;
+import com.google.common.util.concurrent.MoreExecutors;
+
 import java.util.UUID;
+import java.util.concurrent.ExecutorService;
+
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -20,6 +25,8 @@ import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
 import org.opendaylight.controller.md.sal.binding.api.ReadWriteTransaction;
 import org.opendaylight.controller.md.sal.binding.test.AbstractDataBrokerTest;
+import org.opendaylight.controller.md.sal.binding.test.DataBrokerTestCustomizer;
+import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.netvirt.elan.l2gw.ha.handlers.NodeConnectedHandler;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Uri;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.NetworkTopology;
@@ -98,6 +105,19 @@ public class NodeConnectedHandlerTest extends AbstractDataBrokerTest {
         d2PsNodePath = createInstanceIdentifier(d2PsNodeIdVal);
 
         haPsNodePath = createInstanceIdentifier(haNodeId.getValue() + "/physicalswitch/" + switchName);
+    }
+
+    @Override
+    protected DataBrokerTestCustomizer createDataBrokerTestCustomizer() {
+        return new DataBrokerTestCustomizer() {
+            public ListeningExecutorService getCommitCoordinatorExecutor() {
+                return MoreExecutors.listeningDecorator(MoreExecutors.newDirectExecutorService());
+            }
+
+            protected ExecutorService getDatastoreExecutor(LogicalDatastoreType type) {
+                return MoreExecutors.newDirectExecutorService();
+            }
+        };
     }
 
     @Test
