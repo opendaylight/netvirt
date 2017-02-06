@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_9413a1b7",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 4
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 2759
+      },
+      "writtenOn": "2017-02-06T15:41:41Z",
+      "side": 1,
+      "message": "\u003e (1 comment)\n \u003e btw, the impetus for this patch is here:\n \u003e \n \u003e https://trello.com/c/EGYoCYXX/11-automated-autorelease-build-failure-notification\n\nCan we add the link to the commit message so that people can refer back to that card?\n\nAlso small nit. You should write commit messages in present-tense, imperative-style. So \"Add project info to name in pom files\" would be better here.",
+      "revId": "d8f889d92c8df9dccd9391468e8af122d19b9c80",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
