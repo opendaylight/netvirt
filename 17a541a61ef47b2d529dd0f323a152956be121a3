@@ -1,0 +1,28 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_f85a0282",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/l2gw/ha/listeners/HAOpNodeListener.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 169,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2017-01-31T02:26:48Z",
+      "side": 1,
+      "message": "INFO can be used but normally in low logged conditions for high importance information. I think the majority of these logs here are continuous and more of a debugging nature. Once this code is debugged and working we likely don\u0027t need to see it anymore.",
+      "parentUuid": "fafc7978_e2825251",
+      "range": {
+        "startLine": 169,
+        "startChar": 12,
+        "endLine": 169,
+        "endChar": 20
+      },
+      "revId": "17a541a61ef47b2d529dd0f323a152956be121a3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
