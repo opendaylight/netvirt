@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_54e659b5",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/ExternalSubnetListener.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 69,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2017-02-06T16:09:22Z",
+      "side": 1,
+      "message": "this will attempt to write the same flow if there are multiple routers in the same dpn. Either collect dpns and write the flows once. Alternatively, can you use the vpn-dpn mapping of the ext-net? I think this would really simplify the code of this patch",
+      "revId": "8651a5c6eee315495452e8e15dadca08895a59b9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_74f27d70",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/ExternalSubnetListener.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 108,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2017-02-06T16:09:22Z",
+      "side": 1,
+      "message": "use NwConstants.ADD_FLOW/DEL_FLOW",
+      "range": {
+        "startLine": 108,
+        "startChar": 84,
+        "endLine": 108,
+        "endChar": 96
+      },
+      "revId": "8651a5c6eee315495452e8e15dadca08895a59b9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
