@@ -22,6 +22,30 @@
       "revId": "339258dde2b8a824ceb1df5327bf8ce57980e7b6",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_51630bdc",
+        "filename": "docs/specs/ipv6-cvr-north-south.rst",
+        "patchSetId": 3
+      },
+      "lineNbr": 99,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2017-02-06T10:44:44Z",
+      "side": 1,
+      "message": "Yes @Tali, its similar to ARP. For IPv6, when the upstream/external IPv6 Gateway does a Neighbor Solicitation for the router-gateway-ip, controller/ipv6service would respond with a Neighbor Advertisement providing the target link layer address. \n\nCurrently ipv6service supports Neighbor Solicitation for the router-internal-ports (i.e., on the tenant networks), we will be extending this to the router-gateway-ports (on the external network).",
+      "parentUuid": "fafc7978_2d1b911c",
+      "range": {
+        "startLine": 99,
+        "startChar": 2,
+        "endLine": 99,
+        "endChar": 76
+      },
+      "revId": "339258dde2b8a824ceb1df5327bf8ce57980e7b6",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
