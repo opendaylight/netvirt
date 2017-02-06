@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_7f641b22",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanNodeListener.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 179,
+      "author": {
+        "id": 670
+      },
+      "writtenOn": "2017-02-06T10:09:35Z",
+      "side": 1,
+      "message": "Please use Stephen\u0027s new MatchEthernetDestination instead of MatchInfo.. same for actionInfo and InstructionInfo",
+      "revId": "d8ee63069ac304dd103a50dfafaa51a977692dd6",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
