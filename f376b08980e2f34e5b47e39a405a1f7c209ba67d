@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_51e66bb5",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NatUtil.java",
+        "patchSetId": 19
+      },
+      "lineNbr": 761,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-06T12:38:40Z",
+      "side": 1,
+      "message": "whenever you put a null (nexttimearound), please indicate what parameter it represents like:\n\nnull /*gatewaymacaddress*/, origin",
+      "revId": "f376b08980e2f34e5b47e39a405a1f7c209ba67d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_71f28f70",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 19
+      },
+      "lineNbr": 1729,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-06T12:38:40Z",
+      "side": 1,
+      "message": "ditto comment here for \u0027null\u0027 parameter as in the other file.",
+      "revId": "f376b08980e2f34e5b47e39a405a1f7c209ba67d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_b1ecf790",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/intervpnlink/InterVpnLinkUtil.java",
+        "patchSetId": 19
+      },
+      "lineNbr": 517,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-06T12:38:40Z",
+      "side": 1,
+      "message": "ditto comment here for null..",
+      "revId": "f376b08980e2f34e5b47e39a405a1f7c209ba67d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
