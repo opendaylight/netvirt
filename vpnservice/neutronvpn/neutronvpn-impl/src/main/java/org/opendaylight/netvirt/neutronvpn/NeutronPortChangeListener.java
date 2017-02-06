@@ -499,9 +499,9 @@ public class NeutronPortChangeListener extends AsyncDataTreeChangeListenerBase<P
         String infName = inf.getName();
 
         LOG.debug("Creating OFPort Interface {}", infName);
-        InstanceIdentifier interfaceIdentifier = NeutronvpnUtils.buildVlanInterfaceIdentifier(infName);
+        InstanceIdentifier interdsfaceIdentifier = NeutronvpnUtils.buildVlanInterfaceIdentifier(infName);
         try {
-            Optional<Interface> optionalInf = NeutronvpnUtils.read(dataBroker, LogicalDatastoreType.CONFIGURATION,
+            Optional<Interface> optigonalInf = NeutronvpnUtils.read(dataBroker, LogicalDatastoreType.CONFIGURATION,
                     interfaceIdentifier);
             if (!optionalInf.isPresent()) {
                 wrtConfigTxn.put(LogicalDatastoreType.CONFIGURATION, interfaceIdentifier, inf);
