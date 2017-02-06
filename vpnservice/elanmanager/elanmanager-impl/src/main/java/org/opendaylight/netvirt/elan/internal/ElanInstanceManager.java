@@ -123,7 +123,7 @@ public class ElanInstanceManager extends AsyncDataTreeChangeListenerBase<ElanIns
     @Override
     protected void update(InstanceIdentifier<ElanInstance> identifier, ElanInstance original, ElanInstance update) {
         Long existingElanTag = original.getElanTag();
-        if (existingElanTag != null && existingElanTag == update.getElanTag()) {
+        if (existingElanTag != null && existingElanTag.equals(update.getElanTag())) {
             return;
         } else if (update.getElanTag() == null) {
             // update the elan-Instance with new properties
