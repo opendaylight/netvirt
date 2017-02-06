@@ -1,0 +1,106 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_248f26ce",
+        "filename": "vpnservice/fibmanager/fibmanager-api/src/main/java/org/opendaylight/netvirt/fibmanager/api/IFibManager.java",
+        "patchSetId": 18
+      },
+      "lineNbr": 68,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-06T09:15:07Z",
+      "side": 1,
+      "message": "why do we need this new API?\n\nCan\u0027t we add gwMacAddress to the API in L64 itself?",
+      "revId": "69b1b3d5694813693afeeb5bb151214da3468c43",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_5f0957dc",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/FibManagerImpl.java",
+        "patchSetId": 18
+      },
+      "lineNbr": 158,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-06T09:15:07Z",
+      "side": 1,
+      "message": "ditto comment here as in API file...",
+      "revId": "69b1b3d5694813693afeeb5bb151214da3468c43",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_3fa0d39e",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/FibUtil.java",
+        "patchSetId": 18
+      },
+      "lineNbr": 140,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-06T09:15:07Z",
+      "side": 1,
+      "message": "do we need this method here anymore?",
+      "revId": "69b1b3d5694813693afeeb5bb151214da3468c43",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_1f9b4f73",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/FibUtil.java",
+        "patchSetId": 18
+      },
+      "lineNbr": 697,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-06T09:15:07Z",
+      "side": 1,
+      "message": "same comment here, do we need this here?",
+      "revId": "69b1b3d5694813693afeeb5bb151214da3468c43",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_bfde833d",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/NexthopManager.java",
+        "patchSetId": 18
+      },
+      "lineNbr": 385,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-06T09:15:07Z",
+      "side": 1,
+      "message": "The VRFEntry is available handy if passed to createLocalNextHop(), and so why do one more DS read for the same VRFEntry here?",
+      "revId": "69b1b3d5694813693afeeb5bb151214da3468c43",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_bfacc3a1",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 18
+      },
+      "lineNbr": 1209,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-06T09:15:07Z",
+      "side": 1,
+      "message": "getGatewayMacAddressForInterface()",
+      "revId": "69b1b3d5694813693afeeb5bb151214da3468c43",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
