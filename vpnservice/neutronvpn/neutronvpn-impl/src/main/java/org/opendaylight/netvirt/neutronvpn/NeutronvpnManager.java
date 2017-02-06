@@ -19,6 +19,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
@@ -2067,10 +2068,10 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
                 }
             } else {
                 String errortag = rpcResult.getErrors().iterator().next().getTag();
-                if (errortag == "") {
+                if (Objects.equals(errortag, "")) {
                     System.out.println("");
                     System.out.println("No VPN has been configured yet");
-                } else if (errortag == "invalid-value") {
+                } else if (Objects.equals(errortag, "invalid-value")) {
                     System.out.println("");
                     System.out.println("VPN " + vpnuuid.getValue() + " is not present");
                 } else {
