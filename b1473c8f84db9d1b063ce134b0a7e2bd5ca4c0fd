@@ -825,6 +825,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_3f1bb31c",
+        "filename": "vpnservice/statistics-plugin/impl/src/main/resources/org/opendaylight/blueprint/impl-blueprint.xml",
+        "patchSetId": 5
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 2589
+      },
+      "writtenOn": "2017-02-06T08:54:40Z",
+      "side": 1,
+      "message": "I\u0027ve tried doing so, but I received dependency errors from KARAF. I\u0027ve followed this link: https://wiki.opendaylight.org/view/BestPractices/DI_Guidelines.\nIs there something missing here?",
+      "parentUuid": "fafc7978_5b06b621",
+      "revId": "b1473c8f84db9d1b063ce134b0a7e2bd5ca4c0fd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_b67377b0",
         "filename": "vpnservice/statistics-plugin/pom.xml",
         "patchSetId": 5
