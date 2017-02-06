@@ -50,6 +50,23 @@
       "revId": "549ca1325808e5cc0939386dac8a0ec4e57ed255",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_a75cb5ee",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/SubnetmapChangeListener.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 87,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-06T17:08:59Z",
+      "side": 1,
+      "message": "Similarly, would you not want to call subnetDeletedFromVpn here?",
+      "revId": "549ca1325808e5cc0939386dac8a0ec4e57ed255",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
