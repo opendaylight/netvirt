@@ -7,6 +7,7 @@
  */
 package org.opendaylight.netvirt.vpnmanager;
 
+import java.util.Objects;
 import org.opendaylight.genius.mdsalutil.NwConstants;
 
 public enum ArpReplyOrRequest {
@@ -22,8 +23,10 @@ public enum ArpReplyOrRequest {
         return this.name;
     }
 
-    public int getArpOperation(){
-        int arpOperation = (name == ArpReplyOrRequest.REQUEST.getName() ? NwConstants.ARP_REQUEST : NwConstants.ARP_REPLY);
+    public int getArpOperation() {
+        int arpOperation =
+            (Objects.equals(name, ArpReplyOrRequest.REQUEST.getName())
+                    ? NwConstants.ARP_REQUEST : NwConstants.ARP_REPLY);
         return arpOperation;
     }
     public int calculateConsistentHashCode() {
