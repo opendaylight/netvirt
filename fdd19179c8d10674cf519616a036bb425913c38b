@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_d4dec93e",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/FibUtil.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 133,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-06T15:16:14Z",
+      "side": 1,
+      "message": "do we need this here?",
+      "revId": "fdd19179c8d10674cf519616a036bb425913c38b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_74d71d24",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/NexthopManager.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 330,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-06T15:16:14Z",
+      "side": 1,
+      "message": "Can\u0027t this just be gwMacAddress !\u003d null? Do we need nextHopSrcMac referred elsewhere below?",
+      "revId": "fdd19179c8d10674cf519616a036bb425913c38b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
