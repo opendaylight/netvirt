@@ -13,6 +13,7 @@ import static org.junit.Assert.assertTrue;
 import static org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType.OPERATIONAL;
 
 import com.google.common.base.Optional;
+import com.google.common.util.concurrent.CheckedFuture;
 import java.util.Arrays;
 import java.util.List;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
@@ -21,6 +22,7 @@ import org.opendaylight.controller.md.sal.binding.api.ReadWriteTransaction;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
+import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.HwvtepGlobalAugmentation;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.NodeId;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Node;
@@ -94,10 +96,10 @@ public class TestUtil {
     }
 
 
-    static void submitNode(LogicalDatastoreType datastoreType, InstanceIdentifier<Node> id, Node node,
-                           WriteTransaction transaction) throws Exception {
+    static CheckedFuture<Void, TransactionCommitFailedException> submitNode(LogicalDatastoreType datastoreType,
+            InstanceIdentifier<Node> id, Node node, WriteTransaction transaction) throws Exception {
         transaction.put(datastoreType, id, node, WriteTransaction.CREATE_MISSING_PARENTS);
-        transaction.submit();
+        return transaction.submit();
     }
 
     static Optional<Node> readNodeOptional(LogicalDatastoreType datastoreType, InstanceIdentifier<Node> id,
