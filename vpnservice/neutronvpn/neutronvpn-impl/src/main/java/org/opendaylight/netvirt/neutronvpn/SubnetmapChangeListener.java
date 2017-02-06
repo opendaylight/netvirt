@@ -65,7 +65,20 @@ public class SubnetmapChangeListener extends AsyncDataTreeChangeListenerBase<Sub
 
     @Override
     protected void add(InstanceIdentifier<Subnetmap> identifier, Subnetmap subnetmap) {
-        LOG.trace("SubnetmapChangeListener add subnetmap method - key: " + identifier + ", value=" + subnetmap);
+        LOG.trace("SubnetmapListener add subnetmap method - key: " + identifier + ", value=" + subnetmap);
+        boolean isExternalVpn = !subnetmap.getVpnId().equals(subnetmap.getRouterId());
+        String elanInstanceName = subnetmap.getNetworkId().getValue();
+        Long elanTag = getElanTag(elanInstanceName);
+        try {
+            checkAndPublishSubnetAddedToVpnNotification(subnetmap.getId(), subnetmap.getSubnetIp(), subnetmap.getVpnId()
+                            .getValue(), isExternalVpn, elanTag);
+            LOG.debug("add:Subnet added to VPN notification sent for subnet {} on VPN {}", subnetmap.getId().getValue(),
+                    subnetmap.getVpnId());
+        } catch (Exception e) {
+            LOG.error("add:Subnet added to VPN notification failed for subnet {} on VPN {}", subnetmap.getId().getValue(),
+                    subnetmap.getVpnId(), e);
+        }
+        return;
     }
 
     @Override
@@ -97,10 +110,10 @@ public class SubnetmapChangeListener extends AsyncDataTreeChangeListenerBase<Sub
             try {
                 checkAndPublishSubnetAddedToVpnNotification(subnetId, subnetIp, vpnIdNew.getValue(),
                         isExternalVpn, elanTag);
-                LOG.debug("Subnet added to VPN notification sent for subnet {} on VPN {}", subnetId.getValue(),
+                LOG.debug("update:Subnet added to VPN notification sent for subnet {} on VPN {}", subnetId.getValue(),
                         vpnIdNew.getValue());
             } catch (Exception e) {
-                LOG.error("Subnet added to VPN notification failed for subnet {} on VPN {}", subnetId.getValue(),
+                LOG.error("update:Subnet added to VPN notification failed for subnet {} on VPN {}", subnetId.getValue(),
                         vpnIdNew.getValue(), e);
             }
             return;
