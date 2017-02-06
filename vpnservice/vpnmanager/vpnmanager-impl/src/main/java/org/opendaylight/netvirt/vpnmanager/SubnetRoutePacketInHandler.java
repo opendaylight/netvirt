@@ -14,6 +14,8 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
+
 import org.opendaylight.controller.liblldp.NetUtils;
 import org.opendaylight.controller.liblldp.Packet;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
@@ -123,7 +125,7 @@ public class SubnetRoutePacketInHandler implements PacketProcessingListener {
                             + "and Target IP {} and elan Tag {}", srcIpStr, dstIpStr, elanTag);
                     BigInteger dpnId = getTargetDpnForPacketOut(dataBroker, elanTag, ipv4.getDestinationAddress());
                     //Handle subnet routes ip requests
-                    if (dpnId != BigInteger.ZERO) {
+                    if (!Objects.equals(dpnId, BigInteger.ZERO)) {
                         long groupid = VpnUtil.getRemoteBCGroup(elanTag);
                         String key = srcIpStr + dstIpStr;
                         TransmitPacketInput arpRequestInput = ArpUtils.createArpRequestInput(dpnId, groupid, srcMac, srcIp, dstIp);
