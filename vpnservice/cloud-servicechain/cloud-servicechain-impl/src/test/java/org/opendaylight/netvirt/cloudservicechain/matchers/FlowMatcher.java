@@ -13,6 +13,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.ta
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.flow.Instructions;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.flow.Match;
 
+import java.util.Objects;
+
 public class FlowMatcher extends ArgumentMatcher<Flow> {
 
     Flow expectedFlow;
@@ -40,7 +42,7 @@ public class FlowMatcher extends ArgumentMatcher<Flow> {
 
         boolean result =
                 flow.getId() != null && flow.getId().equals(expectedFlow.getId())
-                && flow.getTableId() == expectedFlow.getTableId()
+                && Objects.equals(flow.getTableId(), expectedFlow.getTableId())
                 && StringUtils.equals(flow.getFlowName(), expectedFlow.getFlowName())
                 && sameInstructions(flow.getInstructions(), expectedFlow.getInstructions())
                 && sameMatch(flow.getMatch(), expectedFlow.getMatch());

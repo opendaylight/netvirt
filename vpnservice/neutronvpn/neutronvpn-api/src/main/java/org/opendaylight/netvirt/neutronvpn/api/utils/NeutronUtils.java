@@ -11,6 +11,7 @@ package org.opendaylight.netvirt.neutronvpn.api.utils;
 import static org.opendaylight.netvirt.neutronvpn.api.utils.NeutronConstants.VNIC_TYPE_NORMAL;
 
 import java.util.List;
+import java.util.Objects;
 
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.binding.rev150712.PortBindingExtension;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.networks.rev150712.NetworkTypeBase;
@@ -67,7 +68,7 @@ public class NeutronUtils {
             List<Segments> providerSegments = providerExtension.getSegments();
             if (providerSegments != null && providerSegments.size() > 0) {
                 for (Segments providerSegment : providerSegments) {
-                    if (providerSegment.getSegmentationIndex() == index) {
+                    if (Objects.equals(providerSegment.getSegmentationIndex(), index)) {
                         segmentType = providerSegment.getNetworkType();
                         break;
                     }
@@ -96,7 +97,7 @@ public class NeutronUtils {
             List<Segments> providerSegments = providerExtension.getSegments();
             if (providerSegments != null && providerSegments.size() > 0) {
                 for (Segments providerSegment : providerSegments) {
-                    if (providerSegment.getSegmentationIndex() == index) {
+                    if (Objects.equals(providerSegment.getSegmentationIndex(), index)) {
                         segmentationId = providerSegment.getSegmentationId();
                         break;
                     }
