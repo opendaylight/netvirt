@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_b41065a9",
+        "filename": "pom.xml",
+        "patchSetId": 4
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 2759
+      },
+      "writtenOn": "2017-02-06T15:43:20Z",
+      "side": 0,
+      "message": "Please leave this comment.",
+      "range": {
+        "startLine": 24,
+        "startChar": 36,
+        "endLine": 24,
+        "endChar": 79
+      },
+      "revId": "014dab89065c07eec0cb6fb5ebe4fea7f08b7e6b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}

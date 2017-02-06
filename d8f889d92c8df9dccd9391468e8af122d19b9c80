@@ -16,6 +16,23 @@
       "revId": "d8f889d92c8df9dccd9391468e8af122d19b9c80",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_542139fa",
+        "filename": "pom.xml",
+        "patchSetId": 4
+      },
+      "lineNbr": 121,
+      "author": {
+        "id": 2759
+      },
+      "writtenOn": "2017-02-06T15:43:20Z",
+      "side": 1,
+      "message": "Also assuming this file had no changes this bottom line shouldn\u0027t have changed.",
+      "revId": "d8f889d92c8df9dccd9391468e8af122d19b9c80",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
