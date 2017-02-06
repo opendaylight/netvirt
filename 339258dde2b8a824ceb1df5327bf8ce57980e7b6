@@ -92,6 +92,30 @@
       "revId": "339258dde2b8a824ceb1df5327bf8ce57980e7b6",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_c783b902",
+        "filename": "docs/specs/ipv6-cvr-north-south.rst",
+        "patchSetId": 3
+      },
+      "lineNbr": 109,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2017-02-06T18:22:13Z",
+      "side": 1,
+      "message": "Can you elaborate on this @Aswin.\n\nFor a dual-stack network (i.e., IPv4 and IPv6 subnets) that is associated to a Neutron router, there would be a \"single instance\" of Neutron router which supports both IPv4-SNAT and IPv6 use-cases.",
+      "parentUuid": "fafc7978_07978191",
+      "range": {
+        "startLine": 109,
+        "startChar": 63,
+        "endLine": 109,
+        "endChar": 79
+      },
+      "revId": "339258dde2b8a824ceb1df5327bf8ce57980e7b6",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
