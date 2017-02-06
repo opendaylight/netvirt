@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_b116b753",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NatUtil.java",
+        "patchSetId": 19
+      },
+      "lineNbr": 761,
+      "author": {
+        "id": 6321
+      },
+      "writtenOn": "2017-02-06T13:13:43Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_51e66bb5",
+      "revId": "f376b08980e2f34e5b47e39a405a1f7c209ba67d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_71f28f70",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
         "patchSetId": 19
@@ -36,6 +54,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_110d033f",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 19
+      },
+      "lineNbr": 1729,
+      "author": {
+        "id": 6321
+      },
+      "writtenOn": "2017-02-06T13:13:43Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_71f28f70",
+      "revId": "f376b08980e2f34e5b47e39a405a1f7c209ba67d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_b1ecf790",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/intervpnlink/InterVpnLinkUtil.java",
         "patchSetId": 19
@@ -47,6 +83,24 @@
       "writtenOn": "2017-02-06T12:38:40Z",
       "side": 1,
       "message": "ditto comment here for null..",
+      "revId": "f376b08980e2f34e5b47e39a405a1f7c209ba67d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_3102c70b",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/intervpnlink/InterVpnLinkUtil.java",
+        "patchSetId": 19
+      },
+      "lineNbr": 517,
+      "author": {
+        "id": 6321
+      },
+      "writtenOn": "2017-02-06T13:13:43Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_b1ecf790",
       "revId": "f376b08980e2f34e5b47e39a405a1f7c209ba67d",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
