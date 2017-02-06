@@ -2,6 +2,23 @@
   "comments": [
     {
       "key": {
+        "uuid": "fafc7978_4756a9d3",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 2
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-06T16:56:43Z",
+      "side": 1,
+      "message": "You can reopen the old bug and use the same bugid here since the problem is the same.",
+      "revId": "549ca1325808e5cc0939386dac8a0ec4e57ed255",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_67d48d47",
         "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/SubnetmapChangeListener.java",
         "patchSetId": 2
