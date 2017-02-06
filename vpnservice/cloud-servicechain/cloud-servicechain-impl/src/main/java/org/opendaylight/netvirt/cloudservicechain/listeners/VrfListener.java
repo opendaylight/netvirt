@@ -11,6 +11,7 @@ import com.google.common.base.Optional;
 import java.math.BigInteger;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Objects;
 
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.DataChangeListener;
@@ -89,7 +90,7 @@ public class VrfListener extends AbstractDataChangeListener<VrfEntry> implements
     protected void update(InstanceIdentifier<VrfEntry> identifier, VrfEntry original, VrfEntry update) {
         LOG.debug("VrfEntry updated: id={}  vrfEntry=[ destination={}, nexthops=[{}],  label={} ]",
                   identifier, update.getDestPrefix(), update.getNextHopAddressList(), update.getLabel());
-        if ( original.getLabel() != update.getLabel() ) {
+        if (!Objects.equals(original.getLabel(), update.getLabel())) {
             remove(identifier, original);
             add(identifier, update);
         }
