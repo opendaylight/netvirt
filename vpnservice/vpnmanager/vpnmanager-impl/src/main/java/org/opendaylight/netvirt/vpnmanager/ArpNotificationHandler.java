@@ -13,6 +13,7 @@ import com.google.common.cache.CacheBuilder;
 import java.math.BigInteger;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
@@ -108,7 +109,7 @@ public class ArpNotificationHandler implements OdlArputilListener {
     }
 
     private void processArpLearning(String srcInterface, IpAddress srcIP, PhysAddress srcMac, BigInteger metadata) {
-        if (metadata != null && metadata != BigInteger.ZERO) {
+        if (metadata != null && !Objects.equals(metadata, BigInteger.ZERO)) {
             long vpnId = MetaDataUtil.getVpnIdFromMetadata(metadata);
             // Process ARP only if vpnservice is configured on the interface
             InstanceIdentifier<VpnIds> vpnIdsInstanceIdentifier = VpnUtil.getVpnIdToVpnInstanceIdentifier(vpnId);

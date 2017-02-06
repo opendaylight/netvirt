@@ -11,6 +11,8 @@ import com.google.common.base.Optional;
 import com.google.common.primitives.Ints;
 import java.math.BigInteger;
 import java.util.List;
+import java.util.Objects;
+
 import org.opendaylight.controller.liblldp.NetUtils;
 import org.opendaylight.controller.liblldp.Packet;
 import org.opendaylight.controller.liblldp.PacketException;
@@ -128,7 +130,7 @@ public class SubnetRoutePacketInHandler implements PacketProcessingListener {
                             + "and Target IP {} and elan Tag {}", srcIpStr, dstIpStr, elanTag);
                     BigInteger dpnId = getTargetDpnForPacketOut(dataBroker, elanTag, ipv4.getDestinationAddress());
                     //Handle subnet routes ip requests
-                    if (dpnId != BigInteger.ZERO) {
+                    if (!Objects.equals(dpnId, BigInteger.ZERO)) {
                         long groupid = VpnUtil.getRemoteBCGroup(elanTag);
                         String key = srcIpStr + dstIpStr;
                         TransmitPacketInput arpRequestInput =

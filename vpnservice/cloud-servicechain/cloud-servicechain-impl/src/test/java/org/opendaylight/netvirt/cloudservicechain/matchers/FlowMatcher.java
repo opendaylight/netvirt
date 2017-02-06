@@ -7,6 +7,7 @@
  */
 package org.opendaylight.netvirt.cloudservicechain.matchers;
 
+import java.util.Objects;
 import org.apache.commons.lang3.StringUtils;
 import org.mockito.ArgumentMatcher;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.tables.table.Flow;
@@ -40,7 +41,7 @@ public class FlowMatcher extends ArgumentMatcher<Flow> {
 
         boolean result =
                 flow.getId() != null && flow.getId().equals(expectedFlow.getId())
-                && flow.getTableId() == expectedFlow.getTableId()
+                && Objects.equals(flow.getTableId(), expectedFlow.getTableId())
                 && StringUtils.equals(flow.getFlowName(), expectedFlow.getFlowName())
                 && sameInstructions(flow.getInstructions(), expectedFlow.getInstructions())
                 && sameMatch(flow.getMatch(), expectedFlow.getMatch());
