@@ -10,8 +10,13 @@ package org.opendaylight.netvirt.vpnmanager;
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import java.math.BigInteger;
-import java.util.*;
-
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
@@ -559,7 +564,7 @@ public class VpnSubnetRouteHandler implements NeutronvpnListener {
             logger.info("onInterfaceUp: Port " + intfName  + "is part of a subnet not in VPN, ignoring");
             return;
         }
-        if ((dpnId == null) || (dpnId == BigInteger.ZERO)) {
+        if ((dpnId == null) || (Objects.equals(dpnId, BigInteger.ZERO))) {
             dpnId = portOpEntry.getDpnId();
             if (dpnId == null) {
                 logger.error("onInterfaceUp: Unable to determine the DPNID for port " + intfName);
@@ -642,8 +647,8 @@ public class VpnSubnetRouteHandler implements NeutronvpnListener {
             logger.info("onInterfaceDown: Port " + interfaceName  + "is part of a subnet not in VPN, ignoring");
             return;
         }
-        if ((dpnId  == null) ||(dpnId == BigInteger.ZERO)) {
-            logger.error("onInterfaceDown: Unable to determine the DPNID for port " + interfaceName);
+        if ((dpnId == null) || (Objects.equals(dpnId, BigInteger.ZERO))) {
+            LOG.error("onInterfaceDown: Unable to determine the DPNID for port " + interfaceName);
             return;
         }
         Uuid subnetId = portOpEntry.getSubnetId();
