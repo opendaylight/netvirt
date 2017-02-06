@@ -2,6 +2,46 @@
   "comments": [
     {
       "key": {
+        "uuid": "fafc7978_b436cc01",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/l2gw/ha/commands/TerminationPointCmd.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 106,
+      "author": {
+        "id": 3276
+      },
+      "writtenOn": "2017-01-29T05:58:05Z",
+      "side": 1,
+      "message": "how does areSameSize handle either/both being null?",
+      "revId": "17a541a61ef47b2d529dd0f323a152956be121a3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_f4405458",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/l2gw/ha/listeners/HAOpNodeListener.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 169,
+      "author": {
+        "id": 3276
+      },
+      "writtenOn": "2017-01-29T05:58:05Z",
+      "side": 1,
+      "message": "Cleanup required: All these INFOs should be DEBUG/TRACE.",
+      "range": {
+        "startLine": 169,
+        "startChar": 12,
+        "endLine": 169,
+        "endChar": 20
+      },
+      "revId": "17a541a61ef47b2d529dd0f323a152956be121a3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_f85a0282",
         "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/l2gw/ha/listeners/HAOpNodeListener.java",
         "patchSetId": 8
@@ -20,6 +60,70 @@
         "endLine": 169,
         "endChar": 20
       },
+      "revId": "17a541a61ef47b2d529dd0f323a152956be121a3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_1f4a2fac",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/l2gw/ha/listeners/HAOpNodeListener.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 169,
+      "author": {
+        "id": 3276
+      },
+      "writtenOn": "2017-02-06T09:48:47Z",
+      "side": 1,
+      "message": "Yeah, this is a good example of INFO usage. Later in the file connect/reconnect is set to INFO, those should be DEBUG as connections are already logged by OVSDB plugin at INFO. We can probably take it up in subsequent patch, no need to block for it.",
+      "parentUuid": "fafc7978_6d259cc1",
+      "range": {
+        "startLine": 169,
+        "startChar": 12,
+        "endLine": 169,
+        "endChar": 20
+      },
+      "revId": "17a541a61ef47b2d529dd0f323a152956be121a3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_143cf8e1",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/l2gw/ha/listeners/HwvtepNodeBaseListener.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 134,
+      "author": {
+        "id": 3276
+      },
+      "writtenOn": "2017-01-29T05:58:05Z",
+      "side": 1,
+      "message": "Need to cleanup all INFOs in this file. Listeners shouldn\u0027t have INFO logs for notifications, should be DEBUG or TRACE only.",
+      "range": {
+        "startLine": 134,
+        "startChar": 24,
+        "endLine": 134,
+        "endChar": 29
+      },
+      "revId": "17a541a61ef47b2d529dd0f323a152956be121a3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_5425e0c0",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/l2gw/listeners/ElanGroupListener.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 134,
+      "author": {
+        "id": 3276
+      },
+      "writtenOn": "2017-01-29T05:58:05Z",
+      "side": 1,
+      "message": "Cleanup required: All these should be DEBUG/TRACE.",
       "revId": "17a541a61ef47b2d529dd0f323a152956be121a3",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
