@@ -1,0 +1,72 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_def38d9d",
+        "filename": "vpnservice/aclservice/impl/src/test/java/org/opendaylight/netvirt/aclservice/tests/AclServiceStatefulTestIPv6.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 45,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2017-02-06T07:12:57Z",
+      "side": 1,
+      "message": "Please rename the API to include Icmpv6 for readability.\nSimilarly in FlowEntryObjectsStatefulIPv6.icmpv6Flows",
+      "revId": "d4b098e8f6b5a3f16e55f5fdb82e67581bfad977",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_64f2ce70",
+        "filename": "vpnservice/aclservice/impl/src/test/java/org/opendaylight/netvirt/aclservice/tests/AclServiceTestBase.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 79,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2017-02-06T07:12:57Z",
+      "side": 1,
+      "message": "Please update these prefixes as well. Another solution is to use /32 instead of /24 if you want to continue with the existing IPaddresses.\n\nBTW there is a bug in ACLService for this issue. https://bugs.opendaylight.org/show_bug.cgi?id\u003d7546",
+      "revId": "d4b098e8f6b5a3f16e55f5fdb82e67581bfad977",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_44786af2",
+        "filename": "vpnservice/aclservice/impl/src/test/java/org/opendaylight/netvirt/aclservice/tests/AclServiceTestBase.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 120,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2017-02-06T07:12:57Z",
+      "side": 1,
+      "message": "Can you please use some constants instead of -1, (false, true etc) which will help us in understanding what that argument is.",
+      "revId": "d4b098e8f6b5a3f16e55f5fdb82e67581bfad977",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_1eeeb5b4",
+        "filename": "vpnservice/aclservice/impl/src/test/java/org/opendaylight/netvirt/aclservice/tests/AclServiceTestBaseIPv6.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2017-02-06T07:12:57Z",
+      "side": 1,
+      "message": "All these prefixes boil down to the same IPaddress[1] as the prefix is \"/64\". So, it would be good to use a different prefix for each of them to avoid any confusion.\n\nSomething like \nIPv6_PREFIX_1 \u003d \"2001:db8:1::/64\";\nIPv6_PREFIX_2 \u003d \"2001:db8:2::/64\";\nIPv6_PREFIX_3 \u003d \"2001:db8:3::/64\";\n\ntable\u003d40, n_packets\u003d0, n_bytes\u003d0, priority\u003d61010,ipv6,dl_src\u003d\"mac\",ipv6_src\u003d2001:db8::/64 actions\u003dct(table\u003d41,zone\u003d5002)",
+      "revId": "d4b098e8f6b5a3f16e55f5fdb82e67581bfad977",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
