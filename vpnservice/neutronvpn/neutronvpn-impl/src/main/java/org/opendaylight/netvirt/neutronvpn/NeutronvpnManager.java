@@ -439,7 +439,7 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
             Ipv4FamilyBuilder ipv4vpnBuilder = new Ipv4FamilyBuilder().setVpnTargets(vpnTargets);
 
             if (rd != null && !rd.isEmpty()) {
-                ipv4vpnBuilder.setRouteDistinguisher(rd.get(0));
+                ipv4vpnBuilder.setRouteDistinguisher(rd);
             }
 
             VpnInstance newVpn = builder.setIpv4Family(ipv4vpnBuilder.build()).build();
@@ -1012,7 +1012,7 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
                 // create VpnMaps id
                 L3vpnInstancesBuilder l3vpn = new L3vpnInstancesBuilder();
 
-                List<String> rd = Arrays.asList(vpnInstance.getIpv4Family().getRouteDistinguisher().split(","));
+                List<String> rd = vpnInstance.getIpv4Family().getRouteDistinguisher();
                 List<VpnTarget> vpnTargetList = vpnInstance.getIpv4Family().getVpnTargets().getVpnTarget();
 
                 List<String> ertList = new ArrayList<>();

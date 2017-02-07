@@ -301,22 +301,18 @@ public class VpnUtil {
     public static List<org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.vpn
         .instance.op.data.entry.vpn.to.dpn.list.VpnInterfaces> getDpnVpnInterfaces(DataBroker broker,
         VpnInstance vpnInstance, BigInteger dpnId) {
-        String rd = getRdFromVpnInstance(vpnInstance);
-        InstanceIdentifier<VpnToDpnList> dpnToVpnId = getVpnToDpnListIdentifier(rd, dpnId);
+        String primaryRd = getPrimaryRd(vpnInstance);
+        InstanceIdentifier<VpnToDpnList> dpnToVpnId = getVpnToDpnListIdentifier(primaryRd, dpnId);
         Optional<VpnToDpnList> dpnInVpn = VpnUtil.read(broker, LogicalDatastoreType.OPERATIONAL, dpnToVpnId);
         return dpnInVpn.isPresent() ? dpnInVpn.get().getVpnInterfaces() : Collections.emptyList();
     }
 
-    public static String getRdFromVpnInstance(VpnInstance vpnInstance) {
+    public static List<String> getListOfRdsFromVpnInstance(VpnInstance vpnInstance) {
         VpnAfConfig vpnConfig = vpnInstance.getIpv4Family();
         LOG.trace("vpnConfig {}", vpnConfig);
-        String rd = vpnConfig.getRouteDistinguisher();
-        if (rd == null || rd.isEmpty()) {
-            rd = vpnInstance.getVpnInstanceName();
-            LOG.trace("rd is null or empty. Assigning VpnInstanceName to rd {}", rd);
-        }
+        return vpnConfig.getRouteDistinguisher() != null ? new ArrayList<>(
+                vpnConfig.getRouteDistinguisher()) : new ArrayList<String>();
 
-        return rd;
     }
 
     static VrfEntry getVrfEntry(DataBroker broker, String rd, String ipPrefix) {
@@ -501,19 +497,13 @@ public class VpnUtil {
      *
      * @param broker dataBroker service reference
      * @param vpnName Name of the VPN
-     * @return the route-distinguisher of the VPN
+     * @return the list of route-distinguishers of the VPN
      */
-    public static String getVpnRdFromVpnInstanceConfig(DataBroker broker, String vpnName) {
+    public static List<String> getVpnRdFromVpnInstanceConfig(DataBroker broker, String vpnName) {
         InstanceIdentifier<VpnInstance> id = InstanceIdentifier.builder(VpnInstances.class)
             .child(VpnInstance.class, new VpnInstanceKey(vpnName)).build();
         Optional<VpnInstance> vpnInstance = VpnUtil.read(broker, LogicalDatastoreType.CONFIGURATION, id);
-        String rd = null;
-        if (vpnInstance.isPresent()) {
-            VpnInstance instance = vpnInstance.get();
-            VpnAfConfig config = instance.getIpv4Family();
-            rd = config.getRouteDistinguisher();
-        }
-        return rd;
+        return vpnInstance.isPresent() ? getListOfRdsFromVpnInstance(vpnInstance.get()) : new ArrayList<String>();
     }
 
     /**
@@ -1422,4 +1412,23 @@ public class VpnUtil {
         return routerToNaptSwitch != null ? routerToNaptSwitch.getPrimarySwitchId() : null;
     }
 
+    public static String getPrimaryRd(DataBroker dataBroker, String vpnName) {
+        InstanceIdentifier<VpnInstance> id = InstanceIdentifier.builder(VpnInstances.class)
+                .child(VpnInstance.class, new VpnInstanceKey(vpnName)).build();
+        Optional<VpnInstance> vpnInstance = VpnUtil.read(dataBroker, LogicalDatastoreType.CONFIGURATION, id);
+        List<String> rds = new ArrayList<>();
+        if (vpnInstance.isPresent()) {
+            rds = getListOfRdsFromVpnInstance(vpnInstance.get());
+        }
+        return rds.isEmpty() ? vpnName : rds.get(0);
+    }
+
+    public static String getPrimaryRd(VpnInstance vpnInstance) {
+        List<String> rds = getListOfRdsFromVpnInstance(vpnInstance);
+        return rds == null || rds.isEmpty() ? vpnInstance.getVpnInstanceName() : rds.get(0);
+    }
+
+    public static boolean isInternalVpn(String vpnName, String primaryRd) {
+        return vpnName.equals(primaryRd);
+    }
 }
