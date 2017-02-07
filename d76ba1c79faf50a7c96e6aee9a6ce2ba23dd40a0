@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_ea4fa4bc",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanNodeListener.java",
+        "patchSetId": 12
+      },
+      "lineNbr": 179,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-02-07T04:44:51Z",
+      "side": 1,
+      "message": "why do you need local variables dstMac and dstMacMask ? You can simply use those compile time constants where ever its needed.",
+      "revId": "d76ba1c79faf50a7c96e6aee9a6ce2ba23dd40a0",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
