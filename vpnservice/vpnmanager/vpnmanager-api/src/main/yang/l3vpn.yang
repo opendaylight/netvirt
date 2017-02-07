@@ -194,7 +194,7 @@ module l3vpn {
       "A set of configuration parameters that is applicable to both IPv4 and
        IPv6 address family for a VPN instance .";
 
-    leaf route-distinguisher {
+    leaf-list route-distinguisher {
       description
         "The route-distinguisher command configures a route distinguisher (RD)
          for the IPv4 or IPv6 address family of a VPN instance.
