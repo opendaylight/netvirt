@@ -333,14 +333,14 @@ public class InterVpnLinkListener extends AsyncDataTreeChangeListenerBase<InterV
 
         // For each endpoint, remove all routes that have been learnt by intervpnLink
         String vpn1Uuid = del.getFirstEndpoint().getVpnUuid().getValue();
-        String rd1 = VpnUtil.getVpnRdFromVpnInstanceConfig(dataBroker, vpn1Uuid);
+        String rd1 = VpnUtil.getVpnRd(dataBroker, vpn1Uuid);
         LOG.debug("Removing leaked routes in VPN {}  rd={}", vpn1Uuid, rd1);
         VpnUtil.removeVrfEntriesByOrigin(dataBroker, rd1, RouteOrigin.INTERVPN);
         List<VrfEntry> vrfEntriesSecondEndpoint =
             VpnUtil.findVrfEntriesByNexthop(dataBroker, rd1, del.getSecondEndpoint().getIpAddress().getValue());
 
         String vpn2Uuid = del.getSecondEndpoint().getVpnUuid().getValue();
-        String rd2 = VpnUtil.getVpnRdFromVpnInstanceConfig(dataBroker, vpn2Uuid);
+        String rd2 = VpnUtil.getVpnRd(dataBroker, vpn2Uuid);
         LOG.debug("Removing leaked routes in VPN {}  rd={}", vpn2Uuid, rd2);
         VpnUtil.removeVrfEntriesByOrigin(dataBroker, rd2, RouteOrigin.INTERVPN);
         List<VrfEntry> vrfEntriesFirstEndpoint =
