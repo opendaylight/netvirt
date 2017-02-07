@@ -111,7 +111,7 @@ public class SouthboundHandler extends AbstractHandler
 
     private void handleInterfaceDelete (Node node, OvsdbTerminationPointAugmentation intf,
                                         boolean isLastInstanceOnNode, NeutronNetwork network) {
-        LOG.debug("handleInterfaceDelete: node: <{}>, isLastInstanceOnNode: {}, interface: <{}>",
+        LOG.info("handleInterfaceDelete: node: <{}>, isLastInstanceOnNode: {}, interface: <{}>",
                 node, isLastInstanceOnNode, intf);
 
         distributedArpService.processInterfaceEvent(node, intf, network, Action.DELETE);
