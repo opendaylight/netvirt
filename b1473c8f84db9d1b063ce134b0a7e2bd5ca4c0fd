@@ -90,6 +90,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_a0381ba1",
+        "filename": "vpnservice/pom.xml",
+        "patchSetId": 5
+      },
+      "lineNbr": 36,
+      "author": {
+        "id": 2589
+      },
+      "writtenOn": "2017-02-07T09:24:55Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_39a0fe42",
+      "revId": "b1473c8f84db9d1b063ce134b0a7e2bd5ca4c0fd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_db6d8606",
         "filename": "vpnservice/statistics-plugin/api/pom.xml",
         "patchSetId": 5
