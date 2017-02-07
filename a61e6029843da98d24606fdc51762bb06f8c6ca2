@@ -46,6 +46,30 @@
       "revId": "a61e6029843da98d24606fdc51762bb06f8c6ca2",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_d8ed57b9",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnSubnetRouteHandler.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 615,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2017-02-07T19:36:31Z",
+      "side": 1,
+      "message": "the extra null check in Objects.equal is not needed if you know your arg is never null\nit\u0027s not such a big deal either way...",
+      "parentUuid": "fafc7978_f8765b3d",
+      "range": {
+        "startLine": 615,
+        "startChar": 32,
+        "endLine": 615,
+        "endChar": 69
+      },
+      "revId": "a61e6029843da98d24606fdc51762bb06f8c6ca2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
