@@ -834,7 +834,7 @@ public class NeutronL3Adapter extends AbstractHandler implements GatewayMacResol
 
     private void handleInterfaceEventAdd(final String neutronPortUuid, Long dpId, final Uuid interfaceUuid) {
         neutronPortToDpIdCache.put(neutronPortUuid, new ImmutablePair<>(dpId, interfaceUuid));
-        LOG.debug("handleInterfaceEvent add cache entry NeutronPortUuid {} : dpid {}, ifUuid {}",
+        LOG.info("UPDATE EVENT PROCESSING handleInterfaceEvent add cache entry NeutronPortUuid {} : dpid {}, ifUuid {}",
                 neutronPortUuid, dpId, interfaceUuid.getValue());
     }
 
