@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_f6c5cd3d",
+        "filename": "docs/specs/remote_acl_indirection.rst",
+        "patchSetId": 7
+      },
+      "lineNbr": 112,
+      "author": {
+        "id": 670
+      },
+      "writtenOn": "2017-02-07T15:47:55Z",
+      "side": 1,
+      "message": "yeah I thought lport is part of the metadata?\nat least in the ingress ACL.. in the egress we use regs just because of the resubmit hacks..\n\nor did you mean something else?",
+      "parentUuid": "fafc7978_d67d2970",
+      "revId": "84682ca2bfc4f1a04480c14a7e4b8d3e3499ddc9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_1b0d1c3f",
         "filename": "docs/specs/remote_acl_indirection.rst",
         "patchSetId": 7
@@ -30,6 +48,24 @@
       "writtenOn": "2017-02-07T14:50:43Z",
       "side": 1,
       "message": "is x the one with optimization not xx?",
+      "revId": "84682ca2bfc4f1a04480c14a7e4b8d3e3499ddc9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_56c5b93a",
+        "filename": "docs/specs/remote_acl_indirection.rst",
+        "patchSetId": 7
+      },
+      "lineNbr": 120,
+      "author": {
+        "id": 670
+      },
+      "writtenOn": "2017-02-07T15:47:55Z",
+      "side": 1,
+      "message": "you\u0027re right thanks, i\u0027ll correct it.",
+      "parentUuid": "fafc7978_1b0d1c3f",
       "revId": "84682ca2bfc4f1a04480c14a7e4b8d3e3499ddc9",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
