@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_a52dcd48",
+        "filename": "docs/specs/netvirt-statistics-spec.rst",
+        "patchSetId": 14
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 2589
+      },
+      "writtenOn": "2017-02-07T07:45:17Z",
+      "side": 1,
+      "message": "Currently, the ACL feature is a very specific one and sits under the ACL service. Our goal is to develop a more generic bundle, that aside from retrieving port/flow counters on request, will also enable to add a new service (used with Genius infrastructure) that enables getting filtered counters sent/received from a specific network element IP. This is described here: https://git.opendaylight.org/gerrit/#/c/50771/.\nMaybe in the future it will be possible to merge the ACL counters logic to this bundle.",
+      "parentUuid": "fafc7978_1ff52883",
+      "range": {
+        "startLine": 35,
+        "startChar": 57,
+        "endLine": 35,
+        "endChar": 58
+      },
+      "revId": "0363d5d91600c273ff69b7b350f7fdb892031c7e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_9f9ab812",
         "filename": "docs/specs/netvirt-statistics-spec.rst",
         "patchSetId": 14
@@ -36,6 +60,30 @@
       "writtenOn": "2017-01-31T16:47:52Z",
       "side": 1,
       "message": "ericsson team is also submitting some counters related patches to genius for integration with ceilometer. i can find more info on the patch and send out, my suggestion is to find some common ground with these counters as well. i will follow up on this.",
+      "range": {
+        "startLine": 72,
+        "startChar": 4,
+        "endLine": 72,
+        "endChar": 5
+      },
+      "revId": "0363d5d91600c273ff69b7b350f7fdb892031c7e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_e5107503",
+        "filename": "docs/specs/netvirt-statistics-spec.rst",
+        "patchSetId": 14
+      },
+      "lineNbr": 72,
+      "author": {
+        "id": 2589
+      },
+      "writtenOn": "2017-02-07T07:45:17Z",
+      "side": 1,
+      "message": "Please see Shlomi\u0027s answer to Vivek on this topic.",
+      "parentUuid": "fafc7978_9f9ab812",
       "range": {
         "startLine": 72,
         "startChar": 4,
