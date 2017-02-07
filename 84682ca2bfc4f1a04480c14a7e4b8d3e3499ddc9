@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_d67d2970",
+        "filename": "docs/specs/remote_acl_indirection.rst",
+        "patchSetId": 7
+      },
+      "lineNbr": 112,
+      "author": {
+        "id": 4269
+      },
+      "writtenOn": "2017-02-07T14:50:43Z",
+      "side": 1,
+      "message": "is the match as below?\nlport, metadata\u003dremote_sg,\nlport, \u003cacl_rule\u003e  \nlport,ip_src/dst\u003dVM1_IP, \u003cacl_rule\u003e",
+      "revId": "84682ca2bfc4f1a04480c14a7e4b8d3e3499ddc9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_1b0d1c3f",
+        "filename": "docs/specs/remote_acl_indirection.rst",
+        "patchSetId": 7
+      },
+      "lineNbr": 120,
+      "author": {
+        "id": 4269
+      },
+      "writtenOn": "2017-02-07T14:50:43Z",
+      "side": 1,
+      "message": "is x the one with optimization not xx?",
+      "revId": "84682ca2bfc4f1a04480c14a7e4b8d3e3499ddc9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
