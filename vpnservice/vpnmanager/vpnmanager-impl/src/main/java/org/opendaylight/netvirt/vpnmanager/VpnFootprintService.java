@@ -87,13 +87,12 @@ public class VpnFootprintService {
     }
 
     private void createOrUpdateVpnToDpnList(long vpnId, BigInteger dpnId, String intfName, String vpnName) {
-        String routeDistinguisher = VpnUtil.getVpnRdFromVpnInstanceConfig(dataBroker, vpnName);
-        String rd = (routeDistinguisher == null) ? vpnName : routeDistinguisher;
+        String primaryRd = VpnUtil.getPrimaryRd(dataBroker, vpnName);
         Boolean newDpnOnVpn = Boolean.FALSE;
 
         synchronized (vpnName.intern()) {
             WriteTransaction writeTxn = dataBroker.newWriteOnlyTransaction();
-            InstanceIdentifier<VpnToDpnList> id = VpnUtil.getVpnToDpnListIdentifier(rd, dpnId);
+            InstanceIdentifier<VpnToDpnList> id = VpnUtil.getVpnToDpnListIdentifier(primaryRd, dpnId);
             Optional<VpnToDpnList> dpnInVpn = VpnUtil.read(dataBroker, LogicalDatastoreType.OPERATIONAL, id);
             VpnInterfaces vpnInterface = new VpnInterfacesBuilder().setInterfaceName(intfName).build();
 
@@ -136,7 +135,7 @@ public class VpnFootprintService {
          */
         if (newDpnOnVpn) {
             LOG.debug("Sending populateFib event for new dpn {} in VPN {}", dpnId, vpnName);
-            fibManager.populateFibOnNewDpn(dpnId, vpnId, rd, new DpnEnterExitVpnWorker(dpnId, vpnName, rd,
+            fibManager.populateFibOnNewDpn(dpnId, vpnId, primaryRd, new DpnEnterExitVpnWorker(dpnId, vpnName, primaryRd,
                 true /* entered */));
         }
     }
