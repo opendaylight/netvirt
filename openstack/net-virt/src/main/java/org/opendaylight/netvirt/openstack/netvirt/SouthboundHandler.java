@@ -94,6 +94,8 @@ public class SouthboundHandler extends AbstractHandler
     }
 
     private void handleInterfaceUpdate (Node node, OvsdbTerminationPointAugmentation tp, Action action) {
+        Long dpId=southbound.getDatapathId(node);
+        LOG.info("UPDATE DPID is {}",dpId);
         NeutronNetwork network = tenantNetworkManager.getTenantNetwork(tp);
         if (network != null && !network.getRouterExternal()) {
             LOG.trace("InterfaceUpdate for OVS Node :{} OvsdbTerminationPointAugmentation :"        + " {} for the network : {}", node, tp, network.getNetworkUUID());
@@ -111,8 +113,11 @@ public class SouthboundHandler extends AbstractHandler
 
     private void handleInterfaceDelete (Node node, OvsdbTerminationPointAugmentation intf,
                                         boolean isLastInstanceOnNode, NeutronNetwork network) {
-        LOG.debug("handleInterfaceDelete: node: <{}>, isLastInstanceOnNode: {}, interface: <{}>",
+        LOG.info("handleInterfaceDelete: node: <{}>, isLastInstanceOnNode: {}, interface: <{}>",
                 node, isLastInstanceOnNode, intf);
+
+        Long dpId=southbound.getDatapathId(node);
+        LOG.info("DELETE DPID is {}",dpId);
 
         distributedArpService.processInterfaceEvent(node, intf, network, Action.DELETE);
         neutronL3Adapter.handleInterfaceEvent(node, intf, network, Action.DELETE);

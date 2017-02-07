@@ -798,7 +798,7 @@ public class NeutronL3Adapter extends AbstractHandler implements GatewayMacResol
      */
     public void handleInterfaceEvent(final Node bridgeNode, final OvsdbTerminationPointAugmentation intf,
                                      final NeutronNetwork neutronNetwork, Action action) {
-        LOG.debug("southbound interface {} node:{} interface:{}, neutronNetwork:{}",
+        LOG.info("PROCESSING OVSDB EVENT southbound interface {} node:{} interface:{}, neutronNetwork:{}",
                      action, bridgeNode.getNodeId().getValue(), intf.getName(), neutronNetwork);
 
         final NeutronPort neutronPort = tenantNetworkManager.getTenantPort(intf);
@@ -807,14 +807,10 @@ public class NeutronL3Adapter extends AbstractHandler implements GatewayMacResol
             storePortInCleanupCache(neutronPort);
         }
 
-        if (!this.enabled) {
-            return;
-        }
-
         final Long dpId = getDpidForIntegrationBridge(bridgeNode);
         final Uuid interfaceUuid = intf.getInterfaceUuid();
 
-        LOG.trace("southbound interface {} node:{} interface:{}, neutronNetwork:{} port:{} dpid:{} intfUuid:{}",
+        LOG.info("southbound interface {} node:{} interface:{}, neutronNetwork:{} port:{} dpid:{} intfUuid:{}",
                 action, bridgeNode.getNodeId().getValue(), intf.getName(), neutronNetwork, neutronPort, dpId, interfaceUuid);
 
         if (neutronPort != null) {
@@ -834,7 +830,7 @@ public class NeutronL3Adapter extends AbstractHandler implements GatewayMacResol
 
     private void handleInterfaceEventAdd(final String neutronPortUuid, Long dpId, final Uuid interfaceUuid) {
         neutronPortToDpIdCache.put(neutronPortUuid, new ImmutablePair<>(dpId, interfaceUuid));
-        LOG.debug("handleInterfaceEvent add cache entry NeutronPortUuid {} : dpid {}, ifUuid {}",
+        LOG.info("UPDATE EVENT PROCESSING handleInterfaceEvent add cache entry NeutronPortUuid {} : dpid {}, ifUuid {}",
                 neutronPortUuid, dpId, interfaceUuid.getValue());
     }
 
