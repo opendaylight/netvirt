@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 Ericsson India Global Services Pvt Ltd. and others.  All rights reserved.
+ * Copyright (c) 2017 Ericsson India Global Services Pvt Ltd. and others.  All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
@@ -23,15 +23,23 @@ import java.util.concurrent.ExecutionException;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.DataTreeChangeListener;
 import org.opendaylight.controller.md.sal.binding.api.ReadWriteTransaction;
+import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
+import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
 import org.opendaylight.genius.utils.hwvtep.HwvtepHACache;
+import org.opendaylight.genius.utils.hwvtep.HwvtepSouthboundConstants;
 import org.opendaylight.netvirt.elan.l2gw.ha.HwvtepHAUtil;
 import org.opendaylight.netvirt.elan.l2gw.ha.commands.SwitchesCmd;
 import org.opendaylight.netvirt.elan.l2gw.ha.handlers.HAEventHandler;
 import org.opendaylight.netvirt.elan.l2gw.ha.handlers.IHAEventHandler;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.HwvtepGlobalAugmentation;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.hwvtep.global.attributes.Managers;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.hwvtep.global.attributes.Switches;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.hwvtep.global.attributes.managers.ManagerOtherConfigs;
+import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.NetworkTopology;
+import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.Topology;
+import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.TopologyKey;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Node;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
@@ -43,10 +51,11 @@ public class HAOpNodeListener extends HwvtepNodeBaseListener implements DataTree
 
     static HwvtepHACache hwvtepHACache = HwvtepHACache.getInstance();
 
-    IHAEventHandler haEventHandler;
+    private final IHAEventHandler haEventHandler;
 
-    Map<String, Boolean> availableGlobalNodes = new HashMap<>();
-    Map<String, Boolean> availablePsNodes = new HashMap<>();
+    private final Map<String, Boolean> availableGlobalNodes = new HashMap<>();
+    private final Map<String, Boolean> availablePsNodes = new HashMap<>();
+    private ManagerListener managerListener;
 
     void clearNodeAvailability(InstanceIdentifier<Node> key) {
         String id = key.firstKeyOf(Node.class).getNodeId().getValue();
@@ -93,7 +102,16 @@ public class HAOpNodeListener extends HwvtepNodeBaseListener implements DataTree
     public HAOpNodeListener(DataBroker db, HAEventHandler haEventHandler) throws Exception {
         super(OPERATIONAL, db);
         this.haEventHandler = haEventHandler;
+        this.managerListener = new ManagerListener(Managers.class, ManagerListener.class);
         LOG.info("Registering HwvtepDataChangeListener for operational nodes");
+    }
+
+    @Override
+    public void close() throws Exception {
+        super.close();
+        if (managerListener != null) {
+            managerListener.close();
+        }
     }
 
     @Override
@@ -146,13 +164,14 @@ public class HAOpNodeListener extends HwvtepNodeBaseListener implements DataTree
         }
     }
 
+    //Update on global node has been taken care by HAListeners as per perf improvement
     @Override
     void onGlobalNodeUpdate(InstanceIdentifier<Node> childPath,
                             Node updatedChildNode,
                             Node originalChildNode,
                             ReadWriteTransaction tx) throws ReadFailedException {
 
-        String oldHAId = HwvtepHAUtil.getHAIdFromManagerOtherConfig(originalChildNode);
+       /* String oldHAId = HwvtepHAUtil.getHAIdFromManagerOtherConfig(originalChildNode);
         if (!Strings.isNullOrEmpty(oldHAId)) { //was already ha child
             InstanceIdentifier<Node> haPath = hwvtepHACache.getParent(childPath);
             haEventHandler.copyChildGlobalOpUpdateToHAParent(updatedChildNode, originalChildNode, haPath, tx);
@@ -165,7 +184,7 @@ public class HAOpNodeListener extends HwvtepNodeBaseListener implements DataTree
             hwvtepHACache.updateConnectedNodeStatus(childPath);
             LOG.info("{} became ha child ", updatedChildNode.getNodeId().getValue());
             onGlobalNodeAdd(childPath, updatedChildNode, tx);
-        }
+        }*/
     }
 
     @Override
@@ -277,5 +296,70 @@ public class HAOpNodeListener extends HwvtepNodeBaseListener implements DataTree
                 LOG.error("Failed to process ", e);
             }
         });
+    }
+
+    /**
+     * ManagerListeners listens to manager updated and act in case non-ha node get converted to ha node.
+     */
+    class ManagerListener extends AsyncDataTreeChangeListenerBase<Managers, ManagerListener> {
+
+        ManagerListener(Class<Managers> clazz, Class<ManagerListener> eventClazz) {
+            super(clazz, eventClazz);
+            registerListener(LogicalDatastoreType.OPERATIONAL, db);
+        }
+
+        @Override
+        protected InstanceIdentifier<Managers> getWildCardPath() {
+            return InstanceIdentifier.create(NetworkTopology.class)
+                    .child(Topology.class, new TopologyKey(HwvtepSouthboundConstants.HWVTEP_TOPOLOGY_ID)).child(Node
+                            .class).augmentation(HwvtepGlobalAugmentation.class).child(clazz);
+        }
+
+        @Override
+        protected void remove(InstanceIdentifier<Managers> instanceIdentifier, Managers managers) {
+
+        }
+
+        String getHaId(Managers managers) {
+            if (managers.getManagerOtherConfigs() == null) {
+                return null;
+            }
+            for (ManagerOtherConfigs configs : managers.getManagerOtherConfigs()) {
+                if (configs.getOtherConfigKey().equals(HwvtepHAUtil.HA_ID)) {
+                    return configs.getOtherConfigValue();
+                }
+            }
+            return null;
+        }
+
+        @Override
+        protected void update(InstanceIdentifier<Managers> instanceIdentifier, Managers oldData, Managers newData) {
+            String oldHAId = getHaId(oldData);
+            if (Strings.isNullOrEmpty(oldHAId)) {
+                String newHAID = getHaId(newData);
+                if (!Strings.isNullOrEmpty(newHAID)) {
+                    InstanceIdentifier<Node> nodeIid = instanceIdentifier.firstIdentifierOf(Node.class);
+                    ReadWriteTransaction tx = db.newReadWriteTransaction();
+                    try {
+                        Node node = tx.read(LogicalDatastoreType.OPERATIONAL, nodeIid).checkedGet().get();
+                        HAOpClusteredListener.addToCacheIfHAChildNode(nodeIid, node);
+                        HAJobScheduler.getInstance().submitJob( () -> {
+                            onGlobalNodeAdd(nodeIid, node, tx);
+                        });
+                    } catch (ReadFailedException e) {
+                        LOG.error("Read failed {}",e.getMessage());
+                    }
+                }
+            }
+        }
+
+        @Override
+        protected void add(InstanceIdentifier<Managers> instanceIdentifier, Managers managers) {
+        }
+
+        @Override
+        protected ManagerListener getDataTreeChangeListener() {
+            return ManagerListener.this;
+        }
     }
 }
