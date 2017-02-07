@@ -1,0 +1,72 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_c5b8d1e7",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/SubnetmapChangeListener.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 70,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-07T08:21:43Z",
+      "side": 1,
+      "message": "You can have a subnet part of external vpn even for a network associated bgpvpn.",
+      "revId": "4dc0c687895c0860ef663305efce79579e85f12c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_65c92578",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/SubnetmapChangeListener.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 76,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-07T08:21:43Z",
+      "side": 1,
+      "message": "LOG.error(",
+      "revId": "4dc0c687895c0860ef663305efce79579e85f12c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_c5af3193",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/SubnetmapChangeListener.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 96,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-07T08:21:43Z",
+      "side": 1,
+      "message": "do we not need to invoke subnetRemovedFromVpn here?",
+      "revId": "4dc0c687895c0860ef663305efce79579e85f12c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_2596fd4c",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/SubnetmapChangeListener.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 113,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-07T08:21:43Z",
+      "side": 1,
+      "message": "LOG.error",
+      "revId": "4dc0c687895c0860ef663305efce79579e85f12c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
