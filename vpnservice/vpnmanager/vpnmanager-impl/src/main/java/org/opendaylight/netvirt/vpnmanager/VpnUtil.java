@@ -13,12 +13,14 @@ import com.google.common.util.concurrent.CheckedFuture;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
+
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
+
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
@@ -301,22 +303,17 @@ public class VpnUtil {
     public static List<org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.vpn
         .instance.op.data.entry.vpn.to.dpn.list.VpnInterfaces> getDpnVpnInterfaces(DataBroker broker,
         VpnInstance vpnInstance, BigInteger dpnId) {
-        String rd = getRdFromVpnInstance(vpnInstance);
-        InstanceIdentifier<VpnToDpnList> dpnToVpnId = getVpnToDpnListIdentifier(rd, dpnId);
+        String primaryRd = getPrimaryRd(vpnInstance);
+        InstanceIdentifier<VpnToDpnList> dpnToVpnId = getVpnToDpnListIdentifier(primaryRd, dpnId);
         Optional<VpnToDpnList> dpnInVpn = VpnUtil.read(broker, LogicalDatastoreType.OPERATIONAL, dpnToVpnId);
         return dpnInVpn.isPresent() ? dpnInVpn.get().getVpnInterfaces() : Collections.emptyList();
     }
 
-    public static String getRdFromVpnInstance(VpnInstance vpnInstance) {
+    public static List<String> getListOfRdsFromVpnInstance(VpnInstance vpnInstance) {
         VpnAfConfig vpnConfig = vpnInstance.getIpv4Family();
         LOG.trace("vpnConfig {}", vpnConfig);
-        String rd = vpnConfig.getRouteDistinguisher();
-        if (rd == null || rd.isEmpty()) {
-            rd = vpnInstance.getVpnInstanceName();
-            LOG.trace("rd is null or empty. Assigning VpnInstanceName to rd {}", rd);
-        }
-
-        return rd;
+        return vpnConfig.getRouteDistinguisher() != null ? new ArrayList<>(
+                vpnConfig.getRouteDistinguisher()) : new ArrayList<String>();
     }
 
     static VrfEntry getVrfEntry(DataBroker broker, String rd, String ipPrefix) {
@@ -492,26 +489,6 @@ public class VpnUtil {
         String rd = null;
         if (vpnInstance.isPresent()) {
             rd = vpnInstance.get().getVrfId();
-        }
-        return rd;
-    }
-
-    /**
-     * Get VPN Route Distinguisher from VPN Instance Configuration.
-     *
-     * @param broker dataBroker service reference
-     * @param vpnName Name of the VPN
-     * @return the route-distinguisher of the VPN
-     */
-    public static String getVpnRdFromVpnInstanceConfig(DataBroker broker, String vpnName) {
-        InstanceIdentifier<VpnInstance> id = InstanceIdentifier.builder(VpnInstances.class)
-            .child(VpnInstance.class, new VpnInstanceKey(vpnName)).build();
-        Optional<VpnInstance> vpnInstance = VpnUtil.read(broker, LogicalDatastoreType.CONFIGURATION, id);
-        String rd = null;
-        if (vpnInstance.isPresent()) {
-            VpnInstance instance = vpnInstance.get();
-            VpnAfConfig config = instance.getIpv4Family();
-            rd = config.getRouteDistinguisher();
         }
         return rd;
     }
@@ -1435,4 +1412,43 @@ public class VpnUtil {
         return VpnConstants.DEFAULT_GATEWAY_MAC_ADDRESS;
     }
 
+    /**
+     * Retrieves the primary rd of a vpn instance
+     * Primary rd will be the first rd in the list of rds configured for a vpn instance
+     * If rd list is empty, primary rd will be vpn instance name
+     * Use this function only during create operation cycles. For other operations, use getVpnRd() method.
+     *
+     * @param dataBroker dataBroker service reference
+     * @param vpnName Name of the VPN
+     * @return the primary rd of the VPN
+     */
+    public static String getPrimaryRd(DataBroker dataBroker, String vpnName) {
+        InstanceIdentifier<VpnInstance> id  = getVpnInstanceIdentifier(vpnName);
+        Optional<VpnInstance> vpnInstance = VpnUtil.read(dataBroker, LogicalDatastoreType.CONFIGURATION, id);
+        if (vpnInstance.isPresent()) {
+            return getPrimaryRd(vpnInstance.get());
+        }
+        return vpnName;
+    }
+
+    /**
+     * Retrieves the primary rd of a vpn instance
+     * Primary rd will be the first rd in the list of rds configured for a vpn instance
+     * If rd list is empty, primary rd will be vpn instance name
+     * Use this function only during create operation cycles. For other operations, use getVpnRd() method.
+     *
+     * @param vpnInstance Config Vpn Instance Object
+     * @return the primary rd of the VPN
+     */
+    public static String getPrimaryRd(VpnInstance vpnInstance) {
+        List<String> rds = null;
+        if (vpnInstance != null) {
+            rds = getListOfRdsFromVpnInstance(vpnInstance);
+        }
+        return rds == null || rds.isEmpty() ? vpnInstance.getVpnInstanceName() : rds.get(0);
+    }
+
+    public static boolean isBgpVpn(String vpnName, String primaryRd) {
+        return !vpnName.equals(primaryRd);
+    }
 }
