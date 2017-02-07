@@ -1,0 +1,96 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_566db997",
+        "filename": "docs/specs/l3vpn-over-vxlan-with-evpn-rt5.rst",
+        "patchSetId": 2
+      },
+      "lineNbr": 361,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-02-07T15:12:39Z",
+      "side": 1,
+      "message": "Going by the notations used for Inter DC NAT cases, where external-l3vni is set as the tun_id, setting the same external-l3vni in Intra DC cases seems to be incorrect:).\nI think the tun-id value should not be external-l3vni for intra DC cases. Because external l3vni will never be programmed on table 36 (internal tunnel table), unless NAT for EVPN programs table 36 explicitly for tun_id \u003d external-l3vni. \nPlease clarify my above confusion :)",
+      "range": {
+        "startLine": 361,
+        "startChar": 127,
+        "endLine": 361,
+        "endChar": 148
+      },
+      "revId": "9044966b226fcd547b318987cc7ebfc6d9c07848",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_7609dddc",
+        "filename": "docs/specs/l3vpn-over-vxlan-with-evpn-rt5.rst",
+        "patchSetId": 2
+      },
+      "lineNbr": 367,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-02-07T15:12:39Z",
+      "side": 1,
+      "message": "This also relates to my previous comment above.",
+      "range": {
+        "startLine": 367,
+        "startChar": 31,
+        "endLine": 367,
+        "endChar": 60
+      },
+      "revId": "9044966b226fcd547b318987cc7ebfc6d9c07848",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_560499bf",
+        "filename": "docs/specs/l3vpn-over-vxlan-with-evpn-rt5.rst",
+        "patchSetId": 2
+      },
+      "lineNbr": 400,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-02-07T15:12:39Z",
+      "side": 1,
+      "message": "Same commrent as above.:)",
+      "range": {
+        "startLine": 400,
+        "startChar": 110,
+        "endLine": 400,
+        "endChar": 131
+      },
+      "revId": "9044966b226fcd547b318987cc7ebfc6d9c07848",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_962d6149",
+        "filename": "docs/specs/l3vpn-over-vxlan-with-evpn-rt5.rst",
+        "patchSetId": 2
+      },
+      "lineNbr": 405,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-02-07T15:12:39Z",
+      "side": 1,
+      "message": "Same comment as above",
+      "range": {
+        "startLine": 405,
+        "startChar": 31,
+        "endLine": 405,
+        "endChar": 60
+      },
+      "revId": "9044966b226fcd547b318987cc7ebfc6d9c07848",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
