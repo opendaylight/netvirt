@@ -14,40 +14,31 @@ using L3VPN provider network type use-case.
 Problem description
 ===================
 
-Provide IPv6 connectivity to virtual machines located in different subnets
-spread over multiple sites or Data center can be achieved through use of
-Globally Unique Addresses and capacity to update enough routing tables to
-forge a path between the two. Even if IPv6 is made to interconnect hosts
-without the help of any NAT mechanisms, routing with the best efficienty
-(shortest path) or policy (route weight, commercial relationships) must
-be configured using only few parameters, automatically updating routes
-for each VM spawned in new network.
+Provide IPv6 external connectivity to virtual machines located in Data center
+can be achieved through use of Globally Unique Addresses and usage of BGP VPN concepts.
+Even if VPN IPv6 is made to interconnect hosts without the help of any NAT mechanisms,
+routing to the external network for internet should be easily configured.
 
-Keep in mind that key aspects of L3VPN connectivity is Route Targets and
-VPN-IPv6 address family.
-Assuming an operator can configure data center gateways with a
-Route Distinguisher dedicated to Internet connectivity and a set of imported
-Route Targets, each time a virtual machine is spawned within a data center subnet
-associated with that Route Distinguisher, it will trigger the send of a BGP UPDATE
-message containing MP-BGP attributes required for reaching the VM outside the
-datacenter. In the same manner, adding extra-route or declaring subnetworks will
-trigger the same.
-Such behavior can be achieved by configuring a neutron router an internet public
-VPN address. For the following of the document, we focus to GUA/128 addresses that
-are advertised, when one VM start. Indeed, most of the requirements are dealing with
-VM access to internet.
+Keep in mind that key aspects of configuring IPv6 external connectivity should rely on
+Openstack and VPN concepts.
 
-Only IPv6 Globally Unique Address (eg /128) are advertised, this is not a scaling
-architecture since it implies as much routes to process as the number of spawned
-VMs, but with such BGP routing information base, DCGW can select the Compute Node
-to which a packet coming from the WAN should be forwarded to.
+There are already solutions to provide north south communication for IPv6 as depicted in [6].
+This document relies on VPN concepts to provide the same.
 
-The following covers the case where a VM connects to a host located in the internet,
-and the destination ip address of packets is not part of the list of advertised
-prefixes (see spec [6]).
+The document explores how VPN could be configured so as to provide IPv6 external
+connectivity. The document explores a solution for Only IPv6 Globally Unique
+Address (eg /128).
 
+Some caution need to be taken care with the solution chosen.
+As this is private VPN, that means that it should be possible to use a VPN for both
+usages, that is to say inter-DC and IPv6 external connectivity.
+Also, some security concerns must be taken care.
+Because VPN interacts with external equipment, the internal prefixes that are not
+authorised to access to the internet, should not be made visible to the DC-GW.
 
-Following schema could help :
+Following schema stands for what happens on the flows on the datacenter.
+For instance, the same MPLSoGRE tunnel can be used for both Inter-DC and
+IPv6 external connectivity.
 
 ::
 
@@ -81,167 +72,441 @@ Following schema could help :
 Use Cases
 ---------
 
-Datacenter IPv6 external connectivity to/from Internet for VMs spawned on tenant
-networks.
+Let's say an operator can configure data center gateways with a VPN dedicated to
+Internet connectivity.
 
-There are several techniques for VPNs to access the Internet. Those methods are
-described in [8], on section 11.
-Also a note describes in [8] the different techniques that could be applied to
-the DC-GW case. Note that not all solutions are compliant with the RFC. Also,
-we make the hypothesis of using GUA.
+Based on this configuration, if a virtual machine is spawned within a data center
+subnet, then it should be possible for that subnet to be imported to that VPN.
+As consequence of this relationship, a BGP UPDATE message containing MP-BGP attributes
+required for reaching the VM outside the datacenter would be sent to the DC-GW.
+In the same manner, adding extra-route or declaring subnetworks will trigger the same.
 
-The method that will be described more in detail below is the option 2. Option 2
-is external network connectivity option 2 from [8]). That method implies 2 VPNs.
+There are several techniques for tenant VMs to access the Internet, through usage of VPNs.
+Those methods are described in [8], on section 11.
+Also a note describes in [7] the different techniques that could be applied to
+the DC-GW case. Note that not all solutions are compliant with the RFC.
+One of the solutions from [7] are discussed in sub-chapter 'Proposal based on VPN
+semantics'. It is demonstrated that [7] is not correct.
+
+An other solution, described in [9], on slides 41, and 42, discusses the problem
+differently. It relies on openstack neutron concepts. It proposes that IPv6 local entries
+could be exported to an external network, whenever that network is attached to a
+neutron router, and that external network is associated to an internet VPN.
+Solution is exposed in sub-chapter 'Proposal based on External Network'.
+
+Solution described in [9] will be the chosen one.
+Consecutive chapters will describe how to implement [9], slide 41, 42.
+
+Proposal based on VPN semantics
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+A first proposal has been done, based on [7], option 2. Option 2 is external network
+connectivity option 2 from [7]). That method implies 2 VPNs, and is based on VPN semantics.
+
+To summarise, this solution is using the leaking facility when configuring VPN. It is possible
+to leak private VPN entries into internet VPN, so that the private VPN can have internet access.
+Reversely, a private VPN that has no grant access to Internet will not have the leak mechanism
+put in place.
+
+Below scheme can help. This is a logical representation with openstack objects.
+As you can see, on one side, one configure private network, and VPN private.
+Both are associated, either through a router or through the network-vpn association itself.
+On the other side, a network is associated to VPN internet.
+The arrows indicate the leaking from VPN private to VPN Internet.
+
+::
+
+   +----+
+   | VM |     +----------+
+   +----+-----| Subnet A |--+--------------+
+              +----------+  | Router 1     |        +--------------+
+              | Network N|  +--------------+        | Network      |
+              +----------+  | VPN private  |        +--------------+
+                            +--------------+        | VPN internet |
+                                     |              +--------------+
+                                     |                  ^  ^
+                                     -------------------|  |
+   +----+                                                  |
+   | VM |     +--------------+                             |
+   +----+-----| Subnet B     |                             |
+              +--------------+                             |
+              | Network M    |                             |
+              +--------------+                             |
+              | VPN private  |------------------------------
+              +--------------+
+
+The drawback of this solution is that the VPN leak mechanism processes both IPv4 and IPv6 entries
+independently, and that subsequently, private IPv4 addresses for this private VPN could be exposed
+to public, which may not be wished if IPv4 uses NAT.
+This solution could be used, provided that the administrator ensures that the openstack neutron router
+configured only processes IPv6 traffic.
+
 One VPN will be dedicated to Internet access, and will contain the Internet Routes,
 but also the VPNs routes. The Internet VPN can also contain default route to a gateway.
 Having a separated VPN brings some advantages:
-- the VPN that do not need to get Internet access get the private characteristic
-  of VPNs.
-- using a VPN internet, instead of default forwarding table is  enabling
-  flexibility, since it coud permit creating more than one internet VPN.
-  As consequence, it could permit applying different rules ( different gateway
-  for example).
+
+- the VPN that do not need to get Internet access get the private characteristic of VPNs.
+
+- using a VPN internet, instead of default forwarding table is  enabling flexibility.
+  Actually, it could permit creating more than one internet VPN.
+  As consequence, it could permit applying different rules ( different gateway for example).
 
 Having 2 VPNs implies the following for one packet going from VPN to the internet.
-The FIB table will be used for that. If the packet's destination address does no
-match any route in the first VPN, then it may be matched against the internet VPN
+The FIB table will be used for that. If the packet's destination address does not
+match any route in the private VPN, then it may be matched against the internet VPN
 forwarding table.
-Reversely, in order for traffic to flow natively in the opposite direction, some
-of the routes from the VPN will be exported to the internet VPN.
+
+For packets going from the DC-GW to the VM, the VM IP address will be a prefix entry.
+The reachability of the VM will be available from the two VPNs. Indeed, the BGP update
+messages from ODL/QBGP is received by DC-GW. That BGP update contains 2 export communities
+that stand for each VPN. The information of the BGP update is duplicated in each VPN.
+If the packet comes from the Internet, or from an InterDC, there will be a tunnel to use
+to reach the compute node that hosts the VM. A label will be associated, as well as the
+compute node nexthop IP.
+As the information is the same for both VMs, the VM will be reached in both cases.
+
 
 Configuration steps in a datacenter:
 
-  - Configure ODL and Devstack networking-odl for BGP VPN.
-  - Create a tenant network with IPv6 subnet using GUA prefix or an
-  admin-created-shared-ipv6-subnet-pool.
-  - This tenant network is connected to an external network where the DCGW is
-    connected. Separation between both networks is done by DPN located on compute
-    nodes. The subnet on this external network is using the same tenant as an IPv4
-    subnet used for MPLS over GRE tunnels endpoints between DCGW and DPN on
-    Compute nodes. Configure one GRE tunnel between DPN on compute node and DCGW.
+- Configure ODL and Devstack networking-odl for BGP VPN.
 
-  - Create a Neutron Router and connect its ports to all internal subnets
+- Create a private network with IPv6 subnet using GUA prefix or an admin-created-shared-ipv6-subnet-pool.
 
-  - Create a transport zone to declare that a tunneling method is planned to reach an external IP:
-  the IPv6 interface of the DC-GW
+- This private network is connected to an external network where the DCGW is connected.
+  Separation between both networks is done by DPN located on compute nodes.
+  The subnet on this external network is using the same tenant as an IPv4 subnet used for MPLS over GRE tunnels
+  endpoints between DCGW and DPN on Compute nodes. Configure one GRE tunnel between DPN on compute node and DCGW.
 
-  - The neutron router subnetworks will be associated to two L3 BGPVPN instance.
-   The step create the L3VPN instances and associate the instances to the router.
-   Especially, two VPN instances will be created, one for the VPN, and one for the
-   internetVPN.
+- Create a Neutron Router and connect its ports to all internal subnets
 
-   operations:neutronvpn:createL3VPN ( "route-distinguisher" = "vpn1"
-                                       "import-RT" = ["vpn1","internetvpn"]
-                                       "export-RT" = ["vpn1","internetvpn"])
-   operations:neutronvpn:createL3VPN ( "route-distinguisher" = "internetvpn"
-                                       "import-RT" = "internetvpn"
-                                       "export-RT" = "internetvpn")
+- Create a transport zone to declare that a tunneling method is planned to reach an external IP: the IPv6 interface of the DC-GW
 
-  - The DC-GW configuration will also include 2 BGP VPN instances.
+- The neutron router subnetworks will be associated to two L3 BGPVPN instance. The step create the L3VPN instances and associate
+  the instances to the router.
+  Especially, two VPN instances will be created, one for the VPN, and one for the internetVPN.
+  There are three workflows to handle when configuring VPNs:
+
+  - 1st workflow is "first the private VPN is created, then the internet VPN".
+
+::
+
+   neutron bgpvpn-create --route-distinguishers <vpn1>
+     --route-targets <vpn1>,<internetvpn> --tenant-id b954279e1e064dc9b8264474cb3e6bd2 --name vpn1
+   neutron bgpvpn-create --route-distinguishers <internetvpn>
+     --route-targets <internetvpn> --tenant-id b954279e1e064dc9b8264474cb3e6bd2 --name internetvpn
+
+  - 2nd workflow is "first the private VPN, then the internet VPN, then private VPN update".
+  Private VPN already exists. It is initially not configured to export entries to an other VPN.
+  In that case, the private VPN is updated through bgpvpn update command
+
+::
+
+   neutron bgpvpn-create --route-distinguishers <vpn1>
+     --route-targets <vpn1> --tenant-id b954279e1e064dc9b8264474cb3e6bd2 --name vpn1
+   neutron bgpvpn-create --route-distinguishers <internetvpn>
+     --route-targets <internetvpn> --tenant-id b954279e1e064dc9b8264474cb3e6bd2 --name internetvpn
+   neutron bgpvpn-update <ID of bgpvpn> --route-targets <vpn1> ,<internetvpn>
+
+  - 3rd workflow is "first the internet VPN, then the private VPN".
+
+::
+
+   neutron bgpvpn-create --route-distinguishers <internetvpn>
+     --route-targets <internetvpn> --tenant-id b954279e1e064dc9b8264474cb3e6bd2 --name internetvpn
+   neutron bgpvpn-create --route-distinguishers <vpn1>
+     --route-targets <vpn1>,<internetvpn> --tenant-id b954279e1e064dc9b8264474cb3e6bd2 --name vpn1
+
+- The DC-GW configuration will also include 2 BGP VPN instances.
     Below is a configuration from QBGP using vty command interface.
 
-  vrf rd "internetvpn"
-  vrf rt both "internetvpn"
-  vrf rd "vpn1"
-  vrf rt both "vpn1" "internetvpn"
+::
 
-  - Spawn VM and bind its network interface to a subnet, L3 connectivty between
-  VM in datacenter and a host on WAN  must be successful.
+     vrf rd "internetvpn"
+     vrf rt both "internetvpn"
+     vrf rd "vpn1"
+     vrf rt both "vpn1" "internetvpn"
+
+- Spawn VM and bind its network interface to a subnet, L3 connectivity between VM in datacenter and a host on WAN  must be successful.
   More precisely, a route belonging to VPN1 will be associated to VM GUA.
-  and will be sent to remote DC-GW. DC-GW will import the entry to both "vpn1" and "internetvpn"
-  so that the route will be known on both vpns.
-  Reversely, because DC-GW knows internet routes in "internetvpn", those routes will be sent to
-  QBGP. ODL will get those internet routes, only in the "internetvpn" vpn.
-  For example, when a VM will try to reach a remote, a first lookup will be done in "vpn1" FIB
-  table. If none is found, a second lookup will be found in the "internetvpn" FIB table. The
-  second lookup should be successfull, thus trigerring the encapsulation of packet to the DC-GW.
+  Then, it will be sent to remote DC-GW.
+  DC-GW will import the entry to both "vpn1" and "internetvpn" so that the route will be known on both vpns.
+  Reversely, because DC-GW knows internet routes in "internetvpn", those routes will be sent to QBGP.
+  ODL will get those internet routes, only in the "internetvpn" vpn.
+  For example, when a VM will try to reach a remote, a first lookup will be done in "vpn1" FIB table.
+  If none is found, a second lookup will be found in the "internetvpn" FIB table.
+  The second lookup should be successfull, thus trigerring the encapsulation of packet to the DC-GW.
 
-When the data centers is set up, there are 2 use cases:
+
+When the data centers is set up as above, there are 2 use cases:
   - Traffic from Local DPN to DC-Gateway
   - Traffic from DC-Gateway to Local DPN
-The use cases are slightly different from [6], on the Tx side.
+
+The use cases are slightly different from [5], on the Tx side.
+
+Proposal based on External Network
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Following scheme can help. It shows a logical overview of what needs to be configured on openstack point of view.
+As you can see, router is the object that makes relationship between internal and external world.
+On internal view, you can configure either subnetwork with router, directly.
+You can also associate a private VPN to a second private network ( here subnet B). This is for inter DC purposes.
+Even, you can associate router ( here router 2) with a private VPN 2, for inter DC purposes.
+In all cases, to reach the external connectivity, one needs to have an external network configured, as well as
+an VPN associated to Network External.
+
+::
+
+   +----+
+   | VM |     +----------+
+   +----+-----| Subnet A |--+-----------+
+              +----------+  | Router 1  |-----+--------------------+
+              | Network N|  +-----------+     | Network External 1 |
+              +----------+   |                +--------------------+
+                             |                | VPN internet 1     |
+                             |                +--------------------+
+                             |
+   +----+                    |
+   | VM |     +-----------+  |
+   +----+-----| Subnet B  |--+
+              +-----------+
+              | Network N |
+              +-----------+
+              |VPN private|
+	      +-----------+
+
+   +----+                   +------------+
+   | VM |     +----------+  |VPN private2|
+   +----+-----| Subnet C |--+------------+
+              +----------+  | Router 2   |-----+------------------+
+              | Network L|  +------------+     | Network External |
+              +----------+                     +------------------+
+                                               | VPN internet 2   |
+                                               +------------------+
+
+
+That second proposal is still assuming the fact that the user wants to deploy IPv6 GUA.
+Whenever a subnetwork, IPv4 or IPv6, wants to reach the outside, it uses openstack neutron
+router. Then in that router, an external network with a default gateway ( DC-GW for instance)
+is declared.
+If the IPv4 traffic is used, then the NAT mechanism will be put in place by "natting" the
+private network with the outgoing IP address of the external router.
+If the IPv6 traffic is used, then the users that want to provide internet connectivity, will
+have two options to do this:
+- option a: benefit from [6] so that centralised virtual router is used to provide IPv6 connectivity
+- option b: use L3VPN feature to import private IP to a VPN that has been created for internet
+connectivity. That VPN could be called "Internet VPN", and could be associated to the external network
+defined in the router. As the "Internet VPN" also imports internet routes provided by DC-GW, that VPN
+is able to create the necessary pipeline rules ( the necessary MPLS over GRE tunnels), so that the
+various VMs that are granted, can access to the Internet.
+
+This is option b that we discuss later.
+
+Configuration steps in a datacenter:
+
+- Configure ODL and Devstack networking-odl for BGP VPN.
+
+- Create a private network with IPv6 subnet using GUA prefix
+
+- This network is connected to an external network through the neutron router.
+
+- Create a transport zone to declare that a tunneling method is planned to reach an external IP:
+  the IPv6 interface of the DC-GW
+
+- Create a Neutron Router
+
+- Create an external network, as illustrated in example below.
+
+::
+
+      neutron net-create --router:external=true gateway_net
+
+- The step create the L3VPN instances. As illustration, the route distinguisher and route target
+  are set to 100:1.
+
+::
+
+      neutron bgpvpn-create --route-distinguishers <internetvpn>
+         --route-targets <internetvpn> --tenant-id b954279e1e064dc9b8264474cb3e6bd2 --name internetvpn
+
+
+- step (1) : Connect the router ports to the internal subnets that need to access to the internet.
+
+::
+
+      neutron router-interface-add router4 subnet_private4
+
+- step (2) : The external network will be associated with the "internet VPN" instance.
+
+::
+
+     operations:neutronvpn:associateNetworks ( "network-id":"<uuid of external network gateway_net >"
+                                               "vpn-id":"<uuid of internetvpn>")
+
+- step (3) : The external network will be associated to the router.
+
+::
+
+     neutron router-gateway-set router5 GATEWAY_NET
+
+The last 3 operations on configuration steps have a step number: step (x) for example.
+Note that step-ids (1), (2), and (3) can be combined in different orders.
 
 Proposed change
 ===============
 
-Similar as with [6], plus a specific processing on Tx side.
-An additionnal processing in DPN is required. When a packet is received by a
-neutron router associated with L3VPN, with destination mac address is the subnet
-gateway mac address, and the destination ip is not in the FIB (default gateway)
-of local DPN, then the packet should do a second lookup in the second VPN configured.
-So that the packet can enter the L3VPN netvirt pipeline.
-The MPLS label pushed on the IPv6 packet is the one configured to provide access
-to Internet at DCGW level.
+The proposal based on external network is the one chosen to do changes.
+
+The changes consist in :
+
+- extending the neutronvpn.yang subnet structure so as to link the external vpn to the private subnetwork.
+
+- providing a mechanism in the data path, so that the router recognizes there is an external VPN to use,
+  if the condition of having external network connectivity in the router is necessary.
+  Also, the condition of having a VPN associated to the external network is necessary.
+  If above conditions are not met, IPv6 packets will be dropped.
+
+For doing L3 forwarding, the packet will be transported to either the neutron router, or the private VPN.
+In both cases, the packet will erach table 17, for L3forwarding.
+If there is no private VPN attached, then the packet is transported to the table 17, using vpn-id=router-id.
+If there is a private VPN attached, then the packet is transported to table 17, using vpn-id=vpn-private-id.
+Then, a check will be done against external VPN.
+
+In all cases, the external VPN will be a fallback mechanism against IPv6 packets so that they go to the Internet.
+For that, a fallback mechanism similar to option 2 from [7] will be put in place.
+
+
+Neutron VPN Changes
+-------------------
+
+Those are theorical changes that should be done.
+This chapter should be reviewed.
+
+VPN - IPv6 Subnetwork Relationship established
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The 3 following conditions must be met, so that prefixes importation to the internet VPN will occur.
+- on that subnet, some routing information is bound: ( VMs allocated IPs, extra route or subnet-routing configured)
+- the same router has an external network configured
+- the external network is being associated a VPN.
+
+NeutronVPN listens for events that involve change of the above, that is to say:
+
+- attach a subnetwork from router.
+  A check is done on the nature of the subnet: IPv6.
+  A check is done also to see on the list of external networks configured on the router,
+  if there are any attached VPN.
+
+- attach an external network to router.
+  A check is done on the presence of a VPN to the external router or not.
+
+- associate network to VPN.
+  If the network associated is external, a check is done on the routers that use that network.
+
+If above condition is met, VPN Manager will be called.
+
+VPN - IPv6 Subnetwork Relationship unestablished
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+If above condition is not met, the following will be triggered, depending on the incoming events.
+
+- for a detached subnetwork from router, a check is done if a VPN is associated to the external network
+  of that router.
+
+- for an external network detached from router, a check is done to see if that network had a VPN instance.
+
+- for a VPN disassociated from a network, the VPN instance is elected.
+
+If above condition is met, VPNManager will be called.
+
+VPN - IPv6 Subnetwork Other Events
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Other events will be listened. The following events are the following ones:
+
+- VM allocated or disallocated
+
+- extra route configured or unconfigured
+
+- subnetrouting configured or not configured.
+
+If the condition described above about the case where a VPN is associated to an IPv6 private subnetwork,
+by using a neutron router, then the following will be triggered in VPNManager:
+
+- there will be an importation of the associated data if a new VM just went on, or a new configuration just has been added.
+
+- there will be a removal of the associated entry if a VM just went off, or a configuration has been flushed.
+
+VPN Manager Changes
+-------------------
+
+The VPN Manager is responsible of providing the following APIs:
+For a given pair (VPN, subnetwork), and a status on the relationship ( established, non established), do the following:
+
+- if relationship is non established, parse the VPN associated, and remove all or the associated information in relationship to the selected
+  IPv6 subnetwork. If no specific subnetwork is selected, all entries of the VPN will be flushed:
+
+  o IPS of the VMS previously allocated
+
+  o extra routes configured, bound to that subnetwork (or to all subnetworks)
+
+  o subnetwork if subnet routing is configured
+
+- if the relationship is established,  parse the IPv6 subnetwork ( from private networks) from the Router for importation to the VPN.
+
+  o IPS of the VMS previously allocated
+
+  o extra routes configured, bound to that subnetwork
+
+  o subnetwork if subnet routing is configured
+
 
 Pipeline changes
 ----------------
+No pipeline changes for downstream.
 
-No pipeline changes, compared with [6]. However, FIB Manager will be modified so as to
-implement the fallback mechanism. The FIB tables of the import-RTs VPNs from the default
-VPN created will be parsed. In our case, a match will be found in the "internetVPN"
-FIB table. If not match is found, the drop rule will be applied.
+Pipeline change for upstream. Indeed, the external VPN will be translated into a fallback rule for external access.
+This happens if there is external connectivity access, by using VPN associated to external network.
+This applies also only to IPv6 traffic.
+
+Packets going out from VM will match against either L3 forwarding in the DC, or L3 forwarding using L3VPN.
+Assuming this, once in table 21, the packet will be tested against an IPv6 packet.
+If it is the case, the packet will be resubmitted to table 21, to see if it matches some entries of the internet VPN table.
+If it is the case, then the packet will be encapsulated with the correct MPLSoGRE tag.
+
+Below are illustrated 2 use cases that have been identified.
 
 
-Regarding the pipeline changes, we can use the same BGPVPNv4 pipeline
-(Tables Dispatcher (17), DMAC (19), LFIB (20), L3FIB (21), and NextHop Group
-tables) and enhance those tables to support IPv6 North-South communication
-through MPLS/GRE.
-For understanding, the pipeline is written below: l3vpn-id is the ID associated to the initial VPN,
-while l3vpn-internet-id is the ID associated to the internet VPN.
+Case VM to DC-GW with VPN internet configured, and standard Layer 3 routing for intra-DC traffic
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+| Lport Dispatcher Table (17) ``match: LportTag l3 service: set vpn-id=router-id`` =>
+| DMAC Service Filter (19) ``match: dst-mac=router-internal-interface-mac vpn-id=l3vpn-id`` =>
+| L3 FIB Table (21) ``match: dl_type=0x86dd, vpn-id=router-id, set vpn-id=internetvpn-id, resubmit(,21)`` =>
+| L3 FIB Table (21) ``match: vpn-id=internetvpn-id, nw-dst=<IP-from-internetvpn> set tun-id=mpls_label output to MPLSoGRE tunnel port`` =>
 
 
-Traffic from DC-Gateway to Local DPN (SYMMETRIC IRB)
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-When a packet is coming from DC-Gateway, the label will help finding out the associated VPN. The first one is l3vpn-id.
-
+Case VM to DC-GW with VPN internet configured, and Inter-DC VPN configured
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 | Classifier Table (0) =>
-| LFIB Table (20) ``match: tun-id=mpls_label set vpn-id=l3vpn-id, pop_mpls label, set output to nexthopgroup-dst-vm`` =>
-| NextHopGroup-dst-vm: ``set-eth-dst dst-mac-vm, reg6=dst-vm-lport-tag`` =>
-| Lport Egress Table (220) ``Output to dst vm port``
-
-Traffic from Local DPN to DC-Gateway (SYMMETRIC IRB)
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-When a packet is going out from a dedicated VM, the l3vpn-id attached to that subnetwork will be used.
-Theorically, in L3 FIB, there will be no match for dst IP with this l3vpn-id.
-However, because ODL know the relationship between both VPNs, then the dst IP will be attached
-with the first l3vpn-id.
-
-However, since the gateway IP for inter-DC and external access is the same, the same MPLS label will be used for both VPNs.
-
-| Classifier Table (0) =>
-| Lport Dispatcher Table (17) ``match: LportTag l3vpn service: set vpn-id=l3vpn-id` =>
-| DMAC Service Filter (19) ``match: dst-mac=router-internal-interface-mac l3vpn service: set vpn-id=internet-l3vpn-id`` =>
-| L3 FIB Table (21) ``match: vpn-id=l3vpn-id, nw-dst=<alternate-ip> set tun-id=mpls_label output to MPLSoGRE tunnel port`` =>
-| L3 FIB Table (21) ``match: vpn-id=l3vpn-id, nw-dst=ext-ip-address set tun-id=mpls_label output to MPLSoGRE tunnel port`` =>
-
-Fib Manager changes
--------------------
-
-Ingress traffic from internet to VM
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-The FIB Manager is being configured with 2 entries for different RDs : l3vpn-id and internetvpn-id.
-The LFIB will be matched first.
-In our case, label NH and prefix are the same, whereas we have 2 VPN instances.
-So, proposed change is to prevent LFIB from adding entries if a label is already registered for that compute node.
-
-Egress traffic from VM to internet
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-The FIB Manager is being configured with the internet routes on one RD only : internetvpn-id.
-As packets that are emitted from the VM with vpn=l3vpn-id, the internet route will not be matched in l3vpn, if implementation remains as it is.
-In FIB Manager, solution is the following:
-- The internetvpn is not attached to any local subnetwork.
-so, any eligible VPNs are looked up in the list of VPN instances.
-for each VPN instance, for each RD, if an imported RT matches the internetvpnID, then a new rule will be appended.
-
+| Lport Dispatcher Table (17) ``match: LportTag l3vpn service: set vpn-id=l3vpn-id`` =>
+| DMAC Service Filter (19) ``match: dst-mac=router-internal-interface-mac vpn-id=l3vpn-id`` =>
+| L3 FIB Table (21) ``match: vpn-id=l3vpn-id, nw-dst=<IP-from-vpn> set tun-id=mpls_label output to MPLSoGRE tunnel port`` =>
+| L3 FIB Table (21) ``match: dl_type=0x86dd, vpn-id=l3vpn-id, set vpn-id=internetvpn-id, resubmit(,21)`` =>
+| L3 FIB Table (21) ``match: vpn-id=internetvpn-id, nw-dst=<IP-from-internetvpn> set tun-id=mpls_label output to MPLSoGRE tunnel port`` =>
 
 Yang changes
 ------------
-None
+The neutronvpn.yang subnetmap structure will be modified.
+subnetmap structure will have a new field called
+
+::
+
+       leaf vpn-external-id {
+          type    yang:uuid;
+          description "External VPN to which this subnet belongs";
+       }
 
 Configuration impact
----------------------
-The configuration will require to create 2 VPN instances.
+--------------------
+None
 
 Clustering considerations
 -------------------------
@@ -257,12 +522,7 @@ None
 
 Scale and Performance Impact
 ----------------------------
-The number of entries will be duplicated, compared with [6].
-This is the cost in order to keep some VPNs private, and others kind of public.
-Another impact is the double lookup that may result, when emitting a packet.
-This is due to the fact that the whole fib should be parsed to fallback
-to the next VPN, in order to make an other search, so that the packet can enter
-in the L3VPN flow.
+None
 
 Targeted Release
 -----------------
@@ -284,12 +544,18 @@ Usage
   etc/custom.properties. No REST API can configure that parameter.
   Use config/ebgp:bgp REST api to start BGP stack and configure VRF, address
   family and neighboring. In our case, as example, following values will be used:
-    - rd="100:2" # internet VPN
-      - import-rts="100:2"
-      - export-rts="100:2"
-    - rd="100:1" # vpn1
-      - import-rts="100:1 100:2"
-      - export-rts="100:1 100:2"
+
+::
+
+  rd="100:2" # internet VPN
+    import-rts="100:2"
+    export-rts="100:2"
+   rd="100:1" # vpn1
+    import-rts="100:1 100:2"
+    export-rts="100:1 100:2"
+
+
+Following operations are done.
 
 ::
 
@@ -317,10 +583,21 @@ Usage
  }
 
 
- * Configure BGP speaker on DCGW to exchange prefixes with ODL BGP stack. Since
+* Configure BGP speaker on DCGW to exchange prefixes with ODL BGP stack. Since
   DCGW should be a vendor solution, the configuration of such equipment is out of
   the scope of this specification.
 
+* Create a neutron router
+
+::
+
+      neutron router-create router1
+
+* Create an external network
+
+::
+
+      neutron net-create --router:external=true gateway_net
 
 * Create an internal tenant network with an IPv6 (or dual-stack) subnet.
 
@@ -351,22 +628,17 @@ Usage
     }
  }
 
- POST /restconf/operations/neutronvpn:createL3VPN
+* Associate the private network with the router
 
- {
-    "input": {
-       "l3vpn":[
-          {
-             "id":"vpnid_uuid_2",
-             "name":"vpn1",
-             "route-distinguisher": [100:1],
-             "export-RT": [100:1, 100:2],
-             "import-RT": [100:1, 100:2],
-             "tenant-id":"tenant_uuid"
-          }
-       ]
-    }
- }
+::
+
+      neutron router-interface-add router1 ipv6-int-subnet
+
+* Associate the external network with the router
+
+::
+
+     neutron router-gateway-set router5 GATEWAY_NET
 
 * Associate L3VPN To Network
 
@@ -443,37 +715,54 @@ REST API
 CLI
 ---
 
-
 Implementation
 ==============
 
 Assignee(s)
 -----------
 Primary assignee:
-  Julien Courtat <julien.courtat@6wind.com>
+  Philippe Guibert <philippe.guibert@6wind.com>
 
 Other contributors:
   Noel de Prandieres <prandieres@6wind.com>
+
   Valentina Krasnobaeva <valentina.krasnobaeva@6wind.com>
-  Philippe Guibert <philippe.guibert@6wind.com>
 
 Work Items
 ----------
 
-* Validate proposed setup so that each VM entry is duplicated in 2 VPN instances
-* Implement FIB-Manager fallback mechanism for output packets
+* Validate proposed changes - reuse subnetmap
+* Implement NeutronVpn and VpnManager
+* Testing
 
 Dependencies
 ============
-[6]
+[5]
 
 Testing
 =======
+3 operations will trigger the association between private network and external network:
+- associate subnet to router
+- associate Router to External Network
+- associate External Network to Internet VPN
+
+Following workflows should be tested OK
+
+- Subnets -> Router, Router -> Ext Net, Ext Net -> Int. VPN
+
+- Subnets -> Router, Ext Net -> Int. VPN, Router -> Ext Net
+
+- Ext Net -> Int. VPN, Router -> Ext Net, Subnets -> Router
+
+- Router -> Ext Net, Ext Net -> Int. VPN, Subnets -> Router
+
+- Router -> Ext Net, Subnets -> Router, Ext Net -> Int. VPN
+
+- Ext Net -> Int. VPN, Subnets -> Router, Router -> Ext Net
 
 Unit Tests
 ----------
-Unit tests related to fallback mechanism when setting up 2 VPN instances configured
-as above.
+TBD
 
 Integration Tests
 -----------------
@@ -481,12 +770,11 @@ TBD
 
 CSIT
 ----
-CSIT provided for the BGPVPNv6 versions will be enhanced to also support
-connectivity to Internet.
-
+TBD
 
 Documentation Impact
 ====================
+A design document will be provided.
 Necessary documentation would be added on how to use this feature.
 
 References
@@ -497,21 +785,20 @@ References
 
 [3] http://docs.openstack.org/developer/networking-bgpvpn/overview.html
 
-[4] `IPv6 Distributed Router for Flat/VLAN based Provider Networks.
-<https://git.opendaylight.org/gerrit/#/q/topic:ipv6-distributed-router>`_
-
-[5] `BGP-MPLS IP Virtual Private Network (VPN) Extension for IPv6 VPN
+[4] `BGP-MPLS IP Virtual Private Network (VPN) Extension for IPv6 VPN
 <https://tools.ietf.org/html/rfc4659>`_
 
-[6] `Spec to support IPv6 Inter DC L3VPN connectivity using BGPVPN.
+[5] `Spec to support IPv6 Inter DC L3VPN connectivity using BGPVPN.
 <https://git.opendaylight.org/gerrit/#/c/50359>`_
 
-[7] `Spec to support IPv6 North-South support for Flat/VLAN Provider Network.
+[6] `Spec to support IPv6 North-South support for Flat/VLAN Provider Network.
 <https://git.opendaylight.org/gerrit/#/c/49909/>`_
 
-[8] `External Network connectivity in IPv6 networks.
+[7] `External Network connectivity in IPv6 networks.
 <https://drive.google.com/file/d/0BxAspfn9mEi8OEtvVFpsZXo0ZlE/view>`_
 
-[9] `BGP/MPLS IP Virtual Private Networks (VPNs)
+[8] `BGP/MPLS IP Virtual Private Networks (VPNs)
 <https://tools.ietf.org/html/rfc4364#section-11>`_
 
+[9] `IPv6 Support in MPLS over GRE overlays
+<https://docs.google.com/presentation/d/1Ky-QIrIhdaus0m7e2rIkKDS3rJx7ro-yzTWb89w08pU/edit#slide=id.p7>`_
