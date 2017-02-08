@@ -8,7 +8,10 @@
 package org.opendaylight.netvirt.bgpmanager;
 
 import com.google.common.base.Preconditions;
+
 import java.util.List;
+import java.util.stream.Collectors;
+
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.netvirt.fibmanager.api.RouteOrigin;
@@ -18,6 +21,9 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev15033
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.VrfEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.VrfEntryBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.VrfEntryKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.vrfentry.RoutePaths;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.vrfentry.RoutePathsBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.vrfentry.RoutePathsKey;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier.InstanceIdentifierBuilder;
 import org.slf4j.Logger;
@@ -40,7 +46,6 @@ public class FibDSWriter {
         }
 
         Preconditions.checkNotNull(nextHopList, "NextHopList can't be null");
-
         for (String nextHop : nextHopList) {
             if (nextHop == null || nextHop.isEmpty()) {
                 LOG.error("nextHop list contains null element");
@@ -56,19 +61,27 @@ public class FibDSWriter {
                         .child(VrfTables.class, new VrfTablesKey(rd))
                         .child(VrfEntry.class, new VrfEntryKey(prefix)).build();
 
-        VrfEntryBuilder vrfEntryBuilder = new VrfEntryBuilder().setDestPrefix(prefix)
-                .setNextHopAddressList(nextHopList).setLabel((long)label).setOrigin(origin.getValue());
-        buildVpnEncapSpecificInfo(vrfEntryBuilder, encapType, (long)label, l3vni, macAddress, gatewayMacAddress);
-        BgpUtil.write(dataBroker, LogicalDatastoreType.CONFIGURATION, vrfEntryId, vrfEntryBuilder.build());
+        VrfEntryBuilder vrfEntryBuilder = new VrfEntryBuilder().setDestPrefix(prefix).setOrigin(origin.getValue());
+        buildVpnEncapSpecificInfo(vrfEntryBuilder, encapType, (long)label, l3vni, macAddress,
+                gatewayMacAddress, nextHopList);
+        BgpUtil.update(dataBroker, LogicalDatastoreType.CONFIGURATION, vrfEntryId, vrfEntryBuilder.build());
     }
 
-    private static void buildVpnEncapSpecificInfo(VrfEntryBuilder builder, VrfEntry.EncapType encapType, long label,
-                                                  long l3vni, String macAddress, String gatewayMac) {
-        if (encapType.equals(VrfEntry.EncapType.Mplsgre)) {
-            builder.setLabel(label);
-        } else {
+    private static void buildVpnEncapSpecificInfo(VrfEntryBuilder builder,
+            VrfEntry.EncapType encapType, long label, long l3vni, String macAddress,
+            String gatewayMac, List<String> nextHopList) {
+        List<RoutePaths> routePaths = nextHopList.stream().map(nextHop -> {
+            RoutePathsBuilder routePathsBuilder = new RoutePathsBuilder();
+            routePathsBuilder.setKey(new RoutePathsKey(nextHop)).setNexthopAddress(nextHop);
+            if (encapType.equals(VrfEntry.EncapType.Mplsgre)) {
+                routePathsBuilder.setLabel(label);
+            }
+            return routePathsBuilder.build();
+        }).collect(Collectors.toList());
+        if (!encapType.equals(VrfEntry.EncapType.Mplsgre)) {
             builder.setL3vni(l3vni).setGatewayMacAddress(gatewayMac);
         }
+        builder.setRoutePaths(routePaths);
         builder.setEncapType(encapType);
     }
 
