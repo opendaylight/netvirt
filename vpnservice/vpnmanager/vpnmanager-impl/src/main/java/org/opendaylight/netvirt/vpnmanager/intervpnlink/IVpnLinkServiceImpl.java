@@ -133,6 +133,7 @@ public class IVpnLinkServiceImpl implements IVpnLinkService, AutoCloseable {
         leakRoute(optIVpnLink.get(), vpnName, prefix, nextHopList, label, addOrRemove);
     }
 
+    @SuppressWarnings("checkstyle:IllegalCatch")
     private void leakRoute(InterVpnLinkDataComposite interVpnLink, String vpnName, String prefix,
                            List<String> nextHopList, int label, int addOrRemove) {
 
@@ -160,7 +161,12 @@ public class IVpnLinkServiceImpl implements IVpnLinkService, AutoCloseable {
                                            Collections.singletonList(leakedNexthop), VrfEntry.EncapType.Mplsgre,
                                            (int) leakedLabel, 0 /*l3vni*/, null /*gatewayMacAddress*/,
                                            RouteOrigin.INTERVPN, null /*writeConfigTxn*/);
-            bgpManager.advertisePrefix(dstVpnRd, prefix, nextHopList, (int) leakedLabel);
+            try {
+                bgpManager.advertisePrefix(dstVpnRd, null /*macAddress*/, prefix, nextHopList,
+                        VrfEntry.EncapType.Mplsgre, (int)leakedLabel, 0 /*l3vni*/, null /*gwMacAddress*/);
+            } catch (Exception e) {
+                LOG.error("Exception while advertising prefix for intervpn link, {}", e);
+            }
         } else {
             LOG.debug("Removing leaked route to {} from VPN {}", prefix, dstVpnName);
             fibManager.removeFibEntry(dataBroker, dstVpnRd, prefix, null /*writeConfigTxn*/);
@@ -199,7 +205,8 @@ public class IVpnLinkServiceImpl implements IVpnLinkService, AutoCloseable {
         Map<String, String> routerXL3VpnMap = buildRouterXL3VPNMap();
 
         // Retrieving all Routers
-        InstanceIdentifier<Routers> routersIid = InstanceIdentifier.builder(Neutron.class).child(Routers.class).build();
+        InstanceIdentifier<Routers> routersIid = InstanceIdentifier.builder(Neutron.class)
+                .child(Routers.class).build();
         Optional<Routers> routerOpData = MDSALUtil.read(dataBroker, LogicalDatastoreType.CONFIGURATION, routersIid);
         if ( !routerOpData.isPresent() ) {
 
@@ -230,6 +237,7 @@ public class IVpnLinkServiceImpl implements IVpnLinkService, AutoCloseable {
      *              at the other side of the InterVpnLink
      * @param iVpnLink
      */
+    @SuppressWarnings("checkstyle:IllegalCatch")
     private void handleStaticRoute(String vpnId, Routes route, InterVpnLinkDataComposite ivpnLink) {
 
         IpAddress nhIpAddr = route.getNexthop();
@@ -256,7 +264,11 @@ public class IVpnLinkServiceImpl implements IVpnLinkService, AutoCloseable {
         int label = VpnUtil.getUniqueId(idManager, VpnConstants.VPN_IDPOOL_NAME,
                                         VpnUtil.getNextHopLabelKey(vpnId, destination));
 
-        InterVpnLinkUtil.handleStaticRoute(ivpnLink, vpnId, destination, routeNextHop, label,
-                                           dataBroker, fibManager, bgpManager);
+        try {
+            InterVpnLinkUtil.handleStaticRoute(ivpnLink, vpnId, destination, routeNextHop, label,
+                                               dataBroker, fibManager, bgpManager);
+        } catch (Exception e) {
+            LOG.error("Exception while advertising prefix for intervpn link, {}", e);
+        }
     }
 }
