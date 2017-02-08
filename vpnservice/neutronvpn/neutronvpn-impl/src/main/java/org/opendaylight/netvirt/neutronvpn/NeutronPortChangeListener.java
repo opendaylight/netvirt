@@ -1,5 +1,5 @@
 /*
- * Copyright © 2015, 2017 Ericsson India Global Services Pvt Ltd. and others.  All rights reserved.
+ * Copyright © 2015 - 2017 Ericsson India Global Services Pvt Ltd. and others.  All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
@@ -113,15 +113,21 @@ public class NeutronPortChangeListener extends AsyncDataTreeChangeListenerBase<P
         }
         NeutronvpnUtils.addToPortCache(input);
 
+        //Ports with owners that indicate they are fictitious entities, for which no port will be connected to OVS
+        //are marked ACTIVE immediately. All other ports are marked down until after the port is operational and
+        //basic L2 flows are written to MDSAL.
+        String portStatus = NeutronUtils.PORT_STATUS_DOWN;
         /* check if router interface has been created */
         if ((input.getDeviceOwner() != null) && (input.getDeviceId() != null)) {
             if (input.getDeviceOwner().equals(NeutronConstants.DEVICE_OWNER_ROUTER_INF)) {
                 handleRouterInterfaceAdded(input);
+                NeutronUtils.createPortStatus(input.getUuid().getValue(), NeutronUtils.PORT_STATUS_ACTIVE, dataBroker);
                 /* nothing else to do here */
                 return;
             }
             if (NeutronConstants.DEVICE_OWNER_GATEWAY_INF.equals(input.getDeviceOwner())) {
                 handleRouterGatewayUpdated(input);
+                portStatus = NeutronUtils.PORT_STATUS_ACTIVE;
             } else if (NeutronConstants.DEVICE_OWNER_FLOATING_IP.equals(input.getDeviceOwner())) {
 
                 // populate floating-ip uuid and floating-ip port attributes (uuid, mac and subnet id for the ONLY
@@ -131,11 +137,14 @@ public class NeutronPortChangeListener extends AsyncDataTreeChangeListenerBase<P
 
                 elanService.handleKnownL3DmacAddress(input.getMacAddress().getValue(), input.getNetworkId().getValue(),
                         NwConstants.ADD_FLOW);
+                portStatus = NeutronUtils.PORT_STATUS_ACTIVE;
             }
         }
         if (input.getFixedIps() != null && !input.getFixedIps().isEmpty()) {
             handleNeutronPortCreated(input);
         }
+
+        NeutronUtils.createPortStatus(input.getUuid().getValue(), portStatus, dataBroker);
     }
 
     @Override
