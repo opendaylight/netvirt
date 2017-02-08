@@ -77,18 +77,17 @@ public class VrfListener extends AbstractDataChangeListener<VrfEntry> implements
 
     @Override
     protected void remove(InstanceIdentifier<VrfEntry> identifier, VrfEntry vrfEntryDeleted) {
-        LOG.debug("VrfEntry removed: id={}  vrfEntry=[ destination={}, nexthops=[{}],  label={} ]",
-                  identifier, vrfEntryDeleted.getDestPrefix(), vrfEntryDeleted.getNextHopAddressList(),
-                  vrfEntryDeleted.getLabel());
+        LOG.debug("VrfEntry removed: id={}  vrfEntry=[ destination={}, route-paths=[{}]]",
+                  identifier, vrfEntryDeleted.getDestPrefix(), vrfEntryDeleted.getRoutePaths());
         String vpnRd = identifier.firstKeyOf(VrfTables.class).getRouteDistinguisher();
         programLabelInAllVpnDpns(vpnRd, vrfEntryDeleted, NwConstants.DEL_FLOW);
     }
 
     @Override
     protected void update(InstanceIdentifier<VrfEntry> identifier, VrfEntry original, VrfEntry update) {
-        LOG.debug("VrfEntry updated: id={}  vrfEntry=[ destination={}, nexthops=[{}],  label={} ]",
-                  identifier, update.getDestPrefix(), update.getNextHopAddressList(), update.getLabel());
-        if (original.getLabel() != update.getLabel()) {
+        LOG.debug("VrfEntry updated: id={}  vrfEntry=[ destination={}, route-paths=[{}]]",
+                  identifier, update.getDestPrefix(), update.getRoutePaths());
+        if (original.getRoutePaths() != update.getRoutePaths()) {
             remove(identifier, original);
             add(identifier, update);
         }
@@ -96,9 +95,8 @@ public class VrfListener extends AbstractDataChangeListener<VrfEntry> implements
 
     @Override
     protected void add(InstanceIdentifier<VrfEntry> identifier, VrfEntry vrfEntryAdded) {
-        LOG.debug("VrfEntry added: id={}  vrfEntry=[ destination={}, nexthops=[{}],  label={} ]",
-                  identifier, vrfEntryAdded.getDestPrefix(), vrfEntryAdded.getNextHopAddressList(),
-                  vrfEntryAdded.getLabel());
+        LOG.debug("VrfEntry added: id={}  vrfEntry=[ destination={}, route-paths=[{}]]",
+                  identifier, vrfEntryAdded.getDestPrefix(), vrfEntryAdded.getRoutePaths());
         String vpnRd = identifier.firstKeyOf(VrfTables.class).getRouteDistinguisher();
         programLabelInAllVpnDpns(vpnRd, vrfEntryAdded, NwConstants.ADD_FLOW);
     }
