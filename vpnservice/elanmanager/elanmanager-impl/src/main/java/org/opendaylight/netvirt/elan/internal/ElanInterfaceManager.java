@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 Ericsson India Global Services Pvt Ltd. and others.  All rights reserved.
+ * Copyright (c) 2016, 2017 Ericsson India Global Services Pvt Ltd. and others.  All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
@@ -58,6 +58,7 @@ import org.opendaylight.netvirt.elan.utils.ElanForwardingEntriesHandler;
 import org.opendaylight.netvirt.elan.utils.ElanUtils;
 import org.opendaylight.netvirt.elanmanager.utils.ElanL2GwCacheUtils;
 import org.opendaylight.netvirt.neutronvpn.api.l2gw.L2GatewayDevice;
+import org.opendaylight.netvirt.neutronvpn.api.utils.NeutronUtils;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.PhysAddress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.action.types.rev131112.action.list.Action;
@@ -661,8 +662,8 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
         installEntriesForElanInterface(elanInstance, elanInterface, interfaceInfo,
                 isFirstInterfaceInDpn, tx, writeFlowGroupTx);
         List<PhysAddress> staticMacAddresses = elanInterface.getStaticMacEntries();
+        boolean isInterfaceOperational = isOperational(interfaceInfo);
         if (staticMacAddresses != null) {
-            boolean isInterfaceOperational = isOperational(interfaceInfo);
             for (PhysAddress physAddress : staticMacAddresses) {
                 InstanceIdentifier<MacEntry> macId = getMacEntryOperationalDataPath(elanInstanceName, physAddress);
                 Optional<MacEntry> existingMacEntry = elanUtils.read(broker,
@@ -693,6 +694,10 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
         }
         futures.add(ElanUtils.waitForTransactionToComplete(tx));
         futures.add(ElanUtils.waitForTransactionToComplete(writeFlowGroupTx));
+        if (isInterfaceOperational) {
+            //At this point, the interface is operational and D/SMAC flows have been configured, mark the port active
+            NeutronUtils.updatePortStatus(elanInterface.getName(), NeutronUtils.PORT_STATUS_ACTIVE, broker);
+        }
     }
 
     protected void removeInterfaceStaticMacEntires(String elanInstanceName, String interfaceName,
