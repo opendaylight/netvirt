@@ -72,14 +72,14 @@ public class NeutronSubnetChangeListener extends AsyncDataTreeChangeListenerBase
             return;
         }
 
-        handleNeutronSubnetCreated(input.getUuid(), String.valueOf(input.getCidr().getValue()), networkId,
-                input.getTenantId());
         if (NeutronvpnUtils.getIsExternal(network) && NeutronvpnUtils.isFlatOrVlanNetwork(network)) {
             LOG.trace("Added subnet {} part of external network {} will add NAT external subnet", input, networkId);
             nvpnManager.createVpnInstanceForSubnet(input.getUuid());
             nvpnNatManager.updateOrAddExternalSubnet(networkId, subnetId, null);
         }
 
+        handleNeutronSubnetCreated(subnetId, String.valueOf(input.getCidr().getValue()), networkId,
+                input.getTenantId());
         NeutronvpnUtils.addToSubnetCache(input);
     }
 
@@ -128,7 +128,7 @@ public class NeutronSubnetChangeListener extends AsyncDataTreeChangeListenerBase
     }
 
     private void handleNeutronSubnetCreated(Uuid subnetId, String subnetIp, Uuid networkId, Uuid tenantId) {
-        nvpnManager.updateSubnetNode(subnetId, subnetIp, tenantId, networkId, null/*routerID*/, null/*vpnID*/);
+        nvpnManager.updateSubnetNode(subnetId, subnetIp, tenantId, networkId, null/*routerID*/, null/*vpnId*/);
         if (networkId != null) {
             createSubnetToNetworkMapping(subnetId, networkId);
         }
