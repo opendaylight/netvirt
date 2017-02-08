@@ -82,7 +82,7 @@ public class NeutronSubnetChangeListener extends AsyncDataTreeChangeListenerBase
         final DataStoreJobCoordinator subnetDataStoreCoordinator = DataStoreJobCoordinator.getInstance();
         subnetDataStoreCoordinator.enqueueJob("SUBNET- " + subnetId.getValue(), () -> {
             WriteTransaction writeConfigTxn = dataBroker.newWriteOnlyTransaction();
-            handleNeutronSubnetCreated(input.getUuid(), String.valueOf(input.getCidr().getValue()), networkId,
+            handleNeutronSubnetCreated(subnetId, String.valueOf(input.getCidr().getValue()), networkId,
                     input.getTenantId());
             externalSubnetHandler.handleExternalSubnetAdded(network, subnetId, null, writeConfigTxn);
 
@@ -110,7 +110,7 @@ public class NeutronSubnetChangeListener extends AsyncDataTreeChangeListenerBase
         final DataStoreJobCoordinator subnetDataStoreCoordinator = DataStoreJobCoordinator.getInstance();
         subnetDataStoreCoordinator.enqueueJob("SUBNET- " + subnetId.getValue(), () -> {
             WriteTransaction writeConfigTxn = dataBroker.newWriteOnlyTransaction();
-            handleNeutronSubnetDeleted(input.getUuid(), networkId, null);
+            handleNeutronSubnetDeleted(subnetId, networkId, null);
             externalSubnetHandler.handleExternalSubnetRemoved(network, subnetId, writeConfigTxn);
 
             List<ListenableFuture<Void>> futures = new ArrayList<>();
@@ -146,7 +146,7 @@ public class NeutronSubnetChangeListener extends AsyncDataTreeChangeListenerBase
     }
 
     private void handleNeutronSubnetCreated(Uuid subnetId, String subnetIp, Uuid networkId, Uuid tenantId) {
-        nvpnManager.updateSubnetNode(subnetId, subnetIp, tenantId, networkId, null/*routerID*/, null/*vpnID*/);
+        nvpnManager.updateSubnetNode(subnetId, subnetIp, tenantId, networkId, null/*routerID*/, null/*vpnId*/);
         if (networkId != null) {
             createSubnetToNetworkMapping(subnetId, networkId);
         }
