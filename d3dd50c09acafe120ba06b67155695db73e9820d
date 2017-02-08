@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_3290fa42",
+        "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/SouthboundHandler.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 361,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2017-02-08T19:45:12Z",
+      "side": 1,
+      "message": "should it be an \u0027else if\u0027?",
+      "revId": "d3dd50c09acafe120ba06b67155695db73e9820d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_b2a34a9d",
+        "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/SouthboundHandler.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 389,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2017-02-08T19:45:12Z",
+      "side": 1,
+      "message": "since you have the method \u0027isDstNode\u0027 to filter the correct node, you could put the lines 389-391 in there as well. Also we might use findAny or findFirst to break out the loop early",
+      "revId": "d3dd50c09acafe120ba06b67155695db73e9820d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
