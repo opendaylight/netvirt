@@ -88,6 +88,7 @@ public class SecurityServicesImplTest {
     @Mock NeutronL3Adapter neutronL3Adapter;
     @Mock NodeId nodeId_1;
     @Mock NodeCacheManager nodeCacheManager;
+    @Mock SecurityGroupCacheManagerImpl securityGroupCacheManagerImpl;
 
     private static final String NEUTRON_PORT_ID_VM_1 = "neutronID_VM_1";
     private static final String NEUTRON_PORT_ID_VM_2 = "neutronID_VM_2";
@@ -170,6 +171,8 @@ public class SecurityServicesImplTest {
         when(neutronPortCache.getPort(eq(NEUTRON_PORT_ID_DHCP))).thenReturn(neutronPort_Dhcp);
         when(neutronPortCache.getAllPorts()).thenReturn(portList);
         when(subNetCache.getSubnet(eq(SUBNET_UUID))).thenReturn(subnet);
+        when(neutronPort_Vm1.getMacAddress()).thenReturn("attached-mac");
+        when(neutronL3Adapter.getPortPreferablyFromCleanupCache(NEUTRON_PORT_ID_VM_1)).thenReturn(neutronPort_Vm1);
     }
 
     /**
@@ -215,7 +218,7 @@ public class SecurityServicesImplTest {
     public void testGetDhcpServerPortWithNullPort() {
         when(neutronPortCache.getPort(eq(NEUTRON_PORT_ID_VM_1))).thenReturn(null);
         NeutronPort dhcpPort = securityServicesImpl.getDhcpServerPort(mock(OvsdbTerminationPointAugmentation.class));
-        assertEquals(dhcpPort,null);
+        assertEquals(dhcpPort, neutronPort_Dhcp);
     }
 
     /**
@@ -288,7 +291,7 @@ public class SecurityServicesImplTest {
     public void testGetNeutronPortFromDhcpIntfWithDhcpPort() {
         when(neutronPortCache.getPort(eq(NEUTRON_PORT_ID_VM_1))).thenReturn(neutronPort_Dhcp);
         NeutronPort dhcpPort = securityServicesImpl.getNeutronPortFromDhcpIntf(mock(OvsdbTerminationPointAugmentation.class));
-        assertEquals(dhcpPort,neutronPort_Dhcp);
+        assertEquals(dhcpPort, null);
     }
 
     /**
@@ -337,7 +340,7 @@ public class SecurityServicesImplTest {
     public void testIsComputePortWithNullPort() {
         when(neutronPortCache.getPort(eq(NEUTRON_PORT_ID_VM_1))).thenReturn(null);
         boolean isComputePort = securityServicesImpl.isComputePort(mock(OvsdbTerminationPointAugmentation.class));
-        assertEquals(isComputePort,false);
+        assertEquals(isComputePort, true);
     }
 
     /**
@@ -356,7 +359,7 @@ public class SecurityServicesImplTest {
     public void testGetIpAddressListWithNullPort() {
         when(neutronPortCache.getPort(eq(NEUTRON_PORT_ID_VM_1))).thenReturn(null);
         List<Neutron_IPs> ipList = securityServicesImpl.getIpAddressList(mock(OvsdbTerminationPointAugmentation.class));
-        assertEquals(ipList,null);
+        assertEquals(ipList, neutron_IPs_1);
     }
 
 
@@ -409,6 +412,7 @@ public class SecurityServicesImplTest {
         List<NeutronSecurityGroup> securityGroupsList = new ArrayList<>();
         securityGroupsList.add(neutronSecurityGroup_1);
         securityServicesImpl.syncSecurityGroup(neutronPort_Vm1, securityGroupsList, true);
+        securityGroupCacheManagerImpl.portAdded(SECURITY_GROUP_ID_1, NEUTRON_PORT_ID_VM_1);
         verify(ingressAclService, times(1)).programPortSecurityGroup(eq(new Long(1)), eq("1000"), eq("attached-mac"), eq(2L), eq(neutronSecurityGroup_1), eq(NEUTRON_PORT_ID_VM_1), eq(nodeId_1), eq(true));
         verify(egressAclService, times(1)).programPortSecurityGroup(eq(new Long(1)), eq("1000"), eq("attached-mac"), eq(2L), eq(neutronSecurityGroup_1), eq(NEUTRON_PORT_ID_VM_1), eq(nodeId_1), eq(true));
     }
@@ -421,7 +425,7 @@ public class SecurityServicesImplTest {
         List<NeutronSecurityGroup> securityGroupsList = new ArrayList<>();
         securityGroupsList.add(neutronSecurityGroup_1);
         securityServicesImpl.syncSecurityGroup(neutronPort_Vm1, securityGroupsList, false);
-        // UT
+        securityGroupCacheManagerImpl.portAdded(SECURITY_GROUP_ID_1, NEUTRON_PORT_ID_VM_1);
         when(node.getNodeId()).thenReturn(nodeId_1);
         
         verify(ingressAclService, times(1)).programPortSecurityGroup(eq(new Long(1)), eq("1000"), eq("attached-mac"), eq(2L), eq(neutronSecurityGroup_1), eq(NEUTRON_PORT_ID_VM_1), eq(nodeId_1), eq(false));
@@ -475,10 +479,11 @@ public class SecurityServicesImplTest {
         securityRuleList.add(neutronSecurityRule_1);
         when(neutronSecurityRule_1.getSecurityRuleDirection()).thenReturn(NeutronSecurityRule.DIRECTION_EGRESS);
         when(neutronSecurityRule_1.getSecurityRuleEthertype()).thenReturn(NeutronSecurityRule.ETHERTYPE_IPV4);
-        // UT
         when(nodeCacheManager.getNode(nodeId_1)).thenReturn(node);
-        securityServicesImpl.syncSecurityRule(neutronPort_Vm1, neutronSecurityRule_1, neutron_ip_1, nodeId_1, true);
-        verify(egressAclService, times(1)).programPortSecurityRule(eq(new Long(1)), eq("1000"), eq("attached-mac"), eq(2L), eq(neutronSecurityRule_1), eq(neutron_ip_1), eq(true));
+        when(neutronPort_Vm1.getMacAddress()).thenReturn("attached-mac");
+        when(neutronSecurityGroup_1.getSecurityGroupName()).thenReturn(SECURITY_GROUP_ID_1);
+        securityServicesImpl.syncSecurityRule(neutronPort_Vm1, neutronSecurityRule_1, neutron_ip_1, nodeId_1, neutronSecurityGroup_1, true);
+        verify(egressAclService, times(1)).programPortSecurityRule(eq(new Long(1)), eq("1000"), eq("attached-mac"), eq(neutronSecurityRule_1), eq(neutronSecurityGroup_1), eq(neutron_ip_1), eq(true));
     }
 
     /**
@@ -490,8 +495,9 @@ public class SecurityServicesImplTest {
         securityRuleList.add(neutronSecurityRule_1);
         when(neutronSecurityRule_1.getSecurityRuleDirection()).thenReturn(NeutronSecurityRule.DIRECTION_INGRESS);
         when(neutronSecurityRule_1.getSecurityRuleEthertype()).thenReturn(NeutronSecurityRule.ETHERTYPE_IPV4);
-        securityServicesImpl.syncSecurityRule(neutronPort_Vm1, neutronSecurityRule_1, neutron_ip_1, nodeId_1, true);
-        verify(ingressAclService, times(1)).programPortSecurityRule(eq(new Long(1)), eq("1000"), eq("attached-mac"), eq(2L), eq(neutronSecurityRule_1), eq(neutron_ip_1), eq(true));
+        when(neutronSecurityGroup_1.getSecurityGroupName()).thenReturn(SECURITY_GROUP_ID_1);
+        securityServicesImpl.syncSecurityRule(neutronPort_Vm1, neutronSecurityRule_1, neutron_ip_1, nodeId_1, neutronSecurityGroup_1, true);
+        verify(ingressAclService, times(1)).programPortSecurityRule(eq(new Long(1)), eq("1000"), eq("attached-mac"), eq(neutronSecurityRule_1), eq(neutronSecurityGroup_1), eq(neutron_ip_1), eq(true));
     }
 
     /**
@@ -503,8 +509,9 @@ public class SecurityServicesImplTest {
         securityRuleList.add(neutronSecurityRule_1);
         when(neutronSecurityRule_1.getSecurityRuleDirection()).thenReturn(NeutronSecurityRule.DIRECTION_EGRESS);
         when(neutronSecurityRule_1.getSecurityRuleEthertype()).thenReturn(NeutronSecurityRule.ETHERTYPE_IPV4);
-        securityServicesImpl.syncSecurityRule(neutronPort_Vm1, neutronSecurityRule_1, neutron_ip_1, nodeId_1, false);
-        verify(egressAclService, times(1)).programPortSecurityRule(eq(new Long(1)), eq("1000"), eq("attached-mac"), eq(2L), eq(neutronSecurityRule_1), eq(neutron_ip_1), eq(false));
+        when(neutronSecurityGroup_1.getSecurityGroupName()).thenReturn(SECURITY_GROUP_ID_1);
+        securityServicesImpl.syncSecurityRule(neutronPort_Vm1, neutronSecurityRule_1, neutron_ip_1, nodeId_1, neutronSecurityGroup_1, false);
+        verify(egressAclService, times(1)).programPortSecurityRule(eq(new Long(1)), eq("1000"), eq("attached-mac"), eq(neutronSecurityRule_1), eq(neutronSecurityGroup_1), eq(neutron_ip_1), eq(false));
     }
 
     /**
@@ -516,8 +523,9 @@ public class SecurityServicesImplTest {
         securityRuleList.add(neutronSecurityRule_1);
         when(neutronSecurityRule_1.getSecurityRuleDirection()).thenReturn(NeutronSecurityRule.DIRECTION_INGRESS);
         when(neutronSecurityRule_1.getSecurityRuleEthertype()).thenReturn(NeutronSecurityRule.ETHERTYPE_IPV4);
-        securityServicesImpl.syncSecurityRule(neutronPort_Vm1, neutronSecurityRule_1, neutron_ip_1, nodeId_1, false);
-        verify(ingressAclService, times(1)).programPortSecurityRule(eq(new Long(1)), eq("1000"), eq("attached-mac"), eq(2L), eq(neutronSecurityRule_1), eq(neutron_ip_1), eq(false));
+        when(neutronSecurityGroup_1.getSecurityGroupName()).thenReturn(SECURITY_GROUP_ID_1);
+        securityServicesImpl.syncSecurityRule(neutronPort_Vm1, neutronSecurityRule_1, neutron_ip_1, nodeId_1, neutronSecurityGroup_1, false);
+        verify(ingressAclService, times(1)).programPortSecurityRule(eq(new Long(1)), eq("1000"), eq("attached-mac"), eq(neutronSecurityRule_1), eq(neutronSecurityGroup_1), eq(neutron_ip_1), eq(false));
     }
 
     /**
@@ -529,8 +537,9 @@ public class SecurityServicesImplTest {
         securityRuleList.add(neutronSecurityRule_1);
         when(neutronSecurityRule_1.getSecurityRuleDirection()).thenReturn(NeutronSecurityRule.DIRECTION_INGRESS);
         when(neutronSecurityRule_1.getSecurityRuleEthertype()).thenReturn(NeutronSecurityRule.ETHERTYPE_IPV4);
-        securityServicesImpl.syncSecurityRule(null, neutronSecurityRule_1, neutron_ip_1, nodeId_1, false);
-        verify(ingressAclService, times(0)).programPortSecurityRule(eq(new Long(1)), eq("1000"), eq("attached-mac"), eq(2L), eq(neutronSecurityRule_1), eq(neutron_ip_1), eq(false));
+        when(neutronSecurityGroup_1.getSecurityGroupName()).thenReturn(SECURITY_GROUP_ID_1);
+        securityServicesImpl.syncSecurityRule(null, neutronSecurityRule_1, neutron_ip_1, nodeId_1, neutronSecurityGroup_1, false);
+        verify(ingressAclService, times(0)).programPortSecurityRule(eq(new Long(1)), eq("1000"), eq("attached-mac"), eq(neutronSecurityRule_1), eq(neutronSecurityGroup_1), eq(neutron_ip_1), eq(false));
     }
 
     /**
@@ -543,8 +552,9 @@ public class SecurityServicesImplTest {
         when(neutronPort_Vm1.getSecurityGroups()).thenReturn(null);
         when(neutronSecurityRule_1.getSecurityRuleDirection()).thenReturn(NeutronSecurityRule.DIRECTION_INGRESS);
         when(neutronSecurityRule_1.getSecurityRuleEthertype()).thenReturn(NeutronSecurityRule.ETHERTYPE_IPV4);
-        securityServicesImpl.syncSecurityRule(neutronPort_Vm1, neutronSecurityRule_1, neutron_ip_1, nodeId_1, false);
-        verify(ingressAclService, times(0)).programPortSecurityRule(eq(new Long(1)), eq("1000"), eq("attached-mac"), eq(2L), eq(neutronSecurityRule_1), eq(neutron_ip_1), eq(false));
+        when(neutronSecurityGroup_1.getSecurityGroupName()).thenReturn(SECURITY_GROUP_ID_1);
+        securityServicesImpl.syncSecurityRule(neutronPort_Vm1, neutronSecurityRule_1, neutron_ip_1, nodeId_1, neutronSecurityGroup_1, false);
+        verify(ingressAclService, times(0)).programPortSecurityRule(eq(new Long(1)), eq("1000"), eq("attached-mac"), eq(neutronSecurityRule_1), eq(neutronSecurityGroup_1), eq(neutron_ip_1), eq(false));
     }
 
     /**
@@ -557,8 +567,9 @@ public class SecurityServicesImplTest {
         when(neutronSecurityRule_1.getSecurityRuleDirection()).thenReturn(NeutronSecurityRule.DIRECTION_INGRESS);
         when(neutronSecurityRule_1.getSecurityRuleEthertype()).thenReturn(NeutronSecurityRule.ETHERTYPE_IPV4);
         when(southbound.getInterfaceExternalIdsValue(any(OvsdbTerminationPointAugmentation.class),eq("attached-mac"))).thenReturn(null);
-        securityServicesImpl.syncSecurityRule(neutronPort_Vm1, neutronSecurityRule_1, neutron_ip_1, nodeId_1, false);
-        verify(ingressAclService, times(0)).programPortSecurityRule(eq(new Long(1)), eq("1000"), eq("attached-mac"), eq(2L), eq(neutronSecurityRule_1), eq(neutron_ip_1), eq(false));
+        when(neutronSecurityGroup_1.getSecurityGroupName()).thenReturn(SECURITY_GROUP_ID_1);
+        securityServicesImpl.syncSecurityRule(neutronPort_Vm1, neutronSecurityRule_1, neutron_ip_1, nodeId_1, neutronSecurityGroup_1, false);
+        verify(ingressAclService, times(1)).programPortSecurityRule(eq(new Long(1)), eq("1000"), eq("attached-mac"), eq(neutronSecurityRule_1), eq(neutronSecurityGroup_1), eq(neutron_ip_1), eq(false));
     }
 
 
@@ -571,8 +582,9 @@ public class SecurityServicesImplTest {
         securityRuleList.add(neutronSecurityRule_1);
         when(neutronSecurityRule_1.getSecurityRuleDirection()).thenReturn(NeutronSecurityRule.DIRECTION_INGRESS);
         when(neutronSecurityRule_1.getSecurityRuleEthertype()).thenReturn(NeutronSecurityRule.ETHERTYPE_IPV6);
-        securityServicesImpl.syncSecurityRule(neutronPort_Vm1, neutronSecurityRule_1, neutron_ip_1, nodeId_1, false);
-        verify(ingressAclService, times(0)).programPortSecurityRule(eq(new Long(1)), eq("1000"), eq("attached-mac"), eq(2L), eq(neutronSecurityRule_1), eq(neutron_ip_1), eq(false));
+        when(neutronSecurityGroup_1.getSecurityGroupName()).thenReturn(SECURITY_GROUP_ID_1);
+        securityServicesImpl.syncSecurityRule(neutronPort_Vm1, neutronSecurityRule_1, neutron_ip_1, nodeId_1, neutronSecurityGroup_1, false);
+        verify(ingressAclService, times(0)).programPortSecurityRule(eq(new Long(1)), eq("1000"), eq("attached-mac"), eq(neutronSecurityRule_1), eq(neutronSecurityGroup_1), eq(neutron_ip_1), eq(false));
     }
 
     /**
@@ -584,8 +596,9 @@ public class SecurityServicesImplTest {
         securityRuleList.add(neutronSecurityRule_1);
         when(neutronSecurityRule_1.getSecurityRuleDirection()).thenReturn("outgress");
         when(neutronSecurityRule_1.getSecurityRuleEthertype()).thenReturn(NeutronSecurityRule.ETHERTYPE_IPV4);
-        securityServicesImpl.syncSecurityRule(neutronPort_Vm1, neutronSecurityRule_1, neutron_ip_1, nodeId_1, false);
-        verify(ingressAclService, times(0)).programPortSecurityRule(eq(new Long(1)), eq("1000"), eq("attached-mac"), eq(2L), eq(neutronSecurityRule_1), eq(neutron_ip_1), eq(false));
+        when(neutronSecurityGroup_1.getSecurityGroupName()).thenReturn(SECURITY_GROUP_ID_1);
+        securityServicesImpl.syncSecurityRule(neutronPort_Vm1, neutronSecurityRule_1, neutron_ip_1, nodeId_1, neutronSecurityGroup_1, false);
+        verify(ingressAclService, times(0)).programPortSecurityRule(eq(new Long(1)), eq("1000"), eq("attached-mac"), eq(neutronSecurityRule_1), eq(neutronSecurityGroup_1), eq(neutron_ip_1), eq(false));
     }
 
     @Test
