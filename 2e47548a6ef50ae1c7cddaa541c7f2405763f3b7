@@ -48,6 +48,54 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_873526dd",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 6248
+      },
+      "writtenOn": "2017-02-08T16:21:54Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_4c2a452d",
+      "range": {
+        "startLine": 7,
+        "startChar": 56,
+        "endLine": 7,
+        "endChar": 72
+      },
+      "revId": "2e47548a6ef50ae1c7cddaa541c7f2405763f3b7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_e734f2df",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 6248
+      },
+      "writtenOn": "2017-02-08T16:21:54Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_6c274965",
+      "range": {
+        "startLine": 7,
+        "startChar": 26,
+        "endLine": 7,
+        "endChar": 42
+      },
+      "revId": "2e47548a6ef50ae1c7cddaa541c7f2405763f3b7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_8ce26dff",
         "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/NexthopManager.java",
         "patchSetId": 1
@@ -59,6 +107,30 @@
       "writtenOn": "2017-02-08T13:54:47Z",
       "side": 1,
       "message": "rename this parameter to vpnName throughout this file",
+      "range": {
+        "startLine": 426,
+        "startChar": 76,
+        "endLine": 426,
+        "endChar": 94
+      },
+      "revId": "2e47548a6ef50ae1c7cddaa541c7f2405763f3b7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_c7b44e37",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/NexthopManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 426,
+      "author": {
+        "id": 6248
+      },
+      "writtenOn": "2017-02-08T16:21:54Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_8ce26dff",
       "range": {
         "startLine": 426,
         "startChar": 76,
@@ -117,6 +189,54 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_e7b9922f",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/NexthopManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 726,
+      "author": {
+        "id": 6248
+      },
+      "writtenOn": "2017-02-08T16:21:54Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_ccec75f6",
+      "range": {
+        "startLine": 726,
+        "startChar": 54,
+        "endLine": 726,
+        "endChar": 78
+      },
+      "revId": "2e47548a6ef50ae1c7cddaa541c7f2405763f3b7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_87aa46d0",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/NexthopManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 726,
+      "author": {
+        "id": 6248
+      },
+      "writtenOn": "2017-02-08T16:21:54Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_0cbe7dd4",
+      "range": {
+        "startLine": 726,
+        "startChar": 44,
+        "endLine": 726,
+        "endChar": 53
+      },
+      "revId": "2e47548a6ef50ae1c7cddaa541c7f2405763f3b7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_0cd79d24",
         "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
         "patchSetId": 1
@@ -134,6 +254,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_67f482f2",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 400,
+      "author": {
+        "id": 6248
+      },
+      "writtenOn": "2017-02-08T16:21:54Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_0cd79d24",
+      "revId": "2e47548a6ef50ae1c7cddaa541c7f2405763f3b7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_6cde2941",
         "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
         "patchSetId": 1
@@ -145,6 +283,30 @@
       "writtenOn": "2017-02-08T13:54:47Z",
       "side": 1,
       "message": "I think getDpnIdForFloatingIp is good enough",
+      "range": {
+        "startLine": 471,
+        "startChar": 23,
+        "endLine": 471,
+        "endChar": 43
+      },
+      "revId": "2e47548a6ef50ae1c7cddaa541c7f2405763f3b7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_47f7bef5",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 471,
+      "author": {
+        "id": 6248
+      },
+      "writtenOn": "2017-02-08T16:21:54Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_6cde2941",
       "range": {
         "startLine": 471,
         "startChar": 23,
@@ -180,6 +342,30 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_a7ddca72",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 472,
+      "author": {
+        "id": 6248
+      },
+      "writtenOn": "2017-02-08T16:21:54Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_4ce1a5fd",
+      "range": {
+        "startLine": 472,
+        "startChar": 15,
+        "endLine": 472,
+        "endChar": 23
+      },
+      "revId": "2e47548a6ef50ae1c7cddaa541c7f2405763f3b7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_0c303d9d",
         "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronSubnetChangeListener.java",
         "patchSetId": 1
@@ -203,6 +389,30 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_e7e7d23e",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronSubnetChangeListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 74,
+      "author": {
+        "id": 6248
+      },
+      "writtenOn": "2017-02-08T16:21:54Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_0c303d9d",
+      "range": {
+        "startLine": 74,
+        "startChar": 64,
+        "endLine": 74,
+        "endChar": 65
+      },
+      "revId": "2e47548a6ef50ae1c7cddaa541c7f2405763f3b7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_2c2d4147",
         "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnUtils.java",
         "patchSetId": 1
@@ -214,6 +424,24 @@
       "writtenOn": "2017-02-08T13:54:47Z",
       "side": 1,
       "message": "this method exists \ngetIsExternal",
+      "revId": "2e47548a6ef50ae1c7cddaa541c7f2405763f3b7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_c7e28e2e",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnUtils.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 1059,
+      "author": {
+        "id": 6248
+      },
+      "writtenOn": "2017-02-08T16:21:54Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_2c2d4147",
       "revId": "2e47548a6ef50ae1c7cddaa541c7f2405763f3b7",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
