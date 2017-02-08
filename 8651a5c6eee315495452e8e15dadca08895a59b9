@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_a7130a5b",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/ExternalSubnetListener.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 69,
+      "author": {
+        "id": 6248
+      },
+      "writtenOn": "2017-02-08T15:48:11Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_54e659b5",
+      "revId": "8651a5c6eee315495452e8e15dadca08895a59b9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_74f27d70",
         "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/ExternalSubnetListener.java",
         "patchSetId": 3
@@ -42,6 +60,30 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_ec1a1916",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/ExternalSubnetListener.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 108,
+      "author": {
+        "id": 6248
+      },
+      "writtenOn": "2017-02-08T15:48:11Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_74f27d70",
+      "range": {
+        "startLine": 108,
+        "startChar": 84,
+        "endLine": 108,
+        "endChar": 96
+      },
+      "revId": "8651a5c6eee315495452e8e15dadca08895a59b9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_fee5a3a8",
         "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/RouterDpnChangeListener.java",
         "patchSetId": 3
@@ -53,6 +95,24 @@
       "writtenOn": "2017-02-08T08:14:35Z",
       "side": 1,
       "message": "Should use vpn-instance-to-vpn-id model",
+      "revId": "8651a5c6eee315495452e8e15dadca08895a59b9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_870ec630",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/RouterDpnChangeListener.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 392,
+      "author": {
+        "id": 6248
+      },
+      "writtenOn": "2017-02-08T15:48:11Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_fee5a3a8",
       "revId": "8651a5c6eee315495452e8e15dadca08895a59b9",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
