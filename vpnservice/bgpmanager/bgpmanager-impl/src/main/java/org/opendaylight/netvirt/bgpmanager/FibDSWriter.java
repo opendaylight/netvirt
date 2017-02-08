@@ -8,16 +8,20 @@
 package org.opendaylight.netvirt.bgpmanager;
 
 import com.google.common.base.Preconditions;
+
+import java.util.ArrayList;
 import java.util.List;
+
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.netvirt.fibmanager.api.FibHelper;
 import org.opendaylight.netvirt.fibmanager.api.RouteOrigin;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.FibEntries;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.fibentries.VrfTables;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.fibentries.VrfTablesKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.VrfEntry;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.VrfEntryBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.VrfEntryKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.vrfentry.RoutePaths;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier.InstanceIdentifierBuilder;
 import org.slf4j.Logger;
@@ -39,12 +43,13 @@ public class FibDSWriter {
         }
 
         Preconditions.checkNotNull(nextHopList, "NextHopList can't be null");
-
+        List<RoutePaths> routePaths = new ArrayList<>();
         for (String nextHop : nextHopList) {
             if (nextHop == null || nextHop.isEmpty()) {
                 LOG.error("nextHop list contains null element");
                 return;
             }
+            routePaths.add(FibHelper.buildRoutePath(nextHop, label));
             LOG.debug("Created vrfEntry for {} nexthop {} label {}", prefix, nextHop, label);
 
         }
@@ -55,10 +60,9 @@ public class FibDSWriter {
                         .child(VrfTables.class, new VrfTablesKey(rd))
                         .child(VrfEntry.class, new VrfEntryKey(prefix)).build();
 
-        VrfEntry vrfEntry = new VrfEntryBuilder().setDestPrefix(prefix).setNextHopAddressList(nextHopList)
-                .setLabel((long) label).setOrigin(origin.getValue()).build();
+        VrfEntry vrfEntry = FibHelper.buildVrfEntry(prefix, routePaths, origin).build();
 
-        BgpUtil.write(dataBroker, LogicalDatastoreType.CONFIGURATION, vrfEntryId, vrfEntry);
+        BgpUtil.update(dataBroker, LogicalDatastoreType.CONFIGURATION, vrfEntryId, vrfEntry);
     }
 
     public synchronized void removeFibEntryFromDS(String rd, String prefix) {

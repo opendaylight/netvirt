@@ -11,28 +11,26 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.when;
 
 import java.math.BigInteger;
-import java.util.Collections;
-import java.util.List;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.binding.api.DataChangeListener;
 import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.AsyncDataBroker.DataChangeScope;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.netvirt.fibmanager.VrfEntryListener;
+import org.opendaylight.netvirt.fibmanager.api.FibHelper;
 import org.opendaylight.netvirt.fibmanager.api.RouteOrigin;
 import org.opendaylight.netvirt.vpnmanager.api.IVpnManager;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.FibEntries;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.fibentries.VrfTables;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.fibentries.VrfTablesKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.VrfEntry;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.VrfEntryBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.VrfEntryKey;
 import org.opendaylight.yangtools.concepts.ListenerRegistration;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
@@ -61,7 +59,6 @@ public class FibManagerTest {
     private static final Long EGRESS_POINTER = 11L;
     VrfEntry vrfEntry;
     InstanceIdentifier<VrfEntry> identifier;
-    VrfEntryBuilder vrfbuilder;
     private static final String TEST_VPN_INSTANCE_NAME = "95486250-4ad7-418f-9030-2df37f98ad24";
     private static final String TEST_RD = "100:1";
     private static final String PREFIX = "1.1.2.3";
@@ -76,7 +73,7 @@ public class FibManagerTest {
     private void setupMocks() {
         dpn = BigInteger.valueOf(100000L);
         identifier = buildVrfEntryId(TEST_RD, PREFIX);
-        vrfEntry = buildVrfEntry(TEST_RD, PREFIX, Collections.singletonList(NEXTHOP), LABEL, origin);
+        vrfEntry = FibHelper.buildVrfEntry(PREFIX, LABEL, NEXTHOP, origin).build();
         when(vrfTableKey.getRouteDistinguisher()).thenReturn(TEST_RD);
     }
 
@@ -87,7 +84,6 @@ public class FibManagerTest {
                 any(InstanceIdentifier.class), any(DataChangeListener.class),
                 any(DataChangeScope.class))).thenReturn(dataChangeListenerRegistration);
         dataChangeEvent = new MockDataChangedEvent();
-        vrfbuilder = new VrfEntryBuilder();
         setupMocks();
     }
 
@@ -96,12 +92,6 @@ public class FibManagerTest {
         dataChangeEvent.created.put(identifier, vrfEntry);
         //fibmgr.onDataChanged(dataChangeEvent);
         //Mockito.verify(mdsalManager, Mockito.times(2)).installFlow(any(FlowEntity.class));
-    }
-
-    private VrfEntry buildVrfEntry(String rd, String prefix, List<String> nextHopList, int label, RouteOrigin origin) {
-
-        return new VrfEntryBuilder().setDestPrefix(prefix).setNextHopAddressList(nextHopList)
-            .setLabel((long) label).setOrigin(origin.getValue()).build();
     }
 
     public static InstanceIdentifier<VrfTables> buildVrfTableId(String rd) {

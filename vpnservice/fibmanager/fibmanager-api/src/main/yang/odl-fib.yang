@@ -23,13 +23,6 @@ module odl-fib {
                 type string;
                 mandatory true;
             }
-            leaf label {
-                type uint32;
-            }
-            leaf-list nextHopAddressList {
-                type string;
-                min-elements "1";
-            }
             leaf origin {
                 type string;
                 mandatory true;
@@ -58,6 +51,16 @@ module odl-fib {
             }
             leaf gateway_mac_address {
                type string;
+            }
+                        list route-paths {
+                key "nexthop-address";
+                leaf nexthop-address {
+                    type string;
+                    mandatory true;
+                }
+                leaf label {
+                    type uint32;
+                }
             }
         }
     }
