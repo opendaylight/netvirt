@@ -176,24 +176,19 @@ to Internet at DCGW level.
 Pipeline changes
 ----------------
 
-No pipeline changes, compared with [6]. However, FIB Manager will be modified so as to
-implement the fallback mechanism. The FIB tables of the import-RTs VPNs from the default
-VPN created will be parsed. In our case, a match will be found in the "internetVPN"
-FIB table. If not match is found, the drop rule will be applied.
-
-
-Regarding the pipeline changes, we can use the same BGPVPNv4 pipeline
-(Tables Dispatcher (17), DMAC (19), LFIB (20), L3FIB (21), and NextHop Group
-tables) and enhance those tables to support IPv6 North-South communication
-through MPLS/GRE.
-For understanding, the pipeline is written below: l3vpn-id is the ID associated to the initial VPN,
-while l3vpn-internet-id is the ID associated to the internet VPN.
-
+FIB Manager will be modified so as to implement the fallback mechanism.
+The FIB tables of the import-RTs VPNs from the default VPN created will be parsed.
+In our case, a match will be found in the "internetVPN" FIB table.
+To make the relationship between the first VPN, and the second internetVPN entry, a
+fallback entry will overwrite the vrf-id to the new internetVPN id, and will resubmit
+the packet to the table 21.
 
 Traffic from DC-Gateway to Local DPN (SYMMETRIC IRB)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-When a packet is coming from DC-Gateway, the label will help finding out the associated VPN. The first one is l3vpn-id.
+Since the IPv6 addresses are GUA, the specific VPN associated with the packet becomes less relevant.
+In the downstream direction, the MPLS label uniquely identifies the neutron port associated with the destination IP.
+This label can be used to send the packet directly on the neutron port independent of the VPN in which the packet arrives.
 
 | Classifier Table (0) =>
 | LFIB Table (20) ``match: tun-id=mpls_label set vpn-id=l3vpn-id, pop_mpls label, set output to nexthopgroup-dst-vm`` =>
@@ -202,37 +197,40 @@ When a packet is coming from DC-Gateway, the label will help finding out the ass
 
 Traffic from Local DPN to DC-Gateway (SYMMETRIC IRB)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-When a packet is going out from a dedicated VM, the l3vpn-id attached to that subnetwork will be used.
-Theorically, in L3 FIB, there will be no match for dst IP with this l3vpn-id.
-However, because ODL know the relationship between both VPNs, then the dst IP will be attached
-with the first l3vpn-id.
-
-However, since the gateway IP for inter-DC and external access is the same, the same MPLS label will be used for both VPNs.
+When the packet is received from the VM, the destIP in the packet is a external network address.
+So, when the packet is matched against the addresses in the VPN, there will NOT be any matches.
+So, the VRF will have a default match entry which is to change the VRF ID in the metadata to that of the Internet VPN and resubmit the packet to the FIB.
+In the resubmit phase, the packet DestIP, InternetVPN VRF fields are matched and the actions defined for this match is executed.
+This would typically be to send the packet to one of the DC-GWs.
 
 | Classifier Table (0) =>
 | Lport Dispatcher Table (17) ``match: LportTag l3vpn service: set vpn-id=l3vpn-id` =>
 | DMAC Service Filter (19) ``match: dst-mac=router-internal-interface-mac l3vpn service: set vpn-id=internet-l3vpn-id`` =>
-| L3 FIB Table (21) ``match: vpn-id=l3vpn-id, nw-dst=<alternate-ip> set tun-id=mpls_label output to MPLSoGRE tunnel port`` =>
-| L3 FIB Table (21) ``match: vpn-id=l3vpn-id, nw-dst=ext-ip-address set tun-id=mpls_label output to MPLSoGRE tunnel port`` =>
+| L3 FIB Table (21) ``match: vpn-id=l3vpn-id, nw-dst=<IP-from-vpn> set tun-id=mpls_label output to MPLSoGRE tunnel port`` =>
+| L3 FIB Table (21) ``match: dl_type=0x806, vpn-id=l3vpn-id, set vpn-id=internetvpn-id, resubmit(,21) =>
+| ...
+| L3 FIB Table (21) ``match: vpn-id=internetvpn-id, nw-dst=<IP-from-internetvpn> set tun-id=mpls_label output to MPLSoGRE tunnel port`` =>
 
 Fib Manager changes
 -------------------
 
 Ingress traffic from internet to VM
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-The FIB Manager is being configured with 2 entries for different RDs : l3vpn-id and internetvpn-id.
-The LFIB will be matched first.
-In our case, label NH and prefix are the same, whereas we have 2 VPN instances.
-So, proposed change is to prevent LFIB from adding entries if a label is already registered for that compute node.
+As with [6], the traffic from internet to VM will be conditioned with Label and destination IP.
+This is set by the DC-GW.
+So the workflow does not change with [6].
 
 Egress traffic from VM to internet
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-The FIB Manager is being configured with the internet routes on one RD only : internetvpn-id.
-As packets that are emitted from the VM with vpn=l3vpn-id, the internet route will not be matched in l3vpn, if implementation remains as it is.
-In FIB Manager, solution is the following:
-- The internetvpn is not attached to any local subnetwork.
-so, any eligible VPNs are looked up in the list of VPN instances.
-for each VPN instance, for each RD, if an imported RT matches the internetvpnID, then a new rule will be appended.
+Because the VPN manager has a list of VPNs to import information into, the list of import VPNS is parsed.
+- if the imported VPN matches the VPN RD, and the correct prefix, then the default basic pipeline rule will be created.
+  This is what will happen for each new prefix added to the FIB.
+- if the imported VPN matches an other VPN, then an additional rule will be added.
+  This entry will be added at the VPN creation.
+  A check will have to be done so that the additional rule is checked lastly.
+  That means that if 3 entries are appended on the VPN, then a 4th rule will be tested in OVS, if the first 3 entries
+  are not matching incoming packet. That additional rule will set the vrf-id to the new internetvpn-id, and a
+  resubmit to table 21 will be applied.
 
 
 Yang changes
