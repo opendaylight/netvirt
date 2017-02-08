@@ -13,6 +13,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Predicate;
+import java.util.stream.Collector;
 import java.util.stream.Collectors;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
@@ -26,6 +27,7 @@ import org.opendaylight.netvirt.vpnmanager.VpnUtil;
 import org.opendaylight.netvirt.vpnmanager.api.intervpnlink.IVpnLinkService;
 import org.opendaylight.netvirt.vpnmanager.api.intervpnlink.InterVpnLinkCache;
 import org.opendaylight.netvirt.vpnmanager.api.intervpnlink.InterVpnLinkDataComposite;
+import org.opendaylight.netvirt.vpnmanager.utilities.InterfaceUtils;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.IdManagerService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.VrfEntry;
@@ -160,7 +162,11 @@ public class IVpnLinkServiceImpl implements IVpnLinkService, AutoCloseable {
                                            Collections.singletonList(leakedNexthop), VrfEntry.EncapType.Mplsgre,
                                            (int) leakedLabel, 0 /*l3vni*/, null /*gatewayMacAddress*/,
                                            RouteOrigin.INTERVPN, null /*writeConfigTxn*/);
-            bgpManager.advertisePrefix(dstVpnRd, prefix, nextHopList, (int) leakedLabel);
+            List<String> ivlNexthops =
+                interVpnLink.getEndpointDpnsByVpnName(dstVpnName).stream()
+                            .map(dpnId -> InterfaceUtils.getEndpointIpAddressForDPN(dataBroker, dpnId))
+                            .collect(Collectors.toList());
+            bgpManager.advertisePrefix(dstVpnRd, prefix, ivlNexthops, (int) leakedLabel);
         } else {
             LOG.debug("Removing leaked route to {} from VPN {}", prefix, dstVpnName);
             fibManager.removeFibEntry(dataBroker, dstVpnRd, prefix, null /*writeConfigTxn*/);
