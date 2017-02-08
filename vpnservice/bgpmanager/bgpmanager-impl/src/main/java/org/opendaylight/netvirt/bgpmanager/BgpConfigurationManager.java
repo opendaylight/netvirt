@@ -1957,9 +1957,12 @@ public class BgpConfigurationManager {
                         }
                         totalStaledCount++;
                         //Create MAP from staleVrfTables.
-                        for (String nextHop : vrfEntry.getNextHopAddressList()) {
-                            staleFibEntMap.put(vrfEntry.getDestPrefix(), nextHop + "/" + vrfEntry.getLabel());
-                        }
+                        vrfEntry.getRoutePaths()
+                                .forEach(
+                                    routePath -> staleFibEntMap.put(
+                                            vrfEntry.getDestPrefix(),
+                                            routePath.getNexthopAddress() + "/"
+                                                    + routePath.getLabel()));
                     }
                     staledFibEntriesMap.put(vrfTable.getRouteDistinguisher(), staleFibEntMap);
                 }
