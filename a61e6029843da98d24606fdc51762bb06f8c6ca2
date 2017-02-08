@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_3ebd6b69",
+        "filename": "vpnservice/cloud-servicechain/cloud-servicechain-impl/src/test/java/org/opendaylight/netvirt/cloudservicechain/matchers/FlowMatcher.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 44,
+      "author": {
+        "id": 670
+      },
+      "writtenOn": "2017-02-08T08:27:48Z",
+      "side": 1,
+      "message": "I guess it would.. though table IDs can never be null really, and if both are null we can technically say they are in the same table ;) Not sure f worth checking",
+      "parentUuid": "fafc7978_b8b0538c",
+      "revId": "a61e6029843da98d24606fdc51762bb06f8c6ca2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_78b70b87",
         "filename": "vpnservice/neutronvpn/neutronvpn-api/src/main/java/org/opendaylight/netvirt/neutronvpn/api/utils/NeutronUtils.java",
         "patchSetId": 4
@@ -30,6 +48,24 @@
       "writtenOn": "2017-02-07T20:53:54Z",
       "side": 1,
       "message": "does this one help since the compare is to a long?",
+      "revId": "a61e6029843da98d24606fdc51762bb06f8c6ca2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_5ebaef6e",
+        "filename": "vpnservice/neutronvpn/neutronvpn-api/src/main/java/org/opendaylight/netvirt/neutronvpn/api/utils/NeutronUtils.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 71,
+      "author": {
+        "id": 670
+      },
+      "writtenOn": "2017-02-08T08:27:48Z",
+      "side": 1,
+      "message": "It\u0027s to a \"Long\" not a \"long\".. that\u0027s why it helps..",
+      "parentUuid": "fafc7978_78b70b87",
       "revId": "a61e6029843da98d24606fdc51762bb06f8c6ca2",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
