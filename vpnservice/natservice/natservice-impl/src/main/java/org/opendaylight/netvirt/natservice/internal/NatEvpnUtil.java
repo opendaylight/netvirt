@@ -175,11 +175,11 @@ public class NatEvpnUtil {
                 return;
             }
             NatUtil.addPrefixToInterface(broker, NatUtil.getVpnId(broker, vpnName), interfaceName, prefix, dpId,
-                    /*isNatPrefix*/ true);
+                    null /* subnet-id */, true /*isNatPrefix*/);
 
             fibManager.addOrUpdateFibEntry(broker, rd, null /*macAddress*/, prefix,
                     Collections.singletonList(nextHopIp), VrfEntry.EncapType.Vxlan, NatConstants.DEFAULT_LABEL_VALUE,
-                    l3Vni, gwMacAddress, origin, writeTx);
+                    l3Vni, gwMacAddress, null /* parent-vpn-rd */, origin, writeTx);
             /* Publish to Bgp only if its an INTERNET VPN */
             if ((rd != null) && (!rd.equalsIgnoreCase(vpnName))) {
                 bgpManager.advertisePrefix(rd, null /*macAddress*/, prefix, Collections.singletonList(nextHopIp),

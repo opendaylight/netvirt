@@ -887,8 +887,8 @@ public class NaptSwitchHA {
                         + "with vpnName {} and externalIp {}",
                         naptSwitch, vpnName, externalIp);
                     externalRouterListener.advToBgpAndInstallFibAndTsFlows(naptSwitch, NwConstants.INBOUND_NAPT_TABLE,
-                        vpnName, routerId, routerName, externalIp, vpnService, fibService, bgpManager, dataBroker,
-                        LOG);
+                        vpnName, routerId, routerName, externalIp, null /* external-router */, vpnService, fibService,
+                        bgpManager, dataBroker, LOG);
                     LOG.debug("NAT Service : Successfully added fib entries in naptswitch {} for "
                         + "router {} with external IP {}", naptSwitch,
                         routerId, externalIp);
