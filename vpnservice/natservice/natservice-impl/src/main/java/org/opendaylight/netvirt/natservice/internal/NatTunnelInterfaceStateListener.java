@@ -596,6 +596,7 @@ public class NatTunnelInterfaceStateListener
         String rd = NatUtil.getVpnRd(dataBroker, externalVpnName);
         if (externalIps != null) {
             for (final String externalIp : externalIps) {
+                Uuid externalSubnetId = NatUtil.getExternalSubnetForRouterExternalIp(dataBroker, externalIp, router);
                 Long label = externalRouterListner.checkExternalIpLabel(routerId,
                     externalIp);
                 if (label == null || label == NatConstants.INVALID_ID) {
@@ -605,8 +606,8 @@ public class NatTunnelInterfaceStateListener
 
                 LOG.debug("NAT Service : SNAT -> Advertise the route to the externalIp {} having nextHopIp {}",
                     externalIp, nextHopIp);
-                NatUtil.addPrefixToBGP(dataBroker, bgpManager, fibManager, externalVpnName, rd, externalIp,
-                    nextHopIp, label, LOG, RouteOrigin.STATIC, srcDpnId);
+                NatUtil.addPrefixToBGP(dataBroker, bgpManager, fibManager, externalVpnName, rd, externalSubnetId,
+                        externalIp, nextHopIp, networkId.getValue(), label, LOG, RouteOrigin.STATIC, srcDpnId);
 
                 LOG.debug("NAT Service : SNAT -> Install custom FIB routes "
                     + "(Table 21 -> Push MPLS label to Tunnel port");
@@ -706,8 +707,8 @@ public class NatTunnelInterfaceStateListener
                     LOG.debug("NAT Service : DNAT -> Unable to advertise to the DC GW since label is invalid");
                     return;
                 }
-                NatUtil.addPrefixToBGP(dataBroker, bgpManager, fibManager, vpnName, rd,
-                    externalIp + "/32", nextHopIp, label, LOG, RouteOrigin.STATIC, fipCfgdDpnId);
+                NatUtil.addPrefixToBGP(dataBroker, bgpManager, fibManager, vpnName, rd, null,
+                    externalIp + "/32", nextHopIp, null, label, LOG, RouteOrigin.STATIC, fipCfgdDpnId);
 
                 //Install custom FIB routes (Table 21 -> Push MPLS label to Tunnel port
                 List<Instruction> customInstructions = new ArrayList<>();

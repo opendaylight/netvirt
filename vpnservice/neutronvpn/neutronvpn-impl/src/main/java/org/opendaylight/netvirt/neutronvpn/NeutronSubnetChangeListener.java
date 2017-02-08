@@ -65,6 +65,7 @@ public class NeutronSubnetChangeListener extends AsyncDataTreeChangeListenerBase
     protected void add(InstanceIdentifier<Subnet> identifier, Subnet input) {
         LOG.trace("Adding Subnet : key: {}, value={}", identifier, input);
         Uuid networkId = input.getNetworkId();
+        Uuid subnetId = input.getUuid();
         Network network = NeutronvpnUtils.getNeutronNetwork(dataBroker, networkId);
         if (network == null || !NeutronvpnUtils.isNetworkTypeSupported(network)) {
             LOG.warn("neutron vpn received a subnet add() for a network without a provider extension augmentation "
@@ -73,7 +74,7 @@ public class NeutronSubnetChangeListener extends AsyncDataTreeChangeListenerBase
             return;
         }
         NeutronvpnUtils.addToSubnetCache(input);
-        handleNeutronSubnetCreated(input.getUuid(), String.valueOf(input.getCidr().getValue()), networkId,
+        handleNeutronSubnetCreated(subnetId, String.valueOf(input.getCidr().getValue()), networkId,
                 input.getTenantId());
         externalSubnetHandler.handleExternalSubnetAdded(network, input.getUuid(), null);
 
@@ -91,7 +92,7 @@ public class NeutronSubnetChangeListener extends AsyncDataTreeChangeListenerBase
                     input.getUuid().getValue(), network);
             return;
         }
-        handleNeutronSubnetDeleted(input.getUuid(), networkId, null);
+        handleNeutronSubnetDeleted(subnetId, networkId, null);
         externalSubnetHandler.handleExternalSubnetRemoved(network, subnetId);
         NeutronvpnUtils.removeFromSubnetCache(input);
     }

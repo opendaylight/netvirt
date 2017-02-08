@@ -920,8 +920,12 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
                         //Inform BGP
                         String rd = NatUtil.getVpnRd(dataBroker, vpnName);
                         String nextHopIp = NatUtil.getEndpointIpAddressForDPN(dataBroker, dpnId);
-                        NatUtil.addPrefixToBGP(dataBroker, bgpManager, fibManager, vpnName, rd,
-                            externalIp, nextHopIp, label, log, RouteOrigin.STATIC, dpnId);
+                        Routers router = NatUtil.getRoutersFromConfigDS(dataBroker, routerName);
+                        Uuid externalSubnetId = NatUtil.getExternalSubnetForRouterExternalIp(dataBroker, externalIp,
+                                router);
+                        NatUtil.addPrefixToBGP(dataBroker, bgpManager, fibManager, vpnName, rd, externalSubnetId,
+                            externalIp, nextHopIp, router.getNetworkId().getValue(), label, log, RouteOrigin.STATIC,
+                            dpnId);
 
                         //Install custom FIB routes
                         List<Instruction> tunnelTableCustomInstructions = new ArrayList<>();

@@ -162,7 +162,7 @@ public class IVpnLinkServiceImpl implements IVpnLinkService, AutoCloseable {
             fibManager.addOrUpdateFibEntry(dataBroker, dstVpnRd, null /*macAddress*/, prefix,
                                            Collections.singletonList(leakedNexthop), VrfEntry.EncapType.Mplsgre,
                                            (int) leakedLabel, 0 /*l3vni*/, null /*gatewayMacAddress*/,
-                                           RouteOrigin.INTERVPN, null /*writeConfigTxn*/);
+                                           null /*parentVpnRd*/, RouteOrigin.INTERVPN, null /*writeConfigTxn*/);
 
             List<String> ivlNexthops =
                 interVpnLink.getEndpointDpnsByVpnName(dstVpnName).stream()

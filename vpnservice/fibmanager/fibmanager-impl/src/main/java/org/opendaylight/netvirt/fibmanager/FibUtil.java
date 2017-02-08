@@ -31,6 +31,7 @@ import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.netvirt.fibmanager.api.FibHelper;
 import org.opendaylight.netvirt.fibmanager.api.RouteOrigin;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.interfaces.VpnInterface;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.AllocateIdInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.AllocateIdInputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.AllocateIdOutput;
@@ -58,6 +59,9 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.VpnInstanceOpDataEntryKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.vpn.instance.op.data.entry.VpnToDpnList;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.to.vpn.id.VpnInstance;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.Subnetmaps;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.subnetmaps.Subnetmap;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.subnetmaps.SubnetmapKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.netvirt.inter.vpn.link.rev160311.InterVpnLinkStates;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.netvirt.inter.vpn.link.rev160311.InterVpnLinks;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.netvirt.inter.vpn.link.rev160311.inter.vpn.link.states.InterVpnLinkState;
@@ -359,7 +363,7 @@ public class FibUtil {
     @SuppressWarnings("checkstyle:IllegalCatch")
     public static void addOrUpdateFibEntry(DataBroker broker, String rd, String macAddress, String prefix,
                                            List<String> nextHopList, VrfEntry.EncapType encapType, long label,
-                                           long l3vni, String gwMacAddress, RouteOrigin origin,
+                                           long l3vni, String gwMacAddress, String parentVpnRd, RouteOrigin origin,
                                            WriteTransaction writeConfigTxn) {
         if (rd == null || rd.isEmpty()) {
             LOG.error("Prefix {} not associated with vpn", prefix);
@@ -375,7 +379,7 @@ public class FibUtil {
                     .child(VrfEntry.class, new VrfEntryKey(prefix)).build();
 
             writeFibEntryToDs(vrfEntryId, prefix, nextHopList, label, l3vni, encapType, origin, macAddress,
-                    gwMacAddress, writeConfigTxn, broker);
+                    gwMacAddress, parentVpnRd, writeConfigTxn, broker);
             LOG.debug("Created/Updated vrfEntry for {} nexthop {} label {}", prefix, nextHopList, label);
         } catch (Exception e) {
             LOG.error("addFibEntryToDS: error ", e);
@@ -387,9 +391,12 @@ public class FibUtil {
     public static void writeFibEntryToDs(InstanceIdentifier<VrfEntry> vrfEntryId, String prefix,
                                          List<String> nextHopList, long label, Long l3vni,
                                          VrfEntry.EncapType encapType, RouteOrigin origin, String macAddress,
-                                         String gatewayMacAddress, WriteTransaction writeConfigTxn,
-                                         DataBroker broker) {
+                                         String gatewayMacAddress, String parentVpnRd,
+                                         WriteTransaction writeConfigTxn, DataBroker broker) {
         VrfEntryBuilder vrfEntryBuilder = new VrfEntryBuilder().setDestPrefix(prefix).setOrigin(origin.getValue());
+        if (parentVpnRd != null) {
+            vrfEntryBuilder.setParentVpnRd(parentVpnRd);
+        }
         buildVpnEncapSpecificInfo(vrfEntryBuilder, encapType, label, l3vni, macAddress, gatewayMacAddress, nextHopList);
         if (writeConfigTxn != null) {
             writeConfigTxn.merge(LogicalDatastoreType.CONFIGURATION, vrfEntryId, vrfEntryBuilder.build(), true);
@@ -617,5 +624,11 @@ public class FibUtil {
             return java.util.Optional.empty();
         }
         return java.util.Optional.of(vrfEntry.getRoutePaths().get(0).getNexthopAddress());
+    }
+
+    public static Subnetmap getSubnetMap(DataBroker broker, Uuid subnetId) {
+        InstanceIdentifier<Subnetmap> subnetmapId = InstanceIdentifier.builder(Subnetmaps.class)
+            .child(Subnetmap.class, new SubnetmapKey(subnetId)).build();
+        return read(broker, LogicalDatastoreType.CONFIGURATION, subnetmapId).orNull();
     }
 }
