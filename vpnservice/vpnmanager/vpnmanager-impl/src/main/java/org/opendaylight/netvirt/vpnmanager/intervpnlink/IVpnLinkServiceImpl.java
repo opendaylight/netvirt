@@ -26,6 +26,7 @@ import org.opendaylight.netvirt.vpnmanager.VpnUtil;
 import org.opendaylight.netvirt.vpnmanager.api.intervpnlink.IVpnLinkService;
 import org.opendaylight.netvirt.vpnmanager.api.intervpnlink.InterVpnLinkCache;
 import org.opendaylight.netvirt.vpnmanager.api.intervpnlink.InterVpnLinkDataComposite;
+import org.opendaylight.netvirt.vpnmanager.utilities.InterfaceUtils;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.IdManagerService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.VrfEntry;
@@ -133,6 +134,7 @@ public class IVpnLinkServiceImpl implements IVpnLinkService, AutoCloseable {
         leakRoute(optIVpnLink.get(), vpnName, prefix, nextHopList, label, addOrRemove);
     }
 
+    // TODO Clean up the exception handling
     @SuppressWarnings("checkstyle:IllegalCatch")
     private void leakRoute(InterVpnLinkDataComposite interVpnLink, String vpnName, String prefix,
                            List<String> nextHopList, int label, int addOrRemove) {
@@ -161,11 +163,16 @@ public class IVpnLinkServiceImpl implements IVpnLinkService, AutoCloseable {
                                            Collections.singletonList(leakedNexthop), VrfEntry.EncapType.Mplsgre,
                                            (int) leakedLabel, 0 /*l3vni*/, null /*gatewayMacAddress*/,
                                            RouteOrigin.INTERVPN, null /*writeConfigTxn*/);
+
+            List<String> ivlNexthops =
+                interVpnLink.getEndpointDpnsByVpnName(dstVpnName).stream()
+                            .map(dpnId -> InterfaceUtils.getEndpointIpAddressForDPN(dataBroker, dpnId))
+                            .collect(Collectors.toList());
             try {
-                bgpManager.advertisePrefix(dstVpnRd, null /*macAddress*/, prefix, nextHopList,
+                bgpManager.advertisePrefix(dstVpnRd, null /*macAddress*/, prefix, ivlNexthops,
                         VrfEntry.EncapType.Mplsgre, (int)leakedLabel, 0 /*l3vni*/, null /*gwMacAddress*/);
             } catch (Exception e) {
-                LOG.error("Exception while advertising prefix for intervpn link, {}", e);
+                LOG.error("Exception while advertising prefix {} on vpnRd {} for intervpn link", prefix, dstVpnRd, e);
             }
         } else {
             LOG.debug("Removing leaked route to {} from VPN {}", prefix, dstVpnName);
