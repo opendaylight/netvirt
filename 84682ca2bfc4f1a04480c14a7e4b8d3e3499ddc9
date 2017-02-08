@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_be25dbc3",
+        "filename": "docs/specs/remote_acl_indirection.rst",
+        "patchSetId": 7
+      },
+      "lineNbr": 109,
+      "author": {
+        "id": 670
+      },
+      "writtenOn": "2017-02-08T08:43:11Z",
+      "side": 1,
+      "message": "clarified, thanks",
+      "parentUuid": "fafc7978_5ee14ffd",
+      "revId": "84682ca2bfc4f1a04480c14a7e4b8d3e3499ddc9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_d67d2970",
         "filename": "docs/specs/remote_acl_indirection.rst",
         "patchSetId": 7
