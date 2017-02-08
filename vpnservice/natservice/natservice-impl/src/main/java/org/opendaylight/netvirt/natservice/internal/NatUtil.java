@@ -655,8 +655,11 @@ public class NatUtil {
                                       IFibManager fibManager,
                                       String vpnName,
                                       String rd,
+                                      Uuid subnetId,
                                       String prefix,
                                       String nextHopIp,
+                                      String parentVpnRd,
+                                      String macAddress,
                                       long label,
                                       Logger log, RouteOrigin origin, BigInteger dpId) {
         try {
@@ -666,10 +669,10 @@ public class NatUtil {
                 LOG.error("NAT Service : addPrefix prefix {} rd {} failed since nextHopIp cannot be null.", prefix, rd);
                 return;
             }
-            addPrefixToInterface(broker, getVpnId(broker, vpnName), prefix, dpId, /*isNatPrefix*/ true);
-            fibManager.addOrUpdateFibEntry(broker, rd, null /*macAddress*/, prefix,
+            addPrefixToInterface(broker, getVpnId(broker, vpnName), prefix, dpId, subnetId, /*isNatPrefix*/ true);
+            fibManager.addOrUpdateFibEntry(broker, rd, macAddress, prefix,
                     Collections.singletonList(nextHopIp), VrfEntry.EncapType.Mplsgre, (int)label, 0 /*l3vni*/,
-                    null /*gatewayMacAddress*/, origin, null /*writeTxn*/);
+                    null /*gatewayMacAddress*/, parentVpnRd, origin, null /*writeTxn*/);
             if ((rd != null) && (!rd.equalsIgnoreCase(vpnName))) {
             /* Publish to Bgp only if its an INTERNET VPN */
                 bgpManager.advertisePrefix(rd, null /*macAddress*/, prefix, Collections.singletonList(nextHopIp),
@@ -683,7 +686,7 @@ public class NatUtil {
         }
     }
 
-    static void addPrefixToInterface(DataBroker broker, long vpnId, String ipPrefix, BigInteger dpId,
+    static void addPrefixToInterface(DataBroker broker, long vpnId, String ipPrefix, BigInteger dpId, Uuid subnetId,
             boolean isNatPrefix) {
         InstanceIdentifier<Prefixes> prefixId = InstanceIdentifier.builder(PrefixToInterface.class)
                 .child(org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.prefix.to._interface
@@ -692,7 +695,7 @@ public class NatUtil {
                 .child(Prefixes.class, new PrefixesKey(ipPrefix)).build();
 
         Prefixes prefix = new PrefixesBuilder().setDpnId(dpId).setIpAddress(ipPrefix).setNatPrefix(isNatPrefix)
-                .build();
+                .setSubnetId(subnetId).build();
         try {
             SingleTransactionDataBroker.syncWrite(broker, LogicalDatastoreType.OPERATIONAL, prefixId, prefix);
         } catch (TransactionCommitFailedException e) {
@@ -1686,20 +1689,26 @@ public class NatUtil {
 
     protected static long getExternalSubnetVpnIdForRouterExternalIp(DataBroker dataBroker, String externalIpAddress,
             Routers router) {
+        Uuid externalSubnetId = NatUtil.getExternalSubnetForRouterExternalIp(dataBroker, externalIpAddress, router);
+        if (externalSubnetId != null) {
+            return NatUtil.getExternalSubnetVpnId(dataBroker,externalSubnetId);
+        }
+
+        return NatConstants.INVALID_ID;
+    }
+
+    protected static Uuid getExternalSubnetForRouterExternalIp(DataBroker dataBroker, String externalIpAddress,
+            Routers router) {
         List<ExternalIps> externalIps = router.getExternalIps();
         for (ExternalIps extIp : externalIps) {
             String extIpString = extIp.getIpAddress().contains("/32") ? (extIp.getIpAddress() + "/32") :
                 extIp.getIpAddress();
             if (extIpString.equals(externalIpAddress)) {
-                if (extIp.getSubnetId() != null) {
-                    LOG.debug("Found external subnet ID for router {} and extIP {}",
-                            router.getRouterName(), externalIpAddress);
-                    return NatUtil.getExternalSubnetVpnId(dataBroker, extIp.getSubnetId());
-                }
+                return extIp.getSubnetId();
             }
         }
 
-        return NatConstants.INVALID_ID;
+        return null;
     }
 
     private static long ipToLong(InetAddress ip) {

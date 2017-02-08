@@ -76,14 +76,15 @@ public class L3vpnOverMplsGrePopulator extends L3vpnPopulator {
                             nextHopIpAddress, nextHopIp, label, vpn);
                     fibManager.addOrUpdateFibEntry(broker, vpnRd, null /*macAddress*/,
                             nextHopIpAddress, Arrays.asList(nextHopIp), encapType, (int) label,
-                            0 /*l3vni*/, input.getGatewayMac(), RouteOrigin.SELF_IMPORTED, writeConfigTxn);
+                            0 /*l3vni*/, input.getGatewayMac(), null /*parentVpnRd*/, RouteOrigin.SELF_IMPORTED,
+                            writeConfigTxn);
                 }
             }
         } else {
             // ### add FIB route directly
             fibManager.addOrUpdateFibEntry(broker, vpnName, null /*macAddress*/,
                     nextHopIpAddress, Arrays.asList(nextHopIp), encapType, (int) label,
-                    0 /*l3vni*/, input.getGatewayMac(), RouteOrigin.LOCAL, writeConfigTxn);
+                    0 /*l3vni*/, input.getGatewayMac(), null /*parentVpnRd*/, RouteOrigin.LOCAL, writeConfigTxn);
         }
     }
 

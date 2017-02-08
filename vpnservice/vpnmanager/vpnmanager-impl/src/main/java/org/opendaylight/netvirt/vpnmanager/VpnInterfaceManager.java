@@ -604,7 +604,7 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                     LogicalDatastoreType.OPERATIONAL,
                     VpnUtil.getPrefixToInterfaceIdentifier(
                         VpnUtil.getVpnId(dataBroker, vpnName), prefix),
-                    VpnUtil.getPrefixToInterface(dpnId, interfaceName, prefix), true);
+                    VpnUtil.getPrefixToInterface(dpnId, interfaceName, prefix, nextHop.getSubnetId()), true);
                 final Uuid subnetId = nextHop.getSubnetId();
                 setupGwMacIfRequired(dpnId, vpnName, interfaceName, vpnId, subnetId,
                         writeInvTxn, NwConstants.ADD_FLOW, interfaceState);
@@ -970,8 +970,9 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                                 LOG.info("Importing fib entry rd {} prefix {} nexthop {} label {} gwmac {} to vpn {}",
                                         vpnRd, prefix, nh, label, gwMac, vpn.getVpnInstanceName());
                                 fibManager.addOrUpdateFibEntry(dataBroker, vpnRd, null /*macAddress*/, prefix,
-                                        Collections.singletonList(nh), VrfEntry.EncapType.Mplsgre,
-                                        (int)label, 0 /*l3vni*/, gwMac, RouteOrigin.SELF_IMPORTED, writeConfigTxn);
+                                        Collections.singletonList(nh), VrfEntry.EncapType.Mplsgre, (int)label,
+                                        0 /*l3vni*/, gwMac,  null /*parentVpnRd*/, RouteOrigin.SELF_IMPORTED,
+                                        writeConfigTxn);
                             } else {
                                 LOG.info("Importing subnet route fib entry rd {} prefix {} nexthop {} label {}"
                                         + " to vpn {}", vpnRd, prefix, nh, label, vpn.getVpnInstanceName());
@@ -1002,7 +1003,7 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
             LOG.info("ADD: Adding Fib entry rd {} primaryRd {} prefix {} nextHop {} label {} gwMac {} l3vni {}",
                     rd, primaryRd, prefix, nextHopList, label, gwMacAddress, l3vni);
             fibManager.addOrUpdateFibEntry(dataBroker, primaryRd, macAddress, prefix, nextHopList,
-                    encapType, (int)label, l3vni, gwMacAddress, origin, writeConfigTxn);
+                    encapType, (int)label, l3vni, gwMacAddress,  null /*parentVpnRd*/, origin, writeConfigTxn);
             LOG.info("ADD: Added Fib entry rd {} prefix {} nextHop {} label {} gwMac {} l3vni {}",
                     rd, prefix, nextHopList, label, gwMacAddress, l3vni);
             // Advertize the prefix to BGP only if nexthop ip is available
@@ -1793,7 +1794,7 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                 // ### add FIB route directly
                 fibManager.addOrUpdateFibEntry(dataBroker, routerID, null /*macAddress*/, destination,
                         Collections.singletonList(nextHop), VrfEntry.EncapType.Mplsgre, label, 0 /*l3vni*/,
-                        null /*gatewayMacAddress*/, origin, writeConfigTxn);
+                        null /*gatewayMacAddress*/, null /*parentVpnRd*/, origin, writeConfigTxn);
             }
         }
         if (!writeConfigTxnPresent) {

@@ -82,4 +82,8 @@ public class FibHelper {
         return routeOrigin == RouteOrigin.STATIC
                 || routeOrigin == RouteOrigin.LOCAL;
     }
+
+    public static boolean isControllerManagedNonSelfImportedRoute(RouteOrigin routeOrigin) {
+        return routeOrigin != RouteOrigin.SELF_IMPORTED;
+    }
 }

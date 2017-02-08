@@ -369,8 +369,16 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
         Preconditions.checkNotNull(vpnInstance, "Vpn Instance not available " + vrfTableKey.getRouteDistinguisher());
         Preconditions.checkNotNull(vpnInstance.getVpnId(), "Vpn Instance with rd " + vpnInstance.getVrfId()
                 + " has null vpnId!");
+        final Collection<VpnToDpnList> vpnToDpnList;
+        if (vrfEntry.getParentVpnRd() != null
+                && FibHelper.isControllerManagedNonSelfImportedRoute(RouteOrigin.value(vrfEntry.getOrigin()))) {
+            VpnInstanceOpDataEntry parentVpnInstance = getVpnInstance(vrfEntry.getParentVpnRd());
+            vpnToDpnList = parentVpnInstance != null ? parentVpnInstance.getVpnToDpnList() :
+                vpnInstance.getVpnToDpnList();
+        } else {
+            vpnToDpnList = vpnInstance.getVpnToDpnList();
+        }
 
-        final Collection<VpnToDpnList> vpnToDpnList = vpnInstance.getVpnToDpnList();
         final Long vpnId = vpnInstance.getVpnId();
         final String rd = vrfTableKey.getRouteDistinguisher();
         SubnetRoute subnetRoute = vrfEntry.getAugmentation(SubnetRoute.class);
@@ -400,7 +408,6 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
         }
 
         final List<BigInteger> localDpnIdList = createLocalFibEntry(vpnInstance.getVpnId(), rd, vrfEntry);
-
         if (!localDpnIdList.isEmpty()) {
             if (vpnToDpnList != null) {
                 DataStoreJobCoordinator dataStoreCoordinator = DataStoreJobCoordinator.getInstance();
@@ -440,7 +447,6 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
             }
         }
     }
-
 
     /*
       Please note that the following createFibEntries will be invoked only for BGP Imported Routes.
@@ -1144,7 +1150,7 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
                 vrfEntry.getDestPrefix(), rd, remoteDpnId);
 
         List<AdjacencyResult> adjacencyResults = resolveAdjacency(remoteDpnId, vpnId, vrfEntry, rd);
-        if (adjacencyResults.isEmpty()) {
+        if (adjacencyResults == null || adjacencyResults.isEmpty()) {
             LOG.error("Could not get interface for route-paths: {} in vpn {}",
                     vrfEntry.getRoutePaths(), rd);
             LOG.warn("Failed to add Route: {} in vpn: {}",
@@ -1198,6 +1204,12 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
     }
 
     private void addRewriteDstMacAction(long vpnId, VrfEntry vrfEntry, List<ActionInfo> actionInfos) {
+        if (vrfEntry.getMac() != null) {
+            actionInfos.add(new ActionSetFieldEthernetDestination(actionInfos.size(),
+                new MacAddress(vrfEntry.getMac())));
+            return;
+        }
+
         String ipPrefix = vrfEntry.getDestPrefix();
         Prefixes prefixInfo = FibUtil.getPrefixToInterface(dataBroker, vpnId, ipPrefix);
         if (prefixInfo == null) {
@@ -1744,7 +1756,6 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
         FlowEntity flowEntity = MDSALUtil.buildFlowEntity(dpId, NwConstants.L3_FIB_TABLE, flowRef, priority,
             flowRef, 0, 0,
             COOKIE_VM_FIB_TABLE, matches, instructions);
-
         Flow flow = flowEntity.getFlowBuilder().build();
         String flowId = flowEntity.getFlowId();
         FlowKey flowKey = new FlowKey(new FlowId(flowId));
@@ -1886,9 +1897,14 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
                                 }
                             }
                         }
-                        // Passing null as we don't know the dpn
-                        // to which prefix is attached at this point
-                        createRemoteFibEntry(dpnId, vpnId, vrfTable.get().getKey(), vrfEntry, tx);
+
+                        boolean shouldCreateRemoteFibEntry = shouldCreateFibEntryForVrfAndVpnIdOnDpn(vpnId,
+                                vrfEntry, dpnId);
+                        if (shouldCreateRemoteFibEntry) {
+                            LOG.trace("Will create remote FIB entry for vrfEntry {} on DPN {}",
+                                    vrfEntry, dpnId);
+                            createRemoteFibEntry(dpnId, vpnId, vrfTable.get().getKey(), vrfEntry, tx);
+                        }
                     }
                     //TODO: if we have 100K entries in FIB, can it fit in one Tranasaction (?)
                     futures.add(tx.submit());
@@ -2495,5 +2511,19 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
             List<String> nextHopAddressList, LabelRouteInfo lri) {
         return lri != null && lri.getPrefix().equals(prefix)
                 && nextHopAddressList.contains(lri.getNextHopIpList().get(0));
+    }
+
+    private boolean shouldCreateFibEntryForVrfAndVpnIdOnDpn(Long vpnId, VrfEntry vrfEntry, BigInteger dpnId) {
+        Prefixes prefix = FibUtil.getPrefixToInterface(dataBroker, vpnId, vrfEntry.getDestPrefix());
+        if (prefix != null) {
+            BigInteger prefixDpnId = prefix.getDpnId();
+            if (prefixDpnId == dpnId) {
+                LOG.trace("Should not create remote FIB entry for vrfEntry {} on DPN {}",
+                        vrfEntry, dpnId);
+                return false;
+            }
+        }
+
+        return true;
     }
 }
