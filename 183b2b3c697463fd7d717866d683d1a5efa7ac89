@@ -37,6 +37,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_f276723d",
+        "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/SouthboundHandler.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 360,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2017-02-08T19:45:12Z",
+      "side": 1,
+      "message": "Hi Hari,\n\nCan we reuse the method OF13Provider::handleInterfaceUpdate? \n\nIs it true that OF13Provider is not called because the network is null? we can:\n1) in processPortUpdate from SouthboundHandler, check if the port is Vxlan\n2) If vxlan then call \nnetworkingProviderManager.getProvider(node).handleInterfaceUpdate(null, node, tp)\n\nIs this possible?\n\nIn summary, I would like all related logic are contained in one class, not scattered in various places",
+      "parentUuid": "fafc7978_ec6219d7",
+      "revId": "183b2b3c697463fd7d717866d683d1a5efa7ac89",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_db6711b6",
         "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/SouthboundHandler.java",
         "patchSetId": 4
@@ -72,6 +90,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_27d1da57",
+        "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/SouthboundHandler.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 373,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2017-02-08T19:45:12Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_cc5d9517",
+      "revId": "183b2b3c697463fd7d717866d683d1a5efa7ac89",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_5b13210d",
         "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/SouthboundHandler.java",
         "patchSetId": 4
@@ -101,6 +137,24 @@
       "side": 1,
       "message": "Thanks for your comment.\nHave addressed comment",
       "parentUuid": "fafc7978_5b13210d",
+      "revId": "183b2b3c697463fd7d717866d683d1a5efa7ac89",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_07d49645",
+        "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/SouthboundHandler.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 381,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2017-02-08T19:45:12Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_0c9f9db5",
       "revId": "183b2b3c697463fd7d717866d683d1a5efa7ac89",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
