@@ -150,10 +150,10 @@ public class FibManagerImpl implements IFibManager {
     @Override
     public void addOrUpdateFibEntry(DataBroker broker, String rd, String macAddress, String prefix,
                                     List<String> nextHopList, VrfEntry.EncapType encapType, long label,
-                                    long l3vni, String gwMacAddress, RouteOrigin origin,
+                                    long l3vni, String gwMacAddress, String parentVpnRd, RouteOrigin origin,
                                     WriteTransaction writeConfigTxn) {
         FibUtil.addOrUpdateFibEntry(broker, rd, macAddress, prefix , nextHopList, encapType, label, l3vni,
-                gwMacAddress, origin, writeConfigTxn);
+                gwMacAddress, parentVpnRd, origin, writeConfigTxn);
     }
 
     @Override
