@@ -95,12 +95,8 @@ is external network connectivity option 2 from [8]). That method implies 2 VPNs.
 One VPN will be dedicated to Internet access, and will contain the Internet Routes,
 but also the VPNs routes. The Internet VPN can also contain default route to a gateway.
 Having a separated VPN brings some advantages:
-- the VPN that do not need to get Internet access get the private characteristic
-  of VPNs.
-- using a VPN internet, instead of default forwarding table is  enabling
-  flexibility, since it coud permit creating more than one internet VPN.
-  As consequence, it could permit applying different rules ( different gateway
-  for example).
+- the VPN that do not need to get Internet access get the private characteristic of VPNs.
+- using a VPN internet, instead of default forwarding table is  enabling flexibility, since it coud permit creating more than one internet VPN. As consequence, it could permit applying different rules ( different gateway for example).
 
 Having 2 VPNs implies the following for one packet going from VPN to the internet.
 The FIB table will be used for that. If the packet's destination address does no
@@ -111,54 +107,39 @@ of the routes from the VPN will be exported to the internet VPN.
 
 Configuration steps in a datacenter:
 
-  - Configure ODL and Devstack networking-odl for BGP VPN.
-  - Create a tenant network with IPv6 subnet using GUA prefix or an
-  admin-created-shared-ipv6-subnet-pool.
-  - This tenant network is connected to an external network where the DCGW is
-    connected. Separation between both networks is done by DPN located on compute
-    nodes. The subnet on this external network is using the same tenant as an IPv4
-    subnet used for MPLS over GRE tunnels endpoints between DCGW and DPN on
-    Compute nodes. Configure one GRE tunnel between DPN on compute node and DCGW.
+- Configure ODL and Devstack networking-odl for BGP VPN.
+- Create a tenant network with IPv6 subnet using GUA prefix or an admin-created-shared-ipv6-subnet-pool.
+- This tenant network is connected to an external network where the DCGW is connected. Separation between both networks is done by DPN located on compute nodes. The subnet on this external network is using the same tenant as an IPv4 subnet used for MPLS over GRE tunnels endpoints between DCGW and DPN on Compute nodes. Configure one GRE tunnel between DPN on compute node and DCGW.
+- Create a Neutron Router and connect its ports to all internal subnets
+- Create a transport zone to declare that a tunneling method is planned to reach an external IP: the IPv6 interface of the DC-GW
+- The neutron router subnetworks will be associated to two L3 BGPVPN instance. The step create the L3VPN instances and associate the instances to the router. Especially, two VPN instances will be created, one for the VPN, and one for the internetVPN. There are two workflows to handle when configuring VPNs: 1st workflow is "first the private VPN is created, then the internet VPN". 2nd workflow is "first the internet VPN, then the private VPN". 
 
-  - Create a Neutron Router and connect its ports to all internal subnets
+::
 
-  - Create a transport zone to declare that a tunneling method is planned to reach an external IP:
-  the IPv6 interface of the DC-GW
-
-  - The neutron router subnetworks will be associated to two L3 BGPVPN instance.
-   The step create the L3VPN instances and associate the instances to the router.
-   Especially, two VPN instances will be created, one for the VPN, and one for the
-   internetVPN.
-
-   operations:neutronvpn:createL3VPN ( "route-distinguisher" = "vpn1"
-                                       "import-RT" = ["vpn1","internetvpn"]
+     operations:neutronvpn:createL3VPN ( "route-distinguisher" = "vpn1"
+                                       "import-RT" = ["vpn1"]
                                        "export-RT" = ["vpn1","internetvpn"])
-   operations:neutronvpn:createL3VPN ( "route-distinguisher" = "internetvpn"
+     operations:neutronvpn:createL3VPN ( "route-distinguisher" = "internetvpn"
                                        "import-RT" = "internetvpn"
                                        "export-RT" = "internetvpn")
 
-  - The DC-GW configuration will also include 2 BGP VPN instances.
+- The DC-GW configuration will also include 2 BGP VPN instances.
     Below is a configuration from QBGP using vty command interface.
 
-  vrf rd "internetvpn"
-  vrf rt both "internetvpn"
-  vrf rd "vpn1"
-  vrf rt both "vpn1" "internetvpn"
+::
 
-  - Spawn VM and bind its network interface to a subnet, L3 connectivty between
-  VM in datacenter and a host on WAN  must be successful.
-  More precisely, a route belonging to VPN1 will be associated to VM GUA.
-  and will be sent to remote DC-GW. DC-GW will import the entry to both "vpn1" and "internetvpn"
-  so that the route will be known on both vpns.
-  Reversely, because DC-GW knows internet routes in "internetvpn", those routes will be sent to
-  QBGP. ODL will get those internet routes, only in the "internetvpn" vpn.
-  For example, when a VM will try to reach a remote, a first lookup will be done in "vpn1" FIB
-  table. If none is found, a second lookup will be found in the "internetvpn" FIB table. The
-  second lookup should be successfull, thus trigerring the encapsulation of packet to the DC-GW.
+     vrf rd "internetvpn"
+     vrf rt both "internetvpn"
+     vrf rd "vpn1"
+     vrf rt both "vpn1" "internetvpn"
 
-When the data centers is set up, there are 2 use cases:
+- Spawn VM and bind its network interface to a subnet, L3 connectivty between VM in datacenter and a host on WAN  must be successful. More precisely, a route belonging to VPN1 will be associated to VM GUA. and will be sent to remote DC-GW. DC-GW will import the entry to both "vpn1" and "internetvpn" so that the route will be known on both vpns. Reversely, because DC-GW knows internet routes in "internetvpn", those routes will be sent to QBGP. ODL will get those internet routes, only in the "internetvpn" vpn. For example, when a VM will try to reach a remote, a first lookup will be done in "vpn1" FIB table. If none is found, a second lookup will be found in the "internetvpn" FIB table. The second lookup should be successfull, thus trigerring the encapsulation of packet to the DC-GW.
+
+
+When the data centers is set up as above, there are 2 use cases:
   - Traffic from Local DPN to DC-Gateway
   - Traffic from DC-Gateway to Local DPN
+
 The use cases are slightly different from [6], on the Tx side.
 
 Proposed change
@@ -176,24 +157,19 @@ to Internet at DCGW level.
 Pipeline changes
 ----------------
 
-No pipeline changes, compared with [6]. However, FIB Manager will be modified so as to
-implement the fallback mechanism. The FIB tables of the import-RTs VPNs from the default
-VPN created will be parsed. In our case, a match will be found in the "internetVPN"
-FIB table. If not match is found, the drop rule will be applied.
-
-
-Regarding the pipeline changes, we can use the same BGPVPNv4 pipeline
-(Tables Dispatcher (17), DMAC (19), LFIB (20), L3FIB (21), and NextHop Group
-tables) and enhance those tables to support IPv6 North-South communication
-through MPLS/GRE.
-For understanding, the pipeline is written below: l3vpn-id is the ID associated to the initial VPN,
-while l3vpn-internet-id is the ID associated to the internet VPN.
-
+FIB Manager will be modified so as to implement the fallback mechanism.
+The FIB tables of the import-RTs VPNs from the default VPN created will be parsed.
+In our case, a match will be found in the "internetVPN" FIB table.
+To make the relationship between the first VPN, and the second internetVPN entry, a
+fallback entry will overwrite the vrf-id to the new internetVPN id, and will resubmit
+the packet to the table 21.
 
 Traffic from DC-Gateway to Local DPN (SYMMETRIC IRB)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-When a packet is coming from DC-Gateway, the label will help finding out the associated VPN. The first one is l3vpn-id.
+Since the IPv6 addresses are GUA, the specific VPN associated with the packet becomes less relevant.
+In the downstream direction, the MPLS label uniquely identifies the neutron port associated with the destination IP.
+This label can be used to send the packet directly on the neutron port independent of the VPN in which the packet arrives.
 
 | Classifier Table (0) =>
 | LFIB Table (20) ``match: tun-id=mpls_label set vpn-id=l3vpn-id, pop_mpls label, set output to nexthopgroup-dst-vm`` =>
@@ -202,38 +178,52 @@ When a packet is coming from DC-Gateway, the label will help finding out the ass
 
 Traffic from Local DPN to DC-Gateway (SYMMETRIC IRB)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-When a packet is going out from a dedicated VM, the l3vpn-id attached to that subnetwork will be used.
-Theorically, in L3 FIB, there will be no match for dst IP with this l3vpn-id.
-However, because ODL know the relationship between both VPNs, then the dst IP will be attached
-with the first l3vpn-id.
-
-However, since the gateway IP for inter-DC and external access is the same, the same MPLS label will be used for both VPNs.
+When the packet is received from the VM, the destIP in the packet is a external network address.
+So, when the packet is matched against the addresses in the VPN, there will NOT be any matches.
+So, the VRF will have a default match entry which is to change the VRF ID in the metadata to that of the Internet VPN and resubmit the packet to the FIB.
+In the resubmit phase, the packet DestIP, InternetVPN VRF fields are matched and the actions defined for this match is executed.
+This would typically be to send the packet to one of the DC-GWs.
 
 | Classifier Table (0) =>
-| Lport Dispatcher Table (17) ``match: LportTag l3vpn service: set vpn-id=l3vpn-id` =>
-| DMAC Service Filter (19) ``match: dst-mac=router-internal-interface-mac l3vpn service: set vpn-id=internet-l3vpn-id`` =>
-| L3 FIB Table (21) ``match: vpn-id=l3vpn-id, nw-dst=<alternate-ip> set tun-id=mpls_label output to MPLSoGRE tunnel port`` =>
-| L3 FIB Table (21) ``match: vpn-id=l3vpn-id, nw-dst=ext-ip-address set tun-id=mpls_label output to MPLSoGRE tunnel port`` =>
+| Lport Dispatcher Table (17) ``match: LportTag l3vpn service: set vpn-id=l3vpn-id`` =>
+| DMAC Service Filter (19) ``match: dst-mac=router-internal-interface-mac vpn-id=l3vpn-id`` =>
+| L3 FIB Table (21) ``match: vpn-id=l3vpn-id, nw-dst=<IP-from-vpn> set tun-id=mpls_label output to MPLSoGRE tunnel port`` =>
+| L3 FIB Table (21) ``match: dl_type=0x86dd, vpn-id=l3vpn-id, set vpn-id=internetvpn-id, resubmit(,21) =>
+| L3 FIB Table (21) ``match: vpn-id=internetvpn-id, nw-dst=<IP-from-internetvpn> set tun-id=mpls_label output to MPLSoGRE tunnel port`` =>
 
-Fib Manager changes
+VPN Manager changes
+-------------------
+
+When a new VPN instance is declared or updated, two checks must be done:
+- if the VPN is an internet like VPN, the list of other VPNs is parsed. For each VPN, if the RT_export matches the RT_import of that VPN, then a fallback rule will be created.
+- if the VPN is a private VPN, and RT export refers to an other VPN, then a check is done with that other VPN. If that VPN is created and present, and if that VPN has the RT_import rule matching, then a fallback rule will be created.
+
+When a VPN is removed, two checks must be done:
+- If the VPN to remove is an internet like VPN, the list of other VPNs is parsed. For each VPN, if the RT_export matches the RT_import of that VPN, then the associate fallback rule will be removed.
+- If the VPN to remove is a private VPN, and RT export refers to an other VPN, then a check is done with that other VPN. If that VPN is created and present, and if that VPN has the RT_import rule matching, then the associate fallback rule will be removed.
+
+  
+FIB Manager changes
 -------------------
 
 Ingress traffic from internet to VM
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-The FIB Manager is being configured with 2 entries for different RDs : l3vpn-id and internetvpn-id.
-The LFIB will be matched first.
-In our case, label NH and prefix are the same, whereas we have 2 VPN instances.
-So, proposed change is to prevent LFIB from adding entries if a label is already registered for that compute node.
+As with [6], the traffic from internet to VM will be conditioned with Label and destination IP.
+This is set by the DC-GW.
+So the workflow does not change with [6].
 
 Egress traffic from VM to internet
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-The FIB Manager is being configured with the internet routes on one RD only : internetvpn-id.
-As packets that are emitted from the VM with vpn=l3vpn-id, the internet route will not be matched in l3vpn, if implementation remains as it is.
-In FIB Manager, solution is the following:
-- The internetvpn is not attached to any local subnetwork.
-so, any eligible VPNs are looked up in the list of VPN instances.
-for each VPN instance, for each RD, if an imported RT matches the internetvpnID, then a new rule will be appended.
+Because the VPN manager has a list of VPNs to import information into, the list of import VPNS is parsed.
 
+- if the imported VPN matches the VPN RD, and the correct prefix, then the default basic pipeline rule will be created.
+  This is what will happen for each new prefix added to the FIB.
+- if the imported VPN matches an other VPN, then an additional rule will be added.
+  This entry will be added at the VPN creation.
+  A check will have to be done so that the additional rule is checked lastly.
+  That means that if 3 entries are appended on the VPN, then a 4th rule will be tested in OVS, if the first 3 entries
+  are not matching incoming packet. That additional rule will set the vrf-id to the new internetvpn-id, and a
+  resubmit to table 21 will be applied.
 
 Yang changes
 ------------
@@ -284,13 +274,19 @@ Usage
   etc/custom.properties. No REST API can configure that parameter.
   Use config/ebgp:bgp REST api to start BGP stack and configure VRF, address
   family and neighboring. In our case, as example, following values will be used:
-    - rd="100:2" # internet VPN
-      - import-rts="100:2"
-      - export-rts="100:2"
-    - rd="100:1" # vpn1
-      - import-rts="100:1 100:2"
-      - export-rts="100:1 100:2"
 
+::
+
+  rd="100:2" # internet VPN
+    import-rts="100:2"
+    export-rts="100:2"
+   rd="100:1" # vpn1
+    import-rts="100:1 100:2"
+    export-rts="100:1 100:2"
+
+
+Following operations are done.
+   
 ::
 
  POST config/ebgp:bgp
@@ -317,7 +313,7 @@ Usage
  }
 
 
- * Configure BGP speaker on DCGW to exchange prefixes with ODL BGP stack. Since
+* Configure BGP speaker on DCGW to exchange prefixes with ODL BGP stack. Since
   DCGW should be a vendor solution, the configuration of such equipment is out of
   the scope of this specification.
 
@@ -450,12 +446,14 @@ Implementation
 Assignee(s)
 -----------
 Primary assignee:
-  Julien Courtat <julien.courtat@6wind.com>
+  Philippe Guibert <philippe.guibert@6wind.com>
 
 Other contributors:
   Noel de Prandieres <prandieres@6wind.com>
+
   Valentina Krasnobaeva <valentina.krasnobaeva@6wind.com>
-  Philippe Guibert <philippe.guibert@6wind.com>
+
+
 
 Work Items
 ----------
