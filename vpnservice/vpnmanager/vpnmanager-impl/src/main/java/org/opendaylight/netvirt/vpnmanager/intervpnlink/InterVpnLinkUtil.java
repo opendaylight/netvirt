@@ -10,11 +10,13 @@ package org.opendaylight.netvirt.vpnmanager.intervpnlink;
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.util.concurrent.ListenableFuture;
+
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
+
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
@@ -25,6 +27,7 @@ import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.genius.mdsalutil.matches.MatchMetadata;
 import org.opendaylight.genius.utils.ServiceIndex;
 import org.opendaylight.netvirt.bgpmanager.api.IBgpManager;
+import org.opendaylight.netvirt.fibmanager.api.FibHelper;
 import org.opendaylight.netvirt.fibmanager.api.IFibManager;
 import org.opendaylight.netvirt.fibmanager.api.RouteOrigin;
 import org.opendaylight.netvirt.vpnmanager.VpnConstants;
@@ -460,10 +463,7 @@ public class InterVpnLinkUtil {
         String endpointIp = destinationIs1stEndpoint ? interVpnLink.getSecondEndpoint().getIpAddress().getValue()
             : interVpnLink.getFirstEndpoint().getIpAddress().getValue();
 
-        VrfEntry newVrfEntry = new VrfEntryBuilder().setKey(new VrfEntryKey(prefix)).setDestPrefix(prefix)
-            .setLabel(label).setNextHopAddressList(Collections.singletonList(endpointIp))
-            .setOrigin(RouteOrigin.INTERVPN.getValue())
-            .build();
+        VrfEntry newVrfEntry = FibHelper.buildVrfEntry(prefix, label, endpointIp, RouteOrigin.INTERVPN).build();
 
         String dstVpnRd = VpnUtil.getVpnRd(broker, dstVpnUuid);
         InstanceIdentifier<VrfEntry> newVrfEntryIid =
