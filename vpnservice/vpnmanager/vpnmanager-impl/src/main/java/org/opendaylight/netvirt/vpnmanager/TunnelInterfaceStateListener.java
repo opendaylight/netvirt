@@ -293,14 +293,15 @@ public class TunnelInterfaceStateListener extends AsyncDataTreeChangeListenerBas
                             vpnInterface);
                         for (Adjacency adj : adjList) {
                             prefix = adj.getIpAddress();
+                            long label = adj.getLabel();
                             if ((tunnelAction == TunnelAction.TUNNEL_EP_ADD)
                                 && (tunTypeVal == VpnConstants.ITMTunnelLocType.Internal.getValue())) {
-                                fibManager.manageRemoteRouteOnDPN(true, srcDpnId, vpnId, rd, prefix, destTepIp);
+                                fibManager.manageRemoteRouteOnDPN(true, srcDpnId, vpnId, rd, prefix, destTepIp, label);
                             }
 
                             if ((tunnelAction == TunnelAction.TUNNEL_EP_DELETE)
                                 && (tunTypeVal == VpnConstants.ITMTunnelLocType.Internal.getValue())) {
-                                fibManager.manageRemoteRouteOnDPN(false, srcDpnId, vpnId, rd, prefix, destTepIp);
+                                fibManager.manageRemoteRouteOnDPN(false, srcDpnId, vpnId, rd, prefix, destTepIp, label);
                             }
                         }
                     }
