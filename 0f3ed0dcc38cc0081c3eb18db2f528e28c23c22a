@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_0c8cbd34",
+        "filename": "docs/specs/remote_acl_indirection.rst",
+        "patchSetId": 9
+      },
+      "lineNbr": 69,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2017-02-08T20:12:52Z",
+      "side": 1,
+      "message": "typo",
+      "range": {
+        "startLine": 69,
+        "startChar": 27,
+        "endLine": 69,
+        "endChar": 33
+      },
+      "revId": "0f3ed0dcc38cc0081c3eb18db2f528e28c23c22a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_ac7c9121",
+        "filename": "docs/specs/remote_acl_indirection.rst",
+        "patchSetId": 9
+      },
+      "lineNbr": 80,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2017-02-08T20:12:52Z",
+      "side": 1,
+      "message": "I think *italics* would look better than monospace for this and the other sentence",
+      "range": {
+        "startLine": 80,
+        "startChar": 30,
+        "endLine": 80,
+        "endChar": 32
+      },
+      "revId": "0f3ed0dcc38cc0081c3eb18db2f528e28c23c22a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_d2ed2eb9",
+        "filename": "docs/specs/remote_acl_indirection.rst",
+        "patchSetId": 9
+      },
+      "lineNbr": 108,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2017-02-08T20:12:52Z",
+      "side": 1,
+      "message": "How can we match on ELAN at this point? \nFor ingress service (egress ACL), ACL service has higher priority than ELAN service\nWill it be written as part of the dispatcher flow for the ACL?\n\nFor egress service (ingress ACL) there are two issues\n1. packet that traversed stright from the L3 pipeline don\u0027t have ELAN tag set in the metadata\n2. metatadata of ingress services is cleared up by genius as entering the egress pipeline.",
+      "range": {
+        "startLine": 108,
+        "startChar": 25,
+        "endLine": 108,
+        "endChar": 32
+      },
+      "revId": "0f3ed0dcc38cc0081c3eb18db2f528e28c23c22a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
