@@ -59,7 +59,8 @@ public interface IFibManager {
                                 long vpnId,
                                 String rd,
                                 String destPrefix,
-                                String destTepIp);
+                                String destTepIp,
+                                long label);
 
     void addOrUpdateFibEntry(DataBroker broker, String rd, String macAddress, String prefix, List<String> nextHopList,
                              VrfEntry.EncapType encapType, int label, long l3vni, String gwMacAddress,
@@ -74,7 +75,7 @@ public interface IFibManager {
     void removeFibEntry(DataBroker broker, String rd, String prefix, WriteTransaction writeConfigTxn);
 
     void updateFibEntry(DataBroker broker, String rd, String prefix, List<String> nextHopList,
-                        String gwMacAddress, WriteTransaction writeConfigTxn);
+                        String gwMacAddress, long label, WriteTransaction writeConfigTxn);
 
     void addVrfTable(DataBroker broker, String rd, WriteTransaction writeConfigTxn);
 
