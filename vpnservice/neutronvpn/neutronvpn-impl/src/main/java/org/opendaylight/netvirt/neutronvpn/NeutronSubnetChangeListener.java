@@ -72,14 +72,19 @@ public class NeutronSubnetChangeListener extends AsyncDataTreeChangeListenerBase
             return;
         }
 
-        handleNeutronSubnetCreated(input.getUuid(), String.valueOf(input.getCidr().getValue()), networkId,
-                input.getTenantId());
+        Uuid vpnId = null;
         if (NeutronvpnUtils.getIsExternal(network) && NeutronvpnUtils.isFlatOrVlanNetwork(network)) {
             LOG.trace("Added subnet {} part of external network {} will add NAT external subnet", input, networkId);
             nvpnManager.createVpnInstanceForSubnet(input.getUuid());
             nvpnNatManager.updateOrAddExternalSubnet(networkId, subnetId, null);
+
+            // TODO - Should later change the vpnId to be the subnetId as vpnId.
+            LOG.debug("Setting vpnId to be {} for external flat/VLAN network", networkId);
+            vpnId = networkId;
         }
 
+        handleNeutronSubnetCreated(subnetId, String.valueOf(input.getCidr().getValue()), networkId,
+                input.getTenantId(), vpnId);
         NeutronvpnUtils.addToSubnetCache(input);
     }
 
@@ -127,8 +132,9 @@ public class NeutronSubnetChangeListener extends AsyncDataTreeChangeListenerBase
         NeutronvpnUtils.addToSubnetCache(update);
     }
 
-    private void handleNeutronSubnetCreated(Uuid subnetId, String subnetIp, Uuid networkId, Uuid tenantId) {
-        nvpnManager.updateSubnetNode(subnetId, subnetIp, tenantId, networkId, null/*routerID*/, null/*vpnID*/);
+    private void handleNeutronSubnetCreated(Uuid subnetId, String subnetIp, Uuid networkId, Uuid tenantId,
+            Uuid vpnId) {
+        nvpnManager.updateSubnetNode(subnetId, subnetIp, tenantId, networkId, null/*routerID*/, vpnId);
         if (networkId != null) {
             createSubnetToNetworkMapping(subnetId, networkId);
         }
