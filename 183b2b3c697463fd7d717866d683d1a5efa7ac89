@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_7b59c5fd",
+        "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/SouthboundHandler.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 360,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2017-02-08T01:27:59Z",
+      "side": 1,
+      "message": "Can we handle this case in OF13Provider?\nBy design, writing flow should be done in NetworkingProvider subclass, ie, OF13Provider?",
+      "revId": "183b2b3c697463fd7d717866d683d1a5efa7ac89",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_db6711b6",
+        "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/SouthboundHandler.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 373,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2017-02-08T01:27:59Z",
+      "side": 1,
+      "message": "the method body can be just a simple return like this:\n\nreturn option.getOption().equals(Constants.TUNNEL_ENDPOINT_KEY_REMOTE);",
+      "revId": "183b2b3c697463fd7d717866d683d1a5efa7ac89",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_5b13210d",
+        "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/SouthboundHandler.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 381,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2017-02-08T01:27:59Z",
+      "side": 1,
+      "message": "exclude \u0027node\u0027 from the list of all bridge nodes?",
+      "revId": "183b2b3c697463fd7d717866d683d1a5efa7ac89",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
