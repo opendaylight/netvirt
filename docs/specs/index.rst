@@ -13,6 +13,7 @@ Contents:
    Temporary SMAC Learning <temporary-smac-learning>
    Setup Source-MAC-Address for routed packets to virtual endpoints <setup-smac-for-routed-packets-to-virt-endpoints>
    Support of VXLAN based connectivity across Datacenters <l3vpn-over-vxlan-with-evpn-rt5>
+   IPv6 Data Center to internet connectivity using L3VPN <ipv6-l3vpn-internet>
    ACL Statistics <acl-stats>
    Hairpinning of floating IPs in flat/VLAN provider networks <hairpinning-flat-vlan>
    Quality of Service <qos>
