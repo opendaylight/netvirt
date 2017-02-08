@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015, 2017 Ericsson India Global Services Pvt Ltd. and others.  All rights reserved.
+ * Copyright © 2015 - 2017 Ericsson India Global Services Pvt Ltd. and others.  All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
@@ -115,21 +115,27 @@ public class NeutronPortChangeListener extends AsyncDataTreeChangeListenerBase<P
         }
         NeutronvpnUtils.addToPortCache(input);
 
+        String portStatus = NeutronUtils.PORT_STATUS_DOWN;
         if (!Strings.isNullOrEmpty(input.getDeviceOwner()) && !Strings.isNullOrEmpty(input.getDeviceId())) {
             if (input.getDeviceOwner().equals(NeutronConstants.DEVICE_OWNER_ROUTER_INF)) {
                 handleRouterInterfaceAdded(input);
+                NeutronUtils.createPortStatus(input.getUuid().getValue(), NeutronUtils.PORT_STATUS_ACTIVE, dataBroker);
                 return;
             }
             if (NeutronConstants.DEVICE_OWNER_GATEWAY_INF.equals(input.getDeviceOwner())) {
                 handleRouterGatewayUpdated(input);
+                portStatus = NeutronUtils.PORT_STATUS_ACTIVE;
             } else if (NeutronConstants.DEVICE_OWNER_FLOATING_IP.equals(input.getDeviceOwner())) {
                 handleFloatingIpPortUpdated(null, input);
+                portStatus = NeutronUtils.PORT_STATUS_ACTIVE;
             }
 
             if (input.getFixedIps() != null && !input.getFixedIps().isEmpty()) {
                 handleNeutronPortCreated(input);
             }
         }
+
+        NeutronUtils.createPortStatus(input.getUuid().getValue(), portStatus, dataBroker);
     }
 
     @Override
@@ -144,6 +150,7 @@ public class NeutronPortChangeListener extends AsyncDataTreeChangeListenerBase<P
             return;
         }
         NeutronvpnUtils.removeFromPortCache(input);
+        NeutronUtils.deletePortStatus(input.getUuid().getValue(), dataBroker);
 
         if (!Strings.isNullOrEmpty(input.getDeviceOwner()) && !Strings.isNullOrEmpty(input.getDeviceId())) {
             if (input.getDeviceOwner().equals(NeutronConstants.DEVICE_OWNER_ROUTER_INF)) {
