@@ -49,6 +49,29 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_67a64212",
+        "filename": "docs/specs/ipv6-cvr-north-south.rst",
+        "patchSetId": 3
+      },
+      "lineNbr": 101,
+      "author": {
+        "id": 6773
+      },
+      "writtenOn": "2017-02-08T16:01:27Z",
+      "side": 1,
+      "message": "the gateway IP would be an IP on the ext net and not an IP on the private IPv6 net. Somehow this isn\u0027t what I understand from the mention of NDP below.",
+      "range": {
+        "startLine": 100,
+        "startChar": 64,
+        "endLine": 101,
+        "endChar": 13
+      },
+      "revId": "339258dde2b8a824ceb1df5327bf8ce57980e7b6",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_87837155",
         "filename": "docs/specs/ipv6-cvr-north-south.rst",
         "patchSetId": 3
@@ -136,6 +159,52 @@
         "startChar": 63,
         "endLine": 109,
         "endChar": 79
+      },
+      "revId": "339258dde2b8a824ceb1df5327bf8ce57980e7b6",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_e76232d7",
+        "filename": "docs/specs/ipv6-cvr-north-south.rst",
+        "patchSetId": 3
+      },
+      "lineNbr": 171,
+      "author": {
+        "id": 6773
+      },
+      "writtenOn": "2017-02-08T16:01:27Z",
+      "side": 1,
+      "message": "why would NDP be required for the VM IPv6 addresses. Isn\u0027t it assumed that they reside BEHIND the Neutron router (gateway)? This would imply the NDP would only be for the router IP on ext net and not on any IP on the private networks.",
+      "range": {
+        "startLine": 170,
+        "startChar": 0,
+        "endLine": 171,
+        "endChar": 74
+      },
+      "revId": "339258dde2b8a824ceb1df5327bf8ce57980e7b6",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_279c3ac0",
+        "filename": "docs/specs/ipv6-cvr-north-south.rst",
+        "patchSetId": 3
+      },
+      "lineNbr": 173,
+      "author": {
+        "id": 6773
+      },
+      "writtenOn": "2017-02-08T16:01:27Z",
+      "side": 1,
+      "message": "I agree that BGP would automate this, but it can already be supported with a static route on the DCGW.",
+      "range": {
+        "startLine": 173,
+        "startChar": 0,
+        "endLine": 173,
+        "endChar": 17
       },
       "revId": "339258dde2b8a824ceb1df5327bf8ce57980e7b6",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
