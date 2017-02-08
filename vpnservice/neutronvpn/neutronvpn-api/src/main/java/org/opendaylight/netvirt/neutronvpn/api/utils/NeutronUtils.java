@@ -8,19 +8,103 @@
 
 package org.opendaylight.netvirt.neutronvpn.api.utils;
 
-import static org.opendaylight.netvirt.neutronvpn.api.utils.NeutronConstants.VNIC_TYPE_NORMAL;
-
 import java.util.List;
 
+import org.opendaylight.controller.md.sal.binding.api.DataBroker;
+import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
+import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.binding.rev150712.PortBindingExtension;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.networks.rev150712.NetworkTypeBase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.networks.rev150712.networks.attributes.networks.Network;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.ports.attributes.Ports;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.ports.attributes.ports.Port;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.ports.attributes.ports.PortBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.ports.attributes.ports.PortKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.provider.ext.rev150712.NetworkProviderExtension;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.provider.ext.rev150712.neutron.networks.network.Segments;
-
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.rev150712.Neutron;
+import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class NeutronUtils {
+    private static final Logger LOG = LoggerFactory.getLogger(NeutronUtils.class);
+
+    public static final String VNIC_TYPE_NORMAL = "normal";
+    public static final String PORT_STATUS_ACTIVE = "ACTIVE";
+    public static final String PORT_STATUS_BUILD = "BUILD";
+    public static final String PORT_STATUS_DOWN = "DOWN";
+    public static final String PORT_STATUS_ERROR = "ERROR";
+    public static final String PORT_STATUS_NOTAPPLICABLE = "N/A";
+
+    /**
+     * Create a Neutron Port status entry in the operational data store.
+     * @param uuid The uuid of the Neutron port
+     * @param portStatus value to set the status (see constants above)
+     * @param dataBroker DataBroker instance
+     * @return true if transaction submitted successfully
+     */
+    public static boolean createPortStatus(String uuid, String portStatus, DataBroker dataBroker) {
+        return writePortStatus(uuid, portStatus, dataBroker, true);
+    }
+
+    /**
+     * Update a Neutron Port status entry in the operational data store.
+     * @param uuid The uuid of the Neutron port
+     * @param portStatus value to set the status (see constants above)
+     * @param dataBroker DataBroker instance
+     * @return true if transaction submitted successfully
+     */
+    public static boolean updatePortStatus(String uuid, String portStatus, DataBroker dataBroker) {
+        return writePortStatus(uuid, portStatus, dataBroker, false);
+    }
+
+    private static boolean writePortStatus(String uuid, String portStatus, DataBroker dataBroker, boolean create) {
+        Uuid uuidObj = new Uuid(uuid);
+        PortBuilder portBuilder = new PortBuilder();
+        portBuilder.setUuid(uuidObj);
+        portBuilder.setStatus(portStatus);
+
+        InstanceIdentifier iid = InstanceIdentifier.create(Neutron.class).child(Ports.class).child(
+                                                                            Port.class, new PortKey(uuidObj));
+        SingleTransactionDataBroker tx = new SingleTransactionDataBroker(dataBroker);
+        try {
+            if (create) {
+                tx.syncWrite(LogicalDatastoreType.OPERATIONAL, iid, portBuilder.build());
+            } else {
+                tx.syncUpdate(LogicalDatastoreType.OPERATIONAL, iid, portBuilder.build());
+            }
+        } catch (TransactionCommitFailedException e) {
+            LOG.error("writePortStatus: failed neutron port status write. isCreate ? " + create, e);
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
+    * Delete a Neutron Port status entry from the operational data store.
+    * @param uuid The uuid of the Neutron port
+    * @param dataBroker DataBroker instance
+    * @return true if transaction submitted successfully
+    */
+    public static boolean deletePortStatus(String uuid, DataBroker dataBroker) {
+        Uuid uuidObj = new Uuid(uuid);
+
+        InstanceIdentifier iid = InstanceIdentifier.create(Neutron.class).child(Ports.class).child(
+                Port.class, new PortKey(uuidObj));
+        SingleTransactionDataBroker tx = new SingleTransactionDataBroker(dataBroker);
+        try {
+            tx.syncDelete(LogicalDatastoreType.OPERATIONAL, iid);
+        } catch (TransactionCommitFailedException e) {
+            LOG.error("deletePortStatus: failed neutron port status delete", e);
+            return false;
+        }
+
+        return true;
+    }
 
     public static boolean isPortVnicTypeNormal(Port port) {
         PortBindingExtension portBinding = port.getAugmentation(PortBindingExtension.class);
