@@ -58,6 +58,7 @@ public class NeutronSubnetChangeListener extends AsyncDataTreeChangeListenerBase
     protected void add(InstanceIdentifier<Subnet> identifier, Subnet input) {
         LOG.trace("Adding Subnet : key: {}, value={}", identifier, input);
         Uuid networkId = input.getNetworkId();
+        Uuid subnetId = input.getUuid();
         Network network = NeutronvpnUtils.getNeutronNetwork(dataBroker, networkId);
         if (network == null || !NeutronvpnUtils.isNetworkTypeSupported(network)) {
             //FIXME: This should be removed when support for VLAN and GRE network types is added
@@ -66,8 +67,16 @@ public class NeutronSubnetChangeListener extends AsyncDataTreeChangeListenerBase
                 + " Skipping the processing of Subnet add DCN", input.getName(), network);
             return;
         }
-        handleNeutronSubnetCreated(input.getUuid(), String.valueOf(input.getCidr().getValue()), networkId,
-                input.getTenantId());
+
+        Uuid vpnId = null;
+        if (NeutronvpnUtils.getIsExternal(network) && NeutronvpnUtils.isFlatOrVlanNetwork(network)) {
+            // TODO - Should later change the vpnId to be the subnetId as vpnId.
+            LOG.debug("Setting vpnId to be {} for external flat/VLAN network", networkId);
+            vpnId = networkId;
+        }
+
+        handleNeutronSubnetCreated(subnetId, String.valueOf(input.getCidr().getValue()), networkId,
+                input.getTenantId(), vpnId);
         NeutronvpnUtils.addToSubnetCache(input);
     }
 
@@ -102,8 +111,9 @@ public class NeutronSubnetChangeListener extends AsyncDataTreeChangeListenerBase
         NeutronvpnUtils.addToSubnetCache(update);
     }
 
-    private void handleNeutronSubnetCreated(Uuid subnetId, String subnetIp, Uuid networkId, Uuid tenantId) {
-        nvpnManager.updateSubnetNode(subnetId, subnetIp, tenantId, networkId, null/*routerID*/, null/*vpnID*/);
+    private void handleNeutronSubnetCreated(Uuid subnetId, String subnetIp, Uuid networkId, Uuid tenantId,
+            Uuid vpnId) {
+        nvpnManager.updateSubnetNode(subnetId, subnetIp, tenantId, networkId, null/*routerID*/, vpnId);
         if (networkId != null) {
             createSubnetToNetworkMapping(subnetId, networkId);
         }

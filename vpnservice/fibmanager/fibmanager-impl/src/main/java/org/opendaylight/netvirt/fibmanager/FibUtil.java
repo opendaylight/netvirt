@@ -27,12 +27,16 @@ import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFaile
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.netvirt.fibmanager.api.RouteOrigin;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.interfaces.VpnInterface;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.AllocateIdInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.AllocateIdInputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.AllocateIdOutput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.IdManagerService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.ReleaseIdInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.ReleaseIdInputBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.GetDpidFromInterfaceInputBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.GetDpidFromInterfaceOutput;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.OdlInterfaceRpcService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.FibEntries;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.RouterInterface;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.fibentries.VrfTables;
@@ -53,6 +57,16 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.VpnInstanceOpDataEntryKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.vpn.instance.op.data.entry.VpnToDpnList;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.to.vpn.id.VpnInstance;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.NeutronVpnPortipPortData;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.neutron.vpn.portip.port.data.VpnPortipToPort;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.neutron.vpn.portip.port.data.VpnPortipToPortKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l3.rev150712.floatingips.attributes.Floatingips;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l3.rev150712.floatingips.attributes.floatingips.Floatingip;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l3.rev150712.floatingips.attributes.floatingips.FloatingipKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.ports.attributes.Ports;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.ports.attributes.ports.Port;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.ports.attributes.ports.PortKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.rev150712.Neutron;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.netvirt.inter.vpn.link.rev160311.InterVpnLinkStates;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.netvirt.inter.vpn.link.rev160311.InterVpnLinks;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.netvirt.inter.vpn.link.rev160311.inter.vpn.link.states.InterVpnLinkState;
@@ -600,6 +614,71 @@ public class FibUtil {
         } else {
             delete(broker, LogicalDatastoreType.CONFIGURATION, vrfTableId);
         }
+    }
+
+    public static String getPortNameForPrefixAndVpn(DataBroker dataBroker, String dstPrefix, String vpnId) {
+        String[] prefixValues = dstPrefix.split("/");
+        if (prefixValues.length == 2) {
+            String ip = prefixValues[0];
+            InstanceIdentifier<VpnPortipToPort> portIpId = InstanceIdentifier.builder(NeutronVpnPortipPortData.class)
+                    .child(VpnPortipToPort.class, new VpnPortipToPortKey(ip, vpnId)).build();
+            Optional<VpnPortipToPort> portIpToPortOpt = read(dataBroker, LogicalDatastoreType.CONFIGURATION, portIpId);
+            if (portIpToPortOpt.isPresent()) {
+                String portName = portIpToPortOpt.get().getPortName();
+                return portName;
+            }
+        }
+
+        return null;
+    }
+
+    public static Port getNeutronPort(DataBroker dataBroker, Uuid portUuid) {
+        InstanceIdentifier<Port> portIdentifier = InstanceIdentifier.create(Neutron.class).child(Ports.class)
+                .child(Port.class, new PortKey(portUuid));
+        Optional<Port> portOptional = read(dataBroker, LogicalDatastoreType.CONFIGURATION, portIdentifier);
+        if (!portOptional.isPresent()) {
+            LOG.trace("No neutron ports found");
+            return null;
+        }
+
+        return portOptional.get();
+    }
+
+    public static Floatingip getNeutronFloatingIp(DataBroker dataBroker, Uuid uuid) {
+        InstanceIdentifier<Floatingip> floatingIpIdentifier = InstanceIdentifier.create(Neutron.class)
+                .child(Floatingips.class).child(Floatingip.class, new FloatingipKey(uuid));
+        Optional<Floatingip> floatingIpOptional = read(dataBroker, LogicalDatastoreType.CONFIGURATION,
+                floatingIpIdentifier);
+        if (!floatingIpOptional.isPresent()) {
+            LOG.debug("No neutron floatingIp found");
+            return null;
+        }
+
+        return floatingIpOptional.get();
+    }
+
+    public static BigInteger getDpIdForFloatingIp(DataBroker broker, OdlInterfaceRpcService interfaceManager,
+            Floatingip floatingIp) {
+        BigInteger dpId = null;
+        if (floatingIp == null || floatingIp.getPortId() == null) {
+            return dpId;
+        }
+
+        Uuid portId = floatingIp.getPortId();
+        try {
+            Future<RpcResult<GetDpidFromInterfaceOutput>> result = interfaceManager.getDpidFromInterface(
+                    new GetDpidFromInterfaceInputBuilder().setIntfName(portId.getValue()).build());
+            RpcResult<GetDpidFromInterfaceOutput> rpcResult = result.get();
+            if (rpcResult.isSuccessful()) {
+                dpId = rpcResult.getResult().getDpid();
+            } else {
+                LOG.debug("RPC call to get dpId from interface {} wan unsuccessful", portId);
+            }
+        } catch (InterruptedException | ExecutionException e) {
+            LOG.warn("Error getting RPC result for dpId from interface {} output {}", portId, e);
+        }
+
+        return dpId;
     }
 
     public static boolean isControllerManagedRoute(RouteOrigin routeOrigin) {
