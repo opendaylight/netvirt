@@ -2,6 +2,23 @@
   "comments": [
     {
       "key": {
+        "uuid": "fafc7978_969c41c2",
+        "filename": "docs/specs/l3vpn-over-vxlan-with-evpn-rt5.rst",
+        "patchSetId": 2
+      },
+      "lineNbr": 351,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-08T09:51:43Z",
+      "side": 1,
+      "message": "on different hypervisors.",
+      "revId": "9044966b226fcd547b318987cc7ebfc6d9c07848",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_566db997",
         "filename": "docs/specs/l3vpn-over-vxlan-with-evpn-rt5.rst",
         "patchSetId": 2
@@ -90,6 +107,23 @@
         "endLine": 367,
         "endChar": 60
       },
+      "revId": "9044966b226fcd547b318987cc7ebfc6d9c07848",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_769f1db5",
+        "filename": "docs/specs/l3vpn-over-vxlan-with-evpn-rt5.rst",
+        "patchSetId": 2
+      },
+      "lineNbr": 374,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-08T09:51:43Z",
+      "side": 1,
+      "message": "on same hypervisor.",
       "revId": "9044966b226fcd547b318987cc7ebfc6d9c07848",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
