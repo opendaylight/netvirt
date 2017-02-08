@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_e7beb2fe",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/intervpnlink/IVpnLinkServiceImpl.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 136,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2017-02-08T17:12:26Z",
+      "side": 1,
+      "message": "can you add the //TODO comment saying this should be cleaned up? You can find other examples where ever this annotation is used.",
+      "revId": "b857837e84168277613ff4760735182e8cd5a4f1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_c7b9ee16",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/intervpnlink/IVpnLinkServiceImpl.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 168,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2017-02-08T17:12:26Z",
+      "side": 1,
+      "message": "{} is not needed, the logger will automatically add e",
+      "revId": "b857837e84168277613ff4760735182e8cd5a4f1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_073bf69c",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/intervpnlink/IVpnLinkServiceImpl.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 208,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2017-02-08T17:12:26Z",
+      "side": 1,
+      "message": "not needed to break this line - can go to 120 chars",
+      "revId": "b857837e84168277613ff4760735182e8cd5a4f1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
