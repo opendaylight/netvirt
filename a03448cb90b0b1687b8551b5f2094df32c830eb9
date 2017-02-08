@@ -1,0 +1,96 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_41384ea0",
+        "filename": "docs/specs/remote_acl_indirection.rst",
+        "patchSetId": 5
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 6773
+      },
+      "writtenOn": "2017-02-08T09:57:55Z",
+      "side": 1,
+      "message": "you probably want to write the meta data but with a default (e.g. 0xFFFF) value that would indicate no remote SG identified. Otherwise, the MD field may be considered to contain garbage.",
+      "range": {
+        "startLine": 62,
+        "startChar": 30,
+        "endLine": 62,
+        "endChar": 56
+      },
+      "revId": "a03448cb90b0b1687b8551b5f2094df32c830eb9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_e15062d6",
+        "filename": "docs/specs/remote_acl_indirection.rst",
+        "patchSetId": 5
+      },
+      "lineNbr": 74,
+      "author": {
+        "id": 6773
+      },
+      "writtenOn": "2017-02-08T09:57:55Z",
+      "side": 1,
+      "message": "match on IPs and ports/tenant indication so that this will be tenant aware",
+      "range": {
+        "startLine": 74,
+        "startChar": 43,
+        "endLine": 74,
+        "endChar": 59
+      },
+      "revId": "a03448cb90b0b1687b8551b5f2094df32c830eb9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_81599600",
+        "filename": "docs/specs/remote_acl_indirection.rst",
+        "patchSetId": 5
+      },
+      "lineNbr": 76,
+      "author": {
+        "id": 6773
+      },
+      "writtenOn": "2017-02-08T09:57:55Z",
+      "side": 1,
+      "message": "set a default (e.g. 0xFFFF) value to avoid garbage matching.",
+      "range": {
+        "startLine": 76,
+        "startChar": 87,
+        "endLine": 76,
+        "endChar": 101
+      },
+      "revId": "a03448cb90b0b1687b8551b5f2094df32c830eb9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_41904e43",
+        "filename": "docs/specs/remote_acl_indirection.rst",
+        "patchSetId": 5
+      },
+      "lineNbr": 112,
+      "author": {
+        "id": 6773
+      },
+      "writtenOn": "2017-02-08T09:57:55Z",
+      "side": 1,
+      "message": "I believe you wanted the \"+remote_sg\" on the next line to match the descriptions of (*) and (**)",
+      "range": {
+        "startLine": 112,
+        "startChar": 25,
+        "endLine": 112,
+        "endChar": 40
+      },
+      "revId": "a03448cb90b0b1687b8551b5f2094df32c830eb9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
