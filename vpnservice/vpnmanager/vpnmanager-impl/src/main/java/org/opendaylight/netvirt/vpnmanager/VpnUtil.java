@@ -572,9 +572,10 @@ public class VpnUtil {
         if (vrfTablesOpc.isPresent()) {
             VrfTables vrfTables = vrfTablesOpc.get();
             for (VrfEntry vrfEntry : vrfTables.getVrfEntry()) {
-                if (vrfEntry.getNextHopAddressList() != null && vrfEntry.getNextHopAddressList().contains(nexthop)) {
-                    matches.add(vrfEntry);
-                }
+                vrfEntry.getRoutePaths().stream()
+                        .filter(routePath -> routePath.getNexthopAddress() != null
+                                && routePath.getNexthopAddress().equals(nexthop))
+                        .findFirst().ifPresent(routePath -> matches.add(vrfEntry));
             }
         }
         return matches;
@@ -597,8 +598,8 @@ public class VpnUtil {
             try {
                 bgpManager.withdrawPrefix(rd, vrfEntry.getDestPrefix());
             } catch (Exception e) {
-                LOG.error("Could not withdraw route to {} with nextHop {} in VpnRd {}",
-                          vrfEntry.getDestPrefix(), vrfEntry.getNextHopAddressList(), rd);
+                LOG.error("Could not withdraw route to {} with route-paths {} in VpnRd {}",
+                          vrfEntry.getDestPrefix(), vrfEntry.getRoutePaths(), rd);
             }
         });
     }
