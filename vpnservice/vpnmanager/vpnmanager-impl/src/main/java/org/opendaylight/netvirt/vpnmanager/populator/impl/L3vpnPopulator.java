@@ -57,7 +57,7 @@ public class L3vpnPopulator implements VpnPopulator {
             LOG.info("ADD: Adding Fib entry rd {} prefix {} nextHop {} label {} l3vni {}", rd, prefix, nextHopIp,
                     label, l3vni);
             fibManager.addOrUpdateFibEntry(broker, primaryRd, macAddress, prefix, nextHopList,
-                    encapType, (int)label, l3vni, gatewayMac, RouteOrigin.LOCAL, writeConfigTxn);
+                    encapType, (int)label, l3vni, gatewayMac, null /*parentVpnRd*/, RouteOrigin.LOCAL, writeConfigTxn);
             LOG.info("ADD: Added Fib entry rd {} prefix {} nextHop {} label {}, l3vni {}", rd, prefix, nextHopIp,
                     label, l3vni);
             // Advertise the prefix to BGP only if nexthop ip is available

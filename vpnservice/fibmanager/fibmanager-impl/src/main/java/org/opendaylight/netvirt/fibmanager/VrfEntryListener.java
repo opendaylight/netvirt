@@ -358,8 +358,15 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
         Preconditions.checkNotNull(vpnInstance, "Vpn Instance not available " + vrfTableKey.getRouteDistinguisher());
         Preconditions.checkNotNull(vpnInstance.getVpnId(), "Vpn Instance with rd " + vpnInstance.getVrfId()
             + " has null vpnId!");
+        final Collection<VpnToDpnList> vpnToDpnList;
+        if (vrfEntry.getParentVpnRd() != null) {
+            VpnInstanceOpDataEntry parentVpnInstance = getVpnInstance(vrfEntry.getParentVpnRd());
+            vpnToDpnList = parentVpnInstance != null ? parentVpnInstance.getVpnToDpnList() :
+                vpnInstance.getVpnToDpnList();
+        } else {
+            vpnToDpnList = vpnInstance.getVpnToDpnList();
+        }
 
-        final Collection<VpnToDpnList> vpnToDpnList = vpnInstance.getVpnToDpnList();
         final Long vpnId = vpnInstance.getVpnId();
         final String rd = vrfTableKey.getRouteDistinguisher();
         SubnetRoute subnetRoute = vrfEntry.getAugmentation(SubnetRoute.class);
@@ -390,7 +397,6 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
         }
 
         final List<BigInteger> localDpnIdList = createLocalFibEntry(vpnInstance.getVpnId(), rd, vrfEntry);
-
         if (vpnToDpnList != null) {
             DataStoreJobCoordinator dataStoreCoordinator = DataStoreJobCoordinator.getInstance();
             dataStoreCoordinator.enqueueJob("FIB-" + rd + "-" + vrfEntry.getDestPrefix(),
@@ -429,7 +435,6 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
             }
         }
     }
-
 
     /*
       Please note that the following createFibEntries will be invoked only for BGP Imported Routes.
@@ -2099,7 +2104,7 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
                             LOG.debug("NextHop IP for destination {} is {}", prefixIp,
                                     routePath.getNexthopAddress());
                             return nextHopManager.getRemoteNextHopPointer(remoteDpnId, vpnId,
-                                    prefixIp, routePath.getNexthopAddress());
+                                    prefixIp, routePath.getNexthopAddress(), rd);
                         })
                         .filter(adjacencyResult -> adjacencyResult != null && !adjacencyList.contains(adjacencyResult))
                         .distinct()

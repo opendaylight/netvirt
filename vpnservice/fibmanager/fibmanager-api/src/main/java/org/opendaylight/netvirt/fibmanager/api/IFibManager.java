@@ -66,7 +66,7 @@ public interface IFibManager {
 
     void addOrUpdateFibEntry(DataBroker broker, String rd, String macAddress, String prefix, List<String> nextHopList,
                              VrfEntry.EncapType encapType, long label, long l3vni, String gwMacAddress,
-                             RouteOrigin origin, WriteTransaction writeConfigTxn);
+                             String parentVpnRd, RouteOrigin origin, WriteTransaction writeConfigTxn);
 
     void addFibEntryForRouterInterface(DataBroker broker, String rd, String prefix,
                                        RouterInterface routerInterface, long label, WriteTransaction writeConfigTxn);
