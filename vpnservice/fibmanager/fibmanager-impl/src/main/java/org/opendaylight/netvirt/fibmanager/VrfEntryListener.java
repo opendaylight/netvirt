@@ -436,7 +436,6 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
         }
     }
 
-
     /*
       Please note that the following createFibEntries will be invoked only for BGP Imported Routes.
       The invocation of the following method is via create() callback from the MDSAL Batching Infrastructure
@@ -2118,7 +2117,7 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
                             LOG.debug("NextHop IP for destination {} is {}", prefixIp,
                                     routePath.getNexthopAddress());
                             return nextHopManager.getRemoteNextHopPointer(remoteDpnId, vpnId,
-                                    prefixIp, routePath.getNexthopAddress());
+                                    prefixIp, routePath.getNexthopAddress(), rd);
                         })
                         .filter(adjacencyResult -> adjacencyResult != null && !adjacencyList.contains(adjacencyResult))
                         .distinct()
