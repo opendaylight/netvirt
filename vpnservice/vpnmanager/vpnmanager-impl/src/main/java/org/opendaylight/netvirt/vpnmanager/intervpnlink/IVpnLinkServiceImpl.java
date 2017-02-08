@@ -26,6 +26,7 @@ import org.opendaylight.netvirt.vpnmanager.VpnUtil;
 import org.opendaylight.netvirt.vpnmanager.api.intervpnlink.IVpnLinkService;
 import org.opendaylight.netvirt.vpnmanager.api.intervpnlink.InterVpnLinkCache;
 import org.opendaylight.netvirt.vpnmanager.api.intervpnlink.InterVpnLinkDataComposite;
+import org.opendaylight.netvirt.vpnmanager.utilities.InterfaceUtils;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.IdManagerService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.VpnMaps;
@@ -132,6 +133,8 @@ public class IVpnLinkServiceImpl implements IVpnLinkService, AutoCloseable {
         leakRoute(optIVpnLink.get(), vpnName, prefix, nextHopList, label, addOrRemove);
     }
 
+    // TODO Clean up the exception handling
+    @SuppressWarnings("checkstyle:IllegalCatch")
     private void leakRoute(InterVpnLinkDataComposite interVpnLink, String vpnName, String prefix,
                            List<String> nextHopList, int label, int addOrRemove) {
 
@@ -158,11 +161,15 @@ public class IVpnLinkServiceImpl implements IVpnLinkService, AutoCloseable {
             fibManager.addOrUpdateFibEntry(dataBroker, dstVpnRd, prefix, Collections.singletonList(leakedNexthop),
                                            (int) leakedLabel, null /*gwMacAddress*/,
                                            RouteOrigin.INTERVPN, null /*writeConfigTxn*/);
+
+            List<String> ivlNexthops =
+                interVpnLink.getEndpointDpnsByVpnName(dstVpnName).stream()
+                            .map(dpnId -> InterfaceUtils.getEndpointIpAddressForDPN(dataBroker, dpnId))
+                            .collect(Collectors.toList());
             try {
-                bgpManager.advertisePrefix(dstVpnRd, prefix, nextHopList, (int) leakedLabel);
+                bgpManager.advertisePrefix(dstVpnRd, prefix, ivlNexthops, (int)leakedLabel);
             } catch (Exception e) {
-                LOG.warn("advertisePrefix with RD={} prefix={} nextHopList={} label={} failed due to ",
-                         dstVpnRd, prefix, nextHopList, (int) leakedLabel, e);
+                LOG.error("Exception while advertising prefix {} on vpnRd {} for intervpn link", prefix, dstVpnRd, e);
             }
         } else {
             LOG.debug("Removing leaked route to {} from VPN {}", prefix, dstVpnName);
