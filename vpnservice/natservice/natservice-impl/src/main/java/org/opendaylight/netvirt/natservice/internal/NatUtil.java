@@ -664,6 +664,7 @@ public class NatUtil {
                 LOG.error("NAT Service : addPrefix prefix {} rd {} failed since nextHopIp cannot be null.", prefix, rd);
                 return;
             }
+            // TODO YAIR pass subnetID.
             addPrefixToInterface(broker, getVpnId(broker, vpnName), prefix, dpId, /*isNatPrefix*/ true);
             fibManager.addOrUpdateFibEntry(broker, rd, null /*macAddress*/, prefix,
                     Collections.singletonList(nextHopIp), VrfEntry.EncapType.Mplsgre, (int)label, 0 /*l3vni*/,
@@ -683,6 +684,7 @@ public class NatUtil {
 
     static void addPrefixToInterface(DataBroker broker, long vpnId, String ipPrefix, BigInteger dpId,
             boolean isNatPrefix) {
+        // TODO YAIR 
         InstanceIdentifier<Prefixes> prefixId = InstanceIdentifier.builder(PrefixToInterface.class)
                 .child(org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.prefix.to._interface
                         .VpnIds.class, new org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.prefix

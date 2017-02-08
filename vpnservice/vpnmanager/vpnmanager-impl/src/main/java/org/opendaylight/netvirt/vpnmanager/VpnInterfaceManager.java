@@ -591,6 +591,7 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
         for (Adjacency nextHop : nextHops) {
             String rd = primaryRd;
             if (nextHop.isPrimaryAdjacency()) {
+                // TODO YAIR nextHop.getSubnetId()
                 String prefix = VpnUtil.getIpPrefix(nextHop.getIpAddress());
                 LOG.trace("Adding prefix {} to interface {} for vpn {}", prefix, interfaceName, vpnName);
                 writeOperTxn.merge(
