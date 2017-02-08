@@ -1,0 +1,222 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_4c2a452d",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2017-02-08T13:54:47Z",
+      "side": 1,
+      "message": "flat/vlan provider network port",
+      "range": {
+        "startLine": 7,
+        "startChar": 56,
+        "endLine": 7,
+        "endChar": 72
+      },
+      "revId": "2e47548a6ef50ae1c7cddaa541c7f2405763f3b7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_6c274965",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2017-02-08T13:54:47Z",
+      "side": 1,
+      "message": "external network vpn",
+      "range": {
+        "startLine": 7,
+        "startChar": 26,
+        "endLine": 7,
+        "endChar": 42
+      },
+      "revId": "2e47548a6ef50ae1c7cddaa541c7f2405763f3b7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_8ce26dff",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/NexthopManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 426,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2017-02-08T13:54:47Z",
+      "side": 1,
+      "message": "rename this parameter to vpnName throughout this file",
+      "range": {
+        "startLine": 426,
+        "startChar": 76,
+        "endLine": 426,
+        "endChar": 94
+      },
+      "revId": "2e47548a6ef50ae1c7cddaa541c7f2405763f3b7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_0cbe7dd4",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/NexthopManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 726,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2017-02-08T13:54:47Z",
+      "side": 1,
+      "message": "instance",
+      "range": {
+        "startLine": 726,
+        "startChar": 44,
+        "endLine": 726,
+        "endChar": 53
+      },
+      "revId": "2e47548a6ef50ae1c7cddaa541c7f2405763f3b7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_ccec75f6",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/NexthopManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 726,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2017-02-08T13:54:47Z",
+      "side": 1,
+      "message": "for external network vpn",
+      "range": {
+        "startLine": 726,
+        "startChar": 54,
+        "endLine": 726,
+        "endChar": 78
+      },
+      "revId": "2e47548a6ef50ae1c7cddaa541c7f2405763f3b7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_0cd79d24",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 400,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2017-02-08T13:54:47Z",
+      "side": 1,
+      "message": "Add some comment here to explain why localDpnIdList is empty for FIP",
+      "revId": "2e47548a6ef50ae1c7cddaa541c7f2405763f3b7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_6cde2941",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 471,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2017-02-08T13:54:47Z",
+      "side": 1,
+      "message": "I think getDpnIdForFloatingIp is good enough",
+      "range": {
+        "startLine": 471,
+        "startChar": 23,
+        "endLine": 471,
+        "endChar": 43
+      },
+      "revId": "2e47548a6ef50ae1c7cddaa541c7f2405763f3b7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_4ce1a5fd",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 472,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2017-02-08T13:54:47Z",
+      "side": 1,
+      "message": "rename this to floatingIpPortName to avoid confusion",
+      "range": {
+        "startLine": 472,
+        "startChar": 15,
+        "endLine": 472,
+        "endChar": 23
+      },
+      "revId": "2e47548a6ef50ae1c7cddaa541c7f2405763f3b7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_0c303d9d",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronSubnetChangeListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 74,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2017-02-08T13:54:47Z",
+      "side": 1,
+      "message": "capital V",
+      "range": {
+        "startLine": 74,
+        "startChar": 64,
+        "endLine": 74,
+        "endChar": 65
+      },
+      "revId": "2e47548a6ef50ae1c7cddaa541c7f2405763f3b7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_2c2d4147",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnUtils.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 1059,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2017-02-08T13:54:47Z",
+      "side": 1,
+      "message": "this method exists \ngetIsExternal",
+      "revId": "2e47548a6ef50ae1c7cddaa541c7f2405763f3b7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
