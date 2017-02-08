@@ -17,6 +17,7 @@ import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.NodeId;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * Open vSwitch isolates Tenant Networks using VLANs on the Integration Bridge.
@@ -116,9 +117,11 @@ public interface SecurityServicesManager {
      * @param securityRule the security group associated with the port.
      * @param vmIp The list of remote vm ips.
      * @param nodeId the NodeId of the node.
+     * @param securityGroup the security group.
      * @param write whether to add/delete flow.
      */
-    void syncSecurityRule(NeutronPort port, NeutronSecurityRule securityRule,Neutron_IPs vmIp, NodeId nodeId, boolean write);
+    void syncSecurityRule(NeutronPort port, NeutronSecurityRule securityRule, Neutron_IPs vmIp, NodeId nodeId,
+            NeutronSecurityGroup securityGroup, boolean write);
     /**
      * Is connection tracking enabled or not by the user (default is false).
      * @return whether connection tracking enabled.
