@@ -54,6 +54,7 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.iana._if.type.re
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.iana._if.type.rev140508.Tunnel;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.InterfaceType;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.MacAddress;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.action.types.rev131112.action.action.OutputActionCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.action.types.rev131112.action.action.PushVlanActionCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.action.types.rev131112.action.action.SetFieldCase;
@@ -83,7 +84,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.Segm
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.SegmentTypeFlat;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.SegmentTypeVlan;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.instances.ElanInstance;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.interfaces.ElanInterface;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.VrfEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3nexthop.rev150409.L3nexthop;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3nexthop.rev150409.l3nexthop.VpnNexthops;
@@ -98,6 +98,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.adj
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.adjacency.list.AdjacencyKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.prefix.to._interface.vpn.ids.Prefixes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.to.extraroutes.vpn.extra.routes.Routes;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.subnetmaps.Subnetmap;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.openflowjava.nx.match.rev140421.NxmNxReg6;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.openflowplugin.extension.nicira.action.rev140714.add.group.input.buckets.bucket.action.action.NxActionResubmitRpcAddGroupCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.openflowplugin.extension.nicira.action.rev140714.nodes.node.table.flow.instructions.instruction.instruction.apply.actions._case.apply.actions.action.action.NxActionRegLoadNodesNodeTableFlowApplyActionsCase;
@@ -738,25 +739,19 @@ public class NexthopManager implements AutoCloseable {
     }
 
     private ElanInstance getElanInstanceForPrefix(long vpnId, String prefixIp) {
+        ElanInstance elanInstance = null;
         Prefixes prefix = FibUtil.getPrefixToInterface(dataBroker, vpnId, prefixIp);
-        if (prefix == null) {
-            LOG.warn("No prefix info was found for VPN id {} prefix {}", vpnId, prefixIp);
-            return null;
+        if (prefix != null) {
+            Uuid subnetId = prefix.getSubnetId();
+            if (subnetId != null) {
+                Subnetmap subnetMap = FibUtil.getSubnetMap(dataBroker, subnetId);
+                if (subnetMap != null && subnetMap.getNetworkId() != null) {
+                    elanInstance = elanService.getElanInstance(subnetMap.getNetworkId().getValue());
+                }
+            }
         }
 
-        String interfaceName = prefix.getVpnInterfaceName();
-        if (interfaceName == null) {
-            LOG.warn("No VPN interface found for VPN id {} prefix {}", vpnId, prefixIp);
-            return null;
-        }
-
-        ElanInterface elanInterface = elanService.getElanInterfaceByElanInterfaceName(interfaceName);
-        if (elanInterface == null) {
-            LOG.warn("No ELAN interface found for VPN interface {} on VPN id {}", interfaceName, vpnId);
-            return null;
-        }
-
-        return elanService.getElanInstance(elanInterface.getElanInstanceName());
+        return elanInstance;
     }
 
     static class AdjacencyResult {
