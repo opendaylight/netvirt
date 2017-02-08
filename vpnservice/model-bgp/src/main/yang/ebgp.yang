@@ -160,6 +160,11 @@ module ebgp {
     leaf l3vni {
       description "VxLAN Identifier.";
       type uint32;
+      mandatory "false";
+    }
+    leaf l2vni {
+      type uint32;
+      mandatory "false";
     }
   } // networks
 

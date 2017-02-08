@@ -783,6 +783,18 @@ module l3vpn {
     }
   }
 
+  container evpn-rd-to-networks {
+    description "Holds the networks to which given evpn is attached to";
+    list evpn-rd-to-network {
+      key vrf-id;
+      leaf vrf-id {
+        type string;
+      }
+      leaf network-id {
+        type string;
+      }
+    }
+  }
 
 
   /*
