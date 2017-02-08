@@ -16,4 +16,5 @@ public class FibConstants {
     static final String FLOWID_PREFIX = "L3.";
     static final String VPN_IDPOOL_NAME = "vpnservices";
     static final String SEPARATOR = ".";
+    static final String DEFAULT_NEXTHOP_IP = "0.0.0.0";
 }
