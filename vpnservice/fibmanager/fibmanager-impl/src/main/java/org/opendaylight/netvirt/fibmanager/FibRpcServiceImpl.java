@@ -248,10 +248,9 @@ public class FibRpcServiceImpl implements FibRpcService {
         Flow flowEntity = MDSALUtil.buildFlowNew(NwConstants.L3_FIB_TABLE, flowRef,
             priority, flowRef, 0, 0,
             NwConstants.COOKIE_VM_FIB_TABLE, matches, customInstructions);
-
         mdsalManager.installFlow(dpnId, flowEntity);
 
-        LOG.debug("FIB entry for route {} on dpn {} installed successfully", ipAddress, dpnId);
+        LOG.debug("FIB entry for route {} on dpn {} installed successfully - flow {}", ipAddress, dpnId, flowEntity);
     }
 
     private void makeLFibTableEntry(BigInteger dpId, long serviceId, List<Instruction> customInstructions) {

@@ -231,7 +231,7 @@ public class ExternalNetworksChangeListener
                         + "vpnName {} and externalIp {}", dpnId, vpnName, externalIp);
                     externalRouterListener.advToBgpAndInstallFibAndTsFlows(dpnId, NwConstants.INBOUND_NAPT_TABLE,
                         vpnName, NatUtil.getVpnId(dataBroker, routerId.getValue()), routerId.getValue(), externalIp,
-                        vpnService, fibService, bgpManager, dataBroker, LOG);
+                        null /* external-router */, vpnService, fibService, bgpManager, dataBroker, LOG);
                 }
             } else {
                 LOG.warn("NAT Service : No ipMapping present fot the routerId {}", routerId);

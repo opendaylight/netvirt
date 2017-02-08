@@ -160,10 +160,10 @@ public class VpnFloatingIpHandler implements FloatingIPHandler {
                     long label = output.getLabel();
                     LOG.debug("Generated label {} for prefix {}", label, externalIp);
                     floatingIPListener.updateOperationalDS(routerId, interfaceName, label, internalIp, externalIp);
-
                     //Inform BGP
-                    NatUtil.addPrefixToBGP(dataBroker, bgpManager, fibManager, vpnName, rd, externalIp + "/32",
-                        nextHopIp, label, LOG, RouteOrigin.STATIC, dpnId);
+                    NatUtil.addPrefixToBGP(dataBroker, bgpManager, fibManager, vpnName, rd, subnetId,
+                            externalIp + "/32", nextHopIp, networkId.getValue(), floatingIpPortMacAddress,
+                            label, LOG, RouteOrigin.STATIC, dpnId);
 
                     List<Instruction> instructions = new ArrayList<>();
                     List<ActionInfo> actionsInfos = new ArrayList<>();

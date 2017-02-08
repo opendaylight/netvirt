@@ -201,9 +201,9 @@ public class VpnUtil {
         return new VpnIdsBuilder().setKey(new VpnIdsKey(vpnId)).setVpnId(vpnId).build();
     }
 
-    static Prefixes getPrefixToInterface(BigInteger dpId, String vpnInterfaceName, String ipPrefix) {
+    static Prefixes getPrefixToInterface(BigInteger dpId, String vpnInterfaceName, String ipPrefix, Uuid subnetId) {
         return new PrefixesBuilder().setDpnId(dpId).setVpnInterfaceName(
-            vpnInterfaceName).setIpAddress(ipPrefix).build();
+            vpnInterfaceName).setIpAddress(ipPrefix).setSubnetId(subnetId).build();
     }
 
     static Optional<Prefixes> getPrefixToInterface(DataBroker broker, long vpnId, String ipPrefix) {

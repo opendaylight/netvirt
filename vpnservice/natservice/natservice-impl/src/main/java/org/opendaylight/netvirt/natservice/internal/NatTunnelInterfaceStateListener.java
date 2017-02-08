@@ -630,6 +630,8 @@ public class NatTunnelInterfaceStateListener
                             srcDpnId);
                     serviceId = l3Vni;
                 } else {
+                    Uuid externalSubnetId = NatUtil.getExternalSubnetForRouterExternalIp(dataBroker, externalIp,
+                            router);
                     Long label = externalRouterListner.checkExternalIpLabel(routerId,
                             externalIp);
                     if (label == null || label == NatConstants.INVALID_ID) {
@@ -639,8 +641,9 @@ public class NatTunnelInterfaceStateListener
 
                     LOG.debug("NAT Service : SNAT -> Advertise the route to the externalIp {} having nextHopIp {}",
                             externalIp, nextHopIp);
-                    NatUtil.addPrefixToBGP(dataBroker, bgpManager, fibManager, externalVpnName, rd, externalIp,
-                            nextHopIp, label, LOG, RouteOrigin.STATIC, srcDpnId);
+                    NatUtil.addPrefixToBGP(dataBroker, bgpManager, fibManager, externalVpnName, rd, externalSubnetId,
+                            externalIp, nextHopIp, networkId.getValue(), null /* mac-address */, label, LOG,
+                            RouteOrigin.STATIC, srcDpnId);
                     serviceId = label;
                 }
                 LOG.debug("NAT Service : SNAT -> Install custom FIB routes "
@@ -770,8 +773,8 @@ public class NatTunnelInterfaceStateListener
                     }
                     LOG.debug("NAT Service : DNAT -> Advertise the route to the externalIp {} having nextHopIp {}",
                             externalIp, nextHopIp);
-                    NatUtil.addPrefixToBGP(dataBroker, bgpManager, fibManager, vpnName, rd,
-                            externalIp + "/32", nextHopIp, label, LOG, RouteOrigin.STATIC, fipCfgdDpnId);
+                    NatUtil.addPrefixToBGP(dataBroker, bgpManager, fibManager, vpnName, rd, null,
+                            externalIp + "/32", nextHopIp, null, null, label, LOG, RouteOrigin.STATIC, fipCfgdDpnId);
                     serviceId = label;
                 }
                 //Install custom FIB routes (Table 21 -> Push MPLS label to Tunnel port
