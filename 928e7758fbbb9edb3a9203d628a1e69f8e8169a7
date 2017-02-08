@@ -213,6 +213,40 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_9ed8d780",
+        "filename": "vpnservice/fibmanager/fibmanager-api/src/main/yang/odl-fib.yang",
+        "patchSetId": 15
+      },
+      "lineNbr": 60,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-02-08T08:08:06Z",
+      "side": 1,
+      "message": "you can remove mandatory field here.",
+      "revId": "928e7758fbbb9edb3a9203d628a1e69f8e8169a7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_1ed4e745",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/FibUtil.java",
+        "patchSetId": 15
+      },
+      "lineNbr": 527,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-02-08T08:08:06Z",
+      "side": 1,
+      "message": "move it to a constant.",
+      "revId": "928e7758fbbb9edb3a9203d628a1e69f8e8169a7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_56fdb939",
         "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/FibUtil.java",
         "patchSetId": 15
@@ -247,6 +281,30 @@
       "writtenOn": "2017-02-08T06:59:17Z",
       "side": 1,
       "message": "These methods are used by several modules so adding in existing FibUtil class which is under impl will not be helpful. Maybe this can be moved to a new FibHelper class in fibmanager-api.",
+      "parentUuid": "fafc7978_56fdb939",
+      "range": {
+        "startLine": 646,
+        "startChar": 46,
+        "endLine": 646,
+        "endChar": 59
+      },
+      "revId": "928e7758fbbb9edb3a9203d628a1e69f8e8169a7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_1e0987dd",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/FibUtil.java",
+        "patchSetId": 15
+      },
+      "lineNbr": 646,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-02-08T08:08:06Z",
+      "side": 1,
+      "message": "Yes, but this is being also used in vpnmanager-impl. that was the reason why have it in VpnHelper.",
       "parentUuid": "fafc7978_56fdb939",
       "range": {
         "startLine": 646,
@@ -359,6 +417,47 @@
         "endLine": 584,
         "endChar": 69
       },
+      "revId": "928e7758fbbb9edb3a9203d628a1e69f8e8169a7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_def7ff57",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 15
+      },
+      "lineNbr": 584,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-02-08T08:08:06Z",
+      "side": 1,
+      "message": "It is not literal. Here it returns a new string (came to know from a testing when we retrieve a string property from ds) which has to be interned for synchronization.",
+      "parentUuid": "fafc7978_76c0bde0",
+      "range": {
+        "startLine": 584,
+        "startChar": 12,
+        "endLine": 584,
+        "endChar": 69
+      },
+      "revId": "928e7758fbbb9edb3a9203d628a1e69f8e8169a7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_1e99871f",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 15
+      },
+      "lineNbr": 642,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-02-08T08:08:06Z",
+      "side": 1,
+      "message": "checkstyle issue.\nAnd discontinuing code review here since you raised another patch. will look at it.",
       "revId": "928e7758fbbb9edb3a9203d628a1e69f8e8169a7",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
