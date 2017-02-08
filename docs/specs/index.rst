@@ -10,6 +10,7 @@ Contents:
    :maxdepth: 1
 
    ACL Remote ACLs - Indirection Table to Improve Scale <remote_acl_indirection>
+   IPv6 Data Center to internet connectivity using L3VPN <ipv6-l3vpn-internet>
    ACL Statistics <acl-stats>
    Conntrack Based SNAT <conntrack-based-snat>
    Cross site connectivity with federation service <federation-plugin>
