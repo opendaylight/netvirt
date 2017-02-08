@@ -79,6 +79,7 @@ import org.opendaylight.netvirt.vpnmanager.api.intervpnlink.InterVpnLinkDataComp
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.interfaces.VpnInterface;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.iana._if.type.rev140508.Tunnel;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.MacAddress;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.FlowCapableNode;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.FlowId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.tables.Table;
@@ -129,6 +130,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.to.extraroute.VpnKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.to.extraroute.vpn.Extraroute;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.to.extraroute.vpn.ExtrarouteKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l3.rev150712.floatingips.attributes.floatingips.Floatingip;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.ports.attributes.ports.Port;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.netvirt.inter.vpn.link.rev160311.inter.vpn.link.states.InterVpnLinkState;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.netvirt.inter.vpn.link.rev160311.inter.vpn.link.states.InterVpnLinkState.State;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.netvirt.inter.vpn.link.rev160311.inter.vpn.links.InterVpnLink;
@@ -394,6 +397,13 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
         }
 
         final List<BigInteger> localDpnIdList = createLocalFibEntry(vpnInstance.getVpnId(), rd, vrfEntry);
+        if (localDpnIdList.isEmpty()) {
+            BigInteger dpIdForPrefixAndVpn = getDpIdForFloatingIpPrefixAndVpn(vrfEntry.getDestPrefix(), vpnInstance);
+            if (dpIdForPrefixAndVpn != null) {
+                LOG.trace("Adding dpId {} to localDpnIdList for vrfEntry {}", dpIdForPrefixAndVpn, vrfEntry);
+                localDpnIdList.add(dpIdForPrefixAndVpn);
+            }
+        }
 
         if (vpnToDpnList != null) {
             DataStoreJobCoordinator dataStoreCoordinator = DataStoreJobCoordinator.getInstance();
@@ -433,7 +443,6 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
         }
     }
 
-
     /*
       Please note that the following createFibEntries will be invoked only for BGP Imported Routes.
       The invocation of the following method is via create() callback from the MDSAL Batching Infrastructure
@@ -457,6 +466,20 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
                 }
             }
         }
+    }
+
+    private BigInteger getDpIdForFloatingIpPrefixAndVpn(String prefix, VpnInstanceOpDataEntry vpnInstance) {
+        String portName = FibUtil.getPortNameForPrefixAndVpn(dataBroker, prefix,
+                vpnInstance.getVpnInstanceName());
+        if (portName != null) {
+            Port neutronPort = FibUtil.getNeutronPort(dataBroker, new Uuid(portName));
+            if (neutronPort != null) {
+                Floatingip floatingIp = FibUtil.getNeutronFloatingIp(dataBroker, new Uuid(neutronPort.getDeviceId()));
+                return FibUtil.getDpIdForFloatingIp(dataBroker, interfaceManager, floatingIp);
+            }
+        }
+
+        return null;
     }
 
     private boolean originMustBeLeaked(InterVpnLink ivpnLink, RouteOrigin routeOrigin) {
@@ -2124,7 +2147,7 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
                 for (String nextHopIp : vrfEntry.getNextHopAddressList()) {
                     LOG.debug("NextHop IP for destination {} is {}", prefixIp, nextHopIp);
                     AdjacencyResult adjacencyResult = nextHopManager.getRemoteNextHopPointer(remoteDpnId, vpnId,
-                        prefixIp, nextHopIp);
+                        prefixIp, nextHopIp, rd);
                     if (adjacencyResult != null && !adjacencyList.contains(adjacencyResult)) {
                         adjacencyList.add(adjacencyResult);
                     }

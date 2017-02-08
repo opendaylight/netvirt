@@ -423,13 +423,13 @@ public class NexthopManager implements AutoCloseable {
     }
 
     public AdjacencyResult getRemoteNextHopPointer(BigInteger remoteDpnId, long vpnId, String prefixIp,
-                                                   String nextHopIp) {
+                                                   String nextHopIp, String routeDistinguisher) {
         String egressIfName = null;
         LOG.trace("getRemoteNextHopPointer: input [remoteDpnId {}, vpnId {}, prefixIp {}, nextHopIp {} ]", remoteDpnId,
             vpnId, prefixIp, nextHopIp);
 
         Class<? extends InterfaceType> egressIfType;
-        ElanInstance elanInstance = getElanInstanceForPrefix(vpnId, prefixIp);
+        ElanInstance elanInstance = getElanInstanceForPrefix(vpnId, prefixIp, routeDistinguisher);
         if (elanInstance != null) {
             egressIfType = getInterfaceType(elanInstance);
         } else {
@@ -711,26 +711,23 @@ public class NexthopManager implements AutoCloseable {
         return Tunnel.class;
     }
 
-    private ElanInstance getElanInstanceForPrefix(long vpnId, String prefixIp) {
+    private ElanInstance getElanInstanceForPrefix(long vpnId, String prefixIp, String routeDistinguisher) {
+        ElanInstance elanInstance = null;
         Prefixes prefix = FibUtil.getPrefixToInterface(dataBroker, vpnId, prefixIp);
-        if (prefix == null) {
-            LOG.warn("No prefix info was found for VPN id {} prefix {}", vpnId, prefixIp);
-            return null;
+        if (prefix != null && prefix.getVpnInterfaceName() != null) {
+            ElanInterface elanInterface = elanService.getElanInterfaceByElanInterfaceName(prefix.getVpnInterfaceName());
+            if (elanInterface != null) {
+                elanInstance = elanService.getElanInstance(elanInterface.getElanInstanceName());
+            }
         }
 
-        String interfaceName = prefix.getVpnInterfaceName();
-        if (interfaceName == null) {
-            LOG.warn("No VPN interface found for VPN id {} prefix {}", vpnId, prefixIp);
-            return null;
+        if (elanInstance == null) {
+            LOG.debug("No ELAN interface found for prefixIp {} and vpnId {}, "
+                    + "will try to get ELAN interface for router distinguisher", prefixIp, vpnId);
+            elanInstance = elanService.getElanInstance(routeDistinguisher);
         }
 
-        ElanInterface elanInterface = elanService.getElanInterfaceByElanInterfaceName(interfaceName);
-        if (elanInterface == null) {
-            LOG.warn("No ELAN interface found for VPN interface {} on VPN id {}", interfaceName, vpnId);
-            return null;
-        }
-
-        return elanService.getElanInstance(elanInterface.getElanInstanceName());
+        return elanInstance;
     }
 
     static class AdjacencyResult {

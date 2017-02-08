@@ -1056,6 +1056,15 @@ public class NeutronvpnUtils {
         return result;
     }
 
+    static boolean isNetworkExternal(Network network) {
+        NetworkL3Extension networkL3Extension = network.getAugmentation(NetworkL3Extension.class);
+        if (networkL3Extension == null) {
+            return false;
+        }
+
+        return networkL3Extension.isExternal();
+    }
+
     static boolean isNetworkTypeSupported(Network network) {
         NetworkProviderExtension npe = network.getAugmentation(NetworkProviderExtension.class);
         return npe != null && npe.getNetworkType() != null && SUPPORTED_NETWORK_TYPES.contains(npe.getNetworkType());
