@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_ec6219d7",
+        "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/SouthboundHandler.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 360,
+      "author": {
+        "id": 4030
+      },
+      "writtenOn": "2017-02-08T12:38:57Z",
+      "side": 1,
+      "message": "Hi Vinh,\nThanks for your comment.\n\n1) We thought of this case already. To address this either add a new interface in OF13Provider.java to call from SouthboundHandler.java or \nchange the access specifier for OF13Provider::handleTunnelOut() from private to public\n2) Also observed in NeutronL3Adapter and DistributedArpService, that services like L3ForwardingProvider,InboundNatProvider, ARP_RESPONDER etc are being called\ndirectly called to write flows \n3) Also, While processing vxlan interface request in SouthboundHandler, OF13Provider is not invoked. So called L2ForwardingProvider service directly to write flows.",
+      "parentUuid": "fafc7978_7b59c5fd",
+      "revId": "183b2b3c697463fd7d717866d683d1a5efa7ac89",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_db6711b6",
         "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/SouthboundHandler.java",
         "patchSetId": 4
@@ -36,6 +54,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_cc5d9517",
+        "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/SouthboundHandler.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 373,
+      "author": {
+        "id": 4030
+      },
+      "writtenOn": "2017-02-08T12:38:57Z",
+      "side": 1,
+      "message": "Thanks for your comments.\n\nI thought the same , but for more readability have written like that.\nAnyway I have addressed your comment.",
+      "parentUuid": "fafc7978_db6711b6",
+      "revId": "183b2b3c697463fd7d717866d683d1a5efa7ac89",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_5b13210d",
         "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/SouthboundHandler.java",
         "patchSetId": 4
@@ -47,6 +83,24 @@
       "writtenOn": "2017-02-08T01:27:59Z",
       "side": 1,
       "message": "exclude \u0027node\u0027 from the list of all bridge nodes?",
+      "revId": "183b2b3c697463fd7d717866d683d1a5efa7ac89",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_0c9f9db5",
+        "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/SouthboundHandler.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 381,
+      "author": {
+        "id": 4030
+      },
+      "writtenOn": "2017-02-08T12:38:57Z",
+      "side": 1,
+      "message": "Thanks for your comment.\nHave addressed comment",
+      "parentUuid": "fafc7978_5b13210d",
       "revId": "183b2b3c697463fd7d717866d683d1a5efa7ac89",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
