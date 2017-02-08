@@ -92,10 +92,10 @@ public class L3vpnOverMplsGrePopulator extends L3vpnPopulator {
         String prefix = VpnUtil.getIpPrefix(nextHop.getIpAddress());
         List<String> adjNextHop = nextHop.getNextHopIpList();
         String rd = input.getRd();
+        String primaryRd = input.getPrimaryRd();
         String vpnName = input.getVpnName();
         long label = VpnUtil.getUniqueId(idManager, VpnConstants.VPN_IDPOOL_NAME,
-                VpnUtil.getNextHopLabelKey((rd == null) ? vpnName
-                        : rd, prefix));
+                VpnUtil.getNextHopLabelKey(primaryRd, prefix));
         if (label == VpnConstants.INVALID_LABEL) {
             String error = "Unable to fetch label from Id Manager. Bailing out processing add/update of vpn interface"
                     + input.getInterfaceName() + " for vpn " + vpnName;

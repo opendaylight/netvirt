@@ -142,13 +142,14 @@ public class FibManagerImpl implements IFibManager {
                                        long vpnId,
                                        String rd,
                                        String destPrefix,
-                                       String destTepIp) {
-        vrfEntryListener.manageRemoteRouteOnDPN(action, dpnId, vpnId, rd, destPrefix, destTepIp);
+                                       String destTepIp,
+                                       long label) {
+        vrfEntryListener.manageRemoteRouteOnDPN(action, dpnId, vpnId, rd, destPrefix, destTepIp, label);
     }
 
     @Override
     public void addOrUpdateFibEntry(DataBroker broker, String rd, String macAddress, String prefix,
-                                    List<String> nextHopList, VrfEntry.EncapType encapType, int label,
+                                    List<String> nextHopList, VrfEntry.EncapType encapType, long label,
                                     long l3vni, String gwMacAddress, RouteOrigin origin,
                                     WriteTransaction writeConfigTxn) {
         FibUtil.addOrUpdateFibEntry(broker, rd, macAddress, prefix , nextHopList, encapType, label, l3vni,
@@ -174,8 +175,8 @@ public class FibManagerImpl implements IFibManager {
     }
 
     public void updateFibEntry(DataBroker broker, String rd, String prefix, List<String> nextHopList,
-                               String gwMacAddress, WriteTransaction writeConfigTxn) {
-        FibUtil.updateFibEntry(broker, rd, prefix, nextHopList, gwMacAddress, writeConfigTxn);
+                               String gwMacAddress, long label, WriteTransaction writeConfigTxn) {
+        FibUtil.updateFibEntry(broker, rd, prefix, nextHopList, gwMacAddress, label, writeConfigTxn);
     }
 
     @Override
