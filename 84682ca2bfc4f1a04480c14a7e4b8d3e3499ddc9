@@ -2,6 +2,23 @@
   "comments": [
     {
       "key": {
+        "uuid": "fafc7978_5ee14ffd",
+        "filename": "docs/specs/remote_acl_indirection.rst",
+        "patchSetId": 7
+      },
+      "lineNbr": 109,
+      "author": {
+        "id": 4269
+      },
+      "writtenOn": "2017-02-08T06:14:50Z",
+      "side": 1,
+      "message": "Can mention elan id in the match.",
+      "revId": "84682ca2bfc4f1a04480c14a7e4b8d3e3499ddc9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_d67d2970",
         "filename": "docs/specs/remote_acl_indirection.rst",
         "patchSetId": 7
@@ -31,6 +48,24 @@
       "side": 1,
       "message": "yeah I thought lport is part of the metadata?\nat least in the ingress ACL.. in the egress we use regs just because of the resubmit hacks..\n\nor did you mean something else?",
       "parentUuid": "fafc7978_d67d2970",
+      "revId": "84682ca2bfc4f1a04480c14a7e4b8d3e3499ddc9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_7eded340",
+        "filename": "docs/specs/remote_acl_indirection.rst",
+        "patchSetId": 7
+      },
+      "lineNbr": 112,
+      "author": {
+        "id": 4269
+      },
+      "writtenOn": "2017-02-08T06:14:50Z",
+      "side": 1,
+      "message": "Agree, just wanted to make sure the the ID being written in the ACL3 table was just using the SG id only not any thing related to lport.",
+      "parentUuid": "fafc7978_f6c5cd3d",
       "revId": "84682ca2bfc4f1a04480c14a7e4b8d3e3499ddc9",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
