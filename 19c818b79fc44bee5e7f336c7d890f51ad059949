@@ -16,6 +16,24 @@
       "revId": "19c818b79fc44bee5e7f336c7d890f51ad059949",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_7b3c25e3",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 12
+      },
+      "lineNbr": 180,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-08T04:45:08Z",
+      "side": 1,
+      "message": "Not mandatory to define.  But if you want to define different from default, this should be in system.properties.",
+      "parentUuid": "fafc7978_9820efb1",
+      "revId": "19c818b79fc44bee5e7f336c7d890f51ad059949",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
