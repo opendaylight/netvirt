@@ -230,6 +230,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_4c7245ae",
+        "filename": "vpnservice/fibmanager/fibmanager-api/src/main/yang/odl-fib.yang",
+        "patchSetId": 15
+      },
+      "lineNbr": 60,
+      "author": {
+        "id": 3630
+      },
+      "writtenOn": "2017-02-09T07:35:41Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_9ed8d780",
+      "revId": "928e7758fbbb9edb3a9203d628a1e69f8e8169a7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_1ed4e745",
         "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/FibUtil.java",
         "patchSetId": 15
@@ -241,6 +259,24 @@
       "writtenOn": "2017-02-08T08:08:06Z",
       "side": 1,
       "message": "move it to a constant.",
+      "revId": "928e7758fbbb9edb3a9203d628a1e69f8e8169a7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_ac6811bb",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/FibUtil.java",
+        "patchSetId": 15
+      },
+      "lineNbr": 527,
+      "author": {
+        "id": 3630
+      },
+      "writtenOn": "2017-02-09T07:35:41Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_1ed4e745",
       "revId": "928e7758fbbb9edb3a9203d628a1e69f8e8169a7",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
