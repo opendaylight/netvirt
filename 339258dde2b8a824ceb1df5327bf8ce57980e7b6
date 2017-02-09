@@ -367,6 +367,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_75a9c9de",
+        "filename": "docs/specs/ipv6-cvr-north-south.rst",
+        "patchSetId": 3
+      },
+      "lineNbr": 121,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-09T12:23:32Z",
+      "side": 1,
+      "message": "OK...",
+      "parentUuid": "fafc7978_4203290d",
+      "revId": "339258dde2b8a824ceb1df5327bf8ce57980e7b6",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_5f002601",
         "filename": "docs/specs/ipv6-cvr-north-south.rst",
         "patchSetId": 3
@@ -437,6 +455,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_d5dd1572",
+        "filename": "docs/specs/ipv6-cvr-north-south.rst",
+        "patchSetId": 3
+      },
+      "lineNbr": 134,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-09T12:23:32Z",
+      "side": 1,
+      "message": "The only reason i could see is to enable responses to packets onto  the external interfaces for packets ingressing from such same external interfaces, but I am unable to recollecte the use-case.",
+      "parentUuid": "fafc7978_422a097f",
+      "revId": "339258dde2b8a824ceb1df5327bf8ce57980e7b6",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_7f240aaf",
         "filename": "docs/specs/ipv6-cvr-north-south.rst",
         "patchSetId": 3
@@ -501,6 +537,24 @@
       "side": 1,
       "message": "Its the same as \"Ingress pipeline shown above\". When external Server is trying to access the VM/Instance, it sends the packets to the router-gateway-port MAC which is hosted on the NAPT Switch.",
       "parentUuid": "fafc7978_df3a56cc",
+      "revId": "339258dde2b8a824ceb1df5327bf8ce57980e7b6",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_b591719c",
+        "filename": "docs/specs/ipv6-cvr-north-south.rst",
+        "patchSetId": 3
+      },
+      "lineNbr": 150,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-09T12:23:32Z",
+      "side": 1,
+      "message": "So it is a pure-play CVR-external-router for all traffic regardless of where its initiated from .",
+      "parentUuid": "fafc7978_4251690d",
       "revId": "339258dde2b8a824ceb1df5327bf8ce57980e7b6",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -602,6 +656,30 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_b577b13a",
+        "filename": "docs/specs/ipv6-cvr-north-south.rst",
+        "patchSetId": 3
+      },
+      "lineNbr": 171,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-09T12:23:32Z",
+      "side": 1,
+      "message": "That clarifies a lot :).. Please add that here..",
+      "parentUuid": "fafc7978_a26f75c4",
+      "range": {
+        "startLine": 170,
+        "startChar": 0,
+        "endLine": 171,
+        "endChar": 74
+      },
+      "revId": "339258dde2b8a824ceb1df5327bf8ce57980e7b6",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_279c3ac0",
         "filename": "docs/specs/ipv6-cvr-north-south.rst",
         "patchSetId": 3
@@ -678,6 +756,24 @@
       "side": 1,
       "message": "This will not be required when we implement BGP, but currently we do need this. When we talk about Neighbor Discovery on the external network, there are two things.\n1. Netvirt GWMAC resolver has to send out Neighbor Solicitation (i.e., similar to ARP Request) for external subnet gateway-ip to know its MAC. \n2. When external IPv6 gateway sends out a Neighbor Soliciation for the Neutron router-gateway-ip (i.e., qg-xxx in neutron reference impl), we have to respond with Neighbor Advertisement providing the MAC of the router-gateway-port from the NAPT Switch.",
       "parentUuid": "fafc7978_5f75c696",
+      "revId": "339258dde2b8a824ceb1df5327bf8ce57980e7b6",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_75f709f6",
+        "filename": "docs/specs/ipv6-cvr-north-south.rst",
+        "patchSetId": 3
+      },
+      "lineNbr": 223,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-09T12:23:32Z",
+      "side": 1,
+      "message": "Ok, I confused L3 with L2 here :)\n\nThe NDP will be made to happen to resolve MACs, but enabling the external subnet gateway to route a packet to the router-gateway-ip needs an explicity route-entry inside that external subnet gaetway which is what you have mentioned here.\n\nThrough bgp control plane, this can be automated using a bgpvpn.",
+      "parentUuid": "fafc7978_e2685dbc",
       "revId": "339258dde2b8a824ceb1df5327bf8ce57980e7b6",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
