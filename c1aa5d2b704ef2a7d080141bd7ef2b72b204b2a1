@@ -225,6 +225,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_d83f0c24",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronTrunkChangeListener.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 111,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2017-02-09T15:55:49Z",
+      "side": 1,
+      "message": "so the code added by Alon to genius is supposed to handle both adding the parent ref for the trunk and for the trunk members? or this requires additional patch in genius?",
+      "parentUuid": "fafc7978_785c20ee",
+      "revId": "c1aa5d2b704ef2a7d080141bd7ef2b72b204b2a1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_b52051b1",
         "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronTrunkChangeListener.java",
         "patchSetId": 8
