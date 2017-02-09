@@ -243,6 +243,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_f32f9186",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronTrunkChangeListener.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 111,
+      "author": {
+        "id": 3276
+      },
+      "writtenOn": "2017-02-09T16:16:05Z",
+      "side": 1,
+      "message": "Alon\u0027s code takes care of parentRef for trunk. This code is adding only for trunk members. Existing Genius code will take care of the rest. There might be few bugs in Genius code that hasn\u0027t been tested this way before, but design wise we\u0027re good. One possible issue could be that by default all ports are trunk ports and subport association will happen later. Genius and maybe ELAN too may need to handle this change of type for subport interfaces. But that is something that will be easier to catch and fix through testing.",
+      "parentUuid": "fafc7978_d83f0c24",
+      "revId": "c1aa5d2b704ef2a7d080141bd7ef2b72b204b2a1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_b52051b1",
         "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronTrunkChangeListener.java",
         "patchSetId": 8
