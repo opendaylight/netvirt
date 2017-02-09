@@ -261,6 +261,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_13917599",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronTrunkChangeListener.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 111,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2017-02-09T17:40:19Z",
+      "side": 1,
+      "message": "then who is supposed to create the association between the trunk-members the trunk? this code doesn\u0027t add parent ref... what am I missing here?",
+      "parentUuid": "fafc7978_f32f9186",
+      "revId": "c1aa5d2b704ef2a7d080141bd7ef2b72b204b2a1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_b52051b1",
         "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronTrunkChangeListener.java",
         "patchSetId": 8
