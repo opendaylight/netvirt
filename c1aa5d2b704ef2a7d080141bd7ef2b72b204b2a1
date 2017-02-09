@@ -1,0 +1,130 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_75ba696f",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronTrunkChangeListener.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 84,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2017-02-09T14:05:22Z",
+      "side": 1,
+      "message": "this could throw if subports is null",
+      "range": {
+        "startLine": 84,
+        "startChar": 31,
+        "endLine": 84,
+        "endChar": 44
+      },
+      "revId": "c1aa5d2b704ef2a7d080141bd7ef2b72b204b2a1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_b5ab311d",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronTrunkChangeListener.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 86,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2017-02-09T14:05:22Z",
+      "side": 1,
+      "message": "you mean removeAll?",
+      "range": {
+        "startLine": 86,
+        "startChar": 14,
+        "endLine": 86,
+        "endChar": 23
+      },
+      "revId": "c1aa5d2b704ef2a7d080141bd7ef2b72b204b2a1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_15ab1d1e",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronTrunkChangeListener.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 87,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2017-02-09T14:05:22Z",
+      "side": 1,
+      "message": "ditto",
+      "range": {
+        "startLine": 87,
+        "startChar": 16,
+        "endLine": 87,
+        "endChar": 25
+      },
+      "revId": "c1aa5d2b704ef2a7d080141bd7ef2b72b204b2a1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_b559715d",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronTrunkChangeListener.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 99,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2017-02-09T14:05:22Z",
+      "side": 1,
+      "message": "could this be null?",
+      "range": {
+        "startLine": 99,
+        "startChar": 69,
+        "endLine": 99,
+        "endChar": 98
+      },
+      "revId": "c1aa5d2b704ef2a7d080141bd7ef2b72b204b2a1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_95138d65",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronTrunkChangeListener.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 111,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2017-02-09T14:05:22Z",
+      "side": 1,
+      "message": "What about the trunk itself? will it live only in the oper DS?\n\nDon\u0027t you need interface of type L2vlanMode.Trunk in the config DS?",
+      "revId": "c1aa5d2b704ef2a7d080141bd7ef2b72b204b2a1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_b52051b1",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronTrunkChangeListener.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 125,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2017-02-09T14:05:22Z",
+      "side": 1,
+      "message": "could you enhance IElanService.addElanInterface and IInterfaceManager.createVLANInterface to get transaction as arg rather than rewriting this logic?",
+      "revId": "c1aa5d2b704ef2a7d080141bd7ef2b72b204b2a1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
