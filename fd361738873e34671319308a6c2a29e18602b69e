@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_0272c148",
+        "filename": "vpnservice/fibmanager/fibmanager-api/src/main/yang/odl-fib.yang",
+        "patchSetId": 20
+      },
+      "lineNbr": 63,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-09T09:28:35Z",
+      "side": 1,
+      "message": "Since extra-route and bgp-imported routes is the only use-case that requires this enhancement, can we use the RouteOrigin.STATIC and RouteOrigin.BGP to handle the above list of route-paths as an augmentation.\n\nBecuase this has been inlined yang, it has many ramification for entire operation of L3VPN.\n\nLabel and nexthopaddressList are widely used in many places in entire L3VPN starting from VPNInterfaceManager, TunnellManager, VrfEntryListener, NextHopManager, BGPManager, InterVPNLinks..\nThis is sizeable change.. Please relook at this based on my comment.",
+      "revId": "fd361738873e34671319308a6c2a29e18602b69e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
