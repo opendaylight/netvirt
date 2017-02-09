@@ -16,6 +16,24 @@
       "revId": "704d8f77eb5cb431483ba8e90b2f36cc01425f8d",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_ad02cb3b",
+        "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/impl/NeutronL3Adapter.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 958,
+      "author": {
+        "id": 396
+      },
+      "writtenOn": "2017-02-09T02:47:34Z",
+      "side": 1,
+      "message": "Ah, you are absolutely right! Thank you for your comment!",
+      "parentUuid": "fafc7978_d201ae07",
+      "revId": "704d8f77eb5cb431483ba8e90b2f36cc01425f8d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
