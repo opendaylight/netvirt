@@ -63,6 +63,7 @@ public class Router extends OsgiCommandSupport {
             case "add":
                 // check: rtr already running?
                 long asn = 0;
+                int stalePath = 0;
                 boolean fb = false;
                 if (asNum == null) {
                     session.getConsole().println("error: " + AS + " is needed");
@@ -78,6 +79,8 @@ public class Router extends OsgiCommandSupport {
                 if (spt != null) {
                     if (!Commands.isValid(session.getConsole(), spt, Commands.Validators.INT, SP)) {
                         return null;
+                    } else {
+                        stalePath = Integer.valueOf(spt);
                     }
                 }
                 if (fbit != null) {
@@ -93,7 +96,7 @@ public class Router extends OsgiCommandSupport {
                             return null;
                     }
                 }
-                bm.startBgp(asn, rid, Integer.valueOf(spt), fb);
+                bm.startBgp(asn, rid, stalePath, fb);
                 break;
             case "del":
                 // check: nothing to stop?
