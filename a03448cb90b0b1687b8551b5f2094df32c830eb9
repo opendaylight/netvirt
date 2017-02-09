@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_625f4de6",
+        "filename": "docs/specs/remote_acl_indirection.rst",
+        "patchSetId": 5
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 670
+      },
+      "writtenOn": "2017-02-09T09:05:52Z",
+      "side": 1,
+      "message": "Done, prefer 0x0 as it doesn\u0027t show up much in pipeline.",
+      "parentUuid": "fafc7978_41384ea0",
+      "range": {
+        "startLine": 62,
+        "startChar": 30,
+        "endLine": 62,
+        "endChar": 56
+      },
+      "revId": "a03448cb90b0b1687b8551b5f2094df32c830eb9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_e15062d6",
         "filename": "docs/specs/remote_acl_indirection.rst",
         "patchSetId": 5
@@ -36,6 +60,30 @@
       "writtenOn": "2017-02-08T09:57:55Z",
       "side": 1,
       "message": "match on IPs and ports/tenant indication so that this will be tenant aware",
+      "range": {
+        "startLine": 74,
+        "startChar": 43,
+        "endLine": 74,
+        "endChar": 59
+      },
+      "revId": "a03448cb90b0b1687b8551b5f2094df32c830eb9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_a2593500",
+        "filename": "docs/specs/remote_acl_indirection.rst",
+        "patchSetId": 5
+      },
+      "lineNbr": 74,
+      "author": {
+        "id": 670
+      },
+      "writtenOn": "2017-02-09T09:05:52Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_e15062d6",
       "range": {
         "startLine": 74,
         "startChar": 43,
@@ -82,6 +130,30 @@
       "writtenOn": "2017-02-08T09:57:55Z",
       "side": 1,
       "message": "I believe you wanted the \"+remote_sg\" on the next line to match the descriptions of (*) and (**)",
+      "range": {
+        "startLine": 112,
+        "startChar": 25,
+        "endLine": 112,
+        "endChar": 40
+      },
+      "revId": "a03448cb90b0b1687b8551b5f2094df32c830eb9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_62d46d20",
+        "filename": "docs/specs/remote_acl_indirection.rst",
+        "patchSetId": 5
+      },
+      "lineNbr": 112,
+      "author": {
+        "id": 670
+      },
+      "writtenOn": "2017-02-09T09:05:52Z",
+      "side": 1,
+      "message": "Already fixed I think, this is an old(er) patchset.. thanks",
+      "parentUuid": "fafc7978_41904e43",
       "range": {
         "startLine": 112,
         "startChar": 25,
