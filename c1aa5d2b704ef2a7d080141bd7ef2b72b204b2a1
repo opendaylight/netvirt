@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_38ed7826",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronTrunkChangeListener.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 84,
+      "author": {
+        "id": 3276
+      },
+      "writtenOn": "2017-02-09T14:50:23Z",
+      "side": 1,
+      "message": "subPorts is always initialized as emptyList so should be fine.",
+      "parentUuid": "fafc7978_75ba696f",
+      "range": {
+        "startLine": 84,
+        "startChar": 31,
+        "endLine": 84,
+        "endChar": 44
+      },
+      "revId": "c1aa5d2b704ef2a7d080141bd7ef2b72b204b2a1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_b5ab311d",
         "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronTrunkChangeListener.java",
         "patchSetId": 8
@@ -36,6 +60,30 @@
       "writtenOn": "2017-02-09T14:05:22Z",
       "side": 1,
       "message": "you mean removeAll?",
+      "range": {
+        "startLine": 86,
+        "startChar": 14,
+        "endLine": 86,
+        "endChar": 23
+      },
+      "revId": "c1aa5d2b704ef2a7d080141bd7ef2b72b204b2a1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_9842a40e",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronTrunkChangeListener.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 86,
+      "author": {
+        "id": 3276
+      },
+      "writtenOn": "2017-02-09T14:50:23Z",
+      "side": 1,
+      "message": "argh! yes, just ran into this issue in testing.",
+      "parentUuid": "fafc7978_b5ab311d",
       "range": {
         "startLine": 86,
         "startChar": 14,
@@ -71,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_78454016",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronTrunkChangeListener.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 87,
+      "author": {
+        "id": 3276
+      },
+      "writtenOn": "2017-02-09T14:50:23Z",
+      "side": 1,
+      "message": "ditto",
+      "parentUuid": "fafc7978_15ab1d1e",
+      "range": {
+        "startLine": 87,
+        "startChar": 16,
+        "endLine": 87,
+        "endChar": 25
+      },
+      "revId": "c1aa5d2b704ef2a7d080141bd7ef2b72b204b2a1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_b559715d",
         "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronTrunkChangeListener.java",
         "patchSetId": 8
@@ -82,6 +154,30 @@
       "writtenOn": "2017-02-09T14:05:22Z",
       "side": 1,
       "message": "could this be null?",
+      "range": {
+        "startLine": 99,
+        "startChar": 69,
+        "endLine": 99,
+        "endChar": 98
+      },
+      "revId": "c1aa5d2b704ef2a7d080141bd7ef2b72b204b2a1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_585f9ce5",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronTrunkChangeListener.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 99,
+      "author": {
+        "id": 3276
+      },
+      "writtenOn": "2017-02-09T14:50:23Z",
+      "side": 1,
+      "message": "can\u0027t be. subport will always come with these values. only time it will be null is if a bug in NN/Driver code. would be good to have check though, will do that.",
+      "parentUuid": "fafc7978_b559715d",
       "range": {
         "startLine": 99,
         "startChar": 69,
@@ -111,6 +207,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_785c20ee",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronTrunkChangeListener.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 111,
+      "author": {
+        "id": 3276
+      },
+      "writtenOn": "2017-02-09T14:50:23Z",
+      "side": 1,
+      "message": "That will be handled by existing code as part of neutronport create. This code is only going to add subports as child interfaces of parent port.",
+      "parentUuid": "fafc7978_95138d65",
+      "revId": "c1aa5d2b704ef2a7d080141bd7ef2b72b204b2a1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_b52051b1",
         "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronTrunkChangeListener.java",
         "patchSetId": 8
@@ -122,6 +236,24 @@
       "writtenOn": "2017-02-09T14:05:22Z",
       "side": 1,
       "message": "could you enhance IElanService.addElanInterface and IInterfaceManager.createVLANInterface to get transaction as arg rather than rewriting this logic?",
+      "revId": "c1aa5d2b704ef2a7d080141bd7ef2b72b204b2a1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_186d1499",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronTrunkChangeListener.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 125,
+      "author": {
+        "id": 3276
+      },
+      "writtenOn": "2017-02-09T14:50:23Z",
+      "side": 1,
+      "message": "I took this logic from neutronPortChangeListener. I had initially used createVLANInterface but had some odering concerns as that code isn\u0027t using DSJC. I\u0027ll take it up in a subsequent patch. First I want to get basic feature in so can enable basic testing. Was looking for you in IRC to discuss it.",
+      "parentUuid": "fafc7978_b52051b1",
       "revId": "c1aa5d2b704ef2a7d080141bd7ef2b72b204b2a1",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
