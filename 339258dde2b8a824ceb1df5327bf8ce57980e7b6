@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_df77f6d2",
+        "filename": "docs/specs/ipv6-cvr-north-south.rst",
+        "patchSetId": 3
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2017-02-09T08:02:30Z",
+      "side": 1,
+      "message": "I\u0027m afraid no. Both Ingress and Egress traffic would be going out of the NAPT Switch (i.e., designated switch for outbound traffic). The implementation would be similar to IPv4 SNAT, except that we do plain forwarding without any NATing.\n\nBTW this spec is only for VLAN/FLAT provider networks and for BGP VPN use-cases there is a separate spec [3] as mentioned above.",
+      "parentUuid": "fafc7978_6d3c63e3",
+      "revId": "339258dde2b8a824ceb1df5327bf8ce57980e7b6",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_2d19bb88",
         "filename": "docs/specs/ipv6-cvr-north-south.rst",
         "patchSetId": 3
@@ -30,6 +48,24 @@
       "writtenOn": "2017-02-09T04:29:54Z",
       "side": 1,
       "message": "the external/physical IPv6 subnet will be from the same pool as the tenant network IPv6 subnet.  Can you please educate a bit here :) ?",
+      "revId": "339258dde2b8a824ceb1df5327bf8ce57980e7b6",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_3f1c4277",
+        "filename": "docs/specs/ipv6-cvr-north-south.rst",
+        "patchSetId": 3
+      },
+      "lineNbr": 54,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2017-02-09T08:02:30Z",
+      "side": 1,
+      "message": "The external IPv6 subnet CIDR (PSB 2001:db8:0:1::/64) will be different to the tenant IPv6 subnet CIDR (2001:db8:0:2::20/64).\n\nBasically, IPv6 tenant subnets are expected to be Globally unique and routable. In OpenStack Neutron reference implementation we have following options. In ODL, we will be pursuing option1 currently.\n\nOption 1: Attach an external IPv6 subnet and explicitly specify the upstream router IPv6 Link Local Address (LLA) as gateway\n\nAttachment of an IPv6 subnet to an external network is optional in case of IPv6 since we can use the IPv6 LLA of the router-gateway-port for forwarding and also because the tenant subnets are already Globally Unique: So, there are two additional options.\nOption 2: The neutron router can learn the IPv6 address of external gateway by processing the Router Advertisement (RA) messages from the external gateway.\nOption 3: Manual configuration of IPv6 LLA address of external gateway in the /etc/neutron/l3-agent.ini file",
+      "parentUuid": "fafc7978_2d19bb88",
       "revId": "339258dde2b8a824ceb1df5327bf8ce57980e7b6",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -106,6 +142,30 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_9f13ae65",
+        "filename": "docs/specs/ipv6-cvr-north-south.rst",
+        "patchSetId": 3
+      },
+      "lineNbr": 101,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2017-02-09T08:02:30Z",
+      "side": 1,
+      "message": "Sure, I\u0027ll rephrase it.",
+      "parentUuid": "fafc7978_67a64212",
+      "range": {
+        "startLine": 100,
+        "startChar": 64,
+        "endLine": 101,
+        "endChar": 13
+      },
+      "revId": "339258dde2b8a824ceb1df5327bf8ce57980e7b6",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_87837155",
         "filename": "docs/specs/ipv6-cvr-north-south.rst",
         "patchSetId": 3
@@ -117,6 +177,30 @@
       "writtenOn": "2017-02-06T16:53:56Z",
       "side": 1,
       "message": "better to mention NAPT switch will be selected per router?",
+      "range": {
+        "startLine": 104,
+        "startChar": 42,
+        "endLine": 104,
+        "endChar": 67
+      },
+      "revId": "339258dde2b8a824ceb1df5327bf8ce57980e7b6",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_7f16ca56",
+        "filename": "docs/specs/ipv6-cvr-north-south.rst",
+        "patchSetId": 3
+      },
+      "lineNbr": 104,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2017-02-09T08:02:30Z",
+      "side": 1,
+      "message": "I\u0027ll update it @Aswin.",
+      "parentUuid": "fafc7978_87837155",
       "range": {
         "startLine": 104,
         "startChar": 42,
@@ -224,6 +308,30 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_df0c1645",
+        "filename": "docs/specs/ipv6-cvr-north-south.rst",
+        "patchSetId": 3
+      },
+      "lineNbr": 109,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2017-02-09T08:02:30Z",
+      "side": 1,
+      "message": "Ack.",
+      "parentUuid": "fafc7978_ed06931f",
+      "range": {
+        "startLine": 109,
+        "startChar": 63,
+        "endLine": 109,
+        "endChar": 79
+      },
+      "revId": "339258dde2b8a824ceb1df5327bf8ce57980e7b6",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_cd010f08",
         "filename": "docs/specs/ipv6-cvr-north-south.rst",
         "patchSetId": 3
@@ -235,6 +343,24 @@
       "writtenOn": "2017-02-09T04:29:54Z",
       "side": 1,
       "message": "Why do we need a match with unknown-sip here?",
+      "revId": "339258dde2b8a824ceb1df5327bf8ce57980e7b6",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_4203290d",
+        "filename": "docs/specs/ipv6-cvr-north-south.rst",
+        "patchSetId": 3
+      },
+      "lineNbr": 121,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2017-02-09T08:02:30Z",
+      "side": 1,
+      "message": "Actually its not like matching with unknown-sip. IPv6 router implementation will be aligned with IPv4 SNAT, so the same pipeline tables will be used except that we do not do any IP/Port translation.\n\nIn Table26 of ODL pipeline diagram [*], UNKNOWN-SIP indicates that packets hit OUTBOUND_NAPT_TABLE(46) or TunnelOutputGroup, depending on the location of NAPT Switch.\n\n\n[*] https://docs.google.com/presentation/d/15h4ZjPxblI5Pz9VWIYnzfyRcQrXYxA1uUoqJsgA53KM/edit#slide\u003did.p",
+      "parentUuid": "fafc7978_cd010f08",
       "revId": "339258dde2b8a824ceb1df5327bf8ce57980e7b6",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -258,6 +384,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_02192179",
+        "filename": "docs/specs/ipv6-cvr-north-south.rst",
+        "patchSetId": 3
+      },
+      "lineNbr": 124,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2017-02-09T08:02:30Z",
+      "side": 1,
+      "message": "Thanks, I\u0027ll add it.",
+      "parentUuid": "fafc7978_5f002601",
+      "revId": "339258dde2b8a824ceb1df5327bf8ce57980e7b6",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_ff18fa76",
         "filename": "docs/specs/ipv6-cvr-north-south.rst",
         "patchSetId": 3
@@ -269,6 +413,24 @@
       "writtenOn": "2017-02-09T04:29:54Z",
       "side": 1,
       "message": "why a in_port\u003d0 match required here?",
+      "revId": "339258dde2b8a824ceb1df5327bf8ce57980e7b6",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_422a097f",
+        "filename": "docs/specs/ipv6-cvr-north-south.rst",
+        "patchSetId": 3
+      },
+      "lineNbr": 134,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2017-02-09T08:02:30Z",
+      "side": 1,
+      "message": "Actually this action is present in the current IPv4 SNAT pipeline. Even I had a doubt on this :)",
+      "parentUuid": "fafc7978_ff18fa76",
       "revId": "339258dde2b8a824ceb1df5327bf8ce57980e7b6",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -292,6 +454,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_023001e7",
+        "filename": "docs/specs/ipv6-cvr-north-south.rst",
+        "patchSetId": 3
+      },
+      "lineNbr": 136,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2017-02-09T08:02:30Z",
+      "side": 1,
+      "message": "Thanks @Vivek, I\u0027ll update it.",
+      "parentUuid": "fafc7978_7f240aaf",
+      "revId": "339258dde2b8a824ceb1df5327bf8ce57980e7b6",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_df3a56cc",
         "filename": "docs/specs/ipv6-cvr-north-south.rst",
         "patchSetId": 3
@@ -303,6 +483,24 @@
       "writtenOn": "2017-02-09T04:29:54Z",
       "side": 1,
       "message": "what about rules to access to IPV6 VMs directly from external network?",
+      "revId": "339258dde2b8a824ceb1df5327bf8ce57980e7b6",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_4251690d",
+        "filename": "docs/specs/ipv6-cvr-north-south.rst",
+        "patchSetId": 3
+      },
+      "lineNbr": 150,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2017-02-09T08:02:30Z",
+      "side": 1,
+      "message": "Its the same as \"Ingress pipeline shown above\". When external Server is trying to access the VM/Instance, it sends the packets to the router-gateway-port MAC which is hosted on the NAPT Switch.",
+      "parentUuid": "fafc7978_df3a56cc",
       "revId": "339258dde2b8a824ceb1df5327bf8ce57980e7b6",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -356,6 +554,54 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_a26f75c4",
+        "filename": "docs/specs/ipv6-cvr-north-south.rst",
+        "patchSetId": 3
+      },
+      "lineNbr": 171,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2017-02-09T08:02:30Z",
+      "side": 1,
+      "message": "NDP on the external network applies only to the router-gateway-port and not to the VM IPs. Essentially all the tenant VMs are behind an IPv6 Virtual router and since the external servers are not on the same network as tenant network, when they want to contact the VMs, they would send the packets with destination MAC as router-gateway-port MAC (i.e., NAPT Switch).",
+      "parentUuid": "fafc7978_df41b63a",
+      "range": {
+        "startLine": 170,
+        "startChar": 0,
+        "endLine": 171,
+        "endChar": 74
+      },
+      "revId": "339258dde2b8a824ceb1df5327bf8ce57980e7b6",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_a2581533",
+        "filename": "docs/specs/ipv6-cvr-north-south.rst",
+        "patchSetId": 3
+      },
+      "lineNbr": 171,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2017-02-09T08:02:30Z",
+      "side": 1,
+      "message": "You are correct @Gidi. I forgot to update this section. Its a stale content that was applicable for the original proposal (in patchset#1). Thanks for spotting. I\u0027ll update it.",
+      "parentUuid": "fafc7978_e76232d7",
+      "range": {
+        "startLine": 170,
+        "startChar": 0,
+        "endLine": 171,
+        "endChar": 74
+      },
+      "revId": "339258dde2b8a824ceb1df5327bf8ce57980e7b6",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_279c3ac0",
         "filename": "docs/specs/ipv6-cvr-north-south.rst",
         "patchSetId": 3
@@ -379,6 +625,30 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_827231ab",
+        "filename": "docs/specs/ipv6-cvr-north-south.rst",
+        "patchSetId": 3
+      },
+      "lineNbr": 173,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2017-02-09T08:02:30Z",
+      "side": 1,
+      "message": "Exactly. In Line 212 below, I mentioned that to ease the configuration we would explicitly specify the fixed_ip of router-gateway-port so that a downstream route (to the tenant subnet CIDR) can be added with next-hop as the router-gateway-port-ip (Line 221)",
+      "parentUuid": "fafc7978_279c3ac0",
+      "range": {
+        "startLine": 173,
+        "startChar": 0,
+        "endLine": 173,
+        "endChar": 17
+      },
+      "revId": "339258dde2b8a824ceb1df5327bf8ce57980e7b6",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_5f75c696",
         "filename": "docs/specs/ipv6-cvr-north-south.rst",
         "patchSetId": 3
@@ -390,6 +660,24 @@
       "writtenOn": "2017-02-09T04:29:54Z",
       "side": 1,
       "message": "this step is not required right, if the Spec implements Neighbour discovery for router-gateway-ip by the external ipv6 gateway?",
+      "revId": "339258dde2b8a824ceb1df5327bf8ce57980e7b6",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_e2685dbc",
+        "filename": "docs/specs/ipv6-cvr-north-south.rst",
+        "patchSetId": 3
+      },
+      "lineNbr": 223,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2017-02-09T08:02:30Z",
+      "side": 1,
+      "message": "This will not be required when we implement BGP, but currently we do need this. When we talk about Neighbor Discovery on the external network, there are two things.\n1. Netvirt GWMAC resolver has to send out Neighbor Solicitation (i.e., similar to ARP Request) for external subnet gateway-ip to know its MAC. \n2. When external IPv6 gateway sends out a Neighbor Soliciation for the Neutron router-gateway-ip (i.e., qg-xxx in neutron reference impl), we have to respond with Neighbor Advertisement providing the MAC of the router-gateway-port from the NAPT Switch.",
+      "parentUuid": "fafc7978_5f75c696",
       "revId": "339258dde2b8a824ceb1df5327bf8ce57980e7b6",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
