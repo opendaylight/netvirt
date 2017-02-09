@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_82451119",
+        "filename": "docs/specs/remote_acl_indirection.rst",
+        "patchSetId": 9
+      },
+      "lineNbr": 69,
+      "author": {
+        "id": 670
+      },
+      "writtenOn": "2017-02-09T09:05:52Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_0c8cbd34",
+      "range": {
+        "startLine": 69,
+        "startChar": 27,
+        "endLine": 69,
+        "endChar": 33
+      },
+      "revId": "0f3ed0dcc38cc0081c3eb18db2f528e28c23c22a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_ac7c9121",
         "filename": "docs/specs/remote_acl_indirection.rst",
         "patchSetId": 9
@@ -36,6 +60,30 @@
       "writtenOn": "2017-02-08T20:12:52Z",
       "side": 1,
       "message": "I think *italics* would look better than monospace for this and the other sentence",
+      "range": {
+        "startLine": 80,
+        "startChar": 30,
+        "endLine": 80,
+        "endChar": 32
+      },
+      "revId": "0f3ed0dcc38cc0081c3eb18db2f528e28c23c22a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_e24b3d29",
+        "filename": "docs/specs/remote_acl_indirection.rst",
+        "patchSetId": 9
+      },
+      "lineNbr": 80,
+      "author": {
+        "id": 670
+      },
+      "writtenOn": "2017-02-09T09:05:52Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_ac7c9121",
       "range": {
         "startLine": 80,
         "startChar": 30,
@@ -83,6 +131,30 @@
       "side": 1,
       "message": "IMHO, we can write it as a part of dispatcher flow.",
       "parentUuid": "fafc7978_d2ed2eb9",
+      "range": {
+        "startLine": 108,
+        "startChar": 25,
+        "endLine": 108,
+        "endChar": 32
+      },
+      "revId": "0f3ed0dcc38cc0081c3eb18db2f528e28c23c22a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_2256e5d2",
+        "filename": "docs/specs/remote_acl_indirection.rst",
+        "patchSetId": 9
+      },
+      "lineNbr": 108,
+      "author": {
+        "id": 670
+      },
+      "writtenOn": "2017-02-09T09:05:52Z",
+      "side": 1,
+      "message": "Yes since the ELAN tag is predetermined and not set by ELAN service, I think it would be ok to set it in the dispatcher before entering the services. I\u0027ll note this in the spec.\n\nTali by the way this is a bug in the existing implementation project/tenant awareness if there are two of the same IP.",
+      "parentUuid": "fafc7978_9f9a8e61",
       "range": {
         "startLine": 108,
         "startChar": 25,
