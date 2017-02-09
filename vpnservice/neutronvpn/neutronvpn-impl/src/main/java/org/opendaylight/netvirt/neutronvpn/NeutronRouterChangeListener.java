@@ -8,7 +8,10 @@
 package org.opendaylight.netvirt.neutronvpn;
 
 import com.google.common.base.Optional;
+import com.google.common.collect.Lists;
+
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
