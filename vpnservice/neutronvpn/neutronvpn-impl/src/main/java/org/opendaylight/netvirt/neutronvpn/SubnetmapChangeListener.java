@@ -15,6 +15,9 @@ import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.NotificationPublishService;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
+import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.VpnInstances;
+import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.instances.VpnInstance;
+import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.instances.VpnInstanceKey;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.ElanInstances;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.instances.ElanInstance;
@@ -64,13 +67,14 @@ public class SubnetmapChangeListener extends AsyncDataTreeChangeListenerBase<Sub
     }
 
     @Override
+    @SuppressWarnings("checkstyle:IllegalCatch")
     protected void add(InstanceIdentifier<Subnetmap> identifier, Subnetmap subnetmap) {
         LOG.trace("add:SubnetmapChangeListener add subnetmap method - key: " + identifier + ", value=" + subnetmap);
         Uuid subnetId = subnetmap.getId();
         Uuid vpnId = subnetmap.getVpnId();
         if (subnetmap.getVpnId() != null) {
-            //The isExternalVpn here represents if its a BGPVPN.
-            boolean isExternalVpn = !vpnId.equals(subnetmap.getRouterId());
+//          The isExternalVpn here represents if its a BGPVPN.
+            boolean isExternalVpn = isExternalVpn(subnetmap.getVpnId());
             String elanInstanceName = subnetmap.getNetworkId().getValue();
             Long elanTag = getElanTag(elanInstanceName);
             if (elanTag.equals(0L)) {
@@ -92,6 +96,17 @@ public class SubnetmapChangeListener extends AsyncDataTreeChangeListenerBase<Sub
             }
             return;
         }
+    }
+
+    private boolean isExternalVpn(Uuid vpnName) {
+        InstanceIdentifier<VpnInstance> vpnIdentifierId = InstanceIdentifier.builder(VpnInstances.class)
+                .child(VpnInstance.class, new VpnInstanceKey(vpnName.getValue())).build();
+        Optional<VpnInstance> vpnInstance =
+                NeutronvpnUtils.read(dataBroker, LogicalDatastoreType.CONFIGURATION, vpnIdentifierId);
+        if (vpnInstance.isPresent()) {
+            return vpnInstance.get().isExternalVpn();
+        }
+        return true;
     }
 
     @Override

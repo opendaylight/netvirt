@@ -18,6 +18,7 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.networkmaps.NetworkMap;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.networkmaps.NetworkMapBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.networkmaps.NetworkMapKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l3.ext.rev150712.NetworkL3Extension;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.networks.rev150712.networks.attributes.networks.Network;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.rev150712.Neutron;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.subnets.rev150712.subnets.attributes.Subnets;
@@ -66,9 +67,19 @@ public class NeutronSubnetChangeListener extends AsyncDataTreeChangeListenerBase
                 + " Skipping the processing of Subnet add DCN", input.getName(), network);
             return;
         }
+        Uuid vpnId = isExternalNetwork(network) ? networkId : null;
+
         handleNeutronSubnetCreated(input.getUuid(), String.valueOf(input.getCidr().getValue()), networkId,
-                input.getTenantId());
+                input.getTenantId(), vpnId);
         NeutronvpnUtils.addToSubnetCache(input);
+    }
+
+    private boolean isExternalNetwork(Network network) {
+        NetworkL3Extension extNetAug = network.getAugmentation(NetworkL3Extension.class);
+        if (extNetAug != null && extNetAug.isExternal()) {
+            return true;
+        }
+        return false;
     }
 
     @Override
@@ -98,12 +109,17 @@ public class NeutronSubnetChangeListener extends AsyncDataTreeChangeListenerBase
                 + " Skipping the processing of Subnet update DCN", update.getName(), network);
             return;
         }
+
         handleNeutronSubnetUpdated(update.getUuid(), networkId, update.getTenantId());
         NeutronvpnUtils.addToSubnetCache(update);
     }
 
     private void handleNeutronSubnetCreated(Uuid subnetId, String subnetIp, Uuid networkId, Uuid tenantId) {
-        nvpnManager.updateSubnetNode(subnetId, subnetIp, tenantId, networkId, null/*routerID*/, null/*vpnID*/);
+        handleNeutronSubnetCreated(subnetId, subnetIp, networkId, tenantId, null /* vpnId*/);
+    }
+
+    private void handleNeutronSubnetCreated(Uuid subnetId, String subnetIp, Uuid networkId, Uuid tenantId, Uuid vpnId) {
+        nvpnManager.updateSubnetNode(subnetId, subnetIp, tenantId, networkId, null/*routerID*/, vpnId);
         if (networkId != null) {
             createSubnetToNetworkMapping(subnetId, networkId);
         }
