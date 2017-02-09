@@ -1,0 +1,164 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_7f71aadf",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/ExternalSubnetListener.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 92,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2017-02-09T07:45:25Z",
+      "side": 1,
+      "message": "delaying FIB flow installation",
+      "range": {
+        "startLine": 92,
+        "startChar": 70,
+        "endLine": 92,
+        "endChar": 91
+      },
+      "revId": "8343af3474e6d71d80221cbc16fd66db6c83f3ee",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_7f488a87",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/ExternalSubnetListener.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 111,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2017-02-09T07:45:25Z",
+      "side": 1,
+      "message": "this is a private method that is called only when the entire subnet is either added or deleted so why is this check needed?",
+      "range": {
+        "startLine": 111,
+        "startChar": 31,
+        "endLine": 111,
+        "endChar": 77
+      },
+      "revId": "8343af3474e6d71d80221cbc16fd66db6c83f3ee",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_1f597e5a",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/ExternalSubnetListener.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 147,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2017-02-09T07:45:25Z",
+      "side": 1,
+      "message": "could be warn",
+      "range": {
+        "startLine": 147,
+        "startChar": 16,
+        "endLine": 147,
+        "endChar": 21
+      },
+      "revId": "8343af3474e6d71d80221cbc16fd66db6c83f3ee",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_1f07be1d",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/ExternalSubnetVpnInstanceListener.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 94,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2017-02-09T07:45:25Z",
+      "side": 1,
+      "message": "make this method or the one in ExternalSubnetListener package call each other \nthe code is 90% the same...",
+      "range": {
+        "startLine": 94,
+        "startChar": 17,
+        "endLine": 94,
+        "endChar": 41
+      },
+      "revId": "8343af3474e6d71d80221cbc16fd66db6c83f3ee",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_62274db7",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/ExternalSubnetVpnInstanceListener.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 106,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2017-02-09T07:45:25Z",
+      "side": 1,
+      "message": "is this code reachable?",
+      "revId": "8343af3474e6d71d80221cbc16fd66db6c83f3ee",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_820d113a",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NatUtil.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 302,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2017-02-09T07:45:25Z",
+      "side": 1,
+      "message": "I think it would be better to enhance getFlowRef(BigInteger dpnId, short tableId, InetAddress destPrefix) with vpnId and use it similarly to ExternalNetworkListener.buildDefNATFlowEntity() with default ip 0.0.0.0",
+      "revId": "8343af3474e6d71d80221cbc16fd66db6c83f3ee",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_221ee563",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/RouterDpnChangeListener.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 403,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2017-02-09T07:45:25Z",
+      "side": 1,
+      "message": "unused?",
+      "revId": "8343af3474e6d71d80221cbc16fd66db6c83f3ee",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_8224f1af",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/SNATDefaultRouteProgrammer.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 127,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2017-02-09T07:45:25Z",
+      "side": 1,
+      "message": "Make all the code calling buildDefaultNATFlowEntityForExternalSubnet pass through this method and add a debug log here",
+      "revId": "8343af3474e6d71d80221cbc16fd66db6c83f3ee",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
