@@ -473,6 +473,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_986f44c5",
+        "filename": "docs/specs/ipv6-cvr-north-south.rst",
+        "patchSetId": 3
+      },
+      "lineNbr": 134,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2017-02-09T14:23:09Z",
+      "side": 1,
+      "message": "the UC described in this thread https://lists.opendaylight.org/pipermail/netvirt-dev/2016-December/002599.html",
+      "parentUuid": "fafc7978_d5dd1572",
+      "revId": "339258dde2b8a824ceb1df5327bf8ce57980e7b6",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_7f240aaf",
         "filename": "docs/specs/ipv6-cvr-north-south.rst",
         "patchSetId": 3
