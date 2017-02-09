@@ -279,6 +279,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_93e9e582",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronTrunkChangeListener.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 111,
+      "author": {
+        "id": 3276
+      },
+      "writtenOn": "2017-02-09T20:04:36Z",
+      "side": 1,
+      "message": "not you, I missed adding code to add parentRefs in here. Added it in patchset9.",
+      "parentUuid": "fafc7978_13917599",
+      "revId": "c1aa5d2b704ef2a7d080141bd7ef2b72b204b2a1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_b52051b1",
         "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronTrunkChangeListener.java",
         "patchSetId": 8
