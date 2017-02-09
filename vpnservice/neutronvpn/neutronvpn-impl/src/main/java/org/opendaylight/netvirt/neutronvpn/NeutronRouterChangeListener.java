@@ -8,7 +8,10 @@
 package org.opendaylight.netvirt.neutronvpn;
 
 import com.google.common.base.Optional;
+import com.google.common.collect.Lists;
+
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
@@ -65,6 +68,8 @@ public class NeutronRouterChangeListener extends AsyncDataTreeChangeListenerBase
         LOG.trace("Adding Router : key: {}, value={}", identifier, input);
         NeutronvpnUtils.addToRouterCache(input);
         // Create internal VPN
+//        nvpnManager.createL3InternalVpn(input.getUuid(), null, null, Lists.newArrayList(input.getUuid().getValue()),
+//                null, null, input.getUuid(), null);
         nvpnManager.createL3InternalVpn(input.getUuid(), null, null, null, null, null, input.getUuid(), null);
         nvpnNatManager.handleExternalNetworkForRouter(null, input);
         gwMacResolver.sendArpRequestsToExtGateways(input);

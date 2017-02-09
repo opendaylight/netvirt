@@ -322,11 +322,28 @@ public class NeutronPortChangeListener extends AsyncDataTreeChangeListenerBase<P
     }
 
     private void handleRouterGatewayUpdated(Port routerGwPort) {
+        //
         Uuid routerId = new Uuid(routerGwPort.getDeviceId());
         Uuid networkId = routerGwPort.getNetworkId();
         elanService.handleKnownL3DmacAddress(routerGwPort.getMacAddress().getValue(), networkId.getValue(),
                 NwConstants.ADD_FLOW);
+        LOG.info("Tomer: in handleRouterGatewayUpdated, FixedIPs {}", routerGwPort.getFixedIps());
 
+        for (FixedIps portIP : routerGwPort.getFixedIps()) {
+//            String ipValue = String.valueOf(portIP.getIpAddress().getValue());
+//            nvpnManager.updateSubnetNodeWithFixedIps(portIP.getSubnetId(), routerId,
+//                    routerGwPort.getUuid(), ipValue, routerGwPort.getMacAddress().getValue());
+
+            Uuid vpnId = NeutronvpnUtils.getVpnForRouter(dataBroker, routerId, true);
+            if (vpnId == null) {
+                vpnId = routerId;
+            }
+//            nvpnManager.addSubnetToVpn(vpnId, portIP.getSubnetId());
+            nvpnManager.updateSubnetNode(portIP.getSubnetId(), null, null, null, null, vpnId);
+            LOG.info("Tomer: in handleRouterGatewayUpdated, updating subnetID {} with VPNID {}",
+                    routerGwPort.getFixedIps(), portIP.getSubnetId().getValue(),
+                    vpnId.getValue());
+        }
         Router router = NeutronvpnUtils.getNeutronRouter(dataBroker, routerId);
         if (router == null) {
             LOG.warn("No router found for router GW port {} router id {}", routerGwPort.getUuid(), routerId.getValue());

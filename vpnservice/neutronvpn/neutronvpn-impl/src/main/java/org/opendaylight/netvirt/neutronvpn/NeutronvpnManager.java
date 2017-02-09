@@ -384,7 +384,7 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
     // TODO Clean up the exception handling
     @SuppressWarnings("checkstyle:IllegalCatch")
     private void updateVpnInstanceNode(String vpnName, List<String> rd, List<String> irt, List<String> ert,
-                                       VpnInstance.Type type, long l3vni) {
+                                       VpnInstance.Type type, long l3vni, boolean isExternalVpn) {
 
         VpnInstanceBuilder builder = null;
         List<VpnTarget> vpnTargetList = new ArrayList<>();
@@ -440,6 +440,8 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
             if (rd != null && !rd.isEmpty()) {
                 ipv4vpnBuilder.setRouteDistinguisher(rd);
             }
+
+            builder.setExternalVpn(isExternalVpn);
 
             VpnInstance newVpn = builder.setIpv4Family(ipv4vpnBuilder.build()).build();
             isLockAcquired = NeutronvpnUtils.lock(vpnName);
@@ -749,7 +751,7 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
                                     List<String> ert, Uuid router, List<Uuid> networks) {
 
         // Update VPN Instance node
-        updateVpnInstanceNode(vpn.getValue(), rd, irt, ert, VpnInstance.Type.L3, 0 /*l3vni*/);
+        updateVpnInstanceNode(vpn.getValue(), rd, irt, ert, VpnInstance.Type.L3, 0 /*l3vni*/, false /* intenalVpn*/);
 
         // Update local vpn-subnet DS
         updateVpnMaps(vpn, name, router, tenant, networks);
@@ -792,7 +794,7 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
                             Uuid router, List<Uuid> networks, VpnInstance.Type type, long l3vni) throws Exception {
 
         // Update VPN Instance node
-        updateVpnInstanceNode(vpn.getValue(), rd, irt, ert, type, l3vni);
+        updateVpnInstanceNode(vpn.getValue(), rd, irt, ert, type, l3vni, true /* externalVpn */);
 
         // Please note that router and networks will be filled into VPNMaps
         // by subsequent calls here to associateRouterToVpn and
