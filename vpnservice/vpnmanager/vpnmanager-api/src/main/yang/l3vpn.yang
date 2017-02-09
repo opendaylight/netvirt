@@ -749,6 +749,10 @@ module l3vpn {
       leaf l3vni {
          type uint32;
       }
+      leaf external-vpn {
+      	 type boolean;
+     	 description "The VPN is external?";
+      }
 
 
       leaf description {
