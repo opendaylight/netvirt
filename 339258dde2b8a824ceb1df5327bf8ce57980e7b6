@@ -2,6 +2,40 @@
   "comments": [
     {
       "key": {
+        "uuid": "fafc7978_6d3c63e3",
+        "filename": "docs/specs/ipv6-cvr-north-south.rst",
+        "patchSetId": 3
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-09T04:29:54Z",
+      "side": 1,
+      "message": "To clarify, the access to IPV6 addresses within the DC from the external network will continue to directly land onto the hypervisor hosting that IPV6 VM \n(DNAT is a misnomer here , but that is the use-case am talking here :) ).\n\nAnd the CVR concept applies only to pure SNATabe traffic right?",
+      "revId": "339258dde2b8a824ceb1df5327bf8ce57980e7b6",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_2d19bb88",
+        "filename": "docs/specs/ipv6-cvr-north-south.rst",
+        "patchSetId": 3
+      },
+      "lineNbr": 54,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-09T04:29:54Z",
+      "side": 1,
+      "message": "the external/physical IPv6 subnet will be from the same pool as the tenant network IPv6 subnet.  Can you please educate a bit here :) ?",
+      "revId": "339258dde2b8a824ceb1df5327bf8ce57980e7b6",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_2d1b911c",
         "filename": "docs/specs/ipv6-cvr-north-south.rst",
         "patchSetId": 3
@@ -166,6 +200,115 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_ed06931f",
+        "filename": "docs/specs/ipv6-cvr-north-south.rst",
+        "patchSetId": 3
+      },
+      "lineNbr": 109,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-09T04:29:54Z",
+      "side": 1,
+      "message": "I would request rephrasing dual-stack as \"if a router has both IPv4 and IPv6 subnets\", the same NAPT Switch for the router will be used for IPv4-SNAT and IPV6 external-packet forwarding.",
+      "parentUuid": "fafc7978_c783b902",
+      "range": {
+        "startLine": 109,
+        "startChar": 63,
+        "endLine": 109,
+        "endChar": 79
+      },
+      "revId": "339258dde2b8a824ceb1df5327bf8ce57980e7b6",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_cd010f08",
+        "filename": "docs/specs/ipv6-cvr-north-south.rst",
+        "patchSetId": 3
+      },
+      "lineNbr": 121,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-09T04:29:54Z",
+      "side": 1,
+      "message": "Why do we need a match with unknown-sip here?",
+      "revId": "339258dde2b8a824ceb1df5327bf8ce57980e7b6",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_5f002601",
+        "filename": "docs/specs/ipv6-cvr-north-south.rst",
+        "patchSetId": 3
+      },
+      "lineNbr": 124,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-09T04:29:54Z",
+      "side": 1,
+      "message": "you need to set the source mac to router-gateway-mac-address.  You need to represent that in Table 46.\n\nPlease refer line 306 from review:\nhttps://git.opendaylight.org/gerrit/#/c/51377/6/docs/specs/l3vpn-over-vxlan-with-evpn-rt5.rst",
+      "revId": "339258dde2b8a824ceb1df5327bf8ce57980e7b6",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_ff18fa76",
+        "filename": "docs/specs/ipv6-cvr-north-south.rst",
+        "patchSetId": 3
+      },
+      "lineNbr": 134,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-09T04:29:54Z",
+      "side": 1,
+      "message": "why a in_port\u003d0 match required here?",
+      "revId": "339258dde2b8a824ceb1df5327bf8ce57980e7b6",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_7f240aaf",
+        "filename": "docs/specs/ipv6-cvr-north-south.rst",
+        "patchSetId": 3
+      },
+      "lineNbr": 136,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-09T04:29:54Z",
+      "side": 1,
+      "message": "set src-mac\u003drouter-intf-mac dst-mac\u003dvm-mac, reg6\u003dvm-lport-tag",
+      "revId": "339258dde2b8a824ceb1df5327bf8ce57980e7b6",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_df3a56cc",
+        "filename": "docs/specs/ipv6-cvr-north-south.rst",
+        "patchSetId": 3
+      },
+      "lineNbr": 150,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-09T04:29:54Z",
+      "side": 1,
+      "message": "what about rules to access to IPV6 VMs directly from external network?",
+      "revId": "339258dde2b8a824ceb1df5327bf8ce57980e7b6",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_e76232d7",
         "filename": "docs/specs/ipv6-cvr-north-south.rst",
         "patchSetId": 3
@@ -177,6 +320,30 @@
       "writtenOn": "2017-02-08T16:01:27Z",
       "side": 1,
       "message": "why would NDP be required for the VM IPv6 addresses. Isn\u0027t it assumed that they reside BEHIND the Neutron router (gateway)? This would imply the NDP would only be for the router IP on ext net and not on any IP on the private networks.",
+      "range": {
+        "startLine": 170,
+        "startChar": 0,
+        "endLine": 171,
+        "endChar": 74
+      },
+      "revId": "339258dde2b8a824ceb1df5327bf8ce57980e7b6",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_df41b63a",
+        "filename": "docs/specs/ipv6-cvr-north-south.rst",
+        "patchSetId": 3
+      },
+      "lineNbr": 171,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-09T04:29:54Z",
+      "side": 1,
+      "message": "+1.. To what IPv6 address does NDP apply.  If we say it applies only to external facing router-gateway-ipv6-address, how do we manage access to IPv6 VMs directly from outside.  Won\u0027t such adddresses also need to be brought under NDP purview?",
+      "parentUuid": "fafc7978_e76232d7",
       "range": {
         "startLine": 170,
         "startChar": 0,
@@ -206,6 +373,23 @@
         "endLine": 173,
         "endChar": 17
       },
+      "revId": "339258dde2b8a824ceb1df5327bf8ce57980e7b6",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_5f75c696",
+        "filename": "docs/specs/ipv6-cvr-north-south.rst",
+        "patchSetId": 3
+      },
+      "lineNbr": 223,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-09T04:29:54Z",
+      "side": 1,
+      "message": "this step is not required right, if the Spec implements Neighbour discovery for router-gateway-ip by the external ipv6 gateway?",
       "revId": "339258dde2b8a824ceb1df5327bf8ce57980e7b6",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
