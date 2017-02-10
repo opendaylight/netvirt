@@ -16,6 +16,24 @@
       "revId": "fd361738873e34671319308a6c2a29e18602b69e",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_69ce10b6",
+        "filename": "vpnservice/fibmanager/fibmanager-api/src/main/yang/odl-fib.yang",
+        "patchSetId": 20
+      },
+      "lineNbr": 63,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-02-10T05:08:09Z",
+      "side": 1,
+      "message": "As discussed, this is the yang model finalized after the reviews. For ECMP feature, we stick to this yang model.\nAnd Let us have an workitem to refactor fib handling for better modularity and sustainability.",
+      "parentUuid": "fafc7978_0272c148",
+      "revId": "fd361738873e34671319308a6c2a29e18602b69e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
