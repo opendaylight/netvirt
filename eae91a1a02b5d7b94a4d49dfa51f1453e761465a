@@ -1,0 +1,40 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_442df145",
+        "filename": "docs/specs/ecmp-bgp-l3vpn.rst",
+        "patchSetId": 2
+      },
+      "lineNbr": 104,
+      "author": {
+        "id": 6791
+      },
+      "writtenOn": "2017-02-10T11:16:17Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_645c75ee",
+      "revId": "eae91a1a02b5d7b94a4d49dfa51f1453e761465a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_642ab52d",
+        "filename": "docs/specs/ecmp-bgp-l3vpn.rst",
+        "patchSetId": 2
+      },
+      "lineNbr": 219,
+      "author": {
+        "id": 6791
+      },
+      "writtenOn": "2017-02-10T11:16:17Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_a46dbd9b",
+      "revId": "eae91a1a02b5d7b94a4d49dfa51f1453e761465a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
