@@ -18,3 +18,4 @@ Contents:
    Quality of Service <qos>
    Conntrack Based SNAT <conntrack-based-snat>
    ECMP Support for BGP based L3VPN <ecmp-bgp-l3vpn>
+   Support of VXLAN based connectivity across Datacenters <l2vpn-over-vxlan-with-evpn-rt2>
