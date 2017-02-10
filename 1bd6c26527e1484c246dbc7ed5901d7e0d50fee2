@@ -16,6 +16,24 @@
       "revId": "1bd6c26527e1484c246dbc7ed5901d7e0d50fee2",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_09bca1db",
+        "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/impl/NeutronL3Adapter.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 958,
+      "author": {
+        "id": 5444
+      },
+      "writtenOn": "2017-02-10T20:03:49Z",
+      "side": 1,
+      "message": "The current implementation of getPortSecurityEnabled() always returns a Boolean object; it doesn\u0027t blindly return the portSecurityEnabled field of the NeutronPort object, so I think we are good here.\n\nIf anything, we could possibly remove lines 954-956 because of the current implementation of getPortSecurityEnabled(). :-)\n\nAlso, in this particular comparison, we are comparing \u003csome non-null Boolean\u003e.equals(\u003cBoolean that may be null\u003e) so that should be safe in terms of avoiding NPEs.",
+      "parentUuid": "fafc7978_86a4fea6",
+      "revId": "1bd6c26527e1484c246dbc7ed5901d7e0d50fee2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
