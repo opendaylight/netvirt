@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_86a4fea6",
+        "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/impl/NeutronL3Adapter.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 958,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2017-02-10T14:07:58Z",
+      "side": 1,
+      "message": "can getPortSecurityEnabled ever be null?",
+      "revId": "1bd6c26527e1484c246dbc7ed5901d7e0d50fee2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
