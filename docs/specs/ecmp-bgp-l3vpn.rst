@@ -101,8 +101,8 @@ cookie=0x8000003, duration=46.020s, table=21, n_packets=0, n_bytes=0, priority=3
 group_id=150003,type=select,bucket=weight:50,group=150001,bucket=weight:50,actions=set_field:0xEF->tun_id, output:2
 group_id=150001,type=all,bucket=actions=set_field:fa:16:3e:34:ff:58->eth_dst,load:0x200->NXM_NX_REG6[],resubmit(,220)
 
-Table 0=>Table 17=>Table 19=>Table 21=>LB Group=>Local VM Group=>Table 220
-                                               |=>VxLAN port
+Table 0=>Table 17=>Table 19=>Table 21=>LB Group=>Local VM Group=>Table 220=>VxLAN port
+
 
 2) An external route (example: 20.0.0.1/32) reachable through two DC-GWs.
 
@@ -134,9 +134,10 @@ route-distinguisher type is changed from leaf to leaf-list in vpn-af-config
          Format is ASN:nn or IP-address:nn.";
 
           config "true";
-          type string {
+          type string{
         length "3..21";
           }
+
     }
 
 ODL-L3VPN YANG changes
@@ -149,15 +150,22 @@ Add vrf-id (RD) in adjacency list in odl-l3vpn.yang.
             leaf-list next-hop-ip-list { type string; }
             leaf ip_address {type string;}
             leaf primary-adjacency {
+
                 type boolean;
                 default false;
-                description
-                    "Value of True indicates this is a primary adjacency";
+
+              description "Value of True indicates this is a primary adjacency";
+
             }
-            leaf label { type uint32; config "false"; } /* optional */
-            leaf mac_address {type string;} /* optional */
+
+            leaf label { type uint32; config "false"; } /optional/
+
+            leaf mac_address {type string;} /optional/
+
             leaf vrf-id {type string;}
+
         }
+
     }
 
 vpn-to-extraroute have to be updated with multiple RDs (vrf-id) when extra route from VMs
@@ -167,28 +175,37 @@ same RD and update nexthop-ip-list with new VM IP address like below.
     container vpn-to-extraroutes {
         config false;
         list vpn-extraroutes {
-           key vpn-name;
-           leaf vpn-name {
-               type uint32;
+
+            key vpn-name;
+            leaf vpn-name {
+            type uint32;
+
            }
+
            list extra-routes {
-              key vrf-id;
-              leaf vrf-id {
-                 description
-                "The vrf-id command configures a route distinguisher (RD) for the IPv4
-                or IPv6 address family of a VPN instance or vpn instance name for
-                internal vpn case.";
-                 type string;
+               key vrf-id;
+               leaf vrf-id {
+               description "The vrf-id command configures a route distinguisher (RD) for the IPv4
+               or IPv6 address family of a VPN instance or vpn instance name for
+               internal vpn case.";
+               type string;
+
               }
+
               list route-paths {
-                 key prefix;
-                 leaf prefix {type string;}
-                 leaf-list nexthop-ip-list {
-                 type string;
+                  key prefix;
+                  leaf prefix {type string;}
+                  leaf-list nexthop-ip-list {
+                  type string;
+
                  }
+
               }
+
            }
+
         }
+
     }
 
 To manage RDs for extra with multiple next hops, the following yang
@@ -198,21 +215,30 @@ unique NLRI accordingly.
      container extraroute-routedistinguishers-map {
          config true;
          list extraroute-routedistingueshers {
-             key "vpnid";
+
+             key vpnid;
              leaf vpnid {
-                 type uint32;
+             type uint32;
+
              }
+
              list dest-prefixes {
-                 key "dest-prefix";
+                 key dest-prefix;
                  leaf dest-prefix {
-                     type string;
-                     mandatory true;
+                 type string;
+                 mandatory true;
+
                  }
+
                  leaf-list route-distinguishers {
-                    type string;
+                     type string;
+
                  }
+
              }
+
          }
+
     }
 
 ODL-FIB YANG changes
@@ -227,24 +253,35 @@ routes for same destination IP prefix.
         list vrfEntry {
             key  "destPrefix";
             leaf destPrefix {
-                    type string;
-                    mandatory true;
+            type string;
+            mandatory true;
+
             }
+
             leaf origin {
-                   type string;
-                   mandatory true;
+                type string;
+                mandatory true;
+
             }
+
             list route-paths {
-             key "nexthop-address";
-             leaf nexthop-address {
-                    type string;
-                    mandatory true;
+                key "nexthop-address";
+                leaf nexthop-address {
+                type string;
+                mandatory true;
+
+
              }
+
              leaf label {
-                    type uint32;
+                 type uint32;
+
              }
+
             }
+
         }
+
     }
 
 New YANG model to update load balancing next hop group buckets according
@@ -252,7 +289,7 @@ to VxLAN/GRE tunnel status [Note that these changes are required only if
 watch_port in group bucket is not working based on tunnel port liveness
 monitoring affected by the BFD status]. When one of the VxLAN/GRE tunnel
 is going down, then retrieve nexthop-key from dpid-l3vpn-lb-nexthops by
-providing tep-device-id’s from src-info and dst-info of StateTunnelList
+providing tep-device-ids from src-info and dst-info of StateTunnelList
 while handling its update DCN. After retrieving next hop key, fetch
 target-device-id list from l3vpn-lb-nexthops and reprogram
 VxLAN/GRE load balancing group in each remote Compute Node based
@@ -263,23 +300,29 @@ bucket back into Load balancing group.
      container l3vpn-lb-nexthops {
          config false;
          list nexthops {
+
              key "nexthop-key";
              leaf group-id { type string; }
              leaf nexhop-key { type string; }
              leaf-list target-device-id { type string;
              //dpId or ip-address }
+
          }
+
      }
 
      container dpid-l3vpn-lb-nexthops {
          config false;
          list dpn-lb-nexthops {
+
              key "src-dp-id dst-device-id";
              leaf src-dp-id { type uint64; }
              leaf dst-device-id { type string;
              //dpId or ip-address }
              leaf-list nexthop-keys { type string; }
+
          }
+
      }
 
 ECMP forwarding through multiple Compute Node and VMs
@@ -334,7 +377,7 @@ share the same next hops. The load balancing next hop group buckets is programme
 to sorted remote end point DC-Gateway IP address. The support of action move:NXM_NX_REG0(1)
 -> MPLS Label is not supported in ODL openflowplugin. It has to be implemented. Since there
 are two DC gateways present for the data center, it is possible that multiple equal cost
-routes are supplied to ODL by Quagga BGP like Fig 2. The current Quagga BGP doesn’t have
+routes are supplied to ODL by Quagga BGP like Fig 2. The current Quagga BGP doesn't have
 multipath support and it will be done. When Quagga BGP announces route with multiple
 paths, then it is ODL responsibility to program Fib entries in all compute nodes where
 VPN instance blueprint is present, so that traffic can be load balanced between these
@@ -368,7 +411,7 @@ can be reached through two or more VMs (next hops) which are connected with mult
 nodes.
 When there are multiple RDs (if VPN is of type BGP VPN) assigned to VPN instance so that VPN
 engine can be advertise IP route with different RDs to achieve ECMP behavior in DC-GW as
-mentioned before. But for intra-DC, this doesn’t make any more sense since it’s all about
+mentioned before. But for intra-DC, this doesn't make any more sense since it's all about
 programming remote FIB entries on computes nodes to achieve data traffic
 spray behavior.
 Irrespective of RDs, when multiple next hops (which are from different Compute Nodes) are
@@ -382,7 +425,7 @@ according to number of VMs associated to given extra route and on which compute 
 the VMs are connected. For example, two compute node having one VM each, then bucket
 weight is 50 each. One compute node having two VMs and another compute node having one
 VM, then bucket weight is 66 and 34 each. The hop-count property in vrfEntry data store
- helps to decide what is the bucket weight for each bucket.
+helps to decide what is the bucket weight for each bucket.
 
 ECMP Path decision based on Internal/External Tunnel Monitoring
 ---------------------------------------------------------------
@@ -417,7 +460,7 @@ and vice versa.
 For both GRE and VxLAN tunnel monitoring, L3VPN has to implement the following YANG model
 to update load balancing next hop group buckets according to tunnel status.
 When one of the VxLAN/GRE tunnel is going down, then retrieve nexthop-key from
-dpid-l3vpn-lb-nexthops by providing tep-device-id’s from src-info and dst-info of
+dpid-l3vpn-lb-nexthops by providing tep-device-ids from src-info and dst-info of
 StateTunnelList while handling its update DCN.
 After retrieving next hop key, fetch target-device-id list from l3vpn-lb-nexthops
 and reprogram VxLAN/GRE load balancing group in each remote Compute Node based on
