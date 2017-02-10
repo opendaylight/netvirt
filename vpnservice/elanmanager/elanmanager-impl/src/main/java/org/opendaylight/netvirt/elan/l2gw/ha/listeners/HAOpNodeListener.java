@@ -343,7 +343,7 @@ public class HAOpNodeListener extends HwvtepNodeBaseListener implements DataTree
                     try {
                         Node node = tx.read(LogicalDatastoreType.OPERATIONAL, nodeIid).checkedGet().get();
                         HAOpClusteredListener.addToCacheIfHAChildNode(nodeIid, node);
-                        HAJobScheduler.getInstance().submitJob( () -> {
+                        HAJobScheduler.getInstance().submitJob(() -> {
                             onGlobalNodeAdd(nodeIid, node, tx);
                         });
                     } catch (ReadFailedException e) {

@@ -203,7 +203,7 @@ public class NeutronNetworkChangeListener extends AsyncDataTreeChangeListenerBas
             }
             elanSegmentsBuilder.setSegmentationIndex(index);
             segments.add(elanSegmentsBuilder.build());
-            LOG.debug("Added segment {} to ELANInstance{}", segments.get(Integer.valueOf(index.intValue() - 1 )));
+            LOG.debug("Added segment {} to ELANInstance{}", segments.get(Integer.valueOf(index.intValue() - 1)));
         }
         return segments;
     }

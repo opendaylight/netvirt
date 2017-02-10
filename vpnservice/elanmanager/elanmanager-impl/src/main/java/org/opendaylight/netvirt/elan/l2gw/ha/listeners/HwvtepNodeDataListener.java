@@ -56,7 +56,7 @@ public abstract class HwvtepNodeDataListener<T extends DataObject>
 
     @Override
     protected void add(InstanceIdentifier<T> identifier, T dataAdded) {
-        HAJobScheduler.getInstance().submitJob( () -> {
+        HAJobScheduler.getInstance().submitJob(() -> {
             try {
                 boolean create = true;
                 ReadWriteTransaction tx = broker.newReadWriteTransaction();
@@ -79,7 +79,7 @@ public abstract class HwvtepNodeDataListener<T extends DataObject>
 
     @Override
     protected void update(InstanceIdentifier<T> key, T before, T after) {
-        HAJobScheduler.getInstance().submitJob( () -> {
+        HAJobScheduler.getInstance().submitJob(() -> {
             if (Objects.equals(before, after)) {
                 //incase of cluter reboots tx.put will rewrite the data and fire unnecessary updates
                 return;
@@ -90,7 +90,7 @@ public abstract class HwvtepNodeDataListener<T extends DataObject>
 
     @Override
     protected void remove(InstanceIdentifier<T> identifier, T dataRemoved) {
-        HAJobScheduler.getInstance().submitJob( () -> {
+        HAJobScheduler.getInstance().submitJob(() -> {
             try {
                 boolean create = false;
                 ReadWriteTransaction tx = broker.newReadWriteTransaction();

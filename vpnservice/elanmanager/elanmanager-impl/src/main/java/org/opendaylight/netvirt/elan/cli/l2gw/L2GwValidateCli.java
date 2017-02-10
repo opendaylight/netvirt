@@ -317,10 +317,10 @@ public class L2GwValidateCli extends OsgiCommandSupport {
             Map<String, DataObject> map1 = new HashMap<>();
             Map<String, DataObject> map2 = new HashMap<>();
             for (DataObject dataObject : data1) {
-                map1.put( cmd.getKey(dataObject), dataObject);
+                map1.put(cmd.getKey(dataObject), dataObject);
             }
             for (DataObject dataObject : data2) {
-                map2.put( cmd.getKey(dataObject), dataObject);
+                map2.put(cmd.getKey(dataObject), dataObject);
             }
             Set<DataObject> diff = Sets.newHashSet();
 

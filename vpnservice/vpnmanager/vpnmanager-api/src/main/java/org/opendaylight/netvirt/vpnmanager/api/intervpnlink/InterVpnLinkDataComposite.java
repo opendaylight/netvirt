@@ -197,7 +197,7 @@ public class InterVpnLinkDataComposite {
     }
 
     public String getEndpointIpAddr(String vpnUuid) {
-        if ( !isFirstEndpointVpnName(vpnUuid) && !isSecondEndpointVpnName(vpnUuid)) {
+        if (!isFirstEndpointVpnName(vpnUuid) && !isSecondEndpointVpnName(vpnUuid)) {
             LOG.debug("VPN {} does not participate in InterVpnLink {}", vpnUuid, getInterVpnLinkName());
             return null;
         }

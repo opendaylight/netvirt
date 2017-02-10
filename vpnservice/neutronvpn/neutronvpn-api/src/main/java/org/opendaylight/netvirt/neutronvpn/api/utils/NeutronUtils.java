@@ -82,7 +82,7 @@ public class NeutronUtils {
         Integer numSegs = 0;
         if (providerExtension != null) {
             List<Segments> providerSegments = providerExtension.getSegments();
-            if (providerSegments != null ) {
+            if (providerSegments != null) {
                 numSegs = providerSegments.size();
             }
         }

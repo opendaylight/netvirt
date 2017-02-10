@@ -80,12 +80,12 @@ public class IVpnLinkServiceImpl implements IVpnLinkService, AutoCloseable {
                                   RouteOrigin origin, int addOrRemove) {
 
         Optional<InterVpnLinkDataComposite> optIVpnLink = InterVpnLinkCache.getInterVpnLinkByVpnId(vpnName);
-        if ( !optIVpnLink.isPresent() ) {
+        if (!optIVpnLink.isPresent()) {
             LOG.debug("Vpn {} not involved in any InterVpnLink", vpnName);
             return;
         }
         InterVpnLinkDataComposite ivpnLink = optIVpnLink.get();
-        if ( addOrRemove == NwConstants.ADD_FLOW && !ivpnLink.isActive() ) {
+        if (addOrRemove == NwConstants.ADD_FLOW && !ivpnLink.isActive()) {
             // Note: for the removal case it is not necessary that ivpnlink is ACTIVE
             LOG.debug("Route to {} in VPN {} cannot be leaked because InterVpnLink {} is not ACTIVE",
                       prefix, vpnName, ivpnLink.getInterVpnLinkName());
@@ -94,7 +94,7 @@ public class IVpnLinkServiceImpl implements IVpnLinkService, AutoCloseable {
 
         switch (origin) {
             case BGP:
-                if (!ivpnLink.isBgpRoutesLeaking() ) {
+                if (!ivpnLink.isBgpRoutesLeaking()) {
                     LOG.debug("BGP route to {} not leaked because bgp-routes-leaking is disabled", prefix);
                     return;
                 }
@@ -105,14 +105,14 @@ public class IVpnLinkServiceImpl implements IVpnLinkService, AutoCloseable {
                     + static route when next hop is a VM, the DC-GW or a DPNIP
                     + static route when next hop is an Inter-VPN Link
                  Only the 1st type should be considered since the 2nd has a special treatment */
-                if (!ivpnLink.isStaticRoutesLeaking() ) {
+                if (!ivpnLink.isStaticRoutesLeaking()) {
                     LOG.debug("Static route to {} not leaked because static-routes-leaking is disabled", prefix);
                     return;
                 }
                 leakRoute(vpnName, prefix, nextHopList, label, addOrRemove);
                 break;
             case CONNECTED:
-                if (!ivpnLink.isConnectedRoutesLeaking() ) {
+                if (!ivpnLink.isConnectedRoutesLeaking()) {
                     LOG.debug("Connected route to {} not leaked because connected-routes-leaking is disabled", prefix);
                     return;
                 }
@@ -127,7 +127,7 @@ public class IVpnLinkServiceImpl implements IVpnLinkService, AutoCloseable {
     private void leakRoute(String vpnName, String prefix, List<String> nextHopList, int label, int addOrRemove) {
         LOG.trace("leakRoute: vpnName={}  prefix={}  nhList={}  label={}", vpnName, prefix, nextHopList, label);
         Optional<InterVpnLinkDataComposite> optIVpnLink = InterVpnLinkCache.getInterVpnLinkByVpnId(vpnName);
-        if ( !optIVpnLink.isPresent() ) {
+        if (!optIVpnLink.isPresent()) {
             LOG.debug("Vpn {} not involved in any InterVpnLink", vpnName);
             return;
         }
@@ -145,7 +145,7 @@ public class IVpnLinkServiceImpl implements IVpnLinkService, AutoCloseable {
                   vpnName, dstVpnName, prefix, nextHopList, label);
 
         // For leaking, we need the InterVpnLink to be active.
-        if ( addOrRemove == NwConstants.ADD_FLOW && !interVpnLink.isActive()) {
+        if (addOrRemove == NwConstants.ADD_FLOW && !interVpnLink.isActive()) {
             LOG.warn("Cannot leak route [prefix={}, label={}] from VPN {} to VPN {} because "
                      + "InterVpnLink {} is not active",
                      prefix, label, vpnName, dstVpnName, interVpnLink.getInterVpnLinkName());
@@ -153,7 +153,7 @@ public class IVpnLinkServiceImpl implements IVpnLinkService, AutoCloseable {
         }
 
         String dstVpnRd = VpnUtil.getVpnRd(dataBroker, dstVpnName);
-        if ( addOrRemove == NwConstants.ADD_FLOW ) {
+        if (addOrRemove == NwConstants.ADD_FLOW) {
             LOG.debug("Leaking route (prefix={}, nexthop={}) from Vpn={} to Vpn={} (RD={})",
                       prefix, nextHopList, vpnName, dstVpnName, dstVpnRd);
             String key = dstVpnRd + VpnConstants.SEPARATOR + prefix;
@@ -215,20 +215,20 @@ public class IVpnLinkServiceImpl implements IVpnLinkService, AutoCloseable {
         InstanceIdentifier<Routers> routersIid = InstanceIdentifier.builder(Neutron.class)
                 .child(Routers.class).build();
         Optional<Routers> routerOpData = MDSALUtil.read(dataBroker, LogicalDatastoreType.CONFIGURATION, routersIid);
-        if ( !routerOpData.isPresent() ) {
+        if (!routerOpData.isPresent()) {
 
             return;
         }
         List<Router> routers = routerOpData.get().getRouter();
-        for ( Router router : routers ) {
+        for (Router router : routers) {
             String vpnId = routerXL3VpnMap.get(router.getUuid().getValue());
-            if ( vpnId == null ) {
+            if (vpnId == null) {
                 LOG.warn("Could not find suitable VPN for router {}", router.getUuid());
                 continue; // with next router
             }
             List<Routes> routerRoutes = router.getRoutes();
-            if ( routerRoutes != null ) {
-                for ( Routes route : routerRoutes ) {
+            if (routerRoutes != null) {
+                for (Routes route : routerRoutes) {
                     handleStaticRoute(vpnId, route, ivpnLink);
                 }
             }
@@ -254,7 +254,7 @@ public class IVpnLinkServiceImpl implements IVpnLinkService, AutoCloseable {
 
         // is nexthop the other endpoint's IP
         String otherEndpoint = ivpnLink.getOtherEndpoint(vpnId);
-        if ( !routeNextHop.equals(otherEndpoint) ) {
+        if (!routeNextHop.equals(otherEndpoint)) {
             LOG.debug("VPN {}: Route to {} nexthop={} points to an InterVpnLink endpoint, but its not "
                       + "the other endpoint. Other endpoint is {}",
                       vpnId, destination, routeNextHop, otherEndpoint);
@@ -263,7 +263,7 @@ public class IVpnLinkServiceImpl implements IVpnLinkService, AutoCloseable {
 
         // Lets work: 1) write Fibentry, 2) advertise to BGP and 3) check if it must be leaked
         String vpnRd = VpnUtil.getVpnRd(dataBroker, vpnId);
-        if ( vpnRd == null ) {
+        if (vpnRd == null) {
             LOG.warn("Could not find Route-Distinguisher for VpnName {}", vpnId);
             return;
         }
