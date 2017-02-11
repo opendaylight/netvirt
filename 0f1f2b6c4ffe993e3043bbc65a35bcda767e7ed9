@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_c96d7c34",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronTrunkChangeListener.java",
+        "patchSetId": 9
+      },
+      "lineNbr": 70,
+      "author": {
+        "id": 3276
+      },
+      "writtenOn": "2017-02-11T14:36:08Z",
+      "side": 1,
+      "message": "Thanks, will do this.",
+      "parentUuid": "fafc7978_c9261c16",
+      "revId": "0f1f2b6c4ffe993e3043bbc65a35bcda767e7ed9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_092144fb",
         "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronTrunkChangeListener.java",
         "patchSetId": 9
@@ -30,6 +48,24 @@
       "writtenOn": "2017-02-10T07:17:31Z",
       "side": 1,
       "message": "Don\u0027t you need to guard against null for getSubPorts() like in the add method ? You can still use Optional.ofNullable to retrieve subports and fill added and deleted list if present.",
+      "revId": "0f1f2b6c4ffe993e3043bbc65a35bcda767e7ed9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_a968f821",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronTrunkChangeListener.java",
+        "patchSetId": 9
+      },
+      "lineNbr": 86,
+      "author": {
+        "id": 3276
+      },
+      "writtenOn": "2017-02-11T14:36:08Z",
+      "side": 1,
+      "message": "till 2 days ago update on trunk only meant subport add/delete so this was fine. recently the driver added support for admin up/down, so yes, need to handle it now. working on it. Actually, subPorts is never null, it will be an empty list, but never null.",
+      "parentUuid": "fafc7978_092144fb",
       "revId": "0f1f2b6c4ffe993e3043bbc65a35bcda767e7ed9",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -53,6 +89,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_097824f1",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronTrunkChangeListener.java",
+        "patchSetId": 9
+      },
+      "lineNbr": 90,
+      "author": {
+        "id": 3276
+      },
+      "writtenOn": "2017-02-11T14:36:08Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_e91b20c8",
+      "revId": "0f1f2b6c4ffe993e3043bbc65a35bcda767e7ed9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_297d28e8",
         "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronTrunkChangeListener.java",
         "patchSetId": 9
@@ -64,6 +118,24 @@
       "writtenOn": "2017-02-10T07:17:31Z",
       "side": 1,
       "message": "There is already a method createElanInterface in NeutronPortChangeLister for Port. so this can factored out to common method like createElanInterface(String elanName, String interfaceName, WriteTransaction txn) and invoke it after retrieving elanInstanceName from Port (or) SubPorts.",
+      "revId": "0f1f2b6c4ffe993e3043bbc65a35bcda767e7ed9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_e9720010",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronTrunkChangeListener.java",
+        "patchSetId": 9
+      },
+      "lineNbr": 128,
+      "author": {
+        "id": 3276
+      },
+      "writtenOn": "2017-02-11T14:36:08Z",
+      "side": 1,
+      "message": "yeah, refactoring will be the next step, for fist patch I wanted to confine changes to just this listener, makes everyone feel more comfortable about merging code :) Take a look at latest patchset. I am not 100% sure if we need to call this here at all.",
+      "parentUuid": "fafc7978_297d28e8",
       "revId": "0f1f2b6c4ffe993e3043bbc65a35bcda767e7ed9",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
