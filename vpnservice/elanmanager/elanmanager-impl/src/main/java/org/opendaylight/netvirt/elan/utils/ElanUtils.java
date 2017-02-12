@@ -1996,11 +1996,14 @@ public class ElanUtils {
 
     public static boolean isVxlanSegment(ElanInstance elanInstance) {
         if (elanInstance != null) {
-            for (ElanSegments segment : elanInstance.getElanSegments()) {
-                if (segment != null && (segment.getSegmentType().isAssignableFrom(SegmentTypeVxlan.class)
-                        && segment.getSegmentationId() != null
-                        && segment.getSegmentationId().longValue() != 0)) {
-                    return true;
+            List<ElanSegments> elanSegments = elanInstance.getElanSegments();
+            if (elanSegments != null) {
+                for (ElanSegments segment : elanSegments) {
+                    if (segment != null && (segment.getSegmentType().isAssignableFrom(SegmentTypeVxlan.class)
+                            && segment.getSegmentationId() != null
+                            && segment.getSegmentationId().longValue() != 0)) {
+                        return true;
+                    }
                 }
             }
         }

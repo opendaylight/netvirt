@@ -94,6 +94,11 @@ public class TunnelEndPointChangeListener
                                     .rev140508.interfaces.state.Interface
                                     interfaceState =
                                     InterfaceUtils.getInterfaceStateFromOperDS(broker, vpnInterfaceName);
+                            if (interfaceState == null) {
+                                LOG.warn("Cannot retrieve interfaceState for vpnInterfaceName {}," +
+                                        "cannot generate lPortTag and process adjacencies", vpnInterfaceName);
+                                return null; // FIXME is it ok to return null for job worker?
+                            }
                             final int lPortTag = interfaceState.getIfIndex();
                             vpnInterfaceManager.processVpnInterfaceAdjacencies(dpnId, lPortTag, vpnName,
                                     vpnInterfaceName, vpnId, writeConfigTxn, writeOperTxn, writeInvTxn);
