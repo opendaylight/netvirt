@@ -588,9 +588,20 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                 setupGwMacIfRequired(dpnId, vpnName, interfaceName, vpnId, subnetId,
                         writeInvTxn, NwConstants.ADD_FLOW);
                 final Optional<String> gatewayIp = VpnUtil.getVpnSubnetGatewayIp(dataBroker, subnetId);
-                gwMac = getGatewayMacAddressForInterface(vpnName, interfaceName, gatewayIp.get());
-                addArpResponderFlow(dpnId, lPortTag, vpnName, vpnId, interfaceName, subnetId,
-                        gwMac.get(), gatewayIp.get(), writeInvTxn);
+                if (gatewayIp.isPresent()) {
+                    gwMac = getGatewayMacAddressForInterface(vpnName, interfaceName, gatewayIp.get());
+                    if (gwMac.isPresent()) {
+                        addArpResponderFlow(dpnId, lPortTag, vpnName, vpnId, interfaceName, subnetId,
+                                gwMac.get(), gatewayIp.get(), writeInvTxn);
+                    } else {
+                        LOG.warn("Gateway MAC for subnet ID {} could not be obtained, cannot create "
+                                        + "ARP responder flow for interface name {}, vpnName {}, gwIp {}",
+                                interfaceName, vpnName, gatewayIp.get());
+                    }
+                } else {
+                    LOG.warn("Gateway IP for subnet ID {} could not be obtained, cannot create ARP responder flow "
+                            + "for interface name {}, vpnName {}", subnetId, interfaceName, vpnName);
+                }
             } else {
                 //Extra route adjacency
                 LOG.trace("Adding prefix {} and nextHopList {} as extra-route for vpn", nextHop.getIpAddress(), nextHop.getNextHopIpList(), vpnName);
