@@ -8,12 +8,16 @@
 
 package org.opendaylight.netvirt.vpnmanager;
 
+import com.google.common.util.concurrent.CheckedFuture;
+import com.google.common.util.concurrent.ListenableFuture;
 import java.math.BigInteger;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
 import org.opendaylight.genius.datastoreutils.DataStoreJobCoordinator;
 import org.opendaylight.netvirt.vpnmanager.utilities.InterfaceUtils;
@@ -90,15 +94,26 @@ public class TunnelEndPointChangeListener
                             WriteTransaction writeConfigTxn = broker.newWriteOnlyTransaction();
                             WriteTransaction writeOperTxn = broker.newWriteOnlyTransaction();
                             WriteTransaction writeInvTxn = broker.newWriteOnlyTransaction();
+                            List<ListenableFuture<Void>> futures = new ArrayList<>();
+
                             final org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces
                                     .rev140508.interfaces.state.Interface
                                     interfaceState =
                                     InterfaceUtils.getInterfaceStateFromOperDS(broker, vpnInterfaceName);
+                            if (interfaceState == null) {
+                                LOG.warn("Cannot retrieve interfaceState for vpnInterfaceName {}, "
+                                        + "cannot generate lPortTag and process adjacencies", vpnInterfaceName);
+                                return futures;
+                            }
                             final int lPortTag = interfaceState.getIfIndex();
                             vpnInterfaceManager.processVpnInterfaceAdjacencies(dpnId, lPortTag, vpnName,
                                     vpnInterfaceName, vpnId, writeConfigTxn, writeOperTxn, writeInvTxn);
-                            return Arrays.asList(writeOperTxn.submit(), writeConfigTxn.submit(),
-                                    writeInvTxn.submit());
+                            List<CheckedFuture<Void, TransactionCommitFailedException>> checkedFutures =
+                                    Arrays.asList(writeOperTxn.submit(),
+                                            writeConfigTxn.submit(),
+                                            writeInvTxn.submit());
+                            futures.addAll(checkedFutures);
+                            return futures;
                         });
                 }
             }

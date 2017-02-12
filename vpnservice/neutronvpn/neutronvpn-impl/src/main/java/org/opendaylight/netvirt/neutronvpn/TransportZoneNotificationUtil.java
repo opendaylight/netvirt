@@ -98,7 +98,11 @@ public class TransportZoneNotificationUtil {
         try {
             Uuid portUid = new Uuid(iface.getName());
             Port port = NeutronvpnUtils.getNeutronPort(dataBroker, portUid);
-
+            if (port == null) {
+                LOG.debug("No neutron port found for iface {} portUuid {}, skipping update of transport zone",
+                        portUid, iface.getName());
+                return;
+            }
             if (!checkIfVxlanNetwork(port)) {
                 return;
             }
