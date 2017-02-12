@@ -60,26 +60,31 @@ public class L3vpnOverMplsGrePopulator extends L3vpnPopulator {
         VrfEntry.EncapType encapType = input.getEncapType();
         List<VpnInstanceOpDataEntry> vpnsToImportRoute = vpnInterfaceManager.getVpnsImportingMyRoute(vpnName);
         long vpnId = VpnUtil.getVpnId(broker, vpnName);
+        String nextHopIpAddress = nextHop.getIpAddress();
+        if (nextHopIpAddress == null) {
+            LOG.warn("nextHop {} has a null IP address, cannot populate FIB", nextHop);
+            return;
+        }
         if (rd != null) {
-            vpnInterfaceManager.addToLabelMapper(label, input.getDpnId(), nextHop.getIpAddress(),
+            vpnInterfaceManager.addToLabelMapper(label, input.getDpnId(), nextHopIpAddress,
                     Arrays.asList(nextHopIp), vpnId, input.getInterfaceName(), null,false, primaryRd, writeOperTxn);
-            addPrefixToBGP(rd, null /*macAddress*/, nextHop.getIpAddress(), nextHopIp, encapType, label,
+            addPrefixToBGP(rd, null /*macAddress*/, nextHopIpAddress, nextHopIp, encapType, label,
                     0 /*l3vni*/, null /*gatewayMacAddress*/, broker, writeConfigTxn);
             //TODO: ERT - check for VPNs importing my route
             for (VpnInstanceOpDataEntry vpn : vpnsToImportRoute) {
                 String vpnRd = vpn.getVrfId();
                 if (vpnRd != null) {
                     LOG.debug("Exporting route with rd {} prefix {} nexthop {} label {} to VPN {}", vpnRd,
-                            nextHop.getIpAddress(), nextHopIp, label, vpn);
+                            nextHopIpAddress, nextHopIp, label, vpn);
                     fibManager.addOrUpdateFibEntry(broker, vpnRd, null /*macAddress*/,
-                            nextHop.getIpAddress(), Arrays.asList(nextHopIp), encapType, (int) label,
+                            nextHopIpAddress, Arrays.asList(nextHopIp), encapType, (int) label,
                             0 /*l3vni*/, input.getGatewayMac(), RouteOrigin.SELF_IMPORTED, writeConfigTxn);
                 }
             }
         } else {
             // ### add FIB route directly
             fibManager.addOrUpdateFibEntry(broker, vpnName, null /*macAddress*/,
-                    nextHop.getIpAddress(), Arrays.asList(nextHopIp), encapType, (int) label,
+                    nextHopIpAddress, Arrays.asList(nextHopIp), encapType, (int) label,
                     0 /*l3vni*/, input.getGatewayMac(), RouteOrigin.LOCAL, writeConfigTxn);
         }
     }
