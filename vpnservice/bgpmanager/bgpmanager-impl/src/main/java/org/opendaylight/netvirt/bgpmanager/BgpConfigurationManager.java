@@ -1874,7 +1874,7 @@ public class BgpConfigurationManager {
     public synchronized void
     addPrefix(String rd, String pfx, List<String> nhList, int lbl) {
         for (String nh : nhList) {
-            Ipv4Address nexthop = new Ipv4Address(nh);
+            Ipv4Address nexthop = nh != null ? new Ipv4Address(nh) : null;
             Long label = (long) lbl;
             InstanceIdentifier<Networks> iid = InstanceIdentifier.builder(Bgp.class)
                     .child(Networks.class, new NetworksKey(pfx, rd)).build();
