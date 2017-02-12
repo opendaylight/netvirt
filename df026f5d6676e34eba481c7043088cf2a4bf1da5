@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_9a4c5144",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NatUtil.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 1707,
+      "author": {
+        "id": 6248
+      },
+      "writtenOn": "2017-02-12T13:18:11Z",
+      "side": 1,
+      "message": "No, I\u0027ll remove it.",
+      "parentUuid": "fafc7978_5acca9bc",
+      "revId": "df026f5d6676e34eba481c7043088cf2a4bf1da5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_1ad2215c",
         "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/SNATDefaultRouteProgrammer.java",
         "patchSetId": 5
@@ -36,6 +54,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_da56d9d1",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/SNATDefaultRouteProgrammer.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 182,
+      "author": {
+        "id": 6248
+      },
+      "writtenOn": "2017-02-12T13:18:11Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_1ad2215c",
+      "revId": "df026f5d6676e34eba481c7043088cf2a4bf1da5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_fad47d48",
         "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/SNATDefaultRouteProgrammer.java",
         "patchSetId": 5
@@ -47,6 +83,24 @@
       "writtenOn": "2017-02-12T12:13:21Z",
       "side": 1,
       "message": "reachable?",
+      "revId": "df026f5d6676e34eba481c7043088cf2a4bf1da5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_7a47ed1d",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/SNATDefaultRouteProgrammer.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 199,
+      "author": {
+        "id": 6248
+      },
+      "writtenOn": "2017-02-12T13:18:11Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_fad47d48",
       "revId": "df026f5d6676e34eba481c7043088cf2a4bf1da5",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
