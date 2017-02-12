@@ -1,0 +1,335 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_0ff02166",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/pom.xml",
+        "patchSetId": 15
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2017-02-12T11:57:34Z",
+      "side": 1,
+      "message": "nitpick: trailing spaces",
+      "range": {
+        "startLine": 2,
+        "startChar": 118,
+        "endLine": 2,
+        "endChar": 120
+      },
+      "revId": "cbc8d2117a00f3f6ed2febf195772d8d2faadce0",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_6ffe0d3a",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/BridgeRefEntryToTransportZoneListener.java",
+        "patchSetId": 15
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2017-02-12T11:57:34Z",
+      "side": 1,
+      "message": "Why is this listener still needed? is there any TZ creation triggered by this listener that would not be triggered later by the ElanToTransportZoneListener/InterfaceStateToTransportZoneListener?",
+      "revId": "cbc8d2117a00f3f6ed2febf195772d8d2faadce0",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_eff2fd6d",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/BridgeRefEntryToTransportZoneListener.java",
+        "patchSetId": 15
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2017-02-12T11:57:34Z",
+      "side": 1,
+      "message": "Why does this class has to extend AsyncDataTreeChangeListenerBase and implement ClusteredDataTreeChangeListener?\nseems like the second is unused\n\nThis comment applies to this class as well as all others in this patch",
+      "range": {
+        "startLine": 25,
+        "startChar": 19,
+        "endLine": 25,
+        "endChar": 50
+      },
+      "revId": "cbc8d2117a00f3f6ed2febf195772d8d2faadce0",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_2fed258c",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/BridgeRefEntryToTransportZoneListener.java",
+        "patchSetId": 15
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2017-02-12T11:57:34Z",
+      "side": 1,
+      "message": "not needed since already declared by AsyncDataTreeChangeListenerBase",
+      "range": {
+        "startLine": 25,
+        "startChar": 68,
+        "endLine": 25,
+        "endChar": 81
+      },
+      "revId": "cbc8d2117a00f3f6ed2febf195772d8d2faadce0",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_4fea2976",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/BridgeRefEntryToTransportZoneListener.java",
+        "patchSetId": 15
+      },
+      "lineNbr": 37,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2017-02-12T11:57:34Z",
+      "side": 1,
+      "message": "why is ism not created using BP injection?\nAlso the name of this member seems out of context\n\nThis comment applies to this class as well as all others in this patch",
+      "revId": "cbc8d2117a00f3f6ed2febf195772d8d2faadce0",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_5aa7890c",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanToTransportZoneListener.java",
+        "patchSetId": 15
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2017-02-12T11:57:34Z",
+      "side": 1,
+      "message": "listen to DpnInterfaces instead \ncheck out ElanDpnInterfaceClusteredListener wildcard path",
+      "range": {
+        "startLine": 31,
+        "startChar": 81,
+        "endLine": 31,
+        "endChar": 85
+      },
+      "revId": "cbc8d2117a00f3f6ed2febf195772d8d2faadce0",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_8f037141",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanToTransportZoneListener.java",
+        "patchSetId": 15
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2017-02-12T11:57:34Z",
+      "side": 1,
+      "message": "remove this dependency and use DataBroker for read operations",
+      "revId": "cbc8d2117a00f3f6ed2febf195772d8d2faadce0",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_3aaa85d4",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/InterfaceStateToTransportZoneListener.java",
+        "patchSetId": 15
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2017-02-12T11:57:34Z",
+      "side": 1,
+      "message": "this listener is redundant",
+      "range": {
+        "startLine": 23,
+        "startChar": 13,
+        "endLine": 23,
+        "endChar": 50
+      },
+      "revId": "cbc8d2117a00f3f6ed2febf195772d8d2faadce0",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_9ab0d144",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/VpnToTransportZoneListener.java",
+        "patchSetId": 15
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2017-02-12T11:57:34Z",
+      "side": 1,
+      "message": "this code traverses all existing dpns whenever new dpn enter the list.\n\nWhy not make the VpnToTransportZoneListener listen on the subtree including the dpn-id and operate only on add/remove of the dpn from vpn-to-dpn-list\n\nyou can use InstanceIdentifier.firstKeyOf to get the vpn-instance name",
+      "range": {
+        "startLine": 23,
+        "startChar": 13,
+        "endLine": 23,
+        "endChar": 39
+      },
+      "revId": "cbc8d2117a00f3f6ed2febf195772d8d2faadce0",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_cffd793c",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/utils/TransportZoneNotificationUtil.java",
+        "patchSetId": 15
+      },
+      "lineNbr": 89,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2017-02-12T11:57:34Z",
+      "side": 1,
+      "message": "Use read() from ElanUtils and not from ovsdb packages",
+      "range": {
+        "startLine": 89,
+        "startChar": 46,
+        "endLine": 89,
+        "endChar": 56
+      },
+      "revId": "cbc8d2117a00f3f6ed2febf195772d8d2faadce0",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_af547521",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/utils/TransportZoneNotificationUtil.java",
+        "patchSetId": 15
+      },
+      "lineNbr": 98,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2017-02-12T11:57:34Z",
+      "side": 1,
+      "message": "sounds very complicated to read the entire elan-dpn just to get the dpn of each elanInterface\nuse interfaceManager.getDpnForInterface(elanInterface) or its RPC equivalent.\n\nThe elanInstanceName can also be added as a parameter to be used by line #115",
+      "revId": "cbc8d2117a00f3f6ed2febf195772d8d2faadce0",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_9a145145",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/utils/TransportZoneNotificationUtil.java",
+        "patchSetId": 15
+      },
+      "lineNbr": 148,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2017-02-12T11:57:34Z",
+      "side": 1,
+      "message": "are you sure both is method and the one above needed??\nMy main concern is the same info is written by both at about the same time and can cause OptimisticLock issues.\nAre there cases where elan-state is not updated and ietf-interface state is?",
+      "revId": "cbc8d2117a00f3f6ed2febf195772d8d2faadce0",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_7a0fed2e",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/utils/TransportZoneNotificationUtil.java",
+        "patchSetId": 15
+      },
+      "lineNbr": 190,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2017-02-12T11:57:34Z",
+      "side": 1,
+      "message": "you need to create instanceIdentifier up to the exact dpn-id and avoid reading the entire VpnInstanceOpData\n\nOther than that, I don\u0027t think this method is even needed and it\u0027s enough to listen to VpnToDpn list and skip the brigeRef listener",
+      "revId": "cbc8d2117a00f3f6ed2febf195772d8d2faadce0",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_5a22e9a4",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/utils/TransportZoneNotificationUtil.java",
+        "patchSetId": 15
+      },
+      "lineNbr": 256,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2017-02-12T11:57:34Z",
+      "side": 1,
+      "message": "use IElanService.getElanInterfaceByElanInterfaceName",
+      "revId": "cbc8d2117a00f3f6ed2febf195772d8d2faadce0",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_fa2abd7c",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/utils/TransportZoneNotificationUtil.java",
+        "patchSetId": 15
+      },
+      "lineNbr": 269,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2017-02-12T11:57:34Z",
+      "side": 1,
+      "message": "this method appears more than once in this patch\ncould you move it to common place?",
+      "revId": "cbc8d2117a00f3f6ed2febf195772d8d2faadce0",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_5a0b0925",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/utils/TransportZoneNotificationUtil.java",
+        "patchSetId": 15
+      },
+      "lineNbr": 298,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2017-02-12T11:57:34Z",
+      "side": 1,
+      "message": "if you want to get all the child interfaces of a parent interface you can access odl-interface-meta:child-interface-info of this specific parent",
+      "revId": "cbc8d2117a00f3f6ed2febf195772d8d2faadce0",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_ba19557b",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/utils/TransportZoneNotificationUtil.java",
+        "patchSetId": 15
+      },
+      "lineNbr": 338,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2017-02-12T11:57:34Z",
+      "side": 1,
+      "message": "It shouldn\u0027t be needed to read all zones just to create a new one. you can use merge with createMissingParents or syncUpdate",
+      "revId": "cbc8d2117a00f3f6ed2febf195772d8d2faadce0",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
