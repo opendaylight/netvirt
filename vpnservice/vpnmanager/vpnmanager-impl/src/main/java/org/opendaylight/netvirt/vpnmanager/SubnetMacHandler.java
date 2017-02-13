@@ -44,7 +44,7 @@ public class SubnetMacHandler extends AsyncDataTreeChangeListenerBase<VpnPortipT
     protected void remove(InstanceIdentifier<VpnPortipToPort> key, VpnPortipToPort value) {
         if (value.isSubnetIp()) {
             WriteTransaction writeTx = dataBroker.newWriteOnlyTransaction();
-            VpnUtil.setupSubnetMacIntoVpnInstance(dataBroker, mdsalManager, value.getVpnName(),
+            VpnUtil.setupSubnetMacIntoVpnInstance(dataBroker, mdsalManager, value.getVpnName(), null,
                     value.getMacAddress(), BigInteger.ZERO /* On all DPNs */, writeTx, NwConstants.DEL_FLOW);
             writeTx.submit();
         }
@@ -59,7 +59,7 @@ public class SubnetMacHandler extends AsyncDataTreeChangeListenerBase<VpnPortipT
     protected void add(InstanceIdentifier<VpnPortipToPort> key, VpnPortipToPort value) {
         if (value.isSubnetIp()) {
             WriteTransaction writeTx = dataBroker.newWriteOnlyTransaction();
-            VpnUtil.setupSubnetMacIntoVpnInstance(dataBroker, mdsalManager, value.getVpnName(),
+            VpnUtil.setupSubnetMacIntoVpnInstance(dataBroker, mdsalManager, value.getVpnName(), null,
                     value.getMacAddress(), BigInteger.ZERO /* On all DPNs */, writeTx, NwConstants.ADD_FLOW);
             writeTx.submit();
         }
