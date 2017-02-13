@@ -136,6 +136,9 @@ public class HwvtepRemoteMcastMacListener
             RemoteMcastMacs newdata) {
         LOG.trace("Received Update DataChange Notification for identifier: {}, RemoteMcastMacs old: {}, new: {}."
                 + "No Action Performed.", identifier, old, newdata);
+        if (executeTask.compareAndSet(true, false)) {
+            runTask();
+        }
     }
 
     @Override
