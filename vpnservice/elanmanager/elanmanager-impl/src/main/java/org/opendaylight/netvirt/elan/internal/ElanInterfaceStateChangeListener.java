@@ -9,6 +9,7 @@ package org.opendaylight.netvirt.elan.internal;
 
 
 import java.math.BigInteger;
+import java.util.Collections;
 import java.util.List;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
@@ -82,20 +83,23 @@ public class ElanInterfaceStateChangeListener
             return;
         }
         if (update.getType().equals(Tunnel.class)) {
-            if (!original.getOperStatus().equals(Interface.OperStatus.Unknown)
-                    && !update.getOperStatus().equals(Interface.OperStatus.Unknown)) {
-                if (update.getOperStatus().equals(Interface.OperStatus.Up)) {
-                    InternalTunnel internalTunnel = getTunnelState(interfaceName);
-                    if (internalTunnel != null) {
-                        try {
-                            elanInterfaceManager.handleInternalTunnelStateEvent(internalTunnel.getSourceDPN(),
-                                    internalTunnel.getDestinationDPN());
-                        } catch (ElanException e) {
-                            LOG.error("Failed to update interface: " + identifier.toString(), e);
+            DataStoreJobCoordinator.getInstance().enqueueJob(ElanUtils.getElanInterfaceJobKey(interfaceName), () -> {
+                if (!original.getOperStatus().equals(Interface.OperStatus.Unknown)
+                        && !update.getOperStatus().equals(Interface.OperStatus.Unknown)) {
+                    if (update.getOperStatus().equals(Interface.OperStatus.Up)) {
+                        InternalTunnel internalTunnel = getTunnelState(interfaceName);
+                        if (internalTunnel != null) {
+                            try {
+                                elanInterfaceManager.handleInternalTunnelStateEvent(internalTunnel.getSourceDPN(),
+                                        internalTunnel.getDestinationDPN());
+                            } catch (ElanException e) {
+                                LOG.error("Failed to update interface: " + identifier.toString(), e);
+                            }
                         }
                     }
-                }
-            }
+                } 
+                return Collections.emptyList();
+            }, ElanConstants.JOB_MAX_RETRIES);
         }
     }
 
@@ -106,17 +110,21 @@ public class ElanInterfaceStateChangeListener
         ElanInterface elanInterface = ElanUtils.getElanInterfaceByElanInterfaceName(broker, interfaceName);
         if (elanInterface == null) {
             if (intrf.getType() != null && intrf.getType().equals(Tunnel.class)) {
-                if (intrf.getOperStatus().equals(Interface.OperStatus.Up)) {
-                    InternalTunnel internalTunnel = getTunnelState(interfaceName);
-                    if (internalTunnel != null) {
-                        try {
-                            elanInterfaceManager.handleInternalTunnelStateEvent(internalTunnel.getSourceDPN(),
-                                internalTunnel.getDestinationDPN());
-                        } catch (ElanException e) {
-                            LOG.error("Failed to add interface: " + identifier.toString(), e);
-                        }
-                    }
-                }
+                DataStoreJobCoordinator.getInstance().enqueueJob(ElanUtils.getElanInterfaceJobKey(interfaceName),
+                        () -> {
+                            if (intrf.getOperStatus().equals(Interface.OperStatus.Up)) {
+                                InternalTunnel internalTunnel = getTunnelState(interfaceName);
+                                if (internalTunnel != null) {
+                                    try {
+                                        elanInterfaceManager.handleInternalTunnelStateEvent(internalTunnel.getSourceDPN(),
+                                                internalTunnel.getDestinationDPN());
+                                    } catch (ElanException e) {
+                                        LOG.error("Failed to add interface: " + identifier.toString(), e);
+                                    }
+                                }
+                            }
+                            return Collections.emptyList();
+                        }, ElanConstants.JOB_MAX_RETRIES);
             }
             return;
         }
