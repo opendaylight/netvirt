@@ -13,7 +13,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-
+import org.apache.commons.lang3.tuple.Pair;
 import org.opendaylight.netvirt.openstack.netvirt.api.Action;
 import org.opendaylight.netvirt.openstack.netvirt.api.BridgeConfigurationManager;
 import org.opendaylight.netvirt.openstack.netvirt.api.ConfigurationService;
@@ -33,6 +33,7 @@ import org.opendaylight.netvirt.openstack.netvirt.translator.crud.INeutronNetwor
 import org.opendaylight.netvirt.openstack.netvirt.impl.DistributedArpService;
 import org.opendaylight.netvirt.openstack.netvirt.impl.NeutronL3Adapter;
 import org.opendaylight.netvirt.utils.servicehelper.ServiceHelper;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.rev150105.InterfaceTypeVxlan;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.rev150105.OvsdbBridgeAugmentation;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.rev150105.OvsdbNodeAugmentation;
@@ -114,9 +115,40 @@ public class SouthboundHandler extends AbstractHandler
             LOG.debug("No tenant network found on node : {} for interface: {}", node, tp);
         }
         if (action.equals(Action.UPDATE)) {
-            distributedArpService.processInterfaceEvent(node, tp, network, action);
+            distributedArpService.processInterfaceEvent(node, tp, network, false, action);
         }
         neutronL3Adapter.handleInterfaceEvent(node, tp, network, Action.UPDATE);
+    }
+    /**
+     * Get dpid from node.
+     *
+     * @param node the {@link Node Node} of interest in the notification
+     * @return dpid value
+     */
+    private Long getDpidForIntegrationBridge(Node node) {
+        // Check if node is integration bridge; and only then return its dpid
+        if (southbound.getBridge(node, configurationService.getIntegrationBridgeName()) != null) {
+            return southbound.getDataPathId(node);
+        }
+        return null;
+    }
+
+    /**
+     * Returns true, if the port is migrated else false.
+     *
+     * @param node the node.
+     * @param neutronPort the port details.
+     * @return boolean true, if the port is migrated else false.
+     */
+    private boolean isMigratedPort(Node node, NeutronPort neutronPort) {
+        boolean isMigratedPort = false;
+        final Long dpId = getDpidForIntegrationBridge(node);
+        final Pair<Long, Uuid> nodeDpIdPair = neutronL3Adapter.getDpIdOfNeutronPort(neutronPort.getPortUUID());
+        Long dpIdNeutronPort = (nodeDpIdPair == null ? null : nodeDpIdPair.getLeft());
+        if(dpIdNeutronPort != null && !dpIdNeutronPort.equals(dpId)) {
+            isMigratedPort = true;
+        }
+        return isMigratedPort;
     }
 
     private void handleInterfaceDelete (Node node, OvsdbTerminationPointAugmentation intf,
@@ -124,15 +156,16 @@ public class SouthboundHandler extends AbstractHandler
         LOG.debug("handleInterfaceDelete: node: <{}>, isLastInstanceOnNode: {}, interface: <{}>",
                 node, isLastInstanceOnNode, intf);
 
-        distributedArpService.processInterfaceEvent(node, intf, network, Action.DELETE);
-        neutronL3Adapter.handleInterfaceEvent(node, intf, network, Action.DELETE);
         final NeutronPort neutronPort = tenantNetworkManager.getTenantPort(intf);
+        boolean isMigratedPort = isMigratedPort(node, neutronPort);
+        distributedArpService.processInterfaceEvent(node, intf, network, isMigratedPort, Action.DELETE);
+        neutronL3Adapter.handleInterfaceEvent(node, intf, network, Action.DELETE);
         programVLANNetworkFlowProvider(node, intf, network, neutronPort, false);
         List<String> phyIfName = bridgeConfigurationManager.getAllPhysicalInterfaceNames(node);
         if (isInterfaceOfInterest(intf, phyIfName)) {
             // delete tunnel or physical interfaces
             networkingProviderManager.getProvider(node).handleInterfaceDelete(network.getProviderNetworkType(),
-                    network, node, intf, isLastInstanceOnNode);
+                    network, node, intf, isLastInstanceOnNode, isMigratedPort);
         } else if (network != null) {
             // vlan doesn't need a tunnel endpoint
             if (!network.getProviderNetworkType().equalsIgnoreCase(NetworkHandler.NETWORK_TYPE_VLAN) &&
@@ -141,8 +174,9 @@ public class SouthboundHandler extends AbstractHandler
                 return;
             }
             networkingProviderManager.getProvider(node).handleInterfaceDelete(network.getProviderNetworkType(),
-                    network, node, intf, isLastInstanceOnNode);
+                    network, node, intf, isLastInstanceOnNode, isMigratedPort);
         }
+
     }
 
     @Override

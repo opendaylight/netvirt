@@ -209,7 +209,7 @@ public class SecurityGroupCacheManagerImplTest {
     @Test
     public void testPortRemovedFromCache() {
         securityGroupCacheManagerImpl.addToCache(SECURITY_GROUP_ID_2, NEUTRON_PORT_ID_VM_3, nodeId_1);
-        securityGroupCacheManagerImpl.removeFromCache(SECURITY_GROUP_ID_2, NEUTRON_PORT_ID_VM_3);
+        securityGroupCacheManagerImpl.removeFromCache(SECURITY_GROUP_ID_2, NEUTRON_PORT_ID_VM_3, nodeId_1);
         securityGroupCacheManagerImpl.portRemoved(SECURITY_GROUP_ID_2, NEUTRON_PORT_ID_VM_2);
         verify(securityServicesManager, times(0)).syncSecurityRule(any(NeutronPort.class), any(NeutronSecurityRule.class), any(Neutron_IPs.class),any(NodeId.class), any(NeutronSecurityGroup.class), anyBoolean());
     }

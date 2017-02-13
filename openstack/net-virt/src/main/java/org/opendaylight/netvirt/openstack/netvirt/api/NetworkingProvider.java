@@ -48,10 +48,11 @@ public interface NetworkingProvider {
      * @param source Source node where interface was attached
      * @param intf Termination point associated to the deleted interface
      * @param isLastInstanceOnNode is last interface attached to the node ?
+     * @param isMigratedPort is the port is migrated port ?
      * @return true if interface delete handled successfully
      */
     boolean handleInterfaceDelete(String tunnelType, NeutronNetwork network, Node source,
-                                  OvsdbTerminationPointAugmentation intf, boolean isLastInstanceOnNode);
+                                  OvsdbTerminationPointAugmentation intf, boolean isLastInstanceOnNode, boolean isMigratedPort);
 
     /**
      * Initialize the Flow rules given the OVSDB node.
