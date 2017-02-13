@@ -1,0 +1,157 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_20dff20e",
+        "filename": "docs/specs/discovery_of_directly_connected_pnfs.rst",
+        "patchSetId": 10
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 670
+      },
+      "writtenOn": "2017-02-13T11:59:48Z",
+      "side": 1,
+      "message": "Better to keep things generic here when possible, e.g. \"which does not have a port configured via northbound\", and instead of \"neutron subnet\" just use subnet",
+      "revId": "522082d909d8b38ed53c2bcb204a97c879c081fa",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_00e2aed4",
+        "filename": "docs/specs/discovery_of_directly_connected_pnfs.rst",
+        "patchSetId": 10
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 670
+      },
+      "writtenOn": "2017-02-13T11:59:48Z",
+      "side": 1,
+      "message": "This is confusing - a VM and a PNF in the same Flat/VLAN provider network is just regular east/west.\n\nI would separate these as \"between two networks connected by a router\", and \"between a network and an external network connected by a router, meaning the PNF is behind the external gateway\"",
+      "revId": "522082d909d8b38ed53c2bcb204a97c879c081fa",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_80cdfe5f",
+        "filename": "docs/specs/discovery_of_directly_connected_pnfs.rst",
+        "patchSetId": 10
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 670
+      },
+      "writtenOn": "2017-02-13T11:59:48Z",
+      "side": 1,
+      "message": "there is a table 22? what is it?",
+      "revId": "522082d909d8b38ed53c2bcb204a97c879c081fa",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_c0d706ec",
+        "filename": "docs/specs/discovery_of_directly_connected_pnfs.rst",
+        "patchSetId": 10
+      },
+      "lineNbr": 49,
+      "author": {
+        "id": 670
+      },
+      "writtenOn": "2017-02-13T11:59:48Z",
+      "side": 1,
+      "message": "Did you mean that it doesn\u0027t work on networks not configured as external?",
+      "revId": "522082d909d8b38ed53c2bcb204a97c879c081fa",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_00090e95",
+        "filename": "docs/specs/discovery_of_directly_connected_pnfs.rst",
+        "patchSetId": 10
+      },
+      "lineNbr": 66,
+      "author": {
+        "id": 670
+      },
+      "writtenOn": "2017-02-13T11:59:48Z",
+      "side": 1,
+      "message": "Is this more of no ARP monitoring support for PNFs behind a VLAN/Flat provider network? (Regardless of external or not)",
+      "revId": "522082d909d8b38ed53c2bcb204a97c879c081fa",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_6000da67",
+        "filename": "docs/specs/discovery_of_directly_connected_pnfs.rst",
+        "patchSetId": 10
+      },
+      "lineNbr": 70,
+      "author": {
+        "id": 670
+      },
+      "writtenOn": "2017-02-13T11:59:48Z",
+      "side": 1,
+      "message": "I thought we already support L2 PNF?\nAnd this spec will add L3 PNF both between private networks and behind external networks?",
+      "revId": "522082d909d8b38ed53c2bcb204a97c879c081fa",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_a0f92282",
+        "filename": "docs/specs/discovery_of_directly_connected_pnfs.rst",
+        "patchSetId": 10
+      },
+      "lineNbr": 79,
+      "author": {
+        "id": 670
+      },
+      "writtenOn": "2017-02-13T11:59:48Z",
+      "side": 1,
+      "message": "can we generalize this or will it actually be a neutron subnet?",
+      "revId": "522082d909d8b38ed53c2bcb204a97c879c081fa",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_202d32ff",
+        "filename": "docs/specs/discovery_of_directly_connected_pnfs.rst",
+        "patchSetId": 10
+      },
+      "lineNbr": 92,
+      "author": {
+        "id": 670
+      },
+      "writtenOn": "2017-02-13T11:59:48Z",
+      "side": 1,
+      "message": "Isn\u0027t this just the ELAN pipeline if both the VM and the PNF are in the same network?",
+      "revId": "522082d909d8b38ed53c2bcb204a97c879c081fa",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_2014129f",
+        "filename": "docs/specs/discovery_of_directly_connected_pnfs.rst",
+        "patchSetId": 10
+      },
+      "lineNbr": 257,
+      "author": {
+        "id": 670
+      },
+      "writtenOn": "2017-02-13T11:59:48Z",
+      "side": 1,
+      "message": "nit: go over this in gerrit, clear trailing white spaces (red)",
+      "revId": "522082d909d8b38ed53c2bcb204a97c879c081fa",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
