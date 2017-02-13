@@ -230,7 +230,7 @@ public class OF13ProviderTest {
         MemberModifier.suppress(MemberMatcher.method(OF13Provider.class, "handleTunnelUnknownUcastFloodOut", Long.class, Short.class, Short.class, String.class, Long.class, boolean.class));
 
 
-        Whitebox.invokeMethod(of13Provider, "removeLocalBridgeRules", mock(Node.class), Long.valueOf("45"), SEG_ID, MAC_ADDRESS, LOCAL_PORT);
+        Whitebox.invokeMethod(of13Provider, "removeLocalBridgeRules", mock(Node.class), Long.valueOf("45"), SEG_ID, MAC_ADDRESS, LOCAL_PORT, false);
 
         PowerMockito.verifyPrivate(of13Provider, times(1)).invoke("handleLocalInPort", anyLong(), anyShort(), anyShort(), anyString(), anyLong(), anyString(), anyBoolean());
         PowerMockito.verifyPrivate(of13Provider, times(1)).invoke("handleDropSrcIface", anyLong(), anyLong(), anyBoolean());
@@ -422,22 +422,22 @@ public class OF13ProviderTest {
 
         MemberModifier.suppress(MemberMatcher.method(OF13Provider.class, "deleteTunnelPort", Node.class, String.class, InetAddress.class, InetAddress.class));
 
-        assertTrue("Error, did not delete the interface correclty", of13Provider.handleInterfaceDelete(TYPE,  neutronNetwork, mock(Node.class), intf, false));
+        assertTrue("Error, did not delete the interface correclty", of13Provider.handleInterfaceDelete(TYPE,  neutronNetwork, mock(Node.class), intf, false, false));
         PowerMockito.verifyPrivate(of13Provider, times(1)).invoke("deleteTunnelPort", any(Node.class), anyString(), any(InetAddress.class), any(InetAddress.class));
 
         when(southbound.isTunnel(any(OvsdbTerminationPointAugmentation.class))).thenReturn(false);
         MemberModifier.suppress(MemberMatcher.method(OF13Provider.class, "deletePhysicalPort", Node.class, String.class));
 
-        assertTrue("Error, did not delete the interface correclty", of13Provider.handleInterfaceDelete(TYPE,  neutronNetwork, mock(Node.class), intf, false));
+        assertTrue("Error, did not delete the interface correclty", of13Provider.handleInterfaceDelete(TYPE,  neutronNetwork, mock(Node.class), intf, false, false));
         PowerMockito.verifyPrivate(of13Provider, times(1)).invoke("deletePhysicalPort", any(Node.class), anyString());
 
         intfs.clear();
-        MemberModifier.suppress(MemberMatcher.method(OF13Provider.class, "removeLocalRules", String.class, String.class, Node.class, OvsdbTerminationPointAugmentation.class));
+        MemberModifier.suppress(MemberMatcher.method(OF13Provider.class, "removeLocalRules", String.class, String.class, Node.class, OvsdbTerminationPointAugmentation.class, boolean.class));
         MemberModifier.suppress(MemberMatcher.method(OF13Provider.class, "removeVlanRules", NeutronNetwork.class, Node.class, OvsdbTerminationPointAugmentation.class, boolean.class));
         when(neutronNetwork.getProviderNetworkType()).thenReturn(NetworkHandler.NETWORK_TYPE_VLAN);
 
-        assertTrue("Error, did not delete the interface correclty", of13Provider.handleInterfaceDelete(TYPE,  neutronNetwork, mock(Node.class), intf, false));
-        PowerMockito.verifyPrivate(of13Provider, times(1)).invoke("removeLocalRules",  anyString(), anyString(), any(Node.class), any(OvsdbTerminationPointAugmentation.class));
+        assertTrue("Error, did not delete the interface correclty", of13Provider.handleInterfaceDelete(TYPE,  neutronNetwork, mock(Node.class), intf, false, false));
+        PowerMockito.verifyPrivate(of13Provider, times(1)).invoke("removeLocalRules",  anyString(), anyString(), any(Node.class), any(OvsdbTerminationPointAugmentation.class), any(boolean.class));
         PowerMockito.verifyPrivate(of13Provider, times(1)).invoke("removeVlanRules",  any(NeutronNetwork.class), any(Node.class), any(OvsdbTerminationPointAugmentation.class), anyBoolean());
 
         TenantNetworkManager tenantNetworkManager = mock(TenantNetworkManager.class);
@@ -446,10 +446,10 @@ public class OF13ProviderTest {
 
         when(neutronNetwork.getProviderNetworkType()).thenReturn(NetworkHandler.NETWORK_TYPE_GRE);
         when(southbound.getBridgeNode(any(Node.class), anyString())).thenReturn(node);
-        MemberModifier.suppress(MemberMatcher.method(OF13Provider.class, "removeTunnelRules", String.class, String.class, InetAddress.class, Node.class, OvsdbTerminationPointAugmentation.class, boolean.class, boolean.class));
+        MemberModifier.suppress(MemberMatcher.method(OF13Provider.class, "removeTunnelRules", String.class, String.class, InetAddress.class, Node.class, OvsdbTerminationPointAugmentation.class, boolean.class, boolean.class, boolean.class));
 
-        assertTrue("Error, did not delete the interface correclty", of13Provider.handleInterfaceDelete(TYPE,  neutronNetwork, node, intf, false));
-        PowerMockito.verifyPrivate(of13Provider, times(3)).invoke("removeTunnelRules", anyString(), anyString(), any(InetAddress.class), any(Node.class), any(OvsdbTerminationPointAugmentation.class), any(boolean.class), any(boolean.class));
+        assertTrue("Error, did not delete the interface correclty", of13Provider.handleInterfaceDelete(TYPE,  neutronNetwork, node, intf, false, false));
+        PowerMockito.verifyPrivate(of13Provider, times(3)).invoke("removeTunnelRules", anyString(), anyString(), any(InetAddress.class), any(Node.class), any(OvsdbTerminationPointAugmentation.class), any(boolean.class), any(boolean.class), any(boolean.class));
     }
 
     // Problem with methods signatures: initializeFlowRules(Node) has the same signature than initializeFlowRules(Node, String)
