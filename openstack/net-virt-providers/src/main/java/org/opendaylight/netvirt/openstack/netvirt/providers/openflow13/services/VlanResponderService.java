@@ -47,10 +47,10 @@ public class VlanResponderService extends AbstractServiceInstance implements Vla
 
     /**
      * Write or remove the flows for output instructions based on flag value actions.
-     * Sample flow: table=100, n_packets=1192, n_bytes=55496, priority=4,in_port=5,dl_src=fa:16:3e:74:a9:2e actions=output:3
+     * Sample flow: table=100, n_packets=1192, n_bytes=55496, priority=4,in_port=5,dl_src=fa:16:3e:74:a9:2e actions=NORMAL
      */
     @Override
-    public void programProviderNetworkOutput(Long dpidLong, Long ofPort, Long patchPort, String macAddress, boolean write) {
+    public void programProviderNetworkOutput(Long dpidLong, Long ofPort, String macAddress, boolean write) {
         try {
             String nodeName = OPENFLOW + dpidLong;
             NodeBuilder nodeBuilder = FlowUtils.createNodeBuilder(nodeName);
@@ -67,18 +67,18 @@ public class VlanResponderService extends AbstractServiceInstance implements Vla
             flowBuilder.setId(flowId).setBarrier(true).setTableId(getTable()).setKey(new FlowKey(flowId))
                     .setPriority(4).setFlowName(flowName).setHardTimeout(0).setIdleTimeout(0);
             if (write) {
-                // Set the Output Port/Iface
-                Instruction outputPortInstruction = InstructionUtils.createOutputPortInstructions(new InstructionBuilder(),
-                        dpidLong, patchPort).setOrder(0).setKey(new InstructionKey(0)).build();
+                Instruction normalInstruction = InstructionUtils.createNormalInstructions(
+                        FlowUtils.getNodeName(dpidLong), new InstructionBuilder()).
+                        setOrder(0).setKey(new InstructionKey(0)).build();
                 // Add InstructionsBuilder to FlowBuilder
-                InstructionUtils.setFlowBuilderInstruction(flowBuilder, outputPortInstruction);
+                InstructionUtils.setFlowBuilderInstruction(flowBuilder, normalInstruction);
                 writeFlow(flowBuilder, nodeBuilder);
             } else {
                 removeFlow(flowBuilder, nodeBuilder);
             }
         } catch (Exception e) {
-            LOG.error("Error while writing/removing output instruction flow. dpidLong = {}, patchPort={}, write = {}."
-                    +" Caused due to, {}", dpidLong, patchPort, write, e.getMessage());
+            LOG.error("Error while writing/removing output instruction flow. dpidLong = {}, write = {}."
+                    +" Caused due to, {}", dpidLong, write, e.getMessage());
         }
     }
 

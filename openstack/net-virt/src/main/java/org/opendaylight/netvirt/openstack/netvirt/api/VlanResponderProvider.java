@@ -16,13 +16,12 @@ import java.util.Set;
 public interface VlanResponderProvider {
     /**
      * Creates flow for OUTPUT instruction.
-     * @param dpidLong dp Id
-     * @param patchIntPort patch port of internal bridge
+     * @param dpidLong dp Id     
      * @param ofPortValue of port value
      * @param macAddress mac address
      * @param write - flag to indicate the operation
      */
-    void programProviderNetworkOutput(Long dpidLong, Long patchIntPort, Long ofPortValue, String macAddress, boolean write);
+    void programProviderNetworkOutput(Long dpidLong, Long ofPortValue, String macAddress, boolean write);
 
     /**
      * Creates flow for POP VLAN instruction.
