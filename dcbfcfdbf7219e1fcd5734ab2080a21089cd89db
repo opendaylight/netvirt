@@ -89,6 +89,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_a335a9db",
+        "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/SouthboundHandler.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 90,
+      "author": {
+        "id": 396
+      },
+      "writtenOn": "2017-02-13T22:24:24Z",
+      "side": 1,
+      "message": "I\u0027ve added a space after the \"{}\".\n\nI don\u0027t like the current format. However, it seems to me the formats are inconsistent through this file anyway. Therefore, I\u0027ve decided to keep the current format in this patch. Maybe someone would make it consistent in a separate patch in the future.",
+      "parentUuid": "fafc7978_60e5c5a7",
+      "revId": "dcbfcfdbf7219e1fcd5734ab2080a21089cd89db",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_a0ee8d89",
         "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/SouthboundHandler.java",
         "patchSetId": 2
@@ -100,6 +118,24 @@
       "writtenOn": "2017-01-26T20:16:00Z",
       "side": 1,
       "message": "there are two spaces after \"Data  : {}\", should be \"Data: {}\" to be consistent",
+      "revId": "dcbfcfdbf7219e1fcd5734ab2080a21089cd89db",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_633bc1d1",
+        "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/SouthboundHandler.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 91,
+      "author": {
+        "id": 396
+      },
+      "writtenOn": "2017-02-13T22:24:24Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_a0ee8d89",
       "revId": "dcbfcfdbf7219e1fcd5734ab2080a21089cd89db",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
