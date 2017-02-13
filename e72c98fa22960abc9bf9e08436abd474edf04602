@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_15015205",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronTrunkChangeListener.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 97,
+      "author": {
+        "id": 3276
+      },
+      "writtenOn": "2017-02-13T04:45:48Z",
+      "side": 1,
+      "message": "Missed that I was using update.getSubports() here, will do.",
+      "parentUuid": "fafc7978_5a3dc9dd",
+      "revId": "e72c98fa22960abc9bf9e08436abd474edf04602",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_da309903",
         "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronTrunkChangeListener.java",
         "patchSetId": 11
@@ -30,6 +48,24 @@
       "writtenOn": "2017-02-13T04:22:57Z",
       "side": 1,
       "message": "I don\u0027t think NeutronPortChangeListener#add method adding the subport as elan interface. Because that method is handling only trunk ports, but this is the interface of type vlan member created with proper vlan_vid.\nAlso moving createElanInterface method is not a big thing, you could do with this review itself.",
+      "revId": "e72c98fa22960abc9bf9e08436abd474edf04602",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_f503ee0a",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronTrunkChangeListener.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 145,
+      "author": {
+        "id": 3276
+      },
+      "writtenOn": "2017-02-13T04:45:48Z",
+      "side": 1,
+      "message": "It will. With the new API, NeutronPort will never come with with subport information at create, or even update for that matter. Order is:\n\n1. Create neutronPort\n2. Add neutronPort created in 1 to Trunk as SubPort.\n\nSo, the creation of neutronPort would\u0027ve already created ElanInterface for type trunk because we can never know if this port will be a subport later or not. With new API we\u0027re basically \u0027updating\u0027 interface to become subPort. So question is, what do we need to do with elanInterface when a port becomes a subport?",
+      "parentUuid": "fafc7978_da309903",
       "revId": "e72c98fa22960abc9bf9e08436abd474edf04602",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
