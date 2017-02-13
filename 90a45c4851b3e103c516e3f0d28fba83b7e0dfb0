@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_00362e03",
+        "filename": "vpnservice/aclservice/impl/src/test/java/org/opendaylight/netvirt/aclservice/tests/FlowEntryObjectsBase.xtend",
+        "patchSetId": 3
+      },
+      "lineNbr": 856,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2017-02-13T13:26:51Z",
+      "side": 1,
+      "message": "In the current approach, a lot of code is getting duplicated between this file and FlowEntryObjectsStateful.xtend. \n\nThe current patch follows the existing mechanism and is good. May be in some future patch, we can take a look at ways to reducing the duplication.",
+      "revId": "90a45c4851b3e103c516e3f0d28fba83b7e0dfb0",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
