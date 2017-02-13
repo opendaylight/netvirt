@@ -49,7 +49,6 @@ import org.opendaylight.genius.mdsalutil.instructions.InstructionGotoTable;
 import org.opendaylight.genius.mdsalutil.instructions.InstructionWriteMetadata;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.genius.mdsalutil.matches.MatchEthernetType;
-import org.opendaylight.genius.mdsalutil.matches.MatchIpv4Source;
 import org.opendaylight.genius.mdsalutil.matches.MatchMetadata;
 import org.opendaylight.genius.mdsalutil.matches.MatchMplsLabel;
 import org.opendaylight.genius.mdsalutil.matches.MatchTunnelId;
@@ -317,9 +316,9 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
         for (String ip : externalIps) {
             Uuid subnetId = getSubnetIdForFixedIp(ip);
             if (subnetId != null) {
-                LOG.debug("installNaptPfibExternalOutputFlow - dpnId {} extVpnId {} subnetId {} ip {}",
-                    dpnId, extVpnId, subnetId, ip);
-                FlowEntity postNaptFlowEntity = buildNaptFibExternalOutputFlowEntity(dpnId, extVpnId, subnetId, ip);
+                LOG.debug("installNaptPfibExternalOutputFlow - dpnId {} extVpnId {} subnetId {}",
+                    dpnId, extVpnId, subnetId);
+                FlowEntity postNaptFlowEntity = buildNaptPfibFlowEntity(dpnId, extVpnId);
                 mdsalManager.installFlow(postNaptFlowEntity);
             }
         }
@@ -2373,30 +2372,6 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
         BigInteger cookie = getCookieOutboundFlow(routerId);
         FlowEntity flowEntity = MDSALUtil.buildFlowEntity(dpId, NwConstants.OUTBOUND_NAPT_TABLE,
             flowRef, 5, flowRef, 0, 0, cookie, matches, instructions);
-        LOG.debug("NAT Service : returning flowEntity {}", flowEntity);
-        return flowEntity;
-    }
-
-    protected FlowEntity buildNaptFibExternalOutputFlowEntity(BigInteger dpId, long extVpnId, Uuid subnetId,
-                                                              String externalIp) {
-        LOG.debug("NAT Service : buildNaptFibExternalOutputFlowEntity called for dpId {}, routerId {}, srcIp {}",
-            dpId, extVpnId, externalIp);
-
-        List<MatchInfo> matches = new ArrayList<>();
-        matches.add(MatchEthernetType.IPV4);
-        matches.add(new MatchMetadata(MetaDataUtil.getVpnIdMetadata(extVpnId), MetaDataUtil.METADATA_MASK_VRFID));
-        matches.add(new MatchIpv4Source(externalIp, "32"));
-
-        List<InstructionInfo> instructions = new ArrayList<>();
-        List<ActionInfo> actionsInfos = new ArrayList<>();
-        long groupId = NatUtil.createGroupId(NatUtil.getGroupIdKey(subnetId.getValue()), idManager);
-        actionsInfos.add(new ActionGroup(groupId));
-        instructions.add(new InstructionApplyActions(actionsInfos));
-
-        String flowRef = getFlowRefNaptFib(dpId, NwConstants.NAPT_PFIB_TABLE, extVpnId, externalIp);
-        BigInteger cookie = getCookieOutboundFlow(extVpnId);
-        FlowEntity flowEntity = MDSALUtil.buildFlowEntity(dpId, NwConstants.NAPT_PFIB_TABLE, flowRef, 6, flowRef, 0,
-            0, cookie, matches, instructions);
         LOG.debug("NAT Service : returning flowEntity {}", flowEntity);
         return flowEntity;
     }
