@@ -16,6 +16,24 @@
       "revId": "4586949683efedacde1a6dd792306658035c29c1",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_80fe9e36",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanInterfaceStateChangeListener.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 78,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-02-13T12:56:40Z",
+      "side": 1,
+      "message": "DJC doesn\u0027t maintain any relation when enqueuing another job inside another djc task. Based on job key, DJC just decides to execute job in sequencial (or) parallel manner. that\u0027s all.\n\nBut the actual performance depends on how many jobs enqueued in the queue and no. of cores available (because fjPool use the threads that is equivalent to cores) to execute the tasks which efficiently utilizes the system\u0027s cpu.\n\nSo we have to make sure that applications won\u0027t spend too much of time in blocking calls, waits, sleeps etc. in djc task, so that thread can be released immediately and can be available for other djc tasks.",
+      "parentUuid": "fafc7978_e04faabb",
+      "revId": "4586949683efedacde1a6dd792306658035c29c1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
