@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_e04faabb",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanInterfaceStateChangeListener.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 78,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-13T12:33:27Z",
+      "side": 1,
+      "message": "There could be performance issues on using DJC within a DJC in general.  Have you seen that happen for you?\n\nHere we could see DJC within DJC being constructed ...",
+      "revId": "4586949683efedacde1a6dd792306658035c29c1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
