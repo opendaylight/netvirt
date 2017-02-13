@@ -17,12 +17,14 @@ public interface VlanResponderProvider {
     /**
      * Creates flow for OUTPUT instruction.
      * @param dpidLong dp Id
+     * @param segmentationId segmentation id
      * @param patchIntPort patch port of internal bridge
      * @param ofPortValue of port value
      * @param macAddress mac address
      * @param write - flag to indicate the operation
      */
-    void programProviderNetworkOutput(Long dpidLong, Long patchIntPort, Long ofPortValue, String macAddress, boolean write);
+    void programProviderNetworkOutput(Long dpidLong, String segmentationId, Long patchIntPort, Long ofPortValue, String macAddress,
+            boolean write);
 
     /**
      * Creates flow for POP VLAN instruction.

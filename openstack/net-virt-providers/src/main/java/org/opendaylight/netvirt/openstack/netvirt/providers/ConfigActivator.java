@@ -58,6 +58,7 @@ import org.opendaylight.netvirt.openstack.netvirt.providers.openflow13.services.
 import org.opendaylight.netvirt.openstack.netvirt.providers.openflow13.services.RoutingService;
 import org.opendaylight.netvirt.openstack.netvirt.providers.openflow13.services.VlanResponderService;
 import org.opendaylight.netvirt.openstack.netvirt.providers.openflow13.services.arp.GatewayMacResolverService;
+import org.opendaylight.netvirt.openstack.netvirt.translator.crud.INeutronNetworkCRUD;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.service.rev130819.SalFlowService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.service.rev130709.PacketProcessingService;
 import org.osgi.framework.BundleActivator;
@@ -194,6 +195,22 @@ public class ConfigActivator implements BundleActivator {
         gatewayMacResolverService.setDependencies(context, null);
         icmpEchoResponderService.setDependencies(context, null);
         vlanResponderService.setDependencies(context, null);
+
+        @SuppressWarnings("unchecked")
+        ServiceTracker neutronNetworkCacheTracker = new ServiceTracker(context,
+                INeutronNetworkCRUD.class, null) {
+            @Override
+            public Object addingService(ServiceReference reference) {
+                LOG.info("addingService INeutronNetworkCRUD");
+                INeutronNetworkCRUD service =
+                        (INeutronNetworkCRUD) context.getService(reference);
+                if (service != null) {
+                	vlanResponderService.setDependencies(service);
+                }
+                return service;
+            }
+        };
+        neutronNetworkCacheTracker.open();
 
         @SuppressWarnings("unchecked")
         ServiceTracker networkingProviderManagerTracker = new ServiceTracker(context,
