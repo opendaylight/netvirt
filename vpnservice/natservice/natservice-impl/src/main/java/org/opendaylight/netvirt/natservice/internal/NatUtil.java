@@ -8,10 +8,10 @@
 
 package org.opendaylight.netvirt.natservice.internal;
 
-import java.math.BigInteger;
-
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
+
+import java.math.BigInteger;
 
 import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
 import org.opendaylight.genius.mdsalutil.ActionInfo;
@@ -27,12 +27,17 @@ import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev14081
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.interfaces.VpnInterface;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.interfaces.VpnInterfaceKey;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpPrefix;
+<<<<<<< HEAD
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeConnectorId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.VpnInstanceOpData;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.VpnInstanceToVpnId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.LearntVpnVipToPortData;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.learnt.vpn.vip.to.port.data.LearntVpnVipToPort;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.learnt.vpn.vip.to.port.data.LearntVpnVipToPortKey;
+=======
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
+>>>>>>> 77e7e6b... Bug 7775: Using DJC for NAT Interface-state Listeners
 import org.opendaylight.yang.gen.v1.urn.opendaylight.action.types.rev131112.action.action.OutputActionCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.action.types.rev131112.action.action.PushVlanActionCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.action.types.rev131112.action.action.SetFieldCase;
@@ -1522,15 +1527,6 @@ public class NatUtil {
                 .child(DpnVpninterfacesList.class, new DpnVpninterfacesListKey(dpnId)).build();
     }
 
-    static org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface getInterface(DataBroker broker, String interfaceName) {
-        Optional<org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface> optInterface =
-                read(broker, LogicalDatastoreType.CONFIGURATION, getInterfaceIdentifier(interfaceName));
-        if(optInterface.isPresent()) {
-            return optInterface.get();
-        }
-        return null;
-    }
-
     static InstanceIdentifier<RouterDpnList> getRouterId(String routerName) {
         return InstanceIdentifier.builder(NeutronRouterDpns.class)
                 .child(RouterDpnList.class, new RouterDpnListKey(routerName)).build();
@@ -1561,11 +1557,6 @@ public class NatUtil {
                 FloatingIpIdToPortMappingKey(floatingIpId)).build();
     }
 
-    static InstanceIdentifier<org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface> getInterfaceIdentifier(String interfaceName) {
-        return InstanceIdentifier.builder(Interfaces.class)
-                .child(
-                        org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface.class, new InterfaceKey(interfaceName)).build();
-    }
     static final FutureCallback<Void> DEFAULT_CALLBACK =
             new FutureCallback<Void>() {
                 @Override
