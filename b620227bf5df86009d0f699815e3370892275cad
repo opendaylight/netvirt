@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_5682d994",
+        "filename": "docs/specs/discovery_of_directly_connected_pnfs.rst",
+        "patchSetId": 9
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-13T16:04:34Z",
+      "side": 1,
+      "message": "does the PNF device PNIC linked to a neutron port (or) \n\nPNFs PNIC attempts only to use an IP from a neutron subnet without an equivalent representation of neutron port for the same?",
+      "revId": "b620227bf5df86009d0f699815e3370892275cad",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
