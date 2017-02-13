@@ -71,6 +71,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_6d0d723e",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronTrunkChangeListener.java",
+        "patchSetId": 12
+      },
+      "lineNbr": 141,
+      "author": {
+        "id": 3276
+      },
+      "writtenOn": "2017-02-13T17:21:33Z",
+      "side": 1,
+      "message": "Re-reading your comment I realized I didn\u0027t fully grasp it earlier. Yeah, I also had similar thought and even left a comment asking the same question, but I think we need hierarchical keys parent:port where we use parent for batching and port for ordering. On IFM side portName is used as key. Might run into some order issues if we end up using different key.",
+      "parentUuid": "fafc7978_ad6d9a9a",
+      "revId": "80dbc009629a5dd7adc2545ce62ba17c26b9c12f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_cd93be4d",
         "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronTrunkChangeListener.java",
         "patchSetId": 12
