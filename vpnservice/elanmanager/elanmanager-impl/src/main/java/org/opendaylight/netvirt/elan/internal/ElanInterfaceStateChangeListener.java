@@ -9,7 +9,9 @@ package org.opendaylight.netvirt.elan.internal;
 
 
 import java.math.BigInteger;
+import java.util.Collections;
 import java.util.List;
+
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
@@ -52,82 +54,90 @@ public class ElanInterfaceStateChangeListener
 
     @Override
     protected void remove(InstanceIdentifier<Interface> identifier, Interface delIf) {
-        LOG.trace("Received interface {} Down event", delIf);
-        String interfaceName =  delIf.getName();
-        ElanInterface elanInterface = ElanUtils.getElanInterfaceByElanInterfaceName(broker, interfaceName);
-        if (elanInterface == null) {
-            LOG.debug("No Elan Interface is created for the interface:{} ", interfaceName);
-            return;
-        }
-        NodeConnectorId nodeConnectorId = new NodeConnectorId(delIf.getLowerLayerIf().get(0));
-        BigInteger dpId = BigInteger.valueOf(MDSALUtil.getDpnIdFromPortName(nodeConnectorId));
-        InterfaceInfo interfaceInfo = new InterfaceInfo(dpId, nodeConnectorId.getValue());
-        interfaceInfo.setInterfaceName(interfaceName);
-        interfaceInfo.setInterfaceType(InterfaceInfo.InterfaceType.VLAN_INTERFACE);
-        interfaceInfo.setInterfaceTag(delIf.getIfIndex());
-        String elanInstanceName = elanInterface.getElanInstanceName();
-        ElanInstance elanInstance = ElanUtils.getElanInstanceByName(broker, elanInstanceName);
-        DataStoreJobCoordinator coordinator = DataStoreJobCoordinator.getInstance();
-        InterfaceRemoveWorkerOnElan removeWorker = new InterfaceRemoveWorkerOnElan(elanInstanceName, elanInstance,
-            interfaceName, interfaceInfo, true, elanInterfaceManager);
-        coordinator.enqueueJob(elanInstanceName, removeWorker, ElanConstants.JOB_MAX_RETRIES);
+        DataStoreJobCoordinator.getInstance().enqueueJob(ElanUtils.getElanInterfaceJobKey(delIf.getName()), () -> {
+            LOG.trace("Received interface {} Down event", delIf);
+            String interfaceName =  delIf.getName();
+            ElanInterface elanInterface = ElanUtils.getElanInterfaceByElanInterfaceName(broker, interfaceName);
+            if (elanInterface == null) {
+                LOG.debug("No Elan Interface is created for the interface:{} ", interfaceName);
+                return Collections.emptyList();
+            }
+            NodeConnectorId nodeConnectorId = new NodeConnectorId(delIf.getLowerLayerIf().get(0));
+            BigInteger dpId = BigInteger.valueOf(MDSALUtil.getDpnIdFromPortName(nodeConnectorId));
+            InterfaceInfo interfaceInfo = new InterfaceInfo(dpId, nodeConnectorId.getValue());
+            interfaceInfo.setInterfaceName(interfaceName);
+            interfaceInfo.setInterfaceType(InterfaceInfo.InterfaceType.VLAN_INTERFACE);
+            interfaceInfo.setInterfaceTag(delIf.getIfIndex());
+            String elanInstanceName = elanInterface.getElanInstanceName();
+            ElanInstance elanInstance = ElanUtils.getElanInstanceByName(broker, elanInstanceName);
+            DataStoreJobCoordinator coordinator = DataStoreJobCoordinator.getInstance();
+            InterfaceRemoveWorkerOnElan removeWorker = new InterfaceRemoveWorkerOnElan(elanInstanceName, elanInstance,
+                    interfaceName, interfaceInfo, true, elanInterfaceManager);
+            coordinator.enqueueJob(elanInstanceName, removeWorker, ElanConstants.JOB_MAX_RETRIES);
+            return Collections.emptyList();
+        }, ElanConstants.JOB_MAX_RETRIES);
     }
 
     @Override
     protected void update(InstanceIdentifier<Interface> identifier, Interface original, Interface update) {
-        LOG.trace("Operation Interface update event - Old: {}, New: {}", original, update);
-        String interfaceName = update.getName();
-        if (update.getType() == null) {
-            LOG.trace("Interface type for interface {} is null", interfaceName);
-            return;
-        }
-        if (update.getType().equals(Tunnel.class)) {
-            if (!original.getOperStatus().equals(Interface.OperStatus.Unknown)
-                    && !update.getOperStatus().equals(Interface.OperStatus.Unknown)) {
-                if (update.getOperStatus().equals(Interface.OperStatus.Up)) {
-                    InternalTunnel internalTunnel = getTunnelState(interfaceName);
-                    if (internalTunnel != null) {
-                        try {
-                            elanInterfaceManager.handleInternalTunnelStateEvent(internalTunnel.getSourceDPN(),
-                                    internalTunnel.getDestinationDPN());
-                        } catch (ElanException e) {
-                            LOG.error("Failed to update interface: " + identifier.toString(), e);
+        DataStoreJobCoordinator.getInstance().enqueueJob(ElanUtils.getElanInterfaceJobKey(update.getName()), () -> {
+            LOG.trace("Operation Interface update event - Old: {}, New: {}", original, update);
+            String interfaceName = update.getName();
+            if (update.getType() == null) {
+                LOG.trace("Interface type for interface {} is null", interfaceName);
+                return Collections.emptyList();
+            }
+            if (update.getType().equals(Tunnel.class)) {
+                if (!original.getOperStatus().equals(Interface.OperStatus.Unknown)
+                        && !update.getOperStatus().equals(Interface.OperStatus.Unknown)) {
+                    if (update.getOperStatus().equals(Interface.OperStatus.Up)) {
+                        InternalTunnel internalTunnel = getTunnelState(interfaceName);
+                        if (internalTunnel != null) {
+                            try {
+                                elanInterfaceManager.handleInternalTunnelStateEvent(internalTunnel.getSourceDPN(),
+                                        internalTunnel.getDestinationDPN());
+                            } catch (ElanException e) {
+                                LOG.error("Failed to update interface: " + identifier.toString(), e);
+                            }
                         }
                     }
                 }
             }
-        }
+            return Collections.emptyList();
+        }, ElanConstants.JOB_MAX_RETRIES);
     }
 
     @Override
     protected void add(InstanceIdentifier<Interface> identifier, Interface intrf) {
-        LOG.trace("Received interface {} up event", intrf);
-        String interfaceName =  intrf.getName();
-        ElanInterface elanInterface = ElanUtils.getElanInterfaceByElanInterfaceName(broker, interfaceName);
-        if (elanInterface == null) {
-            if (intrf.getType() != null && intrf.getType().equals(Tunnel.class)) {
-                if (intrf.getOperStatus().equals(Interface.OperStatus.Up)) {
-                    InternalTunnel internalTunnel = getTunnelState(interfaceName);
-                    if (internalTunnel != null) {
-                        try {
-                            elanInterfaceManager.handleInternalTunnelStateEvent(internalTunnel.getSourceDPN(),
-                                internalTunnel.getDestinationDPN());
-                        } catch (ElanException e) {
-                            LOG.error("Failed to add interface: " + identifier.toString(), e);
+        DataStoreJobCoordinator.getInstance().enqueueJob(ElanUtils.getElanInterfaceJobKey(intrf.getName()), () -> {
+            LOG.trace("Received interface {} up event", intrf);
+            String interfaceName =  intrf.getName();
+            ElanInterface elanInterface = ElanUtils.getElanInterfaceByElanInterfaceName(broker, interfaceName);
+            if (elanInterface == null) {
+                if (intrf.getType() != null && intrf.getType().equals(Tunnel.class)) {
+                    if (intrf.getOperStatus().equals(Interface.OperStatus.Up)) {
+                        InternalTunnel internalTunnel = getTunnelState(interfaceName);
+                        if (internalTunnel != null) {
+                            try {
+                                elanInterfaceManager.handleInternalTunnelStateEvent(internalTunnel.getSourceDPN(),
+                                        internalTunnel.getDestinationDPN());
+                            } catch (ElanException e) {
+                                LOG.error("Failed to add interface: " + identifier.toString(), e);
+                            }
                         }
                     }
                 }
+                return Collections.emptyList();
             }
-            return;
-        }
-        InstanceIdentifier<ElanInterface> elanInterfaceId = ElanUtils
-                .getElanInterfaceConfigurationDataPathId(interfaceName);
-        elanInterfaceManager.add(elanInterfaceId, elanInterface);
+            InstanceIdentifier<ElanInterface> elanInterfaceId = ElanUtils
+                    .getElanInterfaceConfigurationDataPathId(interfaceName);
+            elanInterfaceManager.add(elanInterfaceId, elanInterface);
+            return Collections.emptyList();
+        }, ElanConstants.JOB_MAX_RETRIES);
     }
 
     @Override
     public void close() {
-
     }
 
     public  InternalTunnel getTunnelState(String interfaceName) {
