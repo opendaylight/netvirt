@@ -34,6 +34,24 @@
       "revId": "4586949683efedacde1a6dd792306658035c29c1",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_fbcbdf1b",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanInterfaceStateChangeListener.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 78,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-13T15:05:12Z",
+      "side": 1,
+      "message": "Thanks for this update.  \n\nWe have seen performance implications when using DJC within DJC (regardless of keys for the DJC) inside VPNEngine during scaling efforts couple of months ago.\n\nIf you observe something like that during the scale runs, please feel free to revisit this patch.\n\nThe remaining methods below update() and add() doesn\u0027t seem to use nested DJCs.",
+      "parentUuid": "fafc7978_80fe9e36",
+      "revId": "4586949683efedacde1a6dd792306658035c29c1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
