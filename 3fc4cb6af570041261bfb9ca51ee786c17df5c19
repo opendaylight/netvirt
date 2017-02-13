@@ -99,6 +99,74 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_60a73a0d",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/utils/TransportZoneNotificationUtil.java",
+        "patchSetId": 17
+      },
+      "lineNbr": 118,
+      "author": {
+        "id": 670
+      },
+      "writtenOn": "2017-02-13T10:22:21Z",
+      "side": 1,
+      "message": "can remove this comment (I think it was supposed to be \"VLAN\" aware VMs), but no longer relevant in this context",
+      "revId": "3fc4cb6af570041261bfb9ca51ee786c17df5c19",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_a0b00244",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/utils/TransportZoneNotificationUtil.java",
+        "patchSetId": 17
+      },
+      "lineNbr": 130,
+      "author": {
+        "id": 670
+      },
+      "writtenOn": "2017-02-13T10:22:21Z",
+      "side": 1,
+      "message": "Genius might have a cache for this, and if it doesn\u0027t, it probably should.. in any case shouldn\u0027t read directly from DS as a general rule (can add FIXME for now)",
+      "revId": "3fc4cb6af570041261bfb9ca51ee786c17df5c19",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_80ab3ed5",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/utils/TransportZoneNotificationUtil.java",
+        "patchSetId": 17
+      },
+      "lineNbr": 137,
+      "author": {
+        "id": 670
+      },
+      "writtenOn": "2017-02-13T10:22:21Z",
+      "side": 1,
+      "message": "While we\u0027re at it, can we change addVtep to return boolean or something? This int 0/1 stuff is ugly..",
+      "revId": "3fc4cb6af570041261bfb9ca51ee786c17df5c19",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_2084125d",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/utils/TransportZoneNotificationUtil.java",
+        "patchSetId": 17
+      },
+      "lineNbr": 149,
+      "author": {
+        "id": 670
+      },
+      "writtenOn": "2017-02-13T10:22:21Z",
+      "side": 1,
+      "message": "Removing this?",
+      "revId": "3fc4cb6af570041261bfb9ca51ee786c17df5c19",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_956ee22d",
         "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/utils/TransportZoneNotificationUtil.java",
         "patchSetId": 17
@@ -110,6 +178,57 @@
       "writtenOn": "2017-02-13T09:03:28Z",
       "side": 1,
       "message": "use IElanService.getElanInterfaceByElanInterfaceName()",
+      "revId": "3fc4cb6af570041261bfb9ca51ee786c17df5c19",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_00874e62",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/utils/TransportZoneNotificationUtil.java",
+        "patchSetId": 17
+      },
+      "lineNbr": 206,
+      "author": {
+        "id": 670
+      },
+      "writtenOn": "2017-02-13T10:22:21Z",
+      "side": 1,
+      "message": "use IElanService.getElanInstance",
+      "revId": "3fc4cb6af570041261bfb9ca51ee786c17df5c19",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_607e1a6d",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/utils/TransportZoneNotificationUtil.java",
+        "patchSetId": 17
+      },
+      "lineNbr": 227,
+      "author": {
+        "id": 670
+      },
+      "writtenOn": "2017-02-13T10:22:21Z",
+      "side": 1,
+      "message": "If not removing, replace this read with IInterfaceManager API",
+      "revId": "3fc4cb6af570041261bfb9ca51ee786c17df5c19",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_e0ba0a22",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/utils/TransportZoneNotificationUtil.java",
+        "patchSetId": 17
+      },
+      "lineNbr": 237,
+      "author": {
+        "id": 670
+      },
+      "writtenOn": "2017-02-13T10:22:21Z",
+      "side": 1,
+      "message": "This is the problematic code that caused the regression. Interface with a parentRef doesn\u0027t necessarily exist at time of interface-state creation.\nIf you are removing this code anyways, great, otherwise please talk with me..",
       "revId": "3fc4cb6af570041261bfb9ca51ee786c17df5c19",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
