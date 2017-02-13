@@ -69,12 +69,12 @@ public class VLANProvider implements ConfigInterface {
             Preconditions.checkNotNull(dpIdInt);
             Preconditions.checkNotNull(dpIdExt);
             Preconditions.checkNotNull(portNameInt);
-            vlanResponderProvider.programProviderNetworkOutput(dpIdInt, ofPort, patchIntPort, macAddress, write);
-            vlanResponderProvider.programProviderNetworkPopVlan(dpIdInt, network.getProviderSegmentationID(),
-                   ofPort, patchIntPort, macAddress, vlanProviderCache, write);
-            vlanResponderProvider.programProviderNetworkPushVlan(dpIdExt, network.getProviderSegmentationID(),
-                   patchExtPort, macAddress, vlanProviderCache, write);
-            vlanResponderProvider.programProviderNetworkDrop(dpIdExt, patchExtPort, vlanProviderCache, write);
+            vlanResponderProvider.programProviderNetworkRulesInternal(dpIdInt, network.getProviderSegmentationID(), ofPort,
+                    patchIntPort, macAddress, vlanProviderCache, write);
+
+            vlanResponderProvider.programProviderNetworkRulesExternal(dpIdExt, network.getProviderSegmentationID(),
+                    patchExtPort, macAddress, vlanProviderCache, write);
+
         } catch(Exception e) {
             LOG.error("programProviderNetworkFlow:Error while writing a flows. Caused due to, " + e.getMessage());
         }

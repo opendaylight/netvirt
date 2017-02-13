@@ -83,6 +83,7 @@ public class InstructionUtils {
     private static final Logger LOG = LoggerFactory.getLogger(InstructionUtils.class);
     private static final int IPV4 = 0x8100;
     private static final int MAX_LENGTH = 0xffff;
+    private static final int MAX_LENGTH_FOR_OUTPUT_INS = 60;
 
     /**
      * Create Send to Controller Reserved Port Instruction (packet_in)
@@ -187,26 +188,200 @@ public class InstructionUtils {
      */
     public static InstructionBuilder createOutputPortInstructions(InstructionBuilder ib, Long dpidLong, Long port) {
 
-        NodeConnectorId ncid = new NodeConnectorId("openflow:" + dpidLong + ":" + port);
-        LOG.debug("createOutputPortInstructions() Node Connector ID is - Type=openflow: DPID={} inPort={} ",
-                dpidLong, port);
+        List<Action> actionList = new ArrayList<>();
+        actionList.add(createOutputActionWithIndex(actionList.size(), dpidLong, port).build());
+
+        return createOutputApplyAction(ib, actionList);
+    }
+
+    /**
+     * Create Output Port Instruction and append the list of instructions
+     *
+     * @param ib       Map InstructionBuilder without any instructions
+     * @param dpidLong Long the datapath ID of a switch/node
+     * @param port     Long representing a port on a switch/node
+     * @param instructions the list of instructions
+     * @return ib InstructionBuilder Map with instructions
+     */
+    public static InstructionBuilder createOutputPortInstructions(InstructionBuilder ib,
+            Long dpidLong, Long port ,
+            List<Instruction> instructions) {
 
         List<Action> actionList = new ArrayList<>();
+        actionList.add(createOutputActionWithIndex(actionList.size(), dpidLong, port).build());
+
+        List<Action> existingActions;
+        for (Instruction instruction : instructions) {
+            if (instruction.getInstruction() instanceof ApplyActionsCase) {
+                existingActions = (((ApplyActionsCase) instruction.getInstruction()).getApplyActions().getAction());
+                // Only include output actions
+                for (Action action : existingActions) {
+                        actionList.add(action);
+                }
+            }
+        }
+
+        return createOutputApplyAction(ib, actionList);
+    }
+
+    /**
+     * Create Output Port Instruction with specified index and add to the list.
+     *
+     * @param index   index of the action
+     * @param dpidLong Long the datapath ID of a switch/node
+     * @param ofPort     Long representing a port on a switch/node
+     * @param outputInstructions list to add the generated actions
+     */
+    public static void createOutputPortInstruction(int index, Long dpidLong,
+                Long ofPort, List<Instruction> outputInstructions) {
+        InstructionBuilder ib = new InstructionBuilder();
+        List<Action> actionList = new ArrayList<>();
+        actionList.add(createOutputActionWithIndex(index, dpidLong, ofPort).build());
+
+        // Create an Apply Action
+        outputInstructions.add(createOutputApplyAction(ib, actionList).build());
+    }
+
+    private static ActionBuilder createOutputActionWithIndex(int index, long dpidLong, long ofPort) {
+        NodeConnectorId ncid = new NodeConnectorId("openflow:" + dpidLong + ":" + ofPort);
         ActionBuilder ab = new ActionBuilder();
+        /* Create output action for this port*/
         OutputActionBuilder oab = new OutputActionBuilder();
         oab.setOutputNodeConnector(ncid);
-
         ab.setAction(new OutputActionCaseBuilder().setOutputAction(oab.build()).build());
-        ab.setOrder(0);
-        ab.setKey(new ActionKey(0));
-        actionList.add(ab.build());
+        ab.setOrder(index);
+        ab.setKey(new ActionKey(index));
+        return ab;
+    }
 
+    private static InstructionBuilder createOutputApplyAction(InstructionBuilder ib, List<Action> actionList) {
         // Create an Apply Action
         ApplyActionsBuilder aab = new ApplyActionsBuilder();
         aab.setAction(actionList);
         ib.setInstruction(new ApplyActionsCaseBuilder().setApplyActions(aab.build()).build());
-
         return ib;
+    }
+
+    /**
+     * Create Output Port Instruction with push vlan.
+     *
+     * @param ib       Map InstructionBuilder without any instructions
+     * @param dpidLong Long the datapath ID of a switch/node
+     * @param port     Long representing a port on a switch/node
+     * @param instructions list to add the generated actions
+     * @param vlanId the vlan Id
+     */
+    public static InstructionBuilder createVlanOutputPortInstructions(InstructionBuilder ib,
+            Long dpidLong, Long port, List<Instruction> instructions, VlanId vlanId) {
+
+        List<Action> actionList = new ArrayList<>();
+        ActionBuilder ab = new ActionBuilder();
+
+        List<Action> existingActions;
+        for (Instruction instruction : instructions) {
+            if (instruction.getInstruction() instanceof ApplyActionsCase) {
+                existingActions = (((ApplyActionsCase) instruction.getInstruction()).getApplyActions().getAction());
+                // Only include output actions
+                for (Action action : existingActions) {
+                    if (action.getAction() instanceof OutputActionCase) {
+                        actionList.add(action);
+                    }
+                }
+            }
+        }
+        createPushVlanInstruction(ib, dpidLong, port, vlanId, actionList);
+        return ib;
+    }
+
+    /**
+     * Create Output Port Instruction with push vlan.
+     *
+     * @param ib       Map InstructionBuilder without any instructions
+     * @param dpidLong Long the datapath ID of a switch/node
+     * @param port     Long representing a port on a switch/node
+     * @param vlanId the vlan Id
+     * @param actionList list to actions to be added.
+     */
+    public static InstructionBuilder createPushVlanInstruction(InstructionBuilder ib,
+                Long dpidLong, Long port, VlanId vlanId, List<Action> actionList) {
+
+        NodeConnectorId ncid = new NodeConnectorId("openflow:" + dpidLong + ":" + port);
+        ActionBuilder ab = new ActionBuilder();
+
+        /* First we push vlan header */
+        PushVlanActionBuilder vlan = new PushVlanActionBuilder();
+        vlan.setEthernetType(IPV4);
+        ab.setAction(new PushVlanActionCaseBuilder().setPushVlanAction(vlan.build()).build());
+        ab.setOrder(actionList.size());
+        actionList.add(ab.build());
+
+        SetFieldBuilder setFieldBuilder = new SetFieldBuilder();
+
+        VlanMatchBuilder vlanMatchBuilder = new VlanMatchBuilder();
+        VlanIdBuilder vlanIdBuilder = new VlanIdBuilder();
+        vlanMatchBuilder.setVlanId(vlanIdBuilder.setVlanId(vlanId).setVlanIdPresent(true).build());
+        setFieldBuilder.setVlanMatch(vlanMatchBuilder.build());
+        ab = new ActionBuilder();
+        ab.setAction(new SetFieldCaseBuilder().setSetField(setFieldBuilder.build()).build());
+        ab.setOrder(actionList.size());
+        actionList.add(ab.build());
+
+        ab = new ActionBuilder();
+        OutputActionBuilder output = new OutputActionBuilder();
+        output.setMaxLength(MAX_LENGTH_FOR_OUTPUT_INS);
+        output.setOutputNodeConnector(ncid);
+        ab.setAction(new OutputActionCaseBuilder().setOutputAction(output.build()).build());
+        ab.setOrder(actionList.size());
+        actionList.add(ab.build());
+
+        return createOutputApplyAction(ib, actionList);
+    }
+
+    /**
+     * Create Output Port Instruction with Pop vlan.
+     *
+     * @param ib       Map InstructionBuilder without any instructions
+     * @param dpidLong Long the datapath ID of a switch/node
+     * @param port     Long representing a port on a switch/node
+     * @param instructions list to add the generated actions
+     */
+    public static InstructionBuilder createPopOutputPortInstructions(InstructionBuilder ib,
+            Long dpidLong, Long port ,
+            List<Instruction> instructions) {
+
+        List<Action> actionList = new ArrayList<>();
+        ActionBuilder ab = new ActionBuilder();
+
+        PopVlanActionBuilder popVlanActionBuilder = new PopVlanActionBuilder();
+        ab.setAction(new PopVlanActionCaseBuilder().setPopVlanAction(popVlanActionBuilder.build()).build());
+        ab.setOrder(0);
+        actionList.add(ab.build());
+        List<Action> existingActions;
+        if(instructions != null && !instructions.isEmpty()) {
+            for (Instruction instruction : instructions) {
+                if (instruction.getInstruction() instanceof ApplyActionsCase) {
+                    existingActions = (((ApplyActionsCase) instruction.getInstruction()).getApplyActions().getAction());
+                    // Only include output actions
+                    for (Action action : existingActions) {
+                        if (action.getAction() instanceof OutputActionCase) {
+                            actionList.add(action);
+                        }
+                    }
+                }
+           }
+        }
+
+        if (port != null) {
+            /* Create output action for this port*/
+            NodeConnectorId ncid = new NodeConnectorId("openflow:" + dpidLong + ":" + port);
+            OutputActionBuilder oab = new OutputActionBuilder();
+            oab.setOutputNodeConnector(ncid);
+            ab.setAction(new OutputActionCaseBuilder().setOutputAction(oab.build()).build());
+            ab.setOrder(actionList.size());
+            ab.setKey(new ActionKey(actionList.size()));
+            actionList.add(ab.build());
+        }
+        return createOutputApplyAction(ib, actionList);
     }
 
     /**
@@ -393,55 +568,6 @@ public class InstructionUtils {
         ab.setAction(new SetVlanIdActionCaseBuilder().setSetVlanIdAction(vl.build()).build());
         ab.setOrder(1);
         actionList.add(ab.build());
-        // Create an Apply Action
-        ApplyActionsBuilder aab = new ApplyActionsBuilder();
-        aab.setAction(actionList);
-
-        // Wrap our Apply Action in an Instruction
-        ib.setInstruction(new ApplyActionsCaseBuilder().setApplyActions(aab.build()).build());
-
-        return ib;
-    }
-
-    /**
-     * Creates Set Vlan ID Instruction along with VLAN Id match and NORMAL actions- This includes push vlan action, and set field -&gt; vlan vid action
-     * @param ib     Map InstructionBuilder without any instructions
-     * @param vlanId Integer representing a VLAN ID Integer representing a VLAN ID
-     * @return ib Map InstructionBuilder with instructions
-     */
-    public static InstructionBuilder createSetVlanAndNormalInstructions(InstructionBuilder ib, VlanId vlanId) {
-
-        List<Action> actionList = new ArrayList<>();
-        ActionBuilder ab = new ActionBuilder();
-
-        /* First we push vlan header */
-        PushVlanActionBuilder vlan = new PushVlanActionBuilder();
-        vlan.setEthernetType(IPV4);
-        ab.setAction(new PushVlanActionCaseBuilder().setPushVlanAction(vlan.build()).build());
-        ab.setOrder(0);
-        actionList.add(ab.build());
-
-        SetFieldBuilder setFieldBuilder = new SetFieldBuilder();
-
-        VlanMatchBuilder vlanBuilder1 = new VlanMatchBuilder();
-        VlanIdBuilder vlanIdBuilder = new VlanIdBuilder();
-        VlanId vlanId1 = new VlanId(vlanId);
-        vlanBuilder1.setVlanId(vlanIdBuilder.setVlanId(vlanId1).setVlanIdPresent(true).build());
-        setFieldBuilder.setVlanMatch(vlanBuilder1.build());
-        ab = new ActionBuilder();
-        ab.setAction(new SetFieldCaseBuilder().setSetField(setFieldBuilder.build()).build());
-        ab.setOrder(1);
-        actionList.add(ab.build());
-
-        ab = new ActionBuilder();
-        OutputActionBuilder output = new OutputActionBuilder();
-        output.setMaxLength(60);
-        Uri value = new Uri(OutputPortValues.NORMAL.toString());
-        output.setOutputNodeConnector(value);
-        ab.setAction(new OutputActionCaseBuilder().setOutputAction(output.build()).build());
-        ab.setOrder(2);
-        actionList.add(ab.build());
-
         // Create an Apply Action
         ApplyActionsBuilder aab = new ApplyActionsBuilder();
         aab.setAction(actionList);
