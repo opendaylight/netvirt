@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_ad6d9a9a",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronTrunkChangeListener.java",
+        "patchSetId": 12
+      },
+      "lineNbr": 141,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2017-02-13T16:15:03Z",
+      "side": 1,
+      "message": "wouldn\u0027t it be more efficient to batch all subport to single transaction using the parentRef as DjC key?",
+      "revId": "80dbc009629a5dd7adc2545ce62ba17c26b9c12f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_ad047ac0",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronTrunkChangeListener.java",
+        "patchSetId": 12
+      },
+      "lineNbr": 164,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2017-02-13T16:15:03Z",
+      "side": 1,
+      "message": "it was created as trunkMember and now it\u0027s becoming trunk?",
+      "range": {
+        "startLine": 164,
+        "startChar": 88,
+        "endLine": 164,
+        "endChar": 93
+      },
+      "revId": "80dbc009629a5dd7adc2545ce62ba17c26b9c12f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
