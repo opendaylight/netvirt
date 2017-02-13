@@ -8,10 +8,10 @@
 
 package org.opendaylight.netvirt.natservice.internal;
 
-import java.math.BigInteger;
-
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
+
+import java.math.BigInteger;
 
 import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
 import org.opendaylight.genius.mdsalutil.ActionInfo;
@@ -1522,15 +1522,6 @@ public class NatUtil {
                 .child(DpnVpninterfacesList.class, new DpnVpninterfacesListKey(dpnId)).build();
     }
 
-    static org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface getInterface(DataBroker broker, String interfaceName) {
-        Optional<org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface> optInterface =
-                read(broker, LogicalDatastoreType.CONFIGURATION, getInterfaceIdentifier(interfaceName));
-        if(optInterface.isPresent()) {
-            return optInterface.get();
-        }
-        return null;
-    }
-
     static InstanceIdentifier<RouterDpnList> getRouterId(String routerName) {
         return InstanceIdentifier.builder(NeutronRouterDpns.class)
                 .child(RouterDpnList.class, new RouterDpnListKey(routerName)).build();
@@ -1561,11 +1552,6 @@ public class NatUtil {
                 FloatingIpIdToPortMappingKey(floatingIpId)).build();
     }
 
-    static InstanceIdentifier<org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface> getInterfaceIdentifier(String interfaceName) {
-        return InstanceIdentifier.builder(Interfaces.class)
-                .child(
-                        org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface.class, new InterfaceKey(interfaceName)).build();
-    }
     static final FutureCallback<Void> DEFAULT_CALLBACK =
             new FutureCallback<Void>() {
                 @Override
