@@ -8,7 +8,10 @@
 package org.opendaylight.netvirt.elan.l2gw.listeners;
 
 import com.google.common.collect.Lists;
+import com.google.common.base.Optional;
+import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
+import com.google.common.util.concurrent.SettableFuture;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -16,14 +19,17 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.DataChangeListener;
+import org.opendaylight.controller.md.sal.binding.api.ReadWriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.clustering.EntityOwnershipService;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
 import org.opendaylight.genius.datastoreutils.hwvtep.HwvtepClusteredDataTreeChangeListener;
 import org.opendaylight.genius.utils.hwvtep.HwvtepSouthboundConstants;
 import org.opendaylight.genius.utils.hwvtep.HwvtepSouthboundUtils;
 import org.opendaylight.genius.utils.hwvtep.HwvtepUtils;
 import org.opendaylight.netvirt.elan.l2gw.utils.ElanL2GatewayUtils;
 import org.opendaylight.netvirt.elan.l2gw.utils.L2GatewayConnectionUtils;
+import org.opendaylight.netvirt.elan.l2gw.utils.SettableFutureCallback;
 import org.opendaylight.netvirt.elan.utils.ElanClusterUtils;
 import org.opendaylight.netvirt.elan.utils.ElanUtils;
 import org.opendaylight.netvirt.neutronvpn.api.l2gw.L2GatewayDevice;
@@ -75,7 +81,7 @@ public class HwvtepTerminationPointListener
     static Map<InstanceIdentifier<TerminationPoint>, Boolean> teps = new ConcurrentHashMap<>();
 
     public static void runJobAfterPhysicalLocatorIsAvialable(InstanceIdentifier<TerminationPoint> key,
-            Runnable runnable) {
+                                                             Runnable runnable) {
         if (teps.get(key) != null) {
             LOG.debug("physical locator already available {} running job ", key);
             runnable.run();
@@ -110,11 +116,20 @@ public class HwvtepTerminationPointListener
     protected void removed(InstanceIdentifier<TerminationPoint> identifier, TerminationPoint del) {
         LOG.trace("physical locator removed {}", identifier);
         teps.remove(identifier);
+        final HwvtepPhysicalPortAugmentation portAugmentation =
+                del.getAugmentation(HwvtepPhysicalPortAugmentation.class);
+        if (portAugmentation != null) {
+            final NodeId nodeId = identifier.firstIdentifierOf(Node.class).firstKeyOf(Node.class).getNodeId();
+            ElanClusterUtils.runOnlyInLeaderNode(entityOwnershipService, HwvtepSouthboundConstants.ELAN_ENTITY_NAME,
+                    "Handling Physical port delete", () ->
+                            handlePortDeleted(identifier, portAugmentation, del, nodeId));
+            return;
+        }
     }
 
     @Override
     protected void updated(InstanceIdentifier<TerminationPoint> identifier, TerminationPoint original,
-            TerminationPoint update) {
+                           TerminationPoint update) {
         LOG.trace("physical locator available {}", identifier);
     }
 
@@ -158,7 +173,7 @@ public class HwvtepTerminationPointListener
     }
 
     private List<ListenableFuture<Void>> handlePortAdded(HwvtepPhysicalPortAugmentation portAugmentation,
-            TerminationPoint portAdded, NodeId psNodeId) {
+                                                         TerminationPoint portAdded, NodeId psNodeId) {
         Node psNode = HwvtepUtils.getHwVtepNode(broker, LogicalDatastoreType.OPERATIONAL, psNodeId);
         if (psNode != null) {
             String psName = psNode.getAugmentation(PhysicalSwitchAugmentation.class).getHwvtepNodeName().getValue();
@@ -186,8 +201,32 @@ public class HwvtepTerminationPointListener
         return Collections.emptyList();
     }
 
+    private List<ListenableFuture<Void>> handlePortDeleted(InstanceIdentifier<TerminationPoint> identifier,
+                                                           HwvtepPhysicalPortAugmentation portAugmentation,
+                                                           TerminationPoint portDeleted,
+                                                           NodeId psNodeId) throws ReadFailedException {
+        List<ListenableFuture<Void>> futures = new ArrayList<>();
+        InstanceIdentifier<Node> psNodeIid = identifier.firstIdentifierOf(Node.class);
+        final ReadWriteTransaction tx = broker.newReadWriteTransaction();
+        final SettableFuture settableFuture = SettableFuture.create();
+        futures.add(settableFuture);
+        Futures.addCallback(
+                tx.read(LogicalDatastoreType.CONFIGURATION, psNodeIid), new SettableFutureCallback(settableFuture) {
+                    @Override
+                    public void onSuccess(Object resultNode) {
+                        Optional<Node> nodeOptional = (Optional<Node>) resultNode;
+                        if (nodeOptional.isPresent()) {
+                            //case of port deleted
+                            tx.delete(LogicalDatastoreType.CONFIGURATION, identifier);
+                            Futures.addCallback(tx.submit(), new SettableFutureCallback(settableFuture));
+                        }
+                    }
+                });
+        return futures;
+    }
+
     private List<VlanBindings> getVlanBindings(List<L2gatewayConnection> l2GwConns, NodeId hwvtepNodeId, String psName,
-            String newPortId) {
+                                               String newPortId) {
         List<VlanBindings> vlanBindings = new ArrayList<>();
         for (L2gatewayConnection l2GwConn : l2GwConns) {
             L2gateway l2Gateway = L2GatewayConnectionUtils.getNeutronL2gateway(broker, l2GwConn.getL2gatewayId());
