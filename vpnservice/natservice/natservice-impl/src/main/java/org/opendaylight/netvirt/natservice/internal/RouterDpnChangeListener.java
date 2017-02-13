@@ -26,10 +26,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.group.types.rev131018.Group
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.NeutronRouterDpns;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.neutron.router.dpns.RouterDpnList;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.neutron.router.dpns.router.dpn.list.DpnVpninterfacesList;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ExternalSubnets;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ext.routers.Routers;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.external.subnets.Subnets;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.external.subnets.SubnetsKey;
 import org.opendaylight.yangtools.concepts.ListenerRegistration;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
@@ -382,10 +380,7 @@ public class RouterDpnChangeListener
         }
 
         for (Uuid subnetId : externalSubnetIds) {
-            InstanceIdentifier<Subnets> subnetsIdentifier = InstanceIdentifier.create(ExternalSubnets.class)
-                    .child(Subnets.class, new SubnetsKey(subnetId));
-            Optional<Subnets> externalSubnet = NatUtil.read(dataBroker,
-                    LogicalDatastoreType.CONFIGURATION, subnetsIdentifier);
+            Optional<Subnets> externalSubnet = NatUtil.getOptionalExternalSubnets(dataBroker, subnetId);
             if (externalSubnet.isPresent()) {
                 long vpnIdForSubnet = NatUtil.getVpnId(dataBroker, externalSubnet.get().getVpnId().getValue());
                 if (vpnIdForSubnet != NatConstants.INVALID_ID) {
