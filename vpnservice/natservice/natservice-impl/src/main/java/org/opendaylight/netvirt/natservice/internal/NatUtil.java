@@ -13,6 +13,7 @@ import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import java.math.BigInteger;
 import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -155,6 +156,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev15060
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.subnetmaps.SubnetmapKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.vpnmaps.VpnMap;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.vpnmaps.VpnMapKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l3.rev150712.routers.attributes.routers.Router;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l3.rev150712.routers.attributes.routers.RouterKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.port.attributes.FixedIps;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.ports.attributes.ports.Port;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.rev150712.Neutron;
@@ -1661,5 +1664,70 @@ public class NatUtil {
             return routerData.get().getExtGwMacAddress();
         }
         return null;
+    }
+
+    static InstanceIdentifier<Router> buildNeutronRouterIdentifier(Uuid routerUuid) {
+        InstanceIdentifier<Router> routerInstanceIdentifier = InstanceIdentifier.create(Neutron.class)
+             .child(org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l3.rev150712.routers.attributes.Routers.class)
+             .child(Router.class, new RouterKey(routerUuid));
+        return routerInstanceIdentifier;
+    }
+
+    public static String getNeutronRouterNamebyUuid(DataBroker broker, Uuid routerUuid) {
+        InstanceIdentifier<Router> neutronRouterIdentifier = NatUtil.buildNeutronRouterIdentifier(routerUuid);
+        Optional<Router> neutronRouterData = NatUtil.read(broker, LogicalDatastoreType.CONFIGURATION,
+                neutronRouterIdentifier);
+        if (neutronRouterData.isPresent()) {
+            return neutronRouterData.get().getName();
+        }
+        return null;
+    }
+
+    public static List<Ports> getFloatingIpPortsForRouter(DataBroker broker, Uuid routerUuid) {
+
+        InstanceIdentifier<RouterPorts> routerPortsIdentifier = getRouterPortsId(routerUuid.getValue());
+        Optional<RouterPorts> routerPortsData = NatUtil.read(broker, LogicalDatastoreType.CONFIGURATION,
+                routerPortsIdentifier);
+        if (routerPortsData.isPresent()) {
+            return routerPortsData.get().getPorts();
+        }
+        return null;
+    }
+
+    public static List<Uuid> getRouterUuIdsForVpn(DataBroker broker, Uuid vpnUuid) {
+        InstanceIdentifier<ExternalNetworks> externalNwIdentifier = InstanceIdentifier.create(ExternalNetworks.class);
+        Optional<ExternalNetworks> externalNwData = NatUtil.read(broker, LogicalDatastoreType.CONFIGURATION,
+                externalNwIdentifier);
+        if (externalNwData.isPresent()) {
+            for (Networks externalNw : externalNwData.get().getNetworks()) {
+                if (externalNw.getVpnid() != null && externalNw.getVpnid().equals(vpnUuid)) {
+                    return externalNw.getRouterIds();
+                }
+            }
+        }
+        return null;
+    }
+
+    public static boolean isIpInSubnet(String ipAddress, String start, String end) {
+
+        try {
+            long ipLo = ipToLong(InetAddress.getByName(start));
+            long ipHi = ipToLong(InetAddress.getByName(end));
+            long ipToTest = ipToLong(InetAddress.getByName(ipAddress));
+            return (ipToTest >= ipLo && ipToTest <= ipHi);
+        } catch (UnknownHostException e) {
+            LOG.error("NAT Service : isIpInSubnet failed for IP {}. Exception {}", ipAddress, e.getMessage());
+            return false;
+        }
+    }
+
+    private static long ipToLong(InetAddress ip) {
+        byte[] octets = ip.getAddress();
+        long result = 0;
+        for (byte octet : octets) {
+            result <<= 8;
+            result |= octet & 0xff;
+        }
+        return result;
     }
 }
