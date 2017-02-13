@@ -111,7 +111,7 @@ public class IngressAclService extends AbstractServiceInstance implements Ingres
                         if (write) {
                             securityGroupCacheManger.addToCache(portSecurityRule.getSecurityRemoteGroupID(), portUuid, nodeId);
                         } else {
-                            securityGroupCacheManger.removeFromCache(portSecurityRule.getSecurityRemoteGroupID(), portUuid);
+                            securityGroupCacheManger.removeFromCache(portSecurityRule.getSecurityRemoteGroupID(), portUuid, nodeId);
                         }
                     }
                 } else {

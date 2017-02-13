@@ -120,7 +120,7 @@ public class EgressAclService extends AbstractServiceInstance implements EgressA
                             securityGroupCacheManger.addToCache(portSecurityRule.getSecurityRemoteGroupID(), portUuid, nodeId);
                         } else {
                             securityGroupCacheManger.removeFromCache(portSecurityRule.getSecurityRemoteGroupID(),
-                                                                     portUuid);
+                                                                     portUuid, nodeId);
                         }
                     }
                 } else {

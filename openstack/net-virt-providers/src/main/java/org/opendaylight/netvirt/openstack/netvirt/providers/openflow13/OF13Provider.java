@@ -39,6 +39,7 @@ import org.opendaylight.netvirt.openstack.netvirt.api.NetworkingProvider;
 import org.opendaylight.netvirt.openstack.netvirt.api.NetworkingProviderManager;
 import org.opendaylight.netvirt.openstack.netvirt.api.NodeCacheManager;
 import org.opendaylight.netvirt.openstack.netvirt.api.ResubmitAclLearnProvider;
+import org.opendaylight.netvirt.openstack.netvirt.api.SecurityGroupCacheManger;
 import org.opendaylight.netvirt.openstack.netvirt.api.SecurityServicesManager;
 import org.opendaylight.netvirt.openstack.netvirt.api.Southbound;
 import org.opendaylight.netvirt.openstack.netvirt.api.Status;
@@ -131,6 +132,7 @@ public class OF13Provider implements ConfigInterface, NetworkingProvider {
     private volatile ResubmitAclLearnProvider resubmitAclLearnProvider;
     private volatile L2ForwardingLearnProvider l2ForwardingLearnProvider;
     private volatile L2ForwardingProvider l2ForwardingProvider;
+    private volatile SecurityGroupCacheManger securityGroupCacheManger;
 
     public static final String NAME = "OF13Provider";
     private volatile BundleContext bundleContext;
@@ -278,7 +280,7 @@ public class OF13Provider implements ConfigInterface, NetworkingProvider {
         handleTunnelUnknownUcastFloodOut(dpid, TABLE_1_ISOLATE_TENANT, TABLE_2_LOCAL_FORWARD, segmentationId, localPort, true);
     }
 
-    private void removeLocalBridgeRules(Node node, Long dpid, String segmentationId, String attachedMac, long localPort) {
+    private void removeLocalBridgeRules(Node node, Long dpid, String segmentationId, String attachedMac, long localPort, boolean isMigratedPort) {
         /*
          * Table(0) Rule #3
          * ----------------
@@ -305,7 +307,9 @@ public class OF13Provider implements ConfigInterface, NetworkingProvider {
          * table=2,tun_id=0x5,dl_dst=00:00:00:00:00:01 actions=output:2
          */
 
-        handleLocalUcastOut(dpid, TABLE_2_LOCAL_FORWARD, segmentationId, localPort, attachedMac, false);
+        if(!isMigratedPort) {
+            handleLocalUcastOut(dpid, TABLE_2_LOCAL_FORWARD, segmentationId, localPort, attachedMac, false);
+        }
 
         /*
          * Table(2) Rule #2
@@ -759,7 +763,7 @@ public class OF13Provider implements ConfigInterface, NetworkingProvider {
                 programLocalVlanRules(node, dpid, segmentationId, attachedMac, localPort);
             }
             if ((isTunnel(networkType) || isVlan(networkType))) {
-                programLocalSecurityGroupRules(attachedMac, node, intf, dpid, localPort, segmentationId, true);
+                programLocalSecurityGroupRules(attachedMac, node, intf, dpid, localPort, segmentationId, false, true);
             }
             if (isTunnel(networkType)) {
                 LOG.debug("Program local bridge rules for interface {}, "
@@ -773,7 +777,7 @@ public class OF13Provider implements ConfigInterface, NetworkingProvider {
     }
 
     private void removeLocalRules(String networkType, String segmentationId, Node node,
-                                   OvsdbTerminationPointAugmentation intf) {
+                                   OvsdbTerminationPointAugmentation intf, boolean isMigratedPort) {
         LOG.debug("removeLocalRules: node: {}, intf: {}, networkType: {}, segmentationId: {}",
                 node.getNodeId(), intf.getName(), networkType, segmentationId);
         try {
@@ -801,10 +805,10 @@ public class OF13Provider implements ConfigInterface, NetworkingProvider {
                 removeLocalVlanRules(node, dpid, segmentationId, attachedMac, localPort);
             } else if (isTunnel(networkType)) {
                 LOG.debug("Remove local bridge rules for interface {}", intf.getName());
-                removeLocalBridgeRules(node, dpid, segmentationId, attachedMac, localPort);
+                removeLocalBridgeRules(node, dpid, segmentationId, attachedMac, localPort, isMigratedPort);
             }
             if (isTunnel(networkType) || isVlan(networkType)) {
-                programLocalSecurityGroupRules(attachedMac, node, intf, dpid, localPort, segmentationId, false);
+                programLocalSecurityGroupRules(attachedMac, node, intf, dpid, localPort, segmentationId, isMigratedPort, false);
             }
         } catch (Exception e) {
             LOG.error("Exception in removing Local Rules for {} on {}", intf, node, e);
@@ -865,7 +869,7 @@ public class OF13Provider implements ConfigInterface, NetworkingProvider {
 
     private void removeTunnelRules (String tunnelType, String segmentationId, InetAddress dst, Node node,
                                     OvsdbTerminationPointAugmentation intf,
-                                    boolean local, boolean isLastInstanceOnNode) {
+                                    boolean local, boolean isLastInstanceOnNode, boolean isMigratedPort) {
         LOG.debug("removeTunnelRules: node: {}, intf: {}, local: {}, tunnelType: {}, "
                         + "segmentationId: {}, dstAddr: {}, isLastinstanceOnNode: {}",
                 node.getNodeId(), intf.getName(), local, tunnelType, segmentationId, dst, isLastInstanceOnNode);
@@ -900,7 +904,7 @@ public class OF13Provider implements ConfigInterface, NetworkingProvider {
                     LOG.debug("Identified Tunnel port {} -> OF ({}) on {}",
                             tunIntf.getName(), tunnelOFPort, node);
 
-                    if (!local) {
+                    if (!local && !isMigratedPort) {
                         removeRemoteEgressTunnelBridgeRules(node, dpid, segmentationId, attachedMac,
                                 tunnelOFPort, localPort);
                     }
@@ -992,7 +996,7 @@ public class OF13Provider implements ConfigInterface, NetworkingProvider {
     }
 
     private void programLocalSecurityGroupRules(String attachedMac, Node node, OvsdbTerminationPointAugmentation intf,
-                                                Long dpid,long localPort, String segmentationId,
+                                                Long dpid,long localPort, String segmentationId, boolean isMigratedPort,
                                                 boolean write) {
 
         LOG.debug("programLocalRules: Program fixed security group rules for interface {}", intf.getName());
@@ -1028,6 +1032,13 @@ public class OF13Provider implements ConfigInterface, NetworkingProvider {
                                                             securityGroupInPort, neutronPortId, nodeId, write);
                 egressAclProvider.programPortSecurityGroup(dpid, segmentationId, attachedMac, localPort,
                                                            securityGroupInPort, neutronPortId, nodeId, write);
+                if (write) {
+                    securityGroupCacheManger.portAdded(securityGroupInPort.getSecurityGroupUUID(), neutronPortId);
+                } else {
+                    if(!isMigratedPort) {
+                        securityGroupCacheManger.portRemoved(securityGroupInPort.getSecurityGroupUUID(), neutronPortId);
+                    }
+                }
             }
 
         } else {
@@ -1223,7 +1234,7 @@ public class OF13Provider implements ConfigInterface, NetworkingProvider {
 
     @Override
     public boolean handleInterfaceDelete(String tunnelType, NeutronNetwork network, Node srcNode,
-                                         OvsdbTerminationPointAugmentation intf, boolean isLastInstanceOnNode) {
+                                         OvsdbTerminationPointAugmentation intf, boolean isLastInstanceOnNode, boolean isMigratedPort) {
         Map<org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.NodeId,Node> nodes =
                 nodeCacheManager.getOvsdbNodes();
         nodes.remove(southbound.extractBridgeOvsdbNodeId(srcNode));
@@ -1249,7 +1260,7 @@ public class OF13Provider implements ConfigInterface, NetworkingProvider {
         } else {
             // delete all other interfaces
             removeLocalRules(network.getProviderNetworkType(), segmentationId,
-                    srcNode, intf);
+                    srcNode, intf, isMigratedPort);
 
             if (isVlan(network.getProviderNetworkType())) {
                 removeVlanRules(network, srcNode, intf, isLastInstanceOnNode);
@@ -1263,7 +1274,7 @@ public class OF13Provider implements ConfigInterface, NetworkingProvider {
                         LOG.info("Remove tunnel rules for interface "
                                 + intf.getName() + " on srcNode " + srcNode.getNodeId().getValue());
                         removeTunnelRules(tunnelType, segmentationId,
-                                dst, srcNode, intf, true, isLastInstanceOnNode);
+                                dst, srcNode, intf, true, isLastInstanceOnNode, isMigratedPort);
                         Node dstBridgeNode = southbound.getBridgeNode(dstNode, Constants.INTEGRATION_BRIDGE);
                         //While removing last instance , check whether the network present in src node
                         //If network is not present in src node AND REMOTE MAC LEARNING IS not enabled,
@@ -1274,12 +1285,12 @@ public class OF13Provider implements ConfigInterface, NetworkingProvider {
                             //doesn't exist in a node, TunnelRules leaves it.
                             if (!isSrcinNw && !configurationService.isRemoteMacLearnEnabled()) {
                                 removeTunnelRules(tunnelType, segmentationId,
-                                    src, dstBridgeNode, intf, true, isLastInstanceOnNode);
+                                    src, dstBridgeNode, intf, true, isLastInstanceOnNode, isMigratedPort);
                             }
                             LOG.info("Remove tunnel rules for interface "
                                     + intf.getName() + " on dstNode " + dstNode.getNodeId().getValue());
                             removeTunnelRules(tunnelType, segmentationId, src,
-                                    dstBridgeNode, intf, false, isLastInstanceOnNode);
+                                    dstBridgeNode, intf, false, isLastInstanceOnNode, isMigratedPort);
                         }
                     } else {
                         LOG.warn("Tunnel end-point configuration missing. Please configure it in "
@@ -2037,6 +2048,8 @@ public class OF13Provider implements ConfigInterface, NetworkingProvider {
                 (SecurityServicesManager) ServiceHelper.getGlobalInstance(SecurityServicesManager.class, this);
         southbound =
                 (Southbound) ServiceHelper.getGlobalInstance(Southbound.class, this);
+        securityGroupCacheManger =
+                (SecurityGroupCacheManger) ServiceHelper.getGlobalInstance(SecurityGroupCacheManger.class, this);
     }
 
     @Override
