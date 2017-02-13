@@ -15,46 +15,29 @@ import java.util.Set;
  */
 public interface VlanResponderProvider {
     /**
-     * Creates flow for OUTPUT instruction.
-     * @param dpidLong dp Id
-     * @param patchIntPort patch port of internal bridge
-     * @param ofPortValue of port value
-     * @param macAddress mac address
-     * @param write - flag to indicate the operation
-     */
-    void programProviderNetworkOutput(Long dpidLong, Long patchIntPort, Long ofPortValue, String macAddress, boolean write);
-
-    /**
-     * Creates flow for POP VLAN instruction.
+     * Creates provider network flows for internal bridge.
+     *
      * @param dpidLong dp Id
      * @param segmentationId segmentation id
-     * @param patchIntPort patch port of internal bridge
-     * @param ofPortValue of port value
+     * @param patchPort patch port of internal bridge
+     * @param ofPort of port value
      * @param macAddress mac address
      * @param vlanProviderCache Initial VLAN cache with processing cache
      * @param write - flag to indicate the operation
      */
-    void programProviderNetworkPopVlan(Long dpidLong, String segmentationId, Long patchIntPort, Long ofPortValue, String macAddress,
-            Map<String, Set<String>> vlanProviderCache, boolean write);
+    void programProviderNetworkRulesInternal(Long dpidLong, String segmentationId, Long ofPort, Long patchPort,
+            String macAddress, Map<String, Set<String>> vlanProviderCache, boolean write);
 
     /**
-     * Creates flow for Push VLAN instruction.
-     * @param dpidLong dp Id
-     * @param segmentationId Segmentation id
+     * Creates provider network flows for external bridge.
+     *
+     * @param dpidLong dp id
+     * @param segmentationId segmentation id
      * @param patchExtPort patch port of external bridge
      * @param macAddress mac address
      * @param vlanProviderCache Initial VLAN cache with processing cache
      * @param write - flag indicate the operation
      */
-    void programProviderNetworkPushVlan(Long dpidLong, String segmentationId, Long patchExtPort, String macAddress,
-            Map<String, Set<String>> vlanProviderCache, boolean write);
-
-    /**
-     * Creates flow for Drop instruction.
-     * @param dpidLong dp id
-     * @param patchExtPort patch port of external bridge
-     * @param vlanProviderCache Initial VLAN cache with processing cache
-     * @param write - flag indicate the operation
-     */
-    void programProviderNetworkDrop(Long dpidLong, Long patchExtPort, Map<String, Set<String>> vlanProviderCache, boolean write);
+    void programProviderNetworkRulesExternal(Long dpidLong,  String segmentationId, Long patchExtPort,
+            String macAddress, Map<String, Set<String>> vlanProviderCache, boolean write);
 }
