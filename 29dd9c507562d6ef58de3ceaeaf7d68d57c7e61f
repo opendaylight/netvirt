@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_3bf8c7e4",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/VpnDpnToTransportZoneListener.java",
+        "patchSetId": 18
+      },
+      "lineNbr": 60,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2017-02-13T14:04:01Z",
+      "side": 1,
+      "message": "this statement has no meaning, you need extract to variable and pass to shouldCreateVtep\nalso, I think both lists can be null and you should protect against it",
+      "range": {
+        "startLine": 60,
+        "startChar": 8,
+        "endLine": 60,
+        "endChar": 73
+      },
+      "revId": "29dd9c507562d6ef58de3ceaeaf7d68d57c7e61f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
