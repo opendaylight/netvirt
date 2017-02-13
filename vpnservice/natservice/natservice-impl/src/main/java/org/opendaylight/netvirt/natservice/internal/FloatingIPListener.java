@@ -25,10 +25,8 @@ import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.mdsalutil.MatchInfo;
 import org.opendaylight.genius.mdsalutil.MetaDataUtil;
 import org.opendaylight.genius.mdsalutil.NwConstants;
-import org.opendaylight.genius.mdsalutil.actions.ActionGroup;
 import org.opendaylight.genius.mdsalutil.actions.ActionNxResubmit;
 import org.opendaylight.genius.mdsalutil.actions.ActionSetDestinationIp;
-import org.opendaylight.genius.mdsalutil.actions.ActionSetFieldEthernetSource;
 import org.opendaylight.genius.mdsalutil.actions.ActionSetSourceIp;
 import org.opendaylight.genius.mdsalutil.instructions.InstructionApplyActions;
 import org.opendaylight.genius.mdsalutil.instructions.InstructionGotoTable;
@@ -38,7 +36,6 @@ import org.opendaylight.genius.mdsalutil.matches.MatchEthernetType;
 import org.opendaylight.genius.mdsalutil.matches.MatchIpv4Destination;
 import org.opendaylight.genius.mdsalutil.matches.MatchIpv4Source;
 import org.opendaylight.genius.mdsalutil.matches.MatchMetadata;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.MacAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.IdManagerService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.OdlInterfaceRpcService;
@@ -238,36 +235,15 @@ public class FloatingIPListener extends AsyncDataTreeChangeListenerBase<Internal
 
         List<MatchInfo> matches = new ArrayList<>();
         matches.add(new MatchMetadata(MetaDataUtil.getVpnIdMetadata(vpnId), MetaDataUtil.METADATA_MASK_VRFID));
-
         matches.add(MatchEthernetType.IPV4);
-
         String externalIp = mapping.getExternalIp();
         matches.add(new MatchIpv4Source(externalIp, "32"));
 
         List<ActionInfo> actionsInfo = new ArrayList<>();
         List<InstructionInfo> instructions = new ArrayList<>();
 
-        Uuid floatingIpId = mapping.getExternalId();
-        String macAddress = NatUtil.getFloatingIpPortMacFromFloatingIpId(dataBroker, floatingIpId);
-        if (macAddress != null) {
-            actionsInfo.add(new ActionSetFieldEthernetSource(new MacAddress(macAddress)));
-        } else {
-            LOG.warn("No MAC address found for floating IP {}", externalIp);
-        }
-
-        if (provType != ProviderTypes.GRE) {
-            Uuid subnetId = NatUtil.getFloatingIpPortSubnetIdFromFloatingIpId(dataBroker, floatingIpId);
-            if (subnetId != null) {
-                long groupId = NatUtil.createGroupId(NatUtil.getGroupIdKey(subnetId.getValue()), idManager);
-                actionsInfo.add(new ActionGroup(groupId));
-            } else {
-                LOG.warn("No neutron Subnet found for floating IP {}", externalIp);
-            }
-        } else {
-            LOG.trace("NAT Service : External Network Provider Type is {}, resubmit to FIB", provType.toString());
-            actionsInfo.add(new ActionNxResubmit(NwConstants.L3_FIB_TABLE));
-        }
-
+        LOG.trace("NAT Service : External Network Provider Type is {}, resubmit to FIB", provType.toString());
+        actionsInfo.add(new ActionNxResubmit(NwConstants.L3_FIB_TABLE));
         instructions.add(new InstructionApplyActions(actionsInfo));
         String flowRef = NatUtil.getFlowRef(dpId, NwConstants.SNAT_TABLE, vpnId, externalIp);
 
