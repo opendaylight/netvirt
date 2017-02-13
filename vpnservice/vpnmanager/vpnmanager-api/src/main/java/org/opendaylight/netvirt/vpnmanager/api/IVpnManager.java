@@ -55,7 +55,7 @@ public interface IVpnManager {
      */
     void updateVpnFootprint(BigInteger dpId, String vpnName, String interfaceName, boolean add);
 
-    void setupSubnetMacIntoVpnInstance(String vpnName, String srcMacAddress,
+    void setupSubnetMacIntoVpnInstance(String vpnName, String subnetVpnName, String srcMacAddress,
             BigInteger dpnId, WriteTransaction writeTx, int addOrRemove);
 
     void setupRouterGwMacFlow(String routerName, String routerGwMac, BigInteger dpnId, Uuid extNetworkId,
