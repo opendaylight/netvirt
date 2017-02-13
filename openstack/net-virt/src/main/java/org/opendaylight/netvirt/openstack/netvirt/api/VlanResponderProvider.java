@@ -15,27 +15,65 @@ import java.util.Set;
  */
 public interface VlanResponderProvider {
     /**
-     * Creates flow for OUTPUT instruction.
+     * Creates flow for OUTPUT instruction with push vlan.
      * @param dpidLong dp Id
-     * @param patchIntPort patch port of internal bridge
-     * @param ofPortValue of port value
+     * @param segmentationId segmentation id
+     * @param patchPort patch port of internal bridge
+     * @param ofPort of port value
      * @param macAddress mac address
      * @param write - flag to indicate the operation
      */
-    void programProviderNetworkOutput(Long dpidLong, Long patchIntPort, Long ofPortValue, String macAddress, boolean write);
+    void programProviderPushVlanOutput(Long dpidLong, String segmentationId, Long ofPort, Long patchPort,
+            String macAddress, boolean write);
 
     /**
-     * Creates flow for POP VLAN instruction.
+     * Creates flow for OUTPUT instruction.
+     * @param dpidLong dp Id
+     * @param segmentationId segmentation id
+     * @param patchPort patch port of internal bridge
+     * @param ofPort of port value
+     * @param macAddress mac address
+     * @param write - flag to indicate the operation
+     */
+    void programProviderNetworkFlow(Long dpidLong, String segmentationId, Long ofPort, Long patchPort,
+            String macAddress, boolean write);
+
+    /**
+     * Creates flow for OUTPUT instruction with pop vlan instruction.
      * @param dpidLong dp Id
      * @param segmentationId segmentation id
      * @param patchIntPort patch port of internal bridge
      * @param ofPortValue of port value
      * @param macAddress mac address
+     * @param write - flag to indicate the operation
+     */
+    void programProviderNetworkPopOutput(Long dpidLong, String segmentationId, Long patchIntPort, Long ofPortValue, String macAddress,
+            boolean write);
+
+    /**
+     * Creates flow for output instruction with Push vlan.
+     * @param dpidLong dp Id
+     * @param segmentationId segmentation id
+     * @param patchPort patch port of internal bridge
+     * @param ofPort of port value
+     * @param macAddress mac address
+     * @param write - flag to indicate the operation
+     */
+    void programProviderNetworkpushVlanOutput(Long dpidLong, String segmentationId, Long ofPort, Long patchPort,
+            String macAddress, boolean write);
+
+    /**
+     * Creates flow for POP VLAN instruction.
+     * @param dpidLong dp Id
+     * @param segmentationId segmentation id
+     * @param patchPort patch port of internal bridge
+     * @param ofPort of port value
+     * @param macAddress mac address
      * @param vlanProviderCache Initial VLAN cache with processing cache
      * @param write - flag to indicate the operation
      */
-    void programProviderNetworkPopVlan(Long dpidLong, String segmentationId, Long patchIntPort, Long ofPortValue, String macAddress,
-            Map<String, Set<String>> vlanProviderCache, boolean write);
+    void programProviderNetworkPopVlan(Long dpidLong, String segmentationId,
+            Long ofPort, Long patchPort, String macAddress, Map<String, Set<String>> vlanProviderCache, boolean write);
 
     /**
      * Creates flow for Push VLAN instruction.

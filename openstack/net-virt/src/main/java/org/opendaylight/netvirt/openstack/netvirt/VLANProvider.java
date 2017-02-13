@@ -69,7 +69,10 @@ public class VLANProvider implements ConfigInterface {
             Preconditions.checkNotNull(dpIdInt);
             Preconditions.checkNotNull(dpIdExt);
             Preconditions.checkNotNull(portNameInt);
-            vlanResponderProvider.programProviderNetworkOutput(dpIdInt, ofPort, patchIntPort, macAddress, write);
+            vlanResponderProvider.programProviderPushVlanOutput(dpIdInt, network.getProviderSegmentationID(), ofPort, patchIntPort, macAddress, write);
+            vlanResponderProvider.programProviderNetworkFlow(dpIdInt, network.getProviderSegmentationID(), ofPort, patchIntPort, macAddress, write);
+            vlanResponderProvider.programProviderNetworkpushVlanOutput(dpIdInt, network.getProviderSegmentationID(), ofPort, patchIntPort, macAddress, write);
+            vlanResponderProvider.programProviderNetworkPopOutput(dpIdInt, network.getProviderSegmentationID(), ofPort, patchIntPort, macAddress, write);
             vlanResponderProvider.programProviderNetworkPopVlan(dpIdInt, network.getProviderSegmentationID(),
                    ofPort, patchIntPort, macAddress, vlanProviderCache, write);
             vlanResponderProvider.programProviderNetworkPushVlan(dpIdExt, network.getProviderSegmentationID(),
