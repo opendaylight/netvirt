@@ -1,0 +1,84 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_d5f22ad1",
+        "filename": "vpnservice/aclservice/impl/src/test/java/org/opendaylight/netvirt/aclservice/tests/AclServiceStatefulTest.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2017-02-13T09:07:14Z",
+      "side": 1,
+      "message": "I feel you can remove these comments.",
+      "range": {
+        "startLine": 32,
+        "startChar": 65,
+        "endLine": 32,
+        "endChar": 108
+      },
+      "revId": "b9a3094d7a9d31ebe0f1f5fd795cdaf11dc9d7e4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_d5f34a9c",
+        "filename": "vpnservice/aclservice/impl/src/test/java/org/opendaylight/netvirt/aclservice/tests/AclServiceStatefulTestIPv6.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2017-02-13T09:07:14Z",
+      "side": 1,
+      "message": "same here.",
+      "range": {
+        "startLine": 33,
+        "startChar": 68,
+        "endLine": 33,
+        "endChar": 115
+      },
+      "revId": "b9a3094d7a9d31ebe0f1f5fd795cdaf11dc9d7e4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_95554252",
+        "filename": "vpnservice/aclservice/impl/src/test/java/org/opendaylight/netvirt/aclservice/tests/AclServiceTestBase.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 184,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2017-02-13T09:07:14Z",
+      "side": 1,
+      "message": "May be i did not convey it clearly in my earlier comments, my suggestion was to use constants instead using numbers as shown below. Can you please do this change.\n\ni.e., \n\npublic static final int SOURCE_PORT_UNSPECIFIED \u003d -1;\npublic static final int DEST_PORT_UNSPECIFIED \u003d -1;\npublic static final int DEST_PORT_HTTP \u003d 80;\n\nnewMatch(SOURCE_PORT_UNSPECIFIED, SOURCE_PORT_UNSPECIFIED, DEST_PORT_HTTP, ....\n\nIf you think when specifying valid port numbers, the port numbers are not repeated and introducing constants for them is not so useful, then please do the changes for un-used variables (i.e., arguments like -1) alone.",
+      "revId": "b9a3094d7a9d31ebe0f1f5fd795cdaf11dc9d7e4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_b5e1669c",
+        "filename": "vpnservice/aclservice/impl/src/test/java/org/opendaylight/netvirt/aclservice/tests/FlowEntryObjectsStateful.xtend",
+        "patchSetId": 8
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2017-02-13T09:07:14Z",
+      "side": 1,
+      "message": "I\u0027m interested to hear Micheal\u0027s views on this.",
+      "revId": "b9a3094d7a9d31ebe0f1f5fd795cdaf11dc9d7e4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
