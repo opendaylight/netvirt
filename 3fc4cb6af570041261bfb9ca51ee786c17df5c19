@@ -1,0 +1,164 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_55d3dad5",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/pom.xml",
+        "patchSetId": 17
+      },
+      "lineNbr": 204,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2017-02-13T09:03:28Z",
+      "side": 1,
+      "message": "nit: trailing spaces",
+      "range": {
+        "startLine": 204,
+        "startChar": 72,
+        "endLine": 204,
+        "endChar": 73
+      },
+      "revId": "3fc4cb6af570041261bfb9ca51ee786c17df5c19",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_95d262fe",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/BridgeRefEntryToTransportZoneListener.java",
+        "patchSetId": 17
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2017-02-13T09:03:28Z",
+      "side": 1,
+      "message": "I talked to Shlomi about this listener that was introduced in this patch https://git.opendaylight.org/gerrit/#/c/44963/ due to bridge w/o dpn-id bug.\n\nAs both new listeners (ElanDpn, VpnDpn) will be updated after dpn-id was configured it seems safe to assume this listener is no longer needed",
+      "revId": "3fc4cb6af570041261bfb9ca51ee786c17df5c19",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_d5dcea14",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanDpnToTransportZoneListener.java",
+        "patchSetId": 17
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2017-02-13T09:03:28Z",
+      "side": 1,
+      "message": "final on members of all beans",
+      "revId": "3fc4cb6af570041261bfb9ca51ee786c17df5c19",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_b5d7a6ec",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/InterfaceStateToTransportZoneListener.java",
+        "patchSetId": 17
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2017-02-13T09:03:28Z",
+      "side": 1,
+      "message": "this lisneter can also be removed",
+      "range": {
+        "startLine": 23,
+        "startChar": 13,
+        "endLine": 23,
+        "endChar": 49
+      },
+      "revId": "3fc4cb6af570041261bfb9ca51ee786c17df5c19",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_1514b29e",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/VpnDpnToTransportZoneListener.java",
+        "patchSetId": 17
+      },
+      "lineNbr": 57,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2017-02-13T09:03:28Z",
+      "side": 1,
+      "message": "there is additional case to handle here - \nif TZ was not created during add() since none of the vpn-interfaces was part of vxlan network, need to check the vpn-interfaces in update.getVpnInterfaces().removeAll(original.getVpnInterfaces()) to see if any new vpn-interface from vxlan network was created during update",
+      "revId": "3fc4cb6af570041261bfb9ca51ee786c17df5c19",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_956ee22d",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/utils/TransportZoneNotificationUtil.java",
+        "patchSetId": 17
+      },
+      "lineNbr": 190,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2017-02-13T09:03:28Z",
+      "side": 1,
+      "message": "use IElanService.getElanInterfaceByElanInterfaceName()",
+      "revId": "3fc4cb6af570041261bfb9ca51ee786c17df5c19",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_b54a06aa",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/utils/TransportZoneNotificationUtil.java",
+        "patchSetId": 17
+      },
+      "lineNbr": 270,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2017-02-13T09:03:28Z",
+      "side": 1,
+      "message": "if you always pass dpn id you can fix this method\u0027s signature",
+      "range": {
+        "startLine": 270,
+        "startChar": 86,
+        "endLine": 270,
+        "endChar": 99
+      },
+      "revId": "3fc4cb6af570041261bfb9ca51ee786c17df5c19",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_f5cbee1b",
+        "filename": "vpnservice/features/pom.xml",
+        "patchSetId": 17
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2017-02-13T09:03:28Z",
+      "side": 1,
+      "message": "nit: trailing spaces",
+      "range": {
+        "startLine": 2,
+        "startChar": 74,
+        "endLine": 2,
+        "endChar": 75
+      },
+      "revId": "3fc4cb6af570041261bfb9ca51ee786c17df5c19",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
