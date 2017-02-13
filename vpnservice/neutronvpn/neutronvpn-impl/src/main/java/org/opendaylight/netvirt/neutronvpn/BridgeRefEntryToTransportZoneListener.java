@@ -55,13 +55,13 @@ public class BridgeRefEntryToTransportZoneListener extends AsyncDataTreeChangeLi
     protected void update(InstanceIdentifier<BridgeRefEntry> identifier, BridgeRefEntry original,
             BridgeRefEntry update) {
         LOG.debug("handle BridgeRefEntry update notification {}", update);
-        ism.updateTrasportZone(update);
+        ism.updateTransportZone(update);
     }
 
     @Override
     protected void add(InstanceIdentifier<BridgeRefEntry> identifier, BridgeRefEntry add) {
         LOG.debug("handle BridgeRefEntry add notification {}", add);
-        ism.updateTrasportZone(add);
+        ism.updateTransportZone(add);
     }
 
     @Override
