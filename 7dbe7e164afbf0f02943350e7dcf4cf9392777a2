@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_da59b95b",
+        "filename": "docs/specs/ipv6-cvr-north-south.rst",
+        "patchSetId": 4
+      },
+      "lineNbr": 247,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-13T04:07:18Z",
+      "side": 1,
+      "message": "I think for now we need to only punt neighbour solicitation requests that match the target of the router-gateway-ip-address.  All other neighbour solicitations can be dropped.",
+      "revId": "7dbe7e164afbf0f02943350e7dcf4cf9392777a2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
