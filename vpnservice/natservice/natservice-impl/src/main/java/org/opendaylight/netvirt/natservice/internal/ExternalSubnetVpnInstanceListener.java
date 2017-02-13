@@ -16,9 +16,7 @@ import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.VpnInstanceToVpnId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.to.vpn.id.VpnInstance;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ExternalSubnets;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.external.subnets.Subnets;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.external.subnets.SubnetsKey;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -69,11 +67,9 @@ public class ExternalSubnetVpnInstanceListener extends AsyncDataTreeChangeListen
 
     private void addOrDelDefaultFibRouteToSNATFlow(VpnInstance vpnInstance, int flowAction) {
         String vpnInstanceName = vpnInstance.getVpnInstanceName();
-        Uuid possibleExternalSubnetUuid = new Uuid(vpnInstanceName);
-        InstanceIdentifier<Subnets> subnetsIdentifier = InstanceIdentifier.builder(ExternalSubnets.class)
-                .child(Subnets.class, new SubnetsKey(possibleExternalSubnetUuid)).build();
-        Optional<Subnets> optionalSubnets = NatUtil.read(dataBroker, LogicalDatastoreType.CONFIGURATION,
-                subnetsIdentifier);
+        Uuid possibleExtSubnetUuid = new Uuid(vpnInstanceName);
+        Optional<Subnets> optionalSubnets = NatUtil.getOptionalExternalSubnets(dataBroker, possibleExtSubnetUuid);
+
         if (optionalSubnets.isPresent()) {
             LOG.debug("NAT Service : VpnInstance {} for external subnet {}.", vpnInstanceName, optionalSubnets.get());
             Subnets subnet = optionalSubnets.get();

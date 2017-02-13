@@ -230,23 +230,39 @@ public class ExternalNetworksChangeListener
                     LOG.debug("NAT Service : About to call advToBgpAndInstallFibAndTsFlows for dpnId {}, "
                         + "vpnName {} and externalIp {}", dpnId, vpnName, externalIp);
                     externalRouterListener.advToBgpAndInstallFibAndTsFlows(dpnId, NwConstants.INBOUND_NAPT_TABLE,
-                        vpnName, NatUtil.getVpnId(dataBroker, routerId.getValue()), externalIp, vpnService,
-                        fibService, bgpManager, dataBroker, LOG);
+                        vpnName, NatUtil.getVpnId(dataBroker, routerId.getValue()), routerId.getValue(), externalIp,
+                        vpnService, fibService, bgpManager, dataBroker, LOG);
                 }
             } else {
                 LOG.warn("NAT Service : No ipMapping present fot the routerId {}", routerId);
             }
 
+            LOG.info("YAIR vpnID was for vpnName {}", vpnName);
             long vpnId = NatUtil.getVpnId(dataBroker, vpnName);
             // Install 47 entry to point to 21
+            installNaptPfibEntriesForExternalSubnets(routerId, dpnId);
             if (vpnId != -1) {
-                LOG.debug("NAT Service : Calling externalRouterListener installNaptPfibEntry for donId {} "
+                LOG.debug("NAT Service : Calling externalRouterListener installNaptPfibEntry for dpnId {} "
                     + "and vpnId {}", dpnId, vpnId);
+                LOG.info("YAIR associateExternalNetworkWithVPN - dpnId {} - vpnId {}", dpnId, vpnId);
                 externalRouterListener.installNaptPfibEntry(dpnId, vpnId);
             }
-
         }
 
+    }
+
+    private void installNaptPfibEntriesForExternalSubnets(Uuid routerId, BigInteger dpnId) {
+        List<Uuid> externalSubnetIdsForRouter = NatUtil.getExternalSubnetIdsForRouter(dataBroker,
+                routerId.getValue());
+        for (Uuid externalSubnetId : externalSubnetIdsForRouter) {
+            long subnetVpnId = NatUtil.getVpnId(dataBroker, externalSubnetId.getValue());
+            if (subnetVpnId != -1) {
+                LOG.debug("NAT Service : Calling externalRouterListener installNaptPfibEntry for dpnId {} "
+                    + "and vpnId {}", dpnId, subnetVpnId);
+                LOG.info("YAIR associateExternalNetworkWithVPN - dpnId {} - subnetVpnId {}", dpnId, subnetVpnId);
+                externalRouterListener.installNaptPfibEntry(dpnId, subnetVpnId);
+            }
+        }
     }
 
     private void disassociateExternalNetworkFromVPN(Networks network, String vpnName) {

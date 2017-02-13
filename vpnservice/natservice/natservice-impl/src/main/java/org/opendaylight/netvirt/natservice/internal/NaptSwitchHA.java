@@ -234,7 +234,7 @@ public class NaptSwitchHA {
                         naptSwitch, routerId, externalIp, label);
                 }
             } else {
-                List<String> externalIps = NatUtil.getExternalIpsFromRouter(dataBroker, routerName);
+                List<String> externalIps = NatUtil.getExternalIpsForRouter(dataBroker, routerName);
                 if (externalIps != null) {
                     Uuid networkId = NatUtil.getNetworkIdFromRouterName(dataBroker, routerName);
                     if (networkId != null) {
@@ -809,6 +809,7 @@ public class NaptSwitchHA {
             //Table 47 point to table 21 for inbound traffic
             LOG.debug("NAT Service : installNaptPfibEntry in naptswitch with dpnId {} for router {}",
                 naptSwitch, routerId);
+            LOG.info("YAIR installSnatFlows dpnId {} - routerId {}", naptSwitch, routerId);
             externalRouterListener.installNaptPfibEntry(naptSwitch, routerId);
 
             //Table 47 point to group
@@ -837,13 +838,28 @@ public class NaptSwitchHA {
 
         String vpnName = getExtNetworkVpnName(routerName);
         if (vpnName != null) {
-            //Table 47 point to table 21 for outbound traffic
+            //NAPT PFIB point to FIB table for outbound traffic
             long vpnId = NatUtil.getVpnId(dataBroker, vpnName);
-            if (vpnId > 0) {
+            boolean shouldInstallNaptPfibWithExtNetworkVpnId = true;
+            List<Uuid> externalSubnetIds = NatUtil.getExternalSubnetIdsForRouter(dataBroker, routerName);
+            if (externalSubnetIds != null && !externalSubnetIds.isEmpty()) {
+                //NAPT PFIB point to FIB table for outbound traffic - using external subnetID as vpnID.
+                for (Uuid externalSubnetId : externalSubnetIds) {
+                    long externalSubnetVpnId = NatUtil.getExternalSubnetVpnId(dataBroker, externalSubnetId);
+                    if (externalSubnetVpnId != NatConstants.INVALID_ID) {
+                        shouldInstallNaptPfibWithExtNetworkVpnId = false;
+                        LOG.debug("NAT Service : installNaptPfibEntry fin naptswitch with dpnId {} for "
+                                + "BgpVpnId {}", naptSwitch, externalSubnetVpnId);
+                        externalRouterListener.installNaptPfibEntry(naptSwitch, externalSubnetVpnId);
+                    }
+                }
+            }
+            if (vpnId != NatConstants.INVALID_ID && shouldInstallNaptPfibWithExtNetworkVpnId) {
+                //NAPT PFIB table point to FIB table for outbound traffic - using external networkID as vpnID.
                 LOG.debug("NAT Service : installNaptPfibEntry fin naptswitch with dpnId {} for "
                     + "BgpVpnId {}", naptSwitch, vpnId);
                 externalRouterListener.installNaptPfibEntry(naptSwitch, vpnId);
-            } else {
+            } else if (vpnId != NatConstants.INVALID_ID) {
                 LOG.debug("NAT Service : Associated BgpvpnId not found for router {}", routerId);
             }
 
@@ -857,7 +873,8 @@ public class NaptSwitchHA {
                         + "with vpnName {} and externalIp {}",
                         naptSwitch, vpnName, externalIp);
                     externalRouterListener.advToBgpAndInstallFibAndTsFlows(naptSwitch, NwConstants.INBOUND_NAPT_TABLE,
-                        vpnName, routerId, externalIp, vpnService, fibService, bgpManager, dataBroker, LOG);
+                        vpnName, routerId, routerName, externalIp, vpnService, fibService, bgpManager, dataBroker,
+                        LOG);
                     LOG.debug("NAT Service : Successfully added fib entries in naptswitch {} for "
                         + "router {} with external IP {}", naptSwitch,
                         routerId, externalIp);
