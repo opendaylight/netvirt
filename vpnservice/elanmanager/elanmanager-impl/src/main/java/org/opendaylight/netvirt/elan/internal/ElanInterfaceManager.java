@@ -180,10 +180,10 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
         }
         InterfaceInfo interfaceInfo = interfaceManager.getInterfaceInfo(interfaceName);
         String elanInstanceName = elanInfo.getElanInstanceName();
-        DataStoreJobCoordinator coordinator = DataStoreJobCoordinator.getInstance();
         InterfaceRemoveWorkerOnElan configWorker = new InterfaceRemoveWorkerOnElan(elanInstanceName, elanInfo,
                 interfaceName, interfaceInfo, false, this);
-        coordinator.enqueueJob(elanInstanceName, configWorker, ElanConstants.JOB_MAX_RETRIES);
+        DataStoreJobCoordinator.getInstance().enqueueJob(elanInstanceName, configWorker,
+                ElanConstants.JOB_MAX_RETRIES);
     }
 
     public void removeElanInterface(List<ListenableFuture<Void>> futures, ElanInstance elanInfo, String interfaceName,
@@ -235,10 +235,12 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
                 && (ElanUtils.isVxlan(elanInfo) || ElanUtils.isVxlanSegment(elanInfo))) {
             setElanAndEtreeBCGrouponOtherDpns(elanInfo, dpId);
         }
-        DataStoreJobCoordinator coordinator = DataStoreJobCoordinator.getInstance();
+        String elanInterfaceJobKey = ElanUtils.getElanInterfaceJobKey(interfaceName);
         InterfaceRemoveWorkerOnElanInterface removeInterfaceWorker = new InterfaceRemoveWorkerOnElanInterface(
-                interfaceName, elanInfo, interfaceInfo, isInterfaceStateRemoved, this, isLastElanInterface);
-        coordinator.enqueueJob(interfaceName, removeInterfaceWorker, ElanConstants.JOB_MAX_RETRIES);
+                elanInterfaceJobKey, elanInfo, interfaceInfo, isInterfaceStateRemoved,
+                this, isLastElanInterface);
+        DataStoreJobCoordinator.getInstance().enqueueJob(elanInterfaceJobKey,
+                removeInterfaceWorker, ElanConstants.JOB_MAX_RETRIES);
     }
 
     private void removeEtreeUnknownDmacFlow(BigInteger dpId, ElanInstance elanInfo,
@@ -526,10 +528,9 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
             unProcessedElanInterfaces.put(elanInstanceName, elanInterfaces);
             return;
         }
-        DataStoreJobCoordinator coordinator = DataStoreJobCoordinator.getInstance();
         InterfaceAddWorkerOnElan addWorker = new InterfaceAddWorkerOnElan(elanInstanceName, elanInterfaceAdded,
                 interfaceInfo, elanInstance, this);
-        coordinator.enqueueJob(elanInstanceName, addWorker, ElanConstants.JOB_MAX_RETRIES);
+        DataStoreJobCoordinator.getInstance().enqueueJob(elanInstanceName, addWorker, ElanConstants.JOB_MAX_RETRIES);
     }
 
     void handleunprocessedElanInterfaces(ElanInstance elanInstance) throws ElanException {
@@ -646,10 +647,11 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
             setElanAndEtreeBCGrouponOtherDpns(elanInstance, dpId);
         }
 
-        DataStoreJobCoordinator coordinator = DataStoreJobCoordinator.getInstance();
-        InterfaceAddWorkerOnElanInterface addWorker = new InterfaceAddWorkerOnElanInterface(interfaceName,
+        String elanInterfaceJobKey = ElanUtils.getElanInterfaceJobKey(interfaceName);
+        InterfaceAddWorkerOnElanInterface addWorker = new InterfaceAddWorkerOnElanInterface(elanInterfaceJobKey,
                 elanInterface, interfaceInfo, elanInstance, isFirstInterfaceInDpn, this);
-        coordinator.enqueueJob(interfaceName, addWorker, ElanConstants.JOB_MAX_RETRIES);
+        DataStoreJobCoordinator.getInstance().enqueueJob(elanInterfaceJobKey, addWorker,
+                ElanConstants.JOB_MAX_RETRIES);
     }
 
     void setupEntriesForElanInterface(List<ListenableFuture<Void>> futures, ElanInstance elanInstance,
@@ -1542,7 +1544,7 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
                     Set<String> interfaceLists = new HashSet<>();
                     interfaceLists.addAll(dpnInterface.getInterfaces());
                     for (String ifName : interfaceLists) {
-                        dataStoreCoordinator.enqueueJob(ifName, () -> {
+                        dataStoreCoordinator.enqueueJob(ElanUtils.getElanInterfaceJobKey(ifName), () -> {
                             InterfaceInfo interfaceInfo = interfaceManager.getInterfaceInfo(ifName);
                             if (isOperational(interfaceInfo)) {
                                 installDMacAddressTables(elanInfo, interfaceInfo, srcDpId);
