@@ -159,8 +159,8 @@
         <argument ref="neutronvpnManager" />
   </bean>
 
-  <bean id="InterfaceStateToTransportZoneListener"
-        class="org.opendaylight.netvirt.neutronvpn.InterfaceStateToTransportZoneListener"
+  <bean id="InterfaceToTransportZoneListener"
+        class="org.opendaylight.netvirt.neutronvpn.InterfaceToTransportZoneListener"
         init-method="start" destroy-method="close">
     <argument ref="dataBroker" />
     <argument ref="neutronvpnManager" />
