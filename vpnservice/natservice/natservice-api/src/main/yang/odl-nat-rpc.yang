@@ -1,0 +1,85 @@
+module odl-nat-rpc {
+    namespace "urn:opendaylight:netvirt:natservice:rpc";
+    prefix odl-nat-rpc;
+
+    import ietf-yang-types { prefix "yang"; }
+
+    revision "2017-02-09" {
+        description "NAT RPC module";
+    }
+
+    grouping nat-router-info {
+        leaf router-uuid {
+            type yang:uuid;
+        }
+        leaf router-name {
+            type string;
+        }
+    }
+
+    grouping snat-state {
+        list snat-ip-mapping {
+            leaf internal-ip {
+                type string;
+            }
+            leaf internal-port {
+                type string;
+            }
+            leaf external-ip {
+                type string;
+            }
+            leaf external-port {
+                type string;
+            }
+            leaf protocol {
+                type string;
+            }
+        }
+    }
+
+    grouping dnat-configuration {
+        list dnat-ip-mapping {
+            leaf internal-ip {
+                type string;
+            }
+            leaf external-ip {
+                type string;
+            }
+        }
+    }
+
+    grouping nat-output {
+        list router-nat {
+            key router-uuid;
+            uses nat-router-info;
+            uses dnat-configuration;
+            uses snat-state;
+        }
+    }
+
+    rpc get_nat_translations_on_router {
+        description "Provides the NAT translations for given router uuid";
+        input {
+            leaf router-uuid {
+                mandatory true;
+                type yang:uuid;
+            }
+        }
+        output {
+            uses nat-output;
+        }
+    }
+
+    rpc get_nat_translations_on_vpn {
+        description "Provides internal-ip to external-ip mapping for given vpn uuid";
+        input {
+            leaf vpn-uuid {
+                mandatory true;
+                type yang:uuid;
+            }
+        }
+        output {
+            uses nat-output;
+        }
+    }
+}
