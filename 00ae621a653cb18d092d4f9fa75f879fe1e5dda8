@@ -16,6 +16,24 @@
       "revId": "00ae621a653cb18d092d4f9fa75f879fe1e5dda8",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_db789bf4",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/ExternalRoutersListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 2380,
+      "author": {
+        "id": 6248
+      },
+      "writtenOn": "2017-02-13T15:02:43Z",
+      "side": 1,
+      "message": "It does not build the same flow.\nThe flow we currently build in buildNaptFibExternalOutputFlowEntity include the IP address in the match.\n\nI either change buildNaptPfibFlowEntity and use it.\nOr add to buildNaptFibExternalOutputFlowEntity action to reset the NXM_OF_IN_PORT\nWhat is best?",
+      "parentUuid": "fafc7978_e0c5ea3c",
+      "revId": "00ae621a653cb18d092d4f9fa75f879fe1e5dda8",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
