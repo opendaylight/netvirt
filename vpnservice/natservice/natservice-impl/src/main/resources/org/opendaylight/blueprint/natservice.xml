@@ -37,6 +37,7 @@
                    interface="org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fib.rpc.rev160121.FibRpcService" />
   <odl:rpc-service id="odlArputilService"
                    interface="org.opendaylight.yang.gen.v1.urn.opendaylight.genius.arputil.rev160406.OdlArputilService" />
+  <odl:rpc-implementation ref="natRpcServiceImpl"/>
 
   <bean id="subnetmapListener"
         class="org.opendaylight.netvirt.natservice.internal.SubnetmapListener"
@@ -264,4 +265,9 @@
     <argument ref="fibRpcService" />
   </bean>
 
+  <bean id="natRpcServiceImpl" class="org.opendaylight.netvirt.natservice.rpcservice.NatRpcServiceImpl">
+    <argument ref="dataBroker"/>
+  </bean>
+  <service ref="natRpcServiceImpl"
+           interface="org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rpc.rev170209.OdlNatRpcService"/>
 </blueprint>
