@@ -8,19 +8,24 @@
 package org.opendaylight.netvirt.natservice.internal;
 
 import com.google.common.base.Optional;
+import com.google.common.util.concurrent.ListenableFuture;
+
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.DataChangeListener;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
+import org.opendaylight.genius.datastoreutils.DataStoreJobCoordinator;
 import org.opendaylight.genius.mdsalutil.FlowEntity;
 import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.interfaces.VpnInterface;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.iana._if.type.rev140508.Tunnel;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.InterfacesState;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
@@ -52,6 +57,7 @@ public class InterfaceStateEventListener
     private final FloatingIPListener floatingIPListener;
     private final NaptManager naptManager;
     private final NeutronvpnService neutronVpnService;
+    private static final String NAT_FLOW_DJC = "natflowdjc";
 
     public InterfaceStateEventListener(final DataBroker dataBroker, final IMdsalApiManager mdsalManager,
                                        final FloatingIPListener floatingIPListener,
@@ -85,44 +91,15 @@ public class InterfaceStateEventListener
     // TODO Clean up the exception handling
     @SuppressWarnings("checkstyle:IllegalCatch")
     protected void remove(InstanceIdentifier<Interface> identifier, Interface delintrf) {
-        final String interfaceName = delintrf.getName();
         LOG.trace("NAT Service : Interface {} removed event received", delintrf);
-        try {
-            if (delintrf != null) {
-                String routerName = getRouterIdForPort(dataBroker, interfaceName);
-                if (routerName != null) {
-                    LOG.trace("NAT Service : Port removed event received for interface {} ", interfaceName);
-
-                    BigInteger dpId;
-                    try {
-                        dpId = NatUtil.getDpIdFromInterface(delintrf);
-                    } catch (Exception e) {
-                        LOG.warn("NAT Service : Unable to retrieve DPNID from Interface operational data store for "
-                            + "Interface {}. Fetching from VPN Interface op data store. ", interfaceName, e);
-                        InstanceIdentifier<VpnInterface> id = NatUtil.getVpnInterfaceIdentifier(interfaceName);
-                        Optional<VpnInterface> optVpnInterface = NatUtil.read(dataBroker, LogicalDatastoreType
-                            .OPERATIONAL, id);
-                        if (!optVpnInterface.isPresent()) {
-                            LOG.debug("NAT Service : Interface {} is not a VPN Interface, ignoring.", interfaceName);
-                            return;
-                        }
-                        final VpnInterface vpnInterface = optVpnInterface.get();
-                        dpId = vpnInterface.getDpnId();
-                    }
-                    if (dpId == null || dpId.equals(BigInteger.ZERO)) {
-                        LOG.debug("NAT Service : Unable to get DPN ID for the Interface {}", interfaceName);
-                        return;
-                    }
-                    processInterfaceRemoved(interfaceName, dpId);
-                    removeSnatEntriesForPort(interfaceName, routerName);
-                } else {
-                    LOG.debug("NAT Service : PORT_REMOVE: Router Id is null either Interface {} is not associated "
-                        + "to router or failed to retrieve routerId due to exception", interfaceName);
-                }
-            }
-        } catch (Exception e) {
-            LOG.error("NAT Service : Exception caught in InterfaceOperationalStateRemove : {}", e);
+        if (Tunnel.class.equals(delintrf.getType())) {
+            LOG.debug("NAT Service : Interface {} is a tunnel Interface.Ignoring", delintrf.getName());
+            return;
         }
+        DataStoreJobCoordinator coordinator = DataStoreJobCoordinator.getInstance();
+        RendererNatFlowRemoveWorker natStateAddWorker =
+                new RendererNatFlowRemoveWorker(delintrf);
+        coordinator.enqueueJob(NAT_FLOW_DJC + delintrf.getName(), natStateAddWorker);
     }
 
     @Override
@@ -130,24 +107,14 @@ public class InterfaceStateEventListener
     @SuppressWarnings("checkstyle:IllegalCatch")
     protected void update(InstanceIdentifier<Interface> identifier, Interface original, Interface update) {
         LOG.trace("NAT Service : Operation Interface update event - Old: {}, New: {}", original, update);
-        String interfaceName = update.getName();
-        if (update.getOperStatus().equals(Interface.OperStatus.Up)) {
-            LOG.trace("NAT Service : Port UP event received for interface {} ", interfaceName);
-        } else if (update.getOperStatus().equals(Interface.OperStatus.Down)) {
-            try {
-                LOG.trace("NAT Service : Port DOWN event received for interface {} ", interfaceName);
-
-                String routerName = getRouterIdForPort(dataBroker, interfaceName);
-                if (routerName != null) {
-                    removeSnatEntriesForPort(interfaceName, routerName);
-                } else {
-                    LOG.debug("NAT Service : PORT_DOWN: Router Id is null, either Interface {} is not associated "
-                        + "to router or failed to retrieve routerId due to exception", interfaceName);
-                }
-            } catch (Exception ex) {
-                LOG.error("NAT Service : Exception caught in InterfaceOperationalStateDown : {}", ex);
-            }
+        if (Tunnel.class.equals(update.getType())) {
+            LOG.debug("NAT Service : Interface {} is a tunnel Interface.Ignoring", update.getName());
+            return;
         }
+        DataStoreJobCoordinator coordinator = DataStoreJobCoordinator.getInstance();
+        RendererNatFlowUpdateWorker natStateAddWorker =
+                new RendererNatFlowUpdateWorker(original, update);
+        coordinator.enqueueJob(NAT_FLOW_DJC + update.getName(), natStateAddWorker);
 
     }
 
@@ -156,16 +123,14 @@ public class InterfaceStateEventListener
     @SuppressWarnings("checkstyle:IllegalCatch")
     protected void add(InstanceIdentifier<Interface> identifier, Interface intrf) {
         LOG.trace("NAT Service : Interface {} up event received", intrf);
-        try {
-            String interfaceName = intrf.getName();
-            LOG.trace("NAT Service : Port added event received for interface {} ", interfaceName);
-            String routerId = getRouterIdForPort(dataBroker, interfaceName);
-            if (routerId != null) {
-                processInterfaceAdded(interfaceName);
-            }
-        } catch (Exception ex) {
-            LOG.error("NAT Service : Exception caught in Interface Operational State Up event: {}", ex);
+        if (Tunnel.class.equals(intrf.getType())) {
+            LOG.debug("NAT Service : Interface {} is a tunnel Interface.Ignoring", intrf.getName());
+            return;
         }
+        DataStoreJobCoordinator coordinator = DataStoreJobCoordinator.getInstance();
+        RendererNatFlowAddWorker natStateAddWorker =
+                new RendererNatFlowAddWorker(intrf);
+        coordinator.enqueueJob(NAT_FLOW_DJC + intrf.getName(), natStateAddWorker);
     }
 
     // TODO Clean up the exception handling
@@ -330,9 +295,8 @@ public class InterfaceStateEventListener
             + "router {} ip {} port {}", tableId, dpnId, routerId, ipAddress, ipPort);
     }
 
-    private void processInterfaceAdded(String portName) {
+    private void processInterfaceAdded(String portName, String routerId) {
         LOG.trace("NAT Service : Processing Interface Add Event for interface {}", portName);
-        String routerId = getRouterIdForPort(dataBroker, portName);
         List<InternalToExternalPortMap> intExtPortMapList = getIntExtPortMapListForPortName(portName, routerId);
         if (intExtPortMapList == null || intExtPortMapList.isEmpty()) {
             LOG.trace("Ip Mapping list is empty/null for portname {}", portName);
@@ -344,9 +308,8 @@ public class InterfaceStateEventListener
         }
     }
 
-    private void processInterfaceRemoved(String portName, BigInteger dpnId) {
+    private void processInterfaceRemoved(String portName, BigInteger dpnId, String routerId) {
         LOG.trace("NAT Service: Processing Interface Removed Event for interface {} on DPN ID {}", portName, dpnId);
-        String routerId = getRouterIdForPort(dataBroker, portName);
         List<InternalToExternalPortMap> intExtPortMapList = getIntExtPortMapListForPortName(portName, routerId);
         if (intExtPortMapList == null || intExtPortMapList.isEmpty()) {
             LOG.trace("Ip Mapping list is empty/null for portName {}", portName);
@@ -389,5 +352,120 @@ public class InterfaceStateEventListener
             LOG.error("NAT Service : Exception while receiving fixedIps for port {}", interfname);
         }
         return null;
+    }
+
+    private class RendererNatFlowAddWorker implements Callable<List<ListenableFuture<Void>>> {
+        Interface iface;
+
+        RendererNatFlowAddWorker(Interface iface) {
+            this.iface = iface;
+        }
+
+        @Override
+        @SuppressWarnings("checkstyle:IllegalCatch")
+        public List<ListenableFuture<Void>> call() {
+            final List<ListenableFuture<Void>> futures = new ArrayList<>();
+            LOG.trace("NAT Service : Interface {} up event received", iface);
+            try {
+                String interfaceName = iface.getName();
+                LOG.trace("NAT Service : Port added event received for interface {} ", interfaceName);
+                String routerId = getRouterIdForPort(dataBroker, interfaceName);
+                if (routerId != null) {
+                    processInterfaceAdded(interfaceName, routerId);
+                }
+            } catch (Exception ex) {
+                LOG.error("NAT Service : Exception caught in Interface Operational State Up event: {}", ex);
+            }
+            return futures;
+        }
+    }
+
+    private class RendererNatFlowRemoveWorker implements Callable<List<ListenableFuture<Void>>> {
+        Interface delintrf;
+
+        RendererNatFlowRemoveWorker(Interface delintrf) {
+            this.delintrf = delintrf;
+        }
+
+        @Override
+        @SuppressWarnings("checkstyle:IllegalCatch")
+        public List<ListenableFuture<Void>> call() {
+            final List<ListenableFuture<Void>> futures = new ArrayList<>();
+            final String interfaceName = delintrf.getName();
+            LOG.trace("NAT Service : Interface {} removed event received", delintrf);
+            try {
+                String routerName = getRouterIdForPort(dataBroker, interfaceName);
+                if (routerName != null) {
+                    LOG.trace("NAT Service : Port removed event received for interface {} ", interfaceName);
+
+                    BigInteger dpId;
+                    try {
+                        dpId = NatUtil.getDpIdFromInterface(delintrf);
+                    } catch (Exception e) {
+                        LOG.warn(
+                                "NAT Service : Unable to retrieve DPNID from Interface operational data store for"
+                                        + " Interface {}. Fetching from VPN Interface op data store. ",
+                                interfaceName, e);
+                        InstanceIdentifier<VpnInterface> id = NatUtil.getVpnInterfaceIdentifier(interfaceName);
+                        Optional<VpnInterface> optVpnInterface = NatUtil.read(dataBroker,
+                                LogicalDatastoreType.OPERATIONAL, id);
+                        if (!optVpnInterface.isPresent()) {
+                            LOG.debug("NAT Service : Interface {} is not a VPN Interface, ignoring.", interfaceName);
+                            return futures;
+                        }
+                        final VpnInterface vpnInterface = optVpnInterface.get();
+                        dpId = vpnInterface.getDpnId();
+                    }
+                    if (dpId == null || dpId.equals(BigInteger.ZERO)) {
+                        LOG.debug("NAT Service : Unable to get DPN ID for the Interface {}", interfaceName);
+                        return futures;
+                    }
+                    processInterfaceRemoved(interfaceName, dpId, routerName);
+                    removeSnatEntriesForPort(interfaceName, routerName);
+                } else {
+                    LOG.debug("NAT Service : PORT_REMOVE: Router Id is null either Interface {} is not associated "
+                            + "to router or failed to retrieve routerId due to exception", interfaceName);
+                }
+            } catch (Exception e) {
+                LOG.error("NAT Service : Exception caught in InterfaceOperationalStateRemove : {}", e);
+            }
+            return futures;
+        }
+    }
+
+    private class RendererNatFlowUpdateWorker implements Callable<List<ListenableFuture<Void>>> {
+        Interface original;
+        Interface update;
+
+        RendererNatFlowUpdateWorker(Interface original, Interface update) {
+            this.original = original;
+            this.update = update;
+        }
+
+        @Override
+        @SuppressWarnings("checkstyle:IllegalCatch")
+        public List<ListenableFuture<Void>> call() {
+            final List<ListenableFuture<Void>> futures = new ArrayList<>();
+            String interfaceName = update.getName();
+            if (update.getOperStatus().equals(Interface.OperStatus.Up)) {
+                LOG.debug("NAT Service : Port UP event received for interface {} ", interfaceName);
+            } else if (update.getOperStatus().equals(Interface.OperStatus.Down)) {
+                LOG.debug("NAT Service : Port DOWN event received for interface {} ", interfaceName);
+                try {
+                    String routerName = getRouterIdForPort(dataBroker, interfaceName);
+                    if (routerName != null) {
+                        removeSnatEntriesForPort(interfaceName, routerName);
+                    } else {
+                        LOG.debug(
+                                "NAT Service : PORT_DOWN: Router Id is null, either Interface {} is not associated "
+                                        + "to router {} or failed to retrieve routerId due to exception",
+                                interfaceName, routerName);
+                    }
+                } catch (Exception ex) {
+                    LOG.error("NAT Service : Exception caught in InterfaceOperationalStateDown : {}", ex);
+                }
+            }
+            return futures;
+        }
     }
 }
