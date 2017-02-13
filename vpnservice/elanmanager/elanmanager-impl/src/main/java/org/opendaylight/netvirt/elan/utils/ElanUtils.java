@@ -2155,4 +2155,8 @@ public class ElanUtils {
     public static String getElanMacKey(long elanTag, String macAddress) {
         return ("MAC-" + macAddress + " ELAN_TAG-" + elanTag).intern();
     }
+    
+    public static String getElanInterfaceJobKey(String interfaceName) {
+        return "ELAN-" + interfaceName;
+    }
 }
