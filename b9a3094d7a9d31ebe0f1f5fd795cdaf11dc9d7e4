@@ -2,6 +2,23 @@
   "comments": [
     {
       "key": {
+        "uuid": "fafc7978_30110106",
+        "filename": "vpnservice/aclservice/impl/src/test/java/org/opendaylight/netvirt/aclservice/tests/AclServiceStatefulTest.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 5867
+      },
+      "writtenOn": "2017-02-13T18:30:10Z",
+      "side": 1,
+      "message": "it\u0027s best to mark this as \"private final\"",
+      "revId": "b9a3094d7a9d31ebe0f1f5fd795cdaf11dc9d7e4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_d5f22ad1",
         "filename": "vpnservice/aclservice/impl/src/test/java/org/opendaylight/netvirt/aclservice/tests/AclServiceStatefulTest.java",
         "patchSetId": 8
@@ -13,6 +30,30 @@
       "writtenOn": "2017-02-13T09:07:14Z",
       "side": 1,
       "message": "I feel you can remove these comments.",
+      "range": {
+        "startLine": 32,
+        "startChar": 65,
+        "endLine": 32,
+        "endChar": 108
+      },
+      "revId": "b9a3094d7a9d31ebe0f1f5fd795cdaf11dc9d7e4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_f00659cd",
+        "filename": "vpnservice/aclservice/impl/src/test/java/org/opendaylight/netvirt/aclservice/tests/AclServiceStatefulTest.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 5867
+      },
+      "writtenOn": "2017-02-13T18:30:10Z",
+      "side": 1,
+      "message": "yes it\u0027s always better to not have left over comments",
+      "parentUuid": "fafc7978_d5f22ad1",
       "range": {
         "startLine": 32,
         "startChar": 65,
@@ -65,6 +106,41 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_3028e133",
+        "filename": "vpnservice/aclservice/impl/src/test/java/org/opendaylight/netvirt/aclservice/tests/AclServiceTestBase.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 184,
+      "author": {
+        "id": 5867
+      },
+      "writtenOn": "2017-02-13T18:30:10Z",
+      "side": 1,
+      "message": "that\u0027s probably a good idea, if the matches use same ports, but are otherwise different. What you could also consider, I\u0027m not sure if it\u0027s applicable here and an object like matches are the same for several tests, or almost the same, is to have a method in the test which creates it, like private/protected Matches newMatchSourceUnspecifiedDestinationHTTP() { return newMatch(...) kind of thing.  Up to you guys to determine if this adds readability here to understand what the test does.",
+      "parentUuid": "fafc7978_95554252",
+      "revId": "b9a3094d7a9d31ebe0f1f5fd795cdaf11dc9d7e4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_b01b311a",
+        "filename": "vpnservice/aclservice/impl/src/test/java/org/opendaylight/netvirt/aclservice/tests/FlowEntryObjectsStateful.xtend",
+        "patchSetId": 8
+      },
+      "lineNbr": 36,
+      "author": {
+        "id": 5867
+      },
+      "writtenOn": "2017-02-13T18:30:10Z",
+      "side": 1,
+      "message": "if this is not needed anymore, then just remove it, don\u0027t leave commented out code laying around.",
+      "revId": "b9a3094d7a9d31ebe0f1f5fd795cdaf11dc9d7e4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_b5e1669c",
         "filename": "vpnservice/aclservice/impl/src/test/java/org/opendaylight/netvirt/aclservice/tests/FlowEntryObjectsStateful.xtend",
         "patchSetId": 8
@@ -76,6 +152,24 @@
       "writtenOn": "2017-02-13T09:07:14Z",
       "side": 1,
       "message": "I\u0027m interested to hear Micheal\u0027s views on this.",
+      "revId": "b9a3094d7a9d31ebe0f1f5fd795cdaf11dc9d7e4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_501c8513",
+        "filename": "vpnservice/aclservice/impl/src/test/java/org/opendaylight/netvirt/aclservice/tests/FlowEntryObjectsStateful.xtend",
+        "patchSetId": 8
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 5867
+      },
+      "writtenOn": "2017-02-13T18:30:10Z",
+      "side": 1,
+      "message": "The idea of this, to use non-static, is good (I originally suggested it, see earlier comments), because then you can override in subclasses.  BUT, but... I\u0027m not sure if we\u0027ve really pushed this far enough - FlowEntryObjectsStatefulIPv6.xtend is still over 2000 lines - I was assuming that you would be able to refactor it much better than this... is that not possible, are those flows THAT different that you have to copy/paste them completely?",
+      "parentUuid": "fafc7978_b5e1669c",
       "revId": "b9a3094d7a9d31ebe0f1f5fd795cdaf11dc9d7e4",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
