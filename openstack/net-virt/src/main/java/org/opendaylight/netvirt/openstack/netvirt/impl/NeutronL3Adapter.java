@@ -165,7 +165,6 @@ public class NeutronL3Adapter extends AbstractHandler implements GatewayMacResol
             this.networkIdToRouterMacCache = new HashMap<>();
             this.networkIdToRouterIpListCache = new HashMap<>();
             this.subnetIdToRouterInterfaceCache = new HashMap<>();
-            this.neutronPortToDpIdCache = new HashMap<>();
             this.floatIpDataMapCache = new HashMap<>();
 
             this.externalRouterMac = configurationService.getDefaultGatewayMacAddress(null);
@@ -177,6 +176,7 @@ public class NeutronL3Adapter extends AbstractHandler implements GatewayMacResol
         } else {
             LOG.debug("OVSDB L3 forwarding is disabled");
         }
+        this.neutronPortToDpIdCache = new HashMap<>();
         this.portCleanupCache = new ConcurrentHashMap<>();
         this.networkCleanupCache = new ConcurrentHashMap<>();
     }
@@ -281,7 +281,7 @@ public class NeutronL3Adapter extends AbstractHandler implements GatewayMacResol
         LOG.debug("NetVirt L3 caches population is done");
     }
 
-    private Pair<Long, Uuid> getDpIdOfNeutronPort(String neutronTenantPortUuid) {
+    public Pair<Long, Uuid> getDpIdOfNeutronPort(String neutronTenantPortUuid) {
         if(neutronPortToDpIdCache.get(neutronTenantPortUuid) == null) {
             List<Node> bridges = this.southbound.readOvsdbTopologyBridgeNodes();
             LOG.debug("getDpIdOfNeutronPort : {} bridges present in ovsdb topology",bridges.size());
@@ -807,10 +807,6 @@ public class NeutronL3Adapter extends AbstractHandler implements GatewayMacResol
             storePortInCleanupCache(neutronPort);
         }
 
-        if (!this.enabled) {
-            return;
-        }
-
         final Long dpId = getDpidForIntegrationBridge(bridgeNode);
         final Uuid interfaceUuid = intf.getInterfaceUuid();
 
@@ -824,7 +820,9 @@ public class NeutronL3Adapter extends AbstractHandler implements GatewayMacResol
                 handleInterfaceEventAdd(neutronPortUuid, dpId, interfaceUuid);
             }
 
-            handleNeutronPortEvent(neutronPort, action);
+            if (this.enabled) {
+                handleNeutronPortEvent(neutronPort, action);
+            }
         }
 
         if (action == DELETE && interfaceUuid != null) {

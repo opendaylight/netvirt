@@ -84,7 +84,7 @@ public class SecurityGroupCacheManagerImpl implements ConfigInterface, SecurityG
     }
 
     @Override
-    public void removeFromCache(String remoteSgUuid, String portUuid) {
+    public void removeFromCache(String remoteSgUuid, String portUuid, NodeId nodeId) {
         LOG.debug("In removeFromCache remoteSgUuid:" + remoteSgUuid + " portUuid:" + portUuid);
         Map<String, NodeId> remoteSgPorts = securityGroupCache.get(remoteSgUuid);
         if (null == remoteSgPorts) {
@@ -95,8 +95,11 @@ public class SecurityGroupCacheManagerImpl implements ConfigInterface, SecurityG
         for (Iterator<String> iterator = portSet.iterator(); iterator.hasNext();) {
             String cachedPort = iterator.next();
             if (cachedPort.equals(portUuid)) {
-                iterator.remove();
-                break;
+                NodeId cachedNodeId = remoteSgPorts.get(cachedPort);
+                if(cachedNodeId.equals(nodeId)) {
+                    iterator.remove();
+                    break;
+                }
             }
         }
         if (portSet.isEmpty()) {
