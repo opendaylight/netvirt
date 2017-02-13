@@ -49,7 +49,6 @@ import org.opendaylight.genius.mdsalutil.instructions.InstructionGotoTable;
 import org.opendaylight.genius.mdsalutil.instructions.InstructionWriteMetadata;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.genius.mdsalutil.matches.MatchEthernetType;
-import org.opendaylight.genius.mdsalutil.matches.MatchIpv4Source;
 import org.opendaylight.genius.mdsalutil.matches.MatchMetadata;
 import org.opendaylight.genius.mdsalutil.matches.MatchMplsLabel;
 import org.opendaylight.genius.mdsalutil.matches.MatchTunnelId;
@@ -258,7 +257,6 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
                     } else {
                         LOG.debug("NAT Service : Handle NAPT switch");
                         handlePrimaryNaptSwitch(dpnId, routerName);
-                        installNaptPfibExternalOutputFlow(routers, dpnId);
                     }
                 }
             }
@@ -272,7 +270,7 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
             for (String externalIpAddrPrefix : externalIps) {
                 LOG.debug("NAT Service : Calling handleSnatReverseTraffic for primarySwitchId {}, "
                     + "routerName {} and externalIpAddPrefix {}", primarySwitchId, routerName, externalIpAddrPrefix);
-                handleSnatReverseTraffic(primarySwitchId, segmentId, externalIpAddrPrefix);
+                handleSnatReverseTraffic(primarySwitchId, segmentId, routerName, externalIpAddrPrefix);
             }
         }
         LOG.info("NAT Service : handleEnableSnat() Exit");
@@ -296,23 +294,13 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
         return primarySwitchId;
     }
 
-    private void installNaptPfibExternalOutputFlow(Routers routers, BigInteger dpnId) {
-        Long extVpnId = NatUtil.getVpnId(dataBroker, routers.getNetworkId().getValue());
-        List<String> extIps = NatUtil.getIpsListFromExternalIps(routers.getExternalIps());
-        installNaptPfibExternalOutputFlow(dpnId, extVpnId, extIps);
-    }
-
     protected void installNaptPfibExternalOutputFlow(String routerName, Long routerId, BigInteger dpnId) {
         Long extVpnId = NatUtil.getVpnId(dataBroker, routerId);
         if (extVpnId == null || extVpnId == NatConstants.INVALID_ID) {
             LOG.debug("installNaptPfibExternalOutputFlow - not found extVpnId for router {}", routerId);
             extVpnId = routerId;
         }
-        List<String> externalIps = NatUtil.getExternalIpsFromRouter(dataBroker, routerName);
-        installNaptPfibExternalOutputFlow(dpnId, extVpnId, externalIps);
-    }
-
-    private void installNaptPfibExternalOutputFlow(BigInteger dpnId, Long extVpnId, List<String> externalIps) {
+        List<String> externalIps = NatUtil.getExternalIpsForRouter(dataBroker, routerName);
         if (externalIps == null || externalIps.isEmpty()) {
             LOG.debug("installNaptPfibExternalOutputFlow - empty external Ips list for dpnId {} extVpnId {}",
                 dpnId, extVpnId);
@@ -321,9 +309,13 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
         for (String ip : externalIps) {
             Uuid subnetId = getSubnetIdForFixedIp(ip);
             if (subnetId != null) {
-                LOG.debug("installNaptPfibExternalOutputFlow - dpnId {} extVpnId {} subnetId {} ip {}",
-                    dpnId, extVpnId, subnetId, ip);
-                FlowEntity postNaptFlowEntity = buildNaptFibExternalOutputFlowEntity(dpnId, extVpnId, subnetId, ip);
+                long subnetVpnId = NatUtil.getExternalSubnetVpnId(dataBroker, subnetId);
+                if (subnetVpnId != NatConstants.INVALID_ID) {
+                    extVpnId = subnetVpnId;
+                }
+                LOG.debug("installNaptPfibExternalOutputFlow - dpnId {} extVpnId {} subnetId {}",
+                    dpnId, extVpnId, subnetId);
+                FlowEntity postNaptFlowEntity = buildNaptPfibFlowEntity(dpnId, extVpnId);
                 mdsalManager.installFlow(postNaptFlowEntity);
             }
         }
@@ -825,7 +817,8 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
         installTerminatingServiceTblEntry(dpnId, routerName);
         //Install the NAPT PFIB TABLE which forwards the outgoing packet to FIB Table matching on the router ID.
         installNaptPfibEntry(dpnId, routerId);
-        Long vpnId = NatUtil.getVpnId(dataBroker, routerId);
+        Long vpnId = NatUtil.getVpnId(dataBroker, routerName);
+        installNaptPfibEntriesForExternalSubnets(routerName, dpnId);
         //Install the NAPT PFIB TABLE which forwards the outgoing packet to FIB Table matching on the VPN ID.
         if (vpnId != null && vpnId != NatConstants.INVALID_ID) {
             installNaptPfibEntry(dpnId, vpnId);
@@ -864,12 +857,11 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
         FlowEntity flowEntity = MDSALUtil.buildFlowEntity(dpId, NwConstants.NAPT_PFIB_TABLE, flowRef,
             NatConstants.DEFAULT_PSNAT_FLOW_PRIORITY, flowRef, 0, 0,
             NwConstants.COOKIE_SNAT_TABLE, matches, instructionInfo);
-
         LOG.debug("NAT Service : Returning NaptPFib Flow Entity {}", flowEntity);
         return flowEntity;
     }
 
-    private void handleSnatReverseTraffic(BigInteger dpnId, long routerId, String externalIp) {
+    private void handleSnatReverseTraffic(BigInteger dpnId, long routerId, String routerName, String externalIp) {
         LOG.debug("NAT Service : handleSnatReverseTraffic() entry for DPN ID, routerId, externalIp: {}",
             dpnId, routerId, externalIp);
         Uuid networkId = NatUtil.getNetworkIdFromRouterId(dataBroker, routerId);
@@ -884,24 +876,19 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
                 networkId, externalIp, routerId);
             return;
         }
-        advToBgpAndInstallFibAndTsFlows(dpnId, NwConstants.INBOUND_NAPT_TABLE, vpnName, routerId,
+        advToBgpAndInstallFibAndTsFlows(dpnId, NwConstants.INBOUND_NAPT_TABLE, vpnName, routerId, routerName,
             externalIp, vpnService, fibService, bgpManager, dataBroker, LOG);
         LOG.debug("NAT Service : handleSnatReverseTraffic() exit for DPN ID, routerId, externalIp : {}",
             dpnId, routerId, externalIp);
     }
 
     public void advToBgpAndInstallFibAndTsFlows(final BigInteger dpnId, final short tableId, final String vpnName,
-                                                final long routerId, final String externalIp,
+                                                final long routerId, final String routerName, final String externalIp,
                                                 VpnRpcService vpnService, final FibRpcService fibService,
                                                 final IBgpManager bgpManager, final DataBroker dataBroker,
                                                 final Logger log) {
         LOG.debug("NAT Service : advToBgpAndInstallFibAndTsFlows() entry for DPN ID {}, tableId {}, vpnname {} "
                 + "and externalIp {}", dpnId, tableId, vpnName, externalIp);
-        String routerName = NatUtil.getRouterName(dataBroker, routerId);
-        if (routerName == null) {
-            LOG.error("NAT Service : Unable to retrieve the Router Name from Router ID {}", routerId);
-            return;
-        }
         String nextHopIp = NatUtil.getEndpointIpAddressForDPN(dataBroker, dpnId);
         String rd = NatUtil.getVpnRd(dataBroker, vpnName);
         if (rd == null || rd.isEmpty()) {
@@ -967,15 +954,18 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
                             externalIp, nextHopIp, label, log, RouteOrigin.STATIC, dpnId);
 
                         //Install custom FIB routes
-                        List<Instruction> customInstructions = new ArrayList<>();
-                        customInstructions.add(new InstructionGotoTable(tableId).buildInstruction(0));
-                        makeTunnelTableEntry(dpnId, label, customInstructions);
+                        List<Instruction> tunnelTableCustomInstructions = new ArrayList<>();
+                        tunnelTableCustomInstructions.add(new InstructionGotoTable(tableId).buildInstruction(0));
+                        makeTunnelTableEntry(dpnId, label, tunnelTableCustomInstructions);
                         makeLFibTableEntry(dpnId, label, tableId);
 
+                        //Install custom FIB routes - FIB table.
+                        List<Instruction> fibTableCustomInstructions = createFibTableCustomInstructions(dataBroker,
+                                tableId, routerName, externalIp);
                         String fibExternalIp = externalIp.contains("/32") ? externalIp : (externalIp + "/32");
                         CreateFibEntryInput input = new CreateFibEntryInputBuilder().setVpnName(vpnName)
                             .setSourceDpid(dpnId).setIpAddress(fibExternalIp).setServiceId(label)
-                            .setInstruction(customInstructions).build();
+                            .setInstruction(fibTableCustomInstructions).build();
                         Future<RpcResult<Void>> future1 = fibService.createFibEntry(input);
                         return JdkFutureAdapters.listenInPoolThread(future1);
                     } else {
@@ -1003,6 +993,24 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
                 }
             }
         });
+    }
+
+    private List<Instruction> createFibTableCustomInstructions(DataBroker dataBroker, short tableId,
+            String routerName, String externalIp) {
+        List<Instruction> fibTableCustomInstructions = new ArrayList<>();
+        Routers router = NatUtil.getRoutersFromConfigDS(dataBroker, routerName);
+        long externalSubnetVpnId = NatUtil.getExternalSubnetVpnIdForRouterExternalIp(dataBroker,
+                externalIp, router);
+        int instructionIndex = 0;
+        if (externalSubnetVpnId != NatConstants.INVALID_ID) {
+            BigInteger subnetIdMetaData = MetaDataUtil.getVpnIdMetadata(externalSubnetVpnId);
+            fibTableCustomInstructions.add(new InstructionWriteMetadata(subnetIdMetaData,
+                    MetaDataUtil.METADATA_MASK_VRFID).buildInstruction(instructionIndex));
+            instructionIndex++;
+        }
+
+        fibTableCustomInstructions.add(new InstructionGotoTable(tableId).buildInstruction(instructionIndex));
+        return fibTableCustomInstructions;
     }
 
     private void makeLFibTableEntry(BigInteger dpId, long serviceId, short tableId) {
@@ -1191,7 +1199,7 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
                 LOG.debug("NAT Service : Allocate the least loaded external IPs to the subnets "
                     + "whose external IPs were removed.");
                 for (String removedInternalIp : removedInternalIps) {
-                    allocateExternalIp(dpnId, routerId, networkId, removedInternalIp);
+                    allocateExternalIp(dpnId, routerId, routerName, networkId, removedInternalIp);
                 }
 
                 LOG.debug("NAT Service : Remove the NAPT translation entries from "
@@ -1310,7 +1318,7 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
                 */
                 String subnetIp = NatUtil.getSubnetIp(dataBroker, addedSubnetId);
                 if (subnetIp != null) {
-                    allocateExternalIp(dpnId, routerId, networkId, subnetIp);
+                    allocateExternalIp(dpnId, routerId, routerName, networkId, subnetIp);
                 }
             }
             LOG.debug("NAT Service : End processing of the Subnet IDs addition during the update operation");
@@ -1382,7 +1390,8 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
         return false;
     }
 
-    private void allocateExternalIp(BigInteger dpnId, long routerId, Uuid networkId, String subnetIp) {
+    private void allocateExternalIp(BigInteger dpnId, long routerId, String routerName, Uuid networkId,
+            String subnetIp) {
         String leastLoadedExtIpAddr = NatUtil.getLeastLoadedExternalIp(dataBroker, routerId);
         if (leastLoadedExtIpAddr != null) {
             String[] externalIpParts = NatUtil.getExternalIpAndPrefix(leastLoadedExtIpAddr);
@@ -1428,7 +1437,7 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
                         + "added after gateway-set");
                     dpnId = NatUtil.getPrimaryNaptfromRouterId(dataBroker, routerId);
                 }
-                advToBgpAndInstallFibAndTsFlows(dpnId, NwConstants.INBOUND_NAPT_TABLE, vpnName, routerId,
+                advToBgpAndInstallFibAndTsFlows(dpnId, NwConstants.INBOUND_NAPT_TABLE, vpnName, routerId, routerName,
                     leastLoadedExtIp + "/" + leastLoadedExtIpPrefix,
                     vpnService, fibService, bgpManager, dataBroker, LOG);
             }
@@ -2444,30 +2453,6 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
         return flowEntity;
     }
 
-    protected FlowEntity buildNaptFibExternalOutputFlowEntity(BigInteger dpId, long extVpnId, Uuid subnetId,
-                                                              String externalIp) {
-        LOG.debug("NAT Service : buildNaptFibExternalOutputFlowEntity called for dpId {}, routerId {}, srcIp {}",
-            dpId, extVpnId, externalIp);
-
-        List<MatchInfo> matches = new ArrayList<>();
-        matches.add(MatchEthernetType.IPV4);
-        matches.add(new MatchMetadata(MetaDataUtil.getVpnIdMetadata(extVpnId), MetaDataUtil.METADATA_MASK_VRFID));
-        matches.add(new MatchIpv4Source(externalIp, "32"));
-
-        List<InstructionInfo> instructions = new ArrayList<>();
-        List<ActionInfo> actionsInfos = new ArrayList<>();
-        long groupId = NatUtil.createGroupId(NatUtil.getGroupIdKey(subnetId.getValue()), idManager);
-        actionsInfos.add(new ActionGroup(groupId));
-        instructions.add(new InstructionApplyActions(actionsInfos));
-
-        String flowRef = getFlowRefNaptFib(dpId, NwConstants.NAPT_PFIB_TABLE, extVpnId, externalIp);
-        BigInteger cookie = getCookieOutboundFlow(extVpnId);
-        FlowEntity flowEntity = MDSALUtil.buildFlowEntity(dpId, NwConstants.NAPT_PFIB_TABLE, flowRef, 6, flowRef, 0,
-            0, cookie, matches, instructions);
-        LOG.debug("NAT Service : returning flowEntity {}", flowEntity);
-        return flowEntity;
-    }
-
     public void installNaptPfibEntryWithBgpVpn(BigInteger dpnId, long segmentId, long changedVpnId) {
         LOG.debug("NAT Service : installNaptPfibEntryWithBgpVpn called for dpnId {} and segmentId {} ,BGP VPN ID {}",
             dpnId, segmentId, changedVpnId);
@@ -2493,7 +2478,6 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
         FlowEntity flowEntity = MDSALUtil.buildFlowEntity(dpId, NwConstants.NAPT_PFIB_TABLE, flowRef,
             NatConstants.DEFAULT_PSNAT_FLOW_PRIORITY, flowRef, 0, 0,
             NwConstants.COOKIE_SNAT_TABLE, matches, instructionInfo);
-
         LOG.debug("NAT Service : Returning NaptPFib Flow Entity {}", flowEntity);
         return flowEntity;
     }
@@ -2501,5 +2485,18 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
     @Override
     protected ExternalRoutersListener getDataTreeChangeListener() {
         return ExternalRoutersListener.this;
+    }
+
+    protected void installNaptPfibEntriesForExternalSubnets(String routerName, BigInteger dpnId) {
+        List<Uuid> externalSubnetIdsForRouter = NatUtil.getExternalSubnetIdsForRouter(dataBroker,
+                routerName);
+        for (Uuid externalSubnetId : externalSubnetIdsForRouter) {
+            long subnetVpnId = NatUtil.getVpnId(dataBroker, externalSubnetId.getValue());
+            if (subnetVpnId != -1) {
+                LOG.debug("NAT Service : Calling externalRouterListener installNaptPfibEntry for dpnId {} "
+                    + "and vpnId {}", dpnId, subnetVpnId);
+                installNaptPfibEntry(dpnId, subnetVpnId);
+            }
+        }
     }
 }

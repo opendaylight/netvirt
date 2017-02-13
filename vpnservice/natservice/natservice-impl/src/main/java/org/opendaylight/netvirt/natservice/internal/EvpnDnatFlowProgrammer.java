@@ -141,8 +141,8 @@ public class EvpnDnatFlowProgrammer {
         LOG.debug("NAT Service : Add Floating Ip {} , found associated to fixed port {}",
                 externalIp, interfaceName);
         if (floatingIpPortMacAddress != null) {
-            vpnManager.setupSubnetMacIntoVpnInstance(vpnName, floatingIpPortMacAddress, dpnId, writeTx,
-                    NwConstants.ADD_FLOW);
+            vpnManager.setupSubnetMacIntoVpnInstance(vpnName, null /* subnet-vpn-name */, floatingIpPortMacAddress,
+                    dpnId, writeTx, NwConstants.ADD_FLOW);
             vpnManager.setupArpResponderFlowsToExternalNetworkIps(routerName,
                     Collections.singleton(externalIp),
                     floatingIpPortMacAddress, dpnId, networkId, writeTx, NwConstants.ADD_FLOW);
