@@ -36,6 +36,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_35ec56c7",
+        "filename": "docs/specs/element-counters.rst",
+        "patchSetId": 4
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 2589
+      },
+      "writtenOn": "2017-02-13T08:50:24Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_184ebf96",
+      "revId": "4e0f8fab82a8f0c225eb8e6f23b054a0226db81b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_b85e9343",
         "filename": "docs/specs/element-counters.rst",
         "patchSetId": 4
@@ -47,6 +65,30 @@
       "writtenOn": "2017-02-07T21:21:57Z",
       "side": 1,
       "message": "ips can overlap between tenants",
+      "range": {
+        "startLine": 36,
+        "startChar": 126,
+        "endLine": 36,
+        "endChar": 133
+      },
+      "revId": "4e0f8fab82a8f0c225eb8e6f23b054a0226db81b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_15067286",
+        "filename": "docs/specs/element-counters.rst",
+        "patchSetId": 4
+      },
+      "lineNbr": 36,
+      "author": {
+        "id": 2589
+      },
+      "writtenOn": "2017-02-13T08:50:24Z",
+      "side": 1,
+      "message": "As I understand the combination of IP + interface ID should be unique.",
+      "parentUuid": "fafc7978_b85e9343",
       "range": {
         "startLine": 36,
         "startChar": 126,
@@ -82,6 +124,30 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_5500fa66",
+        "filename": "docs/specs/element-counters.rst",
+        "patchSetId": 4
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 2589
+      },
+      "writtenOn": "2017-02-13T08:50:24Z",
+      "side": 1,
+      "message": "It shouldn\u0027t matter to implementation. The filters (matches in counters tables) should be tha same.",
+      "parentUuid": "fafc7978_38190389",
+      "range": {
+        "startLine": 39,
+        "startChar": 26,
+        "endLine": 39,
+        "endChar": 49
+      },
+      "revId": "4e0f8fab82a8f0c225eb8e6f23b054a0226db81b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_3832a310",
         "filename": "docs/specs/element-counters.rst",
         "patchSetId": 4
@@ -105,6 +171,30 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_b5ee86b2",
+        "filename": "docs/specs/element-counters.rst",
+        "patchSetId": 4
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 2589
+      },
+      "writtenOn": "2017-02-13T08:50:24Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_3832a310",
+      "range": {
+        "startLine": 43,
+        "startChar": 10,
+        "endLine": 43,
+        "endChar": 13
+      },
+      "revId": "4e0f8fab82a8f0c225eb8e6f23b054a0226db81b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_583fa7d6",
         "filename": "docs/specs/element-counters.rst",
         "patchSetId": 4
@@ -116,6 +206,30 @@
       "writtenOn": "2017-02-07T21:21:57Z",
       "side": 1,
       "message": "vmA-ip?",
+      "range": {
+        "startLine": 61,
+        "startChar": 50,
+        "endLine": 61,
+        "endChar": 56
+      },
+      "revId": "4e0f8fab82a8f0c225eb8e6f23b054a0226db81b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_75225e02",
+        "filename": "docs/specs/element-counters.rst",
+        "patchSetId": 4
+      },
+      "lineNbr": 61,
+      "author": {
+        "id": 2589
+      },
+      "writtenOn": "2017-02-13T08:50:24Z",
+      "side": 1,
+      "message": "Traffic received from VM-B",
+      "parentUuid": "fafc7978_583fa7d6",
       "range": {
         "startLine": 61,
         "startChar": 50,
@@ -162,6 +276,30 @@
       "writtenOn": "2017-02-07T21:21:57Z",
       "side": 1,
       "message": "api is not symmetric. Does getElementCounters really means start?",
+      "range": {
+        "startLine": 143,
+        "startChar": 8,
+        "endLine": 143,
+        "endChar": 27
+      },
+      "revId": "4e0f8fab82a8f0c225eb8e6f23b054a0226db81b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_75cd3e5d",
+        "filename": "docs/specs/element-counters.rst",
+        "patchSetId": 4
+      },
+      "lineNbr": 143,
+      "author": {
+        "id": 2589
+      },
+      "writtenOn": "2017-02-13T08:50:24Z",
+      "side": 1,
+      "message": "This was already fixed, I\u0027ve committed this today.",
+      "parentUuid": "fafc7978_b80cd343",
       "range": {
         "startLine": 143,
         "startChar": 8,
