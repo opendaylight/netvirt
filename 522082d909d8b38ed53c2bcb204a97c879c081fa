@@ -53,6 +53,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_600e1a8f",
+        "filename": "docs/specs/discovery_of_directly_connected_pnfs.rst",
+        "patchSetId": 10
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 670
+      },
+      "writtenOn": "2017-02-13T12:03:19Z",
+      "side": 1,
+      "message": "I see we do.. was missing from pipeline doc :(\n\nAdding it now https://docs.google.com/presentation/d/15h4ZjPxblI5Pz9VWIYnzfyRcQrXYxA1uUoqJsgA53KM/edit#slide\u003did.p",
+      "parentUuid": "fafc7978_80cdfe5f",
+      "revId": "522082d909d8b38ed53c2bcb204a97c879c081fa",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_c0d706ec",
         "filename": "docs/specs/discovery_of_directly_connected_pnfs.rst",
         "patchSetId": 10
