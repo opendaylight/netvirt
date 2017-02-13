@@ -26,11 +26,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.group.types.rev131018.Group
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.NeutronRouterDpns;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.neutron.router.dpns.RouterDpnList;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.neutron.router.dpns.router.dpn.list.DpnVpninterfacesList;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ExternalSubnets;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ProviderTypes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ext.routers.Routers;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.external.subnets.Subnets;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.external.subnets.SubnetsKey;
 import org.opendaylight.yangtools.concepts.ListenerRegistration;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
@@ -104,7 +101,7 @@ public class RouterDpnChangeListener
                     }
                     LOG.debug("Retrieved vpnId {} for router {}", vpnId, routerId);
                     //Install default entry in FIB to SNAT table
-                    LOG.debug("Installing default route in FIB on dpn {} for router {} with vpn {}...",
+                    LOG.info("Installing default route in FIB on dpn {} for router {} with vpn {}",
                         dpnId, routerId, vpnId);
                     installDefaultNatRouteForRouterExternalSubnets(dpnId,
                             NatUtil.getExternalSubnetIdsFromExternalIps(router.getExternalIps()));
@@ -132,7 +129,7 @@ public class RouterDpnChangeListener
                 extNetGroupInstaller.installExtNetGroupEntries(networkId, dpnId);
 
                 if (router.isEnableSnat()) {
-                    LOG.info("SNAT enabled for router {}", routerId);
+                    LOG.info("On add - SNAT enabled for router {}", routerId);
                     handleSNATForDPN(dpnId, routerId, vpnId);
                 } else {
                     LOG.info("SNAT is not enabled for router {} to handle addDPN event {}", routerId, dpnId);
@@ -188,7 +185,7 @@ public class RouterDpnChangeListener
                 }
 
                 if (router.isEnableSnat()) {
-                    LOG.info("SNAT enabled for router {}", routerId);
+                    LOG.info("On remove - SNAT enabled for router {}", routerId);
                     removeSNATFromDPN(dpnId, routerId, vpnId);
                 } else {
                     LOG.info("SNAT is not enabled for router {} to handle removeDPN event {}", routerId, dpnId);
@@ -392,23 +389,14 @@ public class RouterDpnChangeListener
         }
 
         for (Uuid subnetId : externalSubnetIds) {
-            InstanceIdentifier<Subnets> subnetsIdentifier = InstanceIdentifier.create(ExternalSubnets.class)
-                    .child(Subnets.class, new SubnetsKey(subnetId));
-            Optional<Subnets> externalSubnet = NatUtil.read(dataBroker,
-                    LogicalDatastoreType.CONFIGURATION, subnetsIdentifier);
-            if (externalSubnet.isPresent()) {
-                long vpnIdForSubnet = NatUtil.getVpnId(dataBroker, externalSubnet.get().getVpnId().getValue());
-                if (vpnIdForSubnet != NatConstants.INVALID_ID) {
-                    LOG.debug("NAT Service : Installing default routes in FIB on dpn {} for subnetId {} with vpnId {}",
-                            dpnId, subnetId, vpnIdForSubnet);
-                    snatDefaultRouteProgrammer.installDefNATRouteInDPN(dpnId, vpnIdForSubnet,
-                            subnetId.getValue(), idManager);
-                } else {
-                    LOG.debug("NAT Service : No VPN ID for subnetId {}, cannot installing default routes flows in FIB",
-                            subnetId);
-                }
+            long vpnIdForSubnet = NatUtil.getExternalSubnetVpnId(dataBroker, subnetId);
+            if (vpnIdForSubnet != NatConstants.INVALID_ID) {
+                LOG.info("NAT Service : Installing default routes in FIB on dpn {} for subnetId {} with vpnId {}",
+                        dpnId, subnetId, vpnIdForSubnet);
+                snatDefaultRouteProgrammer.installDefNATRouteInDPN(dpnId, vpnIdForSubnet, subnetId.getValue(),
+                        idManager);
             } else {
-                LOG.warn("NAT Service : No external subnet found for Uuid {}", subnetId);
+                LOG.debug("NAT Service : No vpnID for subnet {} found", subnetId);
             }
         }
     }

@@ -26,8 +26,10 @@ import org.opendaylight.genius.mdsalutil.BucketInfo;
 import org.opendaylight.genius.mdsalutil.FlowEntity;
 import org.opendaylight.genius.mdsalutil.GroupEntity;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
+import org.opendaylight.genius.mdsalutil.MetaDataUtil;
 import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.genius.mdsalutil.instructions.InstructionGotoTable;
+import org.opendaylight.genius.mdsalutil.instructions.InstructionWriteMetadata;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.netvirt.bgpmanager.api.IBgpManager;
 import org.opendaylight.netvirt.fibmanager.api.IFibManager;
@@ -535,12 +537,13 @@ public class NatTunnelInterfaceStateListener
             LOG.warn("hndlTepAddOnNaptSwitch: routerData is not present");
             return false;
         }
-        String routerName = routerData.get().getRouterName();
+        Routers router = routerData.get();
+        String routerName = router.getRouterName();
         LOG.debug("NAT Service : SNAT -> Processing TEP add for the DPN {} having the router {} since "
             + "its THE NAPT switch for the TUNNEL TYPE {} b/w SRC IP {} and DST IP {} "
             + "and TUNNEL NAME {} ", srcDpnId, routerName, tunnelType, srcTepIp, destTepIp, tunnelName);
 
-        Uuid networkId = routerData.get().getNetworkId();
+        Uuid networkId = router.getNetworkId();
         if (networkId == null) {
             LOG.warn("NAT Service : SNAT -> Ignoring TEP add since the router {} is not associated to the "
                 + "external network", routerName);
@@ -643,7 +646,19 @@ public class NatTunnelInterfaceStateListener
                 LOG.debug("NAT Service : SNAT -> Install custom FIB routes "
                     + "(Table 21 -> Push MPLS label to Tunnel port");
                 List<Instruction> customInstructions = new ArrayList<>();
-                customInstructions.add(new InstructionGotoTable(NwConstants.INBOUND_NAPT_TABLE).buildInstruction(0));
+                int customInstructionIndex = 0;
+                long externalSubnetVpnId = NatUtil.getExternalSubnetVpnIdForRouterExternalIp(dataBroker, externalIp,
+                        router);
+                if (externalSubnetVpnId != NatConstants.INVALID_ID) {
+                    LOG.debug("NAT Service : Will install custom FIB router with external subnet VPN ID {}",
+                            externalSubnetVpnId);
+                    BigInteger subnetIdMetaData = MetaDataUtil.getVpnIdMetadata(externalSubnetVpnId);
+                    customInstructions.add(new InstructionWriteMetadata(subnetIdMetaData,
+                            MetaDataUtil.METADATA_MASK_VRFID).buildInstruction(customInstructionIndex));
+                    customInstructionIndex++;
+                }
+                customInstructions.add(new InstructionGotoTable(NwConstants.INBOUND_NAPT_TABLE)
+                        .buildInstruction(customInstructionIndex));
                 CreateFibEntryInput input =
                     new CreateFibEntryInputBuilder().setVpnName(externalVpnName).setSourceDpid(srcDpnId)
                         .setInstruction(customInstructions).setIpAddress(externalIp + "/32")

@@ -111,6 +111,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ExtRouters;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ExternalIpsCounter;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ExternalNetworks;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ExternalSubnets;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.FloatingIpInfo;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.FloatingIpPortInfo;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.IntextIpMap;
@@ -129,6 +130,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev16011
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.external.ips.counter.external.counters.ExternalIpCounter;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.external.networks.Networks;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.external.networks.NetworksKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.external.subnets.SubnetsKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.floating.ip.info.RouterPorts;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.floating.ip.info.RouterPortsKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.floating.ip.info.router.ports.Ports;
@@ -815,7 +817,7 @@ public class NatUtil {
         return null;
     }
 
-    public static List<String> getExternalIpsFromRouter(DataBroker dataBroker, String routerName) {
+    public static List<String> getExternalIpsForRouter(DataBroker dataBroker, String routerName) {
         Routers routerData = NatUtil.getRoutersFromConfigDS(dataBroker, routerName);
         if (routerData != null) {
             return NatUtil.getIpsListFromExternalIps(routerData.getExternalIps());
@@ -1567,7 +1569,7 @@ public class NatUtil {
 
     static String getExtGwMacAddFromRouterId(DataBroker broker, long routerId) {
         String routerName = getRouterName(broker, routerId);
-        InstanceIdentifier id = buildRouterIdentifier(routerName);
+        InstanceIdentifier<Routers> id = buildRouterIdentifier(routerName);
         Optional<Routers> routerData = read(broker, LogicalDatastoreType.CONFIGURATION, id);
         if (routerData.isPresent()) {
             return routerData.get().getExtGwMacAddress();
@@ -1638,6 +1640,66 @@ public class NatUtil {
         Set<Uuid> subnetsSet = externalIps.stream().map(externalIp -> externalIp.getSubnetId())
                 .collect(Collectors.toSet());
         return new ArrayList<Uuid>(subnetsSet);
+    }
+
+    public static List<Uuid> getExternalSubnetIdsForRouter(DataBroker dataBroker, String routerName) {
+        if (routerName == null) {
+            LOG.error("getExternalSubnetIdsForRouter - empty routerName received");
+            return null;
+        }
+
+        InstanceIdentifier<Routers> id = buildRouterIdentifier(routerName);
+        Optional<Routers> routerData = read(dataBroker, LogicalDatastoreType.CONFIGURATION, id);
+        if (routerData.isPresent()) {
+            return NatUtil.getExternalSubnetIdsFromExternalIps(routerData.get().getExternalIps());
+        } else {
+            LOG.warn("No external router data for router {}", routerName);
+            return Collections.emptyList();
+        }
+    }
+
+    protected static Optional<org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.external
+        .subnets.Subnets> getOptionalExternalSubnets(DataBroker dataBroker, Uuid subnetId) {
+        if (subnetId == null) {
+            LOG.warn("getOptionalExternalSubnets - null subnetId");
+            return null;
+        }
+
+        InstanceIdentifier<org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice
+            .rev160111.external.subnets.Subnets> subnetsIdentifier =
+                InstanceIdentifier.builder(ExternalSubnets.class)
+                .child(org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice
+                        .rev160111.external.subnets.Subnets.class, new SubnetsKey(subnetId)).build();
+        return read(dataBroker, LogicalDatastoreType.CONFIGURATION, subnetsIdentifier);
+    }
+
+    protected static long getExternalSubnetVpnId(DataBroker dataBroker, Uuid subnetId) {
+        Optional<org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.external
+            .subnets.Subnets> optionalExternalSubnets = NatUtil.getOptionalExternalSubnets(dataBroker,
+                   subnetId);
+        if (optionalExternalSubnets.isPresent()) {
+            return NatUtil.getVpnId(dataBroker, subnetId.getValue());
+        }
+
+        return NatConstants.INVALID_ID;
+    }
+
+    protected static long getExternalSubnetVpnIdForRouterExternalIp(DataBroker dataBroker, String externalIpAddress,
+            Routers router) {
+        List<ExternalIps> externalIps = router.getExternalIps();
+        for (ExternalIps extIp : externalIps) {
+            String extIpString = extIp.getIpAddress().contains("/32") ? (extIp.getIpAddress() + "/32") :
+                extIp.getIpAddress();
+            if (extIpString.equals(externalIpAddress)) {
+                if (extIp.getSubnetId() != null) {
+                    LOG.debug("Found external subnet ID for router {} and extIP {}",
+                            router.getRouterName(), externalIpAddress);
+                    return NatUtil.getExternalSubnetVpnId(dataBroker, extIp.getSubnetId());
+                }
+            }
+        }
+
+        return NatConstants.INVALID_ID;
     }
 
     private static long ipToLong(InetAddress ip) {
