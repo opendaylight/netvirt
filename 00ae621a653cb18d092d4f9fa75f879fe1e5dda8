@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_e0c5ea3c",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/ExternalRoutersListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 2380,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2017-02-13T13:54:17Z",
+      "side": 1,
+      "message": "I think you need to delete this method and call buildNaptPfibFlowEntity instead due to scenario mentioned in this thread https://lists.opendaylight.org/pipermail/netvirt-dev/2016-December/002599.html\n\nwe need the NXM_OF_IN_PORT reset before resubmit to fib also for cases of vlan/flat provider networks\n\nAlso, the router-gw-ip match makes no difference in this case since all traffic with the external net/subnet vpn-id will be resubmitted to the FIB so no point creating different matches in the NAPT_PFIB table",
+      "revId": "00ae621a653cb18d092d4f9fa75f879fe1e5dda8",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
