@@ -7,14 +7,6 @@
  */
 package org.opendaylight.netvirt.neutronvpn;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.fail;
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.doAnswer;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.when;
-
 import com.google.common.base.Optional;
 import com.google.common.util.concurrent.Futures;
 import java.math.BigInteger;
@@ -38,8 +30,7 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpPrefix;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.Interfaces;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.InterfacesBuilder;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.InterfaceBuilder;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.InterfaceBuilder;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.meta.rev160406.bridge.ref.info.BridgeRefEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.meta.rev160406.bridge.ref.info.BridgeRefEntryBuilder;
@@ -81,6 +72,15 @@ import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.
 import org.opendaylight.yangtools.concepts.ListenerRegistration;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.fail;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.when;
+
 @RunWith(MockitoJUnitRunner.class)
 public class ToTransportZoneTest {
 
@@ -111,7 +111,7 @@ public class ToTransportZoneTest {
     private Interfaces interf;
     private Port port;
     private List<Vteps> expectedVteps = new ArrayList<>();
-    InterfaceStateToTransportZoneListener interfaceStateToTransportZoneChangeListener;
+    InterfaceToTransportZoneListener interfaceToTransportZoneChangeListener;
     NeutronRouterDpnsToTransportZoneListener neutronRouterDpnsToTransportZoneListener;
     private Network network;
 
@@ -137,8 +137,8 @@ public class ToTransportZoneTest {
 
         when(mockReadTx.read(any(LogicalDatastoreType.class), any(InstanceIdentifier.class)))
             .thenReturn(Futures.immediateCheckedFuture(Optional.absent()));
-        interfaceStateToTransportZoneChangeListener =
-            new InterfaceStateToTransportZoneListener(dataBroker, neutronvpnManager);
+        interfaceToTransportZoneChangeListener =
+            new InterfaceToTransportZoneListener(dataBroker, neutronvpnManager);
         neutronRouterDpnsToTransportZoneListener =
             new NeutronRouterDpnsToTransportZoneListener(dataBroker, neutronvpnManager);
     }
@@ -168,10 +168,10 @@ public class ToTransportZoneTest {
             .thenReturn(Futures.immediateCheckedFuture(Optional.absent()));
         InterfaceBuilder intBuilder = new InterfaceBuilder();
         intBuilder.setName(PHYS_PORT_NAME);
-        intBuilder.setLowerLayerIf(new ArrayList<>(Arrays.asList(new String[] {"int:" + DPN_ID})));
         //NetworkId(new Uuid("12345678-1234-1234-1234-123456789012"));
         expectedVteps.add(buildVtep(BigInteger.valueOf(DPN_ID), new IpAddress(OVS_IP.toCharArray()), VTEP_PORT));
-        interfaceStateToTransportZoneChangeListener.add(InstanceIdentifier.create(Interface.class), intBuilder.build());
+        interfaceToTransportZoneChangeListener.add(InstanceIdentifier.create(org.opendaylight.yang.gen.v1.urn.ietf
+                .params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface.class), intBuilder.build());
     }
 
     @Test
@@ -198,10 +198,10 @@ public class ToTransportZoneTest {
             .thenReturn(Futures.immediateCheckedFuture(Optional.absent()));
         InterfaceBuilder intBuilder = new InterfaceBuilder();
         intBuilder.setName(PHYS_PORT_NAME);
-        intBuilder.setLowerLayerIf(new ArrayList<>(Arrays.asList(new String[] {"int:" + DPN_ID})));
         //NetworkId(new Uuid("12345678-1234-1234-1234-123456789012"));
         expectedVteps.add(buildVtep(BigInteger.valueOf(DPN_ID), new IpAddress(OVS_IP.toCharArray()), VTEP_PORT));
-        interfaceStateToTransportZoneChangeListener.add(InstanceIdentifier.create(Interface.class),
+        interfaceToTransportZoneChangeListener.add(InstanceIdentifier.create(org.opendaylight.yang.gen.v1.urn.ietf
+                        .params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface.class),
             intBuilder.build());
     }
 
@@ -229,10 +229,10 @@ public class ToTransportZoneTest {
             .thenReturn(Futures.immediateCheckedFuture(Optional.absent()));
         InterfaceBuilder intBuilder = new InterfaceBuilder();
         intBuilder.setName(PHYS_PORT_NAME);
-        intBuilder.setLowerLayerIf(new ArrayList<>(Arrays.asList(new String[] {"int:" + DPN_ID})));
         //NetworkId(new Uuid("12345678-1234-1234-1234-123456789012"));
         expectedVteps.add(buildVtep(BigInteger.valueOf(DPN_ID), new IpAddress(OVS_IP.toCharArray()), VTEP_PORT));
-        interfaceStateToTransportZoneChangeListener.add(InstanceIdentifier.create(Interface.class),
+        interfaceToTransportZoneChangeListener.add(InstanceIdentifier.create(org.opendaylight.yang.gen.v1.urn.ietf
+                        .params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface.class),
             intBuilder.build());
     }
 
@@ -256,9 +256,9 @@ public class ToTransportZoneTest {
             .thenReturn(Futures.immediateCheckedFuture(Optional.of(network)));
         InterfaceBuilder intBuilder = new InterfaceBuilder();
         intBuilder.setName(PHYS_PORT_NAME);
-        intBuilder.setLowerLayerIf(new ArrayList<>(Arrays.asList(new String[] {"int:" + DPN_ID})));
         //NetworkId(new Uuid("12345678-1234-1234-1234-123456789012"));
-        interfaceStateToTransportZoneChangeListener.add(InstanceIdentifier.create(Interface.class), intBuilder.build());
+        interfaceToTransportZoneChangeListener.add(InstanceIdentifier.create(org.opendaylight.yang.gen.v1.urn.ietf
+                .params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface.class), intBuilder.build());
     }
 
     @Test

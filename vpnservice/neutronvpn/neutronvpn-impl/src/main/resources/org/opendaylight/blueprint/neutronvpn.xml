@@ -160,7 +160,7 @@
   </bean>
 
   <bean id="InterfaceStateToTransportZoneListener"
-        class="org.opendaylight.netvirt.neutronvpn.InterfaceStateToTransportZoneListener"
+        class="org.opendaylight.netvirt.neutronvpn.InterfaceToTransportZoneListener"
         init-method="start" destroy-method="close">
     <argument ref="dataBroker" />
     <argument ref="neutronvpnManager" />
