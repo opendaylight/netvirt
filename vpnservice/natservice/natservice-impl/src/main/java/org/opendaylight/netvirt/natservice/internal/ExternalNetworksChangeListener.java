@@ -230,8 +230,8 @@ public class ExternalNetworksChangeListener
                     LOG.debug("NAT Service : About to call advToBgpAndInstallFibAndTsFlows for dpnId {}, "
                         + "vpnName {} and externalIp {}", dpnId, vpnName, externalIp);
                     externalRouterListener.advToBgpAndInstallFibAndTsFlows(dpnId, NwConstants.INBOUND_NAPT_TABLE,
-                        vpnName, NatUtil.getVpnId(dataBroker, routerId.getValue()), externalIp, vpnService,
-                        fibService, bgpManager, dataBroker, LOG);
+                        vpnName, NatUtil.getVpnId(dataBroker, routerId.getValue()), routerId.getValue(), externalIp,
+                        vpnService, fibService, bgpManager, dataBroker, LOG);
                 }
             } else {
                 LOG.warn("NAT Service : No ipMapping present fot the routerId {}", routerId);
