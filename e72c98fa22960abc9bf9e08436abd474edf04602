@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_5a3dc9dd",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronTrunkChangeListener.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 97,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-02-13T04:22:57Z",
+      "side": 1,
+      "message": "This again leads to NPE because of passing original(update).getSubPorts() to List#removeAll. So have Optional\u003cSubPorts\u003e for update and original like below and do the required operations on it.\n\nList\u003cSubPorts\u003e added \u003d new ArrayList\u003c\u003e();\nList\u003cSubPorts\u003e deleted \u003d new ArrayList\u003c\u003e();\n\nOptional\u003cSubPorts\u003e updateOptional \u003d Optional.ofNullable(update.getSubPorts());\nOptional\u003cSubPorts\u003e originalOptional \u003d Optional.ofNullable(update.getSubPorts());\n\nupdateOptional.ifPresent(subPorts\n            -\u003e added.addAll(subPorts));\n.....\n.....",
+      "revId": "e72c98fa22960abc9bf9e08436abd474edf04602",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_da309903",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronTrunkChangeListener.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 145,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-02-13T04:22:57Z",
+      "side": 1,
+      "message": "I don\u0027t think NeutronPortChangeListener#add method adding the subport as elan interface. Because that method is handling only trunk ports, but this is the interface of type vlan member created with proper vlan_vid.\nAlso moving createElanInterface method is not a big thing, you could do with this review itself.",
+      "revId": "e72c98fa22960abc9bf9e08436abd474edf04602",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
