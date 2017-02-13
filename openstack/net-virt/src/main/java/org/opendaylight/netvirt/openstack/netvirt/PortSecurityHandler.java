@@ -195,7 +195,7 @@ public class PortSecurityHandler extends AbstractHandler
                 if (write) {
                     securityGroupCacheManger.addToCache(securityRule.getSecurityRemoteGroupID(), port.getPortUUID(), nodeId);
                 } else {
-                    securityGroupCacheManger.removeFromCache(securityRule.getSecurityRemoteGroupID(), port.getPortUUID());
+                    securityGroupCacheManger.removeFromCache(securityRule.getSecurityRemoteGroupID(), port.getPortUUID(), nodeId);
                 }
             } else {
                 for (Neutron_IPs vmIp : vmIpList) {

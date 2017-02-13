@@ -45,6 +45,7 @@ public interface SecurityGroupCacheManger {
      * from the cache maintained.
      * @param remoteSgUuid the remote security group uuid.
      * @param portUuid portUUID the uuid of the port.
+     * @param nodeId the NodeId of the node.
      */
-    void removeFromCache(String remoteSgUuid, String portUuid);
+    void removeFromCache(String remoteSgUuid, String portUuid, NodeId nodeId);
 }
