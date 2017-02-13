@@ -178,11 +178,11 @@ public class SNATDefaultRouteProgrammer {
                     FlowEntity flowEntity = NatUtil.buildDefaultNATFlowEntityForExternalSubnet(dpn.getDpnId(),
                             vpnId, subnetId, idManager);
                     if (flowAction == NwConstants.ADD_FLOW || flowAction == NwConstants.MOD_FLOW) {
-                        LOG.debug("NAT Service : Installing flow {} for subnetId {}, vpnId {} on dpn {}",
+                        LOG.info("NAT Service : Installing flow {} for subnetId {}, vpnId {} on dpn {}",
                                 flowEntity, subnetId, vpnId, dpn.getDpnId());
                         mdsalManager.installFlow(flowEntity);
                     } else {
-                        LOG.debug("NAT Service : Removing flow for subnetId {}, vpnId {} with dpn {}",
+                        LOG.info("NAT Service : Removing flow for subnetId {}, vpnId {} with dpn {}",
                                 subnetId, vpnId, dpn);
                         mdsalManager.removeFlow(flowEntity);
                     }
