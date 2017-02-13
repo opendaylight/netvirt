@@ -247,6 +247,7 @@
         init-method="init" destroy-method="close">
     <argument ref="dataBroker" />
     <argument ref="odlInterfaceRpcService" />
+    <argument ref="interfaceManager" />
   </bean>
 
   <bean id="natTunnelInterfaceStateListener"
