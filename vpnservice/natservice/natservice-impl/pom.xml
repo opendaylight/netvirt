@@ -69,6 +69,11 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
       <artifactId>interfacemanager-api</artifactId>
       <version>${genius.version}</version>
     </dependency>
+        <dependency>
+      <groupId>org.opendaylight.genius</groupId>
+      <artifactId>interfacemanager-impl</artifactId>
+      <version>${genius.version}</version>
+    </dependency>
     <dependency>
       <groupId>${project.groupId}</groupId>
       <artifactId>neutronvpn-api</artifactId>
