@@ -164,6 +164,30 @@
       "revId": "0f3ed0dcc38cc0081c3eb18db2f528e28c23c22a",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_0d9e6656",
+        "filename": "docs/specs/remote_acl_indirection.rst",
+        "patchSetId": 9
+      },
+      "lineNbr": 108,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2017-02-13T16:33:33Z",
+      "side": 1,
+      "message": "Is this an issue with the current acl pipeline or L3? for L3 service the match is always vpn-id+ip so it should be ok. I\u0027m not sure about the acl though",
+      "parentUuid": "fafc7978_2256e5d2",
+      "range": {
+        "startLine": 108,
+        "startChar": 25,
+        "endLine": 108,
+        "endChar": 32
+      },
+      "revId": "0f3ed0dcc38cc0081c3eb18db2f528e28c23c22a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
