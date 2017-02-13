@@ -34,6 +34,24 @@
       "revId": "00ae621a653cb18d092d4f9fa75f879fe1e5dda8",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_9b03b341",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/ExternalRoutersListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 2380,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2017-02-13T15:10:52Z",
+      "side": 1,
+      "message": "I know it\u0027s not building the same flow. if you goto group it has some meaning since the group is associated to subnet and the subnet is determined by the subnet-id of the router-gw ip.\nAfter the hairpinning pipeline changes, the subnet id will be set in the medatadata of outbound NAPT(46) so there is no point to create flow per ip since all flows are resubmitting back to the FIB. It\u0027s better to reuse the exiting code from buildNaptPfibFlowEntity",
+      "parentUuid": "fafc7978_db789bf4",
+      "revId": "00ae621a653cb18d092d4f9fa75f879fe1e5dda8",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
