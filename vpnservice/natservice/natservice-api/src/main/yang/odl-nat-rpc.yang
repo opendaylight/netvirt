@@ -1,0 +1,110 @@
+module odl-nat-rpc {
+    namespace "urn:opendaylight:netvirt:natservice:rpc";
+    prefix odl-nat-rpc;
+
+    import ietf-yang-types { prefix "yang"; /*revision-date 2013-07-15; */}
+
+    revision "2017-02-09" {
+        description "NAT RPC module";
+    }
+
+    grouping nat-router-info {
+        leaf router-uuid {
+            type yang:uuid;
+        }
+        leaf router-name {
+            type string;
+        }
+    }
+
+    grouping snat-config-output {
+        list router-snat {
+            key router-uuid;
+            uses nat-router-info;
+            list snat-ip-mapping {
+                leaf internal-ip {
+                    type string;
+                }
+                leaf internal-port {
+                    type string;
+                }
+                leaf external-ip {
+                    type string;
+                }
+                leaf external-port {
+                    type string;
+                }
+                leaf protocol {
+                    type string;
+                }
+            }
+        }
+    }
+
+    grouping dnat-config-output {
+        list router-dnat {
+            key router-uuid;
+            uses nat-router-info;
+            list dnat-ip-mapping {
+                leaf internal-ip {
+                    type string;
+                }
+                leaf external-ip {
+            	    type string;
+                }
+            }
+        }
+    }
+
+    rpc get-snat-configuration-for-router {
+        description "Provides internal ip/port to external ip/port mapping for given router uuid";
+        input {
+            leaf router-uuid {
+                mandatory true;
+                type yang:uuid;
+            }
+        }
+        output {
+            uses snat-config-output;
+        }
+    }
+
+    rpc get-snat-configuration-for-vpn {
+        description "Provides internal ip/port to external ip/port mapping for given vpn uuid";
+        input {
+            leaf vpn-uuid {
+                mandatory true;
+                type yang:uuid;
+            }
+        }
+        output {
+            uses snat-config-output;
+        }
+    }
+
+    rpc get-dnat-configuration-for-router {
+        description "Provides internal-ip to external-ip mapping for given router uuid";
+        input {
+            leaf router-uuid {
+                mandatory true;
+                type yang:uuid;
+            }
+        }
+        output {
+            uses dnat-config-output;
+        }
+    }
+
+    rpc get-dnat-configuration-for-vpn {
+        description "Provides internal-ip to external-ip mapping for given vpn uuid";
+        input {
+            leaf vpn-uuid {
+                mandatory true;
+                type yang:uuid;
+            }
+        }
+        output {
+            uses dnat-config-output;
+        }
+    }
+}
