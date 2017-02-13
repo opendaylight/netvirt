@@ -1,0 +1,61 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_c0e38631",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/TransportZoneNotificationUtil.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 97,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2017-02-13T10:51:41Z",
+      "side": 1,
+      "message": "this will throw for non-neutron ports\nyou must guard it with try/catch IllegalArgumentException",
+      "revId": "226568345e47c33326b54460d7fb40ecbb266e4f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_2039b2a4",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/TransportZoneNotificationUtil.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 108,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2017-02-13T10:51:41Z",
+      "side": 1,
+      "message": "use IInterfaceManager.getDpnFromInterface()",
+      "revId": "226568345e47c33326b54460d7fb40ecbb266e4f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_e004cac1",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/resources/org/opendaylight/blueprint/neutronvpn.xml",
+        "patchSetId": 1
+      },
+      "lineNbr": 162,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2017-02-13T10:51:41Z",
+      "side": 1,
+      "message": "change bean id",
+      "range": {
+        "startLine": 162,
+        "startChar": 21,
+        "endLine": 162,
+        "endChar": 26
+      },
+      "revId": "226568345e47c33326b54460d7fb40ecbb266e4f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
