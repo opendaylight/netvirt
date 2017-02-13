@@ -154,11 +154,10 @@ public class VpnManagerImpl implements IVpnManager {
     }
 
     @Override
-    public void setupSubnetMacIntoVpnInstance(String vpnName, String srcMacAddress,
-        BigInteger dpnId, WriteTransaction writeTx,
-        int addOrRemove) {
-        VpnUtil.setupSubnetMacIntoVpnInstance(dataBroker, mdsalManager, vpnName, srcMacAddress,
-            dpnId, writeTx, addOrRemove);
+    public void setupSubnetMacIntoVpnInstance(String vpnName, String subnetVpnName, String srcMacAddress,
+        BigInteger dpnId, WriteTransaction writeTx, int addOrRemove) {
+        VpnUtil.setupSubnetMacIntoVpnInstance(dataBroker, mdsalManager, vpnName, subnetVpnName,
+                srcMacAddress, dpnId, writeTx, addOrRemove);
     }
 
     @Override
@@ -188,7 +187,9 @@ public class VpnManagerImpl implements IVpnManager {
             submit = true;
             writeTx = dataBroker.newWriteOnlyTransaction();
         }
-        setupSubnetMacIntoVpnInstance(vpnId.getValue(), routerGwMac, dpnId, writeTx, addOrRemove);
+
+        setupSubnetMacIntoVpnInstance(vpnId.getValue(), null, routerGwMac, dpnId, writeTx,
+                addOrRemove);
         if (submit) {
             writeTx.submit();
         }
