@@ -113,16 +113,17 @@ public class DistributedArpServiceTest {
     @Test
     public void testHandlePortEvent() throws Exception {
         NeutronPort neutronPort = PowerMockito.mock(NeutronPort.class);
+        Node node = PowerMockito.mock(Node.class);
 
         // Suppress the called to these functions.
-        MemberModifier.suppress(MemberMatcher.method(DistributedArpService.class, "handleNeutronPortForArp", NeutronPort.class, Action.class));
+        MemberModifier.suppress(MemberMatcher.method(DistributedArpService.class, "handleNeutronPortForArp", NeutronPort.class, Node.class, boolean.class, Action.class));
 
-        Whitebox.invokeMethod(distributedArpService, "handlePortEvent", neutronPort, Action.ADD);
-        PowerMockito.verifyPrivate(distributedArpService, times(1)).invoke("handleNeutronPortForArp", any(NeutronPort.class), eq(Action.ADD));
-        
+        Whitebox.invokeMethod(distributedArpService, "handlePortEvent", neutronPort, node, false, Action.ADD);
+        PowerMockito.verifyPrivate(distributedArpService, times(1)).invoke("handleNeutronPortForArp", any(NeutronPort.class), any(Node.class), any(boolean.class), eq(Action.ADD));
+
       //Case 1: Delete Action.
-        Whitebox.invokeMethod(distributedArpService, "handlePortEvent", neutronPort, Action.DELETE);
-        PowerMockito.verifyPrivate(distributedArpService, times(1)).invoke("handleNeutronPortForArp", any(NeutronPort.class), eq(Action.DELETE));
+        Whitebox.invokeMethod(distributedArpService, "handlePortEvent", neutronPort, node, false, Action.DELETE);
+        PowerMockito.verifyPrivate(distributedArpService, times(1)).invoke("handleNeutronPortForArp", any(NeutronPort.class), any(Node.class), any(boolean.class), eq(Action.DELETE));
     }
 
     /**
@@ -201,11 +202,11 @@ public class DistributedArpServiceTest {
         PowerMockito.when(southbound.readTerminationPointAugmentations(any(Node.class))).thenReturn(ports);
 
         PowerMockito.doReturn(true).when(distributedArpService, "getNeutronPortsForNode", any(Node.class), any(List.class), anyString());
-        Whitebox.invokeMethod(distributedArpService, "handleNeutronPortForArp", neutronPort, Action.ADD);
+        Whitebox.invokeMethod(distributedArpService, "handleNeutronPortForArp", neutronPort, mock(Node.class), false, Action.ADD);
         PowerMockito.verifyPrivate(distributedArpService, times(1)).invoke("getDatapathIdIntegrationBridge", any(Node.class));
 
         // Case 2: Delete Action.
-        Whitebox.invokeMethod(distributedArpService, "handleNeutronPortForArp", neutronPort, Action.DELETE);
+        Whitebox.invokeMethod(distributedArpService, "handleNeutronPortForArp", neutronPort, mock(Node.class), false, Action.DELETE);
         PowerMockito.verifyPrivate(distributedArpService, times(2)).invoke("getDatapathIdIntegrationBridge", any(Node.class));
     }
 
@@ -237,7 +238,7 @@ public class DistributedArpServiceTest {
     public void testProcessInterfaceEvent() throws Exception {
         NeutronPort neutronPort = mock(NeutronPort.class);
         NeutronNetwork neutronNetwork = mock(NeutronNetwork.class);
-        PowerMockito.doNothing().when(distributedArpService).handlePortEvent(any(NeutronPort.class), any(Action.class));
+        PowerMockito.doNothing().when(distributedArpService).handlePortEvent(any(NeutronPort.class), any(Node.class), any(boolean.class), any(Action.class));
         // init instance variables.
         TenantNetworkManager tenantNetworkManager = mock(TenantNetworkManager.class);
         MemberModifier.field(DistributedArpService.class, "tenantNetworkManager").set(distributedArpService , tenantNetworkManager);
@@ -254,12 +255,12 @@ public class DistributedArpServiceTest {
         when(tenantNetworkManager.getTenantPort(intf)).thenReturn(neutronPort);
 
         //Case 1: Add Action.
-        distributedArpService.processInterfaceEvent(node, intf, neutronNetwork, Action.ADD);
-        Mockito.verify(distributedArpService, times(1)).handlePortEvent(neutronPort, Action.ADD);
+        distributedArpService.processInterfaceEvent(node, intf, neutronNetwork, false, Action.ADD);
+        Mockito.verify(distributedArpService, times(1)).handlePortEvent(neutronPort, node, false, Action.ADD);
 
         //Case 2: Delete Action.
-        distributedArpService.processInterfaceEvent(node, intf, neutronNetwork, Action.DELETE);
-        Mockito.verify(distributedArpService, times(1)).handlePortEvent(neutronPort, Action.DELETE);
+        distributedArpService.processInterfaceEvent(node, intf, neutronNetwork, false, Action.DELETE);
+        Mockito.verify(distributedArpService, times(1)).handlePortEvent(neutronPort, node, false, Action.DELETE);
     }
 
     /**

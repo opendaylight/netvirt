@@ -82,7 +82,7 @@ public class L2ForwardingService extends AbstractServiceInstance implements Conf
         flowBuilder.setMatch(matchBuilder.build());
 
         // Add Flow Attributes
-        String flowName = "UcastOut_" + segmentationId + "_" + localPort + "_" + attachedMac;
+        String flowName = "TunnelOut_" + segmentationId + "_" + attachedMac;
         FlowUtils.initFlowBuilder(flowBuilder, flowName, getTable());
 
         if (write) {
@@ -462,7 +462,7 @@ public class L2ForwardingService extends AbstractServiceInstance implements Conf
         flowBuilder.setMatch(matchBuilder.build());
 
         // Add Flow Attributes
-        String flowName = "TunnelOut_" + segmentationId + "_" + OFPortOut + "_" + attachedMac;
+        String flowName = "TunnelOut_" + segmentationId + "_" + attachedMac;
         FlowUtils.initFlowBuilder(flowBuilder, flowName, getTable());
 
         if (write) {
