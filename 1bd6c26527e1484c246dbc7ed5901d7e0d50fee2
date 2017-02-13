@@ -2,6 +2,29 @@
   "comments": [
     {
       "key": {
+        "uuid": "fafc7978_1014bdf3",
+        "filename": "openstack/net-virt-providers/src/main/java/org/opendaylight/netvirt/openstack/netvirt/providers/openflow13/OF13Provider.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 1103,
+      "author": {
+        "id": 396
+      },
+      "writtenOn": "2017-02-13T18:25:44Z",
+      "side": 1,
+      "message": "Outputting this message in this else-block is wrong, since entering this else-block doesn\u0027t mean that the target port is not part of the target network.\n\nNow, I think it\u0027s ok to just remove this log message, since this patch removes the check whether the target port is part of the target network or not.",
+      "range": {
+        "startLine": 1103,
+        "startChar": 28,
+        "endLine": 1103,
+        "endChar": 90
+      },
+      "revId": "1bd6c26527e1484c246dbc7ed5901d7e0d50fee2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_86a4fea6",
         "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/impl/NeutronL3Adapter.java",
         "patchSetId": 4
