@@ -64,6 +64,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpc
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.GetInterfaceFromIfIndexOutput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.OdlInterfaceRpcService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeConnectorRef;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ext.routers.Routers;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.service.rev130709.PacketProcessingService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.service.rev130709.TransmitPacketInput;
 import org.opendaylight.yangtools.yang.common.RpcResult;
@@ -182,6 +183,12 @@ public class NaptEventHandler {
                 }
                 // Build and install the NAPT translation flows in the Outbound and Inbound NAPT tables
                 if (!naptEntryEvent.isPktProcessed()) {
+                    Long vpnIdFromExternalSubnet = getVpnIdFromExternalSubnet(dataBroker, routerId,
+                            externalAddress.getIpAddress());
+                    if (vpnIdFromExternalSubnet != NatConstants.INVALID_ID) {
+                        vpnId = vpnIdFromExternalSubnet;
+                    }
+
                     // Added External Gateway MAC Address
                     buildAndInstallNatFlows(dpnId, NwConstants.INBOUND_NAPT_TABLE, vpnId, routerId, bgpVpnId,
                         externalAddress, internalAddress, protocol, extGwMacAddress);
@@ -298,10 +305,9 @@ public class NaptEventHandler {
         FlowEntity snatFlowEntity = MDSALUtil.buildFlowEntity(dpnId, tableId, switchFlowRef,
                 NatConstants.DEFAULT_NAPT_FLOW_PRIORITY, NatConstants.NAPT_FLOW_NAME, idleTimeout, 0,
                 NatUtil.getCookieNaptFlow(routerId),
-                buildAndGetMatchInfo(actualIp, actualPort, tableId, protocol, intranetVpnId, vpnId),
+                buildAndGetMatchInfo(actualIp, actualPort, tableId, protocol, intranetVpnId),
                 buildAndGetSetActionInstructionInfo(translatedIp, translatedPort, intranetVpnId, vpnId, tableId,
                         protocol, extGwMacAddress));
-
         snatFlowEntity.setSendFlowRemFlag(true);
 
         LOG.debug("NAT Service : Installing the NAPT flow in the table {} for the switch with the DPN ID {} ",
@@ -311,7 +317,7 @@ public class NaptEventHandler {
     }
 
     private static List<MatchInfo> buildAndGetMatchInfo(String ip, int port, short tableId,
-                                                        NAPTEntryEvent.Protocol protocol, long segmentId, long vpnId) {
+                                                        NAPTEntryEvent.Protocol protocol, long segmentId) {
         MatchInfo ipMatchInfo = null;
         MatchInfo portMatchInfo = null;
         MatchInfo protocolMatchInfo = null;
@@ -481,5 +487,17 @@ public class NaptEventHandler {
         LOG.trace("NAT Service : Returning interfaceName {} for tag {} form getInterfaceNameFromTag",
             interfaceName, portTag);
         return interfaceName;
+    }
+
+    private long getVpnIdFromExternalSubnet(DataBroker dataBroker, Long routerId, String externalIpAddress) {
+        String routerName = NatUtil.getRouterName(dataBroker, routerId);
+        if (routerName != null) {
+            Routers extRouter = NatUtil.getRoutersFromConfigDS(dataBroker, routerName);
+            if (extRouter != null) {
+                return NatUtil.getExternalSubnetVpnIdForRouterExternalIp(dataBroker, externalIpAddress, extRouter);
+            }
+        }
+
+        return NatConstants.INVALID_ID;
     }
 }
