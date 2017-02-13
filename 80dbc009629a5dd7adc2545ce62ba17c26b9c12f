@@ -2,6 +2,40 @@
   "comments": [
     {
       "key": {
+        "uuid": "fafc7978_2db6cafa",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronTrunkChangeListener.java",
+        "patchSetId": 12
+      },
+      "lineNbr": 104,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-13T16:31:34Z",
+      "side": 1,
+      "message": "Segmentation Types other than VLAN is not supported for subPorts in a Trunk.",
+      "revId": "80dbc009629a5dd7adc2545ce62ba17c26b9c12f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_eda202ad",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronTrunkChangeListener.java",
+        "patchSetId": 12
+      },
+      "lineNbr": 119,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-13T16:31:34Z",
+      "side": 1,
+      "message": "in controller restart use-case",
+      "revId": "80dbc009629a5dd7adc2545ce62ba17c26b9c12f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_ad6d9a9a",
         "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronTrunkChangeListener.java",
         "patchSetId": 12
@@ -13,6 +47,40 @@
       "writtenOn": "2017-02-13T16:15:03Z",
       "side": 1,
       "message": "wouldn\u0027t it be more efficient to batch all subport to single transaction using the parentRef as DjC key?",
+      "revId": "80dbc009629a5dd7adc2545ce62ba17c26b9c12f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_cd93be4d",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronTrunkChangeListener.java",
+        "patchSetId": 12
+      },
+      "lineNbr": 146,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-13T16:31:34Z",
+      "side": 1,
+      "message": "i donot see this trunk being used below.",
+      "revId": "80dbc009629a5dd7adc2545ce62ba17c26b9c12f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_2dad2a9d",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronTrunkChangeListener.java",
+        "patchSetId": 12
+      },
+      "lineNbr": 149,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-13T16:31:34Z",
+      "side": 1,
+      "message": "can give (portName) here.",
       "revId": "80dbc009629a5dd7adc2545ce62ba17c26b9c12f",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -36,6 +104,23 @@
         "endLine": 164,
         "endChar": 93
       },
+      "revId": "80dbc009629a5dd7adc2545ce62ba17c26b9c12f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_ad775a39",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronTrunkChangeListener.java",
+        "patchSetId": 12
+      },
+      "lineNbr": 164,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-13T16:31:34Z",
+      "side": 1,
+      "message": "why are we setting the mode to Trunk on a subPort Interface here?",
       "revId": "80dbc009629a5dd7adc2545ce62ba17c26b9c12f",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
