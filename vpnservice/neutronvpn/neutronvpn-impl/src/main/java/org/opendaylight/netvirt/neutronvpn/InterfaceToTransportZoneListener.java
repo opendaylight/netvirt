@@ -11,22 +11,22 @@ import org.opendaylight.controller.md.sal.binding.api.ClusteredDataTreeChangeLis
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.InterfacesState;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.Interfaces;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class InterfaceStateToTransportZoneListener
-    extends AsyncDataTreeChangeListenerBase<Interface, InterfaceStateToTransportZoneListener>
+public class InterfaceToTransportZoneListener
+    extends AsyncDataTreeChangeListenerBase<Interface, InterfaceToTransportZoneListener>
     implements ClusteredDataTreeChangeListener<Interface>, AutoCloseable {
 
-    private static final Logger LOG = LoggerFactory.getLogger(InterfaceStateToTransportZoneListener.class);
+    private static final Logger LOG = LoggerFactory.getLogger(InterfaceToTransportZoneListener.class);
     private TransportZoneNotificationUtil ism;
     private DataBroker dbx;
 
-    public InterfaceStateToTransportZoneListener(DataBroker dbx, NeutronvpnManager nvManager) {
-        super(Interface.class, InterfaceStateToTransportZoneListener.class);
+    public InterfaceToTransportZoneListener(DataBroker dbx, NeutronvpnManager nvManager) {
+        super(Interface.class, InterfaceToTransportZoneListener.class);
         ism = new TransportZoneNotificationUtil(dbx, nvManager);
         this.dbx = dbx;
     }
@@ -34,13 +34,13 @@ public class InterfaceStateToTransportZoneListener
     public void start() {
         LOG.info("{} start", getClass().getSimpleName());
         if (ism.isAutoTunnelConfigEnabled()) {
-            registerListener(LogicalDatastoreType.OPERATIONAL, dbx);
+            registerListener(LogicalDatastoreType.CONFIGURATION, dbx);
         }
     }
 
     @Override
     protected InstanceIdentifier<Interface> getWildCardPath() {
-        return InstanceIdentifier.create(InterfacesState.class).child(Interface.class);
+        return InstanceIdentifier.create(Interfaces.class).child(Interface.class);
     }
 
 
@@ -61,8 +61,8 @@ public class InterfaceStateToTransportZoneListener
     }
 
     @Override
-    protected InterfaceStateToTransportZoneListener getDataTreeChangeListener() {
-        return InterfaceStateToTransportZoneListener.this;
+    protected InterfaceToTransportZoneListener getDataTreeChangeListener() {
+        return InterfaceToTransportZoneListener.this;
     }
 
 }
