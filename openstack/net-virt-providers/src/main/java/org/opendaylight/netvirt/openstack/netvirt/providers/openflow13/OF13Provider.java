@@ -863,6 +863,8 @@ public class OF13Provider implements ConfigInterface, NetworkingProvider {
                     programLocalIngressTunnelBridgeRules(node, dpid, segmentationId, attachedMac,
                             tunnelOFPort, localPort);
                 }
+            } else {
+                LOG.error("programTunnelRules: Tunnel Port is NULL");
             }
         } catch (Exception e) {
             LOG.warn("Failed to program tunnel rules, node {}, intf {}", node, intf, e);
