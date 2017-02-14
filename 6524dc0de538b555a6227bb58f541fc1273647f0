@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_bc4caa71",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/resources/org/opendaylight/blueprint/fibmanager.xml",
+        "patchSetId": 3
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 6465
+      },
+      "writtenOn": "2017-02-14T12:28:26Z",
+      "side": 1,
+      "message": "This cause  CircularDependencyException.\nvrfEntryListener depends on fibRpcServiceImpl.\nfibRpcServiceImpl depends on fibManagerImpl and fibManagerImpl depends on vrfEntryListener.",
+      "revId": "6524dc0de538b555a6227bb58f541fc1273647f0",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
