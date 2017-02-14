@@ -11,6 +11,7 @@ import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
+import com.google.common.util.concurrent.JdkFutureAdapters;
 import com.google.common.util.concurrent.ListenableFuture;
 import java.math.BigInteger;
 import java.net.Inet4Address;
@@ -98,6 +99,10 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.Nodes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.Node;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.NodeBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.NodeKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fib.rpc.rev160121.CreateFibEntryInput;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fib.rpc.rev160121.CreateFibEntryInputBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fib.rpc.rev160121.FibRpcService;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.CustomLocalNexthop;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.FibEntries;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.LabelRouteMap;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.RouterInterface;
@@ -157,7 +162,7 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
     private final OdlInterfaceRpcService interfaceManager;
     private final IdManagerService idManager;
     private final IVpnLinkService ivpnLinkService;
-
+    private final FibRpcService fibService;
     List<SubTransaction> transactionObjects;
 
     private static Integer batchSize;
@@ -168,7 +173,8 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
 
     public VrfEntryListener(final DataBroker dataBroker, final IMdsalApiManager mdsalApiManager,
                             final NexthopManager nexthopManager, final OdlInterfaceRpcService interfaceManager,
-                            final IdManagerService idManager, final IVpnLinkService ivpnLinkService) {
+                            final IdManagerService idManager, final IVpnLinkService ivpnLinkService,
+                            final FibRpcService fibService) {
         super(VrfEntry.class, VrfEntryListener.class);
         this.dataBroker = dataBroker;
         this.mdsalManager = mdsalApiManager;
@@ -176,6 +182,7 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
         this.interfaceManager = interfaceManager;
         this.idManager = idManager;
         this.ivpnLinkService = ivpnLinkService;
+        this.fibService = fibService;
 
         batchSize = Integer.getInteger("batch.size", BATCH_SIZE);
         batchInterval = Integer.getInteger("batch.wait.time", PERIODICITY);
@@ -803,7 +810,55 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
             returnLocalDpnId.add(dpnId);
         }
 
+        if (returnLocalDpnId.isEmpty()) {
+            BigInteger dpnId = createCustomLocalFibEntry(rd, vpnId, vrfEntry);
+            if (dpnId != null) {
+                returnLocalDpnId.add(dpnId);
+            }
+        }
+
         return returnLocalDpnId;
+    }
+
+    private BigInteger createCustomLocalFibEntry(String rd, Long vpnId, VrfEntry vrfEntry) {
+        // look for custom local nexthop instructions
+        CustomLocalNexthop localNexthop = vrfEntry.getAugmentation(CustomLocalNexthop.class);
+        if (localNexthop != null) {
+            BigInteger dpnId = localNexthop.getDpnId();
+            List<Instruction> customInstructions = localNexthop.getInstruction();
+            if (dpnId != null && customInstructions != null) {
+                LOG.debug("Installing custom FIB route for prefix {} RD {} on DPN {} instructions {}",
+                        vrfEntry.getDestPrefix(), rd, dpnId, customInstructions);
+                CreateFibEntryInput input = new CreateFibEntryInputBuilder().setVpnName(rd).setSourceDpid(dpnId)
+                        .setIpAddress(vrfEntry.getDestPrefix()).setServiceId(vrfEntry.getLabel())
+                        .setInstruction(customInstructions).build();
+                Future<RpcResult<Void>> future = fibService.createFibEntry(input);
+                ListenableFuture<RpcResult<Void>> listenableFuture = JdkFutureAdapters.listenInPoolThread(future);
+                Futures.addCallback(listenableFuture, new FutureCallback<RpcResult<Void>>() {
+
+                    @Override
+                    public void onFailure(Throwable error) {
+                        LOG.error("Failed to create custom FIB entry for {} RD {}", vrfEntry.getDestPrefix(), rd);
+                    }
+
+                    @Override
+                    public void onSuccess(RpcResult<Void> result) {
+                        if (result.isSuccessful()) {
+                            LOG.info("Successfully installed custom FIB route for prefix {} RD {} on DPN {}",
+                                    vrfEntry.getDestPrefix(), rd, dpnId);
+                        } else {
+                            LOG.error("Error in rpc call to create custom Fib entries " + "for prefix {} in DPN {}, {}",
+                                    vrfEntry.getDestPrefix(), dpnId, result.getErrors());
+                        }
+                    }
+                });
+            }
+            return localNexthop.getDpnId();
+        } else {
+            LOG.debug("No custom local nexthop found for {} RD {}", vrfEntry.getDestPrefix(), rd);
+        }
+
+        return null;
     }
 
     private BigInteger checkCreateLocalFibEntry(Prefixes localNextHopInfo, String localNextHopIP,
@@ -839,8 +894,7 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
                     rd, vrfEntry.getDestPrefix(), vrfEntry.getLabel(), vrfEntry.getNextHopAddressList(), vpnId);
             }
             DataStoreJobCoordinator dataStoreCoordinator = DataStoreJobCoordinator.getInstance();
-            dataStoreCoordinator.enqueueJob("FIB-" + vpnId.toString()
-                    + "-" + dpnId.toString() + "-" + vrfEntry.getDestPrefix(),
+            dataStoreCoordinator.enqueueJob(getFibJobKey(vpnId, vrfEntry, dpnId),
                 () -> {
                     WriteTransaction tx = dataBroker.newWriteOnlyTransaction();
                     makeConnectedRoute(dpnId, vpnId, vrfEntry, rd, instructions, NwConstants.ADD_FLOW, tx);
@@ -1021,8 +1075,7 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
         if (localNextHopInfo != null) {
             final BigInteger dpnId = localNextHopInfo.getDpnId();
             DataStoreJobCoordinator dataStoreCoordinator = DataStoreJobCoordinator.getInstance();
-            dataStoreCoordinator.enqueueJob("FIB-" + vpnId.toString() + "-"
-                    + dpnId.toString() + "-" + vrfEntry.getDestPrefix(),
+            dataStoreCoordinator.enqueueJob(getFibJobKey(vpnId, vrfEntry, dpnId),
                 () -> {
                     WriteTransaction tx = dataBroker.newWriteOnlyTransaction();
                     makeConnectedRoute(dpnId, vpnId, vrfEntry, rd, null /* instructions */,
@@ -1041,6 +1094,10 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
             return dpnId;
         }
         return BigInteger.ZERO;
+    }
+
+    private String getFibJobKey(final Long vpnId, final VrfEntry vrfEntry, final BigInteger dpnId) {
+        return "FIB-" + vpnId.toString() + "-" + dpnId.toString() + "-" + vrfEntry.getDestPrefix();
     }
 
     private InstanceIdentifier<Extraroute> getVpnToExtrarouteIdentifier(String vrfId, String ipPrefix) {
