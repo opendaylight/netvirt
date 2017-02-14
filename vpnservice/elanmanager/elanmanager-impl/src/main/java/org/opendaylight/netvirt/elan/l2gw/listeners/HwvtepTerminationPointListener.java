@@ -8,7 +8,9 @@
 package org.opendaylight.netvirt.elan.l2gw.listeners;
 
 import com.google.common.collect.Lists;
+import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
+import com.google.common.util.concurrent.SettableFuture;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -24,6 +26,7 @@ import org.opendaylight.genius.utils.hwvtep.HwvtepSouthboundUtils;
 import org.opendaylight.genius.utils.hwvtep.HwvtepUtils;
 import org.opendaylight.netvirt.elan.l2gw.utils.ElanL2GatewayUtils;
 import org.opendaylight.netvirt.elan.l2gw.utils.L2GatewayConnectionUtils;
+import org.opendaylight.netvirt.elan.l2gw.utils.SettableFutureCallback;
 import org.opendaylight.netvirt.elan.utils.ElanClusterUtils;
 import org.opendaylight.netvirt.elan.utils.ElanUtils;
 import org.opendaylight.netvirt.neutronvpn.api.l2gw.L2GatewayDevice;
@@ -184,6 +187,29 @@ public class HwvtepTerminationPointListener
             LOG.error("{} entry not in config datastore", psNodeId);
         }
         return Collections.emptyList();
+    }
+
+    private List<ListenableFuture<Void>> handlePortDeleted(InstanceIdentifier<TerminationPoint> identifier,
+                                                           HwvtepPhysicalPortAugmentation portAugmentation,
+                                                           TerminationPoint portDeleted,
+                                                           NodeId psNodeId) throws ReadFailedException {
+        List<ListenableFuture<Void>> futures = new ArrayList<>();
+        InstanceIdentifier<Node> psNodeIid = identifier.firstIdentifierOf(Node.class);
+        final ReadWriteTransaction tx = broker.newReadWriteTransaction();
+        final SettableFuture settableFuture = SettableFuture.create();
+        futures.add(settableFuture);
+        Futures.addCallback(tx.read(LogicalDatastoreType.CONFIGURATION, psNodeIid), new SettableFutureCallback(settableFuture) {
+            @Override
+            public void onSuccess(Object resultNode) {
+                Optional<Node> nodeOptional = (Optional<Node>) resultNode;
+                if (nodeOptional.isPresent()) {
+                    //case of port deleted
+                    tx.delete(LogicalDatastoreType.CONFIGURATION, identifier);
+                    Futures.addCallback(tx.submit(), new SettableFutureCallback(settableFuture));
+                }
+            }
+        });
+        return futures;
     }
 
     private List<VlanBindings> getVlanBindings(List<L2gatewayConnection> l2GwConns, NodeId hwvtepNodeId, String psName,
