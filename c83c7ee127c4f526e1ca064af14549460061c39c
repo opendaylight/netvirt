@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_41b675fb",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 850,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2017-02-14T10:45:03Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_41283534",
+      "revId": "c83c7ee127c4f526e1ca064af14549460061c39c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_215d31ea",
         "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NatUtil.java",
         "patchSetId": 1
@@ -30,6 +48,24 @@
       "writtenOn": "2017-02-14T10:37:11Z",
       "side": 1,
       "message": "This changes are not needed - there\u0027s no use of the new parameters.",
+      "revId": "c83c7ee127c4f526e1ca064af14549460061c39c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_21b9b1e9",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NatUtil.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 756,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2017-02-14T10:45:03Z",
+      "side": 1,
+      "message": "thanks, I forgot to call fibManager.addOrUpdateFibEntry with these params",
+      "parentUuid": "fafc7978_215d31ea",
       "revId": "c83c7ee127c4f526e1ca064af14549460061c39c",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
