@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_033ab535",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronTrunkChangeListener.java",
+        "patchSetId": 13
+      },
+      "lineNbr": 161,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-02-14T05:48:09Z",
+      "side": 1,
+      "message": "when you are removing parentRef here, can you make sure parent-ref and interface-child-info info updated through InterfaceConfigListener#update method ? I see code exists to update it, but need to ensure it happens during vlan member to vlan trunk transformation.",
+      "revId": "f30402e718ba1a066dbe56c54aac37bb7118d8ae",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
