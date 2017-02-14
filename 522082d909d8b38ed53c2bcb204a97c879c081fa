@@ -54,6 +54,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_e18cc937",
+        "filename": "docs/specs/discovery_of_directly_connected_pnfs.rst",
+        "patchSetId": 10
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 6365
+      },
+      "writtenOn": "2017-02-14T15:48:56Z",
+      "side": 1,
+      "message": "the --allocation-pool flag (when creating a subnet) is used to prevent neutron from allocating those IPs.",
+      "parentUuid": "fafc7978_9b2613cd",
+      "revId": "522082d909d8b38ed53c2bcb204a97c879c081fa",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_00e2aed4",
         "filename": "docs/specs/discovery_of_directly_connected_pnfs.rst",
         "patchSetId": 10
@@ -100,6 +118,24 @@
       "writtenOn": "2017-02-13T16:04:34Z",
       "side": 1,
       "message": "i think in the problem section, you need only quote high level problems you would like to solve.  It is better to not have this detail here.\n\nFurther, please provide more clarity to the use-cases.  Are these the ones you need to support;\n\na. Allowing L2 Connectivity on VLAN Provider Networks between a VM and a PNF.\nb. Allowing L3 Connectivity on VLAN Provider Networks between a VM and a PNF.\nc. Allowing L2 Connectivity on a Tenant-VLAN Network between a VM and a PNF (this I have question that I posted above).\nd. Allowing L3 Connectivity on a Tenant-VLAN Network between a VM and a PNF.",
+      "revId": "522082d909d8b38ed53c2bcb204a97c879c081fa",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_70738980",
+        "filename": "docs/specs/discovery_of_directly_connected_pnfs.rst",
+        "patchSetId": 10
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 6365
+      },
+      "writtenOn": "2017-02-14T15:48:56Z",
+      "side": 1,
+      "message": "As Alon requested I already pushed a new patch-set and tried to explain it better. I removed the L2 Term from this spec, because it is not appropriate in this use-cases.\n\nThis spec talks about use-cases b and d in your list.",
+      "parentUuid": "fafc7978_cd03be0b",
       "revId": "522082d909d8b38ed53c2bcb204a97c879c081fa",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -170,6 +206,24 @@
       "writtenOn": "2017-02-13T16:04:34Z",
       "side": 1,
       "message": "Instead of external VPN, please say that it works for BGPVPN only.",
+      "revId": "522082d909d8b38ed53c2bcb204a97c879c081fa",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_b06df19a",
+        "filename": "docs/specs/discovery_of_directly_connected_pnfs.rst",
+        "patchSetId": 10
+      },
+      "lineNbr": 48,
+      "author": {
+        "id": 6365
+      },
+      "writtenOn": "2017-02-14T15:48:56Z",
+      "side": 1,
+      "message": "Sure, I\u0027ll update the spec",
+      "parentUuid": "fafc7978_8d19b67b",
       "revId": "522082d909d8b38ed53c2bcb204a97c879c081fa",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -257,6 +311,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_9068ad88",
+        "filename": "docs/specs/discovery_of_directly_connected_pnfs.rst",
+        "patchSetId": 10
+      },
+      "lineNbr": 51,
+      "author": {
+        "id": 6365
+      },
+      "writtenOn": "2017-02-14T15:48:56Z",
+      "side": 1,
+      "message": "Should be \"Uses\", will update the spec.",
+      "parentUuid": "fafc7978_0d25c6aa",
+      "revId": "522082d909d8b38ed53c2bcb204a97c879c081fa",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_ed4e826e",
         "filename": "docs/specs/discovery_of_directly_connected_pnfs.rst",
         "patchSetId": 10
@@ -268,6 +340,24 @@
       "writtenOn": "2017-02-13T16:04:34Z",
       "side": 1,
       "message": "where does this para belong to .. It does not look like a limitation at all here",
+      "revId": "522082d909d8b38ed53c2bcb204a97c879c081fa",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_d00995de",
+        "filename": "docs/specs/discovery_of_directly_connected_pnfs.rst",
+        "patchSetId": 10
+      },
+      "lineNbr": 64,
+      "author": {
+        "id": 6365
+      },
+      "writtenOn": "2017-02-14T15:48:56Z",
+      "side": 1,
+      "message": "This is indeed the wrong place for this paragraph.",
+      "parentUuid": "fafc7978_ed4e826e",
       "revId": "522082d909d8b38ed53c2bcb204a97c879c081fa",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -414,6 +504,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_70fa69be",
+        "filename": "docs/specs/discovery_of_directly_connected_pnfs.rst",
+        "patchSetId": 10
+      },
+      "lineNbr": 80,
+      "author": {
+        "id": 6365
+      },
+      "writtenOn": "2017-02-14T15:48:56Z",
+      "side": 1,
+      "message": "Correct.",
+      "parentUuid": "fafc7978_6d42923f",
+      "revId": "522082d909d8b38ed53c2bcb204a97c879c081fa",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_4d3d0ebb",
         "filename": "docs/specs/discovery_of_directly_connected_pnfs.rst",
         "patchSetId": 10
@@ -425,6 +533,24 @@
       "writtenOn": "2017-02-13T16:04:34Z",
       "side": 1,
       "message": "This is to enable discovery of PNFs on the tenant-VLAN-Networks on the internal network side I believe?",
+      "revId": "522082d909d8b38ed53c2bcb204a97c879c081fa",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_50f5a5c9",
+        "filename": "docs/specs/discovery_of_directly_connected_pnfs.rst",
+        "patchSetId": 10
+      },
+      "lineNbr": 82,
+      "author": {
+        "id": 6365
+      },
+      "writtenOn": "2017-02-14T15:48:56Z",
+      "side": 1,
+      "message": "Correct.",
+      "parentUuid": "fafc7978_4d3d0ebb",
       "revId": "522082d909d8b38ed53c2bcb204a97c879c081fa",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -483,6 +609,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_f02db947",
+        "filename": "docs/specs/discovery_of_directly_connected_pnfs.rst",
+        "patchSetId": 10
+      },
+      "lineNbr": 97,
+      "author": {
+        "id": 6365
+      },
+      "writtenOn": "2017-02-14T15:48:56Z",
+      "side": 1,
+      "message": "In external networks, those packets will indeed be punted from NAPT switch",
+      "parentUuid": "fafc7978_cd861e65",
+      "revId": "522082d909d8b38ed53c2bcb204a97c879c081fa",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_2d7eca6b",
         "filename": "docs/specs/discovery_of_directly_connected_pnfs.rst",
         "patchSetId": 10
@@ -494,6 +638,24 @@
       "writtenOn": "2017-02-13T16:04:34Z",
       "side": 1,
       "message": "Similarly ARP Reply received from the PNF will also be punted to controller from the NAPT swithc here right?",
+      "revId": "522082d909d8b38ed53c2bcb204a97c879c081fa",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_7021c94c",
+        "filename": "docs/specs/discovery_of_directly_connected_pnfs.rst",
+        "patchSetId": 10
+      },
+      "lineNbr": 100,
+      "author": {
+        "id": 6365
+      },
+      "writtenOn": "2017-02-14T15:48:56Z",
+      "side": 1,
+      "message": "Correct.",
+      "parentUuid": "fafc7978_2d7eca6b",
       "revId": "522082d909d8b38ed53c2bcb204a97c879c081fa",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -517,6 +679,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_70d26901",
+        "filename": "docs/specs/discovery_of_directly_connected_pnfs.rst",
+        "patchSetId": 10
+      },
+      "lineNbr": 114,
+      "author": {
+        "id": 6365
+      },
+      "writtenOn": "2017-02-14T15:48:56Z",
+      "side": 1,
+      "message": "By provider port I mean the port of the compute that is connected to the VLAN provider network. As I understand it, in VLAN networks each compute/hypervisor has such port,\nSo the designated switch is connected to the L2 broadcast domain.",
+      "parentUuid": "fafc7978_0d81464a",
+      "revId": "522082d909d8b38ed53c2bcb204a97c879c081fa",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_edea020e",
         "filename": "docs/specs/discovery_of_directly_connected_pnfs.rst",
         "patchSetId": 10
@@ -528,6 +708,24 @@
       "writtenOn": "2017-02-13T16:04:34Z",
       "side": 1,
       "message": "NAPT switch?  You are using primary switch somewhere and some other place I see use of NAPT Switch.  Please clarify if they are the same (or) they are different.\n\nI believe they can be same (or) different.  The primary switch is designated switch and must have has atleast one virtual endpoint on the same L2 broadcast domain of a PNF, and that designated switch will be used learn PNFs on the internal network (aka tenant VLAN network) broadcast domain.  The designated switch here is per internal subnet and NOT per router.\n\nThe NAPT Switch plays same role but it is one per Router and its responsibility is to aid learning PNFs on the external VLAN-provider networs.",
+      "revId": "522082d909d8b38ed53c2bcb204a97c879c081fa",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_30374150",
+        "filename": "docs/specs/discovery_of_directly_connected_pnfs.rst",
+        "patchSetId": 10
+      },
+      "lineNbr": 132,
+      "author": {
+        "id": 6365
+      },
+      "writtenOn": "2017-02-14T15:48:56Z",
+      "side": 1,
+      "message": "I have updated the spec to use the term designated switch instead of primary switch. In external networks the designated switch is the NAPT switch.\nIn internal networks we want it to be one per subnet.",
+      "parentUuid": "fafc7978_edea020e",
       "revId": "522082d909d8b38ed53c2bcb204a97c879c081fa",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
