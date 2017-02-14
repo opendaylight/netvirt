@@ -88,6 +88,24 @@
       "revId": "f30402e718ba1a066dbe56c54aac37bb7118d8ae",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_d7d7c721",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronTrunkChangeListener.java",
+        "patchSetId": 13
+      },
+      "lineNbr": 161,
+      "author": {
+        "id": 3276
+      },
+      "writtenOn": "2017-02-14T15:27:18Z",
+      "side": 1,
+      "message": "I didn\u0027t notice any stale or hangover entries, if there were the flows won\u0027t have been cleaned up. Did you take a look at Genius changes? My results finding are with a build using this and the genius trunk patch. I\u0027ve added methods to add/remove members in VlanMemberUpdate and when we remove a VlanMember we use parentRefs in original interface [member] to clean up child interface info. That works independent of InterfaceConfigListener path. BTW, since these discussions are about Genius handling these changes, can probably discuss in there.",
+      "parentUuid": "fafc7978_d786a764",
+      "revId": "f30402e718ba1a066dbe56c54aac37bb7118d8ae",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
