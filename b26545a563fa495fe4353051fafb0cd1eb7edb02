@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_6191f951",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/FloatingIPListener.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 250,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2017-02-14T10:47:42Z",
+      "side": 0,
+      "message": "what about the FIP mac rewrite? why did you removed this code?",
+      "revId": "b26545a563fa495fe4353051fafb0cd1eb7edb02",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
