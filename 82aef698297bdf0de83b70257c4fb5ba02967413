@@ -16,6 +16,24 @@
       "revId": "82aef698297bdf0de83b70257c4fb5ba02967413",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_03ed958b",
+        "filename": "vpnservice/neutronvpn/neutronvpn-api/src/main/java/org/opendaylight/netvirt/neutronvpn/api/utils/NeutronUtils.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 60,
+      "author": {
+        "id": 5357
+      },
+      "writtenOn": "2017-02-14T06:45:31Z",
+      "side": 1,
+      "message": "It\u0027s used from here: https://git.opendaylight.org/gerrit/#/c/51554/3/vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanInterfaceManager.java",
+      "parentUuid": "fafc7978_201a527d",
+      "revId": "82aef698297bdf0de83b70257c4fb5ba02967413",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
