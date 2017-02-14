@@ -13,6 +13,7 @@ import java.math.BigInteger;
 import java.util.List;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.instruction.list.Instruction;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.RouterInterface;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.VrfEntry;
 
@@ -64,6 +65,11 @@ public interface IFibManager {
     void addOrUpdateFibEntry(DataBroker broker, String rd, String macAddress, String prefix, List<String> nextHopList,
                              VrfEntry.EncapType encapType, int label, long l3vni, String gwMacAddress,
                              RouteOrigin origin, WriteTransaction writeConfigTxn);
+
+    void addOrUpdateFibEntry(DataBroker broker, String rd, String macAddress, String prefix,
+            List<String> nextHopList, VrfEntry.EncapType encapType, int label, long l3vni, String gwMacAddress,
+            RouteOrigin origin, BigInteger dpnId, List<Instruction> customInstructions,
+            WriteTransaction writeConfigTxn);
 
     void addFibEntryForRouterInterface(DataBroker broker, String rd, String prefix,
                                        RouterInterface routerInterface, long label, WriteTransaction writeConfigTxn);

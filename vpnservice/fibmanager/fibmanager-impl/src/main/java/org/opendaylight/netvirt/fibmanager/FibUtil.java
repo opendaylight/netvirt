@@ -27,12 +27,15 @@ import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFaile
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.netvirt.fibmanager.api.RouteOrigin;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.interfaces.VpnInterface;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.instruction.list.Instruction;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.AllocateIdInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.AllocateIdInputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.AllocateIdOutput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.IdManagerService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.ReleaseIdInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.ReleaseIdInputBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.CustomLocalNexthop;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.CustomLocalNexthopBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.FibEntries;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.RouterInterface;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.fibentries.VrfTables;
@@ -367,6 +370,7 @@ public class FibUtil {
     public static void addOrUpdateFibEntry(DataBroker broker, String rd, String macAddress, String prefix,
                                            List<String> nextHopList, VrfEntry.EncapType encapType, int label,
                                            long l3vni, String gwMacAddress, RouteOrigin origin,
+                                           BigInteger dpnId, List<Instruction> customInstructions,
                                            WriteTransaction writeConfigTxn) {
         if (rd == null || rd.isEmpty()) {
             LOG.error("Prefix {} not associated with vpn", prefix);
@@ -384,7 +388,7 @@ public class FibUtil {
 
             if (! entry.isPresent()) {
                 writeFibEntryToDs(vrfEntryId, prefix, nextHopList, label, l3vni, encapType, origin, macAddress,
-                        gwMacAddress, writeConfigTxn, broker);
+                        gwMacAddress, dpnId, customInstructions, writeConfigTxn, broker);
                 LOG.debug("Created vrfEntry for {} nexthop {} label {}", prefix, nextHopList, label);
             } else { // Found in MDSAL database
                 List<String> nh = entry.get().getNextHopAddressList();
@@ -394,7 +398,7 @@ public class FibUtil {
                     }
                 }
                 writeFibEntryToDs(vrfEntryId, prefix, nh, label, l3vni, encapType, origin, macAddress,
-                        gwMacAddress, writeConfigTxn, broker);
+                        gwMacAddress, dpnId, customInstructions, writeConfigTxn, broker);
                 LOG.debug("Updated vrfEntry for {} nexthop {} label {}", prefix, nh, label);
             }
         } catch (Exception e) {
@@ -407,11 +411,13 @@ public class FibUtil {
     public static void writeFibEntryToDs(InstanceIdentifier<VrfEntry> vrfEntryId, String prefix,
                                          List<String> nextHopList, long label, Long l3vni,
                                          VrfEntry.EncapType encapType, RouteOrigin origin, String macAddress,
-                                         String gatewayMacAddress, WriteTransaction writeConfigTxn,
+                                         String gatewayMacAddress, BigInteger dpnId,
+                                         List<Instruction> customInstructions, WriteTransaction writeConfigTxn,
                                          DataBroker broker) {
         VrfEntryBuilder vrfEntryBuilder = new VrfEntryBuilder().setDestPrefix(prefix).setNextHopAddressList(nextHopList)
                 .setOrigin(origin.getValue());
         buildVpnEncapSpecificInfo(vrfEntryBuilder, encapType, label, l3vni, macAddress, gatewayMacAddress);
+        buildCustomInstructions(vrfEntryBuilder, dpnId, customInstructions);
         if (writeConfigTxn != null) {
             writeConfigTxn.merge(LogicalDatastoreType.CONFIGURATION, vrfEntryId, vrfEntryBuilder.build(), true);
         } else {
@@ -462,6 +468,15 @@ public class FibUtil {
             builder.setL3vni(l3vni).setGatewayMacAddress(gatewayMac);
         }
         builder.setEncapType(encapType);
+    }
+
+    private static void buildCustomInstructions(VrfEntryBuilder builder, BigInteger dpnId,
+            List<Instruction> customInstructions) {
+        if (dpnId != null && customInstructions != null) {
+            CustomLocalNexthop customLocalNexthop = new CustomLocalNexthopBuilder().setDpnId(dpnId)
+                    .setInstruction(customInstructions).build();
+            builder.addAugmentation(CustomLocalNexthop.class, customLocalNexthop);
+        }
     }
 
     public static void removeFibEntry(DataBroker broker, String rd, String prefix, WriteTransaction writeConfigTxn) {
