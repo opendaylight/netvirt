@@ -35,6 +35,7 @@ import org.opendaylight.genius.mdsalutil.actions.ActionSetFieldEthernetSource;
 import org.opendaylight.genius.mdsalutil.actions.ActionSetFieldVlanVid;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.netvirt.elanmanager.api.IElanService;
+import org.opendaylight.netvirt.fibmanager.NexthopManager.AdjacencyResult;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.VpnInterfaces;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.interfaces.VpnInterface;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.interfaces.VpnInterfaceKey;
@@ -445,7 +446,9 @@ public class NexthopManager implements AutoCloseable {
 
         LOG.trace("NextHop pointer for prefixIp {} vpnId {} dpnId {} is {}", prefixIp, vpnId, remoteDpnId,
             egressIfName);
-        return egressIfName != null ? new AdjacencyResult(egressIfName, egressIfType) : null;
+        return egressIfName != null
+                ? new AdjacencyResult(egressIfName, egressIfType, nextHopIp, AdjacencyResult.ResultType.RESOLVED) :
+                  new AdjacencyResult(egressIfName, egressIfType, nextHopIp, AdjacencyResult.ResultType.UNRESOLVED);
     }
 
     public BigInteger getDpnForPrefix(long vpnId, String prefixIp) {
@@ -734,16 +737,40 @@ public class NexthopManager implements AutoCloseable {
     }
 
     static class AdjacencyResult {
+
+        public enum ResultType {
+            UNOPERATIONAL,
+            UNRESOLVED,
+            RESOLVED
+        }
+
         private String interfaceName;
         private Class<? extends InterfaceType> interfaceType;
+        private String nextHopIp;
+        private ResultType resultType;
 
-        AdjacencyResult(String interfaceName, Class<? extends InterfaceType> interfaceType) {
+        AdjacencyResult(String interfaceName, Class<? extends InterfaceType> interfaceType,
+                String nextHopIp, ResultType type) {
             this.interfaceName = interfaceName;
             this.interfaceType = interfaceType;
+            this.nextHopIp     = nextHopIp;
+            this.resultType    = type;
         }
 
         public String getInterfaceName() {
             return interfaceName;
+        }
+
+        public String getNextHopIpAddress() {
+            return nextHopIp;
+        }
+
+        public ResultType getResultType() {
+            return resultType;
+        }
+
+        public void setResultType(ResultType tp) {
+            resultType = tp;
         }
 
         public Class<? extends InterfaceType> getInterfaceType() {
