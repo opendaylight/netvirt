@@ -34,6 +34,24 @@
       "revId": "f30402e718ba1a066dbe56c54aac37bb7118d8ae",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_5cc01e7c",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronTrunkChangeListener.java",
+        "patchSetId": 13
+      },
+      "lineNbr": 161,
+      "author": {
+        "id": 670
+      },
+      "writtenOn": "2017-02-14T12:51:23Z",
+      "side": 1,
+      "message": "Good point Peri - though Vishal is correct in the typical case of trunk_member-\u003etrunk transition we would go from parentRef\u003dTrunk to parentRef\u003dnone, I\u0027m not sure InterfaceConfigListener#update will take care of the interface-child-info DS.. It seems that when the new parentRef is null we just look for a new one - we don\u0027t handle deleting of the previous parent.\n\nThis would probably be more problematic in a case where a port changes from parentRef A to parentRef B directly.",
+      "parentUuid": "fafc7978_a39489e2",
+      "revId": "f30402e718ba1a066dbe56c54aac37bb7118d8ae",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
