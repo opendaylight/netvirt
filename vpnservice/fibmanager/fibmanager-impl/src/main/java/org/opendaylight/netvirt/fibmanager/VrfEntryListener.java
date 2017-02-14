@@ -9,6 +9,7 @@ package org.opendaylight.netvirt.fibmanager;
 
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
+import com.google.common.collect.Lists;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
@@ -21,6 +22,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.ListIterator;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
@@ -100,6 +102,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.N
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.NodeKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.FibEntries;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.LabelRouteMap;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.PendingFibEntries;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.RouterInterface;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.SubnetRoute;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.fibentries.VrfTables;
@@ -107,6 +110,11 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev15033
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.label.route.map.LabelRouteInfo;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.label.route.map.LabelRouteInfoBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.label.route.map.LabelRouteInfoKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.pending.fib.entries.TunnelEntry;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.pending.fib.entries.TunnelEntryKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.pending.fib.entries.tunnel.entry.PendingFibEntry;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.pending.fib.entries.tunnel.entry.PendingFibEntryBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.pending.fib.entries.tunnel.entry.PendingFibEntryKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.VrfEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.VrfEntryBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.VrfEntryKey;
@@ -1075,7 +1083,7 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
 
     }
 
-    private void createRemoteFibEntry(final BigInteger remoteDpnId, final long vpnId, final VrfTablesKey vrfTableKey,
+    protected void createRemoteFibEntry(final BigInteger remoteDpnId, final long vpnId, final VrfTablesKey vrfTableKey,
                                       final VrfEntry vrfEntry, WriteTransaction tx) {
         Boolean wrTxPresent = true;
         if (tx == null) {
@@ -1096,6 +1104,9 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
         }
 
         for (AdjacencyResult adjacencyResult : adjacencyResults) {
+            if (!adjacencyResult.getResultType().equals(AdjacencyResult.ResultType.RESOLVED)) {
+                continue;
+            }
             List<ActionInfo> actionInfos = new ArrayList<>();
             String egressInterface = adjacencyResult.getInterfaceName();
             if (Tunnel.class.equals(adjacencyResult.getInterfaceType())) {
@@ -1109,7 +1120,10 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
                 LOG.error("Failed to retrieve egress action for prefix {} nextHop {} interface {}. "
                     + "Aborting remote FIB entry creation.",
                     vrfEntry.getDestPrefix(), vrfEntry.getNextHopAddressList(), egressInterface);
-                return;
+
+                //store this entry to DS model of pending fib entries
+                adjacencyResult.setResultType(AdjacencyResult.ResultType.UNOPERATIONAL);
+                continue;
             }
             actionInfos.addAll(egressActions);
             List<InstructionInfo> instructions = new ArrayList<>();
@@ -1120,6 +1134,63 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
             tx.submit();
         }
         LOG.debug("Successfully added FIB entry for prefix {} in vpnId {}", vrfEntry.getDestPrefix(), vpnId);
+        createPendingFibEntry(remoteDpnId, rd, vrfEntry.getDestPrefix(), adjacencyResults);
+    }
+
+    private void createPendingFibEntry(BigInteger dpnId, String rd, String destPrefix,
+            List<AdjacencyResult> adjacencyList) {
+        if (dpnId == null || rd == null || destPrefix == null || adjacencyList == null || adjacencyList.isEmpty()) {
+            return;
+        }
+        LOG.debug("PENDING_FIB_ENTRY: adjacency size {}", adjacencyList.size());
+
+        WriteTransaction writeOperTxn = dataBroker.newWriteOnlyTransaction();
+        for (AdjacencyResult adjacency : adjacencyList) {
+            LOG.debug("PENDING_FIB_ENTRY: adjacency result {} nexHopIp {}", adjacency.getResultType().toString(),
+                    adjacency.getNextHopIpAddress());
+            if (adjacency.getNextHopIpAddress() == null) {
+                continue;
+            }
+            String nextHop = adjacency.getNextHopIpAddress();
+            InstanceIdentifier<PendingFibEntry> newPendingFibEntryId =
+                    InstanceIdentifier.builder(PendingFibEntries.class)
+                        .child(TunnelEntry.class, new TunnelEntryKey(dpnId, nextHop))
+                        .child(PendingFibEntry.class, new PendingFibEntryKey(rd)).build();
+
+            if (adjacency.getResultType().equals(AdjacencyResult.ResultType.RESOLVED)) {
+                Optional<PendingFibEntry> entry =
+                        MDSALUtil.read(dataBroker, LogicalDatastoreType.OPERATIONAL, newPendingFibEntryId);
+                if (entry.isPresent()) {
+                    LOG.debug("PENDING_FIB_ENTRY: existing pending entry {} in operDS", entry.get());
+                    List<String> existedPrefixList = entry.get().getDestPrefix();
+                    ListIterator<String> iter = existedPrefixList != null ? existedPrefixList.listIterator() : null;
+                    while (iter != null && iter.hasNext()) {
+                        if (destPrefix.equals(iter.next())) {
+                            iter.remove();
+                            break;
+                        }
+                    }
+                    if (existedPrefixList.isEmpty()) {
+                        LOG.debug("PENDING_FIB_ENTRY: remove fib entry from pending operDS for dpn {}"
+                                + " nextHop {} rd {} prefix {} entry {}", dpnId, nextHop, rd, destPrefix, entry.get());
+                        writeOperTxn.delete(LogicalDatastoreType.OPERATIONAL, newPendingFibEntryId);
+                    } else {
+                        LOG.debug("PENDING_FIB_ENTRY: remove dest prefix from pending operDS for dpn {}"
+                                + " nextHop {} rd {} prefix {}", dpnId, nextHop, rd, destPrefix);
+                        writeOperTxn.merge(LogicalDatastoreType.OPERATIONAL, newPendingFibEntryId, entry.get());
+                    }
+                }
+            } else {
+                List<String> destPrefixList = Lists.newArrayList();
+                destPrefixList.add(destPrefix);
+                LOG.debug("PENDING_FIB_ENTRY: add fib entry to pending operDS dpn {} nextHop {} rd {} prefix {}"
+                        + " result {}", dpnId, nextHop, rd, destPrefix, adjacency.getResultType().toString());
+                PendingFibEntry fibEntry = new PendingFibEntryBuilder().setKey(new PendingFibEntryKey(rd))
+                        .setRouteDistinguisher(rd).setDestPrefix(destPrefixList).build();
+                writeOperTxn.merge(LogicalDatastoreType.OPERATIONAL, newPendingFibEntryId, fibEntry, true);
+            }
+        }
+        writeOperTxn.submit();
     }
 
     private void addRewriteDstMacAction(long vpnId, VrfEntry vrfEntry, List<ActionInfo> actionInfos) {
@@ -2153,7 +2224,7 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
     }
 
 
-    private VrfEntry getVrfEntry(DataBroker broker, String rd, String ipPrefix) {
+    protected VrfEntry getVrfEntry(DataBroker broker, String rd, String ipPrefix) {
         InstanceIdentifier<VrfEntry> vrfEntryId = InstanceIdentifier.builder(FibEntries.class)
             .child(VrfTables.class, new VrfTablesKey(rd))
             .child(VrfEntry.class, new VrfEntryKey(ipPrefix)).build();

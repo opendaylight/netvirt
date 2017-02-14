@@ -103,4 +103,19 @@ module odl-fib {
             leaf parent-vpn-rd { type string; }
          }
     }
+
+	container pending-fib-entries {
+            list tunnel-entry {
+            key  "source-dpn-id tep-dest-ip";
+
+            leaf source-dpn-id { type uint64; }
+            leaf tep-dest-ip { type string; }
+
+            list pending-fib-entry {
+                key "routeDistinguisher";
+                leaf routeDistinguisher {type string;}
+                leaf-list  destPrefix { type string; }
+            }
+        }
+    }
 }
