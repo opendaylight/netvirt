@@ -1,0 +1,123 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_7769bbbd",
+        "filename": "docs/specs/ipv6-l3vpn.rst",
+        "patchSetId": 4
+      },
+      "lineNbr": 152,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2017-02-14T15:04:23Z",
+      "side": 1,
+      "message": "Table45?",
+      "revId": "5ce6541adb9b454d9753514a1a1c706785af8479",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_576477e4",
+        "filename": "docs/specs/ipv6-l3vpn.rst",
+        "patchSetId": 4
+      },
+      "lineNbr": 162,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2017-02-14T15:04:23Z",
+      "side": 1,
+      "message": "Please include ipv6 to specify that its matching an ipv6 address and not ipv4",
+      "revId": "5ce6541adb9b454d9753514a1a1c706785af8479",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_57abd7d5",
+        "filename": "docs/specs/ipv6-l3vpn.rst",
+        "patchSetId": 4
+      },
+      "lineNbr": 164,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2017-02-14T15:04:23Z",
+      "side": 1,
+      "message": "I think \"Group Local VM\" is not going to come into picture for this flow right? i.e., from \"Local Next-Hop group\", its sent to \"Egress Table (220)\".\n\nFor reference: https://logs.opendaylight.org/releng/jenkins092/docs-verify-rtd-carbon/1001/archives/docs/_build/html/submodules/netvirt/docs/specs/ipv6-cvr-north-south.html#id5",
+      "revId": "5ce6541adb9b454d9753514a1a1c706785af8479",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_97b53f33",
+        "filename": "docs/specs/ipv6-l3vpn.rst",
+        "patchSetId": 4
+      },
+      "lineNbr": 168,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2017-02-14T15:04:23Z",
+      "side": 1,
+      "message": "Hope you meant router-gw-port? \nJFI, there are two ports on the router, one on the internal side and one on the external network.",
+      "revId": "5ce6541adb9b454d9753514a1a1c706785af8479",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_f783eb53",
+        "filename": "docs/specs/ipv6-l3vpn.rst",
+        "patchSetId": 4
+      },
+      "lineNbr": 177,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2017-02-14T15:04:23Z",
+      "side": 1,
+      "message": "Can you please complete this pipeline with inputs from Ericsson team.",
+      "revId": "5ce6541adb9b454d9753514a1a1c706785af8479",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_7797fb90",
+        "filename": "docs/specs/ipv6-l3vpn.rst",
+        "patchSetId": 4
+      },
+      "lineNbr": 292,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2017-02-14T15:04:23Z",
+      "side": 1,
+      "message": "why create the port?",
+      "revId": "5ce6541adb9b454d9753514a1a1c706785af8479",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_978c1f81",
+        "filename": "docs/specs/ipv6-l3vpn.rst",
+        "patchSetId": 4
+      },
+      "lineNbr": 406,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2017-02-14T15:04:23Z",
+      "side": 1,
+      "message": "Does this spec have a dependency on a version of Quagga?",
+      "revId": "5ce6541adb9b454d9753514a1a1c706785af8479",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
