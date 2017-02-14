@@ -51,8 +51,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.arputil.rev160406.Se
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.arputil.rev160406.SendArpRequestInputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.arputil.rev160406.interfaces.InterfaceAddress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.arputil.rev160406.interfaces.InterfaceAddressBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fib.rpc.rev160121.CreateFibEntryInput;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fib.rpc.rev160121.CreateFibEntryInputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fib.rpc.rev160121.FibRpcService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fib.rpc.rev160121.RemoveFibEntryInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fib.rpc.rev160121.RemoveFibEntryInputBuilder;
@@ -66,6 +64,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.vpn.rpc.rev160201.R
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.vpn.rpc.rev160201.VpnRpcService;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.common.RpcResult;
+import org.opendaylight.yangtools.yang.common.RpcResultBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -138,8 +137,10 @@ public class VpnFloatingIpHandler implements FloatingIPHandler {
                     String rd = NatUtil.getVpnRd(dataBroker, vpnName);
                     String nextHopIp = NatUtil.getEndpointIpAddressForDPN(dataBroker, dpnId);
                     LOG.debug("Nexthop ip for prefix {} is {}", externalIp, nextHopIp);
+                    List<Instruction> customInstructions = new ArrayList<>();
+                    customInstructions.add(new InstructionGotoTable(NwConstants.PDNAT_TABLE).buildInstruction(0));
                     NatUtil.addPrefixToBGP(dataBroker, bgpManager, fibManager, rd, externalIp + "/32", nextHopIp,
-                        label, LOG, RouteOrigin.STATIC);
+                        label, LOG, RouteOrigin.STATIC, dpnId, customInstructions);
 
                     List<Instruction> instructions = new ArrayList<>();
                     List<ActionInfo> actionsInfos = new ArrayList<>();
@@ -147,16 +148,7 @@ public class VpnFloatingIpHandler implements FloatingIPHandler {
                     instructions.add(new InstructionApplyActions(actionsInfos).buildInstruction(0));
                     makeTunnelTableEntry(dpnId, label, instructions);
 
-                    //Install custom FIB routes
-                    List<Instruction> customInstructions = new ArrayList<>();
-                    customInstructions.add(new InstructionGotoTable(NwConstants.PDNAT_TABLE).buildInstruction(0));
                     makeLFibTableEntry(dpnId, label, NwConstants.PDNAT_TABLE);
-                    CreateFibEntryInput input = new CreateFibEntryInputBuilder().setVpnName(vpnName)
-                        .setSourceDpid(dpnId).setInstruction(customInstructions)
-                        .setIpAddress(externalIp + "/32").setServiceId(label)
-                        .setInstruction(customInstructions).build();
-                    //Future<RpcResult<java.lang.Void>> createFibEntry(CreateFibEntryInput input);
-                    Future<RpcResult<Void>> future1 = fibService.createFibEntry(input);
                     LOG.debug("Add Floating Ip {} , found associated to fixed port {}", externalIp, interfaceName);
                     if (floatingIpPortMacAddress != null) {
                         WriteTransaction writeTx = dataBroker.newWriteOnlyTransaction();
@@ -167,7 +159,7 @@ public class VpnFloatingIpHandler implements FloatingIPHandler {
                             floatingIpPortMacAddress, dpnId, networkId, writeTx, NwConstants.ADD_FLOW);
                         writeTx.submit();
                     }
-                    return JdkFutureAdapters.listenInPoolThread(future1);
+                    return Futures.immediateFuture(RpcResultBuilder.<Void>success().build());
                 } else {
                     String errMsg = String.format("Could not retrieve the label for prefix %s in VPN %s, %s",
                         externalIp, vpnName, result.getErrors());
@@ -229,6 +221,7 @@ public class VpnFloatingIpHandler implements FloatingIPHandler {
         cleanupFibEntries(dpnId, vpnName, externalIp, label);
     }
 
+    @Override
     public void cleanupFibEntries(final BigInteger dpnId, final String vpnName, final String externalIp,
                                   final long label) {
         //Remove Prefix from BGP

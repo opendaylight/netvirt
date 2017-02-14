@@ -13,6 +13,9 @@
   <reference id="interVpnLinkService"
              interface="org.opendaylight.netvirt.vpnmanager.api.intervpnlink.IVpnLinkService"
              availability="optional"/>
+  <reference id="fibRpcService"
+             interface="org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fib.rpc.rev160121.FibRpcService"
+             availability="optional" />
 
   <odl:rpc-service id="idManagerService"
                    interface="org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.IdManagerService"/>
@@ -49,6 +52,7 @@
     <argument ref="odlInterfaceRpcService"/>
     <argument ref="idManagerService"/>
     <argument ref="interVpnLinkService"/>
+    <argument ref="fibRpcService"/>
   </bean>
 
   <bean id="fibRpcServiceImpl" class="org.opendaylight.netvirt.fibmanager.FibRpcServiceImpl">

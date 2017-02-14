@@ -76,8 +76,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rpcs.rev160406.G
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rpcs.rev160406.GetTunnelInterfaceNameOutput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rpcs.rev160406.ItmRpcService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.group.types.rev131018.GroupTypes;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fib.rpc.rev160121.CreateFibEntryInput;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fib.rpc.rev160121.CreateFibEntryInputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fib.rpc.rev160121.FibRpcService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fib.rpc.rev160121.RemoveFibEntryInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fib.rpc.rev160121.RemoveFibEntryInputBuilder;
@@ -119,6 +117,7 @@ import org.opendaylight.yangtools.concepts.ListenerRegistration;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.common.RpcResult;
+import org.opendaylight.yangtools.yang.common.RpcResultBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -926,24 +925,18 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
                                 label, externalIp, routerId);
                         }
 
-                        //Inform BGP
                         String rd = NatUtil.getVpnRd(dataBroker, vpnName);
                         String nextHopIp = NatUtil.getEndpointIpAddressForDPN(dataBroker, dpnId);
-                        NatUtil.addPrefixToBGP(dataBroker, bgpManager, fibManager, rd, externalIp,
-                            nextHopIp, label, log, RouteOrigin.STATIC);
-
                         //Install custom FIB routes
                         List<Instruction> customInstructions = new ArrayList<>();
                         customInstructions.add(new InstructionGotoTable(tableId).buildInstruction(0));
+                        //Inform BGP
+                        NatUtil.addPrefixToBGP(dataBroker, bgpManager, fibManager, rd, externalIp,
+                            nextHopIp, label, log, RouteOrigin.STATIC, dpnId, customInstructions);
+
                         makeTunnelTableEntry(dpnId, label, customInstructions);
                         makeLFibTableEntry(dpnId, label, tableId);
-
-                        String fibExternalIp = externalIp.contains("/32") ? externalIp : (externalIp + "/32");
-                        CreateFibEntryInput input = new CreateFibEntryInputBuilder().setVpnName(vpnName)
-                            .setSourceDpid(dpnId).setIpAddress(fibExternalIp).setServiceId(label)
-                            .setInstruction(customInstructions).build();
-                        Future<RpcResult<Void>> future1 = fibService.createFibEntry(input);
-                        return JdkFutureAdapters.listenInPoolThread(future1);
+                        return Futures.immediateFuture(RpcResultBuilder.<Void>success().build());
                     } else {
                         LOG.error("NAT Service : inside apply with result failed");
                         String errMsg = String.format("Could not retrieve the label for prefix %s in VPN %s, %s",
