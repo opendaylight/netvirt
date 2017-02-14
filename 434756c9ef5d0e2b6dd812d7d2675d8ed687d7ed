@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_26a1c747",
+        "filename": "vpnservice/cloud-servicechain/cloud-servicechain-impl/src/main/java/org/opendaylight/netvirt/cloudservicechain/VPNServiceChainHandler.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 146,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-02-14T10:16:26Z",
+      "side": 1,
+      "message": "don\u0027t you need guard against null check for dpnInVpn.getVpnInterfaces() ?",
+      "revId": "434756c9ef5d0e2b6dd812d7d2675d8ed687d7ed",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_668aafc0",
+        "filename": "vpnservice/cloud-servicechain/cloud-servicechain-impl/src/main/java/org/opendaylight/netvirt/cloudservicechain/VPNServiceChainHandler.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 292,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-02-14T10:16:26Z",
+      "side": 1,
+      "message": "checkstyle: you don\u0027t need space after ( and before )",
+      "revId": "434756c9ef5d0e2b6dd812d7d2675d8ed687d7ed",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_c6355bf8",
+        "filename": "vpnservice/cloud-servicechain/cloud-servicechain-impl/src/main/java/org/opendaylight/netvirt/cloudservicechain/utils/VpnServiceChainUtils.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 509,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-02-14T10:16:26Z",
+      "side": 1,
+      "message": "good use of flatMap.\nDon\u0027t you need apply filter with dpn.getVpnInterfaces()!\u003d null before applying flatMap ?",
+      "revId": "434756c9ef5d0e2b6dd812d7d2675d8ed687d7ed",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
