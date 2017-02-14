@@ -16,6 +16,24 @@
       "revId": "6524dc0de538b555a6227bb58f541fc1273647f0",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_f7900b45",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/resources/org/opendaylight/blueprint/fibmanager.xml",
+        "patchSetId": 3
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2017-02-14T15:42:48Z",
+      "side": 1,
+      "message": "I tried to fix it in the BP because I don\u0027t want this bug to turn into a huge refactoring as it needs to go into Boron",
+      "parentUuid": "fafc7978_bc4caa71",
+      "revId": "6524dc0de538b555a6227bb58f541fc1273647f0",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
