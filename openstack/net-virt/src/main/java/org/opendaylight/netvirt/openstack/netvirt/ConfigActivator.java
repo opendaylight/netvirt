@@ -256,11 +256,11 @@ public class ConfigActivator implements BundleActivator {
         // addingService may not be called if the service is already available when the ServiceTracker
         // is started
         trackService(context, INeutronNetworkCRUD.class, tenantNetworkManager, networkHandler, lBaaSHandler,
-                lBaaSPoolHandler, lBaaSPoolMemberHandler, neutronL3Adapter, distributedArpService);
+                lBaaSPoolHandler, lBaaSPoolMemberHandler, neutronL3Adapter, distributedArpService, vlanProvider);
         trackService(context, INeutronSubnetCRUD.class, lBaaSHandler, lBaaSPoolHandler, lBaaSPoolMemberHandler,
                 securityServices, neutronL3Adapter);
         trackService(context, INeutronPortCRUD.class, tenantNetworkManager, lBaaSHandler, lBaaSPoolHandler,
-                lBaaSPoolMemberHandler, securityServices, neutronL3Adapter, distributedArpService, portHandler);
+                lBaaSPoolMemberHandler, securityServices, neutronL3Adapter, distributedArpService, portHandler, vlanProvider);
         trackService(context, INeutronFloatingIPCRUD.class, neutronL3Adapter);
         trackService(context, INeutronLoadBalancerCRUD.class, lBaaSHandler, lBaaSPoolHandler, lBaaSPoolMemberHandler);
         trackService(context, INeutronLoadBalancerPoolCRUD.class, lBaaSHandler, lBaaSPoolMemberHandler);

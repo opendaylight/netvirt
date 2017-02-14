@@ -16,13 +16,13 @@ import java.util.Set;
 
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.genius.mdsalutil.ActionInfo;
-import org.opendaylight.genius.mdsalutil.ActionType;
 import org.opendaylight.genius.mdsalutil.FlowEntity;
 import org.opendaylight.genius.mdsalutil.InstructionInfo;
-import org.opendaylight.genius.mdsalutil.InstructionType;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.mdsalutil.MatchInfoBase;
 import org.opendaylight.genius.mdsalutil.NwConstants;
+import org.opendaylight.genius.mdsalutil.actions.ActionNxResubmit;
+import org.opendaylight.genius.mdsalutil.instructions.InstructionApplyActions;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.netvirt.aclservice.api.AclServiceListener;
 import org.opendaylight.netvirt.aclservice.api.AclServiceManager.Action;
@@ -348,8 +348,8 @@ public abstract class AbstractAclServiceImpl implements AclServiceListener {
         }
 
         List<InstructionInfo> instructions = new ArrayList<>();
-        actionsInfos.add(new ActionInfo(ActionType.nx_resubmit, new String[] {Short.toString(dispatcherTableId)}));
-        instructions.add(new InstructionInfo(InstructionType.apply_actions, actionsInfos));
+        actionsInfos.add(new ActionNxResubmit(dispatcherTableId));
+        instructions.add(new InstructionApplyActions(actionsInfos));
         return instructions;
     }
 

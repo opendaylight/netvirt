@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 Ericsson India Global Services Pvt Ltd. and others.  All rights reserved.
+ * Copyright © 2016, 2017 Ericsson India Global Services Pvt Ltd. and others.  All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
@@ -26,22 +26,24 @@ import org.opendaylight.controller.md.sal.binding.api.DataChangeListener;
 import org.opendaylight.controller.md.sal.common.api.data.AsyncDataBroker.DataChangeScope;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.mdsalutil.ActionInfo;
-import org.opendaylight.genius.mdsalutil.ActionType;
 import org.opendaylight.genius.mdsalutil.BucketInfo;
 import org.opendaylight.genius.mdsalutil.FlowEntity;
 import org.opendaylight.genius.mdsalutil.GroupEntity;
 import org.opendaylight.genius.mdsalutil.InstructionInfo;
-import org.opendaylight.genius.mdsalutil.InstructionType;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
-import org.opendaylight.genius.mdsalutil.MatchFieldType;
 import org.opendaylight.genius.mdsalutil.MatchInfo;
+import org.opendaylight.genius.mdsalutil.actions.ActionGroup;
+import org.opendaylight.genius.mdsalutil.actions.ActionOutput;
+import org.opendaylight.genius.mdsalutil.instructions.InstructionApplyActions;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
+import org.opendaylight.genius.mdsalutil.matches.MatchEthernetType;
 import org.opendaylight.netvirt.bgpmanager.api.IBgpManager;
 import org.opendaylight.netvirt.natservice.internal.ExternalNetworksChangeListener;
 import org.opendaylight.netvirt.natservice.internal.ExternalRoutersListener;
 import org.opendaylight.netvirt.natservice.internal.FloatingIPListener;
 import org.opendaylight.netvirt.natservice.internal.NaptManager;
 import org.opendaylight.netvirt.natservice.internal.NatUtil;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Uri;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.OdlInterfaceRpcService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fib.rpc.rev160121.FibRpcService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.vpn.rpc.rev160201.VpnRpcService;
@@ -55,81 +57,82 @@ import org.powermock.modules.junit4.PowerMockRunner;
 @PrepareForTest(MDSALUtil.class)
 public class ExternalNetworksChangeListenerTest {
 
-    @Mock DataBroker dataBroker;
-    @Mock ListenerRegistration<DataChangeListener> dataChangeListenerRegistration;
-    @Mock IMdsalApiManager mdsalManager;
-    @Mock FlowEntity flowMock;
-    @Mock GroupEntity groupMock;
-    InstanceIdentifier<org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.external.networks.Networks> id = null;
-    org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.external.networks.Networks networks = null;
+    @Mock
+    DataBroker dataBroker;
+    @Mock
+    ListenerRegistration<DataChangeListener> dataChangeListenerRegistration;
+    @Mock
+    IMdsalApiManager mdsalManager;
+    @Mock
+    FlowEntity flowMock;
+    @Mock
+    GroupEntity groupMock;
+    InstanceIdentifier<org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111
+        .external.networks.Networks> id = null;
+    org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111
+        .external.networks.Networks networks = null;
     private ExternalNetworksChangeListener extNetworks;
 
     @Before
     public void setUp() throws Exception {
         MockitoAnnotations.initMocks(this);
         when(dataBroker.registerDataChangeListener(
-                any(LogicalDatastoreType.class),
-                any(InstanceIdentifier.class),
-                any(DataChangeListener.class),
-                any(DataChangeScope.class)))
-                .thenReturn(dataChangeListenerRegistration);
+            any(LogicalDatastoreType.class),
+            any(InstanceIdentifier.class),
+            any(DataChangeListener.class),
+            any(DataChangeScope.class)))
+            .thenReturn(dataChangeListenerRegistration);
         extNetworks = new ExternalNetworksChangeListener(dataBroker,
-                Mockito.mock(IMdsalApiManager.class),
-                Mockito.mock(FloatingIPListener.class),
-                Mockito.mock(ExternalRoutersListener.class),
-                Mockito.mock(OdlInterfaceRpcService.class),
-                Mockito.mock(NaptManager.class),
-                Mockito.mock(IBgpManager.class),
-                Mockito.mock(VpnRpcService.class),
-                Mockito.mock(FibRpcService.class));
+            Mockito.mock(IMdsalApiManager.class),
+            Mockito.mock(FloatingIPListener.class),
+            Mockito.mock(ExternalRoutersListener.class),
+            Mockito.mock(OdlInterfaceRpcService.class),
+            Mockito.mock(NaptManager.class),
+            Mockito.mock(IBgpManager.class),
+            Mockito.mock(VpnRpcService.class),
+            Mockito.mock(FibRpcService.class));
 
         PowerMockito.mockStatic(MDSALUtil.class);
     }
 
-
     @Test
+    // TODO Clean up the exception handling
+    @SuppressWarnings("checkstyle:IllegalCatch")
     public void testSnatFlowEntity() {
         FlowEntity flowMock = mock(FlowEntity.class);
-        final short SNAT_TABLE = 40;
-        final int DEFAULT_SNAT_FLOW_PRIORITY = 0;
-        final String FLOWID_SEPARATOR = ".";
-        String SNAT_FLOWID_PREFIX = "SNAT.";
-
-
-        BigInteger dpnId = new BigInteger("100");
-        String routerName = new String("200");
-        long routerId = 200;
-        long groupId = 300;
+        final short snatTable = 40;
+        final int defaultSnatFlowPriority = 0;
+        final String flowidSeparator = ".";
+        String routerName = "200";
         List<BucketInfo> bucketInfo = new ArrayList<>();
         List<ActionInfo> listActionInfoPrimary = new ArrayList<>();
-        listActionInfoPrimary.add(new ActionInfo(ActionType.output,
-                new String[] {"3"}));
+        listActionInfoPrimary.add(new ActionOutput(new Uri("3")));
         BucketInfo bucketPrimary = new BucketInfo(listActionInfoPrimary);
         List<ActionInfo> listActionInfoSecondary = new ArrayList<>();
-        listActionInfoSecondary.add(new ActionInfo(ActionType.output,
-                new String[] {"4"}));
+        listActionInfoSecondary.add(new ActionOutput(new Uri("4")));
         BucketInfo bucketSecondary = new BucketInfo(listActionInfoPrimary);
         bucketInfo.add(0, bucketPrimary);
         bucketInfo.add(1, bucketSecondary);
 
         List<MatchInfo> matches = new ArrayList<>();
-        matches.add(new MatchInfo(MatchFieldType.eth_type,
-                new long[] { 0x0800L }));
+        matches.add(MatchEthernetType.IPV4);
 
         List<InstructionInfo> instructions = new ArrayList<>();
         List<ActionInfo> actionsInfos = new ArrayList<>();
-        actionsInfos.add(new ActionInfo(ActionType.group, new String[] {String.valueOf(groupId)}));
-        instructions.add(new InstructionInfo(InstructionType.apply_actions, actionsInfos));
+        long groupId = 300;
+        actionsInfos.add(new ActionGroup(groupId));
+        instructions.add(new InstructionApplyActions(actionsInfos));
 
-
-        String flowRef =  new StringBuffer().append(SNAT_FLOWID_PREFIX).append(dpnId).append(FLOWID_SEPARATOR).
-                append(SNAT_TABLE).append(FLOWID_SEPARATOR).append(routerId).toString();
+        BigInteger dpnId = new BigInteger("100");
+        long routerId = 200;
+        String snatFlowidPrefix = "SNAT.";
+        String flowRef = snatFlowidPrefix + dpnId + flowidSeparator + snatTable + flowidSeparator + routerId;
 
         BigInteger cookieSnat = NatUtil.getCookieSnatFlow(routerId);
         try {
-            PowerMockito.when(MDSALUtil.class, "buildFlowEntity", dpnId, SNAT_TABLE, flowRef,
-                    DEFAULT_SNAT_FLOW_PRIORITY, flowRef, 0, 0,
-                    cookieSnat, matches, instructions ).thenReturn(flowMock);
+            PowerMockito.when(MDSALUtil.class, "buildFlowEntity", dpnId, snatTable, flowRef,
+                defaultSnatFlowPriority, flowRef, 0, 0,
+                cookieSnat, matches, instructions).thenReturn(flowMock);
         } catch (Exception e) {
             // Test failed anyways
             assertEquals("true", "false");

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 Ericsson India Global Services Pvt Ltd. and others.  All rights reserved.
+ * Copyright (c) 2016, 2017 Ericsson India Global Services Pvt Ltd. and others.  All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
@@ -7,6 +7,8 @@
  */
 
 package org.opendaylight.netvirt.neutronvpn.api.utils;
+
+import static org.opendaylight.netvirt.neutronvpn.api.utils.NeutronConstants.VNIC_TYPE_NORMAL;
 
 import java.util.List;
 
@@ -17,8 +19,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.por
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.provider.ext.rev150712.NetworkProviderExtension;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.provider.ext.rev150712.neutron.networks.network.Segments;
 
+
 public class NeutronUtils {
-    public static final String VNIC_TYPE_NORMAL = "normal";
 
     public static boolean isPortVnicTypeNormal(Port port) {
         PortBindingExtension portBinding = port.getAugmentation(PortBindingExtension.class);
@@ -28,17 +30,6 @@ public class NeutronUtils {
         }
         String vnicType = portBinding.getVnicType().trim().toLowerCase();
         return vnicType.equals(VNIC_TYPE_NORMAL);
-    }
-
-    public static String getSegmentationIdFromNeutronNetwork(Network network) {
-        String segmentationId = null;
-        NetworkProviderExtension providerExtension = network.getAugmentation(NetworkProviderExtension.class);
-        if (providerExtension != null) {
-            Class<? extends NetworkTypeBase> networkType = providerExtension.getNetworkType();
-            segmentationId = getSegmentationIdFromNeutronNetwork(network, networkType);
-        }
-
-        return segmentationId;
     }
 
     public static <T extends NetworkTypeBase> String getSegmentationIdFromNeutronNetwork(Network network,
@@ -67,4 +58,53 @@ public class NeutronUtils {
         Class<? extends NetworkTypeBase> networkType = providerSegment.getNetworkType();
         return (networkType != null && networkType.isAssignableFrom(expectedNetworkType));
     }
+
+    public static <T extends NetworkTypeBase> boolean isNetworkSegmentType(Network network, Long index,
+                                                                           Class<T> expectedNetworkType) {
+        Class<? extends NetworkTypeBase> segmentType = null;
+        NetworkProviderExtension providerExtension = network.getAugmentation(NetworkProviderExtension.class);
+        if (providerExtension != null) {
+            List<Segments> providerSegments = providerExtension.getSegments();
+            if (providerSegments != null && providerSegments.size() > 0) {
+                for (Segments providerSegment : providerSegments) {
+                    if (providerSegment.getSegmentationIndex() == index) {
+                        segmentType = providerSegment.getNetworkType();
+                        break;
+                    }
+                }
+            }
+        }
+        return (segmentType != null && segmentType.isAssignableFrom(expectedNetworkType));
+    }
+
+    public static Long getNumberSegmentsFromNeutronNetwork(Network network) {
+        NetworkProviderExtension providerExtension = network.getAugmentation(NetworkProviderExtension.class);
+        Integer numSegs = 0;
+        if (providerExtension != null) {
+            List<Segments> providerSegments = providerExtension.getSegments();
+            if (providerSegments != null) {
+                numSegs = providerSegments.size();
+            }
+        }
+        return Long.valueOf(numSegs);
+    }
+
+    public static String getSegmentationIdFromNeutronNetworkSegment(Network network, Long index) {
+        String segmentationId = null;
+        NetworkProviderExtension providerExtension = network.getAugmentation(NetworkProviderExtension.class);
+        if (providerExtension != null) {
+            List<Segments> providerSegments = providerExtension.getSegments();
+            if (providerSegments != null && providerSegments.size() > 0) {
+                for (Segments providerSegment : providerSegments) {
+                    if (providerSegment.getSegmentationIndex() == index) {
+                        segmentationId = providerSegment.getSegmentationId();
+                        break;
+                    }
+                }
+            }
+        }
+        return segmentationId;
+    }
+
+
 }

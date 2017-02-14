@@ -14,22 +14,23 @@ import java.util.Map;
 
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.genius.mdsalutil.ActionInfo;
-import org.opendaylight.genius.mdsalutil.ActionType;
 import org.opendaylight.genius.mdsalutil.InstructionInfo;
-import org.opendaylight.genius.mdsalutil.InstructionType;
-import org.opendaylight.genius.mdsalutil.MatchFieldType;
-import org.opendaylight.genius.mdsalutil.MatchInfo;
 import org.opendaylight.genius.mdsalutil.MatchInfoBase;
 import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.genius.mdsalutil.NxMatchFieldType;
 import org.opendaylight.genius.mdsalutil.NxMatchInfo;
+import org.opendaylight.genius.mdsalutil.actions.ActionNxConntrack;
+import org.opendaylight.genius.mdsalutil.instructions.InstructionApplyActions;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
+import org.opendaylight.genius.mdsalutil.matches.MatchEthernetSource;
 import org.opendaylight.netvirt.aclservice.api.AclServiceManager.Action;
 import org.opendaylight.netvirt.aclservice.api.AclServiceManager.MatchCriteria;
 import org.opendaylight.netvirt.aclservice.utils.AclConstants;
 import org.opendaylight.netvirt.aclservice.utils.AclDataUtil;
+import org.opendaylight.netvirt.aclservice.utils.AclServiceOFFlowBuilder;
 import org.opendaylight.netvirt.aclservice.utils.AclServiceUtils;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.acl.access.list.entries.Ace;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.MacAddress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.IpPrefixOrAddress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.interfaces._interface.AllowedAddressPairs;
 import org.slf4j.Logger;
@@ -77,8 +78,7 @@ public class StatefulEgressAclServiceImpl extends AbstractEgressAclServiceImpl {
 
         Long elanId = AclServiceUtils.getElanIdFromInterface(portId, dataBroker);
         List<ActionInfo> actionsInfos = new ArrayList<>();
-        actionsInfos.add(new ActionInfo(ActionType.nx_conntrack,
-            new String[] {"1", "0", elanId.toString(), "255"}, 2));
+        actionsInfos.add(new ActionNxConntrack(2, 1, 0, elanId.intValue(), (short) 255));
         List<InstructionInfo> instructions = getDispatcherTableResubmitInstructions(actionsInfos);
 
         syncFlow(dpId, NwConstants.INGRESS_ACL_FILTER_TABLE, flowName, priority, "ACL", 0, 0,
@@ -104,21 +104,19 @@ public class StatefulEgressAclServiceImpl extends AbstractEgressAclServiceImpl {
             Integer priority, String flowId, String portId, int addOrRemove) {
         for (AllowedAddressPairs allowedAddress : allowedAddresses) {
             IpPrefixOrAddress attachIp = allowedAddress.getIpAddress();
-            String attachMac = allowedAddress.getMacAddress().getValue();
+            MacAddress attachMac = allowedAddress.getMacAddress();
 
             List<MatchInfoBase> matches = new ArrayList<>();
-            matches.add(new MatchInfo(MatchFieldType.eth_src, new String[] {attachMac}));
+            matches.add(new MatchEthernetSource(attachMac));
             matches.addAll(AclServiceUtils.buildIpMatches(attachIp, MatchCriteria.MATCH_SOURCE));
 
             Long elanTag = AclServiceUtils.getElanIdFromInterface(portId, dataBroker);
             List<InstructionInfo> instructions = new ArrayList<>();
             List<ActionInfo> actionsInfos = new ArrayList<>();
-            actionsInfos.add(new ActionInfo(ActionType.nx_conntrack,
-                    new String[] {"0", "0", elanTag.toString(), Short.toString(
-                        NwConstants.INGRESS_ACL_FILTER_TABLE)}, 2));
-            instructions.add(new InstructionInfo(InstructionType.apply_actions, actionsInfos));
+            actionsInfos.add(new ActionNxConntrack(2, 0, 0, elanTag.intValue(), NwConstants.INGRESS_ACL_FILTER_TABLE));
+            instructions.add(new InstructionApplyActions(actionsInfos));
 
-            String flowName = "Egress_Fixed_Conntrk_" + dpId + "_" + attachMac + "_"
+            String flowName = "Egress_Fixed_Conntrk_" + dpId + "_" + attachMac.getValue() + "_"
                     + String.valueOf(attachIp.getValue()) + "_" + flowId;
             syncFlow(dpId, NwConstants.INGRESS_ACL_TABLE, flowName, AclConstants.PROTO_MATCH_PRIORITY, "ACL", 0, 0,
                     AclConstants.COOKIE_ACL_BASE, matches, instructions, addOrRemove);
@@ -138,7 +136,46 @@ public class StatefulEgressAclServiceImpl extends AbstractEgressAclServiceImpl {
     private void programEgressAclFixedConntrackRule(BigInteger dpid, List<AllowedAddressPairs> allowedAddresses,
             int lportTag, String portId, Action action, int write) {
         programConntrackRecircRules(dpid, allowedAddresses, AclConstants.CT_STATE_UNTRACKED_PRIORITY,
-            "Recirc", portId, write );
+            "Recirc", portId, write);
+        programEgressConntrackDropRules(dpid, lportTag, write);
         LOG.info("programEgressAclFixedConntrackRule :  default connection tracking rule are added.");
+    }
+
+    /**
+     * Adds the rule to drop the unknown/invalid packets .
+     *
+     * @param dpId the dpId
+     * @param lportTag the lport tag
+     * @param priority the priority of the flow
+     * @param flowId the flowId
+     * @param conntrackState the conntrack state of the packets thats should be
+     *        send
+     * @param conntrackMask the conntrack mask
+     * @param tableId table id
+     * @param addOrRemove whether to add or remove the flow
+     */
+    private void programConntrackDropRule(BigInteger dpId, int lportTag, Integer priority, String flowId,
+            int conntrackState, int conntrackMask, int addOrRemove) {
+        List<MatchInfoBase> matches = AclServiceOFFlowBuilder.addLPortTagMatches(lportTag, conntrackState,
+                conntrackMask);
+        List<InstructionInfo> instructions = AclServiceOFFlowBuilder.getDropInstructionInfo();
+
+        flowId = "Egress_Fixed_Conntrk_Drop" + dpId + "_" + lportTag + "_" + flowId;
+        syncFlow(dpId, NwConstants.EGRESS_ACL_FILTER_TABLE, flowId, priority, "ACL", 0, 0,
+                AclConstants.COOKIE_ACL_DROP_FLOW, matches, instructions, addOrRemove);
+    }
+
+    /**
+     * Adds the rules to drop the unknown/invalid packets .
+     *
+     * @param dpId the dpId
+     * @param lportTag the lport tag
+     * @param addOrRemove whether to add or remove the flow
+     */
+    private void programEgressConntrackDropRules(BigInteger dpId, int lportTag, int addOrRemove) {
+        programConntrackDropRule(dpId, lportTag, AclConstants.CT_STATE_TRACKED_NEW_DROP_PRIORITY, "Tracked_New",
+                AclConstants.TRACKED_NEW_CT_STATE, AclConstants.TRACKED_NEW_CT_STATE_MASK, addOrRemove);
+        programConntrackDropRule(dpId, lportTag, AclConstants.CT_STATE_TRACKED_INVALID_PRIORITY, "Tracked_Invalid",
+                AclConstants.TRACKED_INV_CT_STATE, AclConstants.TRACKED_INV_CT_STATE_MASK, addOrRemove);
     }
 }

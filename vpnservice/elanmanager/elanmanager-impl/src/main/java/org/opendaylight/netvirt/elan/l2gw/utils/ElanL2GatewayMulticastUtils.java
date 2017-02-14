@@ -7,14 +7,13 @@
  */
 package org.opendaylight.netvirt.elan.l2gw.utils;
 
-import com.google.common.base.Optional;
-import com.google.common.collect.Lists;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.SettableFuture;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.ConcurrentMap;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
@@ -334,7 +333,7 @@ public class ElanL2GatewayMulticastUtils {
                 elanName, l2GatewayDevice, false/* updateThisDevice */);
         ListenableFuture<Void> deleteRemoteMcastMacFuture = deleteRemoteMcastMac(
                 new NodeId(l2GatewayDevice.getHwvtepNodeId()), elanName);
-        return Lists.newArrayList(updateMcastMacsFuture, deleteRemoteMcastMacFuture);
+        return Arrays.asList(updateMcastMacsFuture, deleteRemoteMcastMacFuture);
     }
 
     /**
@@ -397,12 +396,7 @@ public class ElanL2GatewayMulticastUtils {
                 .builder(DesignatedSwitchesForExternalTunnels.class)
                 .child(DesignatedSwitchForTunnel.class, new DesignatedSwitchForTunnelKey(elanInstanceName, tunnelIp))
                 .build();
-        Optional<DesignatedSwitchForTunnel> designatedSwitchForTunnelOptional = MDSALUtil.read(broker,
-                LogicalDatastoreType.CONFIGURATION, instanceIdentifier);
-        if (designatedSwitchForTunnelOptional.isPresent()) {
-            return designatedSwitchForTunnelOptional.get();
-        }
-        return null;
+        return MDSALUtil.read(broker, LogicalDatastoreType.CONFIGURATION, instanceIdentifier).orNull();
     }
 
 }

@@ -15,7 +15,7 @@ and is available at http://www.eclipse.org/legal/epl-v10.html INTERNAL
   <groupId>org.opendaylight.netvirt</groupId>
   <artifactId>vpnservice-features</artifactId>
   <version>0.4.0-SNAPSHOT</version>
-  <name>${project.artifactId}</name>
+  <name>ODL :: netvirt :: ${project.artifactId}</name>
   <modelVersion>4.0.0</modelVersion>
   <properties>
     <mdsal.version>1.5.0-SNAPSHOT</mdsal.version>
@@ -155,6 +155,13 @@ and is available at http://www.eclipse.org/legal/epl-v10.html INTERNAL
       <groupId>${project.groupId}</groupId>
       <artifactId>elanmanager-impl</artifactId>
       <version>${elanmgr.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>elanmanager-impl</artifactId>
+      <version>${elanmgr.version}</version>
+      <type>xml</type>
+      <classifier>config</classifier>
     </dependency>
     <dependency>
       <groupId>${project.groupId}</groupId>

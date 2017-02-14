@@ -8,12 +8,15 @@
 package org.opendaylight.netvirt.neutronvpn.api.l2gw.utils;
 
 import java.util.concurrent.ConcurrentMap;
-
-import org.opendaylight.netvirt.neutronvpn.api.l2gw.L2GatewayDevice;
 import org.opendaylight.genius.utils.cache.CacheUtil;
+import org.opendaylight.netvirt.neutronvpn.api.l2gw.L2GatewayDevice;
 
 public class L2GatewayCacheUtils {
     public static final String L2GATEWAY_CACHE_NAME = "L2GW";
+
+    static {
+        createL2DeviceCache();
+    }
 
     public static void createL2DeviceCache() {
         if (CacheUtil.getCache(L2GatewayCacheUtils.L2GATEWAY_CACHE_NAME) == null) {

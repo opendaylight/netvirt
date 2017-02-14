@@ -9,6 +9,9 @@ package org.opendaylight.netvirt.vpnmanager;
 
 import com.google.common.base.Optional;
 import com.google.common.util.concurrent.SettableFuture;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.concurrent.Future;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.netvirt.bgpmanager.api.IBgpManager;
 import org.opendaylight.netvirt.fibmanager.api.IFibManager;
@@ -18,8 +21,8 @@ import org.opendaylight.netvirt.vpnmanager.api.intervpnlink.InterVpnLinkDataComp
 import org.opendaylight.netvirt.vpnmanager.intervpnlink.InterVpnLinkUtil;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.IdManagerService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.vpn.rpc.rev160201.AddStaticRouteInput;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.vpn.rpc.rev160201.AddStaticRouteOutputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.vpn.rpc.rev160201.AddStaticRouteOutput;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.vpn.rpc.rev160201.AddStaticRouteOutputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.vpn.rpc.rev160201.GenerateVpnLabelInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.vpn.rpc.rev160201.GenerateVpnLabelOutput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.vpn.rpc.rev160201.GenerateVpnLabelOutputBuilder;
@@ -34,10 +37,6 @@ import org.opendaylight.yangtools.yang.common.RpcResultBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.concurrent.Future;
-
 public class VpnRpcServiceImpl implements VpnRpcService {
     private static final Logger LOG = LoggerFactory.getLogger(VpnRpcServiceImpl.class);
     private final DataBroker dataBroker;
@@ -47,7 +46,7 @@ public class VpnRpcServiceImpl implements VpnRpcService {
     private IBgpManager bgpManager;
 
     public VpnRpcServiceImpl(final DataBroker dataBroker, final IdManagerService idManager,
-                             final VpnInterfaceManager vpnIfaceMgr, final IFibManager fibManager, IBgpManager bgpManager) {
+        final VpnInterfaceManager vpnIfaceMgr, final IFibManager fibManager, IBgpManager bgpManager) {
         this.dataBroker = dataBroker;
         this.idManager = idManager;
         this.vpnInterfaceMgr = vpnIfaceMgr;
@@ -61,8 +60,7 @@ public class VpnRpcServiceImpl implements VpnRpcService {
 
 
     /**
-     * to generate label for the given ip prefix from the associated VPN
-     *
+     * Generate label for the given ip prefix from the associated VPN.
      */
     @Override
     public Future<RpcResult<GenerateVpnLabelOutput>> generateVpnLabel(GenerateVpnLabelInput input) {
@@ -71,12 +69,12 @@ public class VpnRpcServiceImpl implements VpnRpcService {
         SettableFuture<RpcResult<GenerateVpnLabelOutput>> futureResult = SettableFuture.create();
         String rd = VpnUtil.getVpnRd(dataBroker, vpnName);
         long label = VpnUtil.getUniqueId(idManager, VpnConstants.VPN_IDPOOL_NAME,
-                        VpnUtil.getNextHopLabelKey((rd != null) ? rd : vpnName, ipPrefix));
+            VpnUtil.getNextHopLabelKey((rd != null) ? rd : vpnName, ipPrefix));
         if (label == 0) {
-            String msg = String.format("Could not retrieve the label for prefix {} in VPN {}", ipPrefix, vpnName);
+            String msg = "Could not retrieve the label for prefix " + ipPrefix + " in VPN " + vpnName;
             LOG.error(msg);
             futureResult.set(RpcResultBuilder.<GenerateVpnLabelOutput>failed().withError(ErrorType.APPLICATION, msg)
-                                                                              .build());
+                .build());
         } else {
             GenerateVpnLabelOutput output = new GenerateVpnLabelOutputBuilder().setLabel(label).build();
             futureResult.set(RpcResultBuilder.success(output).build());
@@ -85,8 +83,7 @@ public class VpnRpcServiceImpl implements VpnRpcService {
     }
 
     /**
-     * to remove label for the given ip prefix from the associated VPN
-     *
+     * Remove label for the given ip prefix from the associated VPN.
      */
     @Override
     public Future<RpcResult<Void>> removeVpnLabel(RemoveVpnLabelInput input) {
@@ -95,31 +92,33 @@ public class VpnRpcServiceImpl implements VpnRpcService {
         String rd = VpnUtil.getVpnRd(dataBroker, vpnName);
         SettableFuture<RpcResult<Void>> futureResult = SettableFuture.create();
         VpnUtil.releaseId(idManager, VpnConstants.VPN_IDPOOL_NAME,
-                VpnUtil.getNextHopLabelKey((rd != null) ? rd : vpnName, ipPrefix));
+            VpnUtil.getNextHopLabelKey((rd != null) ? rd : vpnName, ipPrefix));
         futureResult.set(RpcResultBuilder.<Void>success().build());
         return futureResult;
     }
 
     private Collection<RpcError> validateAddStaticRouteInput(AddStaticRouteInput input) {
-        Collection<RpcError> rpcErrors = new ArrayList<RpcError>();
+        Collection<RpcError> rpcErrors = new ArrayList<>();
         String destination = input.getDestination();
         String vpnInstanceName = input.getVpnInstanceName();
         String nexthop = input.getNexthop();
-        if ( destination == null || destination.isEmpty() ) {
+        if (destination == null || destination.isEmpty()) {
             String message = "destination parameter is mandatory";
             rpcErrors.add(RpcResultBuilder.newError(RpcError.ErrorType.PROTOCOL, "addStaticRoute", message));
         }
-        if ( vpnInstanceName == null || vpnInstanceName.isEmpty() ) {
+        if (vpnInstanceName == null || vpnInstanceName.isEmpty()) {
             String message = "vpnInstanceName parameter is mandatory";
             rpcErrors.add(RpcResultBuilder.newError(RpcError.ErrorType.PROTOCOL, "addStaticRoute", message));
         }
-        if ( nexthop == null || nexthop.isEmpty() ) {
+        if (nexthop == null || nexthop.isEmpty()) {
             String message = "nexthop parameter is mandatory";
             rpcErrors.add(RpcResultBuilder.newError(RpcError.ErrorType.PROTOCOL, "addStaticRoute", message));
         }
         return rpcErrors;
     }
 
+    // TODO Clean up the exception handling
+    @SuppressWarnings("checkstyle:IllegalCatch")
     @Override
     public Future<RpcResult<AddStaticRouteOutput>> addStaticRoute(AddStaticRouteInput input) {
 
@@ -129,36 +128,35 @@ public class VpnRpcServiceImpl implements VpnRpcService {
         String nexthop = input.getNexthop();
         Long label = input.getLabel();
         LOG.info("Adding static route for Vpn {} with destination {}, nexthop {} and label {}",
-                 vpnInstanceName, destination, nexthop, label);
+            vpnInstanceName, destination, nexthop, label);
 
         Collection<RpcError> rpcErrors = validateAddStaticRouteInput(input);
-        if ( !rpcErrors.isEmpty() ) {
+        if (!rpcErrors.isEmpty()) {
             result.set(RpcResultBuilder.<AddStaticRouteOutput>failed().withRpcErrors(rpcErrors).build());
             return result;
         }
 
-        if ( label == null || label == 0 ) {
+        if (label == null || label == 0) {
             label = (long) VpnUtil.getUniqueId(idManager, VpnConstants.VPN_IDPOOL_NAME,
-                                               VpnUtil.getNextHopLabelKey(vpnInstanceName, destination));
-            if ( label == 0 ) {
+                VpnUtil.getNextHopLabelKey(vpnInstanceName, destination));
+            if (label == 0) {
                 String message = "Unable to retrieve a new Label for the new Route";
                 result.set(RpcResultBuilder.<AddStaticRouteOutput>failed().withError(RpcError.ErrorType.APPLICATION,
-                                                                                     message).build());
+                    message).build());
                 return result;
             }
         }
 
         String vpnRd = VpnUtil.getVpnRd(dataBroker, input.getVpnInstanceName());
-        if ( vpnRd == null ) {
+        if (vpnRd == null) {
             String message = "Could not find Route-Distinguisher for VpnName " + vpnInstanceName;
             result.set(RpcResultBuilder.<AddStaticRouteOutput>failed().withError(RpcError.ErrorType.APPLICATION,
-                                                                                 message).build());
+                message).build());
             return result;
         }
 
         Optional<InterVpnLinkDataComposite> optIVpnLink = InterVpnLinkCache.getInterVpnLinkByEndpoint(nexthop);
-        if ( optIVpnLink.isPresent() ) {
-
+        if (optIVpnLink.isPresent()) {
             try {
                 InterVpnLinkUtil.handleStaticRoute(optIVpnLink.get(), vpnInstanceName, destination, nexthop,
                                                    label.intValue(),
@@ -173,7 +171,7 @@ public class VpnRpcServiceImpl implements VpnRpcService {
             }
         } else {
             vpnInterfaceMgr.addExtraRoute(destination, nexthop, vpnRd, null /*routerId */, label.intValue(),
-                                          RouteOrigin.STATIC, null /* intfName */, null, null);
+                RouteOrigin.STATIC, null /* intfName */, null, null);
         }
 
         AddStaticRouteOutput labelOutput = new AddStaticRouteOutputBuilder().setLabel(label).build();
@@ -186,15 +184,15 @@ public class VpnRpcServiceImpl implements VpnRpcService {
         String destination = input.getDestination();
         String vpnInstanceName = input.getVpnInstanceName();
         String nexthop = input.getNexthop();
-        if ( destination == null || destination.isEmpty() ) {
+        if (destination == null || destination.isEmpty()) {
             String message = "destination parameter is mandatory";
             rpcErrors.add(RpcResultBuilder.newError(RpcError.ErrorType.PROTOCOL, "removeStaticRoute", message));
         }
-        if ( vpnInstanceName == null || vpnInstanceName.isEmpty() ) {
+        if (vpnInstanceName == null || vpnInstanceName.isEmpty()) {
             String message = "vpnInstanceName parameter is mandatory";
             rpcErrors.add(RpcResultBuilder.newError(RpcError.ErrorType.PROTOCOL, "removeStaticRoute", message));
         }
-        if ( nexthop == null || nexthop.isEmpty() ) {
+        if (nexthop == null || nexthop.isEmpty()) {
             String message = "nexthop parameter is mandatory";
             rpcErrors.add(RpcResultBuilder.newError(RpcError.ErrorType.PROTOCOL, "removeStaticRoute", message));
         }
@@ -210,28 +208,24 @@ public class VpnRpcServiceImpl implements VpnRpcService {
         String vpnInstanceName = input.getVpnInstanceName();
         String nexthop = input.getNexthop();
         LOG.info("Removing static route with destination={}, nexthop={} in VPN={}",
-                 destination, nexthop, vpnInstanceName);
+            destination, nexthop, vpnInstanceName);
         Collection<RpcError> rpcErrors = validateRemoveStaticRouteInput(input);
-        if ( !rpcErrors.isEmpty() ) {
+        if (!rpcErrors.isEmpty()) {
             result.set(RpcResultBuilder.<Void>failed().withRpcErrors(rpcErrors).build());
             return result;
         }
 
         String vpnRd = VpnUtil.getVpnRd(dataBroker, input.getVpnInstanceName());
-        if ( vpnRd == null ) {
+        if (vpnRd == null) {
             String message = "Could not find Route-Distinguisher for VpnName " + vpnInstanceName;
             result.set(RpcResultBuilder.<Void>failed().withError(RpcError.ErrorType.APPLICATION, message).build());
             return result;
         }
 
         Optional<InterVpnLink> optVpnLink = InterVpnLinkUtil.getInterVpnLinkByEndpointIp(dataBroker, nexthop);
-        if ( optVpnLink.isPresent() ) {
-            fibManager.removeOrUpdateFibEntry(dataBroker,  vpnRd, destination, nexthop, null);
-            try {
-                bgpManager.withdrawPrefix(vpnRd, destination);
-            } catch (Exception e) {
-                LOG.warn("Could not withdraw route [vpn={}  prefix={}] to BGP. Reason:", vpnRd, destination, e);
-            }
+        if (optVpnLink.isPresent()) {
+            fibManager.removeOrUpdateFibEntry(dataBroker, vpnRd, destination, nexthop, null);
+            bgpManager.withdrawPrefix(vpnRd, destination);
         } else {
             vpnInterfaceMgr.delExtraRoute(destination, nexthop, vpnRd, null /*routerId*/, null /*intfName*/, null);
         }

@@ -23,7 +23,7 @@ public class VirtualNetwork {
     private HashMap<BigInteger, DpnInterfaceInfo> dpnIfaceList;
 
     public VirtualNetwork() {
-        dpnIfaceList = new HashMap<BigInteger, DpnInterfaceInfo>();
+        dpnIfaceList = new HashMap<>();
     }
 
     public void setNetworkUuid(Uuid networkUuid) {

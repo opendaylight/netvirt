@@ -17,7 +17,7 @@ public class EventDispatcher implements Runnable {
     private final BlockingQueue<NAPTEntryEvent> eventQueue;
     private final NaptEventHandler naptEventHandler;
 
-    public EventDispatcher(NaptEventHandler naptEventHandler){
+    public EventDispatcher(NaptEventHandler naptEventHandler) {
         this.naptEventHandler = naptEventHandler;
         this.eventQueue = new ArrayBlockingQueue<>(NatConstants.EVENT_QUEUE_LENGTH);
     }
@@ -26,20 +26,19 @@ public class EventDispatcher implements Runnable {
         new Thread(this).start();
     }
 
-    public void addNaptEvent(NAPTEntryEvent naptEntryEvent){
+    public void addNaptEvent(NAPTEntryEvent naptEntryEvent) {
         LOG.trace("NAT Service : Adding event to eventQueue which is of size {} and remaining capacity {}",
                 eventQueue.size(), eventQueue.remainingCapacity());
         this.eventQueue.add(naptEntryEvent);
     }
 
-    public void run(){
-        while(true) {
+    public void run() {
+        while (true) {
             try {
                 NAPTEntryEvent event = eventQueue.take();
                 naptEventHandler.handleEvent(event);
             } catch (InterruptedException e) {
-                LOG.error("NAT Service : EventDispatcher : Error in handling the event queue : ", e.getMessage());
-                e.printStackTrace();
+                LOG.error("NAT Service : EventDispatcher : Error in handling the event queue: ", e);
             }
         }
     }

@@ -142,7 +142,7 @@ public class LBaaSPoolMemberHandlerTest {
         assertEquals("Error, canCreateNeutronLoadBalancerPoolMember() didn't return the correct HTTP flag", HttpURLConnection.HTTP_OK, lBaaSPoolMemberHandler.canCreateNeutronLoadBalancerPoolMember(neutronLBMember));
 
         // HTTP_NOT_ACCEPTABLE
-        when(neutronNetworkCache.getAllNetworks()).thenReturn(Collections.<NeutronNetwork>emptyList());
+        when(neutronNetworkCache.getAllNetworks()).thenReturn(Collections.emptyList());
         assertEquals("Error, canCreateNeutronLoadBalancerPoolMember() didn't return the correct HTTP flag", HttpURLConnection.HTTP_NOT_ACCEPTABLE, lBaaSPoolMemberHandler.canCreateNeutronLoadBalancerPoolMember(neutronLBMember));
     }
 
@@ -168,7 +168,7 @@ public class LBaaSPoolMemberHandlerTest {
         assertEquals("Error, canDeleteNeutronLoadBalancerPoolMember() didn't return the correct HTTP flag", HttpURLConnection.HTTP_OK, lBaaSPoolMemberHandler.canDeleteNeutronLoadBalancerPoolMember(neutronLBMember));
 
         // HTTP_NOT_ACCEPTABLE
-        when(neutronNetworkCache.getAllNetworks()).thenReturn(Collections.<NeutronNetwork>emptyList());
+        when(neutronNetworkCache.getAllNetworks()).thenReturn(Collections.emptyList());
         assertEquals("Error, canDeleteNeutronLoadBalancerPoolMember() didn't return the correct HTTP flag", HttpURLConnection.HTTP_NOT_ACCEPTABLE, lBaaSPoolMemberHandler.canDeleteNeutronLoadBalancerPoolMember(neutronLBMember));
     }
 

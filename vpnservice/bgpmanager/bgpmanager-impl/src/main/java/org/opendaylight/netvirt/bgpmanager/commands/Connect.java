@@ -15,58 +15,58 @@ import org.apache.karaf.shell.console.OsgiCommandSupport;
 import org.opendaylight.netvirt.bgpmanager.BgpManager;
 
 @Command(scope = "odl", name = "bgp-connect",
-         description = "Add or delete client connection to BGP Config Server")
+        description = "Add or delete client connection to BGP Config Server")
 public class Connect extends OsgiCommandSupport {
     private static final String HOST = "--host";
     private static final String PORT = "--port";
 
-    @Argument(name="add|del", description="The desired operation",
-              required=true, multiValued = false)
+    @Argument(name = "add|del", description = "The desired operation",
+            required = true, multiValued = false)
     String action = null;
 
-    @Option(name=HOST, aliases={"-h"},
-            description="IP address of the server", 
-            required=false, multiValued=false)
+    @Option(name = HOST, aliases = {"-h"},
+            description = "IP address of the server",
+            required = false, multiValued = false)
     String host = null;
 
-    @Option(name=PORT, aliases={"-p"},
-            description="Thrift port", required=false, 
-            multiValued=false)
+    @Option(name = PORT, aliases = {"-p"},
+            description = "Thrift port", required = false,
+            multiValued = false)
     String port = null;
 
     private Object usage() {
-        System.err.println(
-            "usage: bgp-connect ["+HOST+" h] ["+PORT+" p] <add | del>");
+        session.getConsole().println(
+                "usage: bgp-connect [" + HOST + " h] [" + PORT + " p] <add | del>");
         return null;
-    }       
+    }
 
     @Override
     protected Object doExecute() throws Exception {
-        if (!Commands.bgpRunning()) {
+        if (!Commands.bgpRunning(session.getConsole())) {
             return null;
         }
         BgpManager bm = Commands.getBgpManager();
         switch (action) {
-            case "add" : 
+            case "add":
                 if (host == null || port == null) {
-                    System.err.println("error: "+HOST+" and "+PORT+" needed");
+                    session.getConsole().println("error: " + HOST + " and " + PORT + " needed");
                     return null;
                 }
-                if (!Commands.isValid(host, Commands.Validators.IPADDR, HOST)
-                    || !Commands.isValid(port, Commands.Validators.INT, PORT)) {
+                if (!Commands.isValid(session.getConsole(), host, Commands.Validators.IPADDR, HOST)
+                        || !Commands.isValid(session.getConsole(), port, Commands.Validators.INT, PORT)) {
                     return null;
                 }
                 // check: already connected?
                 bm.startConfig(host, Integer.valueOf(port));
                 break;
-            case "del" : 
+            case "del":
                 if (host != null || port != null) {
-                    System.err.println("note: option(s) not needed; ignored");
+                    session.getConsole().println("note: option(s) not needed; ignored");
                 }
                 // check: nothing to stop?
                 bm.stopConfig();
                 break;
-            default : 
+            default:
                 return usage();
         }
         return null;

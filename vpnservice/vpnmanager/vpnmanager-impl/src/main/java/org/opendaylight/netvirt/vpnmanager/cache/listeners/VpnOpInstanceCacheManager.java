@@ -12,9 +12,9 @@ import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.DataChangeListener;
 import org.opendaylight.controller.md.sal.common.api.data.AsyncDataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.netvirt.vpnmanager.VpnConstants;
 import org.opendaylight.genius.datastoreutils.AsyncClusteredDataChangeListenerBase;
 import org.opendaylight.genius.utils.cache.DataStoreCache;
+import org.opendaylight.netvirt.vpnmanager.VpnConstants;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.VpnInstanceOpData;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.VpnInstanceOpDataEntry;
 import org.opendaylight.yangtools.concepts.ListenerRegistration;
@@ -23,8 +23,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Listens to changes in the Vpn instance Operational data so that this data can be updated if needed
- *
+ * Listens to changes in the Vpn instance Operational data so that this data can be updated if needed.
  */
 public class VpnOpInstanceCacheManager
     extends AsyncClusteredDataChangeListenerBase<VpnInstanceOpDataEntry, VpnOpInstanceCacheManager>
@@ -33,7 +32,7 @@ public class VpnOpInstanceCacheManager
     private ListenerRegistration<DataChangeListener> listenerRegistration;
     private final DataBroker dataBroker;
 
-    private static final Logger log = LoggerFactory.getLogger(VpnOpInstanceCacheManager.class);
+    private static final Logger LOG = LoggerFactory.getLogger(VpnOpInstanceCacheManager.class);
 
     public VpnOpInstanceCacheManager(final DataBroker broker) {
         super(VpnInstanceOpDataEntry.class, VpnOpInstanceCacheManager.class);
@@ -41,28 +40,20 @@ public class VpnOpInstanceCacheManager
     }
 
     public void start() {
-        log.info("{} start", getClass().getSimpleName());
+        LOG.info("{} start", getClass().getSimpleName());
         DataStoreCache.create(VpnConstants.VPN_OP_INSTANCE_CACHE_NAME);
-        try {
-            listenerRegistration = dataBroker.registerDataChangeListener(LogicalDatastoreType.OPERATIONAL,
-                    getWildCardPath(), this,
-                    AsyncDataBroker.DataChangeScope.SUBTREE);
-        } catch (final Exception e) {
-            log.error("VpnOpInstance CacheManager registration failed", e);
-        }
+        listenerRegistration = dataBroker.registerDataChangeListener(LogicalDatastoreType.OPERATIONAL,
+            getWildCardPath(), this,
+            AsyncDataBroker.DataChangeScope.SUBTREE);
     }
 
     @Override
     public void close() {
         if (listenerRegistration != null) {
-            try {
-                listenerRegistration.close();
-            } catch (final Exception e) {
-                log.error("Error when cleaning up VpnOpInstance CacheManager.", e);
-            }
+            listenerRegistration.close();
             listenerRegistration = null;
         }
-        log.trace("VpnOpInstance CacheManager Closed");
+        LOG.trace("VpnOpInstance CacheManager Closed");
     }
 
     @Override
@@ -72,7 +63,7 @@ public class VpnOpInstanceCacheManager
 
     @Override
     protected void update(InstanceIdentifier<VpnInstanceOpDataEntry> identifier, VpnInstanceOpDataEntry original,
-                          VpnInstanceOpDataEntry update) {
+        VpnInstanceOpDataEntry update) {
         DataStoreCache.add(VpnConstants.VPN_OP_INSTANCE_CACHE_NAME, update.getVrfId(), update);
     }
 
@@ -84,7 +75,7 @@ public class VpnOpInstanceCacheManager
     @Override
     protected InstanceIdentifier<VpnInstanceOpDataEntry> getWildCardPath() {
         return InstanceIdentifier.builder(VpnInstanceOpData.class)
-                .child(VpnInstanceOpDataEntry.class).build();
+            .child(VpnInstanceOpDataEntry.class).build();
     }
 
     @Override
@@ -96,7 +87,6 @@ public class VpnOpInstanceCacheManager
     protected AsyncDataBroker.DataChangeScope getDataChangeScope() {
         return AsyncDataBroker.DataChangeScope.SUBTREE;
     }
-
 
 
 }

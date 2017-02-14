@@ -24,8 +24,16 @@
   <odl:rpc-service id="idManagerService"
     interface="org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.IdManagerService" />
 
+  <odl:clustered-app-config id="elanConfig"
+                            binding-class="org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.config.rev150710.ElanConfig"
+                            default-config-file-name="netvirt-elanmanager-config.xml"
+                            update-strategy="none">
+  </odl:clustered-app-config>
+
   <bean id="elanBridgeManager" class="org.opendaylight.netvirt.elan.internal.ElanBridgeManager">
     <argument ref="dataBroker" />
+    <argument ref="elanConfig" />
+    <argument ref="interfaceManager" />
   </bean>
 
   <bean id="elanForwardingEntriesHandler" class="org.opendaylight.netvirt.elan.utils.ElanForwardingEntriesHandler">
@@ -75,7 +83,8 @@
   </bean>
   <odl:notification-listener ref="elanSmacFlowEventListener" />
 
-  <bean id="elanUtils" class="org.opendaylight.netvirt.elan.utils.ElanUtils">
+  <bean id="elanUtils" class="org.opendaylight.netvirt.elan.utils.ElanUtils"
+    destroy-method="close">
     <argument ref="dataBroker" />
     <argument ref="mdsalUtils" />
     <argument ref="elanInstanceManager" />
@@ -143,6 +152,11 @@
     <argument ref="dataBroker" />
   </bean>
 
+  <bean id="cacheElanInstanceListener" class="org.opendaylight.netvirt.elan.utils.CacheElanInstanceListener"
+    init-method="init" destroy-method="close">
+    <argument ref="dataBroker" />
+  </bean>
+
   <bean id="hwvtepLocalUcastMacListener" class="org.opendaylight.netvirt.elan.l2gw.listeners.HwvtepLocalUcastMacListener"
     init-method="init" destroy-method="close">
     <argument ref="dataBroker" />
@@ -150,7 +164,7 @@
   </bean>
 
   <bean id="elanStatusMonitor" class="org.opendaylight.netvirt.elan.statusanddiag.ElanStatusMonitorJMX"
-    init-method="init" />
+    init-method="init" destroy-method="close" />
 
   <bean id="l2GatewayConnectionListener"
     class="org.opendaylight.netvirt.elan.l2gw.listeners.L2GatewayConnectionListener"
@@ -180,6 +194,10 @@
     <argument ref="dataBroker" />
   </bean>
 
+  <bean id="hAListeners" class="org.opendaylight.netvirt.elan.l2gw.ha.listeners.HAListeners">
+    <argument ref="dataBroker" />
+  </bean>
+
   <bean id="haConfigNodeListener" class="org.opendaylight.netvirt.elan.l2gw.ha.listeners.HAConfigNodeListener">
     <argument ref="dataBroker" />
     <argument ref="haEventHandler" />
@@ -193,10 +211,6 @@
     <argument ref="dataBroker" />
     <argument ref="haEventHandler" />
   </bean>
-
-  <odl:clustered-app-config id="elanConfig"
-                            binding-class="org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.config.rev150710.ElanConfig">
-  </odl:clustered-app-config>
 
   <bean id="ElanOvsdbNodeListener"
         class="org.opendaylight.netvirt.elan.internal.ElanOvsdbNodeListener"

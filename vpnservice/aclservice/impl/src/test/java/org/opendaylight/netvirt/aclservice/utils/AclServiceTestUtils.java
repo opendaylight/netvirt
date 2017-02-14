@@ -8,13 +8,11 @@
 
 package org.opendaylight.netvirt.aclservice.utils;
 
-import static com.google.common.collect.Iterables.filter;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-
-import com.google.common.collect.Iterables;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -22,18 +20,19 @@ import java.util.List;
 import java.util.concurrent.ConcurrentMap;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
 import org.junit.Assert;
 import org.opendaylight.genius.mdsalutil.ActionInfo;
-import org.opendaylight.genius.mdsalutil.ActionType;
 import org.opendaylight.genius.mdsalutil.InstructionInfo;
-import org.opendaylight.genius.mdsalutil.InstructionType;
-import org.opendaylight.genius.mdsalutil.MatchFieldType;
 import org.opendaylight.genius.mdsalutil.MatchInfo;
 import org.opendaylight.genius.mdsalutil.MatchInfoBase;
-import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.genius.mdsalutil.NxMatchFieldType;
 import org.opendaylight.genius.mdsalutil.NxMatchInfo;
+import org.opendaylight.genius.mdsalutil.actions.ActionLearn;
+import org.opendaylight.genius.mdsalutil.instructions.InstructionApplyActions;
+import org.opendaylight.genius.mdsalutil.matches.MatchEthernetType;
+import org.opendaylight.genius.mdsalutil.matches.MatchIpProtocol;
+import org.opendaylight.genius.mdsalutil.matches.MatchIpv4Destination;
+import org.opendaylight.genius.mdsalutil.matches.MatchIpv4Source;
 import org.opendaylight.genius.utils.cache.CacheUtil;
 import org.opendaylight.netvirt.aclservice.api.utils.AclInterface;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.Acl;
@@ -52,10 +51,10 @@ public class AclServiceTestUtils {
 
     public static void verifyGeneralFlows(List<MatchInfoBase> srcFlowMatches, String protocol, String srcIpv4Net,
             String dstIpv4Net, String mask) {
-        verifyMatchInfo(srcFlowMatches, MatchFieldType.eth_type, Integer.toString(NwConstants.ETHTYPE_IPV4));
-        verifyMatchInfo(srcFlowMatches, MatchFieldType.ip_proto, protocol);
-        verifyMatchInfo(srcFlowMatches, MatchFieldType.ipv4_source, srcIpv4Net, mask);
-        verifyMatchInfo(srcFlowMatches, MatchFieldType.ipv4_destination, dstIpv4Net, mask);
+        assertTrue(srcFlowMatches.contains(MatchEthernetType.IPV4));
+        assertTrue(srcFlowMatches.contains(new MatchIpProtocol(Short.parseShort(protocol))));
+        assertTrue(srcFlowMatches.contains(new MatchIpv4Source(srcIpv4Net, mask)));
+        assertTrue(srcFlowMatches.contains(new MatchIpv4Destination(dstIpv4Net, mask)));
     }
 
     public static AceIpBuilder prepareAceIpBuilder(String srcIpv4Net, String dstIpv4Net, String lowerPort,
@@ -88,31 +87,13 @@ public class AclServiceTestUtils {
         return builder;
     }
 
-    public static void verifyMatchInfo(List<MatchInfoBase> flowMatches, MatchFieldType matchType, String... params) {
-        Iterable<MatchInfoBase> matches = filter(flowMatches,
-            item -> item instanceof MatchInfo && ((MatchInfo) item).getMatchField().equals(matchType)
-                 || item instanceof NxMatchInfo && ((NxMatchInfo) item).getMatchField().equals(matchType));
-        assertFalse(Iterables.isEmpty(matches));
-        for (MatchInfoBase baseMatch : matches) {
-            if (baseMatch instanceof MatchInfo) {
-                verifyMatchValues((MatchInfo)baseMatch, params);
-            } else {
-                verifyMatchValues((NxMatchInfo)baseMatch, params);
-            }
-        }
-    }
-
     public static void verifyMatchInfo(List<MatchInfoBase> flowMatches, NxMatchFieldType matchType, String... params) {
-        Iterable<MatchInfoBase> matches = filter(flowMatches,
-            item -> item instanceof MatchInfo && ((MatchInfo) item).getMatchField().equals(matchType)
-                 || item instanceof NxMatchInfo && ((NxMatchInfo) item).getMatchField().equals(matchType));
-        assertFalse(Iterables.isEmpty(matches));
+        List<MatchInfoBase> matches = flowMatches.stream().filter(
+            item -> item instanceof NxMatchInfo && ((NxMatchInfo) item).getMatchField().equals(matchType)).collect(
+                Collectors.toList());
+        assertFalse(matches.isEmpty());
         for (MatchInfoBase baseMatch : matches) {
-            if (baseMatch instanceof MatchInfo) {
-                verifyMatchValues((MatchInfo)baseMatch, params);
-            } else {
-                verifyMatchValues((NxMatchInfo)baseMatch, params);
-            }
+            verifyMatchValues((NxMatchInfo)baseMatch, params);
         }
     }
 
@@ -123,7 +104,7 @@ public class AclServiceTestUtils {
             case nx_udp_src_with_mask:
             case nx_udp_dst_with_mask:
             case ct_state:
-                long[] values = Arrays.stream(params).mapToLong(l -> Long.parseLong(l)).toArray();
+                long[] values = Arrays.stream(params).mapToLong(Long::parseLong).toArray();
                 Assert.assertArrayEquals(values, match.getMatchValues());
                 break;
             default:
@@ -132,40 +113,15 @@ public class AclServiceTestUtils {
         }
     }
 
-    public static void verifyMatchValues(MatchInfo match, String... params) {
-        switch (match.getMatchField()) {
-
-            case ip_proto:
-            case eth_type:
-            case tcp_flags:
-            case icmp_v4:
-                long[] values = Arrays.stream(params).mapToLong(l -> Long.parseLong(l)).toArray();
-                Assert.assertArrayEquals(values, match.getMatchValues());
-                break;
-            case ipv4_source:
-            case ipv4_destination:
-            case eth_src:
-            case eth_dst:
-            case arp_sha:
-            case arp_tha:
-                Assert.assertArrayEquals(params, match.getStringMatchValues());
-                break;
-            default:
-                assertTrue("match type is not supported", false);
-                break;
-        }
-    }
-
-    public static void verifyMatchFieldTypeDontExist(List<MatchInfoBase> flowMatches, MatchFieldType matchType) {
-        Iterable<MatchInfoBase> matches = filter(flowMatches,
-            item -> ((MatchInfo) item).getMatchField().equals(matchType));
-        Assert.assertTrue("unexpected match type " + matchType.name(), Iterables.isEmpty(matches));
+    public static void verifyMatchFieldTypeDontExist(List<MatchInfoBase> flowMatches,
+            Class<? extends MatchInfo> matchType) {
+        Assert.assertFalse("unexpected match type " + matchType.getSimpleName(), flowMatches.stream().anyMatch(
+            item -> matchType.isAssignableFrom(item.getClass())));
     }
 
     public static void verifyMatchFieldTypeDontExist(List<MatchInfoBase> flowMatches, NxMatchFieldType matchType) {
-        Iterable<MatchInfoBase> matches = filter(flowMatches,
-            item -> ((MatchInfo) item).getMatchField().equals(matchType));
-        Assert.assertTrue("unexpected match type " + matchType.name(), Iterables.isEmpty(matches));
+        Assert.assertFalse("unexpected match type " + matchType.name(), flowMatches.stream().anyMatch(
+            item -> item instanceof NxMatchInfo && ((NxMatchInfo) item).getMatchField().equals(matchType)));
     }
 
     public static void prepareAclDataUtil(AclDataUtil aclDataUtil, AclInterface inter, String... updatedAclNames) {
@@ -194,67 +150,48 @@ public class AclServiceTestUtils {
     }
 
     public static List<Uuid> prapreaAclIds(String... names) {
-        return Stream.of(names).map(name -> new Uuid(name)).collect(Collectors.toList());
+        return Stream.of(names).map(Uuid::new).collect(Collectors.toList());
     }
 
-    public static void verifyActionTypeExist(List<ActionInfo> flowActions, ActionType actionType) {
-        Iterable<ActionInfo> actions = filter(flowActions, item -> item.getActionType().equals(actionType));
-        assertFalse(Iterables.isEmpty(actions));
-    }
-
-    public static void verifyActionInfo(List<ActionInfo> flowActions, ActionType actionType, String... params) {
-        Iterable<ActionInfo> actions = filter(flowActions, item -> item.getActionType().equals(actionType));
-        assertFalse(Iterables.isEmpty(actions));
-        for (ActionInfo action : actions) {
-            verifyActionValues(action, params);
+    public static void verifyActionTypeExist(InstructionInfo instructionInfo, Class<? extends ActionInfo> actionType) {
+        if (instructionInfo instanceof InstructionApplyActions) {
+            verifyActionTypeExist(((InstructionApplyActions) instructionInfo).getActionInfos(), actionType);
         }
     }
 
-    private static void verifyActionValues(ActionInfo action, String[] params) {
-        switch (action.getActionType()) {
-            case drop_action:
-                break;
-            case goto_table:
-            case learn:
-            case nx_resubmit:
-                Assert.assertArrayEquals(params, action.getActionValues());
-                break;
-            default:
-                assertTrue("match type is not supported", false);
-                break;
+    public static void verifyActionTypeExist(List<ActionInfo> flowActions, Class<? extends ActionInfo> actionType) {
+        assertTrue(flowActions.stream().anyMatch(actionInfo -> actionInfo.getClass().equals(actionType)));
+    }
+
+    public static void verifyActionInfo(InstructionInfo instructionInfo, ActionInfo actionInfo) {
+        if (instructionInfo instanceof InstructionApplyActions) {
+            verifyActionInfo(((InstructionApplyActions) instructionInfo).getActionInfos(), actionInfo);
         }
     }
 
-    public static void verifyLearnActionFlowModInfo(List<ActionInfo> flowActions,
-            NwConstants.LearnFlowModsType type, String... params) {
-        Iterable<ActionInfo> actions = filter(flowActions,
-            item -> item.getActionType().equals(ActionType.learn)
-                 && item.getActionValuesMatrix()[0].equals(type.name()));
-        assertFalse(Iterables.isEmpty(actions));
-        for (ActionInfo action : actions) {
-            verifyActionValues(action, params);
+    public static void verifyActionInfo(List<ActionInfo> flowActions, ActionInfo actionInfo) {
+        assertTrue(flowActions.contains(actionInfo));
+    }
+
+    public static void verifyActionLearn(InstructionInfo instructionInfo, ActionLearn actionLearn) {
+        if (instructionInfo instanceof InstructionApplyActions) {
+            verifyActionLearn(((InstructionApplyActions) instructionInfo).getActionInfos(), actionLearn);
         }
     }
 
-    public static void verifyInstructionInfo(List<InstructionInfo> instructionInfoList, InstructionType type,
-            String ... params) {
-        Iterable<InstructionInfo> matches = filter(instructionInfoList, item -> item.getInstructionType().equals(type));
-        assertFalse(Iterables.isEmpty(matches));
-        for (InstructionInfo baseMatch : matches) {
-            verifyInstructionValues(baseMatch, params);
-        }
-
-    }
-
-    private static void verifyInstructionValues(InstructionInfo inst, String[] params) {
-        switch (inst.getInstructionType()) {
-            case goto_table:
-                long[] values = Arrays.stream(params).mapToLong(l -> Long.parseLong(l)).toArray();
-                Assert.assertArrayEquals(values, inst.getInstructionValues());
-                break;
-            default:
-                assertTrue("match type is not supported", false);
-                break;
+    public static void verifyActionLearn(List<ActionInfo> flowActions, ActionLearn actionLearn) {
+        for (ActionInfo actionInfo : flowActions) {
+            if (actionInfo instanceof ActionLearn) {
+                ActionLearn check = (ActionLearn) actionInfo;
+                assertEquals(actionLearn.getCookie(), check.getCookie());
+                assertEquals(actionLearn.getFinHardTimeout(), check.getFinHardTimeout());
+                assertEquals(actionLearn.getFinIdleTimeout(), check.getFinIdleTimeout());
+                assertEquals(actionLearn.getFlags(), check.getFlags());
+                assertEquals(actionLearn.getHardTimeout(), check.getHardTimeout());
+                assertEquals(actionLearn.getIdleTimeout(), check.getIdleTimeout());
+                assertEquals(actionLearn.getPriority(), check.getPriority());
+                assertEquals(actionLearn.getTableId(), check.getTableId());
+            }
         }
     }
 

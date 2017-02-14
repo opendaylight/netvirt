@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 Ericsson India Global Services Pvt Ltd. and others.  All rights reserved.
+ * Copyright © 2016, 2017 Ericsson India Global Services Pvt Ltd. and others.  All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
@@ -10,15 +10,14 @@ package org.opendaylight.netvirt.vpnmanager;
 import com.google.common.base.Optional;
 import com.google.common.primitives.Ints;
 import java.math.BigInteger;
-import java.net.InetAddress;
-import java.net.UnknownHostException;
-import java.util.ArrayList;
 import java.util.List;
 import org.opendaylight.controller.liblldp.NetUtils;
 import org.opendaylight.controller.liblldp.Packet;
+import org.opendaylight.controller.liblldp.PacketException;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.mdsalutil.MetaDataUtil;
+import org.opendaylight.genius.mdsalutil.NWUtil;
 import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.genius.mdsalutil.packet.Ethernet;
 import org.opendaylight.genius.mdsalutil.packet.IPv4;
@@ -47,11 +46,14 @@ public class SubnetRoutePacketInHandler implements PacketProcessingListener {
     private final PacketProcessingService packetService;
 
     public SubnetRoutePacketInHandler(final DataBroker dataBroker,
-                                      final PacketProcessingService packetService) {
+        final PacketProcessingService packetService) {
         this.dataBroker = dataBroker;
-        this.packetService =packetService;
+        this.packetService = packetService;
     }
 
+    @Override
+    // TODO Clean up the exception handling
+    @SuppressWarnings("checkstyle:IllegalCatch")
     public void onPacketReceived(PacketReceived notification) {
         LOG.trace("SubnetRoutePacketInHandler: PacketReceived invoked...");
 
@@ -68,7 +70,7 @@ public class SubnetRoutePacketInHandler implements PacketProcessingListener {
             LOG.trace("SubnetRoutePacketInHandler: Some packet received as {}", notification);
             try {
                 res.deserialize(data, 0, data.length * NetUtils.NumBitsInAByte);
-            } catch (Exception e) {
+            } catch (PacketException e) {
                 LOG.warn("SubnetRoutePacketInHandler: Failed to decode Packet ", e);
                 return;
             }
@@ -80,8 +82,8 @@ public class SubnetRoutePacketInHandler implements PacketProcessingListener {
                     byte[] dstMac = res.getDestinationMACAddress();
                     byte[] srcIp = Ints.toByteArray(ipv4.getSourceAddress());
                     byte[] dstIp = Ints.toByteArray(ipv4.getDestinationAddress());
-                    String dstIpStr = toStringIpAddress(dstIp);
-                    String srcIpStr = toStringIpAddress(srcIp);
+                    String dstIpStr = NWUtil.toStringIpAddress(dstIp);
+                    String srcIpStr = NWUtil.toStringIpAddress(srcIp);
                     /*if (VpnUtil.getNeutronPortNamefromPortFixedIp(dataBroker, dstIpStr) != null) {
                         LOG.debug("SubnetRoutePacketInHandler: IPv4 Packet received with "
                                 + "Target IP {} is a valid Neutron port, ignoring subnet route processing", dstIpStr);
@@ -92,22 +94,25 @@ public class SubnetRoutePacketInHandler implements PacketProcessingListener {
                             + "and Target IP {} and vpnId {}", srcIpStr, dstIpStr, vpnId);
 
                     InstanceIdentifier<VpnIds> vpnIdsInstanceIdentifier = getVpnIdToVpnInstanceIdentifier(vpnId);
-                    Optional<VpnIds> vpnIdsOptional = VpnUtil.read(dataBroker, LogicalDatastoreType.CONFIGURATION, vpnIdsInstanceIdentifier);
-                    if(!vpnIdsOptional.isPresent()) {
+                    Optional<VpnIds> vpnIdsOptional =
+                        VpnUtil.read(dataBroker, LogicalDatastoreType.CONFIGURATION, vpnIdsInstanceIdentifier);
+                    if (!vpnIdsOptional.isPresent()) {
                         // Donot trigger subnetroute logic for packets from unknown VPNs
-                        LOG.info("Ignoring IPv4 packet with destination Ip {} and source Ip {} as it came on unknown VPN with ID {}", dstIpStr, srcIpStr, vpnId);
+                        LOG.info(
+                            "Ignoring IPv4 packet with destination Ip {} and source Ip {} as it came on unknown VPN "
+                                + "with ID {}",
+                            dstIpStr, srcIpStr, vpnId);
                         return;
                     }
                     // It is an ARP request on a configured VPN.  So we must attempt to respond.
                     VpnIds vpnIds = vpnIdsOptional.get();
-                    if (VpnUtil.getNeutronPortFromVpnPortFixedIp(dataBroker, vpnIds.getVpnInstanceName(), dstIpStr) !=
-                            null) {
+                    if (VpnUtil.getNeutronPortFromVpnPortFixedIp(dataBroker, vpnIds.getVpnInstanceName(), dstIpStr)
+                        != null) {
                         LOG.debug("SubnetRoutePacketInHandler: IPv4 Packet received with "
                                 + "Target IP {} is a valid Neutron port, ignoring subnet route processing", dstIpStr);
                         return;
                     }
-                    if (VpnUtil.getLearntVpnVipToPort(dataBroker, vpnIds.getVpnInstanceName(), dstIpStr) !=
-                            null) {
+                    if (VpnUtil.getLearntVpnVipToPort(dataBroker, vpnIds.getVpnInstanceName(), dstIpStr) != null) {
                         LOG.debug("SubnetRoutePacketInHandler: IPv4 Packet received with "
                                 + "Target IP {} is an already discovered IPAddress,"
                                 + "ignoring subnet route processing", dstIpStr);
@@ -115,8 +120,8 @@ public class SubnetRoutePacketInHandler implements PacketProcessingListener {
                     }
                     long elanTag = getElanTagFromSubnetRouteMetadata(metadata);
                     if (elanTag == 0) {
-                        LOG.error("SubnetRoutePacketInHandler: elanTag value from metadata found to be 0, for IPv4 " +
-                                " Packet received with Target IP {}", dstIpStr);
+                        LOG.error("SubnetRoutePacketInHandler: elanTag value from metadata found to be 0, for IPv4 "
+                            + "Packet received with Target IP {}", dstIpStr);
                         return;
                     }
                     LOG.info("SubnetRoutePacketInHandler: Processing IPv4 Packet received with Source IP {} "
@@ -126,7 +131,8 @@ public class SubnetRoutePacketInHandler implements PacketProcessingListener {
                     if (dpnId != BigInteger.ZERO) {
                         long groupid = VpnUtil.getRemoteBCGroup(elanTag);
                         String key = srcIpStr + dstIpStr;
-                        TransmitPacketInput arpRequestInput = ArpUtils.createArpRequestInput(dpnId, groupid, srcMac, srcIp, dstIp);
+                        TransmitPacketInput arpRequestInput =
+                            ArpUtils.createArpRequestInput(dpnId, groupid, srcMac, srcIp, dstIp);
                         packetService.transmitPacket(arpRequestInput);
                     }
                     return;
@@ -149,24 +155,25 @@ public class SubnetRoutePacketInHandler implements PacketProcessingListener {
             return dpnid;
         }
         InstanceIdentifier<NetworkMap> networkId = InstanceIdentifier.builder(NetworkMaps.class)
-                .child(NetworkMap.class, new NetworkMapKey(new Uuid(elanInfo.getName()))).build();
+            .child(NetworkMap.class, new NetworkMapKey(new Uuid(elanInfo.getName()))).build();
 
         Optional<NetworkMap> optionalNetworkMap = VpnUtil.read(broker, LogicalDatastoreType.CONFIGURATION, networkId);
         if (optionalNetworkMap.isPresent()) {
             List<Uuid> subnetList = optionalNetworkMap.get().getSubnetIdList();
             LOG.trace("SubnetRoutePacketInHandler: Obtained subnetList as " + subnetList);
             for (Uuid subnetId : subnetList) {
-                InstanceIdentifier<SubnetOpDataEntry> subOpIdentifier = InstanceIdentifier.builder(SubnetOpData.class).
-                        child(SubnetOpDataEntry.class, new SubnetOpDataEntryKey(subnetId)).build();
+                InstanceIdentifier<SubnetOpDataEntry> subOpIdentifier =
+                    InstanceIdentifier.builder(SubnetOpData.class).child(SubnetOpDataEntry.class,
+                        new SubnetOpDataEntryKey(subnetId)).build();
                 Optional<SubnetOpDataEntry> optionalSubs = VpnUtil.read(broker, LogicalDatastoreType.OPERATIONAL,
-                        subOpIdentifier);
+                    subOpIdentifier);
                 if (!optionalSubs.isPresent()) {
                     continue;
                 }
                 SubnetOpDataEntry subOpEntry = optionalSubs.get();
                 if (subOpEntry.getNhDpnId() != null) {
                     LOG.trace("SubnetRoutePacketInHandler: Viewing Subnet " + subnetId);
-                    boolean match = VpnUtil.isIpInSubnet(ipAddress, subOpEntry.getSubnetCidr());
+                    boolean match = NWUtil.isIpInSubnet(ipAddress, subOpEntry.getSubnetCidr());
                     LOG.trace("SubnetRoutePacketInHandler: Viewing Subnet " + subnetId + " matching " + match);
                     if (match) {
                         dpnid = subOpEntry.getNhDpnId();
@@ -178,30 +185,11 @@ public class SubnetRoutePacketInHandler implements PacketProcessingListener {
         return dpnid;
     }
 
-    private static String toStringIpAddress(byte[] ipAddress)
-    {
-        String ip = null;
-        if (ipAddress == null) {
-            return ip;
-        }
-
-        try {
-            ip = InetAddress.getByAddress(ipAddress).getHostAddress();
-        } catch(UnknownHostException e) {
-            LOG.error("SubnetRoutePacketInHandler: Unable to translate byt[] ipAddress to String {}", e);
-        }
-
-        return ip;
-    }
-
     public static long getElanTagFromSubnetRouteMetadata(BigInteger metadata) {
         return ((metadata.and(MetaDataUtil.METADATA_MASK_ELAN_SUBNET_ROUTE)).shiftRight(32)).longValue();
     }
 
-    static InstanceIdentifier<VpnIds>
-    getVpnIdToVpnInstanceIdentifier(long vpnId) {
-        return InstanceIdentifier.builder(VpnIdToVpnInstance.class)
-                .child(VpnIds.class,
-                        new VpnIdsKey(Long.valueOf(vpnId))).build();
+    static InstanceIdentifier<VpnIds> getVpnIdToVpnInstanceIdentifier(long vpnId) {
+        return InstanceIdentifier.builder(VpnIdToVpnInstance.class) .child(VpnIds.class, new VpnIdsKey(vpnId)).build();
     }
 }

@@ -44,7 +44,7 @@ public class AddVpnPseudoPortDataJob extends VpnPseudoPortDataBaseJob {
                   super.vpnRd, vpnPseudoLportTag, scfTag, scfTableIdToGo);
 
         WriteTransaction writeTxn = super.dataBroker.newWriteOnlyTransaction();
-        if ( writeTxn == null ) {
+        if (writeTxn == null) {
             throw new Exception("Could not create a proper WriteTransaction");
         }
         VpnToPseudoPortData newValue =

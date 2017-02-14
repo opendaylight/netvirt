@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 Ericsson India Global Services Pvt Ltd. and others.  All rights reserved.
+ * Copyright © 2016, 2017 Ericsson India Global Services Pvt Ltd. and others.  All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
@@ -9,6 +9,7 @@ package org.opendaylight.netvirt.elan.internal;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.DataChangeListener;
@@ -16,18 +17,24 @@ import org.opendaylight.controller.md.sal.common.api.data.AsyncDataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.mdsalutil.AbstractDataChangeListener;
 import org.opendaylight.genius.mdsalutil.ActionInfo;
-import org.opendaylight.genius.mdsalutil.ActionType;
 import org.opendaylight.genius.mdsalutil.FlowEntity;
 import org.opendaylight.genius.mdsalutil.InstructionInfo;
-import org.opendaylight.genius.mdsalutil.InstructionType;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.mdsalutil.MatchInfo;
 import org.opendaylight.genius.mdsalutil.MatchInfoBase;
 import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.genius.mdsalutil.NxMatchFieldType;
 import org.opendaylight.genius.mdsalutil.NxMatchInfo;
+import org.opendaylight.genius.mdsalutil.actions.ActionDrop;
+import org.opendaylight.genius.mdsalutil.actions.ActionLearn;
+import org.opendaylight.genius.mdsalutil.actions.ActionNxResubmit;
+import org.opendaylight.genius.mdsalutil.actions.ActionPuntToController;
+import org.opendaylight.genius.mdsalutil.instructions.InstructionApplyActions;
+import org.opendaylight.genius.mdsalutil.instructions.InstructionGotoTable;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
+import org.opendaylight.genius.mdsalutil.matches.MatchEthernetDestination;
 import org.opendaylight.netvirt.elan.utils.ElanConstants;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.MacAddress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.Nodes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.Node;
@@ -40,7 +47,7 @@ import org.slf4j.LoggerFactory;
 public class ElanNodeListener extends AbstractDataChangeListener<Node> implements AutoCloseable {
 
     private static final Logger LOG = LoggerFactory.getLogger(ElanNodeListener.class);
-    private static final String LEARN_MATCH_REG4_VALUE = "1";
+    private static final int LEARN_MATCH_REG4_VALUE = 1;
 
     private final DataBroker broker;
     private final IMdsalApiManager mdsalManager;
@@ -60,8 +67,8 @@ public class ElanNodeListener extends AbstractDataChangeListener<Node> implement
     }
 
     private void registerListener(final DataBroker db) {
-        listenerRegistration = db.registerDataChangeListener(LogicalDatastoreType.OPERATIONAL,
-            getWildCardPath(), ElanNodeListener.this, AsyncDataBroker.DataChangeScope.SUBTREE);
+        listenerRegistration = db.registerDataChangeListener(LogicalDatastoreType.OPERATIONAL, getWildCardPath(),
+                ElanNodeListener.this, AsyncDataBroker.DataChangeScope.SUBTREE);
     }
 
     private InstanceIdentifier<Node> getWildCardPath() {
@@ -79,13 +86,14 @@ public class ElanNodeListener extends AbstractDataChangeListener<Node> implement
     @Override
     protected void add(InstanceIdentifier<Node> identifier, Node add) {
         NodeId nodeId = add.getId();
-        String[] node =  nodeId.getValue().split(":");
+        String[] node = nodeId.getValue().split(":");
         if (node.length < 2) {
             LOG.warn("Unexpected nodeId {}", nodeId.getValue());
             return;
         }
         BigInteger dpId = new BigInteger(node[1]);
         createTableMissEntry(dpId);
+        createMulticastFlows(dpId);
     }
 
     public void createTableMissEntry(BigInteger dpnId) {
@@ -95,32 +103,19 @@ public class ElanNodeListener extends AbstractDataChangeListener<Node> implement
 
     private void setupTableMissSmacFlow(BigInteger dpId) {
         List<ActionInfo> actionsInfos = new ArrayList<>();
-        actionsInfos.add(new ActionInfo(ActionType.punt_to_controller, new String[] {}));
-
-        String[][] learnActionMatches = new String[2][];
-        learnActionMatches[0] = new String[] { NwConstants.LearnFlowModsType.MATCH_FROM_FIELD.name(),
-                NwConstants.NxmOfFieldType.NXM_OF_ETH_SRC.getHexType(),
-                NwConstants.NxmOfFieldType.NXM_OF_ETH_SRC.getHexType(),
-                NwConstants.NxmOfFieldType.NXM_OF_ETH_SRC.getFlowModHeaderLen() };
-        learnActionMatches[1] = new String[] {
-                NwConstants.LearnFlowModsType.COPY_FROM_VALUE.name(), LEARN_MATCH_REG4_VALUE,
-                NwConstants.NxmOfFieldType.NXM_NX_REG4.getHexType(), "8" };
-
-        String[] header = new String[] {
-            String.valueOf(0),
-            String.valueOf(tempSmacLearnTimeout),
-            BigInteger.ZERO.toString(),
-            ElanConstants.COOKIE_ELAN_LEARNED_SMAC.toString(),
-            "0",
-            Short.toString(NwConstants.ELAN_SMAC_LEARNED_TABLE),
-            String.valueOf(0),
-            String.valueOf(0)
-        };
-        actionsInfos.add(new ActionInfo(ActionType.learn, header, learnActionMatches));
+        actionsInfos.add(new ActionPuntToController());
+        actionsInfos.add(new ActionLearn(0, tempSmacLearnTimeout, 0, ElanConstants.COOKIE_ELAN_LEARNED_SMAC, 0,
+                NwConstants.ELAN_SMAC_LEARNED_TABLE, 0, 0,
+                Arrays.asList(
+                        new ActionLearn.MatchFromField(NwConstants.NxmOfFieldType.NXM_OF_ETH_SRC.getType(),
+                                NwConstants.NxmOfFieldType.NXM_OF_ETH_SRC.getType(),
+                                NwConstants.NxmOfFieldType.NXM_OF_ETH_SRC.getFlowModHeaderLenInt()),
+                        new ActionLearn.CopyFromValue(LEARN_MATCH_REG4_VALUE,
+                                NwConstants.NxmOfFieldType.NXM_NX_REG4.getType(), 8))));
 
         List<InstructionInfo> mkInstructions = new ArrayList<>();
-        mkInstructions.add(new InstructionInfo(InstructionType.apply_actions, actionsInfos));
-        mkInstructions.add(new InstructionInfo(InstructionType.goto_table, new long[] { NwConstants.ELAN_DMAC_TABLE }));
+        mkInstructions.add(new InstructionApplyActions(actionsInfos));
+        mkInstructions.add(new InstructionGotoTable(NwConstants.ELAN_DMAC_TABLE));
 
         List<MatchInfo> mkMatches = new ArrayList<>();
         FlowEntity flowEntity = MDSALUtil.buildFlowEntity(dpId, NwConstants.ELAN_SMAC_TABLE,
@@ -133,36 +128,31 @@ public class ElanNodeListener extends AbstractDataChangeListener<Node> implement
     }
 
     private void addSmacBaseTableFlow(BigInteger dpId) {
-        //T48 - resubmit to T49 & T50
+        // T48 - resubmit to T49 & T50
         List<ActionInfo> actionsInfo = new ArrayList<>();
-        actionsInfo.add(new ActionInfo(ActionType.nx_resubmit,
-                new String[] {Short.toString(NwConstants.ELAN_SMAC_LEARNED_TABLE) }));
-        actionsInfo.add(new ActionInfo(ActionType.nx_resubmit,
-                new String[] {Short.toString(NwConstants.ELAN_SMAC_TABLE) }));
+        actionsInfo.add(new ActionNxResubmit(NwConstants.ELAN_SMAC_LEARNED_TABLE));
+        actionsInfo.add(new ActionNxResubmit(NwConstants.ELAN_SMAC_TABLE));
         List<InstructionInfo> mkInstruct = new ArrayList<>();
-        mkInstruct.add(new InstructionInfo(InstructionType.apply_actions, actionsInfo));
+        mkInstruct.add(new InstructionApplyActions(actionsInfo));
         List<MatchInfo> mkMatch = new ArrayList<>();
         FlowEntity doubleResubmitTable = MDSALUtil.buildFlowEntity(dpId, NwConstants.ELAN_BASE_TABLE,
-                getTableMissFlowRef(NwConstants.ELAN_BASE_TABLE),
-                0, "Elan sMac resubmit table", 0, 0,
+                getTableMissFlowRef(NwConstants.ELAN_BASE_TABLE), 0, "Elan sMac resubmit table", 0, 0,
                 ElanConstants.COOKIE_ELAN_BASE_SMAC, mkMatch, mkInstruct);
         mdsalManager.installFlow(doubleResubmitTable);
     }
 
     private void addSmacLearnedTableFlow(BigInteger dpId) {
-        //T50 - match on Reg4 and goto T51
+        // T50 - match on Reg4 and goto T51
         List<MatchInfoBase> mkMatches = new ArrayList<>();
-        mkMatches.add(new NxMatchInfo(NxMatchFieldType.nxm_reg_4, new long[] {
-                Long.valueOf(LEARN_MATCH_REG4_VALUE).longValue() }));
+        mkMatches.add(new NxMatchInfo(NxMatchFieldType.nxm_reg_4, new long[] { Long.valueOf(LEARN_MATCH_REG4_VALUE) }));
         List<InstructionInfo> mkInstructions = new ArrayList<>();
-        mkInstructions.add(new InstructionInfo(InstructionType.goto_table,
-                new long[] { NwConstants.ELAN_DMAC_TABLE }));
+        mkInstructions.add(new InstructionGotoTable(NwConstants.ELAN_DMAC_TABLE));
         String flowRef = new StringBuffer().append(NwConstants.ELAN_SMAC_TABLE).append(NwConstants.FLOWID_SEPARATOR)
                 .append(LEARN_MATCH_REG4_VALUE).toString();
-        FlowEntity flowEntity = MDSALUtil.buildFlowEntity(dpId, NwConstants.ELAN_SMAC_TABLE, flowRef,
-                10, "ELAN sMac Table Reg4 Flow", 0, 0,
-                ElanConstants.COOKIE_ELAN_KNOWN_SMAC.add(new BigInteger(LEARN_MATCH_REG4_VALUE)),
-                mkMatches, mkInstructions);
+        FlowEntity flowEntity =
+                MDSALUtil.buildFlowEntity(dpId, NwConstants.ELAN_SMAC_TABLE, flowRef, 10, "ELAN sMac Table Reg4 Flow",
+                        0, 0, ElanConstants.COOKIE_ELAN_KNOWN_SMAC.add(BigInteger.valueOf(LEARN_MATCH_REG4_VALUE)),
+                        mkMatches, mkInstructions);
         mdsalManager.installFlow(flowEntity);
     }
 
@@ -170,13 +160,40 @@ public class ElanNodeListener extends AbstractDataChangeListener<Node> implement
         List<MatchInfo> mkMatches = new ArrayList<>();
 
         List<InstructionInfo> mkInstructions = new ArrayList<>();
-        mkInstructions.add(
-                new InstructionInfo(InstructionType.goto_table, new long[] { NwConstants.ELAN_UNKNOWN_DMAC_TABLE }));
+        mkInstructions.add(new InstructionGotoTable(NwConstants.ELAN_UNKNOWN_DMAC_TABLE));
 
         FlowEntity flowEntity = MDSALUtil.buildFlowEntity(dpId, NwConstants.ELAN_DMAC_TABLE,
                 getTableMissFlowRef(NwConstants.ELAN_DMAC_TABLE), 0, "ELAN dMac Table Miss Flow", 0, 0,
                 ElanConstants.COOKIE_ELAN_KNOWN_DMAC, mkMatches, mkInstructions);
+
         mdsalManager.installFlow(flowEntity);
+    }
+
+    private void createMulticastFlows(BigInteger dpId) {
+        createL2ControlProtocolDropFlows(dpId);
+    }
+
+    private void createL2ControlProtocolDropFlows(BigInteger dpId) {
+        List<MatchInfo> mkMatches = new ArrayList<>();
+        MatchEthernetDestination matchEthDst =
+                new MatchEthernetDestination(new MacAddress(ElanConstants.L2_CONTROL_PACKETS_DMAC),
+                        new MacAddress(ElanConstants.L2_CONTROL_PACKETS_DMAC_MASK));
+
+        mkMatches.add(matchEthDst);
+
+        List<ActionInfo> listActionInfo = new ArrayList<>();
+        listActionInfo.add(new ActionDrop());
+
+        List<InstructionInfo> mkInstructions = new ArrayList<>();
+        mkInstructions.add(new InstructionApplyActions(listActionInfo));
+
+        String flowId = dpId.toString() + NwConstants.ELAN_DMAC_TABLE + "l2control"
+                + ElanConstants.L2_CONTROL_PACKETS_DMAC + ElanConstants.L2_CONTROL_PACKETS_DMAC_MASK;
+        FlowEntity flow = MDSALUtil.buildFlowEntity(dpId, NwConstants.ELAN_DMAC_TABLE, flowId, 15,
+                "L2 control packets dMac Table Flow", 0, 0, ElanConstants.COOKIE_ELAN_KNOWN_DMAC, mkMatches,
+                mkInstructions);
+
+        mdsalManager.installFlow(flow);
     }
 
     private String getTableMissFlowRef(long tableId) {

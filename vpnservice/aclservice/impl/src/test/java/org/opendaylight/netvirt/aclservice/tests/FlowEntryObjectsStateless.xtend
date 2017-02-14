@@ -7,13 +7,20 @@
  */
 package org.opendaylight.netvirt.aclservice.tests
 
-import org.opendaylight.genius.mdsalutil.ActionInfoBuilder
-import org.opendaylight.genius.mdsalutil.ActionType
+import org.opendaylight.genius.mdsalutil.actions.ActionNxConntrack
+import org.opendaylight.genius.mdsalutil.actions.ActionNxResubmit
 import org.opendaylight.genius.mdsalutil.FlowEntity
-import org.opendaylight.genius.mdsalutil.InstructionInfo
-import org.opendaylight.genius.mdsalutil.InstructionType
-import org.opendaylight.genius.mdsalutil.MatchFieldType
-import org.opendaylight.genius.mdsalutil.MatchInfoBuilder
+import org.opendaylight.genius.mdsalutil.instructions.InstructionApplyActions
+import org.opendaylight.genius.mdsalutil.matches.MatchEthernetType
+import org.opendaylight.genius.mdsalutil.matches.MatchIcmpv4
+import org.opendaylight.genius.mdsalutil.matches.MatchIcmpv6
+import org.opendaylight.genius.mdsalutil.matches.MatchIpProtocol
+import org.opendaylight.genius.mdsalutil.matches.MatchIpv4Destination
+import org.opendaylight.genius.mdsalutil.matches.MatchIpv4Source
+import org.opendaylight.genius.mdsalutil.matches.MatchMetadata
+import org.opendaylight.genius.mdsalutil.matches.MatchTcpFlags
+import org.opendaylight.genius.mdsalutil.matches.MatchUdpDestinationPort
+import org.opendaylight.genius.mdsalutil.matches.MatchUdpSourcePort
 import org.opendaylight.genius.mdsalutil.MetaDataUtil
 import org.opendaylight.genius.mdsalutil.NxMatchFieldType
 import org.opendaylight.genius.mdsalutil.NxMatchInfoBuilder
@@ -85,35 +92,14 @@ class FlowEntryObjectsStateless extends FlowEntryObjectsBase {
             flowId = "SYN_ETHERnullIngress98785cc3048-abc3-43cc-89b3-377341426ac7"
             flowName = "ACL_SYN_"
             instructionInfoList = #[
-                new InstructionInfo(InstructionType.apply_actions, #[
-                    new ActionInfoBuilder >> [
-                        actionType = ActionType.nx_resubmit
-                        actionValues = #[
-                            "220"
-                        ]
-                    ]
+                new InstructionApplyActions(#[
+                    new ActionNxResubmit(220 as short)
                 ])
             ]
             matchInfoList = #[
-                new MatchInfoBuilder >> [
-                    matchField = MatchFieldType.eth_type
-                    matchValues = #[
-                        2048L
-                    ]
-                ],
-                new MatchInfoBuilder >> [
-                    matchField = MatchFieldType.eth_type
-                    matchValues = #[
-                        2048L
-                    ]
-                ],
-                new MatchInfoBuilder >> [
-                    bigMatchValues = #[
-                        1085217976614912bi,
-                        1152920405095219200bi
-                    ]
-                    matchField = MatchFieldType.metadata
-                ]
+                new MatchEthernetType(2048L),
+                new MatchEthernetType(2048L),
+                new MatchMetadata(1085217976614912bi, 1152920405095219200bi)
             ]
             priority = 61005
             tableId = 251 as short
@@ -127,35 +113,14 @@ class FlowEntryObjectsStateless extends FlowEntryObjectsBase {
                 flowId = "SYN_ETHERnullEgress98785cc3048-abc3-43cc-89b3-377341426ac6"
                 flowName = "ACL_SYN_"
                 instructionInfoList = #[
-                    new InstructionInfo(InstructionType.apply_actions, #[
-                        new ActionInfoBuilder >> [
-                            actionType = ActionType.nx_resubmit
-                            actionValues = #[
-                                "17"
-                            ]
-                        ]
+                    new InstructionApplyActions(#[
+                        new ActionNxResubmit(17 as short)
                     ])
                 ]
                 matchInfoList = #[
-                    new MatchInfoBuilder >> [
-                        matchField = MatchFieldType.eth_type
-                        matchValues = #[
-                            2048L
-                        ]
-                    ],
-                    new MatchInfoBuilder >> [
-                        matchField = MatchFieldType.eth_type
-                        matchValues = #[
-                            2048L
-                        ]
-                    ],
-                    new MatchInfoBuilder >> [
-                        bigMatchValues = #[
-                            1085217976614912bi,
-                            1152920405095219200bi
-                        ]
-                        matchField = MatchFieldType.metadata
-                    ]
+                    new MatchEthernetType(2048L),
+                    new MatchEthernetType(2048L),
+                    new MatchMetadata(1085217976614912bi, 1152920405095219200bi)
                 ]
                 priority = 61005
                 tableId = 40 as short
@@ -169,35 +134,14 @@ class FlowEntryObjectsStateless extends FlowEntryObjectsBase {
                 flowId = "SYN_ETHERnullIngress98785cc3048-abc3-43cc-89b3-377341426ac7"
                 flowName = "ACL_SYN_"
                 instructionInfoList = #[
-                    new InstructionInfo(InstructionType.apply_actions, #[
-                        new ActionInfoBuilder >> [
-                            actionType = ActionType.nx_resubmit
-                            actionValues = #[
-                                "220"
-                            ]
-                        ]
+                    new InstructionApplyActions(#[
+                        new ActionNxResubmit(220 as short)
                     ])
                 ]
                 matchInfoList = #[
-                    new MatchInfoBuilder >> [
-                        matchField = MatchFieldType.eth_type
-                        matchValues = #[
-                            2048L
-                        ]
-                    ],
-                    new MatchInfoBuilder >> [
-                        matchField = MatchFieldType.eth_type
-                        matchValues = #[
-                            2048L
-                        ]
-                    ],
-                    new MatchInfoBuilder >> [
-                        bigMatchValues = #[
-                            1085217976614912bi,
-                            1152920405095219200bi
-                        ]
-                        matchField = MatchFieldType.metadata
-                    ]
+                    new MatchEthernetType(2048L),
+                    new MatchEthernetType(2048L),
+                    new MatchMetadata(1085217976614912bi, 1152920405095219200bi)
                 ]
                 priority = 61005
                 tableId = 251 as short
@@ -207,35 +151,14 @@ class FlowEntryObjectsStateless extends FlowEntryObjectsBase {
                 flowId = "SYN_ETHERnullIngress98785cc3048-abc3-43cc-89b3-377341426ac7"
                 flowName = "ACL_SYN_"
                 instructionInfoList = #[
-                    new InstructionInfo(InstructionType.apply_actions, #[
-                        new ActionInfoBuilder >> [
-                            actionType = ActionType.nx_resubmit
-                            actionValues = #[
-                                "220"
-                            ]
-                        ]
+                    new InstructionApplyActions(#[
+                        new ActionNxResubmit(220 as short)
                     ])
                 ]
                 matchInfoList = #[
-                    new MatchInfoBuilder >> [
-                        matchField = MatchFieldType.eth_type
-                        matchValues = #[
-                            2048L
-                        ]
-                    ],
-                    new MatchInfoBuilder >> [
-                        matchField = MatchFieldType.eth_type
-                        matchValues = #[
-                            2048L
-                        ]
-                    ],
-                    new MatchInfoBuilder >> [
-                        bigMatchValues = #[
-                            1085217976614912bi,
-                            1152920405095219200bi
-                        ]
-                        matchField = MatchFieldType.metadata
-                    ]
+                    new MatchEthernetType(2048L),
+                    new MatchEthernetType(2048L),
+                    new MatchMetadata(1085217976614912bi, 1152920405095219200bi)
                 ]
                 priority = 61005
                 tableId = 251 as short
@@ -250,35 +173,14 @@ class FlowEntryObjectsStateless extends FlowEntryObjectsBase {
                 flowId = "[SYN_ETHERnullIngress98785cc3048-abc3-43cc-89b3-377341426ac7"
         flowName = "ACL_SYN_"
         instructionInfoList = #[
-            new InstructionInfo(InstructionType.apply_actions, #[
-                new ActionInfoBuilder >> [
-                    actionType = ActionType.nx_resubmit
-                    actionValues = #[
-                        "220"
-                    ]
-                ]
+            new InstructionApplyActions(#[
+                new ActionNxResubmit(220 as short)
             ])
         ]
         matchInfoList = #[
-            new MatchInfoBuilder >> [
-                matchField = MatchFieldType.eth_type
-                matchValues = #[
-                    2048L
-                ]
-            ],
-            new MatchInfoBuilder >> [
-                matchField = MatchFieldType.eth_type
-                matchValues = #[
-                    2048L
-                ]
-            ],
-            new MatchInfoBuilder >> [
-                bigMatchValues = #[
-                    1085217976614912bi,
-                    1152920405095219200bi
-                ]
-                matchField = MatchFieldType.metadata
-            ]
+            new MatchEthernetType(2048L),
+            new MatchEthernetType(2048L),
+            new MatchMetadata(1085217976614912bi, 1152920405095219200bi)
         ]
         priority = 61005
         tableId = 251 as short
@@ -293,35 +195,14 @@ class FlowEntryObjectsStateless extends FlowEntryObjectsBase {
                 flowId = "SYN_ETHERnullEgress98785cc3048-abc3-43cc-89b3-377341426ac6"
                 flowName = "ACL_SYN_"
                 instructionInfoList = #[
-                    new InstructionInfo(InstructionType.apply_actions, #[
-                        new ActionInfoBuilder >> [
-                            actionType = ActionType.nx_resubmit
-                            actionValues = #[
-                                "17"
-                            ]
-                        ]
+                    new InstructionApplyActions(#[
+                        new ActionNxResubmit(17 as short)
                     ])
                 ]
                 matchInfoList = #[
-                    new MatchInfoBuilder >> [
-                        matchField = MatchFieldType.eth_type
-                        matchValues = #[
-                            2048L
-                        ]
-                    ],
-                    new MatchInfoBuilder >> [
-                        matchField = MatchFieldType.eth_type
-                        matchValues = #[
-                            2048L
-                        ]
-                    ],
-                    new MatchInfoBuilder >> [
-                        bigMatchValues = #[
-                            1085217976614912bi,
-                            1152920405095219200bi
-                        ]
-                        matchField = MatchFieldType.metadata
-                    ]
+                    new MatchEthernetType(2048L),
+                    new MatchEthernetType(2048L),
+                    new MatchMetadata(1085217976614912bi, 1152920405095219200bi)
                 ]
                 priority = 61005
                 tableId = 40 as short
@@ -336,28 +217,13 @@ class FlowEntryObjectsStateless extends FlowEntryObjectsBase {
                     flowId = "SYN_TCP_DESTINATION_80_65535Ingress98785cc3048-abc3-43cc-89b3-377341426ac7"
                     flowName = "ACL_SYN_"
                     instructionInfoList = #[
-                        new InstructionInfo(InstructionType.apply_actions, #[
-                            new ActionInfoBuilder >> [
-                                actionType = ActionType.nx_resubmit
-                                actionValues = #[
-                                    "220"
-                                ]
-                            ]
+                        new InstructionApplyActions(#[
+                            new ActionNxResubmit(220 as short)
                         ])
                     ]
                     matchInfoList = #[
-                        new MatchInfoBuilder >> [
-                            matchField = MatchFieldType.eth_type
-                            matchValues = #[
-                                2048L
-                            ]
-                        ],
-                        new MatchInfoBuilder >> [
-                            matchField = MatchFieldType.eth_type
-                            matchValues = #[
-                                2048L
-                            ]
-                        ],
+                        new MatchEthernetType(2048L),
+                        new MatchEthernetType(2048L),
                         new NxMatchInfoBuilder >> [
                             matchField = NxMatchFieldType.nx_tcp_dst_with_mask
                             matchValues = #[
@@ -365,25 +231,9 @@ class FlowEntryObjectsStateless extends FlowEntryObjectsBase {
                                 65535L
                             ]
                         ],
-                        new MatchInfoBuilder >> [
-                            matchField = MatchFieldType.ip_proto
-                            matchValues = #[
-                                6L
-                            ]
-                        ],
-                        new MatchInfoBuilder >> [
-                            bigMatchValues = #[
-                                1085217976614912bi,
-                                1152920405095219200bi
-                            ]
-                            matchField = MatchFieldType.metadata
-                        ],
-                        new MatchInfoBuilder >> [
-                            matchField = MatchFieldType.tcp_flags
-                            matchValues = #[
-                                2L
-                            ]
-                        ]
+                        new MatchIpProtocol(6 as short),
+                        new MatchMetadata(1085217976614912bi, 1152920405095219200bi),
+                        new MatchTcpFlags(2)
                     ]
                     priority = 61005
                     tableId = 251 as short
@@ -398,28 +248,13 @@ class FlowEntryObjectsStateless extends FlowEntryObjectsBase {
                 flowId = "SYN_TCP_DESTINATION_80_65535Ingress98785cc3048-abc3-43cc-89b3-377341426ac7"
                 flowName = "ACL_SYN_"
                 instructionInfoList = #[
-                    new InstructionInfo(InstructionType.apply_actions, #[
-                        new ActionInfoBuilder >> [
-                            actionType = ActionType.nx_resubmit
-                            actionValues = #[
-                                "220"
-                            ]
-                        ]
+                    new InstructionApplyActions(#[
+                        new ActionNxResubmit(220 as short)
                     ])
                 ]
                 matchInfoList = #[
-                    new MatchInfoBuilder >> [
-                        matchField = MatchFieldType.eth_type
-                        matchValues = #[
-                            2048L
-                        ]
-                    ],
-                    new MatchInfoBuilder >> [
-                        matchField = MatchFieldType.eth_type
-                        matchValues = #[
-                            2048L
-                        ]
-                    ],
+                    new MatchEthernetType(2048L),
+                    new MatchEthernetType(2048L),
                     new NxMatchInfoBuilder >> [
                         matchField = NxMatchFieldType.nx_tcp_dst_with_mask
                         matchValues = #[
@@ -427,25 +262,9 @@ class FlowEntryObjectsStateless extends FlowEntryObjectsBase {
                             65535L
                         ]
                     ],
-                    new MatchInfoBuilder >> [
-                        matchField = MatchFieldType.ip_proto
-                        matchValues = #[
-                            6L
-                        ]
-                    ],
-                    new MatchInfoBuilder >> [
-                        bigMatchValues = #[
-                            1085217976614912bi,
-                            1152920405095219200bi
-                        ]
-                        matchField = MatchFieldType.metadata
-                    ],
-                    new MatchInfoBuilder >> [
-                        matchField = MatchFieldType.tcp_flags
-                        matchValues = #[
-                            2L
-                        ]
-                    ]
+                    new MatchIpProtocol(6 as short),
+                    new MatchMetadata(1085217976614912bi, 1152920405095219200bi),
+                    new MatchTcpFlags(2)
                 ]
                 priority = 61005
                 tableId = 251 as short
@@ -460,28 +279,13 @@ class FlowEntryObjectsStateless extends FlowEntryObjectsBase {
                 flowId = "SYN_TCP_DESTINATION_80_65535Egress98785cc3048-abc3-43cc-89b3-377341426ac6"
                 flowName = "ACL_SYN_"
                 instructionInfoList = #[
-                    new InstructionInfo(InstructionType.apply_actions, #[
-                        new ActionInfoBuilder >> [
-                            actionType = ActionType.nx_resubmit
-                            actionValues = #[
-                                "17"
-                            ]
-                        ]
+                    new InstructionApplyActions(#[
+                        new ActionNxResubmit(17 as short)
                     ])
                 ]
                 matchInfoList = #[
-                    new MatchInfoBuilder >> [
-                        matchField = MatchFieldType.eth_type
-                        matchValues = #[
-                            2048L
-                        ]
-                    ],
-                    new MatchInfoBuilder >> [
-                        matchField = MatchFieldType.eth_type
-                        matchValues = #[
-                            2048L
-                        ]
-                    ],
+                    new MatchEthernetType(2048L),
+                    new MatchEthernetType(2048L),
                     new NxMatchInfoBuilder >> [
                         matchField = NxMatchFieldType.nx_tcp_dst_with_mask
                         matchValues = #[
@@ -489,25 +293,9 @@ class FlowEntryObjectsStateless extends FlowEntryObjectsBase {
                             65535L
                         ]
                     ],
-                    new MatchInfoBuilder >> [
-                        matchField = MatchFieldType.ip_proto
-                        matchValues = #[
-                            6L
-                        ]
-                    ],
-                    new MatchInfoBuilder >> [
-                        bigMatchValues = #[
-                            1085217976614912bi,
-                            1152920405095219200bi
-                        ]
-                        matchField = MatchFieldType.metadata
-                    ],
-                    new MatchInfoBuilder >> [
-                        matchField = MatchFieldType.tcp_flags
-                        matchValues = #[
-                            2L
-                        ]
-                    ]
+                    new MatchIpProtocol(6 as short),
+                    new MatchMetadata(1085217976614912bi, 1152920405095219200bi),
+                    new MatchTcpFlags(2)
                 ]
                 priority = 61005
                 tableId = 40 as short
@@ -522,28 +310,13 @@ class FlowEntryObjectsStateless extends FlowEntryObjectsBase {
                 flowId = "SYN_TCP_DESTINATION_80_65535Egress98785cc3048-abc3-43cc-89b3-377341426ac6"
                 flowName = "ACL_SYN_"
                 instructionInfoList = #[
-                    new InstructionInfo(InstructionType.apply_actions, #[
-                        new ActionInfoBuilder >> [
-                            actionType = ActionType.nx_resubmit
-                            actionValues = #[
-                                "17"
-                            ]
-                        ]
+                    new InstructionApplyActions(#[
+                        new ActionNxResubmit(17 as short)
                     ])
                 ]
                 matchInfoList = #[
-                    new MatchInfoBuilder >> [
-                        matchField = MatchFieldType.eth_type
-                        matchValues = #[
-                            2048L
-                        ]
-                    ],
-                    new MatchInfoBuilder >> [
-                        matchField = MatchFieldType.eth_type
-                        matchValues = #[
-                            2048L
-                        ]
-                    ],
+                    new MatchEthernetType(2048L),
+                    new MatchEthernetType(2048L),
                     new NxMatchInfoBuilder >> [
                         matchField = NxMatchFieldType.nx_tcp_dst_with_mask
                         matchValues = #[
@@ -551,25 +324,9 @@ class FlowEntryObjectsStateless extends FlowEntryObjectsBase {
                             65535L
                         ]
                     ],
-                    new MatchInfoBuilder >> [
-                        matchField = MatchFieldType.ip_proto
-                        matchValues = #[
-                            6L
-                        ]
-                    ],
-                    new MatchInfoBuilder >> [
-                        bigMatchValues = #[
-                            1085217976614912bi,
-                            1152920405095219200bi
-                        ]
-                        matchField = MatchFieldType.metadata
-                    ],
-                    new MatchInfoBuilder >> [
-                        matchField = MatchFieldType.tcp_flags
-                        matchValues = #[
-                            2L
-                        ]
-                    ]
+                    new MatchIpProtocol(6 as short),
+                    new MatchMetadata(1085217976614912bi, 1152920405095219200bi),
+                    new MatchTcpFlags(2)
                 ]
                 priority = 61005
                 tableId = 40 as short
@@ -579,28 +336,13 @@ class FlowEntryObjectsStateless extends FlowEntryObjectsBase {
                 flowId = "SYN_TCP_DESTINATION_80_65535Egress98785cc3048-abc3-43cc-89b3-377341426ac6"
                 flowName = "ACL_SYN_"
                 instructionInfoList = #[
-                    new InstructionInfo(InstructionType.apply_actions, #[
-                        new ActionInfoBuilder >> [
-                            actionType = ActionType.nx_resubmit
-                            actionValues = #[
-                                "17"
-                            ]
-                        ]
+                    new InstructionApplyActions(#[
+                        new ActionNxResubmit(17 as short)
                     ])
                 ]
                 matchInfoList = #[
-                    new MatchInfoBuilder >> [
-                        matchField = MatchFieldType.eth_type
-                        matchValues = #[
-                            2048L
-                        ]
-                    ],
-                    new MatchInfoBuilder >> [
-                        matchField = MatchFieldType.eth_type
-                        matchValues = #[
-                            2048L
-                        ]
-                    ],
+                    new MatchEthernetType(2048L),
+                    new MatchEthernetType(2048L),
                     new NxMatchInfoBuilder >> [
                         matchField = NxMatchFieldType.nx_tcp_dst_with_mask
                         matchValues = #[
@@ -608,25 +350,9 @@ class FlowEntryObjectsStateless extends FlowEntryObjectsBase {
                             65535L
                         ]
                     ],
-                    new MatchInfoBuilder >> [
-                        matchField = MatchFieldType.ip_proto
-                        matchValues = #[
-                            6L
-                        ]
-                    ],
-                    new MatchInfoBuilder >> [
-                        bigMatchValues = #[
-                            1085217976614912bi,
-                            1152920405095219200bi
-                        ]
-                        matchField = MatchFieldType.metadata
-                    ],
-                    new MatchInfoBuilder >> [
-                        matchField = MatchFieldType.tcp_flags
-                        matchValues = #[
-                            2L
-                        ]
-                    ]
+                    new MatchIpProtocol(6 as short),
+                    new MatchMetadata(1085217976614912bi, 1152920405095219200bi),
+                    new MatchTcpFlags(2)
                 ]
                 priority = 61005
                 tableId = 40 as short
@@ -641,38 +367,14 @@ class FlowEntryObjectsStateless extends FlowEntryObjectsBase {
                 flowId = "UDP_DESTINATION_80_65535Egress98785cc3048-abc3-43cc-89b3-377341426ac6"
                 flowName = "ACL"
                 instructionInfoList = #[
-                    new InstructionInfo(InstructionType.apply_actions, #[
-                        new ActionInfoBuilder >> [
-                            actionKey = 2
-                            actionType = ActionType.nx_conntrack
-                            actionValues = #[
-                                "1",
-                                "0",
-                                "5000",
-                                "255"
-                            ]
-                        ],
-                        new ActionInfoBuilder >> [
-                            actionType = ActionType.nx_resubmit
-                            actionValues = #[
-                                "17"
-                            ]
-                        ]
+                    new InstructionApplyActions(#[
+                        new ActionNxConntrack(2, 1, 0, 5000, 255 as short),
+                        new ActionNxResubmit(17 as short)
                     ])
                 ]
                 matchInfoList = #[
-                    new MatchInfoBuilder >> [
-                        matchField = MatchFieldType.eth_type
-                        matchValues = #[
-                            2048L
-                        ]
-                    ],
-                    new MatchInfoBuilder >> [
-                        matchField = MatchFieldType.eth_type
-                        matchValues = #[
-                            2048L
-                        ]
-                    ],
+                    new MatchEthernetType(2048L),
+                    new MatchEthernetType(2048L),
                     new NxMatchInfoBuilder >> [
                         matchField = NxMatchFieldType.nx_udp_dst_with_mask
                         matchValues = #[
@@ -680,19 +382,8 @@ class FlowEntryObjectsStateless extends FlowEntryObjectsBase {
                             65535L
                         ]
                     ],
-                    new MatchInfoBuilder >> [
-                        matchField = MatchFieldType.ip_proto
-                        matchValues = #[
-                            17L
-                        ]
-                    ],
-                    new MatchInfoBuilder >> [
-                        bigMatchValues = #[
-                            1085217976614912bi,
-                            MetaDataUtil.METADATA_MASK_LPORT_TAG
-                        ]
-                        matchField = MatchFieldType.metadata
-                    ],
+                    new MatchIpProtocol(17 as short),
+                    new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG),
                     new NxMatchInfoBuilder >> [
                         matchField = NxMatchFieldType.ct_state
                         matchValues = #[
@@ -717,51 +408,16 @@ class FlowEntryObjectsStateless extends FlowEntryObjectsBase {
                         +"Ingress98785cc3048-abc3-43cc-89b3-377341426ac7"
                 flowName = "ACL"
                 instructionInfoList = #[
-                    new InstructionInfo(InstructionType.apply_actions, #[
-                        new ActionInfoBuilder >> [
-                            actionKey = 2
-                            actionType = ActionType.nx_conntrack
-                            actionValues = #[
-                                "1",
-                                "0",
-                                "5000",
-                                "255"
-                            ]
-                        ],
-                        new ActionInfoBuilder >> [
-                            actionType = ActionType.nx_resubmit
-                            actionValues = #[
-                                "220"
-                            ]
-                        ]
+                    new InstructionApplyActions(#[
+                        new ActionNxConntrack(2, 1, 0, 5000, 255 as short),
+                        new ActionNxResubmit(220 as short)
                     ])
                 ]
                 matchInfoList = #[
-                    new MatchInfoBuilder >> [
-                        matchField = MatchFieldType.eth_type
-                        matchValues = #[
-                            2048L
-                        ]
-                    ],
-                    new MatchInfoBuilder >> [
-                        matchField = MatchFieldType.ipv4_source
-                        stringMatchValues = #[
-                            "10.0.0.1",
-                            "24"
-                        ]
-                    ],
-                    new MatchInfoBuilder >> [
-                        matchField = MatchFieldType.eth_type
-                        matchValues = #[
-                            2048L
-                        ]
-                    ],
-                    new MatchInfoBuilder >> [
-                        matchField = MatchFieldType.eth_type
-                        matchValues = #[
-                            2048L
-                        ]
-                    ],
+                    new MatchEthernetType(2048L),
+                    new MatchIpv4Source("10.0.0.1", "24"),
+                    new MatchEthernetType(2048L),
+                    new MatchEthernetType(2048L),
                     new NxMatchInfoBuilder >> [
                         matchField = NxMatchFieldType.nx_udp_dst_with_mask
                         matchValues = #[
@@ -769,19 +425,8 @@ class FlowEntryObjectsStateless extends FlowEntryObjectsBase {
                             65535L
                         ]
                     ],
-                    new MatchInfoBuilder >> [
-                        matchField = MatchFieldType.ip_proto
-                        matchValues = #[
-                            17L
-                        ]
-                    ],
-                    new MatchInfoBuilder >> [
-                        bigMatchValues = #[
-                            1085217976614912bi,
-                            MetaDataUtil.METADATA_MASK_LPORT_TAG
-                        ]
-                        matchField = MatchFieldType.metadata
-                    ],
+                    new MatchIpProtocol(17 as short),
+                    new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG),
                     new NxMatchInfoBuilder >> [
                         matchField = NxMatchFieldType.ct_state
                         matchValues = #[
@@ -798,51 +443,16 @@ class FlowEntryObjectsStateless extends FlowEntryObjectsBase {
                 flowId = "UDP_DESTINATION_80_65535_ipv4_remoteACL_interface_aap_AllowedAddressPairsKey [_macAddress=MacAddress [_value=0D:AA:D8:42:30:F4], _ipAddress=IpPrefixOrAddress [_ipPrefix=IpPrefix [_ipv4Prefix=Ipv4Prefix [_value=10.0.0.2/24]]]]Ingress98785cc3048-abc3-43cc-89b3-377341426ac7"
                 flowName = "ACL"
                 instructionInfoList = #[
-                    new InstructionInfo(InstructionType.apply_actions, #[
-                        new ActionInfoBuilder >> [
-                            actionKey = 2
-                            actionType = ActionType.nx_conntrack
-                            actionValues = #[
-                                "1",
-                                "0",
-                                "5000",
-                                "255"
-                            ]
-                        ],
-                        new ActionInfoBuilder >> [
-                            actionType = ActionType.nx_resubmit
-                            actionValues = #[
-                                "220"
-                            ]
-                        ]
+                    new InstructionApplyActions(#[
+                        new ActionNxConntrack(2, 1, 0, 5000, 255 as short),
+                        new ActionNxResubmit(220 as short)
                     ])
                 ]
                 matchInfoList = #[
-                    new MatchInfoBuilder >> [
-                        matchField = MatchFieldType.eth_type
-                        matchValues = #[
-                            2048L
-                        ]
-                    ],
-                    new MatchInfoBuilder >> [
-                        matchField = MatchFieldType.ipv4_source
-                        stringMatchValues = #[
-                            "10.0.0.2",
-                            "24"
-                        ]
-                    ],
-                    new MatchInfoBuilder >> [
-                        matchField = MatchFieldType.eth_type
-                        matchValues = #[
-                            2048L
-                        ]
-                    ],
-                    new MatchInfoBuilder >> [
-                        matchField = MatchFieldType.eth_type
-                        matchValues = #[
-                            2048L
-                        ]
-                    ],
+                    new MatchEthernetType(2048L),
+                    new MatchIpv4Source("10.0.0.2", "24"),
+                    new MatchEthernetType(2048L),
+                    new MatchEthernetType(2048L),
                     new NxMatchInfoBuilder >> [
                         matchField = NxMatchFieldType.nx_udp_dst_with_mask
                         matchValues = #[
@@ -850,19 +460,8 @@ class FlowEntryObjectsStateless extends FlowEntryObjectsBase {
                             65535L
                         ]
                     ],
-                    new MatchInfoBuilder >> [
-                        matchField = MatchFieldType.ip_proto
-                        matchValues = #[
-                            17L
-                        ]
-                    ],
-                    new MatchInfoBuilder >> [
-                        bigMatchValues = #[
-                            1085217976614912bi,
-                            MetaDataUtil.METADATA_MASK_LPORT_TAG
-                        ]
-                        matchField = MatchFieldType.metadata
-                    ],
+                    new MatchIpProtocol(17 as short),
+                    new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG),
                     new NxMatchInfoBuilder >> [
                         matchField = NxMatchFieldType.ct_state
                         matchValues = #[
@@ -884,38 +483,14 @@ class FlowEntryObjectsStateless extends FlowEntryObjectsBase {
                 flowId = "UDP_DESTINATION_80_65535Egress98785cc3048-abc3-43cc-89b3-377341426ac6"
                 flowName = "ACL"
                 instructionInfoList = #[
-                    new InstructionInfo(InstructionType.apply_actions, #[
-                        new ActionInfoBuilder >> [
-                            actionKey = 2
-                            actionType = ActionType.nx_conntrack
-                            actionValues = #[
-                                "1",
-                                "0",
-                                "5000",
-                                "255"
-                            ]
-                        ],
-                        new ActionInfoBuilder >> [
-                            actionType = ActionType.nx_resubmit
-                            actionValues = #[
-                                "17"
-                            ]
-                        ]
+                    new InstructionApplyActions(#[
+                        new ActionNxConntrack(2, 1, 0, 5000, 255 as short),
+                        new ActionNxResubmit(17 as short)
                     ])
                 ]
                 matchInfoList = #[
-                    new MatchInfoBuilder >> [
-                        matchField = MatchFieldType.eth_type
-                        matchValues = #[
-                            2048L
-                        ]
-                    ],
-                    new MatchInfoBuilder >> [
-                        matchField = MatchFieldType.eth_type
-                        matchValues = #[
-                            2048L
-                        ]
-                    ],
+                    new MatchEthernetType(2048L),
+                    new MatchEthernetType(2048L),
                     new NxMatchInfoBuilder >> [
                         matchField = NxMatchFieldType.nx_udp_dst_with_mask
                         matchValues = #[
@@ -923,19 +498,8 @@ class FlowEntryObjectsStateless extends FlowEntryObjectsBase {
                             65535L
                         ]
                     ],
-                    new MatchInfoBuilder >> [
-                        matchField = MatchFieldType.ip_proto
-                        matchValues = #[
-                            17L
-                        ]
-                    ],
-                    new MatchInfoBuilder >> [
-                        bigMatchValues = #[
-                            1085217976614912bi,
-                            MetaDataUtil.METADATA_MASK_LPORT_TAG
-                        ]
-                        matchField = MatchFieldType.metadata
-                    ],
+                    new MatchIpProtocol(17 as short),
+                    new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG),
                     new NxMatchInfoBuilder >> [
                         matchField = NxMatchFieldType.ct_state
                         matchValues = #[
@@ -957,58 +521,17 @@ class FlowEntryObjectsStateless extends FlowEntryObjectsBase {
                 flowId = "ICMP_V4_DESTINATION_23_Ingress98785cc3048-abc3-43cc-89b3-377341426ac7"
                 flowName = "ACL"
                 instructionInfoList = #[
-                    new InstructionInfo(InstructionType.apply_actions, #[
-                        new ActionInfoBuilder >> [
-                            actionKey = 2
-                            actionType = ActionType.nx_conntrack
-                            actionValues = #[
-                                "1",
-                                "0",
-                                "5000",
-                                "255"
-                            ]
-                        ],
-                        new ActionInfoBuilder >> [
-                            actionType = ActionType.nx_resubmit
-                            actionValues = #[
-                                "220"
-                            ]
-                        ]
+                    new InstructionApplyActions(#[
+                        new ActionNxConntrack(2, 1, 0, 5000, 255 as short),
+                        new ActionNxResubmit(220 as short)
                     ])
                 ]
                 matchInfoList = #[
-                    new MatchInfoBuilder >> [
-                        matchField = MatchFieldType.eth_type
-                        matchValues = #[
-                            2048L
-                        ]
-                    ],
-                    new MatchInfoBuilder >> [
-                        matchField = MatchFieldType.eth_type
-                        matchValues = #[
-                            2048L
-                        ]
-                    ],
-                    new MatchInfoBuilder >> [
-                        matchField = MatchFieldType.icmp_v4
-                        matchValues = #[
-                            2L,
-                            3L
-                        ]
-                    ],
-                    new MatchInfoBuilder >> [
-                        matchField = MatchFieldType.ip_proto
-                        matchValues = #[
-                            1L
-                        ]
-                    ],
-                    new MatchInfoBuilder >> [
-                        bigMatchValues = #[
-                            1085217976614912bi,
-                            MetaDataUtil.METADATA_MASK_LPORT_TAG
-                        ]
-                        matchField = MatchFieldType.metadata
-                    ],
+                    new MatchEthernetType(2048L),
+                    new MatchEthernetType(2048L),
+                    new MatchIcmpv4(2 as short, 3 as short),
+                    new MatchIpProtocol(1 as short),
+                    new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG),
                     new NxMatchInfoBuilder >> [
                         matchField = NxMatchFieldType.ct_state
                         matchValues = #[
@@ -1030,58 +553,17 @@ class FlowEntryObjectsStateless extends FlowEntryObjectsBase {
                 flowId = "ICMP_V4_DESTINATION_23_Ingress98785cc3048-abc3-43cc-89b3-377341426ac7"
                 flowName = "ACL"
                 instructionInfoList = #[
-                    new InstructionInfo(InstructionType.apply_actions, #[
-                        new ActionInfoBuilder >> [
-                            actionKey = 2
-                            actionType = ActionType.nx_conntrack
-                            actionValues = #[
-                                "1",
-                                "0",
-                                "5000",
-                                "255"
-                            ]
-                        ],
-                        new ActionInfoBuilder >> [
-                            actionType = ActionType.nx_resubmit
-                            actionValues = #[
-                                "220"
-                            ]
-                        ]
+                    new InstructionApplyActions(#[
+                        new ActionNxConntrack(2, 1, 0, 5000, 255 as short),
+                        new ActionNxResubmit(220 as short)
                     ])
                 ]
                 matchInfoList = #[
-                    new MatchInfoBuilder >> [
-                        matchField = MatchFieldType.eth_type
-                        matchValues = #[
-                            2048L
-                        ]
-                    ],
-                    new MatchInfoBuilder >> [
-                        matchField = MatchFieldType.eth_type
-                        matchValues = #[
-                            2048L
-                        ]
-                    ],
-                    new MatchInfoBuilder >> [
-                        matchField = MatchFieldType.icmp_v4
-                        matchValues = #[
-                            2L,
-                            3L
-                        ]
-                    ],
-                    new MatchInfoBuilder >> [
-                        matchField = MatchFieldType.ip_proto
-                        matchValues = #[
-                            1L
-                        ]
-                    ],
-                    new MatchInfoBuilder >> [
-                        bigMatchValues = #[
-                            1085217976614912bi,
-                            MetaDataUtil.METADATA_MASK_LPORT_TAG
-                        ]
-                        matchField = MatchFieldType.metadata
-                    ],
+                    new MatchEthernetType(2048L),
+                    new MatchEthernetType(2048L),
+                    new MatchIcmpv4(2 as short, 3 as short),
+                    new MatchIpProtocol(1 as short),
+                    new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG),
                     new NxMatchInfoBuilder >> [
                         matchField = NxMatchFieldType.ct_state
                         matchValues = #[
@@ -1106,71 +588,19 @@ class FlowEntryObjectsStateless extends FlowEntryObjectsBase {
                         +"Egress98785cc3048-abc3-43cc-89b3-377341426ac6"
                 flowName = "ACL"
                 instructionInfoList = #[
-                    new InstructionInfo(InstructionType.apply_actions, #[
-                        new ActionInfoBuilder >> [
-                            actionKey = 2
-                            actionType = ActionType.nx_conntrack
-                            actionValues = #[
-                                "1",
-                                "0",
-                                "5000",
-                                "255"
-                            ]
-                        ],
-                        new ActionInfoBuilder >> [
-                            actionType = ActionType.nx_resubmit
-                            actionValues = #[
-                                "17"
-                            ]
-                        ]
+                    new InstructionApplyActions(#[
+                        new ActionNxConntrack(2, 1, 0, 5000, 255 as short),
+                        new ActionNxResubmit(17 as short)
                     ])
                 ]
                 matchInfoList = #[
-                    new MatchInfoBuilder >> [
-                        matchField = MatchFieldType.eth_type
-                        matchValues = #[
-                            2048L
-                        ]
-                    ],
-                    new MatchInfoBuilder >> [
-                        matchField = MatchFieldType.ipv4_destination
-                        stringMatchValues = #[
-                            "10.0.0.1",
-                            "24"
-                        ]
-                    ],
-                    new MatchInfoBuilder >> [
-                        matchField = MatchFieldType.eth_type
-                        matchValues = #[
-                            2048L
-                        ]
-                    ],
-                    new MatchInfoBuilder >> [
-                        matchField = MatchFieldType.eth_type
-                        matchValues = #[
-                            2048L
-                        ]
-                    ],
-                    new MatchInfoBuilder >> [
-                        matchField = MatchFieldType.icmp_v4
-                        matchValues = #[
-                            2L,
-                            3L
-                        ]
-                    ],
-                    new MatchInfoBuilder >> [
-                        matchField = MatchFieldType.ip_proto
-                        matchValues = #[
-                            1L
-                        ]
-                    ],
-                    new MatchInfoBuilder >> [
-                        bigMatchValues = #[
-                            1085217976614912bi,
-                            MetaDataUtil.METADATA_MASK_LPORT_TAG
-                        ]
-                        matchField = MatchFieldType.metadata
-                    ],
+                    new MatchEthernetType(2048L),
+                    new MatchIpv4Destination("10.0.0.1", "24"),
+                    new MatchEthernetType(2048L),
+                    new MatchEthernetType(2048L),
+                    new MatchIcmpv4(2 as short, 3 as short),
+                    new MatchIpProtocol(1 as short),
+                    new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG),
                     new NxMatchInfoBuilder >> [
                         matchField = NxMatchFieldType.ct_state
                         matchValues = #[
@@ -1190,71 +620,19 @@ class FlowEntryObjectsStateless extends FlowEntryObjectsBase {
                         +"Egress98785cc3048-abc3-43cc-89b3-377341426ac6"
                 flowName = "ACL"
                 instructionInfoList = #[
-                    new InstructionInfo(InstructionType.apply_actions, #[
-                        new ActionInfoBuilder >> [
-                            actionKey = 2
-                            actionType = ActionType.nx_conntrack
-                            actionValues = #[
-                                "1",
-                                "0",
-                                "5000",
-                                "255"
-                            ]
-                        ],
-                        new ActionInfoBuilder >> [
-                            actionType = ActionType.nx_resubmit
-                            actionValues = #[
-                                "17"
-                            ]
-                        ]
+                    new InstructionApplyActions(#[
+                        new ActionNxConntrack(2, 1, 0, 5000, 255 as short),
+                        new ActionNxResubmit(17 as short)
                     ])
                 ]
                 matchInfoList = #[
-                    new MatchInfoBuilder >> [
-                        matchField = MatchFieldType.eth_type
-                        matchValues = #[
-                            2048L
-                        ]
-                    ],
-                    new MatchInfoBuilder >> [
-                        matchField = MatchFieldType.ipv4_destination
-                        stringMatchValues = #[
-                            "10.0.0.2",
-                            "24"
-                        ]
-                    ],
-                    new MatchInfoBuilder >> [
-                        matchField = MatchFieldType.eth_type
-                        matchValues = #[
-                            2048L
-                        ]
-                    ],
-                    new MatchInfoBuilder >> [
-                        matchField = MatchFieldType.eth_type
-                        matchValues = #[
-                            2048L
-                        ]
-                    ],
-                    new MatchInfoBuilder >> [
-                        matchField = MatchFieldType.icmp_v4
-                        matchValues = #[
-                            2L,
-                            3L
-                        ]
-                    ],
-                    new MatchInfoBuilder >> [
-                        matchField = MatchFieldType.ip_proto
-                        matchValues = #[
-                            1L
-                        ]
-                    ],
-                    new MatchInfoBuilder >> [
-                        bigMatchValues = #[
-                            1085217976614912bi,
-                            MetaDataUtil.METADATA_MASK_LPORT_TAG
-                        ]
-                        matchField = MatchFieldType.metadata
-                    ],
+                    new MatchEthernetType(2048L),
+                    new MatchIpv4Destination("10.0.0.2", "24"),
+                    new MatchEthernetType(2048L),
+                    new MatchEthernetType(2048L),
+                    new MatchIcmpv4(2 as short, 3 as short),
+                    new MatchIpProtocol(1 as short),
+                    new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG),
                     new NxMatchInfoBuilder >> [
                         matchField = NxMatchFieldType.ct_state
                         matchValues = #[
@@ -1276,38 +654,14 @@ class FlowEntryObjectsStateless extends FlowEntryObjectsBase {
                 flowId = "UDP_DESTINATION_2000_65532Ingress98785cc3048-abc3-43cc-89b3-377341426ac7"
                 flowName = "ACL"
                 instructionInfoList = #[
-                    new InstructionInfo(InstructionType.apply_actions, #[
-                        new ActionInfoBuilder >> [
-                            actionKey = 2
-                            actionType = ActionType.nx_conntrack
-                            actionValues = #[
-                                "1",
-                                "0",
-                                "5000",
-                                "255"
-                            ]
-                        ],
-                        new ActionInfoBuilder >> [
-                            actionType = ActionType.nx_resubmit
-                            actionValues = #[
-                                "220"
-                            ]
-                        ]
+                    new InstructionApplyActions(#[
+                        new ActionNxConntrack(2, 1, 0, 5000, 255 as short),
+                        new ActionNxResubmit(220 as short)
                     ])
                 ]
                 matchInfoList = #[
-                    new MatchInfoBuilder >> [
-                        matchField = MatchFieldType.eth_type
-                        matchValues = #[
-                            2048L
-                        ]
-                    ],
-                    new MatchInfoBuilder >> [
-                        matchField = MatchFieldType.eth_type
-                        matchValues = #[
-                            2048L
-                        ]
-                    ],
+                    new MatchEthernetType(2048L),
+                    new MatchEthernetType(2048L),
                     new NxMatchInfoBuilder >> [
                         matchField = NxMatchFieldType.nx_udp_dst_with_mask
                         matchValues = #[
@@ -1315,19 +669,8 @@ class FlowEntryObjectsStateless extends FlowEntryObjectsBase {
                             65532L
                         ]
                     ],
-                    new MatchInfoBuilder >> [
-                        matchField = MatchFieldType.ip_proto
-                        matchValues = #[
-                            17L
-                        ]
-                    ],
-                    new MatchInfoBuilder >> [
-                        bigMatchValues = #[
-                            1085217976614912bi,
-                            MetaDataUtil.METADATA_MASK_LPORT_TAG
-                        ]
-                        matchField = MatchFieldType.metadata
-                    ],
+                    new MatchIpProtocol(17 as short),
+                    new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG),
                     new NxMatchInfoBuilder >> [
                         matchField = NxMatchFieldType.ct_state
                         matchValues = #[
@@ -1349,28 +692,13 @@ class FlowEntryObjectsStateless extends FlowEntryObjectsBase {
                 flowId = "SYN_TCP_DESTINATION_776_65534Egress98785cc3048-abc3-43cc-89b3-377341426ac6"
                 flowName = "ACL_SYN_"
                 instructionInfoList = #[
-                    new InstructionInfo(InstructionType.apply_actions, #[
-                        new ActionInfoBuilder >> [
-                            actionType = ActionType.nx_resubmit
-                            actionValues = #[
-                                "17"
-                            ]
-                        ]
+                    new InstructionApplyActions(#[
+                        new ActionNxResubmit(17 as short)
                     ])
                 ]
                 matchInfoList = #[
-                    new MatchInfoBuilder >> [
-                        matchField = MatchFieldType.eth_type
-                        matchValues = #[
-                            2048L
-                        ]
-                    ],
-                    new MatchInfoBuilder >> [
-                        matchField = MatchFieldType.eth_type
-                        matchValues = #[
-                            2048L
-                        ]
-                    ],
+                    new MatchEthernetType(2048L),
+                    new MatchEthernetType(2048L),
                     new NxMatchInfoBuilder >> [
                         matchField = NxMatchFieldType.nx_tcp_dst_with_mask
                         matchValues = #[
@@ -1378,25 +706,9 @@ class FlowEntryObjectsStateless extends FlowEntryObjectsBase {
                             65534L
                         ]
                     ],
-                    new MatchInfoBuilder >> [
-                        matchField = MatchFieldType.ip_proto
-                        matchValues = #[
-                            6L
-                        ]
-                    ],
-                    new MatchInfoBuilder >> [
-                        bigMatchValues = #[
-                            1085217976614912bi,
-                            1152920405095219200bi
-                        ]
-                        matchField = MatchFieldType.metadata
-                    ],
-                    new MatchInfoBuilder >> [
-                        matchField = MatchFieldType.tcp_flags
-                        matchValues = #[
-                            2L
-                        ]
-                    ]
+                    new MatchIpProtocol(6 as short),
+                    new MatchMetadata(1085217976614912bi, 1152920405095219200bi),
+                    new MatchTcpFlags(2)
                 ]
                 priority = 61005
                 tableId = 40 as short
@@ -1406,28 +718,13 @@ class FlowEntryObjectsStateless extends FlowEntryObjectsBase {
                 flowId = "SYN_TCP_DESTINATION_512_65280Egress98785cc3048-abc3-43cc-89b3-377341426ac6"
                 flowName = "ACL_SYN_"
                 instructionInfoList = #[
-                    new InstructionInfo(InstructionType.apply_actions, #[
-                        new ActionInfoBuilder >> [
-                            actionType = ActionType.nx_resubmit
-                            actionValues = #[
-                                "17"
-                            ]
-                        ]
+                    new InstructionApplyActions(#[
+                        new ActionNxResubmit(17 as short)
                     ])
                 ]
                 matchInfoList = #[
-                    new MatchInfoBuilder >> [
-                        matchField = MatchFieldType.eth_type
-                        matchValues = #[
-                            2048L
-                        ]
-                    ],
-                    new MatchInfoBuilder >> [
-                        matchField = MatchFieldType.eth_type
-                        matchValues = #[
-                            2048L
-                        ]
-                    ],
+                    new MatchEthernetType(2048L),
+                    new MatchEthernetType(2048L),
                     new NxMatchInfoBuilder >> [
                         matchField = NxMatchFieldType.nx_tcp_dst_with_mask
                         matchValues = #[
@@ -1435,25 +732,9 @@ class FlowEntryObjectsStateless extends FlowEntryObjectsBase {
                             65280L
                         ]
                     ],
-                    new MatchInfoBuilder >> [
-                        matchField = MatchFieldType.ip_proto
-                        matchValues = #[
-                            6L
-                        ]
-                    ],
-                    new MatchInfoBuilder >> [
-                        bigMatchValues = #[
-                            1085217976614912bi,
-                            1152920405095219200bi
-                        ]
-                        matchField = MatchFieldType.metadata
-                    ],
-                    new MatchInfoBuilder >> [
-                        matchField = MatchFieldType.tcp_flags
-                        matchValues = #[
-                            2L
-                        ]
-                    ]
+                    new MatchIpProtocol(6 as short),
+                    new MatchMetadata(1085217976614912bi, 1152920405095219200bi),
+                    new MatchTcpFlags(2)
                 ]
                 priority = 61005
                 tableId = 40 as short
@@ -1463,28 +744,13 @@ class FlowEntryObjectsStateless extends FlowEntryObjectsBase {
                 flowId = "SYN_TCP_DESTINATION_334_65534Egress98785cc3048-abc3-43cc-89b3-377341426ac6"
                 flowName = "ACL_SYN_"
                 instructionInfoList = #[
-                    new InstructionInfo(InstructionType.apply_actions, #[
-                        new ActionInfoBuilder >> [
-                            actionType = ActionType.nx_resubmit
-                            actionValues = #[
-                                "17"
-                            ]
-                        ]
+                    new InstructionApplyActions(#[
+                        new ActionNxResubmit(17 as short)
                     ])
                 ]
                 matchInfoList = #[
-                    new MatchInfoBuilder >> [
-                        matchField = MatchFieldType.eth_type
-                        matchValues = #[
-                            2048L
-                        ]
-                    ],
-                    new MatchInfoBuilder >> [
-                        matchField = MatchFieldType.eth_type
-                        matchValues = #[
-                            2048L
-                        ]
-                    ],
+                    new MatchEthernetType(2048L),
+                    new MatchEthernetType(2048L),
                     new NxMatchInfoBuilder >> [
                         matchField = NxMatchFieldType.nx_tcp_dst_with_mask
                         matchValues = #[
@@ -1492,25 +758,9 @@ class FlowEntryObjectsStateless extends FlowEntryObjectsBase {
                             65534L
                         ]
                     ],
-                    new MatchInfoBuilder >> [
-                        matchField = MatchFieldType.ip_proto
-                        matchValues = #[
-                            6L
-                        ]
-                    ],
-                    new MatchInfoBuilder >> [
-                        bigMatchValues = #[
-                            1085217976614912bi,
-                            1152920405095219200bi
-                        ]
-                        matchField = MatchFieldType.metadata
-                    ],
-                    new MatchInfoBuilder >> [
-                        matchField = MatchFieldType.tcp_flags
-                        matchValues = #[
-                            2L
-                        ]
-                    ]
+                    new MatchIpProtocol(6 as short),
+                    new MatchMetadata(1085217976614912bi, 1152920405095219200bi),
+                    new MatchTcpFlags(2)
                 ]
                 priority = 61005
                 tableId = 40 as short
@@ -1520,28 +770,13 @@ class FlowEntryObjectsStateless extends FlowEntryObjectsBase {
                 flowId = "SYN_TCP_DESTINATION_333_65535Egress98785cc3048-abc3-43cc-89b3-377341426ac6"
                 flowName = "ACL_SYN_"
                 instructionInfoList = #[
-                    new InstructionInfo(InstructionType.apply_actions, #[
-                        new ActionInfoBuilder >> [
-                            actionType = ActionType.nx_resubmit
-                            actionValues = #[
-                                "17"
-                            ]
-                        ]
+                    new InstructionApplyActions(#[
+                        new ActionNxResubmit(17 as short)
                     ])
                 ]
                 matchInfoList = #[
-                    new MatchInfoBuilder >> [
-                        matchField = MatchFieldType.eth_type
-                        matchValues = #[
-                            2048L
-                        ]
-                    ],
-                    new MatchInfoBuilder >> [
-                        matchField = MatchFieldType.eth_type
-                        matchValues = #[
-                            2048L
-                        ]
-                    ],
+                    new MatchEthernetType(2048L),
+                    new MatchEthernetType(2048L),
                     new NxMatchInfoBuilder >> [
                         matchField = NxMatchFieldType.nx_tcp_dst_with_mask
                         matchValues = #[
@@ -1549,25 +784,9 @@ class FlowEntryObjectsStateless extends FlowEntryObjectsBase {
                             65535L
                         ]
                     ],
-                    new MatchInfoBuilder >> [
-                        matchField = MatchFieldType.ip_proto
-                        matchValues = #[
-                            6L
-                        ]
-                    ],
-                    new MatchInfoBuilder >> [
-                        bigMatchValues = #[
-                            1085217976614912bi,
-                            1152920405095219200bi
-                        ]
-                        matchField = MatchFieldType.metadata
-                    ],
-                    new MatchInfoBuilder >> [
-                        matchField = MatchFieldType.tcp_flags
-                        matchValues = #[
-                            2L
-                        ]
-                    ]
+                    new MatchIpProtocol(6 as short),
+                    new MatchMetadata(1085217976614912bi, 1152920405095219200bi),
+                    new MatchTcpFlags(2)
                 ]
                 priority = 61005
                 tableId = 40 as short
@@ -1577,28 +796,13 @@ class FlowEntryObjectsStateless extends FlowEntryObjectsBase {
                 flowId = "SYN_TCP_DESTINATION_336_65520Egress98785cc3048-abc3-43cc-89b3-377341426ac6"
                 flowName = "ACL_SYN_"
                 instructionInfoList = #[
-                    new InstructionInfo(InstructionType.apply_actions, #[
-                        new ActionInfoBuilder >> [
-                            actionType = ActionType.nx_resubmit
-                            actionValues = #[
-                                "17"
-                            ]
-                        ]
+                    new InstructionApplyActions(#[
+                        new ActionNxResubmit(17 as short)
                     ])
                 ]
                 matchInfoList = #[
-                    new MatchInfoBuilder >> [
-                        matchField = MatchFieldType.eth_type
-                        matchValues = #[
-                            2048L
-                        ]
-                    ],
-                    new MatchInfoBuilder >> [
-                        matchField = MatchFieldType.eth_type
-                        matchValues = #[
-                            2048L
-                        ]
-                    ],
+                    new MatchEthernetType(2048L),
+                    new MatchEthernetType(2048L),
                     new NxMatchInfoBuilder >> [
                         matchField = NxMatchFieldType.nx_tcp_dst_with_mask
                         matchValues = #[
@@ -1606,25 +810,9 @@ class FlowEntryObjectsStateless extends FlowEntryObjectsBase {
                             65520L
                         ]
                     ],
-                    new MatchInfoBuilder >> [
-                        matchField = MatchFieldType.ip_proto
-                        matchValues = #[
-                            6L
-                        ]
-                    ],
-                    new MatchInfoBuilder >> [
-                        bigMatchValues = #[
-                            1085217976614912bi,
-                            1152920405095219200bi
-                        ]
-                        matchField = MatchFieldType.metadata
-                    ],
-                    new MatchInfoBuilder >> [
-                        matchField = MatchFieldType.tcp_flags
-                        matchValues = #[
-                            2L
-                        ]
-                    ]
+                    new MatchIpProtocol(6 as short),
+                    new MatchMetadata(1085217976614912bi, 1152920405095219200bi),
+                    new MatchTcpFlags(2)
                 ]
                 priority = 61005
                 tableId = 40 as short
@@ -1634,28 +822,13 @@ class FlowEntryObjectsStateless extends FlowEntryObjectsBase {
                 flowId = "SYN_TCP_DESTINATION_352_65504Egress98785cc3048-abc3-43cc-89b3-377341426ac6"
                 flowName = "ACL_SYN_"
                 instructionInfoList = #[
-                    new InstructionInfo(InstructionType.apply_actions, #[
-                        new ActionInfoBuilder >> [
-                            actionType = ActionType.nx_resubmit
-                            actionValues = #[
-                                "17"
-                            ]
-                        ]
+                    new InstructionApplyActions(#[
+                        new ActionNxResubmit(17 as short)
                     ])
                 ]
                 matchInfoList = #[
-                    new MatchInfoBuilder >> [
-                        matchField = MatchFieldType.eth_type
-                        matchValues = #[
-                            2048L
-                        ]
-                    ],
-                    new MatchInfoBuilder >> [
-                        matchField = MatchFieldType.eth_type
-                        matchValues = #[
-                            2048L
-                        ]
-                    ],
+                    new MatchEthernetType(2048L),
+                    new MatchEthernetType(2048L),
                     new NxMatchInfoBuilder >> [
                         matchField = NxMatchFieldType.nx_tcp_dst_with_mask
                         matchValues = #[
@@ -1663,25 +836,9 @@ class FlowEntryObjectsStateless extends FlowEntryObjectsBase {
                             65504L
                         ]
                     ],
-                    new MatchInfoBuilder >> [
-                        matchField = MatchFieldType.ip_proto
-                        matchValues = #[
-                            6L
-                        ]
-                    ],
-                    new MatchInfoBuilder >> [
-                        bigMatchValues = #[
-                            1085217976614912bi,
-                            1152920405095219200bi
-                        ]
-                        matchField = MatchFieldType.metadata
-                    ],
-                    new MatchInfoBuilder >> [
-                        matchField = MatchFieldType.tcp_flags
-                        matchValues = #[
-                            2L
-                        ]
-                    ]
+                    new MatchIpProtocol(6 as short),
+                    new MatchMetadata(1085217976614912bi, 1152920405095219200bi),
+                    new MatchTcpFlags(2)
                 ]
                 priority = 61005
                 tableId = 40 as short
@@ -1691,28 +848,13 @@ class FlowEntryObjectsStateless extends FlowEntryObjectsBase {
                 flowId = "SYN_TCP_DESTINATION_384_65408Egress98785cc3048-abc3-43cc-89b3-377341426ac6"
                 flowName = "ACL_SYN_"
                 instructionInfoList = #[
-                    new InstructionInfo(InstructionType.apply_actions, #[
-                        new ActionInfoBuilder >> [
-                            actionType = ActionType.nx_resubmit
-                            actionValues = #[
-                                "17"
-                            ]
-                        ]
+                    new InstructionApplyActions(#[
+                        new ActionNxResubmit(17 as short)
                     ])
                 ]
                 matchInfoList = #[
-                    new MatchInfoBuilder >> [
-                        matchField = MatchFieldType.eth_type
-                        matchValues = #[
-                            2048L
-                        ]
-                    ],
-                    new MatchInfoBuilder >> [
-                        matchField = MatchFieldType.eth_type
-                        matchValues = #[
-                            2048L
-                        ]
-                    ],
+                    new MatchEthernetType(2048L),
+                    new MatchEthernetType(2048L),
                     new NxMatchInfoBuilder >> [
                         matchField = NxMatchFieldType.nx_tcp_dst_with_mask
                         matchValues = #[
@@ -1720,25 +862,9 @@ class FlowEntryObjectsStateless extends FlowEntryObjectsBase {
                             65408L
                         ]
                     ],
-                    new MatchInfoBuilder >> [
-                        matchField = MatchFieldType.ip_proto
-                        matchValues = #[
-                            6L
-                        ]
-                    ],
-                    new MatchInfoBuilder >> [
-                        bigMatchValues = #[
-                            1085217976614912bi,
-                            1152920405095219200bi
-                        ]
-                        matchField = MatchFieldType.metadata
-                    ],
-                    new MatchInfoBuilder >> [
-                        matchField = MatchFieldType.tcp_flags
-                        matchValues = #[
-                            2L
-                        ]
-                    ]
+                    new MatchIpProtocol(6 as short),
+                    new MatchMetadata(1085217976614912bi, 1152920405095219200bi),
+                    new MatchTcpFlags(2)
                 ]
                 priority = 61005
                 tableId = 40 as short
@@ -1748,28 +874,13 @@ class FlowEntryObjectsStateless extends FlowEntryObjectsBase {
                 flowId = "SYN_TCP_DESTINATION_768_65528Egress98785cc3048-abc3-43cc-89b3-377341426ac6"
                 flowName = "ACL_SYN_"
                 instructionInfoList = #[
-                    new InstructionInfo(InstructionType.apply_actions, #[
-                        new ActionInfoBuilder >> [
-                            actionType = ActionType.nx_resubmit
-                            actionValues = #[
-                                "17"
-                            ]
-                        ]
+                    new InstructionApplyActions(#[
+                        new ActionNxResubmit(17 as short)
                     ])
                 ]
                 matchInfoList = #[
-                    new MatchInfoBuilder >> [
-                        matchField = MatchFieldType.eth_type
-                        matchValues = #[
-                            2048L
-                        ]
-                    ],
-                    new MatchInfoBuilder >> [
-                        matchField = MatchFieldType.eth_type
-                        matchValues = #[
-                            2048L
-                        ]
-                    ],
+                    new MatchEthernetType(2048L),
+                    new MatchEthernetType(2048L),
                     new NxMatchInfoBuilder >> [
                         matchField = NxMatchFieldType.nx_tcp_dst_with_mask
                         matchValues = #[
@@ -1777,25 +888,9 @@ class FlowEntryObjectsStateless extends FlowEntryObjectsBase {
                             65528L
                         ]
                     ],
-                    new MatchInfoBuilder >> [
-                        matchField = MatchFieldType.ip_proto
-                        matchValues = #[
-                            6L
-                        ]
-                    ],
-                    new MatchInfoBuilder >> [
-                        bigMatchValues = #[
-                            1085217976614912bi,
-                            1152920405095219200bi
-                        ]
-                        matchField = MatchFieldType.metadata
-                    ],
-                    new MatchInfoBuilder >> [
-                        matchField = MatchFieldType.tcp_flags
-                        matchValues = #[
-                            2L
-                        ]
-                    ]
+                    new MatchIpProtocol(6 as short),
+                    new MatchMetadata(1085217976614912bi, 1152920405095219200bi),
+                    new MatchTcpFlags(2)
                 ]
                 priority = 61005
                 tableId = 40 as short
@@ -1810,58 +905,17 @@ class FlowEntryObjectsStateless extends FlowEntryObjectsBase {
                 flowId = "ICMP_V4_DESTINATION_23_Ingress98785cc3048-abc3-43cc-89b3-377341426ac7"
                 flowName = "ACL"
                 instructionInfoList = #[
-                    new InstructionInfo(InstructionType.apply_actions, #[
-                        new ActionInfoBuilder >> [
-                            actionKey = 2
-                            actionType = ActionType.nx_conntrack
-                            actionValues = #[
-                                "1",
-                                "0",
-                                "5000",
-                                "255"
-                            ]
-                        ],
-                        new ActionInfoBuilder >> [
-                            actionType = ActionType.nx_resubmit
-                            actionValues = #[
-                                "220"
-                            ]
-                        ]
+                    new InstructionApplyActions(#[
+                        new ActionNxConntrack(2, 1, 0, 5000, 255 as short),
+                        new ActionNxResubmit(220 as short)
                     ])
                 ]
                 matchInfoList = #[
-                    new MatchInfoBuilder >> [
-                        matchField = MatchFieldType.eth_type
-                        matchValues = #[
-                            2048L
-                        ]
-                    ],
-                    new MatchInfoBuilder >> [
-                        matchField = MatchFieldType.eth_type
-                        matchValues = #[
-                            2048L
-                        ]
-                    ],
-                    new MatchInfoBuilder >> [
-                        matchField = MatchFieldType.icmp_v4
-                        matchValues = #[
-                            2L,
-                            3L
-                        ]
-                    ],
-                    new MatchInfoBuilder >> [
-                        matchField = MatchFieldType.ip_proto
-                        matchValues = #[
-                            1L
-                        ]
-                    ],
-                    new MatchInfoBuilder >> [
-                        bigMatchValues = #[
-                            1085217976614912bi,
-                            MetaDataUtil.METADATA_MASK_LPORT_TAG
-                        ]
-                        matchField = MatchFieldType.metadata
-                    ],
+                    new MatchEthernetType(2048L),
+                    new MatchEthernetType(2048L),
+                    new MatchIcmpv4(2 as short, 3 as short),
+                    new MatchIpProtocol(1 as short),
+                    new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG),
                     new NxMatchInfoBuilder >> [
                         matchField = NxMatchFieldType.ct_state
                         matchValues = #[
@@ -1878,58 +932,17 @@ class FlowEntryObjectsStateless extends FlowEntryObjectsBase {
                 flowId = "ICMP_V4_DESTINATION_23_Ingress98785cc3048-abc3-43cc-89b3-377341426a22"
                 flowName = "ACL"
                 instructionInfoList = #[
-                    new InstructionInfo(InstructionType.apply_actions, #[
-                        new ActionInfoBuilder >> [
-                            actionKey = 2
-                            actionType = ActionType.nx_conntrack
-                            actionValues = #[
-                                "1",
-                                "0",
-                                "5000",
-                                "255"
-                            ]
-                        ],
-                        new ActionInfoBuilder >> [
-                            actionType = ActionType.nx_resubmit
-                            actionValues = #[
-                                "220"
-                            ]
-                        ]
+                    new InstructionApplyActions(#[
+                        new ActionNxConntrack(2, 1, 0, 5000, 255 as short),
+                        new ActionNxResubmit(220 as short)
                     ])
                 ]
                 matchInfoList = #[
-                    new MatchInfoBuilder >> [
-                        matchField = MatchFieldType.eth_type
-                        matchValues = #[
-                            2048L
-                        ]
-                    ],
-                    new MatchInfoBuilder >> [
-                        matchField = MatchFieldType.eth_type
-                        matchValues = #[
-                            2048L
-                        ]
-                    ],
-                    new MatchInfoBuilder >> [
-                        matchField = MatchFieldType.icmp_v4
-                        matchValues = #[
-                            2L,
-                            3L
-                        ]
-                    ],
-                    new MatchInfoBuilder >> [
-                        matchField = MatchFieldType.ip_proto
-                        matchValues = #[
-                            1L
-                        ]
-                    ],
-                    new MatchInfoBuilder >> [
-                        bigMatchValues = #[
-                            1085217976614912bi,
-                            MetaDataUtil.METADATA_MASK_LPORT_TAG
-                        ]
-                        matchField = MatchFieldType.metadata
-                    ],
+                    new MatchEthernetType(2048L),
+                    new MatchEthernetType(2048L),
+                    new MatchIcmpv4(2 as short, 3 as short),
+                    new MatchIpProtocol(1 as short),
+                    new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG),
                     new NxMatchInfoBuilder >> [
                         matchField = NxMatchFieldType.ct_state
                         matchValues = #[
@@ -1951,58 +964,17 @@ class FlowEntryObjectsStateless extends FlowEntryObjectsBase {
                 flowId = "ICMP_V4_DESTINATION_23_Egress98785cc3048-abc3-43cc-89b3-377341426ac6"
                 flowName = "ACL"
                 instructionInfoList = #[
-                    new InstructionInfo(InstructionType.apply_actions, #[
-                        new ActionInfoBuilder >> [
-                            actionKey = 2
-                            actionType = ActionType.nx_conntrack
-                            actionValues = #[
-                                "1",
-                                "0",
-                                "5000",
-                                "255"
-                            ]
-                        ],
-                        new ActionInfoBuilder >> [
-                            actionType = ActionType.nx_resubmit
-                            actionValues = #[
-                                "17"
-                            ]
-                        ]
+                    new InstructionApplyActions(#[
+                        new ActionNxConntrack(2, 1, 0, 5000, 255 as short),
+                        new ActionNxResubmit(17 as short)
                     ])
                 ]
                 matchInfoList = #[
-                    new MatchInfoBuilder >> [
-                        matchField = MatchFieldType.eth_type
-                        matchValues = #[
-                            2048L
-                        ]
-                    ],
-                    new MatchInfoBuilder >> [
-                        matchField = MatchFieldType.eth_type
-                        matchValues = #[
-                            2048L
-                        ]
-                    ],
-                    new MatchInfoBuilder >> [
-                        matchField = MatchFieldType.icmp_v4
-                        matchValues = #[
-                            2L,
-                            3L
-                        ]
-                    ],
-                    new MatchInfoBuilder >> [
-                        matchField = MatchFieldType.ip_proto
-                        matchValues = #[
-                            1L
-                        ]
-                    ],
-                    new MatchInfoBuilder >> [
-                        bigMatchValues = #[
-                            1085217976614912bi,
-                            MetaDataUtil.METADATA_MASK_LPORT_TAG
-                        ]
-                        matchField = MatchFieldType.metadata
-                    ],
+                    new MatchEthernetType(2048L),
+                    new MatchEthernetType(2048L),
+                    new MatchIcmpv4(2 as short, 3 as short),
+                    new MatchIpProtocol(1 as short),
+                    new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG),
                     new NxMatchInfoBuilder >> [
                         matchField = NxMatchFieldType.ct_state
                         matchValues = #[
@@ -2019,58 +991,17 @@ class FlowEntryObjectsStateless extends FlowEntryObjectsBase {
                 flowId = "ICMP_V4_DESTINATION_23_Egress98785cc3048-abc3-43cc-89b3-377341426a21"
                 flowName = "ACL"
                 instructionInfoList = #[
-                    new InstructionInfo(InstructionType.apply_actions, #[
-                        new ActionInfoBuilder >> [
-                            actionKey = 2
-                            actionType = ActionType.nx_conntrack
-                            actionValues = #[
-                                "1",
-                                "0",
-                                "5000",
-                                "255"
-                            ]
-                        ],
-                        new ActionInfoBuilder >> [
-                            actionType = ActionType.nx_resubmit
-                            actionValues = #[
-                                "17"
-                            ]
-                        ]
+                    new InstructionApplyActions(#[
+                        new ActionNxConntrack(2, 1, 0, 5000, 255 as short),
+                        new ActionNxResubmit(17 as short)
                     ])
                 ]
                 matchInfoList = #[
-                    new MatchInfoBuilder >> [
-                        matchField = MatchFieldType.eth_type
-                        matchValues = #[
-                            2048L
-                        ]
-                    ],
-                    new MatchInfoBuilder >> [
-                        matchField = MatchFieldType.eth_type
-                        matchValues = #[
-                            2048L
-                        ]
-                    ],
-                    new MatchInfoBuilder >> [
-                        matchField = MatchFieldType.icmp_v4
-                        matchValues = #[
-                            2L,
-                            3L
-                        ]
-                    ],
-                    new MatchInfoBuilder >> [
-                        matchField = MatchFieldType.ip_proto
-                        matchValues = #[
-                            1L
-                        ]
-                    ],
-                    new MatchInfoBuilder >> [
-                        bigMatchValues = #[
-                            1085217976614912bi,
-                            MetaDataUtil.METADATA_MASK_LPORT_TAG
-                        ]
-                        matchField = MatchFieldType.metadata
-                    ],
+                    new MatchEthernetType(2048L),
+                    new MatchEthernetType(2048L),
+                    new MatchIcmpv4(2 as short, 3 as short),
+                    new MatchIpProtocol(1 as short),
+                    new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG),
                     new NxMatchInfoBuilder >> [
                         matchField = NxMatchFieldType.ct_state
                         matchValues = #[
@@ -2092,47 +1023,16 @@ class FlowEntryObjectsStateless extends FlowEntryObjectsBase {
                 flowId = "Ingress_DHCP_Server_v4123_987__Permit_"
                 flowName = "ACL"
                 instructionInfoList = #[
-                    new InstructionInfo(InstructionType.apply_actions, #[
-                        new ActionInfoBuilder >> [
-                            actionType = ActionType.nx_resubmit
-                            actionValues = #[
-                                "220"
-                            ]
-                        ]
+                    new InstructionApplyActions(#[
+                        new ActionNxResubmit(220 as short)
                     ])
                 ]
                 matchInfoList = #[
-                    new MatchInfoBuilder >> [
-                        matchField = MatchFieldType.eth_type
-                        matchValues = #[
-                            2048L
-                        ]
-                    ],
-                    new MatchInfoBuilder >> [
-                        matchField = MatchFieldType.ip_proto
-                        matchValues = #[
-                            17L
-                        ]
-                    ],
-                    new MatchInfoBuilder >> [
-                        matchField = MatchFieldType.udp_dst
-                        matchValues = #[
-                            68L
-                        ]
-                    ],
-                    new MatchInfoBuilder >> [
-                        matchField = MatchFieldType.udp_src
-                        matchValues = #[
-                            67L
-                        ]
-                    ],
-                    new MatchInfoBuilder >> [
-                        bigMatchValues = #[
-                            1085217976614912bi,
-                            MetaDataUtil.METADATA_MASK_LPORT_TAG
-                        ]
-                        matchField = MatchFieldType.metadata
-                    ]
+                    new MatchEthernetType(2048L),
+                    new MatchIpProtocol(17 as short),
+                    new MatchUdpDestinationPort(68 as short),
+                    new MatchUdpSourcePort(67 as short),
+                    new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG)
                 ]
                 priority = 63010
                 tableId = 251 as short
@@ -2142,47 +1042,16 @@ class FlowEntryObjectsStateless extends FlowEntryObjectsBase {
                 flowId = "Ingress_DHCP_Server_v6_123_987___Permit_"
                 flowName = "ACL"
                 instructionInfoList = #[
-                    new InstructionInfo(InstructionType.apply_actions, #[
-                        new ActionInfoBuilder >> [
-                            actionType = ActionType.nx_resubmit
-                            actionValues = #[
-                                "220"
-                            ]
-                        ]
+                    new InstructionApplyActions(#[
+                        new ActionNxResubmit(220 as short)
                     ])
                 ]
                 matchInfoList = #[
-                    new MatchInfoBuilder >> [
-                        matchField = MatchFieldType.eth_type
-                        matchValues = #[
-                            34525L
-                        ]
-                    ],
-                    new MatchInfoBuilder >> [
-                        matchField = MatchFieldType.ip_proto
-                        matchValues = #[
-                            17L
-                        ]
-                    ],
-                    new MatchInfoBuilder >> [
-                        matchField = MatchFieldType.udp_dst
-                        matchValues = #[
-                            546L
-                        ]
-                    ],
-                    new MatchInfoBuilder >> [
-                        matchField = MatchFieldType.udp_src
-                        matchValues = #[
-                            547L
-                        ]
-                    ],
-                    new MatchInfoBuilder >> [
-                        bigMatchValues = #[
-                            1085217976614912bi,
-                            MetaDataUtil.METADATA_MASK_LPORT_TAG
-                        ]
-                        matchField = MatchFieldType.metadata
-                    ]
+                    new MatchEthernetType(34525L),
+                    new MatchIpProtocol(17 as short),
+                    new MatchUdpDestinationPort(546 as short),
+                    new MatchUdpSourcePort(547 as short),
+                    new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG)
                 ]
                 priority = 63010
                 tableId = 251 as short
@@ -2192,42 +1061,15 @@ class FlowEntryObjectsStateless extends FlowEntryObjectsBase {
                 flowId = "Ingress_ICMPv6_123_987_130_Permit_"
                 flowName = "ACL"
                 instructionInfoList = #[
-                    new InstructionInfo(InstructionType.apply_actions, #[
-                        new ActionInfoBuilder >> [
-                            actionType = ActionType.nx_resubmit
-                            actionValues = #[
-                                "220"
-                            ]
-                        ]
+                    new InstructionApplyActions(#[
+                        new ActionNxResubmit(220 as short)
                     ])
                 ]
                 matchInfoList = #[
-                    new MatchInfoBuilder >> [
-                        matchField = MatchFieldType.eth_type
-                        matchValues = #[
-                            34525L
-                        ]
-                    ],
-                    new MatchInfoBuilder >> [
-                        matchField = MatchFieldType.ip_proto
-                        matchValues = #[
-                            58L
-                        ]
-                    ],
-                    new MatchInfoBuilder >> [
-                        matchField = MatchFieldType.icmp_v6
-                        matchValues = #[
-                            130L,
-                            0L
-                        ]
-                    ],
-                    new MatchInfoBuilder >> [
-                        bigMatchValues = #[
-                            1085217976614912bi,
-                            MetaDataUtil.METADATA_MASK_LPORT_TAG
-                        ]
-                        matchField = MatchFieldType.metadata
-                    ]
+                    new MatchEthernetType(34525L),
+                    new MatchIpProtocol(58 as short),
+                    new MatchIcmpv6(130 as short, 0 as short),
+                    new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG)
                 ]
                 priority = 63010
                 tableId = 251 as short
@@ -2237,42 +1079,15 @@ class FlowEntryObjectsStateless extends FlowEntryObjectsBase {
                 flowId = "Ingress_ICMPv6_123_987_135_Permit_"
                 flowName = "ACL"
                 instructionInfoList = #[
-                    new InstructionInfo(InstructionType.apply_actions, #[
-                        new ActionInfoBuilder >> [
-                            actionType = ActionType.nx_resubmit
-                            actionValues = #[
-                                "220"
-                            ]
-                        ]
+                    new InstructionApplyActions(#[
+                        new ActionNxResubmit(220 as short)
                     ])
                 ]
                 matchInfoList = #[
-                    new MatchInfoBuilder >> [
-                        matchField = MatchFieldType.eth_type
-                        matchValues = #[
-                            34525L
-                        ]
-                    ],
-                    new MatchInfoBuilder >> [
-                        matchField = MatchFieldType.ip_proto
-                        matchValues = #[
-                            58L
-                        ]
-                    ],
-                    new MatchInfoBuilder >> [
-                        matchField = MatchFieldType.icmp_v6
-                        matchValues = #[
-                            135L,
-                            0L
-                        ]
-                    ],
-                    new MatchInfoBuilder >> [
-                        bigMatchValues = #[
-                            1085217976614912bi,
-                            MetaDataUtil.METADATA_MASK_LPORT_TAG
-                        ]
-                        matchField = MatchFieldType.metadata
-                    ]
+                    new MatchEthernetType(34525L),
+                    new MatchIpProtocol(58 as short),
+                    new MatchIcmpv6(135 as short, 0 as short),
+                    new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG)
                 ]
                 priority = 63010
                 tableId = 251 as short
@@ -2282,42 +1097,15 @@ class FlowEntryObjectsStateless extends FlowEntryObjectsBase {
                 flowId = "Ingress_ICMPv6_123_987_136_Permit_"
                 flowName = "ACL"
                 instructionInfoList = #[
-                    new InstructionInfo(InstructionType.apply_actions, #[
-                        new ActionInfoBuilder >> [
-                            actionType = ActionType.nx_resubmit
-                            actionValues = #[
-                                "220"
-                            ]
-                        ]
+                    new InstructionApplyActions(#[
+                        new ActionNxResubmit(220 as short)
                     ])
                 ]
                 matchInfoList = #[
-                    new MatchInfoBuilder >> [
-                        matchField = MatchFieldType.eth_type
-                        matchValues = #[
-                            34525L
-                        ]
-                    ],
-                    new MatchInfoBuilder >> [
-                        matchField = MatchFieldType.ip_proto
-                        matchValues = #[
-                            58L
-                        ]
-                    ],
-                    new MatchInfoBuilder >> [
-                        matchField = MatchFieldType.icmp_v6
-                        matchValues = #[
-                            136L,
-                            0L
-                        ]
-                    ],
-                    new MatchInfoBuilder >> [
-                        bigMatchValues = #[
-                            1085217976614912bi,
-                            MetaDataUtil.METADATA_MASK_LPORT_TAG
-                        ]
-                        matchField = MatchFieldType.metadata
-                    ]
+                    new MatchEthernetType(34525L),
+                    new MatchIpProtocol(58 as short),
+                    new MatchIcmpv6(136 as short, 0 as short),
+                    new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG)
                 ]
                 priority = 63010
                 tableId = 251 as short
@@ -2327,29 +1115,13 @@ class FlowEntryObjectsStateless extends FlowEntryObjectsBase {
                 flowId = "Ingress_ARP_123_987"
                 flowName = "ACL"
                 instructionInfoList = #[
-                    new InstructionInfo(InstructionType.apply_actions, #[
-                        new ActionInfoBuilder >> [
-                            actionType = ActionType.nx_resubmit
-                            actionValues = #[
-                                "220"
-                            ]
-                        ]
+                    new InstructionApplyActions(#[
+                        new ActionNxResubmit(220 as short)
                     ])
                 ]
                 matchInfoList = #[
-                    new MatchInfoBuilder >> [
-                        matchField = MatchFieldType.eth_type
-                        matchValues = #[
-                            2054L
-                        ]
-                    ],
-                    new MatchInfoBuilder >> [
-                        bigMatchValues = #[
-                            1085217976614912bi,
-                            MetaDataUtil.METADATA_MASK_LPORT_TAG
-                        ]
-                        matchField = MatchFieldType.metadata
-                    ]
+                    new MatchEthernetType(2054L),
+                    new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG)
                 ]
                 priority = 63010
                 tableId = 251 as short
@@ -2359,47 +1131,16 @@ class FlowEntryObjectsStateless extends FlowEntryObjectsBase {
                 flowId = "Egress_DHCP_Client_v4123_987__Permit_"
                 flowName = "ACL"
                 instructionInfoList = #[
-                    new InstructionInfo(InstructionType.apply_actions, #[
-                        new ActionInfoBuilder >> [
-                            actionType = ActionType.nx_resubmit
-                            actionValues = #[
-                                "17"
-                            ]
-                        ]
+                    new InstructionApplyActions(#[
+                        new ActionNxResubmit(17 as short)
                     ])
                 ]
                 matchInfoList = #[
-                    new MatchInfoBuilder >> [
-                        matchField = MatchFieldType.eth_type
-                        matchValues = #[
-                            2048L
-                        ]
-                    ],
-                    new MatchInfoBuilder >> [
-                        matchField = MatchFieldType.ip_proto
-                        matchValues = #[
-                            17L
-                        ]
-                    ],
-                    new MatchInfoBuilder >> [
-                        matchField = MatchFieldType.udp_dst
-                        matchValues = #[
-                            67L
-                        ]
-                    ],
-                    new MatchInfoBuilder >> [
-                        matchField = MatchFieldType.udp_src
-                        matchValues = #[
-                            68L
-                        ]
-                    ],
-                    new MatchInfoBuilder >> [
-                        bigMatchValues = #[
-                            1085217976614912bi,
-                            MetaDataUtil.METADATA_MASK_LPORT_TAG
-                        ]
-                        matchField = MatchFieldType.metadata
-                    ]
+                    new MatchEthernetType(2048L),
+                    new MatchIpProtocol(17 as short),
+                    new MatchUdpDestinationPort(67 as short),
+                    new MatchUdpSourcePort(68 as short),
+                    new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG)
                 ]
                 priority = 63010
                 tableId = 40 as short
@@ -2409,47 +1150,16 @@ class FlowEntryObjectsStateless extends FlowEntryObjectsBase {
                 flowId = "Egress_DHCP_Client_v6_123_987__Permit_"
                 flowName = "ACL"
                 instructionInfoList = #[
-                    new InstructionInfo(InstructionType.apply_actions, #[
-                        new ActionInfoBuilder >> [
-                            actionType = ActionType.nx_resubmit
-                            actionValues = #[
-                                "17"
-                            ]
-                        ]
+                    new InstructionApplyActions(#[
+                        new ActionNxResubmit(17 as short)
                     ])
                 ]
                 matchInfoList = #[
-                    new MatchInfoBuilder >> [
-                        matchField = MatchFieldType.eth_type
-                        matchValues = #[
-                            34525L
-                        ]
-                    ],
-                    new MatchInfoBuilder >> [
-                        matchField = MatchFieldType.ip_proto
-                        matchValues = #[
-                            17L
-                        ]
-                    ],
-                    new MatchInfoBuilder >> [
-                        matchField = MatchFieldType.udp_dst
-                        matchValues = #[
-                            547L
-                        ]
-                    ],
-                    new MatchInfoBuilder >> [
-                        matchField = MatchFieldType.udp_src
-                        matchValues = #[
-                            546L
-                        ]
-                    ],
-                    new MatchInfoBuilder >> [
-                        bigMatchValues = #[
-                            1085217976614912bi,
-                            MetaDataUtil.METADATA_MASK_LPORT_TAG
-                        ]
-                        matchField = MatchFieldType.metadata
-                    ]
+                    new MatchEthernetType(34525L),
+                    new MatchIpProtocol(17 as short),
+                    new MatchUdpDestinationPort(547 as short),
+                    new MatchUdpSourcePort(546 as short),
+                    new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG)
                 ]
                 priority = 63010
                 tableId = 40 as short
@@ -2461,37 +1171,11 @@ class FlowEntryObjectsStateless extends FlowEntryObjectsBase {
                 instructionInfoList = #[
                 ]
                 matchInfoList = #[
-                    new MatchInfoBuilder >> [
-                        matchField = MatchFieldType.eth_type
-                        matchValues = #[
-                            2048L
-                        ]
-                    ],
-                    new MatchInfoBuilder >> [
-                        matchField = MatchFieldType.ip_proto
-                        matchValues = #[
-                            17L
-                        ]
-                    ],
-                    new MatchInfoBuilder >> [
-                        matchField = MatchFieldType.udp_dst
-                        matchValues = #[
-                            68L
-                        ]
-                    ],
-                    new MatchInfoBuilder >> [
-                        matchField = MatchFieldType.udp_src
-                        matchValues = #[
-                            67L
-                        ]
-                    ],
-                    new MatchInfoBuilder >> [
-                        bigMatchValues = #[
-                            1085217976614912bi,
-                            MetaDataUtil.METADATA_MASK_LPORT_TAG
-                        ]
-                        matchField = MatchFieldType.metadata
-                    ]
+                    new MatchEthernetType(2048L),
+                    new MatchIpProtocol(17 as short),
+                    new MatchUdpDestinationPort(68 as short),
+                    new MatchUdpSourcePort(67 as short),
+                    new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG)
                 ]
                 priority = 63010
                 tableId = 40 as short
@@ -2503,37 +1187,11 @@ class FlowEntryObjectsStateless extends FlowEntryObjectsBase {
                 instructionInfoList = #[
                 ]
                 matchInfoList = #[
-                    new MatchInfoBuilder >> [
-                        matchField = MatchFieldType.eth_type
-                        matchValues = #[
-                            34525L
-                        ]
-                    ],
-                    new MatchInfoBuilder >> [
-                        matchField = MatchFieldType.ip_proto
-                        matchValues = #[
-                            17L
-                        ]
-                    ],
-                    new MatchInfoBuilder >> [
-                        matchField = MatchFieldType.udp_dst
-                        matchValues = #[
-                            546L
-                        ]
-                    ],
-                    new MatchInfoBuilder >> [
-                        matchField = MatchFieldType.udp_src
-                        matchValues = #[
-                            547L
-                        ]
-                    ],
-                    new MatchInfoBuilder >> [
-                        bigMatchValues = #[
-                            1085217976614912bi,
-                            MetaDataUtil.METADATA_MASK_LPORT_TAG
-                        ]
-                        matchField = MatchFieldType.metadata
-                    ]
+                    new MatchEthernetType(34525L),
+                    new MatchIpProtocol(17 as short),
+                    new MatchUdpDestinationPort(546 as short),
+                    new MatchUdpSourcePort(547 as short),
+                    new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG)
                 ]
                 priority = 63010
                 tableId = 40 as short
@@ -2545,32 +1203,10 @@ class FlowEntryObjectsStateless extends FlowEntryObjectsBase {
                 instructionInfoList = #[
                 ]
                 matchInfoList = #[
-                    new MatchInfoBuilder >> [
-                        matchField = MatchFieldType.eth_type
-                        matchValues = #[
-                            34525L
-                        ]
-                    ],
-                    new MatchInfoBuilder >> [
-                        matchField = MatchFieldType.ip_proto
-                        matchValues = #[
-                            58L
-                        ]
-                    ],
-                    new MatchInfoBuilder >> [
-                        matchField = MatchFieldType.icmp_v6
-                        matchValues = #[
-                            134L,
-                            0L
-                        ]
-                    ],
-                    new MatchInfoBuilder >> [
-                        bigMatchValues = #[
-                            1085217976614912bi,
-                            MetaDataUtil.METADATA_MASK_LPORT_TAG
-                        ]
-                        matchField = MatchFieldType.metadata
-                    ]
+                    new MatchEthernetType(34525L),
+                    new MatchIpProtocol(58 as short),
+                    new MatchIcmpv6(134 as short, 0 as short),
+                    new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG)
                 ]
                 priority = 63020
                 tableId = 40 as short
@@ -2580,42 +1216,15 @@ class FlowEntryObjectsStateless extends FlowEntryObjectsBase {
                 flowId = "Egress_ICMPv6_123_987_133_Permit_"
                 flowName = "ACL"
                 instructionInfoList = #[
-                    new InstructionInfo(InstructionType.apply_actions, #[
-                        new ActionInfoBuilder >> [
-                            actionType = ActionType.nx_resubmit
-                            actionValues = #[
-                                "17"
-                            ]
-                        ]
+                    new InstructionApplyActions(#[
+                        new ActionNxResubmit(17 as short)
                     ])
                 ]
                 matchInfoList = #[
-                    new MatchInfoBuilder >> [
-                        matchField = MatchFieldType.eth_type
-                        matchValues = #[
-                            34525L
-                        ]
-                    ],
-                    new MatchInfoBuilder >> [
-                        matchField = MatchFieldType.ip_proto
-                        matchValues = #[
-                            58L
-                        ]
-                    ],
-                    new MatchInfoBuilder >> [
-                        matchField = MatchFieldType.icmp_v6
-                        matchValues = #[
-                            133L,
-                            0L
-                        ]
-                    ],
-                    new MatchInfoBuilder >> [
-                        bigMatchValues = #[
-                            1085217976614912bi,
-                            MetaDataUtil.METADATA_MASK_LPORT_TAG
-                        ]
-                        matchField = MatchFieldType.metadata
-                    ]
+                    new MatchEthernetType(34525L),
+                    new MatchIpProtocol(58 as short),
+                    new MatchIcmpv6(133 as short, 0 as short),
+                    new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG)
                 ]
                 priority = 63010
                 tableId = 40 as short
@@ -2625,42 +1234,15 @@ class FlowEntryObjectsStateless extends FlowEntryObjectsBase {
                 flowId = "Egress_ICMPv6_123_987_135_Permit_"
                 flowName = "ACL"
                 instructionInfoList = #[
-                    new InstructionInfo(InstructionType.apply_actions, #[
-                        new ActionInfoBuilder >> [
-                            actionType = ActionType.nx_resubmit
-                            actionValues = #[
-                                "17"
-                            ]
-                        ]
+                    new InstructionApplyActions(#[
+                        new ActionNxResubmit(17 as short)
                     ])
                 ]
                 matchInfoList = #[
-                    new MatchInfoBuilder >> [
-                        matchField = MatchFieldType.eth_type
-                        matchValues = #[
-                            34525L
-                        ]
-                    ],
-                    new MatchInfoBuilder >> [
-                        matchField = MatchFieldType.ip_proto
-                        matchValues = #[
-                            58L
-                        ]
-                    ],
-                    new MatchInfoBuilder >> [
-                        matchField = MatchFieldType.icmp_v6
-                        matchValues = #[
-                            135L,
-                            0L
-                        ]
-                    ],
-                    new MatchInfoBuilder >> [
-                        bigMatchValues = #[
-                            1085217976614912bi,
-                            MetaDataUtil.METADATA_MASK_LPORT_TAG
-                        ]
-                        matchField = MatchFieldType.metadata
-                    ]
+                    new MatchEthernetType(34525L),
+                    new MatchIpProtocol(58 as short),
+                    new MatchIcmpv6(135 as short, 0 as short),
+                    new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG)
                 ]
                 priority = 63010
                 tableId = 40 as short
@@ -2670,42 +1252,15 @@ class FlowEntryObjectsStateless extends FlowEntryObjectsBase {
                 flowId = "Egress_ICMPv6_123_987_136_Permit_"
                 flowName = "ACL"
                 instructionInfoList = #[
-                    new InstructionInfo(InstructionType.apply_actions, #[
-                        new ActionInfoBuilder >> [
-                            actionType = ActionType.nx_resubmit
-                            actionValues = #[
-                                "17"
-                            ]
-                        ]
+                    new InstructionApplyActions(#[
+                        new ActionNxResubmit(17 as short)
                     ])
                 ]
                 matchInfoList = #[
-                    new MatchInfoBuilder >> [
-                        matchField = MatchFieldType.eth_type
-                        matchValues = #[
-                            34525L
-                        ]
-                    ],
-                    new MatchInfoBuilder >> [
-                        matchField = MatchFieldType.ip_proto
-                        matchValues = #[
-                            58L
-                        ]
-                    ],
-                    new MatchInfoBuilder >> [
-                        matchField = MatchFieldType.icmp_v6
-                        matchValues = #[
-                            136L,
-                            0L
-                        ]
-                    ],
-                    new MatchInfoBuilder >> [
-                        bigMatchValues = #[
-                            1085217976614912bi,
-                            MetaDataUtil.METADATA_MASK_LPORT_TAG
-                        ]
-                        matchField = MatchFieldType.metadata
-                    ]
+                    new MatchEthernetType(34525L),
+                    new MatchIpProtocol(58 as short),
+                    new MatchIcmpv6(136 as short, 0 as short),
+                    new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG)
                 ]
                 priority = 63010
                 tableId = 40 as short

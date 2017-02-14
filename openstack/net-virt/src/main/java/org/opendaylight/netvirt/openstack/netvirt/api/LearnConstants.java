@@ -20,7 +20,7 @@ public class LearnConstants {
     public static final int IP_PROT_UDP = 17;
     public static final String LEARN_PRIORITY = "61010";
     public static final String DELETE_LEARNED_FLAG_VALUE = "2";
-    public static final HashMap<Integer, String> ICMP_TYPE_MAP = new HashMap<Integer, String>();
+    public static final HashMap<Integer, String> ICMP_TYPE_MAP = new HashMap<>();
     static
     {
         ICMP_TYPE_MAP.put(8, "0");

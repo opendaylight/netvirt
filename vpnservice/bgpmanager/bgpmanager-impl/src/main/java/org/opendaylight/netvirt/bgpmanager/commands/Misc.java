@@ -15,37 +15,37 @@ import org.apache.karaf.shell.console.OsgiCommandSupport;
 import org.opendaylight.netvirt.bgpmanager.BgpManager;
 
 @Command(scope = "odl", name = "bgp-misc",
-         description = "Add or delete miscellaneous BGP config options")
+        description = "Add or delete miscellaneous BGP config options")
 public class Misc extends OsgiCommandSupport {
     private static final String LF = "--log-file";
     private static final String LL = "--log-level";
     private static final String SP = "--stalepath-time";
 
-    @Argument(name="add|del", description="The desired operation",
-              required=true, multiValued = false)
+    @Argument(name = "add|del", description = "The desired operation",
+            required = true, multiValued = false)
     private String action = null;
 
-    @Option(name=LF, aliases={"-f"},
-            description="Log file name", 
-            required=false, multiValued=false)
+    @Option(name = LF, aliases = {"-f"},
+            description = "Log file name",
+            required = false, multiValued = false)
     private String file = null;
 
-    @Option(name=LL, aliases={"-l"},
-            description="Log level", required=false, 
-            multiValued=false)
+    @Option(name = LL, aliases = {"-l"},
+            description = "Log level", required = false,
+            multiValued = false)
     private String level = null;
 
-    @Option(name=SP, aliases={"-s"},
-            description="Stale-path time", required=false, 
-            multiValued=false)
+    @Option(name = SP, aliases = {"-s"},
+            description = "Stale-path time", required = false,
+            multiValued = false)
     private String spt = null;
 
     private Object usage() {
-        System.err.println(
-        "usage: bgp-misc [<"+LF+" name> <"+LL+" level>] ["
-        +SP+" stale-path-time] <add | del>");
+        session.getConsole().println(
+                "usage: bgp-misc [<" + LF + " name> <" + LL + " level>] ["
+                        + SP + " stale-path-time] <add | del>");
         return null;
-    } 
+    }
 
     private boolean isValidLevel(String level) {
         switch (level) {
@@ -56,9 +56,9 @@ public class Misc extends OsgiCommandSupport {
             case "warnings":
             case "notifications":
             case "informational":
-            case "debugging": 
+            case "debugging":
                 return true;
-            default: 
+            default:
                 break;
         }
         return false;
@@ -66,7 +66,7 @@ public class Misc extends OsgiCommandSupport {
 
     @Override
     protected Object doExecute() throws Exception {
-        if (!Commands.bgpRunning()) {
+        if (!Commands.bgpRunning(session.getConsole())) {
             return null;
         }
         if (spt == null && file == null && level == null) {
@@ -75,21 +75,21 @@ public class Misc extends OsgiCommandSupport {
         if (file != null ^ level != null) {
             return usage();
         }
-        if (level != null && !isValidLevel(level)) { 
-            System.err.println("error: invalid value for "+LL);
+        if (level != null && !isValidLevel(level)) {
+            session.getConsole().println("error: invalid value for " + LL);
             return null;
         }
         BgpManager bm = Commands.getBgpManager();
         switch (action) {
-            case "add" : 
-                if (spt != null && Commands.isValid(spt, Commands.Validators.INT, SP)) {
-                    int s = Integer.valueOf(spt);
-                    bm.configureGR(s);
+            case "add":
+                if (spt != null && Commands.isValid(session.getConsole(), spt, Commands.Validators.INT, SP)) {
+                    bm.configureGR(Integer.valueOf(spt));
                 }
-                if (file != null && level != null) 
-                bm.setQbgpLog(file, level);
+                if (file != null && level != null) {
+                    bm.setQbgpLog(file, level);
+                }
                 break;
-            case "del" :  
+            case "del":
                 if (spt != null) {
                     bm.delGracefulRestart();
                 }
@@ -97,7 +97,7 @@ public class Misc extends OsgiCommandSupport {
                     bm.delLogging();
                 }
                 break;
-            default : 
+            default:
                 return usage();
         }
         return null;

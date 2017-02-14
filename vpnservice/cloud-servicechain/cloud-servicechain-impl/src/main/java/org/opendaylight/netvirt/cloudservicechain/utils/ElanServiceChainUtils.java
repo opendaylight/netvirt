@@ -9,19 +9,23 @@ package org.opendaylight.netvirt.cloudservicechain.utils;
 
 import com.google.common.base.Optional;
 import java.math.BigInteger;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.HashSet;
+import java.util.Collections;
 import java.util.List;
-
+import java.util.stream.Collectors;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.genius.mdsalutil.ActionInfo;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
-import org.opendaylight.genius.mdsalutil.MatchFieldType;
 import org.opendaylight.genius.mdsalutil.MatchInfo;
 import org.opendaylight.genius.mdsalutil.MetaDataUtil;
 import org.opendaylight.genius.mdsalutil.NwConstants;
+import org.opendaylight.genius.mdsalutil.actions.ActionRegLoad;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
+import org.opendaylight.genius.mdsalutil.matches.MatchMetadata;
+import org.opendaylight.genius.mdsalutil.matches.MatchTunnelId;
 import org.opendaylight.genius.utils.ServiceIndex;
 import org.opendaylight.netvirt.cloudservicechain.CloudServiceChainConstants;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.FlowId;
@@ -39,11 +43,10 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.dpn.interfaces.elan.dpn.interfaces.list.DpnInterfaces;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.instances.ElanInstance;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.instances.ElanInstanceKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.openflowjava.nx.match.rev140421.NxmNxReg2;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 
 public class ElanServiceChainUtils {
 
@@ -59,7 +62,7 @@ public class ElanServiceChainUtils {
         return MDSALUtil.read(broker, LogicalDatastoreType.CONFIGURATION, getElanInstanceConfigDataPath(elanName));
     }
 
-    public static Optional<Collection<BigInteger>> getElanDpnsByName(DataBroker broker, String elanInstanceName) {
+    public static Collection<BigInteger> getElanDpnsByName(DataBroker broker, String elanInstanceName) {
         InstanceIdentifier<ElanDpnInterfacesList> elanDpnIfacesIid =
                 InstanceIdentifier.builder(ElanDpnInterfaces.class)
                                   .child(ElanDpnInterfacesList.class,new ElanDpnInterfacesListKey(elanInstanceName))
@@ -68,16 +71,11 @@ public class ElanServiceChainUtils {
                 MDSALUtil.read(broker, LogicalDatastoreType.OPERATIONAL, elanDpnIfacesIid);
         if (!elanDpnIfacesOpc.isPresent()) {
             LOG.warn("Could not find and DpnInterface for elan {}", elanInstanceName);
-            return Optional.<Collection<BigInteger>>absent();
+            return Collections.emptySet();
         }
 
-        Collection<BigInteger> dpns = new HashSet<>();
-        List<DpnInterfaces> elanDpnIfaces = elanDpnIfacesOpc.get().getDpnInterfaces();
-        for ( DpnInterfaces dpnIf : elanDpnIfaces) {
-            dpns.add(dpnIf.getDpId());
-        }
-
-        return Optional.of(dpns);
+        return elanDpnIfacesOpc.get().getDpnInterfaces().stream().map(DpnInterfaces::getDpId).collect(
+                Collectors.toSet());
     }
 
     public static BigInteger getElanMetadataLabel(long elanTag) {
@@ -101,17 +99,18 @@ public class ElanServiceChainUtils {
                  dpnId, elanLportTag, scfTag, addOrRemove);
         String flowRef = buildLportDispToScfFlowRef(elanLportTag, scfTag);
         if (addOrRemove == NwConstants.ADD_FLOW) {
-            List<MatchInfo> matches = Arrays.asList(
-                    new MatchInfo(MatchFieldType.metadata,
-                            new BigInteger[] { MetaDataUtil.getMetaDataForLPortDispatcher(elanLportTag,
-                                    ServiceIndex.getIndex(NwConstants.SCF_SERVICE_NAME, NwConstants.SCF_SERVICE_INDEX)),
-                                    MetaDataUtil.getMetaDataMaskForLPortDispatcher() }));
             int instructionKey = 0;
-            List<Instruction> instructions = Arrays.asList(
-                    MDSALUtil.buildAndGetWriteMetadaInstruction(VpnServiceChainUtils.getMetadataSCF(scfTag),
-                            CloudServiceChainConstants.METADATA_MASK_SCF_WRITE,
-                            instructionKey++),
-                    MDSALUtil.buildAndGetGotoTableInstruction(tableId, instructionKey++) );
+            List<Instruction> instructions = new ArrayList<>();
+            List<ActionInfo> actionsInfos = new ArrayList<>();
+            actionsInfos.add(new ActionRegLoad(NxmNxReg2.class, 0, 31, scfTag));
+            instructions.add(MDSALUtil.buildApplyActionsInstruction(MDSALUtil
+                    .buildActions(actionsInfos),instructionKey++));
+            instructions.add(MDSALUtil.buildAndGetGotoTableInstruction(tableId, instructionKey++));
+            List<MatchInfo> matches = Collections.singletonList(
+                    new MatchMetadata(
+                            MetaDataUtil.getMetaDataForLPortDispatcher(elanLportTag,
+                                    ServiceIndex.getIndex(NwConstants.SCF_SERVICE_NAME, NwConstants.SCF_SERVICE_INDEX)),
+                            MetaDataUtil.getMetaDataMaskForLPortDispatcher()));
 
             Flow flow = MDSALUtil.buildFlowNew(NwConstants.LPORT_DISPATCHER_TABLE, flowRef,
                     CloudServiceChainConstants.DEFAULT_SCF_FLOW_PRIORITY, flowRef,
@@ -141,15 +140,12 @@ public class ElanServiceChainUtils {
                                                      int elanLportTag, long elanTag, int addOrRemove) {
         LOG.info("L2-ServiceChaining: programLPortDispatcherFromScf dpId={} elanLportTag={} elanTag={} addOrRemove={} ",
                  dpnId, elanLportTag, elanTag, addOrRemove);
-        String flowRef = buildLportDispFromScfFlowRef(elanTag, elanLportTag );
+        String flowRef = buildLportDispFromScfFlowRef(elanTag, elanLportTag);
         if (addOrRemove == NwConstants.ADD_FLOW) {
-            List<MatchInfo> matches = Arrays.asList(
-                new MatchInfo(MatchFieldType.metadata,
-                              new BigInteger[] {
-                                  MetaDataUtil.getMetaDataForLPortDispatcher(elanLportTag,
-                                                                ServiceIndex.getIndex(NwConstants.ELAN_SERVICE_NAME,
-                                                                                      NwConstants.ELAN_SERVICE_INDEX)),
-                                  MetaDataUtil.getMetaDataMaskForLPortDispatcher() }));
+            List<MatchInfo> matches = Collections.singletonList(
+                    new MatchMetadata(MetaDataUtil.getMetaDataForLPortDispatcher(elanLportTag,
+                            ServiceIndex.getIndex(NwConstants.ELAN_SERVICE_NAME, NwConstants.ELAN_SERVICE_INDEX)),
+                            MetaDataUtil.getMetaDataMaskForLPortDispatcher()));
             int instructionKey = 0;
             List<Instruction> instructions = Arrays.asList(
                     // BigInter.ONE is for setting also the Split-Horizon flag since it could have been cleared
@@ -158,7 +154,7 @@ public class ElanServiceChainUtils {
                             MetaDataUtil.METADATA_MASK_SERVICE.or(BigInteger.ONE),
                             instructionKey++),
                     MDSALUtil.buildAndGetGotoTableInstruction(NwConstants.ELAN_SMAC_TABLE,
-                            instructionKey++) );
+                            instructionKey++));
 
             Flow flow =
                     MDSALUtil.buildFlowNew(NwConstants.LPORT_DISPATCHER_TABLE, flowRef,
@@ -199,8 +195,7 @@ public class ElanServiceChainUtils {
                  dpnId, vni, elanLportTag, addOrRemove);
         String flowRef = buildExtTunnelTblToLportDispFlowRef(vni, elanLportTag);
         if (addOrRemove == NwConstants.ADD_FLOW) {
-            List<MatchInfo> matches = Arrays.asList(new MatchInfo(MatchFieldType.tunnel_id,
-                    new BigInteger[] { BigInteger.valueOf(vni) } ) );
+            List<MatchInfo> matches = Collections.singletonList(new MatchTunnelId(BigInteger.valueOf(vni)));
             List<Instruction> instructions = buildSetLportTagAndGotoLportDispInstructions(elanLportTag);
             Flow flow = MDSALUtil.buildFlowNew(NwConstants.EXTERNAL_TUNNEL_TABLE, flowRef,
                     CloudServiceChainConstants.DEFAULT_SCF_FLOW_PRIORITY, flowRef,
@@ -266,7 +261,7 @@ public class ElanServiceChainUtils {
                 .augmentation(ElanServiceChainState.class)
                 .child(ElanToPseudoPortData.class, new ElanToPseudoPortDataKey(key)).build();
 
-        if ( addOrRemove == NwConstants.ADD_FLOW ) {
+        if (addOrRemove == NwConstants.ADD_FLOW) {
             ElanToPseudoPortData newValue =
                     new ElanToPseudoPortDataBuilder().setKey(key).setElanLportTag(new Long(lportTag))
                                                      .setScfTag(scfTag).build();

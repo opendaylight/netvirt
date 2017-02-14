@@ -47,7 +47,8 @@ public class SubnetMacHandler extends AsyncDataTreeChangeListenerBase<VpnPortipT
             VpnUtil.setupSubnetMacIntoVpnInstance(dataBroker, mdsalManager, value.getVpnName(),
                     value.getMacAddress(), BigInteger.ZERO /* On all DPNs */, writeTx, NwConstants.DEL_FLOW);
             writeTx.submit();
-        }}
+        }
+    }
 
     @Override
     protected void update(InstanceIdentifier<VpnPortipToPort> key, VpnPortipToPort dataObjectModificationBefore,

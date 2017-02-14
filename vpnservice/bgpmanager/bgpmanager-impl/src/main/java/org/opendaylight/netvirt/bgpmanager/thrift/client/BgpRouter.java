@@ -8,9 +8,10 @@
 
 package org.opendaylight.netvirt.bgpmanager.thrift.client;
 
+import java.util.List;
+import org.apache.thrift.TException;
 import org.apache.thrift.protocol.TBinaryProtocol;
 import org.apache.thrift.protocol.TProtocol;
-import org.apache.thrift.TException;
 import org.apache.thrift.transport.TSocket;
 import org.apache.thrift.transport.TTransport;
 import org.apache.thrift.transport.TTransportException;
@@ -18,15 +19,17 @@ import org.opendaylight.netvirt.bgpmanager.thrift.gen.BgpConfigurator;
 import org.opendaylight.netvirt.bgpmanager.thrift.gen.Routes;
 import org.opendaylight.netvirt.bgpmanager.thrift.gen.af_afi;
 import org.opendaylight.netvirt.bgpmanager.thrift.gen.af_safi;
+import org.opendaylight.netvirt.bgpmanager.thrift.gen.encap_type;
+import org.opendaylight.netvirt.bgpmanager.thrift.gen.layer_type;
+import org.opendaylight.netvirt.bgpmanager.thrift.gen.protocol_type;
+import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.LayerType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.List;
 
 public class BgpRouter {
     private static TTransport transport;
     private static TProtocol protocol;
-    private static BgpConfigurator.Client bgpClient=null;
+    private static BgpConfigurator.Client bgpClient = null;
     boolean isConnected = false;
     private static final Logger LOGGER = LoggerFactory.getLogger(BgpRouter.class);
     public int startBGPresult = Integer.MIN_VALUE;
@@ -63,14 +66,15 @@ public class BgpRouter {
 
     private enum Optype {
         START, STOP, NBR, VRF, PFX, SRC, MHOP, LOG, AF, GR
-    };
+    }
 
-    private final static int GET_RTS_INIT = 0;
-    private final static int GET_RTS_NEXT = 1;
-    private final static int CONNECTION_TIMEOUT = 60000;
+    private static final int GET_RTS_INIT = 0;
+    private static final int GET_RTS_NEXT = 1;
+    private static final int CONNECTION_TIMEOUT = 60000;
 
 
     private class BgpOp {
+
         public Optype type;
         public boolean add;
         public String[] strs;
@@ -78,8 +82,18 @@ public class BgpRouter {
         public List<String> irts;
         public List<String> erts;
         public long asNumber;
-        public static final int ignore = 0;
-        public BgpOp() {
+        static final int IGNORE = 0;
+        public layer_type thriftLayerType;
+        public protocol_type thriftProtocolType;
+        public int ethernetTag;
+        public String esi;
+        public String macAddress;
+        public int l2label;
+        public int l3label;
+        public encap_type thriftEncapType;
+        public String routermac;
+
+        BgpOp() {
             strs = new String[3];
             ints = new int[2];
         }
@@ -96,7 +110,7 @@ public class BgpRouter {
     }
 
     public synchronized boolean connect(String bgpHost, int bgpPort) {
-        String msgPiece = "BGP config server at "+bgpHost+":"+bgpPort;
+        String msgPiece = "BGP config server at " + bgpHost + ":" + bgpPort;
 
         this.bgpHost = bgpHost;
         this.bgpHostPort = bgpPort;
@@ -117,7 +131,7 @@ public class BgpRouter {
         }
         protocol = new TBinaryProtocol(transport);
         bgpClient = new BgpConfigurator.Client(protocol);
-        LOGGER.info("Connected to "+msgPiece);
+        LOGGER.info("Connected to " + msgPiece);
         return true;
     }
 
@@ -145,58 +159,72 @@ public class BgpRouter {
         switch (op.type) {
             case START:
                 setStartTS(System.currentTimeMillis());
-                LOGGER.debug("startBgp thrift call for AsId {}",op.asNumber);
+                LOGGER.debug("startBgp thrift call for AsId {}", op.asNumber);
                 result = bgpClient.startBgp(op.asNumber, op.strs[0],
-                        op.ignore, op.ignore, op.ignore, op.ints[0], op.add);
-                LOGGER.debug("Result of startBgp thrift call for AsId {} : {}",op.asNumber,result);
+                        BgpOp.IGNORE, BgpOp.IGNORE, BgpOp.IGNORE, op.ints[0], op.add);
+                LOGGER.debug("Result of startBgp thrift call for AsId {} : {}", op.asNumber, result);
                 startBGPresult = result;
                 break;
             case STOP:
                 result = bgpClient.stopBgp(op.asNumber);
                 break;
             case NBR:
-                result = bop.add ?
-                        bgpClient.createPeer(op.strs[0], op.asNumber)
-                        : bgpClient.deletePeer(op.strs[0]);
+                result = bop.add ? bgpClient.createPeer(op.strs[0], op.asNumber) : bgpClient.deletePeer(op.strs[0]);
                 break;
             case VRF:
-                result = bop.add ?
-                        bgpClient.addVrf(op.strs[0], op.irts, op.erts)
+                result = bop.add
+                        ? bgpClient.addVrf(op.thriftLayerType, op.strs[0], op.irts, op.erts)
                         : bgpClient.delVrf(op.strs[0]);
                 break;
             case PFX:
                 // order of args is different in addPrefix(), hence the
                 // seeming out-of-order-ness of string indices
-                result = bop.add ?
-                        bgpClient.pushRoute(op.strs[1], op.strs[2],
-                                op.strs[0], op.ints[0])
-                        : bgpClient.withdrawRoute(op.strs[1], op.strs[0]);
+                result = bop.add
+                        ? bgpClient.pushRoute(
+                                op.thriftProtocolType,
+                                op.strs[1],//prefix
+                                op.strs[2],//nexthop
+                                op.strs[0],//rd
+                                op.ethernetTag,
+                                op.esi,
+                                op.macAddress,
+                                op.l2label,
+                                op.l3label,
+                                op.thriftEncapType,
+                                op.routermac)
+
+                        : bgpClient.withdrawRoute(
+                        op.thriftProtocolType,
+                        op.strs[1],//prefix
+                        op.strs[0],//rd
+                        op.ethernetTag,
+                        op.esi,
+                        op.macAddress);
                 break;
             case LOG:
                 result = bgpClient.setLogConfig(op.strs[0], op.strs[1]);
                 break;
             case MHOP:
-                result = bop.add ?
-                        bgpClient.setEbgpMultihop(op.strs[0], op.ints[0])
+                result = bop.add
+                        ? bgpClient.setEbgpMultihop(op.strs[0], op.ints[0])
                         : bgpClient.unsetEbgpMultihop(op.strs[0]);
                 break;
             case SRC:
-                result = bop.add ?
-                        bgpClient.setUpdateSource(op.strs[0], op.strs[1])
+                result = bop.add
+                        ? bgpClient.setUpdateSource(op.strs[0], op.strs[1])
                         : bgpClient.unsetUpdateSource(op.strs[0]);
                 break;
-            default: break;
+            default:
+                break;
             case AF:
                 af_afi afi = af_afi.findByValue(op.ints[0]);
                 af_safi safi = af_safi.findByValue(op.ints[1]);
-                result = bop.add ?
-                        bgpClient.enableAddressFamily(op.strs[0], afi, safi)
+                result = bop.add
+                        ? bgpClient.enableAddressFamily(op.strs[0], afi, safi)
                         : bgpClient.disableAddressFamily(op.strs[0], afi, safi);
                 break;
             case GR:
-                result = bop.add ?
-                        bgpClient.enableGracefulRestart(op.ints[0])
-                        : bgpClient.disableGracefulRestart();
+                result = bop.add ? bgpClient.enableGracefulRestart(op.ints[0]) : bgpClient.disableGracefulRestart();
                 break;
         }
         if (result != 0) {
@@ -240,8 +268,9 @@ public class BgpRouter {
         dispatch(bop);
     }
 
-    public synchronized void addVrf(String rd, List<String> irts, List<String> erts)
+    public synchronized void addVrf(LayerType layerType, String rd, List<String> irts, List<String> erts)
             throws TException, BgpRouterException {
+        bop.thriftLayerType = layerType == LayerType.LAYER2 ? layer_type.LAYER_2 : layer_type.LAYER_3;
         bop.type = Optype.VRF;
         bop.add = true;
         bop.strs[0] = rd;
@@ -262,14 +291,37 @@ public class BgpRouter {
     // bit of a mess-up: the order of arguments is different in
     // the Thrift RPC: prefix-nexthop-rd-label.
 
-    public synchronized void addPrefix(String rd, String prefix, String nexthop, int label)
+    public synchronized void addPrefix(String rd,
+                                       String prefix,
+                                       String nexthop,
+                                       int label,
+                                       int l3vni,
+                                       protocol_type protocolType,
+                                       int ethtag,
+                                       String esi,
+                                       String macaddress,
+                                       encap_type encapType,
+                                       String routermac)
             throws TException, BgpRouterException {
         bop.type = Optype.PFX;
         bop.add = true;
         bop.strs[0] = rd;
         bop.strs[1] = prefix;
         bop.strs[2] = nexthop;
+        // TODO: set label2 or label3 based on encapsulation type and protocol type once L2label is applicable
         bop.ints[0] = label;
+        if (protocolType.equals(protocol_type.PROTOCOL_EVPN) && encapType.equals(encap_type.VXLAN)) {
+            bop.l3label = l3vni; //L3VPN Over VxLan
+        } else {
+            bop.l3label = label; // L3VPN Over MPLSGRE
+        }
+        bop.thriftProtocolType = protocolType;
+        bop.ethernetTag = ethtag;
+        bop.esi = esi;
+        bop.macAddress = macaddress;
+        bop.thriftEncapType = encapType;
+        bop.routermac = routermac;
+
         LOGGER.debug("Adding BGP route - rd:{} prefix:{} nexthop:{} label:{} ", rd ,prefix, nexthop, label);
         dispatch(bop);
     }
@@ -321,15 +373,16 @@ public class BgpRouter {
         }
         int state = handle.getState();
         if (state != BgpSyncHandle.INITED && state != BgpSyncHandle.ITERATING) {
-            Routes r = new Routes();
-            r.setErrcode(BgpRouterException.BGP_ERR_NOT_ITER);
-            return r;
+            Routes routes = new Routes();
+            routes.setErrcode(BgpRouterException.BGP_ERR_NOT_ITER);
+            return routes;
         }
-        int op = (state == BgpSyncHandle.INITED) ?
-                GET_RTS_INIT : GET_RTS_NEXT;
+        int op = (state == BgpSyncHandle.INITED) ? GET_RTS_INIT : GET_RTS_NEXT;
         handle.setState(BgpSyncHandle.ITERATING);
-        int winSize = handle.getMaxCount()*handle.getRouteSize();
-        Routes outRoutes = bgpClient.getRoutes(op, winSize);
+        int winSize = handle.getMaxCount() * handle.getRouteSize();
+
+        // TODO: receive correct protocol_type here, currently populating with dummy protocol type
+        Routes outRoutes = bgpClient.getRoutes(protocol_type.PROTOCOL_ANY, op, winSize);
         if (outRoutes.errcode != 0) {
             return outRoutes;
         }
@@ -424,3 +477,4 @@ public class BgpRouter {
         dispatch(bop);
     }
 }
+

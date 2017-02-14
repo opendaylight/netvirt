@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 Ericsson India Global Services Pvt Ltd. and others. All rights reserved.
+ * Copyright (c) 2016, 2017 Ericsson India Global Services Pvt Ltd. and others. All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
@@ -10,11 +10,7 @@ package org.opendaylight.netvirt.aclservice.utils;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import org.opendaylight.ovsdb.utils.config.ConfigProperties;
 
 /**
  * The class to have ACL related constants.
@@ -40,13 +36,17 @@ public final class AclConstants {
     public static final Integer PROTO_VM_IP_MAC_MATCH_PRIORITY = 36001;
     public static final Integer CT_STATE_UNTRACKED_PRIORITY = 62030;
     public static final Integer CT_STATE_TRACKED_EXIST_PRIORITY = 62020;
+    public static final Integer CT_STATE_TRACKED_INVALID_PRIORITY = 62015;
     public static final Integer CT_STATE_TRACKED_NEW_PRIORITY = 62010;
-    public static final Integer CT_STATE_NEW_PRIORITY_DROP = 50;
+    public static final Integer CT_STATE_TRACKED_NEW_DROP_PRIORITY = 50;
+
     public static final short DHCP_CLIENT_PORT_IPV4 = 68;
     public static final short DHCP_SERVER_PORT_IPV4 = 67;
     public static final short DHCP_CLIENT_PORT_IPV6 = 546;
     public static final short DHCP_SERVER_PORT_IPV6 = 547;
+
     public static final BigInteger COOKIE_ACL_BASE = new BigInteger("6900000", 16);
+    public static final BigInteger COOKIE_ACL_DROP_FLOW = new BigInteger("6900001", 16);
 
     public static final int TRACKED_EST_CT_STATE = 0x22;
     public static final int TRACKED_REL_CT_STATE = 0x24;
@@ -81,8 +81,8 @@ public final class AclConstants {
     public static final String SECURITY_GROUP_UDP_IDLE_TO_KEY = "security-group-udp-idle-timeout";
     public static final String SECURITY_GROUP_UDP_HARD_TO_KEY = "security-group-udp-hard-timeout";
 
-    public static final String LEARN_MATCH_REG_VALUE = "1";
-    public static final String LEARN_DELETE_LEARNED_FLAG_VALUE = "2";
+    public static final int LEARN_MATCH_REG_VALUE = 1;
+    public static final int LEARN_DELETE_LEARNED_FLAG_VALUE = 2;
 
     public static final String ACL_FLOW_PRIORITY_POOL_NAME = "acl.flow.priorities.pool";
     public static final long ACL_FLOW_PRIORITY_POOL_START = 1000L;
@@ -98,20 +98,4 @@ public final class AclConstants {
         icmpv6NdList.add(ICMPV6_TYPE_NA);
         return icmpv6NdList;
     }
-
-    private static Map<String, Object> globalConf = Collections.synchronizedMap(new HashMap<>());
-
-    public static String getGlobalConf(String key, String defaultValue) {
-        String ret = defaultValue;
-        String value = (String)globalConf.get(key);
-        if (value == null) {
-            String propertyStr = ConfigProperties.getProperty(AclConstants.class, key);
-            if (propertyStr != null) {
-                ret = propertyStr;
-            }
-            globalConf.put(key, ret);
-        }
-        return ret;
-    }
-
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014 - 2016 Red Hat, Inc. and others. All rights reserved.
+ * Copyright © 2014, 2017 Red Hat, Inc. and others. All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
@@ -8,15 +8,14 @@
 
 package org.opendaylight.netvirt.openstack.netvirt.providers.openflow13.services;
 
+import java.math.BigInteger;
 import java.net.Inet4Address;
 import java.net.Inet6Address;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.HashMap;
 import java.util.Map;
-
 import org.opendaylight.netvirt.openstack.netvirt.api.Constants;
 import org.opendaylight.netvirt.openstack.netvirt.api.EgressAclProvider;
 import org.opendaylight.netvirt.openstack.netvirt.api.LearnConstants;
@@ -47,12 +46,12 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.instru
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.NodeBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.model.match.types.rev131026.match.Icmpv4MatchBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.model.match.types.rev131026.match.Icmpv6MatchBuilder;
+import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Node;
+import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.NodeId;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.google.common.collect.Lists;
 
 public class EgressAclService extends AbstractServiceInstance implements EgressAclProvider, ConfigInterface {
 
@@ -79,7 +78,7 @@ public class EgressAclService extends AbstractServiceInstance implements EgressA
 
     @Override
     public void programPortSecurityGroup(Long dpid, String segmentationId, String attachedMac, long localPort,
-                                       NeutronSecurityGroup securityGroup, String portUuid, boolean write) {
+                                       NeutronSecurityGroup securityGroup, String portUuid, NodeId nodeId, boolean write) {
 
         LOG.trace("programPortSecurityGroup: neutronSecurityGroup: {} ", securityGroup);
         if (securityGroup == null || getSecurityRulesforGroup(securityGroup) == null) {
@@ -118,7 +117,7 @@ public class EgressAclService extends AbstractServiceInstance implements EgressA
                                                     localPort, portSecurityRule, vmIp, write);
                         }
                         if (write) {
-                            securityGroupCacheManger.addToCache(portSecurityRule.getSecurityRemoteGroupID(), portUuid);
+                            securityGroupCacheManger.addToCache(portSecurityRule.getSecurityRemoteGroupID(), portUuid, nodeId);
                         } else {
                             securityGroupCacheManger.removeFromCache(portSecurityRule.getSecurityRemoteGroupID(),
                                                                      portUuid);
@@ -169,24 +168,24 @@ public class EgressAclService extends AbstractServiceInstance implements EgressA
             /* TODO Rework on the priority values */
             egressAclIp(dpid, isIpv6, segmentationId, attachedMac,
                 portSecurityRule, ipaddress,
-                write, Constants.PROTO_PORT_PREFIX_MATCH_PRIORITY);
+                write, Constants.PROTO_PORT_PREFIX_MATCH_PRIORITY, false);
             if(!isIpv6) {
                 portSecurityRule.setSecurityRuleProtocol(MatchUtils.TCP);
                 portSecurityRule.setSecurityRulePortMin(PORT_RANGE_MIN);
                 portSecurityRule.setSecurityRulePortMax(PORT_RANGE_MAX);
                 egressAclTcp(dpid, segmentationId, attachedMac,
                         portSecurityRule,ipaddress, write,
-                        Constants.PROTO_PORT_MATCH_PRIORITY);
+                        Constants.PROTO_PORT_MATCH_PRIORITY, false);
                 portSecurityRule.setSecurityRuleProtocol(MatchUtils.UDP);
                 egressAclUdp(dpid, segmentationId, attachedMac,
                         portSecurityRule, ipaddress, write,
-                        Constants.PROTO_PORT_MATCH_PRIORITY);
+                        Constants.PROTO_PORT_MATCH_PRIORITY, false);
                 portSecurityRule.setSecurityRuleProtocol(MatchUtils.ICMP);
                 portSecurityRule.setSecurityRulePortMin(null);
                 portSecurityRule.setSecurityRulePortMax(null);
                 egressAclIcmp(dpid, segmentationId, attachedMac,
                         portSecurityRule, ipaddress,write,
-                        Constants.PROTO_PORT_MATCH_PRIORITY);
+                        Constants.PROTO_PORT_MATCH_PRIORITY, false);
                 portSecurityRule.setSecurityRuleProtocol(null);
             }
         } else {
@@ -195,20 +194,20 @@ public class EgressAclService extends AbstractServiceInstance implements EgressA
                     LOG.debug("programPortSecurityRule: Rule matching TCP", portSecurityRule);
                     egressAclTcp(dpid, segmentationId, attachedMac,
                         portSecurityRule,ipaddress, write,
-                        Constants.PROTO_PORT_PREFIX_MATCH_PRIORITY);
+                        Constants.PROTO_PORT_PREFIX_MATCH_PRIORITY, false);
                     break;
                 case MatchUtils.UDP:
                     LOG.debug("programPortSecurityRule: Rule matching UDP", portSecurityRule);
                     egressAclUdp(dpid, segmentationId, attachedMac,
                         portSecurityRule, ipaddress, write,
-                        Constants.PROTO_PORT_PREFIX_MATCH_PRIORITY);
+                        Constants.PROTO_PORT_PREFIX_MATCH_PRIORITY, false);
                     break;
                 case MatchUtils.ICMP:
                 case MatchUtils.ICMPV6:
                     LOG.debug("programPortSecurityRule: Rule matching ICMP", portSecurityRule);
                     egressAclIcmp(dpid, segmentationId, attachedMac,
                         portSecurityRule, ipaddress,write,
-                        Constants.PROTO_PORT_PREFIX_MATCH_PRIORITY);
+                        Constants.PROTO_PORT_PREFIX_MATCH_PRIORITY, false);
                     break;
                 default:
                     LOG.info("programPortSecurityAcl: Protocol is not TCP/UDP/ICMP but other "
@@ -227,77 +226,83 @@ public class EgressAclService extends AbstractServiceInstance implements EgressA
         if(null == portSecurityRule.getSecurityRuleProtocol() || portSecurityRule.getSecurityRuleProtocol().equals(MatchUtils.ANY_PROTOCOL)) {
             egressAclIp(dpidLong, isIpv6, segmentationId, srcMac,
                     portSecurityRule, dstAddress,
-                    write, Constants.PROTO_PORT_PREFIX_MATCH_PRIORITY - 1);
+                    write, Constants.PROTO_PORT_PREFIX_MATCH_PRIORITY - 1, true);
             if(!isIpv6) {
                 portSecurityRule.setSecurityRuleProtocol(MatchUtils.TCP);
                 portSecurityRule.setSecurityRulePortMin(PORT_RANGE_MIN);
                 portSecurityRule.setSecurityRulePortMax(PORT_RANGE_MAX);
                 egressAclTcp(dpidLong, segmentationId, srcMac,
                         portSecurityRule,dstAddress, write,
-                        Constants.PROTO_PORT_PREFIX_MATCH_PRIORITY);
+                        Constants.PROTO_PORT_PREFIX_MATCH_PRIORITY, true);
                 portSecurityRule.setSecurityRuleProtocol(MatchUtils.UDP);
                 egressAclUdp(dpidLong, segmentationId, srcMac,
                         portSecurityRule, dstAddress, write,
-                        Constants.PROTO_PORT_PREFIX_MATCH_PRIORITY);
+                        Constants.PROTO_PORT_PREFIX_MATCH_PRIORITY, true);
                 portSecurityRule.setSecurityRulePortMin(null);
                 portSecurityRule.setSecurityRulePortMax(null);
                 portSecurityRule.setSecurityRuleProtocol(MatchUtils.ICMP);
                 egressAclIcmp(dpidLong, segmentationId, srcMac,
                         portSecurityRule, dstAddress,write,
-                        Constants.PROTO_PORT_PREFIX_MATCH_PRIORITY);
+                        Constants.PROTO_PORT_PREFIX_MATCH_PRIORITY, true);
                 portSecurityRule.setSecurityRuleProtocol(null);
             }
         } else {
-            if (portSecurityRule.getSecurityRuleProtocol().equals(MatchUtils.TCP_PROTOCOL)) {
-                portSecurityRule.setSecurityRulePortMin(PORT_RANGE_MIN);
-                portSecurityRule.setSecurityRulePortMax(PORT_RANGE_MAX);
-                egressAclTcp(dpidLong, segmentationId, srcMac,
-                        portSecurityRule,dstAddress, write,
-                        Constants.PROTO_PORT_PREFIX_MATCH_PRIORITY);
-            } else if (portSecurityRule.getSecurityRuleProtocol().equals(MatchUtils.UDP_PROTOCOL)) {
-                portSecurityRule.setSecurityRulePortMin(PORT_RANGE_MIN);
-                portSecurityRule.setSecurityRulePortMax(PORT_RANGE_MAX);
-                egressAclUdp(dpidLong, segmentationId, srcMac,
-                        portSecurityRule, dstAddress, write,
-                        Constants.PROTO_PORT_PREFIX_MATCH_PRIORITY);
-            } else if (portSecurityRule.getSecurityRuleProtocol().equals(MatchUtils.ICMP_PROTOCOL)) {
-                egressAclIcmp(dpidLong, segmentationId, srcMac,
-                        portSecurityRule, dstAddress,write,
-                        Constants.PROTO_PORT_PREFIX_MATCH_PRIORITY);
-            } else {
-                MatchBuilder matchBuilder = new MatchBuilder();
-                String flowId = "Egress_Other_" + segmentationId + "_" + srcMac + "_";
-                matchBuilder = MatchUtils.createV4EtherMatchWithType(matchBuilder,srcMac,null,MatchUtils.ETHERTYPE_IPV4);
-                short proto = 0;
-                try {
-                    Integer protocol = new Integer(portSecurityRule.getSecurityRuleProtocol());
-                    proto = protocol.shortValue();
-                    flowId = flowId + proto;
-                } catch (NumberFormatException e) {
-                    LOG.error("Protocol vlaue conversion failure", e);
-                }
-                matchBuilder = MatchUtils.createIpProtocolAndEthMatch(matchBuilder, proto, srcMac, null);
-                if (null != dstAddress) {
-                    flowId = flowId + dstAddress;
-                    matchBuilder = MatchUtils.addRemoteIpPrefix(matchBuilder, null,
-                                                                 MatchUtils.iPv4PrefixFromIPv4Address(dstAddress));
-                } else if (null != portSecurityRule.getSecurityRuleRemoteIpPrefix()) {
-                    flowId = flowId + portSecurityRule.getSecurityRuleRemoteIpPrefix();
-                    if(isIpv6) {
-                        matchBuilder = MatchUtils.addRemoteIpv6Prefix(matchBuilder,null,
-                                new Ipv6Prefix(portSecurityRule.getSecurityRuleRemoteIpPrefix()));
-                    } else {
-                        if (!portSecurityRule.getSecurityRuleRemoteIpPrefix().contains("/0")) {
-                            matchBuilder = MatchUtils.addRemoteIpPrefix(matchBuilder, null,
-                                new Ipv4Prefix(portSecurityRule.getSecurityRuleRemoteIpPrefix()));
+            switch (portSecurityRule.getSecurityRuleProtocol()) {
+                case MatchUtils.TCP_PROTOCOL:
+                    portSecurityRule.setSecurityRulePortMin(PORT_RANGE_MIN);
+                    portSecurityRule.setSecurityRulePortMax(PORT_RANGE_MAX);
+                    egressAclTcp(dpidLong, segmentationId, srcMac,
+                            portSecurityRule, dstAddress, write,
+                            Constants.PROTO_PORT_PREFIX_MATCH_PRIORITY, false);
+                    break;
+                case MatchUtils.UDP_PROTOCOL:
+                    portSecurityRule.setSecurityRulePortMin(PORT_RANGE_MIN);
+                    portSecurityRule.setSecurityRulePortMax(PORT_RANGE_MAX);
+                    egressAclUdp(dpidLong, segmentationId, srcMac,
+                            portSecurityRule, dstAddress, write,
+                            Constants.PROTO_PORT_PREFIX_MATCH_PRIORITY, false);
+                    break;
+                case MatchUtils.ICMP_PROTOCOL:
+                    egressAclIcmp(dpidLong, segmentationId, srcMac,
+                            portSecurityRule, dstAddress, write,
+                            Constants.PROTO_PORT_PREFIX_MATCH_PRIORITY, false);
+                    break;
+                default:
+                    MatchBuilder matchBuilder = new MatchBuilder();
+                    String flowId = "Egress_Other_" + segmentationId + "_" + srcMac + "_";
+                    matchBuilder = MatchUtils.createV4EtherMatchWithType(matchBuilder, srcMac, null,
+                            MatchUtils.ETHERTYPE_IPV4);
+                    short proto = 0;
+                    try {
+                        Integer protocol = new Integer(portSecurityRule.getSecurityRuleProtocol());
+                        proto = protocol.shortValue();
+                        flowId = flowId + proto;
+                    } catch (NumberFormatException e) {
+                        LOG.error("Protocol vlaue conversion failure", e);
+                    }
+                    matchBuilder = MatchUtils.createIpProtocolAndEthMatch(matchBuilder, proto, srcMac, null);
+                    if (null != dstAddress) {
+                        flowId = flowId + dstAddress;
+                        matchBuilder = MatchUtils.addRemoteIpPrefix(matchBuilder, null,
+                                MatchUtils.iPv4PrefixFromIPv4Address(dstAddress));
+                    } else if (null != portSecurityRule.getSecurityRuleRemoteIpPrefix()) {
+                        flowId = flowId + portSecurityRule.getSecurityRuleRemoteIpPrefix();
+                        if (isIpv6) {
+                            matchBuilder = MatchUtils.addRemoteIpv6Prefix(matchBuilder, null,
+                                    new Ipv6Prefix(portSecurityRule.getSecurityRuleRemoteIpPrefix()));
+                        } else {
+                            if (!portSecurityRule.getSecurityRuleRemoteIpPrefix().contains("/0")) {
+                                matchBuilder = MatchUtils.addRemoteIpPrefix(matchBuilder, null,
+                                        new Ipv4Prefix(portSecurityRule.getSecurityRuleRemoteIpPrefix()));
+                            }
                         }
                     }
-                }
-                flowId = flowId + "_Permit";
-                NodeBuilder nodeBuilder = FlowUtils.createNodeBuilder(dpidLong);
-                FlowBuilder flowBuilder = FlowUtils.createFlowBuilder(flowId, priority, matchBuilder, getTable());
-                addInstructionWithConntrackCommit(flowBuilder, false);
-                syncFlow(flowBuilder ,nodeBuilder, write);
+                    flowId = flowId + "_Permit";
+                    NodeBuilder nodeBuilder = FlowUtils.createNodeBuilder(dpidLong);
+                    FlowBuilder flowBuilder = FlowUtils.createFlowBuilder(flowId, priority, matchBuilder, getTable());
+                    addInstructionWithConntrackCommit(flowBuilder, false);
+                    syncFlow(flowBuilder, nodeBuilder, write);
+                    break;
             }
         }
     }
@@ -473,17 +478,23 @@ public class EgressAclService extends AbstractServiceInstance implements EgressA
      * @param segmentationId the segementation id
      * @param srcMac the src mac address
      * @param write add or remove
+     * @param isRegMatchReq add Reg MAtch or not
      * @param protoPortMatchPriority the protocol match priority.
      */
     private void egressAclIp(Long dpidLong, boolean isIpv6, String segmentationId, String srcMac,
                              NeutronSecurityRule portSecurityRule, String srcAddress,
-                               boolean write, Integer protoPortMatchPriority ) {
+                               boolean write, Integer protoPortMatchPriority, boolean isRegMatchReq ) {
         MatchBuilder matchBuilder = new MatchBuilder();
         String flowId = "Egress_IP" + segmentationId + "_" + srcMac + "_Permit_";
         if (isIpv6) {
             matchBuilder = MatchUtils.createV6EtherMatchWithType(matchBuilder,srcMac,null);
         } else {
             matchBuilder = MatchUtils.createV4EtherMatchWithType(matchBuilder,srcMac,null,MatchUtils.ETHERTYPE_IPV4);
+        }
+        if (isRegMatchReq) {
+            flowId = flowId + "_regEx_";
+            MatchUtils.addNxRegMatch(matchBuilder,
+                    new MatchUtils.RegMatch(ClassifierService.REG_FIELD_6, ClassifierService.REG_VALUE_FROM_LOCAL_0));
         }
         if (null != srcAddress) {
             flowId = flowId + srcAddress;
@@ -493,6 +504,20 @@ public class EgressAclService extends AbstractServiceInstance implements EgressA
             } else {
                 matchBuilder = MatchUtils.addRemoteIpPrefix(matchBuilder,
                         MatchUtils.iPv4PrefixFromIPv4Address(srcAddress),null);
+            }
+        } else if (null != portSecurityRule.getSecurityRuleRemoteIpPrefix()) {
+            flowId = flowId + portSecurityRule.getSecurityRuleRemoteIpPrefix();
+            if (isIpv6) {
+                matchBuilder = MatchUtils.addRemoteIpv6Prefix(matchBuilder,null,
+                        new Ipv6Prefix(portSecurityRule.getSecurityRuleRemoteIpPrefix()));
+            } else {
+                // Fix: Bug 6473
+                // IP match removed if CIDR created as 0.0.0.0/0 in openstack security rule
+                if (!portSecurityRule.getSecurityRuleRemoteIpPrefix().contains("/0")) {
+                    matchBuilder = MatchUtils.addRemoteIpPrefix(matchBuilder,null,
+                            new Ipv4Prefix(portSecurityRule
+                                           .getSecurityRuleRemoteIpPrefix()));
+                 }
             }
         } else {
             if (isIpv6) {
@@ -518,11 +543,12 @@ public class EgressAclService extends AbstractServiceInstance implements EgressA
      * @param portSecurityRule the security rule in the SG
      * @param dstAddress the destination IP address
      * @param write add or delete
+     * @param isRegMatchReq add Reg MAtch or not
      * @param protoPortMatchPriority the protocol match priroty
      */
     private void egressAclTcp(Long dpidLong, String segmentationId, String srcMac,
                               NeutronSecurityRule portSecurityRule, String dstAddress,
-                              boolean write, Integer protoPortMatchPriority) {
+                              boolean write, Integer protoPortMatchPriority, boolean isRegMatchReq) {
         boolean portRange = false;
         MatchBuilder matchBuilder = new MatchBuilder();
         String flowId = "Egress_TCP_" + segmentationId + "_" + srcMac + "_";
@@ -531,6 +557,11 @@ public class EgressAclService extends AbstractServiceInstance implements EgressA
             matchBuilder = MatchUtils.createV6EtherMatchWithType(matchBuilder,srcMac,null);
         } else {
             matchBuilder = MatchUtils.createV4EtherMatchWithType(matchBuilder,srcMac,null,MatchUtils.ETHERTYPE_IPV4);
+        }
+        if (isRegMatchReq) {
+            flowId = flowId + "_regEx_";
+            MatchUtils.addNxRegMatch(matchBuilder,
+                    new MatchUtils.RegMatch(ClassifierService.REG_FIELD_6, ClassifierService.REG_VALUE_FROM_LOCAL_0));
         }
 
         /* Custom TCP Match */
@@ -607,15 +638,15 @@ public class EgressAclService extends AbstractServiceInstance implements EgressA
 
     private void egressAclIcmp(Long dpidLong, String segmentationId, String srcMac,
             NeutronSecurityRule portSecurityRule, String dstAddress,
-            boolean write, Integer protoPortMatchPriority) {
+            boolean write, Integer protoPortMatchPriority, boolean isRegMatchReq) {
 
         boolean isIpv6 = NeutronSecurityRule.ETHERTYPE_IPV6.equals(portSecurityRule.getSecurityRuleEthertype());
         if (isIpv6) {
             egressAclIcmpV6(dpidLong, segmentationId, srcMac, portSecurityRule, dstAddress, write,
-                            protoPortMatchPriority);
+                            protoPortMatchPriority, isRegMatchReq);
         } else {
             egressAclIcmpV4(dpidLong, segmentationId, srcMac, portSecurityRule, dstAddress, write,
-                            protoPortMatchPriority);
+                            protoPortMatchPriority, isRegMatchReq);
         }
     }
 
@@ -629,11 +660,12 @@ public class EgressAclService extends AbstractServiceInstance implements EgressA
      * @param portSecurityRule the security rule in the SG
      * @param dstAddress the source IP address
      * @param write add or delete
+     * @param isRegMatchReq add Reg MAtch or not
      * @param protoPortMatchPriority the protocol match priority
      */
     private void egressAclIcmpV4(Long dpidLong, String segmentationId, String srcMac,
                                  NeutronSecurityRule portSecurityRule, String dstAddress,
-                                 boolean write, Integer protoPortMatchPriority) {
+                                 boolean write, Integer protoPortMatchPriority, boolean isRegMatchReq) {
 
         MatchBuilder matchBuilder = new MatchBuilder();
         boolean isIcmpAll = false;
@@ -652,6 +684,11 @@ public class EgressAclService extends AbstractServiceInstance implements EgressA
             /* All ICMP Match */ // We are getting from neutron NULL for both min and max
             flowId = flowId + "all" + "_" ;
             matchBuilder = MatchUtils.createICMPv4Match(matchBuilder, MatchUtils.ALL_ICMP, MatchUtils.ALL_ICMP);
+        }
+        if (isRegMatchReq) {
+            flowId = flowId + "_regEx_";
+            MatchUtils.addNxRegMatch(matchBuilder,
+                    new MatchUtils.RegMatch(ClassifierService.REG_FIELD_6, ClassifierService.REG_VALUE_FROM_LOCAL_0));
         }
         if (null != dstAddress) {
             flowId = flowId + dstAddress;
@@ -680,7 +717,7 @@ public class EgressAclService extends AbstractServiceInstance implements EgressA
                 addInstructionWithLearnConntrackCommit(portSecurityRule, flowBuilder, entry.getValue(), "0");
                 syncFlow(flowBuilder ,nodeBuilder, write);
             }
-            addIcmpFlow(nodeBuilder, portSecurityRule, segmentationId, srcMac, dstAddress, write);
+            addIcmpFlow(nodeBuilder, portSecurityRule, segmentationId, srcMac, dstAddress, write, isRegMatchReq);
         } else {
             flowId = flowId + "_Permit";
             addConntrackMatch(matchBuilder, MatchUtils.TRACKED_NEW_CT_STATE,MatchUtils.TRACKED_NEW_CT_STATE_MASK);
@@ -696,7 +733,7 @@ public class EgressAclService extends AbstractServiceInstance implements EgressA
     }
 
     private void addIcmpFlow(NodeBuilder nodeBuilder, NeutronSecurityRule portSecurityRule, String segmentationId, String srcMac,
-            String dstAddress, boolean write){
+            String dstAddress, boolean write, boolean isRegMatchReq){
         MatchBuilder matchBuilder = new MatchBuilder();
         InstructionBuilder instructionBuilder = null;
         short learnTableId=getTable(Service.ACL_LEARN_SERVICE);
@@ -715,6 +752,11 @@ public class EgressAclService extends AbstractServiceInstance implements EgressA
                 matchBuilder = MatchUtils.addRemoteIpPrefix(matchBuilder,null,
                     new Ipv4Prefix(portSecurityRule.getSecurityRuleRemoteIpPrefix()));
             }
+        }
+        if (isRegMatchReq) {
+            flowId = flowId + "_regEx_";
+            MatchUtils.addNxRegMatch(matchBuilder,
+                    new MatchUtils.RegMatch(ClassifierService.REG_FIELD_6, ClassifierService.REG_VALUE_FROM_LOCAL_0));
         }
         Icmpv4MatchBuilder icmpv4match = new Icmpv4MatchBuilder();
         matchBuilder.setIcmpv4Match(icmpv4match.build());
@@ -736,11 +778,12 @@ public class EgressAclService extends AbstractServiceInstance implements EgressA
      * @param portSecurityRule the security rule in the SG
      * @param dstAddress the source IP address
      * @param write add or delete
+     * @param isRegMatchReq add Reg MAtch or not
      * @param protoPortMatchPriority the protocol match priority
      */
     private void egressAclIcmpV6(Long dpidLong, String segmentationId, String srcMac,
                                  NeutronSecurityRule portSecurityRule, String dstAddress,
-                                 boolean write, Integer protoPortMatchPriority) {
+                                 boolean write, Integer protoPortMatchPriority, boolean isRegMatchReq) {
 
         MatchBuilder matchBuilder = new MatchBuilder();
         String flowId = "Egress_ICMP_" + segmentationId + "_" + srcMac + "_";
@@ -758,6 +801,11 @@ public class EgressAclService extends AbstractServiceInstance implements EgressA
             /* All ICMP Match */ // We are getting from neutron NULL for both min and max
             flowId = flowId + "all" + "_" ;
             matchBuilder = MatchUtils.createICMPv6Match(matchBuilder, MatchUtils.ALL_ICMP, MatchUtils.ALL_ICMP);
+        }
+        if (isRegMatchReq) {
+            flowId = flowId + "_regEx_";
+            MatchUtils.addNxRegMatch(matchBuilder,
+                    new MatchUtils.RegMatch(ClassifierService.REG_FIELD_6, ClassifierService.REG_VALUE_FROM_LOCAL_0));
         }
         if (null != dstAddress) {
             flowId = flowId + dstAddress;
@@ -786,11 +834,12 @@ public class EgressAclService extends AbstractServiceInstance implements EgressA
      * @param portSecurityRule the security rule in the SG
      * @param dstAddress the source IP address
      * @param write add or delete
+     * @param isRegMatchReq add Reg MAtch or not
      * @param protoPortMatchPriority the protocol match priroty
      */
     private void egressAclUdp(Long dpidLong, String segmentationId, String srcMac,
                               NeutronSecurityRule portSecurityRule, String dstAddress,
-                              boolean write, Integer protoPortMatchPriority) {
+                              boolean write, Integer protoPortMatchPriority, boolean isRegMatchReq) {
         boolean portRange = false;
         MatchBuilder matchBuilder = new MatchBuilder();
         String flowId = "Egress_UDP_" + segmentationId + "_" + srcMac + "_";
@@ -799,6 +848,11 @@ public class EgressAclService extends AbstractServiceInstance implements EgressA
             matchBuilder = MatchUtils.createV6EtherMatchWithType(matchBuilder,srcMac,null);
         } else {
             matchBuilder = MatchUtils.createV4EtherMatchWithType(matchBuilder,srcMac,null,MatchUtils.ETHERTYPE_IPV4);
+        }
+        if (isRegMatchReq) {
+            flowId = flowId + "_regEx_";
+            MatchUtils.addNxRegMatch(matchBuilder,
+                    new MatchUtils.RegMatch(ClassifierService.REG_FIELD_6, ClassifierService.REG_VALUE_FROM_LOCAL_0));
         }
 
         /* Custom UDP Match */
@@ -1038,7 +1092,7 @@ public class EgressAclService extends AbstractServiceInstance implements EgressA
 
             instructionBuilder = InstructionUtils
                     .createInstructionBuilder(ActionUtils.conntrackActionBuilder(conntrackAction), 1, false);
-            List<Instruction> instructionsList = Lists.newArrayList();
+            List<Instruction> instructionsList = new ArrayList<>();
             instructionsList.add(instructionBuilder.build());
             InstructionsBuilder isb = new InstructionsBuilder();
             isb.setInstruction(instructionsList);
@@ -1050,7 +1104,7 @@ public class EgressAclService extends AbstractServiceInstance implements EgressA
     private FlowBuilder addPipelineInstruction( FlowBuilder flowBuilder ,
                                                 InstructionBuilder instructionBuilder,boolean isDrop) {
         InstructionBuilder pipeLineIndstructionBuilder = createPipleLineInstructionBuilder(isDrop);
-        List<Instruction> instructionsList = Lists.newArrayList();
+        List<Instruction> instructionsList = new ArrayList<>();
         instructionsList.add(pipeLineIndstructionBuilder.build());
         if (null != instructionBuilder) {
             instructionsList.add(instructionBuilder.build());
@@ -1067,7 +1121,7 @@ public class EgressAclService extends AbstractServiceInstance implements EgressA
             InstructionUtils.createDropInstructions(ib);
         }
         ib.setOrder(0);
-        List<Instruction> instructionsList = Lists.newArrayList();
+        List<Instruction> instructionsList = new ArrayList<>();
         ib.setKey(new InstructionKey(0));
         instructionsList.add(ib.build());
         return ib;

@@ -11,16 +11,16 @@ package org.opendaylight.netvirt.openstack.netvirt.providers.openflow13.services
 import java.math.BigInteger;
 import java.net.Inet6Address;
 import java.net.InetAddress;
+import java.util.ArrayList;
 import java.util.List;
-
 import org.opendaylight.netvirt.openstack.netvirt.api.Action;
 import org.opendaylight.netvirt.openstack.netvirt.api.ArpProvider;
+import org.opendaylight.netvirt.openstack.netvirt.api.Constants;
 import org.opendaylight.netvirt.openstack.netvirt.api.Status;
 import org.opendaylight.netvirt.openstack.netvirt.api.StatusCode;
+import org.opendaylight.netvirt.openstack.netvirt.providers.ConfigInterface;
 import org.opendaylight.netvirt.openstack.netvirt.providers.openflow13.AbstractServiceInstance;
 import org.opendaylight.netvirt.openstack.netvirt.providers.openflow13.Service;
-import org.opendaylight.netvirt.openstack.netvirt.api.Constants;
-import org.opendaylight.netvirt.openstack.netvirt.providers.ConfigInterface;
 import org.opendaylight.netvirt.utils.mdsal.openflow.ActionUtils;
 import org.opendaylight.netvirt.utils.mdsal.openflow.FlowUtils;
 import org.opendaylight.netvirt.utils.mdsal.openflow.MatchUtils;
@@ -37,12 +37,10 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.instru
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.instruction.list.InstructionKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.NodeBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.l2.types.rev130827.EtherType;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.google.common.collect.Lists;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ArpResponderService extends AbstractServiceInstance implements ArpProvider, ConfigInterface {
     private static final Logger LOG = LoggerFactory.getLogger(ArpResponderService.class);
@@ -90,11 +88,11 @@ public class ArpResponderService extends AbstractServiceInstance implements ArpP
         if (action.equals(Action.ADD)) {
             // Instructions List Stores Individual Instructions
             InstructionsBuilder isb = new InstructionsBuilder();
-            List<Instruction> instructions = Lists.newArrayList();
+            List<Instruction> instructions = new ArrayList<>();
             InstructionBuilder ib = new InstructionBuilder();
             ApplyActionsBuilder aab = new ApplyActionsBuilder();
             ActionBuilder ab = new ActionBuilder();
-            List<org.opendaylight.yang.gen.v1.urn.opendaylight.action.types.rev131112.action.list.Action> actionList = Lists.newArrayList();
+            List<org.opendaylight.yang.gen.v1.urn.opendaylight.action.types.rev131112.action.list.Action> actionList = new ArrayList<>();
 
             // Move Eth Src to Eth Dst
             ab.setAction(ActionUtils.nxMoveEthSrcToEthDstAction());

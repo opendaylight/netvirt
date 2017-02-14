@@ -12,7 +12,6 @@ import java.util.ArrayList;
 import javax.management.AttributeChangeNotification;
 import javax.management.JMException;
 import javax.management.MBeanServer;
-import javax.management.Notification;
 import javax.management.NotificationBroadcasterSupport;
 import javax.management.ObjectName;
 import org.slf4j.Logger;
@@ -22,7 +21,7 @@ public class BgpAlarmBroadcaster extends NotificationBroadcasterSupport implemen
     private static final Logger LOG = LoggerFactory.getLogger(BgpAlarmBroadcaster.class);
     private long sequenceNumber;
 
-    public BgpAlarmBroadcaster () {
+    public BgpAlarmBroadcaster() {
         this.sequenceNumber = 1;
     }
 
@@ -38,22 +37,15 @@ public class BgpAlarmBroadcaster extends NotificationBroadcasterSupport implemen
         LOG.info("{} start", getClass().getSimpleName());
     }
 
-    public void sendBgpAlarmInfo(String pfx, int code , int subcode) {
-        Notification n;
-        String alarmAddText, alarmSrc = "BGP";
-        BgpAlarmErrorCodes userAlarm;
-        ArrayList<String> arrayList = new ArrayList<String>();
-
-        userAlarm = BgpAlarmErrorCodes.checkErrorSubcode(subcode);
-        alarmAddText = "Peer=" + pfx;
-        arrayList.clear();
+    public void sendBgpAlarmInfo(String pfx, int code, int subcode) {
+        BgpAlarmErrorCodes userAlarm = BgpAlarmErrorCodes.checkErrorSubcode(subcode);
+        ArrayList<String> arrayList = new ArrayList<>();
         arrayList.add(userAlarm.getAlarmType());
-        arrayList.add(alarmAddText);
-        arrayList.add(alarmSrc);
-        n = new AttributeChangeNotification(this, sequenceNumber++, System.currentTimeMillis(),
-                                            "raise Alarm Object notified", "raiseAlarmObject",
-                                            "ArrayList", "", arrayList);
-        sendNotification(n);
-        LOG.info("BGP: Alarm :"+ userAlarm.getAlarmType() + " has been posted.");
+        arrayList.add("Peer=" + pfx);
+        arrayList.add("BGF");
+        sendNotification(new AttributeChangeNotification(this, sequenceNumber++, System.currentTimeMillis(),
+                "raise Alarm Object notified", "raiseAlarmObject",
+                "ArrayList", "", arrayList));
+        LOG.info("BGP: Alarm :" + userAlarm.getAlarmType() + " has been posted.");
     }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 Ericsson India Global Services Pvt Ltd. and others. All rights reserved.
+ * Copyright © 2016, 2017 Ericsson India Global Services Pvt Ltd. and others. All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
@@ -14,7 +14,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.netvirt.inter.vpn.link.rev160311.inter.vpn.link.states.InterVpnLinkState;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.netvirt.inter.vpn.link.rev160311.inter.vpn.link.states.InterVpnLinkState.State;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.netvirt.inter.vpn.link.rev160311.inter.vpn.links.InterVpnLink;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -74,6 +73,18 @@ public class InterVpnLinkDataComposite {
         return isComplete() && getState().isPresent() && getState().get() == InterVpnLinkState.State.Active;
     }
 
+    public boolean isBgpRoutesLeaking() {
+        return this.interVpnLinkCfg != null && this.interVpnLinkCfg.isBgpRoutesLeaking();
+    }
+
+    public boolean isStaticRoutesLeaking() {
+        return this.interVpnLinkCfg != null && this.interVpnLinkCfg.isStaticRoutesLeaking();
+    }
+
+    public boolean isConnectedRoutesLeaking() {
+        return this.interVpnLinkCfg != null && this.interVpnLinkCfg.isConnectedRoutesLeaking();
+    }
+
     public boolean isFirstEndpointVpnName(String vpnName) {
         return interVpnLinkCfg != null
                && interVpnLinkCfg.getFirstEndpoint().getVpnUuid().getValue().equals(vpnName);
@@ -82,6 +93,10 @@ public class InterVpnLinkDataComposite {
     public boolean isSecondEndpointVpnName(String vpnName) {
         return interVpnLinkCfg != null
                && interVpnLinkCfg.getSecondEndpoint().getVpnUuid().getValue().equals(vpnName);
+    }
+
+    public boolean isVpnLinked(String vpnName) {
+        return isFirstEndpointVpnName(vpnName) || isSecondEndpointVpnName(vpnName);
     }
 
     public boolean isFirstEndpointIpAddr(String endpointIp) {
@@ -97,8 +112,8 @@ public class InterVpnLinkDataComposite {
     public boolean isIpAddrTheOtherVpnEndpoint(String ipAddr, String vpnUuid) {
         return (vpnUuid.equals(getFirstEndpointVpnUuid().orNull())
                     && ipAddr.equals(getSecondEndpointIpAddr().orNull()))
-               || ( vpnUuid.equals(getSecondEndpointVpnUuid().orNull())
-                     && ipAddr.equals(getFirstEndpointIpAddr().orNull() ) );
+               || (vpnUuid.equals(getSecondEndpointVpnUuid().orNull())
+                     && ipAddr.equals(getFirstEndpointIpAddr().orNull()));
     }
 
     public String getInterVpnLinkName() {
@@ -106,47 +121,53 @@ public class InterVpnLinkDataComposite {
     }
 
     public Optional<String> getFirstEndpointVpnUuid() {
-        if ( this.interVpnLinkCfg == null ) {
+        if (this.interVpnLinkCfg == null) {
             return Optional.absent();
         }
         return Optional.of(this.interVpnLinkCfg.getFirstEndpoint().getVpnUuid().getValue());
     }
 
     public Optional<String> getFirstEndpointIpAddr() {
-        if ( this.interVpnLinkCfg == null ) {
+        if (this.interVpnLinkCfg == null) {
             return Optional.absent();
         }
         return Optional.of(this.interVpnLinkCfg.getFirstEndpoint().getIpAddress().getValue());
     }
 
     public List<BigInteger> getFirstEndpointDpns() {
-        return ( !isComplete() || this.interVpnLinkState.getFirstEndpointState().getDpId() == null )
-                   ? Collections.<BigInteger>emptyList()
+        return (!isComplete() || this.interVpnLinkState.getFirstEndpointState().getDpId() == null)
+                   ? Collections.emptyList()
                    : this.interVpnLinkState.getFirstEndpointState().getDpId();
     }
 
     public Optional<String> getSecondEndpointVpnUuid() {
-        if ( !isComplete() ) {
+        if (!isComplete()) {
             return Optional.absent();
         }
         return Optional.of(this.interVpnLinkCfg.getSecondEndpoint().getVpnUuid().getValue());
     }
 
     public Optional<String> getSecondEndpointIpAddr() {
-        if ( !isComplete() ) {
+        if (!isComplete()) {
             return Optional.absent();
         }
         return Optional.of(this.interVpnLinkCfg.getSecondEndpoint().getIpAddress().getValue());
     }
 
     public List<BigInteger> getSecondEndpointDpns() {
-        return (!isComplete() || this.interVpnLinkState.getSecondEndpointState().getDpId() == null )
-                    ? Collections.<BigInteger>emptyList()
+        return (!isComplete() || this.interVpnLinkState.getSecondEndpointState().getDpId() == null)
+                    ? Collections.emptyList()
                     : this.interVpnLinkState.getSecondEndpointState().getDpId();
     }
 
+    public String getOtherVpnName(String thisVpnName) {
+        Optional<String> optOtherVpnName = isFirstEndpointVpnName(thisVpnName) ? getSecondEndpointVpnUuid()
+                                                                               : getFirstEndpointVpnUuid();
+        return optOtherVpnName.orNull();
+    }
+
     public Optional<Long> getEndpointLportTagByIpAddr(String endpointIp) {
-        if ( !isComplete() ) {
+        if (!isComplete()) {
             return Optional.absent();
         }
 
@@ -156,7 +177,7 @@ public class InterVpnLinkDataComposite {
     }
 
     public Optional<Long> getOtherEndpointLportTagByVpnName(String vpnName) {
-        if ( !isComplete() ) {
+        if (!isComplete()) {
             return Optional.absent();
         }
 
@@ -165,7 +186,7 @@ public class InterVpnLinkDataComposite {
     }
 
     public String getOtherEndpoint(String vpnUuid) {
-        if ( !isFirstEndpointVpnName(vpnUuid) && !isSecondEndpointVpnName(vpnUuid)) {
+        if (!isFirstEndpointVpnName(vpnUuid) && !isSecondEndpointVpnName(vpnUuid)) {
             LOG.debug("VPN {} does not participate in InterVpnLink {}", vpnUuid, getInterVpnLinkName());
             return null;
         }
@@ -175,8 +196,19 @@ public class InterVpnLinkDataComposite {
         return optEndpointIpAddr.orNull();
     }
 
+    public String getEndpointIpAddr(String vpnUuid) {
+        if (!isFirstEndpointVpnName(vpnUuid) && !isSecondEndpointVpnName(vpnUuid)) {
+            LOG.debug("VPN {} does not participate in InterVpnLink {}", vpnUuid, getInterVpnLinkName());
+            return null;
+        }
+
+        Optional<String> optEndpointIpAddr = isFirstEndpointVpnName(vpnUuid) ? getFirstEndpointIpAddr()
+                                                                             : getSecondEndpointIpAddr();
+        return optEndpointIpAddr.orNull();
+    }
+
     public List<BigInteger> getEndpointDpnsByVpnName(String vpnUuid) {
-        if ( !isComplete() ) {
+        if (!isComplete()) {
             return new ArrayList<>();
         }
 
@@ -186,7 +218,7 @@ public class InterVpnLinkDataComposite {
 
     public List<BigInteger> getOtherEndpointDpnsByVpnName(String vpnUuid) {
         List<BigInteger> result = new ArrayList<>();
-        if ( !isComplete() ) {
+        if (!isComplete()) {
             return result;
         }
 
@@ -196,7 +228,7 @@ public class InterVpnLinkDataComposite {
 
     public List<BigInteger> getEndpointDpnsByIpAddr(String endpointIp) {
         List<BigInteger> result = new ArrayList<>();
-        if ( !isComplete()) {
+        if (!isComplete()) {
             return result;
         }
 
@@ -206,7 +238,7 @@ public class InterVpnLinkDataComposite {
 
     public List<BigInteger> getOtherEndpointDpnsByIpAddr(String endpointIp) {
         List<BigInteger> result = new ArrayList<>();
-        if ( !isComplete()) {
+        if (!isComplete()) {
             return result;
         }
 

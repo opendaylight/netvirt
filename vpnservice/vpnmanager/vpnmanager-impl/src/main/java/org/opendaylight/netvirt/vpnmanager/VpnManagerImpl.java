@@ -72,25 +72,25 @@ public class VpnManagerImpl implements IVpnManager {
 
     private void createIdPool() {
         CreateIdPoolInput createPool = new CreateIdPoolInputBuilder()
-                .setPoolName(VpnConstants.VPN_IDPOOL_NAME)
-                .setLow(VpnConstants.VPN_IDPOOL_START)
-                .setHigh(new BigInteger(VpnConstants.VPN_IDPOOL_SIZE).longValue())
-                .build();
+            .setPoolName(VpnConstants.VPN_IDPOOL_NAME)
+            .setLow(VpnConstants.VPN_IDPOOL_START)
+            .setHigh(new BigInteger(VpnConstants.VPN_IDPOOL_SIZE).longValue())
+            .build();
         try {
             Future<RpcResult<Void>> result = idManager.createIdPool(createPool);
             if (result != null && result.get().isSuccessful()) {
                 LOG.info("Created IdPool for VPN Service");
             }
         } catch (InterruptedException | ExecutionException e) {
-            LOG.error("Failed to create idPool for VPN Service",e);
+            LOG.error("Failed to create idPool for VPN Service", e);
         }
 
         // Now an IdPool for InterVpnLink endpoint's pseudo ports
         CreateIdPoolInput createPseudoLporTagPool =
-                new CreateIdPoolInputBuilder().setPoolName(VpnConstants.PSEUDO_LPORT_TAG_ID_POOL_NAME)
-                        .setLow(VpnConstants.LOWER_PSEUDO_LPORT_TAG)
-                        .setHigh(VpnConstants.UPPER_PSEUDO_LPORT_TAG)
-                        .build();
+            new CreateIdPoolInputBuilder().setPoolName(VpnConstants.PSEUDO_LPORT_TAG_ID_POOL_NAME)
+                .setLow(VpnConstants.LOWER_PSEUDO_LPORT_TAG)
+                .setHigh(VpnConstants.UPPER_PSEUDO_LPORT_TAG)
+                .build();
         try {
             Future<RpcResult<Void>> result = idManager.createIdPool(createPseudoLporTagPool);
             if (result != null && result.get().isSuccessful()) {
@@ -98,13 +98,13 @@ public class VpnManagerImpl implements IVpnManager {
             } else {
                 Collection<RpcError> errors = result.get().getErrors();
                 StringBuilder errMsg = new StringBuilder();
-                for ( RpcError err : errors ) {
+                for (RpcError err : errors) {
                     errMsg.append(err.getMessage()).append("\n");
                 }
                 LOG.error("IdPool creation for PseudoPort tags failed. Reasons: {}", errMsg);
             }
         } catch (InterruptedException | ExecutionException e) {
-            LOG.error("Failed to create idPool for Pseudo Port tags",e);
+            LOG.error("Failed to create idPool for Pseudo Port tags", e);
         }
     }
 
@@ -115,11 +115,11 @@ public class VpnManagerImpl implements IVpnManager {
 
     @Override
     public void addExtraRoute(String destination, String nextHop, String rd, String routerID, int label,
-                              RouteOrigin origin) {
+        RouteOrigin origin) {
         LOG.info("Adding extra route with destination {}, nextHop {}, label{} and origin {}",
-                 destination, nextHop, label, origin);
+            destination, nextHop, label, origin);
         vpnInterfaceManager.addExtraRoute(destination, nextHop, rd, routerID, label, origin, /*intfName*/ null,
-                                          null, null);
+            null, null);
     }
 
     @Override
@@ -155,10 +155,10 @@ public class VpnManagerImpl implements IVpnManager {
 
     @Override
     public void setupSubnetMacIntoVpnInstance(String vpnName, String srcMacAddress,
-                                              BigInteger dpnId, WriteTransaction writeTx,
-                                              int addOrRemove) {
+        BigInteger dpnId, WriteTransaction writeTx,
+        int addOrRemove) {
         VpnUtil.setupSubnetMacIntoVpnInstance(dataBroker, mdsalManager, vpnName, srcMacAddress,
-                dpnId, writeTx, addOrRemove);
+            dpnId, writeTx, addOrRemove);
     }
 
     @Override
@@ -197,6 +197,12 @@ public class VpnManagerImpl implements IVpnManager {
     @Override
     public void setupArpResponderFlowsToExternalNetworkIps(String id, Collection<String> fixedIps, String macAddress,
             BigInteger dpnId, Uuid extNetworkId, WriteTransaction writeTx, int addOrRemove) {
+
+        if (dpnId == null || BigInteger.ZERO.equals(dpnId)) {
+            LOG.warn("Failed to install arp responder flows for router {}. DPN id is missing.", id);
+            return;
+        }
+
         String extInterfaceName = elanService.getExternalElanInterface(extNetworkId.getValue(), dpnId);
         if (extInterfaceName == null) {
             LOG.warn("Failed to install responder flows for {}. No external interface found for DPN id {}", id, dpnId);
@@ -225,7 +231,7 @@ public class VpnManagerImpl implements IVpnManager {
 
     @Override
     public void setupArpResponderFlowsToExternalNetworkIps(String id, Collection<String> fixedIps, String macAddress,
-            BigInteger dpnId, long vpnId, String extInterfaceName, int lPortTag, WriteTransaction writeTx,
+            BigInteger dpnId, long vpnId, String extInterfaceName, int lportTag, WriteTransaction writeTx,
             int addOrRemove) {
         if (fixedIps == null || fixedIps.isEmpty()) {
             LOG.debug("No external IPs defined for {}", id);
@@ -243,10 +249,10 @@ public class VpnManagerImpl implements IVpnManager {
 
         for (String fixedIp : fixedIps) {
             if (addOrRemove == NwConstants.ADD_FLOW) {
-                installArpResponderFlowsToExternalNetworkIp(macAddress, dpnId, extInterfaceName, lPortTag, vpnId, fixedIp,
-                        writeTx);
+                installArpResponderFlowsToExternalNetworkIp(macAddress, dpnId, extInterfaceName, lportTag, vpnId,
+                        fixedIp, writeTx);
             } else {
-                removeArpResponderFlowsToExternalNetworkIp(dpnId, lPortTag, fixedIp, writeTx);
+                removeArpResponderFlowsToExternalNetworkIp(dpnId, lportTag, fixedIp, writeTx);
             }
         }
 
@@ -255,8 +261,8 @@ public class VpnManagerImpl implements IVpnManager {
         }
     }
 
-    private void installArpResponderFlowsToExternalNetworkIp(String macAddress, BigInteger dpnId, String extInterfaceName,
-            Integer lportTag, long vpnId, String fixedIp, WriteTransaction writeTx) {
+    private void installArpResponderFlowsToExternalNetworkIp(String macAddress, BigInteger dpnId,
+            String extInterfaceName, Integer lportTag, long vpnId, String fixedIp, WriteTransaction writeTx) {
         String flowId = ArpResponderUtil.getFlowID(lportTag, fixedIp);
         List<Instruction> instructions = ArpResponderUtil.getExtInterfaceInstructions(ifaceMgrRpcService,
                 extInterfaceName, fixedIp, macAddress);

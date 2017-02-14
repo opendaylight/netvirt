@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Ericsson India Global Services Pvt Ltd. and others.  All rights reserved.
+ * Copyright © 2015, 2017 Ericsson India Global Services Pvt Ltd. and others.  All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
@@ -11,13 +11,15 @@ import com.google.common.base.Optional;
 import io.netty.util.concurrent.GlobalEventExecutor;
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
-import java.util.Arrays;
+import java.net.SocketException;
+import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -34,22 +36,26 @@ import java.util.concurrent.Future;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
+import org.apache.thrift.TException;
 import org.opendaylight.controller.config.api.osgi.WaitingServiceTracker;
 import org.opendaylight.controller.md.sal.binding.api.ClusteredDataTreeChangeListener;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.DataChangeListener;
-import org.opendaylight.controller.md.sal.common.api.clustering.EntityOwnershipChange;
-import org.opendaylight.controller.md.sal.common.api.clustering.EntityOwnershipListener;
+import org.opendaylight.controller.md.sal.common.api.clustering.CandidateAlreadyRegisteredException;
 import org.opendaylight.controller.md.sal.common.api.clustering.EntityOwnershipService;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
+import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
+import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
+import org.opendaylight.genius.utils.batching.DefaultBatchHandler;
 import org.opendaylight.genius.utils.clustering.EntityOwnerUtils;
 import org.opendaylight.netvirt.bgpmanager.api.IBgpManager;
 import org.opendaylight.netvirt.bgpmanager.commands.ClearBgpCli;
 import org.opendaylight.netvirt.bgpmanager.oam.BgpAlarms;
 import org.opendaylight.netvirt.bgpmanager.oam.BgpConstants;
 import org.opendaylight.netvirt.bgpmanager.oam.BgpCounters;
-import org.opendaylight.netvirt.bgpmanager.oam.BgpAlarms;
 import org.opendaylight.netvirt.bgpmanager.thrift.client.BgpRouter;
 import org.opendaylight.netvirt.bgpmanager.thrift.client.BgpRouterException;
 import org.opendaylight.netvirt.bgpmanager.thrift.client.BgpSyncHandle;
@@ -57,10 +63,14 @@ import org.opendaylight.netvirt.bgpmanager.thrift.gen.Routes;
 import org.opendaylight.netvirt.bgpmanager.thrift.gen.Update;
 import org.opendaylight.netvirt.bgpmanager.thrift.gen.af_afi;
 import org.opendaylight.netvirt.bgpmanager.thrift.gen.af_safi;
+import org.opendaylight.netvirt.bgpmanager.thrift.gen.protocol_type;
 import org.opendaylight.netvirt.bgpmanager.thrift.gen.qbgpConstants;
 import org.opendaylight.netvirt.bgpmanager.thrift.server.BgpThriftService;
 import org.opendaylight.netvirt.fibmanager.api.RouteOrigin;
 import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.Bgp;
+import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.BgpControlPlaneType;
+import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.EncapType;
+import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.LayerType;
 import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.bgp.AsId;
 import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.bgp.AsIdBuilder;
 import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.bgp.ConfigServer;
@@ -85,19 +95,18 @@ import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev1509
 import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.bgp.neighbors.EbgpMultihopBuilder;
 import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.bgp.neighbors.UpdateSource;
 import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.bgp.neighbors.UpdateSourceBuilder;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.FibEntries;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.fibentries.VrfTables;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.VrfEntry;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.VpnInstanceOpDataEntry;
 import org.opendaylight.yangtools.concepts.ListenerRegistration;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-import org.opendaylight.genius.utils.batching.DefaultBatchHandler;
 import org.osgi.framework.BundleContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import java.util.concurrent.atomic.AtomicInteger;
-import org.opendaylight.yangtools.yang.binding.DataObject;
 
 public class BgpConfigurationManager {
     private static final Logger LOG = LoggerFactory.getLogger(BgpConfigurationManager.class);
@@ -123,61 +132,64 @@ public class BgpConfigurationManager {
     private static final String SDNC_BGP_MIP = "sdnc_bgp_mip";
     private static final String BGP_SDNC_MIP = "bgp_sdnc_mip";
     private static final String CLUSTER_CONF_FILE = "/cluster/etc/cluster.conf";
-    private static final Timer ipActivationCheckTimer = new Timer();
+    private static final Timer IP_ACTIVATION_CHECK_TIMER = new Timer();
     private static final int STALE_FIB_WAIT = 60;
     private static final int RESTART_DEFAULT_GR = 90;
-    private long StaleStartTime = 0;
-    private long StaleEndTime = 0;
-    private long CfgReplayStartTime = 0;
-    private long CfgReplayEndTime = 0;
-    private long StaleCleanupTime = 0;
-    private static final int dsRetryCoount = 100; //100 retries, each after waitTimeBetweenEachTryMillis seconds
-    private static final long waitTimeBetweenEachTryMillis = 1000L; //one second sleep after every retry
+    private long staleStartTime = 0;
+    private long staleEndTime = 0;
+    private long cfgReplayStartTime = 0;
+    private long cfgReplayEndTime = 0;
+    private long staleCleanupTime = 0;
+    private static final int DS_RETRY_COOUNT = 100; //100 retries, each after WAIT_TIME_BETWEEN_EACH_TRY_MILLIS seconds
+    private static final long WAIT_TIME_BETWEEN_EACH_TRY_MILLIS = 1000L; //one second sleep after every retry
 
-    public String getBgpSdncMipIp() { return readThriftIpForCommunication(BGP_SDNC_MIP);}
+    public String getBgpSdncMipIp() {
+        return readThriftIpForCommunication(BGP_SDNC_MIP);
+    }
+
     public long getStaleCleanupTime() {
-        return StaleCleanupTime;
+        return staleCleanupTime;
     }
 
     public void setStaleCleanupTime(long staleCleanupTime) {
-        StaleCleanupTime = staleCleanupTime;
+        this.staleCleanupTime = staleCleanupTime;
     }
 
     public long getCfgReplayEndTime() {
-        return CfgReplayEndTime;
+        return cfgReplayEndTime;
     }
 
     public void setCfgReplayEndTime(long cfgReplayEndTime) {
-        CfgReplayEndTime = cfgReplayEndTime;
+        this.cfgReplayEndTime = cfgReplayEndTime;
     }
 
     public long getCfgReplayStartTime() {
-        return CfgReplayStartTime;
+        return cfgReplayStartTime;
     }
 
     public void setCfgReplayStartTime(long cfgReplayStartTime) {
-        CfgReplayStartTime = cfgReplayStartTime;
+        this.cfgReplayStartTime = cfgReplayStartTime;
     }
 
     public long getStaleEndTime() {
-        return StaleEndTime;
+        return staleEndTime;
     }
 
     public void setStaleEndTime(long staleEndTime) {
-        StaleEndTime = staleEndTime;
+        this.staleEndTime = staleEndTime;
     }
 
     public long getStaleStartTime() {
-        return StaleStartTime;
+        return staleStartTime;
     }
 
     public void setStaleStartTime(long staleStartTime) {
-        StaleStartTime = staleStartTime;
+        this.staleStartTime = staleStartTime;
     }
 
 
     // to have stale FIB map (RD, Prefix)
-    //  number of seconds wait for route sync-up between ODL and BGP.
+    //  number of seconds wait for route sync-up between ODL and BGP
     private static final int BGP_RESTART_ROUTE_SYNC_SEC = 600;
 
     static String odlThriftIp = "127.0.0.1";
@@ -195,12 +207,12 @@ public class BgpConfigurationManager {
     static int totalStaledCount = 0;
     static int totalCleared = 0;
 
-    private static final Class[] reactors = {
-            ConfigServerReactor.class, AsIdReactor.class,
-            GracefulRestartReactor.class, LoggingReactor.class,
-            NeighborsReactor.class, UpdateSourceReactor.class,
-            EbgpMultihopReactor.class, AddressFamiliesReactor.class,
-            NetworksReactor.class, VrfsReactor.class, BgpReactor.class
+    private static final Class[] REACTORS = {
+        ConfigServerReactor.class, AsIdReactor.class,
+        GracefulRestartReactor.class, LoggingReactor.class,
+        NeighborsReactor.class, UpdateSourceReactor.class,
+        EbgpMultihopReactor.class, AddressFamiliesReactor.class,
+        NetworksReactor.class, VrfsReactor.class, BgpReactor.class
     };
 
     private ListenerRegistration<DataChangeListener>[] registrations;
@@ -208,17 +220,17 @@ public class BgpConfigurationManager {
     final BgpConfigurationManager bgpConfigurationManager;
 
     public BgpConfigurationManager(final DataBroker dataBroker,
-                                   final EntityOwnershipService entityOwnershipService,
-                                   final FibDSWriter fibDSWriter,
-                                   final BundleContext bundleContext)
+            final EntityOwnershipService entityOwnershipService,
+            final FibDSWriter fibDSWriter,
+            final BundleContext bundleContext)
             throws InterruptedException, ExecutionException, TimeoutException {
         BgpConfigurationManager.dataBroker = dataBroker;
         BgpConfigurationManager.fibDSWriter = fibDSWriter;
         this.bundleContext = bundleContext;
-        String uPort = getProperty(UPDATE_PORT, DEF_UPORT);
+        String updatePort = getProperty(UPDATE_PORT, DEF_UPORT);
         cHostStartup = getProperty(CONFIG_HOST, DEF_CHOST);
         cPortStartup = getProperty(CONFIG_PORT, DEF_CPORT);
-        LOG.info("UpdateServer at localhost:" + uPort + " ConfigServer at "
+        LOG.info("UpdateServer at localhost:" + updatePort + " ConfigServer at "
                 + cHostStartup + ":" + cPortStartup);
         VtyshCli.setHostAddr(cHostStartup);
         ClearBgpCli.setHostAddr(cHostStartup);
@@ -240,18 +252,17 @@ public class BgpConfigurationManager {
         if (Integer.getInteger("batch.wait.time") != null) {
             BgpUtil.batchInterval = Integer.getInteger("batch.wait.time");
         }
-        BgpUtil.registerWithBatchManager(new DefaultBatchHandler(dataBroker, LogicalDatastoreType.CONFIGURATION, BgpUtil.batchSize, BgpUtil.batchInterval));
+        BgpUtil.registerWithBatchManager(
+                new DefaultBatchHandler(dataBroker, LogicalDatastoreType.CONFIGURATION, BgpUtil.batchSize,
+                        BgpUtil.batchInterval));
 
-        GlobalEventExecutor.INSTANCE.execute(new Runnable() {
-            @Override
-            public void run() {
-                final WaitingServiceTracker<IBgpManager> tracker = WaitingServiceTracker.create(
-                        IBgpManager.class, bundleContext);
-                bgpManager = tracker.waitForService(WaitingServiceTracker.FIVE_MINUTES);
-                updateServer = new BgpThriftService(Integer.parseInt(uPort), bgpManager, fibDSWriter);
-                updateServer.start();
-                LOG.info("BgpConfigurationManager initialized. IBgpManager={}", bgpManager);
-            }
+        GlobalEventExecutor.INSTANCE.execute(() -> {
+            final WaitingServiceTracker<IBgpManager> tracker = WaitingServiceTracker.create(
+                    IBgpManager.class, bundleContext);
+            bgpManager = tracker.waitForService(WaitingServiceTracker.FIVE_MINUTES);
+            updateServer = new BgpThriftService(Integer.parseInt(updatePort), bgpManager, fibDSWriter);
+            updateServer.start();
+            LOG.info("BgpConfigurationManager initialized. IBgpManager={}", bgpManager);
         });
     }
 
@@ -262,7 +273,8 @@ public class BgpConfigurationManager {
         try {
             ctor = cls.getConstructor(BgpConfigurationManager.class);
             obj = ctor.newInstance(this);
-        } catch (Exception e) {
+        } catch (NoSuchMethodException | IllegalAccessException | InstantiationException | InvocationTargetException
+                e) {
             LOG.error("Failed to create listener object", e);
         }
         return obj;
@@ -270,18 +282,12 @@ public class BgpConfigurationManager {
 
     private void registerCallbacks() {
         String emsg = "Failed to register listener";
-        registrations = new ListenerRegistration[reactors.length];
+        registrations = new ListenerRegistration[REACTORS.length];
         InstanceIdentifier<?> iid = InstanceIdentifier.create(Bgp.class);
-        for (Class reactor : reactors) {
+        for (Class reactor : REACTORS) {
             Object obj = createListener(reactor);
-            String dclName = obj.getClass().getName();
-            try {
-                AsyncDataTreeChangeListenerBase dcl = (AsyncDataTreeChangeListenerBase) obj;
-                dcl.registerListener(LogicalDatastoreType.CONFIGURATION, dataBroker);
-            } catch (Exception e) {
-                LOG.error(emsg, e);
-                throw new IllegalStateException(emsg + " " + dclName, e);
-            }
+            AsyncDataTreeChangeListenerBase dcl = (AsyncDataTreeChangeListenerBase) obj;
+            dcl.registerListener(LogicalDatastoreType.CONFIGURATION, dataBroker);
         }
     }
 
@@ -292,18 +298,17 @@ public class BgpConfigurationManager {
         LOG.info("{} close", getClass().getSimpleName());
     }
 
-    private boolean configExists() throws InterruptedException, ExecutionException, TimeoutException {
+    private boolean configExists() throws ReadFailedException {
         InstanceIdentifier.InstanceIdentifierBuilder<Bgp> iib =
                 InstanceIdentifier.builder(Bgp.class);
         InstanceIdentifier<Bgp> iid = iib.build();
-        Optional<Bgp> b = BgpUtil.read(dataBroker,
-                LogicalDatastoreType.CONFIGURATION, iid);
-        return b.isPresent();
+        return SingleTransactionDataBroker.syncReadOptional(dataBroker, LogicalDatastoreType.CONFIGURATION,
+                iid).isPresent();
     }
 
     private String getProperty(String var, String def) {
-        String s = bundleContext.getProperty(var);
-        return (s == null ? def : s);
+        String property = bundleContext.getProperty(var);
+        return (property == null ? def : property);
     }
 
     boolean ignoreClusterDcnEventForFollower() {
@@ -318,45 +323,41 @@ public class BgpConfigurationManager {
     public void setEntityOwnershipService(final EntityOwnershipService entityOwnershipService) {
         try {
             EntityOwnerUtils.registerEntityCandidateForOwnerShip(entityOwnershipService,
-                    BGP_ENTITY_TYPE_FOR_OWNERSHIP, BGP_ENTITY_NAME, new EntityOwnershipListener() {
-                @Override
-                public void ownershipChanged(EntityOwnershipChange ownershipChange) {
+                BGP_ENTITY_TYPE_FOR_OWNERSHIP, BGP_ENTITY_NAME, ownershipChange -> {
                     LOG.trace("entity owner change event fired");
                     if (ownershipChange.hasOwner() && ownershipChange.isOwner()) {
                         LOG.trace("This PL is the Owner");
                         activateMIP();
                         bgpRestarted();
                     } else {
-                        LOG.info("Not owner: hasOwner: {}, isOwner: {}",ownershipChange.hasOwner(),
-                                ownershipChange.isOwner() );
+                        LOG.info("Not owner: hasOwner: {}, isOwner: {}", ownershipChange.hasOwner(),
+                                ownershipChange.isOwner());
                     }
-                }
-            });
-        } catch (Exception e) {
+                });
+        } catch (CandidateAlreadyRegisteredException e) {
             LOG.error("failed to register bgp entity", e);
         }
     }
 
-    private static final String addWarn =
+    private static final String ADD_WARN =
             "Config store updated; undo with Delete if needed.";
-    private static final String delWarn =
+    private static final String DEL_WARN =
             "Config store updated; undo with Add if needed.";
-    private static final String updWarn =
+    private static final String UPD_WARN =
             "Update operation not supported; Config store updated;"
                     + " restore with another Update if needed.";
 
     public class ConfigServerReactor
             extends AsyncDataTreeChangeListenerBase<ConfigServer, ConfigServerReactor>
-            implements AutoCloseable, ClusteredDataTreeChangeListener <ConfigServer> {
-        private static final String yangObj = "config-server ";
+            implements AutoCloseable, ClusteredDataTreeChangeListener<ConfigServer> {
+        private static final String YANG_OBJ = "config-server ";
 
         public ConfigServerReactor() {
             super(ConfigServer.class, ConfigServerReactor.class);
         }
 
         @Override
-        protected synchronized void
-        add(InstanceIdentifier<ConfigServer> iid, ConfigServer val) {
+        protected synchronized void add(InstanceIdentifier<ConfigServer> iid, ConfigServer val) {
             LOG.trace("received bgp connect config host {}", val.getHost().getValue());
             if (ignoreClusterDcnEventForFollower()) {
                 return;
@@ -364,14 +365,15 @@ public class BgpConfigurationManager {
 
             try {
                 initer.await();
-            } catch (Exception e) {
+            } catch (InterruptedException e) {
+                // Ignored
             }
             LOG.debug("issueing bgp router connect to host {}", val.getHost().getValue());
             synchronized (BgpConfigurationManager.this) {
                 boolean res = bgpRouter.connect(val.getHost().getValue(),
                         val.getPort().intValue());
                 if (!res) {
-                    LOG.error(yangObj + "Add failed; " + addWarn);
+                    LOG.error(YANG_OBJ + "Add failed; " + ADD_WARN);
                 }
             }
         }
@@ -387,8 +389,7 @@ public class BgpConfigurationManager {
         }
 
         @Override
-        protected synchronized void
-        remove(InstanceIdentifier<ConfigServer> iid, ConfigServer val) {
+        protected synchronized void remove(InstanceIdentifier<ConfigServer> iid, ConfigServer val) {
             LOG.trace("received bgp disconnect");
             if (ignoreClusterDcnEventForFollower()) {
                 return;
@@ -400,21 +401,12 @@ public class BgpConfigurationManager {
 
         @Override
         protected void update(InstanceIdentifier<ConfigServer> iid,
-                              ConfigServer oldval, ConfigServer newval) {
+                ConfigServer oldval, ConfigServer newval) {
             LOG.trace("received bgp Connection update");
             if (ignoreClusterDcnEventForFollower()) {
                 return;
             }
-            LOG.error(yangObj + updWarn);
-        }
-
-        @Override
-        public void close() {
-            try {
-                super.close();
-            } catch (Exception e) {
-                LOG.error("ConfigServerReactor failed to close: ", e);
-            }
+            LOG.error(YANG_OBJ + UPD_WARN);
         }
     }
 
@@ -429,30 +421,29 @@ public class BgpConfigurationManager {
             extends AsyncDataTreeChangeListenerBase<AsId, AsIdReactor>
             implements AutoCloseable, ClusteredDataTreeChangeListener<AsId> {
 
-        private static final String yangObj = "as-id ";
+        private static final String YANG_OBJ = "as-id ";
 
         public AsIdReactor() {
             super(AsId.class, AsIdReactor.class);
         }
 
         @Override
-        protected synchronized void
-        add(InstanceIdentifier<AsId> iid, AsId val) {
-            LOG.error("received bgp add asid {}",val);
+        protected synchronized void add(InstanceIdentifier<AsId> iid, AsId val) {
+            LOG.error("received bgp add asid {}", val);
             if (ignoreClusterDcnEventForFollower()) {
                 return;
             }
-            LOG.debug("received add router config asNum {}", val.getLocalAs().longValue());
+            LOG.debug("received add router config asNum {}", val.getLocalAs());
             synchronized (BgpConfigurationManager.this) {
-                BgpRouter br = getClient(yangObj);
+                BgpRouter br = getClient(YANG_OBJ);
                 if (br == null) {
                     LOG.error("no bgp router client found exiting asid add");
                     return;
                 }
-                long asNum = val.getLocalAs().longValue();
-                Ipv4Address routerId = val.getRouterId();
+                long asNum = val.getLocalAs();
+                IpAddress routerId = val.getRouterId();
                 Boolean afb = val.isAnnounceFbit();
-                String rid = (routerId == null) ? "" : routerId.getValue();
+                String rid = (routerId == null) ? "" : new String(routerId.getValue());
                 int stalepathTime = (int) getStalePathtime(RESTART_DEFAULT_GR, val);
                 boolean announceFbit = true;
                 try {
@@ -465,13 +456,13 @@ public class BgpConfigurationManager {
                     }
                 } catch (BgpRouterException bre) {
                     if (bre.getErrorCode() == BgpRouterException.BGP_ERR_ACTIVE) {
-                        LOG.error(yangObj + "Add requested when BGP is already active");
+                        LOG.error(YANG_OBJ + "Add requested when BGP is already active");
                     } else {
-                        LOG.error(yangObj + "Add received exception: \""
-                                + bre + "\"; " + addWarn);
+                        LOG.error(YANG_OBJ + "Add received exception: \""
+                                + bre + "\"; " + ADD_WARN);
                     }
-                } catch (Exception e) {
-                    LOG.error(yangObj + "Add received exception: \"" + e + "\"; " + addWarn);
+                } catch (TException e) {
+                    LOG.error("{} Add received exception; {}", YANG_OBJ, ADD_WARN, e);
                 }
             }
         }
@@ -487,22 +478,21 @@ public class BgpConfigurationManager {
         }
 
         @Override
-        protected synchronized void
-        remove(InstanceIdentifier<AsId> iid, AsId val) {
-            LOG.error("received delete router config asNum {}", val.getLocalAs().longValue());
+        protected synchronized void remove(InstanceIdentifier<AsId> iid, AsId val) {
+            LOG.error("received delete router config asNum {}", val.getLocalAs());
             if (ignoreClusterDcnEventForFollower()) {
                 return;
             }
             synchronized (BgpConfigurationManager.this) {
-                BgpRouter br = getClient(yangObj);
+                BgpRouter br = getClient(YANG_OBJ);
                 if (br == null) {
                     return;
                 }
-                long asNum = val.getLocalAs().longValue();
+                long asNum = val.getLocalAs();
                 try {
                     br.stopBgp(asNum);
-                } catch (Exception e) {
-                    LOG.error(yangObj + " Delete received exception:  \"" + e + "\"; " + delWarn);
+                } catch (TException | BgpRouterException e) {
+                    LOG.error("{} Delete received exception; {}", YANG_OBJ, DEL_WARN, e);
                 }
                 if (getBgpCounters() != null) {
                     stopBgpCountersTask();
@@ -515,20 +505,11 @@ public class BgpConfigurationManager {
 
         @Override
         protected void update(InstanceIdentifier<AsId> iid,
-                              AsId oldval, AsId newval) {
+                AsId oldval, AsId newval) {
             if (ignoreClusterDcnEventForFollower()) {
                 return;
             }
-            LOG.error(yangObj + updWarn);
-        }
-
-        @Override
-        public void close() {
-            try {
-                super.close();
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
+            LOG.error(YANG_OBJ + UPD_WARN);
         }
     }
 
@@ -536,27 +517,26 @@ public class BgpConfigurationManager {
             extends AsyncDataTreeChangeListenerBase<GracefulRestart, GracefulRestartReactor>
             implements AutoCloseable, ClusteredDataTreeChangeListener<GracefulRestart> {
 
-        private static final String yangObj = "graceful-restart ";
+        private static final String YANG_OBJ = "graceful-restart ";
 
         public GracefulRestartReactor() {
             super(GracefulRestart.class, GracefulRestartReactor.class);
         }
 
         @Override
-        protected synchronized void
-        add(InstanceIdentifier<GracefulRestart> iid, GracefulRestart val) {
+        protected synchronized void add(InstanceIdentifier<GracefulRestart> iid, GracefulRestart val) {
             if (ignoreClusterDcnEventForFollower()) {
                 return;
             }
             synchronized (BgpConfigurationManager.this) {
-                BgpRouter br = getClient(yangObj);
+                BgpRouter br = getClient(YANG_OBJ);
                 if (br == null) {
                     return;
                 }
                 try {
                     br.addGracefulRestart(val.getStalepathTime().intValue());
-                } catch (Exception e) {
-                    LOG.error(yangObj + "Add received exception: \"" + e + "\"; " + addWarn);
+                } catch (TException | BgpRouterException e) {
+                    LOG.error("{} Add received exception; {}", YANG_OBJ, ADD_WARN, e);
                 }
             }
         }
@@ -572,52 +552,41 @@ public class BgpConfigurationManager {
         }
 
         @Override
-        protected synchronized void
-        remove(InstanceIdentifier<GracefulRestart> iid, GracefulRestart val) {
+        protected synchronized void remove(InstanceIdentifier<GracefulRestart> iid, GracefulRestart val) {
             if (ignoreClusterDcnEventForFollower()) {
                 return;
             }
             LOG.debug("received delete GracefulRestart config val {}", val.getStalepathTime().intValue());
             synchronized (BgpConfigurationManager.this) {
-                BgpRouter br = getClient(yangObj);
+                BgpRouter br = getClient(YANG_OBJ);
                 if (br == null) {
                     return;
                 }
                 try {
                     br.delGracefulRestart();
-                } catch (Exception e) {
-                    LOG.error(yangObj + " Delete received exception:  \"" + e + "\"; "
-                            + delWarn);
+                } catch (TException | BgpRouterException e) {
+                    LOG.error("{} Delete received exception; {}", YANG_OBJ, DEL_WARN, e);
                 }
             }
         }
 
         @Override
         protected void update(InstanceIdentifier<GracefulRestart> iid,
-                              GracefulRestart oldval, GracefulRestart newval) {
+                GracefulRestart oldval, GracefulRestart newval) {
             if (ignoreClusterDcnEventForFollower()) {
                 return;
             }
             LOG.debug("received update GracefulRestart config val {}", newval.getStalepathTime().intValue());
             synchronized (BgpConfigurationManager.this) {
-                BgpRouter br = getClient(yangObj);
+                BgpRouter br = getClient(YANG_OBJ);
                 if (br == null) {
                     return;
                 }
                 try {
                     br.addGracefulRestart(newval.getStalepathTime().intValue());
-                } catch (Exception e) {
-                    LOG.error(yangObj + "update received exception: \"" + e + "\"; " + addWarn);
+                } catch (TException | BgpRouterException e) {
+                    LOG.error("{} update received exception; {}", YANG_OBJ, ADD_WARN, e);
                 }
-            }
-        }
-
-        @Override
-        public void close() {
-            try {
-                super.close();
-            } catch (Exception e) {
-                e.printStackTrace();
             }
         }
     }
@@ -626,28 +595,26 @@ public class BgpConfigurationManager {
             extends AsyncDataTreeChangeListenerBase<Logging, LoggingReactor>
             implements AutoCloseable, ClusteredDataTreeChangeListener<Logging> {
 
-        private static final String yangObj = "logging ";
+        private static final String YANG_OBJ = "logging ";
 
         public LoggingReactor() {
             super(Logging.class, LoggingReactor.class);
         }
 
         @Override
-        protected synchronized void
-        add(InstanceIdentifier<Logging> iid, Logging val) {
+        protected synchronized void add(InstanceIdentifier<Logging> iid, Logging val) {
             if (ignoreClusterDcnEventForFollower()) {
                 return;
             }
             synchronized (BgpConfigurationManager.this) {
-                BgpRouter br = getClient(yangObj);
+                BgpRouter br = getClient(YANG_OBJ);
                 if (br == null) {
                     return;
                 }
                 try {
                     br.setLogging(val.getFile(), val.getLevel());
-                } catch (Exception e) {
-                    LOG.error(yangObj + "Add received exception: \"" + e + "\"; "
-                            + addWarn);
+                } catch (TException | BgpRouterException e) {
+                    LOG.error("{} Add received exception; {}", YANG_OBJ, ADD_WARN, e);
                 }
             }
         }
@@ -663,52 +630,40 @@ public class BgpConfigurationManager {
         }
 
         @Override
-        protected synchronized void
-        remove(InstanceIdentifier<Logging> iid, Logging val) {
+        protected synchronized void remove(InstanceIdentifier<Logging> iid, Logging val) {
             if (ignoreClusterDcnEventForFollower()) {
                 return;
             }
             LOG.debug("received remove Logging config val {}", val.getLevel());
             synchronized (BgpConfigurationManager.this) {
-                BgpRouter br = getClient(yangObj);
+                BgpRouter br = getClient(YANG_OBJ);
                 if (br == null) {
                     return;
                 }
                 try {
                     br.setLogging(DEF_LOGFILE, DEF_LOGLEVEL);
-                } catch (Exception e) {
-                    LOG.error(yangObj + " Delete received exception:  \"" + e + "\"; "
-                            + delWarn);
+                } catch (TException | BgpRouterException e) {
+                    LOG.error("{} Delete received exception; {}", YANG_OBJ, DEL_WARN, e);
                 }
             }
         }
 
         @Override
         protected void update(InstanceIdentifier<Logging> iid,
-                              Logging oldval, Logging newval) {
+                Logging oldval, Logging newval) {
             if (ignoreClusterDcnEventForFollower()) {
                 return;
             }
             synchronized (BgpConfigurationManager.this) {
-                BgpRouter br = getClient(yangObj);
+                BgpRouter br = getClient(YANG_OBJ);
                 if (br == null) {
                     return;
                 }
                 try {
                     br.setLogging(newval.getFile(), newval.getLevel());
-                } catch (Exception e) {
-                    LOG.error(yangObj + "newval received exception: \"" + e + "\"; "
-                            + addWarn);
+                } catch (TException | BgpRouterException e) {
+                    LOG.error("{} newval received exception; {}", YANG_OBJ, ADD_WARN, e);
                 }
-            }
-        }
-
-        @Override
-        public void close() {
-            try {
-                super.close();
-            } catch (Exception e) {
-                e.printStackTrace();
             }
         }
     }
@@ -717,33 +672,31 @@ public class BgpConfigurationManager {
             extends AsyncDataTreeChangeListenerBase<Neighbors, NeighborsReactor>
             implements AutoCloseable, ClusteredDataTreeChangeListener<Neighbors> {
 
-        private static final String yangObj = "neighbors ";
+        private static final String YANG_OBJ = "neighbors ";
 
         public NeighborsReactor() {
             super(Neighbors.class, NeighborsReactor.class);
         }
 
         @Override
-        protected synchronized void
-        add(InstanceIdentifier<Neighbors> iid, Neighbors val) {
+        protected synchronized void add(InstanceIdentifier<Neighbors> iid, Neighbors val) {
             if (ignoreClusterDcnEventForFollower()) {
                 return;
             }
             LOG.debug("received add Neighbors config val {}", val.getAddress().getValue());
             synchronized (BgpConfigurationManager.this) {
-                BgpRouter br = getClient(yangObj);
+                BgpRouter br = getClient(YANG_OBJ);
                 if (br == null) {
                     return;
                 }
                 String peerIp = val.getAddress().getValue();
-                long as = val.getRemoteAs().longValue();
+                long as = val.getRemoteAs();
                 try {
                     //itmProvider.buildTunnelsToDCGW(new IpAddress(peerIp.toCharArray()));
                     br.addNeighbor(peerIp, as);
 
-                } catch (Exception e) {
-                    LOG.error(yangObj + "Add received exception: \"" + e + "\"; "
-                            + addWarn);
+                } catch (TException | BgpRouterException e) {
+                    LOG.error("{} Add received exception; {}", YANG_OBJ, ADD_WARN, e);
                 }
             }
         }
@@ -759,14 +712,13 @@ public class BgpConfigurationManager {
         }
 
         @Override
-        protected synchronized void
-        remove(InstanceIdentifier<Neighbors> iid, Neighbors val) {
+        protected synchronized void remove(InstanceIdentifier<Neighbors> iid, Neighbors val) {
             if (ignoreClusterDcnEventForFollower()) {
                 return;
             }
             LOG.debug("received remove Neighbors config val {}", val.getAddress().getValue());
             synchronized (BgpConfigurationManager.this) {
-                BgpRouter br = getClient(yangObj);
+                BgpRouter br = getClient(YANG_OBJ);
                 if (br == null) {
                     return;
                 }
@@ -774,29 +726,19 @@ public class BgpConfigurationManager {
                 try {
                     //itmProvider.deleteTunnelsToDCGW(new IpAddress(val.getAddress().getValue().toCharArray()));
                     br.delNeighbor(peerIp);
-                } catch (Exception e) {
-                    LOG.error(yangObj + " Delete received exception:  \"" + e + "\"; "
-                            + delWarn);
+                } catch (TException | BgpRouterException e) {
+                    LOG.error("{} Delete received exception; {}", YANG_OBJ, DEL_WARN, e);
                 }
             }
         }
 
         @Override
         protected void update(InstanceIdentifier<Neighbors> iid,
-                              Neighbors oldval, Neighbors newval) {
+                Neighbors oldval, Neighbors newval) {
             if (ignoreClusterDcnEventForFollower()) {
                 return;
             }
             //purposefully nothing to do.
-        }
-
-        @Override
-        public void close() {
-            try {
-                super.close();
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
         }
     }
 
@@ -804,30 +746,28 @@ public class BgpConfigurationManager {
             extends AsyncDataTreeChangeListenerBase<EbgpMultihop, EbgpMultihopReactor>
             implements AutoCloseable, ClusteredDataTreeChangeListener<EbgpMultihop> {
 
-        private static final String yangObj = "ebgp-multihop ";
+        private static final String YANG_OBJ = "ebgp-multihop ";
 
         public EbgpMultihopReactor() {
             super(EbgpMultihop.class, EbgpMultihopReactor.class);
         }
 
         @Override
-        protected synchronized void
-        add(InstanceIdentifier<EbgpMultihop> iid, EbgpMultihop val) {
+        protected synchronized void add(InstanceIdentifier<EbgpMultihop> iid, EbgpMultihop val) {
             if (ignoreClusterDcnEventForFollower()) {
                 return;
             }
             LOG.debug("received add EbgpMultihop config val {}", val.getPeerIp().getValue());
             synchronized (BgpConfigurationManager.this) {
-                BgpRouter br = getClient(yangObj);
+                BgpRouter br = getClient(YANG_OBJ);
                 if (br == null) {
                     return;
                 }
                 String peerIp = val.getPeerIp().getValue();
                 try {
                     br.addEbgpMultihop(peerIp, val.getNhops().intValue());
-                } catch (Exception e) {
-                    LOG.error(yangObj + "Add received exception: \"" + e + "\"; "
-                            + addWarn);
+                } catch (TException | BgpRouterException e) {
+                    LOG.error("{} Add received exception; {}", YANG_OBJ, ADD_WARN, e);
                 }
             }
         }
@@ -843,43 +783,32 @@ public class BgpConfigurationManager {
         }
 
         @Override
-        protected synchronized void
-        remove(InstanceIdentifier<EbgpMultihop> iid, EbgpMultihop val) {
+        protected synchronized void remove(InstanceIdentifier<EbgpMultihop> iid, EbgpMultihop val) {
             if (ignoreClusterDcnEventForFollower()) {
                 return;
             }
             LOG.debug("received remove EbgpMultihop config val {}", val.getPeerIp().getValue());
             synchronized (BgpConfigurationManager.this) {
-                BgpRouter br = getClient(yangObj);
+                BgpRouter br = getClient(YANG_OBJ);
                 if (br == null) {
                     return;
                 }
                 String peerIp = val.getPeerIp().getValue();
                 try {
                     br.delEbgpMultihop(peerIp);
-                } catch (Exception e) {
-                    LOG.error(yangObj + " Delete received exception:  \"" + e + "\"; "
-                            + delWarn);
+                } catch (TException | BgpRouterException e) {
+                    LOG.error("{} Delete received exception; {}", YANG_OBJ, DEL_WARN, e);
                 }
             }
         }
 
         @Override
         protected void update(InstanceIdentifier<EbgpMultihop> iid,
-                              EbgpMultihop oldval, EbgpMultihop newval) {
+                EbgpMultihop oldval, EbgpMultihop newval) {
             if (ignoreClusterDcnEventForFollower()) {
                 return;
             }
-            LOG.error(yangObj + updWarn);
-        }
-
-        @Override
-        public void close() {
-            try {
-                super.close();
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
+            LOG.error(YANG_OBJ + UPD_WARN);
         }
     }
 
@@ -887,30 +816,28 @@ public class BgpConfigurationManager {
             extends AsyncDataTreeChangeListenerBase<UpdateSource, UpdateSourceReactor>
             implements AutoCloseable, ClusteredDataTreeChangeListener<UpdateSource> {
 
-        private static final String yangObj = "update-source ";
+        private static final String YANG_OBJ = "update-source ";
 
         public UpdateSourceReactor() {
             super(UpdateSource.class, UpdateSourceReactor.class);
         }
 
         @Override
-        protected synchronized void
-        add(InstanceIdentifier<UpdateSource> iid, UpdateSource val) {
+        protected synchronized void add(InstanceIdentifier<UpdateSource> iid, UpdateSource val) {
             if (ignoreClusterDcnEventForFollower()) {
                 return;
             }
             LOG.debug("received add UpdateSource config val {}", val.getSourceIp().getValue());
             synchronized (BgpConfigurationManager.this) {
-                BgpRouter br = getClient(yangObj);
+                BgpRouter br = getClient(YANG_OBJ);
                 if (br == null) {
                     return;
                 }
                 String peerIp = val.getPeerIp().getValue();
                 try {
                     br.addUpdateSource(peerIp, val.getSourceIp().getValue());
-                } catch (Exception e) {
-                    LOG.error(yangObj + "Add received exception: \"" + e + "\"; "
-                            + addWarn);
+                } catch (TException | BgpRouterException e) {
+                    LOG.error("{} Add received exception; {}", YANG_OBJ, ADD_WARN, e);
                 }
             }
         }
@@ -926,43 +853,32 @@ public class BgpConfigurationManager {
         }
 
         @Override
-        protected synchronized void
-        remove(InstanceIdentifier<UpdateSource> iid, UpdateSource val) {
+        protected synchronized void remove(InstanceIdentifier<UpdateSource> iid, UpdateSource val) {
             if (ignoreClusterDcnEventForFollower()) {
                 return;
             }
             LOG.debug("received remove UpdateSource config val {}", val.getSourceIp().getValue());
             synchronized (BgpConfigurationManager.this) {
-                BgpRouter br = getClient(yangObj);
+                BgpRouter br = getClient(YANG_OBJ);
                 if (br == null) {
                     return;
                 }
                 String peerIp = val.getPeerIp().getValue();
                 try {
                     br.delUpdateSource(peerIp);
-                } catch (Exception e) {
-                    LOG.error(yangObj + " Delete received exception:  \"" + e + "\"; "
-                            + delWarn);
+                } catch (TException | BgpRouterException e) {
+                    LOG.error("{} Delete received exception; {}", YANG_OBJ, DEL_WARN, e);
                 }
             }
         }
 
         @Override
         protected void update(InstanceIdentifier<UpdateSource> iid,
-                              UpdateSource oldval, UpdateSource newval) {
+                UpdateSource oldval, UpdateSource newval) {
             if (ignoreClusterDcnEventForFollower()) {
                 return;
             }
-            LOG.error(yangObj + updWarn);
-        }
-
-        @Override
-        public void close() {
-            try {
-                super.close();
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
+            LOG.error(YANG_OBJ + UPD_WARN);
         }
     }
 
@@ -970,21 +886,20 @@ public class BgpConfigurationManager {
             extends AsyncDataTreeChangeListenerBase<AddressFamilies, AddressFamiliesReactor>
             implements AutoCloseable, ClusteredDataTreeChangeListener<AddressFamilies> {
 
-        private static final String yangObj = "address-families ";
+        private static final String YANG_OBJ = "address-families ";
 
         public AddressFamiliesReactor() {
             super(AddressFamilies.class, AddressFamiliesReactor.class);
         }
 
         @Override
-        protected synchronized void
-        add(InstanceIdentifier<AddressFamilies> iid, AddressFamilies val) {
+        protected synchronized void add(InstanceIdentifier<AddressFamilies> iid, AddressFamilies val) {
             if (ignoreClusterDcnEventForFollower()) {
                 return;
             }
             LOG.debug("received add AddressFamilies config val {}", val.getPeerIp().getValue());
             synchronized (BgpConfigurationManager.this) {
-                BgpRouter br = getClient(yangObj);
+                BgpRouter br = getClient(YANG_OBJ);
                 if (br == null) {
                     return;
                 }
@@ -993,9 +908,8 @@ public class BgpConfigurationManager {
                 af_safi safi = af_safi.findByValue(val.getSafi().intValue());
                 try {
                     br.addAddressFamily(peerIp, afi, safi);
-                } catch (Exception e) {
-                    LOG.error(yangObj + "Add received exception: \"" + e + "\"; "
-                            + addWarn);
+                } catch (TException | BgpRouterException e) {
+                    LOG.error("{} Add received exception; {}", YANG_OBJ, ADD_WARN, e);
                 }
             }
         }
@@ -1011,14 +925,13 @@ public class BgpConfigurationManager {
         }
 
         @Override
-        protected synchronized void
-        remove(InstanceIdentifier<AddressFamilies> iid, AddressFamilies val) {
+        protected synchronized void remove(InstanceIdentifier<AddressFamilies> iid, AddressFamilies val) {
             if (ignoreClusterDcnEventForFollower()) {
                 return;
             }
             LOG.debug("received remove AddressFamilies config val {}", val.getPeerIp().getValue());
             synchronized (BgpConfigurationManager.this) {
-                BgpRouter br = getClient(yangObj);
+                BgpRouter br = getClient(YANG_OBJ);
                 if (br == null) {
                     return;
                 }
@@ -1027,29 +940,19 @@ public class BgpConfigurationManager {
                 af_safi safi = af_safi.findByValue(val.getSafi().intValue());
                 try {
                     br.delAddressFamily(peerIp, afi, safi);
-                } catch (Exception e) {
-                    LOG.error(yangObj + " Delete received exception:  \"" + e + "\"; "
-                            + delWarn);
+                } catch (TException | BgpRouterException e) {
+                    LOG.error("{} Delete received exception; {}", YANG_OBJ, DEL_WARN, e);
                 }
             }
         }
 
         @Override
         protected void update(InstanceIdentifier<AddressFamilies> iid,
-                              AddressFamilies oldval, AddressFamilies newval) {
+                AddressFamilies oldval, AddressFamilies newval) {
             if (ignoreClusterDcnEventForFollower()) {
                 return;
             }
-            LOG.error(yangObj + updWarn);
-        }
-
-        @Override
-        public void close() {
-            try {
-                super.close();
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
+            LOG.error(YANG_OBJ + UPD_WARN);
         }
     }
 
@@ -1057,25 +960,25 @@ public class BgpConfigurationManager {
             extends AsyncDataTreeChangeListenerBase<Networks, NetworksReactor>
             implements AutoCloseable, ClusteredDataTreeChangeListener<Networks> {
 
-        private static final String yangObj = "networks ";
+        private static final String YANG_OBJ = "networks ";
 
         public NetworksReactor() {
             super(Networks.class, NetworksReactor.class);
         }
+
         @Override
         public NetworksReactor getDataTreeChangeListener() {
             return NetworksReactor.this;
         }
 
         @Override
-        protected synchronized void
-        add(InstanceIdentifier<Networks> iid, Networks val) {
+        protected synchronized void add(InstanceIdentifier<Networks> iid, Networks val) {
             if (ignoreClusterDcnEventForFollower()) {
                 return;
             }
             LOG.debug("received add Networks config val {}", val.getPrefixLen());
             synchronized (BgpConfigurationManager.this) {
-                BgpRouter br = getClient(yangObj);
+                BgpRouter br = getClient(YANG_OBJ);
                 if (br == null) {
                     return;
                 }
@@ -1085,10 +988,21 @@ public class BgpConfigurationManager {
                 Long label = val.getLabel();
                 int lbl = (label == null) ? qbgpConstants.LBL_NO_LABEL
                         : label.intValue();
+                int l3vni = (val.getL3vni() == null) ? qbgpConstants.LBL_NO_LABEL
+                        : val.getL3vni().intValue();
+
+                BgpControlPlaneType protocolType = val.getBgpControlPlaneType();
+                int ethernetTag = val.getEthtag().intValue();
+                String esi = val.getEsi();
+                String macaddress = val.getMacaddress();
+                EncapType encapType = val.getEncapType();
+                String routerMac = val.getRoutermac();
+
                 try {
-                    br.addPrefix(rd, pfxlen, nh, lbl);
-                } catch (Exception e) {
-                    LOG.error(yangObj + "Add received exception: \"" + e + "\"; " + addWarn);
+                    br.addPrefix(rd, pfxlen, nh, lbl, l3vni, BgpUtil.convertToThriftProtocolType(protocolType),
+                            ethernetTag, esi, macaddress, BgpUtil.convertToThriftEncapType(encapType), routerMac);
+                } catch (TException | BgpRouterException e) {
+                    LOG.error("{} Add received exception; {}", YANG_OBJ, ADD_WARN, e);
                 }
             }
         }
@@ -1099,14 +1013,13 @@ public class BgpConfigurationManager {
         }
 
         @Override
-        protected synchronized void
-        remove(InstanceIdentifier<Networks> iid, Networks val) {
+        protected synchronized void remove(InstanceIdentifier<Networks> iid, Networks val) {
             if (ignoreClusterDcnEventForFollower()) {
                 return;
             }
             LOG.debug("received remove Networks config val {}", val.getPrefixLen());
             synchronized (BgpConfigurationManager.this) {
-                BgpRouter br = getClient(yangObj);
+                BgpRouter br = getClient(YANG_OBJ);
                 if (br == null) {
                     return;
                 }
@@ -1120,20 +1033,19 @@ public class BgpConfigurationManager {
                 }
                 try {
                     br.delPrefix(rd, pfxlen);
-                } catch (Exception e) {
-                    LOG.error(yangObj + " Delete received exception:  \"" + e + "\"; "
-                            + delWarn);
+                } catch (TException | BgpRouterException e) {
+                    LOG.error("{} Delete received exception; {}", YANG_OBJ, DEL_WARN, e);
                 }
             }
         }
 
         @Override
         protected void update(final InstanceIdentifier<Networks> iid,
-                              final Networks oldval, final Networks newval) {
+                final Networks oldval, final Networks newval) {
             if (ignoreClusterDcnEventForFollower()) {
                 return;
             }
-            if(oldval.equals(newval)){
+            if (oldval.equals(newval)) {
                 //Update: OLD and New values are same, no need to trigger remove/add.
                 LOG.debug("received Updated for the same OLD and New values. RD: {}, Prefix: {}, Label: {}, NH: {}",
                         oldval.getRd(), oldval.getPrefixLen(), oldval.getLabel(), oldval.getNexthop());
@@ -1148,15 +1060,6 @@ public class BgpConfigurationManager {
                 }
             }, Integer.getInteger("bgp.nexthop.update.delay.in.secs", 5) * 1000);
         }
-
-        @Override
-        public void close() {
-            try {
-                super.close();
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
     }
 
     static Timer timer = new Timer();
@@ -1165,30 +1068,28 @@ public class BgpConfigurationManager {
             extends AsyncDataTreeChangeListenerBase<Vrfs, VrfsReactor>
             implements AutoCloseable, ClusteredDataTreeChangeListener<Vrfs> {
 
-        private static final String yangObj = "vrfs ";
+        private static final String YANG_OBJ = "vrfs ";
 
         public VrfsReactor() {
             super(Vrfs.class, VrfsReactor.class);
         }
 
         @Override
-        protected synchronized void
-        add(InstanceIdentifier<Vrfs> iid, Vrfs val) {
+        protected synchronized void add(InstanceIdentifier<Vrfs> iid, Vrfs val) {
             if (ignoreClusterDcnEventForFollower()) {
                 return;
             }
             LOG.debug("received add Vrfs config val {}", val.getRd());
             synchronized (BgpConfigurationManager.this) {
-                BgpRouter br = getClient(yangObj);
+                BgpRouter br = getClient(YANG_OBJ);
                 if (br == null) {
                     return;
                 }
                 try {
-                    br.addVrf(val.getRd(), val.getImportRts(),
+                    br.addVrf(val.getLayerType(), val.getRd(), val.getImportRts(),
                             val.getExportRts());
-                } catch (Exception e) {
-                    LOG.error(yangObj + "Add received exception: \"" + e + "\"; "
-                            + addWarn);
+                } catch (TException | BgpRouterException e) {
+                    LOG.error("{} Add received exception; {}", YANG_OBJ, ADD_WARN, e);
                 }
             }
         }
@@ -1204,59 +1105,47 @@ public class BgpConfigurationManager {
         }
 
         @Override
-        protected synchronized void
-        remove(InstanceIdentifier<Vrfs> iid, Vrfs val) {
+        protected synchronized void remove(InstanceIdentifier<Vrfs> iid, Vrfs val) {
             if (ignoreClusterDcnEventForFollower()) {
                 return;
             }
             LOG.debug("received remove Vrfs config val {}", val.getRd());
             synchronized (BgpConfigurationManager.this) {
-                BgpRouter br = getClient(yangObj);
+                BgpRouter br = getClient(YANG_OBJ);
                 if (br == null) {
                     return;
                 }
                 try {
                     br.delVrf(val.getRd());
-                } catch (Exception e) {
-                    LOG.error(yangObj + " Delete received exception:  \"" + e + "\"; "
-                            + delWarn);
+                } catch (TException | BgpRouterException e) {
+                    LOG.error("{} Delete received exception; {}", YANG_OBJ, DEL_WARN, e);
                 }
             }
         }
 
         @Override
         protected void update(InstanceIdentifier<Vrfs> iid,
-                              Vrfs oldval, Vrfs newval) {
+                Vrfs oldval, Vrfs newval) {
             if (ignoreClusterDcnEventForFollower()) {
                 return;
             }
             LOG.debug("VRFS: Update getting triggered for VRFS rd {}", oldval.getRd());
-            LOG.error(yangObj + updWarn);
-        }
-
-        @Override
-        public void close() {
-            try {
-                super.close();
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
+            LOG.error(YANG_OBJ + UPD_WARN);
         }
     }
 
     Future lastCleanupJob;
     Future lastReplayJobFt = null;
+
     protected void activateMIP() {
         try {
             LOG.trace("BgpReactor: Executing MIP Activate command");
-            Process process_bgp = Runtime.getRuntime().exec("cluster ip -a sdnc_bgp_mip");
-            Process process_os = Runtime.getRuntime().exec("cluster ip -a sdnc_os_mip");
+            Process processBgp = Runtime.getRuntime().exec("cluster ip -a sdnc_bgp_mip");
+            Process processOs = Runtime.getRuntime().exec("cluster ip -a sdnc_os_mip");
             LOG.trace("bgpMIP Activated");
 
         } catch (IOException io) {
-            //LOG.error("IO Exception got while activating mip:  ", io);
-        } catch (Exception e) {
-            //LOG.error("Exception got while activating mip: ", e);
+            LOG.error("IO Exception got while activating mip:  ", io);
         }
     }
 
@@ -1266,7 +1155,7 @@ public class BgpConfigurationManager {
             extends AsyncDataTreeChangeListenerBase<Bgp, BgpReactor>
             implements AutoCloseable, ClusteredDataTreeChangeListener<Bgp> {
 
-        private static final String yangObj = "Bgp ";
+        private static final String YANG_OBJ = "Bgp ";
 
         public BgpReactor() {
             super(Bgp.class, BgpReactor.class);
@@ -1274,13 +1163,13 @@ public class BgpConfigurationManager {
 
 
         @Override
-        protected synchronized void
-        add(InstanceIdentifier<Bgp> iid, Bgp val) {
+        protected synchronized void add(InstanceIdentifier<Bgp> iid, Bgp val) {
             LOG.error("received add Bgp config replaying the config");
 
             try {
                 initer.await();
-            } catch (Exception e) {
+            } catch (InterruptedException e) {
+                // Ignored
             }
             synchronized (BgpConfigurationManager.this) {
                 config = val;
@@ -1291,12 +1180,12 @@ public class BgpConfigurationManager {
                 if (isIpAvailable(odlThriftIp)) {
                     bgpRestarted();
                 } else {
-                    ipActivationCheckTimer.scheduleAtFixedRate(new TimerTask() {
+                    IP_ACTIVATION_CHECK_TIMER.scheduleAtFixedRate(new TimerTask() {
                         @Override
                         public void run() {
                             if (isIpAvailable(odlThriftIp)) {
                                 bgpRestarted();
-                                ipActivationCheckTimer.cancel();
+                                IP_ACTIVATION_CHECK_TIMER.cancel();
                             } else {
                                 LOG.trace("waiting for odlThriftIP: {} to be present", odlThriftIp);
                             }
@@ -1317,8 +1206,7 @@ public class BgpConfigurationManager {
         }
 
         @Override
-        protected synchronized void
-        remove(InstanceIdentifier<Bgp> iid, Bgp val) {
+        protected synchronized void remove(InstanceIdentifier<Bgp> iid, Bgp val) {
             if (ignoreClusterDcnEventForFollower()) {
                 return;
             }
@@ -1330,7 +1218,7 @@ public class BgpConfigurationManager {
 
         @Override
         protected void update(InstanceIdentifier<Bgp> iid,
-                              Bgp oldval, Bgp newval) {
+                Bgp oldval, Bgp newval) {
             if (ignoreClusterDcnEventForFollower()) {
                 return;
             }
@@ -1338,40 +1226,26 @@ public class BgpConfigurationManager {
                 config = newval;
             }
         }
-
-        @Override
-        public void close() {
-            try {
-                super.close();
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
     }
 
-    public String readThriftIpForCommunication( String mipAddr) {
-        File f = new File(CLUSTER_CONF_FILE);
-        if (!f.exists()) {
-            return  DEF_CHOST;
+    public String readThriftIpForCommunication(String mipAddr) {
+        File file = new File(CLUSTER_CONF_FILE);
+        if (!file.exists()) {
+            return DEF_CHOST;
         }
-        BufferedReader br = null;
-        try {
-            br = new BufferedReader(new InputStreamReader(
-                    new FileInputStream(f)));
-            String line = br.readLine();
-            while (line != null) {
+
+        try (BufferedReader br = new BufferedReader(new FileReader(file))) {
+            String line;
+            while ((line = br.readLine()) != null) {
                 if (line.contains(mipAddr)) {
                     line = line.trim();
                     return line.substring(line.lastIndexOf(" ") + 1);
                 }
-                line = br.readLine();
             }
-        } catch (Exception e) {
-        } finally {
-            try {
-                br.close();
-            } catch (Exception ignore) {
-            }
+        } catch (FileNotFoundException e) {
+            return DEF_CHOST;
+        } catch (IOException e) {
+            LOG.error("Error reading {}", CLUSTER_CONF_FILE, e);
         }
         return DEF_CHOST;
     }
@@ -1383,33 +1257,33 @@ public class BgpConfigurationManager {
                 if ("127.0.0.1".equals(odlip)) {
                     return true;
                 }
-                Enumeration e = NetworkInterface.getNetworkInterfaces();
-                while (e.hasMoreElements()) {
-                    NetworkInterface n = (NetworkInterface) e.nextElement();
-                    Enumeration ee = n.getInetAddresses();
-                    while (ee.hasMoreElements()) {
-                        InetAddress i = (InetAddress) ee.nextElement();
-                        if (odlip.equals(i.getHostAddress())) {
+                Enumeration networkInterfaceEnumeration = NetworkInterface.getNetworkInterfaces();
+                while (networkInterfaceEnumeration.hasMoreElements()) {
+                    NetworkInterface networkInterface = (NetworkInterface) networkInterfaceEnumeration.nextElement();
+                    Enumeration inetAddressEnumeration = networkInterface.getInetAddresses();
+                    while (inetAddressEnumeration.hasMoreElements()) {
+                        InetAddress inetAddress = (InetAddress) inetAddressEnumeration.nextElement();
+                        if (odlip.equals(inetAddress.getHostAddress())) {
                             return true;
                         }
-                        ;
                     }
                 }
             }
-        } catch (Exception e) {
+        } catch (SocketException e) {
+            // Ignored?
         }
         return false;
     }
 
-    public static long getStalePathtime(int defValue, AsId as_num) {
+    public static long getStalePathtime(int defValue, AsId asId) {
         long spt = 0;
         try {
             spt = getConfig().getGracefulRestart().getStalepathTime();
-        } catch (Exception e) {
+        } catch (NullPointerException e) {
             try {
-                spt = as_num.getStalepathTime();
+                spt = asId.getStalepathTime();
                 LOG.trace("BGP config/Stale-path time is not set using graceful");
-            } catch (Exception ignore) {
+            } catch (NullPointerException ignore) {
                 LOG.trace("BGP AS id is not set using graceful");
                 spt = defValue;
             }
@@ -1429,37 +1303,38 @@ public class BgpConfigurationManager {
         if (previousReplayJobInProgress()) {
             cancelPreviousReplayJob();
         }
-        Runnable task = new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    LOG.info("running bgp replay task ");
-                    if (get() == null) {
-                        String host = getConfigHost();
-                        int port = getConfigPort();
-                        LOG.info("connecting  to bgp host {} ", host);
+        Runnable task = () -> {
+            try {
+                LOG.info("running bgp replay task ");
+                if (get() == null) {
+                    String host = getConfigHost();
+                    int port = getConfigPort();
+                    LOG.info("connecting  to bgp host {} ", host);
 
-                        boolean res = bgpRouter.connect(host, port);
-                        LOG.info("no config to push in bgp replay task ");
-                        return;
-                    }
-                    setStaleStartTime(System.currentTimeMillis());
-                    LOG.info("started creating stale fibDSWriter  map ");
-                    createStaleFibMap();
-                    setStaleEndTime(System.currentTimeMillis());
-                    LOG.info("took {} msecs for stale fibDSWriter map creation ", getStaleEndTime()- getStaleStartTime());
-                    LOG.info("started bgp config replay ");
-                    setCfgReplayStartTime(System.currentTimeMillis());
-                    replay();
-                    setCfgReplayEndTime(System.currentTimeMillis());
-                    LOG.info("took {} msecs for bgp replay ", getCfgReplayEndTime() - getCfgReplayStartTime());
-                    long route_sync_time = getStalePathtime(BGP_RESTART_ROUTE_SYNC_SEC, config.getAsId());
-                    Thread.sleep(route_sync_time * 1000L);
-                    setStaleCleanupTime(route_sync_time);
-                    new RouteCleanup().call();
-                } catch (Exception eCancel) {
-                    LOG.error("Stale Cleanup Task Cancelled", eCancel);
+                    boolean res = bgpRouter.connect(host, port);
+                    LOG.info("no config to push in bgp replay task ");
+                    return;
                 }
+                setStaleStartTime(System.currentTimeMillis());
+                LOG.info("started creating stale fibDSWriter  map ");
+                createStaleFibMap();
+                setStaleEndTime(System.currentTimeMillis());
+                LOG.info("took {} msecs for stale fibDSWriter map creation ", getStaleEndTime() - getStaleStartTime());
+                LOG.info("started bgp config replay ");
+                setCfgReplayStartTime(System.currentTimeMillis());
+                try {
+                    replay();
+                } catch (TimeoutException | ExecutionException e) {
+                    LOG.error("Error while replaying routes. {}", e);
+                }
+                setCfgReplayEndTime(System.currentTimeMillis());
+                LOG.info("took {} msecs for bgp replay ", getCfgReplayEndTime() - getCfgReplayStartTime());
+                long routeSyncTime = getStalePathtime(BGP_RESTART_ROUTE_SYNC_SEC, config.getAsId());
+                Thread.sleep(routeSyncTime * 1000L);
+                setStaleCleanupTime(routeSyncTime);
+                new RouteCleanup().call();
+            } catch (InterruptedException eCancel) {
+                LOG.error("Stale Cleanup Task Cancelled", eCancel);
             }
         };
         lastReplayJobFt = executor.submit(task);
@@ -1475,44 +1350,63 @@ public class BgpConfigurationManager {
             lastReplayJobFt.cancel(true);
             lastReplayJobFt = null;
             Thread.sleep(2000);
-        } catch (Throwable e) {
-            LOG.error("Failed to cancel previous replay job ",e);
+        } catch (InterruptedException e) {
+            LOG.error("Failed to cancel previous replay job ", e);
         }
     }
 
-    private static void doRouteSync() {
+    private static void doRouteSync() throws InterruptedException, TimeoutException, ExecutionException {
         BgpSyncHandle bsh = BgpSyncHandle.getInstance();
         LOG.error("Starting BGP route sync");
         try {
             bgpRouter.initRibSync(bsh);
-        } catch (Exception e) {
-            LOG.error("Route sync aborted, exception when initializing: " + e);
+        } catch (TException | BgpRouterException e) {
+            LOG.error("Route sync aborted, exception when initializing", e);
             return;
         }
         while (bsh.getState() != bsh.DONE) {
             Routes routes = null;
             try {
                 routes = bgpRouter.doRibSync(bsh);
-            } catch (Exception e) {
-                LOG.error("Route sync aborted, exception when syncing: " + e);
+            } catch (TException | BgpRouterException e) {
+                LOG.error("Route sync aborted, exception when syncing", e);
                 return;
             }
             Iterator<Update> updates = routes.getUpdatesIterator();
             while (updates.hasNext()) {
-                Update u = updates.next();
-                Map<String, Map<String, String>> stale_fib_rd_map = BgpConfigurationManager.getStaledFibEntriesMap();
-                String rd = u.getRd();
-                String nexthop = u.getNexthop();
-                int label = u.getLabel();
-                String prefix = u.getPrefix();
-                int plen = u.getPrefixlen();
-                onUpdatePushRoute(rd, prefix, plen, nexthop, label);
+                Update update = updates.next();
+                Map<String, Map<String, String>> staleFibRdMap = BgpConfigurationManager.getStaledFibEntriesMap();
+                String rd = update.getRd();
+                String nexthop = update.getNexthop();
+
+                // TODO: decide correct label here
+                int label = update.getL3label();
+
+                String prefix = update.getPrefix();
+                int plen = update.getPrefixlen();
+
+
+                // TODO: protocol type will not be available in "update"
+                // use "rd" to query vrf table and obtain the protocol_type. Currently using PROTOCOL_EVPN as default.
+                onUpdatePushRoute(
+                        protocol_type.PROTOCOL_EVPN,
+                        rd,
+                        prefix,
+                        plen,
+                        nexthop,
+                        update.getEthtag(),
+                        update.getEsi(),
+                        update.getMacaddress(),
+                        label,
+                        update.getRoutermac()
+                );
             }
         }
         try {
             LOG.error("Ending BGP route-sync");
             bgpRouter.endRibSync(bsh);
-        } catch (Exception e) {
+        } catch (TException | BgpRouterException e) {
+            // Ignored?
         }
     }
 
@@ -1525,12 +1419,35 @@ public class BgpConfigurationManager {
      *      - Update FIB Config DS with modified values.
      *      - delete from Stale Map.
      */
-    public static void onUpdatePushRoute(String rd, String prefix, int plen, String nextHop, int label) {
-        Map<String, Map<String, String>> stale_fib_rd_map = BgpConfigurationManager.getStaledFibEntriesMap();
+
+    public static void onUpdatePushRoute(protocol_type protocolType,
+                                         String rd,
+                                         String prefix,
+                                         int plen,
+                                         String nextHop,
+                                         int ethtag,
+                                         String esi,
+                                         String macaddress,
+                                         int label,
+                                         String routermac)
+            throws InterruptedException, ExecutionException, TimeoutException {
+        Map<String, Map<String, String>> staleFibRdMap = BgpConfigurationManager.getStaledFibEntriesMap();
         boolean addroute = false;
-        if (!stale_fib_rd_map.isEmpty()) {
+        long l3vni = 0L;
+        VrfEntry.EncapType encapType = VrfEntry.EncapType.Mplsgre;
+        if (protocolType.equals(protocol_type.PROTOCOL_EVPN)) {
+            encapType = VrfEntry.EncapType.Vxlan;
+            VpnInstanceOpDataEntry vpnInstanceOpDataEntry = BgpUtil.getVpnInstanceOpData(dataBroker, rd);
+            if (vpnInstanceOpDataEntry != null) {
+                l3vni = vpnInstanceOpDataEntry.getL3vni();
+            } else {
+                LOG.error("No corresponding vpn instance found for rd {}. Aborting.", rd);
+                return;
+            }
+        }
+        if (!staledFibEntriesMap.isEmpty()) {
             // restart Scenario, as MAP is not empty.
-            Map<String, String> map = stale_fib_rd_map.get(rd);
+            Map<String, String> map = staledFibEntriesMap.get(rd);
             if (map != null) {
                 String nexthoplabel = map.get(prefix + "/" + plen);
                 if (null == nexthoplabel) {
@@ -1551,7 +1468,9 @@ public class BgpConfigurationManager {
         }
         if (addroute) {
             LOG.info("ADD: Adding Fib entry rd {} prefix {} nexthop {} label {}", rd, prefix, nextHop, label);
-            fibDSWriter.addFibEntryToDS(rd, prefix + "/" + plen, Arrays.asList(nextHop), label, RouteOrigin.BGP);
+            // TODO: modify addFibEntryToDS signature
+            fibDSWriter.addFibEntryToDS(rd, macaddress, prefix + "/" + plen, Collections.singletonList(nextHop),
+                    encapType, label, l3vni, routermac, RouteOrigin.BGP);
             LOG.info("ADD: Added Fib entry rd {} prefix {} nexthop {} label {}", rd, prefix, nextHop, label);
         }
     }
@@ -1560,14 +1479,14 @@ public class BgpConfigurationManager {
         return !nexthoplabel.isEmpty() && !nexthoplabel.equals(nexthop + "/" + label);
     }
 
-    static private void replayNbrConfig(List<Neighbors> n, BgpRouter br) {
-        for (Neighbors nbr : n) {
+    private static void replayNbrConfig(List<Neighbors> neighbors, BgpRouter br) {
+        for (Neighbors nbr : neighbors) {
             try {
                 br.addNeighbor(nbr.getAddress().getValue(),
-                        nbr.getRemoteAs().longValue());
+                        nbr.getRemoteAs());
                 //itmProvider.buildTunnelsToDCGW(new IpAddress(nbr.getAddress().getValue().toCharArray()));
-            } catch (Exception e) {
-                LOG.error("Replay:addNbr() received exception: \"" + e + "\"");
+            } catch (TException | BgpRouterException e) {
+                LOG.error("Replay:addNbr() received exception", e);
                 continue;
             }
             EbgpMultihop en = nbr.getEbgpMultihop();
@@ -1575,8 +1494,8 @@ public class BgpConfigurationManager {
                 try {
                     br.addEbgpMultihop(en.getPeerIp().getValue(),
                             en.getNhops().intValue());
-                } catch (Exception e) {
-                    LOG.error("Replay:addEBgp() received exception: \"" + e + "\"");
+                } catch (TException | BgpRouterException e) {
+                    LOG.error("Replay:addEBgp() received exception", e);
                 }
             }
             UpdateSource us = nbr.getUpdateSource();
@@ -1584,8 +1503,8 @@ public class BgpConfigurationManager {
                 try {
                     br.addUpdateSource(us.getPeerIp().getValue(),
                             us.getSourceIp().getValue());
-                } catch (Exception e) {
-                    LOG.error("Replay:addUS() received exception: \"" + e + "\"");
+                } catch (TException | BgpRouterException e) {
+                    LOG.error("Replay:addUS() received exception", e);
                 }
             }
             List<AddressFamilies> afs = nbr.getAddressFamilies();
@@ -1595,8 +1514,8 @@ public class BgpConfigurationManager {
                     af_safi safi = af_safi.findByValue(af.getSafi().intValue());
                     try {
                         br.addAddressFamily(af.getPeerIp().getValue(), afi, safi);
-                    } catch (Exception e) {
-                        LOG.error("Replay:addAf() received exception: \"" + e + "\"");
+                    } catch (TException | BgpRouterException e) {
+                        LOG.error("Replay:addAf() received exception", e);
                     }
                 }
             }
@@ -1621,32 +1540,28 @@ public class BgpConfigurationManager {
     }
 
     public static Bgp getConfig() {
-        AtomicInteger bgpDSretryCount = new AtomicInteger(dsRetryCoount);
-        while (0  != bgpDSretryCount.decrementAndGet()) {
+        AtomicInteger bgpDSretryCount = new AtomicInteger(DS_RETRY_COOUNT);
+        while (0 != bgpDSretryCount.decrementAndGet()) {
             try {
-                Optional<Bgp> optional = BgpUtil.read(dataBroker,
-                                         LogicalDatastoreType.CONFIGURATION, InstanceIdentifier.create(Bgp.class));
-                if (optional.isPresent()) {
-                    return optional.get();
-                } else {
-                    return null;
-                }
-            } catch (Exception e) {
+                return SingleTransactionDataBroker.syncReadOptional(dataBroker, LogicalDatastoreType.CONFIGURATION,
+                        InstanceIdentifier.create(Bgp.class)).orNull();
+            } catch (ReadFailedException e) {
                 //Config DS may not be up, so sleep for 1 second and retry
                 LOG.debug("failed to get bgp config, may be DS is yet in consistent state(?)", e);
                 try {
-                    Thread.sleep(waitTimeBetweenEachTryMillis);
-                }catch (Exception timerEx){
-                    LOG.debug("waitTimeBetweenEachTryMillis, Timer got interrupted while waiting for" +
-                            "config DS availability", timerEx);
+                    Thread.sleep(WAIT_TIME_BETWEEN_EACH_TRY_MILLIS);
+                } catch (InterruptedException timerEx) {
+                    LOG.debug("WAIT_TIME_BETWEEN_EACH_TRY_MILLIS, Timer got interrupted while waiting for"
+                            + "config DS availability", timerEx);
                 }
             }
-         }
-         LOG.error("failed to get bgp config");
-         return null;
-     }
+        }
+        LOG.error("failed to get bgp config");
+        return null;
+    }
 
-    public synchronized void replay() {
+    @SuppressWarnings("checkstyle:IllegalCatch")
+    public synchronized void replay() throws InterruptedException, TimeoutException, ExecutionException {
         synchronized (bgpConfigurationManager) {
             String host = getConfigHost();
             int port = getConfigPort();
@@ -1667,15 +1582,15 @@ public class BgpConfigurationManager {
                 return;
             }
             BgpRouter br = bgpRouter;
-            AsId a = config.getAsId();
-            if (a == null) {
+            AsId asId = config.getAsId();
+            if (asId == null) {
                 return;
             }
-            long asNum = a.getLocalAs().longValue();
-            Ipv4Address routerId = a.getRouterId();
-            Long spt = a.getStalepathTime();
-            Boolean afb = a.isAnnounceFbit();
-            String rid = (routerId == null) ? "" : routerId.getValue();
+            long asNum = asId.getLocalAs();
+            IpAddress routerId = asId.getRouterId();
+            Long spt = asId.getStalepathTime();
+            Boolean afb = asId.isAnnounceFbit();
+            String rid = (routerId == null) ? "" : new String(routerId.getValue());
             int stalepathTime = (int) getStalePathtime(0, config.getAsId());
             boolean announceFbit = true;
             try {
@@ -1685,9 +1600,9 @@ public class BgpConfigurationManager {
                     doRouteSync();
                 } else {
                     LOG.error("Replay: startBgp() received exception: \""
-                            + bre + "\"; " + addWarn);
+                            + bre + "\"; " + ADD_WARN);
                 }
-            } catch (Exception e) {
+            } catch (TException e) {
                 //not unusual. We may have restarted & BGP is already on
                 LOG.error("Replay:startBgp() received exception: \"" + e + "\"");
             }
@@ -1700,32 +1615,32 @@ public class BgpConfigurationManager {
                 startBgpAlarmsTask();
             }
 
-            Logging l = config.getLogging();
-            if (l != null) {
+            Logging logging = config.getLogging();
+            if (logging != null) {
                 try {
-                    br.setLogging(l.getFile(), l.getLevel());
-                } catch (Exception e) {
-                    LOG.error("Replay:setLogging() received exception: \"" + e + "\"");
+                    br.setLogging(logging.getFile(), logging.getLevel());
+                } catch (TException | BgpRouterException e) {
+                    LOG.error("Replay:setLogging() received exception", e);
                 }
             }
 
-            GracefulRestart g = config.getGracefulRestart();
-            if (g != null) {
+            GracefulRestart gracefulRestart = config.getGracefulRestart();
+            if (gracefulRestart != null) {
                 try {
-                    br.addGracefulRestart(g.getStalepathTime().intValue());
-                } catch (Exception e) {
-                    LOG.error("Replay:addGr() received exception: \"" + e + "\"");
+                    br.addGracefulRestart(gracefulRestart.getStalepathTime().intValue());
+                } catch (TException | BgpRouterException e) {
+                    LOG.error("Replay:addGr() received exception", e);
                 }
             }
 
-            List<Vrfs> v = config.getVrfs();
-            if (v != null) {
-                for (Vrfs vrf : v) {
+            List<Vrfs> vrfs = config.getVrfs();
+            if (vrfs != null) {
+                for (Vrfs vrf : vrfs) {
                     try {
-                        br.addVrf(vrf.getRd(), vrf.getImportRts(),
+                        br.addVrf(vrf.getLayerType(), vrf.getRd(), vrf.getImportRts(),
                                 vrf.getExportRts());
-                    } catch (Exception e) {
-                        LOG.error("Replay:addVrf() received exception: \"" + e + "\"");
+                    } catch (TException | BgpRouterException e) {
+                        LOG.error("Replay:addVrf() received exception", e);
                     }
                 }
             }
@@ -1738,21 +1653,31 @@ public class BgpConfigurationManager {
                     String nh = net.getNexthop().getValue();
                     Long label = net.getLabel();
                     int lbl = (label == null) ? 0 : label.intValue();
+                    int l3vni = (net.getL3vni() == null) ? 0 : net.getL3vni().intValue();
                     if (rd == null && lbl > 0) {
                         //LU prefix is being deleted.
                         rd = Integer.toString(lbl);
                     }
+
+                    BgpControlPlaneType protocolType = net.getBgpControlPlaneType();
+                    int ethernetTag = net.getEthtag().intValue();
+                    String esi = net.getEsi();
+                    String macaddress = net.getMacaddress();
+                    EncapType encapType = net.getEncapType();
+                    String routerMac = net.getRoutermac();
+
                     try {
-                        br.addPrefix(rd, pfxlen, nh, lbl);
+                        br.addPrefix(rd, pfxlen, nh, lbl, l3vni, BgpUtil.convertToThriftProtocolType(protocolType),
+                                ethernetTag, esi, macaddress, BgpUtil.convertToThriftEncapType(encapType), routerMac);
                     } catch (Exception e) {
-                        LOG.error("Replay:addPfx() received exception: \"" + e + "\"");
+                        LOG.error("Replay:addPfx() received exception", e);
                     }
                 }
             }
-            List<Neighbors> n = config.getNeighbors();
-            if (n != null) {
-                LOG.error("configuring existing Neighbors present for replay total neighbors {}", n.size());
-                replayNbrConfig(n, br);
+            List<Neighbors> neighbors = config.getNeighbors();
+            if (neighbors != null) {
+                LOG.error("configuring existing Neighbors present for replay total neighbors {}", neighbors.size());
+                replayNbrConfig(neighbors, br);
             } else {
                 LOG.error("no Neighbors present for replay config ");
             }
@@ -1771,8 +1696,7 @@ public class BgpConfigurationManager {
         BgpUtil.delete(dataBroker, LogicalDatastoreType.CONFIGURATION, iid);
     }
 
-    public synchronized void
-    startConfig(String bgpHost, int thriftPort) {
+    public synchronized void startConfig(String bgpHost, int thriftPort) {
         InstanceIdentifier.InstanceIdentifierBuilder<ConfigServer> iib =
                 InstanceIdentifier.builder(Bgp.class).child(ConfigServer.class);
         InstanceIdentifier<ConfigServer> iid = iib.build();
@@ -1782,10 +1706,8 @@ public class BgpConfigurationManager {
         update(iid, dto);
     }
 
-    public synchronized void
-    startBgp(long as, String routerId, int spt, boolean fbit) {
-        Ipv4Address rid = (routerId == null) ?
-                null : new Ipv4Address(routerId);
+    public synchronized void startBgp(long as, String routerId, int spt, boolean fbit) {
+        IpAddress rid = (routerId == null) ? null : new IpAddress(routerId.toCharArray());
         Long staleTime = (long) spt;
         InstanceIdentifier.InstanceIdentifierBuilder<AsId> iib =
                 InstanceIdentifier.builder(Bgp.class).child(AsId.class);
@@ -1797,8 +1719,7 @@ public class BgpConfigurationManager {
         update(iid, dto);
     }
 
-    public synchronized void
-    addLogging(String fileName, String logLevel) {
+    public synchronized void addLogging(String fileName, String logLevel) {
         InstanceIdentifier.InstanceIdentifierBuilder<Logging> iib =
                 InstanceIdentifier.builder(Bgp.class).child(Logging.class);
         InstanceIdentifier<Logging> iid = iib.build();
@@ -1807,8 +1728,7 @@ public class BgpConfigurationManager {
         update(iid, dto);
     }
 
-    public synchronized void
-    addGracefulRestart(int staleTime) {
+    public synchronized void addGracefulRestart(int staleTime) {
         InstanceIdentifier.InstanceIdentifierBuilder<GracefulRestart> iib =
                 InstanceIdentifier.builder(Bgp.class).child(GracefulRestart.class);
         InstanceIdentifier<GracefulRestart> iid = iib.build();
@@ -1817,8 +1737,7 @@ public class BgpConfigurationManager {
         update(iid, dto);
     }
 
-    public synchronized void
-    addNeighbor(String nbrIp, long remoteAs) {
+    public synchronized void addNeighbor(String nbrIp, long remoteAs) {
         Ipv4Address nbrAddr = new Ipv4Address(nbrIp);
         InstanceIdentifier.InstanceIdentifierBuilder<Neighbors> iib =
                 InstanceIdentifier.builder(Bgp.class)
@@ -1829,8 +1748,7 @@ public class BgpConfigurationManager {
         update(iid, dto);
     }
 
-    public synchronized void
-    addUpdateSource(String nbrIp, String srcIp) {
+    public synchronized void addUpdateSource(String nbrIp, String srcIp) {
         Ipv4Address nbrAddr = new Ipv4Address(nbrIp);
         Ipv4Address srcAddr = new Ipv4Address(srcIp);
         InstanceIdentifier.InstanceIdentifierBuilder<UpdateSource> iib =
@@ -1843,8 +1761,7 @@ public class BgpConfigurationManager {
         update(iid, dto);
     }
 
-    public synchronized void
-    addEbgpMultihop(String nbrIp, int nHops) {
+    public synchronized void addEbgpMultihop(String nbrIp, int hops) {
         Ipv4Address nbrAddr = new Ipv4Address(nbrIp);
         InstanceIdentifier.InstanceIdentifierBuilder<EbgpMultihop> iib =
                 InstanceIdentifier.builder(Bgp.class)
@@ -1852,48 +1769,61 @@ public class BgpConfigurationManager {
                         .child(EbgpMultihop.class);
         InstanceIdentifier<EbgpMultihop> iid = iib.build();
         EbgpMultihop dto = new EbgpMultihopBuilder().setPeerIp(nbrAddr)
-                .setNhops((long) nHops).build();
+                .setNhops((long) hops).build();
         update(iid, dto);
     }
 
-    public synchronized void
-    addAddressFamily(String nbrIp, int afi, int safi) {
+    public synchronized void addAddressFamily(String nbrIp, int afi, int safi) {
         Ipv4Address nbrAddr = new Ipv4Address(nbrIp);
-        Long a = (long) afi;
-        Long sa = (long) safi;
         InstanceIdentifier.InstanceIdentifierBuilder<AddressFamilies> iib =
                 InstanceIdentifier.builder(Bgp.class)
                         .child(Neighbors.class, new NeighborsKey(nbrAddr))
-                        .child(AddressFamilies.class, new AddressFamiliesKey(a, sa));
+                        .child(AddressFamilies.class, new AddressFamiliesKey((long) afi, (long) safi));
         InstanceIdentifier<AddressFamilies> iid = iib.build();
         AddressFamilies dto = new AddressFamiliesBuilder().setPeerIp(nbrAddr)
-                .setAfi(a).setSafi(sa).build();
+                .setAfi((long) afi).setSafi((long) safi).build();
         update(iid, dto);
     }
 
-    public synchronized void
-    addPrefix(String rd, String pfx, List<String> nhList, int lbl) {
+    public synchronized void addPrefix(String rd, String macAddress, String pfx, List<String> nhList,
+              VrfEntry.EncapType encapType, int lbl, long l3vni, String gatewayMac) {
         for (String nh : nhList) {
             Ipv4Address nexthop = new Ipv4Address(nh);
             Long label = (long) lbl;
             InstanceIdentifier<Networks> iid = InstanceIdentifier.builder(Bgp.class)
                     .child(Networks.class, new NetworksKey(pfx, rd)).build();
-            Networks dto = new NetworksBuilder().setRd(rd).setPrefixLen(pfx).setNexthop(nexthop)
-                                                .setLabel(label).build();
-            update(iid, dto);
+            NetworksBuilder networksBuilder = new NetworksBuilder().setRd(rd).setPrefixLen(pfx).setNexthop(nexthop)
+                                                .setLabel(label).setEthtag(BgpConstants.DEFAULT_ETH_TAG);
+            buildVpnEncapSpecificInfo(networksBuilder, encapType, label, l3vni, macAddress, gatewayMac);
+            update(iid, networksBuilder.build());
         }
     }
 
-    public synchronized void
-    addVrf(String rd, List<String> irts, List<String> erts) {
+    private static void buildVpnEncapSpecificInfo(NetworksBuilder builder, VrfEntry.EncapType encapType, long label,
+                                                  long l3vni, String macAddress, String gatewayMac) {
+        if (encapType.equals(VrfEntry.EncapType.Mplsgre)) {
+            builder.setLabel(label).setBgpControlPlaneType(BgpControlPlaneType.PROTOCOLL3VPN)
+                    .setEncapType(EncapType.GRE);
+        } else {
+            builder.setL3vni(l3vni).setMacaddress(macAddress).setRoutermac(gatewayMac)
+                    .setBgpControlPlaneType(BgpControlPlaneType.PROTOCOLEVPN).setEncapType(EncapType.VXLAN);
+        }
+    }
+
+    // TODO: add LayerType as arg - supports command
+    public synchronized void addVrf(String rd, List<String> irts, List<String> erts, LayerType layerType) {
         InstanceIdentifier.InstanceIdentifierBuilder<Vrfs> iib =
                 InstanceIdentifier.builder(Bgp.class)
                         .child(Vrfs.class, new VrfsKey(rd));
         InstanceIdentifier<Vrfs> iid = iib.build();
-        Vrfs dto = new VrfsBuilder().setRd(rd)
-                .setImportRts(irts)
-                .setExportRts(erts).build();
-        BgpUtil.syncWrite(dataBroker, LogicalDatastoreType.CONFIGURATION, iid, dto);
+        Vrfs dto = new VrfsBuilder().setRd(rd).setImportRts(irts)
+                .setExportRts(erts).setLayerType(layerType).build();
+        try {
+            SingleTransactionDataBroker.syncWrite(dataBroker, LogicalDatastoreType.CONFIGURATION, iid, dto);
+        } catch (TransactionCommitFailedException e) {
+            LOG.error("Error adding VRF to datastore", e);
+            throw new RuntimeException(e);
+        }
     }
 
     public synchronized void stopConfig() {
@@ -1954,15 +1884,12 @@ public class BgpConfigurationManager {
         delete(iid);
     }
 
-    public synchronized void
-    delAddressFamily(String nbrIp, int afi, int safi) {
+    public synchronized void delAddressFamily(String nbrIp, int afi, int safi) {
         Ipv4Address nbrAddr = new Ipv4Address(nbrIp);
-        Long a = (long) afi;
-        Long sa = (long) safi;
         InstanceIdentifier.InstanceIdentifierBuilder<AddressFamilies> iib =
                 InstanceIdentifier.builder(Bgp.class)
                         .child(Neighbors.class, new NeighborsKey(nbrAddr))
-                        .child(AddressFamilies.class, new AddressFamiliesKey(a, sa));
+                        .child(AddressFamilies.class, new AddressFamiliesKey((long) afi, (long) safi));
         InstanceIdentifier<AddressFamilies> iid = iib.build();
         delete(iid);
     }
@@ -2007,19 +1934,13 @@ public class BgpConfigurationManager {
                                 if (Thread.interrupted()) {
                                     return 0;
                                 }
-                                try {
-                                    totalCleared++;
-                                    LOG.debug("BGP: RouteCleanup deletePrefix called for : rd:{}, prefix{}" + rd.toString() + prefix);
-                                    fibDSWriter.removeFibEntryFromDS(rd, prefix);
-                                } catch (Exception e) {
-                                    LOG.error("BGP: RouteCleanup deletePrefix failed rd:{}, prefix{}" + rd.toString() + prefix);
-                                }
+                                totalCleared++;
+                                LOG.debug("BGP: RouteCleanup deletePrefix called for : rd:{}, prefix{}", rd, prefix);
+                                fibDSWriter.removeFibEntryFromDS(rd, prefix);
                             }
                         }
                     }
                 }
-            } catch (Exception e) {
-                LOG.error("Cleanup Thread Got interrupted, Failed to cleanup stale routes ", e);
             } finally {
                 staledFibEntriesMap.clear();
             }
@@ -2055,12 +1976,12 @@ public class BgpConfigurationManager {
                 return;
             }
 
-            Optional<FibEntries> fibEntries = BgpUtil.read(BgpUtil.getBroker(),
+            Optional<FibEntries> fibEntries = SingleTransactionDataBroker.syncReadOptional(BgpUtil.getBroker(),
                     LogicalDatastoreType.CONFIGURATION, id);
             if (fibEntries.isPresent()) {
-                List<VrfTables> stale_vrfTables = fibEntries.get().getVrfTables();
-                for (VrfTables vrfTable : stale_vrfTables) {
-                    Map<String, String> stale_fib_ent_map = new HashMap<>();
+                List<VrfTables> staleVrfTables = fibEntries.get().getVrfTables();
+                for (VrfTables vrfTable : staleVrfTables) {
+                    Map<String, String> staleFibEntMap = new HashMap<>();
                     for (VrfEntry vrfEntry : vrfTable.getVrfEntry()) {
                         if (RouteOrigin.value(vrfEntry.getOrigin()) != RouteOrigin.BGP) {
                             //Stale marking and cleanup is only meant for the routes learned through BGP.
@@ -2070,17 +1991,17 @@ public class BgpConfigurationManager {
                             break;
                         }
                         totalStaledCount++;
-                        //Create MAP from stale_vrfTables.
+                        //Create MAP from staleVrfTables.
                         for (String nextHop : vrfEntry.getNextHopAddressList()) {
-                            stale_fib_ent_map.put(vrfEntry.getDestPrefix(), nextHop + "/" + vrfEntry.getLabel());
+                            staleFibEntMap.put(vrfEntry.getDestPrefix(), nextHop + "/" + vrfEntry.getLabel());
                         }
                     }
-                    staledFibEntriesMap.put(vrfTable.getRouteDistinguisher(), stale_fib_ent_map);
+                    staledFibEntriesMap.put(vrfTable.getRouteDistinguisher(), staleFibEntMap);
                 }
             } else {
                 LOG.error("createStaleFibMap:: FIBentries.class is not present");
             }
-        } catch (Exception e) {
+        } catch (InterruptedException | ReadFailedException e) {
             LOG.error("createStaleFibMap:: error ", e);
         }
         LOG.error("created {} staled entries ", totalStaledCount);
@@ -2094,26 +2015,32 @@ public class BgpConfigurationManager {
     //TODO: below function is for testing purpose with cli
     public static void onUpdateWithdrawRoute(String rd, String prefix, int plen, String nexthop) {
         LOG.debug("Route del ** {} ** {}/{} ", rd, prefix, plen);
-        try {
-            fibDSWriter.removeFibEntryFromDS(rd, prefix + "/" + plen);
-        } catch (Throwable e) {
-            LOG.error("failed to handle withdraw route ", e);
-        }
+        fibDSWriter.removeFibEntryFromDS(rd, prefix + "/" + plen);
     }
-    public boolean isBgpConnected(){
+
+    public boolean isBgpConnected() {
         return bgpRouter.isBgpConnected();
     }
+
     public long getLastConnectedTS() {
         return bgpRouter.getLastConnectedTS();
     }
+
     public long getConnectTS() {
         return bgpRouter.getConnectTS();
     }
+
     public long getStartTS() {
         return bgpRouter.getStartTS();
     }
-    public static int getTotalStaledCount() {return totalStaledCount;}
-    public static int getTotalCleared() { return totalCleared;}
+
+    public static int getTotalStaledCount() {
+        return totalStaledCount;
+    }
+
+    public static int getTotalCleared() {
+        return totalCleared;
+    }
 
     public Timer getBgpCountersTimer() {
         return bgpCountersTimer;
@@ -2123,66 +2050,52 @@ public class BgpConfigurationManager {
         return bgpCounters;
     }
 
-    public  void setBgpCountersTimer (Timer t) {
-        bgpCountersTimer = t;
+    public void setBgpCountersTimer(Timer timer) {
+        bgpCountersTimer = timer;
     }
-    public  void setBgpAlarmsTimer (Timer t) {
-        bgpAlarmsTimer = t;
+
+    public void setBgpAlarmsTimer(Timer timer) {
+        bgpAlarmsTimer = timer;
     }
 
     public void startBgpCountersTask() {
         if (getBgpCounters() == null) {
+            bgpCounters = new BgpCounters(bgpConfigurationManager.getBgpSdncMipIp());
+            setBgpCountersTimer(new Timer(true));
+            getBgpCountersTimer().scheduleAtFixedRate(bgpCounters, 0, 120 * 1000);
+            LOG.info("Bgp Counters task scheduled for every two minutes.");
 
-            try {
-                bgpCounters = new BgpCounters(bgpConfigurationManager.getBgpSdncMipIp());
-                setBgpCountersTimer(new Timer(true));
-                getBgpCountersTimer().scheduleAtFixedRate(bgpCounters, 0, 120 * 1000);
-
-
-                LOG.info("Bgp Counters task scheduled for every two minutes.");
-            } catch (Exception e) {
-                System.out.println("Could not start the timertask for Bgp Counters.");
-                e.printStackTrace();
-            }
-
-            try {
-                bgpManager.setQbgpLog(BgpConstants.BGP_DEF_LOG_FILE, BgpConstants.BGP_DEF_LOG_LEVEL);
-            } catch (Exception e) {
-                System.out.println("Could not set the default options for logging");
-            }
+            bgpManager.setQbgpLog(BgpConstants.BGP_DEF_LOG_FILE, BgpConstants.BGP_DEF_LOG_LEVEL);
         }
     }
 
     public void stopBgpCountersTask() {
-        Timer t = getBgpCountersTimer();
+        Timer timer = getBgpCountersTimer();
         if (getBgpCounters() != null) {
-            t.cancel();
+            timer.cancel();
             setBgpCountersTimer(null);
             bgpCounters = null;
         }
     }
+
     public void startBgpAlarmsTask() {
         if (getBgpAlarms() == null) {
-            try {
-                bgpAlarms = new BgpAlarms(this);
-                setBgpAlarmsTimer(new Timer(true));
-                getBgpAlarmsTimer().scheduleAtFixedRate(bgpAlarms, 0, 60 * 1000);
-                LOG.info("Bgp Alarms task scheduled for every minute.");
-            } catch (Exception e) {
-                System.out.println("Could not start the timertask for Bgp Alarms.");
-                e.printStackTrace();
-            }
+            bgpAlarms = new BgpAlarms(this);
+            setBgpAlarmsTimer(new Timer(true));
+            getBgpAlarmsTimer().scheduleAtFixedRate(bgpAlarms, 0, 60 * 1000);
+            LOG.info("Bgp Alarms task scheduled for every minute.");
         }
     }
 
     public void stopBgpAlarmsTask() {
-        Timer t = getBgpAlarmsTimer();
+        Timer timer = getBgpAlarmsTimer();
         if (getBgpAlarms() != null) {
-            t.cancel();
+            timer.cancel();
             setBgpAlarmsTimer(null);
             bgpAlarms = null;
         }
     }
+
     public Timer getBgpAlarmsTimer() {
         return bgpAlarmsTimer;
     }
@@ -2192,3 +2105,4 @@ public class BgpConfigurationManager {
     }
 
 }
+

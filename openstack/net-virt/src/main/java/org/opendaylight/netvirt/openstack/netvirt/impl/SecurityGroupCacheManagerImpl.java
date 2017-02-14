@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014, 2015 HP, Inc. and others. All rights reserved.
+ * Copyright © 2014, 2017 HP, Inc. and others. All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
@@ -8,24 +8,29 @@
 
 package org.opendaylight.netvirt.openstack.netvirt.impl;
 
-import org.opendaylight.netvirt.openstack.netvirt.api.SecurityServicesManager;
 import org.opendaylight.netvirt.openstack.netvirt.translator.crud.INeutronPortCRUD;
 import org.opendaylight.netvirt.openstack.netvirt.ConfigInterface;
+import org.opendaylight.netvirt.openstack.netvirt.api.Constants;
 import org.opendaylight.netvirt.openstack.netvirt.api.SecurityGroupCacheManger;
+import org.opendaylight.netvirt.openstack.netvirt.api.SecurityServicesManager;
+import org.opendaylight.netvirt.openstack.netvirt.api.Southbound;
 import org.opendaylight.netvirt.openstack.netvirt.translator.NeutronPort;
 import org.opendaylight.netvirt.openstack.netvirt.translator.NeutronSecurityGroup;
 import org.opendaylight.netvirt.openstack.netvirt.translator.NeutronSecurityRule;
 import org.opendaylight.netvirt.openstack.netvirt.translator.Neutron_IPs;
 import org.opendaylight.netvirt.openstack.netvirt.translator.crud.INeutronSecurityRuleCRUD;
 import org.opendaylight.netvirt.utils.servicehelper.ServiceHelper;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.rev150105.OvsdbTerminationPointAugmentation;
+import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Node;
+import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.NodeId;
 import org.osgi.framework.ServiceReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -37,9 +42,10 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class SecurityGroupCacheManagerImpl implements ConfigInterface, SecurityGroupCacheManger {
 
-    private final Map<String, Set<String>> securityGroupCache = new ConcurrentHashMap<>();
+    private final Map<String, Map<String, NodeId>> securityGroupCache = new ConcurrentHashMap<>();
     private static final Logger LOG = LoggerFactory.getLogger(SecurityGroupCacheManagerImpl.class);
     private volatile SecurityServicesManager securityServicesManager;
+    private volatile Southbound southbound;
     private volatile INeutronPortCRUD neutronPortCache;
     private volatile NeutronL3Adapter neutronL3Adapter;
     private volatile INeutronSecurityRuleCRUD neutronSecurityRule;
@@ -74,32 +80,29 @@ public class SecurityGroupCacheManagerImpl implements ConfigInterface, SecurityG
     }
 
     @Override
-    public void addToCache(String remoteSgUuid, String portUuid) {
+    public void addToCache(String remoteSgUuid, String portUuid, NodeId nodeId) {
         LOG.debug("In addToCache remoteSgUuid:" + remoteSgUuid + " portUuid:" + portUuid);
-        Set<String> portList = securityGroupCache.get(remoteSgUuid);
-        if (null == portList) {
-            portList = new HashSet<>();
-            securityGroupCache.put(remoteSgUuid, portList);
-        }
-        portList.add(portUuid);
+        Map<String, NodeId> remoteSgPorts = securityGroupCache.computeIfAbsent(remoteSgUuid, k -> new HashMap<>());
+        remoteSgPorts.put(portUuid, nodeId);
     }
 
     @Override
     public void removeFromCache(String remoteSgUuid, String portUuid) {
         LOG.debug("In removeFromCache remoteSgUuid:" + remoteSgUuid + " portUuid:" + portUuid);
-        Set<String> portList = securityGroupCache.get(remoteSgUuid);
-        if (null == portList) {
+        Map<String, NodeId> remoteSgPorts = securityGroupCache.get(remoteSgUuid);
+        if (null == remoteSgPorts) {
             LOG.debug("The port list is empty for security group:" + remoteSgUuid);
             return;
         }
-        for (Iterator<String> iterator = portList.iterator(); iterator.hasNext();) {
+        Set<String> portSet = remoteSgPorts.keySet();
+        for (Iterator<String> iterator = portSet.iterator(); iterator.hasNext();) {
             String cachedPort = iterator.next();
             if (cachedPort.equals(portUuid)) {
                 iterator.remove();
                 break;
             }
         }
-        if (portList.isEmpty()) {
+        if (portSet.isEmpty()) {
             securityGroupCache.remove(remoteSgUuid);
         }
     }
@@ -110,20 +113,25 @@ public class SecurityGroupCacheManagerImpl implements ConfigInterface, SecurityG
          * add the rule to allow traffic to/from the new port added.
          */
         LOG.debug("In processPortAdded securityGroupUuid:" + securityGroupUuid + " NeutronPort:" + port);
-        Set<String> portList = this.securityGroupCache.get(securityGroupUuid);
+        Map<String, NodeId> portList = securityGroupCache.get(securityGroupUuid);
         if (null == portList) {
             LOG.debug("The port list is empty for security group:" + securityGroupUuid);
             return;
         }
-        for (String cachedportUuid : portList) {
+        for (Map.Entry<String, NodeId> portEntry : portList.entrySet()) {
+            String cachedportUuid = portEntry.getKey();
+            NodeId nodeId = portEntry.getValue();
             if (cachedportUuid.equals(port.getID())) {
                 continue;
             }
             NeutronPort cachedport = neutronPortCache.getPort(cachedportUuid);
-            if (null == cachedport) {
-                LOG.error("In processPortAdded cachedport port not found in neuton cache:"
+            if (cachedport == null) {
+                cachedport = neutronL3Adapter.getPortFromCleanupCache(cachedportUuid);
+                if (null == cachedport) {
+                    LOG.error("In processPortRemoved cachedport port not found in neuton cache:"
                             + " cachedportUuid:" + cachedportUuid);
-                continue;
+                    continue;
+                }
             }
             List<NeutronSecurityRule> remoteSecurityRules = retrieveSecurityRules(securityGroupUuid, cachedportUuid);
             for (NeutronSecurityRule securityRule : remoteSecurityRules) {
@@ -131,7 +139,7 @@ public class SecurityGroupCacheManagerImpl implements ConfigInterface, SecurityG
                     continue;
                 }
                 for (Neutron_IPs vmIp : port.getFixedIPs()) {
-                    securityServicesManager.syncSecurityRule(cachedport, securityRule, vmIp, true);
+                    securityServicesManager.syncSecurityRule(cachedport, securityRule, vmIp, nodeId, true);
                 }
             }
         }
@@ -143,12 +151,14 @@ public class SecurityGroupCacheManagerImpl implements ConfigInterface, SecurityG
          * the rule to allow traffic to/from the  port that got deleted.
          */
         LOG.debug("In processPortRemoved securityGroupUuid:" + securityGroupUuid + " port:" + port);
-        Set<String> portList = this.securityGroupCache.get(securityGroupUuid);
+        Map<String, NodeId> portList = securityGroupCache.get(securityGroupUuid);
         if (null == portList) {
             LOG.debug("The port list is empty for security group:" + securityGroupUuid);
             return;
         }
-        for (String cachedportUuid : portList) {
+        for (Map.Entry<String, NodeId> portEntry : portList.entrySet()) {
+            String cachedportUuid = portEntry.getKey();
+            NodeId nodeId = portEntry.getValue();
             if (cachedportUuid.equals(port.getID())) {
                 continue;
             }
@@ -157,7 +167,7 @@ public class SecurityGroupCacheManagerImpl implements ConfigInterface, SecurityG
                 cachedport = neutronL3Adapter.getPortFromCleanupCache(cachedportUuid);
                 if (null == cachedport) {
                     LOG.error("In processPortRemoved cachedport port not found in neuton cache:"
-                                + " cachedportUuid:" + cachedportUuid);
+                            + " cachedportUuid:" + cachedportUuid);
                     continue;
                 }
             }
@@ -167,7 +177,7 @@ public class SecurityGroupCacheManagerImpl implements ConfigInterface, SecurityG
                     continue;
                 }
                 for (Neutron_IPs vmIp : port.getFixedIPs()) {
-                    securityServicesManager.syncSecurityRule(cachedport, securityRule, vmIp, false);
+                    securityServicesManager.syncSecurityRule(cachedport, securityRule, vmIp, nodeId, false);
                 }
             }
         }
@@ -204,6 +214,7 @@ public class SecurityGroupCacheManagerImpl implements ConfigInterface, SecurityG
         /*
          * Rebuild the cache in case of a restart.
          */
+        Map<String, NodeId> portNodeCache = getPortNodeCache();
         List<NeutronPort> portList = neutronPortCache.getAllPorts();
         for (NeutronPort port:portList) {
             List<NeutronSecurityGroup> securityGroupList = port.getSecurityGroups();
@@ -213,13 +224,39 @@ public class SecurityGroupCacheManagerImpl implements ConfigInterface, SecurityG
                     if ( null != securityRuleList) {
                         for (NeutronSecurityRule securityRule : securityRuleList) {
                             if (null != securityRule.getSecurityRemoteGroupID()) {
-                                this.addToCache(securityRule.getSecurityRemoteGroupID(), port.getID());
+                                this.addToCache(securityRule.getSecurityRemoteGroupID(), port.getID(), portNodeCache.get(port.getID()));
                             }
                         }
                     }
                 }
             }
         }
+    }
+
+    private Map<String, NodeId> getPortNodeCache() {
+        Map<String, NodeId> portNodeCache = new HashMap();
+        List<Node> toplogyNodes = southbound.readOvsdbTopologyNodes();
+
+        for (Node topologyNode : toplogyNodes) {
+            try {
+                Node node = southbound.getBridgeNode(topologyNode,Constants.INTEGRATION_BRIDGE);
+                if (node == null) {
+                    LOG.error("getNode: br-int interface is not found for node:{}", topologyNode.getNodeId().getValue());
+                }
+                List<OvsdbTerminationPointAugmentation> ovsdbPorts = southbound.getTerminationPointsOfBridge(node);
+                for (OvsdbTerminationPointAugmentation ovsdbPort : ovsdbPorts) {
+                    String uuid = southbound.getInterfaceExternalIdsValue(ovsdbPort,
+                                                            Constants.EXTERNAL_ID_INTERFACE_ID);
+                    NodeId nodeId = node.getNodeId();
+                    if (null != uuid && null != nodeId) {
+                        portNodeCache.put(uuid, nodeId);
+                    }
+                }
+            } catch (Exception e) {
+                LOG.error("Exception during handlingNeutron network delete", e);
+            }
+        }
+        return portNodeCache;
     }
 
     private List<NeutronSecurityRule> getSecurityRulesforGroup(NeutronSecurityGroup securityGroup) {
@@ -239,6 +276,8 @@ public class SecurityGroupCacheManagerImpl implements ConfigInterface, SecurityG
                 (NeutronL3Adapter) ServiceHelper.getGlobalInstance(NeutronL3Adapter.class, this);
         securityServicesManager =
                 (SecurityServicesManager) ServiceHelper.getGlobalInstance(SecurityServicesManager.class, this);
+        southbound =
+                (Southbound) ServiceHelper.getGlobalInstance(Southbound.class, this);
         neutronPortCache = (INeutronPortCRUD) ServiceHelper.getGlobalInstance(INeutronPortCRUD.class, this);
         neutronSecurityRule = (INeutronSecurityRuleCRUD) ServiceHelper.getGlobalInstance(INeutronSecurityRuleCRUD.class, this);
         init();

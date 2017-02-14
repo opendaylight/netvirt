@@ -33,7 +33,8 @@ public class ElanOvsdbNodeListener extends AbstractDataChangeListener<Node> impl
     private final DataBroker dataBroker;
     private final ElanBridgeManager bridgeMgr;
     private final IElanService elanProvider;
-    private boolean generateIntBridgeMac;
+    private final boolean generateIntBridgeMac;
+    private final boolean autoCreateBridge;
 
     /**
      * Constructor.
@@ -47,6 +48,7 @@ public class ElanOvsdbNodeListener extends AbstractDataChangeListener<Node> impl
                                  final IElanService elanProvider) {
         super(Node.class);
         this.dataBroker = dataBroker;
+        autoCreateBridge = elanConfig.isAutoCreateBridge();
         this.generateIntBridgeMac = elanConfig.isIntBridgeGenMac();
         this.bridgeMgr = bridgeMgr;
         this.elanProvider = elanProvider;
@@ -98,6 +100,8 @@ public class ElanOvsdbNodeListener extends AbstractDataChangeListener<Node> impl
     }
 
     private void doNodeUpdate(Node node) {
-        bridgeMgr.processNodePrep(node, generateIntBridgeMac);
+        if (autoCreateBridge) {
+            bridgeMgr.processNodePrep(node, generateIntBridgeMac);
+        }
     }
 }

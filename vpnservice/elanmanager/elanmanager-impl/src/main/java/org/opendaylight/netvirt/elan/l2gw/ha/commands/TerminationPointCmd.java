@@ -7,10 +7,9 @@
  */
 package org.opendaylight.netvirt.elan.l2gw.ha.commands;
 
-import com.google.common.base.Function;
-import com.google.common.collect.Lists;
 import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Collectors;
 import org.opendaylight.netvirt.elan.l2gw.ha.HwvtepHAUtil;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.HwvtepPhysicalPortAugmentation;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.HwvtepPhysicalPortAugmentationBuilder;
@@ -43,7 +42,7 @@ public class TerminationPointCmd extends MergeCommand<TerminationPoint, NodeBuil
     }
 
     @Override
-    protected InstanceIdentifier<TerminationPoint> generateId(InstanceIdentifier<Node> id, TerminationPoint node) {
+    public InstanceIdentifier<TerminationPoint> generateId(InstanceIdentifier<Node> id, TerminationPoint node) {
         return id.child(TerminationPoint.class, node.getKey());
     }
 
@@ -66,16 +65,13 @@ public class TerminationPointCmd extends MergeCommand<TerminationPoint, NodeBuil
                 new HwvtepPhysicalPortAugmentationBuilder(augmentation);
 
         if (augmentation.getVlanBindings() != null && augmentation.getVlanBindings().size() > 0) {
-            tpAugmentationBuilder.setVlanBindings(Lists.transform(augmentation.getVlanBindings(),
-                    new Function<VlanBindings, VlanBindings>() {
-                        public VlanBindings apply(VlanBindings vlanBindings) {
-
-                            VlanBindingsBuilder vlanBindingsBuilder = new VlanBindingsBuilder(vlanBindings);
-                            vlanBindingsBuilder.setLogicalSwitchRef(
-                                    HwvtepHAUtil.convertLogicalSwitchRef(vlanBindings.getLogicalSwitchRef(), path));
-                            return vlanBindingsBuilder.build();
-                        }
-                    }));
+            tpAugmentationBuilder.setVlanBindings(augmentation.getVlanBindings().stream().map(
+                vlanBindings -> {
+                    VlanBindingsBuilder vlanBindingsBuilder = new VlanBindingsBuilder(vlanBindings);
+                    vlanBindingsBuilder.setLogicalSwitchRef(
+                            HwvtepHAUtil.convertLogicalSwitchRef(vlanBindings.getLogicalSwitchRef(), path));
+                    return vlanBindingsBuilder.build();
+                }).collect(Collectors.toList()));
         }
 
         tpBuilder.addAugmentation(HwvtepPhysicalPortAugmentation.class, tpAugmentationBuilder.build());
@@ -93,6 +89,11 @@ public class TerminationPointCmd extends MergeCommand<TerminationPoint, NodeBuil
     }
 
     @Override
+    public TerminationPoint withoutUuid(TerminationPoint data) {
+        return data;
+    }
+
+    @Override
     public boolean areEqual(TerminationPoint updated, TerminationPoint orig) {
         if (!updated.getKey().equals(orig.getKey())) {
             return false;
@@ -101,8 +102,8 @@ public class TerminationPointCmd extends MergeCommand<TerminationPoint, NodeBuil
                 .getAugmentation(HwvtepPhysicalPortAugmentation.class);
         HwvtepPhysicalPortAugmentation origAugmentation = orig.getAugmentation(HwvtepPhysicalPortAugmentation.class);
 
-        List<VlanBindings> up = updatedAugmentation.getVlanBindings();
-        List<VlanBindings> or = origAugmentation.getVlanBindings();
+        List<VlanBindings> up = updatedAugmentation != null ? updatedAugmentation.getVlanBindings() : null;
+        List<VlanBindings> or = origAugmentation != null ? origAugmentation.getVlanBindings() : null;
         if (!areSameSize(up, or)) {
             return false;
         }

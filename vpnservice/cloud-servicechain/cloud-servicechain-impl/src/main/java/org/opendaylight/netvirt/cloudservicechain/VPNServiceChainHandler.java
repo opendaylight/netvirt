@@ -8,7 +8,6 @@
 
 package org.opendaylight.netvirt.cloudservicechain;
 
-import com.google.common.base.Optional;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -73,12 +72,7 @@ public class VPNServiceChainHandler implements AutoCloseable {
     protected VpnInstanceOpDataEntry getVpnInstance(String rd) {
         InstanceIdentifier<VpnInstanceOpDataEntry> id = InstanceIdentifier.create(VpnInstanceOpData.class)
                 .child(VpnInstanceOpDataEntry.class, new VpnInstanceOpDataEntryKey(rd));
-        Optional<VpnInstanceOpDataEntry> vpnInstanceOpData = MDSALUtil.read(broker, LogicalDatastoreType.OPERATIONAL,
-                                                                            id);
-        if (vpnInstanceOpData.isPresent()) {
-            return vpnInstanceOpData.get();
-        }
-        return null;
+        return MDSALUtil.read(broker, LogicalDatastoreType.OPERATIONAL, id).orNull();
     }
 
     /**
@@ -112,7 +106,7 @@ public class VPNServiceChainHandler implements AutoCloseable {
             return;
         }
         VpnInstanceOpDataEntry vpnInstance = getVpnInstance(rd);
-        if ( vpnInstance == null ) {
+        if (vpnInstance == null) {
             LOG.warn("Could not find a suitable VpnInstance for Route-Distinguisher={}", rd);
             return;
         }
@@ -180,21 +174,21 @@ public class VPNServiceChainHandler implements AutoCloseable {
         // Find out the set of DPNs for the given VPN ID
         if (vpnInstance != null) {
 
-            if ( addOrRemove == NwConstants.ADD_FLOW
-                   || (addOrRemove == NwConstants.DEL_FLOW && isLastServiceChain) ) {
+            if (addOrRemove == NwConstants.ADD_FLOW
+                   || (addOrRemove == NwConstants.DEL_FLOW && isLastServiceChain)) {
 
                 Long vpnId = vpnInstance.getVpnId();
                 List<VpnToDpnList> vpnToDpnList = vpnInstance.getVpnToDpnList();
-                if ( vpnToDpnList != null ) {
+                if (vpnToDpnList != null) {
                     List<BigInteger> dpns = new ArrayList<>();
-                    for (VpnToDpnList dpnInVpn : vpnToDpnList ) {
+                    for (VpnToDpnList dpnInVpn : vpnToDpnList) {
                         dpns.add(dpnInVpn.getDpnId());
                     }
-                    if ( !dpns.contains(dpnId) ) {
+                    if (!dpns.contains(dpnId)) {
                         LOG.debug("Dpn {} is not included in the current VPN Footprint", dpnId);
                         dpns.add(BigInteger.valueOf(dpnId));
                     }
-                    for ( BigInteger dpn : dpns ) {
+                    for (BigInteger dpn : dpns) {
                         VpnServiceChainUtils.programLPortDispatcherFlowForScfToVpn(mdsalManager, vpnId, dpn,
                                 vpnPseudoLportTag, addOrRemove);
                     }
@@ -209,7 +203,7 @@ public class VPNServiceChainHandler implements AutoCloseable {
             String intfName = VpnServiceChainUtils.buildVpnPseudoPortIfName(dpnId, scfTag, servChainTag,
                                                                             vpnPseudoLportTag);
             vpnManager.updateVpnFootprint(BigInteger.valueOf(dpnId), vpnName, intfName,
-                                          (addOrRemove == NwConstants.ADD_FLOW) );
+                                          (addOrRemove == NwConstants.ADD_FLOW));
         }
         LOG.info("L3VPN: Service Chaining programScfToVpnPipeline [End]");
     }
@@ -229,14 +223,14 @@ public class VPNServiceChainHandler implements AutoCloseable {
 
         String rd = VpnServiceChainUtils.getVpnRd(broker, vpnInstanceName);
         List<VrfEntry> vrfEntries = null;
-        if ( rd != null ) {
+        if (rd != null) {
             vrfEntries = VpnServiceChainUtils.getAllVrfEntries(broker, rd);
         }
         boolean cleanLFib = vrfEntries != null && !vrfEntries.isEmpty();
 
         List<BigInteger> operativeDPNs = NWUtil.getOperativeDPNs(broker);
         for (BigInteger dpnId : operativeDPNs) {
-            if ( cleanLFib ) {
+            if (cleanLFib) {
                 VpnServiceChainUtils.programLFibEntriesForSCF(mdsalManager, dpnId, vrfEntries, vpnPseudoLportTag,
                                                               NwConstants.DEL_FLOW);
             }
@@ -251,7 +245,7 @@ public class VPNServiceChainHandler implements AutoCloseable {
             mdsalManager.removeFlow(dpnId, scfToVpnFlow);
         }
 
-        if ( rd != null ) {
+        if (rd != null) {
             RemoveVpnPseudoPortDataJob removeVpnPseudoPortDataTask = new RemoveVpnPseudoPortDataJob(broker, rd);
             DataStoreJobCoordinator.getInstance().enqueueJob(removeVpnPseudoPortDataTask.getDsJobCoordinatorKey(),
                                                              removeVpnPseudoPortDataTask);
