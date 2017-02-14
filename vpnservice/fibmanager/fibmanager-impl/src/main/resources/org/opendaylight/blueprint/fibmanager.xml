@@ -49,6 +49,7 @@
     <argument ref="odlInterfaceRpcService"/>
     <argument ref="idManagerService"/>
     <argument ref="interVpnLinkService"/>
+    <argument ref="fibRpcServiceImpl"/>
   </bean>
 
   <bean id="fibRpcServiceImpl" class="org.opendaylight.netvirt.fibmanager.FibRpcServiceImpl">

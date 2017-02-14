@@ -602,39 +602,12 @@ public class NatTunnelInterfaceStateListener
 
                 LOG.debug("NAT Service : SNAT -> Advertise the route to the externalIp {} having nextHopIp {}",
                     externalIp, nextHopIp);
-                NatUtil.addPrefixToBGP(dataBroker, bgpManager, fibManager, rd, externalIp, nextHopIp,
-                    label, LOG, RouteOrigin.STATIC);
-
-                LOG.debug("NAT Service : SNAT -> Install custom FIB routes "
-                    + "(Table 21 -> Push MPLS label to Tunnel port");
                 List<Instruction> customInstructions = new ArrayList<>();
                 customInstructions.add(new InstructionGotoTable(NwConstants.INBOUND_NAPT_TABLE).buildInstruction(0));
-                CreateFibEntryInput input =
-                    new CreateFibEntryInputBuilder().setVpnName(externalVpnName).setSourceDpid(srcDpnId)
-                        .setInstruction(customInstructions).setIpAddress(externalIp + "/32")
-                        .setServiceId(label).setInstruction(customInstructions).build();
-                Future<RpcResult<Void>> future = fibRpcService.createFibEntry(input);
-                ListenableFuture<RpcResult<Void>> listenableFuture = JdkFutureAdapters.listenInPoolThread(future);
-
-                Futures.addCallback(listenableFuture, new FutureCallback<RpcResult<Void>>() {
-
-                    @Override
-                    public void onFailure(Throwable error) {
-                        LOG.error("NAT Service : SNAT -> Error in generate label or fib install process", error);
-                    }
-
-                    @Override
-                    public void onSuccess(RpcResult<Void> result) {
-                        if (result.isSuccessful()) {
-                            LOG.info("NAT Service : SNAT -> Successfully installed custom FIB routes for prefix {}",
-                                externalIp);
-                        } else {
-                            LOG.error("NAT Service : SNAT -> Error in rpc call to create custom Fib entries "
-                                    + "for prefix {} in DPN {}, {}",
-                                externalIp, srcDpnId, result.getErrors());
-                        }
-                    }
-                });
+                NatUtil.addPrefixToBGP(dataBroker, bgpManager, fibManager, rd, externalIp, nextHopIp,
+                    label, LOG, RouteOrigin.STATIC, srcDpnId, customInstructions);
+                LOG.debug("NAT Service : SNAT -> Install custom FIB routes "
+                    + "(Table 21 -> Push MPLS label to Tunnel port");
             }
         }
         return true;
@@ -691,36 +664,11 @@ public class NatTunnelInterfaceStateListener
                     LOG.debug("NAT Service : DNAT -> Unable to advertise to the DC GW since label is invalid");
                     return;
                 }
-                NatUtil.addPrefixToBGP(dataBroker, bgpManager, fibManager, rd, externalIp + "/32",
-                    nextHopIp, label, LOG, RouteOrigin.STATIC);
-
-                //Install custom FIB routes (Table 21 -> Push MPLS label to Tunnel port
                 List<Instruction> customInstructions = new ArrayList<>();
                 customInstructions.add(new InstructionGotoTable(NwConstants.PDNAT_TABLE).buildInstruction(0));
-                CreateFibEntryInput input = new CreateFibEntryInputBuilder().setVpnName(vpnName)
-                    .setSourceDpid(fipCfgdDpnId).setInstruction(customInstructions)
-                    .setIpAddress(externalIp + "/32").setServiceId(label).setInstruction(customInstructions).build();
-                Future<RpcResult<Void>> future = fibRpcService.createFibEntry(input);
-                ListenableFuture<RpcResult<Void>> listenableFuture = JdkFutureAdapters.listenInPoolThread(future);
-
-                Futures.addCallback(listenableFuture, new FutureCallback<RpcResult<Void>>() {
-
-                    @Override
-                    public void onFailure(Throwable error) {
-                        LOG.error("NAT Service : DNAT -> Error in generate label or fib install process", error);
-                    }
-
-                    @Override
-                    public void onSuccess(RpcResult<Void> result) {
-                        if (result.isSuccessful()) {
-                            LOG.info("NAT Service : DNAT -> Successfully installed custom FIB routes for prefix {}",
-                                externalIp);
-                        } else {
-                            LOG.error("NAT Service : DNAT -> Error in rpc call to create custom Fib "
-                                + "entries for prefix {} in DPN {}, {}", externalIp, fipCfgdDpnId, result.getErrors());
-                        }
-                    }
-                });
+                //Install custom FIB routes (Table 21 -> Push MPLS label to Tunnel port
+                NatUtil.addPrefixToBGP(dataBroker, bgpManager, fibManager, rd, externalIp + "/32",
+                    nextHopIp, label, LOG, RouteOrigin.STATIC, fipCfgdDpnId, customInstructions);
             }
         }
     }
