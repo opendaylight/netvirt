@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 Ericsson India Global Services Pvt Ltd. and others.  All rights reserved.
+ * Copyright © 2016, 2017 Ericsson India Global Services Pvt Ltd. and others.  All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
@@ -7,7 +7,6 @@
  */
 package org.opendaylight.netvirt.elan.l2gw.listeners;
 
-import com.google.common.collect.Lists;
 import com.google.common.util.concurrent.ListenableFuture;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -38,6 +37,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hw
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.NetworkTopology;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.NodeId;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.Topology;
+import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.TopologyKey;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Node;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.node.TerminationPoint;
 import org.opendaylight.yangtools.concepts.ListenerRegistration;
@@ -82,19 +82,14 @@ public class HwvtepTerminationPointListener
             return;
         }
         synchronized (HwvtepTerminationPointListener.class) {
-            List<Runnable> list = waitingJobsList.get(key);
-            if (list == null) {
-                waitingJobsList.put(key, Lists.newArrayList(runnable));
-            } else {
-                list.add(runnable);
-            }
+            waitingJobsList.computeIfAbsent(key, k -> new ArrayList<>()).add(runnable);
             LOG.debug("added the job to wait list of physical locator {}", key);
         }
     }
 
     @Override
     @SuppressWarnings("checkstyle:IllegalCatch")
-    public void close() throws Exception {
+    public void close() {
         if (lstnerRegistration != null) {
             try {
                 // TODO use https://git.opendaylight.org/gerrit/#/c/44145/ when merged, and remove @SuppressWarnings
@@ -131,16 +126,14 @@ public class HwvtepTerminationPointListener
 
         LOG.trace("physical locator available {}", identifier);
         teps.put(identifier, true);
-        List<Runnable> runnableList = null;
+        List<Runnable> runnableList;
         synchronized (HwvtepTerminationPointListener.class) {
             runnableList = waitingJobsList.get(identifier);
             waitingJobsList.remove(identifier);
         }
         if (runnableList != null) {
             LOG.debug("physical locator available {} running jobs ", identifier);
-            for (Runnable r : runnableList) {
-                r.run();
-            }
+            runnableList.forEach(Runnable::run);
         } else {
             LOG.debug("no jobs are waiting for physical locator {}", identifier);
         }
@@ -148,7 +141,8 @@ public class HwvtepTerminationPointListener
 
     @Override
     protected InstanceIdentifier<TerminationPoint> getWildCardPath() {
-        return InstanceIdentifier.create(NetworkTopology.class).child(Topology.class).child(Node.class)
+        return InstanceIdentifier.create(NetworkTopology.class)
+                .child(Topology.class, new TopologyKey(HwvtepSouthboundConstants.HWVTEP_TOPOLOGY_ID)).child(Node.class)
                 .child(TerminationPoint.class);
     }
 

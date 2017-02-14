@@ -61,7 +61,7 @@ public class DhcpUCastMacListener
     }
 
     @Override
-    public void close() throws Exception {
+    public void close() {
         super.close();
         LOG.info("DhcpUCastMacListener Closed");
     }
@@ -84,7 +84,7 @@ public class DhcpUCastMacListener
             return;
         }
         IpAddress tunnelIp = device.getTunnelIp();
-        Pair<IpAddress, String> tunnelIpElanName = new ImmutablePair<IpAddress, String>(tunnelIp, elanInstanceName);
+        Pair<IpAddress, String> tunnelIpElanName = new ImmutablePair<>(tunnelIp, elanInstanceName);
         dhcpExternalTunnelManager.removeFromAvailableCache(tunnelIpElanName);
     }
 
@@ -103,7 +103,7 @@ public class DhcpUCastMacListener
                 (InstanceIdentifier<LogicalSwitches>) add.getLogicalSwitchRef().getValue();
         Optional<LogicalSwitches> logicalSwitchOptional =
                 MDSALUtil.read(broker, LogicalDatastoreType.OPERATIONAL, logicalSwitchRef);
-        if ( !logicalSwitchOptional.isPresent() ) {
+        if (!logicalSwitchOptional.isPresent()) {
             LOG.error("Logical Switch ref doesn't have data {}", logicalSwitchRef);
             return;
         }
@@ -142,16 +142,9 @@ public class DhcpUCastMacListener
     }
 
     private LogicalSwitches getLogicalSwitches(LocalUcastMacs ucastMacs) {
-        LogicalSwitches logicalSwitch = null;
         InstanceIdentifier<LogicalSwitches> logicalSwitchRef =
                 (InstanceIdentifier<LogicalSwitches>)ucastMacs.getLogicalSwitchRef().getValue();
-        Optional<LogicalSwitches> logicalSwitchOptional =
-                MDSALUtil.read(broker, LogicalDatastoreType.OPERATIONAL,
-                logicalSwitchRef);
-        if (logicalSwitchOptional.isPresent()) {
-            logicalSwitch = logicalSwitchOptional.get();
-        }
-        return logicalSwitch;
+        return MDSALUtil.read(broker, LogicalDatastoreType.OPERATIONAL, logicalSwitchRef).orNull();
     }
 
     @Override

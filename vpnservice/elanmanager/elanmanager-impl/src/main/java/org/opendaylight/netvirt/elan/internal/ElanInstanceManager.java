@@ -11,7 +11,11 @@ package org.opendaylight.netvirt.elan.internal;
 import com.google.common.base.Optional;
 import com.google.common.util.concurrent.ListenableFuture;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import javax.annotation.PostConstruct;
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
@@ -37,6 +41,7 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+@Singleton
 public class ElanInstanceManager extends AsyncDataTreeChangeListenerBase<ElanInstance, ElanInstanceManager>
         implements AutoCloseable {
 
@@ -47,6 +52,7 @@ public class ElanInstanceManager extends AsyncDataTreeChangeListenerBase<ElanIns
     private final IInterfaceManager interfaceManager;
     private final ElanInterfaceManager elanInterfaceManager;
 
+    @Inject
     public ElanInstanceManager(final DataBroker dataBroker, final IdManagerService managerService,
                                final ElanInterfaceManager elanInterfaceManager,
                                final IInterfaceManager interfaceManager) {
@@ -57,6 +63,8 @@ public class ElanInstanceManager extends AsyncDataTreeChangeListenerBase<ElanIns
         this.interfaceManager = interfaceManager;
     }
 
+    @Override
+    @PostConstruct
     public void init() {
         registerListener(LogicalDatastoreType.CONFIGURATION, broker);
     }
@@ -121,7 +129,7 @@ public class ElanInstanceManager extends AsyncDataTreeChangeListenerBase<ElanIns
             // update the elan-Instance with new properties
             WriteTransaction tx = broker.newWriteOnlyTransaction();
             ElanUtils.updateOperationalDataStore(broker, idManager,
-                    update, new ArrayList<String>(), tx);
+                    update, new ArrayList<>(), tx);
             ElanUtils.waitForTransactionToComplete(tx);
             return;
         }
@@ -139,30 +147,20 @@ public class ElanInstanceManager extends AsyncDataTreeChangeListenerBase<ElanIns
         if (elanInfo == null) {
             WriteTransaction tx = broker.newWriteOnlyTransaction();
             ElanUtils.updateOperationalDataStore(broker, idManager,
-                elanInstanceAdded, new ArrayList<String>(), tx);
+                elanInstanceAdded, new ArrayList<>(), tx);
             ElanUtils.waitForTransactionToComplete(tx);
         }
     }
 
     public ElanInstance getElanInstanceByName(String elanInstanceName) {
         InstanceIdentifier<ElanInstance> elanIdentifierId = getElanInstanceConfigurationDataPath(elanInstanceName);
-        Optional<ElanInstance> elanInstance = MDSALUtil.read(broker,
-                LogicalDatastoreType.CONFIGURATION, elanIdentifierId);
-        if (elanInstance.isPresent()) {
-            return elanInstance.get();
-        }
-        return null;
+        return MDSALUtil.read(broker, LogicalDatastoreType.CONFIGURATION, elanIdentifierId).orNull();
     }
 
     public List<DpnInterfaces> getElanDPNByName(String elanInstanceName) {
         InstanceIdentifier<ElanDpnInterfacesList> elanIdentifier = getElanDpnOperationDataPath(elanInstanceName);
-        Optional<ElanDpnInterfacesList> elanInstance = MDSALUtil.read(broker,
-                LogicalDatastoreType.OPERATIONAL, elanIdentifier);
-        if (elanInstance.isPresent()) {
-            ElanDpnInterfacesList elanDPNs = elanInstance.get();
-            return elanDPNs.getDpnInterfaces();
-        }
-        return null;
+        return MDSALUtil.read(broker, LogicalDatastoreType.OPERATIONAL, elanIdentifier).transform(
+                ElanDpnInterfacesList::getDpnInterfaces).or(Collections.emptyList());
     }
 
     private InstanceIdentifier<ElanDpnInterfacesList> getElanDpnOperationDataPath(String elanInstanceName) {

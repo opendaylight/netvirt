@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 Red Hat, Inc. and others.  All rights reserved.
+ * Copyright © 2016, 2017 Red Hat, Inc. and others.  All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
@@ -10,7 +10,7 @@ package org.opendaylight.netvirt.it;
 import static org.junit.Assert.assertNotNull;
 
 import com.google.common.base.Optional;
-import com.google.common.collect.Lists;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.ExecutionException;
@@ -59,7 +59,7 @@ import org.slf4j.LoggerFactory;
 public class FlowITUtil {
     private static final Logger LOG = LoggerFactory.getLogger(FlowITUtil.class);
     private static final String OPENFLOW = "openflow";
-    private DataBroker dataBroker;
+    private final DataBroker dataBroker;
 
     public FlowITUtil(DataBroker dataBroker) {
         this.dataBroker = dataBroker;
@@ -85,7 +85,7 @@ public class FlowITUtil {
         NxAugMatchRpcUpdateFlowOriginal.class,
         NxAugMatchRpcUpdateFlowUpdated.class};
 
-    private static Integer DEFAULT_PRIORITY = new Integer(32768);
+    private static Integer DEFAULT_PRIORITY = 32768;
 
     private String getNodeName(long dpidLong) {
         return OPENFLOW + ":" + dpidLong;
@@ -230,12 +230,13 @@ public class FlowITUtil {
                 verifyFlowByFields(datapathId, flowId, tableId);
                 return;
             } catch (AssertionError e) {
-                if ((System.currentTimeMillis() - start) >= waitFor) {
+                if (System.currentTimeMillis() - start >= waitFor) {
                     throw e;
                 }
                 Thread.sleep(1000);
             }
-        } while (true);
+        }
+        while (true);
     }
 
     /**
@@ -326,7 +327,7 @@ public class FlowITUtil {
         }
 
         MatchAugmentationIterator it = new MatchAugmentationIterator(m1);
-        List<AllMatchesGrouping> side1Matches = Lists.newArrayList();
+        List<AllMatchesGrouping> side1Matches = new ArrayList<>();
         AllMatchesGrouping aug;
         while (null != (aug = it.next())) {
             side1Matches.add(aug);
@@ -351,7 +352,7 @@ public class FlowITUtil {
             return false;
         }
 
-        if (!Objects.equals(obj1.getNxmOfEthSrc(), obj2.getNxmOfEthSrc())
+        return !(!Objects.equals(obj1.getNxmOfEthSrc(), obj2.getNxmOfEthSrc())
                 || !Objects.equals(obj1.getNxmOfArpOp(), obj2.getNxmOfArpOp())
                 || !Objects.equals(obj1.getNxmOfUdpDst(), obj2.getNxmOfUdpDst())
                 || !Objects.equals(obj1.getNxmNxNshc3(), obj2.getNxmNxNshc3())
@@ -376,11 +377,7 @@ public class FlowITUtil {
                 || !Objects.equals(obj1.getNxmNxCtState(), obj2.getNxmNxCtState())
                 || !Objects.equals(obj1.getNxmNxTunIpv4Src(), obj2.getNxmNxTunIpv4Src())
                 || !Objects.equals(obj1.getNxmOfIpDst(), obj2.getNxmOfIpDst())
-                || !Objects.equals(obj1.getNxmNxNsp(), obj2.getNxmNxNsp())) {
-            return false;
-        }
-
-        return true;
+                || !Objects.equals(obj1.getNxmNxNsp(), obj2.getNxmNxNsp()));
     }
 
     class MatchAugmentationIterator {

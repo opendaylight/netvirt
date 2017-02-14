@@ -8,11 +8,10 @@
 
 package org.opendaylight.netvirt.openstack.netvirt.impl;
 
-import com.google.common.collect.Maps;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.util.HashMap;
 import java.util.Map;
-
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.opendaylight.netvirt.openstack.netvirt.ConfigInterface;
@@ -23,7 +22,6 @@ import org.opendaylight.netvirt.openstack.netvirt.api.Southbound;
 import org.opendaylight.netvirt.utils.config.ConfigProperties;
 import org.opendaylight.netvirt.utils.servicehelper.ServiceHelper;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Node;
-
 import org.osgi.framework.ServiceReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,7 +34,7 @@ public class ConfigurationServiceImpl implements ConfigurationService, ConfigInt
     private String externalBridgeName;
     private String tunnelEndpointKey;
 
-    private Map<Pair<String, String>, String> patchPortNames = Maps.newHashMap();
+    private Map<Pair<String, String>, String> patchPortNames = new HashMap<>();
     private String providerMappingsKey;
     private String providerMapping;
     private Southbound southbound;

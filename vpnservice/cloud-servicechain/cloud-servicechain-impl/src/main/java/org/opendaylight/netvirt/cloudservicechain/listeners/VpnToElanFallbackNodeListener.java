@@ -9,17 +9,18 @@ package org.opendaylight.netvirt.cloudservicechain.listeners;
 
 import java.math.BigInteger;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
-import org.opendaylight.genius.mdsalutil.MatchFieldType;
 import org.opendaylight.genius.mdsalutil.MatchInfo;
 import org.opendaylight.genius.mdsalutil.MetaDataUtil;
 import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
+import org.opendaylight.genius.mdsalutil.matches.MatchMetadata;
 import org.opendaylight.genius.utils.ServiceIndex;
 import org.opendaylight.netvirt.cloudservicechain.CloudServiceChainConstants;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Uri;
@@ -86,7 +87,7 @@ public class VpnToElanFallbackNodeListener extends AsyncDataTreeChangeListenerBa
     @Override
     protected void remove(InstanceIdentifier<Node> identifier, Node del) {
         BigInteger dpnId = getDpnIdFromNodeId(del.getNodeId());
-        if ( dpnId == null ) {
+        if (dpnId == null) {
             return;
         }
 
@@ -106,18 +107,15 @@ public class VpnToElanFallbackNodeListener extends AsyncDataTreeChangeListenerBa
     @Override
     protected void add(InstanceIdentifier<Node> identifier, Node add) {
         BigInteger dpnId = getDpnIdFromNodeId(add.getNodeId());
-        if ( dpnId == null ) {
+        if (dpnId == null) {
             return;
         }
 
         LOG.debug("Installing L3VPN to ELAN default Fallback flow in LPortDispatcher table on Dpn {}",
                   add.getNodeId());
-        BigInteger[] metadataToMatch = new BigInteger[] {
-            MetaDataUtil.getServiceIndexMetaData(ServiceIndex.getIndex(NwConstants.L3VPN_SERVICE_NAME,
-                                                                       NwConstants.L3VPN_SERVICE_INDEX)),
-            MetaDataUtil.METADATA_MASK_SERVICE_INDEX
-        };
-        List<MatchInfo> matches = Arrays.asList(new MatchInfo(MatchFieldType.metadata, metadataToMatch));
+        List<MatchInfo> matches = Collections.singletonList(new MatchMetadata(MetaDataUtil.getServiceIndexMetaData(
+                ServiceIndex.getIndex(NwConstants.L3VPN_SERVICE_NAME, NwConstants.L3VPN_SERVICE_INDEX)),
+                MetaDataUtil.METADATA_MASK_SERVICE_INDEX));
 
         BigInteger metadataToWrite =
             MetaDataUtil.getServiceIndexMetaData(ServiceIndex.getIndex(NwConstants.ELAN_SERVICE_NAME,

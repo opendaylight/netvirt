@@ -7,7 +7,6 @@
  */
 package org.opendaylight.netvirt.it;
 
-import com.google.common.collect.Maps;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.HashMap;
@@ -220,7 +219,7 @@ public class AbstractNetOvs implements NetOvs {
     }
 
     protected void addTerminationPoint(PortInfo portInfo, Node bridge, String portType) {
-        Map<String, String> externalIds = Maps.newHashMap();
+        Map<String, String> externalIds = new HashMap<>();
         externalIds.put("attached-mac", portInfo.mac);
         externalIds.put("iface-id", portInfo.id);
         southboundUtils.addTerminationPoint(bridge, portInfo.name, portType, null, externalIds, portInfo.ofPort);

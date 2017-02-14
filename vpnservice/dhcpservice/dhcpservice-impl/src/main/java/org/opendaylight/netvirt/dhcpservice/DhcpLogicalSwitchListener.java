@@ -47,12 +47,13 @@ public class DhcpLogicalSwitchListener
         this.dataBroker = dataBroker;
     }
 
+    @Override
     public void init() {
         registerListener(LogicalDatastoreType.OPERATIONAL, dataBroker);
     }
 
     @Override
-    public void close() throws Exception {
+    public void close() {
         super.close();
         LOG.info("DhcpLogicalSwitchListener Closed");
     }

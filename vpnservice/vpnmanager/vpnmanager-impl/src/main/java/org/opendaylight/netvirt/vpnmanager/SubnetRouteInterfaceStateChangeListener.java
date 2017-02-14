@@ -7,32 +7,30 @@
  */
 package org.opendaylight.netvirt.vpnmanager;
 
-import java.math.BigInteger;
-
 import com.google.common.base.Optional;
+import java.math.BigInteger;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.netvirt.vpnmanager.utilities.InterfaceUtils;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
+import org.opendaylight.netvirt.vpnmanager.utilities.InterfaceUtils;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.interfaces.VpnInterface;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.iana._if.type.rev140508.Tunnel;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.InterfacesState;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface;
-import org.opendaylight.yangtools.concepts.ListenerRegistration;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class SubnetRouteInterfaceStateChangeListener extends AsyncDataTreeChangeListenerBase<Interface,
-              SubnetRouteInterfaceStateChangeListener> implements AutoCloseable {
+    SubnetRouteInterfaceStateChangeListener> implements AutoCloseable {
     private static final Logger LOG = LoggerFactory.getLogger(SubnetRouteInterfaceStateChangeListener.class);
     private final DataBroker dataBroker;
     private final VpnInterfaceManager vpnInterfaceManager;
     private final VpnSubnetRouteHandler vpnSubnetRouteHandler;
 
     public SubnetRouteInterfaceStateChangeListener(final DataBroker dataBroker,
-                                                   final VpnInterfaceManager vpnInterfaceManager,
-                                                   final VpnSubnetRouteHandler vpnSubnetRouteHandler) {
+        final VpnInterfaceManager vpnInterfaceManager,
+        final VpnSubnetRouteHandler vpnSubnetRouteHandler) {
         super(Interface.class, SubnetRouteInterfaceStateChangeListener.class);
         this.dataBroker = dataBroker;
         this.vpnInterfaceManager = vpnInterfaceManager;
@@ -54,6 +52,8 @@ public class SubnetRouteInterfaceStateChangeListener extends AsyncDataTreeChange
         return SubnetRouteInterfaceStateChangeListener.this;
     }
 
+    // TODO Clean up the exception handling
+    @SuppressWarnings("checkstyle:IllegalCatch")
     @Override
     protected void add(InstanceIdentifier<Interface> identifier, Interface intrf) {
         LOG.trace("SubnetRouteInterfaceListener add: Received interface {} up event", intrf);
@@ -61,7 +61,7 @@ public class SubnetRouteInterfaceStateChangeListener extends AsyncDataTreeChange
             String interfaceName = intrf.getName();
             LOG.info("SubnetRouteInterfaceListener add: Received port UP event for interface {} ", interfaceName);
             org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface
-                    configInterface = InterfaceUtils.getInterface(dataBroker, interfaceName);
+                configInterface = InterfaceUtils.getInterface(dataBroker, interfaceName);
             if (configInterface != null && (configInterface.getType() != null)) {
                 if (!configInterface.getType().equals(Tunnel.class)) {
                     final VpnInterface vpnInterface = VpnUtil.getConfiguredVpnInterface(dataBroker, interfaceName);
@@ -80,10 +80,14 @@ public class SubnetRouteInterfaceStateChangeListener extends AsyncDataTreeChange
                 }
             }
         } catch (Exception e) {
-            LOG.error("SubnetRouteInterfaceListener add: Exception observed in handling addition for VPN Interface {}. ", intrf.getName(), e);
+            LOG.error(
+                "SubnetRouteInterfaceListener add: Exception observed in handling addition for VPN Interface {}.",
+                intrf.getName(), e);
         }
     }
 
+    // TODO Clean up the exception handling
+    @SuppressWarnings("checkstyle:IllegalCatch")
     @Override
     protected void remove(InstanceIdentifier<Interface> identifier, Interface intrf) {
         LOG.trace("SubnetRouteInterfaceListener remove: Received interface {} down event", intrf);
@@ -95,56 +99,62 @@ public class SubnetRouteInterfaceStateChangeListener extends AsyncDataTreeChange
                 InstanceIdentifier<VpnInterface> id = VpnUtil.getVpnInterfaceIdentifier(interfaceName);
                 Optional<VpnInterface> optVpnInterface = VpnUtil.read(dataBroker, LogicalDatastoreType.OPERATIONAL, id);
                 if (!optVpnInterface.isPresent()) {
-                    LOG.debug("SubnetRouteInterfaceListener remove: Interface {} is not a vpninterface, ignoring.", intrf.getName());
+                    LOG.debug("SubnetRouteInterfaceListener remove: Interface {} is not a vpninterface, ignoring.",
+                        intrf.getName());
                     return;
                 }
                 VpnInterface vpnInterface = optVpnInterface.get();
                 try {
                     dpnId = InterfaceUtils.getDpIdFromInterface(intrf);
                 } catch (Exception e) {
-                    LOG.error("SubnetRouteInterfaceListener remove: Unable to retrieve dpnId for interface {}. " +
-                                    "Fetching from vpn interface itself due to exception {}",
+                    LOG.error("SubnetRouteInterfaceListener remove: Unable to retrieve dpnId for interface {}. "
+                            + "Fetching from vpn interface itself due to exception",
                             intrf.getName(), e);
                     dpnId = vpnInterface.getDpnId();
                 }
                 vpnSubnetRouteHandler.onInterfaceDown(dpnId, intrf.getName());
             }
         } catch (Exception e) {
-            LOG.error("SubnetRouteInterfaceListener remove: Exception observed in handling deletion of VPN Interface {}. ",
-                    intrf.getName(), e);
+            LOG.error(
+                "SubnetRouteInterfaceListener remove: Exception observed in handling deletion of VPN Interface {}.",
+                intrf.getName(), e);
         }
     }
 
+    // TODO Clean up the exception handling
+    @SuppressWarnings("checkstyle:IllegalCatch")
     @Override
     protected void update(InstanceIdentifier<Interface> identifier,
-                          Interface original, Interface update) {
-        LOG.trace("SubnetRouteInterfaceListener update: Operation Interface update event - Old: {}, New: {}", original, update);
+        Interface original, Interface update) {
+        LOG.trace("SubnetRouteInterfaceListener update: Operation Interface update event - Old: {}, New: {}", original,
+            update);
         String interfaceName = update.getName();
-        BigInteger dpnId = BigInteger.ZERO;
         if (update != null && (update.getType() != null)) {
             if (!update.getType().equals(Tunnel.class)) {
                 final VpnInterface vpnInterface = VpnUtil.getConfiguredVpnInterface(dataBroker, interfaceName);
                 if (vpnInterface != null) {
                     if (update.getOperStatus().equals(Interface.OperStatus.Up)) {
                         try {
-                            dpnId = InterfaceUtils.getDpIdFromInterface(update);
+                            BigInteger dpnId = InterfaceUtils.getDpIdFromInterface(update);
+                            vpnSubnetRouteHandler.onInterfaceUp(dpnId, update.getName());
                         } catch (Exception e) {
-                            LOG.error("SubnetRouteInterfaceListener update: Unable to obtain dpnId for interface {} port up,",
-                                    " subnetroute inclusion for this interface failed with exception {}",
+                            LOG.error(
+                                "SubnetRouteInterfaceListener update: Unable to obtain dpnId for interface {} port up,"
+                                    + " subnetroute inclusion for this interface failed with exception {}",
                                     interfaceName, e);
                             return;
                         }
-                        vpnSubnetRouteHandler.onInterfaceUp(dpnId, update.getName());
                     } else if (update.getOperStatus().equals(Interface.OperStatus.Down)) {
                         try {
-                            dpnId = InterfaceUtils.getDpIdFromInterface(update);
+                            BigInteger dpnId = InterfaceUtils.getDpIdFromInterface(update);
+                            vpnSubnetRouteHandler.onInterfaceDown(dpnId, update.getName());
                         } catch (Exception e) {
-                            LOG.error("SubnetRouteInterfaceListener update: Unable to obtain dpnId for interface {} port down,",
-                                    " subnetroute exclusion for this interface failed with exception {}",
+                            LOG.error(
+                                "SubnetRouteInterfaceListener update: Unable to obtain dpnId for interface {} port "
+                                    + "down, subnetroute exclusion for this interface failed with exception {}",
                                     interfaceName, e);
                             return;
                         }
-                        vpnSubnetRouteHandler.onInterfaceDown(dpnId, update.getName());
                     }
                 }
             }

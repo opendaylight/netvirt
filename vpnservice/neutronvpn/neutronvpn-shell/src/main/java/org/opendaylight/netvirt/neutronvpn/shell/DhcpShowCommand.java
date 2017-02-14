@@ -8,6 +8,7 @@
 
 package org.opendaylight.netvirt.neutronvpn.shell;
 
+import com.google.common.base.Optional;
 import org.apache.karaf.shell.commands.Command;
 import org.apache.karaf.shell.console.OsgiCommandSupport;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
@@ -18,14 +19,10 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.base.Optional;
-
 @Command(scope = "vpnservice", name = "dhcp-show", description = "showing parameters for DHCP Service")
 public class DhcpShowCommand extends OsgiCommandSupport {
 
-    final Logger Logger = LoggerFactory.getLogger(DhcpShowCommand.class);
-
-
+    private static final Logger LOG = LoggerFactory.getLogger(DhcpShowCommand.class);
     private DataBroker dataBroker;
     Integer leaseDuration = null;
     String defDomain = null;
@@ -35,6 +32,8 @@ public class DhcpShowCommand extends OsgiCommandSupport {
     }
 
     @Override
+    // TODO Clean up the exception handling
+    @SuppressWarnings("checkstyle:IllegalCatch")
     protected Object doExecute() throws Exception {
         try {
             InstanceIdentifier<DhcpConfig> iid = InstanceIdentifier.create(DhcpConfig.class);
@@ -48,15 +47,17 @@ public class DhcpShowCommand extends OsgiCommandSupport {
                 leaseDuration = dhcpConfig.getConfigs().get(0).getLeaseDuration();
                 defDomain = dhcpConfig.getConfigs().get(0).getDefaultDomain();
             }
-            session.getConsole().println("Lease Duration: " + ((leaseDuration != null) ? leaseDuration:86400));
-            session.getConsole().println("Default Domain: " + ((defDomain != null) ? defDomain:"openstacklocal"));
+            session.getConsole().println("Lease Duration: " + ((leaseDuration != null) ? leaseDuration : 86400));
+            session.getConsole().println("Default Domain: " + ((defDomain != null) ? defDomain : "openstacklocal"));
         } catch (Exception e) {
             session.getConsole().println("Failed to fetch configuration parameters. Try again");
-            Logger.error("Failed to fetch DHCP parameters",e);
+            LOG.error("Failed to fetch DHCP parameters",e);
         }
         return null;
     }
 
+    // TODO Clean up the exception handling
+    @SuppressWarnings("checkstyle:IllegalCatch")
     private DhcpConfig read(InstanceIdentifier<DhcpConfig> iid) {
 
         ReadOnlyTransaction tx = dataBroker.newReadOnlyTransaction();

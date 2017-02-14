@@ -167,7 +167,7 @@ public class AclEventListener extends AsyncDataTreeChangeListenerBase<Acl, AclEv
             return updatedAceList;
         }
         List<Ace> currentAceList = new ArrayList<>(currentAcl.getAccessListEntries().getAce());
-        for (Iterator<Ace> iterator = updatedAceList.iterator(); iterator.hasNext(); ) {
+        for (Iterator<Ace> iterator = updatedAceList.iterator(); iterator.hasNext();) {
             Ace ace1 = iterator.next();
             for (Ace ace2 : currentAceList) {
                 if (ace1.getRuleName().equals(ace2.getRuleName())) {

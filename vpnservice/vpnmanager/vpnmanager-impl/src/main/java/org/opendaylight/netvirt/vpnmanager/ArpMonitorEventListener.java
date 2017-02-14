@@ -35,16 +35,16 @@ public class ArpMonitorEventListener implements AlivenessMonitorListener {
     public void onMonitorEvent(MonitorEvent notification) {
         Long monitorId = notification.getEventData().getMonitorId();
         MacEntry macEntry = AlivenessMonitorUtils.getMacEntryFromMonitorId(monitorId);
-        if(macEntry == null) {
+        if (macEntry == null) {
             LOG.debug("No MacEntry found associated with the monitor Id {}", monitorId);
             return;
         }
         LivenessState livenessState = notification.getEventData().getMonitorState();
-        if(livenessState.equals(LivenessState.Down)) {
+        if (livenessState.equals(LivenessState.Down)) {
             DataStoreJobCoordinator coordinator = DataStoreJobCoordinator.getInstance();
             coordinator.enqueueJob(ArpMonitoringHandler.buildJobKey(macEntry.getIpAddress().getHostAddress(),
-                    macEntry.getVpnName()),
-                    new ArpMonitorStopTask(macEntry, dataBroker, alivenessManager));
+                macEntry.getVpnName()),
+                new ArpMonitorStopTask(macEntry, dataBroker, alivenessManager));
         }
     }
 

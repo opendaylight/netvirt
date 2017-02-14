@@ -11,7 +11,6 @@ package org.opendaylight.netvirt.openstack.netvirt.providers.openflow13.services
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
-
 import org.opendaylight.netvirt.openstack.netvirt.api.L2ForwardingLearnProvider;
 import org.opendaylight.netvirt.openstack.netvirt.api.LearnConstants;
 import org.opendaylight.netvirt.openstack.netvirt.api.LearnConstants.LearnFlowModsType;
@@ -52,8 +51,6 @@ import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.google.common.collect.Lists;
 
 public class L2ForwardingLearnService  extends AbstractServiceInstance implements ConfigInterface, L2ForwardingLearnProvider {
     private static final Logger LOG = LoggerFactory.getLogger(L2ForwardingLearnService.class);
@@ -119,7 +116,7 @@ public class L2ForwardingLearnService  extends AbstractServiceInstance implement
         ApplyActionsCase applyActionsCase = new ApplyActionsCaseBuilder().setApplyActions(applyActions).build();
         InstructionsBuilder instructionsBuilder = new InstructionsBuilder();
         InstructionBuilder instructionBuilder = new InstructionBuilder();
-        List<Instruction> instructions = Lists.newArrayList();
+        List<Instruction> instructions = new ArrayList<>();
 
         instructionBuilder.setInstruction(applyActionsCase);
         instructionBuilder.setOrder(0);

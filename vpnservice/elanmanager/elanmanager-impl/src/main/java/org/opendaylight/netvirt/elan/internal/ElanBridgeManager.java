@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 Red Hat, Inc. and others.  All rights reserved.
+ * Copyright (c) 2016, 2017 Red Hat, Inc. and others.  All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
@@ -7,7 +7,6 @@
  */
 package org.opendaylight.netvirt.elan.internal;
 
-import com.google.common.base.Optional;
 import com.google.common.base.Splitter;
 import com.google.common.base.Strings;
 
@@ -17,11 +16,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
+import javax.inject.Inject;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.genius.interfacemanager.globals.IfmConstants;
+import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
 import org.opendaylight.ovsdb.utils.config.ConfigProperties;
 import org.opendaylight.ovsdb.utils.mdsal.utils.MdsalUtils;
 import org.opendaylight.ovsdb.utils.southbound.utils.SouthboundUtils;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.config.rev150710.ElanConfig;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.rev150105.DatapathTypeBase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.rev150105.DatapathTypeNetdev;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.rev150105.OvsdbNodeAugmentation;
@@ -44,18 +45,28 @@ public class ElanBridgeManager {
     private static final int MAX_LINUX_INTERFACE_NAME_LENGTH = 15;
 
     private final MdsalUtils mdsalUtils;
+    private final IInterfaceManager interfaceManager;
     final SouthboundUtils southboundUtils;
-    private Random random;
+    private final Random random;
+    private final Long maxBackoff;
+    private final Long inactivityProbe;
+
 
     /**
      * Construct a new ElanBridgeManager.
      * @param dataBroker DataBroker
+     * @param elanConfig the elan configuration
+     * @param interfaceManager InterfaceManager
      */
-    public ElanBridgeManager(DataBroker dataBroker) {
+    @Inject
+    public ElanBridgeManager(DataBroker dataBroker, ElanConfig elanConfig, IInterfaceManager interfaceManager) {
         //TODO: ClusterAware!!!??
         this.mdsalUtils = new MdsalUtils(dataBroker);
+        this.interfaceManager = interfaceManager;
         this.southboundUtils = new SouthboundUtils(mdsalUtils);
         this.random = new Random(System.currentTimeMillis());
+        this.maxBackoff = elanConfig.getControllerMaxBackoff();
+        this.inactivityProbe = elanConfig.getControllerInactivityProbe();
     }
 
     /**
@@ -139,9 +150,9 @@ public class ElanBridgeManager {
     }
 
     private void prepareIntegrationBridge(Node ovsdbNode, Node brIntNode) {
-        Optional<Map<String, String>> providerMappings = getOpenvswitchOtherConfigMap(ovsdbNode, PROVIDER_MAPPINGS_KEY);
+        Map<String, String> providerMappings = getOpenvswitchOtherConfigMap(ovsdbNode, PROVIDER_MAPPINGS_KEY);
 
-        for (String value : providerMappings.or(Collections.emptyMap()).values()) {
+        for (String value : providerMappings.values()) {
             if (southboundUtils.extractTerminationPointAugmentation(brIntNode, value) != null) {
                 LOG.debug("prepareIntegrationBridge: port {} already exists on {}", value, INTEGRATION_BRIDGE);
                 continue;
@@ -211,7 +222,9 @@ public class ElanBridgeManager {
 
     /**
      * Add a bridge to the OVSDB node but check that it does not exist in the
-     * CONFIGURATION or OPERATIONAL md-sals first.
+     * CONFIGURATION. If it already exists in OPERATIONAL, update it with all
+     * configurable parameters except mac as changing bridge mac will change
+     * datapath-id.
      *
      * @param ovsdbNode Which OVSDB node
      * @param bridgeName Name of the bridge
@@ -220,21 +233,24 @@ public class ElanBridgeManager {
      */
     public boolean addBridge(Node ovsdbNode, String bridgeName, String mac) {
         boolean rv = true;
-        if (!southboundUtils.isBridgeOnOvsdbNode(ovsdbNode, bridgeName)
-                || southboundUtils.getBridgeFromConfig(ovsdbNode, bridgeName) == null) {
+        if (southboundUtils.getBridgeFromConfig(ovsdbNode, bridgeName) == null) {
             Class<? extends DatapathTypeBase> dpType = null;
             if (isUserSpaceEnabled()) {
                 dpType = DatapathTypeNetdev.class;
             }
+            // If bridge already exists, don't generate mac, it will change datapath-id
+            mac = southboundUtils.isBridgeOnOvsdbNode(ovsdbNode, bridgeName) ? null : mac;
             rv = southboundUtils.addBridge(ovsdbNode, bridgeName,
-                    southboundUtils.getControllersFromOvsdbNode(ovsdbNode), dpType, mac);
+                    southboundUtils.getControllersFromOvsdbNode(ovsdbNode), dpType, mac,
+                    maxBackoff, inactivityProbe);
         }
         return rv;
     }
 
     private boolean addControllerToBridge(Node ovsdbNode,String bridgeName) {
         return southboundUtils.setBridgeController(ovsdbNode,
-                            bridgeName, southboundUtils.getControllersFromOvsdbNode(ovsdbNode));
+                bridgeName, southboundUtils.getControllersFromOvsdbNode(ovsdbNode),
+                maxBackoff, inactivityProbe);
     }
 
     /**
@@ -243,7 +259,7 @@ public class ElanBridgeManager {
      * @param key key to extract from other-config
      * @return Optional of key-value Map
      */
-    public Optional<Map<String, String>> getOpenvswitchOtherConfigMap(Node node, String key) {
+    public Map<String, String> getOpenvswitchOtherConfigMap(Node node, String key) {
         String providerMappings = southboundUtils.getOpenvswitchOtherConfig(node, key);
         return extractMultiKeyValueToMap(providerMappings);
     }
@@ -255,13 +271,13 @@ public class ElanBridgeManager {
      * @return physical network name
      */
     public String getProviderMappingValue(Node node, String physicalNetworkName) {
-        Optional<Map<String, String>> providerMappings = getOpenvswitchOtherConfigMap(node, PROVIDER_MAPPINGS_KEY);
-        if (!providerMappings.isPresent()) {
+        Map<String, String> providerMappings = getOpenvswitchOtherConfigMap(node, PROVIDER_MAPPINGS_KEY);
+        String providerMappingValue = providerMappings.get(physicalNetworkName);
+        if (providerMappingValue == null) {
             LOG.trace("Physical network {} not found in {}", physicalNetworkName, PROVIDER_MAPPINGS_KEY);
-            return null;
         }
 
-        return providerMappings.get().get(physicalNetworkName);
+        return providerMappingValue;
     }
 
     /**
@@ -295,8 +311,8 @@ public class ElanBridgeManager {
             return patchPortName;
         }
 
-        LOG.warn("Patch port {} exceeds maximum allowed length. Truncating to {} characters", patchPortName,
-                MAX_LINUX_INTERFACE_NAME_LENGTH);
+        LOG.debug("Patch port {} exceeds maximum allowed length. Truncating to {} characters",
+                patchPortName, MAX_LINUX_INTERFACE_NAME_LENGTH);
         return patchPortName.substring(0, MAX_LINUX_INTERFACE_NAME_LENGTH - 1);
     }
 
@@ -380,21 +396,21 @@ public class ElanBridgeManager {
         return stringBuilder.toString();
     }
 
-    private static Optional<Map<String, String>> extractMultiKeyValueToMap(String multiKeyValueStr) {
+    private static Map<String, String> extractMultiKeyValueToMap(String multiKeyValueStr) {
         if (Strings.isNullOrEmpty(multiKeyValueStr)) {
-            return Optional.absent();
+            return Collections.emptyMap();
         }
 
         Map<String, String> valueMap = new HashMap<>();
         Splitter splitter = Splitter.on(",");
         for (String keyValue : splitter.split(multiKeyValueStr)) {
             String[] split = keyValue.split(":", 2);
-            if (split != null && split.length == 2) {
+            if (split.length == 2) {
                 valueMap.put(split[0], split[1]);
             }
         }
 
-        return Optional.of(valueMap);
+        return valueMap;
     }
 
     public Node getBridgeNode(BigInteger dpId) {
@@ -449,8 +465,9 @@ public class ElanBridgeManager {
             return null;
         }
 
-        return dataPathId + IfmConstants.OF_URI_SEPARATOR
-                + getIntBridgePortNameFor(bridgeNode, providerMappingValue);
+        String portName = getIntBridgePortNameFor(bridgeNode, providerMappingValue);
+        String dpIdStr = String.valueOf(dataPathId);
+        return interfaceManager.getPortNameForInterface(dpIdStr, portName);
     }
 
     public boolean hasDatapathID(Node node) {

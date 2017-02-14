@@ -43,7 +43,7 @@ public class VpnPseudoPortCache {
     private static void initialLoadFromDS(DataBroker broker) {
         LOG.info("Initial read of Vpn to VpnPseudoPort map from Datastore");
         List<VpnToPseudoPortData> allVpnToPseudoPortData = VpnServiceChainUtils.getAllVpnToPseudoPortData(broker);
-        for ( VpnToPseudoPortData vpnToPseudoPort : allVpnToPseudoPortData ) {
+        for (VpnToPseudoPortData vpnToPseudoPort : allVpnToPseudoPortData) {
             addVpnPseudoPortToCache(vpnToPseudoPort.getVrfId(), vpnToPseudoPort.getVpnLportTag());
         }
     }

@@ -29,6 +29,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 import org.opendaylight.netvirt.openstack.netvirt.api.Action;
 import org.opendaylight.netvirt.openstack.netvirt.api.BridgeConfigurationManager;
 import org.opendaylight.netvirt.openstack.netvirt.api.ConfigurationService;
+import org.opendaylight.netvirt.openstack.netvirt.api.Constants;
 import org.opendaylight.netvirt.openstack.netvirt.api.NetworkingProviderManager;
 import org.opendaylight.netvirt.openstack.netvirt.api.NodeCacheManager;
 import org.opendaylight.netvirt.openstack.netvirt.api.OvsdbInventoryListener;
@@ -42,6 +43,7 @@ import org.opendaylight.netvirt.openstack.netvirt.impl.DistributedArpService;
 import org.opendaylight.netvirt.openstack.netvirt.impl.NeutronL3Adapter;
 import org.opendaylight.netvirt.utils.servicehelper.ServiceHelper;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.rev150105.OvsdbBridgeAugmentation;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.rev150105.OvsdbBridgeName;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.rev150105.OvsdbNodeAugmentation;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.rev150105.OvsdbTerminationPointAugmentation;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Node;
@@ -129,8 +131,13 @@ public class SouthboundHandlerTest {
         Mockito.reset(ev);
 
         // BRIDGE
+        OvsdbBridgeAugmentation br = mock(OvsdbBridgeAugmentation.class);
+        OvsdbBridgeName brName = mock(OvsdbBridgeName.class);
+        when(br.getBridgeName()).thenReturn(brName);
+        when(configurationService.getIntegrationBridgeName()).thenReturn(Constants.INTEGRATION_BRIDGE);
+
         when(ev.getNode()).thenReturn(node);
-        when(ev.getAugmentationData()).thenReturn(mock(OvsdbBridgeAugmentation.class));
+        when(ev.getAugmentationData()).thenReturn(br);
         when(ev.getType()).thenReturn(SouthboundEvent.Type.BRIDGE);
 
         when(southbound.getDatapathId(any(OvsdbBridgeAugmentation.class))).thenReturn("45");
@@ -145,11 +152,19 @@ public class SouthboundHandlerTest {
         verify(nodeCacheManager, times(1)).nodeAdded(any(Node.class));
         Mockito.reset(nodeCacheManager);
 
-        Mockito.reset(nodeCacheManager);
         when(ev.getAction()).thenReturn(Action.DELETE);
+        // Verify that non-integration bridges are deleted
+        when(brName.getValue()).thenReturn("br-test");
         southboundHandler.processEvent(ev);
         verify(nodeCacheManager, times(1)).nodeRemoved(any(Node.class));
         verify(southbound, times(1)).deleteBridge(any(Node.class));
+        Mockito.reset(nodeCacheManager);
+        Mockito.reset(southbound);
+        // Verify that integration bridge is not deleted
+        when(brName.getValue()).thenReturn(Constants.INTEGRATION_BRIDGE);
+        southboundHandler.processEvent(ev);
+        verify(nodeCacheManager, times(1)).nodeRemoved(any(Node.class));
+        verify(southbound, times(0)).deleteBridge(any(Node.class));
         Mockito.reset(nodeCacheManager);
         Mockito.reset(southbound);
 

@@ -8,6 +8,8 @@
 
 package org.opendaylight.netvirt.openstack.netvirt.api;
 
+import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.NodeId;
+
 /**
  *  This interface maintain a mapping between the security group and the ports
  *  have this security group as a remote security group. Whenever a new port is
@@ -36,8 +38,9 @@ public interface SecurityGroupCacheManger {
      * to the cache maintained.
      * @param remoteSgUuid the remote security group uuid.
      * @param portUuid the uuid of the port.
+     * @param nodeId the NodeId of the node.
      */
-    void addToCache(String remoteSgUuid, String portUuid);
+    void addToCache(String remoteSgUuid, String portUuid, NodeId nodeId);
     /**A port with portUUID has a reference remote security group remoteSgUuid will be removed
      * from the cache maintained.
      * @param remoteSgUuid the remote security group uuid.

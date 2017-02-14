@@ -18,6 +18,7 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
 
   <modelVersion>4.0.0</modelVersion>
   <artifactId>neutronvpn-impl</artifactId>
+  <name>ODL :: netvirt :: ${project.artifactId}</name>
   <packaging>bundle</packaging>
   <dependencies>
     <dependency>
@@ -76,6 +77,11 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
       <version>${genius.version}</version>
     </dependency>
     <dependency>
+      <groupId>org.opendaylight.genius</groupId>
+      <artifactId>interfacemanager-api</artifactId>
+      <version>${genius.version}</version>
+    </dependency>
+    <dependency>
       <groupId>org.opendaylight.ovsdb</groupId>
       <artifactId>southbound-api</artifactId>
       <version>${vpns.ovsdb.version}</version>
@@ -88,11 +94,6 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
     <dependency>
       <groupId>org.opendaylight.ovsdb</groupId>
       <artifactId>utils.southbound-utils</artifactId>
-      <version>${vpns.ovsdb.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.opendaylight.ovsdb</groupId>
-      <artifactId>utils.config</artifactId>
       <version>${vpns.ovsdb.version}</version>
     </dependency>
   </dependencies>
@@ -115,14 +116,10 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
   <build>
     <plugins>
       <plugin>
-        <groupId>org.apache.felix</groupId>
-        <artifactId>maven-bundle-plugin</artifactId>
-        <extensions>true</extensions>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-checkstyle-plugin</artifactId>
         <configuration>
-          <instructions>
-            <Embed-Dependency>utils.config;type=!pom;inline=false</Embed-Dependency>
-            <Embed-Transitive>true</Embed-Transitive>
-          </instructions>
+          <propertyExpansion>checkstyle.violationSeverity=error</propertyExpansion>
         </configuration>
       </plugin>
       <plugin>

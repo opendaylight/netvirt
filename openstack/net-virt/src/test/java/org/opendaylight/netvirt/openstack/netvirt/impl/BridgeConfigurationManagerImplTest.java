@@ -34,9 +34,7 @@ import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Matchers;
 import org.mockito.Mock;
-import org.mockito.invocation.InvocationOnMock;
 import org.mockito.runners.MockitoJUnitRunner;
-import org.mockito.stubbing.Answer;
 import org.opendaylight.netvirt.openstack.netvirt.api.OvsdbTables;
 import org.opendaylight.netvirt.openstack.netvirt.api.ConfigurationService;
 import org.opendaylight.netvirt.openstack.netvirt.api.NetworkingProviderManager;
@@ -245,19 +243,9 @@ public class BridgeConfigurationManagerImplTest {
             when(neutronNetworkMock.getProviderNetworkType()).thenReturn(networkType);
             when(southbound.readOvsdbNode(any(Node.class))).thenReturn(node);
 
-            doAnswer(new Answer<Boolean>() {
-                @Override
-                public Boolean answer(InvocationOnMock invocation) {
-                    return Boolean.TRUE;
-                }
-            }).when(bridgeConfigurationManagerImplSpy).isNodeVlanReady(any(Node.class), any(Node.class), any(NeutronNetwork.class));
+            doAnswer(invocation -> Boolean.TRUE).when(bridgeConfigurationManagerImplSpy).isNodeVlanReady(any(Node.class), any(Node.class), any(NeutronNetwork.class));
 
-            doAnswer(new Answer<Boolean>() {
-                @Override
-                public Boolean answer(InvocationOnMock invocation) {
-                    return Boolean.TRUE;
-                }
-            }).when(bridgeConfigurationManagerImplSpy).isNodeTunnelReady(any(Node.class), any(Node.class));
+            doAnswer(invocation -> Boolean.TRUE).when(bridgeConfigurationManagerImplSpy).isNodeTunnelReady(any(Node.class), any(Node.class));
 
             assertTrue("bridgeConfigMock.isNodeVlanReady is not true",
                     bridgeConfigurationManagerImplSpy.isNodeVlanReady(node, node, neutronNetworkMock));

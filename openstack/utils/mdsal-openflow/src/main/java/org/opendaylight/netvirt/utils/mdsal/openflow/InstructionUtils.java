@@ -479,6 +479,41 @@ public class InstructionUtils {
     }
 
     /**
+     * Create Pop Vlan and Normal Instruction - this remove vlan header
+     *
+     * @param ib Map InstructionBuilder without any instructions
+     * @return ib Map InstructionBuilder with instructions
+     */
+    public static InstructionBuilder createPopVlanAndNormalInstructions(InstructionBuilder ib) {
+
+        List<Action> actionList = new ArrayList<>();
+        ActionBuilder ab = new ActionBuilder();
+
+        PopVlanActionBuilder popVlanActionBuilder = new PopVlanActionBuilder();
+        ab.setAction(new PopVlanActionCaseBuilder().setPopVlanAction(popVlanActionBuilder.build()).build());
+        ab.setOrder(0);
+        actionList.add(ab.build());
+
+        ab = new ActionBuilder();
+        OutputActionBuilder output = new OutputActionBuilder();
+        output.setMaxLength(60);
+        Uri value = new Uri(OutputPortValues.NORMAL.toString());
+        output.setOutputNodeConnector(value);
+        ab.setAction(new OutputActionCaseBuilder().setOutputAction(output.build()).build());
+        ab.setOrder(1);
+        actionList.add(ab.build());
+
+        // Create an Apply Action
+        ApplyActionsBuilder aab = new ApplyActionsBuilder();
+        aab.setAction(actionList);
+
+        // Wrap our Apply Action in an Instruction
+        ib.setInstruction(new ApplyActionsCaseBuilder().setApplyActions(aab.build()).build());
+
+        return ib;
+    }
+
+    /**
      * Create Set IPv4 Source Instruction
      *
      * @param ib        Map InstructionBuilder without any instructions

@@ -18,6 +18,7 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
   </parent>
 
   <artifactId>aclservice-impl</artifactId>
+  <name>ODL :: netvirt :: ${project.artifactId}</name>
   <packaging>bundle</packaging>
 
   <dependencies>
@@ -106,12 +107,6 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
       <artifactId>mdsal-binding-test-utils</artifactId>
     </dependency>
     <dependency>
-      <groupId>ch.vorburger</groupId>
-      <artifactId>xtendbeans</artifactId>
-      <version>1.2.0</version>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
       <groupId>org.immutables</groupId>
       <artifactId>value</artifactId>
     </dependency>
@@ -132,17 +127,6 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
         <artifactId>maven-checkstyle-plugin</artifactId>
         <configuration>
           <propertyExpansion>checkstyle.violationSeverity=error</propertyExpansion>
-        </configuration>
-      </plugin>
-      <plugin>
-        <groupId>org.apache.felix</groupId>
-        <artifactId>maven-bundle-plugin</artifactId>
-        <extensions>true</extensions>
-        <configuration>
-          <instructions>
-            <Embed-Dependency>utils.config;type=!pom;inline=false</Embed-Dependency>
-            <Embed-Transitive>true</Embed-Transitive>
-          </instructions>
         </configuration>
       </plugin>
       <plugin>

@@ -7,6 +7,7 @@
  */
 package org.opendaylight.netvirt.vpnmanager;
 
+import com.google.common.util.concurrent.ListenableFuture;
 import java.util.List;
 import java.util.concurrent.Callable;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
@@ -14,7 +15,6 @@ import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
 import org.opendaylight.netvirt.neutronvpn.interfaces.INeutronVpnManager;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.alivenessmonitor.rev160411.AlivenessMonitorService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.OdlInterfaceRpcService;
-import com.google.common.util.concurrent.ListenableFuture;
 
 public class ArpMonitorStartTask implements Callable<List<ListenableFuture<Void>>> {
     private MacEntry macEntry;
@@ -26,8 +26,8 @@ public class ArpMonitorStartTask implements Callable<List<ListenableFuture<Void>
     private IInterfaceManager interfaceManager;
 
     public ArpMonitorStartTask(MacEntry macEntry, Long profileId, DataBroker databroker,
-            AlivenessMonitorService alivenessManager, OdlInterfaceRpcService interfaceRpc,
-            INeutronVpnManager neutronVpnService, IInterfaceManager interfaceManager) {
+        AlivenessMonitorService alivenessManager, OdlInterfaceRpcService interfaceRpc,
+        INeutronVpnManager neutronVpnService, IInterfaceManager interfaceManager) {
         super();
         this.macEntry = macEntry;
         this.arpMonitorProfileId = profileId;
@@ -41,8 +41,8 @@ public class ArpMonitorStartTask implements Callable<List<ListenableFuture<Void>
     @Override
     public List<ListenableFuture<Void>> call() throws Exception {
         AlivenessMonitorUtils.startArpMonitoring(macEntry, arpMonitorProfileId,
-                alivenessManager, databroker, interfaceRpc, neutronVpnService,
-                interfaceManager);
+            alivenessManager, databroker, interfaceRpc, neutronVpnService,
+            interfaceManager);
         return null;
     }
 

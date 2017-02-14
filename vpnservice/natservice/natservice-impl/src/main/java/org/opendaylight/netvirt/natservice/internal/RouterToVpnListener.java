@@ -50,8 +50,7 @@ public class RouterToVpnListener implements NeutronvpnListener {
     }
 
     /**
-     * router association to vpn
-     *
+     * router association to vpn.
      */
     @Override
     public void onRouterAssociatedToVpn(RouterAssociatedToVpn notification) {
@@ -59,7 +58,7 @@ public class RouterToVpnListener implements NeutronvpnListener {
         String vpnName = notification.getVpnId().getValue();
         //check router is associated to external network
         String extNetwork = NatUtil.getAssociatedExternalNetwork(dataBroker, routerName);
-        if(extNetwork != null) {
+        if (extNetwork != null) {
             LOG.debug("Router {} is associated with ext nw {}", routerName, extNetwork);
             handleDNATConfigurationForRouterAssociation(routerName, vpnName, extNetwork);
             externalRoutersListener.changeLocalVpnIdToBgpVpnId(routerName, vpnName);
@@ -70,8 +69,7 @@ public class RouterToVpnListener implements NeutronvpnListener {
     }
 
     /**
-     * router disassociation from vpn
-     *
+     * router disassociation from vpn.
      */
     @Override
     public void onRouterDisassociatedFromVpn(RouterDisassociatedFromVpn notification) {
@@ -79,7 +77,7 @@ public class RouterToVpnListener implements NeutronvpnListener {
         String vpnName = notification.getVpnId().getValue();
         //check router is associated to external network
         String extNetwork = NatUtil.getAssociatedExternalNetwork(dataBroker, routerName);
-        if(extNetwork != null) {
+        if (extNetwork != null) {
             LOG.debug("Router {} is associated with ext nw {}", routerName, extNetwork);
             handleDNATConfigurationForRouterDisassociation(routerName, vpnName, extNetwork);
             externalRoutersListener.changeBgpVpnIdToLocalVpnId(routerName, vpnName);
@@ -90,27 +88,31 @@ public class RouterToVpnListener implements NeutronvpnListener {
 
     void handleDNATConfigurationForRouterAssociation(String routerName, String vpnName, String externalNetwork) {
         InstanceIdentifier<RouterPorts> routerPortsId = NatUtil.getRouterPortsId(routerName);
-        Optional<RouterPorts> optRouterPorts = MDSALUtil.read(dataBroker, LogicalDatastoreType.CONFIGURATION, routerPortsId);
-        if(!optRouterPorts.isPresent()) {
-            LOG.debug("Could not read Router Ports data object with id: {} to handle associate vpn {}", routerName, vpnName);
+        Optional<RouterPorts> optRouterPorts =
+            MDSALUtil.read(dataBroker, LogicalDatastoreType.CONFIGURATION, routerPortsId);
+        if (!optRouterPorts.isPresent()) {
+            LOG.debug("Could not read Router Ports data object with id: {} to handle associate vpn {}",
+                routerName, vpnName);
             return;
         }
         Uuid networkId = Uuid.getDefaultInstance(externalNetwork);
         RouterPorts routerPorts = optRouterPorts.get();
         List<Ports> interfaces = routerPorts.getPorts();
         Map<String, BigInteger> portToDpnMap = new HashMap<>();
-        for(Ports port : interfaces) {
+        for (Ports port : interfaces) {
             String portName = port.getPortName();
             BigInteger dpnId = NatUtil.getDpnForInterface(interfaceManager, portName);
-            if(dpnId.equals(BigInteger.ZERO)) {
-                LOG.debug("DPN not found for {}, skip handling of router {} association with vpn", portName, routerName, vpnName);
+            if (dpnId.equals(BigInteger.ZERO)) {
+                LOG.debug("DPN not found for {}, skip handling of router {} association with vpn",
+                    portName, routerName, vpnName);
                 continue;
             }
             portToDpnMap.put(portName, dpnId);
             List<InternalToExternalPortMap> intExtPortMapList = port.getInternalToExternalPortMap();
-            for(InternalToExternalPortMap intExtPortMap : intExtPortMapList) {
+            for (InternalToExternalPortMap intExtPortMap : intExtPortMapList) {
                 //remove all NAT related entries with routerName
-                //floatingIpListener.removeNATOnlyFlowEntries(dpnId, portName, routerName, null, intExtPortMap.getInternalIp(), externalIp);
+                //floatingIpListener.removeNATOnlyFlowEntries(dpnId, portName, routerName, null,
+                // intExtPortMap.getInternalIp(), externalIp);
                 //Create NAT entries with VPN Id
                 LOG.debug("Updating DNAT flows with VPN metadata {} ", vpnName);
                 floatingIpListener.createNATOnlyFlowEntries(dpnId, routerName, vpnName, networkId, intExtPortMap);
@@ -120,25 +122,29 @@ public class RouterToVpnListener implements NeutronvpnListener {
 
     void handleDNATConfigurationForRouterDisassociation(String routerName, String vpnName, String externalNetwork) {
         InstanceIdentifier<RouterPorts> routerPortsId = NatUtil.getRouterPortsId(routerName);
-        Optional<RouterPorts> optRouterPorts = MDSALUtil.read(dataBroker, LogicalDatastoreType.CONFIGURATION, routerPortsId);
-        if(!optRouterPorts.isPresent()) {
-            LOG.debug("Could not read Router Ports data object with id: {} to handle disassociate vpn {}", routerName, vpnName);
+        Optional<RouterPorts> optRouterPorts =
+            MDSALUtil.read(dataBroker, LogicalDatastoreType.CONFIGURATION, routerPortsId);
+        if (!optRouterPorts.isPresent()) {
+            LOG.debug("Could not read Router Ports data object with id: {} to handle disassociate vpn {}",
+                routerName, vpnName);
             return;
         }
         Uuid networkId = Uuid.getDefaultInstance(externalNetwork);
         RouterPorts routerPorts = optRouterPorts.get();
         List<Ports> interfaces = routerPorts.getPorts();
-        for(Ports port : interfaces) {
+        for (Ports port : interfaces) {
             String portName = port.getPortName();
             BigInteger dpnId = NatUtil.getDpnForInterface(interfaceManager, portName);
-            if(dpnId.equals(BigInteger.ZERO)) {
-                LOG.debug("DPN not found for {}, skip handling of router {} association with vpn", portName, routerName, vpnName);
+            if (dpnId.equals(BigInteger.ZERO)) {
+                LOG.debug("DPN not found for {}, skip handling of router {} association with vpn",
+                    portName, routerName, vpnName);
                 continue;
             }
             List<InternalToExternalPortMap> intExtPortMapList = port.getInternalToExternalPortMap();
-            for(InternalToExternalPortMap intExtPortMap : intExtPortMapList) {
+            for (InternalToExternalPortMap intExtPortMap : intExtPortMapList) {
                 //remove all NAT related entries with routerName
-                //floatingIpListener.removeNATOnlyFlowEntries(dpnId, portName, routerName, vpnName, intExtPortMap.getInternalIp(), externalIp);
+                //floatingIpListener.removeNATOnlyFlowEntries(dpnId, portName, routerName, vpnName,
+                // intExtPortMap.getInternalIp(), externalIp);
                 //Create NAT entries with VPN Id
                 floatingIpListener.createNATOnlyFlowEntries(dpnId, routerName, null, networkId, intExtPortMap);
             }

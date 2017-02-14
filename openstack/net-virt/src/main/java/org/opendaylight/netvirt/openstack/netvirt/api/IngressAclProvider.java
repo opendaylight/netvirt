@@ -11,6 +11,7 @@ package org.opendaylight.netvirt.openstack.netvirt.api;
 import org.opendaylight.netvirt.openstack.netvirt.translator.NeutronSecurityGroup;
 import org.opendaylight.netvirt.openstack.netvirt.translator.NeutronSecurityRule;
 import org.opendaylight.netvirt.openstack.netvirt.translator.Neutron_IPs;
+import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.NodeId;
 
 /**
  *  This interface allows ingress Port Security flows to be written to devices.
@@ -26,11 +27,12 @@ public interface IngressAclProvider {
      * @param localPort the local port
      * @param securityGroup the security group
      * @param portUuid the uuid of the port.
+     * @param nodeId the NodeId of the node.
      * @param write  is this flow write or delete
      */
     void programPortSecurityGroup(Long dpid, String segmentationId, String attachedMac,
                                        long localPort, NeutronSecurityGroup securityGroup,
-                                       String portUuid, boolean write);
+                                       String portUuid, NodeId nodeId, boolean write);
     /**
      * Program port security rule.
      *

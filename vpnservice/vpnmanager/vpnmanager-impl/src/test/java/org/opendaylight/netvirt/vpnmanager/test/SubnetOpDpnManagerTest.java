@@ -8,9 +8,16 @@
 
 package org.opendaylight.netvirt.vpnmanager.test;
 
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
 import com.google.common.base.Optional;
 import com.google.common.util.concurrent.Futures;
-
+import java.math.BigInteger;
+import java.util.ArrayList;
+import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -38,16 +45,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.sub
 import org.opendaylight.yangtools.concepts.ListenerRegistration;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
-import java.math.BigInteger;
-import java.util.ArrayList;
-import java.util.List;
-
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.when;
-
-
 
 @RunWith(MockitoJUnitRunner.class)
 public class SubnetOpDpnManagerTest {
@@ -59,16 +56,22 @@ public class SubnetOpDpnManagerTest {
     PortOpDataEntry portOp = null;
     String portId = "abc";
 
-    InstanceIdentifier<SubnetOpDataEntry> subOpIdentifier = InstanceIdentifier.builder(SubnetOpData.class).
-            child(SubnetOpDataEntry.class, new SubnetOpDataEntryKey(subnetId)).build();
+    InstanceIdentifier<SubnetOpDataEntry> subOpIdentifier =
+        InstanceIdentifier.builder(SubnetOpData.class).child(SubnetOpDataEntry.class,
+            new SubnetOpDataEntryKey(subnetId)).build();
     InstanceIdentifier<SubnetToDpn> dpnOpId = subOpIdentifier.child(SubnetToDpn.class, new SubnetToDpnKey(dpId));
-    InstanceIdentifier<PortOpDataEntry> portOpIdentifier = InstanceIdentifier.builder(PortOpData.class).
-            child(PortOpDataEntry.class, new PortOpDataEntryKey(infName)).build();
+    InstanceIdentifier<PortOpDataEntry> portOpIdentifier =
+        InstanceIdentifier.builder(PortOpData.class).child(PortOpDataEntry.class,
+            new PortOpDataEntryKey(infName)).build();
 
-    @Mock DataBroker dataBroker;
-    @Mock ListenerRegistration<DataChangeListener> dataChangeListenerRegistration;
-    @Mock ReadOnlyTransaction mockReadTx;
-    @Mock WriteTransaction mockWriteTx;
+    @Mock
+    DataBroker dataBroker;
+    @Mock
+    ListenerRegistration<DataChangeListener> dataChangeListenerRegistration;
+    @Mock
+    ReadOnlyTransaction mockReadTx;
+    @Mock
+    WriteTransaction mockWriteTx;
 
     SubnetOpDpnManager subOpDpnManager;
 
@@ -78,11 +81,11 @@ public class SubnetOpDpnManagerTest {
     @Before
     public void setUp() throws Exception {
         when(dataBroker.registerDataChangeListener(
-                any(LogicalDatastoreType.class),
-                any(InstanceIdentifier.class),
-                any(DataChangeListener.class),
-                any(AsyncDataBroker.DataChangeScope.class)))
-                .thenReturn(dataChangeListenerRegistration);
+            any(LogicalDatastoreType.class),
+            any(InstanceIdentifier.class),
+            any(DataChangeListener.class),
+            any(AsyncDataBroker.DataChangeScope.class)))
+            .thenReturn(dataChangeListenerRegistration);
         setupMocks();
 
         subOpDpnManager = new SubnetOpDpnManager(dataBroker);
@@ -91,19 +94,19 @@ public class SubnetOpDpnManagerTest {
         optionalPortOp = Optional.of(portOp);
 
         doReturn(Futures.immediateCheckedFuture(optionalPortOp)).when(mockReadTx).read(LogicalDatastoreType
-                .OPERATIONAL, portOpIdentifier);
+            .OPERATIONAL, portOpIdentifier);
         doReturn(Futures.immediateCheckedFuture(optionalSubDpn)).when(mockReadTx).read(LogicalDatastoreType
-                .OPERATIONAL, dpnOpId);
+            .OPERATIONAL, dpnOpId);
 
     }
 
     private void setupMocks() {
 
         List<VpnInterfaces> vpnInterfaces = new ArrayList<>();
-        subnetToDpn = new SubnetToDpnBuilder().setDpnId(dpId).setKey(new SubnetToDpnKey(dpId)).setVpnInterfaces
-                (vpnInterfaces).build();
-        portOp = new PortOpDataEntryBuilder().setDpnId(dpId).setKey(new PortOpDataEntryKey(infName)).setSubnetId
-                (subnetId).setPortId(portId).build();
+        subnetToDpn = new SubnetToDpnBuilder().setDpnId(dpId).setKey(new SubnetToDpnKey(dpId)).setVpnInterfaces(
+            vpnInterfaces).build();
+        portOp = new PortOpDataEntryBuilder().setDpnId(dpId).setKey(new PortOpDataEntryKey(infName)).setSubnetId(
+            subnetId).setPortId(portId).build();
         doReturn(mockReadTx).when(dataBroker).newReadOnlyTransaction();
         doReturn(mockWriteTx).when(dataBroker).newWriteOnlyTransaction();
         doReturn(Futures.immediateCheckedFuture(null)).when(mockWriteTx).submit();
@@ -130,7 +133,7 @@ public class SubnetOpDpnManagerTest {
     public void testAddPortOpDataEntryPortOpAbsent() {
 
         doReturn(Futures.immediateCheckedFuture(Optional.absent())).when(mockReadTx).read(LogicalDatastoreType
-                .OPERATIONAL, portOpIdentifier);
+            .OPERATIONAL, portOpIdentifier);
 
         subOpDpnManager.addPortOpDataEntry(infName, subnetId, dpId);
 
@@ -157,7 +160,7 @@ public class SubnetOpDpnManagerTest {
     public void testRemovePortOpDataEntryPortOpAbsent() {
 
         doReturn(Futures.immediateCheckedFuture(Optional.absent())).when(mockReadTx).read(LogicalDatastoreType
-                .OPERATIONAL, portOpIdentifier);
+            .OPERATIONAL, portOpIdentifier);
 
         subOpDpnManager.removePortOpDataEntry(infName);
 
@@ -178,7 +181,7 @@ public class SubnetOpDpnManagerTest {
     public void testGetPortOpDataEntryPortOpAbsent() {
 
         doReturn(Futures.immediateCheckedFuture(Optional.absent())).when(mockReadTx).read(LogicalDatastoreType
-                .OPERATIONAL, portOpIdentifier);
+            .OPERATIONAL, portOpIdentifier);
 
         subOpDpnManager.getPortOpDataEntry(infName);
 

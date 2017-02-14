@@ -8,32 +8,29 @@
 
 package org.opendaylight.netvirt.openstack.netvirt;
 
+import com.google.common.base.Preconditions;
 import java.net.HttpURLConnection;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-
 import org.opendaylight.netvirt.openstack.netvirt.api.Action;
+import org.opendaylight.netvirt.openstack.netvirt.api.EventDispatcher;
+import org.opendaylight.netvirt.openstack.netvirt.api.LoadBalancerConfiguration;
 import org.opendaylight.netvirt.openstack.netvirt.api.LoadBalancerProvider;
 import org.opendaylight.netvirt.openstack.netvirt.api.NodeCacheManager;
 import org.opendaylight.netvirt.openstack.netvirt.translator.NeutronLoadBalancer;
+import org.opendaylight.netvirt.openstack.netvirt.translator.NeutronLoadBalancerPool;
 import org.opendaylight.netvirt.openstack.netvirt.translator.NeutronLoadBalancerPoolMember;
+import org.opendaylight.netvirt.openstack.netvirt.translator.crud.INeutronLoadBalancerCRUD;
 import org.opendaylight.netvirt.openstack.netvirt.translator.crud.INeutronNetworkCRUD;
 import org.opendaylight.netvirt.openstack.netvirt.translator.crud.INeutronPortCRUD;
-import org.opendaylight.netvirt.openstack.netvirt.translator.iaware.INeutronLoadBalancerPoolAware;
-import org.opendaylight.netvirt.openstack.netvirt.translator.NeutronLoadBalancerPool;
-import org.opendaylight.netvirt.openstack.netvirt.translator.crud.INeutronLoadBalancerCRUD;
 import org.opendaylight.netvirt.openstack.netvirt.translator.crud.INeutronSubnetCRUD;
-import org.opendaylight.netvirt.openstack.netvirt.api.EventDispatcher;
-import org.opendaylight.netvirt.openstack.netvirt.api.LoadBalancerConfiguration;
+import org.opendaylight.netvirt.openstack.netvirt.translator.iaware.INeutronLoadBalancerPoolAware;
 import org.opendaylight.netvirt.utils.servicehelper.ServiceHelper;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Node;
-
 import org.osgi.framework.ServiceReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.google.common.base.Preconditions;
-import com.google.common.collect.Lists;
 
 /**
  * Handle requests for OpenStack Neutron v2.0 LBaaS API calls for
@@ -213,7 +210,7 @@ public class LBaaSPoolHandler extends AbstractHandler
             return null;
         }
 
-        List<LoadBalancerConfiguration> lbConfigList = Lists.newLinkedList();
+        List<LoadBalancerConfiguration> lbConfigList = new LinkedList<>();
 
         /* Iterate over all the Loadbalancers created so far and identify VIP
          */

@@ -21,16 +21,14 @@ import static org.ops4j.pax.exam.MavenUtils.asInProject;
 import static org.ops4j.pax.exam.karaf.options.KarafDistributionOption.configureConsole;
 import static org.ops4j.pax.exam.karaf.options.KarafDistributionOption.editConfigurationFilePut;
 import static org.ops4j.pax.exam.karaf.options.KarafDistributionOption.keepRuntimeFolder;
-import static org.ops4j.pax.exam.karaf.options.LogLevelOption.LogLevel.DEBUG;
 import static org.ops4j.pax.exam.karaf.options.LogLevelOption.LogLevel.ERROR;
 import static org.ops4j.pax.exam.karaf.options.LogLevelOption.LogLevel.INFO;
 import static org.ops4j.pax.exam.karaf.options.LogLevelOption.LogLevel.TRACE;
 import static org.ops4j.pax.exam.karaf.options.LogLevelOption.LogLevel.WARN;
 
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -353,7 +351,7 @@ public class NetvirtIT extends AbstractMdsalTestBase {
         assertNotEquals("datapathId was not found", datapathId, 0);
 
         List<Service> staticPipeline = pipelineOrchestrator.getStaticPipeline();
-        List<Service> staticPipelineFound = Lists.newArrayList();
+        List<Service> staticPipelineFound = new ArrayList<>();
         for (Service service : pipelineOrchestrator.getServiceRegistry().keySet()) {
             if (staticPipeline.contains(service)) {
                 staticPipelineFound.add(service);
@@ -419,7 +417,7 @@ public class NetvirtIT extends AbstractMdsalTestBase {
             LOG.info("testNetVirt: should be connected: {}", nodeInfo.ovsdbNode.getNodeId());
 
             List<Service> staticPipeline = pipelineOrchestrator.getStaticPipeline();
-            List<Service> staticPipelineFound = Lists.newArrayList();
+            List<Service> staticPipelineFound = new ArrayList<>();
             String flowId;
             for (Service service : pipelineOrchestrator.getServiceRegistry().keySet()) {
                 if (staticPipeline.contains(service)) {
@@ -493,13 +491,13 @@ public class NetvirtIT extends AbstractMdsalTestBase {
                     "dhcp", "10.0.0.1", "f6:00:00:0f:00:02");
 
             Thread.sleep(1000);
-            Map<String, String> externalIds = Maps.newHashMap();
+            Map<String, String> externalIds = new HashMap<>();
             externalIds.put("attached-mac", "f6:00:00:0f:00:01");
             externalIds.put("iface-id", portId);
             southboundUtils.addTerminationPoint(nodeInfo.bridgeNode, portName, "internal", null, externalIds, 3L);
             southboundUtils.addTerminationPoint(nodeInfo.bridgeNode, "vm1", "internal", null, null, 0L);
             southboundUtils.addTerminationPoint(nodeInfo.bridgeNode, "vm2", "internal", null, null, 0L);
-            Map<String, String> options = Maps.newHashMap();
+            Map<String, String> options = new HashMap<>();
             options.put("key", "flow");
             options.put("remote_ip", "192.168.120.32");
             southboundUtils.addTerminationPoint(nodeInfo.bridgeNode, "vx", "vxlan", options, null, 4L);

@@ -15,13 +15,14 @@ import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
 import org.opendaylight.genius.mdsalutil.ActionInfo;
-import org.opendaylight.genius.mdsalutil.ActionType;
 import org.opendaylight.genius.mdsalutil.FlowEntity;
 import org.opendaylight.genius.mdsalutil.InstructionInfo;
-import org.opendaylight.genius.mdsalutil.InstructionType;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.mdsalutil.MatchInfo;
 import org.opendaylight.genius.mdsalutil.NwConstants;
+import org.opendaylight.genius.mdsalutil.actions.ActionNxResubmit;
+import org.opendaylight.genius.mdsalutil.instructions.InstructionApplyActions;
+import org.opendaylight.genius.mdsalutil.instructions.InstructionGotoTable;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.netvirt.dhcpservice.api.DhcpMConstants;
 import org.opendaylight.netvirt.neutronvpn.interfaces.INeutronVpnManager;
@@ -65,7 +66,7 @@ public class DhcpManager {
         if (config.isControllerDhcpEnabled()) {
             dhcpInterfaceEventListener =
                     new DhcpInterfaceEventListener(this, broker, dhcpExternalTunnelManager, interfaceManager);
-            dhcpInterfaceConfigListener = new DhcpInterfaceConfigListener(broker, dhcpExternalTunnelManager);
+            dhcpInterfaceConfigListener = new DhcpInterfaceConfigListener(broker, dhcpExternalTunnelManager, this);
             LOG.info("DHCP Service initialized");
         }
     }
@@ -144,9 +145,8 @@ public class DhcpManager {
         List<MatchInfo> matches = new ArrayList<>();
         List<InstructionInfo> instructions = new ArrayList<>();
         List<ActionInfo> actionsInfos = new ArrayList<>();
-        actionsInfos.add(new ActionInfo(ActionType.nx_resubmit, new String[]{
-                Short.toString(NwConstants.LPORT_DISPATCHER_TABLE)}));
-        instructions.add(new InstructionInfo(InstructionType.apply_actions, actionsInfos));
+        actionsInfos.add(new ActionNxResubmit(NwConstants.LPORT_DISPATCHER_TABLE));
+        instructions.add(new InstructionApplyActions(actionsInfos));
         FlowEntity flowEntity = MDSALUtil.buildFlowEntity(dpId, NwConstants.DHCP_TABLE, "DHCPTableMissFlow",
                 0, "DHCP Table Miss Flow", 0, 0,
                 DhcpMConstants.COOKIE_DHCP_BASE, matches, instructions);
@@ -158,8 +158,7 @@ public class DhcpManager {
     private void setupTableMissForHandlingExternalTunnel(BigInteger dpId) {
         List<MatchInfo> matches = new ArrayList<>();
         List<InstructionInfo> instructions = new ArrayList<>();
-        instructions.add(new InstructionInfo(InstructionType.goto_table,
-                new long[] { NwConstants.EXTERNAL_TUNNEL_TABLE }));
+        instructions.add(new InstructionGotoTable(NwConstants.EXTERNAL_TUNNEL_TABLE));
 
         FlowEntity flowEntity = MDSALUtil.buildFlowEntity(dpId, NwConstants.DHCP_TABLE_EXTERNAL_TUNNEL,
                 "DHCPTableMissFlowForExternalTunnel",

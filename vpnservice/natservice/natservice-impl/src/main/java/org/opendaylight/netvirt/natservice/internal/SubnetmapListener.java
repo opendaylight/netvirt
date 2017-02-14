@@ -22,7 +22,8 @@ public class SubnetmapListener extends AsyncDataTreeChangeListenerBase<Subnetmap
     private final DataBroker dataBroker;
     private final ExternalNetworkGroupInstaller externalNetworkGroupInstaller;
 
-    public SubnetmapListener(final DataBroker dataBroker, final ExternalNetworkGroupInstaller externalNetworkGroupInstaller) {
+    public SubnetmapListener(final DataBroker dataBroker,
+                             final ExternalNetworkGroupInstaller externalNetworkGroupInstaller) {
         super(Subnetmap.class, SubnetmapListener.class);
         this.dataBroker = dataBroker;
         this.externalNetworkGroupInstaller = externalNetworkGroupInstaller;
@@ -45,8 +46,10 @@ public class SubnetmapListener extends AsyncDataTreeChangeListenerBase<Subnetmap
     }
 
     @Override
-    protected void update(InstanceIdentifier<Subnetmap> identifier, Subnetmap subnetmapBefore, Subnetmap subnetmapAfter) {
-        LOG.trace("SubnetmapListener update subnetmap method - key: " + identifier + ", original=" + subnetmapBefore + ", update=" + subnetmapAfter);
+    protected void update(InstanceIdentifier<Subnetmap> identifier,
+                          Subnetmap subnetmapBefore, Subnetmap subnetmapAfter) {
+        LOG.trace("SubnetmapListener update subnetmap method - key: {}, original: {}, update: {}",
+            identifier, subnetmapBefore, subnetmapAfter);
         NatServiceCounters.subnetmap_update.inc();
         externalNetworkGroupInstaller.installExtNetGroupEntries(subnetmapAfter);
     }

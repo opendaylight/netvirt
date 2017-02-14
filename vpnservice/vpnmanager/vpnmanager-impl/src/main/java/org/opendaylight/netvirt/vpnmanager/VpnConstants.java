@@ -37,21 +37,37 @@ public class VpnConstants {
     public static final long LOWER_PSEUDO_LPORT_TAG = Long.getLong("lower.lport.gid", 170001);
     public static final long UPPER_PSEUDO_LPORT_TAG = Long.getLong("upper.lport.gid", 270000);
 
-    public static byte[] EthernetDestination_Broadcast = new byte[] { (byte) 0xFF, (byte) 0xFF, (byte) 0xFF,
-            (byte) 0xFF, (byte) 0xFF, (byte) 0xFF };
-    public static byte[] MAC_Broadcast = new byte[] { (byte) 0, (byte) 0, (byte) 0, (byte) 0, (byte) 0, (byte) 0 };
+    public static byte[] EthernetDestination_Broadcast = new byte[] {(byte) 0xFF, (byte) 0xFF, (byte) 0xFF,
+        (byte) 0xFF, (byte) 0xFF, (byte) 0xFF};
+    public static byte[] MAC_Broadcast = new byte[] {(byte) 0, (byte) 0, (byte) 0, (byte) 0, (byte) 0, (byte) 0};
+
     public enum ITMTunnelLocType {
         Invalid(0), Internal(1), External(2), Hwvtep(3);
 
         private final int type;
-        ITMTunnelLocType(int id) { this.type = id; }
-        public int getValue() { return type; }
+
+        ITMTunnelLocType(int id) {
+            this.type = id;
+        }
+
+        public int getValue() {
+            return type;
+        }
     }
+
     public enum DCGWPresentStatus {
         Invalid(0), Present(1), Absent(2);
 
         private final int status;
-        DCGWPresentStatus(int id) { this.status = id; }
-        public int getValue() { return status; }
+
+        DCGWPresentStatus(int id) {
+            this.status = id;
+        }
+
+        public int getValue() {
+            return status;
+        }
     }
+
+    public static final String DEFAULT_GATEWAY_MAC_ADDRESS = "de:ad:be:ef:00:01";
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Ericsson India Global Services Pvt Ltd. and others.  All rights reserved.
+ * Copyright © 2015, 2017 Ericsson India Global Services Pvt Ltd. and others.  All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
@@ -7,7 +7,6 @@
  */
 
 package org.opendaylight.netvirt.dhcpservice.api;
-
 
 import java.math.BigInteger;
 import java.net.InetAddress;
@@ -21,12 +20,12 @@ public abstract class DHCPUtils {
     }
 
     public static byte[] shortToByteArray(short value) {
-        return new byte[] { (byte) ((value >> 8) & 0xff), (byte) (value & 0xff) };
+        return new byte[] {(byte) ((value >> 8) & 0xff), (byte) (value & 0xff)};
     }
 
     public static byte[] intToByteArray(int value) {
         return new byte[] {(byte) ((value >> 24) & 0xff), (byte) ((value >> 16) & 0xff),
-            (byte) ((value >> 8) & 0xff), (byte) (value & 0xff) };
+            (byte) ((value >> 8) & 0xff), (byte) (value & 0xff)};
     }
 
     public static byte[] inetAddrToByteArray(InetAddress address) {

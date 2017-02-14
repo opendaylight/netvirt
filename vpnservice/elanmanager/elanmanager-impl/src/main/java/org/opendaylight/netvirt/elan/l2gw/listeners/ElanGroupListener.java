@@ -7,14 +7,13 @@
  */
 package org.opendaylight.netvirt.elan.l2gw.listeners;
 
-import com.google.common.util.concurrent.ListenableFuture;
 import java.math.BigInteger;
 import java.util.List;
 import java.util.Set;
-import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentMap;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.clustering.EntityOwnershipService;
+import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncClusteredDataTreeChangeListenerBase;
 import org.opendaylight.netvirt.elan.internal.ElanInterfaceManager;
 import org.opendaylight.netvirt.elan.utils.ElanClusterUtils;
@@ -22,6 +21,7 @@ import org.opendaylight.netvirt.elan.utils.ElanUtils;
 import org.opendaylight.netvirt.elanmanager.utils.ElanL2GwCacheUtils;
 import org.opendaylight.netvirt.neutronvpn.api.l2gw.L2GatewayDevice;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.FlowCapableNode;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.group.types.rev131018.group.buckets.Bucket;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.group.types.rev131018.groups.Group;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.Nodes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.Node;
@@ -47,6 +47,7 @@ public class ElanGroupListener extends AsyncClusteredDataTreeChangeListenerBase<
         broker = db;
         this.elanUtils = elanUtils;
         this.entityOwnershipService = entityOwnershipService;
+        registerListener(LogicalDatastoreType.CONFIGURATION, broker);
         LOG.trace("ElanGroupListener registered");
     }
 
@@ -129,17 +130,21 @@ public class ElanGroupListener extends AsyncClusteredDataTreeChangeListenerBase<
             }
         }
         if (updateGroup) {
-            LOG.info("no of buckets mismatched {} {}", elanInstance.getElanInstanceName(),
+            List<Bucket> bucketList = elanInterfaceManager.getRemoteBCGroupBuckets(elanInstance, null, dpnId, 0,
+                    elanInstance.getElanTag());
+            expectedElanFootprint--;//remove local bcgroup bucket
+            if (bucketList == null || (bucketList.size() != expectedElanFootprint)) {
+                //no point in retrying if not able to meet expected foot print
+                return;
+            }
+            LOG.trace("no of buckets mismatched {} {}", elanInstance.getElanInstanceName(),
                     update.getKey().getGroupId());
             ElanClusterUtils.runOnlyInLeaderNode(entityOwnershipService, elanInstance.getElanInstanceName(),
                     "updating broadcast group",
-                    new Callable<List<ListenableFuture<Void>>>() {
-                        @Override
-                        public List<ListenableFuture<Void>> call() throws Exception {
-                            elanInterfaceManager.setupElanBroadcastGroups(elanInstance, dpnId);
-                            return null;
-                        }
-                    });
+                () -> {
+                    elanInterfaceManager.setupElanBroadcastGroups(elanInstance, dpnId);
+                    return null;
+                });
         } else {
             LOG.trace("no buckets in the update {} {}", elanInstance.getElanInstanceName(),
                     update.getKey().getGroupId());

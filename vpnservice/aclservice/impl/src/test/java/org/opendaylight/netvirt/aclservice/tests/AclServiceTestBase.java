@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 Red Hat, Inc. and others. All rights reserved.
+ * Copyright © 2016, 2017 Red Hat, Inc. and others. All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
@@ -16,6 +16,7 @@ import static org.opendaylight.netvirt.aclservice.tests.StateInterfaceBuilderHel
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 import javax.inject.Inject;
@@ -226,7 +227,7 @@ public abstract class AclServiceTestBase {
             .newDirection(DirectionEgress.class)
             .newRemoteGroupId(new Uuid(SG_UUID_1)).build());
 
-        matches = newMatch( EthertypeV4.class, -1, -1, 2, 3,
+        matches = newMatch(EthertypeV4.class, -1, -1, 2, 3,
             AclConstants.IPV4_ALL_NETWORK, null, (short)NwConstants.IP_PROT_ICMP);
         dataBrokerUtil.put(ImmutableIdentifiedAceBuilder.builder()
             .sgUuid(SG_UUID_1)
@@ -382,13 +383,13 @@ public abstract class AclServiceTestBase {
         }
     }
 
-    private void newAllowedAddressPair(String portName, List<String> sgUuidList, String ipAddress, String macAddress )
+    private void newAllowedAddressPair(String portName, List<String> sgUuidList, String ipAddress, String macAddress)
             throws TransactionCommitFailedException {
         AllowedAddressPairs allowedAddressPair = new AllowedAddressPairsBuilder()
                 .setIpAddress(new IpPrefixOrAddress(new IpPrefix(ipAddress.toCharArray())))
                 .setMacAddress(new MacAddress(macAddress))
                 .build();
-        List<Uuid> sgList = sgUuidList.stream().map(sg -> new Uuid(sg)).collect(Collectors.toList());
+        List<Uuid> sgList = sgUuidList.stream().map(Uuid::new).collect(Collectors.toList());
 
         dataBrokerUtil.put(ImmutableIdentifiedInterfaceWithAclBuilder.builder()
             .interfaceName(portName)
@@ -417,7 +418,7 @@ public abstract class AclServiceTestBase {
     }
 
     // TODO refactor this instead of stealing it from org.opendaylight.netvirt.neutronvpn.NeutronSecurityRuleListener
-    private Matches newMatch( Class<? extends EthertypeBase> newEtherType,
+    private Matches newMatch(Class<? extends EthertypeBase> newEtherType,
             int srcLowerPort, int srcUpperPort, int destLowerPort, int destupperPort, String srcRemoteIpPrefix,
             String dstRemoteIpPrefix, short protocol) {
         AceIpBuilder aceIpBuilder = new AceIpBuilder();
@@ -450,8 +451,8 @@ public abstract class AclServiceTestBase {
         newElanInterface(ELAN, PORT_1 ,true);
         newElanInterface(ELAN, PORT_2, true);
         newElanInterface(ELAN, PORT_3, true);
-        newAllowedAddressPair(PORT_1, Arrays.asList(SG_UUID_1), IP_PREFIX_1, PORT_MAC_1);
-        newAllowedAddressPair(PORT_2, Arrays.asList(SG_UUID_1), IP_PREFIX_2, PORT_MAC_2);
+        newAllowedAddressPair(PORT_1, Collections.singletonList(SG_UUID_1), IP_PREFIX_1, PORT_MAC_1);
+        newAllowedAddressPair(PORT_2, Collections.singletonList(SG_UUID_1), IP_PREFIX_2, PORT_MAC_2);
         newAllowedAddressPair(PORT_3, Arrays.asList(SG_UUID_1, SG_UUID_2), IP_PREFIX_3, PORT_MAC_3);
     }
 

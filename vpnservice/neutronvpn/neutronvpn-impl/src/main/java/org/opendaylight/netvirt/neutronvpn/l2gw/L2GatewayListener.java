@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 Ericsson India Global Services Pvt Ltd. and others.  All rights reserved.
+ * Copyright (c) 2016 - 2017 Ericsson India Global Services Pvt Ltd. and others.  All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
@@ -14,12 +14,10 @@ import java.util.List;
 import java.util.Set;
 import org.opendaylight.controller.md.sal.binding.api.ClusteredDataChangeListener;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.binding.api.DataChangeListener;
 import org.opendaylight.controller.md.sal.common.api.clustering.EntityOwnershipService;
 import org.opendaylight.controller.md.sal.common.api.data.AsyncDataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.AsyncDataBroker.DataChangeScope;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.controller.sal.binding.api.RpcProviderRegistry;
 import org.opendaylight.genius.datastoreutils.AsyncClusteredDataChangeListenerBase;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.utils.clustering.ClusteringUtils;
@@ -35,7 +33,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l2gateways.rev15071
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.rev150712.Neutron;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.NodeId;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Node;
-import org.opendaylight.yangtools.concepts.ListenerRegistration;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -146,7 +143,7 @@ public class L2GatewayListener extends AsyncClusteredDataChangeListenerBase<L2ga
             // Delete ITM tunnels if it's last Gateway deleted and device is connected
             // Also, do not delete device from cache if it's connected
             if (L2GatewayUtils.isLastL2GatewayBeingDeleted(l2GwDevice)) {
-                if(l2GwDevice.isConnected()){
+                if (l2GwDevice.isConnected()) {
                     l2GwDevice.removeL2GatewayId(input.getUuid());
                     // Delete ITM tunnels
                     final String hwvtepId = l2GwDevice.getHwvtepNodeId();
@@ -179,8 +176,10 @@ public class L2GatewayListener extends AsyncClusteredDataChangeListenerBase<L2ga
                     // Cleaning up the config DS
                     NodeId nodeId = new NodeId(l2GwDevice.getHwvtepNodeId());
                     NodeId psNodeId = HwvtepSouthboundUtils.createManagedNodeId(nodeId, l2DeviceName);
-                    MDSALUtil.syncDelete(dataBroker, LogicalDatastoreType.CONFIGURATION, HwvtepSouthboundUtils.createInstanceIdentifier(nodeId));
-                    MDSALUtil.syncDelete(dataBroker, LogicalDatastoreType.CONFIGURATION, HwvtepSouthboundUtils.createInstanceIdentifier(psNodeId));
+                    MDSALUtil.syncDelete(dataBroker, LogicalDatastoreType.CONFIGURATION,
+                            HwvtepSouthboundUtils.createInstanceIdentifier(nodeId));
+                    MDSALUtil.syncDelete(dataBroker, LogicalDatastoreType.CONFIGURATION,
+                            HwvtepSouthboundUtils.createInstanceIdentifier(psNodeId));
 
                 }
             } else {

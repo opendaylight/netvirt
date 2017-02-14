@@ -17,11 +17,11 @@ import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.mdsalutil.ActionInfo;
 import org.opendaylight.genius.mdsalutil.InstructionInfo;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
-import org.opendaylight.genius.mdsalutil.MatchFieldType;
 import org.opendaylight.genius.mdsalutil.MatchInfo;
 import org.opendaylight.genius.mdsalutil.MatchInfoBase;
 import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
+import org.opendaylight.genius.mdsalutil.matches.MatchEthernetType;
 import org.opendaylight.genius.utils.ServiceIndex;
 import org.opendaylight.netvirt.aclservice.api.AclServiceManager.Action;
 import org.opendaylight.netvirt.aclservice.utils.AclConstants;
@@ -144,7 +144,7 @@ public abstract class AbstractIngressAclServiceImpl extends AbstractAclServiceIm
             return false;
         }
 
-        for (Uuid sgUuid :aclUuidList ) {
+        for (Uuid sgUuid :aclUuidList) {
             Acl acl = AclServiceUtils.getAcl(dataBroker, sgUuid.getValue());
             if (null == acl) {
                 LOG.warn("The ACL is empty");
@@ -283,7 +283,7 @@ public abstract class AbstractIngressAclServiceImpl extends AbstractAclServiceIm
      */
     protected void programArpRule(BigInteger dpId, int lportTag, int addOrRemove) {
         List<MatchInfo> matches = new ArrayList<>();
-        matches.add(new MatchInfo(MatchFieldType.eth_type, new long[] {NwConstants.ETHTYPE_ARP}));
+        matches.add(MatchEthernetType.ARP);
         matches.add(AclServiceUtils.buildLPortTagMatch(lportTag));
 
         List<InstructionInfo> instructions = getDispatcherTableResubmitInstructions(new ArrayList<>());

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 Red Hat, Inc. and others. All rights reserved.
+ * Copyright © 2016, 2017 Red Hat, Inc. and others. All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
@@ -8,6 +8,7 @@
 package org.opendaylight.netvirt.aclservice;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doReturn;
@@ -17,8 +18,8 @@ import com.google.common.base.Optional;
 import com.google.common.util.concurrent.Futures;
 
 import java.math.BigInteger;
-import java.util.Arrays;
 
+import java.util.Collections;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -29,12 +30,12 @@ import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.genius.mdsalutil.ActionType;
 import org.opendaylight.genius.mdsalutil.FlowEntity;
-import org.opendaylight.genius.mdsalutil.MatchFieldType;
 import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.genius.mdsalutil.NxMatchFieldType;
+import org.opendaylight.genius.mdsalutil.actions.ActionLearn;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
+import org.opendaylight.genius.mdsalutil.matches.MatchTcpFlags;
 import org.opendaylight.netvirt.aclservice.api.utils.AclInterface;
 import org.opendaylight.netvirt.aclservice.utils.AclConstants;
 import org.opendaylight.netvirt.aclservice.utils.AclDataUtil;
@@ -117,22 +118,20 @@ public class LearnEgressAclServiceImplTest {
         FlowEntity flow = (FlowEntity) installFlowValueSaver.getInvocationParams(9).get(0);
         AclServiceTestUtils.verifyMatchInfo(flow.getMatchInfoList(),
                 NxMatchFieldType.nx_tcp_dst_with_mask, "80", "65535");
-        AclServiceTestUtils.verifyActionTypeExist(flow.getInstructionInfoList().get(0).getActionInfos(),
-                ActionType.learn);
+        AclServiceTestUtils.verifyActionTypeExist(flow.getInstructionInfoList().get(0), ActionLearn.class);
 
         // verify that tcpFinIdleTimeout is used for TCP
-        AclServiceTestUtils.verifyActionInfo(flow.getInstructionInfoList().get(0).getActionInfos(),
-                ActionType.learn,
-                new String[] {
-                    String.valueOf(0),
-                    String.valueOf(0),
-                    AclConstants.PROTO_MATCH_PRIORITY.toString(),
-                    AclConstants.COOKIE_ACL_BASE.toString(),
-                    AclConstants.LEARN_DELETE_LEARNED_FLAG_VALUE.toString(),
-                    Short.toString(NwConstants.EGRESS_LEARN_TABLE),
-                    String.valueOf(tcpFinIdleTimeoutValue),
-                    "0"
-                });
+        AclServiceTestUtils.verifyActionLearn(flow.getInstructionInfoList().get(0),
+                new ActionLearn(
+                        0,
+                        0,
+                        AclConstants.PROTO_MATCH_PRIORITY,
+                        AclConstants.COOKIE_ACL_BASE,
+                        AclConstants.LEARN_DELETE_LEARNED_FLAG_VALUE,
+                        NwConstants.EGRESS_LEARN_TABLE,
+                        tcpFinIdleTimeoutValue,
+                        0,
+                        Collections.emptyList()));
     }
 
     @Test
@@ -143,8 +142,7 @@ public class LearnEgressAclServiceImplTest {
         assertEquals(10, installFlowValueSaver.getNumOfInvocations());
 
         FlowEntity flow = (FlowEntity) installFlowValueSaver.getInvocationParams(9).get(0);
-        AclServiceTestUtils.verifyActionTypeExist(flow.getInstructionInfoList().get(0).getActionInfos(),
-                ActionType.learn);
+        AclServiceTestUtils.verifyActionTypeExist(flow.getInstructionInfoList().get(0), ActionLearn.class);
     }
 
     @Test
@@ -171,22 +169,20 @@ public class LearnEgressAclServiceImplTest {
         FlowEntity flow = (FlowEntity) installFlowValueSaver.getInvocationParams(9).get(0);
         AclServiceTestUtils.verifyMatchInfo(flow.getMatchInfoList(),
                 NxMatchFieldType.nx_udp_dst_with_mask, "80", "65535");
-        AclServiceTestUtils.verifyActionTypeExist(flow.getInstructionInfoList().get(0).getActionInfos(),
-                ActionType.learn);
+        AclServiceTestUtils.verifyActionTypeExist(flow.getInstructionInfoList().get(0), ActionLearn.class);
 
         // verify that even though tcpFinIdleTimeout is set to non-zero, it is not used for UDP
-        AclServiceTestUtils.verifyActionInfo(flow.getInstructionInfoList().get(0).getActionInfos(),
-                ActionType.learn,
-                new String[] {
-                    String.valueOf(0),
-                    String.valueOf(0),
-                    AclConstants.PROTO_MATCH_PRIORITY.toString(),
-                    AclConstants.COOKIE_ACL_BASE.toString(),
-                    AclConstants.LEARN_DELETE_LEARNED_FLAG_VALUE.toString(),
-                    Short.toString(NwConstants.EGRESS_LEARN_TABLE),
-                    "0",
-                    "0"
-                });
+        AclServiceTestUtils.verifyActionLearn(flow.getInstructionInfoList().get(0),
+                new ActionLearn(
+                        0,
+                        0,
+                        AclConstants.PROTO_MATCH_PRIORITY,
+                        AclConstants.COOKIE_ACL_BASE,
+                        AclConstants.LEARN_DELETE_LEARNED_FLAG_VALUE,
+                        NwConstants.EGRESS_LEARN_TABLE,
+                        0,
+                        0,
+                        Collections.emptyList()));
     }
 
     @Test
@@ -197,19 +193,18 @@ public class LearnEgressAclServiceImplTest {
         assertEquals(true, testedService.removeAcl(ai));
         assertEquals(5, removeFlowValueSaver.getNumOfInvocations());
         FlowEntity firstRangeFlow = (FlowEntity) removeFlowValueSaver.getInvocationParams(4).get(0);
-        AclServiceTestUtils.verifyMatchInfo(firstRangeFlow.getMatchInfoList(), MatchFieldType.tcp_flags, "2");
+        assertTrue(firstRangeFlow.getMatchInfoList().contains(new MatchTcpFlags(2)));
         AclServiceTestUtils.verifyMatchInfo(firstRangeFlow.getMatchInfoList(),
                 NxMatchFieldType.nx_tcp_dst_with_mask, "80", "65535");
-
     }
 
     private AclInterface stubUdpAclInterface(Uuid sgUuid, String ifName, String ipv4PrefixStr,
             int tcpPortLower, int tcpPortUpper) {
         AclInterface ai = new AclInterface();
         ai.setPortSecurityEnabled(true);
-        ai.setSecurityGroups(Arrays.asList(sgUuid));
+        ai.setSecurityGroups(Collections.singletonList(sgUuid));
         ai.setDpId(BigInteger.ONE);
-        ai.setLPortTag(new Integer(2));
+        ai.setLPortTag(2);
         stubInterfaceAcl(ifName, ai);
 
         stubAccessList(sgUuid, ipv4PrefixStr, tcpPortLower, tcpPortUpper, (short)NwConstants.IP_PROT_UDP);
@@ -221,8 +216,8 @@ public class LearnEgressAclServiceImplTest {
         AclInterface ai = new AclInterface();
         ai.setPortSecurityEnabled(true);
         ai.setDpId(BigInteger.ONE);
-        ai.setLPortTag(Integer.valueOf(2));
-        ai.setSecurityGroups(Arrays.asList(sgUuid));
+        ai.setLPortTag(2);
+        ai.setSecurityGroups(Collections.singletonList(sgUuid));
         stubInterfaceAcl(ifName, ai);
 
         stubAccessList(sgUuid, ipv4PrefixStr, tcpPortLower, tcpPortUpper, (short)NwConstants.IP_PROT_TCP);
@@ -233,15 +228,15 @@ public class LearnEgressAclServiceImplTest {
         AllowedAddressPairsBuilder aapb = new AllowedAddressPairsBuilder();
         aapb.setIpAddress(new IpPrefixOrAddress("1.1.1.1/32".toCharArray()));
         aapb.setMacAddress(new MacAddress("AA:BB:CC:DD:EE:FF"));
-        ai.setAllowedAddressPairs(Arrays.asList(aapb.build()));
+        ai.setAllowedAddressPairs(Collections.singletonList(aapb.build()));
     }
 
     private AclInterface stubAllowAllInterface(Uuid sgUuid, String ifName) {
         AclInterface ai = new AclInterface();
         ai.setPortSecurityEnabled(true);
-        ai.setSecurityGroups(Arrays.asList(sgUuid));
+        ai.setSecurityGroups(Collections.singletonList(sgUuid));
         ai.setDpId(BigInteger.ONE);
-        ai.setLPortTag(new Integer(2));
+        ai.setLPortTag(2);
         stubInterfaceAcl(ifName, ai);
 
         stubAccessList(sgUuid, null, -1, -1, (short)-1);
@@ -277,7 +272,7 @@ public class LearnEgressAclServiceImplTest {
         securityRuleAttrBuilder.setDirection(DirectionEgress.class);
         aceBuilder.addAugmentation(SecurityRuleAttr.class, securityRuleAttrBuilder.build());
         AccessListEntriesBuilder aleb = new AccessListEntriesBuilder();
-        aleb.setAce(Arrays.asList(aceBuilder.build()));
+        aleb.setAce(Collections.singletonList(aceBuilder.build()));
         ab.setAccessListEntries(aleb.build());
 
         InstanceIdentifier<Acl> aclKey = AclServiceUtils.getAclInstanceIdentifier(sgUuid.getValue());

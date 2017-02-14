@@ -72,7 +72,6 @@
     <argument ref="fibManager" />
     <argument ref="odlInterfaceRpcService" />
     <argument ref="vpnFootprintService" />
-    <argument ref="vpnOpDataSyncer" />
     <argument ref="interfaceManager" />
     <argument ref="vpnManager" />
   </bean>
@@ -224,7 +223,18 @@
            interface="org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.vpn.rpc.rev160201.VpnRpcService" />
 
   <bean id="interVpnLinkService"
-        class="org.opendaylight.netvirt.vpnmanager.intervpnlink.InterVpnLinkService">
+        class="org.opendaylight.netvirt.vpnmanager.intervpnlink.IVpnLinkServiceImpl"
+        init-method="start" destroy-method="close">
+    <argument ref="dataBroker" />
+    <argument ref="idManagerService" />
+    <argument ref="bgpmanager" />
+    <argument ref="fibManager" />
+  </bean>
+  <service ref="interVpnLinkService"
+           interface="org.opendaylight.netvirt.vpnmanager.api.intervpnlink.IVpnLinkService"/>
+
+  <bean id="interVpnLinkLocator"
+        class="org.opendaylight.netvirt.vpnmanager.intervpnlink.InterVpnLinkLocator" >
     <argument ref="dataBroker" />
   </bean>
 
@@ -238,8 +248,16 @@
     <argument ref="fibManager" />
     <argument ref="notificationPublishService" />
     <argument ref="interVpnLinkService" />
+    <argument ref="interVpnLinkLocator" />
     <argument ref="vpnFootprintService" />
     <argument ref="vpnOpDataSyncer" />
+  </bean>
+
+  <bean id="interVpnLinkStateListener"
+        class="org.opendaylight.netvirt.vpnmanager.intervpnlink.InterVpnLinkStateListener"
+        init-method="start" destroy-method="close">
+     <argument ref="dataBroker" />
+     <argument ref="interVpnLinkService" />
   </bean>
 
   <bean id="interVpnLinkNodeListener"
@@ -290,5 +308,29 @@
         init-method="init" destroy-method="close">
         <argument ref="dataBroker" />
         <argument ref="vpnManager" />
+  </bean>
+
+  <bean id="l3vpnRegistry"
+        class="org.opendaylight.netvirt.vpnmanager.populator.registry.L3vpnRegistry"
+        init-method="init" destroy-method="close">
+  </bean>
+
+  <bean id="l3vpnOverMplsGrePopulator"
+        class="org.opendaylight.netvirt.vpnmanager.populator.impl.L3vpnOverMplsGrePopulator"
+        init-method="init" destroy-method="close">
+    <argument ref="dataBroker" />
+    <argument ref="vpnInterfaceManager" />
+    <argument ref="bgpmanager" />
+    <argument ref="fibManager" />
+    <argument ref="idManagerService" />
+  </bean>
+
+  <bean id="l3vpnOverVxlanPopulator"
+        class="org.opendaylight.netvirt.vpnmanager.populator.impl.L3vpnOverVxlanPopulator"
+        init-method="init" destroy-method="close">
+    <argument ref="dataBroker" />
+    <argument ref="vpnInterfaceManager" />
+    <argument ref="bgpmanager" />
+    <argument ref="fibManager" />
   </bean>
 </blueprint>

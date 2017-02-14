@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 Ericsson India Global Services Pvt Ltd. and others.  All rights reserved.
+ * Copyright © 2016, 2017 Ericsson India Global Services Pvt Ltd. and others.  All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
@@ -7,6 +7,7 @@
  */
 package org.opendaylight.netvirt.vpnmanager;
 
+import com.google.common.collect.ImmutableMap;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -16,20 +17,17 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.google.common.collect.ImmutableMap;
 
 /**
  * Aims to provide a common synchronization point for all those classes that
  * want to know when certain type of Operational data is ready for a given VPN,
- * and those others that can notify that the Operational data is ready
+ * and those others that can notify that the Operational data is ready.
  */
 public class VpnOpDataSyncer {
 
-    static final Logger logger = LoggerFactory.getLogger(VpnOpDataSyncer.class);
+    static final Logger LOG = LoggerFactory.getLogger(VpnOpDataSyncer.class);
 
     public enum VpnOpDataType {
         vpnInstanceToId,
@@ -48,8 +46,9 @@ public class VpnOpDataSyncer {
             .build();
 
 
-    private static final ThreadFactory threadFactory = new ThreadFactoryBuilder().setNameFormat("NV-VpnMgr-%d").build();
-    private final ExecutorService executorService = Executors.newSingleThreadExecutor(threadFactory);
+    private static final ThreadFactory THREAD_FACTORY =
+        new ThreadFactoryBuilder().setNameFormat("NV-VpnMgr-%d").build();
+    private final ExecutorService executorService = Executors.newSingleThreadExecutor(THREAD_FACTORY);
 
 
     public boolean waitForVpnDataReady(VpnOpDataType vpnOpDataType, String vpnName, long maxWaitMillis,
@@ -59,7 +58,8 @@ public class VpnOpDataSyncer {
         do {
             attempts++;
             isDataReady = waitForVpnDataReady(vpnOpDataType, vpnName, maxWaitMillis);
-        } while ( !isDataReady && attempts < maxAttempts);
+        }
+        while (!isDataReady && attempts < maxAttempts);
 
         return isDataReady;
     }
@@ -72,12 +72,7 @@ public class VpnOpDataSyncer {
         List<Runnable> notifieeList = null;
         try {
             synchronized (listenerMap) {
-                notifieeList = listenerMap.get(vpnName);
-                if (notifieeList == null) {
-                    notifieeList = new ArrayList<>();
-                    listenerMap.put(vpnName, notifieeList);
-                }
-                notifieeList.add(notifyTask);
+                listenerMap.computeIfAbsent(vpnName, k -> new ArrayList<>()).add(notifyTask);
             }
 
             synchronized (notifyTask) {
@@ -88,16 +83,16 @@ public class VpnOpDataSyncer {
                     notifyTask.wait(maxWaitMillis);
                     elapsedTimeNs = System.nanoTime() - t0;
 
-                    if ( elapsedTimeNs < (maxWaitMillis * 1000000) ) {
+                    if (elapsedTimeNs < (maxWaitMillis * 1000000)) {
                         // Thread woken up before timeout
-                        logger.debug("Its been reported that VPN {} is now ready", vpnName);
+                        LOG.debug("Its been reported that VPN {} is now ready", vpnName);
                         dataReady = true;
                     } else {
                         // Timeout
-                        logger.debug("Vpn {} OpData not ready after {}ms", vpnName, maxWaitMillis);
+                        LOG.debug("Vpn {} OpData not ready after {}ms", vpnName, maxWaitMillis);
                         dataReady = false;
                     }
-                } catch ( InterruptedException e ) {
+                } catch (InterruptedException e) {
                     dataReady = true;
                 }
             }
@@ -116,12 +111,12 @@ public class VpnOpDataSyncer {
     }
 
     public void notifyVpnOpDataReady(VpnOpDataType dataType, String vpnName) {
-        logger.debug("Reporting that vpn {} is ready", vpnName);
+        LOG.debug("Reporting that vpn {} is ready", vpnName);
         ConcurrentHashMap<String, List<Runnable>> listenerMap = mapOfMaps.get(dataType);
         synchronized (listenerMap) {
             List<Runnable> notifieeList = listenerMap.remove(vpnName);
             if (notifieeList == null) {
-                logger.trace(" No notify tasks found for vpnName {}", vpnName);
+                LOG.trace(" No notify tasks found for vpnName {}", vpnName);
                 return;
             }
             Iterator<Runnable> notifieeIter = notifieeList.iterator();

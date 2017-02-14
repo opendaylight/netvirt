@@ -347,11 +347,11 @@ public class Ipv6PktHandlerTest {
                 "FE 80 00 00 00 00 00 00 F8 16 3E FF FE 69 2C F3", // Destination IP
                 "86",                                              // ICMPv6 router advertisement.
                 "00",                                              // Code
-                "F0 71",                                           // Checksum (valid)
+                "1B B0",                                           // Checksum (valid)
                 "40",                                              // Current Hop Limit
                 "00",                                              // ICMPv6 RA Flags
                 "11 94",                                           // Router Lifetime
-                "00 00 00 00",                                     // Reachable time
+                "00 01 D4 C0",                                     // Reachable time
                 "00 00 00 00",                                     // Retransmission time.
                 "01",                                              // Type: Source Link-Layer Option
                 "01",                                              // Option length
@@ -450,11 +450,11 @@ public class Ipv6PktHandlerTest {
                 "FE 80 00 00 00 00 00 00 F8 16 3E FF FE 69 2C F3", // Destination IP
                 "86",                                              // ICMPv6 router advertisement.
                 "00",                                              // Code
-                "2E 03",                                           // Checksum (valid)
+                "59 41",                                           // Checksum (valid)
                 "40",                                              // Current Hop Limit
                 "C0",                                              // ICMPv6 RA Flags
                 "11 94",                                           // Router Lifetime
-                "00 00 00 00",                                     // Reachable time
+                "00 01 D4 C0",                                     // Reachable time
                 "00 00 00 00",                                     // Retransmission time.
                 "01",                                              // Type: Source Link-Layer Option
                 "01",                                              // Option length

@@ -123,7 +123,7 @@ public class HAOpClusteredListener extends HwvtepNodeBaseListener implements Clu
                         Managers m1 = up.get(0);
                         Managers m2 = be.get(0);
                         if (!m1.equals(m2)) {
-                            LOG.info("Manager entry updated for node {} ", updatedChildNode.getNodeId().getValue());
+                            LOG.trace("Manager entry updated for node {} ", updatedChildNode.getNodeId().getValue());
                             addToCacheIfHAChildNode(childPath, updatedChildNode);
                         }
                     }

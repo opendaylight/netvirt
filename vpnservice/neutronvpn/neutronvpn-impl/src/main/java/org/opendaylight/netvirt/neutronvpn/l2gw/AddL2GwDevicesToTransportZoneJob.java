@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 Ericsson India Global Services Pvt Ltd. and others. All rights reserved.
+ * Copyright (c) 2016 - 2017 Ericsson India Global Services Pvt Ltd. and others. All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
@@ -13,7 +13,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentMap;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.netvirt.neutronvpn.api.l2gw.L2GatewayDevice;
 import org.opendaylight.netvirt.neutronvpn.api.l2gw.utils.L2GatewayCacheUtils;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rev160406.transport.zones.TransportZone;
@@ -26,28 +25,18 @@ import org.slf4j.LoggerFactory;
  */
 public class AddL2GwDevicesToTransportZoneJob implements Callable<List<ListenableFuture<Void>>> {
 
-    /** The Constant LOG. */
     private static final Logger LOG = LoggerFactory.getLogger(AddL2GwDevicesToTransportZoneJob.class);
-
-    /** The data broker. */
-    private DataBroker dataBroker;
-
-    /** The itm rpc service. */
-    private ItmRpcService itmRpcService;
-
-    /** The transport zone. */
-    private TransportZone transportZone;
+    private final ItmRpcService itmRpcService;
+    private final TransportZone transportZone;
 
     /**
      * Instantiates a new adds the l2 gw devices to transport zone job.
      *
-     * @param dataBroker the data broker
      * @param itmRpcService the itm rpc service
      * @param transportZone the transport zone
      */
-    public AddL2GwDevicesToTransportZoneJob(DataBroker dataBroker, ItmRpcService itmRpcService,
+    public AddL2GwDevicesToTransportZoneJob(ItmRpcService itmRpcService,
                                             TransportZone transportZone) {
-        this.dataBroker = dataBroker;
         this.itmRpcService = itmRpcService;
         this.transportZone = transportZone;
         LOG.debug("created AddL2GwDevicesToTransportZone Job for tZone {}", transportZone.getZoneName());
@@ -68,6 +57,7 @@ public class AddL2GwDevicesToTransportZoneJob implements Callable<List<Listenabl
      * @see java.util.concurrent.Callable#call()
      */
     @Override
+    @SuppressWarnings("checkstyle:IllegalCatch")
     public List<ListenableFuture<Void>> call() throws Exception {
         LOG.debug("Running AddL2GwDevicesToTransportZone job for {}", this.transportZone.getZoneName());
         try {

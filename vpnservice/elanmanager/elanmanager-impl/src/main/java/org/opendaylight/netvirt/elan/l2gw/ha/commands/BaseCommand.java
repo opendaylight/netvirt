@@ -7,8 +7,6 @@
  */
 package org.opendaylight.netvirt.elan.l2gw.ha.commands;
 
-import com.google.common.collect.Lists;
-
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -24,7 +22,7 @@ public abstract class BaseCommand<T> {
      */
     public <T> List<T> diffOf(List<T> updated, final List<T> original, final Comparator comparator) {
         if (updated == null) {
-            return Lists.newArrayList();
+            return new ArrayList<>();
         }
         if (original == null) {
             return new ArrayList<>(updated);
@@ -54,7 +52,7 @@ public abstract class BaseCommand<T> {
      */
     public List<T> diffOf(List<T> updated, final List<T> original) {
         if (updated == null) {
-            return Lists.newArrayList();
+            return new ArrayList<>();
         }
         if (original == null) {
             return new ArrayList<>(updated);

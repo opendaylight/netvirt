@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 Ericsson India Global Services Pvt Ltd. and others.  All rights reserved.
+ * Copyright © 2016, 2017 Ericsson India Global Services Pvt Ltd. and others.  All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
@@ -10,7 +10,6 @@ package org.opendaylight.netvirt.neutronvpn;
 import com.google.common.base.Optional;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
@@ -35,12 +34,13 @@ public class NeutronRouterChangeListener extends AsyncDataTreeChangeListenerBase
     private final NeutronvpnNatManager nvpnNatManager;
     private final NeutronSubnetGwMacResolver gwMacResolver;
 
-    public NeutronRouterChangeListener(final DataBroker dataBroker, final NeutronvpnManager nVpnMgr,
-                                       final NeutronvpnNatManager nVpnNatMgr, NeutronSubnetGwMacResolver gwMacResolver) {
+    public NeutronRouterChangeListener(final DataBroker dataBroker, final NeutronvpnManager neutronvpnManager,
+                                       final NeutronvpnNatManager neutronvpnNatManager,
+                                       NeutronSubnetGwMacResolver gwMacResolver) {
         super(Router.class, NeutronRouterChangeListener.class);
         this.dataBroker = dataBroker;
-        nvpnManager = nVpnMgr;
-        nvpnNatManager = nVpnNatMgr;
+        nvpnManager = neutronvpnManager;
+        nvpnNatManager = neutronvpnNatManager;
         this.gwMacResolver = gwMacResolver;
     }
 
@@ -98,16 +98,10 @@ public class NeutronRouterChangeListener extends AsyncDataTreeChangeListenerBase
         if (vpnId == null) {
             vpnId = routerId;
         }
-        List<Routes> oldRoutes = (original.getRoutes() != null) ? original.getRoutes() : new ArrayList<Routes>();
-        List<Routes> newRoutes = (update.getRoutes() != null) ? update.getRoutes() : new ArrayList<Routes>();
+        List<Routes> oldRoutes = (original.getRoutes() != null) ? original.getRoutes() : new ArrayList<>();
+        List<Routes> newRoutes = (update.getRoutes() != null) ? update.getRoutes() : new ArrayList<>();
         if (!oldRoutes.equals(newRoutes)) {
-            Iterator<Routes> iterator = newRoutes.iterator();
-            while (iterator.hasNext()) {
-                Routes route = iterator.next();
-                if (oldRoutes.remove(route)) {
-                    iterator.remove();
-                }
-            }
+            newRoutes.removeIf(oldRoutes::remove);
 
             handleChangedRoutes(vpnId, newRoutes, NwConstants.ADD_FLOW);
 
@@ -122,17 +116,18 @@ public class NeutronRouterChangeListener extends AsyncDataTreeChangeListenerBase
 
     private void handleChangedRoutes(Uuid vpnName, List<Routes> routes, int addedOrRemoved) {
         // Some routes may point to an InterVpnLink's endpoint, lets treat them differently
-        List<Routes> interVpnLinkRoutes = new ArrayList<Routes>();
-        List<Routes> otherRoutes = new ArrayList<Routes>();
-        HashMap<String, InterVpnLink> nexthopsXinterVpnLinks = new HashMap<String, InterVpnLink>();
-        for ( Routes route : routes ) {
+        List<Routes> interVpnLinkRoutes = new ArrayList<>();
+        List<Routes> otherRoutes = new ArrayList<>();
+        HashMap<String, InterVpnLink> nexthopsXinterVpnLinks = new HashMap<>();
+        for (Routes route : routes) {
             String nextHop = String.valueOf(route.getNexthop().getValue());
             // Nexthop is another VPN?
             Optional<InterVpnLink> interVpnLink = NeutronvpnUtils.getInterVpnLinkByEndpointIp(dataBroker, nextHop);
-            if ( interVpnLink.isPresent() ) {
+            if (interVpnLink.isPresent()) {
                 Optional<InterVpnLinkState> interVpnLinkState =
                         NeutronvpnUtils.getInterVpnLinkState(dataBroker, interVpnLink.get().getName());
-                if ( interVpnLinkState.isPresent() && interVpnLinkState.get().getState() == InterVpnLinkState.State.Active) {
+                if (interVpnLinkState.isPresent()
+                    && interVpnLinkState.get().getState() == InterVpnLinkState.State.Active) {
                     interVpnLinkRoutes.add(route);
                     nexthopsXinterVpnLinks.put(nextHop, interVpnLink.get());
                 } else {
@@ -144,7 +139,7 @@ public class NeutronRouterChangeListener extends AsyncDataTreeChangeListenerBase
             }
         }
 
-        if ( addedOrRemoved == NwConstants.ADD_FLOW ) {
+        if (addedOrRemoved == NwConstants.ADD_FLOW) {
             nvpnManager.addInterVpnRoutes(vpnName, interVpnLinkRoutes, nexthopsXinterVpnLinks);
             nvpnManager.updateVpnInterfaceWithExtraRouteAdjacency(vpnName, otherRoutes);
         } else {

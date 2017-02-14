@@ -76,8 +76,8 @@ public class Ipv6RouterAdvt {
         short icmpv6RaFlags = 0;
         String gatewayMac = null;
         IpAddress gatewayIp;
-        List<String> autoConfigPrefixList = new ArrayList<String>();
-        List<String> statefulConfigPrefixList = new ArrayList<String>();
+        List<String> autoConfigPrefixList = new ArrayList<>();
+        List<String> statefulConfigPrefixList = new ArrayList<>();
 
         for (VirtualSubnet subnet : routerPort.getSubnets()) {
             gatewayIp = subnet.getGatewayIp();
@@ -140,14 +140,14 @@ public class Ipv6RouterAdvt {
         } else {
             raPacket.setRouterLifetime(Ipv6Constants.IPV6_ROUTER_LIFETIME);
         }
-        raPacket.setReachableTime((long) 0);
+        raPacket.setReachableTime((long) Ipv6Constants.IPV6_RA_REACHABLE_TIME);
         raPacket.setRetransTime((long) 0);
 
         raPacket.setOptionSourceAddr((short)1);
         raPacket.setSourceAddrLength((short)1);
         raPacket.setSourceLlAddress(MacAddress.getDefaultInstance(gatewayMac));
 
-        List<PrefixList> prefixList = new ArrayList<PrefixList>();
+        List<PrefixList> prefixList = new ArrayList<>();
         PrefixListBuilder prefix = new PrefixListBuilder();
         prefix.setOptionType((short)3);
         prefix.setOptionLength((short)4);

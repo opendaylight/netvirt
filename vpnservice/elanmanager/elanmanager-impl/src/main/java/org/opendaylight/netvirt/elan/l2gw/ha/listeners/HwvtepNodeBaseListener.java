@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 Ericsson India Global Services Pvt Ltd. and others.  All rights reserved.
+ * Copyright © 2016, 2017 Ericsson India Global Services Pvt Ltd. and others.  All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
@@ -57,22 +57,19 @@ public abstract class HwvtepNodeBaseListener implements DataTreeChangeListener<N
 
     @Override
     public void onDataTreeChanged(final Collection<DataTreeModification<Node>> changes) {
-        HAJobScheduler.getInstance().submitJob(new Runnable() {
-            @Override
-            public void run() {
-                ReadWriteTransaction tx = getTx();
-                try {
-                    processConnectedNodes(changes, tx);
-                    processUpdatedNodes(changes, tx);
-                    processDisconnectedNodes(changes, tx);
-                    tx.submit().get();
-                } catch (InterruptedException e) {
-                    LOG.error("InterruptedException " + e.getMessage());
-                } catch (ExecutionException e) {
-                    LOG.error("ExecutionException" + e.getMessage());
-                } catch (ReadFailedException e) {
-                    LOG.error("ReadFailedException" + e.getMessage());
-                }
+        HAJobScheduler.getInstance().submitJob(() -> {
+            ReadWriteTransaction tx = getTx();
+            try {
+                processConnectedNodes(changes, tx);
+                processUpdatedNodes(changes, tx);
+                processDisconnectedNodes(changes, tx);
+                tx.submit().get();
+            } catch (InterruptedException e1) {
+                LOG.error("InterruptedException " + e1.getMessage());
+            } catch (ExecutionException e2) {
+                LOG.error("ExecutionException" + e2.getMessage());
+            } catch (ReadFailedException e3) {
+                LOG.error("ReadFailedException" + e3.getMessage());
             }
         });
     }
@@ -88,7 +85,7 @@ public abstract class HwvtepNodeBaseListener implements DataTreeChangeListener<N
             Node original = HwvtepHAUtil.getOriginal(mod);
             if (updated != null && original != null) {
                 if (updated != null && original != null) {
-                    if (nodeId.indexOf(HwvtepHAUtil.PHYSICALSWITCH) < 0) {
+                    if (!nodeId.contains(HwvtepHAUtil.PHYSICALSWITCH)) {
                         onGlobalNodeUpdate(key, updated, original, tx);
                     } else {
                         onPsNodeUpdate(key, updated, original, tx);
@@ -108,11 +105,11 @@ public abstract class HwvtepNodeBaseListener implements DataTreeChangeListener<N
             Node deleted = HwvtepHAUtil.getRemoved(mod);
             String nodeId = key.firstKeyOf(Node.class).getNodeId().getValue();
             if (deleted != null) {
-                if (nodeId.indexOf(HwvtepHAUtil.PHYSICALSWITCH) < 0) {
-                    LOG.info("Handle global node delete {}", deleted.getNodeId().getValue());
+                if (!nodeId.contains(HwvtepHAUtil.PHYSICALSWITCH)) {
+                    LOG.trace("Handle global node delete {}", deleted.getNodeId().getValue());
                     onGlobalNodeDelete(key, deleted, tx);
                 } else {
-                    LOG.error("Handle ps node node delete {}", deleted.getNodeId().getValue());
+                    LOG.trace("Handle ps node node delete {}", deleted.getNodeId().getValue());
                     onPsNodeDelete(key, deleted, tx);
                 }
             }
@@ -122,7 +119,7 @@ public abstract class HwvtepNodeBaseListener implements DataTreeChangeListener<N
     void processConnectedNodes(Collection<DataTreeModification<Node>> changes,
                                ReadWriteTransaction tx)
             throws ReadFailedException, ExecutionException,
-    InterruptedException {
+        InterruptedException {
         Map<String, Boolean> processedNodes = new HashMap<>();
         for (DataTreeModification<Node> change : changes) {
             InstanceIdentifier<Node> key = change.getRootPath().getRootIdentifier();
@@ -130,11 +127,11 @@ public abstract class HwvtepNodeBaseListener implements DataTreeChangeListener<N
             Node node = HwvtepHAUtil.getCreated(mod);
             String nodeId = key.firstKeyOf(Node.class).getNodeId().getValue();
             if (node != null) {
-                if (nodeId.indexOf(HwvtepHAUtil.PHYSICALSWITCH) < 0) {
-                    LOG.info("Handle global node add {}", node.getNodeId().getValue());
+                if (!nodeId.contains(HwvtepHAUtil.PHYSICALSWITCH)) {
+                    LOG.trace("Handle global node add {}", node.getNodeId().getValue());
                     onGlobalNodeAdd(key, node, tx);
                 } else {
-                    LOG.error("Handle ps node add {}", node.getNodeId().getValue());
+                    LOG.trace("Handle ps node add {}", node.getNodeId().getValue());
                     onPsNodeAdd(key, node, tx);
                 }
             }
