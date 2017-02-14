@@ -52,6 +52,24 @@
       "revId": "f30402e718ba1a066dbe56c54aac37bb7118d8ae",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_bc1b0a1a",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronTrunkChangeListener.java",
+        "patchSetId": 13
+      },
+      "lineNbr": 161,
+      "author": {
+        "id": 3276
+      },
+      "writtenOn": "2017-02-14T13:11:00Z",
+      "side": 1,
+      "message": "Tested and found to be working. Currently OvsInterfaceConfigUpdatHelper treats any change in any of port attributes/augmentations as remove/add. I believe that remove takes care of deleting previous parent. Trunk API doesn\u0027t have a use case of parentRefA to parentRefB but I think the remove+add should take care of that too. I also checked with Trunk API team on reusing ex-subport and though API does support is, it is not recommended due to potential issues with cleanup.",
+      "parentUuid": "fafc7978_5cc01e7c",
+      "revId": "f30402e718ba1a066dbe56c54aac37bb7118d8ae",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
