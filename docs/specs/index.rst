@@ -16,6 +16,7 @@ Contents:
    ACL Statistics <acl-stats>
    Hairpinning of floating IPs in flat/VLAN provider networks <hairpinning-flat-vlan>
    Quality of Service <qos>
+   Traffic shaping with Ovsdb QoS queues <qos-shaping>
    Conntrack Based SNAT <conntrack-based-snat>
    ECMP Support for BGP based L3VPN <ecmp-bgp-l3vpn>
    IPv6 L3 North-South support for Flat/VLAN based Provider Networks <ipv6-cvr-north-south>
