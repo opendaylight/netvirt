@@ -4,6 +4,11 @@ module odl-fib {
 
     import yang-ext {prefix ext; revision-date "2013-07-09";}
 
+    import opendaylight-flow-types {
+        prefix offlow;
+        revision-date "2013-10-26";
+    }
+
     revision "2015-03-30" {
         description "FIB Manager module";
     }
@@ -72,6 +77,14 @@ module odl-fib {
         leaf uuid {type string;}
         leaf mac-address {type string;}
         leaf ip-address {type string;}
+    }
+
+    augment "/odl-fib:fibEntries/odl-fib:vrfTables/odl-fib:vrfEntry" {
+        ext:augment-identifier "custom-local-nexthop";
+        leaf dpn-id {
+            type uint64;
+        }
+        uses offlow:instruction-list;
     }
 
     container fibEntries {

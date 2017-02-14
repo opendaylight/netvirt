@@ -20,6 +20,9 @@
                    interface="org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rpcs.rev160406.ItmRpcService"/>
   <odl:rpc-service id="odlInterfaceRpcService"
                    interface="org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.OdlInterfaceRpcService"/>
+  <odl:rpc-service id="fibRpcService"
+                   interface="org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fib.rpc.rev160121.FibRpcService"
+                   availability="optional"/>
 
   <odl:rpc-implementation ref="fibRpcServiceImpl"/>
 
@@ -49,6 +52,7 @@
     <argument ref="odlInterfaceRpcService"/>
     <argument ref="idManagerService"/>
     <argument ref="interVpnLinkService"/>
+    <argument ref="fibRpcService"/>
   </bean>
 
   <bean id="fibRpcServiceImpl" class="org.opendaylight.netvirt.fibmanager.FibRpcServiceImpl">
@@ -57,6 +61,6 @@
     <argument ref="fibManagerImpl"/>
   </bean>
   <service ref="fibRpcServiceImpl"
-           interface="org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fib.rpc.rev160121.FibRpcService"/>
+           interface="org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fib.rpc.rev160121.FibRpcService/>
 
 </blueprint>
