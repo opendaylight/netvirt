@@ -52,6 +52,42 @@
       "revId": "00ae621a653cb18d092d4f9fa75f879fe1e5dda8",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_2600a766",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/ExternalRoutersListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 2380,
+      "author": {
+        "id": 6248
+      },
+      "writtenOn": "2017-02-14T09:22:09Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_e0c5ea3c",
+      "revId": "00ae621a653cb18d092d4f9fa75f879fe1e5dda8",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_c608bb93",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/ExternalRoutersListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 2380,
+      "author": {
+        "id": 6248
+      },
+      "writtenOn": "2017-02-14T09:22:09Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_9b03b341",
+      "revId": "00ae621a653cb18d092d4f9fa75f879fe1e5dda8",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
