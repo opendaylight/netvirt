@@ -18,6 +18,7 @@ import org.opendaylight.netvirt.fibmanager.api.IFibManager;
 import org.opendaylight.netvirt.fibmanager.api.RouteOrigin;
 import org.opendaylight.netvirt.vpnmanager.api.IVpnManager;
 import org.opendaylight.netvirt.vpnmanager.api.intervpnlink.InterVpnLinkCache;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.instruction.list.Instruction;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.RouterInterface;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.VrfEntry;
 import org.osgi.framework.BundleContext;
@@ -152,7 +153,17 @@ public class FibManagerImpl implements IFibManager {
                                     long l3vni, String gwMacAddress, RouteOrigin origin,
                                     WriteTransaction writeConfigTxn) {
         FibUtil.addOrUpdateFibEntry(broker, rd, macAddress, prefix , nextHopList, encapType, label, l3vni,
-                gwMacAddress, origin, writeConfigTxn);
+                gwMacAddress, origin, null, null, writeConfigTxn);
+    }
+
+    @Override
+    public void addOrUpdateFibEntry(DataBroker broker, String rd, String macAddress, String prefix,
+                                    List<String> nextHopList, VrfEntry.EncapType encapType, int label,
+                                    long l3vni, String gwMacAddress, RouteOrigin origin,
+                                    BigInteger dpnId, List<Instruction> customInstructions,
+                                    WriteTransaction writeConfigTxn) {
+        FibUtil.addOrUpdateFibEntry(broker, rd, macAddress, prefix , nextHopList, encapType, label, l3vni,
+                gwMacAddress, origin, dpnId, customInstructions, writeConfigTxn);
     }
 
     @Override
@@ -173,6 +184,7 @@ public class FibManagerImpl implements IFibManager {
         FibUtil.removeFibEntry(broker, rd, prefix, writeConfigTxn);
     }
 
+    @Override
     public void updateFibEntry(DataBroker broker, String rd, String prefix, List<String> nextHopList,
                                String gwMacAddress, WriteTransaction writeConfigTxn) {
         FibUtil.updateFibEntry(broker, rd, prefix, nextHopList, gwMacAddress, writeConfigTxn);

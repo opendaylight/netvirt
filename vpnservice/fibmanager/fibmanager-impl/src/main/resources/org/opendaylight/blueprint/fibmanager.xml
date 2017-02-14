@@ -49,6 +49,7 @@
     <argument ref="odlInterfaceRpcService"/>
     <argument ref="idManagerService"/>
     <argument ref="interVpnLinkService"/>
+    <argument ref="fibRpcServiceImpl"/>
   </bean>
 
   <bean id="fibRpcServiceImpl" class="org.opendaylight.netvirt.fibmanager.FibRpcServiceImpl">
@@ -57,6 +58,7 @@
     <argument ref="fibManagerImpl"/>
   </bean>
   <service ref="fibRpcServiceImpl"
-           interface="org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fib.rpc.rev160121.FibRpcService"/>
+           interface="org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fib.rpc.rev160121.FibRpcService"
+           availability="optional"/>
 
 </blueprint>
