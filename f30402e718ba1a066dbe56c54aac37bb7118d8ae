@@ -70,6 +70,24 @@
       "revId": "f30402e718ba1a066dbe56c54aac37bb7118d8ae",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_d786a764",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronTrunkChangeListener.java",
+        "patchSetId": 13
+      },
+      "lineNbr": 161,
+      "author": {
+        "id": 670
+      },
+      "writtenOn": "2017-02-14T15:02:03Z",
+      "side": 1,
+      "message": "You are right but OvsInterfaceConfigUpdateHelper is called by  RendererConfigUpdateWorker - but the ConfigUpdateWorker isn\u0027t called if the new interface has a null parentRef.\n\nThe fact that it\u0027s working doesn\u0027t mean that everything is cleaned up properly, we might have leftovers :)",
+      "parentUuid": "fafc7978_bc1b0a1a",
+      "revId": "f30402e718ba1a066dbe56c54aac37bb7118d8ae",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
