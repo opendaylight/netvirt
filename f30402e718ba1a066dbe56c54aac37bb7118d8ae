@@ -16,6 +16,24 @@
       "revId": "f30402e718ba1a066dbe56c54aac37bb7118d8ae",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_a39489e2",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronTrunkChangeListener.java",
+        "patchSetId": 13
+      },
+      "lineNbr": 161,
+      "author": {
+        "id": 3276
+      },
+      "writtenOn": "2017-02-14T11:58:30Z",
+      "side": 1,
+      "message": "I confirmed the interface config getting updated correctly. Genius is taking care of it. Note that with Alon\u0027s changes we won\u0027t really have any parentRefs for this interface because that requires a port on OVS. A subport never had that, so parentRefs will stay null. If this port ends up getting used as VM port [need confirmation if a valid use case] parentRefs will be filled once tap port gets created for it.",
+      "parentUuid": "fafc7978_033ab535",
+      "revId": "f30402e718ba1a066dbe56c54aac37bb7118d8ae",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
