@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_9707fc1b",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanInterfaceManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 1378,
+      "author": {
+        "id": 670
+      },
+      "writtenOn": "2017-02-15T10:09:37Z",
+      "side": 1,
+      "message": "Same question about the \"20\" constant.\n\nAlso how do we keep track of which registers are currently unused? Something like NWConstants but for regs?",
+      "revId": "7429db9adef54b2862e9dd3d0d63e3e884c3b402",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_d7198489",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanNodeListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 113,
+      "author": {
+        "id": 670
+      },
+      "writtenOn": "2017-02-15T10:09:37Z",
+      "side": 1,
+      "message": "Could this \"20\" be some constant? Length of lport?",
+      "revId": "7429db9adef54b2862e9dd3d0d63e3e884c3b402",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
