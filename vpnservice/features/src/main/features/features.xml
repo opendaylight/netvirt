@@ -70,6 +70,7 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
     <bundle>mvn:org.opendaylight.netvirt/elanmanager-impl/{{VERSION}}</bundle>
     <bundle>mvn:org.opendaylight.netvirt/natservice-impl/{{VERSION}}</bundle>
     <bundle>mvn:org.opendaylight.netvirt/aclservice-impl/{{VERSION}}</bundle>
+    <bundle>mvn:org.opendaylight.netvirt/qosservice-impl/{{VERSION}}</bundle>
     <bundle>mvn:org.opendaylight.netvirt/ipv6service-impl/{{VERSION}}</bundle>
     <bundle>mvn:org.opendaylight.netvirt/ipv6service-api/{{VERSION}}</bundle>
     <bundle>mvn:org.opendaylight.netvirt/statemanager-impl/{{VERSION}}</bundle>
