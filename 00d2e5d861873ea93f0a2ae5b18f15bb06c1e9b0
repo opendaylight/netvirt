@@ -1,0 +1,72 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_d4a222ad",
+        "filename": "openstack/net-virt-providers/src/main/java/org/opendaylight/netvirt/openstack/netvirt/providers/openflow13/services/L2ForwardingService.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 64,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2017-02-15T01:02:24Z",
+      "side": 1,
+      "message": "better written as:\nprivate static byte[] getByteArray(long l) {\n  byte [] b \u003d new byte[8];\n  ...\n  return b;\n}",
+      "revId": "00d2e5d861873ea93f0a2ae5b18f15bb06c1e9b0",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_34ca8e6e",
+        "filename": "openstack/net-virt-providers/src/main/java/org/opendaylight/netvirt/openstack/netvirt/providers/openflow13/services/L2ForwardingService.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 103,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2017-02-15T01:02:24Z",
+      "side": 1,
+      "message": "Do you use this \u0027macAddressParts\u0027?",
+      "revId": "00d2e5d861873ea93f0a2ae5b18f15bb06c1e9b0",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_b4a5deb6",
+        "filename": "openstack/net-virt-providers/src/main/java/org/opendaylight/netvirt/openstack/netvirt/providers/openflow13/services/L2ForwardingService.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 109,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2017-02-15T01:02:24Z",
+      "side": 1,
+      "message": "do we use \u0027maskBytes\u0027 at all?",
+      "revId": "00d2e5d861873ea93f0a2ae5b18f15bb06c1e9b0",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_14adca9c",
+        "filename": "openstack/net-virt-providers/src/main/java/org/opendaylight/netvirt/openstack/netvirt/providers/openflow13/services/L2ForwardingService.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 110,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2017-02-15T01:02:24Z",
+      "side": 1,
+      "message": "The above line 103-109 can be refactor as method which van be reused in the programTunnelOut method.",
+      "revId": "00d2e5d861873ea93f0a2ae5b18f15bb06c1e9b0",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
