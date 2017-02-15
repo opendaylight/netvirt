@@ -124,8 +124,9 @@ public class VpnManagerImpl implements IVpnManager {
         VpnInstanceOpDataEntry vpnOpEntry = VpnUtil.getVpnInstanceOpData(dataBroker, rd);
         Boolean isVxlan = VpnUtil.isL3VpnOverVxLan(vpnOpEntry.getL3vni());
         VrfEntry.EncapType encapType = VpnUtil.getEncapType(isVxlan);
+        long afiValue = InterfaceUtils.getAFItranslatedfromPrefix(destination);
         vpnInterfaceManager.addExtraRoute(vpnName, destination, nextHop, rd, routerID, label, vpnOpEntry.getL3vni(),
-                origin,/*intfName*/ null, null /*Adjacency*/, encapType, null);
+                afiValue, origin,/*intfName*/ null, null /*Adjacency*/, encapType, null);
     }
 
     @Override

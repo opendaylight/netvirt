@@ -174,8 +174,10 @@ public class VpnRpcServiceImpl implements VpnRpcService {
                 return result;
             }
         } else {
+            long afiValue = org.opendaylight.netvirt.vpnmanager.utilities.InterfaceUtils
+                    .getAFItranslatedfromPrefix(destination);
             vpnInterfaceMgr.addExtraRoute(vpnInstanceName, destination, nexthop, vpnRd, null /* routerId */,
-                    label.intValue(), vpnOpEntry.getL3vni(), RouteOrigin.STATIC, null /* intfName */,
+                    label.intValue(), vpnOpEntry.getL3vni(), afiValue, RouteOrigin.STATIC, null /* intfName */,
                             null /*Adjacency*/, encapType, null);
         }
 
@@ -229,8 +231,10 @@ public class VpnRpcServiceImpl implements VpnRpcService {
 
         Optional<InterVpnLinkDataComposite> optVpnLink = InterVpnLinkCache.getInterVpnLinkByEndpoint(nexthop);
         if (optVpnLink.isPresent()) {
-            fibManager.removeOrUpdateFibEntry(dataBroker,  vpnRd, destination, nexthop, null);
-            bgpManager.withdrawPrefix(vpnRd, destination);
+            fibManager.removeOrUpdateFibEntry(dataBroker, vpnRd, destination, nexthop, null);
+            long afiValue = org.opendaylight.netvirt.vpnmanager.utilities.InterfaceUtils
+                    .getAFItranslatedfromPrefix(destination);
+            bgpManager.withdrawPrefix(vpnRd, destination, afiValue);
         } else {
             vpnInterfaceMgr.delExtraRoute(vpnInstanceName, destination,
                     nexthop, vpnRd, null /* routerId */, null /* intfName */, null);
