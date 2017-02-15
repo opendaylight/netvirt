@@ -1,22 +1,20 @@
 /*
- * Copyright (c) 2016 Intel Corporation and others.  All rights reserved.
+ * Copyright (c) 2017 Intel Corporation and others.  All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-package org.opendaylight.netvirt.neutronvpn;
+package org.opendaylight.netvirt.qosservice;
 
 import com.google.common.base.Optional;
-import java.math.BigInteger;
-import java.util.List;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.ovsdb.utils.southbound.utils.SouthboundUtils;
+import org.opendaylight.genius.mdsalutil.MDSALUtil;
+import org.opendaylight.netvirt.neutronvpn.NeutronQosManager;
+import org.opendaylight.netvirt.neutronvpn.NeutronvpnUtils;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.meta.rev160406.BridgeInterfaceInfo;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.meta.rev160406.BridgeRefInfo;
@@ -51,16 +49,22 @@ import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.math.BigInteger;
+import java.util.List;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
 
-public class NeutronQosUtils {
-    private static final Logger LOG = LoggerFactory.getLogger(NeutronQosUtils.class);
+
+public class QosUtils {
+    private static final Logger LOG = LoggerFactory.getLogger(QosUtils.class);
+    private static final String EXTERNAL_ID_INTERFACE_ID = "iface-id";
 
     public static void handleNeutronPortQosUpdate(DataBroker db, OdlInterfaceRpcService odlInterfaceRpcService,
-            Port port, Uuid qosUuid) {
-        LOG.trace("Handling Port QoS update: port: {} qos: {}", port.getUuid(), qosUuid);
+                                                  Port port, Uuid qosUuid) {
+        LOG.trace("Handling Port QoS update: port: {} qosservice: {}", port.getUuid(), qosUuid);
 
         // handle Bandwidth Limit Rules update
-        QosPolicy qosPolicy = NeutronvpnUtils.qosPolicyMap.get(qosUuid);
+        QosPolicy qosPolicy = QosNeutronMappings.qosPolicyMap.get(qosUuid);
         if (qosPolicy != null && qosPolicy.getBandwidthLimitRules() != null
                 && !qosPolicy.getBandwidthLimitRules().isEmpty()) {
             setPortBandwidthLimits(db, odlInterfaceRpcService, port,
@@ -69,11 +73,11 @@ public class NeutronQosUtils {
     }
 
     public static void handleNeutronPortQosRemove(DataBroker db, OdlInterfaceRpcService odlInterfaceRpcService,
-            Port port, Uuid qosUuid) {
-        LOG.trace("Handling Port QoS removal: port: {} qos: {}", port.getUuid(), qosUuid);
+                                                  Port port, Uuid qosUuid) {
+        LOG.trace("Handling Port QoS removal: port: {} qosservice: {}", port.getUuid(), qosUuid);
 
         // handle Bandwidth Limit Rules removal
-        QosPolicy qosPolicy = NeutronvpnUtils.qosPolicyMap.get(qosUuid);
+        QosPolicy qosPolicy = QosNeutronMappings.qosPolicyMap.get(qosUuid);
         if (qosPolicy != null && qosPolicy.getBandwidthLimitRules() != null
                 && !qosPolicy.getBandwidthLimitRules().isEmpty()) {
             BandwidthLimitRulesBuilder bwLimitBuilder = new BandwidthLimitRulesBuilder();
@@ -81,8 +85,8 @@ public class NeutronQosUtils {
                     bwLimitBuilder.setMaxBurstKbps(BigInteger.ZERO).setMaxKbps(BigInteger.ZERO).build());
         }
 
-        // check for network qos to apply
-        Network network = NeutronvpnUtils.getNeutronNetwork(db, port.getNetworkId());
+        // check for network qosservice to apply
+        Network network = NeutronQosManager.fetchNetworkForQos(db, port.getNetworkId());
         if (network != null && network.getAugmentation(QosNetworkExtension.class) != null) {
             Uuid networkQosUuid = network.getAugmentation(QosNetworkExtension.class).getQosPolicyId();
             if (networkQosUuid != null) {
@@ -92,17 +96,17 @@ public class NeutronQosUtils {
     }
 
     public static void handleNeutronNetworkQosUpdate(DataBroker db, OdlInterfaceRpcService odlInterfaceRpcService,
-            Network network, Uuid qosUuid) {
-        LOG.trace("Handling Network QoS update: net: {} qos: {}", network.getUuid(), qosUuid);
-        QosPolicy qosPolicy = NeutronvpnUtils.qosPolicyMap.get(qosUuid);
+                                                     Network network, Uuid qosUuid) {
+        LOG.trace("Handling Network QoS update: net: {} qosservice: {}", network.getUuid(), qosUuid);
+        QosPolicy qosPolicy = QosNeutronMappings.qosPolicyMap.get(qosUuid);
         if (qosPolicy == null || qosPolicy.getBandwidthLimitRules() == null
                 || qosPolicy.getBandwidthLimitRules().isEmpty()) {
             return;
         }
-        List<Uuid> subnetIds = NeutronvpnUtils.getSubnetIdsFromNetworkId(db, network.getUuid());
+        List<Uuid> subnetIds = NeutronQosManager.fetchSubnetIdsForQos(db, network.getUuid());
         if (subnetIds != null) {
             for (Uuid subnetId : subnetIds) {
-                List<Uuid> portIds = NeutronvpnUtils.getPortIdsFromSubnetId(db, subnetId);
+                List<Uuid> portIds = NeutronQosManager.fetchPortIdsForQos(db, subnetId);
                 if (portIds != null) {
                     for (Uuid portId : portIds) {
                         Port port = NeutronvpnUtils.portMap.get(portId);
@@ -118,13 +122,13 @@ public class NeutronQosUtils {
     }
 
     public static void handleNeutronNetworkQosRemove(DataBroker db, OdlInterfaceRpcService odlInterfaceRpcService,
-            Network network, Uuid qosUuid) {
-        LOG.trace("Handling Network QoS removal: net: {} qos: {}", network.getUuid(), qosUuid);
+                                                     Network network, Uuid qosUuid) {
+        LOG.trace("Handling Network QoS removal: net: {} qosservice: {}", network.getUuid(), qosUuid);
 
-        List<Uuid> subnetIds = NeutronvpnUtils.getSubnetIdsFromNetworkId(db, network.getUuid());
+        List<Uuid> subnetIds = NeutronQosManager.fetchSubnetIdsForQos(db, network.getUuid());
         if (subnetIds != null) {
             for (Uuid subnetId : subnetIds) {
-                List<Uuid> portIds = NeutronvpnUtils.getPortIdsFromSubnetId(db, subnetId);
+                List<Uuid> portIds = NeutronQosManager.fetchPortIdsForQos(db, subnetId);
                 if (portIds != null) {
                     for (Uuid portId : portIds) {
                         Port port = NeutronvpnUtils.portMap.get(portId);
@@ -133,7 +137,7 @@ public class NeutronQosUtils {
                             BandwidthLimitRulesBuilder bwLimitBuilder = new BandwidthLimitRulesBuilder();
                             setPortBandwidthLimits(db, odlInterfaceRpcService, port,
                                     bwLimitBuilder.setMaxBurstKbps(BigInteger.ZERO)
-                                    .setMaxKbps(BigInteger.ZERO).build());
+                                            .setMaxKbps(BigInteger.ZERO).build());
                         }
                     }
                 }
@@ -142,7 +146,7 @@ public class NeutronQosUtils {
     }
 
     public static void setPortBandwidthLimits(DataBroker db, OdlInterfaceRpcService odlInterfaceRpcService,
-            Port port, BandwidthLimitRules bwLimit) {
+                                              Port port, BandwidthLimitRules bwLimit) {
         LOG.trace("Setting bandwidth limits {} on Port {}", port, bwLimit);
 
         BigInteger dpId = getDpnForInterface(odlInterfaceRpcService, port.getUuid().getValue());
@@ -156,8 +160,7 @@ public class NeutronQosUtils {
                 bridgeRefEntry.getValue().firstIdentifierOf(Node.class), db);
 
 
-        TerminationPoint tp =
-                SouthboundUtils.getTerminationPointByExternalId(bridgeNode.get(), port.getUuid().getValue());
+        TerminationPoint tp = SouthboundUtils.getTerminationPointByExternalId(bridgeNode.get(), port.getUuid().getValue());
         OvsdbTerminationPointAugmentation ovsdbTp = tp.getAugmentation(OvsdbTerminationPointAugmentation.class);
 
         OvsdbTerminationPointAugmentationBuilder tpAugmentationBuilder = new OvsdbTerminationPointAugmentationBuilder();
@@ -179,9 +182,9 @@ public class NeutronQosUtils {
         BigInteger nodeId = BigInteger.ZERO;
         try {
             GetDpidFromInterfaceInput
-                dpIdInput = new GetDpidFromInterfaceInputBuilder().setIntfName(ifName).build();
+                    dpIdInput = new GetDpidFromInterfaceInputBuilder().setIntfName(ifName).build();
             Future<RpcResult<GetDpidFromInterfaceOutput>>
-                dpIdOutput = interfaceManagerRpcService.getDpidFromInterface(dpIdInput);
+                    dpIdOutput = interfaceManagerRpcService.getDpidFromInterface(dpIdInput);
             RpcResult<GetDpidFromInterfaceOutput> dpIdResult = dpIdOutput.get();
             if (dpIdResult.isSuccessful()) {
                 nodeId = dpIdResult.getResult().getDpid();
@@ -195,7 +198,7 @@ public class NeutronQosUtils {
     }
 
     private static BridgeEntry getBridgeEntryFromConfigDS(BigInteger dpnId,
-            DataBroker dataBroker) {
+                                                          DataBroker dataBroker) {
         BridgeEntryKey bridgeEntryKey = new BridgeEntryKey(dpnId);
         InstanceIdentifier<BridgeEntry> bridgeEntryInstanceIdentifier = getBridgeEntryIdentifier(bridgeEntryKey);
         LOG.debug("Trying to retrieve bridge entry from config for Id: {}", bridgeEntryInstanceIdentifier);
@@ -204,9 +207,9 @@ public class NeutronQosUtils {
     }
 
     private static BridgeEntry getBridgeEntryFromConfigDS(InstanceIdentifier<BridgeEntry> bridgeEntryInstanceIdentifier,
-            DataBroker dataBroker) {
+                                                          DataBroker dataBroker) {
         Optional<BridgeEntry> bridgeEntryOptional =
-            read(LogicalDatastoreType.CONFIGURATION, bridgeEntryInstanceIdentifier, dataBroker);
+                read(LogicalDatastoreType.CONFIGURATION, bridgeEntryInstanceIdentifier, dataBroker);
         if (!bridgeEntryOptional.isPresent()) {
             return null;
         }
@@ -214,7 +217,7 @@ public class NeutronQosUtils {
     }
 
     private static BridgeRefEntry getBridgeRefEntryFromOperDS(InstanceIdentifier<BridgeRefEntry> dpnBridgeEntryIid,
-            DataBroker dataBroker) {
+                                                              DataBroker dataBroker) {
         Optional<BridgeRefEntry> bridgeRefEntryOptional =
                 read(LogicalDatastoreType.OPERATIONAL, dpnBridgeEntryIid, dataBroker);
         if (!bridgeRefEntryOptional.isPresent()) {
@@ -224,7 +227,7 @@ public class NeutronQosUtils {
     }
 
     private static OvsdbBridgeRef getBridgeRefEntryFromOperDS(BigInteger dpId,
-            DataBroker dataBroker) {
+                                                              DataBroker dataBroker) {
         BridgeRefEntryKey bridgeRefEntryKey = new BridgeRefEntryKey(dpId);
         InstanceIdentifier<BridgeRefEntry> bridgeRefEntryIid = getBridgeRefEntryIdentifier(bridgeRefEntryKey);
         BridgeRefEntry bridgeRefEntry = getBridgeRefEntryFromOperDS(bridgeRefEntryIid, dataBroker);
@@ -256,7 +259,7 @@ public class NeutronQosUtils {
     // TODO Clean up the exception handling
     @SuppressWarnings("checkstyle:IllegalCatch")
     private static <T extends DataObject> Optional<T> read(LogicalDatastoreType datastoreType,
-            InstanceIdentifier<T> path, DataBroker broker) {
+                                                           InstanceIdentifier<T> path, DataBroker broker) {
 
         ReadOnlyTransaction tx = broker.newReadOnlyTransaction();
 
