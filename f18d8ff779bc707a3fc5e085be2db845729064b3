@@ -33,6 +33,24 @@
       "revId": "f18d8ff779bc707a3fc5e085be2db845729064b3",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_c84e016f",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/resources/initial/netvirt-elanmanager-config.xml",
+        "patchSetId": 6
+      },
+      "lineNbr": 5,
+      "author": {
+        "id": 6177
+      },
+      "writtenOn": "2017-02-15T14:29:23Z",
+      "side": 1,
+      "message": "Probably, but I think it should be off by default just because we haven\u0027t tested scale implications of this (this will possibly cause quite a lot of pktins).",
+      "parentUuid": "fafc7978_5a4c9b42",
+      "revId": "f18d8ff779bc707a3fc5e085be2db845729064b3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
