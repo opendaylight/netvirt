@@ -45,6 +45,7 @@ const i32 BGP_ERR_NOT_SUPPORTED = 200
 // these are the supported afi-safi combinations
 enum af_afi {
     AFI_IP = 1,
+    AFI_IPV6 = 2,
     AFI_L2VPN = 3
 }
 
@@ -157,7 +158,7 @@ service BgpConfigurator {
     i32 delVrf(1:string rd),
     /*
     * pushRoute:
-    * IPv6 is not supported.
+    * IPv6 is now supported through af_afi parameter, 'af_afi': indicates whether prefix is IPv4 or IPv6.
     * 'p_type' is mandatory
     * 'nexthop' cannot be null for VPNv4 and LU.
     * 'rd' is null for LU (and unicast).
@@ -180,13 +181,15 @@ service BgpConfigurator {
     8:i32 l3label,
     9:i32 l2label,
     10:encap_type enc_type,
-    11:string routermac),
+    11:string routermac,
+    12:af_afi afi),
 
 
     /*
     * 'p_type' is mandatory
     * kludge: second argument is either 'rd' (VPNv4) or
     * label (v4LU) as a string (eg: "2500")
+    * seventh argument is either ipv4 or ipv6
     */
     i32 withdrawRoute(
     1:protocol_type p_type,
@@ -194,7 +197,9 @@ service BgpConfigurator {
     3:string rd,
     4:i32 ethtag,
     5:string esi,
-    6:string macaddress),
+    6:string macaddress,
+    7:af_afi afi),
+
 
     i32 setEbgpMultihop(1:string peerIp, 2:i32 nHops),
     i32 unsetEbgpMultihop(1:string peerIp),
@@ -218,9 +223,9 @@ service BgpConfigurator {
     * but not necessarily the maximum number that would fit
     * (we currently use min(winSize, tcpWindowSize) ).
     * calling INIT when NEXT is expected causes reinit.
-    * only vpnv4 RIBs are supported.
+    * both vpnv4 or vpnv6 RIBs are supported.
     */
-    Routes getRoutes(1:protocol_type p_type, 2:i32 optype, 3:i32 winSize),
+    Routes getRoutes(1:protocol_type p_type, 2:i32 optype, 3:i32 winSize, 4:af_afi afi),
     i32 enableMultipath(1:af_afi afi, 2:af_safi safi),
     i32 disableMultipath(1:af_afi afi, 2:af_safi safi),
     i32 multipaths(1:string rd, 2:i32 maxPath)
@@ -239,7 +244,8 @@ service BgpUpdater {
 	    8:string macaddress,
 	    9:i32 l3label,
 	    10:i32 l2label,
-	    11:string routermac),
+	    11:string routermac,
+	    12:af_afi afi),
 
     oneway void onUpdateWithdrawRoute(
 	    1:protocol_type p_type,
@@ -251,7 +257,8 @@ service BgpUpdater {
 	    7:string esi,
 	    8:string macaddress,
 	    9:i32 l3label,
-	    10:i32 l2label),
+	    10:i32 l2label,
+	    11:af_afi afi),
 
     oneway void onStartConfigResyncNotification(),
     /* communicate to ODL a BGP Notification received from peer */

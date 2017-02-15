@@ -152,6 +152,8 @@ public class IVpnLinkServiceImpl implements IVpnLinkService, AutoCloseable {
             return;
         }
 
+        long afiValue = 1L;//TODO afiValue may be defined to IPv4 or IPv6
+
         String dstVpnRd = VpnUtil.getVpnRd(dataBroker, dstVpnName);
         if (addOrRemove == NwConstants.ADD_FLOW) {
             LOG.debug("Leaking route (prefix={}, nexthop={}) from Vpn={} to Vpn={} (RD={})",
@@ -171,14 +173,14 @@ public class IVpnLinkServiceImpl implements IVpnLinkService, AutoCloseable {
             try {
                 bgpManager.advertisePrefix(dstVpnRd, null /*macAddress*/, prefix, ivlNexthops,
                         VrfEntry.EncapType.Mplsgre, (int)leakedLabel, 0 /*l3vni*/, 0 /*l2vni*/,
-                        null /*gwMacAddress*/);
+                        null /*gwMacAddress*/, afiValue);
             } catch (Exception e) {
                 LOG.error("Exception while advertising prefix {} on vpnRd {} for intervpn link", prefix, dstVpnRd, e);
             }
         } else {
             LOG.debug("Removing leaked route to {} from VPN {}", prefix, dstVpnName);
             fibManager.removeFibEntry(dataBroker, dstVpnRd, prefix, null /*writeConfigTxn*/);
-            bgpManager.withdrawPrefix(dstVpnRd, prefix);
+            bgpManager.withdrawPrefix(dstVpnRd, prefix, afiValue);
         }
     }
 
