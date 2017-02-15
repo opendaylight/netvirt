@@ -1520,12 +1520,22 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
             if (cnt == 2) {
                 LOG.debug("Elan instance:{} is present b/w srcDpn:{} and dstDpn:{}", elanName, srcDpId, dstDpId);
                 ElanInstance elanInfo = ElanUtils.getElanInstanceByName(broker, elanName);
+                if (elanInfo == null) {
+                    LOG.warn("ELAN Info is null for elanName {} that does exist in elanDpnInterfaceList, "
+                            + "skipping this ELAN for tunnel handling", elanName);
+                    continue;
+                }
                 DataStoreJobCoordinator dataStoreCoordinator = DataStoreJobCoordinator.getInstance();
                 dataStoreCoordinator.enqueueJob(elanName, () -> {
                     // update Remote BC Group
                     setupElanBroadcastGroups(elanInfo, srcDpId);
 
                     DpnInterfaces dpnInterface = elanUtils.getElanInterfaceInfoByElanDpn(elanName, dstDpId);
+                    if (dpnInterface == null) {
+                        LOG.warn("ELAN DpnInterfaces is null for elanName {}, "
+                                + "skipping this ELAN's interfaces for tunnel handling", elanName);
+                        return null;
+                    }
                     Set<String> interfaceLists = new HashSet<>();
                     interfaceLists.addAll(dpnInterface.getInterfaces());
                     for (String ifName : interfaceLists) {
