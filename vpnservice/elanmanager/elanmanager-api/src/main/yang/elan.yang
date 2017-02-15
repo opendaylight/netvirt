@@ -3,6 +3,8 @@ module elan {
     namespace "urn:opendaylight:netvirt:elan";
     prefix elan;
 
+    import yang-ext {prefix ext; revision-date "2013-07-09";}
+
     import ietf-interfaces {
         prefix if;
     }
@@ -124,9 +126,18 @@ module elan {
             mandatory true;
             type string;
         }
-        leaf-list static-mac-entries {
-            type yang:phys-address;
+
+        list static-mac-entries {
+            key "mac";
+            leaf mac {
+                type yang:phys-address;
+            }
+            leaf prefix {
+                mandatory false;
+                type inet:ip-address;
+            }
         }
+
         leaf description {
             description
                 "A textual description of elan port, the elan port description
@@ -164,6 +175,29 @@ module elan {
     }
   }
 
+    container elan-extn-teps {
+      description "Holds All external teps part of the elan";
+
+      list elan-extn-tep {
+          key "name";
+          description "Holds All external teps part of this elan";
+          max-elements "unbounded";
+          min-elements "0";
+          leaf name {
+              type string;
+              description "The name of the elan-instance.";
+          }
+          list tep{
+              key "tep-ip";
+              leaf tep-ip {
+                  type string;
+                  description "The tep ip";
+              }
+          }
+      }
+    }
+
+
   grouping forwarding-entries {
     description "Details of the MAC entries";
 
@@ -189,6 +223,11 @@ module elan {
 
       leaf isStaticAddress {
         type boolean;
+      }
+
+      leaf prefix {
+        mandatory false;
+        type inet:ip-address;
       }
     }
   }
@@ -281,6 +320,17 @@ module elan {
                 description
                 "The name of the elan-instance.";
             }
+        }
+    }
+
+    augment "/elan:elan-instances/elan:elan-instance" {
+        ext:augment-identifier "evpn";
+        leaf evpn-name {
+            type string;
+        }
+
+        leaf l3vpn-name {
+            type string;
         }
     }
 
