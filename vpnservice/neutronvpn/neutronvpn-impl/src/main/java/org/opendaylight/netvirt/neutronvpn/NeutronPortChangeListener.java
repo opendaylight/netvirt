@@ -33,7 +33,6 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rev160406.IfL2vlan;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rev160406.IfL2vlanBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.OdlInterfaceRpcService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.InterfaceAcl;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.InterfaceAclBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.interfaces._interface.AllowedAddressPairs;
@@ -49,7 +48,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.networks.rev150712.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.port.attributes.FixedIps;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.ports.attributes.Ports;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.ports.attributes.ports.Port;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.qos.ext.rev160613.QosPortExtension;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.rev150712.Neutron;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
@@ -63,7 +61,6 @@ public class NeutronPortChangeListener extends AsyncDataTreeChangeListenerBase<P
     private final NeutronvpnNatManager nvpnNatManager;
     private final NotificationPublishService notificationPublishService;
     private final NeutronSubnetGwMacResolver gwMacResolver;
-    private OdlInterfaceRpcService odlInterfaceRpcService;
     private final IElanService elanService;
 
     public NeutronPortChangeListener(final DataBroker dataBroker,
@@ -71,7 +68,6 @@ public class NeutronPortChangeListener extends AsyncDataTreeChangeListenerBase<P
                                      final NeutronvpnNatManager neutronvpnNatManager,
                                      final NotificationPublishService notiPublishService,
                                      final NeutronSubnetGwMacResolver gwMacResolver,
-                                     final OdlInterfaceRpcService odlInterfaceRpcService,
                                      final IElanService elanService) {
         super(Port.class, NeutronPortChangeListener.class);
         this.dataBroker = dataBroker;
@@ -79,7 +75,6 @@ public class NeutronPortChangeListener extends AsyncDataTreeChangeListenerBase<P
         nvpnNatManager = neutronvpnNatManager;
         notificationPublishService = notiPublishService;
         this.gwMacResolver = gwMacResolver;
-        this.odlInterfaceRpcService = odlInterfaceRpcService;
         this.elanService = elanService;
     }
 
@@ -234,27 +229,6 @@ public class NeutronPortChangeListener extends AsyncDataTreeChangeListenerBase<P
         } else if (NeutronConstants.DEVICE_OWNER_FLOATING_IP.equals(update.getDeviceOwner())) {
             elanService.handleKnownL3DmacAddress(update.getMacAddress().getValue(), update.getNetworkId().getValue(),
                     NwConstants.ADD_FLOW);
-        }
-        // check for QoS updates
-        QosPortExtension updateQos = update.getAugmentation(QosPortExtension.class);
-        QosPortExtension originalQos = original.getAugmentation(QosPortExtension.class);
-        if (originalQos == null && updateQos != null) {
-            // qos policy add
-            NeutronvpnUtils.addToQosPortsCache(updateQos.getQosPolicyId(), update);
-            NeutronQosUtils.handleNeutronPortQosUpdate(dataBroker, odlInterfaceRpcService,
-                    update, updateQos.getQosPolicyId());
-        } else if (originalQos != null && updateQos != null
-                && !originalQos.getQosPolicyId().equals(updateQos.getQosPolicyId())) {
-            // qos policy update
-            NeutronvpnUtils.removeFromQosPortsCache(originalQos.getQosPolicyId(), original);
-            NeutronvpnUtils.addToQosPortsCache(updateQos.getQosPolicyId(), update);
-            NeutronQosUtils.handleNeutronPortQosUpdate(dataBroker, odlInterfaceRpcService,
-                    update, updateQos.getQosPolicyId());
-        } else if (originalQos != null && updateQos == null) {
-            // qos policy delete
-            NeutronQosUtils.handleNeutronPortQosRemove(dataBroker, odlInterfaceRpcService,
-                    original, originalQos.getQosPolicyId());
-            NeutronvpnUtils.removeFromQosPortsCache(originalQos.getQosPolicyId(), original);
         }
     }
 
