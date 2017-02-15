@@ -72,6 +72,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_3d69d125",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronSubnetChangeListener.java",
+        "patchSetId": 20
+      },
+      "lineNbr": 155,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-15T13:53:13Z",
+      "side": 1,
+      "message": "It is a general suggestion.  You need not do it in this patch, but let us not leave that thru the cracks. You can do so in a subsequent review.\n\nHaving a separate handler for ExternalSubnets will help in modularity.  \n\nListeners in general must be quick to validate and delegate a job to an asynchronous thread which can then do the bulk of processing  asynchronous to the listener thread owned by MDSAL.\n\nPlease see handleNeutronPortCreated(), handleNeutronPortUpdated() etc for examples.\n\nImplementation of a Spec is different from writing one.  Spec guides what is expected out of a feature and it will give a high level changes required to accomplish the feature. \n\nImplementation however should take care of many things including modularity, scaling, races, corner cases etc.",
+      "parentUuid": "fafc7978_d706a4cd",
+      "revId": "2c1f7cae59ba657a8a85e1ce7a963f4728359112",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_370f3030",
         "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnNatManager.java",
         "patchSetId": 20
@@ -183,6 +201,24 @@
       "side": 1,
       "message": "We cannot use updateExternalSubnet which uses syncUpdate - merge to the mdsal entity.\nIt will not override and delete the routerIds for the subnet if the list of updated routerIds is empty.",
       "parentUuid": "fafc7978_f772c8ab",
+      "revId": "2c1f7cae59ba657a8a85e1ce7a963f4728359112",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_bd64a149",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnNatManager.java",
+        "patchSetId": 20
+      },
+      "lineNbr": 728,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-15T13:53:13Z",
+      "side": 1,
+      "message": "OK, So this is the last router on the external subnet case coverage.",
+      "parentUuid": "fafc7978_376e1097",
       "revId": "2c1f7cae59ba657a8a85e1ce7a963f4728359112",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
