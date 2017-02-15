@@ -305,15 +305,6 @@ public class NeutronvpnUtils {
         return null;
     }
 
-    protected static List<Uuid> getPortIdsFromSubnetId(DataBroker broker, Uuid subnetId) {
-        InstanceIdentifier id = buildSubnetMapIdentifier(subnetId);
-        Optional<Subnetmap> optionalSubnetmap = read(broker, LogicalDatastoreType.CONFIGURATION, id);
-        if (optionalSubnetmap.isPresent()) {
-            return optionalSubnetmap.get().getPortList();
-        }
-        return null;
-    }
-
     protected static Router getNeutronRouter(DataBroker broker, Uuid routerId) {
         Router router = null;
         router = routerMap.get(routerId);
