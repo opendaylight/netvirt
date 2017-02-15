@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_77689887",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronSubnetChangeListener.java",
+        "patchSetId": 20
+      },
+      "lineNbr": 79,
+      "author": {
+        "id": 6248
+      },
+      "writtenOn": "2017-02-15T09:20:51Z",
+      "side": 1,
+      "message": "Yes that is right, but we\u0027re going to use in the pipeline the vpninstance that represents the subnet.",
+      "parentUuid": "fafc7978_b435def8",
+      "revId": "2c1f7cae59ba657a8a85e1ce7a963f4728359112",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_3421eeb4",
         "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronSubnetChangeListener.java",
         "patchSetId": 20
@@ -30,6 +48,24 @@
       "writtenOn": "2017-02-15T06:37:59Z",
       "side": 1,
       "message": "please have this in update() method itself symmetric to how you handled add() and remove(). \n\nI request in general avoid code scattering for Flat/Vlan specific networks handling.\n\nWould be good to have ExternalSubnetHandler separately written, pass network to that and within that invoke nvpnNatManager specifics based on type of network.  \n\nLet\u0027s see if more changes appear in this file, we must be taking that route to retain modularity and sustainability.",
+      "revId": "2c1f7cae59ba657a8a85e1ce7a963f4728359112",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_d706a4cd",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronSubnetChangeListener.java",
+        "patchSetId": 20
+      },
+      "lineNbr": 155,
+      "author": {
+        "id": 6248
+      },
+      "writtenOn": "2017-02-15T09:20:51Z",
+      "side": 1,
+      "message": "I moved the \"inner if\" part to the update method.\n\nRegarding having the ExternalSubnetHandler I\u0027m not sure I fully understand - is it a general suggestion going forward or should I add it to this patch?\nThere are no other planned changes to this class in the hairpinning tasks.\nThanks!",
+      "parentUuid": "fafc7978_3421eeb4",
       "revId": "2c1f7cae59ba657a8a85e1ce7a963f4728359112",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -59,6 +95,30 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_f745a817",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnNatManager.java",
+        "patchSetId": 20
+      },
+      "lineNbr": 614,
+      "author": {
+        "id": 6248
+      },
+      "writtenOn": "2017-02-15T09:20:51Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_370f3030",
+      "range": {
+        "startLine": 614,
+        "startChar": 37,
+        "endLine": 614,
+        "endChar": 38
+      },
+      "revId": "2c1f7cae59ba657a8a85e1ce7a963f4728359112",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_d74ea46e",
         "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnNatManager.java",
         "patchSetId": 20
@@ -70,6 +130,24 @@
       "writtenOn": "2017-02-15T06:37:59Z",
       "side": 1,
       "message": "why is the else case here necessary?  \n\nWithout an external subnet, pre-available a router can never become part of the external subnet.",
+      "revId": "2c1f7cae59ba657a8a85e1ce7a963f4728359112",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_f75c88ef",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnNatManager.java",
+        "patchSetId": 20
+      },
+      "lineNbr": 681,
+      "author": {
+        "id": 6248
+      },
+      "writtenOn": "2017-02-15T09:20:51Z",
+      "side": 1,
+      "message": "You\u0027re right, I\u0027ll remove it.",
+      "parentUuid": "fafc7978_d74ea46e",
       "revId": "2c1f7cae59ba657a8a85e1ce7a963f4728359112",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -93,6 +171,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_376e1097",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnNatManager.java",
+        "patchSetId": 20
+      },
+      "lineNbr": 728,
+      "author": {
+        "id": 6248
+      },
+      "writtenOn": "2017-02-15T09:20:51Z",
+      "side": 1,
+      "message": "We cannot use updateExternalSubnet which uses syncUpdate - merge to the mdsal entity.\nIt will not override and delete the routerIds for the subnet if the list of updated routerIds is empty.",
+      "parentUuid": "fafc7978_f772c8ab",
+      "revId": "2c1f7cae59ba657a8a85e1ce7a963f4728359112",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_576914bd",
         "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnNatManager.java",
         "patchSetId": 20
@@ -104,6 +200,24 @@
       "writtenOn": "2017-02-15T06:37:59Z",
       "side": 1,
       "message": "what has this method to do with FixedIps.  It just seems to return all the externalsubnets matching with input subnetuuids.",
+      "revId": "2c1f7cae59ba657a8a85e1ce7a963f4728359112",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_976d3c9b",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnNatManager.java",
+        "patchSetId": 20
+      },
+      "lineNbr": 743,
+      "author": {
+        "id": 6248
+      },
+      "writtenOn": "2017-02-15T09:20:51Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_576914bd",
       "revId": "2c1f7cae59ba657a8a85e1ce7a963f4728359112",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
