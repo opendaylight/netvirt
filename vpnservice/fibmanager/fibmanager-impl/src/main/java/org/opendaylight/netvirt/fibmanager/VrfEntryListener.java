@@ -148,7 +148,7 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
     private static final int PERIODICITY = 500;
     private static final BigInteger COOKIE_VM_FIB_TABLE =  new BigInteger("8000003", 16);
     private static final int DEFAULT_FIB_FLOW_PRIORITY = 10;
-    private static final int LFIB_INTERVPN_PRIORITY = 1;
+    private static final int LFIB_INTERVPN_PRIORITY = 15;
     public static final BigInteger COOKIE_TUNNEL = new BigInteger("9000000", 16);
 
     private final DataBroker dataBroker;
