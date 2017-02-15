@@ -1,0 +1,123 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_ba9f87b3",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/utils/TransportZoneNotificationUtil.java",
+        "patchSetId": 24
+      },
+      "lineNbr": 75,
+      "author": {
+        "id": 670
+      },
+      "writtenOn": "2017-02-15T10:30:19Z",
+      "side": 1,
+      "message": "Can be a future optimization, but ITM should probably cache these transport zones",
+      "revId": "fa6becebe0efe9eedd28177cd94c1b3c7499c1d6",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_7a307fe8",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/utils/TransportZoneNotificationUtil.java",
+        "patchSetId": 24
+      },
+      "lineNbr": 82,
+      "author": {
+        "id": 670
+      },
+      "writtenOn": "2017-02-15T10:30:19Z",
+      "side": 1,
+      "message": "while we\u0027re here, could you change addVtep name to shouldAddVtep and change return value to boolean instead of int 0/1?",
+      "revId": "fa6becebe0efe9eedd28177cd94c1b3c7499c1d6",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_3a36f7e7",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/utils/TransportZoneNotificationUtil.java",
+        "patchSetId": 24
+      },
+      "lineNbr": 91,
+      "author": {
+        "id": 670
+      },
+      "writtenOn": "2017-02-15T10:30:19Z",
+      "side": 1,
+      "message": "I think this boolean and the warning should be removed.. this is a valid scenario that will happen a lot if the vtep already exists - you can see it happening a lot in the gate run - https://logs.opendaylight.org/releng/jenkins092/netvirt-csit-1node-openstack-newton-nodl-v2-gate-stateful-carbon/74/archives/odl1_karaf.log.gz",
+      "revId": "fa6becebe0efe9eedd28177cd94c1b3c7499c1d6",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_faa90fe0",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/utils/TransportZoneNotificationUtil.java",
+        "patchSetId": 24
+      },
+      "lineNbr": 205,
+      "author": {
+        "id": 670
+      },
+      "writtenOn": "2017-02-15T10:30:19Z",
+      "side": 1,
+      "message": "Can be a future optimization, but the bridge ref could be cached to eliminate DS read",
+      "revId": "fa6becebe0efe9eedd28177cd94c1b3c7499c1d6",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_9aba8321",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/utils/TransportZoneNotificationUtil.java",
+        "patchSetId": 24
+      },
+      "lineNbr": 213,
+      "author": {
+        "id": 670
+      },
+      "writtenOn": "2017-02-15T10:30:19Z",
+      "side": 1,
+      "message": "Can be a future optimization, but the node could be cached to eliminate DS read",
+      "revId": "fa6becebe0efe9eedd28177cd94c1b3c7499c1d6",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_1a597336",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/yang/elanmanager-config.yang",
+        "patchSetId": 24
+      },
+      "lineNbr": 46,
+      "author": {
+        "id": 670
+      },
+      "writtenOn": "2017-02-15T10:30:19Z",
+      "side": 1,
+      "message": "I know this is a change of an existing flag, but WDYT about renaming this to \"auto-config-transport-zones\" ?\n\nI always found the term \"use-transport-zone\" confusing..",
+      "revId": "fa6becebe0efe9eedd28177cd94c1b3c7499c1d6",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_fa5bcf2b",
+        "filename": "vpnservice/features/pom.xml",
+        "patchSetId": 24
+      },
+      "lineNbr": 355,
+      "author": {
+        "id": 670
+      },
+      "writtenOn": "2017-02-15T10:30:19Z",
+      "side": 1,
+      "message": "nit: remove spaces at the end of lines (go through gerrit, it pops out as red blocks)",
+      "revId": "fa6becebe0efe9eedd28177cd94c1b3c7499c1d6",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
