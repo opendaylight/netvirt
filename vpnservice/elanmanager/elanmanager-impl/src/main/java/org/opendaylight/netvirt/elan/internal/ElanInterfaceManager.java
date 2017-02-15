@@ -1520,18 +1520,26 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
             if (cnt == 2) {
                 LOG.debug("Elan instance:{} is present b/w srcDpn:{} and dstDpn:{}", elanName, srcDpId, dstDpId);
                 ElanInstance elanInfo = ElanUtils.getElanInstanceByName(broker, elanName);
-                // update Remote BC Group
-                setupElanBroadcastGroups(elanInfo, srcDpId);
+                DataStoreJobCoordinator dataStoreCoordinator = DataStoreJobCoordinator.getInstance();
+                dataStoreCoordinator.enqueueJob(elanName, () -> {
+                    // update Remote BC Group
+                    setupElanBroadcastGroups(elanInfo, srcDpId);
 
-                DpnInterfaces dpnInterface = elanUtils.getElanInterfaceInfoByElanDpn(elanName, dstDpId);
-                Set<String> interfaceLists = new HashSet<>();
-                interfaceLists.addAll(dpnInterface.getInterfaces());
-                for (String ifName : interfaceLists) {
-                    InterfaceInfo interfaceInfo = interfaceManager.getInterfaceInfo(ifName);
-                    if (isOperational(interfaceInfo)) {
-                        installDMacAddressTables(elanInfo, interfaceInfo, srcDpId);
+                    DpnInterfaces dpnInterface = elanUtils.getElanInterfaceInfoByElanDpn(elanName, dstDpId);
+                    Set<String> interfaceLists = new HashSet<>();
+                    interfaceLists.addAll(dpnInterface.getInterfaces());
+                    for (String ifName : interfaceLists) {
+                        DataStoreJobCoordinator dataStoreCoordinator = DataStoreJobCoordinator.getInstance();
+                        dataStoreCoordinator.enqueueJob(ifName, () -> {
+                            InterfaceInfo interfaceInfo = interfaceManager.getInterfaceInfo(ifName);
+                            if (isOperational(interfaceInfo)) {
+                                installDMacAddressTables(elanInfo, interfaceInfo, srcDpId);
+                            }
+                            return null;
+                        });
                     }
-                }
+                    return null;
+                });
             }
 
         }
