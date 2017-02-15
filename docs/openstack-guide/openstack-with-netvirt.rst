@@ -296,15 +296,13 @@ by modifying the ``jetty.port`` property value in ``etc/jetty.conf``.
 
         crudini --set /etc/neutron/plugins/dhcp_agent.ini OVS ovsdb_interface vsctl
 
-* Reset Neutron's ML2 database
+* Reset Neutron's database
 
   .. code-block:: bash
 
-     mysql -e "drop database if exists neutron_ml2;"
-     mysql -e "create database neutron_ml2 character set utf8;"
-     mysql -e "grant all on neutron_ml2.* to 'neutron'@'%';"
-     neutron-db-manage --config-file /usr/share/neutron/neutron-dist.conf --config-file /etc/neutron/neutron.conf \
-     --config-file /etc/neutron/plugin.ini upgrade head
+     mysql -e "DROP DATABASE IF EXISTS neutron;"
+     mysql -e "CREATE DATABASE neutron CHARACTER SET utf8;"
+     /usr/local/bin/neutron-db-manage --config-file /etc/neutron/neutron.conf --config-file /etc/neutron/plugins/ml2/ml2_conf.ini upgrade head
 
 * Restart neutron-server:
 
