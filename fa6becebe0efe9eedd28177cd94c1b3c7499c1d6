@@ -2,6 +2,23 @@
   "comments": [
     {
       "key": {
+        "uuid": "fafc7978_baf2e76c",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/VpnDpnToTransportZoneListener.java",
+        "patchSetId": 24
+      },
+      "lineNbr": 60,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-02-15T12:54:25Z",
+      "side": 1,
+      "message": "Do we have to handling update DCN ? since VpnToDpnList is having vpn-interface-list belonging to a DPN, why can\u0027t we just do updateTransportZone when first vpninterface (no need to check other vpn interfaces since all are VM interfaces which are part of VxLAN provider network type) is added to VpnToDpnList for the particular dpn as part of add dcn handling.",
+      "revId": "fa6becebe0efe9eedd28177cd94c1b3c7499c1d6",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_ba9f87b3",
         "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/utils/TransportZoneNotificationUtil.java",
         "patchSetId": 24
@@ -53,6 +70,108 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_5dfad5bd",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/utils/TransportZoneNotificationUtil.java",
+        "patchSetId": 24
+      },
+      "lineNbr": 117,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-02-15T12:54:25Z",
+      "side": 1,
+      "message": "change the method name to isVxLanNetwork(elanInstanceName).\nI also think it would be better to have this method in ElanUtils.",
+      "revId": "fa6becebe0efe9eedd28177cd94c1b3c7499c1d6",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_5a8adbbf",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/utils/TransportZoneNotificationUtil.java",
+        "patchSetId": 24
+      },
+      "lineNbr": 129,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-02-15T12:54:25Z",
+      "side": 1,
+      "message": "you could simply do it with single line: return new TransportZoneBuilder().setKey(..).setTunnelType(...)...build();",
+      "revId": "fa6becebe0efe9eedd28177cd94c1b3c7499c1d6",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_da4b6b85",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/utils/TransportZoneNotificationUtil.java",
+        "patchSetId": 24
+      },
+      "lineNbr": 150,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-02-15T12:54:25Z",
+      "side": 1,
+      "message": "since it is a private method, why can\u0027t we simply return boolean ?",
+      "revId": "fa6becebe0efe9eedd28177cd94c1b3c7499c1d6",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_9aaba31c",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/utils/TransportZoneNotificationUtil.java",
+        "patchSetId": 24
+      },
+      "lineNbr": 155,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-02-15T12:54:25Z",
+      "side": 1,
+      "message": "same comment as before and do it whereever we build an object.",
+      "revId": "fa6becebe0efe9eedd28177cd94c1b3c7499c1d6",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_fd458917",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/utils/TransportZoneNotificationUtil.java",
+        "patchSetId": 24
+      },
+      "lineNbr": 167,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-02-15T12:54:25Z",
+      "side": 1,
+      "message": "Guard against null check for subnets like below.\n\nOptional\u003cSubnet\u003e subnet \u003d Optional.ofNullable(subnets).flatMap(subnets1 -\u003e subnets1.stream().filter(subnet -\u003e subnet.getPrefix().equals(subnetPrefix)).findFirst());",
+      "revId": "fa6becebe0efe9eedd28177cd94c1b3c7499c1d6",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_5a0dbb3d",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/utils/TransportZoneNotificationUtil.java",
+        "patchSetId": 24
+      },
+      "lineNbr": 168,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-02-15T12:54:25Z",
+      "side": 1,
+      "message": "subnetPrefix can be initialized at the top",
+      "revId": "fa6becebe0efe9eedd28177cd94c1b3c7499c1d6",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_faa90fe0",
         "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/utils/TransportZoneNotificationUtil.java",
         "patchSetId": 24
@@ -81,6 +200,57 @@
       "writtenOn": "2017-02-15T10:30:19Z",
       "side": 1,
       "message": "Can be a future optimization, but the node could be cached to eliminate DS read",
+      "revId": "fa6becebe0efe9eedd28177cd94c1b3c7499c1d6",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_dd06c5cd",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/utils/TransportZoneNotificationUtil.java",
+        "patchSetId": 24
+      },
+      "lineNbr": 216,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-02-15T12:54:25Z",
+      "side": 1,
+      "message": "why do you throw Exception if node is not present? we can simply return Optional\u003cNode\u003e. Also for getNodeIP method.",
+      "revId": "fa6becebe0efe9eedd28177cd94c1b3c7499c1d6",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_3df551cb",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/resources/initial/netvirt-elanmanager-config.xml",
+        "patchSetId": 24
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-02-15T12:54:25Z",
+      "side": 1,
+      "message": "shouldn\u0027t be false by default ?",
+      "revId": "fa6becebe0efe9eedd28177cd94c1b3c7499c1d6",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_fd5c69ef",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/resources/org/opendaylight/blueprint/elanmanager.xml",
+        "patchSetId": 24
+      },
+      "lineNbr": 263,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-02-15T12:54:25Z",
+      "side": 1,
+      "message": "shouldn\u0027t this go to vpnmanager module ? :)",
       "revId": "fa6becebe0efe9eedd28177cd94c1b3c7499c1d6",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
