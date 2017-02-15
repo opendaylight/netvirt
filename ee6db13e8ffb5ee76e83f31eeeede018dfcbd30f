@@ -177,6 +177,52 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_3a91d752",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/FibUtil.java",
+        "patchSetId": 21
+      },
+      "lineNbr": 536,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-02-15T11:27:00Z",
+      "side": 1,
+      "message": "Im guessing this label is for the new nextHop added to vrfEntry. This might not be needed. As all the nextHops will have the same label, i think:). In that case you can use the label of any one of the nextHops",
+      "range": {
+        "startLine": 536,
+        "startChar": 64,
+        "endLine": 536,
+        "endChar": 69
+      },
+      "revId": "ee6db13e8ffb5ee76e83f31eeeede018dfcbd30f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_f7bac86c",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/FibUtil.java",
+        "patchSetId": 21
+      },
+      "lineNbr": 549,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-02-15T11:27:00Z",
+      "side": 1,
+      "message": "You might not need to set origin here as the entry will already have its origin set",
+      "range": {
+        "startLine": 549,
+        "startChar": 89,
+        "endLine": 549,
+        "endChar": 100
+      },
+      "revId": "ee6db13e8ffb5ee76e83f31eeeede018dfcbd30f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_435afd50",
         "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/FibUtil.java",
         "patchSetId": 21
@@ -247,6 +293,52 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_da752b99",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 21
+      },
+      "lineNbr": 551,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-02-15T11:27:00Z",
+      "side": 1,
+      "message": "Import/Export Route cases are not done for BGP routes. So this  block need not be present within a loop. Only the common label that is used for local routes is required for this block.",
+      "range": {
+        "startLine": 531,
+        "startChar": 8,
+        "endLine": 551,
+        "endChar": 13
+      },
+      "revId": "ee6db13e8ffb5ee76e83f31eeeede018dfcbd30f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_1a7053a4",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 21
+      },
+      "lineNbr": 565,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-02-15T11:27:00Z",
+      "side": 1,
+      "message": "Only this block needs to be looped.",
+      "range": {
+        "startLine": 552,
+        "startChar": 12,
+        "endLine": 565,
+        "endChar": 13
+      },
+      "revId": "ee6db13e8ffb5ee76e83f31eeeede018dfcbd30f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_832b4593",
         "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
         "patchSetId": 21
@@ -282,6 +374,29 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_fa72afab",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 21
+      },
+      "lineNbr": 813,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-02-15T11:27:00Z",
+      "side": 1,
+      "message": "Import/Export Route cases are not done for BGP routes. So this  block need not be present within a loop. Only the common label that is used for local routes is required for this block.",
+      "range": {
+        "startLine": 786,
+        "startChar": 20,
+        "endLine": 813,
+        "endChar": 21
+      },
+      "revId": "ee6db13e8ffb5ee76e83f31eeeede018dfcbd30f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_03175552",
         "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
         "patchSetId": 21
@@ -311,6 +426,52 @@
       "side": 1,
       "message": "Done",
       "parentUuid": "fafc7978_03175552",
+      "revId": "ee6db13e8ffb5ee76e83f31eeeede018dfcbd30f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_5a693bbd",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 21
+      },
+      "lineNbr": 1010,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-02-15T11:27:00Z",
+      "side": 1,
+      "message": "No loop required. Check above comments for similar block",
+      "range": {
+        "startLine": 1010,
+        "startChar": 16,
+        "endLine": 1010,
+        "endChar": 71
+      },
+      "revId": "ee6db13e8ffb5ee76e83f31eeeede018dfcbd30f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_5a149b43",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 21
+      },
+      "lineNbr": 1013,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-02-15T11:27:00Z",
+      "side": 1,
+      "message": "equals",
+      "range": {
+        "startLine": 1013,
+        "startChar": 61,
+        "endLine": 1013,
+        "endChar": 69
+      },
       "revId": "ee6db13e8ffb5ee76e83f31eeeede018dfcbd30f",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -387,6 +548,98 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_9a3563dc",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 21
+      },
+      "lineNbr": 1173,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-02-15T11:27:00Z",
+      "side": 1,
+      "message": "Should this not be the label corresponding to the right Route Path instead of the first routePath? Because this method is called for BGP routes as well. The labels might be different for different route paths right?",
+      "range": {
+        "startLine": 1173,
+        "startChar": 8,
+        "endLine": 1173,
+        "endChar": 68
+      },
+      "revId": "ee6db13e8ffb5ee76e83f31eeeede018dfcbd30f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_7a5ebf13",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 21
+      },
+      "lineNbr": 1242,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-02-15T11:27:00Z",
+      "side": 1,
+      "message": "No loop required. If you can get the common label for local routes only that need to be checked here",
+      "range": {
+        "startLine": 1242,
+        "startChar": 16,
+        "endLine": 1242,
+        "endChar": 71
+      },
+      "revId": "ee6db13e8ffb5ee76e83f31eeeede018dfcbd30f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_da9c0bc3",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 21
+      },
+      "lineNbr": 1299,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-02-15T11:27:00Z",
+      "side": 1,
+      "message": "No loop req. See comments in above similar code block",
+      "range": {
+        "startLine": 1299,
+        "startChar": 12,
+        "endLine": 1299,
+        "endChar": 67
+      },
+      "revId": "ee6db13e8ffb5ee76e83f31eeeede018dfcbd30f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_1aa7b30d",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 21
+      },
+      "lineNbr": 1417,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-02-15T11:27:00Z",
+      "side": 1,
+      "message": "not needed",
+      "range": {
+        "startLine": 1417,
+        "startChar": 16,
+        "endLine": 1417,
+        "endChar": 71
+      },
+      "revId": "ee6db13e8ffb5ee76e83f31eeeede018dfcbd30f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_060e4334",
         "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
         "patchSetId": 21
@@ -422,6 +675,29 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_5ab01b43",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 21
+      },
+      "lineNbr": 1789,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-02-15T11:27:00Z",
+      "side": 1,
+      "message": "no loop needed",
+      "range": {
+        "startLine": 1789,
+        "startChar": 28,
+        "endLine": 1789,
+        "endChar": 83
+      },
+      "revId": "ee6db13e8ffb5ee76e83f31eeeede018dfcbd30f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_c6039b0b",
         "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
         "patchSetId": 21
@@ -451,6 +727,52 @@
       "side": 1,
       "message": "It is used for static routes as well.",
       "parentUuid": "fafc7978_c6039b0b",
+      "revId": "ee6db13e8ffb5ee76e83f31eeeede018dfcbd30f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_3a6ef796",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 21
+      },
+      "lineNbr": 1905,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-02-15T11:27:00Z",
+      "side": 1,
+      "message": "Why need label here, as the routePaths of existing vrfEntry wil already contain the label",
+      "range": {
+        "startLine": 1905,
+        "startChar": 72,
+        "endLine": 1905,
+        "endChar": 78
+      },
+      "revId": "ee6db13e8ffb5ee76e83f31eeeede018dfcbd30f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_9a6d639b",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 21
+      },
+      "lineNbr": 1907,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-02-15T11:27:00Z",
+      "side": 1,
+      "message": "Again origin not needed as it will already exist",
+      "range": {
+        "startLine": 1907,
+        "startChar": 33,
+        "endLine": 1907,
+        "endChar": 74
+      },
       "revId": "ee6db13e8ffb5ee76e83f31eeeede018dfcbd30f",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -562,6 +884,29 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_9a0443c1",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/FibEntriesListener.java",
+        "patchSetId": 21
+      },
+      "lineNbr": 79,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-02-15T11:27:00Z",
+      "side": 1,
+      "message": "Is there a case where a new ROutePath is added and an old one deleted, so the size remains the same?",
+      "range": {
+        "startLine": 73,
+        "startChar": 8,
+        "endLine": 79,
+        "endChar": 9
+      },
+      "revId": "ee6db13e8ffb5ee76e83f31eeeede018dfcbd30f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_262267a4",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/FibEntriesListener.java",
         "patchSetId": 21
@@ -597,6 +942,29 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_bad78722",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/FibEntriesListener.java",
+        "patchSetId": 21
+      },
+      "lineNbr": 102,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-02-15T11:27:00Z",
+      "side": 1,
+      "message": "Cant you do an addAll of labels into routeIds, instead of in a loop?",
+      "range": {
+        "startLine": 102,
+        "startChar": 16,
+        "endLine": 102,
+        "endChar": 36
+      },
+      "revId": "ee6db13e8ffb5ee76e83f31eeeede018dfcbd30f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_663bcfd1",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/FibEntriesListener.java",
         "patchSetId": 21
@@ -626,6 +994,190 @@
       "side": 1,
       "message": "Done",
       "parentUuid": "fafc7978_663bcfd1",
+      "revId": "ee6db13e8ffb5ee76e83f31eeeede018dfcbd30f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_9af283d0",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/FibEntriesListener.java",
+        "patchSetId": 21
+      },
+      "lineNbr": 125,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-02-15T11:27:00Z",
+      "side": 1,
+      "message": "similarly removeAll instead of forLoop?",
+      "range": {
+        "startLine": 125,
+        "startChar": 17,
+        "endLine": 125,
+        "endChar": 38
+      },
+      "revId": "ee6db13e8ffb5ee76e83f31eeeede018dfcbd30f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_babe67d2",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/TunnelInterfaceStateListener.java",
+        "patchSetId": 21
+      },
+      "lineNbr": 299,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-02-15T11:27:00Z",
+      "side": 1,
+      "message": "label argument not needed here. See comments in vrfEntryListener.",
+      "range": {
+        "startLine": 299,
+        "startChar": 112,
+        "endLine": 299,
+        "endChar": 117
+      },
+      "revId": "ee6db13e8ffb5ee76e83f31eeeede018dfcbd30f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_1ab693fa",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/TunnelInterfaceStateListener.java",
+        "patchSetId": 21
+      },
+      "lineNbr": 304,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-02-15T11:27:00Z",
+      "side": 1,
+      "message": "same as above",
+      "range": {
+        "startLine": 304,
+        "startChar": 113,
+        "endLine": 304,
+        "endChar": 118
+      },
+      "revId": "ee6db13e8ffb5ee76e83f31eeeede018dfcbd30f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_7a9b5f72",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 21
+      },
+      "lineNbr": 720,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-02-15T11:27:00Z",
+      "side": 1,
+      "message": "Might not be needed. Check comments in FibUtil.",
+      "range": {
+        "startLine": 720,
+        "startChar": 72,
+        "endLine": 720,
+        "endChar": 77
+      },
+      "revId": "ee6db13e8ffb5ee76e83f31eeeede018dfcbd30f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_da89ab27",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 21
+      },
+      "lineNbr": 732,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-02-15T11:27:00Z",
+      "side": 1,
+      "message": "same as above",
+      "range": {
+        "startLine": 732,
+        "startChar": 80,
+        "endLine": 732,
+        "endChar": 85
+      },
+      "revId": "ee6db13e8ffb5ee76e83f31eeeede018dfcbd30f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_5a7dbb1b",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 21
+      },
+      "lineNbr": 800,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-02-15T11:27:00Z",
+      "side": 1,
+      "message": "see comments above",
+      "range": {
+        "startLine": 800,
+        "startChar": 76,
+        "endLine": 800,
+        "endChar": 81
+      },
+      "revId": "ee6db13e8ffb5ee76e83f31eeeede018dfcbd30f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_3a78b72a",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 21
+      },
+      "lineNbr": 812,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-02-15T11:27:00Z",
+      "side": 1,
+      "message": "see comments above",
+      "range": {
+        "startLine": 812,
+        "startChar": 80,
+        "endLine": 812,
+        "endChar": 85
+      },
+      "revId": "ee6db13e8ffb5ee76e83f31eeeede018dfcbd30f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_fa9d8f5a",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 21
+      },
+      "lineNbr": 940,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-02-15T11:27:00Z",
+      "side": 1,
+      "message": "Entire vrfENtry gets imported and not just individual paths. So this loops not required.",
+      "range": {
+        "startLine": 940,
+        "startChar": 24,
+        "endLine": 940,
+        "endChar": 79
+      },
       "revId": "ee6db13e8ffb5ee76e83f31eeeede018dfcbd30f",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
