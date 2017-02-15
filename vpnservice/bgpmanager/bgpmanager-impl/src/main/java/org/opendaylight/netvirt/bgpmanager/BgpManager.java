@@ -115,50 +115,52 @@ public class BgpManager implements AutoCloseable, IBgpManager {
     @Override
     public void addPrefix(String rd, String macAddress, String prefix, List<String> nextHopList,
                           VrfEntry.EncapType encapType, int vpnLabel, long l3vni,
-                          String gatewayMac, RouteOrigin origin)
+                          String gatewayMac, long afi, RouteOrigin origin)
             throws Exception {
         fibDSWriter.addFibEntryToDS(rd, macAddress, prefix, nextHopList,
-                encapType, vpnLabel, l3vni, gatewayMac, origin);
+                encapType, vpnLabel, l3vni, gatewayMac, origin, afi);
         bcm.addPrefix(rd, macAddress, prefix, nextHopList,
-                encapType, vpnLabel, l3vni, 0 /*l2vni*/, gatewayMac, 1 /* TODO FIX afi */);
+                      encapType, vpnLabel, l3vni, 0 /*l2vni*/, gatewayMac, (int)afi);
     }
 
     @Override
     public void addPrefix(String rd, String macAddress, String prefix, String nextHop, VrfEntry.EncapType encapType,
-                          int vpnLabel, long l3vni, String gatewayMac, RouteOrigin origin) throws Exception {
+                          int vpnLabel, long l3vni, String gatewayMac, long afi, RouteOrigin origin) throws Exception {
         addPrefix(rd, macAddress, prefix, Collections.singletonList(nextHop), encapType, vpnLabel, l3vni,
-                gatewayMac, origin);
+                gatewayMac, afi, origin);
     }
 
     @Override
-    public void deletePrefix(String rd, String prefix) {
+    public void deletePrefix(String rd, String prefix, long afi) {
         fibDSWriter.removeFibEntryFromDS(rd, prefix);
-        bcm.delPrefix(rd, prefix, 1 /* TODO FIX afi */);
+        bcm.delPrefix(rd, prefix, (int) afi);
     }
 
     @Override
     public void advertisePrefix(String rd, String macAddress, String prefix, List<String> nextHopList,
                                 VrfEntry.EncapType encapType, int vpnLabel, long l3vni, long l2vni,
-                                String gatewayMac) throws Exception {
+                                String gatewayMac, long afi) throws Exception {
         bcm.addPrefix(rd, macAddress, prefix, nextHopList,
-                encapType, vpnLabel, l3vni, l2vni, gatewayMac, 1 /* TODO FIX afi */);
+                      encapType, vpnLabel, l3vni, l2vni, gatewayMac, (int) afi);
     }
 
     @Override
     public void advertisePrefix(String rd, String macAddress, String prefix, String nextHop,
                                 VrfEntry.EncapType encapType, int vpnLabel, long l3vni, long l2vni,
-                                String gatewayMac) throws Exception {
-        LOG.info("ADVERTISE: Adding Prefix rd {} prefix {} nexthop {} label {}", rd, prefix, nextHop, vpnLabel);
+                                String gatewayMac, long afi) throws Exception {
+        LOG.info("ADVERTISE: Adding Prefix rd {} prefix {} nexthop {} label {} afi {}", rd, prefix, nextHop,
+                 vpnLabel, afi);
         bcm.addPrefix(rd, macAddress, prefix, Collections.singletonList(nextHop), encapType,
-                vpnLabel, l3vni, l2vni, gatewayMac, 1 /* TODO FIX afi */);
-        LOG.info("ADVERTISE: Added Prefix rd {} prefix {} nexthop {} label {}", rd, prefix, nextHop, vpnLabel);
+                      vpnLabel, l3vni, l2vni, gatewayMac, (int) afi);
+        LOG.info("ADVERTISE: Added Prefix rd {} prefix {} nexthop {} label {} afi {}", rd, prefix, nextHop,
+                 vpnLabel, afi);
     }
 
     @Override
-    public void withdrawPrefix(String rd, String prefix) {
-        LOG.info("WITHDRAW: Removing Prefix rd {} prefix {}", rd, prefix);
-        bcm.delPrefix(rd, prefix, 1 /* TODO FIX afi */);
-        LOG.info("WITHDRAW: Removed Prefix rd {} prefix {}", rd, prefix);
+    public void withdrawPrefix(String rd, String prefix, long afi) {
+        LOG.info("WITHDRAW: Removing Prefix rd {} prefix {} afi {}", rd, prefix, afi);
+        bcm.delPrefix(rd, prefix, (int) afi);
+        LOG.info("WITHDRAW: Removed Prefix rd {} prefix {} afi {}", rd, prefix, afi);
     }
 
     public void setQbgpLog(String fileName, String debugLevel) {
