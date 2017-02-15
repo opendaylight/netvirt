@@ -681,8 +681,10 @@ public class NatUtil {
                     null /*gatewayMacAddress*/, parentVpnRd, origin, null /*writeTxn*/);
             if ((rd != null) && (!rd.equalsIgnoreCase(vpnName))) {
             /* Publish to Bgp only if its an INTERNET VPN */
+                long afiValue = 1L; //org.opendaylight.netvirt.bgpmanager.thrift.gen.af_afi.AFI_IP.getValue();
                 bgpManager.advertisePrefix(rd, null /*macAddress*/, prefix, Collections.singletonList(nextHopIp),
-                        VrfEntry.EncapType.Mplsgre, (int) label, 0 /*l3vni*/, 0 /*l2vni*/, null /*gatewayMac*/);
+                                           VrfEntry.EncapType.Mplsgre, (int) label, 0 /*l3vni*/, 0 /*l2vni*/,
+                                           null /*gatewayMac*/, afiValue);
             }
             LOG.info("NAT Service : ADD: Added Fib entry rd {} prefix {} nextHop {} label {}", rd,
                     prefix, nextHopIp, label);
@@ -782,7 +784,8 @@ public class NatUtil {
             LOG.info("REMOVE: Removing Fib entry rd {} prefix {}", rd, prefix);
             fibManager.removeFibEntry(broker, rd, prefix, null);
             if (rd != null && !rd.equalsIgnoreCase(vpnName)) {
-                bgpManager.withdrawPrefix(rd, prefix);
+                long afiValue = 1L;
+                bgpManager.withdrawPrefix(rd, prefix, afiValue);
             }
             LOG.info("REMOVE: Removed Fib entry rd {} prefix {}", rd, prefix);
         } catch (Exception e) {

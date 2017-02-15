@@ -123,8 +123,9 @@ public class VpnManagerImpl implements IVpnManager {
         int label,RouteOrigin origin) {
         LOG.info("Adding extra route with destination {}, nextHop {}, label{} and origin {}",
             destination, nextHop, label, origin);
+        long afiValue = 1L;//org.opendaylight.netvirt.bgpmanager.thrift.gen.af_afi.AFI_IP.getValue();
         vpnInterfaceManager.addExtraRoute(vpnName, destination, nextHop, rd, routerID, label, 0 /*l3vni*/, origin,
-            /*intfName*/ null, null /*Adjacency*/, VrfEntry.EncapType.Mplsgre, null);
+                            /*intfName*/ null, null /*Adjacency*/, VrfEntry.EncapType.Mplsgre, afiValue, null);
     }
 
     @Override

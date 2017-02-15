@@ -374,11 +374,13 @@ public class InterVpnLinkUtil {
                 nexthops.add(InterfaceUtils.getEndpointIpAddressForDPN(broker, dpnId));
             }
             try {
-                LOG.debug("Advertising route in VPN={} [prefix={} label={}  nexthops={}] to DC-GW",
+                // TODO FIX afi
+                long afi = 1;
+                LOG.debug("Advertising route in VPN={} [prefix={} label={}  nexthops={} afi {}] to DC-GW",
                     dstVpnRd, newVrfEntry.getDestPrefix(), label.intValue(), nexthops);
                 bgpManager.advertisePrefix(dstVpnRd, null /*macAddress*/, newVrfEntry.getDestPrefix(), nexthops,
                         VrfEntry.EncapType.Mplsgre, label.intValue(), 0 /*l3vni*/, 0 /*l2vni*/,
-                        null /*gatewayMacAddress*/);
+                        null/*gatewayMacAddress*/, afi);
             } catch (Exception exc) {
                 LOG.error("Could not advertise prefix {} with label {} to VPN rd={}",
                     newVrfEntry.getDestPrefix(), label.intValue(), dstVpnRd);
@@ -414,9 +416,12 @@ public class InterVpnLinkUtil {
         List<String> nexthopList =
             endpointDpns.stream().map(dpnId -> InterfaceUtils.getEndpointIpAddressForDPN(dataBroker, dpnId))
                 .collect(Collectors.toList());
-        LOG.debug("advertising IVpnLink route to BGP:  vpnRd={}, prefix={}, label={}, nexthops={}",
-            vpnRd, destination, label, nexthopList);
+        // TODO FIX afi
+        long afi = 1;
+        LOG.debug("advertising IVpnLink route to BGP:  vpnRd={}, prefix={}, label={}, nexthops={}, afi {}",
+            vpnRd, destination, label, nexthopList, afi);
         bgpManager.advertisePrefix(vpnRd, null /*macAddress*/, destination, nexthopList,
-                VrfEntry.EncapType.Mplsgre, label, 0 /*l3vni*/, 0 /*l2vni*/, null /*gatewayMacAddress*/);
+                                   VrfEntry.EncapType.Mplsgre, label, 0 /*l3vni*/, 0 /*l2vni*/,
+                                   null /*gatewayMacAddress*/, afi);
     }
 }

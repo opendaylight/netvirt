@@ -170,9 +170,10 @@ public class VpnRpcServiceImpl implements VpnRpcService {
                 return result;
             }
         } else {
+            long afiValue = 1L;//org.opendaylight.netvirt.bgpmanager.thrift.gen.af_afi.AFI_IP.getValue();
             vpnInterfaceMgr.addExtraRoute(vpnInstanceName, destination, nexthop, vpnRd, null /* routerId */,
                     label.intValue(), 0 /*l3vni*/, RouteOrigin.STATIC, null /* intfName */, null /*Adjacency*/,
-                    VrfEntry.EncapType.Mplsgre, null);
+                     VrfEntry.EncapType.Mplsgre, afiValue, null);
         }
 
         AddStaticRouteOutput labelOutput = new AddStaticRouteOutputBuilder().setLabel(label).build();
@@ -225,8 +226,9 @@ public class VpnRpcServiceImpl implements VpnRpcService {
 
         Optional<InterVpnLinkDataComposite> optVpnLink = InterVpnLinkCache.getInterVpnLinkByEndpoint(nexthop);
         if (optVpnLink.isPresent()) {
-            fibManager.removeOrUpdateFibEntry(dataBroker,  vpnRd, destination, nexthop, null);
-            bgpManager.withdrawPrefix(vpnRd, destination);
+            fibManager.removeOrUpdateFibEntry(dataBroker, vpnRd, destination, nexthop, null);
+            long afiValue = 1L;//org.opendaylight.netvirt.bgpmanager.thrift.gen.af_afi.AFI_IP.getValue();
+            bgpManager.withdrawPrefix(vpnRd, destination, afiValue);
         } else {
             vpnInterfaceMgr.delExtraRoute(destination, nexthop, vpnRd, null /*routerId*/, null /*intfName*/, null);
         }
