@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_37abb0d7",
+        "filename": "openstack/net-virt-providers/src/main/java/org/opendaylight/netvirt/openstack/netvirt/providers/openflow13/services/VlanResponderService.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 72,
+      "author": {
+        "id": 679
+      },
+      "writtenOn": "2017-02-15T06:43:50Z",
+      "side": 1,
+      "message": "By this modification, packets from L3 to external network are sent as ACTION normal. Such flow is installed in br-int. Then, BUM packets from L3 to external network will be sent to all ports on the br-int.\n\nBut two interfaces of one L3 are connected to one br-int.\n\nHence, the BUM packets will be reached at L3 interface to connect to the tenant internal network.\n\nIs my understanding right? Or is there any any impact of this situation?",
+      "range": {
+        "startLine": 70,
+        "startChar": 16,
+        "endLine": 72,
+        "endChar": 74
+      },
+      "revId": "b076154790abd5ce17de46c82810fe4c37fe6a34",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
