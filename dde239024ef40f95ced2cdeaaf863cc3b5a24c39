@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "1a622d24_b79b3771",
+        "filename": "vpnservice/fibmanager/fibmanager-api/src/main/yang/odl-fib.yang",
+        "patchSetId": 3
+      },
+      "lineNbr": 89,
+      "author": {
+        "id": 6328
+      },
+      "writtenOn": "2017-02-15T17:49:45Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1a622d24_fc3594f7",
+      "revId": "dde239024ef40f95ced2cdeaaf863cc3b5a24c39",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_9c2620cd",
         "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/FibUtil.java",
         "patchSetId": 3
@@ -30,6 +48,24 @@
       "writtenOn": "2016-12-28T06:48:02Z",
       "side": 1,
       "message": "what if there are multiple nexthops present ? Don\u0027t you need to return List\u003cString\u003e",
+      "revId": "dde239024ef40f95ced2cdeaaf863cc3b5a24c39",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_178aeb1a",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/FibUtil.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 744,
+      "author": {
+        "id": 6328
+      },
+      "writtenOn": "2017-02-15T17:49:45Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1a622d24_9c2620cd",
       "revId": "dde239024ef40f95ced2cdeaaf863cc3b5a24c39",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -53,6 +89,24 @@
     },
     {
       "key": {
+        "uuid": "1a622d24_f78c8f37",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/FibUtil.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 745,
+      "author": {
+        "id": 6328
+      },
+      "writtenOn": "2017-02-15T17:49:45Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1a622d24_3c40ac55",
+      "revId": "dde239024ef40f95ced2cdeaaf863cc3b5a24c39",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_7c2184b3",
         "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/NexthopManager.java",
         "patchSetId": 3
@@ -64,6 +118,24 @@
       "writtenOn": "2016-12-28T06:48:02Z",
       "side": 1,
       "message": "The constant for bucket weight is not required. you can just ignore the bucket weight while constructing lb group.",
+      "revId": "dde239024ef40f95ced2cdeaaf863cc3b5a24c39",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_f793ef4c",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/NexthopManager.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 115,
+      "author": {
+        "id": 6328
+      },
+      "writtenOn": "2017-02-15T17:49:45Z",
+      "side": 1,
+      "message": "bucket weight is needed. if bucket weight is not set, it is 0 default and there is no traffic in that bucket",
+      "parentUuid": "1a622d24_7c2184b3",
       "revId": "dde239024ef40f95ced2cdeaaf863cc3b5a24c39",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -87,6 +159,24 @@
     },
     {
       "key": {
+        "uuid": "1a622d24_17914b47",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/NexthopManager.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 764,
+      "author": {
+        "id": 6328
+      },
+      "writtenOn": "2017-02-15T17:49:45Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1a622d24_1c1a107d",
+      "revId": "dde239024ef40f95ced2cdeaaf863cc3b5a24c39",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_fc1c7479",
         "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/NexthopManager.java",
         "patchSetId": 3
@@ -98,6 +188,24 @@
       "writtenOn": "2016-12-28T06:48:02Z",
       "side": 1,
       "message": "return dpnInVpn.isPresent();",
+      "revId": "dde239024ef40f95ced2cdeaaf863cc3b5a24c39",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_b7721747",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/NexthopManager.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 789,
+      "author": {
+        "id": 6328
+      },
+      "writtenOn": "2017-02-15T17:49:45Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1a622d24_fc1c7479",
       "revId": "dde239024ef40f95ced2cdeaaf863cc3b5a24c39",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -121,6 +229,24 @@
     },
     {
       "key": {
+        "uuid": "1a622d24_3703a774",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/NexthopManager.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 797,
+      "author": {
+        "id": 6328
+      },
+      "writtenOn": "2017-02-15T17:49:45Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1a622d24_5c14884d",
+      "revId": "dde239024ef40f95ced2cdeaaf863cc3b5a24c39",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_3c170c53",
         "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/NexthopManager.java",
         "patchSetId": 3
@@ -132,6 +258,24 @@
       "writtenOn": "2016-12-28T06:48:02Z",
       "side": 1,
       "message": "Instead of having too many for-if\u0027s. you can divide this code into multiple blocks.\n1) Do the clone of vpnExtraRoutes.\n2) First if clonedVpnExtraRoutes contains routes, invoke a method getBucketsForLocalNexthop(vpnExtraRoute) which returns List\u003cBucketInfo\u003e.\n3) remove routes from clonedVpnExtraRoutes.\n4) use getBucketsForRemoteNexthop(clonedVpnExtraRoutes) which returns List\u003cBucketInfo\u003e.\n5) add the buckets to listBucketInfo and invoke setupLoadBalancingNextHop.",
+      "revId": "dde239024ef40f95ced2cdeaaf863cc3b5a24c39",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_b7d7b7ec",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/NexthopManager.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 801,
+      "author": {
+        "id": 6328
+      },
+      "writtenOn": "2017-02-15T17:49:45Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1a622d24_3c170c53",
       "revId": "dde239024ef40f95ced2cdeaaf863cc3b5a24c39",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -155,6 +299,24 @@
     },
     {
       "key": {
+        "uuid": "1a622d24_d777d338",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/NexthopManager.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 812,
+      "author": {
+        "id": 6328
+      },
+      "writtenOn": "2017-02-15T17:49:45Z",
+      "side": 1,
+      "message": "the weight of the bucket if not set is assumed as zero. So weight has to be set.",
+      "parentUuid": "1a622d24_9c0d8041",
+      "revId": "dde239024ef40f95ced2cdeaaf863cc3b5a24c39",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_7c08642d",
         "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/NexthopManager.java",
         "patchSetId": 3
@@ -166,6 +328,24 @@
       "writtenOn": "2016-12-28T06:48:02Z",
       "side": 1,
       "message": "use tunnelType",
+      "revId": "dde239024ef40f95ced2cdeaaf863cc3b5a24c39",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_77787f2b",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/NexthopManager.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 825,
+      "author": {
+        "id": 6328
+      },
+      "writtenOn": "2017-02-15T17:49:45Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1a622d24_7c08642d",
       "revId": "dde239024ef40f95ced2cdeaaf863cc3b5a24c39",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -189,6 +369,24 @@
     },
     {
       "key": {
+        "uuid": "1a622d24_37872711",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/NexthopManager.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 828,
+      "author": {
+        "id": 6328
+      },
+      "writtenOn": "2017-02-15T17:49:45Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1a622d24_770fdf2e",
+      "revId": "dde239024ef40f95ced2cdeaaf863cc3b5a24c39",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_f703ef0a",
         "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/NexthopManager.java",
         "patchSetId": 3
@@ -200,6 +398,24 @@
       "writtenOn": "2016-12-28T06:48:02Z",
       "side": 1,
       "message": "why do you need this if-else ?",
+      "revId": "dde239024ef40f95ced2cdeaaf863cc3b5a24c39",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_5784630b",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/NexthopManager.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 830,
+      "author": {
+        "id": 6328
+      },
+      "writtenOn": "2017-02-15T17:49:45Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1a622d24_f703ef0a",
       "revId": "dde239024ef40f95ced2cdeaaf863cc3b5a24c39",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -223,6 +439,24 @@
     },
     {
       "key": {
+        "uuid": "1a622d24_977d5b1f",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/NexthopManager.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 850,
+      "author": {
+        "id": 6328
+      },
+      "writtenOn": "2017-02-15T17:49:45Z",
+      "side": 1,
+      "message": "The weight is needed and so bucket has to be created before setting weight to it which is added later to listbucketinfo",
+      "parentUuid": "1a622d24_17014b05",
+      "revId": "dde239024ef40f95ced2cdeaaf863cc3b5a24c39",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_5722a3a4",
         "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
         "patchSetId": 3
@@ -234,6 +468,24 @@
       "writtenOn": "2016-12-28T06:48:02Z",
       "side": 1,
       "message": "Having list.get(0) in every place is ugly. Kency is already using getNonBgpRoutePath() method for it.",
+      "revId": "dde239024ef40f95ced2cdeaaf863cc3b5a24c39",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_97cb9b52",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 422,
+      "author": {
+        "id": 6328
+      },
+      "writtenOn": "2017-02-15T17:49:45Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1a622d24_5722a3a4",
       "revId": "dde239024ef40f95ced2cdeaaf863cc3b5a24c39",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -257,6 +509,24 @@
     },
     {
       "key": {
+        "uuid": "1a622d24_77c6bf4a",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 819,
+      "author": {
+        "id": 6328
+      },
+      "writtenOn": "2017-02-15T17:49:45Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1a622d24_372567ab",
+      "revId": "dde239024ef40f95ced2cdeaaf863cc3b5a24c39",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_973b9bd0",
         "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
         "patchSetId": 3
@@ -268,6 +538,24 @@
       "writtenOn": "2016-12-28T06:48:02Z",
       "side": 1,
       "message": "no space before (",
+      "revId": "dde239024ef40f95ced2cdeaaf863cc3b5a24c39",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_d7c5133d",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 840,
+      "author": {
+        "id": 6328
+      },
+      "writtenOn": "2017-02-15T17:49:45Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1a622d24_973b9bd0",
       "revId": "dde239024ef40f95ced2cdeaaf863cc3b5a24c39",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -291,6 +579,24 @@
     },
     {
       "key": {
+        "uuid": "1a622d24_5700e366",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 1099,
+      "author": {
+        "id": 6328
+      },
+      "writtenOn": "2017-02-15T17:49:45Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1a622d24_7736bfe8",
+      "revId": "dde239024ef40f95ced2cdeaaf863cc3b5a24c39",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_f7512f0f",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnUtil.java",
         "patchSetId": 3
@@ -302,6 +608,24 @@
       "writtenOn": "2016-12-28T06:48:02Z",
       "side": 1,
       "message": "Manu has done this change already. just rebase it.",
+      "revId": "dde239024ef40f95ced2cdeaaf863cc3b5a24c39",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1a622d24_57b2a3e6",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnUtil.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 1385,
+      "author": {
+        "id": 6328
+      },
+      "writtenOn": "2017-02-15T17:49:45Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1a622d24_f7512f0f",
       "revId": "dde239024ef40f95ced2cdeaaf863cc3b5a24c39",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
