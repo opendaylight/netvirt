@@ -202,7 +202,6 @@ module ebgp {
       type uint32;
       mandatory "false";
     }
-
   } // networks
 
   list vrfs {
