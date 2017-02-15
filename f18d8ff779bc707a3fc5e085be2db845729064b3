@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_0370eaa3",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanNodeListener.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 110,
+      "author": {
+        "id": 6071
+      },
+      "writtenOn": "2017-02-15T16:48:46Z",
+      "side": 1,
+      "message": "I don\u0027t know of any other punts we\u0027ll be doing. I\u0027ll ask koby. For now I followed your suggestion.",
+      "parentUuid": "fafc7978_fa458f17",
+      "revId": "f18d8ff779bc707a3fc5e085be2db845729064b3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_5a4c9b42",
         "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/resources/initial/netvirt-elanmanager-config.xml",
         "patchSetId": 6
