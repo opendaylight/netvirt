@@ -1,11 +1,12 @@
 /*
- * Copyright (c) 2016 Intel Corporation and others.  All rights reserved.
+ * Copyright (c) 2017 Intel Corporation and others.  All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-package org.opendaylight.netvirt.neutronvpn;
+package org.opendaylight.netvirt.qosservice;
+
 
 import java.math.BigInteger;
 import java.util.Collection;
@@ -32,16 +33,15 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
-public class NeutronQosPolicyChangeListener implements ClusteredDataTreeChangeListener<QosPolicy>, AutoCloseable {
-    private static final Logger LOG = LoggerFactory.getLogger(NeutronQosPolicyChangeListener.class);
+public class QosPolicyChangeListener implements ClusteredDataTreeChangeListener<QosPolicy>, AutoCloseable {
+    private static final Logger LOG = LoggerFactory.getLogger(QosPolicyChangeListener.class);
     private ListenerRegistration<DataTreeChangeListener<QosPolicy>> listenerRegistration;
     private final DataBroker dataBroker;
     private final OdlInterfaceRpcService odlInterfaceRpcService;
 
 
-    public NeutronQosPolicyChangeListener(final DataBroker dataBroker,
-            final OdlInterfaceRpcService odlInterfaceRpcService) {
+    public QosPolicyChangeListener(final DataBroker dataBroker,
+                                   final OdlInterfaceRpcService odlInterfaceRpcService) {
         this.dataBroker = dataBroker;
         this.odlInterfaceRpcService = odlInterfaceRpcService;
     }
@@ -51,9 +51,9 @@ public class NeutronQosPolicyChangeListener implements ClusteredDataTreeChangeLi
         DataTreeIdentifier<QosPolicy> dataTreeIdentifier =
                 new DataTreeIdentifier<>(LogicalDatastoreType.CONFIGURATION,
                         InstanceIdentifier.create(Neutron.class).child(QosPolicies.class).child(QosPolicy.class));
-        LOG.info("Neutron Manager Qos Policy DataChange listener registration {}", dataTreeIdentifier);
+        LOG.info("Qos Policy DataChange listener registration {}", dataTreeIdentifier);
         listenerRegistration = dataBroker.registerDataTreeChangeListener(dataTreeIdentifier,
-                NeutronQosPolicyChangeListener.this);
+                QosPolicyChangeListener.this);
     }
 
     @Override
@@ -68,7 +68,7 @@ public class NeutronQosPolicyChangeListener implements ClusteredDataTreeChangeLi
             }
             listenerRegistration.close();
         }
-        LOG.info("N_Qos Policy listener Closed");
+        LOG.info("Qos Policy listener Closed");
     }
 
     @Override
@@ -82,11 +82,11 @@ public class NeutronQosPolicyChangeListener implements ClusteredDataTreeChangeLi
                 ChangeUtils.extractOriginal(changes, QosPolicy.class);
 
         for (Entry<InstanceIdentifier<QosPolicy>, QosPolicy> qosPolicyMapEntry :
-            ChangeUtils.extractCreated(changes, QosPolicy.class).entrySet()) {
+                ChangeUtils.extractCreated(changes, QosPolicy.class).entrySet()) {
             add(qosPolicyMapEntry.getKey(), qosPolicyMapEntry.getValue());
         }
         for (Entry<InstanceIdentifier<QosPolicy>, QosPolicy> qosPolicyMapEntry :
-            ChangeUtils.extractUpdated(changes, QosPolicy.class).entrySet()) {
+                ChangeUtils.extractUpdated(changes, QosPolicy.class).entrySet()) {
             update(qosPolicyMapEntry.getKey(), qosPolicyOriginalMap.get(qosPolicyMapEntry.getKey()),
                     qosPolicyMapEntry.getValue());
         }
@@ -100,47 +100,47 @@ public class NeutronQosPolicyChangeListener implements ClusteredDataTreeChangeLi
                 ChangeUtils.extractOriginal(changes, BandwidthLimitRules.class);
 
         for (Entry<InstanceIdentifier<BandwidthLimitRules>, BandwidthLimitRules> bwLimitMapEntry :
-            ChangeUtils.extractCreated(changes, BandwidthLimitRules.class).entrySet()) {
+                ChangeUtils.extractCreated(changes, BandwidthLimitRules.class).entrySet()) {
             add(bwLimitMapEntry.getKey(), bwLimitMapEntry.getValue());
         }
         for (Entry<InstanceIdentifier<BandwidthLimitRules>, BandwidthLimitRules> bwLimitMapEntry :
-            ChangeUtils.extractUpdated(changes, BandwidthLimitRules.class).entrySet()) {
+                ChangeUtils.extractUpdated(changes, BandwidthLimitRules.class).entrySet()) {
             update(bwLimitMapEntry.getKey(), bwLimitOriginalMap.get(bwLimitMapEntry.getKey()),
                     bwLimitMapEntry.getValue());
         }
         for (InstanceIdentifier<BandwidthLimitRules> bwLimitIid :
-            ChangeUtils.extractRemoved(changes, BandwidthLimitRules.class)) {
+                ChangeUtils.extractRemoved(changes, BandwidthLimitRules.class)) {
             remove(bwLimitIid, bwLimitOriginalMap.get(bwLimitIid));
         }
     }
 
     private void add(InstanceIdentifier<QosPolicy> identifier, QosPolicy input) {
         LOG.trace("Adding  QosPolicy : key: {}, value={}", identifier, input);
-        NeutronvpnUtils.addToQosPolicyCache(input);
+        QosNeutronUtils.addToQosPolicyCache(input);
     }
 
     private void add(InstanceIdentifier<BandwidthLimitRules> identifier, BandwidthLimitRules input) {
         LOG.trace("Adding BandwidthlimitRules : key: {}, value={}", identifier, input);
 
         Uuid qosUuid = identifier.firstKeyOf(QosPolicy.class).getUuid();
-        if (NeutronvpnUtils.qosNetworksMap.get(qosUuid) != null
-                && !NeutronvpnUtils.qosNetworksMap.get(qosUuid).isEmpty()) {
-            for (Network network : NeutronvpnUtils.qosNetworksMap.get(qosUuid).values()) {
-                NeutronQosUtils.handleNeutronNetworkQosUpdate(dataBroker, odlInterfaceRpcService, network, qosUuid);
+        if (QosNeutronUtils.qosNetworksMap.get(qosUuid) != null
+                && !QosNeutronUtils.qosNetworksMap.get(qosUuid).isEmpty()) {
+            for (Network network : QosNeutronUtils.qosNetworksMap.get(qosUuid).values()) {
+                QosNeutronUtils.handleNeutronNetworkQosUpdate(dataBroker, odlInterfaceRpcService, network, qosUuid);
             }
         }
 
-        if (NeutronvpnUtils.qosPortsMap.get(qosUuid) != null
-                && !NeutronvpnUtils.qosPortsMap.get(qosUuid).isEmpty()) {
-            for (Port port : NeutronvpnUtils.qosPortsMap.get(qosUuid).values()) {
-                NeutronQosUtils.setPortBandwidthLimits(dataBroker, odlInterfaceRpcService, port, input);
+        if (QosNeutronUtils.qosPortsMap.get(qosUuid) != null
+                && !QosNeutronUtils.qosPortsMap.get(qosUuid).isEmpty()) {
+            for (Port port : QosNeutronUtils.qosPortsMap.get(qosUuid).values()) {
+                QosNeutronUtils.setPortBandwidthLimits(dataBroker, odlInterfaceRpcService, port, input);
             }
         }
     }
 
     private void remove(InstanceIdentifier<QosPolicy> identifier, QosPolicy input) {
         LOG.trace("Removing QosPolicy : key: {}, value={}", identifier, input);
-        NeutronvpnUtils.removeFromQosPolicyCache(input);
+        QosNeutronUtils.removeFromQosPolicyCache(input);
     }
 
     private void remove(InstanceIdentifier<BandwidthLimitRules> identifier, BandwidthLimitRules input) {
@@ -151,42 +151,42 @@ public class NeutronQosPolicyChangeListener implements ClusteredDataTreeChangeLi
         BandwidthLimitRules zeroBwLimitRule =
                 bwLimitBuilder.setMaxBurstKbps(BigInteger.ZERO).setMaxKbps(BigInteger.ZERO).build();
 
-        if (NeutronvpnUtils.qosNetworksMap.get(qosUuid) != null
-                && !NeutronvpnUtils.qosNetworksMap.get(qosUuid).isEmpty()) {
-            for (Network network : NeutronvpnUtils.qosNetworksMap.get(qosUuid).values()) {
-                NeutronQosUtils.handleNeutronNetworkQosRemove(dataBroker, odlInterfaceRpcService, network, qosUuid);
+        if (QosNeutronUtils.qosNetworksMap.get(qosUuid) != null
+                && !QosNeutronUtils.qosNetworksMap.get(qosUuid).isEmpty()) {
+            for (Network network : QosNeutronUtils.qosNetworksMap.get(qosUuid).values()) {
+                QosNeutronUtils.handleNeutronNetworkQosRemove(dataBroker, odlInterfaceRpcService, network, qosUuid);
             }
         }
 
-        if (NeutronvpnUtils.qosPortsMap.get(qosUuid) != null
-                && !NeutronvpnUtils.qosPortsMap.get(qosUuid).isEmpty()) {
-            for (Port port : NeutronvpnUtils.qosPortsMap.get(qosUuid).values()) {
-                NeutronQosUtils.setPortBandwidthLimits(dataBroker, odlInterfaceRpcService, port, zeroBwLimitRule);
+        if (QosNeutronUtils.qosPortsMap.get(qosUuid) != null
+                && !QosNeutronUtils.qosPortsMap.get(qosUuid).isEmpty()) {
+            for (Port port : QosNeutronUtils.qosPortsMap.get(qosUuid).values()) {
+                QosNeutronUtils.setPortBandwidthLimits(dataBroker, odlInterfaceRpcService, port, zeroBwLimitRule);
             }
         }
     }
 
     private void update(InstanceIdentifier<QosPolicy> identifier, QosPolicy original, QosPolicy update) {
         LOG.trace("Updating QosPolicy : key: {}, original value={}, update value={}", identifier, original, update);
-        NeutronvpnUtils.addToQosPolicyCache(update);
+        QosNeutronUtils.addToQosPolicyCache(update);
     }
 
     private void update(InstanceIdentifier<BandwidthLimitRules> identifier, BandwidthLimitRules original,
-            BandwidthLimitRules update) {
+                        BandwidthLimitRules update) {
         LOG.trace("Updating BandwidthLimitRules : key: {}, original value={}, update value={}", identifier, original,
                 update);
         Uuid qosUuid = identifier.firstKeyOf(QosPolicy.class).getUuid();
-        if (NeutronvpnUtils.qosNetworksMap.get(qosUuid) != null
-                && !NeutronvpnUtils.qosNetworksMap.get(qosUuid).isEmpty()) {
-            for (Network network : NeutronvpnUtils.qosNetworksMap.get(qosUuid).values()) {
-                NeutronQosUtils.handleNeutronNetworkQosUpdate(dataBroker, odlInterfaceRpcService, network, qosUuid);
+        if (QosNeutronUtils.qosNetworksMap.get(qosUuid) != null
+                && !QosNeutronUtils.qosNetworksMap.get(qosUuid).isEmpty()) {
+            for (Network network : QosNeutronUtils.qosNetworksMap.get(qosUuid).values()) {
+                QosNeutronUtils.handleNeutronNetworkQosUpdate(dataBroker, odlInterfaceRpcService, network, qosUuid);
             }
         }
 
-        if (NeutronvpnUtils.qosPortsMap.get(qosUuid) != null
-                && !NeutronvpnUtils.qosPortsMap.get(qosUuid).isEmpty()) {
-            for (Port port : NeutronvpnUtils.qosPortsMap.get(qosUuid).values()) {
-                NeutronQosUtils.setPortBandwidthLimits(dataBroker, odlInterfaceRpcService, port, update);
+        if (QosNeutronUtils.qosPortsMap.get(qosUuid) != null
+                && !QosNeutronUtils.qosPortsMap.get(qosUuid).isEmpty()) {
+            for (Port port : QosNeutronUtils.qosPortsMap.get(qosUuid).values()) {
+                QosNeutronUtils.setPortBandwidthLimits(dataBroker, odlInterfaceRpcService, port, update);
             }
         }
     }
