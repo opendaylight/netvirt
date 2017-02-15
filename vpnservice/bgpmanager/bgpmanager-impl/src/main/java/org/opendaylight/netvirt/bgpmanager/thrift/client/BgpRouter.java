@@ -191,7 +191,8 @@ public class BgpRouter {
                                 op.l2label,
                                 op.l3label,
                                 op.thriftEncapType,
-                                op.routermac)
+                                op.routermac,
+                                af_afi.findByValue(op.ints[0]))
 
                         : bgpClient.withdrawRoute(
                         op.thriftProtocolType,
@@ -199,7 +200,8 @@ public class BgpRouter {
                         op.strs[0],//rd
                         op.ethernetTag,
                         op.esi,
-                        op.macAddress);
+                        op.macAddress,
+                        af_afi.findByValue(op.ints[0]));
                 break;
             case LOG:
                 result = bgpClient.setLogConfig(op.strs[0], op.strs[1]);
@@ -381,8 +383,9 @@ public class BgpRouter {
         handle.setState(BgpSyncHandle.ITERATING);
         int winSize = handle.getMaxCount() * handle.getRouteSize();
 
+        af_afi afi = af_afi.AFI_IP;
         // TODO: receive correct protocol_type here, currently populating with dummy protocol type
-        Routes outRoutes = bgpClient.getRoutes(protocol_type.PROTOCOL_ANY, op, winSize);
+        Routes outRoutes = bgpClient.getRoutes(protocol_type.PROTOCOL_ANY, op, winSize, afi);
         if (outRoutes.errcode != 0) {
             return outRoutes;
         }

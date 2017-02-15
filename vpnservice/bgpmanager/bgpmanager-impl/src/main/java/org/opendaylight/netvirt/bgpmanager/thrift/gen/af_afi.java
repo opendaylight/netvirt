@@ -13,6 +13,7 @@ import org.apache.thrift.TEnum;
 
 public enum af_afi implements org.apache.thrift.TEnum {
   AFI_IP(1),
+  AFI_IPV6(2),
   AFI_L2VPN(3);
 
   private final int value;
@@ -36,6 +37,8 @@ public enum af_afi implements org.apache.thrift.TEnum {
     switch (value) {
       case 1:
         return AFI_IP;
+      case 2:
+        return AFI_IPV6;
       case 3:
         return AFI_L2VPN;
       default:

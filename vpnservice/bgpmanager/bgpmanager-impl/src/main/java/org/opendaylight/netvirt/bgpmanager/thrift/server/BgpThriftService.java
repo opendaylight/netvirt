@@ -25,6 +25,7 @@ import org.opendaylight.netvirt.bgpmanager.FibDSWriter;
 import org.opendaylight.netvirt.bgpmanager.api.IBgpManager;
 import org.opendaylight.netvirt.bgpmanager.thrift.gen.BgpUpdater;
 import org.opendaylight.netvirt.bgpmanager.thrift.gen.protocol_type;
+import org.opendaylight.netvirt.bgpmanager.thrift.gen.af_afi;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.fibentries.VrfTables;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -132,7 +133,8 @@ public class BgpThriftService {
                                       String macaddress,
                                       int l2label,
                                       int l3label,
-                                      String routermac) {
+                                      String routermac,
+                                      af_afi afi) {
             try {
                 LOGGER.debug("Update on push route : rd {} prefix {} plen {}", rd, prefix, plen);
 
@@ -163,7 +165,8 @@ public class BgpThriftService {
                                           String esi,
                                           String macaddress,
                                           int l2label,
-                                          int l3label) {
+                                          int l3label,
+                                          af_afi afi) {
             LOGGER.debug("Route del ** {} ** {}/{} ", rd, prefix, plen);
             LOGGER.info("REMOVE: Removing Fib entry rd {} prefix {} nexthop {}", rd, prefix, nexthop);
             fibDSWriter.removeOrUpdateFibEntryFromDS(rd, prefix + "/" + plen, nexthop);
