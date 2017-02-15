@@ -1,0 +1,112 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_b435def8",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronSubnetChangeListener.java",
+        "patchSetId": 20
+      },
+      "lineNbr": 79,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-15T06:37:59Z",
+      "side": 1,
+      "message": "For Flat/VLAN external networks, there is one vpnInstance representing the external network and one more vpnInstance representing external subnet now right?",
+      "revId": "2c1f7cae59ba657a8a85e1ce7a963f4728359112",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_3421eeb4",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronSubnetChangeListener.java",
+        "patchSetId": 20
+      },
+      "lineNbr": 155,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-15T06:37:59Z",
+      "side": 1,
+      "message": "please have this in update() method itself symmetric to how you handled add() and remove(). \n\nI request in general avoid code scattering for Flat/Vlan specific networks handling.\n\nWould be good to have ExternalSubnetHandler separately written, pass network to that and within that invoke nvpnNatManager specifics based on type of network.  \n\nLet\u0027s see if more changes appear in this file, we must be taking that route to retain modularity and sustainability.",
+      "revId": "2c1f7cae59ba657a8a85e1ce7a963f4728359112",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_370f3030",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnNatManager.java",
+        "patchSetId": 20
+      },
+      "lineNbr": 614,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-15T06:37:59Z",
+      "side": 1,
+      "message": "external",
+      "range": {
+        "startLine": 614,
+        "startChar": 37,
+        "endLine": 614,
+        "endChar": 38
+      },
+      "revId": "2c1f7cae59ba657a8a85e1ce7a963f4728359112",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_d74ea46e",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnNatManager.java",
+        "patchSetId": 20
+      },
+      "lineNbr": 681,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-15T06:37:59Z",
+      "side": 1,
+      "message": "why is the else case here necessary?  \n\nWithout an external subnet, pre-available a router can never become part of the external subnet.",
+      "revId": "2c1f7cae59ba657a8a85e1ce7a963f4728359112",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_f772c8ab",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnNatManager.java",
+        "patchSetId": 20
+      },
+      "lineNbr": 728,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-15T06:37:59Z",
+      "side": 1,
+      "message": "this shoudl be updateExternalSubnet.",
+      "revId": "2c1f7cae59ba657a8a85e1ce7a963f4728359112",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_576914bd",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnNatManager.java",
+        "patchSetId": 20
+      },
+      "lineNbr": 743,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-15T06:37:59Z",
+      "side": 1,
+      "message": "what has this method to do with FixedIps.  It just seems to return all the externalsubnets matching with input subnetuuids.",
+      "revId": "2c1f7cae59ba657a8a85e1ce7a963f4728359112",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
