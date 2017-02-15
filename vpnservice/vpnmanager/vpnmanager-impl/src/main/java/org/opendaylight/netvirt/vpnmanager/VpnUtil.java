@@ -564,7 +564,8 @@ public class VpnUtil {
     public static void withdrawRoutes(IBgpManager bgpManager, String rd, List<VrfEntry> vrfEntries) {
         vrfEntries.forEach(vrfEntry -> {
             try {
-                bgpManager.withdrawPrefix(rd, vrfEntry.getDestPrefix());
+                long afiValue = 1L;//org.opendaylight.netvirt.bgpmanager.thrift.gen.af_afi.AFI_IP.getValue();
+                bgpManager.withdrawPrefix(rd, vrfEntry.getDestPrefix(), afiValue);
             } catch (Exception e) {
                 LOG.error("Could not withdraw route to {} with route-paths {} in VpnRd {}",
                           vrfEntry.getDestPrefix(), vrfEntry.getRoutePaths(), rd);

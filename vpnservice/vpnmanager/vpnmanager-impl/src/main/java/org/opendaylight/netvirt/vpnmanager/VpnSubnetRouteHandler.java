@@ -963,10 +963,12 @@ public class VpnSubnetRouteHandler implements NeutronvpnListener {
             vpnInterfaceManager.addSubnetRouteFibEntryToDS(rd, vpnName, subnetIp, nexthopIp, label, elanTag, nhDpnId,
                     networkName, null);
             try {
-                // BGP manager will handle withdraw and advertise internally if prefix
-                // already exist
+                //BGP manager will handle withdraw and advertise internally if prefix
+                //already exist
+                long afiValue = 1L;//org.opendaylight.netvirt.bgpmanager.thrift.gen.af_afi.AFI_IP.getValue();
                 bgpManager.advertisePrefix(rd, null /*macAddress*/, subnetIp, Collections.singletonList(nexthopIp),
-                        VrfEntry.EncapType.Mplsgre, label, 0 /*l3vni*/, 0 /*l2vni*/, null /*gatewayMacAddress*/);
+                                           VrfEntry.EncapType.Mplsgre, label, 0 /*l3vni*/, 0 /*l2vni*/,
+                                           null /*gatewayMacAddress*/, afiValue);
             } catch (Exception e) {
                 LOG.error("Fail: Subnet route not advertised for rd {} subnetIp {}", rd, subnetIp, e);
                 throw e;
@@ -994,7 +996,8 @@ public class VpnSubnetRouteHandler implements NeutronvpnListener {
         vpnInterfaceManager.deleteSubnetRouteFibEntryFromDS(rd, subnetIp, vpnName);
         if (isBgpVpn) {
             try {
-                bgpManager.withdrawPrefix(rd, subnetIp);
+                long afiValue = 1L;//org.opendaylight.netvirt.bgpmanager.thrift.gen.af_afi.AFI_IP.getValue();
+                bgpManager.withdrawPrefix(rd, subnetIp, afiValue);
             } catch (Exception e) {
                 LOG.error("Fail: Subnet route not withdrawn for rd {} subnetIp {}", rd, subnetIp, e);
                 throw e;
