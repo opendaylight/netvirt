@@ -16,12 +16,14 @@ module odl-fib {
         }
     }
 
-    grouping vrfEntries{
-        list vrfEntry{
-            key  "destPrefix";
+    grouping vrfEntryBase {
             leaf destPrefix {
                 type string;
                 mandatory true;
+            }
+            leaf mac_address {
+               type string;
+               mandatory false;
             }
             leaf origin {
                 type string;
@@ -66,6 +68,22 @@ module odl-fib {
                     type uint32;
                 }
             }
+    }
+
+    grouping vrfEntries{
+        list vrfEntry{
+            key  "destPrefix";
+            uses vrfEntryBase;
+        }
+    }
+
+    grouping macVrfEntries{
+        list MacVrfEntry {
+            key  "mac_address";
+            uses vrfEntryBase;
+            leaf l2vni {
+               type uint32;
+            }
         }
     }
 
@@ -87,6 +105,7 @@ module odl-fib {
             key "routeDistinguisher";
             leaf routeDistinguisher {type string;}
             uses vrfEntries;
+            uses macVrfEntries;
         }
 
         container ipv4Table{
