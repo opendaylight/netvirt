@@ -3,6 +3,8 @@ module elan {
     namespace "urn:opendaylight:netvirt:elan";
     prefix elan;
 
+    import yang-ext {prefix ext; revision-date "2013-07-09";}
+
     import ietf-interfaces {
         prefix if;
     }
@@ -106,6 +108,13 @@ module elan {
                     type uint32;
                 }
             }
+            list external-teps {
+                description "Optional. The external tep ips of the nodes where this elan is present";
+                key tep-ip;
+                leaf tep-ip {
+                    type inet:ip-address;
+                }
+            }
         }
     }
 
@@ -194,6 +203,11 @@ module elan {
 
       leaf isStaticAddress {
         type boolean;
+      }
+
+      leaf prefix {
+        mandatory false;
+        type inet:ip-address;
       }
     }
   }
@@ -286,6 +300,17 @@ module elan {
                 description
                 "The name of the elan-instance.";
             }
+        }
+    }
+
+    augment "/elan:elan-instances/elan:elan-instance" {
+        ext:augment-identifier "evpn-augmentation";
+        leaf evpn-name {
+            type string;
+        }
+
+        leaf l3vpn-name {
+            type string;
         }
     }
 
