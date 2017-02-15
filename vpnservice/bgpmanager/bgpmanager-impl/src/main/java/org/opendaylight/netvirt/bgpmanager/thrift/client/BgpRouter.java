@@ -205,7 +205,8 @@ public class BgpRouter {
                                 op.l2label,
                                 op.l3label,
                                 op.thriftEncapType,
-                                op.routermac)
+                                op.routermac,
+                                af_afi.findByValue(op.ints[1]))
 
                         : bgpClient.withdrawRoute(
                         op.thriftProtocolType,
@@ -213,7 +214,8 @@ public class BgpRouter {
                         op.strs[0],//rd
                         op.ethernetTag,
                         op.esi,
-                        op.macAddress);
+                        op.macAddress,
+                        af_afi.findByValue(op.ints[0]));
                 break;
             case LOG:
                 result = bgpClient.setLogConfig(op.strs[0], op.strs[1]);
@@ -329,7 +331,8 @@ public class BgpRouter {
                                        String esi,
                                        String macaddress,
                                        encap_type encapType,
-                                       String routermac)
+                                       String routermac,
+                                       int afi)
             throws TException, BgpRouterException {
         bop.type = Optype.PFX;
         bop.add = true;
@@ -349,17 +352,19 @@ public class BgpRouter {
         bop.macAddress = macaddress;
         bop.thriftEncapType = encapType;
         bop.routermac = routermac;
+        bop.ints[1] = afi;
 
         LOGGER.debug("Adding BGP route - rd:{} prefix:{} nexthop:{} label:{} ", rd ,prefix, nexthop, label);
         dispatch(bop);
     }
 
-    public synchronized void delPrefix(String rd, String prefix) throws TException, BgpRouterException {
+    public synchronized void delPrefix(String rd, String prefix, int afi) throws TException, BgpRouterException {
         bop.type = Optype.PFX;
         bop.add = false;
         bop.strs[0] = rd;
         bop.strs[1] = prefix;
-        LOGGER.debug("Deleting BGP route - rd:{} prefix:{} ", rd, prefix);
+        bop.ints[0] = afi;
+        LOGGER.debug("Deleting BGP route - rd:{} prefix:{} afi:{}", rd, prefix, afi);
         dispatch(bop);
     }
 
@@ -395,7 +400,7 @@ public class BgpRouter {
         return 0;
     }
 
-    public Routes doRibSync(BgpSyncHandle handle) throws TException, BgpRouterException {
+    public Routes doRibSync(BgpSyncHandle handle, af_afi afi) throws TException, BgpRouterException {
         if (bgpClient == null) {
             throw new BgpRouterException(BgpRouterException.BGP_ERR_NOT_INITED);
         }
@@ -410,7 +415,7 @@ public class BgpRouter {
         int winSize = handle.getMaxCount() * handle.getRouteSize();
 
         // TODO: receive correct protocol_type here, currently populating with dummy protocol type
-        Routes outRoutes = bgpClient.getRoutes(protocol_type.PROTOCOL_ANY, op, winSize);
+        Routes outRoutes = bgpClient.getRoutes(protocol_type.PROTOCOL_ANY, op, winSize, afi);
         if (outRoutes.errcode != 0) {
             return outRoutes;
         }
