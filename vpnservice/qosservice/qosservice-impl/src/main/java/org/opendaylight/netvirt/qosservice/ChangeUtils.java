@@ -5,7 +5,7 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-package org.opendaylight.netvirt.neutronvpn;
+package org.opendaylight.netvirt.qosservice;
 
 import com.google.common.base.Predicates;
 import com.google.common.collect.Maps;
