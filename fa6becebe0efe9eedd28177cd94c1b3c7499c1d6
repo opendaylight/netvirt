@@ -87,6 +87,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_fd8749d5",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/utils/TransportZoneNotificationUtil.java",
+        "patchSetId": 24
+      },
+      "lineNbr": 117,
+      "author": {
+        "id": 670
+      },
+      "writtenOn": "2017-02-15T13:48:32Z",
+      "side": 1,
+      "message": "small nit: use \"VXLAN\" (correct term), or \"Vxlan\" (java convenience) or \"VxLAN\" (used by some), but not VxLan :)",
+      "parentUuid": "fafc7978_5dfad5bd",
+      "revId": "fa6becebe0efe9eedd28177cd94c1b3c7499c1d6",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_5a8adbbf",
         "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/utils/TransportZoneNotificationUtil.java",
         "patchSetId": 24
