@@ -124,9 +124,18 @@ module elan {
             mandatory true;
             type string;
         }
-        leaf-list static-mac-entries {
-            type yang:phys-address;
+
+        list static-mac-entries {
+            key "mac";
+            leaf mac {
+                type yang:phys-address;
+            }
+            leaf prefix {
+                mandatory false;
+                type inet:ip-address;
+            }
         }
+
         leaf description {
             description
                 "A textual description of elan port, the elan port description
@@ -164,6 +173,54 @@ module elan {
     }
   }
 
+    container elan-evpns {
+    config true;
+      description
+        "elan to evpn mapping";
+
+      list elan-evpn {
+          key "name";
+          description "The binding between elan and evpn";
+          max-elements "unbounded";
+          min-elements "0";
+          leaf name {
+              type string;
+              description "The name of the elan-instance.";
+          }
+          leaf evpn {
+              type string;
+              description "The name of evpn to which this elan is attached to";
+          }
+          leaf l3vpn {
+              type string;
+              description "The name of the l3vpn to which this elan is attached to";
+          }
+      }
+    }
+
+    container elan-extn-teps {
+      description "Holds All external teps part of the elan";
+
+      list elan-extn-tep {
+          key "name";
+          description "Holds All external teps part of this elan";
+          max-elements "unbounded";
+          min-elements "0";
+          leaf name {
+              type string;
+              description "The name of the elan-instance.";
+          }
+          list tep{
+              key "tep-ip";
+              leaf tep-ip {
+                  type string;
+                  description "The tep ip";
+              }
+          }
+      }
+    }
+
+
   grouping forwarding-entries {
     description "Details of the MAC entries";
 
@@ -189,6 +246,11 @@ module elan {
 
       leaf isStaticAddress {
         type boolean;
+      }
+
+      leaf prefix {
+        mandatory false;
+        type inet:ip-address;
       }
     }
   }

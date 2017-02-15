@@ -132,8 +132,14 @@ module neutronvpn {
           type    yang:uuid;
           description "UUID representing the network ";
         }
+
         leaf l3vni {
            type uint32;
+        }
+
+         leaf l2vni {
+           type uint32;
+           description "this VNI represents the VXLAN VNI of the network that will be part of EVPN.";
         }
     }
 
