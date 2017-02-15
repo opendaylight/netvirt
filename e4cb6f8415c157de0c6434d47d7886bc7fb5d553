@@ -1,0 +1,140 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_9adc4314",
+        "filename": "vpnservice/features/pom.xml",
+        "patchSetId": 1
+      },
+      "lineNbr": 251,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-15T11:54:47Z",
+      "side": 1,
+      "message": "qosservice donot have any APIs?",
+      "revId": "e4cb6f8415c157de0c6434d47d7886bc7fb5d553",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_7ad7dfed",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/pom.xml",
+        "patchSetId": 1
+      },
+      "lineNbr": 101,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-15T11:54:47Z",
+      "side": 1,
+      "message": "dependencies should be only towards APIs and not Impls.",
+      "revId": "e4cb6f8415c157de0c6434d47d7886bc7fb5d553",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_3af43786",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronQosManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-15T11:54:47Z",
+      "side": 1,
+      "message": "copyright should be on the top.\n\nAfter that package and then two lines later imports will start.\n\nImports in order of google, then java libraries, then org.opendaylight.xxx in alphabetical order.",
+      "revId": "e4cb6f8415c157de0c6434d47d7886bc7fb5d553",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_ba2f87f5",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronQosManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-15T11:54:47Z",
+      "side": 1,
+      "message": "why should NeutronvpnUtils used here.  \n\nYou can build your own qosUtils and have methods in them that fetch information directly from NeutronNorthbound.",
+      "revId": "e4cb6f8415c157de0c6434d47d7886bc7fb5d553",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_fa390f42",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronQosManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-15T11:54:47Z",
+      "side": 1,
+      "message": "ditto comment here.",
+      "revId": "e4cb6f8415c157de0c6434d47d7886bc7fb5d553",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_5a401ba5",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronQosManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-15T11:54:47Z",
+      "side": 1,
+      "message": "ditto comment here.",
+      "revId": "e4cb6f8415c157de0c6434d47d7886bc7fb5d553",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_1a0e938d",
+        "filename": "vpnservice/qosservice/qosservice-impl/pom.xml",
+        "patchSetId": 1
+      },
+      "lineNbr": 91,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-15T11:54:47Z",
+      "side": 1,
+      "message": "please avoid referring impl of other bundles.",
+      "revId": "e4cb6f8415c157de0c6434d47d7886bc7fb5d553",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_fa10efa9",
+        "filename": "vpnservice/qosservice/qosservice-impl/pom.xml",
+        "patchSetId": 1
+      },
+      "lineNbr": 101,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-15T11:54:47Z",
+      "side": 1,
+      "message": "ditto here.",
+      "revId": "e4cb6f8415c157de0c6434d47d7886bc7fb5d553",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
