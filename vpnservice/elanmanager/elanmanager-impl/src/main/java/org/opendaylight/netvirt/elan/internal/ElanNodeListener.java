@@ -110,6 +110,8 @@ public class ElanNodeListener extends AbstractDataChangeListener<Node> implement
                         new ActionLearn.MatchFromField(NwConstants.NxmOfFieldType.NXM_OF_ETH_SRC.getType(),
                                 NwConstants.NxmOfFieldType.NXM_OF_ETH_SRC.getType(),
                                 NwConstants.NxmOfFieldType.NXM_OF_ETH_SRC.getFlowModHeaderLenInt()),
+                        new ActionLearn.MatchFromField(NwConstants.NxmOfFieldType.NXM_NX_REG1.getType(),
+                                NwConstants.NxmOfFieldType.NXM_NX_REG1.getType(), ElanConstants.INTERFACE_TAG_LENGTH),
                         new ActionLearn.CopyFromValue(LEARN_MATCH_REG4_VALUE,
                                 NwConstants.NxmOfFieldType.NXM_NX_REG4.getType(), 8))));
 
