@@ -10,6 +10,7 @@ package org.opendaylight.netvirt.bgpmanager.commands;
 
 import java.io.PrintStream;
 import org.opendaylight.netvirt.bgpmanager.BgpManager;
+import org.opendaylight.netvirt.bgpmanager.thrift.gen.af_afi;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
 
 public class Commands {
@@ -18,7 +19,7 @@ public class Commands {
     private static final long AS_MAX = 4294967295L;//2^32-1
 
     enum Validators {
-        IPADDR, INT, ASNUM
+        IPADDR, INT, ASNUM, AFI
     }
 
     public Commands(BgpManager bgpm) {
@@ -49,6 +50,19 @@ public class Commands {
                 break;
             case ASNUM:
                 if (!validateAsNumber(ps, val)) {
+                    return false;
+                }
+                break;
+            case AFI:
+                try {
+                    int afiValue = Integer.parseInt(val);
+                    if (afiValue < 1 || afiValue > af_afi.values().length) {
+                        ps.println("error: value of " + name
+                                + " is not an integer between 1(ipv4) and 2(ipv6), its value is " + val);
+                        return false;
+                    }
+                } catch (NumberFormatException nme) {
+                    ps.println("error: value of " + name + " is not an integer");
                     return false;
                 }
                 break;
