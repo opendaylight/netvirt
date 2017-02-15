@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_fa458f17",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanNodeListener.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 110,
+      "author": {
+        "id": 670
+      },
+      "writtenOn": "2017-02-15T10:45:25Z",
+      "side": 1,
+      "message": "move the if into the createMulticastPuntFlows function (or do we want the flag to enable/disable all protocol punts?)",
+      "revId": "f18d8ff779bc707a3fc5e085be2db845729064b3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_5a4c9b42",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/resources/initial/netvirt-elanmanager-config.xml",
+        "patchSetId": 6
+      },
+      "lineNbr": 5,
+      "author": {
+        "id": 670
+      },
+      "writtenOn": "2017-02-15T10:45:25Z",
+      "side": 1,
+      "message": "Koby do we want to experiment with this on?",
+      "revId": "f18d8ff779bc707a3fc5e085be2db845729064b3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
