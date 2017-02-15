@@ -45,6 +45,11 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
             <artifactId>mdsalutil-api</artifactId>
             <version>${genius.version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.opendaylight.controller</groupId>
+            <artifactId>sal-binding-api</artifactId>
+            <version>1.5.0-SNAPSHOT</version>
+        </dependency>
     </dependencies>
 
     <!--

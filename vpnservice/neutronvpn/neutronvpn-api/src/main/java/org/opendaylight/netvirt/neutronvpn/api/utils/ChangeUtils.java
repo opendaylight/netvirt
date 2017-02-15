@@ -5,7 +5,7 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-package org.opendaylight.netvirt.neutronvpn;
+package org.opendaylight.netvirt.neutronvpn.api.utils;
 
 import com.google.common.base.Predicates;
 import com.google.common.collect.Maps;
@@ -31,7 +31,6 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.binding.KeyedInstanceIdentifier;
 
 public class ChangeUtils {
-
     private ChangeUtils() { }
 
     private static <T extends DataObject> Predicate<DataObjectModification<T>> hasDataBefore() {
@@ -61,7 +60,7 @@ public class ChangeUtils {
     }
 
     private static <T extends DataObject> Predicate<DataObjectModification<T>>
-        modificationIsDeletionAndHasDataBefore() {
+            modificationIsDeletionAndHasDataBefore() {
         return input -> input != null && input.getModificationType() == DataObjectModification
                 .ModificationType.DELETE && input.getDataBefore() != null;
     }
@@ -167,8 +166,7 @@ public class ChangeUtils {
      * @return The created, updated or removed instances, mapped by instance identifier.
      */
     public static <T extends DataObject, U extends DataObject> Map<InstanceIdentifier<T>, T>
-        extractCreatedOrUpdatedOrRemoved(
-            Collection<DataTreeModification<U>> changes, Class<T> clazz) {
+           extractCreatedOrUpdatedOrRemoved(Collection<DataTreeModification<U>> changes, Class<T> clazz) {
         Map<InstanceIdentifier<T>, T> result = extractCreatedOrUpdated(changes, clazz);
         result.putAll(extractRemovedObjects(changes, clazz));
         return result;
@@ -240,8 +238,8 @@ public class ChangeUtils {
      * @return The modifications, mapped by instance identifier.
      */
     private static <T extends DataObject, U extends DataObject> Map<InstanceIdentifier<T>, DataObjectModification<T>>
-        extractDataObjectModifications(Collection<DataTreeModification<U>> changes, Class<T> clazz,
-                                       Predicate<DataObjectModification<T>> filter) {
+            extractDataObjectModifications(Collection<DataTreeModification<U>> changes, Class<T> clazz,
+                                   Predicate<DataObjectModification<T>> filter) {
         List<DataObjectModification<? extends DataObject>> dataObjectModifications = new ArrayList<>();
         List<InstanceIdentifier<? extends DataObject>> paths = new ArrayList<>();
         if (changes != null) {
@@ -265,7 +263,7 @@ public class ChangeUtils {
      * @return The modifications, mapped by instance identifier.
      */
     private static <T extends DataObject> Map<InstanceIdentifier<T>, DataObjectModification<T>>
-        extractDataObjectModifications(
+            extractDataObjectModifications(
             Collection<DataObjectModification<? extends DataObject>> changes,
             Collection<InstanceIdentifier<? extends DataObject>> paths, Class<T> clazz,
             Predicate<DataObjectModification<T>> filter) {
@@ -297,7 +295,7 @@ public class ChangeUtils {
      * @return The extended path.
      */
     private static <N extends Identifiable<K> & ChildOf<? super T>, K extends Identifier<N>, T extends DataObject>
-        InstanceIdentifier<? extends DataObject> extendPath(
+            InstanceIdentifier<? extends DataObject> extendPath(
             InstanceIdentifier path,
             DataObjectModification child) {
         Class<N> item = (Class<N>) child.getDataType();
