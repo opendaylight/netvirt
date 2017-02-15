@@ -1,0 +1,72 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_3491ee52",
+        "filename": "openstack/net-virt-providers/src/main/java/org/opendaylight/netvirt/openstack/netvirt/providers/openflow13/services/L2ForwardingService.java",
+        "patchSetId": 12
+      },
+      "lineNbr": 64,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2017-02-15T01:02:24Z",
+      "side": 1,
+      "message": "Better return the byte array rather manipulating inside a method, we could write as:\n\npublic static byte[] longToBytes(long x) {\n    ByteBuffer buffer \u003d ByteBuffer.allocate(Long.BYTES);\n    buffer.putLong(x);\n    return buffer.array();\n}\n\nor old-school way:\n\npublic static byte[] longToBytes(long l) {\n    byte[] result \u003d new byte[8];\n    for (int i \u003d 7; i \u003e\u003d 0; i--) {\n        result[i] \u003d (byte)(l \u0026 0xFF);\n        l \u003e\u003e\u003d 8;\n    }\n    return result;\n}",
+      "revId": "f6ee0299cc061995ddb56a52a8aced01927074b7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_d4898227",
+        "filename": "openstack/net-virt-providers/src/main/java/org/opendaylight/netvirt/openstack/netvirt/providers/openflow13/services/L2ForwardingService.java",
+        "patchSetId": 12
+      },
+      "lineNbr": 109,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2017-02-15T01:02:24Z",
+      "side": 1,
+      "message": "Why do you need to convert long to byte array?\nCould you use the localPort directly?\n\nflowBuilder.setCookie(new FlowCookie(new BigInteger(localPort)));\n\n\nIF using the new method longToBytes we could write:\n\nflowBuilder.setCookie(new FlowCookie(new BigInteger(longToBytes(localPort)));",
+      "revId": "f6ee0299cc061995ddb56a52a8aced01927074b7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_547d921b",
+        "filename": "openstack/net-virt-providers/src/main/java/org/opendaylight/netvirt/openstack/netvirt/providers/openflow13/services/L2ForwardingService.java",
+        "patchSetId": 12
+      },
+      "lineNbr": 127,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2017-02-15T01:02:24Z",
+      "side": 1,
+      "message": "Why do you need to set the mask of all \u00271\u0027s here? it doesn\u0027t seem to \u0027mask\u0027 out anything\n\nIf you need have the mask, you could write:\n// define cookies mask as static class variable:\nprivate byte[] COOKIE_MASK \u003d longToBytes(-1);\n\nflowBuilder.setCookie(new FlowCookie(new BigInteger((COOKIE_MASK)));",
+      "revId": "f6ee0299cc061995ddb56a52a8aced01927074b7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_3478ce2a",
+        "filename": "openstack/net-virt-providers/src/main/java/org/opendaylight/netvirt/openstack/netvirt/providers/openflow13/services/L2ForwardingService.java",
+        "patchSetId": 12
+      },
+      "lineNbr": 480,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2017-02-15T01:02:24Z",
+      "side": 1,
+      "message": "same comment as in programLocalUcastOut",
+      "revId": "f6ee0299cc061995ddb56a52a8aced01927074b7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
