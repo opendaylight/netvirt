@@ -107,6 +107,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_e3868612",
+        "filename": "vpnservice/cloud-servicechain/cloud-servicechain-impl/src/main/java/org/opendaylight/netvirt/cloudservicechain/utils/VpnServiceChainUtils.java",
+        "patchSetId": 21
+      },
+      "lineNbr": 331,
+      "author": {
+        "id": 5350
+      },
+      "writtenOn": "2017-02-15T17:33:12Z",
+      "side": 1,
+      "message": "sorry, I saw this just right now.\nI still prefer early returns:\n\nhttp://softwareengineering.stackexchange.com/questions/18454/should-i-return-from-a-function-early-or-use-an-if-statement \n\nhttp://stackoverflow.com/questions/4369822/early-returns-vs-nested-positive-if-statements \n\n... but that\u0027s up to you :-)",
+      "parentUuid": "fafc7978_81421d3c",
+      "revId": "ee6db13e8ffb5ee76e83f31eeeede018dfcbd30f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_03bbd572",
         "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/FibUtil.java",
         "patchSetId": 21
