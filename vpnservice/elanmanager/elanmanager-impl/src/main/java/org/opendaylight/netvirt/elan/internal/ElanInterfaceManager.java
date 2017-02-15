@@ -1512,22 +1512,32 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
             if (dpnInterfaces == null) {
                 continue;
             }
+            DpnInterfaces dstDpnIf = null;
             for (DpnInterfaces dpnIf : dpnInterfaces) {
-                if (dpnIf.getDpId().equals(srcDpId) || dpnIf.getDpId().equals(dstDpId)) {
+                BigInteger dpnIfDpId = dpnIf.getDpId();
+                if (dpnIfDpId.equals(srcDpId)) {
                     cnt++;
+                } else if (dpnIfDpId.equals(dstDpId)) {
+                    cnt++;
+                    dstDpnIf = dpnIf;
                 }
             }
             if (cnt == 2) {
                 LOG.debug("Elan instance:{} is present b/w srcDpn:{} and dstDpn:{}", elanName, srcDpId, dstDpId);
                 ElanInstance elanInfo = ElanUtils.getElanInstanceByName(broker, elanName);
+                if (elanInfo == null) {
+                    LOG.warn("ELAN Info is null for elanName {} that does exist in elanDpnInterfaceList, "
+                            + "skipping this ELAN for tunnel handling", elanName);
+                    continue;
+                }
                 DataStoreJobCoordinator dataStoreCoordinator = DataStoreJobCoordinator.getInstance();
+                final DpnInterfaces finalDstDpnIf = dstDpnIf; // var needs to be final so it can be accessed in lambda
                 dataStoreCoordinator.enqueueJob(elanName, () -> {
                     // update Remote BC Group
                     setupElanBroadcastGroups(elanInfo, srcDpId);
 
-                    DpnInterfaces dpnInterface = elanUtils.getElanInterfaceInfoByElanDpn(elanName, dstDpId);
                     Set<String> interfaceLists = new HashSet<>();
-                    interfaceLists.addAll(dpnInterface.getInterfaces());
+                    interfaceLists.addAll(finalDstDpnIf.getInterfaces());
                     for (String ifName : interfaceLists) {
                         dataStoreCoordinator.enqueueJob(ifName, () -> {
                             InterfaceInfo interfaceInfo = interfaceManager.getInterfaceInfo(ifName);
