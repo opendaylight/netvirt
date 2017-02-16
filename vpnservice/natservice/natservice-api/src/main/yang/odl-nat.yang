@@ -28,8 +28,14 @@ module odl-nat {
             leaf network-id { type yang:uuid; }
             leaf-list external-subnet-ids { type yang:uuid; }
             leaf enable-snat { type boolean; }
-            leaf-list external-ips {
-                type string; //format - ipaddress\prefixlength
+            list external-ips {
+                key "subnet-id ip-address";
+                leaf subnet-id {
+                    type yang:uuid;
+                }
+                leaf ip-address {
+                    type string; //format - ipaddress\prefixlength
+                }
             }
             leaf-list subnet-ids { type yang:uuid; }
             leaf ext_gw_mac_address { type string; }

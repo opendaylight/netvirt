@@ -26,6 +26,9 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev16011
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ext.routers.Routers;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ext.routers.RoutersBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ext.routers.RoutersKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ext.routers.routers.ExternalIps;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ext.routers.routers.ExternalIpsBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ext.routers.routers.ExternalIpsKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.external.networks.Networks;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.external.networks.NetworksBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.external.networks.NetworksKey;
@@ -462,11 +465,17 @@ public class NeutronvpnNatManager implements AutoCloseable {
             builder.setExternalSubnetIds(extSubnetIds);
             builder.setEnableSnat(update.getExternalGatewayInfo().isEnableSnat());
 
-            ArrayList<String> extFixedIps = new ArrayList<>();
+            ArrayList<ExternalIps> externalIps = new ArrayList<>();
             for (ExternalFixedIps fixedIps : update.getExternalGatewayInfo().getExternalFixedIps()) {
-                extFixedIps.add(fixedIps.getIpAddress().getIpv4Address().getValue());
+                Uuid subnetId = fixedIps.getSubnetId();
+                String ip = fixedIps.getIpAddress().getIpv4Address().getValue();
+                ExternalIpsBuilder externalIpsBuilder = new ExternalIpsBuilder();
+                externalIpsBuilder.setKey(new ExternalIpsKey(ip, subnetId));
+                externalIpsBuilder.setIpAddress(ip);
+                externalIpsBuilder.setSubnetId(subnetId);
+                externalIps.add(externalIpsBuilder.build());
             }
-            builder.setExternalIps(extFixedIps);
+            builder.setExternalIps(externalIps);
 
             if (gatewayPortId != null) {
                 LOG.trace("Setting/Updating gateway Mac for router {}", routerId.getValue());
@@ -526,11 +535,16 @@ public class NeutronvpnNatManager implements AutoCloseable {
             if (optionalRouters.isPresent()) {
                 RoutersBuilder builder = new RoutersBuilder(optionalRouters.get());
                 if (builder != null) {
-                    ArrayList<String> extFixedIps = new ArrayList<>();
+                    ArrayList<ExternalIps> externalIps = new ArrayList<>();
                     for (ExternalFixedIps fixedIps : update.getExternalGatewayInfo().getExternalFixedIps()) {
-                        extFixedIps.add(fixedIps.getIpAddress().getIpv4Address().getValue());
+                        Uuid subnetId = fixedIps.getSubnetId();
+                        String ip = fixedIps.getIpAddress().getIpv4Address().getValue();
+                        ExternalIpsBuilder externalIpsBuilder = new ExternalIpsBuilder();
+                        externalIpsBuilder.setKey(new ExternalIpsKey(ip, subnetId));
+                        externalIpsBuilder.setIpAddress(ip);
+                        externalIpsBuilder.setSubnetId(subnetId);
+                        externalIps.add(externalIpsBuilder.build());
                     }
-                    builder.setExternalIps(extFixedIps);
                     builder.setExternalSubnetIds(getExternalSubnetIdsForRouter(update));
                 }
 

@@ -109,6 +109,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev16011
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.SnatintIpPortMap;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ext.routers.Routers;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ext.routers.RoutersKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ext.routers.routers.ExternalIps;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.external.ips.counter.ExternalCounters;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.external.ips.counter.ExternalCountersKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.external.ips.counter.external.counters.ExternalIpCounter;
@@ -904,7 +905,11 @@ public class NatUtil {
 
     public static List<String> getExternalIpsFromRouter(DataBroker dataBroker, String routerName) {
         Routers routerData = NatUtil.getRoutersFromConfigDS(dataBroker, routerName);
-        return (routerData != null) ? routerData.getExternalIps() : Collections.emptyList();
+        if (routerData != null) {
+            return NatUtil.getIpsListFromExternalIps(routerData.getExternalIps());
+        }
+
+        return null;
     }
 
     public static HashMap<String, Long> getExternalIpsLabelForRouter(DataBroker dataBroker, Long routerId) {
@@ -1661,5 +1666,18 @@ public class NatUtil {
             return routerData.get().getExtGwMacAddress();
         }
         return null;
+    }
+
+    static List<String> getIpsListFromExternalIps(List<ExternalIps> externalIps) {
+        List<String> ipsList = new ArrayList<>();
+        if (externalIps == null) {
+            return ipsList;
+        }
+
+        for (ExternalIps externalIp : externalIps) {
+            ipsList.add(externalIp.getIpAddress());
+        }
+
+        return ipsList;
     }
 }

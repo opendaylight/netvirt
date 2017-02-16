@@ -125,6 +125,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev16011
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.NaptSwitches;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ext.routers.Routers;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ext.routers.RoutersKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ext.routers.routers.ExternalIps;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.external.networks.Networks;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.external.networks.NetworksKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.napt.switches.RouterToNaptSwitch;
@@ -1450,5 +1451,18 @@ public class VpnUtil {
 
     public static boolean isBgpVpn(String vpnName, String primaryRd) {
         return !vpnName.equals(primaryRd);
+    }
+
+    public static List<String> getIpsListFromExternalIps(List<ExternalIps> externalIps) {
+        List<String> ipsList = new ArrayList<>();
+        if (externalIps == null) {
+            return ipsList;
+        }
+
+        for (ExternalIps externalIp : externalIps) {
+            ipsList.add(externalIp.getIpAddress());
+        }
+
+        return ipsList;
     }
 }
