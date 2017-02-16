@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_31e8d5e1",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/utils/AclConstants.java",
+        "patchSetId": 9
+      },
+      "lineNbr": 101,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2017-02-16T13:30:40Z",
+      "side": 1,
+      "message": "nit (incase there is a need to respin): PREFIX",
+      "revId": "11d5aebc2b35afd1d7212f62cad19bf756d83677",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_11caf16d",
+        "filename": "vpnservice/aclservice/impl/src/test/java/org/opendaylight/netvirt/aclservice/tests/AclServiceTestBase.java",
+        "patchSetId": 9
+      },
+      "lineNbr": 455,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2017-02-16T13:30:40Z",
+      "side": 1,
+      "message": "nit (incase you have to respin): instead of 1, you can use the same constant here - i.e., SOURCE_REMOTE_IP_PREFIX_SPECIFIED",
+      "revId": "11d5aebc2b35afd1d7212f62cad19bf756d83677",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
