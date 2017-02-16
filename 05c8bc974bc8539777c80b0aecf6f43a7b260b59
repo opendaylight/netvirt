@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_d113490b",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanInterfaceManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 1535,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2017-02-16T13:21:03Z",
+      "side": 1,
+      "message": "I don\u0027t think this block is reachable\n\nin fact I\u0027m not sure this extra read getElanInterfaceInfoByElanDpn() is even needed.\nwhen doing the loop to get the cnt, it\u0027s possible to mark the DpnInterfaces of dstDpId while checking dpnIf.getDpId().equals(dstDpId) and remove this read + check",
+      "revId": "05c8bc974bc8539777c80b0aecf6f43a7b260b59",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
