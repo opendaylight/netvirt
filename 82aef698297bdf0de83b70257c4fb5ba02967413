@@ -42,6 +42,30 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_a9c0dfe0",
+        "filename": "vpnservice/neutronvpn/neutronvpn-api/src/main/java/org/opendaylight/netvirt/neutronvpn/api/utils/NeutronUtils.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 3276
+      },
+      "writtenOn": "2017-02-16T08:59:13Z",
+      "side": 1,
+      "message": "Ideally these should be though a yang (enum) in NN. Then we don\u0027t even need a util. At very least, make this an enum.",
+      "parentUuid": "fafc7978_cede0911",
+      "range": {
+        "startLine": 36,
+        "startChar": 0,
+        "endLine": 40,
+        "endChar": 65
+      },
+      "revId": "82aef698297bdf0de83b70257c4fb5ba02967413",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_201a527d",
         "filename": "vpnservice/neutronvpn/neutronvpn-api/src/main/java/org/opendaylight/netvirt/neutronvpn/api/utils/NeutronUtils.java",
         "patchSetId": 3
@@ -77,6 +101,23 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_09b80b75",
+        "filename": "vpnservice/neutronvpn/neutronvpn-api/src/main/java/org/opendaylight/netvirt/neutronvpn/api/utils/NeutronUtils.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 77,
+      "author": {
+        "id": 3276
+      },
+      "writtenOn": "2017-02-16T08:59:13Z",
+      "side": 1,
+      "message": "Would be good to use BachingUtil here. Will help with performance in case of switch and ODL Restarts.",
+      "revId": "82aef698297bdf0de83b70257c4fb5ba02967413",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_6ec0bd2a",
         "filename": "vpnservice/neutronvpn/neutronvpn-api/src/main/java/org/opendaylight/netvirt/neutronvpn/api/utils/NeutronUtils.java",
         "patchSetId": 3
@@ -88,6 +129,30 @@
       "writtenOn": "2017-02-15T22:39:30Z",
       "side": 1,
       "message": "Do we want this?\nWhen neutron port is deleted, whole tree will be deleted by Neutron Northbound.",
+      "range": {
+        "startLine": 93,
+        "startChar": 26,
+        "endLine": 93,
+        "endChar": 42
+      },
+      "revId": "82aef698297bdf0de83b70257c4fb5ba02967413",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_e9bae76c",
+        "filename": "vpnservice/neutronvpn/neutronvpn-api/src/main/java/org/opendaylight/netvirt/neutronvpn/api/utils/NeutronUtils.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 93,
+      "author": {
+        "id": 3276
+      },
+      "writtenOn": "2017-02-16T08:59:13Z",
+      "side": 1,
+      "message": "We should be fine as currently status is the only operational data we have. Can revisit if we have more data to store in operational.",
+      "parentUuid": "fafc7978_6ec0bd2a",
       "range": {
         "startLine": 93,
         "startChar": 26,
