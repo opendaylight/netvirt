@@ -105,7 +105,8 @@ public class RouterDpnChangeListener
                     //Install default entry in FIB to SNAT table
                     LOG.debug("Installing default route in FIB on dpn {} for router {} with vpn {}...",
                         dpnId, routerId, vpnId);
-                    installDefaultNatRouteForRouterExternalSubnets(dpnId, router.getExternalSubnetIds());
+                    installDefaultNatRouteForRouterExternalSubnets(dpnId,
+                            NatUtil.getExternalSubnetIdsFromExternalIps(router.getExternalIps()));
                     snatDefaultRouteProgrammer.installDefNATRouteInDPN(dpnId, vpnId);
                 } else {
                     LOG.debug("External BGP vpn associated to router {}", routerId);
@@ -123,7 +124,8 @@ public class RouterDpnChangeListener
                     //Install default entry in FIB to SNAT table
                     LOG.debug("Installing default route in FIB on dpn {} for routerId {} with vpnId {}...",
                         dpnId, routerId, vpnId);
-                    installDefaultNatRouteForRouterExternalSubnets(dpnId, router.getExternalSubnetIds());
+                    installDefaultNatRouteForRouterExternalSubnets(dpnId,
+                            NatUtil.getExternalSubnetIdsFromExternalIps(router.getExternalIps()));
                     snatDefaultRouteProgrammer.installDefNATRouteInDPN(dpnId, vpnId, routId);
                 }
                 extNetGroupInstaller.installExtNetGroupEntries(networkId, dpnId);
