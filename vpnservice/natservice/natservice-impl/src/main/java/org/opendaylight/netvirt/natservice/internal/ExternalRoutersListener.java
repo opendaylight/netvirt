@@ -929,8 +929,8 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
                         //Inform BGP
                         String rd = NatUtil.getVpnRd(dataBroker, vpnName);
                         String nextHopIp = NatUtil.getEndpointIpAddressForDPN(dataBroker, dpnId);
-                        NatUtil.addPrefixToBGP(dataBroker, bgpManager, fibManager, rd, externalIp,
-                            nextHopIp, label, log, RouteOrigin.STATIC);
+                        NatUtil.addPrefixToBGP(dataBroker, bgpManager, fibManager, vpnName, rd,
+                            externalIp, nextHopIp, label, log, RouteOrigin.STATIC, dpnId);
 
                         //Install custom FIB routes
                         List<Instruction> customInstructions = new ArrayList<>();
