@@ -19,6 +19,58 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_efb5c4ee",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/TunnelEndPointChangeListener.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 103,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-16T17:09:11Z",
+      "side": 1,
+      "message": "What  if a tap port disappeared when a tunnel went up?\n\nWe can leave this as WARN.",
+      "parentUuid": "fafc7978_6f91d498",
+      "revId": "1253d5b29b268546c3be2fc8851941bf1e48224e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_8fd7d822",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 602,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-16T17:09:11Z",
+      "side": 1,
+      "message": "it makes me wonder how gateway-ip can be absent for a subnet. \n\nEven if we don\u0027t supply a gateway-ip, neutron will allocate a default gateway ip.  The getVpnSubnetGatewayIp() directly picks the gateway-ip from subnets held by NeutronNorthbound.  \n\nFurther, for a deletion lifecycle,  this method will never be invoked.",
+      "revId": "1253d5b29b268546c3be2fc8851941bf1e48224e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_cfe1e0ff",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 604,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-16T17:09:11Z",
+      "side": 1,
+      "message": "same case here.. The method either returns the local address (or) it returns the router-interface-addres!",
+      "revId": "1253d5b29b268546c3be2fc8851941bf1e48224e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_4f5170d7",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/populator/impl/L3vpnOverMplsGrePopulator.java",
         "patchSetId": 2
@@ -30,6 +82,24 @@
       "writtenOn": "2017-02-16T16:50:23Z",
       "side": 1,
       "message": "Not sure it\u0027s ok to bail out here... maybe just fix NPE if possible.\n\nI think the current code allows creation of vrf-entry with no nexthop and it is supposed to be filled afterwards\nTake a look at this patch https://git.opendaylight.org/gerrit/#/c/47452\n\nHowever, I see cases where the nexthop ip doesn\u0027t get filled later (SD-WAN cases)",
+      "revId": "1253d5b29b268546c3be2fc8851941bf1e48224e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_6ff274d3",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/populator/impl/L3vpnOverMplsGrePopulator.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 64,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-16T17:09:11Z",
+      "side": 1,
+      "message": "This is incorrect.  We must not bail out because TEP IP is absent.\n\nThe ports within an OVS Datapath will continue to communicate.\n\nCould you plase educate me why this is put back?",
+      "parentUuid": "fafc7978_4f5170d7",
       "revId": "1253d5b29b268546c3be2fc8851941bf1e48224e",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
