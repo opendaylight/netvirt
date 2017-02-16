@@ -789,8 +789,10 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
                 return dpnId;
             }
 
+            String jobKey = "FIB-" + vpnId.toString() + "-" + dpnId.toString() + "-" + vrfEntry.getDestPrefix();
             final long groupId = nextHopManager.createLocalNextHop(parentVpnId, dpnId,
-                    localNextHopInfo.getVpnInterfaceName(), localNextHopIP, vrfEntry.getDestPrefix(), vrfEntry.getGatewayMacAddress());
+                    localNextHopInfo.getVpnInterfaceName(), localNextHopIP, vrfEntry.getDestPrefix(),
+                    vrfEntry.getGatewayMacAddress(), jobKey);
             if (groupId == 0) {
                 LOG.error("Unable to create Group for local prefix {} on rd {} for vpninterface {} on Node {}",
                         vrfEntry.getDestPrefix(), rd, localNextHopInfo.getVpnInterfaceName(), dpnId.toString());
@@ -810,7 +812,7 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
                 LOG.debug("Route with rd {} prefix {} label {} nexthop {} for vpn {} is an imported route. LFib and Terminating table entries will not be created.", rd, vrfEntry.getDestPrefix(), vrfEntry.getLabel(), vrfEntry.getNextHopAddressList(), vpnId);
             }
             DataStoreJobCoordinator dataStoreCoordinator = DataStoreJobCoordinator.getInstance();
-            dataStoreCoordinator.enqueueJob("FIB-"+ vpnId.toString() + "-" + dpnId.toString() + "-" + vrfEntry.getDestPrefix(),
+            dataStoreCoordinator.enqueueJob(jobKey,
                     new Callable<List<ListenableFuture<Void>>>() {
                         @Override
                         public List<ListenableFuture<Void>> call() throws Exception {
