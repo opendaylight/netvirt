@@ -77,6 +77,9 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.meta.rev160406.IfIndexesInterfaceMap;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.meta.rev160406._if.indexes._interface.map.IfIndexInterface;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.meta.rev160406._if.indexes._interface.map.IfIndexInterfaceKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.GetInterfaceFromIfIndexInput;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.GetInterfaceFromIfIndexInputBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.GetInterfaceFromIfIndexOutput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.OdlInterfaceRpcService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.servicebinding.rev160406.service.bindings.services.info.BoundServices;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.lockmanager.rev160413.LockManagerService;
@@ -107,6 +110,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.Adj
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.LearntVpnVipToPortData;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.PrefixToInterface;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.RouterInterfaces;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.SubnetOpData;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.VpnIdToVpnInstance;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.VpnInstanceOpData;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.VpnInstanceToVpnId;
@@ -124,6 +128,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.pre
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.router.interfaces.RouterInterface;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.router.interfaces.RouterInterfaceBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.router.interfaces.RouterInterfaceKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.subnet.op.data.SubnetOpDataEntry;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.subnet.op.data.SubnetOpDataEntryKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.VpnInstanceOpDataEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.VpnInstanceOpDataEntryKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.vpn.instance.op.data.entry.VpnToDpnList;
@@ -143,12 +149,16 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev16011
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.external.networks.NetworksKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.napt.switches.RouterToNaptSwitch;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.napt.switches.RouterToNaptSwitchKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.NetworkMaps;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.NeutronVpnPortipPortData;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.RouterInterfacesMap;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.Subnetmaps;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.networkmaps.NetworkMap;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.networkmaps.NetworkMapKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.neutron.vpn.portip.port.data.VpnPortipToPort;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.neutron.vpn.portip.port.data.VpnPortipToPortKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.subnetmaps.Subnetmap;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.subnetmaps.SubnetmapKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.constants.rev150712.IpVersionBase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.constants.rev150712.IpVersionV4;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.ports.attributes.ports.Port;
@@ -176,6 +186,13 @@ public class VpnUtil {
     static InstanceIdentifier<VpnInstance> getVpnInstanceIdentifier(String vpnName) {
         return InstanceIdentifier.builder(VpnInstances.class)
             .child(VpnInstance.class, new VpnInstanceKey(vpnName)).build();
+    }
+
+    static VpnInterface getVpnInterface(DataBroker broker, String vpnInterfaceName) {
+        InstanceIdentifier<VpnInterface> id = InstanceIdentifier.builder(VpnInterfaces.class).child(VpnInterface.class,
+            new VpnInterfaceKey(vpnInterfaceName)).build();
+        Optional<VpnInterface> vpnInterface = read(broker, LogicalDatastoreType.CONFIGURATION, id);
+        return (vpnInterface.isPresent()) ? vpnInterface.get() : null;
     }
 
     static VpnInterface getVpnInterface(String intfName, String vpnName, Adjacencies aug, BigInteger dpnId,
@@ -342,6 +359,25 @@ public class VpnUtil {
 
     static  Routes getVpnToExtraroute(String ipPrefix, List<String> nextHopList) {
         return new RoutesBuilder().setPrefix(ipPrefix).setNexthopIpList(nextHopList).build();
+    }
+
+    static String getVpnInterfaceName(OdlInterfaceRpcService odlInterfaceRpcService, BigInteger metadata)
+            throws InterruptedException, ExecutionException {
+        GetInterfaceFromIfIndexInputBuilder ifIndexInputBuilder = new GetInterfaceFromIfIndexInputBuilder();
+        BigInteger lportTag = MetaDataUtil.getLportFromMetadata(metadata);
+        ifIndexInputBuilder.setIfIndex(lportTag.intValue());
+        GetInterfaceFromIfIndexInput input = ifIndexInputBuilder.build();
+        Future<RpcResult<GetInterfaceFromIfIndexOutput>> interfaceFromIfIndex =
+                odlInterfaceRpcService.getInterfaceFromIfIndex(input);
+        GetInterfaceFromIfIndexOutput interfaceFromIfIndexOutput;
+        RpcResult<GetInterfaceFromIfIndexOutput> rpcResult = interfaceFromIfIndex.get();
+        if (rpcResult == null) {
+            return null;
+        }
+
+        interfaceFromIfIndexOutput = rpcResult.getResult();
+        String interfaceName = interfaceFromIfIndexOutput.getInterfaceName();
+        return interfaceName;
     }
 
     static  List<String> getUsedRds(DataBroker broker, long vpnId, String destPrefix) {
@@ -1065,6 +1101,18 @@ public class VpnUtil {
         }
     }
 
+    static InstanceIdentifier<NetworkMap> buildNetworkMapIdentifier(Uuid networkId) {
+        InstanceIdentifier<NetworkMap> id = InstanceIdentifier.builder(NetworkMaps.class).child(NetworkMap.class, new
+                NetworkMapKey(networkId)).build();
+        return id;
+    }
+
+    static InstanceIdentifier<SubnetOpDataEntry> buildSubnetOpDataEntryInstanceIdentifier(Uuid subnetId) {
+        InstanceIdentifier<SubnetOpDataEntry> subOpIdentifier = InstanceIdentifier.builder(SubnetOpData.class)
+                .child(SubnetOpDataEntry.class, new SubnetOpDataEntryKey(subnetId)).build();
+        return subOpIdentifier;
+    }
+
     static InstanceIdentifier<VpnPortipToPort> buildVpnPortipToPortIdentifier(String vpnName, String fixedIp) {
         InstanceIdentifier<VpnPortipToPort> id =
             InstanceIdentifier.builder(NeutronVpnPortipPortData.class).child(VpnPortipToPort.class,
@@ -1423,6 +1471,12 @@ public class VpnUtil {
                 .child(RouterToNaptSwitch.class, new RouterToNaptSwitchKey(routerName)).build();
         Optional<RouterToNaptSwitch> routerToNaptSwitchData = read(dataBroker, LogicalDatastoreType.CONFIGURATION, id);
         return routerToNaptSwitchData.isPresent() ? routerToNaptSwitchData.get() : null;
+    }
+
+    static InstanceIdentifier<Subnetmap> buildSubnetmapIdentifier(Uuid subnetId) {
+        return (InstanceIdentifier<Subnetmap>) InstanceIdentifier.builder(Subnetmaps.class)
+        .child(Subnetmap.class, new SubnetmapKey(subnetId)).build();
+
     }
 
     public static BigInteger getPrimarySwitchForRouter(DataBroker dataBroker, String routerName) {
