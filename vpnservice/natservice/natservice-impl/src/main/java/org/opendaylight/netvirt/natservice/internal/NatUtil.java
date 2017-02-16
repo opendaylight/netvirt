@@ -26,6 +26,7 @@ import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
 import org.opendaylight.genius.mdsalutil.ActionInfo;
 import org.opendaylight.genius.mdsalutil.FlowEntity;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
@@ -750,13 +751,14 @@ public class NatUtil {
                                       String nextHopIp,
                                       long label,
                                       Logger log,
-                                      RouteOrigin origin) {
+                                      RouteOrigin origin, String vpnName, BigInteger dpId) {
         try {
             LOG.info("ADD: Adding Fib entry rd {} prefix {} nextHop {} label {}", rd, prefix, nextHopIp, label);
             if (nextHopIp == null) {
                 log.error("addPrefix failed since nextHopIp cannot be null.");
                 return;
             }
+            addPrefixToInterface(broker, getVpnId(broker, vpnName), prefix, dpId, true);
             fibManager.addOrUpdateFibEntry(broker, rd, null /*macAddress*/, prefix,
                     Collections.singletonList(nextHopIp), VrfEntry.EncapType.Mplsgre, (int)label, 0 /*l3vni*/,
                     null /*gatewayMacAddress*/, origin, null /*writeTxn*/);
@@ -766,6 +768,16 @@ public class NatUtil {
         } catch (Exception e) {
             log.error("Add prefix failed", e);
         }
+    }
+
+    static void addPrefixToInterface(DataBroker broker, long vpnId, String ipPrefix, BigInteger dpId,
+            boolean isRemotePrefix) {
+        InstanceIdentifier<Prefixes> prefixId = InstanceIdentifier.builder(PrefixToInterface.class)
+                .child(VpnIds.class, new VpnIdsKey(vpnId)).child(Prefixes.class, new PrefixesKey(ipPrefix)).build();
+
+        Prefixes prefix = new PrefixesBuilder().setDpnId(dpId).setIpAddress(ipPrefix).setRemotePrefix(isRemotePrefix)
+                .build();
+        SingleTransactionDataBroker.syncWrite(broker, LogicalDatastoreType.OPERATIONAL, prefixId, prefix);
     }
 
     static InstanceIdentifier<Ports> buildPortToIpMapIdentifier(String routerId, String portName) {

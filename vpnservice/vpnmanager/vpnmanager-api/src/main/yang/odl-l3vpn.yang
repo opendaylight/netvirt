@@ -59,6 +59,10 @@ module odl-l3vpn {
               leaf vpn-interface-name {
                   type string;
               }
+              leaf remote-prefix {
+                  type boolean;
+                  default false;
+              }
            }
         }
     }

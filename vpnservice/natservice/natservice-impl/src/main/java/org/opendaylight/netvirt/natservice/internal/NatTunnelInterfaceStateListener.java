@@ -603,7 +603,7 @@ public class NatTunnelInterfaceStateListener
                 LOG.debug("NAT Service : SNAT -> Advertise the route to the externalIp {} having nextHopIp {}",
                     externalIp, nextHopIp);
                 NatUtil.addPrefixToBGP(dataBroker, bgpManager, fibManager, rd, externalIp, nextHopIp,
-                    label, LOG, RouteOrigin.STATIC);
+                    label, LOG, RouteOrigin.STATIC, externalVpnName, srcDpnId);
 
                 LOG.debug("NAT Service : SNAT -> Install custom FIB routes "
                     + "(Table 21 -> Push MPLS label to Tunnel port");
@@ -692,7 +692,7 @@ public class NatTunnelInterfaceStateListener
                     return;
                 }
                 NatUtil.addPrefixToBGP(dataBroker, bgpManager, fibManager, rd, externalIp + "/32",
-                    nextHopIp, label, LOG, RouteOrigin.STATIC);
+                    nextHopIp, label, LOG, RouteOrigin.STATIC, vpnName, fipCfgdDpnId);
 
                 //Install custom FIB routes (Table 21 -> Push MPLS label to Tunnel port
                 List<Instruction> customInstructions = new ArrayList<>();
