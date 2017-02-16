@@ -8,12 +8,10 @@
 package org.opendaylight.netvirt.elan.internal;
 
 import java.util.Collections;
-import org.opendaylight.controller.md.sal.binding.api.ClusteredDataChangeListener;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.clustering.EntityOwnershipService;
-import org.opendaylight.controller.md.sal.common.api.data.AsyncDataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.genius.datastoreutils.AsyncClusteredDataChangeListenerBase;
+import org.opendaylight.genius.datastoreutils.AsyncClusteredDataTreeChangeListenerBase;
 import org.opendaylight.netvirt.elan.l2gw.utils.ElanL2GatewayMulticastUtils;
 import org.opendaylight.netvirt.elan.l2gw.utils.ElanL2GatewayUtils;
 import org.opendaylight.netvirt.elan.utils.ElanClusterUtils;
@@ -27,7 +25,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class ElanDpnInterfaceClusteredListener
-    extends AsyncClusteredDataChangeListenerBase<DpnInterfaces, ElanDpnInterfaceClusteredListener>
+    extends AsyncClusteredDataTreeChangeListenerBase<DpnInterfaces, ElanDpnInterfaceClusteredListener>
     implements AutoCloseable {
 
     private static final Logger LOG = LoggerFactory.getLogger(ElanDpnInterfaceClusteredListener.class);
@@ -39,7 +37,6 @@ public class ElanDpnInterfaceClusteredListener
 
     public ElanDpnInterfaceClusteredListener(DataBroker broker, EntityOwnershipService entityOwnershipService,
                                              ElanUtils elanUtils) {
-        super(DpnInterfaces.class, ElanDpnInterfaceClusteredListener.class);
         this.broker = broker;
         this.entityOwnershipService = entityOwnershipService;
         this.elanL2GatewayUtils = elanUtils.getElanL2GatewayUtils();
@@ -54,16 +51,6 @@ public class ElanDpnInterfaceClusteredListener
     public InstanceIdentifier<DpnInterfaces> getWildCardPath() {
         return InstanceIdentifier.builder(ElanDpnInterfaces.class).child(ElanDpnInterfacesList.class)
             .child(DpnInterfaces.class).build();
-    }
-
-    @Override
-    protected ClusteredDataChangeListener getDataChangeListener() {
-        return ElanDpnInterfaceClusteredListener.this;
-    }
-
-    @Override
-    protected AsyncDataBroker.DataChangeScope getDataChangeScope() {
-        return AsyncDataBroker.DataChangeScope.BASE;
     }
 
     void handleUpdate(InstanceIdentifier<DpnInterfaces> id, DpnInterfaces dpnInterfaces) {
@@ -124,6 +111,11 @@ public class ElanDpnInterfaceClusteredListener
 
     private String getElanName(InstanceIdentifier<DpnInterfaces> identifier) {
         return identifier.firstKeyOf(ElanDpnInterfacesList.class).getElanInstanceName();
+    }
+
+    @Override
+    protected ElanDpnInterfaceClusteredListener getDataTreeChangeListener() {
+        return this;
     }
 
 }

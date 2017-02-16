@@ -7,12 +7,10 @@
  */
 package org.opendaylight.netvirt.vpnmanager.cache.listeners;
 
-import org.opendaylight.controller.md.sal.binding.api.ClusteredDataChangeListener;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.DataChangeListener;
-import org.opendaylight.controller.md.sal.common.api.data.AsyncDataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.genius.datastoreutils.AsyncClusteredDataChangeListenerBase;
+import org.opendaylight.genius.datastoreutils.AsyncClusteredDataTreeChangeListenerBase;
 import org.opendaylight.genius.utils.cache.DataStoreCache;
 import org.opendaylight.netvirt.vpnmanager.VpnConstants;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.VpnInstanceOpData;
@@ -26,7 +24,7 @@ import org.slf4j.LoggerFactory;
  * Listens to changes in the Vpn instance Operational data so that this data can be updated if needed.
  */
 public class VpnOpInstanceCacheManager
-    extends AsyncClusteredDataChangeListenerBase<VpnInstanceOpDataEntry, VpnOpInstanceCacheManager>
+    extends AsyncClusteredDataTreeChangeListenerBase<VpnInstanceOpDataEntry, VpnOpInstanceCacheManager>
     implements AutoCloseable {
 
     private ListenerRegistration<DataChangeListener> listenerRegistration;
@@ -35,16 +33,12 @@ public class VpnOpInstanceCacheManager
     private static final Logger LOG = LoggerFactory.getLogger(VpnOpInstanceCacheManager.class);
 
     public VpnOpInstanceCacheManager(final DataBroker broker) {
-        super(VpnInstanceOpDataEntry.class, VpnOpInstanceCacheManager.class);
         this.dataBroker = broker;
     }
 
     public void start() {
         LOG.info("{} start", getClass().getSimpleName());
-        DataStoreCache.create(VpnConstants.VPN_OP_INSTANCE_CACHE_NAME);
-        listenerRegistration = dataBroker.registerDataChangeListener(LogicalDatastoreType.OPERATIONAL,
-            getWildCardPath(), this,
-            AsyncDataBroker.DataChangeScope.SUBTREE);
+        registerListener(LogicalDatastoreType.OPERATIONAL, this.dataBroker);
     }
 
     @Override
@@ -79,13 +73,8 @@ public class VpnOpInstanceCacheManager
     }
 
     @Override
-    protected ClusteredDataChangeListener getDataChangeListener() {
+    protected VpnOpInstanceCacheManager getDataTreeChangeListener() {
         return this;
-    }
-
-    @Override
-    protected AsyncDataBroker.DataChangeScope getDataChangeScope() {
-        return AsyncDataBroker.DataChangeScope.SUBTREE;
     }
 
 

@@ -7,12 +7,9 @@
  */
 package org.opendaylight.netvirt.cloudservicechain.listeners;
 
-import org.opendaylight.controller.md.sal.binding.api.ClusteredDataChangeListener;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.common.api.data.AsyncDataBroker;
-import org.opendaylight.controller.md.sal.common.api.data.AsyncDataBroker.DataChangeScope;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.genius.datastoreutils.AsyncClusteredDataChangeListenerBase;
+import org.opendaylight.genius.datastoreutils.AsyncClusteredDataTreeChangeListenerBase;
 import org.opendaylight.netvirt.cloudservicechain.utils.VpnPseudoPortCache;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.cloud.servicechain.state.rev170511.VpnToPseudoPortList;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.cloud.servicechain.state.rev170511.vpn.to.pseudo.port.list.VpnToPseudoPortData;
@@ -26,7 +23,7 @@ import org.slf4j.LoggerFactory;
  *
  */
 public class VpnPseudoPortListener
-    extends AsyncClusteredDataChangeListenerBase<VpnToPseudoPortData, VpnPseudoPortListener>
+    extends AsyncClusteredDataTreeChangeListenerBase<VpnToPseudoPortData, VpnPseudoPortListener>
     implements AutoCloseable {
 
     private static final Logger LOG = LoggerFactory.getLogger(VpnPseudoPortListener.class);
@@ -66,13 +63,8 @@ public class VpnPseudoPortListener
     }
 
     @Override
-    protected ClusteredDataChangeListener getDataChangeListener() {
+    protected VpnPseudoPortListener getDataTreeChangeListener() {
         return this;
-    }
-
-    @Override
-    protected DataChangeScope getDataChangeScope() {
-        return AsyncDataBroker.DataChangeScope.BASE;
     }
 
 
