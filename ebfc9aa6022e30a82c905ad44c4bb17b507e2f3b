@@ -1,0 +1,76 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_c983a354",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 9
+      },
+      "lineNbr": 2167,
+      "author": {
+        "id": 6741
+      },
+      "writtenOn": "2017-02-16T09:01:27Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_d5fd0a3c",
+      "revId": "ebfc9aa6022e30a82c905ad44c4bb17b507e2f3b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_5bb5ba2f",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/ExternalRoutersListener.java",
+        "patchSetId": 9
+      },
+      "lineNbr": 649,
+      "author": {
+        "id": 6741
+      },
+      "writtenOn": "2017-02-16T09:01:27Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_357296e5",
+      "revId": "ebfc9aa6022e30a82c905ad44c4bb17b507e2f3b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_9b860264",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/ExternalRoutersListener.java",
+        "patchSetId": 9
+      },
+      "lineNbr": 708,
+      "author": {
+        "id": 6741
+      },
+      "writtenOn": "2017-02-16T09:01:27Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_9578a2c5",
+      "revId": "ebfc9aa6022e30a82c905ad44c4bb17b507e2f3b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_69b55730",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/ExternalRoutersListener.java",
+        "patchSetId": 9
+      },
+      "lineNbr": 903,
+      "author": {
+        "id": 6741
+      },
+      "writtenOn": "2017-02-16T09:01:27Z",
+      "side": 1,
+      "message": "Moved l3vni value get for VXLAN network.\nMacAddress and GwMacAddress needs to be advertised all external provider type.",
+      "parentUuid": "fafc7978_154cb29d",
+      "revId": "ebfc9aa6022e30a82c905ad44c4bb17b507e2f3b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
