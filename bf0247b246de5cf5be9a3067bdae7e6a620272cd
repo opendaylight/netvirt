@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_4955f34e",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanInterfaceManager.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 1532,
+      "author": {
+        "id": 817
+      },
+      "writtenOn": "2017-02-16T07:41:15Z",
+      "side": 1,
+      "message": "interface-manager uses entity owner, and hence interface-state addition can be triggered on a different node, synchronizing using DJC will not help if both these events are triggered on different nodes",
+      "revId": "bf0247b246de5cf5be9a3067bdae7e6a620272cd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
