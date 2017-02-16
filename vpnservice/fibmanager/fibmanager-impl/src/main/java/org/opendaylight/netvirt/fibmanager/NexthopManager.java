@@ -11,6 +11,7 @@ import com.google.common.base.Optional;
 import com.google.common.util.concurrent.CheckedFuture;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
+import com.google.common.util.concurrent.ListenableFuture;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
@@ -21,6 +22,7 @@ import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
+import org.opendaylight.genius.datastoreutils.DataStoreJobCoordinator;
 import org.opendaylight.genius.itm.globals.ITMConstants;
 import org.opendaylight.genius.mdsalutil.ActionInfo;
 import org.opendaylight.genius.mdsalutil.BucketInfo;
@@ -304,7 +306,7 @@ public class NexthopManager implements AutoCloseable {
     }
 
     public long createLocalNextHop(long vpnId, BigInteger dpnId, String ifName,
-                                   String ipNextHopAddress, String ipPrefixAddress, String gwMacAddress) {
+            String ipNextHopAddress, String ipPrefixAddress, String gwMacAddress, String jobKey) {
         String macAddress = FibUtil.getMacAddressFromPrefix(dataBroker, ifName, ipPrefixAddress);
         String ipAddress = (macAddress != null) ? ipPrefixAddress : ipNextHopAddress;
 
@@ -314,62 +316,72 @@ public class NexthopManager implements AutoCloseable {
             return groupId;
         }
         String nextHopLockStr = vpnId + ipAddress;
-        synchronized (nextHopLockStr.intern()) {
-            VpnNexthop nexthop = getVpnNexthop(vpnId, ipAddress);
-            LOG.trace("nexthop: {} retrieved for vpnId {}, prefix {}, ifName {} on dpn {}", nexthop,
-                vpnId, ipAddress, ifName, dpnId);
-            if (nexthop == null) {
-                if (macAddress == null) {
-                    macAddress = FibUtil.getMacAddressFromPrefix(dataBroker, ifName, ipAddress);
-                }
-                List<BucketInfo> listBucketInfo = new ArrayList<>();
-                List<ActionInfo> listActionInfo = new ArrayList<>();
-                int actionKey = 0;
-                // MAC re-write
-                if (macAddress != null) {
-                    if (gwMacAddress != null) {
-                        LOG.trace("The Local NextHop Group Source Mac {} for VpnInterface {} on VPN {}",
-                                gwMacAddress, ifName, vpnId);
-                        listActionInfo.add(
-                                new ActionSetFieldEthernetSource(actionKey++, new MacAddress(gwMacAddress)));
+        DataStoreJobCoordinator dataStoreCoordinator = DataStoreJobCoordinator.getInstance();
+
+        dataStoreCoordinator.enqueueJob(jobKey, () -> {
+            WriteTransaction wrtConfigTxn = dataBroker.newWriteOnlyTransaction();
+            List<ListenableFuture<Void>> futures = new ArrayList<>();
+
+            synchronized (nextHopLockStr.intern()) {
+                VpnNexthop nexthop = getVpnNexthop(vpnId, ipAddress);
+                LOG.trace("nexthop: {} retrieved for vpnId {}, prefix {}, ifName {} on dpn {}", nexthop, vpnId,
+                        ipAddress, ifName, dpnId);
+                if (nexthop == null) {
+                    String encMacAddress = (macAddress == null)
+                            ? FibUtil.getMacAddressFromPrefix(dataBroker, ifName, ipAddress) : macAddress;
+                    List<BucketInfo> listBucketInfo = new ArrayList<>();
+                    List<ActionInfo> listActionInfo = new ArrayList<>();
+                    int actionKey = 0;
+                    // MAC re-write
+                    if (encMacAddress != null) {
+                        if (gwMacAddress != null) {
+                            LOG.trace("The Local NextHop Group Source Mac {} for VpnInterface {} on VPN {}",
+                                    gwMacAddress, ifName, vpnId);
+                            listActionInfo
+                                    .add(new ActionSetFieldEthernetSource(actionKey++, new MacAddress(gwMacAddress)));
+                        }
+                        listActionInfo
+                                .add(new ActionSetFieldEthernetDestination(actionKey++, new MacAddress(encMacAddress)));
+                        // listActionInfo.add(0, new ActionPopMpls());
+                    } else {
+                        // FIXME: Log message here.
+                        LOG.debug("mac address for new local nexthop is null");
                     }
-                    listActionInfo.add(new ActionSetFieldEthernetDestination(actionKey++, new MacAddress(macAddress)));
-                    // listActionInfo.add(0, new ActionPopMpls());
+                    listActionInfo.addAll(getEgressActionsForInterface(ifName, actionKey));
+                    BucketInfo bucket = new BucketInfo(listActionInfo);
+
+                    listBucketInfo.add(bucket);
+                    GroupEntity groupEntity = MDSALUtil.buildGroupEntity(dpnId, groupId, ipAddress, GroupTypes.GroupAll,
+                            listBucketInfo);
+                    LOG.trace("Install LNH Group: id {}, mac address {}, interface {} for prefix {}", groupId,
+                            encMacAddress, ifName, ipAddress);
+
+                    // install Group
+                    mdsalApiManager.syncInstallGroup(groupEntity, FIXED_DELAY_IN_MILLISECONDS);
+                    try {
+                        LOG.info("Sleeping for {} to wait for the groups to get programmed.", waitTimeForSyncInstall);
+                        Thread.sleep(waitTimeForSyncInstall);
+                    } catch (InterruptedException error) {
+                        LOG.warn("Error while waiting for group {} to install.", groupId);
+                        LOG.debug("{}", error);
+                    }
+                    // update MD-SAL DS
+                    addVpnNexthopToDS(dpnId, vpnId, ipAddress, groupId);
+
                 } else {
-                    //FIXME: Log message here.
-                    LOG.debug("mac address for new local nexthop is null");
+                    // nexthop exists already; a new flow is going to point to
+                    // it, increment the flowrefCount by 1
+                    int flowrefCnt = nexthop.getFlowrefCount() + 1;
+                    VpnNexthop nh = new VpnNexthopBuilder().setKey(new VpnNexthopKey(ipAddress))
+                            .setFlowrefCount(flowrefCnt).build();
+                    LOG.trace("Updating vpnnextHop {} for refCount {} to Operational DS", nh, flowrefCnt);
+                    syncWrite(LogicalDatastoreType.OPERATIONAL, getVpnNextHopIdentifier(vpnId, ipAddress), nh,
+                            DEFAULT_CALLBACK);
                 }
-                listActionInfo.addAll(getEgressActionsForInterface(ifName, actionKey));
-                BucketInfo bucket = new BucketInfo(listActionInfo);
-
-                listBucketInfo.add(bucket);
-                GroupEntity groupEntity = MDSALUtil.buildGroupEntity(
-                    dpnId, groupId, ipAddress, GroupTypes.GroupAll, listBucketInfo);
-                LOG.trace("Install LNH Group: id {}, mac address {}, interface {} for prefix {}",
-                    groupId, macAddress, ifName, ipAddress);
-
-                // install Group
-                mdsalApiManager.syncInstallGroup(groupEntity, FIXED_DELAY_IN_MILLISECONDS);
-                try {
-                    LOG.info("Sleeping for {} to wait for the groups to get programmed.", waitTimeForSyncInstall);
-                    Thread.sleep(waitTimeForSyncInstall);
-                } catch (InterruptedException error) {
-                    LOG.warn("Error while waiting for group {} to install.", groupId);
-                    LOG.debug("{}", error);
-                }
-                //update MD-SAL DS
-                addVpnNexthopToDS(dpnId, vpnId, ipAddress, groupId);
-
-            } else {
-                //nexthop exists already; a new flow is going to point to it, increment the flowrefCount by 1
-                int flowrefCnt = nexthop.getFlowrefCount() + 1;
-                VpnNexthop nh = new VpnNexthopBuilder().setKey(new VpnNexthopKey(ipAddress))
-                    .setFlowrefCount(flowrefCnt).build();
-                LOG.trace("Updating vpnnextHop {} for refCount {} to Operational DS", nh, flowrefCnt);
-                syncWrite(LogicalDatastoreType.OPERATIONAL, getVpnNextHopIdentifier(vpnId, ipAddress),
-                    nh, DEFAULT_CALLBACK);
             }
-        }
+            futures.add(wrtConfigTxn.submit());
+            return futures;
+        });
         return groupId;
     }
 
