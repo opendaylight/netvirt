@@ -102,7 +102,8 @@ public class CentralizedSwitchChangeListener
         String routerName = router.getRouterName();
         vpnManager.setupRouterGwMacFlow(routerName, extGwMacAddress, primarySwitchId, extNetworkId, writeTx,
                 addOrRemove);
-        vpnManager.setupArpResponderFlowsToExternalNetworkIps(routerName, router.getExternalIps(), extGwMacAddress,
-                primarySwitchId, extNetworkId, writeTx, addOrRemove);
+        vpnManager.setupArpResponderFlowsToExternalNetworkIps(routerName,
+                VpnUtil.getIpsListFromExternalIps(router.getExternalIps()),
+                extGwMacAddress, primarySwitchId, extNetworkId, writeTx, addOrRemove);
     }
 }
