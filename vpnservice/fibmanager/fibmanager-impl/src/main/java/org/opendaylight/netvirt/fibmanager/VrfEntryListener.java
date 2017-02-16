@@ -550,7 +550,7 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
             }
         });
         final List<InstructionInfo> instructions = new ArrayList<>();
-        BigInteger subnetRouteMeta = ((BigInteger.valueOf(elanTag)).shiftLeft(32))
+        BigInteger subnetRouteMeta = ((BigInteger.valueOf(elanTag)).shiftLeft(24))
             .or((BigInteger.valueOf(vpnId).shiftLeft(1)));
         instructions.add(new InstructionWriteMetadata(subnetRouteMeta, MetaDataUtil.METADATA_MASK_SUBNET_ROUTE));
         instructions.add(new InstructionGotoTable(NwConstants.L3_SUBNET_ROUTE_TABLE));
