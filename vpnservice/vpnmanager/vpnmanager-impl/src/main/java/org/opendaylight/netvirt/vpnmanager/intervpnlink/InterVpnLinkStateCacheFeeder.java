@@ -8,17 +8,12 @@
 
 package org.opendaylight.netvirt.vpnmanager.intervpnlink;
 
-import org.opendaylight.controller.md.sal.binding.api.ClusteredDataChangeListener;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.binding.api.DataChangeListener;
-import org.opendaylight.controller.md.sal.common.api.data.AsyncDataBroker;
-import org.opendaylight.controller.md.sal.common.api.data.AsyncDataBroker.DataChangeScope;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.genius.datastoreutils.AsyncClusteredDataChangeListenerBase;
+import org.opendaylight.genius.datastoreutils.AsyncClusteredDataTreeChangeListenerBase;
 import org.opendaylight.netvirt.vpnmanager.api.intervpnlink.InterVpnLinkCache;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.netvirt.inter.vpn.link.rev160311.InterVpnLinkStates;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.netvirt.inter.vpn.link.rev160311.inter.vpn.link.states.InterVpnLinkState;
-import org.opendaylight.yangtools.concepts.ListenerRegistration;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,34 +24,14 @@ import org.slf4j.LoggerFactory;
  * InterVpnLinkState changes.
  */
 public class InterVpnLinkStateCacheFeeder
-    extends AsyncClusteredDataChangeListenerBase<InterVpnLinkState, InterVpnLinkStateCacheFeeder>
+    extends AsyncClusteredDataTreeChangeListenerBase<InterVpnLinkState, InterVpnLinkStateCacheFeeder>
     implements AutoCloseable {
 
     private static final Logger LOG = LoggerFactory.getLogger(InterVpnLinkStateCacheFeeder.class);
 
-    private ListenerRegistration<DataChangeListener> listenerRegistration;
-
     public InterVpnLinkStateCacheFeeder(final DataBroker broker) {
-        super(InterVpnLinkState.class, InterVpnLinkStateCacheFeeder.class);
-        registerListener(broker);
+        registerListener(LogicalDatastoreType.CONFIGURATION, broker);
     }
-
-    private void registerListener(final DataBroker db) {
-        LOG.debug("Registering InterVpnLinkStateListener");
-        listenerRegistration = db.registerDataChangeListener(LogicalDatastoreType.CONFIGURATION,
-            getWildCardPath(), InterVpnLinkStateCacheFeeder.this,
-            AsyncDataBroker.DataChangeScope.SUBTREE);
-    }
-
-    @Override
-    public void close() {
-        if (listenerRegistration != null) {
-            listenerRegistration.close();
-            listenerRegistration = null;
-        }
-        LOG.debug("InterVpnLinkStateListener Listener Closed");
-    }
-
 
     @Override
     protected void remove(InstanceIdentifier<InterVpnLinkState> identifier, InterVpnLinkState del) {
@@ -83,13 +58,8 @@ public class InterVpnLinkStateCacheFeeder
     }
 
     @Override
-    protected ClusteredDataChangeListener getDataChangeListener() {
+    protected InterVpnLinkStateCacheFeeder getDataTreeChangeListener() {
         return this;
-    }
-
-    @Override
-    protected DataChangeScope getDataChangeScope() {
-        return AsyncDataBroker.DataChangeScope.BASE;
     }
 
 }
