@@ -12,6 +12,7 @@ import com.google.common.primitives.Ints;
 import java.math.BigInteger;
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.Future;
 
 import org.opendaylight.controller.liblldp.NetUtils;
 import org.opendaylight.controller.liblldp.Packet;
@@ -23,7 +24,12 @@ import org.opendaylight.genius.mdsalutil.NWUtil;
 import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.genius.mdsalutil.packet.Ethernet;
 import org.opendaylight.genius.mdsalutil.packet.IPv4;
+import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.interfaces.VpnInterface;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.GetInterfaceFromIfIndexInput;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.GetInterfaceFromIfIndexInputBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.GetInterfaceFromIfIndexOutput;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.OdlInterfaceRpcService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.tag.name.map.ElanTagName;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.SubnetOpData;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.VpnIdToVpnInstance;
@@ -31,6 +37,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.sub
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.subnet.op.data.SubnetOpDataEntryKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.id.to.vpn.instance.VpnIds;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.id.to.vpn.instance.VpnIdsKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ext.routers.Routers;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.external.networks.Networks;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.NetworkMaps;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.networkmaps.NetworkMap;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.networkmaps.NetworkMapKey;
@@ -39,6 +47,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.service.rev130709.Pa
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.service.rev130709.PacketReceived;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.service.rev130709.TransmitPacketInput;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -46,11 +55,13 @@ public class SubnetRoutePacketInHandler implements PacketProcessingListener {
     private static final Logger LOG = LoggerFactory.getLogger(SubnetRoutePacketInHandler.class);
     private final DataBroker dataBroker;
     private final PacketProcessingService packetService;
+    private OdlInterfaceRpcService odlInterfaceRpcService;
 
     public SubnetRoutePacketInHandler(final DataBroker dataBroker,
-        final PacketProcessingService packetService) {
+        final PacketProcessingService packetService, final OdlInterfaceRpcService odlInterfaceRpcService) {
         this.dataBroker = dataBroker;
         this.packetService = packetService;
+        this.odlInterfaceRpcService = odlInterfaceRpcService;
     }
 
     @Override
@@ -92,12 +103,14 @@ public class SubnetRoutePacketInHandler implements PacketProcessingListener {
                         return;
                     }*/
                     long vpnId = MetaDataUtil.getVpnIdFromMetadata(metadata);
+
                     LOG.info("SubnetRoutePacketInHandler: Processing IPv4 Packet received with Source IP {} "
                             + "and Target IP {} and vpnId {}", srcIpStr, dstIpStr, vpnId);
 
                     InstanceIdentifier<VpnIds> vpnIdsInstanceIdentifier = getVpnIdToVpnInstanceIdentifier(vpnId);
                     Optional<VpnIds> vpnIdsOptional =
                         VpnUtil.read(dataBroker, LogicalDatastoreType.CONFIGURATION, vpnIdsInstanceIdentifier);
+
                     if (!vpnIdsOptional.isPresent()) {
                         // Donot trigger subnetroute logic for packets from unknown VPNs
                         LOG.info(
@@ -108,6 +121,38 @@ public class SubnetRoutePacketInHandler implements PacketProcessingListener {
                     }
                     // It is an ARP request on a configured VPN.  So we must attempt to respond.
                     VpnIds vpnIds = vpnIdsOptional.get();
+                    Uuid vpnUuid = new Uuid(vpnIds.getVpnInstanceName());
+                    if (vpnIds.isExternalVpn()) {
+                        //use ericsson DPN-ID to packet out the arp packet.
+                    }
+                    else
+                    {
+                        Networks externalNetwork = VpnUtil.getExternalNetwork(dataBroker, vpnUuid);
+
+                        long routerId;
+                        if (externalNetwork == null) { // Private network
+                            routerId = vpnId;
+                        }
+                        else { // External network
+                            long externalNetworkId = vpnId;
+
+                            GetInterfaceFromIfIndexInputBuilder ifIndexInputBuilder = new GetInterfaceFromIfIndexInputBuilder();
+                            BigInteger lportTag = MetaDataUtil.getLportFromMetadata(metadata);
+
+                            ifIndexInputBuilder.setIfIndex(lportTag.intValue());
+                            GetInterfaceFromIfIndexInput input = ifIndexInputBuilder.build();
+
+                            Future<RpcResult<GetInterfaceFromIfIndexOutput>> interfaceFromIfIndex = odlInterfaceRpcService
+                                    .getInterfaceFromIfIndex(input);
+                            GetInterfaceFromIfIndexOutput interfaceFromIfIndexOutput = interfaceFromIfIndex.get().getResult();
+                            String interfaceName = interfaceFromIfIndexOutput.getInterfaceName();
+
+                            VpnInterface vpnInterface = VpnUtil.getVpnInterface(dataBroker, interfaceName);
+                            String routerId = vpnInterface.getVpnInstanceName(); // The vpn instance name is the router id
+                            Routers externalRouter = VpnUtil.getExternalRouter(dataBroker, routerId);
+                        }
+                    }
+
                     if (VpnUtil.getNeutronPortFromVpnPortFixedIp(dataBroker, vpnIds.getVpnInstanceName(), dstIpStr)
                         != null) {
                         LOG.debug("SubnetRoutePacketInHandler: IPv4 Packet received with "
