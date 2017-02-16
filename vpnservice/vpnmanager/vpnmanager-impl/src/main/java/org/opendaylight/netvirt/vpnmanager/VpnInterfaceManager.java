@@ -396,9 +396,9 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
             if (Objects.equals(primarySwitch, dpId)) {
                 Routers router = VpnUtil.getExternalRouter(dataBroker, routerName);
                 if (router != null) {
-                    vpnManager.setupArpResponderFlowsToExternalNetworkIps(routerName, router.getExternalIps(),
-                            router.getExtGwMacAddress(), dpId, vpnId, vpnInterface.getName(), lportTag, writeInvTxn,
-                            addOrRemove);
+                    vpnManager.setupArpResponderFlowsToExternalNetworkIps(routerName,
+                            VpnUtil.getIpsListFromExternalIps(router.getExternalIps()), router.getExtGwMacAddress(),
+                            dpId, vpnId, vpnInterface.getName(), lportTag, writeInvTxn, addOrRemove);
                 } else {
                     LOG.error("No external-router found for router-id {}", routerName);
                 }
