@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_8fcb581d",
+        "filename": "resources/demo/openstack-netvirt/setup_odl.sh",
+        "patchSetId": 2
+      },
+      "lineNbr": 37,
+      "author": {
+        "id": 2264
+      },
+      "writtenOn": "2017-02-16T18:57:41Z",
+      "side": 1,
+      "message": "a better check would might be:\n\ncurl -u \"admin:admin\" http://$ODLIP:8181/restconf/operational/network-topology:network-topology/topology/netvirt:1\n\nand when the response is as below, it should be ready:\n\n{\"topology\":[{\"topology-id\":\"netvirt:1\"}]}",
+      "range": {
+        "startLine": 30,
+        "startChar": 0,
+        "endLine": 37,
+        "endChar": 8
+      },
+      "revId": "5e4a3692ac8067ab32f4e7b5bb618beca17ce2be",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
