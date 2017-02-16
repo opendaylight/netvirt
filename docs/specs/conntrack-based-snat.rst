@@ -18,6 +18,17 @@ the rules for inbound and outbound NAPT. This causes significant delay as the fi
 the new connections needs to go through the controller.The number of flows grows linearly with the
 increase in the vms. Also the current implementation does not support ICMP.
 
+The current algorithm for selecting the NAPT switch does not work well with conntrack based SNAT.
+For a NAPT switch to remain as designated NAPT switch, it requires at least one port from any of
+the subnets present in the router. When such a port cease to exist a new NAPT switch will be
+elected. With the controller based implementation the failover is faster as the NAT flows are
+reinstalled to the new NAPT switch and should not lead to termination of existing connection.
+With the conntrack based approach, the translation will be lost and the newly elected switch will
+have to redo the translation. This will lead to connection timeout for TCP like connections. So
+the re-election needs to be prevented unless switch is down. Also the current implementation
+tends to select the node running the DHCP agent as the designated NAPT switch as the DHCP port is
+the first port created for a subnet.
+
 Use Cases
 ---------
 The following use case will be realized by the implementation
@@ -45,6 +56,17 @@ added in the nicira plugin extension of OpenFlow plugin.
 The new implementation will not re-install the existing NAT entries to the new NAPT switch during
 fail-over.  Also spec does not cover the use case of having multiple external subnets in the same
 router.
+
+The HA framework will have a new algorithm  to elect the designated NAPT switch. The
+new logic will be applicable only if the conntrack mode is selected. The switch selection logic
+will also be modified to use round robin logic with weights associated with each switch. It will
+not take into account whether a port belonging to a subnet in the router is present in the switch.
+The initial weight of all the switches shall be 0 and will be incremented by 1 when the switch is
+selected as the designated NAPT. The weights shall be decremented by 1 when the router is deleted.
+At any point of time the switch with the lowest weight will be selected as the designated NAPT
+switch for a new router. If there are multiple the first one with the lowest weight will be
+selected. Only if the switch hosting the designated NAPT switch is down a new NAPT
+switch will be elected.
 
 Pipeline changes
 ----------------
@@ -211,10 +233,35 @@ with nat action. The action structure shall be
       }
   }
 
+For the new configuration knob a new yang natservice-config shall be added in NAT service, with the
+container for holding the NAT mode configured. It will have two options controller and conntrack,
+with controller being the default.
+
+::
+
+  container natservice-config {
+    config true;
+    leaf nat-mode {
+        type enumeration {
+            enum "controller";
+            enum "conntrack";
+        }
+        default "controller";
+    }
+  }
+
 Configuration impact
 --------------------
 The proposed change requires the NAT service to provide a configuration knob to switch between the
-controller based/conntrack based implementation. A new configuration file shall be added for this.
+controller based/conntrack based implementation. A new configuration file
+netvirt-natservice-config.xml shall be added with default value controller.
+
+::
+
+  <natservice-config xmlns="urn:opendaylight:netvirt:natservice-config">
+    <nat-group-mode>controller</nat-group-mode>
+  </natservice-config>
+
 
 Clustering considerations
 -------------------------
@@ -285,7 +332,10 @@ NA
 
 CLI
 ---
-NA
+A new command line, display-napt-switch, will be added to display the current designated NAPT
+switch selected for each router. It shall show the below info.
+
+router id | Host Name of designated NAPT switch | Management Ip of the designated NAPT switch
 
 Implementation
 ==============
