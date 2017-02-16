@@ -2,6 +2,57 @@
   "comments": [
     {
       "key": {
+        "uuid": "fafc7978_11695125",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 819,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-16T13:50:43Z",
+      "side": 1,
+      "message": "can we use isNatPrefix() instead of isRemotePrefix() here.",
+      "revId": "fe9dbbd1d20340098e2c48ed9ddccb78c17c433d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_5173d914",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 1252,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-16T13:50:43Z",
+      "side": 1,
+      "message": "ditto here.",
+      "revId": "fe9dbbd1d20340098e2c48ed9ddccb78c17c433d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_11cdd15d",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/ExternalRoutersListener.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 933,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-16T13:50:43Z",
+      "side": 1,
+      "message": "please place vpnName, dpnId right after the fibManager in the parameter order as they are parents of the other parameters put in after that.",
+      "revId": "fe9dbbd1d20340098e2c48ed9ddccb78c17c433d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_3196154d",
         "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NatUtil.java",
         "patchSetId": 8
@@ -13,6 +64,41 @@
       "writtenOn": "2017-02-16T13:33:45Z",
       "side": 1,
       "message": ", /*isRemotePrefix*/ true);",
+      "revId": "fe9dbbd1d20340098e2c48ed9ddccb78c17c433d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_b161653b",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NatUtil.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 761,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-16T13:50:43Z",
+      "side": 1,
+      "message": "/* isNatPrefix */",
+      "parentUuid": "fafc7978_3196154d",
+      "revId": "fe9dbbd1d20340098e2c48ed9ddccb78c17c433d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_9164214a",
+        "filename": "vpnservice/vpnmanager/vpnmanager-api/src/main/yang/odl-l3vpn.yang",
+        "patchSetId": 8
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-16T13:50:43Z",
+      "side": 1,
+      "message": "can we name this as nat-prefix?",
       "revId": "fe9dbbd1d20340098e2c48ed9ddccb78c17c433d",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
