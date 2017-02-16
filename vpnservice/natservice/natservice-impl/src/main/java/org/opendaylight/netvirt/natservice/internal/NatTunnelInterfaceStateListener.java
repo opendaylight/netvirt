@@ -559,8 +559,8 @@ public class NatTunnelInterfaceStateListener extends AsyncDataTreeChangeListener
 
                 LOG.debug("NAT Service : SNAT -> Advertise the route to the externalIp {} having nextHopIp {}", externalIp,
                         nextHopIp);
-                NatUtil.addPrefixToBGP(dataBroker, bgpManager, fibManager, rd, externalIp, nextHopIp,
-                        label, LOG, RouteOrigin.STATIC);
+                NatUtil.addPrefixToBGP(dataBroker, bgpManager, fibManager, externalVpnName, rd, externalIp, nextHopIp,
+                        label, LOG, RouteOrigin.STATIC, srcDpnId);
 
                 LOG.debug("NAT Service : SNAT -> Install custom FIB routes ( Table 21 -> Push MPLS label to Tunnel port");
                 List<Instruction> customInstructions = new ArrayList<>();
@@ -641,7 +641,8 @@ public class NatTunnelInterfaceStateListener extends AsyncDataTreeChangeListener
                     LOG.debug("NAT Service : DNAT -> Unable to advertise to the DC GW since label is invalid" );
                     return;
                 }
-                NatUtil.addPrefixToBGP(dataBroker, bgpManager, fibManager, rd, externalIp + "/32", nextHopIp, label, LOG, RouteOrigin.STATIC);
+                NatUtil.addPrefixToBGP(dataBroker, bgpManager, fibManager, vpnName, rd,
+                    externalIp + "/32", nextHopIp, label, LOG, RouteOrigin.STATIC, fipCfgdDpnId);
 
                 //Install custom FIB routes ( Table 21 -> Push MPLS label to Tunnel port
                 List<Instruction> customInstructions = new ArrayList<>();

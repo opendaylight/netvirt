@@ -58,6 +58,10 @@ module odl-l3vpn {
               leaf vpn-interface-name {
                   type string;
               }
+              leaf nat-prefix {
+                  type boolean;
+                  default false;
+              }
            }
         }
     }
