@@ -173,6 +173,13 @@ public class VpnUtil {
             .child(VpnInstance.class, new VpnInstanceKey(vpnName)).build();
     }
 
+    static VpnInterface getVpnInterface(DataBroker broker, String vpnInterfaceName) {
+        InstanceIdentifier<VpnInterface> id = InstanceIdentifier.builder(VpnInterfaces.class).child(VpnInterface.class,
+            new VpnInterfaceKey(vpnInterfaceName)).build();
+        Optional<VpnInterface> vpnInterface = read(broker, LogicalDatastoreType.CONFIGURATION, id);
+        return (vpnInterface.isPresent()) ? vpnInterface.get() : null;
+    }
+
     static VpnInterface getVpnInterface(String intfName, String vpnName, Adjacencies aug, BigInteger dpnId,
         Boolean isSheduledForRemove) {
         return new VpnInterfaceBuilder().setKey(new VpnInterfaceKey(intfName)).setVpnInstanceName(vpnName).setDpnId(
