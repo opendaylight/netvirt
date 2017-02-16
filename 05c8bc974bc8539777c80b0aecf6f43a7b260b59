@@ -16,6 +16,24 @@
       "revId": "05c8bc974bc8539777c80b0aecf6f43a7b260b59",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_d11069aa",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanInterfaceManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 1535,
+      "author": {
+        "id": 670
+      },
+      "writtenOn": "2017-02-16T13:46:10Z",
+      "side": 1,
+      "message": "Yes you\u0027re right, it should\u0027ve been only theoretical reachable.. fixed with your suggestion in any case",
+      "parentUuid": "fafc7978_d113490b",
+      "revId": "05c8bc974bc8539777c80b0aecf6f43a7b260b59",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
