@@ -39,6 +39,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev16011
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ProtocolTypes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.SnatintIpPortMap;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ext.routers.Routers;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ext.routers.routers.ExternalIps;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.external.ips.counter.ExternalCounters;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.external.ips.counter.ExternalCountersKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.external.ips.counter.external.counters.ExternalIpCounter;
@@ -741,11 +742,11 @@ public class NaptManager {
 
     protected void initialiseExternalCounter(Routers routers, long routerId) {
         LOG.debug("NAPT Service : Initialise External IPs counter");
-        List<String> externalIps = routers.getExternalIps();
+        List<ExternalIps> externalIps = routers.getExternalIps();
 
         //update the new counter value for this externalIp
-        for (String externalIp : externalIps) {
-            String[] ipSplit = externalIp.split("/");
+        for (ExternalIps externalIp : externalIps) {
+            String[] ipSplit = externalIp.getIpAddress().split("/");
             String extIp = ipSplit[0];
             String extPrefix = Short.toString(NatConstants.DEFAULT_PREFIX);
             if (ipSplit.length == 2) {
