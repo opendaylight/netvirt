@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_5eeda8ee",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/yang/elanmanager-config.yang",
+        "patchSetId": 7
+      },
+      "lineNbr": 46,
+      "author": {
+        "id": 670
+      },
+      "writtenOn": "2017-02-16T11:14:56Z",
+      "side": 1,
+      "message": "* \"whether LLDP packets are punted to the controller\"..",
+      "revId": "c5854f07ee3d220f212d6dcbc1a60967501fe6fd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
