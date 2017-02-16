@@ -816,6 +816,12 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
                 return BigInteger.ZERO;
             }
 
+            if (Boolean.TRUE.equals(localNextHopInfo.isNatPrefix())) {
+                LOG.debug("NAT Prefix {} with vpnId {} rd {}. Skip local dpn {} FIB processing",
+                        vrfEntry.getDestPrefix(), vpnId, rd, dpnId);
+                return dpnId;
+            }
+
             final long groupId = nextHopManager.createLocalNextHop(parentVpnId, dpnId,
                     localNextHopInfo.getVpnInterfaceName(), localNextHopIP, vrfEntry.getDestPrefix(),
                     vrfEntry.getGatewayMacAddress());
@@ -1132,7 +1138,7 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
 
         String ifName = prefixInfo.getVpnInterfaceName();
         if (ifName == null) {
-            LOG.warn("Failed to get VPN interface for prefix {}", ipPrefix);
+            LOG.debug("Failed to get VPN interface for prefix {}", ipPrefix);
             return;
         }
 
@@ -1241,6 +1247,12 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
         if (prefixInfo == null) {
             LOG.debug("Cleanup VPN Data Failed as unable to find prefix Info for prefix {}", vrfEntry.getDestPrefix());
             return; //Don't have any info for this prefix (shouldn't happen); need to return
+        }
+
+        if (Boolean.TRUE.equals(prefixInfo.isNatPrefix())) {
+            LOG.debug("NAT Prefix {} with vpnId {} rd {}. Skip FIB processing",
+                    vrfEntry.getDestPrefix(), vpnId, rd);
+            return;
         }
 
         String ifName = prefixInfo.getVpnInterfaceName();
