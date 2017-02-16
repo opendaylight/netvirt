@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_2f26acce",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanPacketInHandler.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 150,
+      "author": {
+        "id": 6177
+      },
+      "writtenOn": "2017-02-16T21:11:41Z",
+      "side": 1,
+      "message": "Was reading this again - why do we update ElanForwardingTables? When is this model used?\n\nIf it is important for some functionality - I\u0027m afraid we are not maintaining it correctly: \nIf we learn mac X on VlanProviderIface1 \u0026 VlanProviderIface2, we will have X in ElanForwardingTables. But when X entry will time out in one of the interfaces(VlanProviderIface1 for example), X will be removed ElanForwardingTables even though it still exists in VlanProviderIface2.\n\nAm I reading this correctly? If so, can you shed some light on when ElanForwardingTables is used? (couldn\u0027t find anything that uses it)\n\nAnyway - Your review still looks good to me, as the behavior I described above existed before your changes..",
+      "revId": "588d7800ad97c3fa7bd5a8c8a7a88023e90458f3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
