@@ -165,11 +165,13 @@ public class VpnSubnetRouteHandler implements NeutronvpnListener {
                 subOpBuilder.setSubnetId(subnetId);
                 subOpBuilder.setSubnetCidr(subnetIp);
                 String primaryRd = VpnUtil.getPrimaryRd(dataBroker, vpnName);
+
                 if (isBgpVpn && !VpnUtil.isBgpVpn(vpnName, primaryRd)) {
                     LOG.error("onSubnetAddedToVpn: The VPN Instance name "
                             + notification.getVpnName() + " does not have RD ");
                     return;
                 }
+
                 subOpBuilder.setVrfId(primaryRd);
                 subOpBuilder.setVpnName(vpnName);
                 subOpBuilder.setSubnetToDpn(new ArrayList<>());
@@ -372,14 +374,14 @@ public class VpnSubnetRouteHandler implements NeutronvpnListener {
                 .setSubnetId(subnetId);
                 onSubnetDeletedFromVpn(bldr.build());
             }
-            // TODO(vivek): Something got updated, but we donot know what ?
+        // TODO(vivek): Something got updated, but we donot know what ?
         } else {
             if (notification.isBgpVpn()) {
                 SubnetAddedToVpnBuilder bldr = new SubnetAddedToVpnBuilder().setVpnName(vpnName).setElanTag(elanTag);
                 bldr.setSubnetIp(subnetIp).setSubnetId(subnetId).setBgpVpn(notification.isBgpVpn());
                 onSubnetAddedToVpn(bldr.build());
             }
-            // TODO(vivek): Something got updated, but we donot know what ?
+        // TODO(vivek): Something got updated, but we donot know what ?
         }
     }
 
