@@ -20,8 +20,10 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
+import java.util.stream.Collectors;
 
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
@@ -121,6 +123,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev16011
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.SnatintIpPortMap;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ext.routers.Routers;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ext.routers.RoutersKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ext.routers.routers.ExternalIps;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.external.ips.counter.ExternalCounters;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.external.ips.counter.ExternalCountersKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.external.ips.counter.external.counters.ExternalIpCounter;
@@ -941,7 +944,11 @@ public class NatUtil {
 
     public static List<String> getExternalIpsFromRouter(DataBroker dataBroker, String routerName) {
         Routers routerData = NatUtil.getRoutersFromConfigDS(dataBroker, routerName);
-        return (routerData != null) ? routerData.getExternalIps() : Collections.emptyList();
+        if (routerData != null) {
+            return NatUtil.getIpsListFromExternalIps(routerData.getExternalIps());
+        }
+
+        return Collections.emptyList();
     }
 
     public static HashMap<String, Long> getExternalIpsLabelForRouter(DataBroker dataBroker, Long routerId) {
@@ -1764,6 +1771,16 @@ public class NatUtil {
         }
     }
 
+    public static List<Uuid> getExternalSubnetIdsFromExternalIps(List<ExternalIps> externalIps) {
+        if (externalIps == null) {
+            return Collections.emptyList();
+        }
+
+        Set<Uuid> subnetsSet = externalIps.stream().map(externalIp -> externalIp.getSubnetId())
+                .collect(Collectors.toSet());
+        return new ArrayList<Uuid>(subnetsSet);
+    }
+
     private static long ipToLong(InetAddress ip) {
         byte[] octets = ip.getAddress();
         long result = 0;
@@ -1772,5 +1789,13 @@ public class NatUtil {
             result |= octet & 0xff;
         }
         return result;
+    }
+
+    static List<String> getIpsListFromExternalIps(List<ExternalIps> externalIps) {
+        if (externalIps == null) {
+            return Collections.emptyList();
+        }
+
+        return externalIps.stream().map(externalIp -> externalIp.getIpAddress()).collect(Collectors.toList());
     }
 }
