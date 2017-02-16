@@ -294,7 +294,7 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
 
     private void installNaptPfibExternalOutputFlow(Routers routers, BigInteger dpnId) {
         Long extVpnId = NatUtil.getVpnId(dataBroker, routers.getNetworkId().getValue());
-        List<String> extIps = routers.getExternalIps();
+        List<String> extIps = NatUtil.getIpsListFromExternalIps(routers.getExternalIps());
         installNaptPfibExternalOutputFlow(dpnId, extVpnId, extIps);
     }
 
@@ -340,7 +340,7 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
         List<String> externalIps = null;
         LOG.debug("NAT Service : Fetching values from extRouters model");
         subnetList = routerEntry.getSubnetIds();
-        externalIps = routerEntry.getExternalIps();
+        externalIps = NatUtil.getIpsListFromExternalIps(routerEntry.getExternalIps());
         int counter = 0;
         int extIpCounter = externalIps.size();
         LOG.debug("NAT Service : counter values before looping counter {} and extIpCounter {}", counter, extIpCounter);
@@ -1064,8 +1064,8 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
 
         //Check if the Update is on External IPs
         LOG.debug("NAT Service : Checking if this is update on External IPs");
-        List<String> originalExternalIps = original.getExternalIps();
-        List<String> updatedExternalIps = update.getExternalIps();
+        List<String> originalExternalIps = NatUtil.getIpsListFromExternalIps(original.getExternalIps());
+        List<String> updatedExternalIps = NatUtil.getIpsListFromExternalIps(update.getExternalIps());
 
         //Check if the External IPs are added during the update.
         Set<String> addedExternalIps = new HashSet<>(updatedExternalIps);
@@ -1459,7 +1459,8 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
         WriteTransaction writeTx = dataBroker.newWriteOnlyTransaction();
         vpnManager.setupRouterGwMacFlow(router.getRouterName(), router.getExtGwMacAddress(), primarySwitchId,
             router.getNetworkId(), writeTx, addOrRemove);
-        vpnManager.setupArpResponderFlowsToExternalNetworkIps(router.getRouterName(), router.getExternalIps(),
+        vpnManager.setupArpResponderFlowsToExternalNetworkIps(router.getRouterName(),
+            NatUtil.getIpsListFromExternalIps(router.getExternalIps()),
             router.getExtGwMacAddress(), primarySwitchId, router.getNetworkId(), writeTx, addOrRemove);
         writeTx.submit();
     }
