@@ -73,6 +73,9 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.meta.rev160406.IfIndexesInterfaceMap;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.meta.rev160406._if.indexes._interface.map.IfIndexInterface;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.meta.rev160406._if.indexes._interface.map.IfIndexInterfaceKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.GetInterfaceFromIfIndexInput;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.GetInterfaceFromIfIndexInputBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.GetInterfaceFromIfIndexOutput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.OdlInterfaceRpcService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.lockmanager.rev160413.LockManagerService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.lockmanager.rev160413.TimeUnits;
@@ -171,6 +174,13 @@ public class VpnUtil {
     static InstanceIdentifier<VpnInstance> getVpnInstanceIdentifier(String vpnName) {
         return InstanceIdentifier.builder(VpnInstances.class)
             .child(VpnInstance.class, new VpnInstanceKey(vpnName)).build();
+    }
+
+    static VpnInterface getVpnInterface(DataBroker broker, String vpnInterfaceName) {
+        InstanceIdentifier<VpnInterface> id = InstanceIdentifier.builder(VpnInterfaces.class).child(VpnInterface.class,
+            new VpnInterfaceKey(vpnInterfaceName)).build();
+        Optional<VpnInterface> vpnInterface = read(broker, LogicalDatastoreType.CONFIGURATION, id);
+        return (vpnInterface.isPresent()) ? vpnInterface.get() : null;
     }
 
     static VpnInterface getVpnInterface(String intfName, String vpnName, Adjacencies aug, BigInteger dpnId,
@@ -337,6 +347,22 @@ public class VpnUtil {
 
     static  Routes getVpnToExtraroute(String ipPrefix, List<String> nextHopList) {
         return new RoutesBuilder().setPrefix(ipPrefix).setNexthopIpList(nextHopList).build();
+    }
+
+    static String getVpnInterfaceName(OdlInterfaceRpcService odlInterfaceRpcService, BigInteger metadata)
+            throws InterruptedException, ExecutionException {
+        GetInterfaceFromIfIndexInputBuilder ifIndexInputBuilder = new GetInterfaceFromIfIndexInputBuilder();
+        BigInteger lportTag = MetaDataUtil.getLportFromMetadata(metadata);
+
+        ifIndexInputBuilder.setIfIndex(lportTag.intValue());
+        GetInterfaceFromIfIndexInput input = ifIndexInputBuilder.build();
+
+        Future<RpcResult<GetInterfaceFromIfIndexOutput>> interfaceFromIfIndex =
+                odlInterfaceRpcService.getInterfaceFromIfIndex(input);
+        GetInterfaceFromIfIndexOutput interfaceFromIfIndexOutput;
+        interfaceFromIfIndexOutput = interfaceFromIfIndex.get().getResult();
+        String interfaceName = interfaceFromIfIndexOutput.getInterfaceName();
+        return interfaceName;
     }
 
     static  List<String> getUsedRds(DataBroker broker, long vpnId, String destPrefix) {
