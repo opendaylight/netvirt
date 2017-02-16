@@ -1,0 +1,89 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_5147594b",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NaptManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 745,
+      "author": {
+        "id": 6365
+      },
+      "writtenOn": "2017-02-16T15:10:00Z",
+      "side": 1,
+      "message": "You can use your new getIpsListFromExternalIps method from NatUtils to make this code shorter",
+      "revId": "508a0273602ac2c96888ed518877c09f4a855d6a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_74040bc0",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NatUtil.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 1672,
+      "author": {
+        "id": 6365
+      },
+      "writtenOn": "2017-02-16T15:10:00Z",
+      "side": 1,
+      "message": "Would love to implement this method with java Streams API. You can implement this method with 2 lines of code.\n1. to check if the input is null (in which you return an empty list)\n2. Use streams API to build the list (one liner)",
+      "revId": "508a0273602ac2c96888ed518877c09f4a855d6a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_b43833a1",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnNatManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 469,
+      "author": {
+        "id": 6365
+      },
+      "writtenOn": "2017-02-16T15:10:00Z",
+      "side": 1,
+      "message": "Can you refactor this to a function? I see the same loop in another method also, so this change will shorten them both.",
+      "revId": "508a0273602ac2c96888ed518877c09f4a855d6a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_d445f717",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnNatManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 539,
+      "author": {
+        "id": 6365
+      },
+      "writtenOn": "2017-02-16T15:10:00Z",
+      "side": 1,
+      "message": "Read the comment above :)",
+      "revId": "508a0273602ac2c96888ed518877c09f4a855d6a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_94d7ef22",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnUtil.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 1457,
+      "author": {
+        "id": 6365
+      },
+      "writtenOn": "2017-02-16T15:10:00Z",
+      "side": 1,
+      "message": "Same comment as in NatUtil. \nCould use Streams API to make this a lot shorter.",
+      "revId": "508a0273602ac2c96888ed518877c09f4a855d6a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
