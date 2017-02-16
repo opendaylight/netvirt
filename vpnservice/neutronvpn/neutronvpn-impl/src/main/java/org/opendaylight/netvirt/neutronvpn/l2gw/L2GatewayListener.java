@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 - 2017 Ericsson India Global Services Pvt Ltd. and others.  All rights reserved.
+ * Copyright (c) 2016, 2017 Ericsson India Global Services Pvt Ltd. and others.  All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
@@ -12,13 +12,10 @@ import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 import java.util.List;
 import java.util.Set;
-import org.opendaylight.controller.md.sal.binding.api.ClusteredDataChangeListener;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.clustering.EntityOwnershipService;
-import org.opendaylight.controller.md.sal.common.api.data.AsyncDataBroker;
-import org.opendaylight.controller.md.sal.common.api.data.AsyncDataBroker.DataChangeScope;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.genius.datastoreutils.AsyncClusteredDataChangeListenerBase;
+import org.opendaylight.genius.datastoreutils.AsyncClusteredDataTreeChangeListenerBase;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.utils.clustering.ClusteringUtils;
 import org.opendaylight.genius.utils.hwvtep.HwvtepSouthboundConstants;
@@ -37,7 +34,7 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class L2GatewayListener extends AsyncClusteredDataChangeListenerBase<L2gateway, L2GatewayListener>
+public class L2GatewayListener extends AsyncClusteredDataTreeChangeListenerBase<L2gateway, L2GatewayListener>
         implements AutoCloseable {
     private static final Logger LOG = LoggerFactory.getLogger(L2GatewayListener.class);
     private final DataBroker dataBroker;
@@ -46,7 +43,6 @@ public class L2GatewayListener extends AsyncClusteredDataChangeListenerBase<L2ga
 
     public L2GatewayListener(final DataBroker dataBroker, final EntityOwnershipService entityOwnershipService,
                              ItmRpcService itmRpcService) {
-        super(L2gateway.class, L2GatewayListener.class);
         this.dataBroker = dataBroker;
         this.entityOwnershipService = entityOwnershipService;
         this.itmRpcService = itmRpcService;
@@ -176,6 +172,7 @@ public class L2GatewayListener extends AsyncClusteredDataChangeListenerBase<L2ga
                     // Cleaning up the config DS
                     NodeId nodeId = new NodeId(l2GwDevice.getHwvtepNodeId());
                     NodeId psNodeId = HwvtepSouthboundUtils.createManagedNodeId(nodeId, l2DeviceName);
+                    //FIXME: These should be removed
                     MDSALUtil.syncDelete(dataBroker, LogicalDatastoreType.CONFIGURATION,
                             HwvtepSouthboundUtils.createInstanceIdentifier(nodeId));
                     MDSALUtil.syncDelete(dataBroker, LogicalDatastoreType.CONFIGURATION,
@@ -193,12 +190,7 @@ public class L2GatewayListener extends AsyncClusteredDataChangeListenerBase<L2ga
     }
 
     @Override
-    protected ClusteredDataChangeListener getDataChangeListener() {
+    protected L2GatewayListener getDataTreeChangeListener() {
         return this;
-    }
-
-    @Override
-    protected DataChangeScope getDataChangeScope() {
-        return AsyncDataBroker.DataChangeScope.SUBTREE;
     }
 }
