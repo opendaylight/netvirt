@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_3aac3735",
+        "filename": "vpnservice/features/pom.xml",
+        "patchSetId": 1
+      },
+      "lineNbr": 251,
+      "author": {
+        "id": 6892
+      },
+      "writtenOn": "2017-02-16T09:46:33Z",
+      "side": 1,
+      "message": "Only for the alerts we have yang changes. Other than that Nothing. So Api will be added when qos-alert is raised. This is mere movement of code from neutronvpn to qosservice",
+      "parentUuid": "fafc7978_9adc4314",
+      "revId": "e4cb6f8415c157de0c6434d47d7886bc7fb5d553",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_7ad7dfed",
         "filename": "vpnservice/neutronvpn/neutronvpn-impl/pom.xml",
         "patchSetId": 1
@@ -30,6 +48,24 @@
       "writtenOn": "2017-02-15T11:54:47Z",
       "side": 1,
       "message": "dependencies should be only towards APIs and not Impls.",
+      "revId": "e4cb6f8415c157de0c6434d47d7886bc7fb5d553",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_e8802548",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/pom.xml",
+        "patchSetId": 1
+      },
+      "lineNbr": 101,
+      "author": {
+        "id": 6892
+      },
+      "writtenOn": "2017-02-16T09:46:33Z",
+      "side": 1,
+      "message": "Removal Done",
+      "parentUuid": "fafc7978_7ad7dfed",
       "revId": "e4cb6f8415c157de0c6434d47d7886bc7fb5d553",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
