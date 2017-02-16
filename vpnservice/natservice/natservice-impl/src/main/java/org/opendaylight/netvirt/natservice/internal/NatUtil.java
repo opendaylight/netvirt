@@ -87,6 +87,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev16011
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.snatint.ip.port.map.intip.port.map.ip.port.IntIpProtoType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.snatint.ip.port.map.intip.port.map.ip.port.IntIpProtoTypeKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.NeutronRouterDpns;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.PrefixToInterface;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.VpnIdToVpnInstance;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.NetworkMaps;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.NeutronVpnPortipPortData;
@@ -145,6 +146,9 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.dpn
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.dpn.routers.dpn.routers.list.RoutersList;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.neutron.router.dpns.router.dpn.list.dpn.vpninterfaces.list.RouterInterfacesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.neutron.router.dpns.router.dpn.list.dpn.vpninterfaces.list.RouterInterfacesKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.prefix.to._interface.vpn.ids.Prefixes;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.prefix.to._interface.vpn.ids.PrefixesBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.prefix.to._interface.vpn.ids.PrefixesKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.neutron.router.dpns.router.dpn.list.DpnVpninterfacesListBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.neutron.router.dpns.router.dpn.list.DpnVpninterfacesListKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.dpn.routers.DpnRoutersListBuilder;
@@ -154,7 +158,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.Dpn
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.Interfaces;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.InterfaceKey;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface;
-
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -725,12 +728,12 @@ public class NatUtil {
     public static void addPrefixToBGP(DataBroker broker,
                                       IBgpManager bgpManager,
                                       IFibManager fibManager,
+                                      String vpnName,
                                       String rd,
                                       String prefix,
                                       String nextHopIp,
                                       long label,
-                                      Logger log,
-                                      RouteOrigin origin) {
+                                      Logger log, RouteOrigin origin, BigInteger dpId) {
         try {
             LOG.info("ADD: Adding Fib entry rd {} prefix {} nextHop {} label {}", rd, prefix, nextHopIp, label);
             if (nextHopIp == null)
@@ -738,6 +741,7 @@ public class NatUtil {
                 log.error("addPrefix failed since nextHopIp cannot be null.");
                 return;
             }
+            addPrefixToInterface(broker, getVpnId(broker, vpnName), prefix, dpId, /*isNatPrefix*/ true);
             fibManager.addOrUpdateFibEntry(broker, rd, prefix, Arrays.asList(nextHopIp), (int)label, null /*gatewayMacAddress*/,
                     origin, null /*writeTxn*/);
             bgpManager.advertisePrefix(rd, prefix, Arrays.asList(nextHopIp), (int)label);
@@ -745,6 +749,19 @@ public class NatUtil {
         } catch(Exception e) {
             log.error("Add prefix failed", e);
         }
+    }
+
+    static void addPrefixToInterface(DataBroker broker, long vpnId, String ipPrefix, BigInteger dpId,
+            boolean isNatPrefix) {
+        InstanceIdentifier<Prefixes> prefixId = InstanceIdentifier.builder(PrefixToInterface.class)
+                .child(org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.prefix.to._interface
+                        .VpnIds.class, new org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.prefix
+                        .to._interface.VpnIdsKey(vpnId))
+                .child(Prefixes.class, new PrefixesKey(ipPrefix)).build();
+
+        Prefixes prefix = new PrefixesBuilder().setDpnId(dpId).setIpAddress(ipPrefix).setNatPrefix(isNatPrefix)
+                .build();
+        MDSALUtil.syncWrite(broker, LogicalDatastoreType.OPERATIONAL, prefixId, prefix);
     }
 
     static InstanceIdentifier<Ports> buildPortToIpMapIdentifier(String routerId, String portName) {

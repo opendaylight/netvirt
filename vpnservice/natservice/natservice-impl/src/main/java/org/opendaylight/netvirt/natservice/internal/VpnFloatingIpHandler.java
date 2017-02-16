@@ -139,8 +139,8 @@ public class VpnFloatingIpHandler implements FloatingIPHandler {
                     String rd = NatUtil.getVpnRd(dataBroker, vpnName);
                     String nextHopIp = NatUtil.getEndpointIpAddressForDPN(dataBroker, dpnId);
                     LOG.debug("Nexthop ip for prefix {} is {}", externalIp, nextHopIp);
-                    NatUtil.addPrefixToBGP(dataBroker, bgpManager, fibManager, rd, externalIp + "/32", nextHopIp,
-                            label, LOG, RouteOrigin.STATIC);
+                    NatUtil.addPrefixToBGP(dataBroker, bgpManager, fibManager, vpnName, rd, externalIp + "/32",
+                        nextHopIp, label, LOG, RouteOrigin.STATIC, dpnId);
 
                     List<Instruction> instructions = new ArrayList<>();
                     List<ActionInfo> actionsInfos = new ArrayList<>();
