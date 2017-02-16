@@ -84,10 +84,6 @@ public class VpnSubnetRouteHandler implements NeutronvpnListener {
     @SuppressWarnings("checkstyle:IllegalCatch")
     @Override
     public void onSubnetAddedToVpn(SubnetAddedToVpn notification) {
-        if (!notification.isBgpVpn()) {
-            return;
-        }
-
         Uuid subnetId = notification.getSubnetId();
         String vpnName = notification.getVpnName();
         String subnetIp = notification.getSubnetIp();
@@ -162,11 +158,13 @@ public class VpnSubnetRouteHandler implements NeutronvpnListener {
                 subOpBuilder.setSubnetId(subnetId);
                 subOpBuilder.setSubnetCidr(subnetIp);
                 String primaryRd = VpnUtil.getPrimaryRd(dataBroker, vpnName);
-                if (!VpnUtil.isBgpVpn(vpnName, primaryRd)) {
+                boolean isBgpVpn = notification.isBgpVpn();
+                if (isBgpVpn && !VpnUtil.isBgpVpn(vpnName, primaryRd)) {
                     LOG.error("onSubnetAddedToVpn: The VPN Instance name "
                             + notification.getVpnName() + " does not have RD ");
                     return;
                 }
+
                 subOpBuilder.setVrfId(primaryRd);
                 subOpBuilder.setVpnName(vpnName);
                 subOpBuilder.setSubnetToDpn(new ArrayList<>());
@@ -270,9 +268,6 @@ public class VpnSubnetRouteHandler implements NeutronvpnListener {
     public void onSubnetDeletedFromVpn(SubnetDeletedFromVpn notification) {
         Uuid subnetId = notification.getSubnetId();
 
-        if (!notification.isBgpVpn()) {
-            return;
-        }
         LOG.info("onSubnetDeletedFromVpn: Subnet " + subnetId.getValue() + " being removed from vpn");
         //TODO(vivek): Change this to use more granularized lock at subnetId level
         try {
@@ -363,17 +358,17 @@ public class VpnSubnetRouteHandler implements NeutronvpnListener {
         if (optionalSubs.isPresent()) {
             if (!notification.isBgpVpn()) {
                 SubnetDeletedFromVpnBuilder bldr = new SubnetDeletedFromVpnBuilder().setVpnName(vpnName);
-                bldr.setElanTag(elanTag).setBgpVpn(true).setSubnetIp(subnetIp).setSubnetId(subnetId);
+                bldr.setElanTag(elanTag).setBgpVpn(notification.isBgpVpn()).setSubnetIp(subnetIp).setSubnetId(subnetId);
                 onSubnetDeletedFromVpn(bldr.build());
             }
-            // TODO(vivek): Something got updated, but we donot know what ?
+        // TODO(vivek): Something got updated, but we donot know what ?
         } else {
             if (notification.isBgpVpn()) {
                 SubnetAddedToVpnBuilder bldr = new SubnetAddedToVpnBuilder().setVpnName(vpnName).setElanTag(elanTag);
-                bldr.setSubnetIp(subnetIp).setSubnetId(subnetId).setBgpVpn(true);
+                bldr.setSubnetIp(subnetIp).setSubnetId(subnetId).setBgpVpn(notification.isBgpVpn());
                 onSubnetAddedToVpn(bldr.build());
             }
-            // TODO(vivek): Something got updated, but we donot know what ?
+        // TODO(vivek): Something got updated, but we donot know what ?
         }
     }
 
