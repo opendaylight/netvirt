@@ -16,6 +16,24 @@
       "revId": "9b62596d1b5cb8569326b4719ef01c57ea431247",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_31de156e",
+        "filename": "docs/specs/ipv6-l3vpn-internet.rst",
+        "patchSetId": 1
+      },
+      "lineNbr": 132,
+      "author": {
+        "id": 6984
+      },
+      "writtenOn": "2017-02-16T13:00:22Z",
+      "side": 1,
+      "message": "yes i should do this way",
+      "parentUuid": "fafc7978_37b613fb",
+      "revId": "9b62596d1b5cb8569326b4719ef01c57ea431247",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
