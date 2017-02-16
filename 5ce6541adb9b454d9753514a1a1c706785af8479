@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_dbafea92",
+        "filename": "docs/specs/ipv6-l3vpn.rst",
+        "patchSetId": 4
+      },
+      "lineNbr": 152,
+      "author": {
+        "id": 6984
+      },
+      "writtenOn": "2017-02-16T13:00:13Z",
+      "side": 1,
+      "message": "I didn\u0027t understand table 45 was standing for control port, i will remove it.",
+      "parentUuid": "fafc7978_7769bbbd",
+      "revId": "5ce6541adb9b454d9753514a1a1c706785af8479",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_576477e4",
         "filename": "docs/specs/ipv6-l3vpn.rst",
         "patchSetId": 4
@@ -30,6 +48,24 @@
       "writtenOn": "2017-02-14T15:04:23Z",
       "side": 1,
       "message": "Please include ipv6 to specify that its matching an ipv6 address and not ipv4",
+      "revId": "5ce6541adb9b454d9753514a1a1c706785af8479",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_bb894628",
+        "filename": "docs/specs/ipv6-l3vpn.rst",
+        "patchSetId": 4
+      },
+      "lineNbr": 162,
+      "author": {
+        "id": 6984
+      },
+      "writtenOn": "2017-02-16T13:00:13Z",
+      "side": 1,
+      "message": "you\u0027re right, this way its less ambiguous",
+      "parentUuid": "fafc7978_576477e4",
       "revId": "5ce6541adb9b454d9753514a1a1c706785af8479",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -53,6 +89,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_f1f48df3",
+        "filename": "docs/specs/ipv6-l3vpn.rst",
+        "patchSetId": 4
+      },
+      "lineNbr": 164,
+      "author": {
+        "id": 6984
+      },
+      "writtenOn": "2017-02-16T13:00:13Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_57abd7d5",
+      "revId": "5ce6541adb9b454d9753514a1a1c706785af8479",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_97b53f33",
         "filename": "docs/specs/ipv6-l3vpn.rst",
         "patchSetId": 4
@@ -64,6 +118,24 @@
       "writtenOn": "2017-02-14T15:04:23Z",
       "side": 1,
       "message": "Hope you meant router-gw-port? \nJFI, there are two ports on the router, one on the internal side and one on the external network.",
+      "revId": "5ce6541adb9b454d9753514a1a1c706785af8479",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_7b77de3a",
+        "filename": "docs/specs/ipv6-l3vpn.rst",
+        "patchSetId": 4
+      },
+      "lineNbr": 168,
+      "author": {
+        "id": 6984
+      },
+      "writtenOn": "2017-02-16T13:00:13Z",
+      "side": 1,
+      "message": "yes, that\u0027s that port, i will complete the sentence with it",
+      "parentUuid": "fafc7978_97b53f33",
       "revId": "5ce6541adb9b454d9753514a1a1c706785af8479",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -87,6 +159,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_fbe8eeb5",
+        "filename": "docs/specs/ipv6-l3vpn.rst",
+        "patchSetId": 4
+      },
+      "lineNbr": 177,
+      "author": {
+        "id": 6984
+      },
+      "writtenOn": "2017-02-16T13:00:13Z",
+      "side": 1,
+      "message": "that\u0027s the hard point",
+      "parentUuid": "fafc7978_f783eb53",
+      "revId": "5ce6541adb9b454d9753514a1a1c706785af8479",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_7797fb90",
         "filename": "docs/specs/ipv6-l3vpn.rst",
         "patchSetId": 4
@@ -104,6 +194,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_fbb10ee2",
+        "filename": "docs/specs/ipv6-l3vpn.rst",
+        "patchSetId": 4
+      },
+      "lineNbr": 292,
+      "author": {
+        "id": 6984
+      },
+      "writtenOn": "2017-02-16T13:00:13Z",
+      "side": 1,
+      "message": "I\u0027m used to create ports on subnets then attach VMs to those ports, it\u0027s done like that in netvirt  CSIT.",
+      "parentUuid": "fafc7978_7797fb90",
+      "revId": "5ce6541adb9b454d9753514a1a1c706785af8479",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_978c1f81",
         "filename": "docs/specs/ipv6-l3vpn.rst",
         "patchSetId": 4
@@ -115,6 +223,24 @@
       "writtenOn": "2017-02-14T15:04:23Z",
       "side": 1,
       "message": "Does this spec have a dependency on a version of Quagga?",
+      "revId": "5ce6541adb9b454d9753514a1a1c706785af8479",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_9be1e2d2",
+        "filename": "docs/specs/ipv6-l3vpn.rst",
+        "patchSetId": 4
+      },
+      "lineNbr": 406,
+      "author": {
+        "id": 6984
+      },
+      "writtenOn": "2017-02-16T13:00:13Z",
+      "side": 1,
+      "message": "you\u0027re right, the dependency is on quagga from 6WIND public repositories",
+      "parentUuid": "fafc7978_978c1f81",
       "revId": "5ce6541adb9b454d9753514a1a1c706785af8479",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
