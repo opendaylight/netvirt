@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_54c0e729",
+        "filename": "docs/specs/l3vpn-over-vxlan-with-evpn-rt5.rst",
+        "patchSetId": 6
+      },
+      "lineNbr": 397,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2017-02-16T15:43:29Z",
+      "side": 1,
+      "message": "I believe this flow would also contain a match for eth-dst similarly to FIP-FIP across DPNs case",
+      "range": {
+        "startLine": 397,
+        "startChar": 21,
+        "endLine": 397,
+        "endChar": 26
+      },
+      "revId": "8b907938dc1d4e2ba29a69bd6ba45fb5879f0c11",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_b42cb303",
+        "filename": "docs/specs/l3vpn-over-vxlan-with-evpn-rt5.rst",
+        "patchSetId": 6
+      },
+      "lineNbr": 437,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2017-02-16T15:43:29Z",
+      "side": 1,
+      "message": "this is not a very good terminology unless the router is associated to some real ietf-interface and this is the lport tag of this interface\nOtherwise it\u0027s better to use l3vpn-id/router-vpn-id",
+      "range": {
+        "startLine": 437,
+        "startChar": 106,
+        "endLine": 437,
+        "endChar": 122
+      },
+      "revId": "8b907938dc1d4e2ba29a69bd6ba45fb5879f0c11",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_94088f92",
+        "filename": "docs/specs/l3vpn-over-vxlan-with-evpn-rt5.rst",
+        "patchSetId": 6
+      },
+      "lineNbr": 437,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2017-02-16T15:43:29Z",
+      "side": 1,
+      "message": "NAPT group will be removed as part of this change?",
+      "range": {
+        "startLine": 437,
+        "startChar": 124,
+        "endLine": 437,
+        "endChar": 149
+      },
+      "revId": "8b907938dc1d4e2ba29a69bd6ba45fb5879f0c11",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
