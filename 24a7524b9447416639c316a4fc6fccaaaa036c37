@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_c9b723d7",
+        "filename": "vpnservice/bgpmanager/bgpmanager-impl/src/main/java/org/opendaylight/netvirt/bgpmanager/FibDSWriter.java",
+        "patchSetId": 22
+      },
+      "lineNbr": 76,
+      "author": {
+        "id": 3630
+      },
+      "writtenOn": "2017-02-17T04:55:22Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_68a9d57a",
+      "range": {
+        "startLine": 73,
+        "startChar": 0,
+        "endLine": 76,
+        "endChar": 13
+      },
+      "revId": "24a7524b9447416639c316a4fc6fccaaaa036c37",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_a8be1dd2",
         "filename": "vpnservice/bgpmanager/bgpmanager-impl/src/main/java/org/opendaylight/netvirt/bgpmanager/FibDSWriter.java",
         "patchSetId": 22
@@ -36,6 +60,30 @@
       "writtenOn": "2017-02-15T17:24:51Z",
       "side": 1,
       "message": "are you building something with something that can be null? \nIs that null significant?",
+      "range": {
+        "startLine": 77,
+        "startChar": 53,
+        "endLine": 77,
+        "endChar": 56
+      },
+      "revId": "24a7524b9447416639c316a4fc6fccaaaa036c37",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_89aebb83",
+        "filename": "vpnservice/bgpmanager/bgpmanager-impl/src/main/java/org/opendaylight/netvirt/bgpmanager/FibDSWriter.java",
+        "patchSetId": 22
+      },
+      "lineNbr": 77,
+      "author": {
+        "id": 3630
+      },
+      "writtenOn": "2017-02-17T04:55:22Z",
+      "side": 1,
+      "message": "This null is handled in buildRoutePath method.",
+      "parentUuid": "fafc7978_a8be1dd2",
       "range": {
         "startLine": 77,
         "startChar": 53,
@@ -71,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_71dc1d13",
+        "filename": "vpnservice/cloud-servicechain/cloud-servicechain-impl/src/main/java/org/opendaylight/netvirt/cloudservicechain/listeners/VrfListener.java",
+        "patchSetId": 22
+      },
+      "lineNbr": 90,
+      "author": {
+        "id": 3630
+      },
+      "writtenOn": "2017-02-17T04:55:22Z",
+      "side": 1,
+      "message": "Thanks :). Earlier we used to proceed if there was a change in the label. This is now done by comparing the unique list of labels.",
+      "parentUuid": "fafc7978_e8b4a5d2",
+      "range": {
+        "startLine": 90,
+        "startChar": 36,
+        "endLine": 90,
+        "endChar": 40
+      },
+      "revId": "24a7524b9447416639c316a4fc6fccaaaa036c37",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_c8de0111",
         "filename": "vpnservice/cloud-servicechain/cloud-servicechain-impl/src/main/java/org/opendaylight/netvirt/cloudservicechain/utils/VpnServiceChainUtils.java",
         "patchSetId": 22
@@ -88,6 +160,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_a9ba9fbd",
+        "filename": "vpnservice/cloud-servicechain/cloud-servicechain-impl/src/main/java/org/opendaylight/netvirt/cloudservicechain/utils/VpnServiceChainUtils.java",
+        "patchSetId": 22
+      },
+      "lineNbr": 334,
+      "author": {
+        "id": 3630
+      },
+      "writtenOn": "2017-02-17T04:55:22Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_c8de0111",
+      "revId": "24a7524b9447416639c316a4fc6fccaaaa036c37",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_a82f3df5",
         "filename": "vpnservice/cloud-servicechain/cloud-servicechain-impl/src/main/java/org/opendaylight/netvirt/cloudservicechain/utils/VpnServiceChainUtils.java",
         "patchSetId": 22
@@ -99,6 +189,30 @@
       "writtenOn": "2017-02-15T17:24:51Z",
       "side": 1,
       "message": "why not have a basic check at the beginning of the method and then get rid of ofNullables and orElseGets?",
+      "range": {
+        "startLine": 353,
+        "startChar": 12,
+        "endLine": 354,
+        "endChar": 24
+      },
+      "revId": "24a7524b9447416639c316a4fc6fccaaaa036c37",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_b12cc503",
+        "filename": "vpnservice/cloud-servicechain/cloud-servicechain-impl/src/main/java/org/opendaylight/netvirt/cloudservicechain/utils/VpnServiceChainUtils.java",
+        "patchSetId": 22
+      },
+      "lineNbr": 354,
+      "author": {
+        "id": 3630
+      },
+      "writtenOn": "2017-02-17T04:55:22Z",
+      "side": 1,
+      "message": "I had added this log removed it.",
+      "parentUuid": "fafc7978_a82f3df5",
       "range": {
         "startLine": 353,
         "startChar": 12,
@@ -134,6 +248,30 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_e9b4a7d2",
+        "filename": "vpnservice/fibmanager/fibmanager-api/src/main/java/org/opendaylight/netvirt/fibmanager/api/FibHelper.java",
+        "patchSetId": 22
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 3630
+      },
+      "writtenOn": "2017-02-17T04:55:22Z",
+      "side": 1,
+      "message": "There are certain places where we have to add augmentation or set some other values(like gatewayAddress etc for EVPN)so rather than adding more overloaded methods which will be confusing, I think it is better to return the builder object itself so that the desired augmentation can be added. Have changed the method name.",
+      "parentUuid": "fafc7978_e8394542",
+      "range": {
+        "startLine": 41,
+        "startChar": 33,
+        "endLine": 41,
+        "endChar": 34
+      },
+      "revId": "24a7524b9447416639c316a4fc6fccaaaa036c37",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_28222d01",
         "filename": "vpnservice/fibmanager/fibmanager-api/src/main/yang/odl-fib.yang",
         "patchSetId": 22
@@ -145,6 +283,30 @@
       "writtenOn": "2017-02-15T17:24:51Z",
       "side": 1,
       "message": "I haven\u0027t gone into details with ECMP implementation, but this label here means that the same prefix may have different labels depending on the nextHop? \nJust curiosity",
+      "range": {
+        "startLine": 60,
+        "startChar": 21,
+        "endLine": 60,
+        "endChar": 26
+      },
+      "revId": "24a7524b9447416639c316a4fc6fccaaaa036c37",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_a9e1ffd1",
+        "filename": "vpnservice/fibmanager/fibmanager-api/src/main/yang/odl-fib.yang",
+        "patchSetId": 22
+      },
+      "lineNbr": 60,
+      "author": {
+        "id": 3630
+      },
+      "writtenOn": "2017-02-17T04:55:22Z",
+      "side": 1,
+      "message": "Yes, labels from 2 DC-GWs can be different.",
+      "parentUuid": "fafc7978_28222d01",
       "range": {
         "startLine": 60,
         "startChar": 21,
@@ -180,6 +342,30 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_09e92bb8",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/FibUtil.java",
+        "patchSetId": 22
+      },
+      "lineNbr": 435,
+      "author": {
+        "id": 3630
+      },
+      "writtenOn": "2017-02-17T04:55:22Z",
+      "side": 1,
+      "message": "This was already there. So did not move it.",
+      "parentUuid": "fafc7978_085c897d",
+      "range": {
+        "startLine": 435,
+        "startChar": 24,
+        "endLine": 435,
+        "endChar": 49
+      },
+      "revId": "24a7524b9447416639c316a4fc6fccaaaa036c37",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_a8f29d6c",
         "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
         "patchSetId": 22
@@ -191,6 +377,30 @@
       "writtenOn": "2017-02-15T17:24:51Z",
       "side": 1,
       "message": "in the yang file, it looked like a vrfEntry could have several labels.\nLooking to the method, it retrieves the 1st label... is that correct?",
+      "range": {
+        "startLine": 473,
+        "startChar": 29,
+        "endLine": 473,
+        "endChar": 61
+      },
+      "revId": "24a7524b9447416639c316a4fc6fccaaaa036c37",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_e9eb07ae",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 22
+      },
+      "lineNbr": 473,
+      "author": {
+        "id": 3630
+      },
+      "writtenOn": "2017-02-17T04:55:22Z",
+      "side": 1,
+      "message": "What I observed was that this label is used only for logging purposes in subsequent method calls. This can be refactored later.",
+      "parentUuid": "fafc7978_a8f29d6c",
       "range": {
         "startLine": 473,
         "startChar": 29,
@@ -226,6 +436,30 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_11d791c0",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 22
+      },
+      "lineNbr": 623,
+      "author": {
+        "id": 3630
+      },
+      "writtenOn": "2017-02-17T04:55:22Z",
+      "side": 1,
+      "message": "For intervpn routes, we saw that the new vrf entry with routeOrigin InterVPN is created with a new label which is independent of both nextHopIp and label. It is based on just the RD and prefix. Thus, the routePaths of these vrfEntries will always have same label.",
+      "parentUuid": "fafc7978_e8a3054d",
+      "range": {
+        "startLine": 623,
+        "startChar": 58,
+        "endLine": 623,
+        "endChar": 80
+      },
+      "revId": "24a7524b9447416639c316a4fc6fccaaaa036c37",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_285a2d50",
         "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
         "patchSetId": 22
@@ -237,6 +471,30 @@
       "writtenOn": "2017-02-15T17:24:51Z",
       "side": 1,
       "message": "this condition is the same than in line 533. I think it can be refactored out. Up to you  :-)",
+      "range": {
+        "startLine": 788,
+        "startChar": 32,
+        "endLine": 789,
+        "endChar": 106
+      },
+      "revId": "24a7524b9447416639c316a4fc6fccaaaa036c37",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_315f3543",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 22
+      },
+      "lineNbr": 789,
+      "author": {
+        "id": 3630
+      },
+      "writtenOn": "2017-02-17T04:55:22Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_285a2d50",
       "range": {
         "startLine": 788,
         "startChar": 32,
@@ -272,6 +530,30 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_49d21301",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 22
+      },
+      "lineNbr": 1013,
+      "author": {
+        "id": 3630
+      },
+      "writtenOn": "2017-02-17T04:55:22Z",
+      "side": 1,
+      "message": "It should have been equals :)",
+      "parentUuid": "fafc7978_a303de0b",
+      "range": {
+        "startLine": 1013,
+        "startChar": 61,
+        "endLine": 1013,
+        "endChar": 69
+      },
+      "revId": "24a7524b9447416639c316a4fc6fccaaaa036c37",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_4314b243",
         "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
         "patchSetId": 22
@@ -283,6 +565,30 @@
       "writtenOn": "2017-02-15T17:24:51Z",
       "side": 1,
       "message": "same comment",
+      "range": {
+        "startLine": 1244,
+        "startChar": 24,
+        "endLine": 1245,
+        "endChar": 98
+      },
+      "revId": "24a7524b9447416639c316a4fc6fccaaaa036c37",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_115af14f",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 22
+      },
+      "lineNbr": 1245,
+      "author": {
+        "id": 3630
+      },
+      "writtenOn": "2017-02-17T04:55:22Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_4314b243",
       "range": {
         "startLine": 1244,
         "startChar": 24,
@@ -318,6 +624,30 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_7159bd59",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 22
+      },
+      "lineNbr": 1303,
+      "author": {
+        "id": 3630
+      },
+      "writtenOn": "2017-02-17T04:55:22Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_831e9a61",
+      "range": {
+        "startLine": 1302,
+        "startChar": 24,
+        "endLine": 1303,
+        "endChar": 98
+      },
+      "revId": "24a7524b9447416639c316a4fc6fccaaaa036c37",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_0322aaa3",
         "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
         "patchSetId": 22
@@ -329,6 +659,30 @@
       "writtenOn": "2017-02-15T17:24:51Z",
       "side": 1,
       "message": "here it is the regular case! \nonly first label of the vrfEntry is being considered, is that correct? Think of 2 vCGNATs attending traffic towards internet and DCGW load-balancing the traffic among them. Do both vCGNATs use the same label? \nor is it that there are 2 vrfEntries (one per vCGNAT) with just one route-path each?",
+      "range": {
+        "startLine": 1391,
+        "startChar": 19,
+        "endLine": 1391,
+        "endChar": 24
+      },
+      "revId": "24a7524b9447416639c316a4fc6fccaaaa036c37",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_49dcd3e4",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 22
+      },
+      "lineNbr": 1391,
+      "author": {
+        "id": 3630
+      },
+      "writtenOn": "2017-02-17T04:55:22Z",
+      "side": 1,
+      "message": "This is called for non-BGP use case so labels in all routePaths will be the same.",
+      "parentUuid": "fafc7978_0322aaa3",
       "range": {
         "startLine": 1391,
         "startChar": 19,
@@ -364,6 +718,30 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_b132050e",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 22
+      },
+      "lineNbr": 1420,
+      "author": {
+        "id": 3630
+      },
+      "writtenOn": "2017-02-17T04:55:22Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_e324c6b0",
+      "range": {
+        "startLine": 1419,
+        "startChar": 24,
+        "endLine": 1420,
+        "endChar": 98
+      },
+      "revId": "24a7524b9447416639c316a4fc6fccaaaa036c37",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_433b12d1",
         "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
         "patchSetId": 22
@@ -375,6 +753,30 @@
       "writtenOn": "2017-02-15T17:24:51Z",
       "side": 1,
       "message": ":-)",
+      "range": {
+        "startLine": 1786,
+        "startChar": 36,
+        "endLine": 1787,
+        "endChar": 110
+      },
+      "revId": "24a7524b9447416639c316a4fc6fccaaaa036c37",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_f13c8de4",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 22
+      },
+      "lineNbr": 1787,
+      "author": {
+        "id": 3630
+      },
+      "writtenOn": "2017-02-17T04:55:22Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_433b12d1",
       "range": {
         "startLine": 1786,
         "startChar": 36,
@@ -410,6 +812,30 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_11fe7138",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 22
+      },
+      "lineNbr": 1789,
+      "author": {
+        "id": 3630
+      },
+      "writtenOn": "2017-02-17T04:55:22Z",
+      "side": 1,
+      "message": "Have removed the loop, since this is for self-imported routes.",
+      "parentUuid": "fafc7978_03cc6abb",
+      "range": {
+        "startLine": 1789,
+        "startChar": 40,
+        "endLine": 1789,
+        "endChar": 81
+      },
+      "revId": "24a7524b9447416639c316a4fc6fccaaaa036c37",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_83bfbafa",
         "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
         "patchSetId": 22
@@ -421,6 +847,30 @@
       "writtenOn": "2017-02-15T17:24:51Z",
       "side": 1,
       "message": "watch out! \nthis \u0027continue\u0027 now applies to \u0027for (RoutePaths routePath...)\u0027\nPreviously, it was applying to \u0027for (final VrfEntry vrfEntry\u0027\n\nCheck it out if that\u0027s what you really want",
+      "range": {
+        "startLine": 1790,
+        "startChar": 40,
+        "endLine": 1790,
+        "endChar": 48
+      },
+      "revId": "24a7524b9447416639c316a4fc6fccaaaa036c37",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_1e64c0e3",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 22
+      },
+      "lineNbr": 1790,
+      "author": {
+        "id": 3630
+      },
+      "writtenOn": "2017-02-17T04:55:22Z",
+      "side": 1,
+      "message": "Good catch :) Now the for loop is not required. So back to previous state",
+      "parentUuid": "fafc7978_83bfbafa",
       "range": {
         "startLine": 1790,
         "startChar": 40,
@@ -456,6 +906,30 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_1ef4c085",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 22
+      },
+      "lineNbr": 2260,
+      "author": {
+        "id": 3630
+      },
+      "writtenOn": "2017-02-17T04:55:22Z",
+      "side": 1,
+      "message": "This is also non-BGP use case.",
+      "parentUuid": "fafc7978_831b3a1a",
+      "range": {
+        "startLine": 2260,
+        "startChar": 77,
+        "endLine": 2260,
+        "endChar": 99
+      },
+      "revId": "24a7524b9447416639c316a4fc6fccaaaa036c37",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_231c0e13",
         "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
         "patchSetId": 22
@@ -467,6 +941,30 @@
       "writtenOn": "2017-02-15T17:24:51Z",
       "side": 1,
       "message": "findFirst?",
+      "range": {
+        "startLine": 2332,
+        "startChar": 17,
+        "endLine": 2332,
+        "endChar": 26
+      },
+      "revId": "24a7524b9447416639c316a4fc6fccaaaa036c37",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_b164c522",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 22
+      },
+      "lineNbr": 2332,
+      "author": {
+        "id": 3630
+      },
+      "writtenOn": "2017-02-17T04:55:22Z",
+      "side": 1,
+      "message": "The createRemoteFibEntry needs to be called only once if at all the filter condition is satisfied.",
+      "parentUuid": "fafc7978_231c0e13",
       "range": {
         "startLine": 2332,
         "startChar": 17,
