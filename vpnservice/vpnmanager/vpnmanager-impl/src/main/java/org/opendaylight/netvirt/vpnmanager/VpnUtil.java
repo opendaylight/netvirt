@@ -338,7 +338,7 @@ public class VpnUtil {
 
     static  List<String> getUsedRds(DataBroker broker, long vpnId, String destPrefix) {
         InstanceIdentifier<DestPrefixes> usedRdsId = getUsedRdsIdentifier(vpnId, destPrefix);
-        Optional<DestPrefixes> usedRds = read(broker, LogicalDatastoreType.OPERATIONAL, usedRdsId);
+        Optional<DestPrefixes> usedRds = read(broker, LogicalDatastoreType.CONFIGURATION, usedRdsId);
         return usedRds.isPresent() ? usedRds.get().getRds() : new ArrayList<String>();
     }
 
@@ -1461,8 +1461,8 @@ public class VpnUtil {
     }
 
     static java.util.Optional<String> allocateRdForExtraRouteAndUpdateUsedRdsMap(
-            DataBroker dataBroker, long vpnId, String prefix, String vpnName,
-            BigInteger dpnId, Adjacency adjacency, WriteTransaction writeOperTxn) {
+            DataBroker dataBroker, long vpnId, long parentVpnId, String prefix, String vpnName,
+            BigInteger dpnId, WriteTransaction writeOperTxn) {
         List<String> usedRds = getUsedRds(dataBroker, vpnId, prefix);
         //Check if rd is already allocated for the same prefix. Use same rd if extra route is behind same CSS.
         java.util.Optional<String> rdToAllocate = usedRds.stream()
@@ -1477,7 +1477,14 @@ public class VpnUtil {
                     if (pair.getLeft().isEmpty()) {
                         return false;
                     }
-                    Optional<Prefixes> prefixToInterface = getPrefixToInterface(dataBroker, vpnId, pair.getLeft());
+                    Optional<Prefixes> prefixToInterface;
+                    //In case of VPN importing the routes, the interface is not present in the VPN
+                    //and has to be fetched from the VPN from which it imports
+                    if (parentVpnId != 0) {
+                        prefixToInterface = getPrefixToInterface(dataBroker, parentVpnId, pair.getLeft());
+                    } else {
+                        prefixToInterface = getPrefixToInterface(dataBroker, vpnId, pair.getLeft());
+                    }
                     return prefixToInterface.isPresent() ? dpnId.equals(prefixToInterface.get().getDpnId()) : false;
                 }).map(pair -> pair.getRight()).findFirst();
         if (rdToAllocate.isPresent()) {
@@ -1490,16 +1497,16 @@ public class VpnUtil {
         }
         LOG.trace(
                 "Removing used rds {} from available rds {} vpnid {} . prefix is {} , vpname- {}, dpnId- {}, adj - {}",
-                usedRds, availableRds, vpnId, prefix, vpnName, dpnId, adjacency);
+                usedRds, availableRds, vpnId, prefix, vpnName, dpnId);
         availableRds.removeAll(usedRds);
         if (availableRds.isEmpty()) {
-            LOG.error("No rd available from VpnInstance to allocate for new adjacency{}", adjacency);
+            LOG.error("No rd available from VpnInstance to allocate for prefix {}", prefix);
             return java.util.Optional.empty();
         }
         // If rd is not allocated for this prefix or if extra route is behind different CSS, select a new rd.
         String rd = availableRds.get(0);
         usedRds.add(rd);
-        syncUpdate(dataBroker, LogicalDatastoreType.OPERATIONAL, getUsedRdsIdentifier(vpnId, prefix),
+        syncUpdate(dataBroker, LogicalDatastoreType.CONFIGURATION, getUsedRdsIdentifier(vpnId, prefix),
                 getDestPrefixesBuilder(prefix, usedRds).build());
         return java.util.Optional.ofNullable(rd);
     }
