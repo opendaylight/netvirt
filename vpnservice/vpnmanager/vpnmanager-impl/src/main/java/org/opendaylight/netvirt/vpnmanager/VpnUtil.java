@@ -43,6 +43,7 @@ import org.opendaylight.genius.utils.clustering.ClusteringUtils;
 import org.opendaylight.netvirt.bgpmanager.api.IBgpManager;
 import org.opendaylight.netvirt.fibmanager.api.RouteOrigin;
 import org.opendaylight.netvirt.neutronvpn.interfaces.INeutronVpnManager;
+import org.opendaylight.netvirt.vpnmanager.api.VpnHelper;
 import org.opendaylight.netvirt.vpnmanager.utilities.InterfaceUtils;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.VpnAfConfig;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.VpnInstances;
@@ -205,23 +206,6 @@ public class VpnUtil {
                 getPrefixToInterfaceIdentifier(vpnId, getIpPrefix(ipPrefix)));
     }
 
-    static  InstanceIdentifier<Routes> getVpnToExtrarouteIdentifier(String vpnName, String vrfId, String ipPrefix) {
-        return InstanceIdentifier.builder(VpnToExtraroutes.class)
-                .child(Vpn.class, new VpnKey(vpnName)).child(ExtraRoutes.class,
-                        new ExtraRoutesKey(vrfId)).child(Routes.class, new RoutesKey(ipPrefix)).build();
-    }
-
-    static  InstanceIdentifier<ExtraRoutes> getVpnToExtrarouteIdentifier(String vpnName, String vrfId) {
-        return InstanceIdentifier.builder(VpnToExtraroutes.class)
-                .child(Vpn.class, new VpnKey(vpnName)).child(ExtraRoutes.class,
-                        new ExtraRoutesKey(vrfId)).build();
-    }
-
-    static  InstanceIdentifier<Vpn> getVpnToExtrarouteIdentifier(String vpnName) {
-        return InstanceIdentifier.builder(VpnToExtraroutes.class)
-                .child(Vpn.class, new VpnKey(vpnName)).build();
-    }
-
     /**
      * Get VRF table given a Route Distinguisher.
      *
@@ -263,16 +247,6 @@ public class VpnUtil {
             return vpnIds.get().getPrefixes();
         }
         return new ArrayList<>();
-    }
-
-    static List<Routes> getAllExtraRoutes(DataBroker broker, String vpnName, String vrfId) {
-        Optional<ExtraRoutes> extraRoutes = read(broker,LogicalDatastoreType.OPERATIONAL,
-                getVpnToExtrarouteIdentifier(vpnName, vrfId));
-        List<Routes> extraRoutesList = new ArrayList<>();
-        if (extraRoutes.isPresent()) {
-            extraRoutesList = extraRoutes.get().getRoutes();
-        }
-        return extraRoutesList;
     }
 
     /**
@@ -363,18 +337,6 @@ public class VpnUtil {
 
     static  Routes getVpnToExtraroute(String ipPrefix, List<String> nextHopList) {
         return new RoutesBuilder().setPrefix(ipPrefix).setNexthopIpList(nextHopList).build();
-    }
-
-    public static  List<Routes> getExtraRoutes(DataBroker broker, String vpnName, String vpnRd) {
-        InstanceIdentifier<ExtraRoutes> vpnExtraRoutesId = getVpnToExtrarouteIdentifier(vpnName, vpnRd);
-        Optional<ExtraRoutes> extraRoutes = read(broker, LogicalDatastoreType.OPERATIONAL, vpnExtraRoutesId);
-        return extraRoutes.isPresent() ? extraRoutes.get().getRoutes() : new ArrayList<Routes>();
-    }
-
-    public static Optional<Routes> getExtraRoutes(DataBroker broker, String vpnName,
-                                                     String vpnRd, String destPrefix) {
-        InstanceIdentifier<Routes> vpnExtraRoutesId = getVpnToExtrarouteIdentifier(vpnName, vpnRd, destPrefix);
-        return read(broker, LogicalDatastoreType.OPERATIONAL, vpnExtraRoutesId);
     }
 
     static  List<String> getUsedRds(DataBroker broker, long vpnId, String destPrefix) {
@@ -1508,7 +1470,7 @@ public class VpnUtil {
         //Check if rd is already allocated for the same prefix. Use same rd if extra route is behind same CSS.
         java.util.Optional<String> rdToAllocate = usedRds.stream()
                 .map(usedRd -> {
-                    Optional<Routes> vpnExtraRoutes = getExtraRoutes(dataBroker, vpnName, usedRd, prefix);
+                    Optional<Routes> vpnExtraRoutes = VpnHelper.getVpnExtraroutes(dataBroker, vpnName, usedRd, prefix);
                     return vpnExtraRoutes.isPresent() ? new ImmutablePair<String, String>(
                             vpnExtraRoutes.get().getNexthopIpList().get(0),
                             usedRd) : new ImmutablePair<String, String>("", "");
