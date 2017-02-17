@@ -1,0 +1,380 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_023a9ae6",
+        "filename": "vpnservice/features/pom.xml",
+        "patchSetId": 10
+      },
+      "lineNbr": 193,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2017-02-17T16:06:04Z",
+      "side": 1,
+      "message": "looks like an accidental space",
+      "revId": "249573964178d44aa3908dac08493d45eeb8a9c5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_422782ca",
+        "filename": "vpnservice/statistics/api/pom.xml",
+        "patchSetId": 10
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2017-02-17T16:06:04Z",
+      "side": 1,
+      "message": "nitpick. file is also full of other spaces and tabs. Please keep the 2 space indent",
+      "revId": "249573964178d44aa3908dac08493d45eeb8a9c5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_6518d075",
+        "filename": "vpnservice/statistics/api/pom.xml",
+        "patchSetId": 10
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2017-02-17T16:06:04Z",
+      "side": 1,
+      "message": "api\u0027s should only need binding-parent",
+      "revId": "249573964178d44aa3908dac08493d45eeb8a9c5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_25124857",
+        "filename": "vpnservice/statistics/api/pom.xml",
+        "patchSetId": 10
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2017-02-17T16:06:04Z",
+      "side": 1,
+      "message": "add the \u003cname\u003eODL :: netvirt :: ${project.artifactId}\u003c/name\u003e",
+      "revId": "249573964178d44aa3908dac08493d45eeb8a9c5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_c5289c88",
+        "filename": "vpnservice/statistics/impl/pom.xml",
+        "patchSetId": 10
+      },
+      "lineNbr": 3,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2017-02-17T16:06:04Z",
+      "side": 1,
+      "message": "nitpick",
+      "range": {
+        "startLine": 3,
+        "startChar": 77,
+        "endLine": 3,
+        "endChar": 78
+      },
+      "revId": "249573964178d44aa3908dac08493d45eeb8a9c5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_a52d9897",
+        "filename": "vpnservice/statistics/impl/pom.xml",
+        "patchSetId": 10
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2017-02-17T16:06:04Z",
+      "side": 1,
+      "message": "\u003cname\u003eODL :: netvirt :: ${project.artifactId}\u003c/name\u003e",
+      "revId": "249573964178d44aa3908dac08493d45eeb8a9c5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_051f445c",
+        "filename": "vpnservice/statistics/impl/pom.xml",
+        "patchSetId": 10
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2017-02-17T16:06:04Z",
+      "side": 1,
+      "message": "I think this goes away and you use:\n\n\u003cdependency\u003e\n      \u003cgroupId\u003eorg.opendaylight.infrautils\u003c/groupId\u003e\n      \u003cartifactId\u003einject\u003c/artifactId\u003e\n      \u003cversion\u003e${infrautils.version}\u003c/version\u003e\n    \u003c/dependency\u003e",
+      "revId": "249573964178d44aa3908dac08493d45eeb8a9c5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_e52320a5",
+        "filename": "vpnservice/statistics/impl/pom.xml",
+        "patchSetId": 10
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2017-02-17T16:06:04Z",
+      "side": 1,
+      "message": "is an impl really needed? can the api not be used?",
+      "revId": "249573964178d44aa3908dac08493d45eeb8a9c5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_453cacc8",
+        "filename": "vpnservice/statistics/impl/src/main/java/org/opendaylight/statisticsplugin/impl/CounterRequestType.java",
+        "patchSetId": 10
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2017-02-17T16:06:04Z",
+      "side": 1,
+      "message": "2017",
+      "revId": "249573964178d44aa3908dac08493d45eeb8a9c5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_853214f0",
+        "filename": "vpnservice/statistics/impl/src/main/java/org/opendaylight/statisticsplugin/impl/CounterResultDataStructure.java",
+        "patchSetId": 10
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2017-02-17T16:06:04Z",
+      "side": 1,
+      "message": "2017",
+      "range": {
+        "startLine": 2,
+        "startChar": 17,
+        "endLine": 2,
+        "endChar": 21
+      },
+      "revId": "249573964178d44aa3908dac08493d45eeb8a9c5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_2539a8d7",
+        "filename": "vpnservice/statistics/impl/src/main/java/org/opendaylight/statisticsplugin/impl/CounterResultDataStructure.java",
+        "patchSetId": 10
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2017-02-17T16:06:04Z",
+      "side": 1,
+      "message": "can we remove the plugin piece so this matches the artifact?",
+      "revId": "249573964178d44aa3908dac08493d45eeb8a9c5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_652f3089",
+        "filename": "vpnservice/statistics/impl/src/main/java/org/opendaylight/statisticsplugin/impl/CounterRetriever.java",
+        "patchSetId": 10
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2017-02-17T16:06:04Z",
+      "side": 1,
+      "message": "2017",
+      "range": {
+        "startLine": 2,
+        "startChar": 17,
+        "endLine": 2,
+        "endChar": 21
+      },
+      "revId": "249573964178d44aa3908dac08493d45eeb8a9c5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_a55478ff",
+        "filename": "vpnservice/statistics/impl/src/main/java/org/opendaylight/statisticsplugin/impl/CountersUtils.java",
+        "patchSetId": 10
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2017-02-17T16:06:04Z",
+      "side": 1,
+      "message": "2017",
+      "range": {
+        "startLine": 2,
+        "startChar": 17,
+        "endLine": 2,
+        "endChar": 21
+      },
+      "revId": "249573964178d44aa3908dac08493d45eeb8a9c5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_05562406",
+        "filename": "vpnservice/statistics/impl/src/main/java/org/opendaylight/statisticsplugin/impl/CountersUtils.java",
+        "patchSetId": 10
+      },
+      "lineNbr": 89,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2017-02-17T16:06:04Z",
+      "side": 1,
+      "message": "where is this defined? If it does get defined make it LOG so checkstyle is happy.",
+      "revId": "249573964178d44aa3908dac08493d45eeb8a9c5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_e55a0029",
+        "filename": "vpnservice/statistics/impl/src/main/java/org/opendaylight/statisticsplugin/impl/StatisticsImpl.java",
+        "patchSetId": 10
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2017-02-17T16:06:04Z",
+      "side": 1,
+      "message": "2017",
+      "range": {
+        "startLine": 2,
+        "startChar": 17,
+        "endLine": 2,
+        "endChar": 21
+      },
+      "revId": "249573964178d44aa3908dac08493d45eeb8a9c5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_45430c42",
+        "filename": "vpnservice/statistics/impl/src/main/java/org/opendaylight/statisticsplugin/impl/StatisticsProvider.java",
+        "patchSetId": 10
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2017-02-17T16:06:04Z",
+      "side": 1,
+      "message": "2017",
+      "range": {
+        "startLine": 2,
+        "startChar": 15,
+        "endLine": 2,
+        "endChar": 19
+      },
+      "revId": "249573964178d44aa3908dac08493d45eeb8a9c5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_85497462",
+        "filename": "vpnservice/statistics/impl/src/main/java/org/opendaylight/statisticsplugin/impl/StatisticsProvider.java",
+        "patchSetId": 10
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2017-02-17T16:06:04Z",
+      "side": 1,
+      "message": "not sure if these comments add much value",
+      "revId": "249573964178d44aa3908dac08493d45eeb8a9c5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_25408833",
+        "filename": "vpnservice/statistics/impl/src/main/java/org/opendaylight/statisticsplugin/impl/StatisticsProvider.java",
+        "patchSetId": 10
+      },
+      "lineNbr": 45,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2017-02-17T16:06:04Z",
+      "side": 1,
+      "message": "make sense to use the same format for the other init/close methods in the other files?",
+      "revId": "249573964178d44aa3908dac08493d45eeb8a9c5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_02345a48",
+        "filename": "vpnservice/statistics/pom.xml",
+        "patchSetId": 10
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2017-02-17T16:06:04Z",
+      "side": 1,
+      "message": "the latest convention is: \u003cname\u003eODL :: netvirt :: ${project.artifactId}\u003c/name\u003e",
+      "revId": "249573964178d44aa3908dac08493d45eeb8a9c5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_223ebe28",
+        "filename": "vpnservice/statistics/pom.xml",
+        "patchSetId": 10
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2017-02-17T16:06:04Z",
+      "side": 1,
+      "message": "this should be removed. It is pulled from odlparent-lite or really enforced from maven-enforcer",
+      "revId": "249573964178d44aa3908dac08493d45eeb8a9c5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
