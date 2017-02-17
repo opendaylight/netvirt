@@ -37,6 +37,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.adj
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.prefix.to._interface.vpn.ids.Prefixes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.VpnInstanceOpDataEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.vpn.instance.op.data.entry.VpnToDpnList;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.to.extraroutes.vpn.extra.routes.Routes;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -249,17 +250,19 @@ public class EVPNVrfEntryProcessor {
                         @Override
                         public List<ListenableFuture<Void>> call() throws Exception {
                             WriteTransaction tx = dataBroker.newWriteOnlyTransaction();
-
+                            final Optional<Routes> extraRouteOptional = Optional.absent();
                             if (localDpnIdList.size() <= 0) {
                                 for (VpnToDpnList curDpn : vpnToDpnList) {
                                     if (RouteOrigin.value(vrfEntry.getOrigin()) == RouteOrigin.BGP) {
                                         if (curDpn.getDpnState() == VpnToDpnList.DpnState.Active) {
                                             vrfEntryListener.deleteRemoteRoute(BigInteger.ZERO, curDpn.getDpnId(),
-                                                    vpnInstance.getVpnId(), vrfTableKey, vrfEntry, tx);
+                                                    vpnInstance.getVpnId(), vrfTableKey, vrfEntry,
+                                                    extraRouteOptional, tx);
                                         }
                                     } else {
                                         vrfEntryListener.deleteRemoteRoute(BigInteger.ZERO, curDpn.getDpnId(),
-                                                vpnInstance.getVpnId(), vrfTableKey, vrfEntry, tx);
+                                                vpnInstance.getVpnId(), vrfTableKey, vrfEntry,
+                                                extraRouteOptional, tx);
                                     }
                                 }
                             } else {
@@ -269,11 +272,13 @@ public class EVPNVrfEntryProcessor {
                                             if (RouteOrigin.value(vrfEntry.getOrigin()) == RouteOrigin.BGP) {
                                                 if (curDpn.getDpnState() == VpnToDpnList.DpnState.Active) {
                                                     vrfEntryListener.deleteRemoteRoute(localDpnId, curDpn.getDpnId(),
-                                                            vpnInstance.getVpnId(), vrfTableKey, vrfEntry, tx);
+                                                            vpnInstance.getVpnId(), vrfTableKey, vrfEntry,
+                                                            extraRouteOptional, tx);
                                                 }
                                             } else {
                                                 vrfEntryListener.deleteRemoteRoute(localDpnId, curDpn.getDpnId(),
-                                                        vpnInstance.getVpnId(), vrfTableKey, vrfEntry, tx);
+                                                        vpnInstance.getVpnId(), vrfTableKey, vrfEntry,
+                                                        extraRouteOptional, tx);
                                             }
                                         }
                                     }
