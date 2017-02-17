@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_85edf727",
+        "filename": "vpnservice/fibmanager/fibmanager-api/src/main/yang/odl-fib.yang",
+        "patchSetId": 24
+      },
+      "lineNbr": 54,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-17T07:22:42Z",
+      "side": 1,
+      "message": "if an extra-route can be reached from two different nexthops, we need to resolve the appropriate gateway-mac-address here.\n\nAre we supporting the following configuration, as this is feasible from Openstack:\n\nIn this 10.1.1.2 and 20.1.1.2 are on different hypervisors.\n\nstack@os-ctrl:~/devstack$ neutron router-update myrouter5 --route destination\u003d30.1.1.5/32,nexthop\u003d10.1.1.2 --route destination\u003d30.1.1.5/32,nexthop\u003d20.1.1.2\nneutron CLI is deprecated and will be removed in the future. Use openstack CLI instead.\nUpdated router: myrouter5\nstack@os-ctrl:~/devstack$ neutron router-show myrouter5\nneutron CLI is deprecated and will be removed in the future. Use openstack CLI instead.\n+-----------------------+-------------------------------------------------------+\n| Field                 | Value                                                 |\n+-----------------------+-------------------------------------------------------+\n| admin_state_up        | True                                                  |\n| created_at            | 2017-02-15T06:50:23Z                                  |\n| description           |                                                       |\n| distributed           | False                                                 |\n| external_gateway_info |                                                       |\n| id                    | 3465834d-e41b-4302-b474-706a341d6e07                  |\n| name                  | myrouter5                                             |\n| project_id            | 8b435cdf369e49aa9ce7b587d605761d                      |\n| revision_number       | 5                                                     |\n| routes                | {\"destination\": \"30.1.1.5/32\", \"nexthop\": \"10.1.1.2\"} |\n|                       | {\"destination\": \"30.1.1.5/32\", \"nexthop\": \"20.1.1.2\"} |\n| status                | ACTIVE                                                |\n| tenant_id             | 8b435cdf369e49aa9ce7b587d605761d                      |\n| updated_at            | 2017-02-16T18:40:20Z                                  |\n+-----------------------+-------------------------------------------------------+\nstack@os-ctrl:~/devstack$\nstack@os-ctrl:~/devstack$ neutron router-port-list myrouter5\nneutron CLI is deprecated and will be removed in the future. Use openstack CLI instead.\n+--------------------------------------+------+----------------------------------+-------------------+-----------------------------------------------+\n| id                                   | name | tenant_id                        | mac_address       | fixed_ips                                     |\n+--------------------------------------+------+----------------------------------+-------------------+-----------------------------------------------+\n| d284f453-fa1d-42fb-9279-635c21cf8376 |      | 8b435cdf369e49aa9ce7b587d605761d | fa:16:3e:e2:61:d7 | {\"subnet_id\": \"d0fa6b1f-                      |\n|                                      |      |                                  |                   | 1bf4-4419-bbd0-e3df54ab2c8a\", \"ip_address\":   |\n|                                      |      |                                  |                   | \"10.1.1.1\"}                                   |\n| f23ed57a-3b1b-4cb3-b3c2-7eec58481536 |      | 8b435cdf369e49aa9ce7b587d605761d | fa:16:3e:ba:9f:93 | {\"subnet_id\": \"50ee032e-5f76-4ee5-862e-       |\n|                                      |      |                                  |                   | ba2fbe126a8a\", \"ip_address\": \"20.1.1.1\"}      |\n+--------------------------------------+------+----------------------------------+-------------------+-----------------------------------------------+\nstack@os-ctrl:~/devstack$",
+      "revId": "ea21d3e9e10ebed5c5a167e3d4421dbaefb30bef",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
