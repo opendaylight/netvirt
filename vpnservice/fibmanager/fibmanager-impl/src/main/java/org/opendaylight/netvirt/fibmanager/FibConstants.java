@@ -18,4 +18,5 @@ public class FibConstants {
     static final String SEPARATOR = ".";
     static final String DEFAULT_NEXTHOP_IP = "0.0.0.0";
     public static final long INVALID_GROUP_ID = -1;
+    static final String HOST_MASK = "/32";
 }
