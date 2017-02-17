@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_ea8492d5",
+        "filename": "docs/specs/l3vpn-over-vxlan-with-evpn-rt5.rst",
+        "patchSetId": 6
+      },
+      "lineNbr": 397,
+      "author": {
+        "id": 6741
+      },
+      "writtenOn": "2017-02-17T07:19:20Z",
+      "side": 1,
+      "message": "Yes. Thanks for pointing out this.Updated the Spec as well.",
+      "parentUuid": "fafc7978_54c0e729",
+      "range": {
+        "startLine": 397,
+        "startChar": 21,
+        "endLine": 397,
+        "endChar": 26
+      },
+      "revId": "8b907938dc1d4e2ba29a69bd6ba45fb5879f0c11",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_b42cb303",
         "filename": "docs/specs/l3vpn-over-vxlan-with-evpn-rt5.rst",
         "patchSetId": 6
@@ -64,6 +88,54 @@
         "startChar": 124,
         "endLine": 437,
         "endChar": 149
+      },
+      "revId": "8b907938dc1d4e2ba29a69bd6ba45fb5879f0c11",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_4a1cbec1",
+        "filename": "docs/specs/l3vpn-over-vxlan-with-evpn-rt5.rst",
+        "patchSetId": 6
+      },
+      "lineNbr": 437,
+      "author": {
+        "id": 6741
+      },
+      "writtenOn": "2017-02-17T07:19:20Z",
+      "side": 1,
+      "message": "No. NAPT group will not removed as part of this change. Updated the spec with proper flow.",
+      "parentUuid": "fafc7978_94088f92",
+      "range": {
+        "startLine": 437,
+        "startChar": 124,
+        "endLine": 437,
+        "endChar": 149
+      },
+      "revId": "8b907938dc1d4e2ba29a69bd6ba45fb5879f0c11",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_aa7a8aee",
+        "filename": "docs/specs/l3vpn-over-vxlan-with-evpn-rt5.rst",
+        "patchSetId": 6
+      },
+      "lineNbr": 437,
+      "author": {
+        "id": 6741
+      },
+      "writtenOn": "2017-02-17T07:19:20Z",
+      "side": 1,
+      "message": "EVPN as an implementation would use lport-tag instead of label (Current Implementation). Please refer the beginning section of this Spec.\n\nWe need to get the unique lport-tag for Non-NAPT to NAPT communication. Hence we are generating the router-lport-tag based on the router-uuid as input to get the unique lport-tag per router and the same value will be used for tunnel-id.",
+      "parentUuid": "fafc7978_b42cb303",
+      "range": {
+        "startLine": 437,
+        "startChar": 106,
+        "endLine": 437,
+        "endChar": 122
       },
       "revId": "8b907938dc1d4e2ba29a69bd6ba45fb5879f0c11",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
