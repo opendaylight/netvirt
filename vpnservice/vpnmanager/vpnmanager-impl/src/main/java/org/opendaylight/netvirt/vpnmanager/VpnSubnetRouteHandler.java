@@ -18,6 +18,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
+import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.netvirt.bgpmanager.api.IBgpManager;
@@ -603,7 +604,7 @@ public class VpnSubnetRouteHandler implements NeutronvpnListener {
 
     // TODO Clean up the exception handling
     @SuppressWarnings("checkstyle:IllegalCatch")
-    public void onInterfaceUp(BigInteger dpnId, String intfName) {
+    public void onInterfaceUp(BigInteger dpnId, String intfName, WriteTransaction writeOperTxn) {
         LOG.info("onInterfaceUp: Port " + intfName);
         //TODO(vivek): Change this to use more granularized lock at subnetId level
         SubnetToDpn subDpn = null;
@@ -679,7 +680,7 @@ public class VpnSubnetRouteHandler implements NeutronvpnListener {
                     }
                 }
                 SubnetOpDataEntry subOpEntry = subOpBuilder.build();
-                MDSALUtil.syncWrite(dataBroker, LogicalDatastoreType.OPERATIONAL, subOpIdentifier, subOpEntry);
+                writeOperTxn.put(LogicalDatastoreType.OPERATIONAL, subOpIdentifier, subOpEntry);
                 LOG.info("onInterfaceUp: Updated subnetopdataentry to OP Datastore port up " + intfName);
             } catch (Exception ex) {
                 LOG.error("Creation of SubnetOpDataEntry for subnet {} failed", subnetId.getValue(), ex);
@@ -694,7 +695,7 @@ public class VpnSubnetRouteHandler implements NeutronvpnListener {
 
     // TODO Clean up the exception handling
     @SuppressWarnings("checkstyle:IllegalCatch")
-    public void onInterfaceDown(final BigInteger dpnId, final String interfaceName) {
+    public void onInterfaceDown(final BigInteger dpnId, final String interfaceName, WriteTransaction writeOperTxn) {
         boolean isRouteAdvertised = false;
         LOG.info("onInterfaceDown: Port " + interfaceName);
         //TODO(vivek): Change this to use more granularized lock at subnetId level
@@ -787,7 +788,7 @@ public class VpnSubnetRouteHandler implements NeutronvpnListener {
                     }
                 }
                 subOpEntry = subOpBuilder.build();
-                MDSALUtil.syncWrite(dataBroker, LogicalDatastoreType.OPERATIONAL, subOpIdentifier, subOpEntry);
+                writeOperTxn.put(LogicalDatastoreType.OPERATIONAL, subOpIdentifier, subOpEntry);
                 LOG.info("onInterfaceDown: Updated subnetopdataentry to OP Datastore port down " + interfaceName);
             } catch (Exception ex) {
                 LOG.error("Creation of SubnetOpDataEntry for subnet {} failed", subnetId.getValue(), ex);
