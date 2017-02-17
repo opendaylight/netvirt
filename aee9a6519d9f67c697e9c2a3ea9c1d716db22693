@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "1a622d24_b246774d",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/utils/AclConstants.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 60,
+      "author": {
+        "id": 6464
+      },
+      "writtenOn": "2017-02-17T05:49:06Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1a622d24_58ec79f3",
+      "revId": "aee9a6519d9f67c697e9c2a3ea9c1d716db22693",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_c291b748",
         "filename": "vpnservice/aclservice/impl/src/test/java/org/opendaylight/netvirt/aclservice/tests/AclServiceStatefulTestIPv6.java",
         "patchSetId": 1
