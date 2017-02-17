@@ -89,6 +89,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_6577333b",
+        "filename": "vpnservice/fibmanager/fibmanager-api/src/main/yang/odl-fib.yang",
+        "patchSetId": 13
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-02-17T09:02:39Z",
+      "side": 1,
+      "message": "The label may not be unique value in each route path. So I don\u0027t see a point in keeping it as an another key attribute along with nexthop-address.",
+      "parentUuid": "fafc7978_ca39ce42",
+      "revId": "90040415572808f5932726ba8b2845968cabc221",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_97c384ec",
         "filename": "vpnservice/fibmanager/fibmanager-api/src/main/yang/odl-fib.yang",
         "patchSetId": 13
