@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_aaef2a86",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/NexthopManager.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 815,
+      "author": {
+        "id": 6328
+      },
+      "writtenOn": "2017-02-17T09:44:54Z",
+      "side": 1,
+      "message": "Done.",
+      "parentUuid": "fafc7978_5b9bfa71",
+      "range": {
+        "startLine": 815,
+        "startChar": 12,
+        "endLine": 815,
+        "endChar": 48
+      },
+      "revId": "8ab7e44be80963e4bbd62cfe24e56f24fa5693ac",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_bbb786d7",
         "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/NexthopManager.java",
         "patchSetId": 11
@@ -36,6 +60,30 @@
       "writtenOn": "2017-02-16T10:02:17Z",
       "side": 1,
       "message": "directly return? or should we keep processing the next nextHopIp?",
+      "range": {
+        "startLine": 834,
+        "startChar": 20,
+        "endLine": 834,
+        "endChar": 41
+      },
+      "revId": "8ab7e44be80963e4bbd62cfe24e56f24fa5693ac",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_eae93281",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/NexthopManager.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 834,
+      "author": {
+        "id": 6328
+      },
+      "writtenOn": "2017-02-17T09:44:54Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_bbb786d7",
       "range": {
         "startLine": 834,
         "startChar": 20,
@@ -71,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_8af2266d",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/NexthopManager.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 837,
+      "author": {
+        "id": 6328
+      },
+      "writtenOn": "2017-02-17T09:44:54Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_1b78522a",
+      "range": {
+        "startLine": 837,
+        "startChar": 24,
+        "endLine": 837,
+        "endChar": 63
+      },
+      "revId": "8ab7e44be80963e4bbd62cfe24e56f24fa5693ac",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_7bc51e3b",
         "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
         "patchSetId": 11
@@ -82,6 +154,30 @@
       "writtenOn": "2017-02-16T10:02:17Z",
       "side": 1,
       "message": ".../*routes*/ null,...",
+      "range": {
+        "startLine": 797,
+        "startChar": 87,
+        "endLine": 797,
+        "endChar": 91
+      },
+      "revId": "8ab7e44be80963e4bbd62cfe24e56f24fa5693ac",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_2fcfcc80",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 797,
+      "author": {
+        "id": 6328
+      },
+      "writtenOn": "2017-02-17T09:44:54Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_7bc51e3b",
       "range": {
         "startLine": 797,
         "startChar": 87,
@@ -117,6 +213,30 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_0fcac86d",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 806,
+      "author": {
+        "id": 6328
+      },
+      "writtenOn": "2017-02-17T09:44:54Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_bbde660f",
+      "range": {
+        "startLine": 806,
+        "startChar": 111,
+        "endLine": 806,
+        "endChar": 123
+      },
+      "revId": "8ab7e44be80963e4bbd62cfe24e56f24fa5693ac",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_7bf35e9e",
         "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
         "patchSetId": 11
@@ -128,6 +248,30 @@
       "writtenOn": "2017-02-16T10:02:17Z",
       "side": 1,
       "message": "these 2 local vbles should only be declared when they are really needed. If localNextHopInfo is null, you have declared them in vain.",
+      "range": {
+        "startLine": 816,
+        "startChar": 8,
+        "endLine": 817,
+        "endChar": 26
+      },
+      "revId": "8ab7e44be80963e4bbd62cfe24e56f24fa5693ac",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_6fc9d477",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 817,
+      "author": {
+        "id": 6328
+      },
+      "writtenOn": "2017-02-17T09:44:54Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_7bf35e9e",
       "range": {
         "startLine": 816,
         "startChar": 8,
@@ -163,6 +307,30 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_caa38e4d",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 818,
+      "author": {
+        "id": 6328
+      },
+      "writtenOn": "2017-02-17T09:44:54Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_fbff4e65",
+      "range": {
+        "startLine": 818,
+        "startChar": 8,
+        "endLine": 818,
+        "endChar": 38
+      },
+      "revId": "8ab7e44be80963e4bbd62cfe24e56f24fa5693ac",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_9b99e221",
         "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
         "patchSetId": 11
@@ -174,6 +342,24 @@
       "writtenOn": "2017-02-16T10:02:17Z",
       "side": 1,
       "message": "if (localNextHopInfo !\u003d null) {\n  LOG.debug(\"...\");\n  return BigInteger.ZERO;\n}",
+      "revId": "8ab7e44be80963e4bbd62cfe24e56f24fa5693ac",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_4af83e49",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 984,
+      "author": {
+        "id": 6328
+      },
+      "writtenOn": "2017-02-17T09:44:54Z",
+      "side": 1,
+      "message": "It is already being added in the else{} block below",
+      "parentUuid": "fafc7978_9b99e221",
       "revId": "8ab7e44be80963e4bbd62cfe24e56f24fa5693ac",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -203,6 +389,30 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_8a998621",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 1440,
+      "author": {
+        "id": 6328
+      },
+      "writtenOn": "2017-02-17T09:44:54Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_bbef8686",
+      "range": {
+        "startLine": 1440,
+        "startChar": 33,
+        "endLine": 1440,
+        "endChar": 34
+      },
+      "revId": "8ab7e44be80963e4bbd62cfe24e56f24fa5693ac",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_fbb74e84",
         "filename": "vpnservice/vpnmanager/vpnmanager-api/src/main/java/org/opendaylight/netvirt/vpnmanager/api/VpnHelper.java",
         "patchSetId": 11
@@ -214,6 +424,30 @@
       "writtenOn": "2017-02-16T10:02:17Z",
       "side": 1,
       "message": "doesn\u0027t this method fit better in IfaceManager?",
+      "range": {
+        "startLine": 110,
+        "startChar": 50,
+        "endLine": 110,
+        "endChar": 63
+      },
+      "revId": "8ab7e44be80963e4bbd62cfe24e56f24fa5693ac",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_2a033a43",
+        "filename": "vpnservice/vpnmanager/vpnmanager-api/src/main/java/org/opendaylight/netvirt/vpnmanager/api/VpnHelper.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 110,
+      "author": {
+        "id": 6328
+      },
+      "writtenOn": "2017-02-17T09:44:54Z",
+      "side": 1,
+      "message": "This method already exist in the VrfEntryListener. It was just moved here in this review.",
+      "parentUuid": "fafc7978_fbb74e84",
       "range": {
         "startLine": 110,
         "startChar": 50,
