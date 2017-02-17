@@ -2,6 +2,23 @@
   "comments": [
     {
       "key": {
+        "uuid": "fafc7978_85785790",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanInterfaceManager.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 1517,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-02-17T06:57:59Z",
+      "side": 1,
+      "message": "can you move dpnIf.getDpId() to a local variable and use it ?\nand we could have if - else for comparing with srcDpId and dstDpId",
+      "revId": "b67e728015e6e8d6eec4ff641ca16eb9cf903237",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_ea9ad261",
         "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanInterfaceManager.java",
         "patchSetId": 2
@@ -13,6 +30,24 @@
       "writtenOn": "2017-02-17T01:46:00Z",
       "side": 1,
       "message": "Is this var really final?",
+      "revId": "b67e728015e6e8d6eec4ff641ca16eb9cf903237",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_e56fa3c3",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanInterfaceManager.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 1533,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-02-17T06:57:59Z",
+      "side": 1,
+      "message": "It became effectively final. so we don\u0027t have to explicitly make it as final in java 8.",
+      "parentUuid": "fafc7978_ea9ad261",
       "revId": "b67e728015e6e8d6eec4ff641ca16eb9cf903237",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
