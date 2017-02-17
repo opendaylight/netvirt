@@ -71,6 +71,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_ca39ce42",
+        "filename": "vpnservice/fibmanager/fibmanager-api/src/main/yang/odl-fib.yang",
+        "patchSetId": 13
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-17T07:22:42Z",
+      "side": 1,
+      "message": "Making label + nexthop as the combined key simplifies this.  \n\nThe only concern I have is at all places where you want to retrieve this info, we need to mke sure both pieces of information is available to do so :)",
+      "parentUuid": "1a622d24_cfb8c0ca",
+      "revId": "90040415572808f5932726ba8b2845968cabc221",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_97c384ec",
         "filename": "vpnservice/fibmanager/fibmanager-api/src/main/yang/odl-fib.yang",
         "patchSetId": 13
