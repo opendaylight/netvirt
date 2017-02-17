@@ -2,6 +2,23 @@
   "comments": [
     {
       "key": {
+        "uuid": "fafc7978_05fd846e",
+        "filename": "docs/specs/netvirt-statistics-spec.rst",
+        "patchSetId": 14
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2017-02-17T21:33:59Z",
+      "side": 1,
+      "message": "can you use the form: https://git.opendaylight.org/gerrit/#/q/topic:cool-topic",
+      "revId": "0363d5d91600c273ff69b7b350f7fdb892031c7e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_1ff52883",
         "filename": "docs/specs/netvirt-statistics-spec.rst",
         "patchSetId": 14
@@ -49,6 +66,23 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_65ed70b7",
+        "filename": "docs/specs/netvirt-statistics-spec.rst",
+        "patchSetId": 14
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2017-02-17T21:33:59Z",
+      "side": 1,
+      "message": "Is this model the same as described in the e2eCounters spec? It should only be defined in the root spec and then referenced in the child specs.",
+      "revId": "0363d5d91600c273ff69b7b350f7fdb892031c7e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_9f9ab812",
         "filename": "docs/specs/netvirt-statistics-spec.rst",
         "patchSetId": 14
@@ -90,6 +124,23 @@
         "endLine": 72,
         "endChar": 5
       },
+      "revId": "0363d5d91600c273ff69b7b350f7fdb892031c7e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_c52d3c00",
+        "filename": "docs/specs/netvirt-statistics-spec.rst",
+        "patchSetId": 14
+      },
+      "lineNbr": 184,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2017-02-17T21:33:59Z",
+      "side": 1,
+      "message": "nitpicks",
       "revId": "0363d5d91600c273ff69b7b350f7fdb892031c7e",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
