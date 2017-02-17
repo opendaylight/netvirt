@@ -15,7 +15,10 @@ import com.google.common.util.concurrent.Futures;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
@@ -38,9 +41,11 @@ import org.opendaylight.genius.mdsalutil.actions.ActionPushVlan;
 import org.opendaylight.genius.mdsalutil.actions.ActionRegLoad;
 import org.opendaylight.genius.mdsalutil.actions.ActionSetFieldEthernetDestination;
 import org.opendaylight.genius.mdsalutil.actions.ActionSetFieldEthernetSource;
+import org.opendaylight.genius.mdsalutil.actions.ActionSetFieldTunnelId;
 import org.opendaylight.genius.mdsalutil.actions.ActionSetFieldVlanVid;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.netvirt.elanmanager.api.IElanService;
+import org.opendaylight.netvirt.vpnmanager.api.VpnExtraRouteHelper;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.VpnInterfaces;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.interfaces.VpnInterface;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.interfaces.VpnInterfaceKey;
@@ -818,7 +823,9 @@ public class NexthopManager implements AutoCloseable {
         List<Routes> clonedVpnExtraRoutes  = new ArrayList<>(vpnExtraRoutes);
         if (clonedVpnExtraRoutes.contains(routes)) {
             listBucketInfo.addAll(getBucketsForLocalNexthop(vpnId, dpnId, vrfEntry, routes));
+            clonedVpnExtraRoutes.remove(routes);
         }
+        listBucketInfo.addAll(getBucketsForRemoteNexthop(vpnId, dpnId, vrfEntry, rd, clonedVpnExtraRoutes));
         return setupLoadBalancingNextHop(vpnId, dpnId,
                 vrfEntry.getDestPrefix(), listBucketInfo, true);
     }
@@ -827,8 +834,9 @@ public class NexthopManager implements AutoCloseable {
             VrfEntry vrfEntry, Routes routes) {
         List<BucketInfo> listBucketInfo = new CopyOnWriteArrayList<BucketInfo>();
         routes.getNexthopIpList().parallelStream().forEach(nextHopIp -> {
-            String localNextHopIP = nextHopIp + "/32";
-            Prefixes localNextHopInfo = FibUtil.getPrefixToInterface(dataBroker, vpnId, nextHopIp + "/32");
+            String localNextHopIP = nextHopIp + FibConstants.HOST_MASK;
+            Prefixes localNextHopInfo = FibUtil.getPrefixToInterface(dataBroker, vpnId,
+                    nextHopIp + FibConstants.HOST_MASK);
             if (localNextHopInfo != null) {
                 long groupId = createLocalNextHop(vpnId, dpnId,
                         localNextHopInfo.getVpnInterfaceName(), localNextHopIP, vrfEntry.getDestPrefix(),
@@ -845,6 +853,57 @@ public class NexthopManager implements AutoCloseable {
                 listBucketInfo.add(bucket);
             }
         });
+        return listBucketInfo;
+    }
+
+    private List<BucketInfo> getBucketsForRemoteNexthop(Long vpnId, BigInteger dpnId, VrfEntry vrfEntry, String rd,
+            List<Routes> vpnExtraRoutes) {
+        List<BucketInfo> listBucketInfo = new ArrayList<BucketInfo>();
+        Map<String, List<ActionInfo>> egressActionMap = new HashMap<>();
+        vpnExtraRoutes.stream().forEach(vpnExtraRoute -> vpnExtraRoute.getNexthopIpList()
+                .stream().forEach(nexthopPrefixIp -> {
+                    String prefixIp = nexthopPrefixIp + FibConstants.HOST_MASK;
+                    List<String> tepIpAddresses = FibUtil.getNextHopAddresses(dataBroker, rd, prefixIp);
+                    java.util.Optional<String> tepIp = tepIpAddresses.stream().findFirst();
+                    AdjacencyResult adjacencyResult = getRemoteNextHopPointer(dpnId, vpnId,
+                            vrfEntry.getDestPrefix(), tepIp.get());
+                    if (adjacencyResult == null) {
+                        return;
+                    }
+                    String egressInterface = adjacencyResult.getInterfaceName();
+                    Class<? extends TunnelTypeBase> tunnelType = VpnExtraRouteHelper
+                            .getTunnelType(interfaceManager,
+                                    egressInterface);
+                    if (!FibUtil.isTunnelInterface(adjacencyResult)
+                            || !tunnelType.equals(TunnelTypeVxlan.class)) {
+                        return;
+                    }
+                    Long label = FibUtil.getLabelFromRoutePaths(vrfEntry).get();
+                    BigInteger tunnelId = BigInteger.valueOf(label);
+                    List<ActionInfo> actionInfos = new ArrayList<>();
+                    actionInfos.add(new ActionSetFieldTunnelId(tunnelId));
+                    Prefixes prefixInfo = FibUtil.getPrefixToInterface(dataBroker, vpnId, prefixIp);
+                    String ifName = prefixInfo.getVpnInterfaceName();
+                    String macAddress = FibUtil.getMacAddressFromPrefix(dataBroker, ifName, prefixIp);
+                    actionInfos.add(new ActionSetFieldEthernetDestination(actionInfos.size(),
+                            new MacAddress(macAddress)));
+                    List<ActionInfo> egressActions = new ArrayList<>();
+                    if (egressActionMap.containsKey(egressInterface)) {
+                        egressActions = egressActionMap.get(egressInterface);
+                    } else {
+                        egressActions = getEgressActionsForInterface(egressInterface, actionInfos.size());
+                        egressActionMap.put(egressInterface, egressActions);
+                    }
+                    if (egressActions.isEmpty()) {
+                        LOG.error("Failed to retrieve egress action for prefix {} route-paths {}"
+                                + " interface {}." + " Aborting remote FIB entry creation.",
+                                vrfEntry.getDestPrefix(), vrfEntry.getRoutePaths(), egressInterface);
+                    }
+                    actionInfos.addAll(egressActions);
+                    BucketInfo bucket = new BucketInfo(actionInfos);
+                    bucket.setWeight(1);
+                    listBucketInfo.add(bucket);
+                }));
         return listBucketInfo;
     }
 }
