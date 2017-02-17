@@ -1,0 +1,89 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_e5584334",
+        "filename": "vpnservice/qosservice/qosservice-impl/src/main/java/org/opendaylight/netvirt/qosservice/ChangeUtils.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 37,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-17T07:31:26Z",
+      "side": 1,
+      "message": "the utils here seem to very useful to be generically used by all modules.\n\nWhy is this only available for Qos :) ?",
+      "revId": "6c3721b9f9b0745b3c6644a46d280e0f123ec16e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_05d90783",
+        "filename": "vpnservice/qosservice/qosservice-impl/src/main/java/org/opendaylight/netvirt/qosservice/QosNeutronNetworkChangeListener.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 59,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-17T07:31:26Z",
+      "side": 1,
+      "message": "addToNetworkCache already replaces the network, not sure why a remvoe is necessary.  An update of a network won\u0027t alter the network uuid.",
+      "revId": "6c3721b9f9b0745b3c6644a46d280e0f123ec16e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_c5cedfb3",
+        "filename": "vpnservice/qosservice/qosservice-impl/src/main/java/org/opendaylight/netvirt/qosservice/QosNeutronNetworkChangeListener.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 66,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-17T07:31:26Z",
+      "side": 1,
+      "message": "please handle network wide updates for qosPolicy asynchronous to this method.\n\nPlesae fire per port-djcs and use them to update port-specific-qos-attributes.\n\nBTW, Can a network be updated with more than one qos policy?",
+      "revId": "6c3721b9f9b0745b3c6644a46d280e0f123ec16e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_65e8d310",
+        "filename": "vpnservice/qosservice/qosservice-impl/src/main/java/org/opendaylight/netvirt/qosservice/QosNeutronNetworkChangeListener.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 85,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-17T07:31:26Z",
+      "side": 1,
+      "message": "can\u0027t a qos policy be applied on network create itself?\n\nOr is that use-case will be covered later ?",
+      "revId": "6c3721b9f9b0745b3c6644a46d280e0f123ec16e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_25c52b8e",
+        "filename": "vpnservice/qosservice/qosservice-impl/src/main/java/org/opendaylight/netvirt/qosservice/QosPolicyChangeListener.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 36,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-17T07:31:26Z",
+      "side": 1,
+      "message": "since this is a CDTCN, this should be working with EOS(EntityOwnershipService).\n\nCan you please point me where is that handled?",
+      "revId": "6c3721b9f9b0745b3c6644a46d280e0f123ec16e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
