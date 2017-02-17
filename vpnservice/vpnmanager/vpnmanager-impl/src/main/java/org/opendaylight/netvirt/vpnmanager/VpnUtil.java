@@ -1467,7 +1467,8 @@ public class VpnUtil {
         //Check if rd is already allocated for the same prefix. Use same rd if extra route is behind same CSS.
         java.util.Optional<String> rdToAllocate = usedRds.stream()
                 .map(usedRd -> {
-                    Optional<Routes> vpnExtraRoutes = VpnExtraRouteHelper.getVpnExtraroutes(dataBroker, vpnName, usedRd, prefix);
+                    Optional<Routes> vpnExtraRoutes = VpnExtraRouteHelper.getVpnExtraroutes(dataBroker,
+                            vpnName, usedRd, prefix);
                     return vpnExtraRoutes.isPresent() ? new ImmutablePair<String, String>(
                             vpnExtraRoutes.get().getNexthopIpList().get(0),
                             usedRd) : new ImmutablePair<String, String>("", "");
