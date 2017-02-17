@@ -34,6 +34,24 @@
       "revId": "ea21d3e9e10ebed5c5a167e3d4421dbaefb30bef",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_851cd778",
+        "filename": "vpnservice/fibmanager/fibmanager-api/src/main/yang/odl-fib.yang",
+        "patchSetId": 24
+      },
+      "lineNbr": 54,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-17T10:11:42Z",
+      "side": 1,
+      "message": "I am talking about setting the right router-interface sourcemacaddress in the packet , before it is punt to the VM which is the potential nexthop of the extra-route.\n\nIf you have two different nexthops on two different broadcast domains for the same extra-route prefix, shouldn\u0027t we queue appropriate router-interface-mac-address in each such \npunted packet to the respective nexthop VMs ?\n\nFurther for EVPN, both these routes are published to BGP and BGP uses that gateway-mac-address to reach the VM from external DC.",
+      "parentUuid": "fafc7978_e59a0362",
+      "revId": "ea21d3e9e10ebed5c5a167e3d4421dbaefb30bef",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
