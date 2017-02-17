@@ -369,7 +369,7 @@ public class VpnSubnetRouteHandlerTest {
     @Test
     public void testOnInterfaceUp() {
 
-        vpnSubnetRouteHandler.onInterfaceUp(dpId, interfaceName);
+        vpnSubnetRouteHandler.onInterfaceUp(dpId, interfaceName, mockWriteTx);
 
         verify(mockWriteTx).put(LogicalDatastoreType.OPERATIONAL, instPortOp, portOp, true);
         verify(mockWriteTx).put(LogicalDatastoreType.OPERATIONAL, dpnOpId, subnetToDpn, true);
@@ -380,7 +380,7 @@ public class VpnSubnetRouteHandlerTest {
     @Test
     public void testOnInterfaceDown() {
 
-        vpnSubnetRouteHandler.onInterfaceDown(dpId, interfaceName);
+        vpnSubnetRouteHandler.onInterfaceDown(dpId, interfaceName, mockWriteTx);
 
         // TODO: subnetOpDpnManager is mocked so not sure how this delete ever worked.
         //verify(mockWriteTx).delete(LogicalDatastoreType.OPERATIONAL, dpnOpId);
