@@ -255,11 +255,13 @@ public class EVPNVrfEntryProcessor {
                                     if (RouteOrigin.value(vrfEntry.getOrigin()) == RouteOrigin.BGP) {
                                         if (curDpn.getDpnState() == VpnToDpnList.DpnState.Active) {
                                             vrfEntryListener.deleteRemoteRoute(BigInteger.ZERO, curDpn.getDpnId(),
-                                                    vpnInstance.getVpnId(), vrfTableKey, vrfEntry, tx);
+                                                    vpnInstance.getVpnId(), vrfTableKey, vrfEntry,
+                                                    Optional.absent(), tx);
                                         }
                                     } else {
                                         vrfEntryListener.deleteRemoteRoute(BigInteger.ZERO, curDpn.getDpnId(),
-                                                vpnInstance.getVpnId(), vrfTableKey, vrfEntry, tx);
+                                                vpnInstance.getVpnId(), vrfTableKey, vrfEntry,
+                                                Optional.absent(), tx);
                                     }
                                 }
                             } else {
@@ -269,11 +271,13 @@ public class EVPNVrfEntryProcessor {
                                             if (RouteOrigin.value(vrfEntry.getOrigin()) == RouteOrigin.BGP) {
                                                 if (curDpn.getDpnState() == VpnToDpnList.DpnState.Active) {
                                                     vrfEntryListener.deleteRemoteRoute(localDpnId, curDpn.getDpnId(),
-                                                            vpnInstance.getVpnId(), vrfTableKey, vrfEntry, tx);
+                                                            vpnInstance.getVpnId(), vrfTableKey, vrfEntry,
+                                                            Optional.absent(), tx);
                                                 }
                                             } else {
                                                 vrfEntryListener.deleteRemoteRoute(localDpnId, curDpn.getDpnId(),
-                                                        vpnInstance.getVpnId(), vrfTableKey, vrfEntry, tx);
+                                                        vpnInstance.getVpnId(), vrfTableKey, vrfEntry,
+                                                        Optional.absent(), tx);
                                             }
                                         }
                                     }
