@@ -22,6 +22,30 @@
       "revId": "fa3af52c8fc5553b83b2e4c5ff532f8b290d7887",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_82c20a32",
+        "filename": "vpnservice/aclservice/impl/src/test/java/org/opendaylight/netvirt/aclservice/tests/AclServiceTestBase.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 341,
+      "author": {
+        "id": 6464
+      },
+      "writtenOn": "2017-02-17T14:14:04Z",
+      "side": 1,
+      "message": "+1 for logging.",
+      "parentUuid": "fafc7978_91a541b7",
+      "range": {
+        "startLine": 341,
+        "startChar": 4,
+        "endLine": 341,
+        "endChar": 78
+      },
+      "revId": "fa3af52c8fc5553b83b2e4c5ff532f8b290d7887",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
