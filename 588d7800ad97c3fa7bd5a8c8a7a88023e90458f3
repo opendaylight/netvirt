@@ -16,6 +16,24 @@
       "revId": "588d7800ad97c3fa7bd5a8c8a7a88023e90458f3",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_ca71cee1",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanPacketInHandler.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 150,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-02-17T05:48:08Z",
+      "side": 1,
+      "message": "ElanForwardingTables is used for storing mac entries for the given elan instance. This is mainly to detect the mac movement from one interface to another and have appropriate ds updates and flow rule changes in data plane. When mac is learned on a interface, we just lookup on this container with macaddress key to retrieve old macEntry. After retrieving it, we can just look at macEntry.getInterface() for the old interface on which mac is already learned. If we don\u0027t have this container, then we have to iterate over elan-interface-forwarding-entries for each elan interface to find out the old mac entry.\nThis is getting used in line no. 99 in the same class.\n\nI added a fix in ElanSmacFlowEventListener for the scenario (good find!) you have mentioned.",
+      "parentUuid": "fafc7978_2f26acce",
+      "revId": "588d7800ad97c3fa7bd5a8c8a7a88023e90458f3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
