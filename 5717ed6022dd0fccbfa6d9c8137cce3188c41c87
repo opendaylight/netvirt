@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_e5a6830f",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanInterfaceStateClusteredListener.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-02-17T07:04:34Z",
+      "side": 1,
+      "message": "ElanInterfaceStateChangeListener is of type Async DTCL whereas ElanInterfaceStateClusteredListener is Async CDTCL.",
+      "revId": "5717ed6022dd0fccbfa6d9c8137cce3188c41c87",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
