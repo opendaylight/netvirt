@@ -51,6 +51,7 @@ import org.opendaylight.netvirt.fibmanager.api.RouteOrigin;
 import org.opendaylight.netvirt.vpnmanager.api.IVpnManager;
 import org.opendaylight.netvirt.vpnmanager.api.intervpnlink.InterVpnLinkCache;
 import org.opendaylight.netvirt.vpnmanager.api.intervpnlink.InterVpnLinkDataComposite;
+import org.opendaylight.netvirt.vpnmanager.api.VpnExtraRouteHelper;
 import org.opendaylight.netvirt.vpnmanager.arp.responder.ArpResponderUtil;
 import org.opendaylight.netvirt.vpnmanager.intervpnlink.InterVpnLinkUtil;
 import org.opendaylight.netvirt.vpnmanager.populator.input.L3vpnInput;
@@ -629,7 +630,7 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                         VpnUtil.syncUpdate(
                                 dataBroker,
                                 LogicalDatastoreType.OPERATIONAL,
-                                VpnUtil.getVpnToExtrarouteIdentifier(vpnName,
+                                VpnExtraRouteHelper.getVpnToExtrarouteIdentifier(vpnName,
                                         rd, nextHop.getIpAddress()),
                                 VpnUtil.getVpnToExtraroute(nextHop.getIpAddress(), nextHop.getNextHopIpList()));
                     } else {
@@ -779,6 +780,8 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                 String rd = adj.getVrfId();
                 rd = (rd != null) ? rd : vpnInterface.getVpnInstanceName();
                 prefix = adj.getIpAddress();
+                label = adj.getLabel();
+
                 // If TEP is deleted , then only remove the nexthop from
                 // primary adjacency.
                 if (adj.getMacAddress() != null && !adj.getMacAddress().isEmpty()) {
@@ -942,7 +945,9 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
             if (vrfEntries != null) {
                 for (VrfEntry vrfEntry : vrfEntries) {
                     try {
-                        if (RouteOrigin.value(vrfEntry.getOrigin()) != RouteOrigin.STATIC) {
+                        if (RouteOrigin.value(vrfEntry.getOrigin()) != RouteOrigin.STATIC
+                                && RouteOrigin.value(vrfEntry.getOrigin()) != RouteOrigin.LOCAL
+                                && RouteOrigin.value(vrfEntry.getOrigin()) != RouteOrigin.CONNECTED) {
                             continue;
                         }
                         String prefix = vrfEntry.getDestPrefix();
@@ -1683,7 +1688,7 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
         VpnUtil.syncUpdate(
                 dataBroker,
                 LogicalDatastoreType.OPERATIONAL,
-                VpnUtil.getVpnToExtrarouteIdentifier(vpnName, (rd != null) ? rd : routerID, destination),
+                VpnExtraRouteHelper.getVpnToExtrarouteIdentifier(vpnName, (rd != null) ? rd : routerID, destination),
                 VpnUtil.getVpnToExtraroute(destination, Collections.singletonList(nextHop)));
 
         BigInteger dpnId = null;
