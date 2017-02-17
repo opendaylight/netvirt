@@ -89,6 +89,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_fe5bbc84",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronQosManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 6892
+      },
+      "writtenOn": "2017-02-17T06:11:23Z",
+      "side": 1,
+      "message": "corrected",
+      "parentUuid": "fafc7978_3af43786",
+      "revId": "e4cb6f8415c157de0c6434d47d7886bc7fb5d553",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_ba2f87f5",
         "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronQosManager.java",
         "patchSetId": 1
@@ -100,6 +118,24 @@
       "writtenOn": "2017-02-15T11:54:47Z",
       "side": 1,
       "message": "why should NeutronvpnUtils used here.  \n\nYou can build your own qosUtils and have methods in them that fetch information directly from NeutronNorthbound.",
+      "revId": "e4cb6f8415c157de0c6434d47d7886bc7fb5d553",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_de5eb875",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronQosManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 6892
+      },
+      "writtenOn": "2017-02-17T06:11:23Z",
+      "side": 1,
+      "message": "Removed Neutronvpnutils dependency",
+      "parentUuid": "fafc7978_ba2f87f5",
       "revId": "e4cb6f8415c157de0c6434d47d7886bc7fb5d553",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -123,6 +159,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_3e554450",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronQosManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 6892
+      },
+      "writtenOn": "2017-02-17T06:11:23Z",
+      "side": 1,
+      "message": "same as above",
+      "parentUuid": "fafc7978_fa390f42",
+      "revId": "e4cb6f8415c157de0c6434d47d7886bc7fb5d553",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_5a401ba5",
         "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronQosManager.java",
         "patchSetId": 1
@@ -134,6 +188,24 @@
       "writtenOn": "2017-02-15T11:54:47Z",
       "side": 1,
       "message": "ditto comment here.",
+      "revId": "e4cb6f8415c157de0c6434d47d7886bc7fb5d553",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_1e50405d",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronQosManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 6892
+      },
+      "writtenOn": "2017-02-17T06:11:23Z",
+      "side": 1,
+      "message": "same as above",
+      "parentUuid": "fafc7978_5a401ba5",
       "revId": "e4cb6f8415c157de0c6434d47d7886bc7fb5d553",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -157,6 +229,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_7e4fccbd",
+        "filename": "vpnservice/qosservice/qosservice-impl/pom.xml",
+        "patchSetId": 1
+      },
+      "lineNbr": 91,
+      "author": {
+        "id": 6892
+      },
+      "writtenOn": "2017-02-17T06:11:23Z",
+      "side": 1,
+      "message": "Removed all impl dependencies",
+      "parentUuid": "fafc7978_1a0e938d",
+      "revId": "e4cb6f8415c157de0c6434d47d7886bc7fb5d553",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_fa10efa9",
         "filename": "vpnservice/qosservice/qosservice-impl/pom.xml",
         "patchSetId": 1
@@ -168,6 +258,24 @@
       "writtenOn": "2017-02-15T11:54:47Z",
       "side": 1,
       "message": "ditto here.",
+      "revId": "e4cb6f8415c157de0c6434d47d7886bc7fb5d553",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_5e4ac8ac",
+        "filename": "vpnservice/qosservice/qosservice-impl/pom.xml",
+        "patchSetId": 1
+      },
+      "lineNbr": 101,
+      "author": {
+        "id": 6892
+      },
+      "writtenOn": "2017-02-17T06:11:23Z",
+      "side": 1,
+      "message": "same as above",
+      "parentUuid": "fafc7978_fa10efa9",
       "revId": "e4cb6f8415c157de0c6434d47d7886bc7fb5d553",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
