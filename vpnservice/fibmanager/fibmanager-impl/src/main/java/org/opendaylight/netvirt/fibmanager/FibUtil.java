@@ -28,9 +28,12 @@ import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
+import org.opendaylight.netvirt.fibmanager.NexthopManager.AdjacencyResult;
 import org.opendaylight.netvirt.fibmanager.api.FibHelper;
 import org.opendaylight.netvirt.fibmanager.api.RouteOrigin;
+import org.opendaylight.netvirt.vpnmanager.api.VpnHelper;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.interfaces.VpnInterface;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.iana._if.type.rev140508.Tunnel;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.AllocateIdInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.AllocateIdInputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.AllocateIdOutput;
@@ -58,6 +61,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.VpnInstanceOpDataEntryKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.vpn.instance.op.data.entry.VpnToDpnList;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.to.vpn.id.VpnInstance;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.to.extraroutes.vpn.extra.routes.Routes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.netvirt.inter.vpn.link.rev160311.InterVpnLinkStates;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.netvirt.inter.vpn.link.rev160311.InterVpnLinks;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.netvirt.inter.vpn.link.rev160311.inter.vpn.link.states.InterVpnLinkState;
@@ -622,5 +626,38 @@ public class FibUtil {
             throw new NoSuchElementException("RoutePath does not exists for the vrfEntry " + vrfEntry);
         }
         return vrfEntry.getRoutePaths().get(0).getNexthopAddress();
+    }
+
+    public static boolean isTunnelInterface(AdjacencyResult adjacencyResult) {
+        return Tunnel.class.equals(adjacencyResult.getInterfaceType());
+    }
+
+    public static Optional<Routes> getLastRoutePathExtraRoute(DataBroker dataBroker, Long vpnId,
+            String rd, String prefix) {
+        List<String> usedRds = VpnHelper.getUsedRds(dataBroker, vpnId, prefix);
+        if (usedRds.size() > 1) {
+            LOG.error("The extra route prefix is still present in some DPNs");
+            return Optional.absent();
+        } else {
+            rd = usedRds.get(0);
+        }
+        //Is this fib route an extra route? If yes, get the nexthop which would be an adjacency in the vpn
+        return VpnHelper.getVpnExtraroutes(dataBroker,
+                getVpnNameFromId(dataBroker, vpnId), rd, prefix);
+    }
+
+    public static InstanceIdentifier<VrfEntry> getNextHopIdentifier(String rd, String prefix) {
+        return InstanceIdentifier.builder(FibEntries.class)
+                .child(VrfTables.class,new VrfTablesKey(rd)).child(VrfEntry.class,new VrfEntryKey(prefix)).build();
+    }
+
+    public static List<String> getNextHopAddresses(DataBroker broker, String rd, String prefix) {
+        InstanceIdentifier<VrfEntry> vrfEntryId = getNextHopIdentifier(rd, prefix);
+        Optional<VrfEntry> vrfEntry = read(broker, LogicalDatastoreType.CONFIGURATION, vrfEntryId);
+        if (vrfEntry.isPresent()) {
+            return FibUtil.getNextHopListFromRoutePaths(vrfEntry.get());
+        } else {
+            return new ArrayList<String>();
+        }
     }
 }
