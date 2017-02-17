@@ -145,6 +145,7 @@
         class="org.opendaylight.netvirt.vpnmanager.SubnetRouteInterfaceStateChangeListener"
         init-method="start" destroy-method="close">
     <argument ref="dataBroker" />
+    <argument ref="subnetOpDpnManager" />
     <argument ref="vpnInterfaceManager" />
     <argument ref="vpnSubnetRouteHandler" />
   </bean>
