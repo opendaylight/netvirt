@@ -579,7 +579,6 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
             nhList.add(nextHopIp);
             LOG.trace("NextHop for interface {} is {}", interfaceName, nhList);
         }
-        List<VpnInstanceOpDataEntry> vpnsToImportRoute = getVpnsImportingMyRoute(vpnName);
         Optional<String> gwMac = Optional.absent();
         VpnInstanceOpDataEntry vpnInstanceOpData = VpnUtil.getVpnInstanceOpData(dataBroker, primaryRd);
         Long l3vni = vpnInstanceOpData.getL3vni();
@@ -626,7 +625,7 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                 synchronized (vpnPrefixKey.intern()) {
                     java.util.Optional<String> rdToAllocate = VpnUtil
                             .allocateRdForExtraRouteAndUpdateUsedRdsMap(dataBroker,
-                            vpnId, prefix, vpnName, dpnId, nextHop, writeOperTxn);
+                            vpnId, 0, prefix, vpnName, dpnId, writeOperTxn);
                     if (rdToAllocate.isPresent()) {
                         rd = rdToAllocate.get();
                         VpnUtil.syncUpdate(
@@ -1612,7 +1611,7 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                 String vpnPrefixKey = VpnUtil.getVpnNamePrefixKey(vpnName, prefix);
                 synchronized (vpnPrefixKey.intern()) {
                     java.util.Optional<String> rdToAllocate = VpnUtil.allocateRdForExtraRouteAndUpdateUsedRdsMap(
-                                    dataBroker, vpnId, prefix, vpnName, dpnId,adj, writeOperTxn);
+                                    dataBroker, vpnId, 0, prefix, vpnName, dpnId,writeOperTxn);
                     if (rdToAllocate.isPresent()) {
                         adjBuilder.setVrfId(rdToAllocate.get());
                         addExtraRoute(vpnName, adj.getIpAddress(), nh,rdToAllocate.get(),
@@ -1621,6 +1620,21 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                     } else {
                         LOG.error("No rds to allocate extraroute {}", prefix);
                         return;
+                    }
+                    List<VpnInstanceOpDataEntry> vpnsToImportRoute = getVpnsImportingMyRoute(vpnName);
+                    for (VpnInstanceOpDataEntry vpn : vpnsToImportRoute) {
+                        String vpnRd = vpn.getVrfId();
+                        if (vpnRd != null) {
+                            java.util.Optional<String> rdsToAllocate =
+                                    VpnUtil.allocateRdForExtraRouteAndUpdateUsedRdsMap(dataBroker, vpn.getVpnId(),
+                                            vpnId, prefix, VpnUtil.getVpnName(dataBroker, vpn.getVpnId()), dpnId,
+                                            writeOperTxn);
+                            if (rdToAllocate.isPresent()) {
+                                addExtraRoute(VpnUtil.getVpnName(dataBroker, vpn.getVpnId()),
+                                        adj.getIpAddress(), nh, rdsToAllocate.get(), currVpnIntf.getVpnInstanceName(),
+                                        (int) label, RouteOrigin.SELF_IMPORTED, currVpnIntf.getName(), writeConfigTxn);
+                            }
+                        }
                     }
                 }
             } else {
@@ -1655,6 +1669,7 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                     while (adjIt.hasNext()) {
                         Adjacency adjElem = adjIt.next();
                         if (adjElem.getIpAddress().equals(adj.getIpAddress())) {
+                            String usedRd = adjElem.getVrfId();
                             adjIt.remove();
 
                             Adjacencies aug = VpnUtil.getVpnInterfaceAugmentation(adjacencies);
@@ -1666,7 +1681,17 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                             if (adj.getNextHopIpList() != null) {
                                 for (String nh : adj.getNextHopIpList()) {
                                     delExtraRoute(adj.getIpAddress(), nh, rd, currVpnIntf.getVpnInstanceName(),
-                                        currVpnIntf.getName(), writeConfigTxn);
+                                            currVpnIntf.getName(), writeConfigTxn);
+                                    List<VpnInstanceOpDataEntry> vpnsToImportRoute =
+                                            getVpnsImportingMyRoute(currVpnIntf.getVpnInstanceName());
+                                    for (VpnInstanceOpDataEntry vpn : vpnsToImportRoute) {
+                                        String vpnRd = vpn.getVrfId();
+                                        if (vpnRd != null) {
+                                            delExtraRoute(adj.getIpAddress(), nh, vpnRd,
+                                                    currVpnIntf.getVpnInstanceName(),
+                                                    currVpnIntf.getName(), writeConfigTxn);
+                                        }
+                                    }
                                 }
                             }
                             break;
