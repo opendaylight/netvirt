@@ -13,7 +13,6 @@ import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.RejectedExecutionException;
@@ -161,18 +160,7 @@ public class DistributedArpService implements ConfigInterface {
         //treat UPDATE as ADD
         final Action actionToPerform = action == Action.DELETE ? Action.DELETE : Action.ADD;
 
-        final String networkUUID = neutronPort.getNetworkUUID();
-        NeutronNetwork neutronNetwork = neutronNetworkCache.getNetwork(networkUUID);
-        if (null == neutronNetwork) {
-            neutronNetwork = neutronL3Adapter.getNetworkFromCleanupCache(networkUUID);
-        }
-        final String providerSegmentationId = neutronNetwork != null ?
-                                              neutronNetwork.getProviderSegmentationID() : null;
-        if (providerSegmentationId == null || providerSegmentationId.isEmpty()) {
-            // done: go no further w/out all the info needed...
-            return;
-        }
-
+        final String providerSegmentationId = getSegmentationId(neutronPort);
         List<Node> nodes = nodeCacheManager.getBridgeNodes();
         if (nodes.isEmpty()) {
             LOG.trace("updateL3ForNeutronPort has no nodes to work with");
@@ -225,17 +213,20 @@ public class DistributedArpService implements ConfigInterface {
             // If not Arp is added for the current port only (bug 6998)
             if (neutronPortList.size() == 1 && neutronPort.getPortUUID().equalsIgnoreCase(existingPort.getPortUUID())) {
                 for (NeutronPort port : neutronPortCache.getAllPorts()) {
-                    final String portMacAddress = port.getMacAddress();
-                    for (Neutron_IPs neutronIPAddr : port.getFixedIPs()) {
-                        final String portIpAddress = neutronIPAddr.getIpAddress();
-                        try {
-                            executor.submit(() ->
-                                    programStaticRuleStage1(dpid, providerSegmentationId, portMacAddress,
-                                            portIpAddress, actionForNode));
-                        } catch (RejectedExecutionException ex) {
-                            LOG.error("handleArpRule : unable to accept execution.", ex);
-                            programStaticRuleStage1(dpid, providerSegmentationId, portMacAddress,
-                                    portIpAddress, actionForNode);
+                    final String portSegmentationId = getSegmentationId(port);
+                    if (portSegmentationId.equals(providerSegmentationId)) {
+                        final String portMacAddress = port.getMacAddress();
+                        for (Neutron_IPs neutronIPAddr : port.getFixedIPs()) {
+                            final String portIpAddress = neutronIPAddr.getIpAddress();
+                            try {
+                                executor.submit(() ->
+                                        programStaticRuleStage1(dpid, providerSegmentationId, portMacAddress,
+                                                portIpAddress, actionForNode));
+                            } catch (RejectedExecutionException ex) {
+                                LOG.error("handleArpRule : unable to accept execution.", ex);
+                                programStaticRuleStage1(dpid, providerSegmentationId, portMacAddress,
+                                        portIpAddress, actionForNode);
+                            }
                         }
                     }
                 }
@@ -396,10 +387,31 @@ public class DistributedArpService implements ConfigInterface {
             }
             NeutronPort neutronPort = tenantNetworkManager.getTenantPort(port);
             if (neutronPort != null) {
-                neutronPortList.add(neutronPort);
+                final String portSegmentationId = getSegmentationId(neutronPort);
+                if (portSegmentationId.equals(segmentationId)) {
+                    neutronPortList.add(neutronPort);
+                }
             }
         }
         return isTenantNetworkPresentInNode;
     }
 
+    /**
+     * To get segmentationId.
+     * 
+     * @param neutronPort An instance of NeutronPort object
+     */
+    private String getSegmentationId(NeutronPort neutronPort) {
+        final String networkUUID = neutronPort.getNetworkUUID();
+        NeutronNetwork neutronNetwork = neutronNetworkCache.getNetwork(networkUUID);
+        if (null == neutronNetwork) {
+            neutronNetwork = neutronL3Adapter.getNetworkFromCleanupCache(networkUUID);
+        }
+        final String portSegmentationId= neutronNetwork != null ?
+                                              neutronNetwork.getProviderSegmentationID() : null;
+        if (portSegmentationId == null || portSegmentationId.isEmpty()) {
+            return null;
+        }
+        return portSegmentationId;
+    }
 }
