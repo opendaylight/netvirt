@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_6bfee1af",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanInterfaceManager.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 1517,
+      "author": {
+        "id": 670
+      },
+      "writtenOn": "2017-02-19T10:14:35Z",
+      "side": 1,
+      "message": "sure, changed\nI also don\u0027t love the cnt \u003d\u003d 2 logic - I guess \u003e 2 should never happen, but still might be better to do \u003e\u003d2 in case a DPN shows up twice in dpnInterfaces?",
+      "parentUuid": "fafc7978_85785790",
+      "revId": "b67e728015e6e8d6eec4ff641ca16eb9cf903237",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_ea9ad261",
         "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanInterfaceManager.java",
         "patchSetId": 2
@@ -48,6 +66,24 @@
       "side": 1,
       "message": "It became effectively final. so we don\u0027t have to explicitly make it as final in java 8.",
       "parentUuid": "fafc7978_ea9ad261",
+      "revId": "b67e728015e6e8d6eec4ff641ca16eb9cf903237",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_cb2eed42",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanInterfaceManager.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 1533,
+      "author": {
+        "id": 670
+      },
+      "writtenOn": "2017-02-19T10:14:35Z",
+      "side": 1,
+      "message": "yes, effectively final, but no harm in declaring it explicitly, so changed now.",
+      "parentUuid": "fafc7978_e56fa3c3",
       "revId": "b67e728015e6e8d6eec4ff641ca16eb9cf903237",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
