@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_f612b807",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/FibUtil.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 635,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-02-20T05:32:29Z",
+      "side": 1,
+      "message": "change the method name to getLastRoutePathExtraRouteIfPresent",
+      "revId": "d4ca040e334a5c5f3e8c3fb62f03e6393a19c86a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_b60cb0ee",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/FibUtil.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 637,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-02-20T05:32:29Z",
+      "side": 1,
+      "message": "what if usedRds is null or empty ? You may have to return Optional.absent() in this case too.",
+      "revId": "d4ca040e334a5c5f3e8c3fb62f03e6393a19c86a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_f6291838",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/NexthopManager.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 853,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-02-20T05:32:29Z",
+      "side": 1,
+      "message": "change argument name to vpnExtraRoutes",
+      "revId": "d4ca040e334a5c5f3e8c3fb62f03e6393a19c86a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
