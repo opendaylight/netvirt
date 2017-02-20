@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_51d3ce03",
+        "filename": "vpnservice/natservice/natservice-api/src/main/yang/odl-nat.yang",
+        "patchSetId": 1
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 6248
+      },
+      "writtenOn": "2017-02-20T09:57:46Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_94f24f6d",
+      "range": {
+        "startLine": 29,
+        "startChar": 22,
+        "endLine": 29,
+        "endChar": 41
+      },
+      "revId": "508a0273602ac2c96888ed518877c09f4a855d6a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_5147594b",
         "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NaptManager.java",
         "patchSetId": 1
@@ -36,6 +60,24 @@
       "writtenOn": "2017-02-16T15:10:00Z",
       "side": 1,
       "message": "You can use your new getIpsListFromExternalIps method from NatUtils to make this code shorter",
+      "revId": "508a0273602ac2c96888ed518877c09f4a855d6a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_513c6ec8",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NaptManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 745,
+      "author": {
+        "id": 6248
+      },
+      "writtenOn": "2017-02-20T09:57:46Z",
+      "side": 1,
+      "message": "I don\u0027t see why it will make the code shorter (maybe less lines will be changed) - but it will be the same length:\n\nList\u003cString\u003e externalIps \u003d NatUtil.getIpsListFromExternalIps(routers.getExternalIps());\n\n //update the new counter value for this externalIp\n        for (String externalIp : externalIps) {\n            String[] ipSplit \u003d externalIp.split(\"/\");\n....\n\nOr did you mean something else?\nThanks",
+      "parentUuid": "fafc7978_5147594b",
       "revId": "508a0273602ac2c96888ed518877c09f4a855d6a",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -59,6 +101,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_11a4a606",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NatUtil.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 1672,
+      "author": {
+        "id": 6248
+      },
+      "writtenOn": "2017-02-20T09:57:46Z",
+      "side": 1,
+      "message": "This is really nice (I wasn\u0027t familiar with it).",
+      "parentUuid": "fafc7978_74040bc0",
+      "revId": "508a0273602ac2c96888ed518877c09f4a855d6a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_b43833a1",
         "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnNatManager.java",
         "patchSetId": 1
@@ -70,6 +130,24 @@
       "writtenOn": "2017-02-16T15:10:00Z",
       "side": 1,
       "message": "Can you refactor this to a function? I see the same loop in another method also, so this change will shorten them both.",
+      "revId": "508a0273602ac2c96888ed518877c09f4a855d6a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_f1f642f8",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnNatManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 469,
+      "author": {
+        "id": 6248
+      },
+      "writtenOn": "2017-02-20T09:57:46Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_b43833a1",
       "revId": "508a0273602ac2c96888ed518877c09f4a855d6a",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -93,6 +171,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_51df4e69",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnNatManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 539,
+      "author": {
+        "id": 6248
+      },
+      "writtenOn": "2017-02-20T09:57:46Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_d445f717",
+      "revId": "508a0273602ac2c96888ed518877c09f4a855d6a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_94d7ef22",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnUtil.java",
         "patchSetId": 1
@@ -104,6 +200,24 @@
       "writtenOn": "2017-02-16T15:10:00Z",
       "side": 1,
       "message": "Same comment as in NatUtil. \nCould use Streams API to make this a lot shorter.",
+      "revId": "508a0273602ac2c96888ed518877c09f4a855d6a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_51b10e46",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnUtil.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 1457,
+      "author": {
+        "id": 6248
+      },
+      "writtenOn": "2017-02-20T09:57:46Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_94d7ef22",
       "revId": "508a0273602ac2c96888ed518877c09f4a855d6a",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
