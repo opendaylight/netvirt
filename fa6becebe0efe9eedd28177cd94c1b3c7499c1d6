@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_8f64f849",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/VpnDpnToTransportZoneListener.java",
+        "patchSetId": 24
+      },
+      "lineNbr": 60,
+      "author": {
+        "id": 6071
+      },
+      "writtenOn": "2017-02-20T15:28:05Z",
+      "side": 1,
+      "message": "It is possible that the first network that\u0027s connected to the router (vpn) is not a vxlan network, so we need to also  handle updates in case vxlan networks are added later.",
+      "parentUuid": "fafc7978_baf2e76c",
+      "revId": "fa6becebe0efe9eedd28177cd94c1b3c7499c1d6",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_ba9f87b3",
         "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/utils/TransportZoneNotificationUtil.java",
         "patchSetId": 24
@@ -53,6 +71,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_bb902644",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/utils/TransportZoneNotificationUtil.java",
+        "patchSetId": 24
+      },
+      "lineNbr": 82,
+      "author": {
+        "id": 6071
+      },
+      "writtenOn": "2017-02-20T15:28:05Z",
+      "side": 1,
+      "message": "This method adds a vtep to a transport zone.",
+      "parentUuid": "fafc7978_7a307fe8",
+      "revId": "fa6becebe0efe9eedd28177cd94c1b3c7499c1d6",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_3a36f7e7",
         "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/utils/TransportZoneNotificationUtil.java",
         "patchSetId": 24
@@ -64,6 +100,24 @@
       "writtenOn": "2017-02-15T10:30:19Z",
       "side": 1,
       "message": "I think this boolean and the warning should be removed.. this is a valid scenario that will happen a lot if the vtep already exists - you can see it happening a lot in the gate run - https://logs.opendaylight.org/releng/jenkins092/netvirt-csit-1node-openstack-newton-nodl-v2-gate-stateful-carbon/74/archives/odl1_karaf.log.gz",
+      "revId": "fa6becebe0efe9eedd28177cd94c1b3c7499c1d6",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_9b93a24e",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/utils/TransportZoneNotificationUtil.java",
+        "patchSetId": 24
+      },
+      "lineNbr": 91,
+      "author": {
+        "id": 6071
+      },
+      "writtenOn": "2017-02-20T15:28:05Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_3a36f7e7",
       "revId": "fa6becebe0efe9eedd28177cd94c1b3c7499c1d6",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -105,6 +159,42 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_ef5944ff",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/utils/TransportZoneNotificationUtil.java",
+        "patchSetId": 24
+      },
+      "lineNbr": 117,
+      "author": {
+        "id": 6071
+      },
+      "writtenOn": "2017-02-20T15:28:05Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_5dfad5bd",
+      "revId": "fa6becebe0efe9eedd28177cd94c1b3c7499c1d6",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_8f6238ab",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/utils/TransportZoneNotificationUtil.java",
+        "patchSetId": 24
+      },
+      "lineNbr": 117,
+      "author": {
+        "id": 6071
+      },
+      "writtenOn": "2017-02-20T15:28:05Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_fd8749d5",
+      "revId": "fa6becebe0efe9eedd28177cd94c1b3c7499c1d6",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_5a8adbbf",
         "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/utils/TransportZoneNotificationUtil.java",
         "patchSetId": 24
@@ -116,6 +206,24 @@
       "writtenOn": "2017-02-15T12:54:25Z",
       "side": 1,
       "message": "you could simply do it with single line: return new TransportZoneBuilder().setKey(..).setTunnelType(...)...build();",
+      "revId": "fa6becebe0efe9eedd28177cd94c1b3c7499c1d6",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_cff720f4",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/utils/TransportZoneNotificationUtil.java",
+        "patchSetId": 24
+      },
+      "lineNbr": 129,
+      "author": {
+        "id": 6071
+      },
+      "writtenOn": "2017-02-20T15:28:05Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_5a8adbbf",
       "revId": "fa6becebe0efe9eedd28177cd94c1b3c7499c1d6",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -139,6 +247,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_ef2144a0",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/utils/TransportZoneNotificationUtil.java",
+        "patchSetId": 24
+      },
+      "lineNbr": 150,
+      "author": {
+        "id": 6071
+      },
+      "writtenOn": "2017-02-20T15:28:05Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_da4b6b85",
+      "revId": "fa6becebe0efe9eedd28177cd94c1b3c7499c1d6",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_9aaba31c",
         "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/utils/TransportZoneNotificationUtil.java",
         "patchSetId": 24
@@ -150,6 +276,24 @@
       "writtenOn": "2017-02-15T12:54:25Z",
       "side": 1,
       "message": "same comment as before and do it whereever we build an object.",
+      "revId": "fa6becebe0efe9eedd28177cd94c1b3c7499c1d6",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_0ff48885",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/utils/TransportZoneNotificationUtil.java",
+        "patchSetId": 24
+      },
+      "lineNbr": 155,
+      "author": {
+        "id": 6071
+      },
+      "writtenOn": "2017-02-20T15:28:05Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_9aaba31c",
       "revId": "fa6becebe0efe9eedd28177cd94c1b3c7499c1d6",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -173,6 +317,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_5ee3e832",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/utils/TransportZoneNotificationUtil.java",
+        "patchSetId": 24
+      },
+      "lineNbr": 167,
+      "author": {
+        "id": 6071
+      },
+      "writtenOn": "2017-02-20T15:28:05Z",
+      "side": 1,
+      "message": "I added a null check. But I think the for-loop is more readable.",
+      "parentUuid": "fafc7978_fd458917",
+      "revId": "fa6becebe0efe9eedd28177cd94c1b3c7499c1d6",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_5a0dbb3d",
         "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/utils/TransportZoneNotificationUtil.java",
         "patchSetId": 24
@@ -184,6 +346,24 @@
       "writtenOn": "2017-02-15T12:54:25Z",
       "side": 1,
       "message": "subnetPrefix can be initialized at the top",
+      "revId": "fa6becebe0efe9eedd28177cd94c1b3c7499c1d6",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_be83f454",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/utils/TransportZoneNotificationUtil.java",
+        "patchSetId": 24
+      },
+      "lineNbr": 168,
+      "author": {
+        "id": 6071
+      },
+      "writtenOn": "2017-02-20T15:28:05Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_5a0dbb3d",
       "revId": "fa6becebe0efe9eedd28177cd94c1b3c7499c1d6",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -241,6 +421,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_5e5e4813",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/utils/TransportZoneNotificationUtil.java",
+        "patchSetId": 24
+      },
+      "lineNbr": 216,
+      "author": {
+        "id": 6071
+      },
+      "writtenOn": "2017-02-20T15:28:05Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_dd06c5cd",
+      "revId": "fa6becebe0efe9eedd28177cd94c1b3c7499c1d6",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_3df551cb",
         "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/resources/initial/netvirt-elanmanager-config.xml",
         "patchSetId": 24
@@ -252,6 +450,24 @@
       "writtenOn": "2017-02-15T12:54:25Z",
       "side": 1,
       "message": "shouldn\u0027t be false by default ?",
+      "revId": "fa6becebe0efe9eedd28177cd94c1b3c7499c1d6",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_715092d4",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/resources/initial/netvirt-elanmanager-config.xml",
+        "patchSetId": 24
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 6071
+      },
+      "writtenOn": "2017-02-20T15:28:05Z",
+      "side": 1,
+      "message": "It was true before, I just moved the setting to another bundle.",
+      "parentUuid": "fafc7978_3df551cb",
       "revId": "fa6becebe0efe9eedd28177cd94c1b3c7499c1d6",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -275,6 +491,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_5c6f652b",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/resources/org/opendaylight/blueprint/elanmanager.xml",
+        "patchSetId": 24
+      },
+      "lineNbr": 263,
+      "author": {
+        "id": 6071
+      },
+      "writtenOn": "2017-02-20T15:28:05Z",
+      "side": 1,
+      "message": "Possible, but then we\u0027ll have to move TransportZoneNotificationUtil to some other place, do you have a suggestion where to?",
+      "parentUuid": "fafc7978_fd5c69ef",
+      "revId": "fa6becebe0efe9eedd28177cd94c1b3c7499c1d6",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_1a597336",
         "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/yang/elanmanager-config.yang",
         "patchSetId": 24
@@ -292,6 +526,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_ef5b0485",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/yang/elanmanager-config.yang",
+        "patchSetId": 24
+      },
+      "lineNbr": 46,
+      "author": {
+        "id": 6071
+      },
+      "writtenOn": "2017-02-20T15:28:05Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_1a597336",
+      "revId": "fa6becebe0efe9eedd28177cd94c1b3c7499c1d6",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_fa5bcf2b",
         "filename": "vpnservice/features/pom.xml",
         "patchSetId": 24
@@ -303,6 +555,24 @@
       "writtenOn": "2017-02-15T10:30:19Z",
       "side": 1,
       "message": "nit: remove spaces at the end of lines (go through gerrit, it pops out as red blocks)",
+      "revId": "fa6becebe0efe9eedd28177cd94c1b3c7499c1d6",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_cf5e0076",
+        "filename": "vpnservice/features/pom.xml",
+        "patchSetId": 24
+      },
+      "lineNbr": 355,
+      "author": {
+        "id": 6071
+      },
+      "writtenOn": "2017-02-20T15:28:05Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_fa5bcf2b",
       "revId": "fa6becebe0efe9eedd28177cd94c1b3c7499c1d6",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
