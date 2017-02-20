@@ -31,3 +31,10 @@ Contents:
    Support of VXLAN based connectivity across Datacenters <l3vpn-over-vxlan-with-evpn-rt5>
    Temporary SMAC Learning <temporary-smac-learning>
    VNI based L2 switching, L3 forwarding and NATing <vni-based-l2-switching-l3-forwarding-and-NATing>
+   Netvirt counters <netvirt-statistics-spec>
+   Policy based path selection for multiple VxLAN tunnels <policy-based-path-selection>
+   QoS Alert <qos-alert>
+   DHCP Server with dynamic allocation pool <dhcp-dynamic-allocation-pool>
+   Listener Dependency Helper, avoids waiting for dependent IID <listener-dependency-helper>
+   Element counters <element-counters>
+   Migrate the SFC classifier from the old to the new netvirt <new-sfc-classifier>
