@@ -73,6 +73,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_bc96513d",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/TunnelEndPointChangeListener.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 103,
+      "author": {
+        "id": 670
+      },
+      "writtenOn": "2017-02-20T13:02:48Z",
+      "side": 1,
+      "message": "Yeah, according to Tali we will have false alarms if a neutron port is created and associated with a router, before the port is added to the OVS.\nIt will be handled fine by the interface state listener so this warning will probably just confuse.",
+      "parentUuid": "fafc7978_76ec08f4",
+      "revId": "1253d5b29b268546c3be2fc8851941bf1e48224e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_8fd7d822",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
         "patchSetId": 2
@@ -138,6 +156,24 @@
       "side": 1,
       "message": "getVpnGatewayIp() in VPNUtil returns gateway-ips that are of only IPv4 type. That is the reason NPEs are getting generated.\n\nIMHO, makes me wonder how IPv6 tempest testcases pass ?",
       "parentUuid": "fafc7978_d6bcd4de",
+      "revId": "1253d5b29b268546c3be2fc8851941bf1e48224e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_7c8b4968",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 602,
+      "author": {
+        "id": 670
+      },
+      "writtenOn": "2017-02-20T13:02:48Z",
+      "side": 1,
+      "message": "I added Sridhar to the review, he\u0027ll probably be interested in this. We aren\u0027t running any IPv6 tests AFAIK in CSIT yet, but Sridhar was planning to add them.",
+      "parentUuid": "fafc7978_d68a141a",
       "revId": "1253d5b29b268546c3be2fc8851941bf1e48224e",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
