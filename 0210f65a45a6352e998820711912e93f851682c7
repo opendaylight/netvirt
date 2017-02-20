@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_36f7208d",
+        "filename": "docs/specs/conntrack-based-snat.rst",
+        "patchSetId": 3
+      },
+      "lineNbr": 353,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2017-02-20T06:27:21Z",
+      "side": 1,
+      "message": "Changes look good. Do you want to update the \"Work Items\" section for the new changes?",
+      "revId": "0210f65a45a6352e998820711912e93f851682c7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
