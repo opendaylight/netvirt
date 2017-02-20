@@ -164,6 +164,30 @@
       "revId": "8b907938dc1d4e2ba29a69bd6ba45fb5879f0c11",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_96a88c21",
+        "filename": "docs/specs/l3vpn-over-vxlan-with-evpn-rt5.rst",
+        "patchSetId": 6
+      },
+      "lineNbr": 437,
+      "author": {
+        "id": 6741
+      },
+      "writtenOn": "2017-02-20T07:43:31Z",
+      "side": 1,
+      "message": "Yes you are right. Using IFM_IDPOOL_NAME \u003d \"interfaces\" to carve out router lport-tag.",
+      "parentUuid": "fafc7978_f6b9187a",
+      "range": {
+        "startLine": 437,
+        "startChar": 106,
+        "endLine": 437,
+        "endChar": 122
+      },
+      "revId": "8b907938dc1d4e2ba29a69bd6ba45fb5879f0c11",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
