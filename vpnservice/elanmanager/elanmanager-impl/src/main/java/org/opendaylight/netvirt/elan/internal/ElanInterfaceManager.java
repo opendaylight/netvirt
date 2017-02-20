@@ -43,6 +43,7 @@ import org.opendaylight.genius.mdsalutil.MatchFieldType;
 import org.opendaylight.genius.mdsalutil.MatchInfo;
 import org.opendaylight.genius.mdsalutil.MetaDataUtil;
 import org.opendaylight.genius.mdsalutil.NwConstants;
+import org.opendaylight.genius.mdsalutil.actions.ActionRegLoad;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.genius.utils.ServiceIndex;
 import org.opendaylight.netvirt.elan.ElanException;
@@ -90,6 +91,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.forwarding.entries.MacEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.forwarding.entries.MacEntryBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.forwarding.entries.MacEntryKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.openflowjava.nx.match.rev140421.NxmNxReg1;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.NodeId;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
@@ -731,7 +733,7 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
             }
         }
         // bind the Elan service to the Interface
-        bindService(elanInstance, elanInterface, tx);
+        bindService(elanInstance, elanInterface, interfaceInfo.getInterfaceTag(), tx);
     }
 
     public void installEntriesForFirstInterfaceonDpn(ElanInstance elanInfo, InterfaceInfo interfaceInfo,
@@ -1348,33 +1350,44 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
         elanUtils.removeTerminatingServiceAction(dpId, (int) elanTag);
     }
 
-    private void bindService(ElanInstance elanInfo, ElanInterface elanInterface, WriteTransaction tx) {
+    private void bindService(ElanInstance elanInfo, ElanInterface elanInterface, int lportTag,
+            WriteTransaction tx) {
         if (isStandardElanService(elanInterface)) {
-            bindElanService(elanInfo.getElanTag(), elanInfo.getElanInstanceName(), elanInterface.getName(), tx);
+            bindElanService(elanInfo.getElanTag(), elanInfo.getElanInstanceName(),
+                    elanInterface.getName(), lportTag, tx);
         } else { // Etree service
-            bindEtreeService(elanInfo, elanInterface, tx);
+            bindEtreeService(elanInfo, elanInterface, lportTag, tx);
         }
     }
 
-    private void bindElanService(long elanTag, String elanInstanceName, String interfaceName, WriteTransaction tx) {
-        int priority = ElanConstants.ELAN_SERVICE_PRIORITY;
+    private void bindElanService(long elanTag, String elanInstanceName, String interfaceName, int lportTag,
+            WriteTransaction tx) {
         int instructionKey = 0;
         List<Instruction> instructions = new ArrayList<>();
         instructions.add(MDSALUtil.buildAndGetWriteMetadaInstruction(ElanUtils.getElanMetadataLabel(elanTag),
                 MetaDataUtil.METADATA_MASK_SERVICE, ++instructionKey));
+
+        List<Action> actions = new ArrayList<>();
+        actions.add(new ActionRegLoad(0, NxmNxReg1.class, 0, ElanConstants.INTERFACE_TAG_LENGTH - 1,
+                lportTag).buildAction());
+        instructions.add(MDSALUtil.buildApplyActionsInstruction(actions, ++instructionKey));
+
         instructions.add(MDSALUtil.buildAndGetGotoTableInstruction(NwConstants.ELAN_BASE_TABLE,
                 ++instructionKey));
+
         short elanServiceIndex = ServiceIndex.getIndex(NwConstants.ELAN_SERVICE_NAME, NwConstants.ELAN_SERVICE_INDEX);
         BoundServices serviceInfo = ElanUtils.getBoundServices(
                 String.format("%s.%s.%s", "vpn", elanInstanceName, interfaceName), elanServiceIndex,
-                priority, NwConstants.COOKIE_ELAN_INGRESS_TABLE, instructions);
+                ElanConstants.ELAN_SERVICE_PRIORITY, NwConstants.COOKIE_ELAN_INGRESS_TABLE, instructions);
         tx.put(LogicalDatastoreType.CONFIGURATION,
                 ElanUtils.buildServiceId(interfaceName, elanServiceIndex), serviceInfo, true);
     }
 
-    private void bindEtreeService(ElanInstance elanInfo, ElanInterface elanInterface, WriteTransaction tx) {
+    private void bindEtreeService(ElanInstance elanInfo, ElanInterface elanInterface, int lportTag,
+            WriteTransaction tx) {
         if (elanInterface.getAugmentation(EtreeInterface.class).getEtreeInterfaceType() == EtreeInterfaceType.Root) {
-            bindElanService(elanInfo.getElanTag(), elanInfo.getElanInstanceName(), elanInterface.getName(), tx);
+            bindElanService(elanInfo.getElanTag(), elanInfo.getElanInstanceName(), elanInterface.getName(),
+                    lportTag, tx);
         } else {
             EtreeInstance etreeInstance = elanInfo.getAugmentation(EtreeInstance.class);
             if (etreeInstance == null) {
@@ -1382,7 +1395,7 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
                         + elanInfo.getElanInstanceName());
             } else {
                 bindElanService(etreeInstance.getEtreeLeafTagVal().getValue(), elanInfo.getElanInstanceName(),
-                        elanInterface.getName(), tx);
+                        elanInterface.getName(), lportTag, tx);
             }
         }
     }
