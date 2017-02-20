@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_116ca607",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/ExternalSubnetListener.java",
+        "patchSetId": 10
+      },
+      "lineNbr": 53,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-20T10:24:56Z",
+      "side": 1,
+      "message": "You may be able to invoke this in externalsubnetvpninstancelistener and completely do away with this file, right?",
+      "revId": "d79527edefffa7673cb57579aeb85256ff8d4bb5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
