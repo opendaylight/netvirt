@@ -26,3 +26,4 @@ Contents:
    Netvirt counters <netvirt-statistics-spec>
    QoS Alert <qos-alert>
    DHCP Server with dynamic allocation pool <dhcp-dynamic-allocation-pool>
+   Migrate the SFC classifier from the old to the new netvirt <new-sfc-classifier>
