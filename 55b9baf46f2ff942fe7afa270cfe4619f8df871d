@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_9c754dfc",
+        "filename": "vpnservice/cloud-servicechain/cloud-servicechain-impl/src/main/java/org/opendaylight/netvirt/cloudservicechain/listeners/CloudScVpnInterfaceListener.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2017-02-20T13:33:08Z",
+      "side": 1,
+      "message": "redundant already declared by AsyncDataTreeChangeListenerBase",
+      "range": {
+        "startLine": 24,
+        "startChar": 4,
+        "endLine": 24,
+        "endChar": 28
+      },
+      "revId": "55b9baf46f2ff942fe7afa270cfe4619f8df871d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_fcd459be",
+        "filename": "vpnservice/cloud-servicechain/cloud-servicechain-impl/src/main/java/org/opendaylight/netvirt/cloudservicechain/utils/VpnServiceChainUtils.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 484,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2017-02-20T13:33:08Z",
+      "side": 1,
+      "message": "Who is calling this method?",
+      "revId": "55b9baf46f2ff942fe7afa270cfe4619f8df871d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
