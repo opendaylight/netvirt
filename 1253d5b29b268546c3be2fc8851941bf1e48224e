@@ -126,6 +126,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_d68a141a",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 602,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-20T05:42:32Z",
+      "side": 1,
+      "message": "getVpnGatewayIp() in VPNUtil returns gateway-ips that are of only IPv4 type. That is the reason NPEs are getting generated.\n\nIMHO, makes me wonder how IPv6 tempest testcases pass ?",
+      "parentUuid": "fafc7978_d6bcd4de",
+      "revId": "1253d5b29b268546c3be2fc8851941bf1e48224e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_cfe1e0ff",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
         "patchSetId": 2
