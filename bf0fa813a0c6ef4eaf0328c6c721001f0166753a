@@ -19,6 +19,23 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_91e376a3",
+        "filename": "docs/specs/conntrack-based-snat.rst",
+        "patchSetId": 4
+      },
+      "lineNbr": 30,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-20T10:13:03Z",
+      "side": 1,
+      "message": "Is there a problem with this at all?  A dhcp service port is also plumbed by ODL only :)",
+      "revId": "bf0fa813a0c6ef4eaf0328c6c721001f0166753a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_111f865c",
         "filename": "docs/specs/conntrack-based-snat.rst",
         "patchSetId": 4
@@ -95,6 +112,24 @@
       "side": 1,
       "message": "It will be always distributed with control node having some of them.",
       "parentUuid": "fafc7978_b154baff",
+      "revId": "bf0fa813a0c6ef4eaf0328c6c721001f0166753a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_b19cba10",
+        "filename": "docs/specs/conntrack-based-snat.rst",
+        "patchSetId": 4
+      },
+      "lineNbr": 69,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-20T10:13:03Z",
+      "side": 1,
+      "message": "If control nodes have ports on a router-interface and such nodes are plumbed by ODL, they must continue to be considered.",
+      "parentUuid": "fafc7978_b1d79a4a",
       "revId": "bf0fa813a0c6ef4eaf0328c6c721001f0166753a",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
