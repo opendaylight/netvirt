@@ -37,6 +37,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_564d843d",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanInterfaceManager.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 1517,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-02-20T04:49:02Z",
+      "side": 1,
+      "message": "It won\u0027t. Because dp-id is the key in dpnInterfaces.",
+      "parentUuid": "fafc7978_6bfee1af",
+      "revId": "b67e728015e6e8d6eec4ff641ca16eb9cf903237",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_ea9ad261",
         "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanInterfaceManager.java",
         "patchSetId": 2
