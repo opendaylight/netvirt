@@ -113,9 +113,9 @@ public class NeutronPortChangeListener extends AsyncDataTreeChangeListenerBase<P
         LOG.trace("Adding Port : key: {}, value={}", identifier, input);
         Network network = NeutronvpnUtils.getNeutronNetwork(dataBroker, input.getNetworkId());
         if (network == null || !NeutronvpnUtils.isNetworkTypeSupported(network)) {
-            //FIXME: This should be removed when support for VLAN and GRE network types is added
-            LOG.error("neutron vpn doesn't support vlan/gre network provider type for the port {} which is part of " +
-                    "network {}.", portName, network);
+            LOG.warn("neutron vpn received a port add() for a network without a provider extension augmentation "
+                            + "or with an unsupported network type for the port {} which is part of network {}",
+                    portName, network);
             return;
         }
         NeutronvpnUtils.addToPortCache(input);
@@ -150,9 +150,10 @@ public class NeutronPortChangeListener extends AsyncDataTreeChangeListenerBase<P
         LOG.trace("Removing Port : key: {}, value={}", identifier, input);
         Network network = NeutronvpnUtils.getNeutronNetwork(dataBroker, input.getNetworkId());
         if (network == null || !NeutronvpnUtils.isNetworkTypeSupported(network)) {
-            //FIXME: This should be removed when support for VLAN and GRE network types is added
-            LOG.error("neutron vpn doesn't support vlan/gre network provider type for the port {} which is part of " +
-                    "network {}.", input.getUuid().getValue(), network);
+            String portName = input.getUuid().getValue();
+            LOG.warn("neutron vpn received a port remove() for a network without a provider extension augmentation "
+                            + "or with an unsupported network type for the port {} which is part of network {}",
+                    portName, network);
             return;
         }
         NeutronvpnUtils.removeFromPortCache(input);
@@ -179,8 +180,9 @@ public class NeutronPortChangeListener extends AsyncDataTreeChangeListenerBase<P
         LOG.trace("Updating Port : key: {}, original value={}, update value={}", identifier, original, update);
         Network network = NeutronvpnUtils.getNeutronNetwork(dataBroker, update.getNetworkId());
         if (network == null || !NeutronvpnUtils.isNetworkTypeSupported(network)) {
-            LOG.error("neutron vpn doesn't support vlan/gre network provider type for the port {} which is part of " +
-                    "network {}. Skipping the processing of Port update DCN", portName, network);
+            LOG.warn("neutron vpn received a port update() for a network without a provider extension augmentation "
+                    + "or with an unsupported network type for the port {} which is part of network {}",
+                    portName, network);
             return;
         }
         NeutronvpnUtils.addToPortCache(update);
