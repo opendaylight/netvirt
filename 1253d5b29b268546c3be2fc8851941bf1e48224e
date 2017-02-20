@@ -198,6 +198,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_77e24230",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 602,
+      "author": {
+        "id": 670
+      },
+      "writtenOn": "2017-02-20T14:27:35Z",
+      "side": 1,
+      "message": "Great. Yeah you can see exactly what we\u0027re running here, definitely no IPv6 scenario, but maybe some API tests:\n\nhttps://github.com/opendaylight/integration-test/blob/888791aa7440e19aaae19b74ce455e62910b326f/csit/suites/openstack/tempest/tempest.robot\n\nOr in the report itself:\nhttps://logs.opendaylight.org/releng/jenkins092/netvirt-csit-1node-openstack-newton-nodl-v2-upstream-learn-carbon/120/archives/log.html.gz",
+      "parentUuid": "fafc7978_9c91cdf3",
+      "revId": "1253d5b29b268546c3be2fc8851941bf1e48224e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_cfe1e0ff",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
         "patchSetId": 2
