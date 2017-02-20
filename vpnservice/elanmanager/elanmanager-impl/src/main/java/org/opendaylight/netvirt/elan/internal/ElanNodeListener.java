@@ -97,14 +97,21 @@ public class ElanNodeListener extends AbstractDataChangeListener<Node> implement
         List<ActionInfo> actionsInfos = new ArrayList<>();
         actionsInfos.add(new ActionInfo(ActionType.punt_to_controller, new String[] {}));
 
-        String[][] learnActionMatches = new String[2][];
+        String[][] learnActionMatches = new String[3][];
         learnActionMatches[0] = new String[] { NwConstants.LearnFlowModsType.MATCH_FROM_FIELD.name(),
-                NwConstants.NxmOfFieldType.NXM_OF_ETH_SRC.getHexType(),
-                NwConstants.NxmOfFieldType.NXM_OF_ETH_SRC.getHexType(),
-                NwConstants.NxmOfFieldType.NXM_OF_ETH_SRC.getFlowModHeaderLen() };
+            NwConstants.NxmOfFieldType.NXM_OF_ETH_SRC.getHexType(),
+            NwConstants.NxmOfFieldType.NXM_OF_ETH_SRC.getHexType(),
+            NwConstants.NxmOfFieldType.NXM_OF_ETH_SRC.getFlowModHeaderLen() };
         learnActionMatches[1] = new String[] {
-                NwConstants.LearnFlowModsType.COPY_FROM_VALUE.name(), LEARN_MATCH_REG4_VALUE,
-                NwConstants.NxmOfFieldType.NXM_NX_REG4.getHexType(), "8" };
+            NwConstants.LearnFlowModsType.MATCH_FROM_FIELD.name(),
+            NwConstants.NxmOfFieldType.NXM_NX_REG1.getHexType(),
+            NwConstants.NxmOfFieldType.NXM_NX_REG1.getHexType(),
+            Integer.toString(ElanConstants.INTERFACE_TAG_LENGTH)
+
+        };
+        learnActionMatches[2] = new String[] {
+            NwConstants.LearnFlowModsType.COPY_FROM_VALUE.name(), LEARN_MATCH_REG4_VALUE,
+            NwConstants.NxmOfFieldType.NXM_NX_REG4.getHexType(), "8" };
 
         String[] header = new String[] {
             String.valueOf(0),
