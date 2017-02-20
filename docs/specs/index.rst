@@ -24,6 +24,7 @@ Contents:
    IPv6 L3 North-South support for Flat/VLAN based Provider Networks <ipv6-cvr-north-south>
    Listener Dependency Helper, avoids waiting for dependent IID <listener-dependency-helper>
    Netvirt counters <netvirt-statistics-spec>
+   New SFC classifier <new-sfc-classifier>
    Policy based path selection for multiple VxLAN tunnels <policy-based-path-selection>
    QoS Alert <qos-alert>
    Quality of Service <qos>
