@@ -31,3 +31,4 @@ Contents:
    Support of VXLAN based connectivity across Datacenters <l3vpn-over-vxlan-with-evpn-rt5>
    Temporary SMAC Learning <temporary-smac-learning>
    VNI based L2 switching, L3 forwarding and NATing <vni-based-l2-switching-l3-forwarding-and-NATing>
+   Migrate the SFC classifier from the old to the new netvirt <new-sfc-classifier>
