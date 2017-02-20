@@ -180,6 +180,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_9c91cdf3",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 602,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2017-02-20T13:45:33Z",
+      "side": 1,
+      "message": "@Alon, there is a plan to enable IPv6 scenario tests in tempest after implementing the IPv6 North-south feature. Are we sure that we are not running them currently?",
+      "parentUuid": "fafc7978_7c8b4968",
+      "revId": "1253d5b29b268546c3be2fc8851941bf1e48224e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_cfe1e0ff",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
         "patchSetId": 2
