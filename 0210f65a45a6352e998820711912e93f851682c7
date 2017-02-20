@@ -16,6 +16,24 @@
       "revId": "0210f65a45a6352e998820711912e93f851682c7",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_7649a8b6",
+        "filename": "docs/specs/conntrack-based-snat.rst",
+        "patchSetId": 3
+      },
+      "lineNbr": 353,
+      "author": {
+        "id": 4269
+      },
+      "writtenOn": "2017-02-20T07:11:31Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_36f7208d",
+      "revId": "0210f65a45a6352e998820711912e93f851682c7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
