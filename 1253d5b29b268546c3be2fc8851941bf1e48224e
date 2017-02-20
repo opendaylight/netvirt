@@ -55,6 +55,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_76ec08f4",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/TunnelEndPointChangeListener.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 103,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-20T05:33:37Z",
+      "side": 1,
+      "message": "so we leave this as \"debug\" then?",
+      "parentUuid": "fafc7978_0bb3d50a",
+      "revId": "1253d5b29b268546c3be2fc8851941bf1e48224e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_8fd7d822",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
         "patchSetId": 2
@@ -84,6 +102,24 @@
       "side": 1,
       "message": "I think this is happening for IPv6 addresses, which we might need to explicitly block from this flow..\nFrom the gate run on this patch:\n\nhttps://logs.opendaylight.org/releng/jenkins092/netvirt-csit-1node-openstack-newton-nodl-v2-gate-stateful-carbon/46/archives/odl1_karaf.log.gz\n\n2017-02-13 10:48:01,902 | WARN  | nPool-1-worker-3 | VpnInterfaceManager              | 363 - org.opendaylight.netvirt.vpnmanager-impl - 0.4.0.SNAPSHOT | Gateway IP for subnet ID Uuid [_value\u003d92850b08-6565-4a8b-9cb6-4f5f168dbeb8] could not be obtained, cannot create ARP responder flow for interface name b8067986-76c0-47ad-bc69-418306ac7a72, vpnName 7fd7799f-a328-4c28-a72c-d76310bbd0f7\n\nand looking for the iface name, it is an IPv6 interface..\n2017-02-13 10:48:04,129 | INFO  | nPool-1-worker-3 | NeutronvpnManager                | 367 - org.opendaylight.netvirt.neutronvpn-impl - 0.4.0.SNAPSHOT | Creating vpn interface VpnInterface [_key\u003dVpnInterfaceKey [_name\u003db8067986-76c0-47ad-bc69-418306ac7a72], _name\u003db8067986-76c0-47ad-bc69-418306ac7a72, _vpnInstanceName\u003d7fd7799f-a328-4c28-a72c-d76310bbd0f7, _isRouterInterface\u003dfalse, augmentation\u003d[Adjacencies [_adjacency\u003d[Adjacency [_ipAddress\u003d2003::2/128, _key\u003dAdjacencyKey [_ipAddress\u003d2003::2/128], _macAddress\u003dfa:16:3e:cb:24:68, _subnetId\u003dUuid [_value\u003d92850b08-6565-4a8b-9cb6-4f5f168dbeb8], _primaryAdjacency\u003dtrue, augmentation\u003d[]]]]]]",
       "parentUuid": "fafc7978_8fd7d822",
+      "revId": "1253d5b29b268546c3be2fc8851941bf1e48224e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_d6bcd4de",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 602,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-20T05:33:37Z",
+      "side": 1,
+      "message": "This property of gateway-ip is a subnet property and not a port-property.\n\nFor IPV6 subnets also gateway-ip would always be available right?  \n\nWe need to look at output of IPV6 subnets created by tempest as that will give an idea why this is happening.  Let me see that !\n\nUntil then I agree better to retain this check.",
+      "parentUuid": "fafc7978_cbbc2ddf",
       "revId": "1253d5b29b268546c3be2fc8851941bf1e48224e",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -154,6 +190,24 @@
       "side": 1,
       "message": "I think this originated from this exception, due to a null nextHopIp being inserted into the list (which actually originates from input.getNextHopIp().\nI see your point and don\u0027t want to change behavior though, so I will fix it only at that point in addPrefix().\n\n2017-02-13 10:51:26,093 | ERROR | nPool-1-worker-1 | L3vpnPopulator                   | 363 - org.opendaylight.netvirt.vpnmanager-impl - 0.4.0.SNAPSHOT | Add prefix failed\njava.lang.NullPointerException: Supplied value may not be null\n\tat com.google.common.base.Preconditions.checkNotNull(Preconditions.java:226)\n\tat org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address.\u003cinit\u003e(Ipv4Address.java:58)\n\tat org.opendaylight.netvirt.bgpmanager.BgpConfigurationManager.addPrefix(BgpConfigurationManager.java:1791)\n\tat org.opendaylight.netvirt.bgpmanager.BgpManager.advertisePrefix(BgpManager.java:135)\n\tat Proxy86754bd5_ad09_4965_8f94_febad511c0df.advertisePrefix(Unknown Source)\n\tat Proxy23b2aa29_3104_483a_858b_bb5dbc36df63.advertisePrefix(Unknown Source)\n\tat org.opendaylight.netvirt.vpnmanager.populator.impl.L3vpnPopulator.addPrefixToBGP(L3vpnPopulator.java:65)\n\tat org.opendaylight.netvirt.vpnmanager.populator.impl.L3vpnOverMplsGrePopulator.populateFib(L3vpnOverMplsGrePopulator.java:71)\n\tat org.opendaylight.netvirt.vpnmanager.VpnInterfaceManager.processVpnInterfaceAdjacencies(VpnInterfaceManager.java:647)\n\tat org.opendaylight.netvirt.vpnmanager.VpnInterfaceManager.processVpnInterfaceUp(VpnInterfaceManager.java:327)\n\tat org.opendaylight.netvirt.vpnmanager.InterfaceStateChangeListener.lambda$add$0(InterfaceStateChangeListener.java:96)\n\tat org.opendaylight.genius.datastoreutils.DataStoreJobCoordinator$MainTask.run(DataStoreJobCoordinator.java:258)[326:org.opendaylight.genius.mdsalutil-api:0.2.0.SNAPSHOT]\n\tat java.util.concurrent.ForkJoinTask$RunnableExecuteAction.exec(ForkJoinTask.java:1402)[:1.8.0_121]\n\tat java.util.concurrent.ForkJoinTask.doExec(ForkJoinTask.java:289)[:1.8.0_121]\n\tat java.util.concurrent.ForkJoinPool$WorkQueue.runTask(ForkJoinPool.java:1056)[:1.8.0_121]\n\tat java.util.concurrent.ForkJoinPool.runWorker(ForkJoinPool.java:1692)[:1.8.0_121]\n\tat java.util.concurrent.ForkJoinWorkerThread.run(ForkJoinWorkerThread.java:157)[:1.8.0_121]",
       "parentUuid": "fafc7978_6ff274d3",
+      "revId": "1253d5b29b268546c3be2fc8851941bf1e48224e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_16b3fc0a",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/populator/impl/L3vpnOverMplsGrePopulator.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 64,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-20T05:33:37Z",
+      "side": 1,
+      "message": "yeah.. let the code flow continue and create the FibEntries as usual with nextHop being empty.",
+      "parentUuid": "fafc7978_abc1e955",
       "revId": "1253d5b29b268546c3be2fc8851941bf1e48224e",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
