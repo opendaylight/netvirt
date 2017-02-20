@@ -2,6 +2,23 @@
   "comments": [
     {
       "key": {
+        "uuid": "fafc7978_11d026c8",
+        "filename": "docs/specs/conntrack-based-snat.rst",
+        "patchSetId": 4
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-20T10:08:08Z",
+      "side": 1,
+      "message": "There was a clear reason why only those ovs-datapaths with atleast one port available on the routed subnet, were elected as NAPT Switches.\n\nThe NAPT Switch needs to have remote flow rules for every possible floating-ip and internal-ip within the DC.  These remote flow rules are required for internal-ip for a successful intra-DC Reverse SNAT Traffic enablement and remote rules for floating-ip are required for a successful intra-DC DNAT-to-DNAT traffic enablement.\n\nIf you retain some switch that is not having a participating \nport on the router, how will traffic flow work?",
+      "revId": "bf0fa813a0c6ef4eaf0328c6c721001f0166753a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_111f865c",
         "filename": "docs/specs/conntrack-based-snat.rst",
         "patchSetId": 4
