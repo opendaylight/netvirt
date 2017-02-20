@@ -36,6 +36,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_89b98a17",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/NexthopManager.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 728,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2017-02-20T16:21:08Z",
+      "side": 1,
+      "message": "Vivek, \nthis is a way to guess the elan instance associated with the vpn\n\nI know that as part of the VNI epic you will populate L2 info to the FIB layer but I understand these model changes have not been finalized yet\n\nIf you already have in mind some model to populate the elan info it would be better to start using it starting from this commit or alternatively keep this patch until the VNI model changes takes place and create a subsequent patch to cover the changes",
+      "parentUuid": "fafc7978_09a91adf",
+      "revId": "39b69bba26f0fecae6da3a0195eb9b661225fc24",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_09247aad",
         "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronSubnetChangeListener.java",
         "patchSetId": 5
