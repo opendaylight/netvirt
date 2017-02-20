@@ -65,10 +65,9 @@ public class NeutronSubnetChangeListener extends AsyncDataTreeChangeListenerBase
         Uuid subnetId = input.getUuid();
         Network network = NeutronvpnUtils.getNeutronNetwork(dataBroker, networkId);
         if (network == null || !NeutronvpnUtils.isNetworkTypeSupported(network)) {
-            //FIXME: This should be removed when support for VLAN and GRE network types is added
-            LOG.error("neutron vpn doesn't support vlan/gre network provider type for the port {} "
-                + "which is part of network {}."
-                + " Skipping the processing of Subnet add DCN", input.getName(), network);
+            LOG.warn("neutron vpn received a subnet add() for a network without a provider extension augmentation "
+                            + "or with an unsupported network type for the port {} which is part of network {}",
+                    input.getName(), network);
             return;
         }
 
@@ -89,10 +88,9 @@ public class NeutronSubnetChangeListener extends AsyncDataTreeChangeListenerBase
         Uuid networkId = input.getNetworkId();
         Network network = NeutronvpnUtils.getNeutronNetwork(dataBroker, networkId);
         if (network == null || !NeutronvpnUtils.isNetworkTypeSupported(network)) {
-            //FIXME: This should be removed when support for GRE network types is added
-            LOG.error("neutron vpn doesn't support gre network provider type for the port {} "
-                + "which is part of network {}."
-                + " Skipping the processing of Subnet remove DCN", input.getName(), network);
+            LOG.warn("neutron vpn received a subnet remove() for a network without a provider extension augmentation "
+                            + "or with an unsupported network type for the port {} which is part of network {}",
+                    input.getName(), network);
             return;
         }
         handleNeutronSubnetDeleted(input.getUuid(), networkId, null);
@@ -112,9 +110,9 @@ public class NeutronSubnetChangeListener extends AsyncDataTreeChangeListenerBase
         Uuid networkId = update.getNetworkId();
         Network network = NeutronvpnUtils.getNeutronNetwork(dataBroker, networkId);
         if (network == null || !NeutronvpnUtils.isNetworkTypeSupported(network)) {
-            LOG.error("neutron vpn doesn't support vlan/gre network provider type for the port {} "
-                + "which is part of network {}."
-                + " Skipping the processing of Subnet update DCN", update.getName(), network);
+            LOG.warn("neutron vpn received a subnet add() for a network without a provider extension augmentation "
+                            + "or with an unsupported network type for the port {} which is part of network {}",
+                    update.getName(), network);
             return;
         }
         handleNeutronSubnetUpdated(update.getUuid(), network, update.getTenantId());
