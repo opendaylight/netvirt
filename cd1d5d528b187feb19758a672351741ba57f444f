@@ -1,0 +1,106 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_a9fa8e40",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 2
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2017-02-20T18:47:54Z",
+      "side": 1,
+      "message": "Could you please state the root cause of the problem as well, ie, why DHCP ARP flow is not added in compute node when VMs are created with multiple networks",
+      "revId": "cd1d5d528b187feb19758a672351741ba57f444f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_e9be5664",
+        "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/impl/DistributedArpService.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 163,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2017-02-20T18:47:54Z",
+      "side": 1,
+      "message": "You alter the logic for the \u0027return\u0027 here. \nif \u0027providerSegmentationId\u0027 is null or empty, original code would exit the method, whereas with the new \u0027getSegmentationId\u0027 method, the calling method would continue?\n\nIs it on purposed?",
+      "revId": "cd1d5d528b187feb19758a672351741ba57f444f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_09baba6d",
+        "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/impl/DistributedArpService.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 217,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2017-02-20T18:47:54Z",
+      "side": 1,
+      "message": "portSegmentationId can be null here",
+      "revId": "cd1d5d528b187feb19758a672351741ba57f444f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_69b26695",
+        "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/impl/DistributedArpService.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 391,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2017-02-20T18:47:54Z",
+      "side": 1,
+      "message": "portSegmentationId can be null here",
+      "revId": "cd1d5d528b187feb19758a672351741ba57f444f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_a9a8ce20",
+        "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/impl/DistributedArpService.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 410,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2017-02-20T18:47:54Z",
+      "side": 1,
+      "message": "space after \u0027\u003d\u0027,\nplease check the correct alignment as in original code",
+      "revId": "cd1d5d528b187feb19758a672351741ba57f444f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_e965b61e",
+        "filename": "openstack/net-virt/src/main/java/org/opendaylight/netvirt/openstack/netvirt/impl/DistributedArpService.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 412,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2017-02-20T18:47:54Z",
+      "side": 1,
+      "message": "line 412-414 could go back after line 163",
+      "revId": "cd1d5d528b187feb19758a672351741ba57f444f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
