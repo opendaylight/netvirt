@@ -24,3 +24,4 @@ Contents:
    VNI based L2 switching, L3 forwarding and NATing <vni-based-l2-switching-l3-forwarding-and-NATing>
    Netvirt counters <netvirt-statistics-spec>
    QoS Alert <qos-alert>
+   Migrate the SFC classifier from the old to the new netvirt <new-sfc-classifier>
