@@ -1039,11 +1039,6 @@ public class NeutronvpnUtils {
         return result;
     }
 
-    static boolean isNetworkTypeSupported(Network network) {
-        NetworkProviderExtension npe = network.getAugmentation(NetworkProviderExtension.class);
-        return npe != null && npe.getNetworkType() != null && SUPPORTED_NETWORK_TYPES.contains(npe.getNetworkType());
-    }
-
     static ProviderTypes getProviderNetworkType(Network network) {
         if (network == null) {
             logger.error("Error in getting provider network type since network is null");
@@ -1065,6 +1060,11 @@ public class NeutronvpnUtils {
             }
         }
         return null;
+    }
+
+    static boolean isNetworkTypeSupported(Network network) {
+        NetworkProviderExtension npe = network.getAugmentation(NetworkProviderExtension.class);
+        return npe != null && npe.getNetworkType() != null && SUPPORTED_NETWORK_TYPES.contains(npe.getNetworkType());
     }
 
     static boolean isNetworkOfType(Network network, Class<? extends NetworkTypeBase> type) {
