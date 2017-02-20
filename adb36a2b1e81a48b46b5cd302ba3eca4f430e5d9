@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_163adce6",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/ExternalSubnetListener.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 67,
+      "author": {
+        "id": 6248
+      },
+      "writtenOn": "2017-02-20T08:03:28Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_3d5a7150",
+      "revId": "adb36a2b1e81a48b46b5cd302ba3eca4f430e5d9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_9dab9d1c",
         "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NatUtil.java",
         "patchSetId": 8
@@ -30,6 +48,24 @@
       "writtenOn": "2017-02-15T14:18:07Z",
       "side": 1,
       "message": "i believe this vpnId passed here represents the external-subnet-vpn right?",
+      "revId": "adb36a2b1e81a48b46b5cd302ba3eca4f430e5d9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_dea3584d",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NatUtil.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 1681,
+      "author": {
+        "id": 6248
+      },
+      "writtenOn": "2017-02-20T08:03:28Z",
+      "side": 1,
+      "message": "Yes, it represents the external-subnet-vpn",
+      "parentUuid": "fafc7978_9dab9d1c",
       "revId": "adb36a2b1e81a48b46b5cd302ba3eca4f430e5d9",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -53,6 +89,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_7e94ece1",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NatUtil.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 1686,
+      "author": {
+        "id": 6248
+      },
+      "writtenOn": "2017-02-20T08:03:28Z",
+      "side": 1,
+      "message": "Yes, this is the default FIB table flow for external subnet (the match you wrote) and the action is to the subnet-id group for the specific external subnet.",
+      "parentUuid": "fafc7978_5db1358e",
+      "revId": "adb36a2b1e81a48b46b5cd302ba3eca4f430e5d9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_3dac3135",
         "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NatUtil.java",
         "patchSetId": 8
@@ -64,6 +118,24 @@
       "writtenOn": "2017-02-15T14:18:07Z",
       "side": 1,
       "message": "wouldn\u0027t you want hte flowRef to include the subnetId too?",
+      "revId": "adb36a2b1e81a48b46b5cd302ba3eca4f430e5d9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_feb73c84",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NatUtil.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 1687,
+      "author": {
+        "id": 6248
+      },
+      "writtenOn": "2017-02-20T08:03:28Z",
+      "side": 1,
+      "message": "There\u0027s no need to add it, because it includes the vpnId which represents the external subnet.",
+      "parentUuid": "fafc7978_3dac3135",
       "revId": "adb36a2b1e81a48b46b5cd302ba3eca4f430e5d9",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -87,6 +159,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_919f01b4",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/RouterDpnChangeListener.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 376,
+      "author": {
+        "id": 6248
+      },
+      "writtenOn": "2017-02-20T08:03:28Z",
+      "side": 1,
+      "message": "It will only be removed when the external subnet is removed, similar to external networks flow.\nThis is because it\u0027s associated with multiple routers.",
+      "parentUuid": "fafc7978_7d7d19b1",
+      "revId": "adb36a2b1e81a48b46b5cd302ba3eca4f430e5d9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_9d827d92",
         "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/RouterDpnChangeListener.java",
         "patchSetId": 8
@@ -98,6 +188,24 @@
       "writtenOn": "2017-02-15T14:18:07Z",
       "side": 1,
       "message": "this is configuration.. why use subnetOp, use extSubnet.",
+      "revId": "adb36a2b1e81a48b46b5cd302ba3eca4f430e5d9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_11ab11d7",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/RouterDpnChangeListener.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 385,
+      "author": {
+        "id": 6248
+      },
+      "writtenOn": "2017-02-20T08:03:28Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fafc7978_9d827d92",
       "revId": "adb36a2b1e81a48b46b5cd302ba3eca4f430e5d9",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
