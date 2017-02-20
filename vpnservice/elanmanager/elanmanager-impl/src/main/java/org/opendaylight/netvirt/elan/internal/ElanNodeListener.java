@@ -95,28 +95,17 @@ public class ElanNodeListener extends AbstractDataChangeListener<Node> implement
 
     private void setupTableMissSmacFlow(BigInteger dpId) {
         List<ActionInfo> actionsInfos = new ArrayList<>();
-        actionsInfos.add(new ActionInfo(ActionType.punt_to_controller, new String[] {}));
-
-        String[][] learnActionMatches = new String[2][];
-        learnActionMatches[0] = new String[] { NwConstants.LearnFlowModsType.MATCH_FROM_FIELD.name(),
-                NwConstants.NxmOfFieldType.NXM_OF_ETH_SRC.getHexType(),
-                NwConstants.NxmOfFieldType.NXM_OF_ETH_SRC.getHexType(),
-                NwConstants.NxmOfFieldType.NXM_OF_ETH_SRC.getFlowModHeaderLen() };
-        learnActionMatches[1] = new String[] {
-                NwConstants.LearnFlowModsType.COPY_FROM_VALUE.name(), LEARN_MATCH_REG4_VALUE,
-                NwConstants.NxmOfFieldType.NXM_NX_REG4.getHexType(), "8" };
-
-        String[] header = new String[] {
-            String.valueOf(0),
-            String.valueOf(tempSmacLearnTimeout),
-            BigInteger.ZERO.toString(),
-            ElanConstants.COOKIE_ELAN_LEARNED_SMAC.toString(),
-            "0",
-            Short.toString(NwConstants.ELAN_SMAC_LEARNED_TABLE),
-            String.valueOf(0),
-            String.valueOf(0)
-        };
-        actionsInfos.add(new ActionInfo(ActionType.learn, header, learnActionMatches));
+        actionsInfos.add(new ActionPuntToController());
+        actionsInfos.add(new ActionLearn(0, tempSmacLearnTimeout, 0, ElanConstants.COOKIE_ELAN_LEARNED_SMAC, 0,
+                NwConstants.ELAN_SMAC_LEARNED_TABLE, 0, 0,
+                Arrays.asList(
+                        new ActionLearn.MatchFromField(NwConstants.NxmOfFieldType.NXM_OF_ETH_SRC.getType(),
+                                NwConstants.NxmOfFieldType.NXM_OF_ETH_SRC.getType(),
+                                NwConstants.NxmOfFieldType.NXM_OF_ETH_SRC.getFlowModHeaderLenInt()),
+                        new ActionLearn.MatchFromField(NwConstants.NxmOfFieldType.NXM_NX_REG1.getType(),
+                                NwConstants.NxmOfFieldType.NXM_NX_REG1.getType(), ElanConstants.INTERFACE_TAG_LENGTH),
+                        new ActionLearn.CopyFromValue(LEARN_MATCH_REG4_VALUE,
+                                NwConstants.NxmOfFieldType.NXM_NX_REG4.getType(), 8))));
 
         List<InstructionInfo> mkInstructions = new ArrayList<>();
         mkInstructions.add(new InstructionInfo(InstructionType.apply_actions, actionsInfos));
