@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_111f865c",
+        "filename": "docs/specs/conntrack-based-snat.rst",
+        "patchSetId": 4
+      },
+      "lineNbr": 61,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2017-02-20T08:32:53Z",
+      "side": 1,
+      "message": "Is there any special reason why we want to maintain the current selection algorithm and not switch all cases to use the new logic?",
+      "range": {
+        "startLine": 61,
+        "startChar": 0,
+        "endLine": 61,
+        "endChar": 67
+      },
+      "revId": "bf0fa813a0c6ef4eaf0328c6c721001f0166753a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_b154baff",
+        "filename": "docs/specs/conntrack-based-snat.rst",
+        "patchSetId": 4
+      },
+      "lineNbr": 69,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2017-02-20T08:32:53Z",
+      "side": 1,
+      "message": "Will it still be possible to select control nodes to be the NAPT switches after this change?",
+      "revId": "bf0fa813a0c6ef4eaf0328c6c721001f0166753a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
