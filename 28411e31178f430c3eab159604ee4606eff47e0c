@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_eab6b689",
+        "filename": "docs/specs/ipv6-l3vpn.rst",
+        "patchSetId": 1
+      },
+      "lineNbr": 107,
+      "author": {
+        "id": 4534
+      },
+      "writtenOn": "2017-02-21T14:47:21Z",
+      "side": 1,
+      "message": "this refers to the underlay, and how the compute nodes are connected to the dc-gw using ipv4. so, this should align with our current priorities, to support the tenant ipv6 n/ws, but the d/c underlay continues to be ipv4, and we use a vxlan overlay on the same.",
+      "parentUuid": "fafc7978_281a9417",
+      "revId": "28411e31178f430c3eab159604ee4606eff47e0c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1a622d24_84332b61",
         "filename": "docs/specs/ipv6-l3vpn.rst",
         "patchSetId": 1
