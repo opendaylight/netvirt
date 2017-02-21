@@ -214,6 +214,11 @@ module odl-l3vpn {
            leaf l3vni {
               type uint32;
            }
+           leaf parent-vpn-name {
+              description
+                "Optional if set will get the vpn-to-dpn information from the parent-vpn-name";
+              type yang:uuid; /* optional */
+           }
            container vpnTargets {
               description
                 "The vpn-target command configures the export or import VPN target
