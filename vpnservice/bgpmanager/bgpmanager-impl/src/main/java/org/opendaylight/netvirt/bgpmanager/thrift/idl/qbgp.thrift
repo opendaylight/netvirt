@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015 Ericsson India Global Services Pvt Ltd. and others.  All rights reserved.
+ * Copyright (c) 2015, 2017 Ericsson India Global Services Pvt Ltd. and others.  All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
@@ -191,7 +191,9 @@ service BgpConfigurator {
     * only vpnv4 RIBs are supported.
     */
     Routes getRoutes(1:protocol_type p_type, 2:i32 optype, 3:i32 winSize),
-
+    i32 enableMultipath(1:af_afi afi, 2:af_safi safi),
+    i32 disableMultipath(1:af_afi afi, 2:af_safi safi),
+    i32 multipaths(1:string rd, 2:i32 maxPath)
 }
 
 service BgpUpdater {
