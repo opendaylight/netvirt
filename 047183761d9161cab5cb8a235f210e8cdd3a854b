@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_1d483486",
+        "filename": "docs/specs/discovery_of_directly_connected_pnfs.rst",
+        "patchSetId": 12
+      },
+      "lineNbr": 83,
+      "author": {
+        "id": 4534
+      },
+      "writtenOn": "2017-02-21T13:35:29Z",
+      "side": 1,
+      "message": "2 usecases here - FIP and pnf are in the same subnet, and FIP and pnf are in different subnets. if fip and pnf are in the same subnet, then the vswitch hosting the fip can directly respond to arp requests for the fip, and vice versa. for 2nd case, if there is an external g/w router for this external or provider network, should we not let the external g/w router do this forwarding, instead of directly sending pkts to the pnf via distributed forwarding? there could be policies configured on the external g/w that we would bypass, and cause undesired consequences",
+      "range": {
+        "startLine": 83,
+        "startChar": 74,
+        "endLine": 83,
+        "endChar": 75
+      },
+      "revId": "047183761d9161cab5cb8a235f210e8cdd3a854b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_02028f6e",
+        "filename": "docs/specs/discovery_of_directly_connected_pnfs.rst",
+        "patchSetId": 12
+      },
+      "lineNbr": 116,
+      "author": {
+        "id": 4534
+      },
+      "writtenOn": "2017-02-21T13:35:29Z",
+      "side": 1,
+      "message": "if there are underlay switches, we would see mac moves, if we re-use the router mac in arp replies, from designated switch. to me, we have 2 options -\n1. centralized forwarding through napt switch for datapath with single router mac\n2. implement distributed l3 fwding over vlan provider networks. this would probably need use of per-compute macs, as well as per switch learning instead of centralized learning (similar to what we did for l2)\n\nonce #2 is solved, it should automatically carry over for support of pnfs since learning is inherently supported by the l3 service using features listed above.",
+      "range": {
+        "startLine": 116,
+        "startChar": 71,
+        "endLine": 116,
+        "endChar": 74
+      },
+      "revId": "047183761d9161cab5cb8a235f210e8cdd3a854b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
