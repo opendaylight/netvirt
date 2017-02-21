@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_2cd06cc8",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/FibUtil.java",
+        "patchSetId": 27
+      },
+      "lineNbr": 621,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-02-21T04:22:04Z",
+      "side": 1,
+      "message": "As discussed, there won\u0027t be route paths if none of the tep\u0027s configured. but if we return Optional.empty(), then there would be a chance of local fib, lfib and ts flow entries not getting programmed.",
+      "revId": "69deddb6e3334198af84ae74a1d44aa307a6134f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
