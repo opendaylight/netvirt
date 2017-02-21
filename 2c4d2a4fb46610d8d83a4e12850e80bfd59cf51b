@@ -215,6 +215,24 @@
       "revId": "2c4d2a4fb46610d8d83a4e12850e80bfd59cf51b",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_98539238",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronSubnetChangeListener.java",
+        "patchSetId": 13
+      },
+      "lineNbr": 115,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-21T16:00:46Z",
+      "side": 1,
+      "message": "Thats fine with me.. Abhinav, any issues you see this way?",
+      "parentUuid": "fafc7978_b8493662",
+      "revId": "2c4d2a4fb46610d8d83a4e12850e80bfd59cf51b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
