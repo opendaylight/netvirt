@@ -2,6 +2,23 @@
   "comments": [
     {
       "key": {
+        "uuid": "fafc7978_b87f76aa",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/cache/listeners/VpnOpInstanceCacheManager.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 61,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-21T15:54:26Z",
+      "side": 1,
+      "message": "Removing vpn-instance-op-data from cache for VPN RD {}",
+      "revId": "824a69f28dead185f924a5e9c6848a408c1baf0a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_78798ec7",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/cache/listeners/VpnOpInstanceCacheManager.java",
         "patchSetId": 2
@@ -13,6 +30,41 @@
       "writtenOn": "2017-02-21T15:52:41Z",
       "side": 1,
       "message": "i think we can just print \u0027update\u0027 alone here.",
+      "revId": "824a69f28dead185f924a5e9c6848a408c1baf0a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_987c32b7",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/cache/listeners/VpnOpInstanceCacheManager.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 68,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-21T15:54:26Z",
+      "side": 1,
+      "message": "Updating vpn-instance-op data into cache for VPN RD {} with value {}",
+      "parentUuid": "fafc7978_78798ec7",
+      "revId": "824a69f28dead185f924a5e9c6848a408c1baf0a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_f84c5ea0",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/cache/listeners/VpnOpInstanceCacheManager.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 74,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-02-21T15:54:26Z",
+      "side": 1,
+      "message": "Adding vpn-instance-op-data into cache for VPN RD {} with value {}",
       "revId": "824a69f28dead185f924a5e9c6848a408c1baf0a",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
