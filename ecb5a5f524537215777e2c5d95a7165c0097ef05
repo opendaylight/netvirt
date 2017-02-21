@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fafc7978_fd9730ea",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/NexthopManager.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 357,
+      "author": {
+        "id": 5802
+      },
+      "writtenOn": "2017-02-21T13:14:11Z",
+      "side": 1,
+      "message": "When you make the group execution async you may end up with no local nexthop entry in the FIB\n\nThe method VrfEntryListener.checkCreateLocalFibEntry() creates the group synchronously and then creates a local fib entry pointing to the group.\n\nIf the group installation will be delayed e.g. due to current jobs executing in the DjC the local nexthop flow installation will be attempted prior to group installation and this will be dropped by the OVS",
+      "revId": "ecb5a5f524537215777e2c5d95a7165c0097ef05",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
