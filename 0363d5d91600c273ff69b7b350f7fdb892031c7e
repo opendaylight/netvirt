@@ -66,6 +66,53 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_8c7cf8b6",
+        "filename": "docs/specs/netvirt-statistics-spec.rst",
+        "patchSetId": 14
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 4534
+      },
+      "writtenOn": "2017-02-21T06:43:08Z",
+      "side": 1,
+      "message": "would be good if the common code re-factoring is done as a part of this feature itself. while acl service cannot directly consume this i guess, since it needs to measure the pkt drops for its own flow rules, whereas netvirt stats could have different classifiers for its stats. but, can stats fetch rpcs on the tables and any other common functions be generalized at a code level?",
+      "parentUuid": "fafc7978_a52dcd48",
+      "range": {
+        "startLine": 35,
+        "startChar": 57,
+        "endLine": 35,
+        "endChar": 58
+      },
+      "revId": "0363d5d91600c273ff69b7b350f7fdb892031c7e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_5f3c74c8",
+        "filename": "docs/specs/netvirt-statistics-spec.rst",
+        "patchSetId": 14
+      },
+      "lineNbr": 37,
+      "author": {
+        "id": 4534
+      },
+      "writtenOn": "2017-02-21T06:43:08Z",
+      "side": 1,
+      "message": "can these port level stats be retrieved through ovsdb as well? any idea of the pros/cons of using of vs ovsdb counters? please give some implementation detail on how this module will service these new api, will the rpc be a 1 time fetch operation from the switch? will counters be stored in datastore? what happens across switch and controller reboots.",
+      "range": {
+        "startLine": 37,
+        "startChar": 74,
+        "endLine": 37,
+        "endChar": 75
+      },
+      "revId": "0363d5d91600c273ff69b7b350f7fdb892031c7e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_65ed70b7",
         "filename": "docs/specs/netvirt-statistics-spec.rst",
         "patchSetId": 14
