@@ -104,6 +104,29 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_ac561c28",
+        "filename": "docs/specs/element-counters.rst",
+        "patchSetId": 6
+      },
+      "lineNbr": 75,
+      "author": {
+        "id": 4534
+      },
+      "writtenOn": "2017-02-21T06:11:55Z",
+      "side": 1,
+      "message": "this should also probably match vmB-ip also, to eliminate traffic going through intermediate router or service function which is not the destination for that traffic",
+      "range": {
+        "startLine": 75,
+        "startChar": 66,
+        "endLine": 75,
+        "endChar": 67
+      },
+      "revId": "bdc97ddf01109a3fc32b7f9b27c5f72fe4d0a121",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_e5ea00ab",
         "filename": "docs/specs/element-counters.rst",
         "patchSetId": 6
@@ -115,6 +138,29 @@
       "writtenOn": "2017-02-17T21:32:01Z",
       "side": 1,
       "message": "Can you use this form so we know the name of the yang file?\n\n.. code-block:: none\n   :caption: example.yang",
+      "revId": "bdc97ddf01109a3fc32b7f9b27c5f72fe4d0a121",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_cc1f206b",
+        "filename": "docs/specs/element-counters.rst",
+        "patchSetId": 6
+      },
+      "lineNbr": 126,
+      "author": {
+        "id": 4534
+      },
+      "writtenOn": "2017-02-21T06:11:55Z",
+      "side": 1,
+      "message": "can this be a generic 5-tuple or 10-tuple based rpc, and we allow for wildcarding or not specifying any field as needed? then u could use port number to filter on ssh or http for example. in future, we could also use a common classifier service which can be leveraged by this service, acls, and others",
+      "range": {
+        "startLine": 126,
+        "startChar": 40,
+        "endLine": 126,
+        "endChar": 41
+      },
       "revId": "bdc97ddf01109a3fc32b7f9b27c5f72fe4d0a121",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -138,6 +184,29 @@
     },
     {
       "key": {
+        "uuid": "fafc7978_6c0ef43c",
+        "filename": "docs/specs/element-counters.rst",
+        "patchSetId": 6
+      },
+      "lineNbr": 214,
+      "author": {
+        "id": 4534
+      },
+      "writtenOn": "2017-02-21T06:11:55Z",
+      "side": 1,
+      "message": "how about switch restarts etc? can you please clarify if the counters will be persisted inthe data store, or will be ephemeral.\nwhat happens in case the controller restarts?",
+      "range": {
+        "startLine": 214,
+        "startChar": 0,
+        "endLine": 214,
+        "endChar": 4
+      },
+      "revId": "bdc97ddf01109a3fc32b7f9b27c5f72fe4d0a121",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "fafc7978_25d088f5",
         "filename": "docs/specs/element-counters.rst",
         "patchSetId": 6
@@ -149,6 +218,24 @@
       "writtenOn": "2017-02-17T21:32:01Z",
       "side": 1,
       "message": "this adds 4 table jumps - does that affect the performance?",
+      "revId": "bdc97ddf01109a3fc32b7f9b27c5f72fe4d0a121",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fafc7978_2c118c5d",
+        "filename": "docs/specs/element-counters.rst",
+        "patchSetId": 6
+      },
+      "lineNbr": 226,
+      "author": {
+        "id": 4534
+      },
+      "writtenOn": "2017-02-21T06:11:55Z",
+      "side": 1,
+      "message": "hopefully not, with flow megacache on ovs. in any case, it will be good to have this as a troubleshooting tool that is enabled on demand during a debug window.",
+      "parentUuid": "fafc7978_25d088f5",
       "revId": "bdc97ddf01109a3fc32b7f9b27c5f72fe4d0a121",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
